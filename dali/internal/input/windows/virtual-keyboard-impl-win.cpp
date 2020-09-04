@@ -84,7 +84,7 @@ Dali::VirtualKeyboard::LanguageChangedSignalType& LanguageChangedSignal()
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()
 {
-  return Dali::VirtualKeyboard::LeftToRight;
+  return Dali::VirtualKeyboard::LEFT_TO_RIGHT;
 }
 
 void RotateTo(int angle)

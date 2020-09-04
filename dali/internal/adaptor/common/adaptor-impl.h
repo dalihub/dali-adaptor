@@ -100,22 +100,18 @@ public:
    * @param[in]  surface             A render surface can be one of the following
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
-                             Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
    * Creates a New Adaptor
    * @param[in]  window              The window handle
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( Dali::Integration::SceneHolder window,
-                             Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
@@ -125,33 +121,28 @@ public:
    * @param[in]  surface             A render surface can be one of the following
    *                                  - Pixmap, adaptor will use existing Pixmap to draw on to
    *                                  - Window, adaptor will use existing Window to draw on to
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
                              Dali::Integration::SceneHolder window,
                              Dali::RenderSurfaceInterface* surface,
-                             Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
    * Creates a New Adaptor
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
    * @param[in]  window              The window handle
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
   static Dali::Adaptor* New( GraphicsFactory& graphicsFactory,
                              Dali::Integration::SceneHolder window,
-                             Dali::Configuration::ContextLoss configuration,
                              EnvironmentOptions* environmentOptions );
 
   /**
    * 2-step initialisation, this should be called after creating an adaptor instance.
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
-   * @param[in]  configuration       The context loss configuration ( to choose resource discard policy )
    */
-  void Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration );
+  void Initialize( GraphicsFactory& graphicsFactory );
 
   /**
    * Virtual destructor.
@@ -688,6 +679,7 @@ private: // Data
   ThreadMode                            mThreadMode;                  ///< The thread mode
   const bool                            mEnvironmentOptionsOwned:1;   ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                                  mUseRemoteSurface:1;          ///< whether the remoteSurface is used or not
+  Dali::LayoutDirection::Type           mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager;           ///< Pointer to the addon manager
 

@@ -558,7 +558,7 @@ void InputMethodContextX::NotifyTextInputMultiLine( bool multiLine )
 
 Dali::InputMethodContext::TextDirection InputMethodContextX::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LeftToRight );
+  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LEFT_TO_RIGHT );
 
     if ( mIMFContext )
     {

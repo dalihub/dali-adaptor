@@ -225,9 +225,9 @@ public:
   Dali::Integration::SceneHolder::KeyEventGeneratedSignalType& KeyEventGeneratedSignal() { return mScene.KeyEventGeneratedSignal(); }
 
   /**
-   * @copydoc Dali::Integration::SceneHolder::TouchSignal()
+   * @copydoc Dali::Integration::SceneHolder::TouchedSignal()
    */
-  Dali::Integration::SceneHolder::TouchSignalType& TouchSignal() { return mScene.TouchSignal(); }
+  Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal() { return mScene.TouchedSignal(); }
 
   /**
    * @copydoc Dali::Integration::SceneHolder::WheelEventSignal()

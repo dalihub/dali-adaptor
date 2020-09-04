@@ -147,12 +147,7 @@ Application& Application::operator=( Application&& rhs ) = default;
 
 void Application::MainLoop()
 {
-  Internal::Adaptor::GetImplementation(*this).MainLoop(Configuration::APPLICATION_HANDLES_CONTEXT_LOSS);
-}
-
-void Application::MainLoop(Configuration::ContextLoss configuration)
-{
-  Internal::Adaptor::GetImplementation(*this).MainLoop(configuration);
+  Internal::Adaptor::GetImplementation(*this).MainLoop();
 }
 
 void Application::Lower()

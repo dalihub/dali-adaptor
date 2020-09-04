@@ -103,7 +103,7 @@ Dali::VirtualKeyboard::TextDirection GetTextDirection()
 {
   DALI_LOG_INFO( gLogFilter, Debug::General, "VirtualKeyboard::GetTextDirection\n" );
 
-  return Dali::VirtualKeyboard::LeftToRight;
+  return Dali::VirtualKeyboard::LEFT_TO_RIGHT;
 }
 
 } // namespace VirtualKeyboard

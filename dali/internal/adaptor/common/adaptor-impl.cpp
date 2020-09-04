@@ -96,7 +96,7 @@ thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer
 
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
   Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions );
@@ -105,40 +105,40 @@ Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::Render
   Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder();
   auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
-  impl->Initialize( graphicsFactory, configuration );
+  impl->Initialize( graphicsFactory );
   delete mAdaptorBuilder; // Not needed anymore as the graphics interface has now been created
 
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( window, windowImpl.GetSurface(), configuration, environmentOptions );
+  Dali::Adaptor* adaptor = New( window, windowImpl.GetSurface(), environmentOptions );
   windowImpl.SetAdaptor( *adaptor );
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
   Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions ); // Impl adaptor
   adaptor->mImpl = impl;
 
-  impl->Initialize( graphicsFactory, configuration );
+  impl->Initialize( graphicsFactory );
 
   return adaptor;
 } // Called second
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( graphicsFactory, window, windowImpl.GetSurface(), configuration, environmentOptions );
+  Dali::Adaptor* adaptor = New( graphicsFactory, window, windowImpl.GetSurface(), environmentOptions );
   windowImpl.SetAdaptor( *adaptor );
   return adaptor;
 } // Called first
 
-void Adaptor::Initialize( GraphicsFactory& graphicsFactory, Dali::Configuration::ContextLoss configuration )
+void Adaptor::Initialize( GraphicsFactory& graphicsFactory )
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
@@ -652,6 +652,9 @@ bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
   windowImpl.SetAdaptor( Get() );
+
+  // ChildWindow is set to the layout direction of the default window.
+  windowImpl.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
 
   // Add the new Window to the container - the order is not important
   mWindows.push_back( &windowImpl );
@@ -1202,7 +1205,8 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mSocketFactory(),
   mThreadMode( ThreadMode::NORMAL ),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
-  mUseRemoteSurface( false )
+  mUseRemoteSurface( false ),
+  mRootLayoutDirection( Dali::LayoutDirection::LEFT_TO_RIGHT )
 {
   DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
   mWindows.insert( mWindows.begin(), &Dali::GetImplementation( window ) );
@@ -1212,11 +1216,11 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
 
 void Adaptor::SetRootLayoutDirection( std::string locale )
 {
+  mRootLayoutDirection = static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) );
   for ( auto& window : mWindows )
   {
     Dali::Actor root = window->GetRootLayer();
-    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION,
-                      static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) ) );
+    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
   }
 }
 

@@ -51,8 +51,8 @@ typedef Signal< void ( int ) > LanguageChangedSignalType;
  */
 enum TextDirection
 {
-  LeftToRight,
-  RightToLeft,
+  LEFT_TO_RIGHT,
+  RIGHT_TO_LEFT,
 };
 
 /**

@@ -35,49 +35,29 @@ namespace Dali
 
 Adaptor& Adaptor::New( Window window )
 {
-  return New( window, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-}
-
-Adaptor& Adaptor::New( Window window, Configuration::ContextLoss configuration )
-{
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), configuration, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), NULL );
   return *adaptor;
 }
 
 Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface )
 {
-  return New( window, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-}
-
-Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
-{
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
   Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, configuration, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, NULL );
   return *adaptor;
 }
 
 Adaptor& Adaptor::New( Dali::Integration::SceneHolder window )
 {
-  return New( window, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-}
-
-Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, Configuration::ContextLoss configuration )
-{
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, configuration, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, NULL );
   return *adaptor;
 }
 
 Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface )
 {
-  return New( window, surface, Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-}
-
-Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface, Configuration::ContextLoss configuration )
-{
   Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, configuration, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, NULL );
   return *adaptor;
 }
 
