@@ -61,7 +61,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::Application::OnInit()
    */
-  virtual void OnInit();
+  void OnInit() override;
 
   /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()

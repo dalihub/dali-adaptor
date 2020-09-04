@@ -62,7 +62,7 @@ public:
   /**
    * Destructor.
    */
-  virtual ~PerformanceLogger();
+  ~PerformanceLogger() override;
 
   /**
    * Add a performance marker

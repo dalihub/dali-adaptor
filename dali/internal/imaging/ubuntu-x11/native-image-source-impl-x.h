@@ -130,27 +130,27 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetTextureTarget()
    */
-  virtual int GetTextureTarget() const;
+  int GetTextureTarget() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetCustomFragmentPrefix()
    */
-  virtual const char* GetCustomFragmentPrefix() const;
+  const char* GetCustomFragmentPrefix() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()
    */
-  virtual const char* GetCustomSamplerTypename() const;
+  const char* GetCustomSamplerTypename() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageHandle()
    */
-  virtual Any GetNativeImageHandle() const;
+  Any GetNativeImageHandle() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SourceChanged()
    */
-  virtual bool SourceChanged() const;
+  bool SourceChanged() const override;
 
 
   /**

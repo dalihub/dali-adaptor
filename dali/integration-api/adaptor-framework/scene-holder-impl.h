@@ -263,7 +263,7 @@ protected:
   /**
    * virtual destructor
    */
-  virtual ~SceneHolder();
+  ~SceneHolder() override;
 
 private: // The following methods can be overridden if required
 

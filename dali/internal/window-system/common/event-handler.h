@@ -119,7 +119,7 @@ public:
   /**
    * Destructor.
    */
-  ~EventHandler();
+  ~EventHandler() override;
 
   /**
    * Called when the adaptor is paused.

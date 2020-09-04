@@ -382,7 +382,7 @@ private:
   /**
    * Destructor
    */
-  virtual ~Window();
+  ~Window() override;
 
   /**
    * Second stage initialization

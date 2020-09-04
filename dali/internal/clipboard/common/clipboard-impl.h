@@ -58,7 +58,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~Clipboard();
+  ~Clipboard() override;
 
   /**
    * @copydoc Dali::Clipboard::SetItem()

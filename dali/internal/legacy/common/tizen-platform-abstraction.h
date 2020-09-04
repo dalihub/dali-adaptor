@@ -54,57 +54,57 @@ public: // Construction & Destruction
   /**
    * Destructor
    */
-  virtual ~TizenPlatformAbstraction();
+  ~TizenPlatformAbstraction() override;
 
 public: // PlatformAbstraction overrides
 
   /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  virtual ImageDimensions GetClosestImageSize( const std::string& filename,
-                                               ImageDimensions size,
-                                               FittingMode::Type fittingMode,
-                                               SamplingMode::Type samplingMode,
-                                               bool orientationCorrection );
+  ImageDimensions GetClosestImageSize( const std::string& filename,
+                                       ImageDimensions size,
+                                       FittingMode::Type fittingMode,
+                                       SamplingMode::Type samplingMode,
+                                       bool orientationCorrection ) override;
 
   /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  virtual ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                               ImageDimensions size,
-                                               FittingMode::Type fittingMode,
-                                               SamplingMode::Type samplingMode,
-                                               bool orientationCorrection );
+  ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
+                                       ImageDimensions size,
+                                       FittingMode::Type fittingMode,
+                                       SamplingMode::Type samplingMode,
+                                       bool orientationCorrection ) override;
 
   /**
    * @copydoc PlatformAbstraction::LoadImageSynchronously()
    */
-  virtual Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath);
+  Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath) override;
 
   /**
    * @copydoc PlatformAbstraction::DecodeBuffer()
    */
-  virtual Integration::BitmapPtr DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size );
+  Integration::BitmapPtr DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size ) override;
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  virtual bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const;
+  bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const override;
 
   /**
    * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
    */
-  virtual bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const;
+  bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const override;
 
   /**
    * @copydoc PlatformAbstraction::StartTimer()
    */
-  virtual uint32_t StartTimer( uint32_t milliseconds, CallbackBase* callback );
+  uint32_t StartTimer( uint32_t milliseconds, CallbackBase* callback ) override;
 
   /**
    * @copydoc PlatformAbstraction::CancelTimer()
    */
-  virtual void CancelTimer ( uint32_t timerId );
+  void CancelTimer ( uint32_t timerId ) override;
 
   /**
    * Sets path for data/resource storage.

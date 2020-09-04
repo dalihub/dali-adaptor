@@ -104,7 +104,7 @@ protected:
    *
    * Release the pixel buffer if exists.
    */
-  ~PixelBuffer();
+  ~PixelBuffer() override;
 
 public:
 

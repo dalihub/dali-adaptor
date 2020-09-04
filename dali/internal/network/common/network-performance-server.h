@@ -107,7 +107,7 @@ protected:  // ClientSendDataInterface
   /**
    * @copydoc ClientSendDataInterface::ClientSendDataInterface()
    */
-  virtual void SendData( const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId );
+  void SendData( const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId ) override;
 
 private:
 

@@ -62,44 +62,44 @@ public: // from WindowRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::GetSurface()
    */
-  virtual Any GetSurface() override;
+  Any GetSurface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::SetRenderNotification()
    */
-  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+  void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
 
 public: // from Dali::RenderSurfaceInterface
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
-  virtual PositionSize GetPositionSize() const override;
+  PositionSize GetPositionSize() const override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
-  virtual void InitializeGraphics() override;
+  void InitializeGraphics() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
    */
-  virtual void CreateSurface() override;
+  void CreateSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
    */
-  virtual void DestroySurface() override;
+  void DestroySurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceGraphicsSurface() override;
+  bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
@@ -109,59 +109,59 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
    */
-  virtual void StartRender() override;
+  void StartRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
    */
-  virtual void StopRender() override;
+  void StopRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
    */
-  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
+  Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
    */
-  virtual void MakeContextCurrent() override;
+  void MakeContextCurrent() override;
 
 private: // from PixmapRenderSurface
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
-  virtual void ReleaseLock() override;
+  void ReleaseLock() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
    */
-  virtual void Initialize( Any surface ) override;
+  void Initialize( Any surface ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
    */
-  virtual void CreateRenderable() override;
+  void CreateRenderable() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
    */
-  virtual void UseExistingRenderable( unsigned int surfaceId ) override;
+  void UseExistingRenderable( unsigned int surfaceId ) override;
 
 private:
 
