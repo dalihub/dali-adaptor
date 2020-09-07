@@ -94,6 +94,9 @@ GlWindow::GlWindow()
   mFocusChangeSignal(),
   mResizedSignal(),
   mVisibilityChangedSignal(),
+  mGLInitCallback( 0 ),
+  mGLRenderFrameCallback( 0 ),
+  mGLTerminateCallback( 0 ),
   mGLRenderCallback( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
@@ -113,7 +116,10 @@ GlWindow::~GlWindow()
     mEventHandler->RemoveObserver( *this );
   }
 
-  mGLTerminateCallback();
+  if( mGLTerminateCallback )
+  {
+    mGLTerminateCallback();
+  }
 
   if( mIsEGLInitialize )
   {
@@ -767,11 +773,17 @@ bool GlWindow::RunCallback()
 
   if( !mInitCallback )
   {
-    mGLInitCallback();
+    if( mGLInitCallback )
+    {
+      mGLInitCallback();
+    }
     mInitCallback = true;
   }
 
-  mGLRenderFrameCallback();
+  if( mGLRenderFrameCallback )
+  {
+    mGLRenderFrameCallback();
+  }
 
   if( mIsWindowRotated )
   {
