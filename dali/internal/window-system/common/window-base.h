@@ -72,6 +72,7 @@ public:
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
   typedef Signal< void ( DevelWindow::EffectState, DevelWindow::EffectType ) > TransitionEffectEventSignalType;
   typedef Signal< void ( ) > KeyboardRepeatSettingsChangedSignalType;
+  typedef Signal< void ( ) > WindowRedrawRequestSignalType;
 
   // Input events
   typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
@@ -425,6 +426,11 @@ public:
    */
   KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal();
 
+  /**
+   * @brief This signal is emitted when the window redraw is requested.
+   */
+  WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
+
 protected:
 
   // Undefined
@@ -450,6 +456,7 @@ protected:
   AccessibilitySignalType                 mAccessibilitySignal;
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
+  WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
 };
 
 } // namespace Adaptor

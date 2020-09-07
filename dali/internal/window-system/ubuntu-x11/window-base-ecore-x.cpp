@@ -621,7 +621,7 @@ void WindowBaseEcoreX::OnSelectionNotify( void* data, int type, void* event )
     {
       if( selectionNotifyEvent->selection == ECORE_X_SELECTION_SECONDARY )
       {
-        mSelectionDataReceivedSignal.Emit( event  );
+        mSelectionDataReceivedSignal.Emit( event );
       }
     }
   }

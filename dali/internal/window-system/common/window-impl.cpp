@@ -121,6 +121,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->DeleteRequestSignal().Connect( this, &Window::OnDeleteRequest );
   mWindowBase->TransitionEffectEventSignal().Connect( this, &Window::OnTransitionEffectEvent );
   mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect( this, &Window::OnKeyboardRepeatSettingsChanged );
+  mWindowBase->WindowRedrawRequestSignal().Connect( this, &Window::OnWindowRedrawRequest );
 
   mWindowSurface->OutputTransformedSignal().Connect( this, &Window::OnOutputTransformed );
 
@@ -810,6 +811,11 @@ void Window::OnKeyboardRepeatSettingsChanged()
 {
   Dali::Window handle( this );
   mKeyboardRepeatSettingsChangedSignal.Emit();
+}
+
+void Window::OnWindowRedrawRequest()
+{
+  mAdaptor->RenderOnce();
 }
 
 void Window::OnTouchPoint( Dali::Integration::Point& point, int timeStamp )

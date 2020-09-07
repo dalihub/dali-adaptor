@@ -565,6 +565,23 @@ static void VconfNotifyFontSizeChanged( keynode_t* node, void* data )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
+// Window Redraw Request Event Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+static Eina_Bool EcoreEventWindowRedrawRequest(void *data, int type, void *event)
+{
+  Ecore_Wl2_Event_Window_Redraw_Request *windowRedrawRequest = static_cast<Ecore_Wl2_Event_Window_Redraw_Request *>(event);
+  WindowBaseEcoreWl2 *windowBase = static_cast<WindowBaseEcoreWl2 *>(data);
+  DALI_LOG_INFO( gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventWindowRedrawRequest, window[ %d ]\n", windowRedrawRequest->win );
+  if ( windowBase )
+  {
+    windowBase->OnEcoreEventWindowRedrawRequest();
+  }
+
+  return ECORE_CALLBACK_RENEW;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 // ElDBus Accessibility Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -818,6 +835,9 @@ void WindowBaseEcoreWl2::Initialize( PositionSize positionSize, Any surface, boo
 
   // Register Keyboard repeat event
   mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_SEAT_KEYBOARD_REPEAT_CHANGED, EcoreEventSeatKeyboardRepeatChanged, this ) );
+
+  // Register Window redraw request event
+  mEcoreEventHandler.PushBack( ecore_event_handler_add( ECORE_WL2_EVENT_WINDOW_REDRAW_REQUEST,        EcoreEventWindowRedrawRequest,       this ) );
 
   // Register Vconf notify - font name and size
   vconf_notify_key_changed( DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this );
@@ -1304,6 +1324,11 @@ void WindowBaseEcoreWl2::OnTransitionEffectEvent( DevelWindow::EffectState state
 void WindowBaseEcoreWl2::OnKeyboardRepeatSettingsChanged()
 {
   mKeyboardRepeatSettingsChangedSignal.Emit();
+}
+
+void WindowBaseEcoreWl2::OnEcoreEventWindowRedrawRequest()
+{
+  mWindowRedrawRequestSignal.Emit();
 }
 
 void WindowBaseEcoreWl2::KeymapChanged(void *data, int type, void *event)
