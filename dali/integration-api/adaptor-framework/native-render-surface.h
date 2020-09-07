@@ -64,12 +64,6 @@ public: // API
    */
   virtual void WaitUntilSurfaceReplaced() = 0;
 
-  /**
-   * @brief Get the native surface handle
-   * @return The native surface handle
-   */
-  virtual Any GetNativeHandle() = 0;
-
 private: // from NativeRenderSurface
 
   /**
