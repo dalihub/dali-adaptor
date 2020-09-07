@@ -15,14 +15,11 @@
  *
  */
 
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 
-
-
 using namespace Dali;
-
 
 void utc_dali_file_loader_startup(void)
 {
@@ -36,49 +33,49 @@ void utc_dali_file_loader_cleanup(void)
 
 int UtcDaliReadFileNew1(void)
 {
-  int errorCode;
+  int                errorCode;
   Dali::Vector<char> buffer;
 
   //negative case
-  errorCode = FileLoader::ReadFile( TEST_RESOURCE_DIR "/not_exist.txt", buffer, FileLoader::TEXT );
+  errorCode = FileLoader::ReadFile(TEST_RESOURCE_DIR "/not_exist.txt", buffer, FileLoader::TEXT);
 
-  DALI_TEST_CHECK( errorCode == 0 );
+  DALI_TEST_CHECK(errorCode == 0);
 
-  DALI_TEST_CHECK( buffer.Size() == 0 );
+  DALI_TEST_CHECK(buffer.Size() == 0);
 
   //positive case
-  errorCode = FileLoader::ReadFile( TEST_RESOURCE_DIR "/test.txt", buffer, FileLoader::TEXT );
+  errorCode = FileLoader::ReadFile(TEST_RESOURCE_DIR "/test.txt", buffer, FileLoader::TEXT);
 
-  DALI_TEST_CHECK( errorCode != 0 );
+  DALI_TEST_CHECK(errorCode != 0);
 
-  DALI_TEST_CHECK( buffer.Size() > 0 );
+  DALI_TEST_CHECK(buffer.Size() > 0);
 
   END_TEST;
 }
 
 int UtcDaliReadFileNew2(void)
 {
-  int errorCode;
+  int                errorCode;
   Dali::Vector<char> buffer;
-  std::streampos fileSize = 0;
+  std::streampos     fileSize = 0;
 
   //negative case
-  errorCode = FileLoader::ReadFile( TEST_RESOURCE_DIR "/not_exist.txt", fileSize, buffer, FileLoader::TEXT );
+  errorCode = FileLoader::ReadFile(TEST_RESOURCE_DIR "/not_exist.txt", fileSize, buffer, FileLoader::TEXT);
 
-  DALI_TEST_CHECK( errorCode == 0 );
+  DALI_TEST_CHECK(errorCode == 0);
 
-  DALI_TEST_CHECK( buffer.Size() == 0 );
+  DALI_TEST_CHECK(buffer.Size() == 0);
 
-  DALI_TEST_CHECK( fileSize == 0 );
+  DALI_TEST_CHECK(fileSize == 0);
 
   //positive case
-  errorCode = FileLoader::ReadFile( TEST_RESOURCE_DIR "/test.txt", fileSize, buffer, FileLoader::TEXT );
+  errorCode = FileLoader::ReadFile(TEST_RESOURCE_DIR "/test.txt", fileSize, buffer, FileLoader::TEXT);
 
-  DALI_TEST_CHECK( errorCode != 0 );
+  DALI_TEST_CHECK(errorCode != 0);
 
-  DALI_TEST_CHECK( buffer.Size() > 0 );
+  DALI_TEST_CHECK(buffer.Size() > 0);
 
-  DALI_TEST_CHECK( fileSize != 0 );
+  DALI_TEST_CHECK(fileSize != 0);
 
   END_TEST;
 }
@@ -88,14 +85,14 @@ int UtcDaliReadFileNew3(void)
   std::streampos fileSize = 0;
 
   //negative case
-  fileSize = FileLoader::GetFileSize( TEST_RESOURCE_DIR "/not_exist.txt" );
+  fileSize = FileLoader::GetFileSize(TEST_RESOURCE_DIR "/not_exist.txt");
 
-  DALI_TEST_CHECK( fileSize == 0 );
+  DALI_TEST_CHECK(fileSize == 0);
 
   //positive case
-  fileSize = FileLoader::GetFileSize( TEST_RESOURCE_DIR "/test.txt" );
+  fileSize = FileLoader::GetFileSize(TEST_RESOURCE_DIR "/test.txt");
 
-  DALI_TEST_CHECK( fileSize != 0 );
+  DALI_TEST_CHECK(fileSize != 0);
 
   END_TEST;
 }

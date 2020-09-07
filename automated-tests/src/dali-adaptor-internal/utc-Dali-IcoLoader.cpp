@@ -15,9 +15,9 @@
  *
  */
 
-#include <iostream>
-#include <stdlib.h>
 #include <dali-test-suite-utils.h>
+#include <stdlib.h>
+#include <iostream>
 
 #include <dali/internal/imaging/common/loader-ico.h>
 #include "image-loaders.h"
@@ -26,9 +26,7 @@ using namespace Dali;
 
 namespace
 {
-
-static const LoadFunctions IcoLoaders( TizenPlatform::LoadIcoHeader, TizenPlatform::LoadBitmapFromIco );
-
+static const LoadFunctions IcoLoaders(TizenPlatform::LoadIcoHeader, TizenPlatform::LoadBitmapFromIco);
 
 // Golden master image data for each icon type:
 // Note: The bottom right corner of each image is fully transparent.
@@ -37,92 +35,63 @@ static const LoadFunctions IcoLoaders( TizenPlatform::LoadIcoHeader, TizenPlatfo
 //       Causing no image degradation.
 
 uint32_t ImageCheckData_Ico4x4_32bpp_8alpha[] = {
-    0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff,
-    0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff,
-    0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff,
-    0xffffffff, 0x808080ff, 0x000000ff, 0x00000000
-};
+  0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff, 0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff, 0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff, 0xffffffff, 0x808080ff, 0x000000ff, 0x00000000};
 
 uint32_t ImageCheckData_Ico4x4_24bpp[] = {
-    0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff,
-    0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff,
-    0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff,
-    0xffffffff, 0x808080ff, 0x000000ff, 0x00000000
-};
+  0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff, 0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff, 0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff, 0xffffffff, 0x808080ff, 0x000000ff, 0x00000000};
 
 uint32_t ImageCheckData_Ico4x4_8bpp[] = {
-    0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff,
-    0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff,
-    0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff,
-    0xffffffff, 0x808080ff, 0x000000ff, 0x00000000
-};
+  0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff, 0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff, 0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff, 0xffffffff, 0x808080ff, 0x000000ff, 0x00000000};
 
 uint32_t ImageCheckData_Ico4x4_4bpp[] = {
-    0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff,
-    0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff,
-    0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff,
-    0xffffffff, 0x808080ff, 0x000000ff, 0x00000000
-};
+  0xff0000ff, 0x00ff00ff, 0x0000ffff, 0xff00ffff, 0xc04040ff, 0x40c040ff, 0x4040c0ff, 0xffff00ff, 0xa06060ff, 0x60a060ff, 0x6060a0ff, 0x00ffffff, 0xffffffff, 0x808080ff, 0x000000ff, 0x00000000};
 
 uint32_t ImageCheckData_Ico4x4_1bpp[] = {
-    0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff,
-    0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff,
-    0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff,
-    0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA1878300
-};
-
+  0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA18783ff, 0xA1878300};
 
 } // Unnamed namespace.
 
-
 int UtcDaliIco32bpp8alpha(void)
 {
-  ImageDetails image( TEST_IMAGE_DIR "/test-image-4x4-32bpp.ico", 4u, 4u );
+  ImageDetails image(TEST_IMAGE_DIR "/test-image-4x4-32bpp.ico", 4u, 4u);
 
-  CompareLoadedImageData( image, IcoLoaders, ImageCheckData_Ico4x4_32bpp_8alpha );
+  CompareLoadedImageData(image, IcoLoaders, ImageCheckData_Ico4x4_32bpp_8alpha);
 
   END_TEST;
 }
-
 
 int UtcDaliIco24bpp1alpha(void)
 {
-  ImageDetails image( TEST_IMAGE_DIR "/test-image-4x4-24bpp.ico", 4u, 4u );
+  ImageDetails image(TEST_IMAGE_DIR "/test-image-4x4-24bpp.ico", 4u, 4u);
 
-  CompareLoadedImageData( image, IcoLoaders, ImageCheckData_Ico4x4_24bpp );
+  CompareLoadedImageData(image, IcoLoaders, ImageCheckData_Ico4x4_24bpp);
 
   END_TEST;
 }
-
 
 int UtcDaliIco8bpp1alpha(void)
 {
-  ImageDetails image( TEST_IMAGE_DIR "/test-image-4x4-8bpp.ico", 4u, 4u );
+  ImageDetails image(TEST_IMAGE_DIR "/test-image-4x4-8bpp.ico", 4u, 4u);
 
-  CompareLoadedImageData( image, IcoLoaders, ImageCheckData_Ico4x4_8bpp );
+  CompareLoadedImageData(image, IcoLoaders, ImageCheckData_Ico4x4_8bpp);
 
   END_TEST;
 }
-
 
 int UtcDaliIco4bpp1alpha(void)
 {
-  ImageDetails image( TEST_IMAGE_DIR "/test-image-4x4-4bpp.ico", 4u, 4u );
+  ImageDetails image(TEST_IMAGE_DIR "/test-image-4x4-4bpp.ico", 4u, 4u);
 
-  CompareLoadedImageData( image, IcoLoaders, ImageCheckData_Ico4x4_4bpp );
+  CompareLoadedImageData(image, IcoLoaders, ImageCheckData_Ico4x4_4bpp);
 
   END_TEST;
 }
-
 
 int UtcDaliIco1bpp1alpha(void)
 {
-  ImageDetails image( TEST_IMAGE_DIR "/test-image-4x4-1bpp.ico", 4u, 4u );
+  ImageDetails image(TEST_IMAGE_DIR "/test-image-4x4-1bpp.ico", 4u, 4u);
 
-  CompareLoadedImageData( image, IcoLoaders, ImageCheckData_Ico4x4_1bpp );
+  CompareLoadedImageData(image, IcoLoaders, ImageCheckData_Ico4x4_1bpp);
 
   END_TEST;
 }
-
-
-

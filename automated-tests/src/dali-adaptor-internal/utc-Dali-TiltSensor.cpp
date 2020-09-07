@@ -17,14 +17,14 @@
 
 #include <iostream>
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <dali/dali.h>
-#include <dali-test-suite-utils.h>
 #include <adaptor-test-application.h>
-#include <dali/internal/sensor/common/tilt-sensor-impl.h>
+#include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
+#include <dali/internal/sensor/common/tilt-sensor-impl.h>
 #include <dali/internal/system/linux/dali-ecore.h>
+#include <stdint.h>
+#include <stdlib.h>
 
 using namespace Dali;
 
@@ -38,8 +38,8 @@ static const float ROTATION_EPSILON = 0.0001f;
 struct SignalHelper : public ConnectionTracker
 {
   SignalHelper()
-  : mTiltSignalReceived( false ),
-    mTimeoutOccurred( false )
+  : mTiltSignalReceived(false),
+    mTimeoutOccurred(false)
   {
   }
 
@@ -74,34 +74,31 @@ TiltSensor GetTiltSensor()
   return Dali::TiltSensor(Dali::Internal::Adaptor::TiltSensorFactory::Create());
 }
 
-bool ecore_timer_running = false;
-Ecore_Task_Cb timer_callback_func=NULL;
-const void* timer_callback_data=NULL;
-intptr_t timerId = 8; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
-}// anon namespace
+bool          ecore_timer_running = false;
+Ecore_Task_Cb timer_callback_func = NULL;
+const void*   timer_callback_data = NULL;
+intptr_t      timerId             = 8; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
+} // namespace
 extern "C"
 {
-Ecore_Timer* ecore_timer_add(double in,
-                             Ecore_Task_Cb func,
-                             const void   *data)
-{
-  ecore_timer_running = true;
-  timer_callback_func = func;
-  timer_callback_data = data;
-  timerId+=8;
-  return (Ecore_Timer*)timerId;
+  Ecore_Timer* ecore_timer_add(double        in,
+                               Ecore_Task_Cb func,
+                               const void*   data)
+  {
+    ecore_timer_running = true;
+    timer_callback_func = func;
+    timer_callback_data = data;
+    timerId += 8;
+    return (Ecore_Timer*)timerId;
+  }
+
+  void* ecore_timer_del(Ecore_Timer* timer)
+  {
+    ecore_timer_running = false;
+    timer_callback_func = NULL;
+    return NULL;
+  }
 }
-
-void* ecore_timer_del(Ecore_Timer *timer)
-{
-  ecore_timer_running = false;
-  timer_callback_func = NULL;
-  return NULL;
-}
-
-}
-
-
 
 void tilt_sensor_startup(void)
 {
@@ -111,7 +108,6 @@ void tilt_sensor_cleanup(void)
 {
 }
 
-
 int UtcDaliTiltSensorStart(void)
 {
   AdaptorTestApplication application;
@@ -119,10 +115,10 @@ int UtcDaliTiltSensorStart(void)
   tet_infoline("UtcDaliTiltSensorStart");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   sensor.Start();
-  DALI_TEST_CHECK( sensor.IsStarted() );
+  DALI_TEST_CHECK(sensor.IsStarted());
 
   END_TEST;
 }
@@ -134,13 +130,13 @@ int UtcDaliTiltSensorStop(void)
   tet_infoline("UtcDaliTiltSensorStop");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   sensor.Start();
-  DALI_TEST_CHECK( sensor.IsStarted() );
+  DALI_TEST_CHECK(sensor.IsStarted());
 
   sensor.Stop();
-  DALI_TEST_CHECK( !sensor.IsStarted() );
+  DALI_TEST_CHECK(!sensor.IsStarted());
   END_TEST;
 }
 
@@ -151,10 +147,10 @@ int UtcDaliTiltSensorIsStarted(void)
   tet_infoline("UtcDaliTiltSensorIsStarted");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   // Should be disabled by default
-  DALI_TEST_CHECK( !sensor.IsStarted() );
+  DALI_TEST_CHECK(!sensor.IsStarted());
   END_TEST;
 }
 
@@ -165,10 +161,10 @@ int UtcDaliTiltSensorGetRoll(void)
   tet_infoline("UtcDaliTiltSensorGetRoll");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   float roll = sensor.GetRoll();
-  DALI_TEST_CHECK( roll <= 1.0f && roll >= -1.0f ); // range check
+  DALI_TEST_CHECK(roll <= 1.0f && roll >= -1.0f); // range check
   END_TEST;
 }
 
@@ -179,10 +175,10 @@ int UtcDaliTiltSensorGetPitch(void)
   tet_infoline("UtcDaliTiltSensorGetPitch");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   float pitch = sensor.GetPitch();
-  DALI_TEST_CHECK( pitch <= 1.0f && pitch >= -1.0f ); // range check
+  DALI_TEST_CHECK(pitch <= 1.0f && pitch >= -1.0f); // range check
   END_TEST;
 }
 
@@ -193,20 +189,19 @@ int UtcDaliTiltSensorGetRotation(void)
   tet_infoline("UtcDaliTiltSensorGetRotation");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
 
   Quaternion rotation = sensor.GetRotation();
 
-  Radian roll( sensor.GetRoll() );
-  Radian pitch( sensor.GetPitch() );
+  Radian roll(sensor.GetRoll());
+  Radian pitch(sensor.GetPitch());
 
-  Quaternion expectedRotation = Quaternion( roll  * Math::PI * -0.5f, Vector3::YAXIS ) *
-                                Quaternion( pitch * Math::PI * -0.5f, Vector3::XAXIS );
+  Quaternion expectedRotation = Quaternion(roll * Math::PI * -0.5f, Vector3::YAXIS) *
+                                Quaternion(pitch * Math::PI * -0.5f, Vector3::XAXIS);
 
-  DALI_TEST_EQUALS( rotation, expectedRotation, ROTATION_EPSILON, TEST_LOCATION );
+  DALI_TEST_EQUALS(rotation, expectedRotation, ROTATION_EPSILON, TEST_LOCATION);
   END_TEST;
 }
-
 
 int UtcDaliTiltSensorSignalTilted(void)
 {
@@ -215,12 +210,12 @@ int UtcDaliTiltSensorSignalTilted(void)
   tet_infoline("UtcDaliTiltSensorSignalTilted");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
   sensor.Start();
 
   Radian angle(Degree(-45));
   //Setting a negative threshold for testing purpose
-  sensor.SetRotationThreshold( angle );
+  sensor.SetRotationThreshold(angle);
 
   END_TEST;
 }
@@ -232,16 +227,15 @@ int UtcDaliTiltSensorSetUpdateFrequency(void)
   tet_infoline("UtcDaliTiltSensorSetUpdateFrequency");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
-  sensor.SetUpdateFrequency( 1.0f/*hertz*/ );
-  DALI_TEST_EQUALS( sensor.GetUpdateFrequency(), 1.0f, TEST_LOCATION );
+  DALI_TEST_CHECK(sensor);
+  sensor.SetUpdateFrequency(1.0f /*hertz*/);
+  DALI_TEST_EQUALS(sensor.GetUpdateFrequency(), 1.0f, TEST_LOCATION);
 
-  sensor.SetUpdateFrequency( 60.0f/*hertz*/ );
-  DALI_TEST_EQUALS( sensor.GetUpdateFrequency(), 60.0f, TEST_LOCATION );
+  sensor.SetUpdateFrequency(60.0f /*hertz*/);
+  DALI_TEST_EQUALS(sensor.GetUpdateFrequency(), 60.0f, TEST_LOCATION);
 
   END_TEST;
 }
-
 
 int UtcDaliTiltSensorSetRotationThreshold01(void)
 {
@@ -250,15 +244,15 @@ int UtcDaliTiltSensorSetRotationThreshold01(void)
   tet_infoline("UtcDaliTiltSensorSetRotationThreshold01");
 
   TiltSensor sensor = GetTiltSensor();
-  DALI_TEST_CHECK( sensor );
+  DALI_TEST_CHECK(sensor);
   sensor.Start();
 
   Radian angle(Degree(-45));
-  sensor.SetRotationThreshold( angle );
-  DALI_TEST_EQUALS( sensor.GetRotationThreshold(), angle, TEST_LOCATION );
+  sensor.SetRotationThreshold(angle);
+  DALI_TEST_EQUALS(sensor.GetRotationThreshold(), angle, TEST_LOCATION);
 
   angle = Degree(90);
-  sensor.SetRotationThreshold( angle );
-  DALI_TEST_EQUALS( sensor.GetRotationThreshold(), angle, TEST_LOCATION );
+  sensor.SetRotationThreshold(angle);
+  DALI_TEST_EQUALS(sensor.GetRotationThreshold(), angle, TEST_LOCATION);
   END_TEST;
 }

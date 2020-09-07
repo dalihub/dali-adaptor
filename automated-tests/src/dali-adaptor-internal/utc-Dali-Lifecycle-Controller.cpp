@@ -16,11 +16,11 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali-test-suite-utils.h>
+#include <dali.h>
+#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <stdlib.h>
 #include <iostream>
-#include <dali.h>
-#include <dali-test-suite-utils.h>
-#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 
@@ -38,12 +38,11 @@ void utc_dali_lifecycle_controller_cleanup(void)
 
 namespace
 {
-
-bool g_OnInitCalled = false;
-bool g_OnTerminateCalled = false;
-bool g_OnPauseCalled = false;
-bool g_OnResumeCalled = false;
-bool g_OnResetCalled = false;
+bool g_OnInitCalled            = false;
+bool g_OnTerminateCalled       = false;
+bool g_OnPauseCalled           = false;
+bool g_OnResumeCalled          = false;
+bool g_OnResetCalled           = false;
 bool g_OnLanguageChangedCalled = false;
 
 void OnInit()
@@ -83,13 +82,13 @@ int UtcDaliLifecycleControllerGet(void)
   // Attempt to retrieve LifecycleController before creating application
   LifecycleController lifecycleController;
   lifecycleController = LifecycleController::Get();
-  DALI_TEST_CHECK( !lifecycleController );
+  DALI_TEST_CHECK(!lifecycleController);
 
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
   lifecycleController = LifecycleController::Get();
-  DALI_TEST_CHECK( lifecycleController );
+  DALI_TEST_CHECK(lifecycleController);
 
   END_TEST;
 }
@@ -97,17 +96,17 @@ int UtcDaliLifecycleControllerGet(void)
 int UtcDaliLifecycleControllerSignalInit(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnInitCalled );
+  DALI_TEST_CHECK(!g_OnInitCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.InitSignal().Connect( &OnInit );
+  lifecycleController.InitSignal().Connect(&OnInit);
 
-  GetImplementation( lifecycleController ).OnInit( application );
+  GetImplementation(lifecycleController).OnInit(application);
 
-  DALI_TEST_CHECK( g_OnInitCalled );
+  DALI_TEST_CHECK(g_OnInitCalled);
 
   END_TEST;
 }
@@ -115,17 +114,17 @@ int UtcDaliLifecycleControllerSignalInit(void)
 int UtcDaliLifecycleControllerSignalTerminate(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnTerminateCalled );
+  DALI_TEST_CHECK(!g_OnTerminateCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.TerminateSignal().Connect( &OnTerminate );
+  lifecycleController.TerminateSignal().Connect(&OnTerminate);
 
-  GetImplementation( lifecycleController ).OnTerminate( application );
+  GetImplementation(lifecycleController).OnTerminate(application);
 
-  DALI_TEST_CHECK( g_OnTerminateCalled );
+  DALI_TEST_CHECK(g_OnTerminateCalled);
 
   END_TEST;
 }
@@ -133,17 +132,17 @@ int UtcDaliLifecycleControllerSignalTerminate(void)
 int UtcDaliLifecycleControllerSignalPause(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnPauseCalled );
+  DALI_TEST_CHECK(!g_OnPauseCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.PauseSignal().Connect( &OnPause );
+  lifecycleController.PauseSignal().Connect(&OnPause);
 
-  GetImplementation( lifecycleController ).OnPause( application );
+  GetImplementation(lifecycleController).OnPause(application);
 
-  DALI_TEST_CHECK( g_OnPauseCalled );
+  DALI_TEST_CHECK(g_OnPauseCalled);
 
   END_TEST;
 }
@@ -151,17 +150,17 @@ int UtcDaliLifecycleControllerSignalPause(void)
 int UtcDaliLifecycleControllerSignalResume(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnResumeCalled );
+  DALI_TEST_CHECK(!g_OnResumeCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.ResumeSignal().Connect( &OnResume );
+  lifecycleController.ResumeSignal().Connect(&OnResume);
 
-  GetImplementation( lifecycleController ).OnResume( application );
+  GetImplementation(lifecycleController).OnResume(application);
 
-  DALI_TEST_CHECK( g_OnResumeCalled );
+  DALI_TEST_CHECK(g_OnResumeCalled);
 
   END_TEST;
 }
@@ -169,17 +168,17 @@ int UtcDaliLifecycleControllerSignalResume(void)
 int UtcDaliLifecycleControllerSignalReset(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnResetCalled );
+  DALI_TEST_CHECK(!g_OnResetCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.ResetSignal().Connect( &OnReset );
+  lifecycleController.ResetSignal().Connect(&OnReset);
 
-  GetImplementation( lifecycleController ).OnReset( application );
+  GetImplementation(lifecycleController).OnReset(application);
 
-  DALI_TEST_CHECK( g_OnResetCalled );
+  DALI_TEST_CHECK(g_OnResetCalled);
 
   END_TEST;
 }
@@ -187,17 +186,17 @@ int UtcDaliLifecycleControllerSignalReset(void)
 int UtcDaliLifecycleControllerSignalLanguageChanged(void)
 {
   TestApplication app;
-  Application application = Application::New();
+  Application     application = Application::New();
 
-  DALI_TEST_CHECK( !g_OnLanguageChangedCalled );
+  DALI_TEST_CHECK(!g_OnLanguageChangedCalled);
 
   LifecycleController lifecycleController = LifecycleController::Get();
 
-  lifecycleController.LanguageChangedSignal().Connect( &OnLanguageChanged );
+  lifecycleController.LanguageChangedSignal().Connect(&OnLanguageChanged);
 
-  GetImplementation( lifecycleController ).OnLanguageChanged( application );
+  GetImplementation(lifecycleController).OnLanguageChanged(application);
 
-  DALI_TEST_CHECK( g_OnLanguageChangedCalled );
+  DALI_TEST_CHECK(g_OnLanguageChangedCalled);
 
   END_TEST;
 }

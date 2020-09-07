@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  *
  */
 
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 
 using namespace Dali;
 
@@ -32,21 +32,20 @@ void utc_dali_ttsplayer_cleanup(void)
 
 namespace
 {
-
 } // unnamed namespace
 
 int UtcDaliTtsPlayerConstructorP(void)
 {
   Dali::TtsPlayer player;
-  DALI_TEST_CHECK( !player );
+  DALI_TEST_CHECK(!player);
   END_TEST;
 }
 
 int UtcDaliTtsPlayerCopyConstructorP(void)
 {
   Dali::TtsPlayer player;
-  Dali::TtsPlayer copy( player );
-  DALI_TEST_CHECK( copy == player );
+  Dali::TtsPlayer copy(player);
+  DALI_TEST_CHECK(copy == player);
 
   END_TEST;
 }
@@ -55,9 +54,9 @@ int UtcDaliTtsPlayerAssignmentOperatorP(void)
 {
   Dali::TtsPlayer player;
   Dali::TtsPlayer copy;
-  DALI_TEST_CHECK( ! copy );
+  DALI_TEST_CHECK(!copy);
   copy = player;
-  DALI_TEST_CHECK( copy == player );
+  DALI_TEST_CHECK(copy == player);
 
   END_TEST;
 }
@@ -67,15 +66,15 @@ int UtcDaliTtsPlayerDestructorP(void)
   Dali::TtsPlayer* player = new Dali::TtsPlayer();
   delete player;
 
-  DALI_TEST_CHECK( true );
+  DALI_TEST_CHECK(true);
   END_TEST;
 }
 
 int UtcDaliTtsPlayerConstructorFromInternalPointerN(void)
 {
   Internal::Adaptor::TtsPlayer* internalPlayer = NULL;
-  Dali::TtsPlayer player(internalPlayer);
-  DALI_TEST_CHECK( !player ); // Should not reach here!
+  Dali::TtsPlayer               player(internalPlayer);
+  DALI_TEST_CHECK(!player); // Should not reach here!
 
   END_TEST;
 }
@@ -83,7 +82,7 @@ int UtcDaliTtsPlayerConstructorFromInternalPointerN(void)
 int UtcDaliTtsPlayerGetP(void)
 {
   Dali::TtsPlayer player = Dali::TtsPlayer::Get();
-  DALI_TEST_CHECK( !player );
+  DALI_TEST_CHECK(!player);
   END_TEST;
 }
 
@@ -94,11 +93,11 @@ int UtcDaliTtsPlayerPlayN(void)
   try
   {
     player.Play("text");
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -111,11 +110,11 @@ int UtcDaliTtsPlayerStopN(void)
   try
   {
     player.Stop();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -128,11 +127,11 @@ int UtcDaliTtsPlayerPauseN(void)
   try
   {
     player.Pause();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -145,11 +144,11 @@ int UtcDaliTtsPlayerResumeN(void)
   try
   {
     player.Resume();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -162,14 +161,13 @@ int UtcDaliTtsPlayerGetStateN(void)
   try
   {
     Dali::TtsPlayer::State state = player.GetState();
-    tet_printf( "Error: TtsPlayer state = %d, expected exception\n", (unsigned int)state );
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    tet_printf("Error: TtsPlayer state = %d, expected exception\n", (unsigned int)state);
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
 }
-
