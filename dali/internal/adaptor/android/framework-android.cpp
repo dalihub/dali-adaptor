@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
-#include <dali/public-api/events/touch-point.h>
+#include <dali/devel-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
 #include <dali/devel-api/events/key-event-devel.h>
 
@@ -389,7 +389,7 @@ struct Framework::Impl
       int32_t deviceId = AInputEvent_getDeviceId( event );
       float x = AMotionEvent_getX( event, 0 );
       float y = AMotionEvent_getY( event, 0 );
-      TouchPoint::State state = TouchPoint::Down;
+      Dali::PointState::Type state = Dali::PointState::DOWN;
       int32_t action = AMotionEvent_getAction( event );
       int64_t timeStamp = AMotionEvent_getEventTime( event );
 
@@ -398,16 +398,16 @@ struct Framework::Impl
       case AMOTION_EVENT_ACTION_DOWN:
         break;
       case AMOTION_EVENT_ACTION_UP:
-        state = TouchPoint::Up;
+        state = Dali::PointState::UP;
         break;
       case AMOTION_EVENT_ACTION_MOVE:
-        state = TouchPoint::Motion;
+        state = Dali::PointState::MOTION;
         break;
       case AMOTION_EVENT_ACTION_CANCEL:
-        state = TouchPoint::Interrupted;
+        state = Dali::PointState::INTERRUPTED;
         break;
       case AMOTION_EVENT_ACTION_OUTSIDE:
-        state = TouchPoint::Leave;
+        state = Dali::PointState::LEAVE;
         break;
       }
 
