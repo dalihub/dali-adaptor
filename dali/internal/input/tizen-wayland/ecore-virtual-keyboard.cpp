@@ -196,7 +196,7 @@ Rect<int> GetSizeAndPosition()
 
 Dali::VirtualKeyboard::TextDirection GetTextDirection()
 {
-  Dali::VirtualKeyboard::TextDirection direction ( Dali::VirtualKeyboard::LeftToRight );
+  Dali::VirtualKeyboard::TextDirection direction ( Dali::VirtualKeyboard::LEFT_TO_RIGHT );
   return direction;
 }
 

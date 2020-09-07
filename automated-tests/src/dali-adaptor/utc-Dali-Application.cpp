@@ -191,22 +191,6 @@ int UtcDaliApplicationMainLoop01N(void)
   END_TEST;
 }
 
-int UtcDaliApplicationMainLoop02N(void)
-{
-  Application application;
-
-  try
-  {
-    application.MainLoop( Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS );
-    DALI_TEST_CHECK( false ); // Should not get here
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
 
 int UtcDaliApplicationLowerN(void)
 {

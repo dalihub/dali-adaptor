@@ -94,7 +94,6 @@ Application::Application( int* argc, char** argv[], const std::string& styleshee
   mRegionChangedSignal(),
   mEventLoop( nullptr ),
   mFramework( nullptr ),
-  mContextLossConfiguration( Configuration::APPLICATION_DOES_NOT_HANDLE_CONTEXT_LOSS ),
   mCommandLineOptions( nullptr ),
   mAdaptorBuilder( nullptr ),
   mAdaptor( nullptr ),
@@ -171,7 +170,7 @@ void Application::CreateAdaptor()
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder( &Dali::GetImplementation( mMainWindow ) );
 
-  mAdaptor = Adaptor::New( graphicsFactory, sceneHolder, mContextLossConfiguration, &mEnvironmentOptions );
+  mAdaptor = Adaptor::New( graphicsFactory, sceneHolder, &mEnvironmentOptions );
 
   Adaptor::GetImplementation( *mAdaptor ).SetUseRemoteSurface( mUseRemoteSurface );
 }
@@ -181,10 +180,8 @@ void Application::CreateAdaptorBuilder()
   mAdaptorBuilder = new AdaptorBuilder();
 }
 
-void Application::MainLoop(Dali::Configuration::ContextLoss configuration)
+void Application::MainLoop()
 {
-  mContextLossConfiguration = configuration;
-
   // Run the application
   mFramework->Run();
 }

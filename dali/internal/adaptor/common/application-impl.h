@@ -99,7 +99,7 @@ public:
   /**
    * @copydoc Dali::Application::MainLoop()
    */
-  void MainLoop(Dali::Configuration::ContextLoss configuration);
+  void MainLoop();
 
   /**
    * @copydoc Dali::Application::Lower()
@@ -349,7 +349,6 @@ private:
   EventLoop*                            mEventLoop;
   Framework*                            mFramework;
 
-  Dali::Configuration::ContextLoss      mContextLossConfiguration;
   CommandLineOptions*                   mCommandLineOptions;
 
   Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder;   ///< The adaptor builder

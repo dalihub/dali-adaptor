@@ -35,8 +35,8 @@ namespace Locale
 
 enum Direction
 {
-  LeftToRight,
-  RightToLeft,
+  LEFT_TO_RIGHT,
+  RIGHT_TO_LEFT,
 };
 
 Locale::Direction GetDirection( const std::string& locale );
