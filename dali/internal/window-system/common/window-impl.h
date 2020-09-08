@@ -342,11 +342,6 @@ public:
    */
   void SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
 
-  /**
-   * @copydoc Dali::DevelWindow::SetDamagedAreas()
-   */
-  void SetDamagedAreas(std::vector<Dali::Rect<int>>& areas);
-
 public: // Dali::Internal::Adaptor::SceneHolder
 
   /**

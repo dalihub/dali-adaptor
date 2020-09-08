@@ -88,7 +88,6 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mSwapBufferCountAfterResume( 0 ),
   mEglSetDamageRegionKHR( 0 ),
   mEglSwapBuffersWithDamageKHR( 0 ),
-  mBufferAge( 0 ),
   mFullSwapNextFrame( true )
 {
 }
@@ -394,17 +393,6 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
   return age;
 }
 
-bool EglImplementation::DamageAreasSet() const
-{
-  return (mDamagedAreas.size() ? true : false);
-}
-
-void EglImplementation::SetDamageAreas( std::vector<Dali::Rect<int>>& damagedAreas )
-{
-  mFullSwapNextFrame = true;
-  mDamagedAreas = damagedAreas;
-}
-
 void EglImplementation::SetFullSwapNextFrame()
 {
   mFullSwapNextFrame = true;
@@ -459,48 +447,31 @@ void EglImplementation::SetDamage( EGLSurface& eglSurface, const std::vector<Rec
 
     if (mFullSwapNextFrame)
     {
-      mBufferAge = 0;
       insertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
       clippingRect = Rect<int>();
       return;
     }
 
     EGLint bufferAge = GetBufferAge(eglSurface);
-    if (mDamagedAreas.size())
-    {
-      mBufferAge = bufferAge;
-      if (bufferAge == 0)
-      {
-        // Buffer age is reset
-        clippingRect = Rect<int>();
-        return;
-      }
 
-      mergeRects(clippingRect, mDamagedAreas);
+    // Buffer age 0 means the back buffer in invalid and requires full swap
+    if (!damagedRects.size() || bufferAge == 0)
+    {
+      // No damage or buffer is out of order or buffer age is reset
+      insertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
+      clippingRect = Rect<int>();
+      return;
     }
-    else
+
+    // We push current frame damaged rects here, zero index for current frame
+    insertRects(mBufferDamagedRects, damagedRects);
+
+    // Merge damaged rects into clipping rect
+    auto bufferDamagedRects = mBufferDamagedRects.begin();
+    while (bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
     {
-      // Buffer age 0 means the back buffer in invalid and requires full swap
-      if (!damagedRects.size() || bufferAge != mBufferAge || bufferAge == 0)
-      {
-        // No damage or buffer is out of order or buffer age is reset
-        mBufferAge = bufferAge;
-        insertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
-        clippingRect = Rect<int>();
-        return;
-      }
-
-      // We push current frame damaged rects here, zero index for current frame
-      mBufferAge = bufferAge;
-      insertRects(mBufferDamagedRects, damagedRects);
-
-      // Merge damaged rects into clipping rect
-      auto bufferDamagedRects = mBufferDamagedRects.begin();
-      while (bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
-      {
-        const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
-        mergeRects(clippingRect, rects);
-      }
+      const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
+      mergeRects(clippingRect, rects);
     }
 
     if (!clippingRect.Intersect(surfaceRect) || clippingRect.Area() > surfaceRect.Area() * 0.8)
@@ -523,7 +494,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 {
   if (eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
   {
-    if (!mPartialUpdateRequired || mFullSwapNextFrame || mBufferAge == 0 || !damagedRects.size())
+    if (!mPartialUpdateRequired || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > mSurfaceRect.Area() * 0.8) )
     {
       SwapBuffers(eglSurface);
       return;
@@ -536,59 +507,30 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     }
 #endif //DALI_PROFILE_UBUNTU
 
-    if (mDamagedAreas.size())
-    {
-      // DALI_LOG_ERROR("EglImplementation::SwapBuffers(%d)\n", mDamagedAreas.size());
-      EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(mDamagedAreas.data()), mDamagedAreas.size());
-      if (result == EGL_FALSE)
-      {
-        DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());
-      }
-
-#ifndef DALI_PROFILE_UBUNTU
-      if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
-      {
-        DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers finished.\n" );
-        mSwapBufferCountAfterResume++;
-      }
-#endif //DALI_PROFILE_UBUNTU
-      return;
-    }
-
-    // current frame damaged rects were pushed by EglImplementation::SetDamage() to 0 index.
-    EGLint bufferAge = mBufferAge;
-    mCombinedDamagedRects.clear();
-
-    // Combine damaged rects from previous frames (beginning from bufferAge index) with the current frame (0 index)
-    auto bufferDamagedRects = mBufferDamagedRects.begin();
-    while (bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
-    {
-      const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
-      mCombinedDamagedRects.insert(mCombinedDamagedRects.end(), rects.begin(), rects.end());
-    }
+    std::vector< Rect< int > > mergedRects = damagedRects;
 
     // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
     // Could be optional and can be removed, needs to be checked with and without on platform
-    const int n = mCombinedDamagedRects.size();
-    for (int i = 0; i < n-1; i++)
+    const int n = mergedRects.size();
+    for(int i = 0; i < n-1; i++)
     {
-      if (mCombinedDamagedRects[i].IsEmpty())
+      if (mergedRects[i].IsEmpty())
       {
         continue;
       }
 
       for (int j = i+1; j < n; j++)
       {
-        if (mCombinedDamagedRects[j].IsEmpty())
+        if (mergedRects[j].IsEmpty())
         {
           continue;
         }
 
-        if (mCombinedDamagedRects[i].Intersects(mCombinedDamagedRects[j]))
+        if (mergedRects[i].Intersects(mergedRects[j]))
         {
-          mCombinedDamagedRects[i].Merge(mCombinedDamagedRects[j]);
-          mCombinedDamagedRects[j].width = 0;
-          mCombinedDamagedRects[j].height = 0;
+          mergedRects[i].Merge(mergedRects[j]);
+          mergedRects[j].width = 0;
+          mergedRects[j].height = 0;
         }
       }
     }
@@ -596,25 +538,24 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     int j = 0;
     for (int i = 0; i < n; i++)
     {
-      if (!mCombinedDamagedRects[i].IsEmpty())
+      if (!mergedRects[i].IsEmpty())
       {
-        mCombinedDamagedRects[j++] = mCombinedDamagedRects[i];
+        mergedRects[j++] = mergedRects[i];
       }
     }
 
     if (j != 0)
     {
-      mCombinedDamagedRects.resize(j);
+      mergedRects.resize(j);
     }
 
-    if (!mCombinedDamagedRects.size() || (mCombinedDamagedRects[0].Area() > mSurfaceRect.Area() * 0.8))
+    if (!mergedRects.size() || (mergedRects[0].Area() > mSurfaceRect.Area() * 0.8))
     {
       SwapBuffers(eglSurface);
       return;
     }
 
-    // DALI_LOG_ERROR("EglImplementation::SwapBuffers(%d)\n", mCombinedDamagedRects.size());
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(mCombinedDamagedRects.data()), mCombinedDamagedRects.size());
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(mergedRects.data()), mergedRects.size());
     if (result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());

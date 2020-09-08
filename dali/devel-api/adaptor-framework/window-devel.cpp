@@ -137,11 +137,6 @@ int32_t GetNativeId( Window window )
   return GetImplementation( window ).GetNativeId();
 }
 
-void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas)
-{
-  GetImplementation(window).SetDamagedAreas(areas);
-}
-
 void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
 {
   GetImplementation( window ).AddFrameRenderedCallback( std::move( callback ), frameId );

@@ -748,12 +748,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // clear previous frame damaged render items rects, buffer history is tracked on surface level
           mDamagedRects.clear();
 
-          // If user damaged areas are not set
-          if (!eglImpl.DamageAreasSet())
-          {
-            // Collect damage rects
-            mCore.PreRender( scene, mDamagedRects );
-          }
+          // Collect damage rects
+          mCore.PreRender( scene, mDamagedRects );
 
           // Render off-screen frame buffers first if any
           mCore.RenderScene( windowRenderStatus, scene, true );
