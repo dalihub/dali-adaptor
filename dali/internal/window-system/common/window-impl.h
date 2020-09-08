@@ -420,6 +420,11 @@ private:
   void OnKeyboardRepeatSettingsChanged();
 
   /**
+   * @brief Called when the window redraw is requested.
+   */
+  void OnWindowRedrawRequest();
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges( const std::vector< int >& angles );

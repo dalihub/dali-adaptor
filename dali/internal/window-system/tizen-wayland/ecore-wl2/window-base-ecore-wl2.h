@@ -166,6 +166,11 @@ public:
    */
   void OnKeyboardRepeatSettingsChanged();
 
+  /**
+   * @brief Called when a window redraw is requested.
+   */
+  void OnEcoreEventWindowRedrawRequest();
+
 #ifdef DALI_ELDBUS_AVAILABLE
   /**
    * @brief Called when Ecore ElDBus accessibility event is received.
