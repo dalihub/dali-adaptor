@@ -37,7 +37,7 @@ class AccessibilityAdaptor;
 
 class AccessibilityActionHandler;
 class AccessibilityGestureHandler;
-class TouchPoint;
+struct TouchPoint;
 
 /**
  * @brief The AccessibilityAdaptor provides communication to the accessibility manager interface (implemented in toolkit).

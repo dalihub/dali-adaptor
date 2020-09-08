@@ -114,7 +114,7 @@ public:
 
 private:
 
-  struct Impl;
+  class Impl;
   std::unique_ptr<Impl> mImpl;
 };
 
