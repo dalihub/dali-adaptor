@@ -87,8 +87,7 @@ EglImplementation::EglImplementation( int multiSamplingLevel,
   mIsKhrCreateContextSupported( false ),
   mSwapBufferCountAfterResume( 0 ),
   mEglSetDamageRegionKHR( 0 ),
-  mEglSwapBuffersWithDamageKHR( 0 ),
-  mFullSwapNextFrame( true )
+  mEglSwapBuffersWithDamageKHR( 0 )
 {
 }
 
@@ -360,7 +359,6 @@ void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
 
     // DALI_LOG_ERROR("EglImplementation::SwapBuffers()\n");
     eglSwapBuffers( mEglDisplay, eglSurface );
-    mFullSwapNextFrame = false;
 
 #ifndef DALI_PROFILE_UBUNTU
     if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
@@ -393,99 +391,19 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
   return age;
 }
 
-void EglImplementation::SetFullSwapNextFrame()
+void EglImplementation::SetDamageRegion( EGLSurface& eglSurface, std::vector< Rect< int > >& damagedRects )
 {
-  mFullSwapNextFrame = true;
-}
-
-void mergeRects(Rect<int>& mergingRect, const std::vector<Rect<int>>& rects)
-{
-  uint32_t i = 0;
-  if (mergingRect.IsEmpty())
-  {
-    for (;i < rects.size(); i++)
-    {
-      if (!rects[i].IsEmpty())
-      {
-        mergingRect = rects[i];
-        break;
-      }
-    }
-  }
-
-  for (;i < rects.size(); i++)
-  {
-    mergingRect.Merge(rects[i]);
-  }
-}
-
-void insertRects(std::list<std::vector<Rect<int>>>& damagedRectsList, const std::vector<Rect<int>>& damagedRects)
-{
-  damagedRectsList.push_front(damagedRects);
-  if (damagedRectsList.size() > 4) // past triple buffers + current
-  {
-    damagedRectsList.pop_back();
-  }
-}
-
-void EglImplementation::SetDamage( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
-{
-  if (!mPartialUpdateRequired)
+  if( !mPartialUpdateRequired )
   {
     return;
   }
 
-  if (eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
+  if( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
   {
-    EGLint width = 0;
-    EGLint height = 0;
-    eglQuerySurface(mEglDisplay, eglSurface, EGL_WIDTH, &width);
-    eglQuerySurface(mEglDisplay, eglSurface, EGL_HEIGHT, &height);
-    Rect<int> surfaceRect(0, 0, width, height);
-
-    mSurfaceRect = surfaceRect;
-
-    if (mFullSwapNextFrame)
-    {
-      insertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
-      clippingRect = Rect<int>();
-      return;
-    }
-
-    EGLint bufferAge = GetBufferAge(eglSurface);
-
-    // Buffer age 0 means the back buffer in invalid and requires full swap
-    if (!damagedRects.size() || bufferAge == 0)
-    {
-      // No damage or buffer is out of order or buffer age is reset
-      insertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
-      clippingRect = Rect<int>();
-      return;
-    }
-
-    // We push current frame damaged rects here, zero index for current frame
-    insertRects(mBufferDamagedRects, damagedRects);
-
-    // Merge damaged rects into clipping rect
-    auto bufferDamagedRects = mBufferDamagedRects.begin();
-    while (bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
-    {
-      const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
-      mergeRects(clippingRect, rects);
-    }
-
-    if (!clippingRect.Intersect(surfaceRect) || clippingRect.Area() > surfaceRect.Area() * 0.8)
-    {
-      // clipping area too big or doesn't intersect surface rect
-      clippingRect = Rect<int>();
-      return;
-    }
-
-    // DALI_LOG_ERROR("eglSetDamageRegionKHR(%d, %d, %d, %d)\n", clippingRect.x, clippingRect.y, clippingRect.width, clippingRect.height);
-    EGLBoolean result = mEglSetDamageRegionKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(&clippingRect), 1);
+    EGLBoolean result = mEglSetDamageRegionKHR( mEglDisplay, eglSurface, reinterpret_cast< int* >( damagedRects.data() ), 1 );
     if (result == EGL_FALSE)
     {
-      DALI_LOG_ERROR("eglSetDamageRegionKHR(%d)\n", eglGetError());
+      DALI_LOG_ERROR( "eglSetDamageRegionKHR(%d)\n", eglGetError() );
     }
   }
 }
@@ -494,7 +412,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 {
   if (eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
   {
-    if (!mPartialUpdateRequired || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > mSurfaceRect.Area() * 0.8) )
+    if (!mPartialUpdateRequired )
     {
       SwapBuffers(eglSurface);
       return;
@@ -507,55 +425,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     }
 #endif //DALI_PROFILE_UBUNTU
 
-    std::vector< Rect< int > > mergedRects = damagedRects;
-
-    // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
-    // Could be optional and can be removed, needs to be checked with and without on platform
-    const int n = mergedRects.size();
-    for(int i = 0; i < n-1; i++)
-    {
-      if (mergedRects[i].IsEmpty())
-      {
-        continue;
-      }
-
-      for (int j = i+1; j < n; j++)
-      {
-        if (mergedRects[j].IsEmpty())
-        {
-          continue;
-        }
-
-        if (mergedRects[i].Intersects(mergedRects[j]))
-        {
-          mergedRects[i].Merge(mergedRects[j]);
-          mergedRects[j].width = 0;
-          mergedRects[j].height = 0;
-        }
-      }
-    }
-
-    int j = 0;
-    for (int i = 0; i < n; i++)
-    {
-      if (!mergedRects[i].IsEmpty())
-      {
-        mergedRects[j++] = mergedRects[i];
-      }
-    }
-
-    if (j != 0)
-    {
-      mergedRects.resize(j);
-    }
-
-    if (!mergedRects.size() || (mergedRects[0].Area() > mSurfaceRect.Area() * 0.8))
-    {
-      SwapBuffers(eglSurface);
-      return;
-    }
-
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(mergedRects.data()), mergedRects.size());
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast< std::vector< Rect< int > >& >( damagedRects ).data()), damagedRects.size());
     if (result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());
@@ -828,6 +698,11 @@ void EglImplementation::WaitClient()
   {
     TEST_EGL_ERROR("eglWaitClient");
   }
+}
+
+bool EglImplementation::IsPartialUpdateRequired() const
+{
+  return mPartialUpdateRequired;
 }
 
 } // namespace Adaptor

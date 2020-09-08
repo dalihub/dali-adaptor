@@ -82,6 +82,7 @@ public:
     mGraphics( nullptr ),
     mDisplayConnection( nullptr ),
     mScene(),
+    mFullSwapNextFrame( true ),
     mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
     mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
   {}
@@ -220,6 +221,14 @@ public:
     mScene = scene;
   }
 
+  /**
+   * @brief Forces full surface swap next frame, resets current partial update state.
+   */
+  void SetFullSwapNextFrame()
+  {
+    mFullSwapNextFrame = true;
+  }
+
 private:
 
   /**
@@ -238,6 +247,7 @@ protected:
   Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
   Dali::DisplayConnection* mDisplayConnection;
   WeakHandle< Dali::Integration::Scene > mScene;
+  bool mFullSwapNextFrame;                                      ///< Whether the full surface swap is required
 
 private:
 

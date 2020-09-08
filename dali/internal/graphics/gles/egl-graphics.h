@@ -126,11 +126,6 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
-   * Instructs egl implementation to do full swap regardless of stored data, resets the data.
-   */
-  void SetFullSwapNextFrame();
-
-  /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Destroy()
    */
   void Destroy() override;

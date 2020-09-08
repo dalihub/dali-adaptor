@@ -135,14 +135,9 @@ public:
   EGLint GetBufferAge( EGLSurface& eglSurface ) const;
 
   /**
-   * Forces full surface swap next frame, resets current partial update state.
-   */
-  void SetFullSwapNextFrame();
-
-  /**
    * Performs an OpenGL set damage command with damaged rects
    */
-  virtual void SetDamage( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect );
+  void SetDamageRegion( EGLSurface& eglSurface, std::vector< Rect< int > >& damagedRects );
 
   /**
    * Performs an OpenGL swap buffers command with damaged rects
@@ -239,6 +234,12 @@ public:
    */
   void WaitClient();
 
+  /**
+   * @brief Returns whether the partial update is required.
+   * @return true if the partial update is required.
+   */
+  bool IsPartialUpdateRequired() const;
+
 private:
 
   Vector<EGLint>       mContextAttribs;
@@ -280,9 +281,6 @@ private:
   PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
   PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mEglSwapBuffersWithDamageKHR;
 
-  std::list<std::vector<Rect<int>>> mBufferDamagedRects;
-  Rect<int> mSurfaceRect;
-  bool mFullSwapNextFrame;
 };
 
 } // namespace Adaptor

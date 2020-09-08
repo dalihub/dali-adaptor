@@ -226,18 +226,7 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 
 bool NativeRenderSurfaceEcoreWl::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
 {
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
-  if (eglGraphics)
-  {
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    if (resizingSurface)
-    {
-      eglImpl.SetFullSwapNextFrame();
-    }
-
-    eglImpl.SetDamage(mEGLSurface, damagedRects, clippingRect);
-  }
-
+  //TODO: Need to support partial update
   return true;
 }
 
