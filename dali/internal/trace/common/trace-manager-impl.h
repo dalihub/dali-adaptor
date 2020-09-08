@@ -68,7 +68,7 @@ protected:
   /**
    * Obtain the platform dependent LogContextFunction method used for tracing
    */
-  Dali::Integration::Trace::LogContextFunction GetLogContextFunction() { return nullptr; };
+  virtual Dali::Integration::Trace::LogContextFunction GetLogContextFunction() { return nullptr; };
 
 private:
 
