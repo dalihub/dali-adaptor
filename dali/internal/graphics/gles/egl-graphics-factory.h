@@ -43,7 +43,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~GraphicsFactory();
+  ~GraphicsFactory() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
@@ -53,7 +53,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
    */
-  void Destroy();
+  void Destroy() override;
 };
 
 } // Adaptor

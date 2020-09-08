@@ -163,63 +163,63 @@ public: // From Framework::Observer
   /**
    * Called when the framework is initialised.
    */
-  virtual void OnInit();
+  void OnInit() override;
 
   /**
    * Called when the framework is terminated.
    */
-  virtual void OnTerminate();
+  void OnTerminate() override;
 
   /**
    * Called when the framework is paused.
    */
-  virtual void OnPause();
+  void OnPause() override;
 
   /**
    * Called when the framework resumes from a paused state.
    */
-  virtual void OnResume();
+  void OnResume() override;
 
   /**
   * Called when the framework received AppControlSignal.
   * @param[in] The bundle data of AppControl event.
   */
-  virtual void OnAppControl(void *data);
+  void OnAppControl(void *data) override;
 
   /**
    * Called when the framework informs the application that it should reset itself.
    */
-  virtual void OnReset();
+  void OnReset() override;
 
   /**
    * Called when the framework informs the application that the language of the device has changed.
    */
-  virtual void OnLanguageChanged();
+  void OnLanguageChanged() override;
 
   /**
   * Called when the framework informs the application that the region of the device has changed.
   */
-  virtual void OnRegionChanged();
+  void OnRegionChanged() override;
 
   /**
   * Called when the framework informs the application that the battery level of the device is low.
   */
-  virtual void OnBatteryLow( Dali::DeviceStatus::Battery::Status status );
+  void OnBatteryLow( Dali::DeviceStatus::Battery::Status status ) override;
 
   /**
   * Called when the framework informs the application that the memory level of the device is low.
   */
-  virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status );
+  void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) override;
 
   /**
    * Called when the framework informs the application that the platform surface is created.
    */
-  virtual void OnSurfaceCreated( Any newSurface );
+  void OnSurfaceCreated( Any newSurface ) override;
 
   /**
    * Called when the framework informs the application that the platform surface is destroyed.
    */
-  virtual void OnSurfaceDestroyed( Any newSurface );
+  void OnSurfaceDestroyed( Any newSurface ) override;
 
 public:
 
@@ -307,7 +307,7 @@ protected:
   /**
    * Destructor
    */
-  virtual ~Application();
+  ~Application() override;
 
   // Undefined
   Application(const Application&);

@@ -78,7 +78,7 @@ public:  // From Framework::Observer
   /**
    * Called when the framework is Component Application Created.
    */
-  virtual Any OnCreate();
+  Any OnCreate() override;
 
 public:
   CreateSignal                           mCreateSignal;

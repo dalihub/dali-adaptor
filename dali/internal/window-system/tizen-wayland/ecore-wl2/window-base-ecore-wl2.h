@@ -219,247 +219,247 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
    */
-  virtual Any GetNativeWindow() override;
+  Any GetNativeWindow() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
    */
-  virtual int GetNativeWindowId() override;
+  int GetNativeWindowId() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
    */
-  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) override;
+  EGLNativeWindowType CreateEglWindow( int width, int height ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
    */
-  virtual void DestroyEglWindow() override;
+  void DestroyEglWindow() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
    */
-  virtual void SetEglWindowRotation( int angle ) override;
+  void SetEglWindowRotation( int angle ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
    */
-  virtual void SetEglWindowBufferTransform( int angle ) override;
+  void SetEglWindowBufferTransform( int angle ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
    */
-  virtual void SetEglWindowTransform( int angle ) override;
+  void SetEglWindowTransform( int angle ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
    */
-  virtual void ResizeEglWindow( PositionSize positionSize ) override;
+  void ResizeEglWindow( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
    */
-  virtual bool IsEglWindowRotationSupported() override;
+  bool IsEglWindowRotationSupported() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
    */
-  virtual void Move( PositionSize positionSize ) override;
+  void Move( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Resize()
    */
-  virtual void Resize( PositionSize positionSize ) override;
+  void Resize( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
    */
-  virtual void MoveResize( PositionSize positionSize ) override;
+  void MoveResize( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
-  virtual void SetClass( const std::string& name, const std::string& className ) override;
+  void SetClass( const std::string& name, const std::string& className ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Raise()
    */
-  virtual void Raise() override;
+  void Raise() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Lower()
    */
-  virtual void Lower() override;
+  void Lower() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Activate()
    */
-  virtual void Activate() override;
+  void Activate() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
-  virtual void SetAvailableAnlges( const std::vector< int >& angles ) override;
+  void SetAvailableAnlges( const std::vector< int >& angles ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetPreferredAngle()
    */
-  virtual void SetPreferredAngle( int angle ) override;
+  void SetPreferredAngle( int angle ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAcceptFocus()
    */
-  virtual void SetAcceptFocus( bool accept ) override;
+  void SetAcceptFocus( bool accept ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Show()
    */
-  virtual void Show() override;
+  void Show() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Hide()
    */
-  virtual void Hide() override;
+  void Hide() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetSupportedAuxiliaryHintCount()
    */
-  virtual unsigned int GetSupportedAuxiliaryHintCount() const override;
+  unsigned int GetSupportedAuxiliaryHintCount() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetSupportedAuxiliaryHint()
    */
-  virtual std::string GetSupportedAuxiliaryHint( unsigned int index ) const override;
+  std::string GetSupportedAuxiliaryHint( unsigned int index ) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::AddAuxiliaryHint()
    */
-  virtual unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value ) override;
+  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::RemoveAuxiliaryHint()
    */
-  virtual bool RemoveAuxiliaryHint( unsigned int id ) override;
+  bool RemoveAuxiliaryHint( unsigned int id ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAuxiliaryHintValue()
    */
-  virtual bool SetAuxiliaryHintValue( unsigned int id, const std::string& value ) override;
+  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintValue()
    */
-  virtual std::string GetAuxiliaryHintValue( unsigned int id ) const override;
+  std::string GetAuxiliaryHintValue( unsigned int id ) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintId()
    */
-  virtual unsigned int GetAuxiliaryHintId( const std::string& hint ) const override;
+  unsigned int GetAuxiliaryHintId( const std::string& hint ) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  virtual void SetInputRegion( const Rect< int >& inputRegion ) override;
+  void SetInputRegion( const Rect< int >& inputRegion ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
    */
-  virtual void SetType( Dali::Window::Type type ) override;
+  void SetType( Dali::Window::Type type ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
-  virtual bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level ) override;
+  bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNotificationLevel()
    */
-  virtual Dali::Window::NotificationLevel::Type GetNotificationLevel() const override;
+  Dali::Window::NotificationLevel::Type GetNotificationLevel() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetOpaqueState()
    */
-  virtual void SetOpaqueState( bool opaque ) override;
+  void SetOpaqueState( bool opaque ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreenOffMode()
    */
-  virtual bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode) override;
+  bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenOffMode()
    */
-  virtual Dali::Window::ScreenOffMode::Type GetScreenOffMode() const override;
+  Dali::Window::ScreenOffMode::Type GetScreenOffMode() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBrightness()
    */
-  virtual bool SetBrightness( int brightness ) override;
+  bool SetBrightness( int brightness ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBrightness()
    */
-  virtual int GetBrightness() const override;
+  int GetBrightness() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKey()
    */
-  virtual bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) override;
+  bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKey()
    */
-  virtual bool UngrabKey( Dali::KEY key ) override;
+  bool UngrabKey( Dali::KEY key ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKeyList()
    */
-  virtual bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) override;
+  bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKeyList()
    */
-  virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
+  bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetDpi()
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
-  virtual int GetScreenRotationAngle() override;
+  int GetScreenRotationAngle() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
    */
-  virtual void SetWindowRotationAngle( int degree ) override;
+  void SetWindowRotationAngle( int degree ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
    */
-  virtual void WindowRotationCompleted( int degree, int width, int height ) override;
+  void WindowRotationCompleted( int degree, int width, int height ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
    */
-  virtual void SetTransparency( bool transparent ) override;
+  void SetTransparency( bool transparent ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
    */
-  virtual void SetParent( WindowBase* parentWinBase ) override;
+  void SetParent( WindowBase* parentWinBase ) override;
 
   /**
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFrameRenderedSyncFence()
    */
-  virtual int CreateFrameRenderedSyncFence() override;
+  int CreateFrameRenderedSyncFence() override;
 
   /**
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFramePresentedSyncFence()
    */
-  virtual int CreateFramePresentedSyncFence() override;
+  int CreateFramePresentedSyncFence() override;
 
 private:
 

@@ -60,116 +60,116 @@ public: // from WindowRenderSurface
   /**
    * @copydoc Dali::NativeRenderSurface::GetSurface()
    */
-  virtual Any GetDrawable() override;
+  Any GetDrawable() override;
 
   /**
    * @copydoc Dali::NativeRenderSurface::SetRenderNotification()
    */
-  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+  void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
 
   /**
    * @copydoc Dali::NativeRenderSurface::WaitUntilSurfaceReplaced()
    */
-  virtual void WaitUntilSurfaceReplaced() override;
+  void WaitUntilSurfaceReplaced() override;
 
 public: // from Dali::RenderSurfaceInterface
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
-  virtual PositionSize GetPositionSize() const override;
+  PositionSize GetPositionSize() const override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
-  virtual void InitializeGraphics() override;
+  void InitializeGraphics() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
    */
-  virtual void CreateSurface() override;
+  void CreateSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
    */
-  virtual void DestroySurface() override;
+  void DestroySurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceGraphicsSurface() override;
+  bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
-  virtual void MoveResize( Dali::PositionSize positionSize) override;
+  void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
    */
-  virtual void StartRender() override;
+  void StartRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
    */
-  virtual void StopRender() override;
+  void StopRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )override;
+  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
    */
-  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
+  Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
    */
-  virtual void MakeContextCurrent() override;
+  void MakeContextCurrent() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
    */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() override;
+  Integration::DepthBufferAvailable GetDepthBufferRequired() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
    */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
+  Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
-  virtual void ReleaseLock() override;
+  void ReleaseLock() override;
 
   /**
    * @copydoc Dali::NativeRenderSurface::CreateNativeRenderable()
    */
-  virtual void CreateNativeRenderable() override;
+  void CreateNativeRenderable() override;
 
   /**
    * @copydoc Dali::NativeRenderSurface::ReleaseDrawable()
    */
-  virtual void ReleaseDrawable() override;
+  void ReleaseDrawable() override;
 
 private: // Data
 

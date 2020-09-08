@@ -54,7 +54,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~AccessibilityGestureDetector();
+  ~AccessibilityGestureDetector() override;
 
   /**
    * Set the handler to handle accessibility gestures.

@@ -147,7 +147,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Adaptor();
+  ~Adaptor() override;
 
   /**
    * @copydoc Dali::Adaptor::Get()
@@ -311,7 +311,7 @@ public:
   /**
    * @return the Core instance
    */
-  virtual Dali::Integration::Core& GetCore();
+  Dali::Integration::Core& GetCore() override;
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
@@ -445,52 +445,52 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
-  virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
+  Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetDisplayConnectionInterface()
    */
-  virtual Dali::DisplayConnection& GetDisplayConnectionInterface();
+  Dali::DisplayConnection& GetDisplayConnectionInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
    */
-  virtual GraphicsInterface& GetGraphicsInterface();
+  GraphicsInterface& GetGraphicsInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
    */
-  virtual TriggerEventInterface& GetProcessCoreEventsTrigger();
+  TriggerEventInterface& GetProcessCoreEventsTrigger() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSocketFactoryInterface()
    */
-  virtual SocketFactoryInterface& GetSocketFactoryInterface();
+  SocketFactoryInterface& GetSocketFactoryInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
-  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* GetRenderSurfaceInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
    */
-  virtual PerformanceInterface* GetPerformanceInterface();
+  PerformanceInterface* GetPerformanceInterface() override;
 
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
    */
-  virtual TraceInterface& GetKernelTraceInterface();
+  TraceInterface& GetKernelTraceInterface() override;
 
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSystemTraceInterface()
    */
-  virtual TraceInterface& GetSystemTraceInterface();
+  TraceInterface& GetSystemTraceInterface() override;
 
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetWindowContainerInterface()
    */
-  virtual void GetWindowContainerInterface( WindowContainer& windows );
+  void GetWindowContainerInterface( WindowContainer& windows ) override;
 
 public: // Signals
 
@@ -523,45 +523,45 @@ public: // From Dali::Internal::Adaptor::CoreEventInterface
   /**
    * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
    */
-  virtual void ProcessCoreEvents();
+  void ProcessCoreEvents() override;
 
 private: // From Dali::Internal::Adaptor::CoreEventInterface
 
   /**
    * @copydoc Dali::Internal::Adaptor::CoreEventInterface::QueueCoreEvent()
    */
-  virtual void QueueCoreEvent(const Dali::Integration::Event& event);
+  void QueueCoreEvent(const Dali::Integration::Event& event) override;
 
 private: // From Dali::Integration::RenderController
 
   /**
    * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */
-  virtual void RequestUpdate( bool forceUpdate );
+  void RequestUpdate( bool forceUpdate ) override;
 
   /**
    * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
-  virtual void RequestProcessEventsOnIdle( bool forceProcess );
+  void RequestProcessEventsOnIdle( bool forceProcess ) override;
 
 public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
   /**
    * Called when the window becomes fully or partially visible.
    */
-  virtual void OnWindowShown();
+  void OnWindowShown() override;
 
   /**
    * Called when the window is fully hidden.
    */
-  virtual void OnWindowHidden();
+  void OnWindowHidden() override;
 
 private: // From Dali::Internal::Adaptor::DamageObserver
 
   /**
    * @copydoc Dali::Internal::Adaptor::DamageObserver::OnDamaged()
    */
-  void OnDamaged( const DamageArea& area );
+  void OnDamaged( const DamageArea& area ) override;
 
 private:
 

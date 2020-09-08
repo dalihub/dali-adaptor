@@ -120,12 +120,12 @@ public:
   /**
    * @copydoc ConnectionTrackerInterface::SignalConnected
    */
-  virtual void SignalConnected( SlotObserver* slotObserver, CallbackBase* callback );
+  void SignalConnected( SlotObserver* slotObserver, CallbackBase* callback ) override;
 
   /**
    * @copydoc ConnectionTrackerInterface::SignalDisconnected
    */
-  virtual void SignalDisconnected( SlotObserver* slotObserver, CallbackBase* callback );
+  void SignalDisconnected( SlotObserver* slotObserver, CallbackBase* callback ) override;
 
   /**
    * @brief Set content info to WidgetView.

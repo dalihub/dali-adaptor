@@ -94,7 +94,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~TtsPlayerGeneric();
+  ~TtsPlayerGeneric() override;
 
 private:
 

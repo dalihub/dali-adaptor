@@ -66,7 +66,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~AnimatedImageLoading() = default;
+  ~AnimatedImageLoading() override = default;
 
   /**
    * @copydoc Dali::AnimatedImageLoading::LoadNextNFrames()

@@ -160,51 +160,51 @@ public:
   /**
    * @copydoc GlAbstraction::PreRender();
    */
-  virtual void PreRender();
+  void PreRender() override;
 
   /**
    * @copydoc GlAbstraction::PostRender();
    */
-  virtual void PostRender();
+  void PostRender() override;
 
   /* OpenGL ES 2.0 API */
-  virtual void Clear( GLbitfield mask );
+  void Clear( GLbitfield mask ) override;
 
-  virtual void GenBuffers( GLsizei n, GLuint* buffers );
-  virtual void DeleteBuffers( GLsizei n, const GLuint* buffers );
-  virtual void BindBuffer( GLenum target, GLuint buffer );
+  void GenBuffers( GLsizei n, GLuint* buffers ) override;
+  void DeleteBuffers( GLsizei n, const GLuint* buffers ) override;
+  void BindBuffer( GLenum target, GLuint buffer ) override;
 
-  virtual void GenTextures( GLsizei n, GLuint* textures );
-  virtual void DeleteTextures( GLsizei n, const GLuint* textures );
-  virtual void ActiveTexture( GLenum texture );
-  virtual void BindTexture( GLenum target, GLuint texture );
+  void GenTextures( GLsizei n, GLuint* textures ) override;
+  void DeleteTextures( GLsizei n, const GLuint* textures ) override;
+  void ActiveTexture( GLenum texture ) override;
+  void BindTexture( GLenum target, GLuint texture ) override;
 
-  virtual void DrawArrays( GLenum mode, GLint first, GLsizei count );
-  virtual void DrawElements( GLenum mode, GLsizei count, GLenum type, const void* indices );
+  void DrawArrays( GLenum mode, GLint first, GLsizei count ) override;
+  void DrawElements( GLenum mode, GLsizei count, GLenum type, const void* indices ) override;
 
-  virtual void Uniform1f ( GLint location, GLfloat x );
-  virtual void Uniform1fv( GLint location, GLsizei count, const GLfloat* v );
-  virtual void Uniform1i ( GLint location, GLint x );
-  virtual void Uniform1iv( GLint location, GLsizei count, const GLint* v );
-  virtual void Uniform2f ( GLint location, GLfloat x, GLfloat y );
-  virtual void Uniform2fv( GLint location, GLsizei count, const GLfloat* v );
-  virtual void Uniform2i ( GLint location, GLint x, GLint y );
-  virtual void Uniform2iv( GLint location, GLsizei count, const GLint* v );
-  virtual void Uniform3f ( GLint location, GLfloat x, GLfloat y, GLfloat z );
-  virtual void Uniform3fv( GLint location, GLsizei count, const GLfloat* v );
-  virtual void Uniform3i ( GLint location, GLint x, GLint y, GLint z );
-  virtual void Uniform3iv( GLint location, GLsizei count, const GLint* v );
-  virtual void Uniform4f ( GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w );
-  virtual void Uniform4fv( GLint location, GLsizei count, const GLfloat* v );
-  virtual void Uniform4i ( GLint location, GLint x, GLint y, GLint z, GLint w );
-  virtual void Uniform4iv( GLint location, GLsizei count, const GLint* v );
-  virtual void UniformMatrix2fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
-  virtual void UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
-  virtual void UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value );
+  void Uniform1f ( GLint location, GLfloat x ) override;
+  void Uniform1fv( GLint location, GLsizei count, const GLfloat* v ) override;
+  void Uniform1i ( GLint location, GLint x ) override;
+  void Uniform1iv( GLint location, GLsizei count, const GLint* v ) override;
+  void Uniform2f ( GLint location, GLfloat x, GLfloat y ) override;
+  void Uniform2fv( GLint location, GLsizei count, const GLfloat* v ) override;
+  void Uniform2i ( GLint location, GLint x, GLint y ) override;
+  void Uniform2iv( GLint location, GLsizei count, const GLint* v ) override;
+  void Uniform3f ( GLint location, GLfloat x, GLfloat y, GLfloat z ) override;
+  void Uniform3fv( GLint location, GLsizei count, const GLfloat* v ) override;
+  void Uniform3i ( GLint location, GLint x, GLint y, GLint z ) override;
+  void Uniform3iv( GLint location, GLsizei count, const GLint* v ) override;
+  void Uniform4f ( GLint location, GLfloat x, GLfloat y, GLfloat z, GLfloat w ) override;
+  void Uniform4fv( GLint location, GLsizei count, const GLfloat* v ) override;
+  void Uniform4i ( GLint location, GLint x, GLint y, GLint z, GLint w ) override;
+  void Uniform4iv( GLint location, GLsizei count, const GLint* v ) override;
+  void UniformMatrix2fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value ) override;
+  void UniformMatrix3fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value ) override;
+  void UniformMatrix4fv( GLint location, GLsizei count, GLboolean transpose, const GLfloat* value ) override;
 
-  virtual GLuint CreateProgram( void );
-  virtual void DeleteProgram( GLuint program );
-  virtual void UseProgram( GLuint program );
+  GLuint CreateProgram( void ) override;
+  void DeleteProgram( GLuint program ) override;
+  void UseProgram( GLuint program ) override;
 
 private: // Helpers
 

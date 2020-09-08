@@ -46,12 +46,12 @@ public:
   /**
    * Destructor
    */
-  virtual ~SystemTrace();
+  ~SystemTrace() override;
 
   /**
    * @copydoc KernelTracerInterface::KernelTrace()
    */
-  virtual void Trace( const PerformanceMarker& marker, const std::string& traceMessage );
+  void Trace( const PerformanceMarker& marker, const std::string& traceMessage ) override;
 
 };
 

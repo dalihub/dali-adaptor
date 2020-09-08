@@ -217,7 +217,7 @@ private:   // native image
   /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
-  NativeImageInterface::Extension* GetExtension();
+  NativeImageInterface::Extension* GetExtension() override;
 
 private:
 
@@ -238,7 +238,7 @@ private:
    * The implementation should destroy the NativeImage resources.
    * @SINCE_1_0.0
    */
-  DALI_INTERNAL virtual ~NativeImageSource();
+  DALI_INTERNAL ~NativeImageSource() override;
 
   /**
    * @brief Undefined copy constructor.
