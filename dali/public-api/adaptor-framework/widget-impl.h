@@ -145,7 +145,7 @@ protected:
   /**
    * @brief Virtual destructor
    */
-  virtual ~Widget();
+  ~Widget() override;
 
   /// @cond internal
 public:
