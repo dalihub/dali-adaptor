@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,14 @@
 
 namespace Dali
 {
-
 Clipboard::Clipboard()
 {
 }
 Clipboard::~Clipboard()
 {
 }
-Clipboard::Clipboard(Internal::Adaptor::Clipboard *impl)
-  : BaseHandle(impl)
+Clipboard::Clipboard(Internal::Adaptor::Clipboard* impl)
+: BaseHandle(impl)
 {
 }
 
@@ -40,9 +39,9 @@ Clipboard Clipboard::Get()
   return Internal::Adaptor::Clipboard::Get();
 }
 
-bool Clipboard::SetItem( const std::string &itemData)
+bool Clipboard::SetItem(const std::string& itemData)
 {
-  return GetImplementation(*this).SetItem( itemData );
+  return GetImplementation(*this).SetItem(itemData);
 }
 
 void Clipboard::RequestItem()

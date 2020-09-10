@@ -2,7 +2,7 @@
 #define DALI_ACCESSIBILITY_ADAPTOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,22 +18,20 @@
  *
  */
 
-
 // EXTERNAL INCLUDES
 #include <dali/devel-api/events/touch-point.h>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/object/base-handle.h>
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class AccessibilityAdaptor;
 }
-}
+} // namespace DALI_INTERNAL
 
 class AccessibilityActionHandler;
 class AccessibilityGestureHandler;
@@ -46,7 +44,6 @@ struct TouchPoint;
 class DALI_ADAPTOR_API AccessibilityAdaptor : public BaseHandle
 {
 public:
-
   /**
    * @brief Create an uninitialized handle.
    *
@@ -310,20 +307,19 @@ public:
   bool HandleActionStartStopEvent();
 
 public: // Not intended for application developers
-
   /**
    * @brief Creates a handle using the Adaptor::Internal implementation.
    *
    * @param[in] adaptor The AccessibilityAdaptor implementation.
    */
-  DALI_INTERNAL AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor& adaptor );
+  DALI_INTERNAL AccessibilityAdaptor(Internal::Adaptor::AccessibilityAdaptor& adaptor);
 
   /**
    * @brief This constructor is used by AccessibilityAdaptor::Get().
    *
    * @param[in] adaptor A pointer to the accessibility adaptor.
    */
-  explicit DALI_INTERNAL AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor* adaptor );
+  explicit DALI_INTERNAL AccessibilityAdaptor(Internal::Adaptor::AccessibilityAdaptor* adaptor);
 };
 
 } // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_BIDIRECTIONAL_SUPPORT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,24 +22,21 @@
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/actors/actor-enumerations.h>
+#include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal DALI_INTERNAL
 {
-
 class BidirectionalSupport;
 
-} // Internal
+} // namespace DALI_INTERNAL
 
 /**
  * BidirectionalSupport API
@@ -47,9 +44,7 @@ class BidirectionalSupport;
  */
 class DALI_ADAPTOR_API BidirectionalSupport : public BaseHandle
 {
-
 public:
-
   /**
    * @brief Create an uninitialized TextAbstraction handle.
    *
@@ -68,7 +63,7 @@ public:
    *
    * @param[in] implementation a pointer to the internal bidirectional support object.
    */
-  explicit DALI_INTERNAL BidirectionalSupport( Internal::BidirectionalSupport* implementation );
+  explicit DALI_INTERNAL BidirectionalSupport(Internal::BidirectionalSupport* implementation);
 
   /**
    * @brief Retrieve a handle to the BidirectionalSupport instance.
@@ -86,17 +81,17 @@ public:
    * @param[in] layoutDirection The direction of the system language.
    * @return An index of an object inside a table storing the bidirectional data.
    */
-  BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters,
-                            bool matchSystemLanguageDirection,
-                            LayoutDirection::Type layoutDirection );
+  BidiInfoIndex CreateInfo(const Character* const paragraph,
+                           Length                 numberOfCharacters,
+                           bool                   matchSystemLanguageDirection,
+                           LayoutDirection::Type  layoutDirection);
 
   /**
    * @brief Destroys the bidirectional data.
    *
    * @param[in] bidiInfoIndex The index to the of the object inside the table storing the bidirectional data for the current paragraph.
    */
-  void DestroyInfo( BidiInfoIndex bidiInfoIndex );
+  void DestroyInfo(BidiInfoIndex bidiInfoIndex);
 
   /**
    * @brief Reorders a line of a paragraph.
@@ -108,10 +103,10 @@ public:
    * @param[in] numberOfCharacters The number of characters of the line.
    * @param[out] visualToLogicalMap The visual to logical conversion map.
    */
-  void Reorder( BidiInfoIndex bidiInfoIndex,
-                CharacterIndex firstCharacterIndex,
-                Length numberOfCharacters,
-                CharacterIndex* visualToLogicalMap );
+  void Reorder(BidiInfoIndex   bidiInfoIndex,
+               CharacterIndex  firstCharacterIndex,
+               Length          numberOfCharacters,
+               CharacterIndex* visualToLogicalMap);
 
   /**
    * @brief Replaces any character which could be mirrored.
@@ -122,9 +117,9 @@ public:
    *
    * @return @e true if a character has been replaced.
    */
-  bool GetMirroredText( Character* text,
-                        CharacterDirection* directions,
-                        Length numberOfCharacters );
+  bool GetMirroredText(Character*          text,
+                       CharacterDirection* directions,
+                       Length              numberOfCharacters);
 
   /**
    * @brief Retrieves the paragrpah's direction.
@@ -133,7 +128,7 @@ public:
    *
    * @return @e true if the paragraph is right to left, otherwise @e false.
    */
-  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
+  bool GetParagraphDirection(BidiInfoIndex bidiInfoIndex) const;
 
   /**
    * @brief Retrieves the character's directions.
@@ -142,9 +137,9 @@ public:
    * @param[out] directions The direction, @e false is left to right and @e true is right to left, of each character of the paragraph.
    * @param[in] numberOfCharacters The number of characters.
    */
-  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
-                               CharacterDirection* directions,
-                               Length numberOfCharacters );
+  void GetCharactersDirection(BidiInfoIndex       bidiInfoIndex,
+                              CharacterDirection* directions,
+                              Length              numberOfCharacters);
 };
 
 } // namespace TextAbstraction

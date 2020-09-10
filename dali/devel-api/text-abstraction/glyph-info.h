@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_GLYPH_INFO_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,13 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 /**
  * The information describing a glyph (font ID, index, metrics)
  * The metrics are in pixels.
@@ -42,22 +40,22 @@ struct DALI_ADAPTOR_API GlyphInfo
   /**
    * @brief Creates the GlyphInfo without metrics.
    */
-  GlyphInfo( FontId font, GlyphIndex i );
+  GlyphInfo(FontId font, GlyphIndex i);
 
-  FontId fontId;           ///< Identifies the font containing the glyph
-  GlyphIndex index;        ///< Uniquely identifies a glyph for a given FontId
-  float width;             ///< The width of the glyph
-  float height;            ///< The height of the glyph
-  float xBearing;          ///< The distance from the cursor position to the leftmost border of the glyph
-  float yBearing;          ///< The distance from the baseline to the topmost border of the glyph
-  float advance;           ///< The distance to move the cursor for this glyph
-  float scaleFactor;       ///< The scaling applied (fixed-size fonts only)
-  bool isItalicRequired:1; ///< Whether the italic style is required.
-  bool isBoldRequired:1;   ///< Whether the bold style is required.
+  FontId     fontId;               ///< Identifies the font containing the glyph
+  GlyphIndex index;                ///< Uniquely identifies a glyph for a given FontId
+  float      width;                ///< The width of the glyph
+  float      height;               ///< The height of the glyph
+  float      xBearing;             ///< The distance from the cursor position to the leftmost border of the glyph
+  float      yBearing;             ///< The distance from the baseline to the topmost border of the glyph
+  float      advance;              ///< The distance to move the cursor for this glyph
+  float      scaleFactor;          ///< The scaling applied (fixed-size fonts only)
+  bool       isItalicRequired : 1; ///< Whether the italic style is required.
+  bool       isBoldRequired : 1;   ///< Whether the bold style is required.
 };
 
-} // Dali
+} // namespace TextAbstraction
 
-} // TextAbstraction
+} // namespace Dali
 
 #endif //DALI_TEXT_ABSTRACTION_GLYPH_INFO_H

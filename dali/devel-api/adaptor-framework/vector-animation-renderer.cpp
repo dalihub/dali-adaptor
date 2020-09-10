@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,15 @@
 
 namespace Dali
 {
-
-VectorAnimationRenderer VectorAnimationRenderer::New( const std::string& url )
+VectorAnimationRenderer VectorAnimationRenderer::New(const std::string& url)
 {
   Internal::Adaptor::VectorAnimationRendererPtr animationRenderer = Internal::Adaptor::VectorAnimationRenderer::New();
-  if( animationRenderer )
+  if(animationRenderer)
   {
-    animationRenderer->Initialize( url );
+    animationRenderer->Initialize(url);
   }
 
-  return VectorAnimationRenderer( animationRenderer.Get() );
+  return VectorAnimationRenderer(animationRenderer.Get());
 }
 
 VectorAnimationRenderer::VectorAnimationRenderer()
@@ -43,75 +42,75 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 {
 }
 
-VectorAnimationRenderer::VectorAnimationRenderer( Internal::Adaptor::VectorAnimationRenderer* internal )
-: BaseHandle( internal )
+VectorAnimationRenderer::VectorAnimationRenderer(Internal::Adaptor::VectorAnimationRenderer* internal)
+: BaseHandle(internal)
 {
 }
 
-VectorAnimationRenderer::VectorAnimationRenderer( const VectorAnimationRenderer& handle )
-: BaseHandle( handle )
+VectorAnimationRenderer::VectorAnimationRenderer(const VectorAnimationRenderer& handle)
+: BaseHandle(handle)
 {
 }
 
-VectorAnimationRenderer& VectorAnimationRenderer::operator=( const VectorAnimationRenderer& rhs )
+VectorAnimationRenderer& VectorAnimationRenderer::operator=(const VectorAnimationRenderer& rhs)
 {
-  BaseHandle::operator=( rhs );
+  BaseHandle::operator=(rhs);
   return *this;
 }
 
 void VectorAnimationRenderer::Finalize()
 {
-  GetImplementation( *this ).Finalize();
+  GetImplementation(*this).Finalize();
 }
 
-void VectorAnimationRenderer::SetRenderer( Renderer renderer )
+void VectorAnimationRenderer::SetRenderer(Renderer renderer)
 {
-  GetImplementation( *this ).SetRenderer( renderer );
+  GetImplementation(*this).SetRenderer(renderer);
 }
 
-void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
+void VectorAnimationRenderer::SetSize(uint32_t width, uint32_t height)
 {
-  GetImplementation( *this ).SetSize( width, height );
+  GetImplementation(*this).SetSize(width, height);
 }
 
-bool VectorAnimationRenderer::Render( uint32_t frameNumber )
+bool VectorAnimationRenderer::Render(uint32_t frameNumber)
 {
-  return GetImplementation( *this ).Render( frameNumber );
+  return GetImplementation(*this).Render(frameNumber);
 }
 
 uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
 {
-  return GetImplementation( *this ).GetTotalFrameNumber();
+  return GetImplementation(*this).GetTotalFrameNumber();
 }
 
 float VectorAnimationRenderer::GetFrameRate() const
 {
-  return GetImplementation( *this ).GetFrameRate();
+  return GetImplementation(*this).GetFrameRate();
 }
 
-void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorAnimationRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  GetImplementation( *this ).GetDefaultSize( width, height );
+  GetImplementation(*this).GetDefaultSize(width, height);
 }
 
-void VectorAnimationRenderer::GetLayerInfo( Property::Map& map ) const
+void VectorAnimationRenderer::GetLayerInfo(Property::Map& map) const
 {
-  GetImplementation( *this ).GetLayerInfo( map );
+  GetImplementation(*this).GetLayerInfo(map);
 }
 
-bool VectorAnimationRenderer::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+bool VectorAnimationRenderer::GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const
 {
-  return GetImplementation( *this ).GetMarkerInfo( marker, startFrame, endFrame );
+  return GetImplementation(*this).GetMarkerInfo(marker, startFrame, endFrame);
 }
 
 void VectorAnimationRenderer::IgnoreRenderedFrame()
 {
-  GetImplementation( *this ).IgnoreRenderedFrame();
+  GetImplementation(*this).IgnoreRenderedFrame();
 }
 
 VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
-  return GetImplementation( *this ).UploadCompletedSignal();
+  return GetImplementation(*this).UploadCompletedSignal();
 }
 
 } // namespace Dali

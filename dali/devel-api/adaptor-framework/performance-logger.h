@@ -2,7 +2,7 @@
 #define DALI_PERFORMANCE_LOGGER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class PerformanceLogger;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Performance logger class
@@ -41,14 +40,13 @@ class PerformanceLogger;
 class DALI_ADAPTOR_API PerformanceLogger : public BaseHandle
 {
 public:
-
   /**
    * Enum for events that can be logged
    */
   enum Marker
   {
-    START_EVENT,      ///< The start of timing
-    END_EVENT         ///< The end of timing
+    START_EVENT, ///< The start of timing
+    END_EVENT    ///< The end of timing
   };
 
   /**
@@ -64,14 +62,14 @@ public:
    * @param[in] name The name of the logger. This needs to be a compile-time literal and alive for the whole lifetime of the performance logger.
    * @return a new logger
    */
-  static PerformanceLogger New( const char* name );
+  static PerformanceLogger New(const char* name);
 
   /**
    * @brief Copy constructor.
    *
    * @param[in] logger The handle to copy. The copied handle will point at the same implementation
    */
-  PerformanceLogger( const PerformanceLogger& logger );
+  PerformanceLogger(const PerformanceLogger& logger);
 
   /**
    * @brief Assignment operator.
@@ -80,7 +78,7 @@ public:
    * as the copied handle.
    * @return Reference to this logger handle
    */
-  PerformanceLogger& operator=( const PerformanceLogger& logger );
+  PerformanceLogger& operator=(const PerformanceLogger& logger);
 
   /**
    * @brief Destructor
@@ -98,28 +96,28 @@ public:
    * @param[in] handle to An object
    * @return handle to a PerformanceLogger object or an uninitialized handle
    */
-  static PerformanceLogger DownCast( BaseHandle handle );
+  static PerformanceLogger DownCast(BaseHandle handle);
 
   /**
    * Add a performance marker
    *
    * @param markerType Performance marker type
    */
-  void AddMarker( Marker markerType );
+  void AddMarker(Marker markerType);
 
   /**
    * Set the logging frequency
    *
    * @param logFrequency how often to log out in seconds
    */
-  void SetLoggingFrequency( unsigned int logFrequency);
+  void SetLoggingFrequency(unsigned int logFrequency);
 
   /**
    * Set logging on or off for this logger
    *
    * @param[in] enable Enable logging or not
    */
-  void EnableLogging( bool enable );
+  void EnableLogging(bool enable);
 
   // Not intended for application developers
 
@@ -127,8 +125,7 @@ public:
    * Creates a new handle from the implementation.
    * @param[in] impl A pointer to the object.
    */
-  explicit DALI_INTERNAL PerformanceLogger( Internal::Adaptor::PerformanceLogger* impl );
-
+  explicit DALI_INTERNAL PerformanceLogger(Internal::Adaptor::PerformanceLogger* impl);
 };
 
 } // namespace Dali

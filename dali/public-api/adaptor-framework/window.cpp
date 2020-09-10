@@ -22,13 +22,12 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/actor.h>
-#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/orientation-impl.h>
+#include <dali/internal/window-system/common/window-impl.h>
+#include <dali/public-api/actors/actor.h>
 
 namespace Dali
 {
-
 Window Window::New(PositionSize posSize, const std::string& name, bool isTransparent)
 {
   return Dali::Window::New(posSize, name, "", isTransparent);
@@ -39,21 +38,21 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
   Window newWindow;
 
   const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
-  bool isNewWindowAllowed = true;
+  bool       isNewWindowAllowed = true;
 
-  if (isAdaptorAvailable)
+  if(isAdaptorAvailable)
   {
     Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-    isNewWindowAllowed = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
+    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
   }
 
-  if (isNewWindowAllowed)
+  if(isNewWindowAllowed)
   {
     Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 
-    if (isAdaptorAvailable)
+    if(isAdaptorAvailable)
     {
       Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
       Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
@@ -76,47 +75,47 @@ Window::~Window()
 {
 }
 
-Window::Window( const Window& copy ) = default;
+Window::Window(const Window& copy) = default;
 
-Window& Window::operator=( const Window& rhs ) = default;
+Window& Window::operator=(const Window& rhs) = default;
 
-Window::Window( Window&& rhs ) = default;
+Window::Window(Window&& rhs) = default;
 
-Window& Window::operator=( Window&& rhs ) = default;
+Window& Window::operator=(Window&& rhs) = default;
 
-void Window::Add( Dali::Actor actor )
+void Window::Add(Dali::Actor actor)
 {
-  GetImplementation( *this ).Add( actor );
+  GetImplementation(*this).Add(actor);
 }
 
-void Window::Remove( Dali::Actor actor )
+void Window::Remove(Dali::Actor actor)
 {
-  GetImplementation( *this ).Remove( actor );
+  GetImplementation(*this).Remove(actor);
 }
 
-void Window::SetBackgroundColor( const Vector4& color )
+void Window::SetBackgroundColor(const Vector4& color)
 {
-  GetImplementation( *this ).SetBackgroundColor( color );
+  GetImplementation(*this).SetBackgroundColor(color);
 }
 
 Vector4 Window::GetBackgroundColor() const
 {
-  return GetImplementation( *this ).GetBackgroundColor();
+  return GetImplementation(*this).GetBackgroundColor();
 }
 
 Layer Window::GetRootLayer() const
 {
-  return GetImplementation( *this ).GetRootLayer();
+  return GetImplementation(*this).GetRootLayer();
 }
 
 uint32_t Window::GetLayerCount() const
 {
-  return GetImplementation( *this ).GetLayerCount();
+  return GetImplementation(*this).GetLayerCount();
 }
 
-Layer Window::GetLayer( uint32_t depth ) const
+Layer Window::GetLayer(uint32_t depth) const
 {
-  return GetImplementation( *this ).GetLayer( depth );
+  return GetImplementation(*this).GetLayer(depth);
 }
 
 Uint16Pair Window::GetDpi() const
@@ -124,9 +123,9 @@ Uint16Pair Window::GetDpi() const
   return GetImplementation(*this).GetDpi();
 }
 
-void Window::SetClass( std::string name, std::string klass )
+void Window::SetClass(std::string name, std::string klass)
 {
-  GetImplementation(*this).SetClass( name, klass );
+  GetImplementation(*this).SetClass(name, klass);
 }
 
 void Window::Raise()
@@ -144,19 +143,19 @@ void Window::Activate()
   GetImplementation(*this).Activate();
 }
 
-void Window::AddAvailableOrientation( WindowOrientation orientation )
+void Window::AddAvailableOrientation(WindowOrientation orientation)
 {
-  GetImplementation(*this).AddAvailableOrientation( orientation );
+  GetImplementation(*this).AddAvailableOrientation(orientation);
 }
 
-void Window::RemoveAvailableOrientation( WindowOrientation orientation )
+void Window::RemoveAvailableOrientation(WindowOrientation orientation)
 {
-  GetImplementation(*this).RemoveAvailableOrientation( orientation );
+  GetImplementation(*this).RemoveAvailableOrientation(orientation);
 }
 
-void Window::SetPreferredOrientation( WindowOrientation orientation )
+void Window::SetPreferredOrientation(WindowOrientation orientation)
 {
-  GetImplementation(*this).SetPreferredOrientation( orientation );
+  GetImplementation(*this).SetPreferredOrientation(orientation);
 }
 
 Dali::Window::WindowOrientation Window::GetPreferredOrientation()
@@ -174,9 +173,9 @@ Window::FocusChangeSignalType& Window::FocusChangeSignal()
   return GetImplementation(*this).FocusChangeSignal();
 }
 
-void Window::SetAcceptFocus( bool accept )
+void Window::SetAcceptFocus(bool accept)
 {
-  GetImplementation(*this).SetAcceptFocus( accept );
+  GetImplementation(*this).SetAcceptFocus(accept);
 }
 
 bool Window::IsFocusAcceptable() const
@@ -204,44 +203,44 @@ unsigned int Window::GetSupportedAuxiliaryHintCount() const
   return GetImplementation(*this).GetSupportedAuxiliaryHintCount();
 }
 
-std::string Window::GetSupportedAuxiliaryHint( unsigned int index ) const
+std::string Window::GetSupportedAuxiliaryHint(unsigned int index) const
 {
-  return GetImplementation(*this).GetSupportedAuxiliaryHint( index );
+  return GetImplementation(*this).GetSupportedAuxiliaryHint(index);
 }
 
-unsigned int Window::AddAuxiliaryHint( const std::string& hint, const std::string& value )
+unsigned int Window::AddAuxiliaryHint(const std::string& hint, const std::string& value)
 {
-  return GetImplementation(*this).AddAuxiliaryHint( hint, value );
+  return GetImplementation(*this).AddAuxiliaryHint(hint, value);
 }
 
-bool Window::RemoveAuxiliaryHint( unsigned int id )
+bool Window::RemoveAuxiliaryHint(unsigned int id)
 {
-  return GetImplementation(*this).RemoveAuxiliaryHint( id );
+  return GetImplementation(*this).RemoveAuxiliaryHint(id);
 }
 
-bool Window::SetAuxiliaryHintValue( unsigned int id, const std::string& value )
+bool Window::SetAuxiliaryHintValue(unsigned int id, const std::string& value)
 {
-  return GetImplementation(*this).SetAuxiliaryHintValue( id, value );
+  return GetImplementation(*this).SetAuxiliaryHintValue(id, value);
 }
 
-std::string Window::GetAuxiliaryHintValue( unsigned int id ) const
+std::string Window::GetAuxiliaryHintValue(unsigned int id) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintValue( id );
+  return GetImplementation(*this).GetAuxiliaryHintValue(id);
 }
 
-unsigned int Window::GetAuxiliaryHintId( const std::string& hint ) const
+unsigned int Window::GetAuxiliaryHintId(const std::string& hint) const
 {
-  return GetImplementation(*this).GetAuxiliaryHintId( hint );
+  return GetImplementation(*this).GetAuxiliaryHintId(hint);
 }
 
-void Window::SetInputRegion( const Rect< int >& inputRegion )
+void Window::SetInputRegion(const Rect<int>& inputRegion)
 {
-  return GetImplementation(*this).SetInputRegion( inputRegion );
+  return GetImplementation(*this).SetInputRegion(inputRegion);
 }
 
-void Window::SetType( Window::Type type )
+void Window::SetType(Window::Type type)
 {
-  GetImplementation(*this).SetType( type );
+  GetImplementation(*this).SetType(type);
 }
 
 Window::Type Window::GetType() const
@@ -249,9 +248,9 @@ Window::Type Window::GetType() const
   return GetImplementation(*this).GetType();
 }
 
-bool Window::SetNotificationLevel( Window::NotificationLevel::Type level )
+bool Window::SetNotificationLevel(Window::NotificationLevel::Type level)
 {
-  return GetImplementation(*this).SetNotificationLevel( level );
+  return GetImplementation(*this).SetNotificationLevel(level);
 }
 
 Window::NotificationLevel::Type Window::GetNotificationLevel() const
@@ -259,9 +258,9 @@ Window::NotificationLevel::Type Window::GetNotificationLevel() const
   return GetImplementation(*this).GetNotificationLevel();
 }
 
-void Window::SetOpaqueState( bool opaque )
+void Window::SetOpaqueState(bool opaque)
 {
-  GetImplementation(*this).SetOpaqueState( opaque );
+  GetImplementation(*this).SetOpaqueState(opaque);
 }
 
 bool Window::IsOpaqueState() const
@@ -279,9 +278,9 @@ Window::ScreenOffMode::Type Window::GetScreenOffMode() const
   return GetImplementation(*this).GetScreenOffMode();
 }
 
-bool Window::SetBrightness( int brightness )
+bool Window::SetBrightness(int brightness)
 {
-  return GetImplementation(*this).SetBrightness( brightness );
+  return GetImplementation(*this).SetBrightness(brightness);
 }
 
 int Window::GetBrightness() const
@@ -294,9 +293,9 @@ Window::ResizeSignalType& Window::ResizeSignal()
   return GetImplementation(*this).ResizeSignal();
 }
 
-void Window::SetSize( Window::WindowSize size )
+void Window::SetSize(Window::WindowSize size)
 {
-  GetImplementation(*this).SetSize( size );
+  GetImplementation(*this).SetSize(size);
 }
 
 Window::WindowSize Window::GetSize() const
@@ -304,9 +303,9 @@ Window::WindowSize Window::GetSize() const
   return GetImplementation(*this).GetSize();
 }
 
-void Window::SetPosition( Window::WindowPosition position )
+void Window::SetPosition(Window::WindowPosition position)
 {
-  GetImplementation(*this).SetPosition( position );
+  GetImplementation(*this).SetPosition(position);
 }
 
 Window::WindowPosition Window::GetPosition() const
@@ -314,9 +313,9 @@ Window::WindowPosition Window::GetPosition() const
   return GetImplementation(*this).GetPosition();
 }
 
-void Window::SetTransparency( bool transparent )
+void Window::SetTransparency(bool transparent)
 {
-  GetImplementation(*this).SetTransparency( transparent );
+  GetImplementation(*this).SetTransparency(transparent);
 }
 
 Dali::RenderTaskList Window::GetRenderTaskList()
@@ -334,8 +333,8 @@ Window::TouchEventSignalType& Window::TouchedSignal()
   return GetImplementation(*this).TouchedSignal();
 }
 
-Window::Window( Internal::Adaptor::Window* window )
-: BaseHandle( window )
+Window::Window(Internal::Adaptor::Window* window)
+: BaseHandle(window)
 {
 }
 

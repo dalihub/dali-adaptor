@@ -25,10 +25,8 @@
 
 namespace Dali
 {
-
 namespace DevelWindow
 {
-
 Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent)
 {
   return DevelWindow::New(surface, windowPosition, name, "", isTransparent);
@@ -39,20 +37,20 @@ Window New(Any surface, PositionSize windowPosition, const std::string& name, co
   Window newWindow;
 
   const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
-  bool isNewWindowAllowed = true;
+  bool       isNewWindowAllowed = true;
 
-  if (isAdaptorAvailable)
+  if(isAdaptorAvailable)
   {
     Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
-    isNewWindowAllowed = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
+    isNewWindowAllowed     = Internal::Adaptor::Adaptor::GetImplementation(adaptor).IsMultipleWindowSupported();
   }
 
-  if (isNewWindowAllowed)
+  if(isNewWindowAllowed)
   {
     Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, windowPosition, name, className, isTransparent);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
-    if (isAdaptorAvailable)
+    if(isAdaptorAvailable)
     {
       Dali::Adaptor& adaptor = Internal::Adaptor::Adaptor::Get();
       Internal::Adaptor::Adaptor::GetImplementation(adaptor).AddWindow(sceneHolder);
@@ -67,84 +65,84 @@ Window New(Any surface, PositionSize windowPosition, const std::string& name, co
   return newWindow;
 }
 
-void SetPositionSize( Window window, PositionSize positionSize )
+void SetPositionSize(Window window, PositionSize positionSize)
 {
-  GetImplementation( window ).SetPositionSize( positionSize );
+  GetImplementation(window).SetPositionSize(positionSize);
 }
 
-Window Get( Actor actor )
+Window Get(Actor actor)
 {
-  return Internal::Adaptor::Window::Get( actor );
+  return Internal::Adaptor::Window::Get(actor);
 }
 
-EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window )
+EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window)
 {
-  return GetImplementation( window ).EventProcessingFinishedSignal();
+  return GetImplementation(window).EventProcessingFinishedSignal();
 }
 
-WheelEventSignalType& WheelEventSignal( Window window )
+WheelEventSignalType& WheelEventSignal(Window window)
 {
-  return GetImplementation( window ).WheelEventSignal();
+  return GetImplementation(window).WheelEventSignal();
 }
 
-VisibilityChangedSignalType& VisibilityChangedSignal( Window window )
+VisibilityChangedSignalType& VisibilityChangedSignal(Window window)
 {
-  return GetImplementation( window ).VisibilityChangedSignal();
+  return GetImplementation(window).VisibilityChangedSignal();
 }
 
-TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window )
+TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window)
 {
-  return GetImplementation( window ).TransitionEffectEventSignal();
+  return GetImplementation(window).TransitionEffectEventSignal();
 }
 
-KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal( Window window )
+KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window)
 {
-  return GetImplementation( window ).KeyboardRepeatSettingsChangedSignal();
+  return GetImplementation(window).KeyboardRepeatSettingsChangedSignal();
 }
 
-void SetParent( Window window, Window parent )
+void SetParent(Window window, Window parent)
 {
-  GetImplementation( window ).SetParent( parent );
+  GetImplementation(window).SetParent(parent);
 }
 
-void Unparent( Window window )
+void Unparent(Window window)
 {
-  GetImplementation( window ).Unparent();
+  GetImplementation(window).Unparent();
 }
 
-Window GetParent( Window window )
+Window GetParent(Window window)
 {
-  return GetImplementation( window ).GetParent();
+  return GetImplementation(window).GetParent();
 }
 
-Window DownCast( BaseHandle handle )
+Window DownCast(BaseHandle handle)
 {
-  return Window( dynamic_cast<Dali::Internal::Adaptor::Window*>( handle.GetObjectPtr()) );
+  return Window(dynamic_cast<Dali::Internal::Adaptor::Window*>(handle.GetObjectPtr()));
 }
 
-Dali::Window::WindowOrientation GetCurrentOrientation( Window window )
+Dali::Window::WindowOrientation GetCurrentOrientation(Window window)
 {
-  return GetImplementation( window ).GetCurrentOrientation();
+  return GetImplementation(window).GetCurrentOrientation();
 }
 
-void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations )
+void SetAvailableOrientations(Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations)
 {
-  GetImplementation( window ).SetAvailableOrientations( orientations );
+  GetImplementation(window).SetAvailableOrientations(orientations);
 }
 
-int32_t GetNativeId( Window window )
+int32_t GetNativeId(Window window)
 {
-  return GetImplementation( window ).GetNativeId();
+  return GetImplementation(window).GetNativeId();
 }
 
-void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
-  GetImplementation( window ).AddFrameRenderedCallback( std::move( callback ), frameId );
+  GetImplementation(window).AddFrameRenderedCallback(std::move(callback), frameId);
 }
 
-void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId )
+void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
-  GetImplementation( window ).AddFramePresentedCallback( std::move( callback ), frameId );
+  GetImplementation(window).AddFramePresentedCallback(std::move(callback), frameId);
 }
 
 } // namespace DevelWindow

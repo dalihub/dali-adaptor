@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,42 +26,40 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
-void TransformToArc( const CircularTextParameters& parameters, double& x, double& y )
+void TransformToArc(const CircularTextParameters& parameters, double& x, double& y)
 {
   double yP = y;
 
   // Does the italic synthesization for circular layout.
-  if( parameters.synthesizeItalic )
+  if(parameters.synthesizeItalic)
   {
-    const double xP = -yP * sin( TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE );
-    yP *= cos( TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE );
+    const double xP = -yP * sin(TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE);
+    yP *= cos(TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE);
 
     x += xP;
   }
 
-  double angle = 0.0;
+  double angle  = 0.0;
   double radius = parameters.radius;
 
   // Transform to a circular layout.
-  if( parameters.isClockwise )
+  if(parameters.isClockwise)
   {
     angle = parameters.beginAngle - parameters.invRadius * x;
     radius -= yP;
 
-    x = radius * cos( angle );
-    y = -radius * sin( angle );
+    x = radius * cos(angle);
+    y = -radius * sin(angle);
   }
   else
   {
     angle = parameters.beginAngle + parameters.invRadius * x;
     radius += yP;
 
-    x = radius * cos( angle );
-    y = radius * sin( -angle );
+    x = radius * cos(angle);
+    y = radius * sin(-angle);
   }
 
   // Transforms to the text area coordinate system.

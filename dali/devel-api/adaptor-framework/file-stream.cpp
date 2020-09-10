@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,20 +24,19 @@
 
 namespace Dali
 {
-
 FileStream::FileStream(const std::string& filename, uint8_t mode)
 {
-  mImpl.reset( new Impl( filename, mode ) );
+  mImpl.reset(new Impl(filename, mode));
 }
 
 FileStream::FileStream(uint8_t* buffer, size_t dataSize, uint8_t mode)
 {
-  mImpl.reset( new Impl( buffer, dataSize, mode ) );
+  mImpl.reset(new Impl(buffer, dataSize, mode));
 }
 
 FileStream::FileStream(Dali::Vector<uint8_t>& buffer, size_t dataSize, uint8_t mode)
 {
-  mImpl.reset( new Impl( buffer, dataSize, mode ) );
+  mImpl.reset(new Impl(buffer, dataSize, mode));
 }
 
 FileStream::FileStream(FileStream&&) = default;
@@ -56,4 +55,4 @@ FILE* FileStream::GetFile()
   return mImpl->GetFile();
 }
 
-} // Dali
+} // namespace Dali

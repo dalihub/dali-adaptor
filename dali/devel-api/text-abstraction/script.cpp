@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,18 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace
 {
-const unsigned int WHITE_SPACE_THRESHOLD  = 0x21; ///< All characters below 0x21 are considered white spaces.
-const unsigned int CHAR_LF   = 0x000A; ///< NL Line feed, new line.
-const unsigned int CHAR_VT   = 0x000B; ///< Vertical tab.
-const unsigned int CHAR_FF   = 0x000C; ///< NP Form feed, new page.
-const unsigned int CHAR_CR   = 0x000D; ///< Carriage return, new line.
-const unsigned int CHAR_NEL  = 0x0085; ///< Next line.
-const unsigned int CHAR_LS   = 0x2028; ///< Line separator.
-const unsigned int CHAR_PS   = 0x2029; ///< Paragraph separator
+const unsigned int WHITE_SPACE_THRESHOLD = 0x21;   ///< All characters below 0x21 are considered white spaces.
+const unsigned int CHAR_LF               = 0x000A; ///< NL Line feed, new line.
+const unsigned int CHAR_VT               = 0x000B; ///< Vertical tab.
+const unsigned int CHAR_FF               = 0x000C; ///< NP Form feed, new page.
+const unsigned int CHAR_CR               = 0x000D; ///< Carriage return, new line.
+const unsigned int CHAR_NEL              = 0x0085; ///< Next line.
+const unsigned int CHAR_LS               = 0x2028; ///< Line separator.
+const unsigned int CHAR_PS               = 0x2029; ///< Paragraph separator
 
 const unsigned int CHAR_ZWS  = 0x200B; ///< Zero width space.
 const unsigned int CHAR_ZWNJ = 0x200C; ///< Zero width non joiner.
@@ -43,13 +41,13 @@ const unsigned int CHAR_RTLM = 0x200F; ///< Right to Left Mark.
 const unsigned int CHAR_TS   = 0x2009; ///< Thin Space.
 } // namespace
 
-bool IsRightToLeftScript( Script script )
+bool IsRightToLeftScript(Script script)
 {
-  return ( ( ARABIC == script ) ||
-           ( HEBREW == script ) );
+  return ((ARABIC == script) ||
+          (HEBREW == script));
 }
 
-Script GetCharacterScript( Character character )
+Script GetCharacterScript(Character character)
 {
   // Latin script:   It contains punctuation characters and symbols which are not part of the latin script. https://en.wikipedia.org/wiki/Latin_script_in_Unicode
   // 0x0000 - 0x007f C0 Controls and Basic Latin
@@ -272,116 +270,116 @@ Script GetCharacterScript( Character character )
   // 0x25aa
   // 0x262a
 
-  if( IsCommonScript( character ) )
+  if(IsCommonScript(character))
   {
     return COMMON;
   }
 
-  if( character <= 0x0cff )
+  if(character <= 0x0cff)
   {
-    if( character <= 0x09ff )
+    if(character <= 0x09ff)
     {
-      if( character <= 0x077f )
+      if(character <= 0x077f)
       {
-        if( ( 0x0030 <= character ) && ( character <= 0x0039 ) )
+        if((0x0030 <= character) && (character <= 0x0039))
         {
           return ASCII_DIGITS;
         }
-        if( character <= 0x007E )
+        if(character <= 0x007E)
         {
-          if( ( 0x0020 <= character ) && ( character <= 0x002F ) )
+          if((0x0020 <= character) && (character <= 0x002F))
           {
             return ASCII_PS;
           }
-          if( ( 0x003A <= character ) && ( character <= 0x0040 ) )
+          if((0x003A <= character) && (character <= 0x0040))
           {
             return ASCII_PS;
           }
-          if( ( 0x005B <= character ) && ( character <= 0x0060 ) )
+          if((0x005B <= character) && (character <= 0x0060))
           {
             return ASCII_PS;
           }
-          if( ( 0x007B <= character ) && ( character <= 0x007E ) )
+          if((0x007B <= character) && (character <= 0x007E))
           {
             return ASCII_PS;
           }
         }
-        if( ( 0x007F <= character ) && ( character <= 0x009F ) )
+        if((0x007F <= character) && (character <= 0x009F))
         {
           // 0x007F is actually part of C0 Controls and Basic Latin. However, is the last and only control character of its block
           // and the following characters of the next block are consecutive.
           return C1_CONTROLS;
         }
-        if( ( 0x00A0 <= character ) && ( character <= 0x00BF ) )
+        if((0x00A0 <= character) && (character <= 0x00BF))
         {
-          if( character == 0x00A9 )
+          if(character == 0x00A9)
           {
             return EMOJI; // 5. Uncategorized: copyright sign
           }
-          if( character == 0x00AE )
+          if(character == 0x00AE)
           {
             return EMOJI; // 5. Uncategorized: registered sign
           }
 
           return C1_PS;
         }
-        if( character == 0x00D7 )
+        if(character == 0x00D7)
         {
           return C1_MATH;
         }
-        if( character == 0x00F7 )
+        if(character == 0x00F7)
         {
-          return  C1_MATH;
+          return C1_MATH;
         }
-        if( character <= 0x02ff )
+        if(character <= 0x02ff)
         {
-          if( ( 0x02B9 <= character ) && ( character <= 0x02BF ) )
+          if((0x02B9 <= character) && (character <= 0x02BF))
           {
             return SML_P;
           }
 
           return LATIN;
         }
-        if( ( 0x0370 <= character ) && ( character <= 0x03ff ) )
+        if((0x0370 <= character) && (character <= 0x03ff))
         {
           return GREEK;
         }
-        if( ( 0x0400 <= character ) && ( character <= 0x04ff ) )
+        if((0x0400 <= character) && (character <= 0x04ff))
         {
           return CYRILLIC;
         }
-        if( ( 0x0500 <= character ) && ( character <= 0x052f ) )
+        if((0x0500 <= character) && (character <= 0x052f))
         {
           return CYRILLIC;
         }
-        if( ( 0x0530 <= character ) && ( character <= 0x058f ) )
+        if((0x0530 <= character) && (character <= 0x058f))
         {
           return ARMENIAN;
         }
-        if( ( 0x0591 <= character ) && ( character <= 0x05f4 ) )
+        if((0x0591 <= character) && (character <= 0x05f4))
         {
           return HEBREW;
         }
-        if( ( 0x0600 <= character ) && ( character <= 0x06ff ) )
+        if((0x0600 <= character) && (character <= 0x06ff))
         {
           return ARABIC;
         }
-        if( ( 0x0750 <= character ) && ( character <= 0x077f ) )
+        if((0x0750 <= character) && (character <= 0x077f))
         {
           return ARABIC;
         }
       }
       else // > 0x077f
       {
-        if( ( 0x08A0 <= character ) && ( character <= 0x08ff ) )
+        if((0x08A0 <= character) && (character <= 0x08ff))
         {
           return ARABIC;
         }
-        if( ( 0x0900 <= character ) && ( character <= 0x097f ) )
+        if((0x0900 <= character) && (character <= 0x097f))
         {
           return DEVANAGARI;
         }
-        if( ( 0x0980 <= character ) && ( character <= 0x09ff ) )
+        if((0x0980 <= character) && (character <= 0x09ff))
         {
           return BENGALI;
         }
@@ -389,32 +387,32 @@ Script GetCharacterScript( Character character )
     }
     else // > 0x09ff
     {
-      if( character <= 0x0b7f )
+      if(character <= 0x0b7f)
       {
-        if( ( 0x0a00 <= character ) && ( character <= 0x0a7f ) )
+        if((0x0a00 <= character) && (character <= 0x0a7f))
         {
           return GURMUKHI;
         }
-        if( ( 0x0a80 <= character ) && ( character <= 0x0aff ) )
+        if((0x0a80 <= character) && (character <= 0x0aff))
         {
           return GUJARATI;
         }
-        if( ( 0x0b00 <= character ) && ( character <= 0x0b7f ) )
+        if((0x0b00 <= character) && (character <= 0x0b7f))
         {
           return ORIYA;
         }
       }
       else // > 0x0b7f
       {
-        if( ( 0x0b80 <= character ) && ( character <= 0x0bff ) )
+        if((0x0b80 <= character) && (character <= 0x0bff))
         {
           return TAMIL;
         }
-        if( ( 0x0c00 <= character ) && ( character <= 0x0c7f ) )
+        if((0x0c00 <= character) && (character <= 0x0c7f))
         {
           return TELUGU;
         }
-        if( ( 0x0c80 <= character ) && ( character <= 0x0cff ) )
+        if((0x0c80 <= character) && (character <= 0x0cff))
         {
           return KANNADA;
         }
@@ -423,89 +421,89 @@ Script GetCharacterScript( Character character )
   }
   else // > 0x0cff
   {
-    if( character <= 0x2c7f )
+    if(character <= 0x2c7f)
     {
-      if( character <= 0x1eff )
+      if(character <= 0x1eff)
       {
-        if( ( 0x0d00 <= character ) && ( character <= 0x0d7f ) )
+        if((0x0d00 <= character) && (character <= 0x0d7f))
         {
           return MALAYALAM;
         }
-        if( ( 0x0d80 <= character ) && ( character <= 0x0dff ) )
+        if((0x0d80 <= character) && (character <= 0x0dff))
         {
           return SINHALA;
         }
-        if( ( 0x0e00 <= character ) && ( character <= 0x0e7f ) )
+        if((0x0e00 <= character) && (character <= 0x0e7f))
         {
           return THAI;
         }
-        if( ( 0x0e80 <= character ) && ( character <= 0x0eff ) )
+        if((0x0e80 <= character) && (character <= 0x0eff))
         {
           return LAO;
         }
-        if( ( 0x1000 <= character ) && ( character <= 0x109f ) )
+        if((0x1000 <= character) && (character <= 0x109f))
         {
           return BURMESE;
         }
-        if( ( 0x10a0 <= character ) && ( character <= 0x10ff ) )
+        if((0x10a0 <= character) && (character <= 0x10ff))
         {
           return GEORGIAN;
         }
-        if( ( 0x1100 <= character ) && ( character <= 0x11ff ) )
+        if((0x1100 <= character) && (character <= 0x11ff))
         {
           return HANGUL;
         }
-        if( ( 0x1200 <= character ) && ( character <= 0x137f ) )
+        if((0x1200 <= character) && (character <= 0x137f))
         {
           return GEEZ;
         }
-        if( ( 0x1380 <= character ) && ( character <= 0x139f ) )
+        if((0x1380 <= character) && (character <= 0x139f))
         {
           return GEEZ;
         }
-        if( ( 0x1700 <= character ) && ( character <= 0x171f ) )
+        if((0x1700 <= character) && (character <= 0x171f))
         {
           return BAYBAYIN;
         }
-        if( ( 0x1780 <= character ) && ( character <= 0x17ff ) )
+        if((0x1780 <= character) && (character <= 0x17ff))
         {
           return KHMER;
         }
-        if( ( 0x19e0 <= character ) && ( character <= 0x19ff ) )
+        if((0x19e0 <= character) && (character <= 0x19ff))
         {
           return KHMER;
         }
-        if( ( 0x1b80 <= character ) && ( character <= 0x1bbf ) )
+        if((0x1b80 <= character) && (character <= 0x1bbf))
         {
           return SUNDANESE;
         }
-        if( ( 0x1c50 <= character ) && ( character <= 0x1c7f ) )
+        if((0x1c50 <= character) && (character <= 0x1c7f))
         {
           return OL_CHIKI;
         }
-        if( ( 0x1cc0 <= character ) && ( character <= 0x1ccf ) )
+        if((0x1cc0 <= character) && (character <= 0x1ccf))
         {
           return SUNDANESE;
         }
-        if( ( 0x1d00 <= character ) && ( character <= 0x1eff ) )
+        if((0x1d00 <= character) && (character <= 0x1eff))
         {
-          if( ( 0x1D26 <= character ) && ( character <= 0x1D2B ) )
+          if((0x1D26 <= character) && (character <= 0x1D2B))
           {
             return PHONETIC_U;
           }
-          if( ( 0x1D5D <= character ) && ( character <= 0x1D61 ) )
+          if((0x1D5D <= character) && (character <= 0x1D61))
           {
             return PHONETIC_SS;
           }
-          if( ( 0x1D66 <= character ) && ( character <= 0x1D6A ) )
+          if((0x1D66 <= character) && (character <= 0x1D6A))
           {
             return PHONETIC_SS;
           }
-          if( character == 0x1D78 )
+          if(character == 0x1D78)
           {
             return PHONETIC_SS;
           }
-          if( character == 0x1DBF)
+          if(character == 0x1DBF)
           {
             return PHONETIC_SS;
           }
@@ -515,67 +513,67 @@ Script GetCharacterScript( Character character )
       }
       else // > 0x1eff
       {
-        if( ( 0x1f00 <= character ) && ( character <= 0x1fff ) )
+        if((0x1f00 <= character) && (character <= 0x1fff))
         {
           return GREEK;
         }
-        if( character == 0x203c )
+        if(character == 0x203c)
         {
           return EMOJI; // 5. Uncategorized: double exclamation mark
         }
-        if( character == 0x2049 )
+        if(character == 0x2049)
         {
           return EMOJI; // 5. Uncategorized: exclamation question mark
         }
-        if( ( 0x2070 <= character ) && ( character <= 0x209f ) )
+        if((0x2070 <= character) && (character <= 0x209f))
         {
-          if( character == 0x2070 )
+          if(character == 0x2070)
           {
             return NUMERIC_SS;
           }
-          if( ( 0x2074 <= character ) && ( character <= 0x207E ) )
+          if((0x2074 <= character) && (character <= 0x207E))
           {
             return NUMERIC_SS;
           }
 
           return LATIN;
         }
-        if( character == 0x20e3 )
+        if(character == 0x20e3)
         {
           return EMOJI; // 5. Uncategorized: combining enclosing keycap
         }
-        if( character == 0x2122 )
+        if(character == 0x2122)
         {
           return EMOJI; // 5. Uncategorized: trade mark sign
         }
-        if( character == 0x2139 )
+        if(character == 0x2139)
         {
           return EMOJI; // 5. Uncategorized: information source
         }
-        if( ( 0x2100 <= character ) && ( character <= 0x2189 ) )
+        if((0x2100 <= character) && (character <= 0x2189))
         {
-          if( ( 0x2100 <= character ) && ( character <= 0x214f ) )
+          if((0x2100 <= character) && (character <= 0x214f))
           {
-            if( ( 0x212A <= character ) && ( character <= 0x212B ) )
+            if((0x212A <= character) && (character <= 0x212B))
             {
               return LATIN;
             }
-            if( character == 0x2132 )
+            if(character == 0x2132)
             {
               return LATIN;
             }
-            if( character == 0x214E )
+            if(character == 0x214E)
             {
               return LATIN;
             }
 
             return LETTER_LIKE;
           }
-          if( ( 0x2150 <= character ) && ( character <= 0x215F ) )
+          if((0x2150 <= character) && (character <= 0x215F))
           {
             return FRACTIONS_NF;
           }
-          if( character == 0x2189 )
+          if(character == 0x2189)
           {
             return FRACTIONS_NF;
           }
@@ -584,44 +582,44 @@ Script GetCharacterScript( Character character )
         }
 
         // Symbols
-        if( ( 0x25cb == character ) ||
-            ( 0x25cf == character ) ||
-            ( 0x25a1 == character ) )
+        if((0x25cb == character) ||
+           (0x25cf == character) ||
+           (0x25a1 == character))
         {
           return SYMBOLS1;
         }
 
-        if( 0x25a0 == character )
+        if(0x25a0 == character)
         {
           return SYMBOLS2;
         }
 
-        if( ( 0x2664 == character ) ||
-            ( 0x2661 == character ) ||
-            ( 0x2662 == character ) ||
-            ( 0x2667 == character ) )
+        if((0x2664 == character) ||
+           (0x2661 == character) ||
+           (0x2662 == character) ||
+           (0x2667 == character))
         {
           return SYMBOLS3;
         }
 
-        if( ( 0x2606 == character ) ||
-            ( 0x25aa == character ) )
+        if((0x2606 == character) ||
+           (0x25aa == character))
         {
           return SYMBOLS4;
         }
 
-        if( 0x262a == character )
+        if(0x262a == character)
         {
           return SYMBOLS5;
         }
 
         // U+2194 5. Uncategorized: left right arrow
         // U+2B55 5. Uncategorized: heavy large circle
-        if( ( 0x2194 <= character ) && ( character <= 0x2B55 ) )
+        if((0x2194 <= character) && (character <= 0x2B55))
         {
           return EMOJI;
         }
-        if( ( 0x2c60 <= character ) && ( character <= 0x2c7f ) )
+        if((0x2c60 <= character) && (character <= 0x2c7f))
         {
           return LATIN;
         }
@@ -629,225 +627,225 @@ Script GetCharacterScript( Character character )
     }
     else // > 0x2c7f
     {
-      if( character <= 0xfdff )
+      if(character <= 0xfdff)
       {
-        if( ( 0x2d00 <= character ) && ( character <= 0x2d2f ) )
+        if((0x2d00 <= character) && (character <= 0x2d2f))
         {
           return GEORGIAN;
         }
-        if( ( 0x2d80 <= character ) && ( character <= 0x2ddf ) )
+        if((0x2d80 <= character) && (character <= 0x2ddf))
         {
           return GEEZ;
         }
-        if( ( 0x2de0 <= character ) && ( character <= 0x2dff ) )
+        if((0x2de0 <= character) && (character <= 0x2dff))
         {
           return CYRILLIC;
         }
-        if( ( 0x2e80 <= character ) && ( character <= 0x2eff ) )
+        if((0x2e80 <= character) && (character <= 0x2eff))
         {
           return CJK;
         }
-        if( ( 0x2f00 <= character ) && ( character <= 0x2fdf ) )
+        if((0x2f00 <= character) && (character <= 0x2fdf))
         {
           return CJK;
         }
-        if( ( 0x3000 <= character ) && ( character <= 0x303f ) )
+        if((0x3000 <= character) && (character <= 0x303f))
         {
           return CJK;
         }
-        if( ( 0x3040 <= character ) && ( character <= 0x309f ) )
+        if((0x3040 <= character) && (character <= 0x309f))
         {
           return HIRAGANA;
         }
-        if( ( 0x30a0 <= character ) && ( character <= 0x30ff ) )
+        if((0x30a0 <= character) && (character <= 0x30ff))
         {
           return KATAKANA;
         }
-        if( ( 0x3100 <= character ) && ( character <= 0x312f ) )
+        if((0x3100 <= character) && (character <= 0x312f))
         {
           return BOPOMOFO;
         }
-        if( ( 0x3130 <= character ) && ( character <= 0x318f ) )
+        if((0x3130 <= character) && (character <= 0x318f))
         {
           return HANGUL;
         }
-        if( ( 0x31a0 <= character ) && ( character <= 0x31bf ) )
+        if((0x31a0 <= character) && (character <= 0x31bf))
         {
           return BOPOMOFO;
         }
-        if( ( 0x3200 <= character ) && ( character <= 0x32ff ) )
+        if((0x3200 <= character) && (character <= 0x32ff))
         {
           return CJK;
         }
-        if( ( 0x3400 <= character ) && ( character <= 0x4dbf ) )
+        if((0x3400 <= character) && (character <= 0x4dbf))
         {
           return CJK;
         }
-        if( ( 0x4e00 <= character ) && ( character <= 0x62ff ) )
+        if((0x4e00 <= character) && (character <= 0x62ff))
         {
           return CJK;
         }
-        if( ( 0x6300 <= character ) && ( character <= 0x77ff ) )
+        if((0x6300 <= character) && (character <= 0x77ff))
         {
           return CJK;
         }
-        if( ( 0x7800 <= character ) && ( character <= 0x8cff ) )
+        if((0x7800 <= character) && (character <= 0x8cff))
         {
           return CJK;
         }
-        if( ( 0x8d00 <= character ) && ( character <= 0x9fff ) )
+        if((0x8d00 <= character) && (character <= 0x9fff))
         {
           return CJK;
         }
-        if( ( 0xa640 <= character ) && ( character <= 0xa69f ) )
+        if((0xa640 <= character) && (character <= 0xa69f))
         {
           return CYRILLIC;
         }
-        if( ( 0xa720 <= character ) && ( character <= 0xa7ff ) )
+        if((0xa720 <= character) && (character <= 0xa7ff))
         {
-          if( character == 0xA720 )
+          if(character == 0xA720)
           {
             return PHONETIC_U;
           }
-          if( character == 0xA721 )
+          if(character == 0xA721)
           {
             return PHONETIC_U;
           }
-          if( character == 0xA788 )
+          if(character == 0xA788)
           {
             return NON_LATIN_LED;
           }
-          if( character == 0xA789 )
+          if(character == 0xA789)
           {
             return NON_LATIN_LED;
           }
-          if( character == 0xA78A )
+          if(character == 0xA78A)
           {
             return NON_LATIN_LED;
           }
 
           return LATIN;
         }
-        if( ( 0xa960 <= character ) && ( character <= 0xa97f ) )
+        if((0xa960 <= character) && (character <= 0xa97f))
         {
           return HANGUL;
         }
-        if( ( 0xa980 <= character ) && ( character <= 0xa9fd ) )
+        if((0xa980 <= character) && (character <= 0xa9fd))
         {
           return JAVANESE;
         }
-        if( ( 0xab00 <= character ) && ( character <= 0xab2f ) )
+        if((0xab00 <= character) && (character <= 0xab2f))
         {
           return GEEZ;
         }
-        if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
+        if((0xab30 <= character) && (character <= 0xab6f))
         {
           return LATIN;
         }
-        if( ( 0xaae0 <= character ) && ( character <= 0xaaff ) )
+        if((0xaae0 <= character) && (character <= 0xaaff))
         {
           return MEITEI;
         }
-        if( ( 0xabc0 <= character ) && ( character <= 0xabff ) )
+        if((0xabc0 <= character) && (character <= 0xabff))
         {
           return MEITEI;
         }
-        if( ( 0xac00 <= character ) && ( character <= 0xd7af ) )
+        if((0xac00 <= character) && (character <= 0xd7af))
         {
           return HANGUL;
         }
-        if( ( 0xd7b0 <= character ) && ( character <= 0xd7ff ) )
+        if((0xd7b0 <= character) && (character <= 0xd7ff))
         {
           return HANGUL;
         }
-        if( ( 0xfb00 <= character ) && ( character <= 0xfb06 ) )
+        if((0xfb00 <= character) && (character <= 0xfb06))
         {
           return LATIN;
         }
-        if( ( 0xfb13 <= character ) && ( character <= 0xfb17 ) )
+        if((0xfb13 <= character) && (character <= 0xfb17))
         {
           return ARMENIAN;
         }
-        if( ( 0xfb1d <= character ) && ( character <= 0xfb4f ) )
+        if((0xfb1d <= character) && (character <= 0xfb4f))
         {
           return HEBREW;
         }
-        if( ( 0xfb50 <= character ) && ( character <= 0xfdff ) )
+        if((0xfb50 <= character) && (character <= 0xfdff))
         {
           return ARABIC;
         }
       }
       else // > 0xfdff
       {
-        if( ( 0xfe70 <= character ) && ( character <= 0xfeff ) )
+        if((0xfe70 <= character) && (character <= 0xfeff))
         {
           return ARABIC;
         }
-        if( ( 0xff00 <= character ) && ( character <= 0xffef ) )
+        if((0xff00 <= character) && (character <= 0xffef))
         {
-          if( ( 0xFF00 <= character ) && ( character <= 0xFF20 ) )
+          if((0xFF00 <= character) && (character <= 0xFF20))
           {
             return HWFW_S;
           }
-          if( ( 0xFF3B <= character ) && ( character <= 0xFF40 ) )
+          if((0xFF3B <= character) && (character <= 0xFF40))
           {
             return HWFW_S;
           }
-          if( ( 0xFF5B <= character ) && ( character <= 0xFFEF ) )
+          if((0xFF5B <= character) && (character <= 0xFFEF))
           {
             return HWFW_S;
           }
 
           return LATIN;
         }
-        if( ( 0x1ee00 <= character ) && ( character <= 0x1eeff ) )
+        if((0x1ee00 <= character) && (character <= 0x1eeff))
         {
           return ARABIC;
         }
         // U+1f170 4. Enclosed characters: negative squared latin capital letter A
         // U+1f6ff 6b. Additional transport and map symbols
-        if( ( 0x1f170 <= character ) && ( character <= 0x1f6ff ) )
+        if((0x1f170 <= character) && (character <= 0x1f6ff))
         {
           return EMOJI;
         }
         // 7. Supplemental Symbols and Pictographs
-        if( ( 0x1f900 <= character ) && ( character <= 0x1f9ff ) )
+        if((0x1f900 <= character) && (character <= 0x1f9ff))
         {
           return EMOJI;
         }
-        if( ( 0x20000 <= character ) && ( character <= 0x215ff ) )
+        if((0x20000 <= character) && (character <= 0x215ff))
         {
           return CJK;
         }
-        if( ( 0x21600 <= character ) && ( character <= 0x230ff ) )
+        if((0x21600 <= character) && (character <= 0x230ff))
         {
           return CJK;
         }
-        if( ( 0x23100 <= character ) && ( character <= 0x245ff ) )
+        if((0x23100 <= character) && (character <= 0x245ff))
         {
           return CJK;
         }
-        if( ( 0x24600 <= character ) && ( character <= 0x260ff ) )
+        if((0x24600 <= character) && (character <= 0x260ff))
         {
           return CJK;
         }
-        if( ( 0x26100 <= character ) && ( character <= 0x275ff ) )
+        if((0x26100 <= character) && (character <= 0x275ff))
         {
           return CJK;
         }
-        if( ( 0x27600 <= character ) && ( character <= 0x290ff ) )
+        if((0x27600 <= character) && (character <= 0x290ff))
         {
           return CJK;
         }
-        if( ( 0x29100 <= character ) && ( character <= 0x2a6df ) )
+        if((0x29100 <= character) && (character <= 0x2a6df))
         {
           return CJK;
         }
-        if( ( 0x2a700 <= character ) && ( character <= 0x2b73f ) )
+        if((0x2a700 <= character) && (character <= 0x2b73f))
         {
           return CJK;
         }
-        if( ( 0x2b740 <= character ) && ( character <= 0x2b81f ) )
+        if((0x2b740 <= character) && (character <= 0x2b81f))
         {
           return CJK;
         }
@@ -858,68 +856,68 @@ Script GetCharacterScript( Character character )
   return UNKNOWN;
 }
 
-bool IsWhiteSpace( Character character )
+bool IsWhiteSpace(Character character)
 {
   return character < WHITE_SPACE_THRESHOLD;
 }
 
-bool IsNewParagraph( Character character )
+bool IsNewParagraph(Character character)
 {
-  return ( ( CHAR_LF == character )  ||
-           ( CHAR_VT == character )  ||
-           ( CHAR_FF == character )  ||
-           ( CHAR_CR == character )  ||
-           ( CHAR_NEL == character ) ||
-           ( CHAR_LS == character )  ||
-           ( CHAR_PS == character ) );
+  return ((CHAR_LF == character) ||
+          (CHAR_VT == character) ||
+          (CHAR_FF == character) ||
+          (CHAR_CR == character) ||
+          (CHAR_NEL == character) ||
+          (CHAR_LS == character) ||
+          (CHAR_PS == character));
 }
 
-bool IsZeroWidthNonJoiner( Character character )
+bool IsZeroWidthNonJoiner(Character character)
 {
   return CHAR_ZWNJ == character;
 }
 
-bool IsZeroWidthJoiner( Character character )
+bool IsZeroWidthJoiner(Character character)
 {
   return CHAR_ZWJ == character;
 }
 
-bool IsZeroWidthSpace( Character character )
+bool IsZeroWidthSpace(Character character)
 {
   return CHAR_ZWS == character;
 }
 
-bool IsLeftToRightMark( Character character )
+bool IsLeftToRightMark(Character character)
 {
   return CHAR_LTRM == character;
 }
 
-bool IsRightToLeftMark( Character character )
+bool IsRightToLeftMark(Character character)
 {
   return CHAR_RTLM == character;
 }
 
-bool IsThinSpace( Character character )
+bool IsThinSpace(Character character)
 {
   return CHAR_TS == character;
 }
 
-bool IsCommonScript( Character character )
+bool IsCommonScript(Character character)
 {
-  return ( IsWhiteSpace( character )         ||
-           IsZeroWidthNonJoiner( character ) ||
-           IsZeroWidthJoiner( character )    ||
-           IsZeroWidthSpace( character )     ||
-           IsLeftToRightMark( character )    ||
-           IsRightToLeftMark( character )    ||
-           IsThinSpace( character )          ||
-           IsNewParagraph( character ) );
+  return (IsWhiteSpace(character) ||
+          IsZeroWidthNonJoiner(character) ||
+          IsZeroWidthJoiner(character) ||
+          IsZeroWidthSpace(character) ||
+          IsLeftToRightMark(character) ||
+          IsRightToLeftMark(character) ||
+          IsThinSpace(character) ||
+          IsNewParagraph(character));
 }
 
-bool HasLigatureMustBreak( Script script )
+bool HasLigatureMustBreak(Script script)
 {
-  return ( ( LATIN == script ) ||
-           ( ARABIC == script ) );
+  return ((LATIN == script) ||
+          (ARABIC == script));
 }
 
 } // namespace TextAbstraction

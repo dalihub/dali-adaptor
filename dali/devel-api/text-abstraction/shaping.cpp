@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,8 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 Shaping::Shaping()
 {
 }
@@ -35,8 +33,8 @@ Shaping::~Shaping()
 {
 }
 
-Shaping::Shaping( Internal::Shaping *impl )
-: BaseHandle( impl )
+Shaping::Shaping(Internal::Shaping* impl)
+: BaseHandle(impl)
 {
 }
 
@@ -45,22 +43,22 @@ Shaping Shaping::Get()
   return Internal::Shaping::Get();
 }
 
-Length Shaping::Shape( const Character* const text,
-                       Length numberOfCharacters,
-                       FontId fontId,
-                       Script script )
+Length Shaping::Shape(const Character* const text,
+                      Length                 numberOfCharacters,
+                      FontId                 fontId,
+                      Script                 script)
 {
-  return GetImplementation( *this ).Shape( text,
-                                           numberOfCharacters,
-                                           fontId,
-                                           script );
+  return GetImplementation(*this).Shape(text,
+                                        numberOfCharacters,
+                                        fontId,
+                                        script);
 }
 
-void Shaping::GetGlyphs( GlyphInfo* glyphInfo,
-                         CharacterIndex* glyphToCharacterMap )
+void Shaping::GetGlyphs(GlyphInfo*      glyphInfo,
+                        CharacterIndex* glyphToCharacterMap)
 {
-  GetImplementation( *this ).GetGlyphs( glyphInfo,
-                                        glyphToCharacterMap );
+  GetImplementation(*this).GetGlyphs(glyphInfo,
+                                     glyphToCharacterMap);
 }
 
 } // namespace TextAbstraction

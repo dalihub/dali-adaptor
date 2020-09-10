@@ -28,7 +28,6 @@
 
 namespace Dali
 {
-
 class ObjectRegistry;
 
 /**
@@ -42,7 +41,7 @@ namespace Adaptor
 {
 class Application;
 }
-}
+} // namespace DALI_INTERNAL
 /**
  * @brief An Application class object should be created by every application
  * that wishes to use Dali.
@@ -106,11 +105,10 @@ class Application;
 class DALI_ADAPTOR_API Application : public BaseHandle
 {
 public:
-
-  typedef Signal< void (DeviceStatus::Battery::Status) > LowBatterySignalType; ///< Application device signal type @SINCE_1_2.62
-  typedef Signal< void (DeviceStatus::Memory::Status) > LowMemorySignalType;   ///< Application device signal type @SINCE_1_2.62
-  typedef Signal< void (Application&) > AppSignalType;  ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
-  typedef Signal< void (Application&, void *) > AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
+  typedef Signal<void(DeviceStatus::Battery::Status)> LowBatterySignalType; ///< Application device signal type @SINCE_1_2.62
+  typedef Signal<void(DeviceStatus::Memory::Status)>  LowMemorySignalType;  ///< Application device signal type @SINCE_1_2.62
+  typedef Signal<void(Application&)>                  AppSignalType;        ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application&, void*)>           AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
 
   /**
    * @brief Enumeration for deciding whether a Dali application window is opaque or transparent.
@@ -118,12 +116,11 @@ public:
    */
   enum WINDOW_MODE
   {
-    OPAQUE = 0,       ///< The window will be opaque @SINCE_1_0.0
-    TRANSPARENT = 1   ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor() @SINCE_1_0.0
+    OPAQUE      = 0, ///< The window will be opaque @SINCE_1_0.0
+    TRANSPARENT = 1  ///< The window transparency will match the alpha value set in Dali::Stage::SetBackgroundcolor() @SINCE_1_0.0
   };
 
 public:
-
   /**
    * @brief This is the constructor for applications without an argument list.
    * @SINCE_1_0.0
@@ -143,7 +140,7 @@ public:
    * @param[in,out]  argv        A pointer to the argument list
    * @return A handle to the Application
    */
-  static Application New( int* argc, char **argv[] );
+  static Application New(int* argc, char** argv[]);
 
   /**
    * @brief This is the constructor for applications with a name.
@@ -157,7 +154,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New( int* argc, char **argv[], const std::string& stylesheet );
+  static Application New(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * @brief This is the constructor for applications with a name.
@@ -172,7 +169,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * @brief This is the constructor for applications.
@@ -188,7 +185,7 @@ public:
    * @return A handle to the Application
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static Application New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize );
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize);
 
   /**
    * @brief Constructs an empty handle.
@@ -201,7 +198,7 @@ public:
    * @SINCE_1_0.0
    * @param[in] application Handle to an object
    */
-  Application( const Application& application );
+  Application(const Application& application);
 
   /**
    * @brief Assignment operator.
@@ -209,7 +206,7 @@ public:
    * @param[in] application Handle to an object
    * @return A reference to this
    */
-  Application& operator=( const Application& application );
+  Application& operator=(const Application& application);
 
   /**
    * @brief Move constructor.
@@ -217,7 +214,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Application( Application&& rhs );
+  Application(Application&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -226,7 +223,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Application& operator=( Application&& rhs );
+  Application& operator=(Application&& rhs);
 
   /**
    * @brief Destructor.
@@ -276,7 +273,7 @@ public:
    *
    * @note Ownership of the callback is passed onto this class.
    */
-  bool AddIdle( CallbackBase* callback );
+  bool AddIdle(CallbackBase* callback);
 
   /**
    * @brief Retrieves the main window used by the Application class.
@@ -321,8 +318,7 @@ public:
    */
   ObjectRegistry GetObjectRegistry() const;
 
-public:  // Signals
-
+public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should initialize
    * their application.

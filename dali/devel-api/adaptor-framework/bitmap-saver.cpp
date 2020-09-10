@@ -27,20 +27,17 @@
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/legacy/tizen/image-encoder.h>
 
-
 namespace Dali
 {
-
 // Pieces needed to save compressed images (temporary location while plumbing):
 namespace
 {
-
 /**
  * Simple function to tell intended image file format from filename
  */
-FileFormat GetFormatFromFileName( const std::string& filename )
+FileFormat GetFormatFromFileName(const std::string& filename)
 {
-  if (filename.length() < 5)
+  if(filename.length() < 5)
   {
     DALI_LOG_WARNING("Invalid (short) filename.\n");
   }
@@ -48,35 +45,31 @@ FileFormat GetFormatFromFileName( const std::string& filename )
 
   const std::size_t filenameSize = filename.length();
 
-  if(filenameSize >= 4){ // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
-    if( !filename.compare( filenameSize - 4, 4, ".jpg" )
-        || !filename.compare( filenameSize - 4, 4, ".JPG" ) )
+  if(filenameSize >= 4)
+  { // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
+    if(!filename.compare(filenameSize - 4, 4, ".jpg") || !filename.compare(filenameSize - 4, 4, ".JPG"))
     {
       format = JPG_FORMAT;
     }
-    else if( !filename.compare( filenameSize - 4, 4, ".png" )
-             || !filename.compare( filenameSize - 4, 4, ".PNG" ) )
+    else if(!filename.compare(filenameSize - 4, 4, ".png") || !filename.compare(filenameSize - 4, 4, ".PNG"))
     {
       format = PNG_FORMAT;
     }
-    else if( !filename.compare( filenameSize - 4, 4, ".bmp" )
-             || !filename.compare( filenameSize - 4, 4, ".BMP" ) )
+    else if(!filename.compare(filenameSize - 4, 4, ".bmp") || !filename.compare(filenameSize - 4, 4, ".BMP"))
     {
       format = BMP_FORMAT;
     }
-    else if( !filename.compare( filenameSize - 4, 4, ".gif" )
-             || !filename.compare( filenameSize - 4, 4, ".GIF" ) )
+    else if(!filename.compare(filenameSize - 4, 4, ".gif") || !filename.compare(filenameSize - 4, 4, ".GIF"))
     {
       format = GIF_FORMAT;
     }
-    else if( !filename.compare( filenameSize - 4, 4, ".ico" )
-             || !filename.compare( filenameSize - 4, 4, ".ICO" ) )
+    else if(!filename.compare(filenameSize - 4, 4, ".ico") || !filename.compare(filenameSize - 4, 4, ".ICO"))
     {
       format = ICO_FORMAT;
     }
-    else if(filenameSize >= 5){
-      if( !filename.compare( filenameSize - 5, 5, ".jpeg" )
-          || !filename.compare( filenameSize - 5, 5, ".JPEG" ) )
+    else if(filenameSize >= 5)
+    {
+      if(!filename.compare(filenameSize - 5, 5, ".jpeg") || !filename.compare(filenameSize - 5, 5, ".JPEG"))
       {
         format = JPG_FORMAT;
       }
@@ -86,24 +79,24 @@ FileFormat GetFormatFromFileName( const std::string& filename )
   return format;
 }
 
-bool EncodeToFormat( const unsigned char* pixelBuffer,
-                     Vector< unsigned char >& encodedPixels,
-                     FileFormat formatEncoding,
-                     std::size_t width,
-                     std::size_t height,
-                     Pixel::Format pixelFormat,
-                     const uint32_t quality )
+bool EncodeToFormat(const unsigned char*   pixelBuffer,
+                    Vector<unsigned char>& encodedPixels,
+                    FileFormat             formatEncoding,
+                    std::size_t            width,
+                    std::size_t            height,
+                    Pixel::Format          pixelFormat,
+                    const uint32_t         quality)
 {
-  switch( formatEncoding )
+  switch(formatEncoding)
   {
     case JPG_FORMAT:
     {
-      return TizenPlatform::EncodeToJpeg( pixelBuffer, encodedPixels, width, height, pixelFormat, quality );
+      return TizenPlatform::EncodeToJpeg(pixelBuffer, encodedPixels, width, height, pixelFormat, quality);
       break;
     }
     case PNG_FORMAT:
     {
-      return TizenPlatform::EncodeToPng( pixelBuffer, encodedPixels, width, height, pixelFormat );
+      return TizenPlatform::EncodeToPng(pixelBuffer, encodedPixels, width, height, pixelFormat);
       break;
     }
     default:
@@ -116,33 +109,32 @@ bool EncodeToFormat( const unsigned char* pixelBuffer,
 }
 } // anonymous namespace
 
-
 bool EncodeToFile(const unsigned char* const pixelBuffer,
-                  const std::string& filename,
-                  const Pixel::Format pixelFormat,
-                  const std::size_t width,
-                  const std::size_t height )
+                  const std::string&         filename,
+                  const Pixel::Format        pixelFormat,
+                  const std::size_t          width,
+                  const std::size_t          height)
 {
-  return EncodeToFile( pixelBuffer, filename, pixelFormat, width, height, DEFAULT_JPG_QUALITY );
+  return EncodeToFile(pixelBuffer, filename, pixelFormat, width, height, DEFAULT_JPG_QUALITY);
 }
 
 bool EncodeToFile(const unsigned char* const pixelBuffer,
-                  const std::string& filename,
-                  const Pixel::Format pixelFormat,
-                  const std::size_t width,
-                  const std::size_t height,
-                  const uint32_t quality )
+                  const std::string&         filename,
+                  const Pixel::Format        pixelFormat,
+                  const std::size_t          width,
+                  const std::size_t          height,
+                  const uint32_t             quality)
 {
   DALI_ASSERT_DEBUG(pixelBuffer != 0 && filename.size() > 4 && width > 0 && height > 0);
-  Vector< unsigned char > pixbufEncoded;
-  const FileFormat format = GetFormatFromFileName( filename );
-  const bool encodeResult = EncodeToFormat( pixelBuffer, pixbufEncoded, format, width, height, pixelFormat, quality );
+  Vector<unsigned char> pixbufEncoded;
+  const FileFormat      format       = GetFormatFromFileName(filename);
+  const bool            encodeResult = EncodeToFormat(pixelBuffer, pixbufEncoded, format, width, height, pixelFormat, quality);
   if(!encodeResult)
   {
     DALI_LOG_ERROR("Encoding pixels failed\n");
     return false;
   }
-  return TizenPlatform::SaveFile( filename, pixbufEncoded.Begin(), pixbufEncoded.Count() );
+  return TizenPlatform::SaveFile(filename, pixbufEncoded.Begin(), pixbufEncoded.Count());
 }
 
 } // namespace Dali

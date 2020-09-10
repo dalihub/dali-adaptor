@@ -20,16 +20,15 @@
 
 // EXTERNAL HEADERS
 #include <dali/public-api/actors/actor.h>
-#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/actors/camera-actor.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 /**
  * @addtogroup dali_adaptor_framework
  * @{
@@ -41,7 +40,7 @@ namespace Adaptor
 {
 class Capture;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Capture snapshots the current scene and save as a file.
@@ -78,9 +77,7 @@ class Capture;
  */
 class DALI_ADAPTOR_API Capture : public BaseHandle
 {
-
 public:
-
   /**
    * @brief The enumerations used for checking capture success
    * @SINCE_1_3_4
@@ -96,7 +93,7 @@ public:
    *
    * @SINCE_1_3_4
    */
-  typedef Signal< void ( Capture, Capture::FinishState ) > CaptureFinishedSignalType;
+  typedef Signal<void(Capture, Capture::FinishState)> CaptureFinishedSignalType;
 
   /**
    * @brief Create an uninitialized Capture; this can be initialized with Actor::New().
@@ -125,7 +122,7 @@ public:
    * @param[in] cameraActor An initialized CameraActor.
    * @return A handle to a newly allocated Dali resource.
    */
-  static Capture New( Dali::CameraActor cameraActor );
+  static Capture New(Dali::CameraActor cameraActor);
 
   /**
    * @brief Downcast an Object handle to Capture handle.
@@ -138,7 +135,7 @@ public:
    * @param[in] handle to An object.
    * @return handle to a Capture object or an uninitialized handle.
    */
-  static Capture DownCast( BaseHandle handle );
+  static Capture DownCast(BaseHandle handle);
 
   /**
    * @brief Dali::Actor is intended as a base class.
@@ -156,7 +153,7 @@ public:
    *
    * @param[in] copy A reference to the copied handle.
    */
-  Capture( const Capture& copy );
+  Capture(const Capture& copy);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -166,7 +163,7 @@ public:
    * @param[in] rhs  A reference to the copied handle.
    * @return A reference to this.
    */
-  Capture& operator=( const Capture& rhs );
+  Capture& operator=(const Capture& rhs);
 
   /**
    * @brief Move constructor.
@@ -174,7 +171,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Capture( Capture&& rhs );
+  Capture(Capture&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -183,7 +180,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Capture& operator=( Capture&& rhs );
+  Capture& operator=(Capture&& rhs);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -201,7 +198,7 @@ public:
    *       in this case, if source is root of scene, the captured image includes a part of actor 'B' on the 'A'.
    *       however, if source is just actor 'A', the result includes only 'A'.
    */
-  void Start( Actor source, const Vector2& position, const Vector2& size, const std::string &path, const Vector4& clearColor );
+  void Start(Actor source, const Vector2& position, const Vector2& size, const std::string& path, const Vector4& clearColor);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -216,7 +213,7 @@ public:
    * @param[in] clearColor background color of captured scene
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
-  void Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor, const uint32_t quality );
+  void Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor, const uint32_t quality);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -230,7 +227,7 @@ public:
    *            If path is empty string, the captured result is not be saved as a file.
    * @param[in] clearColor background color of captured scene
    */
-  void Start( Actor source, const Vector2& size, const std::string &path, const Vector4& clearColor );
+  void Start(Actor source, const Vector2& size, const std::string& path, const Vector4& clearColor);
 
   /**
    * @brief Start capture and save the image as a file.
@@ -244,14 +241,14 @@ public:
    *            If path is empty string, the captured result is not be saved as a file.
    * @note Clear color is transparent.
    */
-  void Start( Actor source, const Vector2& size, const std::string &path );
+  void Start(Actor source, const Vector2& size, const std::string& path);
 
   /**
    * @brief Set result image quality in case of jpeg
    *
    * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
    */
-  void SetImageQuality( uint32_t quality );
+  void SetImageQuality(uint32_t quality);
 
   /**
    * @brief Get NativeImageSourcePtr that is saved captured image.
@@ -280,7 +277,7 @@ public: // Not intended for application developers
    *
    * @param[in] internal A pointer to a newly allocated Dali resource.
    */
-  explicit DALI_INTERNAL Capture( Internal::Adaptor::Capture* internal );
+  explicit DALI_INTERNAL Capture(Internal::Adaptor::Capture* internal);
   /// @endcond
 };
 

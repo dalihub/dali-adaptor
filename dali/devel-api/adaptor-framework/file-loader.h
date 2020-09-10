@@ -2,7 +2,7 @@
 #define DALI_FILE_LOADER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,24 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/object/base-handle.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace FileLoader
 {
 /**
  * @brief File type formats
  * The default format is binary
  */
-enum FileType           ///< FileType format
+enum FileType ///< FileType format
 {
-  BINARY,               ///< File will be loaded as a binary
-  TEXT                  ///< File will be loaded as text
+  BINARY, ///< File will be loaded as a binary
+  TEXT    ///< File will be loaded as text
 };
 
 /**
@@ -49,7 +48,7 @@ enum FileType           ///< FileType format
  *
  *
  */
-DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, FileLoader::FileType fileType = BINARY);
 
 /**
  * @brief Load the file. It will load it either as a binary or as a text
@@ -61,7 +60,7 @@ DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<char> & 
  * @return error code. 0 - Error, 1 - Ok
  *
  */
-DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, FileLoader::FileType fileType = BINARY);
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, FileLoader::FileType fileType = BINARY);
 
 /**
  * @brief Get the file size of a file
@@ -71,7 +70,6 @@ DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileS
  */
 DALI_ADAPTOR_API std::streampos GetFileSize(const std::string& filename);
 
-
 /**
  * @brief Download a requested file into a memory buffer.
  *
@@ -79,9 +77,9 @@ DALI_ADAPTOR_API std::streampos GetFileSize(const std::string& filename);
  * @param[out] dataBuffer  A memory buffer object to be written with downloaded file data.
  * @return error code. false - Error, true - Ok
  */
-DALI_ADAPTOR_API bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t> &dataBuffer);
+DALI_ADAPTOR_API bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t>& dataBuffer);
 
-};
+}; // namespace FileLoader
 
-} // Dali
+} // namespace Dali
 #endif // DALI_FILE_LOADER_H

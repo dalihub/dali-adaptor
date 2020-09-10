@@ -26,22 +26,19 @@
 
 namespace Dali
 {
-
-  /**
+/**
  * @addtogroup dali_adaptor_framework
  * @{
  */
 
 namespace Internal
 {
-
 namespace Adaptor
 {
 class Widget;
 }
 
-}
-
+} // namespace Internal
 
 /**
  * @brief Widget class is the base class for custom widget.
@@ -53,7 +50,6 @@ class Widget;
 class DALI_ADAPTOR_API Widget : public BaseHandle
 {
 public:
-
   /**
    * @brief Enumeration class for termination type of widget instance.
    * @SINCE_1_3_5
@@ -65,7 +61,6 @@ public:
   };
 
 public:
-
   /**
    * @brief This is the constructor for Widget.
    * @SINCE_1_3_5
@@ -84,7 +79,7 @@ public:
    * @SINCE_1_3_5
    * @param[in] widget Handle to an object
    */
-  Widget( const Widget& widget );
+  Widget(const Widget& widget);
 
   /**
    * @brief Assignment operator.
@@ -92,7 +87,7 @@ public:
    * @param[in] widget Handle to an object
    * @return A reference to this
    */
-  Widget& operator=( const Widget& widget );
+  Widget& operator=(const Widget& widget);
 
   /**
    * @brief Move constructor.
@@ -100,7 +95,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Widget( Widget&& rhs );
+  Widget(Widget&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -109,7 +104,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Widget& operator=( Widget&& rhs );
+  Widget& operator=(Widget&& rhs);
 
   /**
    * @brief Destructor

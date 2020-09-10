@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,36 +23,33 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 WidgetPtr Widget::New()
 {
   return new Widget();
 }
 
 Widget::Widget()
-: mImpl( nullptr )
+: mImpl(nullptr)
 {
 }
 
 Widget::~Widget()
 {
-  if( mImpl != nullptr )
+  if(mImpl != nullptr)
   {
     delete mImpl;
   }
 }
 
-void Widget::OnCreate( const std::string& contentInfo, Dali::Window window )
+void Widget::OnCreate(const std::string& contentInfo, Dali::Window window)
 {
 }
 
-void Widget::OnTerminate( const std::string& contentInfo, Dali::Widget::Termination type )
+void Widget::OnTerminate(const std::string& contentInfo, Dali::Widget::Termination type)
 {
 }
 
@@ -64,33 +61,33 @@ void Widget::OnResume()
 {
 }
 
-void Widget::OnResize( Dali::Window window )
+void Widget::OnResize(Dali::Window window)
 {
 }
 
-void Widget::OnUpdate( const std::string& contentInfo, int force )
+void Widget::OnUpdate(const std::string& contentInfo, int force)
 {
 }
 
-void Widget::SignalConnected( SlotObserver* slotObserver, CallbackBase* callback )
+void Widget::SignalConnected(SlotObserver* slotObserver, CallbackBase* callback)
 {
-  mImpl->SignalConnected( slotObserver, callback );
+  mImpl->SignalConnected(slotObserver, callback);
 }
 
-void Widget::SignalDisconnected( SlotObserver* slotObserver, CallbackBase* callback )
+void Widget::SignalDisconnected(SlotObserver* slotObserver, CallbackBase* callback)
 {
-  mImpl->SignalDisconnected( slotObserver, callback );
+  mImpl->SignalDisconnected(slotObserver, callback);
 }
 
-void Widget::SetContentInfo( const std::string& contentInfo )
+void Widget::SetContentInfo(const std::string& contentInfo)
 {
-  if( mImpl != nullptr )
+  if(mImpl != nullptr)
   {
-    mImpl->SetContentInfo( contentInfo );
+    mImpl->SetContentInfo(contentInfo);
   }
 }
 
-void Widget::SetImpl( Impl* impl )
+void Widget::SetImpl(Impl* impl)
 {
   mImpl = impl;
 }
@@ -111,8 +108,8 @@ const Internal::Adaptor::Widget& GetImplementation(const Dali::Widget& widget)
   return static_cast<const Internal::Adaptor::Widget&>(handle);
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

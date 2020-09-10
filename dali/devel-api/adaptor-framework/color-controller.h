@@ -2,7 +2,7 @@
 #define DALI_COLOR_CONTROLLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/math/vector4.h>
+#include <dali/public-api/object/base-handle.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
@@ -36,7 +35,7 @@ namespace Adaptor
 class ColorController;
 }
 
-}
+} // namespace DALI_INTERNAL
 
 /**
  * Color controller currently caches the changeable color table which updates with the theme change
@@ -46,7 +45,6 @@ class ColorController;
 class DALI_ADAPTOR_API ColorController : public BaseHandle
 {
 public:
-
   /**
    * @brief Create an uninitialized ColorController handle.
    */
@@ -58,7 +56,7 @@ public:
    * The copy will point to the same implementation as the original.
    * @param[in]  colorController  The Color Controller to copy from.
    */
-  ColorController( const ColorController& colorController);
+  ColorController(const ColorController& colorController);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -89,7 +87,7 @@ public:
    * @param[out] colorValue The RGBA color
    * @return true if the color code exists, otherwise false
    */
-  bool RetrieveColor( const std::string& colorCode, Vector4& colorValue );
+  bool RetrieveColor(const std::string& colorCode, Vector4& colorValue);
 
   /**
     * @brief Retrieve the RGBA values by given the color code.
@@ -100,8 +98,7 @@ public:
     * @param[out] textShadowColor The text shadow color.
     * @return true if the color code exists, otherwise false
     */
-  bool RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor);
-
+  bool RetrieveColor(const std::string& colorCode, Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor);
 
 public: // Not intended for application developers
   /**
@@ -110,7 +107,6 @@ public: // Not intended for application developers
    */
   explicit DALI_INTERNAL ColorController(Internal::Adaptor::ColorController* colorController);
 };
-
 
 } //namespace Dali
 

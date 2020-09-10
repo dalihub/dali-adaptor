@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@
 #include <dali/devel-api/adaptor-framework/tilt-sensor.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
-
 const float TiltSensor::DEFAULT_UPDATE_FREQUENCY = 60.0f;
 
 TiltSensor::TiltSensor()
@@ -76,9 +75,9 @@ TiltSensor::TiltedSignalType& TiltSensor::TiltedSignal()
   return GetImplementation(*this).TiltedSignal();
 }
 
-void TiltSensor::SetUpdateFrequency( float frequencyHertz )
+void TiltSensor::SetUpdateFrequency(float frequencyHertz)
 {
-  GetImplementation(*this).SetUpdateFrequency( frequencyHertz );
+  GetImplementation(*this).SetUpdateFrequency(frequencyHertz);
 }
 
 float TiltSensor::GetUpdateFrequency() const
@@ -88,7 +87,7 @@ float TiltSensor::GetUpdateFrequency() const
 
 void TiltSensor::SetRotationThreshold(Radian rotationThreshold)
 {
-  GetImplementation(*this).SetRotationThreshold( rotationThreshold );
+  GetImplementation(*this).SetRotationThreshold(rotationThreshold);
 }
 
 Radian TiltSensor::GetRotationThreshold() const
@@ -96,8 +95,8 @@ Radian TiltSensor::GetRotationThreshold() const
   return GetImplementation(*this).GetRotationThreshold();
 }
 
-TiltSensor::TiltSensor( Internal::Adaptor::TiltSensor* sensor )
-: BaseHandle( sensor )
+TiltSensor::TiltSensor(Internal::Adaptor::TiltSensor* sensor)
+: BaseHandle(sensor)
 {
 }
 

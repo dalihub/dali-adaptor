@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_EGL_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 enum ColorDepth
 {
   COLOR_DEPTH_24 = 24,
@@ -45,7 +44,7 @@ public:
   /**
    * Make the OpenGL context current
    */
-  virtual void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext ) = 0;
+  virtual void MakeContextCurrent(EGLSurface eglSurface, EGLContext eglContext) = 0;
 
   /**
    * Terminate GL
@@ -55,12 +54,12 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers( EGLSurface& eglSurface ) = 0;
+  virtual void SwapBuffers(EGLSurface& eglSurface) = 0;
 
   /**
    * Performs an OpenGL copy buffers command
    */
-  virtual void CopyBuffers( EGLSurface& eglSurface ) = 0;
+  virtual void CopyBuffers(EGLSurface& eglSurface) = 0;
 
   /**
    * Performs an EGL wait GL command
@@ -71,7 +70,9 @@ protected:
   /**
    * Virtual protected destructor, no deletion through this interface
    */
-  virtual ~EglInterface() {}
+  virtual ~EglInterface()
+  {
+  }
 };
 
 } // namespace Dali

@@ -20,17 +20,16 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
+#include <dali/integration-api/scene.h>
 #include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/math/vector4.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/weak-handle.h>
-#include <dali/integration-api/scene.h>
-#include <dali/public-api/math/uint-16-pair.h>
 
 namespace Dali
 {
-
 class DisplayConnection;
 class ThreadSynchronizationInterface;
 
@@ -40,14 +39,14 @@ namespace Adaptor
 {
 class AdaptorInternalServices;
 class GraphicsInterface;
-}
-}
+} // namespace Adaptor
+} // namespace Internal
 
 /**
  * @brief The position and size of the render surface.
  */
-using PositionSize =  Dali::Rect<int>;
-using SurfaceSize = Uint16Pair;
+using PositionSize = Dali::Rect<int>;
+using SurfaceSize  = Uint16Pair;
 
 /**
  * @brief Interface for a render surface onto which Dali draws.
@@ -65,7 +64,6 @@ using SurfaceSize = Uint16Pair;
 class RenderSurfaceInterface
 {
 public:
-
   enum Type
   {
     WINDOW_RENDER_SURFACE,
@@ -78,20 +76,23 @@ public:
    * Inlined as this is a pure abstract interface
    */
   RenderSurfaceInterface()
-  : mAdaptor( nullptr ),
-    mGraphics( nullptr ),
-    mDisplayConnection( nullptr ),
+  : mAdaptor(nullptr),
+    mGraphics(nullptr),
+    mDisplayConnection(nullptr),
     mScene(),
-    mFullSwapNextFrame( true ),
-    mDepthBufferRequired( Integration::DepthBufferAvailable::FALSE ),
-    mStencilBufferRequired( Integration::StencilBufferAvailable::FALSE )
-  {}
+    mFullSwapNextFrame(true),
+    mDepthBufferRequired(Integration::DepthBufferAvailable::FALSE),
+    mStencilBufferRequired(Integration::StencilBufferAvailable::FALSE)
+  {
+  }
 
   /**
    * @brief Virtual Destructor.
    * Inlined as this is a pure abstract interface
    */
-  virtual ~RenderSurfaceInterface() {}
+  virtual ~RenderSurfaceInterface()
+  {
+  }
 
   /**
    * @brief Return the size and position of the surface.
@@ -104,7 +105,7 @@ public:
    * @param[out] dpiHorizontal set to the horizontal dpi
    * @param[out] dpiVertical set to the vertical dpi
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
+  virtual void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) = 0;
 
   /**
    * @brief InitializeGraphics the platform specific graphics surface interfaces
@@ -131,7 +132,7 @@ public:
    * @brief Resizes the underlying surface.
    * @param[in] The dimensions of the new position
    */
-  virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
+  virtual void MoveResize(Dali::PositionSize positionSize) = 0;
 
   /**
    * @brief Called when Render thread has started
@@ -146,7 +147,7 @@ public:
    * @param[in] damagedRects List of damaged rects this render pass
    * @return True if the operation is successful, False if the operation failed
    */
-  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) = 0;
+  virtual bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) = 0;
 
   /**
    * @brief Invoked by render thread after Core::Render
@@ -154,7 +155,7 @@ public:
    * @param[in] replacingSurface True if the surface is being replaced.
    * @param[in] resizingSurface True if the surface is being resized.
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) = 0;
+  virtual void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) = 0;
 
   /**
    * @brief Invoked by render thread when the thread should be stop
@@ -171,7 +172,7 @@ public:
    *
    * @param threadSynchronization The thread-synchronization implementation.
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) = 0;
+  virtual void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) = 0;
 
   /**
    * @brief Gets the surface type
@@ -196,18 +197,17 @@ public:
   virtual Integration::StencilBufferAvailable GetStencilBufferRequired() = 0;
 
 public:
-
-  void SetAdaptor( Dali::Internal::Adaptor::AdaptorInternalServices& adaptor )
+  void SetAdaptor(Dali::Internal::Adaptor::AdaptorInternalServices& adaptor)
   {
     mAdaptor = &adaptor;
   }
 
-  void SetGraphicsInterface( Dali::Internal::Adaptor::GraphicsInterface& graphics )
+  void SetGraphicsInterface(Dali::Internal::Adaptor::GraphicsInterface& graphics)
   {
     mGraphics = &graphics;
   }
 
-  void SetDisplayConnection( Dali::DisplayConnection& displayConnection )
+  void SetDisplayConnection(Dali::DisplayConnection& displayConnection)
   {
     mDisplayConnection = &displayConnection;
   }
@@ -216,7 +216,7 @@ public:
    * @brief Sets a Scene that is rendered on this surface.
    * @param scene The Scene object
    */
-  void SetScene( Dali::Integration::Scene& scene )
+  void SetScene(Dali::Integration::Scene& scene)
   {
     mScene = scene;
   }
@@ -230,31 +230,28 @@ public:
   }
 
 private:
-
   /**
    * @brief Undefined copy constructor. RenderSurface cannot be copied
    */
-  RenderSurfaceInterface( const RenderSurfaceInterface& rhs );
+  RenderSurfaceInterface(const RenderSurfaceInterface& rhs);
 
   /**
    * @brief Undefined assignment operator. RenderSurface cannot be copied
    */
-  RenderSurfaceInterface& operator=( const RenderSurfaceInterface& rhs );
+  RenderSurfaceInterface& operator=(const RenderSurfaceInterface& rhs);
 
 protected:
-
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
-  Dali::Internal::Adaptor::GraphicsInterface* mGraphics;
-  Dali::DisplayConnection* mDisplayConnection;
-  WeakHandle< Dali::Integration::Scene > mScene;
-  bool mFullSwapNextFrame;                                      ///< Whether the full surface swap is required
+  Dali::Internal::Adaptor::GraphicsInterface*       mGraphics;
+  Dali::DisplayConnection*                          mDisplayConnection;
+  WeakHandle<Dali::Integration::Scene>              mScene;
+  bool                                              mFullSwapNextFrame; ///< Whether the full surface swap is required
 
 private:
+  Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required
+  Integration::StencilBufferAvailable mStencilBufferRequired; ///< Whether the stencil buffer is required
 
-  Integration::DepthBufferAvailable mDepthBufferRequired;       ///< Whether the depth buffer is required
-  Integration::StencilBufferAvailable mStencilBufferRequired;   ///< Whether the stencil buffer is required
-
-  Vector4 mBackgroundColor;                                     ///< The background color of the surface
+  Vector4 mBackgroundColor; ///< The background color of the surface
 };
 
 } // namespace Dali

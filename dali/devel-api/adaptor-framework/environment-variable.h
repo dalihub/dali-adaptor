@@ -2,7 +2,7 @@
 #define DALI_ENVIRONMENT_VARIABLE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,15 @@
 
 namespace Dali
 {
-
 namespace EnvironmentVariable
 {
-
 /**
  * @brief Search the environment list for the specified variable name and return a pointer to the C string that is associated with the matched environment list member.
  *
  * @param[in] variable Null-terminated character string identifying the name of the environmental variable to look for.
  * @return A C-string containing the value of the specified environment variable.
  */
-DALI_ADAPTOR_API const char * GetEnvironmentVariable( const char * variable );
+DALI_ADAPTOR_API const char* GetEnvironmentVariable(const char* variable);
 
 /**
  * @brief Create or overwrite (when it does not exist) an environment variable.
@@ -41,7 +39,7 @@ DALI_ADAPTOR_API const char * GetEnvironmentVariable( const char * variable );
  * @param[in] value Null-terminated character string to set as a value.
  * @return True on success, false on error.
  */
-DALI_ADAPTOR_API bool SetEnvironmentVariable( const char * variable, const char * value );
+DALI_ADAPTOR_API bool SetEnvironmentVariable(const char* variable, const char* value);
 
 } // namespace EnvironmentVariable
 

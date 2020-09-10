@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ namespace Adaptor
 {
 class NativeImageSource;
 }
-}
+} // namespace DALI_INTERNAL
 
 class NativeImageSource;
 /**
@@ -65,19 +65,18 @@ typedef Dali::IntrusivePtr<Dali::NativeImageSource> NativeImageSourcePtr;
 class DALI_ADAPTOR_API NativeImageSource : public NativeImageInterface
 {
 public:
-
-   /**
+  /**
     * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
     * @SINCE_1_0.0
     */
-   enum ColorDepth
-   {
-     COLOR_DEPTH_DEFAULT,     ///< Uses the current screen default depth (recommended) @SINCE_1_0.0
-     COLOR_DEPTH_8,           ///< 8 bits per pixel @SINCE_1_0.0
-     COLOR_DEPTH_16,          ///< 16 bits per pixel @SINCE_1_0.0
-     COLOR_DEPTH_24,          ///< 24 bits per pixel @SINCE_1_0.0
-     COLOR_DEPTH_32           ///< 32 bits per pixel @SINCE_1_0.0
-   };
+  enum ColorDepth
+  {
+    COLOR_DEPTH_DEFAULT, ///< Uses the current screen default depth (recommended) @SINCE_1_0.0
+    COLOR_DEPTH_8,       ///< 8 bits per pixel @SINCE_1_0.0
+    COLOR_DEPTH_16,      ///< 16 bits per pixel @SINCE_1_0.0
+    COLOR_DEPTH_24,      ///< 24 bits per pixel @SINCE_1_0.0
+    COLOR_DEPTH_32       ///< 32 bits per pixel @SINCE_1_0.0
+  };
 
   /**
    * @brief Creates a new NativeImageSource.
@@ -89,7 +88,7 @@ public:
    * @param[in] depth color depth of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageSourcePtr New( unsigned int width, unsigned int height, ColorDepth depth );
+  static NativeImageSourcePtr New(unsigned int width, unsigned int height, ColorDepth depth);
 
   /**
    * @brief Creates a new NativeImageSource from an existing native image source.
@@ -99,7 +98,7 @@ public:
    * @return A smart-pointer to a newly allocated image
    * @see NativeImageInterface
    */
-  static NativeImageSourcePtr New( Any nativeImageSource );
+  static NativeImageSourcePtr New(Any nativeImageSource);
 
   /**
    * @brief Retrieves the internal native image.
@@ -121,7 +120,7 @@ public:
    * @param[out] pixelFormat pixel format used by image
    * @return     @c true if the pixels were gotten, and @c false otherwise
    */
-  bool GetPixels( std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat ) const;
+  bool GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const;
 
   /**
    * @brief Converts the current pixel contents to either a JPEG or PNG format
@@ -141,7 +140,7 @@ public:
    * @SINCE_1_1.19
    * @param[in] source Any handle with the source
    */
-  void SetSource( Any source );
+  void SetSource(Any source);
 
   /**
    * @brief Checks if the specified color depth is supported.
@@ -150,7 +149,7 @@ public:
    * @param[in] colorDepth The color depth to check
    * @return @c true if colorDepth is supported, @c false otherwise
    */
-  bool IsColorDepthSupported( ColorDepth colorDepth );
+  bool IsColorDepthSupported(ColorDepth colorDepth);
 
   /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()
@@ -167,8 +166,7 @@ public:
    */
   const char* GetCustomSamplerTypename() const override;
 
-private:   // native image
-
+private: // native image
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource()
    */
@@ -220,7 +218,6 @@ private:   // native image
   NativeImageInterface::Extension* GetExtension() override;
 
 private:
-
   /// @cond internal
   /**
    * @brief Private constructor.
@@ -230,7 +227,7 @@ private:
    * @param[in] depth color depth of the image
    * @param[in] nativeImageSource contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource );
+  DALI_INTERNAL NativeImageSource(unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
@@ -247,7 +244,7 @@ private:
    * @SINCE_1_0.0
    * @param[in] nativeImageSource A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageSource( const NativeImageSource& nativeImageSource );
+  DALI_INTERNAL NativeImageSource(const NativeImageSource& nativeImageSource);
 
   /**
    * @brief Undefined assignment operator.
@@ -260,7 +257,6 @@ private:
   /// @endcond
 
 private:
-
   /// @cond internal
   Internal::Adaptor::NativeImageSource* mImpl; ///< Implementation pointer
   friend class Internal::Adaptor::NativeImageSource;

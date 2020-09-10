@@ -18,12 +18,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <iostream>
-#include <string>
 #include <memory>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
@@ -31,22 +31,20 @@
 
 namespace Dali
 {
-
 class DALI_ADAPTOR_API FileStream
 {
 public:
-
   /**
    * @brief File type formats
    * The default format is binary
    */
-  enum FileMode  ///< FileType format
+  enum FileMode ///< FileType format
   {
-    BINARY = 1 << 0,      ///< File stream will be opened as a binary
-    TEXT   = 1 << 1,      ///< File stream will be opened as text
-    READ   = 1 << 2,      ///< File stream will be opened for reading
-    WRITE  = 1 << 3,      ///< File stream will be opened for writing
-    APPEND = 1 << 4,      ///< File stream will be opened for appending
+    BINARY = 1 << 0, ///< File stream will be opened as a binary
+    TEXT   = 1 << 1, ///< File stream will be opened as text
+    READ   = 1 << 2, ///< File stream will be opened for reading
+    WRITE  = 1 << 3, ///< File stream will be opened for writing
+    APPEND = 1 << 4, ///< File stream will be opened for appending
   };
 
   /**
@@ -113,11 +111,10 @@ public:
   FILE* GetFile();
 
 private:
-
   class Impl;
   std::unique_ptr<Impl> mImpl;
 };
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_FILE_STREAM_H

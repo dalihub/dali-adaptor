@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,15 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
-DALI_ADAPTOR_API std::ostream& operator<<( std::ostream& o, const FontList& fontList )
+DALI_ADAPTOR_API std::ostream& operator<<(std::ostream& o, const FontList& fontList)
 {
-  for( unsigned int i=0; i<fontList.size(); ++i )
+  for(unsigned int i = 0; i < fontList.size(); ++i)
   {
     const FontDescription& description = fontList[i];
-    o << "Font " << i << ") path: " << description.path << " family: " << " width : " << description.width << " weight : " << description.weight << " slant : " << description.slant << std::endl;
+    o << "Font " << i << ") path: " << description.path << " family: "
+      << " width : " << description.width << " weight : " << description.weight << " slant : " << description.slant << std::endl;
   }
 
   return o;

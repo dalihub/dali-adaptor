@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,30 +22,29 @@
 
 namespace Dali
 {
-
 struct EventThreadCallback::Impl
 {
   TriggerEventInterface* eventTrigger;
 };
 
-EventThreadCallback::EventThreadCallback( CallbackBase* callback )
-: mImpl( new Impl() )
+EventThreadCallback::EventThreadCallback(CallbackBase* callback)
+: mImpl(new Impl())
 {
-  mImpl->eventTrigger = TriggerEventFactory::CreateTriggerEvent( callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+  mImpl->eventTrigger = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 }
 
 EventThreadCallback::~EventThreadCallback()
 {
-  TriggerEventFactory::DestroyTriggerEvent( mImpl->eventTrigger );
+  TriggerEventFactory::DestroyTriggerEvent(mImpl->eventTrigger);
   delete mImpl;
 }
 
 void EventThreadCallback::Trigger()
 {
-  if( mImpl->eventTrigger )
+  if(mImpl->eventTrigger)
   {
     mImpl->eventTrigger->Trigger();
   }
 }
 
-}
+} // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_KEY_GRAB_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/key.h>
@@ -40,7 +40,6 @@ class Window;
  */
 namespace KeyGrab
 {
-
 /**
  * @brief Grabs the key specified by @a key for @a window only when @a window is the topmost window.
  *
@@ -52,7 +51,7 @@ namespace KeyGrab
  * @param[in] daliKey The key code to grab (defined in key.h)
  * @return true if the grab succeeds
  */
-DALI_ADAPTOR_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
+DALI_ADAPTOR_API bool GrabKeyTopmost(Window window, Dali::KEY daliKey);
 
 /**
  * @brief Ungrabs the key specified by @a key for @a window.
@@ -64,7 +63,7 @@ DALI_ADAPTOR_API bool GrabKeyTopmost( Window window, Dali::KEY daliKey );
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_ADAPTOR_API bool UngrabKeyTopmost( Window window, Dali::KEY daliKey );
+DALI_ADAPTOR_API bool UngrabKeyTopmost(Window window, Dali::KEY daliKey);
 
 /**
  * @brief Enumeration for key grab mode for platform-level APIs.
@@ -72,10 +71,10 @@ DALI_ADAPTOR_API bool UngrabKeyTopmost( Window window, Dali::KEY daliKey );
  */
 enum KeyGrabMode
 {
-  TOPMOST = 0,             ///< Grab a key only when on the top of the grabbing-window stack mode. @SINCE_1_0.0
-  SHARED,                  ///< Grab a key together with the other client window(s) mode. @SINCE_1_0.0
-  OVERRIDE_EXCLUSIVE,      ///< Grab a key exclusively regardless of the grabbing-window's position on the window stack with the possibility of overriding the grab by the other client window mode. @SINCE_1_0.0
-  EXCLUSIVE                ///< Grab a key exclusively regardless of the grabbing-window's position on the window stack mode. @SINCE_1_0.0
+  TOPMOST = 0,        ///< Grab a key only when on the top of the grabbing-window stack mode. @SINCE_1_0.0
+  SHARED,             ///< Grab a key together with the other client window(s) mode. @SINCE_1_0.0
+  OVERRIDE_EXCLUSIVE, ///< Grab a key exclusively regardless of the grabbing-window's position on the window stack with the possibility of overriding the grab by the other client window mode. @SINCE_1_0.0
+  EXCLUSIVE           ///< Grab a key exclusively regardless of the grabbing-window's position on the window stack mode. @SINCE_1_0.0
 };
 
 /**
@@ -95,7 +94,7 @@ enum KeyGrabMode
  * @param[in] grabMode The grab mode for the key
  * @return true if the grab succeeds
  */
-DALI_ADAPTOR_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode grabMode );
+DALI_ADAPTOR_API bool GrabKey(Window window, Dali::KEY daliKey, KeyGrabMode grabMode);
 
 /**
  * @PLATFORM
@@ -110,8 +109,7 @@ DALI_ADAPTOR_API bool GrabKey( Window window, Dali::KEY daliKey, KeyGrabMode gra
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_ADAPTOR_API bool UngrabKey( Window window, Dali::KEY daliKey );
-
+DALI_ADAPTOR_API bool UngrabKey(Window window, Dali::KEY daliKey);
 
 /**
  * @PLATFORM
@@ -131,8 +129,7 @@ DALI_ADAPTOR_API bool UngrabKey( Window window, Dali::KEY daliKey );
  * @param[in] returnVector The Dali::Vector of return boolean values for the results of multiple grab succeeds/fails
  * @return bool false when error occurs
  */
-DALI_ADAPTOR_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector);
-
+DALI_ADAPTOR_API bool GrabKeyList(Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, const Dali::Vector<KeyGrabMode>& grabModeVector, Dali::Vector<bool>& returnVector);
 
 /**
  * @PLATFORM
@@ -148,8 +145,7 @@ DALI_ADAPTOR_API bool GrabKeyList( Window window, const Dali::Vector<Dali::KEY>&
  * @note If this function is called between key down and up events of a grabbed key,
  * an application doesn't receive the key up event.
  */
-DALI_ADAPTOR_API bool UngrabKeyList( Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector);
-
+DALI_ADAPTOR_API bool UngrabKeyList(Window window, const Dali::Vector<Dali::KEY>& daliKeyVector, Dali::Vector<bool>& returnVector);
 
 } // namespace KeyGrab
 

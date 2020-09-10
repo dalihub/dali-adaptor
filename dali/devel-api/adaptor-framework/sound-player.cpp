@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 SoundPlayer::SoundPlayer()
 {
 }
@@ -52,8 +51,8 @@ SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
   return GetImplementation(*this).SoundPlayFinishedSignal();
 }
 
-SoundPlayer::SoundPlayer( Internal::Adaptor::SoundPlayer* player )
-: BaseHandle( player )
+SoundPlayer::SoundPlayer(Internal::Adaptor::SoundPlayer* player)
+: BaseHandle(player)
 {
 }
 

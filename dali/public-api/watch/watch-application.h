@@ -19,13 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
+#include <string>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/public-api/watch/watch-time.h>
 
 namespace Dali
@@ -40,7 +40,7 @@ namespace Adaptor
 {
 class WatchApplication;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief A WatchApplication class object should be created by every watch application
@@ -97,11 +97,10 @@ class WatchApplication;
 class DALI_ADAPTOR_API WatchApplication : public Application
 {
 public:
-  typedef Signal< void (Application&, const WatchTime&) > WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37
-  typedef Signal< void (Application&, bool) > WatchBoolSignal; ///< Watch bool signal callback type @SINCE_1_1.37
+  typedef Signal<void(Application&, const WatchTime&)> WatchTimeSignal; ///< Watch pointer signal callback type @SINCE_1_1.37
+  typedef Signal<void(Application&, bool)>             WatchBoolSignal; ///< Watch bool signal callback type @SINCE_1_1.37
 
 public:
-
   /**
    * @brief This is the constructor for applications without an argument list.
    * @SINCE_1_1.37
@@ -117,7 +116,7 @@ public:
    * @param[in,out]  argv        A pointer the the argument list
    * @return A handle to the WatchApplication
    */
-  static WatchApplication New( int* argc, char **argv[] );
+  static WatchApplication New(int* argc, char** argv[]);
 
   /**
    * @brief This is the constructor for applications with a name
@@ -128,7 +127,7 @@ public:
    * @param[in]      stylesheet  The path to user defined theme file
    * @return A handle to the WatchApplication
    */
-  static WatchApplication New( int* argc, char **argv[], const std::string& stylesheet );
+  static WatchApplication New(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * @brief Construct an empty handle
@@ -141,7 +140,7 @@ public:
    * @SINCE_1_1.37
    * @param[in] implementation The WatchApplication implementation
    */
-  WatchApplication( const WatchApplication& implementation );
+  WatchApplication(const WatchApplication& implementation);
 
   /**
    * @brief Assignment operator
@@ -149,7 +148,7 @@ public:
    * @param[in] application Handle to an object
    * @return A reference to this
    */
-  WatchApplication& operator=( const WatchApplication& application );
+  WatchApplication& operator=(const WatchApplication& application);
 
   /**
    * @brief Move constructor.
@@ -157,7 +156,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  WatchApplication( WatchApplication&& rhs );
+  WatchApplication(WatchApplication&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -166,7 +165,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  WatchApplication& operator=( WatchApplication&& rhs );
+  WatchApplication& operator=(WatchApplication&& rhs);
 
   /**
    * @brief Destructor

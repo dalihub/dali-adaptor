@@ -2,7 +2,7 @@
 #define DALI_FEEDBACK_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 
 namespace Dali
 {
-
 /**
  * FeedbackPlugin is an abstract interface, used by Dali-adaptor to access haptic and audio feedback.
  * A concrete implementation must be created for each platform and provided as a dynamic library which
@@ -35,8 +34,7 @@ namespace Dali
 class FeedbackPlugin
 {
 public:
-
-  typedef void (*SoundStopCallBack)( void* ptr );
+  typedef void (*SoundStopCallBack)(void* ptr);
 
   /**
    * Destructor.
@@ -49,13 +47,13 @@ public:
    * Plays vibration in predefined patterns.
    * @param[in] filePath Path to the file containing the effect.
    */
-  virtual void PlayHaptic( const std::string& filePath ) = 0;
+  virtual void PlayHaptic(const std::string& filePath) = 0;
 
   /**
    * Plays a monotone vibration.
    * @param[in]  duration  The duration of the vibration.
    */
-  virtual void PlayHapticMonotone( unsigned int duration ) = 0;
+  virtual void PlayHapticMonotone(unsigned int duration) = 0;
 
   /**
    * Stops the currently playing vibration effects.
@@ -67,20 +65,20 @@ public:
    * @param[in] fileName Path to the sound file to play.
    * @return A handle which can be used to stop the sound playback.
    */
-  virtual int PlaySound( const std::string& fileName ) = 0;
+  virtual int PlaySound(const std::string& fileName) = 0;
 
   /**
    * Stops a currently playing sound.
    * @param[in] handle A handle to the currently playing sound.
    */
-  virtual void StopSound( int handle ) = 0;
+  virtual void StopSound(int handle) = 0;
 
   /**
    * Plays a feedback pattern.
    * @param[in] type The type of feedback.
    * @param[in] pattern The ID of the pattern to play.
    */
-  virtual void PlayFeedbackPattern( int type, int pattern ) = 0;
+  virtual void PlayFeedbackPattern(int type, int pattern) = 0;
 
   // Types for plugin factories
 
@@ -89,7 +87,7 @@ public:
    * @param [in] pluginName name of the plugin to load.
    * @return Pointer to the newly created plugin object
    */
-  typedef FeedbackPlugin* CreateFeedbackPlugin( void );
+  typedef FeedbackPlugin* CreateFeedbackPlugin(void);
 
 }; // class FeedbackPlugin
 

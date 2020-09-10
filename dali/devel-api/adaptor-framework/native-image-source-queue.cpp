@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,26 @@
 #include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/native-image-source-queue-impl.h>
 #include <dali/internal/imaging/common/native-image-source-factory.h>
+#include <dali/internal/imaging/common/native-image-source-queue-impl.h>
 
 namespace Dali
 {
-
-NativeImageSourceQueuePtr NativeImageSourceQueue::New( uint32_t width, uint32_t height, ColorDepth depth )
+NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t height, ColorDepth depth)
 {
-  Any empty;
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue( width, height, depth, empty );
-  if( image->mImpl )
+  Any                       empty;
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(width, height, depth, empty);
+  if(image->mImpl)
   {
     return image;
   }
   return nullptr;
 }
 
-NativeImageSourceQueuePtr NativeImageSourceQueue::New( Any nativeImageSourceQueue )
+NativeImageSourceQueuePtr NativeImageSourceQueue::New(Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue( 0, 0, COLOR_DEPTH_DEFAULT, nativeImageSourceQueue );
-  if( image->mImpl )
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, COLOR_DEPTH_DEFAULT, nativeImageSourceQueue);
+  if(image->mImpl)
   {
     return image;
   }
@@ -51,9 +50,9 @@ Any NativeImageSourceQueue::GetNativeImageSourceQueue()
   return mImpl->GetNativeImageSourceQueue();
 }
 
-void NativeImageSourceQueue::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueue::SetSize(uint32_t width, uint32_t height)
 {
-  return mImpl->SetSize( width, height );
+  return mImpl->SetSize(width, height);
 }
 
 void NativeImageSourceQueue::IgnoreSourceImage()
@@ -126,10 +125,10 @@ NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSourceQueue::NativeImageSourceQueue( uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueue::NativeImageSourceQueue(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl = factory->CreateNativeImageSourceQueue( width, height, depth, nativeImageSourceQueue );
+  mImpl        = factory->CreateNativeImageSourceQueue(width, height, depth, nativeImageSourceQueue);
 }
 
 NativeImageSourceQueue::~NativeImageSourceQueue()

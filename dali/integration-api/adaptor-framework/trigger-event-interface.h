@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_TRIGGER_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
  *
  */
 
-
 namespace Dali
 {
-
 /**
  * @brief Interface for a trigger event class.
  *
@@ -30,16 +28,14 @@ namespace Dali
  */
 class TriggerEventInterface
 {
-
 public:
-
   /**
    * @brief trigger event options
    */
   enum Options
   {
     KEEP_ALIVE_AFTER_TRIGGER,
-    DELETE_AFTER_TRIGGER,  // automatically delete the trigger event object, after Trigger() is called.
+    DELETE_AFTER_TRIGGER, // automatically delete the trigger event object, after Trigger() is called.
   };
 
   /**
@@ -50,11 +46,10 @@ public:
   virtual void Trigger() = 0;
 
 protected:
-
   /**
    * @brief Constructor
    */
-  TriggerEventInterface( )
+  TriggerEventInterface()
   {
   }
 
@@ -67,14 +62,11 @@ public:
   }
 
 private:
-
   // Undefined copy constructor.
-  TriggerEventInterface( const TriggerEventInterface& );
+  TriggerEventInterface(const TriggerEventInterface&);
 
   // Undefined assignment operator.
-  TriggerEventInterface& operator=( const TriggerEventInterface& );
-
-
+  TriggerEventInterface& operator=(const TriggerEventInterface&);
 };
 
 } // namespace Dali

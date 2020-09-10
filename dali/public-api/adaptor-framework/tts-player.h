@@ -38,7 +38,7 @@ namespace Adaptor
 {
 class TtsPlayer;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief The Text-to-speech (TTS) Player.
@@ -47,15 +47,14 @@ class TtsPlayer;
 class DALI_ADAPTOR_API TtsPlayer : public BaseHandle
 {
 public: // ENUMs
-
   /**
    * @brief Enumeration for the instance of TTS mode.
    * @SINCE_1_0.0
    */
   enum Mode
   {
-    DEFAULT = 0,  ///< Default mode for normal application @SINCE_1_0.0
-    NOTIFICATION, ///< Notification mode, such as playing utterance is started or completed @SINCE_1_0.0
+    DEFAULT = 0,   ///< Default mode for normal application @SINCE_1_0.0
+    NOTIFICATION,  ///< Notification mode, such as playing utterance is started or completed @SINCE_1_0.0
     SCREEN_READER, ///< Screen reader mode. To help visually impaired users interact with their devices, screen reader reads text or graphic elements on the screen using the TTS engine. @SINCE_1_0.0
     MODE_NUM
   };
@@ -66,22 +65,20 @@ public: // ENUMs
    */
   enum State
   {
-    UNAVAILABLE = 0,    ///< Player is not available @SINCE_1_0.0
-    READY,              ///< Player is ready to play @SINCE_1_0.0
-    PLAYING,            ///< Player is playing @SINCE_1_0.0
-    PAUSED              ///< Player is paused @SINCE_1_0.0
+    UNAVAILABLE = 0, ///< Player is not available @SINCE_1_0.0
+    READY,           ///< Player is ready to play @SINCE_1_0.0
+    PLAYING,         ///< Player is playing @SINCE_1_0.0
+    PAUSED           ///< Player is paused @SINCE_1_0.0
   };
 
 public: // Typedefs
-
   /**
    * @brief Type of signal emitted when the TTS state changes.
    * @SINCE_1_0.0
    */
-  typedef Signal< void ( const Dali::TtsPlayer::State, const Dali::TtsPlayer::State ) > StateChangedSignalType;
+  typedef Signal<void(const Dali::TtsPlayer::State, const Dali::TtsPlayer::State)> StateChangedSignalType;
 
 public: // API
-
   /**
    * @brief Creates an uninitialized handle.
    *
@@ -130,7 +127,7 @@ public: // API
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  TtsPlayer( TtsPlayer&& rhs );
+  TtsPlayer(TtsPlayer&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -139,7 +136,7 @@ public: // API
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  TtsPlayer& operator=( TtsPlayer&& rhs );
+  TtsPlayer& operator=(TtsPlayer&& rhs);
 
   /**
    * @brief Starts playing the audio data synthesized from the specified text.
@@ -188,14 +185,13 @@ public: // API
   Dali::TtsPlayer::StateChangedSignalType& StateChangedSignal();
 
 public: // Not intended for application developers
-
   /// @cond internal
   /**
    * @brief This constructor is used by TtsPlayer::Get().
    * @SINCE_1_0.0
    * @param[in] ttsPlayer A pointer to the TTS player
    */
-  explicit DALI_INTERNAL TtsPlayer( Internal::Adaptor::TtsPlayer* ttsPlayer );
+  explicit DALI_INTERNAL TtsPlayer(Internal::Adaptor::TtsPlayer* ttsPlayer);
   /// @endcond
 };
 

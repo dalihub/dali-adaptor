@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_THREAD_SYNCHRONIZATION_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,8 @@
  *
  */
 
-
 namespace Dali
 {
-
 /**
  * @brief Interface for the ThreadSyncrhonization handler.
  *
@@ -30,7 +28,6 @@ namespace Dali
 class ThreadSynchronizationInterface
 {
 public:
-
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Called by the Event Thread if post-rendering is required
   /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,24 +58,26 @@ public:
   virtual void PostRenderWaitForCompletion() = 0;
 
 protected:
-
   /**
    * @brief Protected constructor, no creation through this interface
    */
-  ThreadSynchronizationInterface( ) { }
+  ThreadSynchronizationInterface()
+  {
+  }
 
   /**
    * Virtual protected destructor, no deletion through this interface
    */
-  virtual ~ThreadSynchronizationInterface() { }
+  virtual ~ThreadSynchronizationInterface()
+  {
+  }
 
 private:
-
   // Undefined copy constructor.
-  ThreadSynchronizationInterface( const ThreadSynchronizationInterface& );
+  ThreadSynchronizationInterface(const ThreadSynchronizationInterface&);
 
   // Undefined assignment operator.
-  ThreadSynchronizationInterface& operator=( const ThreadSynchronizationInterface& );
+  ThreadSynchronizationInterface& operator=(const ThreadSynchronizationInterface&);
 };
 
 } // namespace Dali

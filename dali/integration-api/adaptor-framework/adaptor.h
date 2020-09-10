@@ -19,22 +19,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/signals/callback.h>
-#include <dali/public-api/signals/dali-signal.h>
-#include <dali/public-api/math/uint-16-pair.h>
-#include <dali/public-api/math/rect.h>
-#include <dali/public-api/object/any.h>
 #include <dali/devel-api/events/touch-point.h>
 #include <dali/integration-api/processor-interface.h>
+#include <dali/public-api/math/rect.h>
+#include <dali/public-api/math/uint-16-pair.h>
+#include <dali/public-api/object/any.h>
+#include <dali/public-api/signals/callback.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 
 namespace Dali
 {
-
 class ObjectRegistry;
 class RenderSurfaceInterface;
 
@@ -47,15 +46,14 @@ class SceneHolder;
 
 using SceneHolderList = std::vector<Dali::Integration::SceneHolder>;
 
-
 namespace Internal
 {
 namespace Adaptor
 {
 class GraphicsFactory;
 class Adaptor;
-}
-}
+} // namespace Adaptor
+} // namespace Internal
 
 /**
  * @brief An Adaptor object is used to initialize and control how Dali runs.
@@ -118,9 +116,8 @@ class Adaptor;
 class DALI_ADAPTOR_API Adaptor
 {
 public:
-
-  typedef Signal< void (Adaptor&) > AdaptorSignalType; ///< Generic Type for adaptor signals
-  typedef Signal< void (Dali::Integration::SceneHolder&) > WindowCreatedSignalType;  ///< SceneHolder created signal type
+  typedef Signal<void(Adaptor&)>                        AdaptorSignalType;       ///< Generic Type for adaptor signals
+  typedef Signal<void(Dali::Integration::SceneHolder&)> WindowCreatedSignalType; ///< SceneHolder created signal type
 
   using SurfaceSize = Uint16Pair; ///< Surface size type
 
@@ -131,7 +128,7 @@ public:
    * @param[in] window The window to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Window window );
+  static Adaptor& New(Window window);
 
   /**
    * @brief Create a new adaptor using render surface.
@@ -140,7 +137,7 @@ public:
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Window window, const Dali::RenderSurfaceInterface& surface );
+  static Adaptor& New(Window window, const Dali::RenderSurfaceInterface& surface);
 
   /**
    * @brief Create a new adaptor using the SceneHolder.
@@ -148,7 +145,7 @@ public:
    * @param[in] sceneHolder The SceneHolder to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Dali::Integration::SceneHolder sceneHolder );
+  static Adaptor& New(Dali::Integration::SceneHolder sceneHolder);
 
   /**
    * @brief Create a new adaptor using render surface.
@@ -157,7 +154,7 @@ public:
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New( Dali::Integration::SceneHolder sceneHolder, const Dali::RenderSurfaceInterface& surface );
+  static Adaptor& New(Dali::Integration::SceneHolder sceneHolder, const Dali::RenderSurfaceInterface& surface);
 
   /**
    * @brief Virtual Destructor.
@@ -165,7 +162,6 @@ public:
   virtual ~Adaptor();
 
 public:
-
   /**
    * @brief Starts the Adaptor.
    */
@@ -209,14 +205,14 @@ public:
    *
    * @note Ownership of the callback is passed onto this class.
    */
-  bool AddIdle( CallbackBase* callback, bool hasReturnValue );
+  bool AddIdle(CallbackBase* callback, bool hasReturnValue);
 
   /**
    * @brief Adds a new Window instance to the Adaptor
    *
    * @param[in]  childWindow The child window instance
    */
-  bool AddWindow( Dali::Integration::SceneHolder childWindow );
+  bool AddWindow(Dali::Integration::SceneHolder childWindow);
 
   /**
    * @brief Removes a previously added @p callback.
@@ -226,7 +222,7 @@ public:
    *
    * @param[in] callback The callback to be removed.
    */
-  void RemoveIdle( CallbackBase* callback );
+  void RemoveIdle(CallbackBase* callback);
 
   /**
    * @brief Processes the idle callbacks.
@@ -241,7 +237,7 @@ public:
    * @param[in] window The window to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface );
+  void ReplaceSurface(Window window, Dali::RenderSurfaceInterface& surface);
 
   /**
    * @brief Replaces the rendering surface
@@ -249,7 +245,7 @@ public:
    * @param[in] sceneHolder The SceneHolder to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface( Dali::Integration::SceneHolder sceneHolder, Dali::RenderSurfaceInterface& surface );
+  void ReplaceSurface(Dali::Integration::SceneHolder sceneHolder, Dali::RenderSurfaceInterface& surface);
 
   /**
    * @brief Get the render surface the adaptor is using to render to.
@@ -271,7 +267,7 @@ public:
    * @param[in] actor The actor
    * @return native window handle
    */
-  Any GetNativeWindowHandle( Actor actor );
+  Any GetNativeWindowHandle(Actor actor);
 
   /**
    * @brief Get the native display associated with the graphics backend
@@ -299,7 +295,7 @@ public:
    * 4 - render every fourth vsync frame
    * 8 - render every eighth vsync frame
    */
-  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+  void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender);
 
   /**
    * @brief The callback is called from the Update/Render thread prior to rendering.
@@ -316,7 +312,7 @@ public:
    * @endcode
    * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
    */
-  void SetPreRenderCallback( CallbackBase* callback );
+  void SetPreRenderCallback(CallbackBase* callback);
 
   /**
    * @brief Returns a reference to the instance of the adaptor used by the current thread.
@@ -358,21 +354,21 @@ public:
    * @param[in] point touch point
    * @param[in] timeStamp time value of event
    */
-  void FeedTouchPoint( TouchPoint& point, int timeStamp );
+  void FeedTouchPoint(TouchPoint& point, int timeStamp);
 
   /**
    * @brief Feed a wheel event to the adaptor.
    *
    * @param[in]  wheelEvent wheel event
    */
-  void FeedWheelEvent( WheelEvent& wheelEvent );
+  void FeedWheelEvent(WheelEvent& wheelEvent);
 
   /**
    * @brief Feed a key event to the adaptor.
    *
    * @param[in] keyEvent The key event holding the key information.
    */
-  void FeedKeyEvent( KeyEvent& keyEvent );
+  void FeedKeyEvent(KeyEvent& keyEvent);
 
   /**
    * @copydoc Dali::Core::SceneCreated();
@@ -385,7 +381,7 @@ public:
    * @param[in] surface The current render surface
    * @param[in] surfaceSize The new surface size
    */
-  void SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+  void SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @brief Informs ThreadController the surface size has changed.
@@ -393,7 +389,7 @@ public:
    * @param[in] surface The current render surface
    * @param[in] surfaceSize The new surface size
    */
-  void SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize );
+  void SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @brief Renders once more even if we're paused
@@ -412,13 +408,13 @@ public:
    * @param[in] processor the Processor to register
    * @note using this api does not maintain the processor's lifecycle, must be done elsewhere.
    */
-  void RegisterProcessor( Integration::Processor& processor );
+  void RegisterProcessor(Integration::Processor& processor);
 
   /**
    * @brief Unregister a previously registered processor from dali-core.
    * @param[in] processor the Processor to unregister
    */
-  void UnregisterProcessor( Integration::Processor& processor );
+  void UnregisterProcessor(Integration::Processor& processor);
 
   /**
    * @brief Get the list of windows created.
@@ -448,8 +444,7 @@ public:
    */
   void OnWindowHidden();
 
-public:  // Signals
-
+public: // Signals
   /**
    * @brief The user should connect to this signal if they need to perform any
    * special activities when the surface Dali is being rendered on is resized.
@@ -473,13 +468,11 @@ public:  // Signals
   WindowCreatedSignalType& WindowCreatedSignal();
 
 private:
-
   // Undefined
   Adaptor(const Adaptor&);
   Adaptor& operator=(Adaptor&);
 
 private:
-
   /**
    * @brief Create an uninitialized Adaptor.
    */

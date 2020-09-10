@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@
 
 namespace Dali
 {
-
 VideoPlayer::VideoPlayer()
 {
 }
 
-VideoPlayer::VideoPlayer( Internal::Adaptor::VideoPlayer* internal )
-: BaseHandle( internal )
+VideoPlayer::VideoPlayer(Internal::Adaptor::VideoPlayer* internal)
+: BaseHandle(internal)
 {
 }
 
@@ -44,185 +43,184 @@ VideoPlayer VideoPlayer::New()
 {
   Internal::Adaptor::VideoPlayerPtr player = Internal::Adaptor::VideoPlayer::New();
 
-  if( player )
+  if(player)
   {
     Dali::Actor actor;
-    player->Initialize( actor, VideoSyncMode::DISABLED );
+    player->Initialize(actor, VideoSyncMode::DISABLED);
   }
 
-  return VideoPlayer( player.Get() );
+  return VideoPlayer(player.Get());
 }
 
-VideoPlayer VideoPlayer::New( Dali::Actor actor, VideoSyncMode syncMode )
+VideoPlayer VideoPlayer::New(Dali::Actor actor, VideoSyncMode syncMode)
 {
   Internal::Adaptor::VideoPlayerPtr player = Internal::Adaptor::VideoPlayer::New();
 
-  if( player )
+  if(player)
   {
-    player->Initialize( actor, syncMode );
+    player->Initialize(actor, syncMode);
   }
 
-  return VideoPlayer( player.Get() );
+  return VideoPlayer(player.Get());
 }
 
-VideoPlayer::VideoPlayer( const VideoPlayer& player )
-: BaseHandle( player )
+VideoPlayer::VideoPlayer(const VideoPlayer& player)
+: BaseHandle(player)
 {
 }
 
-VideoPlayer& VideoPlayer::operator=( const VideoPlayer& player )
+VideoPlayer& VideoPlayer::operator=(const VideoPlayer& player)
 {
-  if( *this != player )
+  if(*this != player)
   {
-    BaseHandle::operator=( player );
+    BaseHandle::operator=(player);
   }
   return *this;
 }
 
-VideoPlayer VideoPlayer::DownCast( BaseHandle handle )
+VideoPlayer VideoPlayer::DownCast(BaseHandle handle)
 {
-  return VideoPlayer( dynamic_cast< Internal::Adaptor::VideoPlayer* >( handle.GetObjectPtr() ) );
+  return VideoPlayer(dynamic_cast<Internal::Adaptor::VideoPlayer*>(handle.GetObjectPtr()));
 }
 
-void VideoPlayer::SetUrl( const std::string& url )
+void VideoPlayer::SetUrl(const std::string& url)
 {
-  GetImplementation( *this ).SetUrl( url );
+  GetImplementation(*this).SetUrl(url);
 }
 
 std::string VideoPlayer::GetUrl()
 {
-  return GetImplementation( *this ).GetUrl();
+  return GetImplementation(*this).GetUrl();
 }
 
 void VideoPlayer::SetLooping(bool looping)
 {
-  GetImplementation( *this ).SetLooping( looping );
+  GetImplementation(*this).SetLooping(looping);
 }
 
 bool VideoPlayer::IsLooping()
 {
-  return GetImplementation( *this ).IsLooping();
+  return GetImplementation(*this).IsLooping();
 }
 
 void VideoPlayer::Play()
 {
-  GetImplementation( *this ).Play();
+  GetImplementation(*this).Play();
 }
 
 void VideoPlayer::Pause()
 {
-  GetImplementation( *this ).Pause();
+  GetImplementation(*this).Pause();
 }
 
 void VideoPlayer::Stop()
 {
-  GetImplementation( *this ).Stop();
+  GetImplementation(*this).Stop();
 }
 
-void VideoPlayer::SetMute( bool mute )
+void VideoPlayer::SetMute(bool mute)
 {
-  GetImplementation( *this ).SetMute( mute );
+  GetImplementation(*this).SetMute(mute);
 }
 
 bool VideoPlayer::IsMuted()
 {
-  return GetImplementation( *this ).IsMuted();
+  return GetImplementation(*this).IsMuted();
 }
 
-void VideoPlayer::SetVolume( float left, float right )
+void VideoPlayer::SetVolume(float left, float right)
 {
-  GetImplementation( *this ).SetVolume( left, right );
+  GetImplementation(*this).SetVolume(left, right);
 }
 
-void VideoPlayer::GetVolume( float& left, float& right )
+void VideoPlayer::GetVolume(float& left, float& right)
 {
-  GetImplementation( *this ).GetVolume( left, right );
+  GetImplementation(*this).GetVolume(left, right);
 }
 
-void VideoPlayer::SetRenderingTarget( Any target )
+void VideoPlayer::SetRenderingTarget(Any target)
 {
-  GetImplementation( *this ).SetRenderingTarget( target );
+  GetImplementation(*this).SetRenderingTarget(target);
 }
 
-void VideoPlayer::SetPlayPosition( int millisecond )
+void VideoPlayer::SetPlayPosition(int millisecond)
 {
-  GetImplementation( *this ).SetPlayPosition( millisecond );
+  GetImplementation(*this).SetPlayPosition(millisecond);
 }
 
 int VideoPlayer::GetPlayPosition()
 {
-  return GetImplementation( *this ).GetPlayPosition();
+  return GetImplementation(*this).GetPlayPosition();
 }
 
-void VideoPlayer::SetDisplayArea( DisplayArea area )
+void VideoPlayer::SetDisplayArea(DisplayArea area)
 {
-  GetImplementation( *this ).SetDisplayArea( area );
+  GetImplementation(*this).SetDisplayArea(area);
 }
 
-void VideoPlayer::SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation )
+void VideoPlayer::SetDisplayRotation(Dali::VideoPlayerPlugin::DisplayRotation rotation)
 {
-  GetImplementation( *this ).SetDisplayRotation( rotation );
+  GetImplementation(*this).SetDisplayRotation(rotation);
 }
 
 Dali::VideoPlayerPlugin::DisplayRotation VideoPlayer::GetDisplayRotation()
 {
-  return GetImplementation( *this ).GetDisplayRotation();
+  return GetImplementation(*this).GetDisplayRotation();
 }
 
 Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
 {
-  return GetImplementation( *this ).FinishedSignal();
+  return GetImplementation(*this).FinishedSignal();
 }
 
-void VideoPlayer::Forward( int millisecond )
+void VideoPlayer::Forward(int millisecond)
 {
-  GetImplementation( *this ).Forward( millisecond );
+  GetImplementation(*this).Forward(millisecond);
 }
 
-void VideoPlayer::Backward( int millisecond )
+void VideoPlayer::Backward(int millisecond)
 {
-  GetImplementation( *this ).Backward( millisecond );
+  GetImplementation(*this).Backward(millisecond);
 }
 
 bool VideoPlayer::IsVideoTextureSupported()
 {
-  return GetImplementation( *this ).IsVideoTextureSupported();
+  return GetImplementation(*this).IsVideoTextureSupported();
 }
 
-void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+void VideoPlayer::SetCodecType(Dali::VideoPlayerPlugin::CodecType type)
 {
-  GetImplementation( *this ).SetCodecType( type );
+  GetImplementation(*this).SetCodecType(type);
 }
 
 Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
 {
-  return GetImplementation( *this ).GetCodecType();
+  return GetImplementation(*this).GetCodecType();
 }
 
-void VideoPlayer::SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode )
+void VideoPlayer::SetDisplayMode(Dali::VideoPlayerPlugin::DisplayMode::Type mode)
 {
-  GetImplementation( *this ).SetDisplayMode( mode );
+  GetImplementation(*this).SetDisplayMode(mode);
 }
 
 Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
 {
-  return GetImplementation( *this ).GetDisplayMode();
+  return GetImplementation(*this).GetDisplayMode();
 }
 
 Any VideoPlayer::GetMediaPlayer()
 {
-  return GetImplementation( *this ).GetMediaPlayer();
+  return GetImplementation(*this).GetMediaPlayer();
 }
 
 void VideoPlayer::StartSynchronization()
 {
-  GetImplementation( *this ).StartSynchronization();
+  GetImplementation(*this).StartSynchronization();
 }
 
 void VideoPlayer::FinishSynchronization()
 {
-  GetImplementation( *this ).FinishSynchronization();
+  GetImplementation(*this).FinishSynchronization();
 }
 
-} // namespace Dali;
-
+} // namespace Dali

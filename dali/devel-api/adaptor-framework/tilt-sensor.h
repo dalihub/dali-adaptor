@@ -2,7 +2,7 @@
 #define DALI_TILT_SENSOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class TiltSensor;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * TiltSensor provides pitch & roll values when the device is tilted.
@@ -81,8 +80,7 @@ class TiltSensor;
 class DALI_ADAPTOR_API TiltSensor : public BaseHandle
 {
 public:
-
-  typedef Signal< void (const TiltSensor&) > TiltedSignalType;
+  typedef Signal<void(const TiltSensor&)> TiltedSignalType;
 
   static const float DEFAULT_UPDATE_FREQUENCY; // 60 hertz
 
@@ -167,7 +165,7 @@ public:
    * The default is TiltSensor::DEFAULT_UPDATE_FREQUENCY.
    * @param[in] frequencyHertz The frequency in hertz.
    */
-  void SetUpdateFrequency( float frequencyHertz );
+  void SetUpdateFrequency(float frequencyHertz);
 
   /**
    * Query the sensor update frequency.
@@ -181,7 +179,7 @@ public:
    * Example tiltSensor.SetRotationThreshold( Radian(Degree(10) ) // A rotation threshold of 10 degrees
    * @param[in] rotationThreshold The threshold value for rotation.
    */
-  void SetRotationThreshold( Radian rotationThreshold );
+  void SetRotationThreshold(Radian rotationThreshold);
 
   /**
    * Query the rotation threshold above which TiltedSignal will be emitted.
@@ -190,12 +188,11 @@ public:
   Radian GetRotationThreshold() const;
 
 public: // Not intended for application developers
-
   /**
    * This constructor is used by TiltSensor::Get().
    * @param[in] sensor A pointer to the tilt sensor.
    */
-  explicit DALI_INTERNAL TiltSensor( Internal::Adaptor::TiltSensor* sensor );
+  explicit DALI_INTERNAL TiltSensor(Internal::Adaptor::TiltSensor* sensor);
 };
 
 } // namespace Dali

@@ -19,113 +19,109 @@
 #include <dali/public-api/adaptor-framework/application.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
 
 namespace Dali
 {
-
 Application Application::New()
 {
-  return New( NULL, NULL );
+  return New(NULL, NULL);
 }
 
-Application Application::New( int* argc, char **argv[] )
+Application Application::New(int* argc, char** argv[])
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if( internal )
+  if(internal)
   {
     // pre-initialized application
-    internal->SetCommandLineOptions( argc, argv );
-    if( argc && ( *argc > 0 ) )
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
     {
-      internal->GetWindow().SetClass( (*argv)[0], "" );
+      internal->GetWindow().SetClass((*argv)[0], "");
     }
 
-    return Application( internal.Get() );
+    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New( argc, argv, "", OPAQUE, PositionSize(),
-      Internal::Adaptor::Framework::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL);
     return Application(internal.Get());
   }
 }
 
-Application Application::New( int* argc, char **argv[], const std::string& stylesheet )
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if( internal )
+  if(internal)
   {
     // pre-initialized application
-    internal->SetCommandLineOptions( argc, argv );
-    if( argc && ( *argc > 0 ) )
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
     {
-      internal->GetWindow().SetClass( (*argv)[0], "" );
+      internal->GetWindow().SetClass((*argv)[0], "");
     }
-    internal->SetStyleSheet( stylesheet );
+    internal->SetStyleSheet(stylesheet);
 
-    return Application( internal.Get() );
+    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, OPAQUE, PositionSize(),
-      Internal::Adaptor::Framework::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL);
     return Application(internal.Get());
   }
 }
 
-Application Application::New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode )
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if( internal )
+  if(internal)
   {
     // pre-initialized application
-    internal->SetCommandLineOptions( argc, argv );
-    if( argc && ( *argc > 0 ) )
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
     {
-      internal->GetWindow().SetClass( (*argv)[0], "" );
+      internal->GetWindow().SetClass((*argv)[0], "");
     }
-    internal->SetStyleSheet( stylesheet );
+    internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
 
-    return Application( internal.Get() );
+    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, PositionSize(),
-      Internal::Adaptor::Framework::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL);
     return Application(internal.Get());
   }
 }
 
-Application Application::New( int* argc, char **argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize )
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize)
 {
   Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
-  if( internal )
+  if(internal)
   {
     // pre-initialized application
-    internal->SetCommandLineOptions( argc, argv );
-    if( argc && ( *argc > 0 ) )
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
     {
-      internal->GetWindow().SetClass( (*argv)[0], "" );
+      internal->GetWindow().SetClass((*argv)[0], "");
     }
-    internal->SetStyleSheet( stylesheet );
+    internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency( ( windowMode == Application::OPAQUE ? false : true ) );
-    internal->GetWindow().SetSize( Window::WindowSize( positionSize.width, positionSize.height ) );
-    internal->GetWindow().SetPosition( Window::WindowPosition( positionSize.x, positionSize.y ) );
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
+    internal->GetWindow().SetSize(Window::WindowSize(positionSize.width, positionSize.height));
+    internal->GetWindow().SetPosition(Window::WindowPosition(positionSize.x, positionSize.y));
 
-    return Application( internal.Get() );
+    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New( argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL );
-    return Application( internal.Get() );
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL);
+    return Application(internal.Get());
   }
 }
 
@@ -137,13 +133,13 @@ Application::Application()
 {
 }
 
-Application::Application( const Application& copy ) = default;
+Application::Application(const Application& copy) = default;
 
-Application& Application::operator=( const Application& rhs ) = default;
+Application& Application::operator=(const Application& rhs) = default;
 
-Application::Application( Application&& rhs ) = default;
+Application::Application(Application&& rhs) = default;
 
-Application& Application::operator=( Application&& rhs ) = default;
+Application& Application::operator=(Application&& rhs) = default;
 
 void Application::MainLoop()
 {
@@ -160,9 +156,9 @@ void Application::Quit()
   Internal::Adaptor::GetImplementation(*this).Quit();
 }
 
-bool Application::AddIdle( CallbackBase* callback )
+bool Application::AddIdle(CallbackBase* callback)
 {
-  return Internal::Adaptor::GetImplementation(*this).AddIdle( callback, false );
+  return Internal::Adaptor::GetImplementation(*this).AddIdle(callback, false);
 }
 
 Window Application::GetWindow()
@@ -215,7 +211,7 @@ Application::AppSignalType& Application::ResetSignal()
   return Internal::Adaptor::GetImplementation(*this).ResetSignal();
 }
 
-Application::AppControlSignalType & Application::AppControlSignal()
+Application::AppControlSignalType& Application::AppControlSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).AppControlSignal();
 }
@@ -244,6 +240,5 @@ Application::Application(Internal::Adaptor::Application* application)
 : BaseHandle(application)
 {
 }
-
 
 } // namespace Dali

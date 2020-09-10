@@ -23,10 +23,9 @@
 
 namespace Dali
 {
-
-WidgetApplication WidgetApplication::New( int* argc, char **argv[], const std::string& stylesheet )
+WidgetApplication WidgetApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New( argc, argv, stylesheet);
+  Internal::Adaptor::WidgetApplicationPtr internal = Internal::Adaptor::WidgetApplication::New(argc, argv, stylesheet);
   return WidgetApplication(internal.Get());
 }
 
@@ -38,17 +37,17 @@ WidgetApplication::WidgetApplication()
 {
 }
 
-WidgetApplication::WidgetApplication( const WidgetApplication& copy ) = default;
+WidgetApplication::WidgetApplication(const WidgetApplication& copy) = default;
 
-WidgetApplication& WidgetApplication::operator=( const WidgetApplication& rhs ) = default;
+WidgetApplication& WidgetApplication::operator=(const WidgetApplication& rhs) = default;
 
-WidgetApplication::WidgetApplication( WidgetApplication&& rhs ) = default;
+WidgetApplication::WidgetApplication(WidgetApplication&& rhs) = default;
 
-WidgetApplication& WidgetApplication::operator=( WidgetApplication&& rhs ) = default;
+WidgetApplication& WidgetApplication::operator=(WidgetApplication&& rhs) = default;
 
-void WidgetApplication::RegisterWidgetCreatingFunction( const std::string& widgetName, CreateWidgetFunction createFunction )
+void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widgetName, CreateWidgetFunction createFunction)
 {
-  Internal::Adaptor::GetImplementation(*this).RegisterWidgetCreatingFunction( widgetName, createFunction );
+  Internal::Adaptor::GetImplementation(*this).RegisterWidgetCreatingFunction(widgetName, createFunction);
 }
 
 WidgetApplication::WidgetApplication(Internal::Adaptor::WidgetApplication* widgetApplication)

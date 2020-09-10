@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,14 +39,14 @@ namespace Adaptor
 {
 class NativeImageSourceQueue;
 }
-}
+} // namespace DALI_INTERNAL
 
 class NativeImageSourceQueue;
 
 /**
  * @brief Pointer to Dali::NativeImageSourceQueue.
  */
-typedef Dali::IntrusivePtr< Dali::NativeImageSourceQueue > NativeImageSourceQueuePtr;
+typedef Dali::IntrusivePtr<Dali::NativeImageSourceQueue> NativeImageSourceQueuePtr;
 
 /**
  * @brief Used for displaying native images.
@@ -59,16 +59,15 @@ typedef Dali::IntrusivePtr< Dali::NativeImageSourceQueue > NativeImageSourceQueu
 class DALI_ADAPTOR_API NativeImageSourceQueue : public NativeImageInterface
 {
 public:
-
-   /**
+  /**
     * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
     */
-   enum ColorDepth
-   {
-     COLOR_DEPTH_DEFAULT,     ///< Uses the current screen default depth (recommended)
-     COLOR_DEPTH_24,          ///< 24 bits per pixel
-     COLOR_DEPTH_32           ///< 32 bits per pixel
-   };
+  enum ColorDepth
+  {
+    COLOR_DEPTH_DEFAULT, ///< Uses the current screen default depth (recommended)
+    COLOR_DEPTH_24,      ///< 24 bits per pixel
+    COLOR_DEPTH_32       ///< 32 bits per pixel
+  };
 
   /**
    * @brief Creates a new NativeImageSourceQueue.
@@ -78,7 +77,7 @@ public:
    * @param[in] depth color depth of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageSourceQueuePtr New( uint32_t width, uint32_t height, ColorDepth depth );
+  static NativeImageSourceQueuePtr New(uint32_t width, uint32_t height, ColorDepth depth);
 
   /**
    * @brief Creates a new NativeImageSourceQueue from an existing native image source.
@@ -87,7 +86,7 @@ public:
    * @return A smart-pointer to a newly allocated image
    * @see NativeImageInterface
    */
-  static NativeImageSourceQueuePtr New( Any nativeImageSourceQueue );
+  static NativeImageSourceQueuePtr New(Any nativeImageSourceQueue);
 
   /**
    * @brief Retrieves the internal native image.
@@ -102,7 +101,7 @@ public:
    * @param[in] width The width of the image
    * @param[in] height The height of the image
    */
-  void SetSize( uint32_t width, uint32_t height );
+  void SetSize(uint32_t width, uint32_t height);
 
   /**
    * @brief Ignores a source image which is inserted to the queue.
@@ -126,9 +125,7 @@ public:
    */
   const char* GetCustomSamplerTypename() const override;
 
-
-private:   // native image
-
+private: // native image
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource()
    */
@@ -180,7 +177,6 @@ private:   // native image
   NativeImageInterface::Extension* GetExtension() override;
 
 private:
-
   /// @cond internal
   /**
    * @brief Private constructor.
@@ -189,7 +185,7 @@ private:
    * @param[in] depth color depth of the image
    * @param[in] nativeImageSourceQueue contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSourceQueue( uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue );
+  DALI_INTERNAL NativeImageSourceQueue(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
@@ -204,7 +200,7 @@ private:
    * This avoids accidental calls to a default copy constructor.
    * @param[in] nativeImageSourceQueue A reference to the object to copy
    */
-  DALI_INTERNAL NativeImageSourceQueue( const NativeImageSourceQueue& nativeImageSourceQueue );
+  DALI_INTERNAL NativeImageSourceQueue(const NativeImageSourceQueue& nativeImageSourceQueue);
 
   /**
    * @brief Undefined assignment operator.
@@ -216,9 +212,8 @@ private:
   /// @endcond
 
 private:
-
   /// @cond internal
-  std::unique_ptr< Internal::Adaptor::NativeImageSourceQueue > mImpl; ///< Implementation pointer
+  std::unique_ptr<Internal::Adaptor::NativeImageSourceQueue> mImpl; ///< Implementation pointer
   /// @endcond
 };
 

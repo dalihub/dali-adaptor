@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 ColorController::ColorController()
 {
 }
@@ -48,14 +47,14 @@ ColorController::~ColorController()
 {
 }
 
-bool ColorController::RetrieveColor( const std::string& colorCode, Vector4& colorValue )
+bool ColorController::RetrieveColor(const std::string& colorCode, Vector4& colorValue)
 {
-  return GetImplementation(*this).RetrieveColor( colorCode, colorValue );
+  return GetImplementation(*this).RetrieveColor(colorCode, colorValue);
 }
 
-bool ColorController::RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
+bool ColorController::RetrieveColor(const std::string& colorCode, Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
 {
-  return GetImplementation(*this).RetrieveColor( colorCode, textColor, textOutlineColor, textShadowColor );
+  return GetImplementation(*this).RetrieveColor(colorCode, textColor, textOutlineColor, textShadowColor);
 }
 
 ColorController::ColorController(Internal::Adaptor::ColorController* internal)
@@ -63,4 +62,4 @@ ColorController::ColorController(Internal::Adaptor::ColorController* internal)
 {
 }
 
-}
+} // namespace Dali

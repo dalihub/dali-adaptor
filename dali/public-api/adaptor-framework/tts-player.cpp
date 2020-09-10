@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 
 namespace Dali
 {
-
 TtsPlayer::TtsPlayer()
 {
 }
@@ -33,9 +32,9 @@ TtsPlayer TtsPlayer::Get(Dali::TtsPlayer::Mode mode)
 {
   TtsPlayer ttsPlayer;
 
-  if ( Adaptor::IsAvailable() )
+  if(Adaptor::IsAvailable())
   {
-    ttsPlayer = Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetTtsPlayer(mode);
+    ttsPlayer = Internal::Adaptor::Adaptor::GetImplementation(Adaptor::Get()).GetTtsPlayer(mode);
   }
 
   return ttsPlayer;
@@ -45,13 +44,13 @@ TtsPlayer::~TtsPlayer()
 {
 }
 
-TtsPlayer::TtsPlayer( const TtsPlayer& copy ) = default;
+TtsPlayer::TtsPlayer(const TtsPlayer& copy) = default;
 
-TtsPlayer& TtsPlayer::operator=( const TtsPlayer& rhs ) = default;
+TtsPlayer& TtsPlayer::operator=(const TtsPlayer& rhs) = default;
 
-TtsPlayer::TtsPlayer( TtsPlayer&& rhs ) = default;
+TtsPlayer::TtsPlayer(TtsPlayer&& rhs) = default;
 
-TtsPlayer& TtsPlayer::operator=( TtsPlayer&& rhs ) = default;
+TtsPlayer& TtsPlayer::operator=(TtsPlayer&& rhs) = default;
 
 void TtsPlayer::Play(const std::string& text)
 {
@@ -83,8 +82,8 @@ TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
   return GetImplementation(*this).StateChangedSignal();
 }
 
-TtsPlayer::TtsPlayer( Internal::Adaptor::TtsPlayer* player )
-: BaseHandle( player )
+TtsPlayer::TtsPlayer(Internal::Adaptor::TtsPlayer* player)
+: BaseHandle(player)
 {
 }
 

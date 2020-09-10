@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@
 
 namespace Dali
 {
-
 /**
  * @addtogroup dali_adaptor_framework
  * @{
@@ -36,10 +35,8 @@ namespace Dali
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class Widget;
 typedef IntrusivePtr<Widget> WidgetPtr;
 
@@ -59,7 +56,6 @@ typedef IntrusivePtr<Widget> WidgetPtr;
 class DALI_ADAPTOR_API Widget : public BaseObject, public ConnectionTrackerInterface
 {
 public:
-
   /**
    * @brief Creates a new WidgetImpl instance.
    *
@@ -75,7 +71,7 @@ public:
    * @param[in] contentInfo Information from WidgetView for creating. It contains previous status of widget which is sent by SetContentInfo before.
    * @param[in] window Window handle for widget
    */
-  virtual void OnCreate( const std::string& contentInfo, Dali::Window window );
+  virtual void OnCreate(const std::string& contentInfo, Dali::Window window);
 
   /**
    * @brief The user should override this function to determine when they terminate widget.
@@ -84,7 +80,7 @@ public:
    * @param[in] contentInfo Data from WidgetView for deleting
    * @param[in] type Termination type. When user delete widget view, termination type is PERMANENT.
    */
-  virtual void OnTerminate( const std::string& contentInfo, Dali::Widget::Termination type );
+  virtual void OnTerminate(const std::string& contentInfo, Dali::Widget::Termination type);
 
   /**
    * @brief The user should override this function to determine when they pause widget.
@@ -104,7 +100,7 @@ public:
    * @SINCE_1_3_5
    * @param[in] window Window handle for widget
    */
-  virtual void OnResize( Dali::Window window );
+  virtual void OnResize(Dali::Window window);
 
   /**
    * @brief The user should override this function to determine when they update widget.
@@ -113,19 +109,19 @@ public:
    * @param[in] contentInfo Data from WidgetView for updating
    * @param[in] force Although the widget is paused, if it is true, the widget can be updated
    */
-  virtual void OnUpdate( const std::string& contentInfo, int force );
+  virtual void OnUpdate(const std::string& contentInfo, int force);
 
   // From ConnectionTrackerInterface
 
   /**
    * @copydoc ConnectionTrackerInterface::SignalConnected
    */
-  void SignalConnected( SlotObserver* slotObserver, CallbackBase* callback ) override;
+  void SignalConnected(SlotObserver* slotObserver, CallbackBase* callback) override;
 
   /**
    * @copydoc ConnectionTrackerInterface::SignalDisconnected
    */
-  void SignalDisconnected( SlotObserver* slotObserver, CallbackBase* callback ) override;
+  void SignalDisconnected(SlotObserver* slotObserver, CallbackBase* callback) override;
 
   /**
    * @brief Set content info to WidgetView.
@@ -133,10 +129,9 @@ public:
    * @SINCE_1_3_5
    * @param[in] contentInfo Content info is kind of context information which contains current status of widget.
    */
-  void SetContentInfo( const std::string& contentInfo );
+  void SetContentInfo(const std::string& contentInfo);
 
 protected:
-
   /**
    * @brief WidgetImpl constructor
    */
@@ -155,7 +150,7 @@ public:
    * Set pointer of WidgetImpl Internal.
    * @SINCE_1_3_5
    */
-  void SetImpl( Impl* impl );
+  void SetImpl(Impl* impl);
 
 private:
   Impl* mImpl;
@@ -164,7 +159,6 @@ private:
   DALI_INTERNAL Widget(const Widget&);
   DALI_INTERNAL Widget& operator=(Widget&);
   /// @endcond
-
 };
 
 /**
@@ -175,7 +169,7 @@ private:
  * @return Implementation
  * @pre handle is initialized and points to a widget
  */
-DALI_ADAPTOR_API Internal::Adaptor::Widget& GetImplementation( Dali::Widget& widget );
+DALI_ADAPTOR_API Internal::Adaptor::Widget& GetImplementation(Dali::Widget& widget);
 
 /**
  * @brief Gets implementation from the handle.
@@ -185,7 +179,7 @@ DALI_ADAPTOR_API Internal::Adaptor::Widget& GetImplementation( Dali::Widget& wid
  * @return Implementation
  * @pre Handle is initialized and points to a widget.
  */
-DALI_ADAPTOR_API const Internal::Adaptor::Widget& GetImplementation( const Dali::Widget& widget );
+DALI_ADAPTOR_API const Internal::Adaptor::Widget& GetImplementation(const Dali::Widget& widget);
 
 } // namespace Adaptor
 

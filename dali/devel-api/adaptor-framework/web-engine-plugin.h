@@ -25,7 +25,6 @@
 
 namespace Dali
 {
-
 class KeyEvent;
 class TouchEvent;
 
@@ -36,16 +35,15 @@ class TouchEvent;
 class WebEnginePlugin
 {
 public:
-
   /**
    * @brief WebEngine signal type related with page loading.
    */
-  typedef Signal< void( const std::string& ) > WebEnginePageLoadSignalType;
+  typedef Signal<void(const std::string&)> WebEnginePageLoadSignalType;
 
   /**
    * @brief WebView signal type related with page loading error.
    */
-  typedef Signal< void( const std::string&, int ) > WebEnginePageLoadErrorSignalType;
+  typedef Signal<void(const std::string&, int)> WebEnginePageLoadErrorSignalType;
 
   /**
    * @brief Enumeration for cache model options.
@@ -111,7 +109,7 @@ public:
    * @param [in] locale The locale of Web
    * @param [in] timezoneId The timezoneID of Web
    */
-  virtual void Create( int width, int height, const std::string& locale, const std::string& timezoneId ) = 0;
+  virtual void Create(int width, int height, const std::string& locale, const std::string& timezoneId) = 0;
 
   /**
    * @brief Destroys WebEngine instance.
@@ -123,7 +121,7 @@ public:
    *
    * @param [in] url The URL of the resource to load
    */
-  virtual void LoadUrl( const std::string& url ) = 0;
+  virtual void LoadUrl(const std::string& url) = 0;
 
   /**
    * @brief Gets image to render.
@@ -142,7 +140,7 @@ public:
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
-  virtual void LoadHTMLString( const std::string& htmlString ) = 0;
+  virtual void LoadHTMLString(const std::string& htmlString) = 0;
 
   /**
    * @brief Reloads the Web.
@@ -194,7 +192,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  virtual void EvaluateJavaScript( const std::string& script, std::function< void( const std::string& ) > resultHandler ) = 0;
+  virtual void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler) = 0;
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -202,7 +200,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  virtual void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void( const std::string& ) > handler ) = 0;
+  virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
 
   /**
    * @brief Clears the history of Web.
@@ -231,7 +229,7 @@ public:
    *
    * @param[in] cacheModel The cache model option
    */
-  virtual void SetCacheModel( CacheModel cacheModel ) = 0;
+  virtual void SetCacheModel(CacheModel cacheModel) = 0;
 
   /**
    * @brief Gets the cookie acceptance policy. The default is NO_THIRD_PARTY.
@@ -245,7 +243,7 @@ public:
    *
    * @param[in] policy The cookie acceptance policy
    */
-  virtual void SetCookieAcceptPolicy( CookieAcceptPolicy policy ) = 0;
+  virtual void SetCookieAcceptPolicy(CookieAcceptPolicy policy) = 0;
 
   /**
    * @brief Get user agent string.
@@ -259,7 +257,7 @@ public:
    *
    * @param[in] userAgent The string value of user agent
    */
-  virtual void SetUserAgent( const std::string& userAgent ) = 0;
+  virtual void SetUserAgent(const std::string& userAgent) = 0;
 
   /**
    * @brief Returns whether JavaScript can be executable. The default is true.
@@ -273,7 +271,7 @@ public:
    *
    * @param[in] enabled True if JavaScript executing is enabled, false otherwise
    */
-  virtual void EnableJavaScript( bool enabled ) = 0;
+  virtual void EnableJavaScript(bool enabled) = 0;
 
   /**
    * @brief Returns whether images can be loaded automatically. The default is true.
@@ -287,7 +285,7 @@ public:
    *
    * @param[in] automatic True if images are loaded automatically, false otherwise
    */
-  virtual void LoadImagesAutomatically( bool automatic ) = 0;
+  virtual void LoadImagesAutomatically(bool automatic) = 0;
 
   /**
    * @brief Gets the default text encoding name (e.g. UTF-8).
@@ -301,7 +299,7 @@ public:
    *
    * @param[in] defaultTextEncodingName The default text encoding name
    */
-  virtual void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName ) = 0;
+  virtual void SetDefaultTextEncodingName(const std::string& defaultTextEncodingName) = 0;
 
   /**
    * @brief Returns the default font size in pixel. The default value is 16.
@@ -315,22 +313,22 @@ public:
    *
    * @param[in] defaultFontSize A new default font size to set
    */
-  virtual void SetDefaultFontSize( int defaultFontSize ) = 0;
+  virtual void SetDefaultFontSize(int defaultFontSize) = 0;
 
   /**
    * @brief Sets size of Web Page.
    */
-  virtual void SetSize( int width, int height ) = 0;
+  virtual void SetSize(int width, int height) = 0;
 
   /**
    * @brief Sends Touch Events.
    */
-  virtual bool SendTouchEvent( const TouchEvent& touch ) = 0;
+  virtual bool SendTouchEvent(const TouchEvent& touch) = 0;
 
   /**
    * @brief Sends Key Events.
    */
-  virtual bool SendKeyEvent( const KeyEvent& event ) = 0;
+  virtual bool SendKeyEvent(const KeyEvent& event) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
@@ -352,9 +350,8 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
-
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif

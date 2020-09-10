@@ -2,7 +2,7 @@
 #define DALI_PHYSICAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class PhysicalKeyboard;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * This is a handle to a physical keyboard connected to the device.
@@ -42,11 +41,9 @@ class PhysicalKeyboard;
 class DALI_ADAPTOR_API PhysicalKeyboard : public BaseHandle
 {
 public:
-
-  typedef Signal< void (PhysicalKeyboard) > PhysicalKeyboardSignalType;
+  typedef Signal<void(PhysicalKeyboard)> PhysicalKeyboardSignalType;
 
 public:
-
   /**
    * Create an uninitialized PhysicalKeyboard handle; this can be initialized with GetKeyboard()
    * Calling member functions with an uninitialized Dali::Object is not allowed.
@@ -91,7 +88,7 @@ public:
    * Creates a new handle from the implementation.
    * @param[in] impl A pointer to the object.
    */
-  explicit DALI_INTERNAL PhysicalKeyboard( Internal::Adaptor::PhysicalKeyboard* impl );
+  explicit DALI_INTERNAL PhysicalKeyboard(Internal::Adaptor::PhysicalKeyboard* impl);
 };
 
 } // namespace Dali

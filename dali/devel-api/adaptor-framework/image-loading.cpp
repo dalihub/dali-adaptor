@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,34 +18,32 @@
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/object/property-map.h>
-#include <dali/internal/imaging/common/image-loader.h>
-#include <dali/internal/imaging/common/file-download.h>
-#include <dali/internal/system/common/file-reader.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/internal/imaging/common/file-download.h>
+#include <dali/internal/imaging/common/image-loader.h>
+#include <dali/internal/system/common/file-reader.h>
+#include <dali/public-api/object/property-map.h>
 
 namespace Dali
 {
-
 namespace
 {
-
 // limit maximum image down load size to 50 MB
-const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
 
-}
+} // namespace
 
-Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
-  Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
+  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
 
-  Internal::Platform::FileReader fileReader( url );
-  FILE * const fp = fileReader.GetFile();
-  if( fp != NULL )
+  Internal::Platform::FileReader fileReader(url);
+  FILE* const                    fp = fileReader.GetFile();
+  if(fp != NULL)
   {
     Dali::Devel::PixelBuffer bitmap;
-    bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap( resourceType, url, fp, bitmap );
-    if( success && bitmap )
+    bool                     success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, url, fp, bitmap);
+    if(success && bitmap)
     {
       return bitmap;
     }
@@ -53,62 +51,61 @@ Devel::PixelBuffer LoadImageFromFile( const std::string& url, ImageDimensions si
   return Dali::Devel::PixelBuffer();
 }
 
-ImageDimensions GetClosestImageSize( const std::string& filename,
-                                     ImageDimensions size,
-                                     FittingMode::Type fittingMode,
-                                     SamplingMode::Type samplingMode,
-                                     bool orientationCorrection )
+ImageDimensions GetClosestImageSize(const std::string& filename,
+                                    ImageDimensions    size,
+                                    FittingMode::Type  fittingMode,
+                                    SamplingMode::Type samplingMode,
+                                    bool               orientationCorrection)
 {
-  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+  ImageDimensions dimension = TizenPlatform::ImageLoader::GetClosestImageSize(filename, size, fittingMode, samplingMode, orientationCorrection);
 
-  dimension.SetWidth( std::min( dimension.GetWidth(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
-  dimension.SetHeight( std::min( dimension.GetHeight(), static_cast< uint16_t >( GetMaxTextureSize() ) ) );
+  dimension.SetWidth(std::min(dimension.GetWidth(), static_cast<uint16_t>(GetMaxTextureSize())));
+  dimension.SetHeight(std::min(dimension.GetHeight(), static_cast<uint16_t>(GetMaxTextureSize())));
 
   return dimension;
 }
 
-ImageDimensions GetOriginalImageSize( const std::string& filename )
+ImageDimensions GetOriginalImageSize(const std::string& filename)
 {
-   return TizenPlatform::ImageLoader::GetClosestImageSize( filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, true );
+  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, true);
 }
 
-Devel::PixelBuffer DownloadImageSynchronously( const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection )
+Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
-  Integration::BitmapResourceType resourceType( size, fittingMode, samplingMode, orientationCorrection );
+  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
 
-  bool succeeded;
+  bool                  succeeded;
   Dali::Vector<uint8_t> dataBuffer;
-  size_t dataSize;
+  size_t                dataSize;
 
-  succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory( url, dataBuffer, dataSize,
-                                                                    MAXIMUM_DOWNLOAD_IMAGE_SIZE );
-  if( succeeded )
+  succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory(url, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE);
+  if(succeeded)
   {
     size_t blobSize = dataBuffer.Size();
 
-    DALI_ASSERT_DEBUG( blobSize > 0U );
+    DALI_ASSERT_DEBUG(blobSize > 0U);
 
-    if( blobSize > 0U )
+    if(blobSize > 0U)
     {
       // Open a file handle on the memory buffer:
-      Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
-      FILE * const fp = fileReader.GetFile();
-      if ( NULL != fp )
+      Dali::Internal::Platform::FileReader fileReader(dataBuffer, blobSize);
+      FILE* const                          fp = fileReader.GetFile();
+      if(NULL != fp)
       {
         Dali::Devel::PixelBuffer bitmap;
-        bool result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
+        bool                     result = TizenPlatform::ImageLoader::ConvertStreamToBitmap(
           resourceType,
           url,
           fp,
-          bitmap );
+          bitmap);
 
-        if ( result && bitmap )
+        if(result && bitmap)
         {
           return bitmap;
         }
         else
         {
-          DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+          DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
         }
       }
     }

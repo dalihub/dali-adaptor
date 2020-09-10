@@ -25,13 +25,12 @@ namespace Dali
 {
 namespace Internal DALI_INTERNAL
 {
-
 namespace Adaptor
 {
 class ComponentApplication;
 }
 
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief An ComponentApplication class object should be created by every component-based application
@@ -52,14 +51,14 @@ class ComponentApplication;
 class DALI_ADAPTOR_API ComponentApplication : public Application
 {
 public:
-  typedef Signal< Any () > CreateSignalType;
+  typedef Signal<Any()> CreateSignalType;
 
 public:
   /**
    * @brief This is the constructor for component applications without an argument list.
    * @return A handle to the ComponentApplication
    */
-  static ComponentApplication New( );
+  static ComponentApplication New();
 
   /**
    * @brief This is the constructor for component applications.
@@ -68,7 +67,7 @@ public:
    * @param[in,out]  argv        A pointer to the argument list
    * @return A handle to the ComponentApplication
    */
-  static ComponentApplication New( int* argc, char **argv[] );
+  static ComponentApplication New(int* argc, char** argv[]);
 
   /**
    * @brief This is the constructor for component applications with a stylesheet
@@ -78,7 +77,7 @@ public:
    * @param[in]      stylesheet  The path to user defined theme file
    * @return A handle to the ComponentApplication
    */
-  static ComponentApplication New( int* argc, char **argv[], const std::string& stylesheet );
+  static ComponentApplication New(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * @brief The default constructor.
@@ -90,7 +89,7 @@ public:
    *
    * @param[in] componentApplication Handle to an object
    */
-  ComponentApplication( const ComponentApplication& componentApplication ) = default;
+  ComponentApplication(const ComponentApplication& componentApplication) = default;
 
   /**
    * @brief Assignment operator.
@@ -98,14 +97,14 @@ public:
    * @param[in] componentApplication Handle to an object
    * @return A reference to this
    */
-  ComponentApplication& operator=( const ComponentApplication& componentApplication ) = default;
+  ComponentApplication& operator=(const ComponentApplication& componentApplication) = default;
 
- /**
+  /**
    * @brief Destructor
    */
   ~ComponentApplication() = default;
 
- /**
+  /**
   * @brief The user should connect to this signal to determine when they should initialize
   * their application.
   * The callback function is called before the main loop of the application starts.
@@ -124,4 +123,3 @@ public:
 } // namespace Dali
 
 #endif // DALI_COMPONENT_APPLICATION_H
-

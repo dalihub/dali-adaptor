@@ -19,14 +19,14 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/vector4.h>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -49,7 +49,7 @@ namespace Adaptor
 {
 class Window;
 }
-}
+} // namespace DALI_INTERNAL
 
 class DragAndDropDetector;
 class Orientation;
@@ -69,17 +69,15 @@ class KeyEvent;
 class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
+  using WindowSize     = Uint16Pair; ///< Window size type @SINCE_1_2.60
+  using WindowPosition = Uint16Pair; ///< Window position type @SINCE_1_2.60
 
-  using WindowSize = Uint16Pair ;     ///< Window size type @SINCE_1_2.60
-  using WindowPosition = Uint16Pair;  ///< Window position type @SINCE_1_2.60
-
-  using FocusChangeSignalType = Signal< void (Window,bool) >;      ///< Window focus signal type @SINCE_1_4.35
-  using ResizeSignalType = Signal< void (Window,WindowSize) >;     ///< Window resized signal type @SINCE_1_4.35
-  using KeyEventSignalType = Signal< void (const KeyEvent&) >;     ///< Key event signal type @SINCE_1_9.21
-  using TouchEventSignalType = Signal< void (const TouchEvent&) >; ///< Touch signal type @SINCE_1_9.28
+  using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
+  using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
+  using KeyEventSignalType    = Signal<void(const KeyEvent&)>;    ///< Key event signal type @SINCE_1_9.21
+  using TouchEventSignalType  = Signal<void(const TouchEvent&)>;  ///< Touch signal type @SINCE_1_9.28
 
 public:
-
   // Enumerations
 
   /**
@@ -91,11 +89,11 @@ public:
    */
   enum WindowOrientation
   {
-    PORTRAIT = 0,  ///< Portrait orientation. The height of the display area is greater than the width. @SINCE_1_0.0
-    LANDSCAPE = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
-    PORTRAIT_INVERSE = 180,  ///< Portrait inverse orientation @SINCE_1_0.0
-    LANDSCAPE_INVERSE = 270,  ///< Landscape inverse orientation @SINCE_1_0.0
-    NO_ORIENTATION_PREFERENCE = -1 ///< No orientation. It is used to initialize or unset the preferred orientation.  @SINCE_1_4.51
+    PORTRAIT                  = 0,   ///< Portrait orientation. The height of the display area is greater than the width. @SINCE_1_0.0
+    LANDSCAPE                 = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
+    PORTRAIT_INVERSE          = 180, ///< Portrait inverse orientation @SINCE_1_0.0
+    LANDSCAPE_INVERSE         = 270, ///< Landscape inverse orientation @SINCE_1_0.0
+    NO_ORIENTATION_PREFERENCE = -1   ///< No orientation. It is used to initialize or unset the preferred orientation.  @SINCE_1_4.51
   };
 
   /**
@@ -104,10 +102,10 @@ public:
    */
   enum Type
   {
-    NORMAL,           ///< A default window type. Indicates a normal, top-level window. Almost every window will be created with this type. @SINCE_1_2.60
-    NOTIFICATION,     ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_1_2.60
-    UTILITY,          ///< A persistent utility window, like a toolbox or palette. @SINCE_1_2.60
-    DIALOG            ///< Used for simple dialog windows. @SINCE_1_2.60
+    NORMAL,       ///< A default window type. Indicates a normal, top-level window. Almost every window will be created with this type. @SINCE_1_2.60
+    NOTIFICATION, ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_1_2.60
+    UTILITY,      ///< A persistent utility window, like a toolbox or palette. @SINCE_1_2.60
+    DIALOG        ///< Used for simple dialog windows. @SINCE_1_2.60
   };
 
   /**
@@ -122,11 +120,11 @@ public:
      */
     enum Type
     {
-      NONE   = -1,    ///< No notification level. Default level. This value makes the notification window place in the layer of the normal window. @SINCE_1_2.60
-      BASE   = 10,    ///< Base notification level. @SINCE_1_2.60
-      MEDIUM = 20,    ///< Higher notification level than base. @SINCE_1_2.60
-      HIGH   = 30,    ///< Higher notification level than medium. @SINCE_1_2.60
-      TOP    = 40     ///< The highest notification level. @SINCE_1_2.60
+      NONE   = -1, ///< No notification level. Default level. This value makes the notification window place in the layer of the normal window. @SINCE_1_2.60
+      BASE   = 10, ///< Base notification level. @SINCE_1_2.60
+      MEDIUM = 20, ///< Higher notification level than base. @SINCE_1_2.60
+      HIGH   = 30, ///< Higher notification level than medium. @SINCE_1_2.60
+      TOP    = 40  ///< The highest notification level. @SINCE_1_2.60
     };
   };
 
@@ -142,11 +140,11 @@ public:
      */
     enum Type
     {
-      TIMEOUT,              ///< The mode which turns the screen off after a timeout. @SINCE_1_2.60
-      NEVER,                ///< The mode which keeps the screen turned on. @SINCE_1_2.60
+      TIMEOUT, ///< The mode which turns the screen off after a timeout. @SINCE_1_2.60
+      NEVER,   ///< The mode which keeps the screen turned on. @SINCE_1_2.60
     };
 
-    static constexpr Type DEFAULT { TIMEOUT }; ///< The default mode. @SINCE_1_2.60
+    static constexpr Type DEFAULT{TIMEOUT}; ///< The default mode. @SINCE_1_2.60
   };
 
   // Methods
@@ -214,7 +212,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Window( Window&& rhs );
+  Window(Window&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -223,7 +221,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Window& operator=( Window&& rhs );
+  Window& operator=(Window&& rhs);
 
   /**
    * @brief Adds a child Actor to the Window.
@@ -235,7 +233,7 @@ public:
    * @pre The actor has been initialized.
    * @pre The actor does not have a parent.
    */
-  void Add( Actor actor );
+  void Add(Actor actor);
 
   /**
    * @brief Removes a child Actor from the Window.
@@ -246,7 +244,7 @@ public:
    * @param[in] actor The child
    * @pre The actor has been added to the stage.
    */
-  void Remove( Actor actor );
+  void Remove(Actor actor);
 
   /**
    * @brief Sets the background color of the Window.
@@ -254,7 +252,7 @@ public:
    * @SINCE_1_4.19
    * @param[in] color The new background color
    */
-  void SetBackgroundColor( const Vector4& color );
+  void SetBackgroundColor(const Vector4& color);
 
   /**
    * @brief Gets the background color of the Window.
@@ -290,7 +288,7 @@ public:
    * @return The layer found at the given depth
    * @pre Depth is less than layer count; see GetLayerCount().
    */
-  Layer GetLayer( uint32_t depth ) const;
+  Layer GetLayer(uint32_t depth) const;
 
   /**
    * @brief Retrieves the DPI of the window.
@@ -331,14 +329,14 @@ public:
    * @SINCE_1_0.0
    * @param[in] orientation The available orientation to add
    */
-  void AddAvailableOrientation( WindowOrientation orientation );
+  void AddAvailableOrientation(WindowOrientation orientation);
 
   /**
    * @brief Removes an orientation from the list of available orientations.
    * @SINCE_1_0.0
    * @param[in] orientation The available orientation to remove
    */
-  void RemoveAvailableOrientation( WindowOrientation orientation );
+  void RemoveAvailableOrientation(WindowOrientation orientation);
 
   /**
    * @brief Sets a preferred orientation.
@@ -348,7 +346,7 @@ public:
    *
    * @note To unset the preferred orientation, orientation should be set NO_ORIENTATION_PREFERENCE.
    */
-  void SetPreferredOrientation( WindowOrientation orientation );
+  void SetPreferredOrientation(WindowOrientation orientation);
 
   /**
    * @brief Gets the preferred orientation.
@@ -372,7 +370,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] accept If focus is accepted or not. Default is true.
    */
-  void SetAcceptFocus( bool accept );
+  void SetAcceptFocus(bool accept);
 
   /**
    * @brief Returns whether window accepts focus or not.
@@ -420,7 +418,7 @@ public:
    * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
    * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const;
 
   /**
    * @brief Creates an auxiliary hint of the window.
@@ -429,7 +427,7 @@ public:
    * @param[in] value The value string.
    * @return The ID of created auxiliary hint, or @c 0 on failure.
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value);
 
   /**
    * @brief Removes an auxiliary hint of the window.
@@ -437,7 +435,7 @@ public:
    * @param[in] id The ID of the auxiliary hint.
    * @return True if no error occurred, false otherwise.
    */
-  bool RemoveAuxiliaryHint( unsigned int id );
+  bool RemoveAuxiliaryHint(unsigned int id);
 
   /**
    * @brief Changes a value of the auxiliary hint.
@@ -446,7 +444,7 @@ public:
    * @param[in] value The value string to be set.
    * @return True if no error occurred, false otherwise.
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value);
 
   /**
    * @brief Gets a value of the auxiliary hint.
@@ -454,7 +452,7 @@ public:
    * @param[in] id The auxiliary hint ID.
    * @return The string value of the auxiliary hint ID, or an empty string if none exists.
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+  std::string GetAuxiliaryHintValue(unsigned int id) const;
 
   /**
    * @brief Gets a ID of the auxiliary hint string.
@@ -462,14 +460,14 @@ public:
    * @param[in] hint The auxiliary hint string.
    * @return The ID of the auxiliary hint string, or @c 0 if none exists.
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const;
 
   /**
    * @brief Sets a region to accept input events.
    * @SINCE_1_2.60
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion( const Rect< int >& inputRegion );
+  void SetInputRegion(const Rect<int>& inputRegion);
 
   /**
    * @brief Sets a window type.
@@ -477,7 +475,7 @@ public:
    * @param[in] type The window type.
    * @remarks The default window type is NORMAL.
    */
-  void SetType( Type type );
+  void SetType(Type type);
 
   /**
    * @brief Gets a window type.
@@ -495,7 +493,7 @@ public:
    * @PRIVILEGE_WINDOW_PRIORITY
    * @remarks This can be used for a notification type window only. The default level is NotificationLevel::NONE.
    */
-  bool SetNotificationLevel( NotificationLevel::Type level );
+  bool SetNotificationLevel(NotificationLevel::Type level);
 
   /**
    * @brief Gets a priority level for the specified notification window.
@@ -514,7 +512,7 @@ public:
    * @remarks This will have no effect on an opaque window.
    * It doesn't change transparent window to opaque window but lets the window manager know the visual state of the window.
    */
-  void SetOpaqueState( bool opaque );
+  void SetOpaqueState(bool opaque);
 
   /**
    * @brief Returns whether a transparent window's visual state is opaque or not.
@@ -557,7 +555,7 @@ public:
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    */
-  bool SetBrightness( int brightness );
+  bool SetBrightness(int brightness);
 
   /**
    * @brief Gets preferred brightness of the window.
@@ -572,7 +570,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] size The new window size
    */
-  void SetSize( WindowSize size );
+  void SetSize(WindowSize size);
 
   /**
    * @brief Gets a size of the window.
@@ -588,7 +586,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] position The new window position
    */
-  void SetPosition( WindowPosition position );
+  void SetPosition(WindowPosition position);
 
   /**
    * @brief Gets a position of the window.
@@ -604,7 +602,7 @@ public:
    * @SINCE_1_2.60
    * @param[in] transparent Whether the window is transparent
    */
-  void SetTransparency( bool transparent );
+  void SetTransparency(bool transparent);
 
   /**
    * @brief Retrieves the list of render-tasks in the window.
@@ -615,7 +613,6 @@ public:
   RenderTaskList GetRenderTaskList();
 
 public: // Signals
-
   /**
    * @brief The user should connect to this signal to get a timing when window gains focus or loses focus.
    *
@@ -685,7 +682,7 @@ public: // Not intended for application developers
    * @SINCE_1_0.0
    * @param[in] window A pointer to the Window
    */
-  explicit DALI_INTERNAL Window( Internal::Adaptor::Window* window );
+  explicit DALI_INTERNAL Window(Internal::Adaptor::Window* window);
   /// @endcond
 };
 
