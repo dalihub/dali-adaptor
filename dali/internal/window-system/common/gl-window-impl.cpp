@@ -494,6 +494,7 @@ void GlWindow::OnTouchPoint( Dali::Integration::Point& point, int timeStamp )
     return;
   }
 
+  RecalculateTouchPosition( point );
   Dali::TouchEvent touchEvent = Dali::Integration::NewTouchEvent( timeStamp, point );
   mTouchSignal.Emit( touchEvent );
 }
