@@ -23,14 +23,12 @@
 
 namespace Dali
 {
-
 class WheelEvent;
 class KeyEvent;
 struct TouchPoint;
 
 namespace EventFeeder
 {
-
 /**
  * Feed a touch point to the adaptor.
  *
@@ -39,7 +37,7 @@ namespace EventFeeder
  *
  * @note For testing/automation purposes only.
  */
-DALI_ADAPTOR_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
+DALI_ADAPTOR_API void FeedTouchPoint(TouchPoint& point, int timeStamp);
 
 /**
  * Feed a wheel event to the adaptor.
@@ -48,7 +46,7 @@ DALI_ADAPTOR_API void FeedTouchPoint( TouchPoint& point, int timeStamp );
  *
  * @note For testing/automation purposes only.
  */
-DALI_ADAPTOR_API void FeedWheelEvent( WheelEvent& wheelEvent );
+DALI_ADAPTOR_API void FeedWheelEvent(WheelEvent& wheelEvent);
 
 /**
  * Feed a key event to the adaptor.
@@ -57,7 +55,7 @@ DALI_ADAPTOR_API void FeedWheelEvent( WheelEvent& wheelEvent );
  *
  * @note For testing/automation purposes only.
  */
-DALI_ADAPTOR_API void FeedKeyEvent( KeyEvent& keyEvent );
+DALI_ADAPTOR_API void FeedKeyEvent(KeyEvent& keyEvent);
 
 } // namespace EventFeeder
 

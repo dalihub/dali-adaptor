@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 FeedbackPlayer::FeedbackPlayer()
 {
 }
@@ -52,17 +51,17 @@ void FeedbackPlayer::Stop()
   GetImplementation(*this).Stop();
 }
 
-int FeedbackPlayer::PlaySound( const std::string& fileName )
+int FeedbackPlayer::PlaySound(const std::string& fileName)
 {
   return GetImplementation(*this).PlaySound(fileName);
 }
 
-void FeedbackPlayer::StopSound( int handle )
+void FeedbackPlayer::StopSound(int handle)
 {
   GetImplementation(*this).StopSound(handle);
 }
 
-void FeedbackPlayer::PlayFeedbackPattern( int type, int pattern )
+void FeedbackPlayer::PlayFeedbackPattern(int type, int pattern)
 {
   GetImplementation(*this).PlayFeedbackPattern(type, pattern);
 }
@@ -72,8 +71,8 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
   return GetImplementation(*this).LoadFile(filename, data);
 }
 
-FeedbackPlayer::FeedbackPlayer( Internal::Adaptor::FeedbackPlayer* player )
-: BaseHandle( player )
+FeedbackPlayer::FeedbackPlayer(Internal::Adaptor::FeedbackPlayer* player)
+: BaseHandle(player)
 {
 }
 

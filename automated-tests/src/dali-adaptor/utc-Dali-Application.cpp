@@ -15,8 +15,8 @@
  *
  */
 
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 
 using namespace Dali;
 
@@ -32,14 +32,13 @@ void utc_dali_application_cleanup(void)
 
 namespace
 {
-
 struct MyTestApp : public ConnectionTracker
 {
-  MyTestApp( Application& app)
-  : initCalled( false ),
-    application( app )
+  MyTestApp(Application& app)
+  : initCalled(false),
+    application(app)
   {
-    application.InitSignal().Connect( this, &MyTestApp::Create );
+    application.InitSignal().Connect(this, &MyTestApp::Create);
   }
 
   void Create(Application& app)
@@ -53,25 +52,25 @@ struct MyTestApp : public ConnectionTracker
   }
 
   // Data
-  bool initCalled;
+  bool         initCalled;
   Application& application;
 };
 
-void ApplicationSignalCallback( Application& app )
+void ApplicationSignalCallback(Application& app)
 {
 }
 
-void ApplicationControlSignalCallback(Application&, void *)
+void ApplicationControlSignalCallback(Application&, void*)
 {
 }
 
 } // unnamed namespace
 
-void LowBatterySignalCallback( Dali::DeviceStatus::Battery::Status status )
+void LowBatterySignalCallback(Dali::DeviceStatus::Battery::Status status)
 {
 }
 
-void LowMemorySignalCallback( Dali::DeviceStatus::Memory::Status status )
+void LowMemorySignalCallback(Dali::DeviceStatus::Memory::Status status)
 {
 }
 
@@ -79,54 +78,54 @@ int UtcDaliApplicationNew01(void)
 {
   Application application = Application::New();
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
 
 int UtcDaliApplicationNew02(void)
 {
-  int argc( 1 );
-  const char* argList[1] = { "program" };
-  char** argv = const_cast<char**>(argList);
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New( &argc, &argv );
+  Application application = Application::New(&argc, &argv);
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
 
 int UtcDaliApplicationNew03(void)
 {
-  int argc( 1 );
-  const char* argList[1] = { "program" };
-  char** argv = const_cast<char**>(argList);
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New( &argc, &argv, "stylesheet" );
+  Application application = Application::New(&argc, &argv, "stylesheet");
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
 
 int UtcDaliApplicationNew04(void)
 {
-  int argc( 1 );
-  const char* argList[1] = { "program" };
-  char** argv = const_cast<char**>(argList);
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
 
-  Application application = Application::New( &argc, &argv, "stylesheet", Application::TRANSPARENT );
+  Application application = Application::New(&argc, &argv, "stylesheet", Application::TRANSPARENT);
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -134,13 +133,13 @@ int UtcDaliApplicationNew04(void)
 int UtcDaliApplicationCopyAndAssignment(void)
 {
   Application application = Application::New();
-  Application copy( application );
-  DALI_TEST_CHECK( copy == application );
+  Application copy(application);
+  DALI_TEST_CHECK(copy == application);
 
   Application assigned;
-  DALI_TEST_CHECK( !assigned );
+  DALI_TEST_CHECK(!assigned);
   assigned = application;
-  DALI_TEST_CHECK( copy == assigned );
+  DALI_TEST_CHECK(copy == assigned);
 
   END_TEST;
 }
@@ -148,13 +147,13 @@ int UtcDaliApplicationCopyAndAssignment(void)
 int UtcDaliApplicationMoveConstructor(void)
 {
   Application application = Application::New();
-  DALI_TEST_CHECK( application );
-  DALI_TEST_EQUALS( 1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK(application);
+  DALI_TEST_EQUALS(1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION);
 
-  Application moved = std::move( application );
-  DALI_TEST_CHECK( moved );
-  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( !application );
+  Application moved = std::move(application);
+  DALI_TEST_CHECK(moved);
+  DALI_TEST_EQUALS(1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(!application);
 
   END_TEST;
 }
@@ -162,14 +161,14 @@ int UtcDaliApplicationMoveConstructor(void)
 int UtcDaliApplicationMoveAssignment(void)
 {
   Application application = Application::New();
-  DALI_TEST_CHECK( application );
-  DALI_TEST_EQUALS( 1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION );
+  DALI_TEST_CHECK(application);
+  DALI_TEST_EQUALS(1, application.GetBaseObject().ReferenceCount(), TEST_LOCATION);
 
   Application moved;
-  moved = std::move( application );
-  DALI_TEST_CHECK( moved );
-  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( !application );
+  moved = std::move(application);
+  DALI_TEST_CHECK(moved);
+  DALI_TEST_EQUALS(1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(!application);
 
   END_TEST;
 }
@@ -181,16 +180,15 @@ int UtcDaliApplicationMainLoop01N(void)
   try
   {
     application.MainLoop();
-    DALI_TEST_CHECK( false ); // Should not get here
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
 }
-
 
 int UtcDaliApplicationLowerN(void)
 {
@@ -199,11 +197,11 @@ int UtcDaliApplicationLowerN(void)
   try
   {
     application.Lower();
-    DALI_TEST_CHECK( false ); // Should not get here
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -216,11 +214,11 @@ int UtcDaliApplicationQuitN(void)
   try
   {
     application.Quit();
-    DALI_TEST_CHECK( false ); // Should not get here
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -233,12 +231,12 @@ int UtcDaliApplicationAddIdleN(void)
   try
   {
     CallbackBase* callback = NULL;
-    application.AddIdle( callback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.AddIdle(callback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -250,12 +248,12 @@ int UtcDaliApplicationGetWindowN(void)
 
   try
   {
-    (void) application.GetWindow();
-    DALI_TEST_CHECK( false ); // Should not get here
+    (void)application.GetWindow();
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -264,8 +262,8 @@ int UtcDaliApplicationGetWindowN(void)
 int UtcDaliApplicationInitSignalP(void)
 {
   Application application = Application::New();
-  application.InitSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.InitSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -276,12 +274,12 @@ int UtcDaliApplicationInitSignalN(void)
 
   try
   {
-    application.InitSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.InitSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -290,8 +288,8 @@ int UtcDaliApplicationInitSignalN(void)
 int UtcDaliApplicationTerminateSignalP(void)
 {
   Application application = Application::New();
-  application.TerminateSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.TerminateSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -302,12 +300,12 @@ int UtcDaliApplicationTerminateSignalN(void)
 
   try
   {
-    application.TerminateSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.TerminateSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -316,8 +314,8 @@ int UtcDaliApplicationTerminateSignalN(void)
 int UtcDaliApplicationPauseSignalP(void)
 {
   Application application = Application::New();
-  application.PauseSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.PauseSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -328,12 +326,12 @@ int UtcDaliApplicationPauseSignalN(void)
 
   try
   {
-    application.PauseSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.PauseSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -342,8 +340,8 @@ int UtcDaliApplicationPauseSignalN(void)
 int UtcDaliApplicationResumeSignalP(void)
 {
   Application application = Application::New();
-  application.ResumeSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.ResumeSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -354,12 +352,12 @@ int UtcDaliApplicationResumeSignalN(void)
 
   try
   {
-    application.ResumeSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.ResumeSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -368,8 +366,8 @@ int UtcDaliApplicationResumeSignalN(void)
 int UtcDaliApplicationResetSignalP(void)
 {
   Application application = Application::New();
-  application.ResetSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.ResetSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -380,12 +378,12 @@ int UtcDaliApplicationResetSignalN(void)
 
   try
   {
-    application.ResetSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.ResetSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -394,8 +392,8 @@ int UtcDaliApplicationResetSignalN(void)
 int UtcDaliApplicationlControlSignalP(void)
 {
   Application application = Application::New();
-  application.AppControlSignal().Connect( &ApplicationControlSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.AppControlSignal().Connect(&ApplicationControlSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -406,12 +404,12 @@ int UtcDaliApplicationlControlSignalN(void)
 
   try
   {
-    application.AppControlSignal().Connect( &ApplicationControlSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.AppControlSignal().Connect(&ApplicationControlSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -420,8 +418,8 @@ int UtcDaliApplicationlControlSignalN(void)
 int UtcDaliApplicationLanguageChangedSignalP(void)
 {
   Application application = Application::New();
-  application.LanguageChangedSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.LanguageChangedSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -432,12 +430,12 @@ int UtcDaliApplicationLanguageChangedSignalN(void)
 
   try
   {
-    application.LanguageChangedSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.LanguageChangedSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -446,8 +444,8 @@ int UtcDaliApplicationLanguageChangedSignalN(void)
 int UtcDaliApplicationRegionChangedSignalP(void)
 {
   Application application = Application::New();
-  application.RegionChangedSignal().Connect( &ApplicationSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.RegionChangedSignal().Connect(&ApplicationSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -458,12 +456,12 @@ int UtcDaliApplicationRegionChangedSignalN(void)
 
   try
   {
-    application.RegionChangedSignal().Connect( &ApplicationSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.RegionChangedSignal().Connect(&ApplicationSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -472,8 +470,8 @@ int UtcDaliApplicationRegionChangedSignalN(void)
 int UtcDaliApplicationLowBatterySignalP(void)
 {
   Application application = Application::New();
-  application.LowBatterySignal().Connect( &LowBatterySignalCallback );
-  DALI_TEST_CHECK( application );
+  application.LowBatterySignal().Connect(&LowBatterySignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -484,12 +482,12 @@ int UtcDaliApplicationLowBatterySignalN(void)
 
   try
   {
-    application.LowBatterySignal().Connect( &LowBatterySignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.LowBatterySignal().Connect(&LowBatterySignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -498,8 +496,8 @@ int UtcDaliApplicationLowBatterySignalN(void)
 int UtcDaliApplicationLowMemorySignalP(void)
 {
   Application application = Application::New();
-  application.LowMemorySignal().Connect( &LowMemorySignalCallback );
-  DALI_TEST_CHECK( application );
+  application.LowMemorySignal().Connect(&LowMemorySignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -510,12 +508,12 @@ int UtcDaliApplicationLowMemorySignalN(void)
 
   try
   {
-    application.LowMemorySignal().Connect( &LowMemorySignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.LowMemorySignal().Connect(&LowMemorySignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -524,9 +522,9 @@ int UtcDaliApplicationLowMemorySignalN(void)
 int UtcDaliApplicationGetResourcePathP(void)
 {
   Application application = Application::New();
-  std::string result ("**invalid path**"); // Calling GetResourcePath should replace this with a system dependent path or "".
+  std::string result("**invalid path**"); // Calling GetResourcePath should replace this with a system dependent path or "".
   result = application.GetResourcePath();
-  DALI_TEST_CHECK( result !="**invalid path**" );
+  DALI_TEST_CHECK(result != "**invalid path**");
 
   END_TEST;
 }
@@ -536,7 +534,7 @@ int UtcDaliApplicationGetRegionP(void)
   Application application = Application::New();
   std::string result;
   result = application.GetRegion();
-  DALI_TEST_CHECK( result == "NOT_SUPPORTED" ); // Not supported in UBUNTU
+  DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
 
   END_TEST;
 }
@@ -546,7 +544,7 @@ int UtcDaliApplicationGetLanguageP(void)
   Application application = Application::New();
   std::string result;
   result = application.GetLanguage();
-  DALI_TEST_CHECK( result == "NOT_SUPPORTED" ); // Not supported in UBUNTU
+  DALI_TEST_CHECK(result == "NOT_SUPPORTED"); // Not supported in UBUNTU
 
   END_TEST;
 }
@@ -554,6 +552,6 @@ int UtcDaliApplicationGetLanguageP(void)
 int UtcDaliApplicationGetObjectRegistryN(void)
 {
   Application application = Application::New();
-  DALI_TEST_CHECK( !application.GetObjectRegistry() );
+  DALI_TEST_CHECK(!application.GetObjectRegistry());
   END_TEST;
 }

@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SHAPING_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,18 +27,15 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 struct GlyphInfo;
 
 namespace Internal DALI_INTERNAL
 {
-
 class Shaping;
 
-} // Internal
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Shaping provides an interface to retrieve glyphs from complex text.
@@ -62,9 +59,7 @@ class Shaping;
  */
 class DALI_ADAPTOR_API Shaping : public BaseHandle
 {
-
 public:
-
   /**
    * @brief Create an uninitialized Shaping handle.
    *
@@ -83,7 +78,7 @@ public:
    *
    * @param[in] implementation A pointer to the internal shaping object.
    */
-  explicit DALI_INTERNAL Shaping( Internal::Shaping* implementation );
+  explicit DALI_INTERNAL Shaping(Internal::Shaping* implementation);
 
   /**
    * @brief Retrieve a handle to the Shaping instance.
@@ -104,10 +99,10 @@ public:
    *
    * @return The size of the buffer required to get the shaped text.
    */
-  Length Shape( const Character* const text,
-                Length numberOfCharacters,
-                FontId fontId,
-                Script script );
+  Length Shape(const Character* const text,
+               Length                 numberOfCharacters,
+               FontId                 fontId,
+               Script                 script);
 
   /**
    * Gets the shaped text data.
@@ -118,8 +113,8 @@ public:
    * @param[out] glyphInfo Vector with indices to the glyph within the font, glyph's metrics and advance.
    * @param[out] glyphToCharacterMap The glyph to character conversion map.
    */
-  void GetGlyphs( GlyphInfo* glyphInfo,
-                  CharacterIndex* glyphToCharacterMap );
+  void GetGlyphs(GlyphInfo*      glyphInfo,
+                 CharacterIndex* glyphToCharacterMap);
 };
 
 } // namespace TextAbstraction

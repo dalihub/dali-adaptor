@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
-#include <dali/public-api/images/image-operations.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/images/image-operations.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
-
 namespace Dali
 {
-
 /**
  * @brief Load an image synchronously from local file.
  *
@@ -43,10 +41,10 @@ namespace Dali
  */
 DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
   const std::string& url,
-  ImageDimensions size = ImageDimensions( 0, 0 ),
-  FittingMode::Type fittingMode = FittingMode::DEFAULT,
-  SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR,
-  bool orientationCorrection = true );
+  ImageDimensions    size                  = ImageDimensions(0, 0),
+  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
+  SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool               orientationCorrection = true);
 
 /**
  * @brief Determine the size of an image that LoadImageFromFile will provide when
@@ -66,10 +64,10 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
  */
 DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   const std::string& filename,
-  ImageDimensions size = ImageDimensions(0, 0),
-  FittingMode::Type fittingMode = FittingMode::DEFAULT,
-  SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR ,
-  bool orientationCorrection = true );
+  ImageDimensions    size                  = ImageDimensions(0, 0),
+  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
+  SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool               orientationCorrection = true);
 
 /**
  * @brief Get the size of an original image
@@ -93,10 +91,10 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
  */
 DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
   const std::string& url,
-  ImageDimensions size = ImageDimensions( 0, 0 ),
-  FittingMode::Type fittingMode = FittingMode::DEFAULT,
-  SamplingMode::Type samplingMode = SamplingMode::BOX_THEN_LINEAR,
-  bool orientationCorrection = true );
+  ImageDimensions    size                  = ImageDimensions(0, 0),
+  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
+  SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool               orientationCorrection = true);
 
 /**
  * @brief get the maximum texture size.
@@ -105,6 +103,6 @@ DALI_ADAPTOR_API Devel::PixelBuffer DownloadImageSynchronously(
  */
 DALI_ADAPTOR_API unsigned int GetMaxTextureSize();
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_IMAGE_LOADING_H

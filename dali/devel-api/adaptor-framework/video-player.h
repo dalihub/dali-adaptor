@@ -2,7 +2,7 @@
 #define DALI_VIDEO_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/adaptor-framework/video-sync-mode.h>
+#include <dali/public-api/object/base-handle.h>
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
@@ -28,15 +28,13 @@
 
 namespace Dali
 {
-
 class Any;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-  class VideoPlayer;
+class VideoPlayer;
 } // namespace Adaptor
 
 } // namespace Internal
@@ -45,10 +43,9 @@ namespace Adaptor
  * @brief VideoPlayer class is used for video playback.
  * @SINCE_1_1.38
  */
-class DALI_ADAPTOR_API VideoPlayer: public BaseHandle
+class DALI_ADAPTOR_API VideoPlayer : public BaseHandle
 {
 public:
-
   /**
    * @brief Constructor.
    * @SINCE_1_1.38
@@ -76,24 +73,24 @@ public:
    * @param[in] actor video view's actor instance
    * @param[in] syncMode The synchronization mode between the UI (transparent hole) and VideoPlayer.
    */
-  static VideoPlayer New( Dali::Actor actor, VideoSyncMode syncMode );
+  static VideoPlayer New(Dali::Actor actor, VideoSyncMode syncMode);
 
- /**
+  /**
    * @brief Copy constructor.
    *
    * @SINCE_1_1.38
    * @param[in] player VideoPlayer to copy. The copied player will point at the same implementation
    */
-  VideoPlayer( const VideoPlayer& player );
+  VideoPlayer(const VideoPlayer& player);
 
- /**
+  /**
    * @brief Assignment operator.
    *
    * @SINCE_1_1.38
    * @param[in] player The VideoPlayer to assign from.
    * @return The updated VideoPlayer.
    */
-  VideoPlayer& operator=( const VideoPlayer& player );
+  VideoPlayer& operator=(const VideoPlayer& player);
 
   /**
    * @brief Downcast a handle to VideoPlayer handle.
@@ -105,7 +102,7 @@ public:
    * @param[in] handle Handle to an object
    * @return Handle to a VideoPlayer or an uninitialized handle
    */
-  static VideoPlayer DownCast( BaseHandle handle );
+  static VideoPlayer DownCast(BaseHandle handle);
 
   /**
    * @brief Sets a URL of the video file to play.
@@ -113,7 +110,7 @@ public:
    * @SINCE_1_1.38
    * @param [in] url The url of video file
    */
-  void SetUrl( const std::string& url );
+  void SetUrl(const std::string& url);
 
   /**
    * @brief Returns the URL of the video file.
@@ -161,7 +158,7 @@ public:
    * @SINCE_1_1.38
    * @param[in] mute The new mute status, true is mute.
    */
-  void SetMute( bool mute );
+  void SetMute(bool mute);
 
   /**
    * @brief Returns the player mute status.
@@ -176,7 +173,7 @@ public:
    * @param[in] left The left volume scalar
    * @param[in] right The right volume scalar
    */
-  void SetVolume( float left, float right );
+  void SetVolume(float left, float right);
 
   /**
    * @brief Returns current volume factor.
@@ -184,14 +181,14 @@ public:
    * @param[out] left The current left volume scalar
    * @param[out] right The current right volume scalar
    */
-  void GetVolume( float& left, float& right );
+  void GetVolume(float& left, float& right);
 
   /**
    * @brief Sets video rendering target.
    * @SINCE_1_1.38
    * @param[in] target The target for video rendering, window surface or native image source
    */
-  void SetRenderingTarget( Any target );
+  void SetRenderingTarget(Any target);
 
   /**
    * @brief Sets the position for playback.
@@ -199,7 +196,7 @@ public:
    *
    * @param[in] millisecond The position for playback
    */
-  void SetPlayPosition( int millisecond );
+  void SetPlayPosition(int millisecond);
 
   /**
    * @brief Gets the current position in milliseconds.
@@ -214,14 +211,14 @@ public:
    * @SINCE_1_2.46
    * param[in] area The left-top position and size of the video display area
    */
-  void SetDisplayArea( DisplayArea area );
+  void SetDisplayArea(DisplayArea area);
 
   /**
    * @brief Sets video display rotation
    * @SINCE_1_1.38
    * @param[in] rotation The rotation of display
    */
-  void SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation );
+  void SetDisplayRotation(Dali::VideoPlayerPlugin::DisplayRotation rotation);
 
   /**
    * @brief Returns rotation of current video display
@@ -244,7 +241,7 @@ public:
    * @SINCE_1_2.46
    * @param[in] millisecond The position for forward playback
    */
-  void Forward( int millisecond );
+  void Forward(int millisecond);
 
   /**
    * @brief Seeks backward by the specified number of milliseconds.
@@ -252,7 +249,7 @@ public:
    * @SINCE_1_2.46
    * @param[in] millisecond The position for backward playback
    */
-  void Backward( int millisecond );
+  void Backward(int millisecond);
 
   /**
    * @brief Checks whether the video texture is supported
@@ -264,7 +261,7 @@ public:
    * @brief Sets codec type
    * @param[in] type The VideoCodec::Type
    */
-  void SetCodecType( Dali::VideoPlayerPlugin::CodecType type );
+  void SetCodecType(Dali::VideoPlayerPlugin::CodecType type);
 
   /**
    * @brief Gets codec type
@@ -276,7 +273,7 @@ public:
    * @brief Sets the display mode for playback.
    * @param[in] mode of playback
    */
-  void SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode );
+  void SetDisplayMode(Dali::VideoPlayerPlugin::DisplayMode::Type mode);
 
   /**
    * @brief Gets display mode
@@ -303,14 +300,13 @@ public:
   void FinishSynchronization();
 
 private: // Not intended for application developers
-
   /**
    * @brief Internal constructor
    * @SINCE_1_1.38
    */
-  explicit DALI_INTERNAL VideoPlayer( Internal::Adaptor::VideoPlayer* internal );
+  explicit DALI_INTERNAL VideoPlayer(Internal::Adaptor::VideoPlayer* internal);
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif // DALI_VIDEO_PLAYER_H

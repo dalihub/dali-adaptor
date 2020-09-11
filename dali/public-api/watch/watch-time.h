@@ -2,7 +2,7 @@
 #define DALI_WATCH_TIME_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <time.h>
 #include <dali/public-api/dali-core.h>
+#include <time.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -43,7 +43,6 @@ namespace Dali
 class DALI_ADAPTOR_API WatchTime
 {
 public:
-
   /**
    * @brief Constructor.
    * @SINCE_1_1.37
@@ -192,10 +191,9 @@ public:
   bool GetDaylightSavingTimeStatus() const;
 
 public: // Not intended for application developers
-  DALI_INTERNAL WatchTime(void *time_handle);
+  DALI_INTERNAL WatchTime(void* time_handle);
 
-private:  // Internal Data
-
+private: // Internal Data
   struct Impl;
   Impl* mImpl;
 };

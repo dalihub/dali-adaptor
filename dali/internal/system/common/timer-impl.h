@@ -62,37 +62,37 @@ public:
   /**
    * @copydoc Dali::Timer::Start()
    */
-  virtual void Start();
+  void Start() override;
 
   /**
    * @copydoc Dali::Timer::Stop()
    */
-  virtual void Stop();
+  void Stop() override;
 
   /**
    * @copydoc Dali::Timer::Pause()
    */
-  virtual void Pause();
+  void Pause() override;
 
   /**
    * @copydoc Dali::Timer::Resume()
    */
-  virtual void Resume();
+  void Resume() override;
 
   /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  virtual void SetInterval( unsigned int interval, bool restart );
+  void SetInterval( unsigned int interval, bool restart ) override;
 
   /**
    * @copydoc Dali::Timer::GetInterval()
    */
-  virtual unsigned int GetInterval() const;
+  unsigned int GetInterval() const override;
 
   /**
    * @copydoc Dali::Timer::IsRunning()
    */
-  virtual bool IsRunning() const;
+  bool IsRunning() const override;
 
   /**
    * Tick

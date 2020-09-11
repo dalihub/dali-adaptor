@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,45 +25,44 @@
 
 namespace Dali
 {
-
 InputMethodContext::InputMethodContext() = default;
 
 InputMethodContext::~InputMethodContext() = default;
 
 InputMethodContext InputMethodContext::New()
 {
-  return InputMethodContext::New( Actor() );
+  return InputMethodContext::New(Actor());
 }
 
-InputMethodContext InputMethodContext::New( Actor actor )
+InputMethodContext InputMethodContext::New(Actor actor)
 {
-  Internal::Adaptor::InputMethodContextPtr inputMethodContext = Internal::Adaptor::InputMethodContext::New( actor );
+  Internal::Adaptor::InputMethodContextPtr inputMethodContext = Internal::Adaptor::InputMethodContext::New(actor);
 
-  if( inputMethodContext )
+  if(inputMethodContext)
   {
     inputMethodContext->Initialize();
   }
 
-  return InputMethodContext( inputMethodContext.Get() );
+  return InputMethodContext(inputMethodContext.Get());
 }
 
-InputMethodContext::InputMethodContext( const InputMethodContext& inputMethodContext )
-: BaseHandle( inputMethodContext )
+InputMethodContext::InputMethodContext(const InputMethodContext& inputMethodContext)
+: BaseHandle(inputMethodContext)
 {
 }
 
-InputMethodContext& InputMethodContext::operator=( const InputMethodContext& inputMethodContext )
+InputMethodContext& InputMethodContext::operator=(const InputMethodContext& inputMethodContext)
 {
- if( *this != inputMethodContext )
- {
-   BaseHandle::operator=( inputMethodContext );
- }
- return *this;
+  if(*this != inputMethodContext)
+  {
+    BaseHandle::operator=(inputMethodContext);
+  }
+  return *this;
 }
 
-InputMethodContext InputMethodContext::DownCast( BaseHandle handle )
+InputMethodContext InputMethodContext::DownCast(BaseHandle handle)
 {
-  return InputMethodContext( dynamic_cast< Internal::Adaptor::InputMethodContext* >( handle.GetObjectPtr() ) );
+  return InputMethodContext(dynamic_cast<Internal::Adaptor::InputMethodContext*>(handle.GetObjectPtr()));
 }
 
 void InputMethodContext::Finalize()
@@ -86,9 +85,9 @@ bool InputMethodContext::RestoreAfterFocusLost() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).RestoreAfterFocusLost();
 }
 
-void InputMethodContext::SetRestoreAfterFocusLost( bool toggle )
+void InputMethodContext::SetRestoreAfterFocusLost(bool toggle)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetRestoreAfterFocusLost( toggle );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetRestoreAfterFocusLost(toggle);
 }
 
 void InputMethodContext::Reset()
@@ -101,9 +100,9 @@ void InputMethodContext::NotifyCursorPosition()
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).NotifyCursorPosition();
 }
 
-void InputMethodContext::SetCursorPosition( unsigned int SetCursorPosition )
+void InputMethodContext::SetCursorPosition(unsigned int SetCursorPosition)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetCursorPosition( SetCursorPosition );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetCursorPosition(SetCursorPosition);
 }
 
 unsigned int InputMethodContext::GetCursorPosition() const
@@ -111,9 +110,9 @@ unsigned int InputMethodContext::GetCursorPosition() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetCursorPosition();
 }
 
-void InputMethodContext::SetSurroundingText( const std::string& text )
+void InputMethodContext::SetSurroundingText(const std::string& text)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetSurroundingText( text );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetSurroundingText(text);
 }
 
 const std::string& InputMethodContext::GetSurroundingText() const
@@ -121,9 +120,9 @@ const std::string& InputMethodContext::GetSurroundingText() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetSurroundingText();
 }
 
-void InputMethodContext::NotifyTextInputMultiLine( bool multiLine )
+void InputMethodContext::NotifyTextInputMultiLine(bool multiLine)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).NotifyTextInputMultiLine( multiLine );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).NotifyTextInputMultiLine(multiLine);
 }
 
 InputMethodContext::TextDirection InputMethodContext::GetTextDirection()
@@ -136,19 +135,19 @@ Rect<int> InputMethodContext::GetInputMethodArea()
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputMethodArea();
 }
 
-void InputMethodContext::ApplyOptions( const InputMethodOptions& options )
+void InputMethodContext::ApplyOptions(const InputMethodOptions& options)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).ApplyOptions( options );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).ApplyOptions(options);
 }
 
-void InputMethodContext::SetInputPanelData( const std::string& data )
+void InputMethodContext::SetInputPanelData(const std::string& data)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelData( data );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelData(data);
 }
 
-void InputMethodContext::GetInputPanelData( std::string& data )
+void InputMethodContext::GetInputPanelData(std::string& data)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelData( data );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelData(data);
 }
 
 Dali::InputMethodContext::State InputMethodContext::GetInputPanelState()
@@ -156,14 +155,14 @@ Dali::InputMethodContext::State InputMethodContext::GetInputPanelState()
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelState();
 }
 
-void InputMethodContext::SetReturnKeyState( bool visible )
+void InputMethodContext::SetReturnKeyState(bool visible)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetReturnKeyState( visible );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetReturnKeyState(visible);
 }
 
-void InputMethodContext::AutoEnableInputPanel( bool enabled )
+void InputMethodContext::AutoEnableInputPanel(bool enabled)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).AutoEnableInputPanel( enabled );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).AutoEnableInputPanel(enabled);
 }
 
 void InputMethodContext::ShowInputPanel()
@@ -186,19 +185,19 @@ std::string InputMethodContext::GetInputPanelLocale()
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelLocale();
 }
 
-void InputMethodContext::SetContentMIMETypes( const std::string& mimeTypes )
+void InputMethodContext::SetContentMIMETypes(const std::string& mimeTypes)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetContentMIMETypes( mimeTypes );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetContentMIMETypes(mimeTypes);
 }
 
-bool InputMethodContext::FilterEventKey( const Dali::KeyEvent& keyEvent )
+bool InputMethodContext::FilterEventKey(const Dali::KeyEvent& keyEvent)
 {
-  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).FilterEventKey( keyEvent );
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).FilterEventKey(keyEvent);
 }
 
-void InputMethodContext::AllowTextPrediction( bool prediction )
+void InputMethodContext::AllowTextPrediction(bool prediction)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).AllowTextPrediction( prediction );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).AllowTextPrediction(prediction);
 }
 
 bool InputMethodContext::IsTextPredictionAllowed() const
@@ -206,9 +205,9 @@ bool InputMethodContext::IsTextPredictionAllowed() const
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).IsTextPredictionAllowed();
 }
 
-void InputMethodContext::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+void InputMethodContext::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelLanguage( language );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelLanguage(language);
 }
 
 Dali::InputMethodContext::InputPanelLanguage InputMethodContext::GetInputPanelLanguage() const
@@ -216,14 +215,14 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContext::GetInputPanelLa
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetInputPanelLanguage();
 }
 
-void InputMethodContext::SetInputPanelPosition( unsigned int x, unsigned int y )
+void InputMethodContext::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition( x, y );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition(x, y);
 }
 
-void InputMethodContext::GetPreeditStyle( PreEditAttributeDataContainer& attrs ) const
+void InputMethodContext::GetPreeditStyle(PreEditAttributeDataContainer& attrs) const
 {
-  Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetPreeditStyle( attrs );
+  Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetPreeditStyle(attrs);
 }
 
 // Signals
@@ -262,8 +261,8 @@ InputMethodContext::ContentReceivedSignalType& InputMethodContext::ContentReceiv
   return Internal::Adaptor::InputMethodContext::GetImplementation(*this).ContentReceivedSignal();
 }
 
-InputMethodContext::InputMethodContext(Internal::Adaptor::InputMethodContext *impl)
-  : BaseHandle(impl)
+InputMethodContext::InputMethodContext(Internal::Adaptor::InputMethodContext* impl)
+: BaseHandle(impl)
 {
 }
 } // namespace Dali

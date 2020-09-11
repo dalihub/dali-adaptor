@@ -2,7 +2,7 @@
 #define DALI_VIRTUAL_KEYBOARD_OPTIONS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,18 +28,16 @@
 
 namespace Dali
 {
-
 /**
  * Class to handle the Input Method options
  */
 class DALI_ADAPTOR_API InputMethodOptions
 {
 public:
-
   /**
    * Constructor
    */
-  InputMethodOptions();   /// Default InputMethodOptions options
+  InputMethodOptions(); /// Default InputMethodOptions options
 
   /**
    * Destructor
@@ -56,13 +54,13 @@ public:
    * @brief Apply property map to attribute class, this class will keep the virtualKeyboard settings.
    * @param[in] settings The property map to be applied
    */
-  void ApplyProperty( const Property::Map& settings );
+  void ApplyProperty(const Property::Map& settings);
 
   /**
    * @brief Retrieve property map from current option
    * @param[out] settings The converted property map
    */
-  void RetrieveProperty( Property::Map& settings );
+  void RetrieveProperty(Property::Map& settings);
 
 public: // Intended for internal use
   /**
@@ -72,10 +70,9 @@ public: // Intended for internal use
    * @param[out] index The updated index after applying source option
    * @return true if the value of this option is updated by source option
    */
-  DALI_INTERNAL bool CompareAndSet( InputMethod::Category::Type type, const InputMethodOptions& options, int& index );
+  DALI_INTERNAL bool CompareAndSet(InputMethod::Category::Type type, const InputMethodOptions& options, int& index);
 
 private:
-
   struct Impl;
   std::unique_ptr<Impl> mImpl;
 };

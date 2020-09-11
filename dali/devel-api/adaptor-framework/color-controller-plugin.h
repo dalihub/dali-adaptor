@@ -2,7 +2,7 @@
 #define DALI_COLOR_CONTROLLER_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 /**
  * @brief ColorControllerPlugin is an abstract interface, used by dali-adaptor to access Color Controller plugin.
  * A concrete implementation must be created for each platform and provided as dynamic library.
@@ -31,16 +30,19 @@ namespace Dali
 class ColorControllerPlugin
 {
 public:
-
   /**
    * @brief Constructor.
    */
-  ColorControllerPlugin(){}
+  ColorControllerPlugin()
+  {
+  }
 
   /**
    * @brief Destructor.
    */
-  virtual ~ColorControllerPlugin(){}
+  virtual ~ColorControllerPlugin()
+  {
+  }
 
   /**
    * @brief Retrieve the RGBA value by given the color code.
@@ -49,7 +51,7 @@ public:
    * @param[out] colorValue The RGBA color
    * @return true if the color code exists, otherwise false
    */
-  virtual bool RetrieveColor( const std::string& colorCode, Vector4& colorValue ) const = 0;
+  virtual bool RetrieveColor(const std::string& colorCode, Vector4& colorValue) const = 0;
 
   /**
    * @brief Retrieve the RGBA value by given the color code.
@@ -60,9 +62,9 @@ public:
    * @param[out] textShadowColor The text shadow color.
    * @return true if the color code exists, otherwise false
    */
-  virtual bool RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor ) const = 0;
+  virtual bool RetrieveColor(const std::string& colorCode, Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor) const = 0;
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif // DALI_COLOR_CONTROLLER_PLUGIN_H

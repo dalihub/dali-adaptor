@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace Integration
 {
-
 AndroidFramework& AndroidFramework::New()
 {
   return Internal::Adaptor::AndroidFramework::New();
@@ -40,9 +38,9 @@ void AndroidFramework::Delete()
   Internal::Adaptor::AndroidFramework::Delete();
 }
 
-void AndroidFramework::SetNativeApplication( android_app* application )
+void AndroidFramework::SetNativeApplication(android_app* application)
 {
-  mImpl->SetNativeApplication( application );
+  mImpl->SetNativeApplication(application);
 }
 
 android_app* AndroidFramework::GetNativeApplication() const
@@ -50,9 +48,9 @@ android_app* AndroidFramework::GetNativeApplication() const
   return mImpl->GetNativeApplication();
 }
 
-void AndroidFramework::SetJVM( JavaVM* jvm )
+void AndroidFramework::SetJVM(JavaVM* jvm)
 {
-  mImpl->SetJVM( jvm );
+  mImpl->SetJVM(jvm);
 }
 
 JavaVM* AndroidFramework::GetJVM() const
@@ -60,9 +58,9 @@ JavaVM* AndroidFramework::GetJVM() const
   return mImpl->GetJVM();
 }
 
-void AndroidFramework::SetApplicationAssets( AAssetManager* assets )
+void AndroidFramework::SetApplicationAssets(AAssetManager* assets)
 {
-  mImpl->SetApplicationAssets( assets );
+  mImpl->SetApplicationAssets(assets);
 }
 
 AAssetManager* AndroidFramework::GetApplicationAssets() const
@@ -70,9 +68,9 @@ AAssetManager* AndroidFramework::GetApplicationAssets() const
   return mImpl->GetApplicationAssets();
 }
 
-void AndroidFramework::SetInternalDataPath( const std::string& path )
+void AndroidFramework::SetInternalDataPath(const std::string& path)
 {
-  mImpl->SetInternalDataPath( path );
+  mImpl->SetInternalDataPath(path);
 }
 
 std::string AndroidFramework::GetInternalDataPath() const
@@ -80,9 +78,9 @@ std::string AndroidFramework::GetInternalDataPath() const
   return mImpl->GetInternalDataPath();
 }
 
-void AndroidFramework::SetApplicationConfiguration( AConfiguration* configuration )
+void AndroidFramework::SetApplicationConfiguration(AConfiguration* configuration)
 {
-  mImpl->SetApplicationConfiguration( configuration );
+  mImpl->SetApplicationConfiguration(configuration);
 }
 
 AConfiguration* AndroidFramework::GetApplicationConfiguration() const
@@ -90,9 +88,9 @@ AConfiguration* AndroidFramework::GetApplicationConfiguration() const
   return mImpl->GetApplicationConfiguration();
 }
 
-void AndroidFramework::SetApplicationWindow( ANativeWindow* window )
+void AndroidFramework::SetApplicationWindow(ANativeWindow* window)
 {
-  mImpl->SetApplicationWindow( window );
+  mImpl->SetApplicationWindow(window);
 }
 
 ANativeWindow* AndroidFramework::GetApplicationWindow() const
@@ -115,14 +113,14 @@ void AndroidFramework::OnResume()
   mImpl->OnResume();
 }
 
-void AndroidFramework::OnWindowCreated( ANativeWindow* window )
+void AndroidFramework::OnWindowCreated(ANativeWindow* window)
 {
-  mImpl->OnWindowCreated( window );
+  mImpl->OnWindowCreated(window);
 }
 
-void AndroidFramework::OnWindowDestroyed( ANativeWindow* window )
+void AndroidFramework::OnWindowDestroyed(ANativeWindow* window)
 {
-  mImpl->OnWindowDestroyed( window );
+  mImpl->OnWindowDestroyed(window);
 }
 
 AndroidFramework::~AndroidFramework()
@@ -137,7 +135,7 @@ AndroidFramework& AndroidFramework::Get()
 }
 
 AndroidFramework::AndroidFramework()
-: mImpl( nullptr )
+: mImpl(nullptr)
 {
 }
 

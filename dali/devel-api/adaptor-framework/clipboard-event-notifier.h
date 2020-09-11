@@ -2,7 +2,7 @@
 #define DALI_CLIPBOARD_EVENT_NOTIFIER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class ClipboardEventNotifier;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief The ClipboardEventNotifier provides signals when clipboard events are received from the device.
@@ -42,13 +41,12 @@ class ClipboardEventNotifier;
 class DALI_ADAPTOR_API ClipboardEventNotifier : public BaseHandle
 {
 public:
-
   // Typedefs
 
   /**
    * @brief Clipboard event
    */
-  typedef Signal< void ( ClipboardEventNotifier& ) > ClipboardEventSignalType;
+  typedef Signal<void(ClipboardEventNotifier&)> ClipboardEventSignalType;
 
   /**
    * @brief Create an uninitialized handle.
@@ -81,7 +79,7 @@ public:
    * @brief Sets the selected content.
    * @param[in] content  A string that represents the content that has been selected.
    */
-  void SetContent( const std::string& content );
+  void SetContent(const std::string& content);
 
   /**
    * @brief Clears the stored content.
@@ -93,8 +91,7 @@ public:
    */
   void EmitContentSelectedSignal();
 
-public:  // Signals
-
+public: // Signals
   /**
    * @brief This is emitted when content is selected from the clipboard.
    *
@@ -107,13 +104,12 @@ public:  // Signals
   ClipboardEventSignalType& ContentSelectedSignal();
 
 public: // Not intended for application developers
-
   /**
    * @brief This constructor is used by ClipboardEventNotifier::Get().
    *
    * @param[in] notifier A pointer to the drag and drop notifier.
    */
-  explicit DALI_INTERNAL ClipboardEventNotifier( Internal::Adaptor::ClipboardEventNotifier* notifier );
+  explicit DALI_INTERNAL ClipboardEventNotifier(Internal::Adaptor::ClipboardEventNotifier* notifier);
 };
 
 } // namespace Dali

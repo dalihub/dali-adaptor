@@ -138,7 +138,7 @@ protected:
   /**
    * Virtual Destructor.
    */
-  virtual ~LifecycleController();
+  ~LifecycleController() override;
 
 private:
 

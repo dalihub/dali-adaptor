@@ -79,22 +79,22 @@ public:
   /**
    * Called when the framework is initialised.
    */
-  virtual void OnInit();
+  void OnInit() override;
 
   /**
    * Called when the framework is terminated.
    */
-  virtual void OnTerminate();
+  void OnTerminate() override;
 
   /**
    * Called when the framework is paused.
    */
-  virtual void OnPause();
+  void OnPause() override;
 
   /**
    * Called when the framework resumes from a paused state.
    */
-  virtual void OnResume();
+  void OnResume() override;
 
   /**
    * Called every second

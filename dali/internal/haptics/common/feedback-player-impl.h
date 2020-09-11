@@ -103,7 +103,7 @@ private:
   /**
    * Virtual Destructor
    */
-  virtual ~FeedbackPlayer();
+  ~FeedbackPlayer() override;
 
   // Undefined
   FeedbackPlayer(const FeedbackPlayer&);

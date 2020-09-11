@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,27 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 FontMetrics::FontMetrics()
-: ascender{ 0.f },
-  descender{ 0.f },
-  height{ 0.f },
-  underlinePosition{ 0.f },
-  underlineThickness{ 0.f }
+: ascender{0.f},
+  descender{0.f},
+  height{0.f},
+  underlinePosition{0.f},
+  underlineThickness{0.f}
 {
 }
 
-FontMetrics::FontMetrics( float ascenderPixels,
-                          float descenderPixels,
-                          float heightPixels,
-                          float underlinePositionPixels,
-                          float underlineThicknessPixels )
-: ascender{ ascenderPixels },
-  descender{ descenderPixels },
-  height{ heightPixels },
-  underlinePosition{ underlinePositionPixels },
-  underlineThickness{ underlineThicknessPixels }
+FontMetrics::FontMetrics(float ascenderPixels,
+                         float descenderPixels,
+                         float heightPixels,
+                         float underlinePositionPixels,
+                         float underlineThicknessPixels)
+: ascender{ascenderPixels},
+  descender{descenderPixels},
+  height{heightPixels},
+  underlinePosition{underlinePositionPixels},
+  underlineThickness{underlineThicknessPixels}
 {
 }
 

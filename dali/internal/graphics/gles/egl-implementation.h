@@ -60,7 +60,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~EglImplementation();
+  ~EglImplementation() override;
 
 public:
 
@@ -77,7 +77,7 @@ public:
     * Create the OpenGL context for the shared resource.
     * @return true if successful
     */
-  virtual bool CreateContext();
+  bool CreateContext() override;
 
   /**
     * Create the OpenGL context for the window.
@@ -98,7 +98,7 @@ public:
   /**
    * Make the OpenGL context current
    */
-  virtual void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext );
+  void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext ) override;
 
   /**
    * clear the OpenGL context
@@ -116,7 +116,7 @@ public:
   /**
    * Terminate GL
    */
-  virtual void TerminateGles();
+  void TerminateGles() override;
 
   /**
    * Checks if GL is initialised
@@ -127,7 +127,7 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  virtual void SwapBuffers( EGLSurface& eglSurface );
+  void SwapBuffers( EGLSurface& eglSurface ) override;
 
   /**
    * Gets current back buffer age
@@ -135,24 +135,9 @@ public:
   EGLint GetBufferAge( EGLSurface& eglSurface ) const;
 
   /**
-   * Gets if user set damaged areas
-   */
-  bool DamageAreasSet() const;
-
-  /**
-   * Sets damaged areas, overrides auto calculated ones
-   */
-  void SetDamageAreas( std::vector<Dali::Rect<int>>& damagedArea );
-
-  /**
-   * Forces full surface swap next frame, resets current partial update state.
-   */
-  void SetFullSwapNextFrame();
-
-  /**
    * Performs an OpenGL set damage command with damaged rects
    */
-  virtual void SetDamage( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect );
+  void SetDamageRegion( EGLSurface& eglSurface, std::vector< Rect< int > >& damagedRects );
 
   /**
    * Performs an OpenGL swap buffers command with damaged rects
@@ -162,12 +147,12 @@ public:
   /**
    * Performs an OpenGL copy buffers command
    */
-  virtual void CopyBuffers( EGLSurface& eglSurface );
+  void CopyBuffers( EGLSurface& eglSurface ) override;
 
   /**
    * Performs an EGL wait GL command
    */
-  virtual void WaitGL();
+  void WaitGL() override;
 
   /**
    * Choose config of egl
@@ -249,6 +234,12 @@ public:
    */
   void WaitClient();
 
+  /**
+   * @brief Returns whether the partial update is required.
+   * @return true if the partial update is required.
+   */
+  bool IsPartialUpdateRequired() const;
+
 private:
 
   Vector<EGLint>       mContextAttribs;
@@ -290,12 +281,6 @@ private:
   PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
   PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mEglSwapBuffersWithDamageKHR;
 
-  EGLint mBufferAge;
-  std::list<std::vector<Rect<int>>> mBufferDamagedRects;
-  std::vector<Rect<int>> mCombinedDamagedRects;
-  std::vector<Rect<int>> mDamagedAreas;
-  Rect<int> mSurfaceRect;
-  bool mFullSwapNextFrame;
 };
 
 } // namespace Adaptor

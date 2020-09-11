@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_APPLICATION_LAUNCHER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-#include <jni.h>
 #include <dali/devel-api/adaptor-framework/application-devel.h>
+#include <jni.h>
 
 using namespace Dali;
 
@@ -27,7 +27,7 @@ using namespace Dali;
 struct ApplicationLauncher
 {
   static RefObject* applicationObject;
-  ApplicationLauncher( Application& application )
+  ApplicationLauncher(Application& application)
   {
     applicationObject = application.GetObjectPtr();
   }
@@ -38,45 +38,44 @@ RefObject* ApplicationLauncher::applicationObject;
 
 namespace
 {
-
 // JNI native "nativeOnCreate" callback when DaliView is created
-jlong OnCreate(JNIEnv *jenv, jobject obj)
+jlong OnCreate(JNIEnv* jenv, jobject obj)
 {
   // Extra reference to prevent finalize clearing the app
   ApplicationLauncher::applicationObject->Reference();
 
   // not blocking, does nothing except for the setting of the running flag
-  DevelApplication::DownCast( ApplicationLauncher::applicationObject ).MainLoop();
+  DevelApplication::DownCast(ApplicationLauncher::applicationObject).MainLoop();
 
-  return reinterpret_cast<jlong>( ApplicationLauncher::applicationObject );
+  return reinterpret_cast<jlong>(ApplicationLauncher::applicationObject);
 };
 
-}
+} // namespace
 
 // JNI daliview library on load entry function. Registers nativeOnCreate callback for DaliView Java class.
-JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
+JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
   JNIEnv* env = nullptr;
-  if( vm->GetEnv( reinterpret_cast<void **>( &env ), JNI_VERSION_1_6) != JNI_OK )
+  if(vm->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
   {
     return JNI_ERR;
   }
 
   // Find DaliView Java class. JNI_OnLoad is called from the correct class loader context for this to work.
-  jclass clazz = env->FindClass( "com/sec/daliview/DaliView" );
-  if( clazz == nullptr )
+  jclass clazz = env->FindClass("com/sec/daliview/DaliView");
+  if(clazz == nullptr)
   {
     return JNI_ERR;
   }
 
   // Register your class' native methods.
   static const JNINativeMethod methods[] =
-  {
-      { "nativeOnCreate", "()J", (void *)&OnCreate },
-  };
+    {
+      {"nativeOnCreate", "()J", (void*)&OnCreate},
+    };
 
   int rc = env->RegisterNatives(clazz, methods, sizeof(methods) / sizeof(JNINativeMethod));
-  if (rc != JNI_OK)
+  if(rc != JNI_OK)
     return rc;
 
   return JNI_VERSION_1_6;
@@ -84,9 +83,9 @@ JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
 
 // This macro facilitates creation of DALi application and launch when DaliView is created.
 // The DALi application controller is passed to the application created by DaliView JNI library.
-#define RUN(Controller) Application application = Application::New(); \
-                        Controller controller( application ); \
-                        ApplicationLauncher launcher( application ); \
+#define RUN(Controller)                                 \
+  Application         application = Application::New(); \
+  Controller          controller(application);          \
+  ApplicationLauncher launcher(application);
 
 #endif // DALI_INTEGRATION_APPLICATION_LAUNCHER_H
-

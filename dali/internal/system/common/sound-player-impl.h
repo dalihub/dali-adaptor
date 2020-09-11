@@ -94,7 +94,7 @@ private:
   /**
    * Destructor
    */
-  virtual ~SoundPlayer();
+  ~SoundPlayer() override;
 
   /**
    * Emits the SoundPlayFinished signal.

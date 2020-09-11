@@ -2,7 +2,7 @@
 #define DALI_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/images/pixel.h>
 #include <dali/public-api/images/pixel-data.h>
+#include <dali/public-api/images/pixel.h>
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
@@ -28,20 +28,17 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
 namespace Adaptor
 {
 class PixelBuffer;
 }
-}
-
+} // namespace Internal
 
 // Use namespace to separate from PixelBuffer typedef in buffer-image.h
 namespace Devel
 {
-
 /**
  * @brief The PixelBuffer object holds a pixel buffer.
  *
@@ -61,13 +58,12 @@ namespace Devel
 class DALI_ADAPTOR_API PixelBuffer : public BaseHandle
 {
 public:
-
   /**
    * Create a PixelBuffer with it's own data buffer.
    */
-  static PixelBuffer New( unsigned int width,
-                          unsigned int height,
-                          Dali::Pixel::Format pixelFormat );
+  static PixelBuffer New(unsigned int        width,
+                         unsigned int        height,
+                         Dali::Pixel::Format pixelFormat);
 
   /**
    * @brief Creates an empty handle.
@@ -112,7 +108,7 @@ public:
    * @param[in,out] pixelBuffer
    * @return a new PixelData which takes ownership of the PixelBuffer's buffer.
    */
-  static PixelData Convert( PixelBuffer& pixelBuffer );
+  static PixelData Convert(PixelBuffer& pixelBuffer);
 
   /**
    * Copy the data from this object into a new PixelData object, which could be
@@ -184,7 +180,7 @@ public:
    * @param[in] cropToMask Whether to crop the output to the mask size (true)
    * or scale the mask to the content size (false)
    */
-  void ApplyMask( PixelBuffer mask, float contentScale=1.0f, bool cropToMask=false );
+  void ApplyMask(PixelBuffer mask, float contentScale = 1.0f, bool cropToMask = false);
 
   /**
    * Apply a Gaussian blur to this pixel data with the given radius.
@@ -193,7 +189,7 @@ public:
    *
    * @param[in] blurRadius The radius for Gaussian blur. A value of 0 or negative value indicates no blur.
    */
-  void ApplyGaussianBlur( const float blurRadius );
+  void ApplyGaussianBlur(const float blurRadius);
 
   /**
    * @brief Crops this buffer to the given crop rectangle.
@@ -204,7 +200,7 @@ public:
    * @param[in] width The crop width
    * @param[in] height The crop height
    */
-  void Crop( uint16_t x, uint16_t y, uint16_t width, uint16_t height );
+  void Crop(uint16_t x, uint16_t y, uint16_t width, uint16_t height);
 
   /**
    * @brief Resizes the buffer to the given dimensions.
@@ -213,7 +209,7 @@ public:
    * @param[in] width The new width
    * @param[in] height The new height
    */
-  void Resize( uint16_t width, uint16_t height );
+  void Resize(uint16_t width, uint16_t height);
 
   /**
    * @brief Returns Exif metadata as a property map
@@ -221,7 +217,7 @@ public:
    * @param[out] metadata Property map object to write into
    * @return True on success
    */
-  bool GetMetadata( Property::Map& metadata ) const;
+  bool GetMetadata(Property::Map& metadata) const;
 
   /**
    * @brief Multiplies the image's color values by the alpha value. This provides better
@@ -240,7 +236,7 @@ public:
    *
    * @return @e false if the rotation fails (invalid pixel format or memory issues).
    */
-  bool Rotate( Degree angle );
+  bool Rotate(Degree angle);
 
   /**
    * @brief Returns pixel-buffer is premultiplied or not.
@@ -249,14 +245,13 @@ public:
   bool IsAlphaPreMultiplied() const;
 
 public:
-
   /**
    * @brief The constructor.
    * @note  Not intended for application developers.
    * @SINCE_1_2.46
    * @param[in] pointer A pointer to a newly allocated PixelBuffer
    */
-  explicit DALI_INTERNAL PixelBuffer( Internal::Adaptor::PixelBuffer* pointer );
+  explicit DALI_INTERNAL PixelBuffer(Internal::Adaptor::PixelBuffer* pointer);
 };
 
 } // namespace Devel

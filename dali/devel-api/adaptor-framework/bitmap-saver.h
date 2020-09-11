@@ -18,15 +18,14 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/images/pixel.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 static constexpr uint32_t DEFAULT_JPG_QUALITY = 100;
 
 /**
@@ -43,10 +42,10 @@ static constexpr uint32_t DEFAULT_JPG_QUALITY = 100;
  * @return true if the file was saved
  */
 DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
-                                  const std::string& filename,
-                                  const Pixel::Format pixelFormat,
-                                  const std::size_t width,
-                                  const std::size_t height);
+                                   const std::string&         filename,
+                                   const Pixel::Format        pixelFormat,
+                                   const std::size_t          width,
+                                   const std::size_t          height);
 
 /**
  * Store the given pixel data to a file.
@@ -63,13 +62,12 @@ DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
  * @return true if the file was saved
  */
 DALI_ADAPTOR_API bool EncodeToFile(const unsigned char* const pixelBuffer,
-                                  const std::string& filename,
-                                  const Pixel::Format pixelFormat,
-                                  const std::size_t width,
-                                  const std::size_t height,
-                                  const uint32_t quality);
+                                   const std::string&         filename,
+                                   const Pixel::Format        pixelFormat,
+                                   const std::size_t          width,
+                                   const std::size_t          height,
+                                   const uint32_t             quality);
 
 } // namespace Dali
-
 
 #endif // DALI_ADAPTOR_BITMAP_SAVER_H

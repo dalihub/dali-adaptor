@@ -57,7 +57,7 @@ protected:
   /**
    * Destructor
    */
-  virtual ~Orientation();
+  ~Orientation() override;
 
 public:
 

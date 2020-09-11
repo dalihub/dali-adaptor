@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,8 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 Segmentation::Segmentation()
 {
 }
@@ -35,8 +33,8 @@ Segmentation::~Segmentation()
 {
 }
 
-Segmentation::Segmentation( Internal::Segmentation* implementation )
-: BaseHandle( implementation )
+Segmentation::Segmentation(Internal::Segmentation* implementation)
+: BaseHandle(implementation)
 {
 }
 
@@ -45,22 +43,22 @@ Segmentation Segmentation::Get()
   return Internal::Segmentation::Get();
 }
 
-void Segmentation::GetLineBreakPositions( const Character* const text,
-                                          Length numberOfCharacters,
-                                          LineBreakInfo* breakInfo )
+void Segmentation::GetLineBreakPositions(const Character* const text,
+                                         Length                 numberOfCharacters,
+                                         LineBreakInfo*         breakInfo)
 {
-  GetImplementation( *this ).GetLineBreakPositions( text,
-                                                    numberOfCharacters,
-                                                    breakInfo );
+  GetImplementation(*this).GetLineBreakPositions(text,
+                                                 numberOfCharacters,
+                                                 breakInfo);
 }
 
-void Segmentation::GetWordBreakPositions( const Character* const text,
-                                          Length numberOfCharacters,
-                                          WordBreakInfo* breakInfo )
+void Segmentation::GetWordBreakPositions(const Character* const text,
+                                         Length                 numberOfCharacters,
+                                         WordBreakInfo*         breakInfo)
 {
-  GetImplementation( *this ).GetWordBreakPositions( text,
-                                                    numberOfCharacters,
-                                                    breakInfo );
+  GetImplementation(*this).GetWordBreakPositions(text,
+                                                 numberOfCharacters,
+                                                 breakInfo);
 }
 
 } // namespace TextAbstraction

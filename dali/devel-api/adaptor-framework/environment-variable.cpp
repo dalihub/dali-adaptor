@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,16 @@
 
 namespace Dali
 {
-
 namespace EnvironmentVariable
 {
-
-const char * GetEnvironmentVariable( const char * variable )
+const char* GetEnvironmentVariable(const char* variable)
 {
-  return std::getenv( variable );
+  return std::getenv(variable);
 }
 
-bool SetEnvironmentVariable( const char * variable, const char * value )
+bool SetEnvironmentVariable(const char* variable, const char* value)
 {
-  return setenv( variable, value, 1 ) == 0;
+  return setenv(variable, value, 1) == 0;
 }
 
 } // namespace EnvironmentVariable

@@ -20,13 +20,12 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/math/vector4.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
-
 class Actor;
 class Layer;
 class Any;
@@ -37,33 +36,29 @@ class KeyEvent;
 
 namespace Internal DALI_INTERNAL
 {
-
 namespace Adaptor
 {
-
 class SceneHolder;
 
 }
 
-}
+} // namespace DALI_INTERNAL
 
 namespace Integration
 {
-
 /**
  * @brief SceneHolder is responsible for creating a Scene for rendering.
  */
 class DALI_ADAPTOR_API SceneHolder : public BaseHandle
 {
 public:
+  typedef Signal<void(const Dali::KeyEvent&)> KeyEventSignalType; ///< Key event signal type
 
-  typedef Signal< void (const Dali::KeyEvent&) > KeyEventSignalType;          ///< Key event signal type
+  typedef Signal<bool(const Dali::KeyEvent&)> KeyEventGeneratedSignalType; ///< Key event generated signal type
 
-  typedef Signal< bool (const Dali::KeyEvent&) > KeyEventGeneratedSignalType; ///< Key event generated signal type
+  typedef Signal<void(const Dali::TouchEvent&)> TouchEventSignalType; ///< Touch signal type
 
-  typedef Signal< void (const Dali::TouchEvent&) > TouchEventSignalType;      ///< Touch signal type
-
-  typedef Signal< void (const Dali::WheelEvent&) > WheelEventSignalType;      ///< Touched signal type
+  typedef Signal<void(const Dali::WheelEvent&)> WheelEventSignalType; ///< Touched signal type
 
   /**
    * @brief Create an uninitialized SceneHolder handle.
@@ -82,7 +77,7 @@ public:
    *
    * @param [in] handle A reference to the copied handle
    */
-  SceneHolder( const SceneHolder& handle );
+  SceneHolder(const SceneHolder& handle);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -90,7 +85,7 @@ public:
    * @param [in] rhs  A reference to the copied handle
    * @return A reference to this
    */
-  SceneHolder& operator=( const SceneHolder& rhs );
+  SceneHolder& operator=(const SceneHolder& rhs);
 
   /**
    * @brief Adds a child Actor to the SceneHolder.
@@ -100,7 +95,7 @@ public:
    * @pre The actor has been initialized.
    * @pre The actor does not have a parent.
    */
-  void Add( Actor actor );
+  void Add(Actor actor);
 
   /**
    * @brief Removes a child Actor from the SceneHolder.
@@ -109,7 +104,7 @@ public:
    * @param[in] actor The child
    * @pre The actor has been added to the SceneHolder.
    */
-  void Remove( Actor actor );
+  void Remove(Actor actor);
 
   /**
    * @brief Returns the Scene's Root Layer.
@@ -123,7 +118,7 @@ public:
    *
    * @param[in] color The new background color
    */
-  void SetBackgroundColor( Vector4 color );
+  void SetBackgroundColor(Vector4 color);
 
   /**
    * @brief Gets the background color.
@@ -146,19 +141,19 @@ public:
    * @param[in] point The touch point
    * @param[in] timeStamp The time stamp
    */
-  void FeedTouchPoint( Dali::TouchPoint& point, int timeStamp );
+  void FeedTouchPoint(Dali::TouchPoint& point, int timeStamp);
 
   /**
    * @brief Feed (Send) wheel event to core
    * @param[in] wheelEvent The wheel event
    */
-  void FeedWheelEvent( Dali::WheelEvent& wheelEvent );
+  void FeedWheelEvent(Dali::WheelEvent& wheelEvent);
 
   /**
    * @brief Feed (Send) key event to core
    * @param[in] keyEvent The key event holding the key information.
    */
-  void FeedKeyEvent( Dali::KeyEvent& keyEvent );
+  void FeedKeyEvent(Dali::KeyEvent& keyEvent);
 
   /**
    * @brief Retrieve the SceneHolder that the given actor is added to.
@@ -166,7 +161,7 @@ public:
    * @param[in] actor The actor
    * @return The SceneHolder the actor is added to or an empty handle if the actor is not added to any SceneHolder.
    */
-  static SceneHolder Get( Actor actor );
+  static SceneHolder Get(Actor actor);
 
   /**
    * @brief This signal is emitted when key event is received.
@@ -218,14 +213,12 @@ public:
   WheelEventSignalType& WheelEventSignal();
 
 public: // Not intended for application developers
-
   /**
    * @brief This constructor is used internally to create additional SceneHolder handles.
    *
    * @param[in] sceneHolder A pointer to a newly allocated Dali resource
    */
-  explicit SceneHolder( Internal::Adaptor::SceneHolder* sceneHolder );
-
+  explicit SceneHolder(Internal::Adaptor::SceneHolder* sceneHolder);
 };
 
 } // namespace Integration

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,41 +20,43 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 BitmapGlyph::BitmapGlyph()
 : url{},
-  utf32{ 0u },
-  ascender{ 0.f },
-  descender{ 0.f }
-{}
+  utf32{0u},
+  ascender{0.f},
+  descender{0.f}
+{
+}
 
-BitmapGlyph::BitmapGlyph( const std::string& url, GlyphIndex utf32, float ascender, float descender )
-: url{ url },
-  utf32{ utf32 },
-  ascender{ ascender },
-  descender{ descender }
-{}
+BitmapGlyph::BitmapGlyph(const std::string& url, GlyphIndex utf32, float ascender, float descender)
+: url{url},
+  utf32{utf32},
+  ascender{ascender},
+  descender{descender}
+{
+}
 
 BitmapGlyph::~BitmapGlyph()
-{}
+{
+}
 
 BitmapFont::BitmapFont()
 : glyphs{},
   name{},
-  ascender{ 0.f },
-  descender{ 0.f },
-  underlinePosition{ 0.f },
-  underlineThickness{ 1.f },
-  isColorFont{ false }
-{}
+  ascender{0.f},
+  descender{0.f},
+  underlinePosition{0.f},
+  underlineThickness{1.f},
+  isColorFont{false}
+{
+}
 
 BitmapFont::~BitmapFont()
-{}
+{
+}
 
 } // namespace TextAbstraction
 
 } // namespace Dali
-

@@ -24,7 +24,6 @@
 
 namespace Dali
 {
-
 /**
  * AccessibilityActionHandler is an abstract interface, used by Dali to handle accessibility actions
  * passed by the accessibility manager.
@@ -32,7 +31,6 @@ namespace Dali
 class AccessibilityActionHandler
 {
 public:
-
   /**
    * Change the accessibility status when Accessibility feature(screen-reader) turned on or off.
    * @return whether the status is changed or not.
@@ -50,7 +48,7 @@ public:
    * @param touch The touch point (and time) of the event.
    * @return whether the focus is cleared or not.
    */
-  virtual bool AccessibilityActionScroll( Dali::TouchEvent& touch ) = 0;
+  virtual bool AccessibilityActionScroll(Dali::TouchEvent& touch) = 0;
 
   /**
    * Perform the accessibility action to move focus to the previous focusable actor (by one finger flick up).

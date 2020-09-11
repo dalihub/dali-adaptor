@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_FONT_LIST_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
-#include <iostream>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <iostream>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
 typedef std::string FontPath;
@@ -37,24 +36,24 @@ typedef std::string FontStyle;
 
 namespace FontWidth
 {
-  /**
+/**
    * @brief Enumeration type for the font's width
    */
-  enum Type
-  {
-    NONE,            ///< Means not defined. Will use what is set as default, currently NORMAL.
-    ULTRA_CONDENSED,
-    EXTRA_CONDENSED,
-    CONDENSED,
-    SEMI_CONDENSED,
-    NORMAL,
-    SEMI_EXPANDED,
-    EXPANDED,
-    EXTRA_EXPANDED,
-    ULTRA_EXPANDED
-  };
+enum Type
+{
+  NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.
+  ULTRA_CONDENSED,
+  EXTRA_CONDENSED,
+  CONDENSED,
+  SEMI_CONDENSED,
+  NORMAL,
+  SEMI_EXPANDED,
+  EXPANDED,
+  EXTRA_EXPANDED,
+  ULTRA_EXPANDED
+};
 
-  const char* const Name[] =
+const char* const Name[] =
   {
     "NONE",
     "ULTRA_CONDENSED",
@@ -65,39 +64,38 @@ namespace FontWidth
     "SEMI_EXPANDED",
     "EXPANDED",
     "EXTRA_EXPANDED",
-    "ULTRA_EXPANDED"
-  };
+    "ULTRA_EXPANDED"};
 } // namespace FontWidth
 
 namespace FontWeight
 {
-  /**
+/**
    * @brief Enumeration type for the font's weight
    */
-  enum Type
-  {
-    NONE,                      ///< Means not defined. Will use what is set as default, currently NORMAL.
-    THIN,
-    ULTRA_LIGHT,
-    EXTRA_LIGHT = ULTRA_LIGHT,
-    LIGHT,
-    DEMI_LIGHT,
-    SEMI_LIGHT = DEMI_LIGHT,
-    BOOK,
-    NORMAL,
-    REGULAR = NORMAL,
-    MEDIUM,
-    DEMI_BOLD,
-    SEMI_BOLD = DEMI_BOLD,
-    BOLD,
-    ULTRA_BOLD,
-    EXTRA_BOLD = ULTRA_BOLD,
-    BLACK,
-    HEAVY = BLACK,
-    EXTRA_BLACK = BLACK
-  };
+enum Type
+{
+  NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.
+  THIN,
+  ULTRA_LIGHT,
+  EXTRA_LIGHT = ULTRA_LIGHT,
+  LIGHT,
+  DEMI_LIGHT,
+  SEMI_LIGHT = DEMI_LIGHT,
+  BOOK,
+  NORMAL,
+  REGULAR = NORMAL,
+  MEDIUM,
+  DEMI_BOLD,
+  SEMI_BOLD = DEMI_BOLD,
+  BOLD,
+  ULTRA_BOLD,
+  EXTRA_BOLD = ULTRA_BOLD,
+  BLACK,
+  HEAVY       = BLACK,
+  EXTRA_BLACK = BLACK
+};
 
-  const char* const Name[] =
+const char* const Name[] =
   {
     "NONE",
     "THIN",
@@ -110,31 +108,29 @@ namespace FontWeight
     "DEMI_BOLD",
     "BOLD",
     "ULTRA_BOLD",
-    "BLACK"
-  };
-}
+    "BLACK"};
+} // namespace FontWeight
 
 namespace FontSlant
 {
-  /**
+/**
    * @brief Enumeration type for the font's slant
    */
-  enum Type
-  {
-    NONE,           ///< Means not defined. Will use what is set as default, currently NORMAL.
-    NORMAL,
-    ROMAN = NORMAL,
-    ITALIC,
-    OBLIQUE
-  };
+enum Type
+{
+  NONE, ///< Means not defined. Will use what is set as default, currently NORMAL.
+  NORMAL,
+  ROMAN = NORMAL,
+  ITALIC,
+  OBLIQUE
+};
 
-  const char* const Name[] =
+const char* const Name[] =
   {
     "NONE",
     "NORMAL",
     "ITALIC",
-    "OBLIQUE"
-  };
+    "OBLIQUE"};
 } // namespace FontSlant
 
 struct FontDescription
@@ -149,14 +145,16 @@ struct FontDescription
   FontDescription()
   : path(),
     family(),
-    width( FontWidth::NONE ),
-    weight( FontWeight::NONE ),
-    slant( FontSlant::NONE ),
-    type( INVALID )
-  {}
+    width(FontWidth::NONE),
+    weight(FontWeight::NONE),
+    slant(FontSlant::NONE),
+    type(INVALID)
+  {
+  }
 
   ~FontDescription()
-  {}
+  {
+  }
 
   FontPath         path;   ///< The font's file name path.
   FontFamily       family; ///< The font's family name.
@@ -168,7 +166,7 @@ struct FontDescription
 
 typedef std::vector<FontDescription> FontList;
 
-DALI_ADAPTOR_API std::ostream& operator<<( std::ostream& o, const FontList& fontList );
+DALI_ADAPTOR_API std::ostream& operator<<(std::ostream& o, const FontList& fontList);
 
 } // namespace TextAbstraction
 

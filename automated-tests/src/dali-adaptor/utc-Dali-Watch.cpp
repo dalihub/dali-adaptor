@@ -15,8 +15,8 @@
  *
  */
 
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 
 using namespace Dali;
 
@@ -32,14 +32,13 @@ void utc_dali_watchapplication_cleanup(void)
 
 namespace
 {
-
 struct MyTestApp : public ConnectionTracker
 {
-  MyTestApp( WatchApplication& app)
-  : initCalled( false ),
-    mApplication( app )
+  MyTestApp(WatchApplication& app)
+  : initCalled(false),
+    mApplication(app)
   {
-    mApplication.InitSignal().Connect( this, &MyTestApp::Create );
+    mApplication.InitSignal().Connect(this, &MyTestApp::Create);
   }
 
   void Create(Application& app)
@@ -53,15 +52,15 @@ struct MyTestApp : public ConnectionTracker
   }
 
   // Data
-  bool initCalled;
-  WatchApplication&  mApplication;
+  bool              initCalled;
+  WatchApplication& mApplication;
 };
 
-void WatchTimeSignalCallback( Application& app, const WatchTime& time)
+void WatchTimeSignalCallback(Application& app, const WatchTime& time)
 {
 }
 
-void WatchChangedSignalCallback( Application& app, bool ambient)
+void WatchChangedSignalCallback(Application& app, bool ambient)
 {
 }
 
@@ -71,39 +70,39 @@ int UtcDaliWatchApplicationNew01(void)
 {
   WatchApplication application = WatchApplication::New();
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
 
 int UtcDaliWatchApplicationNew02(void)
 {
-  int argc( 1 );
-  const char* argList[1] = { "program" };
-  char** argv = const_cast<char**>(argList);
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
 
-  WatchApplication application = WatchApplication::New( &argc, &argv );
+  WatchApplication application = WatchApplication::New(&argc, &argv);
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
 
 int UtcDaliWatchApplicationNew03(void)
 {
-  int argc( 1 );
-  const char* argList[1] = { "program" };
-  char** argv = const_cast<char**>(argList);
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
 
-  WatchApplication application = WatchApplication::New( &argc, &argv, "stylesheet" );
+  WatchApplication application = WatchApplication::New(&argc, &argv, "stylesheet");
 
-  MyTestApp testApp( application );
+  MyTestApp testApp(application);
 
-  DALI_TEST_CHECK( application );
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -111,13 +110,13 @@ int UtcDaliWatchApplicationNew03(void)
 int UtcDaliWatchApplicationCopyAndAssignment(void)
 {
   WatchApplication application = WatchApplication::New();
-  WatchApplication copy( application );
-  DALI_TEST_CHECK( copy == application );
+  WatchApplication copy(application);
+  DALI_TEST_CHECK(copy == application);
 
   WatchApplication assigned;
-  DALI_TEST_CHECK( !assigned );
+  DALI_TEST_CHECK(!assigned);
   assigned = application;
-  DALI_TEST_CHECK( copy == assigned );
+  DALI_TEST_CHECK(copy == assigned);
 
   END_TEST;
 }
@@ -125,8 +124,8 @@ int UtcDaliWatchApplicationCopyAndAssignment(void)
 int UtcDaliWatchApplicationTimeTickSignalP(void)
 {
   WatchApplication application = WatchApplication::New();
-  application.TimeTickSignal().Connect( &WatchTimeSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.TimeTickSignal().Connect(&WatchTimeSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -137,12 +136,12 @@ int UtcDaliWatchApplicationTimeTickSignalN(void)
 
   try
   {
-    application.TimeTickSignal().Connect( &WatchTimeSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.TimeTickSignal().Connect(&WatchTimeSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -151,8 +150,8 @@ int UtcDaliWatchApplicationTimeTickSignalN(void)
 int UtcDaliWatchApplicationAmbientTickSignalP(void)
 {
   WatchApplication application = WatchApplication::New();
-  application.AmbientTickSignal().Connect( &WatchTimeSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.AmbientTickSignal().Connect(&WatchTimeSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -163,12 +162,12 @@ int UtcDaliWatchApplicationAmbientTickSignalN(void)
 
   try
   {
-    application.AmbientTickSignal().Connect( &WatchTimeSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.AmbientTickSignal().Connect(&WatchTimeSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -177,8 +176,8 @@ int UtcDaliWatchApplicationAmbientTickSignalN(void)
 int UtcDaliWatchApplicationAmbientChangedSignalP(void)
 {
   WatchApplication application = WatchApplication::New();
-  application.AmbientChangedSignal().Connect( &WatchChangedSignalCallback );
-  DALI_TEST_CHECK( application );
+  application.AmbientChangedSignal().Connect(&WatchChangedSignalCallback);
+  DALI_TEST_CHECK(application);
 
   END_TEST;
 }
@@ -189,14 +188,13 @@ int UtcDaliWatchApplicationAmbientChangedSignalN(void)
 
   try
   {
-    application.AmbientChangedSignal().Connect( &WatchChangedSignalCallback );
-    DALI_TEST_CHECK( false ); // Should not get here
+    application.AmbientChangedSignal().Connect(&WatchChangedSignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
 }
-

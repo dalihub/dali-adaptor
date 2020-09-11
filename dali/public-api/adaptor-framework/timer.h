@@ -39,7 +39,7 @@ namespace Adaptor
 {
 class Timer;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Mechanism to issue simple periodic or one-shot events.
@@ -56,12 +56,10 @@ class Timer;
  */
 class DALI_ADAPTOR_API Timer : public BaseHandle
 {
-public: // Signal typedefs
-
-  typedef Signal< bool () > TimerSignalType; ///< Timer finished signal callback type @SINCE_1_0.0
+public:                                   // Signal typedefs
+  typedef Signal<bool()> TimerSignalType; ///< Timer finished signal callback type @SINCE_1_0.0
 
 public: // API
-
   /**
    * @brief Constructor, creates an uninitialized timer.
    *
@@ -77,7 +75,7 @@ public: // API
    * @param[in] milliSec Interval in milliseconds
    * @return A new timer
    */
-  static Timer New( unsigned int milliSec );
+  static Timer New(unsigned int milliSec);
 
   /**
    * @brief Copy constructor.
@@ -85,7 +83,7 @@ public: // API
    * @SINCE_1_0.0
    * @param[in] timer The handle to copy. The copied handle will point at the same implementation
    */
-  Timer( const Timer& timer );
+  Timer(const Timer& timer);
 
   /**
    * @brief Assignment operator.
@@ -95,7 +93,7 @@ public: // API
    * as the copied handle
    * @return Reference to this timer handle
    */
-  Timer& operator=( const Timer& timer );
+  Timer& operator=(const Timer& timer);
 
   /**
    * @brief Move constructor.
@@ -103,7 +101,7 @@ public: // API
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Timer( Timer&& rhs );
+  Timer(Timer&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -112,7 +110,7 @@ public: // API
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Timer& operator=( Timer&& rhs );
+  Timer& operator=(Timer&& rhs);
 
   /**
    * @brief Destructor.
@@ -132,7 +130,7 @@ public: // API
    * @param[in] handle to An object
    * @return handle to a Timer object or an uninitialized handle
    */
-  static Timer DownCast( BaseHandle handle );
+  static Timer DownCast(BaseHandle handle);
 
   /**
    * @brief Starts timer.
@@ -167,7 +165,7 @@ public: // API
    * @SINCE_1_0.0
    * @param[in] milliSec Interval in milliseconds
    */
-  void SetInterval( unsigned int milliSec );
+  void SetInterval(unsigned int milliSec);
 
   /**
    * @brief Sets a new interval on the timer with option to restart the timer.
@@ -177,7 +175,7 @@ public: // API
    * @param[in] milliSec Interval in milliseconds
    * @param[in] restart Flag to set enabled to restart or not.
    */
-  void SetInterval( unsigned int milliSec, bool restart );
+  void SetInterval(unsigned int milliSec, bool restart);
 
   /**
    * @brief Gets the interval of timer.
@@ -195,7 +193,6 @@ public: // API
   bool IsRunning() const;
 
 public: // Signals
-
   /**
    * @brief Signal emitted after specified time interval.
    *

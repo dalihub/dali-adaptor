@@ -48,58 +48,58 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::SocketIsOpen()
    */
-  virtual bool SocketIsOpen() const;
+  bool SocketIsOpen() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::CloseSocket
    */
-  virtual bool CloseSocket();
+  bool CloseSocket() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Bind
    */
-  virtual bool Bind( uint16_t port ) ;
+  bool Bind( uint16_t port )  override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Listen
    */
-  virtual bool Listen( int blacklog);
+  bool Listen( int blacklog) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Accept
    */
-  virtual SocketInterface* Accept() const ;
+  SocketInterface* Accept() const  override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Select
    */
-  virtual SelectReturn Select( );
+  SelectReturn Select( ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::ExitSelect
    */
-  virtual void ExitSelect();
+  void ExitSelect() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Recieve
    */
-  virtual bool Read( void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead );
+  bool Read( void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Send
    */
-  virtual bool Write( const void* buffer, unsigned int bufferLength );
+  bool Write( const void* buffer, unsigned int bufferLength ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::ReuseAddress
    */
-  virtual bool ReuseAddress( bool reUse );
+  bool ReuseAddress( bool reUse ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::SetBufferSize
    *
    */
-  virtual bool SetBufferSize( SocketInterface::BufferType type, unsigned int bufferSizeInBytes );
+  bool SetBufferSize( SocketInterface::BufferType type, unsigned int bufferSizeInBytes ) override;
 
   /**
    * @brief Virtual destructor

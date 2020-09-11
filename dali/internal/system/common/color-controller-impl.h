@@ -72,7 +72,7 @@ protected:
   /**
    * @brief Destructor.
    */
-  virtual ~ColorController();
+  ~ColorController() override;
 
 private:
 

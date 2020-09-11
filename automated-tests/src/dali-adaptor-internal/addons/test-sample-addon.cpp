@@ -15,23 +15,23 @@
  *
  */
 
-#include <cstring>
-#include <dali/devel-api/addons/addon-base.h>
 #include <dali-test-suite-utils.h>
+#include <dali/devel-api/addons/addon-base.h>
+#include <cstring>
 
 namespace
 {
 bool gIsPaused = false;
 }
 
-int StringLen( const char* str )
+int StringLen(const char* str)
 {
-  return strlen( str );
+  return strlen(str);
 }
 
-int DoSum( int a, int b )
+int DoSum(int a, int b)
 {
-  return a+b;
+  return a + b;
 }
 
 bool GetLifecycleStatus()
@@ -46,7 +46,7 @@ struct AddOnDataInstance
     return 42;
   }
 
-  static int GetValueWithInstance( AddOnDataInstance* instance )
+  static int GetValueWithInstance(AddOnDataInstance* instance)
   {
     return instance->GetValue();
   }
@@ -60,14 +60,13 @@ AddOnDataInstance* CreateInstance()
 class TestDummyAddOn : public Dali::AddOns::AddOnBase
 {
 public:
-
-  void GetAddOnInfo( Dali::AddOnInfo& info ) override
+  void GetAddOnInfo(Dali::AddOnInfo& info) override
   {
-    info.type = Dali::AddOnType::GENERIC;
-    info.name = "SampleAddOn";
-    info.version = Dali::DALI_ADDON_VERSION( 1, 0, 0 );
-    info.next = nullptr;
-    tet_printf( "SampleAddOn: GetAddOnInfo() : name = %s\n", info.name.c_str());
+    info.type    = Dali::AddOnType::GENERIC;
+    info.name    = "SampleAddOn";
+    info.version = Dali::DALI_ADDON_VERSION(1, 0, 0);
+    info.next    = nullptr;
+    tet_printf("SampleAddOn: GetAddOnInfo() : name = %s\n", info.name.c_str());
   }
 
   /**
@@ -77,13 +76,12 @@ public:
   Dali::AddOns::DispatchTable* GetGlobalDispatchTable() override
   {
     static Dali::AddOns::DispatchTable dispatchTable{};
-    if( dispatchTable.Empty() )
+    if(dispatchTable.Empty())
     {
-      dispatchTable["DoSum"]                     = DoSum;
-      dispatchTable["StringLen"]                 = StringLen;
-      dispatchTable["GetLifecycleStatus"]        = GetLifecycleStatus;
-      dispatchTable["CreateInstance"]            = CreateInstance;
-
+      dispatchTable["DoSum"]              = DoSum;
+      dispatchTable["StringLen"]          = StringLen;
+      dispatchTable["GetLifecycleStatus"] = GetLifecycleStatus;
+      dispatchTable["CreateInstance"]     = CreateInstance;
     }
     return &dispatchTable;
   }
@@ -118,7 +116,7 @@ public:
   Dali::AddOns::DispatchTable* GetInstanceDispatchTable() override
   {
     static Dali::AddOns::DispatchTable dispatchTable{};
-    if( dispatchTable.Empty() )
+    if(dispatchTable.Empty())
     {
       dispatchTable["InstanceCall"] = AddOnDataInstance::GetValueWithInstance;
     }
@@ -126,4 +124,4 @@ public:
   }
 };
 
-REGISTER_ADDON_CLASS( TestDummyAddOn );
+REGISTER_ADDON_CLASS(TestDummyAddOn);

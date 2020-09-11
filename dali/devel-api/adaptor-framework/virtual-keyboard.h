@@ -2,7 +2,7 @@
 #define DALI_VIRTUAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/signals/dali-signal.h>
-#include <dali/public-api/object/property-map.h>
 #include <dali/public-api/math/rect.h>
+#include <dali/public-api/object/property-map.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/input-method.h>
 
 namespace Dali
 {
-
 /**
  * @brief This namespace is provided for application developers to be able to show and hide the on-screen keyboard.
  *
@@ -36,13 +35,12 @@ namespace Dali
  */
 namespace VirtualKeyboard
 {
-
 // Types
 
-typedef Signal< void () > VoidSignalType;
-typedef Signal< void ( bool ) > StatusSignalType;
-typedef Signal< void ( int ) > KeyboardResizedSignalType;
-typedef Signal< void ( int ) > LanguageChangedSignalType;
+typedef Signal<void()>     VoidSignalType;
+typedef Signal<void(bool)> StatusSignalType;
+typedef Signal<void(int)>  KeyboardResizedSignalType;
+typedef Signal<void(int)>  LanguageChangedSignalType;
 
 // Enumerations
 
@@ -92,13 +90,13 @@ DALI_ADAPTOR_API bool IsVisible();
  * @brief Set one or more of the Input Method Settings
  * @param[in] settingsMap Map of Settings to be applied.
  */
-DALI_ADAPTOR_API void ApplySettings( const Property::Map& settingsMap );
+DALI_ADAPTOR_API void ApplySettings(const Property::Map& settingsMap);
 
 /**
  * @brief Set the specific return key into the virtual keyboard.
  * @param[in] type the kind of return key types.
  */
-DALI_ADAPTOR_API void SetReturnKeyType( const InputMethod::ButtonAction::Type type );
+DALI_ADAPTOR_API void SetReturnKeyType(const InputMethod::ButtonAction::Type type);
 
 /**
  * @brief Retrieve the current return key type.

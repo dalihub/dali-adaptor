@@ -125,6 +125,11 @@ WindowBase::KeyboardRepeatSettingsChangedSignalType& WindowBase::KeyboardRepeatS
   return mKeyboardRepeatSettingsChangedSignal;
 }
 
+WindowBase::WindowRedrawRequestSignalType& WindowBase::WindowRedrawRequestSignal()
+{
+  return mWindowRedrawRequestSignal;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

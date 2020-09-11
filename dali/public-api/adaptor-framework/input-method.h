@@ -34,7 +34,6 @@ namespace Dali
  */
 namespace InputMethod
 {
-
 /**
  * @brief Enumeration for settings that can be changed in the system Input Method.
  *
@@ -43,7 +42,6 @@ namespace InputMethod
  */
 namespace Category
 {
-
 /**
 * @brief Enumeration for Category type.
 *
@@ -51,10 +49,10 @@ namespace Category
 */
 enum Type
 {
-  PANEL_LAYOUT,        ///< Set Keyboard layout @SINCE_1_3.20
-  BUTTON_ACTION,       ///< Set Button Action @SINCE_1_3.20
-  AUTO_CAPITALIZE,     ///< Set Auto capitalize of input @SINCE_1_3.20
-  VARIATION            ///< Set variation @SINCE_1_3.20
+  PANEL_LAYOUT,    ///< Set Keyboard layout @SINCE_1_3.20
+  BUTTON_ACTION,   ///< Set Button Action @SINCE_1_3.20
+  AUTO_CAPITALIZE, ///< Set Auto capitalize of input @SINCE_1_3.20
+  VARIATION        ///< Set variation @SINCE_1_3.20
 };
 
 } // namespace Category
@@ -70,7 +68,6 @@ enum Type
  */
 namespace PanelLayout
 {
-
 /**
 * @brief Enumeration for PanelLayout type.
 *
@@ -78,19 +75,19 @@ namespace PanelLayout
 */
 enum Type
 {
-  NORMAL,          ///< Default layout @SINCE_1_3.20
-  NUMBER,          ///< Number layout @SINCE_1_3.20
-  EMAIL,           ///< Email layout @SINCE_1_3.20
-  URL,             ///< URL layout @SINCE_1_3.20
-  PHONENUMBER,     ///< Phone Number layout @SINCE_1_3.20
-  IP,              ///< IP layout @SINCE_1_3.20
-  MONTH,           ///< Month layout @SINCE_1_3.20
-  NUMBER_ONLY,     ///< Number Only layout @SINCE_1_3.20
-  HEX,             ///< Hexadecimal layout @SINCE_1_3.20
-  TERMINAL,        ///< Command-line terminal layout including ESC, Alt, Ctrl key, so on (no auto-correct, no auto-capitalization) @SINCE_1_3.20
-  PASSWORD,        ///< Like normal, but no auto-correct, no auto-capitalization etc @SINCE_1_3.20
-  DATE_TIME,       ///< Date and time layout @SINCE_1_3.20
-  EMOTICON         ///< Emoticon layout @SINCE_1_3.20
+  NORMAL,      ///< Default layout @SINCE_1_3.20
+  NUMBER,      ///< Number layout @SINCE_1_3.20
+  EMAIL,       ///< Email layout @SINCE_1_3.20
+  URL,         ///< URL layout @SINCE_1_3.20
+  PHONENUMBER, ///< Phone Number layout @SINCE_1_3.20
+  IP,          ///< IP layout @SINCE_1_3.20
+  MONTH,       ///< Month layout @SINCE_1_3.20
+  NUMBER_ONLY, ///< Number Only layout @SINCE_1_3.20
+  HEX,         ///< Hexadecimal layout @SINCE_1_3.20
+  TERMINAL,    ///< Command-line terminal layout including ESC, Alt, Ctrl key, so on (no auto-correct, no auto-capitalization) @SINCE_1_3.20
+  PASSWORD,    ///< Like normal, but no auto-correct, no auto-capitalization etc @SINCE_1_3.20
+  DATE_TIME,   ///< Date and time layout @SINCE_1_3.20
+  EMOTICON     ///< Emoticon layout @SINCE_1_3.20
 };
 
 } // namespace PanelLayout
@@ -105,7 +102,6 @@ enum Type
  */
 namespace ButtonAction
 {
-
 /**
 * @brief Enumeration for ButtonAction type.
 *
@@ -113,22 +109,21 @@ namespace ButtonAction
 */
 enum Type
 {
-  DEFAULT,       ///< Default action @SINCE_1_3.20
-  DONE,          ///< Done @SINCE_1_3.20
-  GO,            ///< Go action @SINCE_1_3.20
-  JOIN,          ///< Join action @SINCE_1_3.20
-  LOGIN,         ///< Login action @SINCE_1_3.20
-  NEXT,          ///< Next action @SINCE_1_3.20
-  PREVIOUS,      ///< Previous action @SINCE_1_3.20
-  SEARCH,        ///< Search action @SINCE_1_3.20
-  SEND,          ///< Send action @SINCE_1_3.20
-  SIGNIN,        ///< Sign in action @SINCE_1_3.20
-  UNSPECIFIED,   ///< Unspecified action @SINCE_1_3.20
-  NONE           ///< Nothing to do @SINCE_1_3.20
+  DEFAULT,     ///< Default action @SINCE_1_3.20
+  DONE,        ///< Done @SINCE_1_3.20
+  GO,          ///< Go action @SINCE_1_3.20
+  JOIN,        ///< Join action @SINCE_1_3.20
+  LOGIN,       ///< Login action @SINCE_1_3.20
+  NEXT,        ///< Next action @SINCE_1_3.20
+  PREVIOUS,    ///< Previous action @SINCE_1_3.20
+  SEARCH,      ///< Search action @SINCE_1_3.20
+  SEND,        ///< Send action @SINCE_1_3.20
+  SIGNIN,      ///< Sign in action @SINCE_1_3.20
+  UNSPECIFIED, ///< Unspecified action @SINCE_1_3.20
+  NONE         ///< Nothing to do @SINCE_1_3.20
 };
 
 } // namespace ButtonAction
-
 
 /**
  * @brief Sets Autocapitalization Types.
@@ -137,7 +132,6 @@ enum Type
  */
 namespace AutoCapital
 {
-
 /**
 * @brief Enumeration for AutoCapital type.
 *
@@ -153,7 +147,6 @@ enum Type
 
 } // namespace AutoCapital
 
-
 /////////////////////////// VARIATION based on PANEL_LAYOUT //////////////////////////////////
 
 /**
@@ -163,7 +156,6 @@ enum Type
  */
 namespace NormalLayout
 {
-
 /**
 * @brief Enumeration for NormalLayout Variation type.
 *
@@ -171,9 +163,9 @@ namespace NormalLayout
 */
 enum Type
 {
-  NORMAL,                 ///< The plain normal layout @SINCE_1_3.20
-  WITH_FILENAME,          ///< Filename layout. Symbols such as '/' should be disabled @SINCE_1_3.20
-  WITH_PERSON_NAME        ///< The name of a person @SINCE_1_3.20
+  NORMAL,          ///< The plain normal layout @SINCE_1_3.20
+  WITH_FILENAME,   ///< Filename layout. Symbols such as '/' should be disabled @SINCE_1_3.20
+  WITH_PERSON_NAME ///< The name of a person @SINCE_1_3.20
 };
 
 } // namespace NormalLayout
@@ -185,7 +177,6 @@ enum Type
  */
 namespace NumberOnlyLayout
 {
-
 /**
 * @brief Enumeration for NumberOnlyLayout Variation type.
 *
@@ -208,7 +199,6 @@ enum Type
  */
 namespace PasswordLayout
 {
-
 /**
 * @brief Enumeration for PasswordLayout Variation type.
 *
@@ -216,8 +206,8 @@ namespace PasswordLayout
 */
 enum Type
 {
-  NORMAL,               ///< The normal password layout @SINCE_1_3.20
-  WITH_NUMBER_ONLY      ///< The password layout to allow only number @SINCE_1_3.20
+  NORMAL,          ///< The normal password layout @SINCE_1_3.20
+  WITH_NUMBER_ONLY ///< The password layout to allow only number @SINCE_1_3.20
 };
 
 } // namespace PasswordLayout

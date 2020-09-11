@@ -21,17 +21,17 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-#include <jni.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <android/configuration.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
+#include <jni.h>
 
 #ifndef _ANDROID_NATIVE_APP_GLUE_H
 extern "C"
 {
-struct android_app;
+  struct android_app;
 }
 #endif
 
@@ -40,20 +40,17 @@ struct android_app;
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
-
 namespace Adaptor
 {
 class AndroidFramework;
 }
 
-}
+} // namespace DALI_INTERNAL
 
 namespace Integration
 {
-
 /**
  * AndroidFramework provides setter/getter for Android native interfaces for Android DALi Adaptor.
  * It is also used to pass Android application events to Android DALi Adaptor.
@@ -77,7 +74,7 @@ public:
    * @brief Sets the Android native application glue struct
    * @param[in] application A pointer to the application glue struct
    */
-  void SetNativeApplication( android_app* application );
+  void SetNativeApplication(android_app* application);
 
   /**
    * @brief Gets the Android native application glue struct
@@ -89,7 +86,7 @@ public:
    * @brief Sets the Android JVM
    * @param[in] jvm A pointer to Android JVM
    */
-  void SetJVM( JavaVM* jvm );
+  void SetJVM(JavaVM* jvm);
 
   /**
    * @brief Sets the JVM
@@ -101,7 +98,7 @@ public:
    *  Sets the Android application assets manager.
    *  @param[in] assets A pointer to assets manager
    */
-  void SetApplicationAssets( AAssetManager* assets );
+  void SetApplicationAssets(AAssetManager* assets);
 
   /**
    * @brief Gets the Android application assets manager.
@@ -113,7 +110,7 @@ public:
    *  Sets the Android application internal data path.
    *  @param[in] path A path to the application data path
    */
-  void SetInternalDataPath( const std::string& path );
+  void SetInternalDataPath(const std::string& path);
 
   /**
    *  Gets the Android application internal data path.
@@ -125,7 +122,7 @@ public:
    * @brief Sets the Android application configuration
    * @param[in] configuration A pointer to Android application configuration
    */
-  void SetApplicationConfiguration( AConfiguration* configuration );
+  void SetApplicationConfiguration(AConfiguration* configuration);
 
   /**
    * @brief Gets the Android application configuration
@@ -137,7 +134,7 @@ public:
    * @brief Sets the Android application native window
    * @return A native window
    */
-  void SetApplicationWindow( ANativeWindow* window );
+  void SetApplicationWindow(ANativeWindow* window);
 
   /**
    * @brief Gets the Android application native window
@@ -163,12 +160,12 @@ public:
   /**
    * Invoked when the Android application native window is created.
    */
-  void OnWindowCreated( ANativeWindow* window );
+  void OnWindowCreated(ANativeWindow* window);
 
   /**
    * Invoked when the Android application native window is deleted.
    */
-  void OnWindowDestroyed( ANativeWindow* window );
+  void OnWindowDestroyed(ANativeWindow* window);
 
   /**
    * @brief Returns a reference to the instance of the Android framework used by the current thread.
@@ -184,13 +181,12 @@ public:
   virtual ~AndroidFramework();
 
   // Not copyable or movable
-  AndroidFramework( const AndroidFramework& ) = delete; ///< Deleted copy constructor
-  AndroidFramework( AndroidFramework&& ) = delete; ///< Deleted move constructor
-  AndroidFramework& operator=( const AndroidFramework& ) = delete; ///< Deleted copy assignment operator
-  AndroidFramework& operator=( AndroidFramework&& ) = delete; ///< Deleted move assignment operator
+  AndroidFramework(const AndroidFramework&) = delete;            ///< Deleted copy constructor
+  AndroidFramework(AndroidFramework&&)      = delete;            ///< Deleted move constructor
+  AndroidFramework& operator=(const AndroidFramework&) = delete; ///< Deleted copy assignment operator
+  AndroidFramework& operator=(AndroidFramework&&) = delete;      ///< Deleted move assignment operator
 
 private:
-
   /**
    * @brief Create an uninitialized AndroidFramework.
    */
@@ -205,4 +201,3 @@ private:
 } // namespace Dali
 
 #endif // DALI_INTEGRATION_ANDROID_FRAMEWORK_H
-

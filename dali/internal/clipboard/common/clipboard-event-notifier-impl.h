@@ -103,7 +103,7 @@ private:
   /**
    * Destructor.
    */
-  virtual ~ClipboardEventNotifier();
+  ~ClipboardEventNotifier() override;
 
   // Undefined
   ClipboardEventNotifier( const ClipboardEventNotifier& );

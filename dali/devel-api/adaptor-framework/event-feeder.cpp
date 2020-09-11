@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,31 +23,29 @@
 
 namespace Dali
 {
-
 namespace EventFeeder
 {
-
-void FeedTouchPoint( TouchPoint& point, int timeStamp )
+void FeedTouchPoint(TouchPoint& point, int timeStamp)
 {
-  if ( Adaptor::IsAvailable() )
+  if(Adaptor::IsAvailable())
   {
-    Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).FeedTouchPoint( point, timeStamp );
+    Internal::Adaptor::Adaptor::GetImplementation(Adaptor::Get()).FeedTouchPoint(point, timeStamp);
   }
 }
 
-void FeedWheelEvent( WheelEvent& wheelEvent )
+void FeedWheelEvent(WheelEvent& wheelEvent)
 {
-  if ( Adaptor::IsAvailable() )
+  if(Adaptor::IsAvailable())
   {
-    Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).FeedWheelEvent( wheelEvent );
+    Internal::Adaptor::Adaptor::GetImplementation(Adaptor::Get()).FeedWheelEvent(wheelEvent);
   }
 }
 
-void FeedKeyEvent( KeyEvent& keyEvent )
+void FeedKeyEvent(KeyEvent& keyEvent)
 {
-  if ( Adaptor::IsAvailable() )
+  if(Adaptor::IsAvailable())
   {
-    Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).FeedKeyEvent( keyEvent );
+    Internal::Adaptor::Adaptor::GetImplementation(Adaptor::Get()).FeedKeyEvent(keyEvent);
   }
 }
 

@@ -2,7 +2,7 @@
 #define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,23 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/key-event.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/events/key-event.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/input-method-options.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <dali/devel-api/adaptor-framework/input-method-options.h>
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class InputMethodContext;
 }
-}
+} // namespace DALI_INTERNAL
 
 class Actor;
 
@@ -48,7 +47,6 @@ class Actor;
 class DALI_ADAPTOR_API InputMethodContext : public BaseHandle
 {
 public:
-
   /**
    * @brief The direction of text.
    */
@@ -63,12 +61,12 @@ public:
    */
   enum EventType
   {
-    VOID,                ///< No event
-    PRE_EDIT,             ///< Pre-Edit changed
-    COMMIT,              ///< Commit recieved
-    DELETE_SURROUNDING,   ///< Event to delete a range of characters from the string
-    GET_SURROUNDING,      ///< Event to query string and cursor position
-    PRIVATE_COMMAND       ///< Private command sent from the input panel
+    VOID,               ///< No event
+    PRE_EDIT,           ///< Pre-Edit changed
+    COMMIT,             ///< Commit recieved
+    DELETE_SURROUNDING, ///< Event to delete a range of characters from the string
+    GET_SURROUNDING,    ///< Event to query string and cursor position
+    PRIVATE_COMMAND     ///< Private command sent from the input panel
   };
 
   /**
@@ -76,10 +74,10 @@ public:
    */
   enum State
   {
-    DEFAULT = 0,   ///< Unknown state
-    SHOW,          ///< Input panel is shown
-    HIDE,          ///< Input panel is hidden
-    WILL_SHOW      ///< Input panel in process of being shown
+    DEFAULT = 0, ///< Unknown state
+    SHOW,        ///< Input panel is shown
+    HIDE,        ///< Input panel is hidden
+    WILL_SHOW    ///< Input panel in process of being shown
   };
 
   /**
@@ -87,8 +85,8 @@ public:
    */
   enum KeyboardType
   {
-    SOFTWARE_KEYBOARD,  ///< Software keyboard (Virtual keyboard) is default
-    HARDWARE_KEYBOARD   ///< Hardware keyboard
+    SOFTWARE_KEYBOARD, ///< Software keyboard (Virtual keyboard) is default
+    HARDWARE_KEYBOARD  ///< Hardware keyboard
   };
 
   /**
@@ -96,8 +94,8 @@ public:
    */
   enum class InputPanelLanguage
   {
-    AUTOMATIC,    ///< IME Language automatically set depending on the system display
-    ALPHABET      ///< Latin alphabet at all times
+    AUTOMATIC, ///< IME Language automatically set depending on the system display
+    ALPHABET   ///< Latin alphabet at all times
   };
 
   /**
@@ -121,15 +119,15 @@ public:
   struct PreeditAttributeData
   {
     PreeditAttributeData()
-    : preeditType( PreeditStyle::NONE ),
-      startIndex( 0 ),
-      endIndex( 0 )
+    : preeditType(PreeditStyle::NONE),
+      startIndex(0),
+      endIndex(0)
     {
     }
 
-    PreeditStyle preeditType;  /// The preedit style type
-    unsigned int startIndex;   /// The start index of preedit
-    unsigned int endIndex;     /// The end index of preedit
+    PreeditStyle preeditType; /// The preedit style type
+    unsigned int startIndex;  /// The start index of preedit
+    unsigned int endIndex;    /// The end index of preedit
   };
 
   /**
@@ -142,11 +140,9 @@ public:
      */
     EventData()
     : predictiveString(),
-      eventName( VOID ),
-      cursorOffset( 0 ),
-      numberOfChars ( 0 )
-    {
-    };
+      eventName(VOID),
+      cursorOffset(0),
+      numberOfChars(0){};
 
     /**
      * @brief Constructor
@@ -156,19 +152,19 @@ public:
      * @param[in] aCursorOffset Start position from the current cursor position to start deleting characters.
      * @param[in] aNumberOfChars The number of characters to delete from the cursorOffset.
      */
-    EventData( EventType aEventName, const std::string& aPredictiveString, int aCursorOffset, int aNumberOfChars )
-    : predictiveString( aPredictiveString ),
-      eventName( aEventName ),
-      cursorOffset( aCursorOffset ),
-      numberOfChars( aNumberOfChars )
+    EventData(EventType aEventName, const std::string& aPredictiveString, int aCursorOffset, int aNumberOfChars)
+    : predictiveString(aPredictiveString),
+      eventName(aEventName),
+      cursorOffset(aCursorOffset),
+      numberOfChars(aNumberOfChars)
     {
     }
 
     // Data
     std::string predictiveString; ///< The pre-edit or commit string.
-    EventType eventName;           ///< The name of the event from the InputMethodContext.
-    int cursorOffset;             ///< Start position from the current cursor position to start deleting characters.
-    int numberOfChars;            ///< number of characters to delete from the cursorOffset.
+    EventType   eventName;        ///< The name of the event from the InputMethodContext.
+    int         cursorOffset;     ///< Start position from the current cursor position to start deleting characters.
+    int         numberOfChars;    ///< number of characters to delete from the cursorOffset.
   };
 
   /**
@@ -181,9 +177,9 @@ public:
      */
     CallbackData()
     : currentText(),
-      cursorPosition( 0 ),
-      update( false ),
-      preeditResetRequired( false )
+      cursorPosition(0),
+      update(false),
+      preeditResetRequired(false)
     {
     }
 
@@ -194,33 +190,32 @@ public:
      * @param[in] aCurrentText current text string
      * @param[in] aPreeditResetRequired flag if preedit reset is required.
      */
-    CallbackData( bool aUpdate, int aCursorPosition, const std::string& aCurrentText, bool aPreeditResetRequired )
-    : currentText( aCurrentText ),
-      cursorPosition( aCursorPosition ),
-      update( aUpdate ),
-      preeditResetRequired( aPreeditResetRequired )
+    CallbackData(bool aUpdate, int aCursorPosition, const std::string& aCurrentText, bool aPreeditResetRequired)
+    : currentText(aCurrentText),
+      cursorPosition(aCursorPosition),
+      update(aUpdate),
+      preeditResetRequired(aPreeditResetRequired)
     {
     }
 
-    std::string currentText;      ///< current text string
-    int cursorPosition;           ///< new position of cursor
-    bool update               :1; ///< if cursor position needs to be updated
-    bool preeditResetRequired :1; ///< flag if preedit reset is required.
+    std::string currentText;              ///< current text string
+    int         cursorPosition;           ///< new position of cursor
+    bool        update : 1;               ///< if cursor position needs to be updated
+    bool        preeditResetRequired : 1; ///< flag if preedit reset is required.
   };
 
-  typedef Signal< void (InputMethodContext&) > ActivatedSignalType; ///< Keyboard actived signal
-  typedef Signal< CallbackData ( InputMethodContext&, const EventData& ) > KeyboardEventSignalType; ///< keyboard events
-  typedef Signal< void () > VoidSignalType;
-  typedef Signal< void ( bool ) > StatusSignalType;
-  typedef Signal< void ( KeyboardType ) > KeyboardTypeSignalType; ///< keyboard type
-  typedef Signal< void ( int ) > KeyboardResizedSignalType;  ///< Keyboard resized signal
-  typedef Signal< void ( int ) > LanguageChangedSignalType;  ///< Language changed signal
-  typedef Signal< void ( const std::string&, const std::string&, const std::string& ) > ContentReceivedSignalType; ///< Content received signal
+  typedef Signal<void(InputMethodContext&)>                                        ActivatedSignalType;     ///< Keyboard actived signal
+  typedef Signal<CallbackData(InputMethodContext&, const EventData&)>              KeyboardEventSignalType; ///< keyboard events
+  typedef Signal<void()>                                                           VoidSignalType;
+  typedef Signal<void(bool)>                                                       StatusSignalType;
+  typedef Signal<void(KeyboardType)>                                               KeyboardTypeSignalType;    ///< keyboard type
+  typedef Signal<void(int)>                                                        KeyboardResizedSignalType; ///< Keyboard resized signal
+  typedef Signal<void(int)>                                                        LanguageChangedSignalType; ///< Language changed signal
+  typedef Signal<void(const std::string&, const std::string&, const std::string&)> ContentReceivedSignalType; ///< Content received signal
 
-  using PreEditAttributeDataContainer = Vector< Dali::InputMethodContext::PreeditAttributeData >;
+  using PreEditAttributeDataContainer = Vector<Dali::InputMethodContext::PreeditAttributeData>;
 
 public:
-
   /**
    * @brief Retrieve a handle to the instance of InputMethodContext.
    * @return A handle to the InputMethodContext.
@@ -245,14 +240,14 @@ public:
    *
    * @param[in] actor The actor that uses the new InputMethodContext instance.
    */
-  static InputMethodContext New( Actor actor );
+  static InputMethodContext New(Actor actor);
 
   /**
    * @brief Copy constructor.
    *
    * @param[in] inputMethodContext InputMethodContext to copy. The copied inputMethodContext will point at the same implementation.
    */
- InputMethodContext( const InputMethodContext& inputMethodContext );
+  InputMethodContext(const InputMethodContext& inputMethodContext);
 
   /**
    * @brief Assignment operator.
@@ -260,7 +255,7 @@ public:
    * @param[in] inputMethodContext The InputMethodContext to assign from.
    * @return The updated InputMethodContext.
    */
- InputMethodContext& operator=( const InputMethodContext& inputMethodContext );
+  InputMethodContext& operator=(const InputMethodContext& inputMethodContext);
 
   /**
    * @brief Downcast a handle to InputMethodContext handle.
@@ -271,10 +266,9 @@ public:
    * @param[in] handle Handle to an object.
    * @return Handle to an InputMethodContext or an uninitialized handle.
    */
-  static InputMethodContext DownCast( BaseHandle handle );
+  static InputMethodContext DownCast(BaseHandle handle);
 
 public:
-
   /**
    * @brief Finalize the InputMethodContext.
    *
@@ -310,7 +304,7 @@ public:
    *
    * @param[in] toggle True means that keyboard should be restored after focus lost and regained.
    */
-  void SetRestoreAfterFocusLost( bool toggle );
+  void SetRestoreAfterFocusLost(bool toggle);
 
   /**
    * @brief Send message reset the pred-edit state / InputMethodContext module.
@@ -329,7 +323,7 @@ public:
    *
    * @param[in] cursorPosition position of cursor
    */
-  void SetCursorPosition( unsigned int cursorPosition );
+  void SetCursorPosition(unsigned int cursorPosition);
 
   /**
    * @brief Gets cursor position stored in VirtualKeyboard, this is required by the InputMethodContext.
@@ -343,7 +337,7 @@ public:
    *
    * @param[in] text The text string surrounding the current cursor point.
    */
-  void SetSurroundingText( const std::string& text );
+  void SetSurroundingText(const std::string& text);
 
   /**
    * @brief Gets current text string set within the InputMethodContext manager, this is used to offer predictive suggestions.
@@ -357,7 +351,7 @@ public:
  *
  * @param[in] multiLine True if multiline text input is used
  */
-  void NotifyTextInputMultiLine( bool multiLine );
+  void NotifyTextInputMultiLine(bool multiLine);
 
   /**
    * @brief Returns text direction of the keyboard's current input language.
@@ -380,13 +374,13 @@ public:
    * @brief Set one or more of the Input Method options
    * @param[in] options The options to be applied
    */
-  void ApplyOptions( const InputMethodOptions& options );
+  void ApplyOptions(const InputMethodOptions& options);
 
   /**
    * @brief Sets up the input-panel specific data.
    * @param[in] data The specific data to be set to the input panel
    */
-  void SetInputPanelData( const std::string& data );
+  void SetInputPanelData(const std::string& data);
 
   /**
    * @brief Gets the specific data of the current active input panel.
@@ -396,7 +390,7 @@ public:
    * It is just used to get a specific data from the input panel to an application.
    * @param[in] data The specific data to be got from the input panel
    */
-  void GetInputPanelData( std::string& data );
+  void GetInputPanelData(std::string& data);
 
   /**
    * @brief Gets the state of the current active input panel.
@@ -410,13 +404,13 @@ public:
    * The default is true.
    * @param[in] visible True if the return key is visible(enabled), false otherwise.
    */
-  void SetReturnKeyState( bool visible );
+  void SetReturnKeyState(bool visible);
 
   /**
    * @brief Enable to show the input panel automatically when focused.
    * @param[in] enabled If true, the input panel will be shown when focused
    */
-  void AutoEnableInputPanel( bool enabled );
+  void AutoEnableInputPanel(bool enabled);
 
   /**
    * @brief Shows the input panel.
@@ -452,7 +446,7 @@ public:
    * You can receive a media content URI and its MIME type from ContentReceivedSignal(). @see ContentReceivedSignal
    * @param[in] mimeTypes The allowed MIME types
    */
-  void SetContentMIMETypes( const std::string& mimeTypes );
+  void SetContentMIMETypes(const std::string& mimeTypes);
 
   /**
    * @brief Process event key down or up, whether filter a key to isf.
@@ -460,14 +454,14 @@ public:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool FilterEventKey( const Dali::KeyEvent& keyEvent );
+  bool FilterEventKey(const Dali::KeyEvent& keyEvent);
 
   /**
    * @brief Sets whether the IM context should allow to use the text prediction.
    *
    * @param[in] prediction Whether to allow text prediction or not.
    */
-  void AllowTextPrediction( bool prediction );
+  void AllowTextPrediction(bool prediction);
 
   /**
    * @brief Gets whether the IM context allow to use the text prediction.
@@ -482,7 +476,7 @@ public:
    * This method can be used when you want to show the English keyboard.
    * @param[in] language The language to be set to the input panel
    */
-  void SetInputPanelLanguage( InputPanelLanguage language );
+  void SetInputPanelLanguage(InputPanelLanguage language);
 
   /**
    * @brief Gets the language of the input panel.
@@ -497,17 +491,16 @@ public:
    * @param[in] x The top-left x coordinate of the input panel
    * @param[in] y The top-left y coordinate of the input panel
    */
-  void SetInputPanelPosition( unsigned int x, unsigned int y );
+  void SetInputPanelPosition(unsigned int x, unsigned int y);
 
   /**
    * @brief Gets the preedit attributes data.
    *
    * @param[out] attrs The preedit attributes data.
    */
-  void GetPreeditStyle( PreEditAttributeDataContainer& attrs ) const;
+  void GetPreeditStyle(PreEditAttributeDataContainer& attrs) const;
 
 public:
-
   // Signals
 
   /**
@@ -590,17 +583,13 @@ public:
   ContentReceivedSignalType& ContentReceivedSignal();
 
 public:
-
   /**
    * @brief This constructor is used by InputMethodContext::New().
    *
    * @param[in] inputMethodContext A pointer to the InputMethodContext.
    */
-  explicit DALI_INTERNAL InputMethodContext( Internal::Adaptor::InputMethodContext* inputMethodContext );
-
+  explicit DALI_INTERNAL InputMethodContext(Internal::Adaptor::InputMethodContext* inputMethodContext);
 };
-
-
 
 } // namespace Dali
 

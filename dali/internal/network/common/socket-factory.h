@@ -46,19 +46,19 @@ public:
   /**
    * @brief destructor
    */
-  virtual ~SocketFactory()
+  ~SocketFactory() override
   {
   }
 
   /**
    * @copydoc SocketFactoryInterface::NewSocket()
    */
-  virtual SocketInterface* NewSocket( SocketInterface::Protocol protocol  );
+  SocketInterface* NewSocket( SocketInterface::Protocol protocol  ) override;
 
   /**
    * @copydoc SocketFactoryInterface::DestroySocket()
    */
-  virtual void DestroySocket( SocketInterface* socket  );
+  void DestroySocket( SocketInterface* socket  ) override;
 
 };
 

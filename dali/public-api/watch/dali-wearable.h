@@ -2,7 +2,7 @@
 #define DALI_WEARABLE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/watch/watch-application.h>
 #include <dali/public-api/capture/capture.h>
+#include <dali/public-api/watch/watch-application.h>
 
 #endif // DALI_WEARABLE_H

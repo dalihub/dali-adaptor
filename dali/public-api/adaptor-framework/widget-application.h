@@ -30,13 +30,12 @@ namespace Dali
 
 namespace Internal DALI_INTERNAL
 {
-
 namespace Adaptor
 {
 class WidgetApplication;
 }
 
-}
+} // namespace DALI_INTERNAL
 
 class Widget;
 
@@ -103,15 +102,13 @@ class Widget;
 class DALI_ADAPTOR_API WidgetApplication : public Application
 {
 public:
-
   /**
    * @brief This is the typedef for Widget creator.
    * @SINCE_1_3_5
    */
-  typedef Widget(*CreateWidgetFunction)(const std::string&);
+  typedef Widget (*CreateWidgetFunction)(const std::string&);
 
 public:
-
   /**
    * @brief This is the constructor for WidgetApplications with a name.
    *
@@ -122,7 +119,7 @@ public:
    * @return A handle to the WidgetApplication
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
-  static WidgetApplication New( int* argc, char **argv[], const std::string& stylesheet );
+  static WidgetApplication New(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * @brief The default constructor.
@@ -136,7 +133,7 @@ public:
    * @SINCE_1_3_5
    * @param[in] widgetApplication Handle to an object
    */
-  WidgetApplication( const WidgetApplication& widgetApplication );
+  WidgetApplication(const WidgetApplication& widgetApplication);
 
   /**
    * @brief Assignment operator.
@@ -145,7 +142,7 @@ public:
    * @param[in] widgetApplication Handle to an object
    * @return A reference to this
    */
-  WidgetApplication& operator=( const WidgetApplication& widgetApplication );
+  WidgetApplication& operator=(const WidgetApplication& widgetApplication);
 
   /**
    * @brief Move constructor.
@@ -153,7 +150,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  WidgetApplication( WidgetApplication&& rhs );
+  WidgetApplication(WidgetApplication&& rhs);
 
   /**
    * @brief Move assignment operator.
@@ -162,9 +159,9 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  WidgetApplication& operator=( WidgetApplication&& rhs );
+  WidgetApplication& operator=(WidgetApplication&& rhs);
 
- /**
+  /**
    * @brief Destructor
    * @SINCE_1_3_5
    */
@@ -177,7 +174,7 @@ public:
    * @param[in] widgetName  Name of widget
    * @param[in] createFunction     Function pointer for widget creation.
    */
-  void RegisterWidgetCreatingFunction( const std::string& widgetName, CreateWidgetFunction createFunction );
+  void RegisterWidgetCreatingFunction(const std::string& widgetName, CreateWidgetFunction createFunction);
 
 public: // Not intended for application developers
   /// @cond internal

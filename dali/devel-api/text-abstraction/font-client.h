@@ -19,19 +19,17 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/images/pixel-data.h>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/public-api/images/pixel-data.h>
+#include <dali/public-api/object/base-handle.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 struct FontMetrics;
 struct GlyphInfo;
 struct BitmapFont;
@@ -63,8 +61,8 @@ class FontClient;
 class DALI_ADAPTOR_API FontClient : public BaseHandle
 {
 public:
-  static const PointSize26Dot6 DEFAULT_POINT_SIZE; ///< The default point size.
-  static const float DEFAULT_ITALIC_ANGLE;         ///< The default software italic angle in radians.
+  static const PointSize26Dot6 DEFAULT_POINT_SIZE;   ///< The default point size.
+  static const float           DEFAULT_ITALIC_ANGLE; ///< The default software italic angle in radians.
 
   /**
    * @brief Struct used to retrieve the glyph's bitmap.
@@ -83,14 +81,14 @@ public:
      */
     ~GlyphBufferData();
 
-    unsigned char* buffer;          ///< The glyph's bitmap buffer data.
-    unsigned int   width;           ///< The width of the bitmap.
-    unsigned int   height;          ///< The height of the bitmap.
-    int            outlineOffsetX;  ///< The additional horizontal offset to be added for the glyph's position for outline.
-    int            outlineOffsetY;  ///< The additional vertical offset to be added for the glyph's position for outline.
-    Pixel::Format  format;          ///< The pixel's format of the bitmap.
-    bool           isColorEmoji:1;  ///< Whether the glyph is an emoji.
-    bool           isColorBitmap:1; ///< Whether the glyph is a color bitmap.
+    unsigned char* buffer;            ///< The glyph's bitmap buffer data.
+    unsigned int   width;             ///< The width of the bitmap.
+    unsigned int   height;            ///< The height of the bitmap.
+    int            outlineOffsetX;    ///< The additional horizontal offset to be added for the glyph's position for outline.
+    int            outlineOffsetY;    ///< The additional vertical offset to be added for the glyph's position for outline.
+    Pixel::Format  format;            ///< The pixel's format of the bitmap.
+    bool           isColorEmoji : 1;  ///< Whether the glyph is an emoji.
+    bool           isColorBitmap : 1; ///< Whether the glyph is a color bitmap.
   };
 
   /**
@@ -105,7 +103,6 @@ public:
   };
 
 public:
-
   /**
    * @brief Retrieve a handle to the FontClient instance.
    *
@@ -130,7 +127,7 @@ public:
    *
    * @param[in] handle A reference to the copied handle.
    */
-  FontClient( const FontClient& handle );
+  FontClient(const FontClient& handle);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -138,7 +135,7 @@ public:
    * @param [in] handle  A reference to the copied handle.
    * @return A reference to this.
    */
-  FontClient& operator=( const FontClient& handle );
+  FontClient& operator=(const FontClient& handle);
 
   ////////////////////////////////////////
   // Font management and validation.
@@ -157,7 +154,7 @@ public:
    * @param[in] horizontalDpi The horizontal resolution in DPI.
    * @param[in] verticalDpi The vertical resolution in DPI.
    */
-  void SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi );
+  void SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi);
 
   /**
    * @brief Retrieves the DPI previously set to the target window.
@@ -166,7 +163,7 @@ public:
    * @param[out] horizontalDpi The horizontal resolution in DPI.
    * @param[out] verticalDpi The vertical resolution in DPI.
    */
-  void GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi );
+  void GetDpi(unsigned int& horizontalDpi, unsigned int& verticalDpi);
 
   /**
    * @brief Called by Dali to retrieve the default font size for the platform.
@@ -189,21 +186,21 @@ public:
    *
    * @param[out] defaultFonts A list of default font paths, family, width, weight and slant.
    */
-  void GetDefaultFonts( FontList& defaultFonts );
+  void GetDefaultFonts(FontList& defaultFonts);
 
   /**
    * @brief Retrieve the active default font from the system.
    *
    * @param[out] fontDescription font structure describing the default font.
    */
-  void GetDefaultPlatformFontDescription( FontDescription& fontDescription );
+  void GetDefaultPlatformFontDescription(FontDescription& fontDescription);
 
   /**
    * @brief Retrieve the list of fonts supported by the system.
    *
    * @param[out] systemFonts A list of font paths, family, width, weight and slant.
    */
-  void GetSystemFonts( FontList& systemFonts );
+  void GetSystemFonts(FontList& systemFonts);
 
   /**
    * @brief Retrieves the font description of a given font @p id.
@@ -211,7 +208,7 @@ public:
    * @param[in] id The font identifier.
    * @param[out] fontDescription The path, family & style (width, weight and slant) describing the font.
    */
-  void GetDescription( FontId id, FontDescription& fontDescription );
+  void GetDescription(FontId id, FontDescription& fontDescription);
 
   /**
    * @brief Retrieves the font point size of a given font @p id.
@@ -220,7 +217,7 @@ public:
    *
    * @return The point size in 26.6 fractional points.
    */
-  PointSize26Dot6 GetPointSize( FontId id );
+  PointSize26Dot6 GetPointSize(FontId id);
 
   /**
    * @brief Whether the given @p character is supported by the font.
@@ -230,7 +227,7 @@ public:
    *
    * @return @e true if the character is supported by the font.
    */
-  bool IsCharacterSupportedByFont( FontId fontId, Character character );
+  bool IsCharacterSupportedByFont(FontId fontId, Character character);
 
   /**
    * @brief Find the default font for displaying a UTF-32 character.
@@ -244,9 +241,9 @@ public:
    *
    * @return A valid font identifier, or zero if the font does not exist.
    */
-  FontId FindDefaultFont( Character charcode,
-                          PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
-                          bool preferColor = false );
+  FontId FindDefaultFont(Character       charcode,
+                         PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
+                         bool            preferColor        = false);
 
   /**
    * @brief Find a fallback-font for displaying a UTF-32 character.
@@ -262,10 +259,10 @@ public:
    *
    * @return A valid font identifier, or zero if the font does not exist.
    */
-  FontId FindFallbackFont( Character charcode,
-                           const FontDescription& preferredFontDescription,
-                           PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
-                           bool preferColor = false );
+  FontId FindFallbackFont(Character              charcode,
+                          const FontDescription& preferredFontDescription,
+                          PointSize26Dot6        requestedPointSize = DEFAULT_POINT_SIZE,
+                          bool                   preferColor        = false);
 
   /**
    * @brief Retrieve the unique identifier for a font.
@@ -276,9 +273,9 @@ public:
    *
    * @return A valid font identifier, or zero if the font does not exist.
    */
-  FontId GetFontId( const FontPath& path,
-                    PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
-                    FaceIndex faceIndex = 0 );
+  FontId GetFontId(const FontPath& path,
+                   PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
+                   FaceIndex       faceIndex          = 0);
 
   /**
    * @brief Retrieves a unique font identifier for a given description.
@@ -290,9 +287,9 @@ public:
    *
    * @return A valid font identifier, or zero if no font is found.
    */
-  FontId GetFontId( const FontDescription& preferredFontDescription,
-                    PointSize26Dot6 requestedPointSize = DEFAULT_POINT_SIZE,
-                    FaceIndex faceIndex = 0 );
+  FontId GetFontId(const FontDescription& preferredFontDescription,
+                   PointSize26Dot6        requestedPointSize = DEFAULT_POINT_SIZE,
+                   FaceIndex              faceIndex          = 0);
 
   /**
    * @brief Retrieves a unique font identifier for a given bitmap font.
@@ -301,7 +298,7 @@ public:
    *
    * @return A valid font identifier, or zero if no bitmap font is created.
    */
-  FontId GetFontId( const BitmapFont& bitmapFont );
+  FontId GetFontId(const BitmapFont& bitmapFont);
 
   /**
    * @brief Check to see if a font is scalable.
@@ -309,7 +306,7 @@ public:
    * @param[in] path The path to a font file.
    * @return true if scalable.
    */
-  bool IsScalable( const FontPath& path );
+  bool IsScalable(const FontPath& path);
 
   /**
    * @brief Check to see if a font is scalable.
@@ -320,7 +317,7 @@ public:
    *
    * @return true if scalable
    */
-  bool IsScalable( const FontDescription& fontDescription );
+  bool IsScalable(const FontDescription& fontDescription);
 
   /**
    * @brief Get a list of sizes available for a fixed size font.
@@ -328,7 +325,7 @@ public:
    * @param[in] path The path to a font file.
    * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
    */
-  void GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes );
+  void GetFixedSizes(const FontPath& path, Dali::Vector<PointSize26Dot6>& sizes);
 
   /**
    * @brief Get a list of sizes available for a fixed size font.
@@ -338,8 +335,8 @@ public:
    * @param[in] fontDescription A font description.
    * @param[out] sizes A list of the available sizes, if no sizes available will return empty.
    */
-  void GetFixedSizes( const FontDescription& fontDescription,
-                      Dali::Vector< PointSize26Dot6 >& sizes );
+  void GetFixedSizes(const FontDescription&         fontDescription,
+                     Dali::Vector<PointSize26Dot6>& sizes);
 
   /**
    * @brief Whether the font has Italic style.
@@ -348,7 +345,7 @@ public:
    *
    * @return true if the font has italic style.
    */
-  bool HasItalicStyle( FontId fontId ) const;
+  bool HasItalicStyle(FontId fontId) const;
 
   ////////////////////////////////////////
   // Font metrics, glyphs and bitmaps.
@@ -360,7 +357,7 @@ public:
    * @param[in] fontId The identifier of the font for the required glyph.
    * @param[out] metrics The font metrics.
    */
-  void GetFontMetrics( FontId fontId, FontMetrics& metrics );
+  void GetFontMetrics(FontId fontId, FontMetrics& metrics);
 
   /**
    * @brief Retrieve the glyph index for a UTF-32 character code.
@@ -370,7 +367,7 @@ public:
    *
    * @return The glyph index, or zero if the character code is undefined.
    */
-  GlyphIndex GetGlyphIndex( FontId fontId, Character charcode );
+  GlyphIndex GetGlyphIndex(FontId fontId, Character charcode);
 
   /**
    * @brief Retrieve the metrics for a series of glyphs.
@@ -384,7 +381,7 @@ public:
    *
    * @return @e true if all of the requested metrics were found.
    */
-  bool GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true );
+  bool GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal = true);
 
   /**
    * @brief Create a bitmap representation of a glyph.
@@ -398,7 +395,7 @@ public:
    * @param[out] data             The bitmap data.
    * @param[in]  outlineWidth     The width of the glyph outline in pixels.
    */
-  void CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth );
+  void CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth);
 
   /**
    * @brief Create a bitmap representation of a glyph.
@@ -409,7 +406,7 @@ public:
    *
    * @return A valid PixelData, or an empty handle if the glyph could not be rendered.
    */
-  PixelData CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth );
+  PixelData CreateBitmap(FontId fontId, GlyphIndex glyphIndex, int outlineWidth);
 
   /**
    * @brief Create a vector representation of a glyph.
@@ -422,12 +419,12 @@ public:
    * @param[out] nominalWidth The width of the blob.
    * @param[out] nominalHeight The height of the blob.
    */
-  void CreateVectorBlob( FontId fontId,
-                         GlyphIndex glyphIndex,
-                         VectorBlob*& blob,
-                         unsigned int& blobLength,
-                         unsigned int& nominalWidth,
-                         unsigned int& nominalHeight );
+  void CreateVectorBlob(FontId        fontId,
+                        GlyphIndex    glyphIndex,
+                        VectorBlob*&  blob,
+                        unsigned int& blobLength,
+                        unsigned int& nominalWidth,
+                        unsigned int& nominalHeight);
 
   /**
    * @brief Retrieves the ellipsis glyph for a requested point size.
@@ -436,7 +433,7 @@ public:
    *
    * @return The ellipsis glyph.
    */
-  const GlyphInfo& GetEllipsisGlyph( PointSize26Dot6 requestedPointSize );
+  const GlyphInfo& GetEllipsisGlyph(PointSize26Dot6 requestedPointSize);
 
   /**
    * @brief Whether the given glyph @p glyphIndex is a color glyph.
@@ -446,7 +443,7 @@ public:
    *
    * @return @e true if the glyph is a color one.
    */
-  bool IsColorGlyph( FontId fontId, GlyphIndex glyphIndex );
+  bool IsColorGlyph(FontId fontId, GlyphIndex glyphIndex);
 
   /**
    * @brief  Add custom fonts directory
@@ -455,7 +452,7 @@ public:
    *
    * @return true if the fonts can be added.
    */
-  bool AddCustomFontDirectory( const FontPath& path );
+  bool AddCustomFontDirectory(const FontPath& path);
 
   /**
    * @brief Creates and stores an embedded item and it's metrics.
@@ -469,8 +466,7 @@ public:
    *
    * return The index within the vector of embedded items.
    */
-  GlyphIndex CreateEmbeddedItem( const EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
-
+  GlyphIndex CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
 
 public: // Not intended for application developers
   /**
@@ -478,7 +474,7 @@ public: // Not intended for application developers
    *
    * @param[in] fontClient  A pointer to the internal fontClient object.
    */
-  explicit DALI_INTERNAL FontClient( Internal::FontClient* fontClient );
+  explicit DALI_INTERNAL FontClient(Internal::FontClient* fontClient);
 };
 
 /**

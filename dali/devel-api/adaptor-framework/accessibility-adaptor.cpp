@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 AccessibilityAdaptor::AccessibilityAdaptor()
 {
 }
@@ -72,7 +71,7 @@ bool AccessibilityAdaptor::HandleActionActivateEvent()
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionActivateEvent();
 }
 
-bool AccessibilityAdaptor::HandleActionReadEvent(unsigned int x, unsigned int y,  bool allowReadAgain)
+bool AccessibilityAdaptor::HandleActionReadEvent(unsigned int x, unsigned int y, bool allowReadAgain)
 {
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionReadEvent(x, y, allowReadAgain);
 }
@@ -187,13 +186,13 @@ bool AccessibilityAdaptor::HandleActionStartStopEvent()
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionStartStopEvent();
 }
 
-AccessibilityAdaptor::AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor& manager )
-: BaseHandle( &manager )
+AccessibilityAdaptor::AccessibilityAdaptor(Internal::Adaptor::AccessibilityAdaptor& manager)
+: BaseHandle(&manager)
 {
 }
 
-AccessibilityAdaptor::AccessibilityAdaptor( Internal::Adaptor::AccessibilityAdaptor* manager )
-: BaseHandle( manager )
+AccessibilityAdaptor::AccessibilityAdaptor(Internal::Adaptor::AccessibilityAdaptor* manager)
+: BaseHandle(manager)
 {
 }
 

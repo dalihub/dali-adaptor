@@ -2,7 +2,7 @@
 #define DALI_INTEGRAION_ACCESSIBILITY_GESTURE_STRUCTS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 
 namespace Dali
 {
-
 struct AccessibilityGestureEvent
 {
   // Construction & Destruction
@@ -77,11 +76,12 @@ struct AccessibilityGestureEvent
    * @param[in]  state  The state of the gesture
    */
   AccessibilityGestureEvent(AccessibilityGestureEvent::State state)
-  : timeDelta( 0 ),
-  numberOfTouches( 0 ),
-  state( state ),
-  time( 0 )
-  {}
+  : timeDelta(0),
+    numberOfTouches(0),
+    state(state),
+    time(0)
+  {
+  }
 };
 
 } // namespace Dali

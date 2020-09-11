@@ -1,7 +1,7 @@
 #ifndef DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 #define DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace AtspiAccessibility
  * Callback can be one of the following signals:
  * ReadingCancelled, ReadingStopped, ReadingSkipped
  */
-DALI_ADAPTOR_API void Say( const std::string &text, bool discardable, std::function<void(std::string)> callback );
+DALI_ADAPTOR_API void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback);
 
 /**
  * @brief Force accessibility client to pause.
@@ -56,7 +56,7 @@ DALI_ADAPTOR_API void Resume();
  * @return The status of ATSPI : 0(ATSPI OFF, ScreenReader OFF), 1(ATSPI ON, ScreenReader OFF),
  * 2 (ATSPI OFF, ScreenReader ON), 3(ATSPI ON, ScreenReader ON)
  */
-DALI_ADAPTOR_API int SetForcefully( bool turnOn );
+DALI_ADAPTOR_API int SetForcefully(bool turnOn);
 
 /**
  * @brief Get ATSPI status.

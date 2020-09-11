@@ -2,7 +2,7 @@
 #define DALI_KEYBOARD_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ namespace Dali
  */
 namespace Keyboard
 {
-
 /**
  * @brief Sets keyboard repeat information.
  *
@@ -41,8 +40,7 @@ namespace Keyboard
  * @param[in] delay The key repeat delay value in seconds
  * @return true if setting the keyboard repeat succeeds
  */
-DALI_ADAPTOR_API bool SetRepeatInfo( float rate, float delay );
-
+DALI_ADAPTOR_API bool SetRepeatInfo(float rate, float delay);
 
 /**
  * @brief Gets keyboard repeat information.
@@ -51,7 +49,7 @@ DALI_ADAPTOR_API bool SetRepeatInfo( float rate, float delay );
  * @param[in] delay The key repeat delay value in seconds
  * @return true if getting the keyboard repeat succeeds, false otherwise
  */
-DALI_ADAPTOR_API bool GetRepeatInfo( float& rate, float& delay );
+DALI_ADAPTOR_API bool GetRepeatInfo(float& rate, float& delay);
 
 } // namespace Keyboard
 

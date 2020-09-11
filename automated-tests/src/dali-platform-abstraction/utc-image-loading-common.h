@@ -17,13 +17,13 @@
 
 #ifndef DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H
 #define DALI_TEST_SUITE_IMAGE_LOADING_COMMON_H
-#include <unistd.h>
-#include <iostream>
-#include <stdlib.h>
-#include <ctime>
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <ctime>
+#include <iostream>
 
 using namespace Dali;
 using namespace Dali::Integration;
@@ -59,20 +59,19 @@ const char* const VALID_IMAGES[] = {
   TEST_IMAGE_DIR "/fractal-compressed-ETC1_RGB8_OES-45x80.ktx",
   TEST_IMAGE_DIR "/fractal-compressed-RGBA_ASTC_4x4_KHR-32x64.astc",
   TEST_IMAGE_DIR "/test-image-4x4-32bpp.ico",
-  TEST_IMAGE_DIR "/test-image.wbmp"
-};
+  TEST_IMAGE_DIR "/test-image.wbmp"};
 const unsigned NUM_VALID_IMAGES = sizeof(VALID_IMAGES) / sizeof(VALID_IMAGES[0]);
 
-} // anon namespace
+} // namespace
 
 /** Live platform abstraction recreated for each test case. */
 extern TizenPlatform::TizenPlatformAbstraction* gAbstraction;
 
 /** A variety of parameters to reach different code paths in the image loading. */
 typedef std::pair<ImageDimensions, std::pair<FittingMode::Type, std::pair<SamplingMode::Type, bool> > > ImageParameters;
-extern std::vector<ImageParameters> gCancelAttributes;
+extern std::vector<ImageParameters>                                                                     gCancelAttributes;
 
-double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction ); ///< Returns elapsed milliseconds.
+double GetTimeMilliseconds(Integration::PlatformAbstraction& abstraction); ///< Returns elapsed milliseconds.
 
 void utc_dali_loading_startup(void);
 void utc_dali_loading_cleanup(void);

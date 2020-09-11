@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 PhysicalKeyboard::PhysicalKeyboard()
 {
 }
@@ -38,7 +37,7 @@ PhysicalKeyboard PhysicalKeyboard::Get()
   PhysicalKeyboard handle = Internal::Adaptor::PhysicalKeyboard::Get();
 
   // If it's not been created then create one
-  if ( !handle )
+  if(!handle)
   {
     handle = Internal::Adaptor::PhysicalKeyboard::New();
   }
@@ -48,15 +47,15 @@ PhysicalKeyboard PhysicalKeyboard::Get()
 
 bool PhysicalKeyboard::IsAttached() const
 {
-  return GetImplementation( *this ).IsAttached();
+  return GetImplementation(*this).IsAttached();
 }
 
 PhysicalKeyboard::PhysicalKeyboardSignalType& PhysicalKeyboard::StatusChangedSignal()
 {
-  return GetImplementation( *this ).StatusChangedSignal();
+  return GetImplementation(*this).StatusChangedSignal();
 }
 
-PhysicalKeyboard::PhysicalKeyboard( Internal::Adaptor::PhysicalKeyboard *impl )
+PhysicalKeyboard::PhysicalKeyboard(Internal::Adaptor::PhysicalKeyboard* impl)
 : BaseHandle(impl)
 {
 }

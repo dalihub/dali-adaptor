@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 LifecycleController::LifecycleController()
 {
 }
@@ -74,7 +73,7 @@ LifecycleController::LifecycleSignalType& LifecycleController::LanguageChangedSi
 
 LifecycleController& LifecycleController::operator=(const LifecycleController& monitor)
 {
-  if( *this != monitor )
+  if(*this != monitor)
   {
     BaseHandle::operator=(monitor);
   }

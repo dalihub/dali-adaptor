@@ -2,7 +2,7 @@
 #define DALI_SOUND_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class SoundPlayer;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Plays sound effects.
@@ -42,8 +41,7 @@ class SoundPlayer;
 class DALI_ADAPTOR_API SoundPlayer : public BaseHandle
 {
 public:
-
-  typedef Signal< void (SoundPlayer&) > SoundPlayFinishedSignalType; ///< Sound play finished signal
+  typedef Signal<void(SoundPlayer&)> SoundPlayFinishedSignalType; ///< Sound play finished signal
 
   /**
    * @brief Create an uninitialized handle.
@@ -94,13 +92,12 @@ public:
   SoundPlayFinishedSignalType& SoundPlayFinishedSignal();
 
 public: // Not intended for application developers
-
   /**
    * @brief This constructor is used by SoundPlayer::Get().
    *
    * @param[in] soundPlayer A pointer to the sound player.
    */
-  explicit DALI_INTERNAL SoundPlayer( Internal::Adaptor::SoundPlayer* soundPlayer );
+  explicit DALI_INTERNAL SoundPlayer(Internal::Adaptor::SoundPlayer* soundPlayer);
 };
 
 } // namespace Dali

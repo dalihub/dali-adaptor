@@ -228,7 +228,7 @@ protected:
   /**
    * Destructor.
    */
-  virtual ~AccessibilityAdaptor();
+  ~AccessibilityAdaptor() override;
 
 private:
 

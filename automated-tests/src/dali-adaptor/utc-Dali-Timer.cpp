@@ -15,13 +15,13 @@
  *
  */
 
-#include <iostream>
-#include <stdlib.h>
-#include <stdint.h>
+#include <adaptor-test-application.h>
+#include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/internal/system/linux/dali-ecore.h>
-#include <dali-test-suite-utils.h>
-#include <adaptor-test-application.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <iostream>
 
 using namespace Dali;
 
@@ -37,46 +37,44 @@ void utc_dali_timer_cleanup(void)
 
 namespace
 {
-bool ecore_timer_running = false;
-Ecore_Task_Cb timer_callback_func=NULL;
-const void* timer_callback_data=NULL;
-bool main_loop_can_run = false;
-intptr_t timerId = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
-}// anon namespace
+bool          ecore_timer_running = false;
+Ecore_Task_Cb timer_callback_func = NULL;
+const void*   timer_callback_data = NULL;
+bool          main_loop_can_run   = false;
+intptr_t      timerId             = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_timer_add below without compilation warnings
+} // namespace
 
 extern "C"
 {
-Ecore_Timer* ecore_timer_add(double in,
-                             Ecore_Task_Cb func,
-                             const void   *data)
-{
-  ecore_timer_running = true;
-  timer_callback_func = func;
-  timer_callback_data = data;
-  timerId+=8;
-  return (Ecore_Timer*)timerId;
-}
+  Ecore_Timer* ecore_timer_add(double        in,
+                               Ecore_Task_Cb func,
+                               const void*   data)
+  {
+    ecore_timer_running = true;
+    timer_callback_func = func;
+    timer_callback_data = data;
+    timerId += 8;
+    return (Ecore_Timer*)timerId;
+  }
 
-void* ecore_timer_del(Ecore_Timer *timer)
-{
-  ecore_timer_running = false;
-  timer_callback_func = NULL;
-  return NULL;
-}
-
+  void* ecore_timer_del(Ecore_Timer* timer)
+  {
+    ecore_timer_running = false;
+    timer_callback_func = NULL;
+    return NULL;
+  }
 }
 
 namespace
 {
-
 void test_ecore_main_loop_begin()
 {
   if(timer_callback_func != NULL)
   {
     main_loop_can_run = true;
-    while( main_loop_can_run )
+    while(main_loop_can_run)
     {
-      if( ! timer_callback_func(const_cast<void*>(timer_callback_data)) )
+      if(!timer_callback_func(const_cast<void*>(timer_callback_data)))
         break;
     }
   }
@@ -85,9 +83,8 @@ void test_ecore_main_loop_begin()
 void test_ecore_main_loop_quit()
 {
   timer_callback_func = NULL;
-  main_loop_can_run = false;
+  main_loop_can_run   = false;
 }
-
 
 /**
  * small class to test timer signal
@@ -95,8 +92,11 @@ void test_ecore_main_loop_quit()
 class TimerTestClass : public ConnectionTracker
 {
 public:
-
-  TimerTestClass(bool repeat):mTimerCalled(false),mReturnContiune(repeat) {}
+  TimerTestClass(bool repeat)
+  : mTimerCalled(false),
+    mReturnContiune(repeat)
+  {
+  }
 
   bool Tick()
   {
@@ -108,11 +108,9 @@ public:
   }
   bool mTimerCalled;    // whether tick has been called or not
   bool mReturnContiune; // whether to return true / false to continue
-
 };
 
-} // anon namespace
-
+} // namespace
 
 // Positive test case for a method
 int UtcDaliTimerCreation(void)
@@ -122,9 +120,9 @@ int UtcDaliTimerCreation(void)
   tet_printf("timer creation \n");
   Timer timer = Timer::New(300);
 
-  DALI_TEST_CHECK( timer );
+  DALI_TEST_CHECK(timer);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 300);
+  DALI_TEST_CHECK(timer.GetInterval() == 300);
 
   END_TEST;
 }
@@ -135,7 +133,7 @@ int UtcDaliTimerUnitializedStart(void)
 
   tet_printf("unintialized timer start \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -155,7 +153,7 @@ int UtcDaliTimerUnitializedStop(void)
 
   tet_printf("unintialized timer stop \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -175,7 +173,7 @@ int UtcDaliTimerUnitializedGetInterval(void)
 
   tet_printf("unintialized get interval \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -195,7 +193,7 @@ int UtcDaliTimerUnitializedSetInterval(void)
 
   tet_printf("unintialized set interval \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -215,7 +213,7 @@ int UtcDaliTimerUnitializedIsRunning(void)
 
   tet_printf("unintialized is running \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
@@ -229,19 +227,18 @@ int UtcDaliTimerUnitializedIsRunning(void)
   END_TEST;
 }
 
-
 int UtcDaliTimerUnitializedSignalTick(void)
 {
   AdaptorTestApplication application;
 
   tet_printf("unintialized SignalTick \n");
 
-  Timer *timer = new Timer;
+  Timer* timer = new Timer;
   DALI_TEST_CHECK(timer != NULL);
 
   try
   {
-    TimerTestClass testClass(true);// = new TimerTestClass(true);
+    TimerTestClass testClass(true); // = new TimerTestClass(true);
 
     timer->TickSignal().Connect(&testClass, &TimerTestClass::Tick);
   }
@@ -259,11 +256,11 @@ int UtcDaliTimerSetInterval(void)
   tet_printf("timer set interval \n");
   Timer timer = Timer::New(10);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 10);
+  DALI_TEST_CHECK(timer.GetInterval() == 10);
 
   timer.SetInterval(5000);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 5000);
+  DALI_TEST_CHECK(timer.GetInterval() == 5000);
 
   END_TEST;
 }
@@ -276,13 +273,13 @@ int UtcDaliTimerSetInterval02(void)
   Timer timer = Timer::New(10);
   timer.SetInterval(20);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 20 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
+  DALI_TEST_CHECK(timer.GetInterval() == 20);
+  DALI_TEST_CHECK(timer.IsRunning() == true);
 
   timer.SetInterval(5000, false);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 5000 );
-  DALI_TEST_CHECK( timer.IsRunning() == false );
+  DALI_TEST_CHECK(timer.GetInterval() == 5000);
+  DALI_TEST_CHECK(timer.IsRunning() == false);
 
   END_TEST;
 }
@@ -295,13 +292,13 @@ int UtcDaliTimerSetInterval03(void)
   Timer timer = Timer::New(10);
   timer.SetInterval(20);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 20 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
+  DALI_TEST_CHECK(timer.GetInterval() == 20);
+  DALI_TEST_CHECK(timer.IsRunning() == true);
 
   timer.SetInterval(5000, true);
 
-  DALI_TEST_CHECK( timer.GetInterval() == 5000 );
-  DALI_TEST_CHECK( timer.IsRunning() == true );
+  DALI_TEST_CHECK(timer.GetInterval() == 5000);
+  DALI_TEST_CHECK(timer.IsRunning() == true);
 
   END_TEST;
 }
@@ -313,9 +310,9 @@ int UtcDaliTimerCopyConstructor(void)
   tet_printf("timer copy constructor \n");
   Timer timer = Timer::New(10);
 
-  Timer anotherTimer( timer );
+  Timer anotherTimer(timer);
 
-  DALI_TEST_CHECK( anotherTimer.GetInterval() == 10);
+  DALI_TEST_CHECK(anotherTimer.GetInterval() == 10);
   END_TEST;
 }
 
@@ -327,14 +324,14 @@ int UtcDaliTimerAssignmentOperator(void)
 
   Timer timer = Timer::New(10);
 
-  DALI_TEST_CHECK( timer );
+  DALI_TEST_CHECK(timer);
 
   Timer anotherTimer = Timer::New(40);
 
   DALI_TEST_CHECK(anotherTimer.GetInterval() == 40);
 
-  tet_printf("timer 1 interval %d, \n",anotherTimer.GetInterval());
-  tet_printf("timer 2 interval %d, \n",timer.GetInterval());
+  tet_printf("timer 1 interval %d, \n", anotherTimer.GetInterval());
+  tet_printf("timer 2 interval %d, \n", timer.GetInterval());
 
   DALI_TEST_CHECK(timer != anotherTimer);
 
@@ -342,8 +339,8 @@ int UtcDaliTimerAssignmentOperator(void)
 
   DALI_TEST_CHECK(timer == anotherTimer);
 
-  tet_printf("timer 1 interval %d, \n",timer.GetInterval());
-  tet_printf("timer 2 interval %d, \n",anotherTimer.GetInterval());
+  tet_printf("timer 1 interval %d, \n", timer.GetInterval());
+  tet_printf("timer 2 interval %d, \n", anotherTimer.GetInterval());
 
   DALI_TEST_CHECK(timer.GetInterval() == 40);
 
@@ -354,16 +351,16 @@ int UtcDaliTimerMoveConstructor(void)
 {
   AdaptorTestApplication application;
 
-  Timer timer = Timer::New( 40 );
-  DALI_TEST_CHECK( timer );
-  DALI_TEST_EQUALS( 1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( timer.GetInterval() == 40) ;
+  Timer timer = Timer::New(40);
+  DALI_TEST_CHECK(timer);
+  DALI_TEST_EQUALS(1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(timer.GetInterval() == 40);
 
-  Timer moved = std::move( timer );
-  DALI_TEST_CHECK( moved );
-  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( moved.GetInterval() == 40 );
-  DALI_TEST_CHECK( !timer );
+  Timer moved = std::move(timer);
+  DALI_TEST_CHECK(moved);
+  DALI_TEST_EQUALS(1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(moved.GetInterval() == 40);
+  DALI_TEST_CHECK(!timer);
 
   END_TEST;
 }
@@ -372,17 +369,17 @@ int UtcDaliTimerMoveAssignmentr(void)
 {
   AdaptorTestApplication application;
 
-  Timer timer = Timer::New( 40 );
-  DALI_TEST_CHECK( timer );
-  DALI_TEST_EQUALS( 1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( timer.GetInterval() == 40) ;
+  Timer timer = Timer::New(40);
+  DALI_TEST_CHECK(timer);
+  DALI_TEST_EQUALS(1, timer.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(timer.GetInterval() == 40);
 
   Timer moved;
-  moved = std::move( timer );
-  DALI_TEST_CHECK( moved );
-  DALI_TEST_EQUALS( 1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION );
-  DALI_TEST_CHECK( moved.GetInterval() == 40 );
-  DALI_TEST_CHECK( !timer );
+  moved = std::move(timer);
+  DALI_TEST_CHECK(moved);
+  DALI_TEST_EQUALS(1, moved.GetBaseObject().ReferenceCount(), TEST_LOCATION);
+  DALI_TEST_CHECK(moved.GetInterval() == 40);
+  DALI_TEST_CHECK(!timer);
 
   END_TEST;
 }
@@ -397,11 +394,11 @@ int UtcDaliTimerIsRunning(void)
 
   timer.Start();
 
-  DALI_TEST_CHECK( timer.IsRunning() );
+  DALI_TEST_CHECK(timer.IsRunning());
 
   timer.Stop();
 
-  DALI_TEST_CHECK( timer.IsRunning() == false );
+  DALI_TEST_CHECK(timer.IsRunning() == false);
 
   END_TEST;
 }
@@ -412,7 +409,7 @@ int UtcDaliTimerSignalTickContinue(void)
 
   tet_printf("timer call back\n");
 
-  Timer timer = Timer::New(100);
+  Timer          timer = Timer::New(100);
   TimerTestClass testClass(true);
 
   timer.TickSignal().Connect(&testClass, &TimerTestClass::Tick);
@@ -421,7 +418,7 @@ int UtcDaliTimerSignalTickContinue(void)
 
   test_ecore_main_loop_begin();
 
-  DALI_TEST_CHECK( testClass.mTimerCalled );
+  DALI_TEST_CHECK(testClass.mTimerCalled);
 
   END_TEST;
 }
@@ -430,7 +427,7 @@ int UtcDaliTimerSignalTickStop(void)
 {
   AdaptorTestApplication application;
 
-  Timer timer = Timer::New(100);
+  Timer          timer = Timer::New(100);
   TimerTestClass testClass(false);
 
   timer.TickSignal().Connect(&testClass, &TimerTestClass::Tick);
@@ -439,7 +436,7 @@ int UtcDaliTimerSignalTickStop(void)
 
   test_ecore_main_loop_begin();
 
-  DALI_TEST_CHECK( testClass.mTimerCalled );
+  DALI_TEST_CHECK(testClass.mTimerCalled);
 
   END_TEST;
 }
@@ -464,9 +461,9 @@ int UtcDaliTimerDownCastP(void)
   AdaptorTestApplication application;
 
   Timer timer = Timer::New(100);
-  Timer cast = Timer::DownCast( timer );
+  Timer cast  = Timer::DownCast(timer);
 
-  DALI_TEST_CHECK( cast );
+  DALI_TEST_CHECK(cast);
 
   END_TEST;
 }
@@ -476,9 +473,9 @@ int UtcDaliTimerDownCastN(void)
   AdaptorTestApplication application;
 
   Timer timer;
-  Timer cast = Timer::DownCast( timer );
+  Timer cast = Timer::DownCast(timer);
 
-  DALI_TEST_CHECK( ! cast );
+  DALI_TEST_CHECK(!cast);
 
   END_TEST;
 }

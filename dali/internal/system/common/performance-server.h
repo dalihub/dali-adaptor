@@ -65,22 +65,22 @@ public:
   /**
    * @copydoc PerformanceLogger::AddContext()
    */
-  virtual ContextId AddContext( const char* name );
+  ContextId AddContext( const char* name ) override;
 
   /**
    * @copydoc PerformanceLogger::RemoveContext()
    */
-  virtual void RemoveContext( ContextId contextId );
+  void RemoveContext( ContextId contextId ) override;
 
   /**
    * @copydoc PerformanceInterface::AddMarker( MarkerType markerType )
    */
-  virtual void AddMarker( MarkerType markerType );
+  void AddMarker( MarkerType markerType ) override;
 
   /**
    * @copydoc PerformanceLogger::AddMarker( MarkerType markerType, ContextId contextId )
    */
-  virtual void AddMarker( MarkerType markerType, ContextId contextId );
+  void AddMarker( MarkerType markerType, ContextId contextId ) override;
 
   /**
    * @copydoc PerformanceInterface::SetLogging()
@@ -92,19 +92,19 @@ public:
   /**
    * @copydoc PerformanceLogger::SetLoggingFrequency()
    */
-  virtual void SetLoggingFrequency( unsigned int logFrequency, ContextId contextId );
+  void SetLoggingFrequency( unsigned int logFrequency, ContextId contextId ) override;
 
   /**
    * @copydoc PerformanceLogger::EnableLogging()
    */
-  virtual void EnableLogging( bool enable, ContextId contextId );
+  void EnableLogging( bool enable, ContextId contextId ) override;
 
 public: //StatLogInterface
 
   /**
    * @copydoc StatLogInterface::LogContextStatistics()
    */
-  virtual void LogContextStatistics( const char* const text );
+  void LogContextStatistics( const char* const text ) override;
 
 private:
 

@@ -15,11 +15,10 @@
  *
  */
 
+#include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
-#include <dali-test-suite-utils.h>
-
 
 using namespace Dali;
 
@@ -35,45 +34,42 @@ void utc_dali_window_cleanup(void)
 
 namespace
 {
-
 intptr_t screenId = 0; // intptr_t has the same size as a pointer and is platform independent so this can be returned as a pointer in ecore_x_default_screen_get below without compilation warnings
 
 } // unnamed namespace
 
 extern "C"
 {
+  Ecore_X_Screen* ecore_x_default_screen_get(void)
+  {
+    screenId += 8;
+    return (Ecore_X_Screen*)screenId;
+  }
 
-Ecore_X_Screen* ecore_x_default_screen_get(void)
-{
-  screenId += 8;
-  return (Ecore_X_Screen*)screenId;
-}
+  void ecore_x_screen_size_get(const Ecore_X_Screen* screen, int* w, int* h)
+  {
+    *w = 100;
+    *h = 100;
+  }
 
-void ecore_x_screen_size_get(const Ecore_X_Screen *screen, int *w, int *h)
-{
- *w = 100;
- *h = 100;
-}
-
-Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
-{
-  return 0;
-}
-
+  Ecore_X_Window ecore_x_window_argb_new(Ecore_X_Window parent, int x, int y, int w, int h)
+  {
+    return 0;
+  }
 }
 
 int UtcDaliWindowConstructorP(void)
 {
   Dali::Window window;
-  DALI_TEST_CHECK( !window );
+  DALI_TEST_CHECK(!window);
   END_TEST;
 }
 
 int UtcDaliWindowCopyConstructorP(void)
 {
   Dali::Window window;
-  Dali::Window copy( window );
-  DALI_TEST_CHECK( copy == window );
+  Dali::Window copy(window);
+  DALI_TEST_CHECK(copy == window);
 
   END_TEST;
 }
@@ -81,8 +77,8 @@ int UtcDaliWindowCopyConstructorP(void)
 int UtcDaliWindowConstructorFromInternalPointerN(void)
 {
   Internal::Adaptor::Window* internalWindow = NULL;
-  Dali::Window window(internalWindow);
-  DALI_TEST_CHECK( !window ); // Should not reach here!
+  Dali::Window               window(internalWindow);
+  DALI_TEST_CHECK(!window); // Should not reach here!
 
   END_TEST;
 }
@@ -90,10 +86,10 @@ int UtcDaliWindowConstructorFromInternalPointerN(void)
 int UtcDaliWindowAssignmentOperatorP(void)
 {
   const Dali::Window window;
-  Dali::Window copy;
-  DALI_TEST_CHECK( ! copy );
+  Dali::Window       copy;
+  DALI_TEST_CHECK(!copy);
   copy = window;
-  DALI_TEST_CHECK( copy == window );
+  DALI_TEST_CHECK(copy == window);
 
   END_TEST;
 }
@@ -103,7 +99,7 @@ int UtcDaliWindowDestructorP(void)
   Dali::Window* window = new Dali::Window();
   delete window;
 
-  DALI_TEST_CHECK( true );
+  DALI_TEST_CHECK(true);
   END_TEST;
 }
 
@@ -113,26 +109,26 @@ int UtcDaliWindowNewN(void)
   try
   {
     PositionSize windowPosition(0, 0, 0, 0);
-    Dali::Window window = Dali::Window::New( windowPosition, "test-window", true );
+    Dali::Window window = Dali::Window::New(windowPosition, "test-window", true);
 
-    tet_result( TET_FAIL );
+    tet_result(TET_FAIL);
   }
-  catch ( DaliException& e )
+  catch(DaliException& e)
   {
-    DALI_TEST_ASSERT( e, "Failed to create X window", TEST_LOCATION );
+    DALI_TEST_ASSERT(e, "Failed to create X window", TEST_LOCATION);
   }
 
   // Attempt to create a new window
   try
   {
     PositionSize windowPosition(0, 0, 0, 0);
-    Dali::Window window = Dali::Window::New( windowPosition, "test-window", "test-window-class", true );
+    Dali::Window window = Dali::Window::New(windowPosition, "test-window", "test-window-class", true);
 
-    tet_result( TET_FAIL );
+    tet_result(TET_FAIL);
   }
-  catch ( DaliException& e )
+  catch(DaliException& e)
   {
-    DALI_TEST_ASSERT( e, "Failed to create X window", TEST_LOCATION );
+    DALI_TEST_ASSERT(e, "Failed to create X window", TEST_LOCATION);
   }
 
   END_TEST;
@@ -144,11 +140,11 @@ int UtcDaliWindowSetClassN(void)
   try
   {
     window.SetClass("window-name", "window-class");
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -160,11 +156,11 @@ int UtcDaliWindowRaiseN(void)
   try
   {
     window.Raise();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -176,11 +172,11 @@ int UtcDaliWindowLowerN(void)
   try
   {
     window.Lower();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -192,11 +188,11 @@ int UtcDaliWindowActivateN(void)
   try
   {
     window.Activate();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -208,11 +204,11 @@ int UtcDaliWindowAddAvailableOrientationN(void)
   try
   {
     window.AddAvailableOrientation(Dali::Window::PORTRAIT);
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -224,11 +220,11 @@ int UtcDaliWindowRemoveAvailableOrientationN(void)
   try
   {
     window.RemoveAvailableOrientation(Dali::Window::PORTRAIT);
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -240,11 +236,11 @@ int UtcDaliWindowSetPreferredOrientationN(void)
   try
   {
     window.SetPreferredOrientation(Dali::Window::PORTRAIT);
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -256,11 +252,11 @@ int UtcDaliWindowGetPreferredOrientationN(void)
   try
   {
     Dali::Window::WindowOrientation orientation = window.GetPreferredOrientation();
-    DALI_TEST_CHECK( orientation == Dali::Window::PORTRAIT ); // Should not reach here!
+    DALI_TEST_CHECK(orientation == Dali::Window::PORTRAIT); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -272,11 +268,11 @@ int UtcDaliWindowGetNativeHandleN(void)
   try
   {
     Dali::Any handle = window.GetNativeHandle();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -287,12 +283,12 @@ int UtcDaliWindowSetAcceptFocusN(void)
   Dali::Window window;
   try
   {
-    window.SetAcceptFocus( true );
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    window.SetAcceptFocus(true);
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -304,11 +300,11 @@ int UtcDaliWindowIsFocusAcceptableN(void)
   try
   {
     window.IsFocusAcceptable();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;
@@ -320,28 +316,11 @@ int UtcDaliWindowFocusChangeSignalN(void)
   try
   {
     window.FocusChangeSignal();
-    DALI_TEST_CHECK( false ); // Should not reach here!
+    DALI_TEST_CHECK(false); // Should not reach here!
   }
-  catch( ... )
+  catch(...)
   {
-    DALI_TEST_CHECK( true );
-  }
-
-  END_TEST;
-}
-
-int UtcDaliWindowPartialUpdate(void)
-{
-  Dali::Window window;
-  try
-  {
-    std::vector<Rect<int>> damagedAreas;
-    DevelWindow::SetDamagedAreas(window, damagedAreas);
-    DALI_TEST_CHECK( false ); // Should not reach here!
-  }
-  catch( ... )
-  {
-    DALI_TEST_CHECK( true );
+    DALI_TEST_CHECK(true);
   }
 
   END_TEST;

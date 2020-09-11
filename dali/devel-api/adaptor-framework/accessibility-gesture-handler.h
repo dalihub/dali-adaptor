@@ -2,7 +2,7 @@
 #define DALI_ACCESSIBILITY_GESTURE_HANDLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 /**
  * AccessibilityGestureHandler is an interface used by Dali to handle accessibility gestures
  * passed by the accessibility manager.
@@ -31,13 +30,12 @@ namespace Dali
 class AccessibilityGestureHandler
 {
 public:
-
   /**
    * Handle the accessibility pan gesture.
    * @param[in]  panEvent  The pan event to be handled.
    * @return whether the gesture is handled successfully or not.
    */
-  virtual bool HandlePanGesture( const AccessibilityGestureEvent& panEvent ) = 0;
+  virtual bool HandlePanGesture(const AccessibilityGestureEvent& panEvent) = 0;
 
 }; // class AccessibilityGestureHandler
 

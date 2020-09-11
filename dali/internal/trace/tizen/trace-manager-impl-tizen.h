@@ -51,7 +51,7 @@ protected:
   /**
    * Obtain the LogContextFunction method (Tizen specific) used for tracing
    */
-  virtual Dali::Integration::Trace::LogContextFunction GetLogContextFunction() final;
+  Dali::Integration::Trace::LogContextFunction GetLogContextFunction() final;
 
 private:
 

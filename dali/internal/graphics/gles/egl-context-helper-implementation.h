@@ -66,17 +66,17 @@ public:
   /**
    * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeSurfacelessContextCurrent()
    */
-  virtual void MakeSurfacelessContextCurrent() override;
+  void MakeSurfacelessContextCurrent() override;
 
   /**
    * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeContextNull()
    */
-  virtual void MakeContextNull() override;
+  void MakeContextNull() override;
 
   /**
    * @copydoc Dali::Integration::GlContextHelperAbstraction::WaitClient()
    */
-  virtual void WaitClient() override;
+  void WaitClient() override;
 
 private:
 

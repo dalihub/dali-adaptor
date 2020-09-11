@@ -20,30 +20,31 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class Adaptor
 {
 public:
   static bool IsAvailable();
   static void SetAvailable();
 
-  Adaptor() {}
-  ~Adaptor() {}
+  Adaptor()
+  {
+  }
+  ~Adaptor()
+  {
+  }
 
 public:
   static bool mAvailable;
 };
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali
 
-#endif  // DALI_ADAPTOR_TEST_ADAPTOR_IMPL_H
+#endif // DALI_ADAPTOR_TEST_ADAPTOR_IMPL_H

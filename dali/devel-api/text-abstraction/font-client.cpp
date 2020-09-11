@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,20 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
-const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE = 768u; // 12*64
-const float FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
+const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE   = 768u;                           // 12*64
+const float           FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
 
 FontClient::GlyphBufferData::GlyphBufferData()
-: buffer{ nullptr },
-  width{ 0u },
-  height{ 0u },
-  outlineOffsetX{ 0 },
-  outlineOffsetY{ 0 },
-  format{ Pixel::A8 },
-  isColorEmoji{ false },
-  isColorBitmap{ false }
+: buffer{nullptr},
+  width{0u},
+  height{0u},
+  outlineOffsetX{0},
+  outlineOffsetY{0},
+  format{Pixel::A8},
+  isColorEmoji{false},
+  isColorBitmap{false}
 {
 }
 
@@ -59,14 +57,14 @@ FontClient::~FontClient()
 {
 }
 
-FontClient::FontClient( const FontClient& handle )
-: BaseHandle( handle )
+FontClient::FontClient(const FontClient& handle)
+: BaseHandle(handle)
 {
 }
 
-FontClient& FontClient::operator=( const FontClient& handle )
+FontClient& FontClient::operator=(const FontClient& handle)
 {
-  BaseHandle::operator=( handle );
+  BaseHandle::operator=(handle);
   return *this;
 }
 
@@ -75,14 +73,14 @@ void FontClient::ClearCache()
   GetImplementation(*this).ClearCache();
 }
 
-void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
+void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
 {
-  GetImplementation(*this).SetDpi( horizontalDpi, verticalDpi );
+  GetImplementation(*this).SetDpi(horizontalDpi, verticalDpi);
 }
 
-void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi )
+void FontClient::GetDpi(unsigned int& horizontalDpi, unsigned int& verticalDpi)
 {
-  GetImplementation(*this).GetDpi( horizontalDpi, verticalDpi );
+  GetImplementation(*this).GetDpi(horizontalDpi, verticalDpi);
 }
 
 int FontClient::GetDefaultFontSize()
@@ -95,150 +93,150 @@ void FontClient::ResetSystemDefaults()
   GetImplementation(*this).ResetSystemDefaults();
 }
 
-void FontClient::GetDefaultFonts( FontList& defaultFonts )
+void FontClient::GetDefaultFonts(FontList& defaultFonts)
 {
-  GetImplementation(*this).GetDefaultFonts( defaultFonts );
+  GetImplementation(*this).GetDefaultFonts(defaultFonts);
 }
 
-void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescription)
 {
-  GetImplementation(*this).GetDefaultPlatformFontDescription( fontDescription );
+  GetImplementation(*this).GetDefaultPlatformFontDescription(fontDescription);
 }
 
-void FontClient::GetSystemFonts( FontList& systemFonts )
+void FontClient::GetSystemFonts(FontList& systemFonts)
 {
-  GetImplementation(*this).GetSystemFonts( systemFonts );
+  GetImplementation(*this).GetSystemFonts(systemFonts);
 }
 
-void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
+void FontClient::GetDescription(FontId id, FontDescription& fontDescription)
 {
-  GetImplementation(*this).GetDescription( id, fontDescription );
+  GetImplementation(*this).GetDescription(id, fontDescription);
 }
 
-PointSize26Dot6 FontClient::GetPointSize( FontId id )
+PointSize26Dot6 FontClient::GetPointSize(FontId id)
 {
-  return GetImplementation(*this).GetPointSize( id );
+  return GetImplementation(*this).GetPointSize(id);
 }
 
-bool FontClient::IsCharacterSupportedByFont( FontId fontId, Character character )
+bool FontClient::IsCharacterSupportedByFont(FontId fontId, Character character)
 {
-  return GetImplementation(*this).IsCharacterSupportedByFont( fontId, character );
+  return GetImplementation(*this).IsCharacterSupportedByFont(fontId, character);
 }
 
-FontId FontClient::FindDefaultFont( Character charcode,
-                                    PointSize26Dot6 requestedPointSize,
-                                    bool preferColor )
+FontId FontClient::FindDefaultFont(Character       charcode,
+                                   PointSize26Dot6 requestedPointSize,
+                                   bool            preferColor)
 {
-  return GetImplementation(*this).FindDefaultFont( charcode,
-                                                   requestedPointSize,
-                                                   preferColor );
+  return GetImplementation(*this).FindDefaultFont(charcode,
+                                                  requestedPointSize,
+                                                  preferColor);
 }
 
-FontId FontClient::FindFallbackFont( Character charcode,
-                                     const FontDescription& preferredFontDescription,
-                                     PointSize26Dot6 requestedPointSize,
-                                     bool preferColor )
+FontId FontClient::FindFallbackFont(Character              charcode,
+                                    const FontDescription& preferredFontDescription,
+                                    PointSize26Dot6        requestedPointSize,
+                                    bool                   preferColor)
 {
-  return GetImplementation(*this).FindFallbackFont( charcode, preferredFontDescription, requestedPointSize, preferColor );
+  return GetImplementation(*this).FindFallbackFont(charcode, preferredFontDescription, requestedPointSize, preferColor);
 }
 
-FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+FontId FontClient::GetFontId(const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex)
 {
-  return GetImplementation(*this).GetFontId( path, requestedPointSize, faceIndex );
+  return GetImplementation(*this).GetFontId(path, requestedPointSize, faceIndex);
 }
 
-FontId FontClient::GetFontId( const FontDescription& fontDescription,
-                              PointSize26Dot6 requestedPointSize,
-                              FaceIndex faceIndex )
+FontId FontClient::GetFontId(const FontDescription& fontDescription,
+                             PointSize26Dot6        requestedPointSize,
+                             FaceIndex              faceIndex)
 {
-  return GetImplementation(*this).GetFontId( fontDescription,
-                                             requestedPointSize,
-                                             faceIndex );
+  return GetImplementation(*this).GetFontId(fontDescription,
+                                            requestedPointSize,
+                                            faceIndex);
 }
 
-FontId FontClient::GetFontId( const BitmapFont& bitmapFont )
+FontId FontClient::GetFontId(const BitmapFont& bitmapFont)
 {
-  return GetImplementation(*this).GetFontId( bitmapFont );
+  return GetImplementation(*this).GetFontId(bitmapFont);
 }
 
-bool FontClient::IsScalable( const FontPath& path )
+bool FontClient::IsScalable(const FontPath& path)
 {
-  return GetImplementation(*this).IsScalable( path );
+  return GetImplementation(*this).IsScalable(path);
 }
 
-bool FontClient::IsScalable( const FontDescription& fontDescription )
+bool FontClient::IsScalable(const FontDescription& fontDescription)
 {
-  return GetImplementation(*this).IsScalable( fontDescription );
+  return GetImplementation(*this).IsScalable(fontDescription);
 }
 
-void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+void FontClient::GetFixedSizes(const FontPath& path, Dali::Vector<PointSize26Dot6>& sizes)
 {
-  GetImplementation(*this).GetFixedSizes( path, sizes );
+  GetImplementation(*this).GetFixedSizes(path, sizes);
 }
 
-void FontClient::GetFixedSizes( const FontDescription& fontDescription,
-                                Dali::Vector< PointSize26Dot6 >& sizes )
+void FontClient::GetFixedSizes(const FontDescription&         fontDescription,
+                               Dali::Vector<PointSize26Dot6>& sizes)
 {
-  GetImplementation(*this).GetFixedSizes( fontDescription, sizes );
+  GetImplementation(*this).GetFixedSizes(fontDescription, sizes);
 }
 
-bool FontClient::HasItalicStyle( FontId fontId ) const
+bool FontClient::HasItalicStyle(FontId fontId) const
 {
-  return GetImplementation(*this).HasItalicStyle( fontId );
+  return GetImplementation(*this).HasItalicStyle(fontId);
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+void FontClient::GetFontMetrics(FontId fontId, FontMetrics& metrics)
 {
-  GetImplementation(*this).GetFontMetrics( fontId, metrics );
+  GetImplementation(*this).GetFontMetrics(fontId, metrics);
 }
 
-GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
+GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode)
 {
-  return GetImplementation(*this).GetGlyphIndex( fontId, charcode );
+  return GetImplementation(*this).GetGlyphIndex(fontId, charcode);
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal )
+bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal)
 {
-  return GetImplementation(*this).GetGlyphMetrics( array, size, type, horizontal );
+  return GetImplementation(*this).GetGlyphMetrics(array, size, type, horizontal);
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, GlyphBufferData& data, int outlineWidth)
 {
-  GetImplementation(*this).CreateBitmap( fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth );
+  GetImplementation(*this).CreateBitmap(fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth);
 }
 
-PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
+PixelData FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, int outlineWidth)
 {
-  return GetImplementation(*this).CreateBitmap( fontId, glyphIndex, outlineWidth );
+  return GetImplementation(*this).CreateBitmap(fontId, glyphIndex, outlineWidth);
 }
 
-void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
+void FontClient::CreateVectorBlob(FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight)
 {
-  GetImplementation(*this).CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
+  GetImplementation(*this).CreateVectorBlob(fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight);
 }
 
-const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
+const GlyphInfo& FontClient::GetEllipsisGlyph(PointSize26Dot6 requestedPointSize)
 {
-  return GetImplementation(*this).GetEllipsisGlyph( requestedPointSize );
+  return GetImplementation(*this).GetEllipsisGlyph(requestedPointSize);
 }
 
-bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
+bool FontClient::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex)
 {
-  return GetImplementation(*this).IsColorGlyph( fontId, glyphIndex );
+  return GetImplementation(*this).IsColorGlyph(fontId, glyphIndex);
 }
 
-bool FontClient::AddCustomFontDirectory( const FontPath& path )
+bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
-  return GetImplementation(*this).AddCustomFontDirectory( path );
+  return GetImplementation(*this).AddCustomFontDirectory(path);
 }
 
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
-  return GetImplementation(*this).CreateEmbeddedItem( description, pixelFormat);
+  return GetImplementation(*this).CreateEmbeddedItem(description, pixelFormat);
 }
 
-FontClient::FontClient( Internal::FontClient* internal )
-: BaseHandle( internal )
+FontClient::FontClient(Internal::FontClient* internal)
+: BaseHandle(internal)
 {
 }
 

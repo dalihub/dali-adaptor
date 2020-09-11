@@ -2,7 +2,7 @@
 #define DALI_ORIENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/signals/dali-signal.h>
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class Orientation;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Orientation allows the user to determine the orientation of the device.
@@ -46,8 +45,7 @@ class Orientation;
 class DALI_ADAPTOR_API Orientation : public BaseHandle
 {
 public:
-
-  typedef Signal< void (Orientation) > OrientationSignalType; ///< Orientation changed signal type
+  typedef Signal<void(Orientation)> OrientationSignalType; ///< Orientation changed signal type
 
   /**
    * @brief Create an unintialized handle.
@@ -114,7 +112,7 @@ public: // Not intended for application developers
    *
    * @param[in] orientation A pointer to the orientation object
    */
-  explicit DALI_INTERNAL Orientation( Internal::Adaptor::Orientation* orientation );
+  explicit DALI_INTERNAL Orientation(Internal::Adaptor::Orientation* orientation);
 };
 
 } // namespace Dali

@@ -73,7 +73,7 @@ public:
   /**
    * Install the log function for the current thread.
    */
-  virtual void InstallLogFunction() const;
+  void InstallLogFunction() const override;
 
   /**
    * Un-install the log function for the current thread.

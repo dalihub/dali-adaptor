@@ -27,14 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class LifecycleController;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Provides application lifecycle events.
@@ -58,12 +57,10 @@ class LifecycleController;
  */
 class DALI_ADAPTOR_API LifecycleController : public BaseHandle
 {
-public: // Typedefs
-
-  typedef Signal< void (void) > LifecycleSignalType;   ///< Lifecycle Signal type
+public:                                           // Typedefs
+  typedef Signal<void(void)> LifecycleSignalType; ///< Lifecycle Signal type
 
 public: // Creation & Destruction
-
   /**
    * @brief Create an uninitialized LifecycleController handle.
    *
@@ -93,7 +90,6 @@ public: // Creation & Destruction
   ~LifecycleController();
 
 public: // Signals
-
   /**
    * The user should connect to this signal to determine when they should initialise
    * their application.
@@ -129,7 +125,6 @@ public: // Signals
   LifecycleSignalType& LanguageChangedSignal();
 
 public: // Operators
-
   /**
    * @brief Assignment operator.
    *
