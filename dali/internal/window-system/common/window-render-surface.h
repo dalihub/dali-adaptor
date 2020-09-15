@@ -299,7 +299,6 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  bool                            mDefaultScreenRotationAvailable;
 
   uint32_t                        mDpiHorizontal;
   uint32_t                        mDpiVertical;
