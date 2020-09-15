@@ -96,10 +96,10 @@ thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer
 
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions );
+  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions, threadMode );
   adaptor->mImpl = impl;
 
   Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder();
@@ -114,15 +114,15 @@ Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::Render
 Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( window, windowImpl.GetSurface(), environmentOptions );
+  Dali::Adaptor* adaptor = New( window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL );
   windowImpl.SetAdaptor( *adaptor );
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions ); // Impl adaptor
+  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions, threadMode ); // Impl adaptor
   adaptor->mImpl = impl;
 
   impl->Initialize( graphicsFactory );
@@ -133,7 +133,7 @@ Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration
 Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( graphicsFactory, window, windowImpl.GetSurface(), environmentOptions );
+  Dali::Adaptor* adaptor = New( graphicsFactory, window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL );
   windowImpl.SetAdaptor( *adaptor );
   return adaptor;
 } // Called first
@@ -1177,7 +1177,7 @@ Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
   return registry;
 }
 
-Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions)
+Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mWindowCreatedSignal(),
@@ -1203,7 +1203,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mSystemTracer(),
   mObjectProfiler( nullptr ),
   mSocketFactory(),
-  mThreadMode( ThreadMode::NORMAL ),
+  mThreadMode( threadMode ),
   mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
   mUseRemoteSurface( false ),
   mRootLayoutDirection( Dali::LayoutDirection::LEFT_TO_RIGHT )
