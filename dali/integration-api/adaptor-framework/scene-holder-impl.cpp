@@ -199,7 +199,7 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
   mScene.SurfaceReplaced();
 
-  SurfaceResized( false );
+  SurfaceResized();
 
   InitializeDpi();
 
@@ -209,11 +209,10 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   OnSurfaceSet( surface );
 }
 
-void SceneHolder::SurfaceResized( bool forceUpdate )
+void SceneHolder::SurfaceResized()
 {
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  int orientation = mSurface->GetOrientation();
-  mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ), orientation, forceUpdate );
+  mScene.SurfaceResized( static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height ) );
 
   GraphicsInterface& graphics = mAdaptor->GetGraphicsInterface();
   EglGraphics* eglGraphics = static_cast<EglGraphics*>(&graphics);
