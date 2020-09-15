@@ -153,7 +153,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
 void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
-  mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface->GetWindowBase(), *mAdaptor ) );
+  mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface, *mAdaptor ) );
   mEventHandler->AddObserver( *this );
 }
 
