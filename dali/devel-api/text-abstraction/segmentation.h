@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SEGMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,31 +27,25 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal DALI_INTERNAL
 {
-
 class Segmentation;
 
-} // Internal
+} // namespace DALI_INTERNAL
 
-} // TextAbstraction
+} // namespace TextAbstraction
 
 namespace TextAbstraction
 {
-
 /**
  *   Segmentation API
  *
  */
 class DALI_ADAPTOR_API Segmentation : public BaseHandle
 {
-
 public:
-
   /**
    * @brief Create an uninitialized TextAbstraction handle.
    *
@@ -70,7 +64,7 @@ public:
    *
    * @param[in] implementation A pointer to the internal segmentation object.
    */
-  explicit DALI_INTERNAL Segmentation( Internal::Segmentation* implementation );
+  explicit DALI_INTERNAL Segmentation(Internal::Segmentation* implementation);
 
   /**
    * @brief Retrieve a handle to the Segmentation instance.
@@ -99,9 +93,9 @@ public:
    * @param[in] numberOfCharacters The number of characters.
    * @param[out] breakInfo The line break info.
    */
-  void GetLineBreakPositions( const Character* const text,
-                              Length numberOfCharacters,
-                              LineBreakInfo* breakInfo );
+  void GetLineBreakPositions(const Character* const text,
+                             Length                 numberOfCharacters,
+                             LineBreakInfo*         breakInfo);
 
   /**
    * @brief Retrieves the word break info.
@@ -122,9 +116,9 @@ public:
    * @param[in] numberOfCharacters The number of characters.
    * @param[out] breakInfo The word break info.
    */
-  void GetWordBreakPositions( const Character* const text,
-                              Length numberOfCharacters,
-                              WordBreakInfo* breakInfo );
+  void GetWordBreakPositions(const Character* const text,
+                             Length                 numberOfCharacters,
+                             WordBreakInfo*         breakInfo);
 };
 
 } // namespace TextAbstraction

@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_TRIGGER_EVENT_FACTORY_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,11 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 /**
  * @brief Trigger interface factory class
  *
@@ -35,17 +34,15 @@ namespace Dali
 class DALI_ADAPTOR_API TriggerEventFactory
 {
 public:
-
   /**
    * @copydoc TriggerEventFactoryInterface::CreateTriggerEvent
    */
-  static TriggerEventInterface* CreateTriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options );
+  static TriggerEventInterface* CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
 
   /**
    * @copydoc TriggerEventFactoryInterface::DestroyTriggerEvent
    */
-  static void DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface );
-
+  static void DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface);
 };
 
 } // namespace Dali

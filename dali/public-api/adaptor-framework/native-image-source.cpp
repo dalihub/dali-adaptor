@@ -22,16 +22,15 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/imaging/common/native-image-source-impl.h>
 #include <dali/internal/imaging/common/native-image-source-factory.h>
+#include <dali/internal/imaging/common/native-image-source-impl.h>
 
 namespace Dali
 {
-
-NativeImageSourcePtr NativeImageSource::New( unsigned int width, unsigned int height, ColorDepth depth )
+NativeImageSourcePtr NativeImageSource::New(unsigned int width, unsigned int height, ColorDepth depth)
 {
-  Any empty;
-  NativeImageSourcePtr image = new NativeImageSource( width, height, depth, empty );
+  Any                  empty;
+  NativeImageSourcePtr image = new NativeImageSource(width, height, depth, empty);
   return image;
 }
 
@@ -40,30 +39,30 @@ Any NativeImageSource::GetNativeImageSource()
   return mImpl->GetNativeImageSource();
 }
 
-NativeImageSourcePtr NativeImageSource::New( Any nativeImageSource )
+NativeImageSourcePtr NativeImageSource::New(Any nativeImageSource)
 {
   NativeImageSourcePtr image = new NativeImageSource(0, 0, COLOR_DEPTH_DEFAULT, nativeImageSource);
   return image;
 }
 
-bool NativeImageSource::GetPixels( std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const
+bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const
 {
-  return mImpl->GetPixels( pixbuf, width, height, pixelFormat );
+  return mImpl->GetPixels(pixbuf, width, height, pixelFormat);
 }
 
 bool NativeImageSource::EncodeToFile(const std::string& filename) const
 {
-  return mImpl->EncodeToFile( filename );
+  return mImpl->EncodeToFile(filename);
 }
 
-void NativeImageSource::SetSource( Any source )
+void NativeImageSource::SetSource(Any source)
 {
-  mImpl->SetSource( source );
+  mImpl->SetSource(source);
 }
 
-bool NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
+bool NativeImageSource::IsColorDepthSupported(ColorDepth colorDepth)
 {
-  return mImpl->IsColorDepthSupported( colorDepth );
+  return mImpl->IsColorDepthSupported(colorDepth);
 }
 
 bool NativeImageSource::CreateResource()
@@ -131,10 +130,10 @@ NativeImageInterface::Extension* NativeImageSource::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSource::NativeImageSource( unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource )
+NativeImageSource::NativeImageSource(unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl = factory->CreateNativeImageSource( width, height, depth, nativeImageSource ).release();
+  mImpl        = factory->CreateNativeImageSource(width, height, depth, nativeImageSource).release();
 }
 
 NativeImageSource::~NativeImageSource()

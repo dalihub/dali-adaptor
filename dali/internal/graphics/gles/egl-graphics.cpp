@@ -129,16 +129,6 @@ EglImageExtensions* EglGraphics::GetImageExtensions()
   return mEglImageExtensions.get();
 }
 
-void EglGraphics::SetDamagedAreas(std::vector<Dali::Rect<int>>& areas)
-{
-  mEglImplementation->SetDamageAreas(areas);
-}
-
-void EglGraphics::SetFullSwapNextFrame()
-{
-  mEglImplementation->SetFullSwapNextFrame();
-}
-
 } // Adaptor
 } // Internal
 } // Dali

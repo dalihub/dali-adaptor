@@ -27,13 +27,11 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-  class WebEngine;
+class WebEngine;
 } // namespace Adaptor
 
 } // namespace Internal
@@ -47,7 +45,6 @@ namespace Adaptor
 class DALI_ADAPTOR_API WebEngine : public BaseHandle
 {
 public:
-
   /**
    * @brief Constructor.
    */
@@ -68,7 +65,7 @@ public:
    *
    * @param[in] WebEngine WebEngine to copy. The copied WebEngine will point at the same implementation
    */
-  WebEngine( const WebEngine& WebEngine );
+  WebEngine(const WebEngine& WebEngine);
 
   /**
    * @brief Assignment operator.
@@ -76,7 +73,7 @@ public:
    * @param[in] WebEngine The WebEngine to assign from.
    * @return The updated WebEngine.
    */
-  WebEngine& operator=( const WebEngine& WebEngine );
+  WebEngine& operator=(const WebEngine& WebEngine);
 
   /**
    * @brief Downcast a handle to WebEngine handle.
@@ -87,7 +84,7 @@ public:
    * @param[in] handle Handle to an object
    * @return Handle to a WebEngine or an uninitialized handle
    */
-  static WebEngine DownCast( BaseHandle handle );
+  static WebEngine DownCast(BaseHandle handle);
 
   /**
    * @brief Creates WebEngine instance.
@@ -97,7 +94,7 @@ public:
    * @param [in] locale The locale of Web
    * @param [in] timezoneId The timezoneID of Web
    */
-  void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
+  void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
 
   /**
    * @brief Destroys WebEngine instance.
@@ -114,7 +111,7 @@ public:
    *
    * @param [in] url The URL of the resource to load
    */
-  void LoadUrl( const std::string& url );
+  void LoadUrl(const std::string& url);
 
   /**
    * @brief Gets the url.
@@ -126,7 +123,7 @@ public:
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
-  void LoadHTMLString( const std::string& htmlString );
+  void LoadHTMLString(const std::string& htmlString);
 
   /**
    * @brief Reloads the Web.
@@ -178,7 +175,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  void EvaluateJavaScript( const std::string& script, std::function< void( const std::string& ) > resultHandler );
+  void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler);
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -186,7 +183,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void( const std::string& ) > handler );
+  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
 
   /**
    * @brief Clears the history of Web.
@@ -215,7 +212,7 @@ public:
    *
    * @param[in] cacheModel The cache model option
    */
-  void SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel );
+  void SetCacheModel(Dali::WebEnginePlugin::CacheModel cacheModel);
 
   /**
    * @brief Gets the cookie acceptance policy. The default is NO_THIRD_PARTY.
@@ -229,7 +226,7 @@ public:
    *
    * @param[in] policy The cookie acceptance policy
    */
-  void SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy );
+  void SetCookieAcceptPolicy(Dali::WebEnginePlugin::CookieAcceptPolicy policy);
 
   /**
    * @brief Get user agent string.
@@ -243,7 +240,7 @@ public:
    *
    * @param[in] userAgent The string value of user agent
    */
-  void SetUserAgent( const std::string& userAgent );
+  void SetUserAgent(const std::string& userAgent);
 
   /**
    * @brief Returns whether JavaScript can be executable. The default is true.
@@ -257,7 +254,7 @@ public:
    *
    * @param[in] enabled True if JavaScript executing is enabled, false otherwise
    */
-  void EnableJavaScript( bool enabled );
+  void EnableJavaScript(bool enabled);
 
   /**
    * @brief Returns whether JavaScript can be executable. The default is true.
@@ -271,7 +268,7 @@ public:
    *
    * @param[in] automatic True if images are loaded automatically, false otherwise
    */
-  void LoadImagesAutomatically( bool automatic );
+  void LoadImagesAutomatically(bool automatic);
 
   /**
    * @brief Gets the default text encoding name.
@@ -285,7 +282,7 @@ public:
    *
    * @param[in] defaultTextEncodingName The default text encoding name
    */
-  void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName );
+  void SetDefaultTextEncodingName(const std::string& defaultTextEncodingName);
 
   /**
    * @brief Returns the default font size in pixel. The default value is 16.
@@ -299,22 +296,22 @@ public:
    *
    * @param[in] defaultFontSize A new default font size to set
    */
-  void SetDefaultFontSize( int defaultFontSize );
+  void SetDefaultFontSize(int defaultFontSize);
 
   /**
    * @brief Sets the size of Web Pages.
    */
-  void SetSize( int width, int height );
+  void SetSize(int width, int height);
 
   /**
    * @brief Sends Touch Events.
    */
-  bool SendTouchEvent( const TouchEvent& touch );
+  bool SendTouchEvent(const TouchEvent& touch);
 
   /**
    * @brief Sends key Events.
    */
-  bool SendKeyEvent( const KeyEvent& event );
+  bool SendKeyEvent(const KeyEvent& event);
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
@@ -338,13 +335,12 @@ public:
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
 
 private: // Not intended for application developers
-
   /**
    * @brief Internal constructor
    */
-  explicit DALI_INTERNAL WebEngine( Internal::Adaptor::WebEngine* internal );
+  explicit DALI_INTERNAL WebEngine(Internal::Adaptor::WebEngine* internal);
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif // DALI_WEB_ENGINE_H

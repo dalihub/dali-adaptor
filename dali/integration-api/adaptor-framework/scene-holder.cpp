@@ -19,21 +19,19 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/wheel-event.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/public-api/events/wheel-event.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/public-api/actors/layer.h>
 
 namespace Dali
 {
-
 namespace Integration
 {
-
 SceneHolder::SceneHolder()
 {
 }
@@ -42,30 +40,30 @@ SceneHolder::~SceneHolder()
 {
 }
 
-SceneHolder::SceneHolder( const SceneHolder& handle )
-:BaseHandle(handle)
+SceneHolder::SceneHolder(const SceneHolder& handle)
+: BaseHandle(handle)
 {
 }
 
-SceneHolder::SceneHolder( Internal::Adaptor::SceneHolder* internal )
+SceneHolder::SceneHolder(Internal::Adaptor::SceneHolder* internal)
 : BaseHandle(internal)
 {
 }
 
-SceneHolder& SceneHolder::operator=( const SceneHolder& rhs )
+SceneHolder& SceneHolder::operator=(const SceneHolder& rhs)
 {
   BaseHandle::operator=(rhs);
   return *this;
 }
 
-void SceneHolder::Add( Actor actor )
+void SceneHolder::Add(Actor actor)
 {
-  GetImplementation(*this).Add( actor );
+  GetImplementation(*this).Add(actor);
 }
 
-void SceneHolder::Remove( Actor actor )
+void SceneHolder::Remove(Actor actor)
 {
-  GetImplementation(*this).Remove( actor );
+  GetImplementation(*this).Remove(actor);
 }
 
 Layer SceneHolder::GetRootLayer() const
@@ -73,9 +71,9 @@ Layer SceneHolder::GetRootLayer() const
   return GetImplementation(*this).GetRootLayer();
 }
 
-void SceneHolder::SetBackgroundColor( Vector4 color )
+void SceneHolder::SetBackgroundColor(Vector4 color)
 {
-  GetImplementation(*this).SetBackgroundColor( color );
+  GetImplementation(*this).SetBackgroundColor(color);
 }
 
 Vector4 SceneHolder::GetBackgroundColor() const
@@ -88,27 +86,27 @@ Any SceneHolder::GetNativeHandle() const
   return GetImplementation(*this).GetNativeHandle();
 }
 
-void SceneHolder::FeedTouchPoint( Dali::TouchPoint& point, int timeStamp )
+void SceneHolder::FeedTouchPoint(Dali::TouchPoint& point, int timeStamp)
 {
-  Integration::Point convertedPoint( point );
-  GetImplementation(*this).FeedTouchPoint( convertedPoint, timeStamp );
+  Integration::Point convertedPoint(point);
+  GetImplementation(*this).FeedTouchPoint(convertedPoint, timeStamp);
 }
 
-void SceneHolder::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
+void SceneHolder::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 {
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >( wheelEvent.GetType() ), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime() );
-  GetImplementation(*this).FeedWheelEvent( event );
+  Integration::WheelEvent event(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  GetImplementation(*this).FeedWheelEvent(event);
 }
 
-void SceneHolder::FeedKeyEvent( Dali::KeyEvent& keyEvent )
+void SceneHolder::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent event( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
-  GetImplementation(*this).FeedKeyEvent( event );
+  Integration::KeyEvent event(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  GetImplementation(*this).FeedKeyEvent(event);
 }
 
-SceneHolder SceneHolder::Get( Actor actor )
+SceneHolder SceneHolder::Get(Actor actor)
 {
-  return Internal::Adaptor::SceneHolder::Get( actor );
+  return Internal::Adaptor::SceneHolder::Get(actor);
 }
 
 SceneHolder::KeyEventSignalType& SceneHolder::KeyEventSignal()
@@ -131,6 +129,6 @@ SceneHolder::WheelEventSignalType& SceneHolder::WheelEventSignal()
   return GetImplementation(*this).WheelEventSignal();
 }
 
-}// Integration
+} // namespace Integration
 
-} // Dali
+} // namespace Dali

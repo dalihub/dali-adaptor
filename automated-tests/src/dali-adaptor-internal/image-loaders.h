@@ -19,14 +19,14 @@
 #define DALI_ADAPTOR_TET_IMAGE_LOADERS_H
 
 #include <dali/dali.h>
-#include <dali/integration-api/bitmap.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/bitmap.h>
 
 // Simple structure to close the file when finished with it.
 struct AutoCloseFile
 {
-  AutoCloseFile( FILE *fp );
+  AutoCloseFile(FILE* fp);
   ~AutoCloseFile();
   FILE* filePtr;
 };
@@ -41,7 +41,7 @@ struct ImageDetails
    * @param[in]  _width   The width of the image.
    * @param[in]  _height  The height of the image.
    */
-  ImageDetails( const char * const _name, unsigned int _width, unsigned int _height );
+  ImageDetails(const char* const _name, unsigned int _width, unsigned int _height);
 
   /**
    * Sometimes an image reports an incorrect size in the header than what it actually is. In such a
@@ -53,24 +53,22 @@ struct ImageDetails
    * @param[in]  _reportedWidth   The reported width of the image by reading the header.
    * @param[in]  _reportedHeight  The reported height of the image by reading the header.
    */
-  ImageDetails( const char * const _name, unsigned int _width, unsigned int _height, unsigned int _reportedWidth, unsigned int _reportedHeight );
+  ImageDetails(const char* const _name, unsigned int _width, unsigned int _height, unsigned int _reportedWidth, unsigned int _reportedHeight);
 
   /**
    * Destructor
    */
   ~ImageDetails();
 
-
-  std::string name;
-  unsigned int width;
-  unsigned int height;
-  unsigned int reportedWidth;
-  unsigned int reportedHeight;
-  unsigned int refBufferSize;
+  std::string                     name;
+  unsigned int                    width;
+  unsigned int                    height;
+  unsigned int                    reportedWidth;
+  unsigned int                    reportedHeight;
+  unsigned int                    refBufferSize;
   Dali::Integration::PixelBuffer* refBuffer;
 
 private:
-
   /**
    * Loads the reference buffer file.
    */
@@ -83,12 +81,12 @@ private:
  */
 struct LoadFunctions
 {
-  typedef bool (*LoadBitmapFunction)( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& );
-  typedef bool (*LoadBitmapHeaderFunction)( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+  typedef bool (*LoadBitmapFunction)(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer&);
+  typedef bool (*LoadBitmapHeaderFunction)(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height);
 
-  LoadFunctions( LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader );
+  LoadFunctions(LoadBitmapHeaderFunction _header, LoadBitmapFunction _loader);
   LoadBitmapHeaderFunction header;
-  LoadBitmapFunction loader;
+  LoadBitmapFunction       loader;
 };
 
 // Helper method to test each image file.
@@ -100,7 +98,7 @@ struct LoadFunctions
  * @param[in]  functions     The loader functions that need to be called.
  * @param[in]  bitmapProfile Whether or not the bitmap is raw
  */
-void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile = Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS );
+void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions, Dali::Integration::Bitmap::Profile bitmapProfile = Dali::Integration::Bitmap::BITMAP_2D_PACKED_PIXELS);
 
 /**
  * Helper method to compare the resultant loaded image data of the specified image with a golden master data.
@@ -109,7 +107,7 @@ void TestImageLoading( const ImageDetails& image, const LoadFunctions& functions
  * @param[in] functions     The functions to use to load the image
  * @param[in] master        Golden master data to compare the resultant loaded image with
  */
-void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& functions, const uint32_t* master );
+void CompareLoadedImageData(const ImageDetails& image, const LoadFunctions& functions, const uint32_t* master);
 
 /**
  * Helper function which should be used when first creating a reference buffer file.
@@ -120,6 +118,6 @@ void CompareLoadedImageData( const ImageDetails& image, const LoadFunctions& fun
  * @param[in]  targetFilename  The path of where the buffer should be written to.  This should ideally be in the "/tmp" folder.
  * @param[in]  functions       The loader functions to call.
  */
-void DumpImageBufferToTempFile( std::string filename, std::string targetFilename, const LoadFunctions& functions );
+void DumpImageBufferToTempFile(std::string filename, std::string targetFilename, const LoadFunctions& functions);
 
 #endif // DALI_ADAPTOR_TET_IMAGE_LOADERS_H

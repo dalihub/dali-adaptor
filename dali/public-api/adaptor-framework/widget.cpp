@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 Widget Widget::New()
 {
   Internal::Adaptor::WidgetPtr internal = Internal::Adaptor::Widget::New();
@@ -38,13 +37,13 @@ Widget::Widget()
 {
 }
 
-Widget::Widget( const Widget& copy ) = default;
+Widget::Widget(const Widget& copy) = default;
 
-Widget& Widget::operator=( const Widget& rhs ) = default;
+Widget& Widget::operator=(const Widget& rhs) = default;
 
-Widget::Widget( Widget&& rhs ) = default;
+Widget::Widget(Widget&& rhs) = default;
 
-Widget& Widget::operator=( Widget&& rhs ) = default;
+Widget& Widget::operator=(Widget&& rhs) = default;
 
 Widget::Widget(Internal::Adaptor::Widget* widget)
 : BaseHandle(widget)

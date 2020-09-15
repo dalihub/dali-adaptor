@@ -2,7 +2,7 @@
 #define DALI_EVENT_THREAD_CALLBACK_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 
 namespace Dali
 {
-
 /**
  * @brief The EventThreadCallback class provides a mechanism for the worker thread to trigger the execution of a given callback in main event thread .
  *
@@ -35,13 +34,12 @@ namespace Dali
 class DALI_ADAPTOR_API EventThreadCallback
 {
 public:
-
   /**
    * @brief Constructor. Create an object that will call the given callback in main event thread.
    *
    * @param[in] callback The callback to call.
    */
-  EventThreadCallback( CallbackBase* callback );
+  EventThreadCallback(CallbackBase* callback);
 
   /**
    * @brief Destructor.
@@ -56,19 +54,16 @@ public:
   void Trigger();
 
 private:
-
   // undefined copy constructor.
-  EventThreadCallback( const EventThreadCallback& );
+  EventThreadCallback(const EventThreadCallback&);
 
   // undefined assignment operator
-  EventThreadCallback& operator=( const EventThreadCallback& );
+  EventThreadCallback& operator=(const EventThreadCallback&);
 
 private:
-
   struct Impl;
   Impl* mImpl;
-
 };
 
-}
+} // namespace Dali
 #endif /* DALI_EVENT_THREAD_CALLBACK_H */

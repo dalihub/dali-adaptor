@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_TEXT_RENDERER_LAYOUT_HELPER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,32 +24,31 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 /**
  * @brief Parameters used to transform the vertices of the glyphs to wrap a circular path.
  */
 struct DALI_ADAPTOR_API CircularTextParameters
 {
   CircularTextParameters()
-  : centerX{ 0.0 },
-    centerY{ 0.0 },
-    radius{ 0.0 },
-    invRadius{ 0.0 },
-    beginAngle{ 0.0 },
-    isClockwise{ true },
-    synthesizeItalic{ false }
-  {}
+  : centerX{0.0},
+    centerY{0.0},
+    radius{0.0},
+    invRadius{0.0},
+    beginAngle{0.0},
+    isClockwise{true},
+    synthesizeItalic{false}
+  {
+  }
 
-  double centerX;          ///< The 'x' center of the circular path.
-  double centerY;          ///< The 'y' center of the circular path.
-  double radius;           ///< The radius in pixels.
-  double invRadius;        ///< 1.0 / radius.
-  double beginAngle;       ///< The angle in radians where the circular text begins.
-  bool isClockwise:1;      ///< Whether the circular text layout is clockwise.
-  bool synthesizeItalic:1; ///< Whether to synthesize italic.
+  double centerX;              ///< The 'x' center of the circular path.
+  double centerY;              ///< The 'y' center of the circular path.
+  double radius;               ///< The radius in pixels.
+  double invRadius;            ///< 1.0 / radius.
+  double beginAngle;           ///< The angle in radians where the circular text begins.
+  bool   isClockwise : 1;      ///< Whether the circular text layout is clockwise.
+  bool   synthesizeItalic : 1; ///< Whether to synthesize italic.
 };
 
 /**
@@ -59,7 +58,7 @@ struct DALI_ADAPTOR_API CircularTextParameters
  * @param[in,out] x The 'x' coordinate of the vertex.
  * @param[in,out] y The 'y' coordinate of the vertex.
  */
-DALI_ADAPTOR_API void TransformToArc( const CircularTextParameters& parameters, double& x, double& y );
+DALI_ADAPTOR_API void TransformToArc(const CircularTextParameters& parameters, double& x, double& y);
 
 } // namespace TextAbstraction
 

@@ -19,24 +19,22 @@
  */
 
 // INTERNAL INCLUDES
-#include "test-application.h"
 #include "adaptor-test-adaptor-impl.h"
+#include "test-application.h"
 
 namespace Dali
 {
-
 /**
  * Adds some functionality on top of TestApplication that is required by the Adaptor.
  */
 class AdaptorTestApplication : public TestApplication
 {
 public:
-
-  AdaptorTestApplication( size_t surfaceWidth  = DEFAULT_SURFACE_WIDTH,
-                          size_t surfaceHeight = DEFAULT_SURFACE_HEIGHT,
-                          float  horizontalDpi = DEFAULT_HORIZONTAL_DPI,
-                          float  verticalDpi   = DEFAULT_VERTICAL_DPI )
-  : TestApplication( surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi )
+  AdaptorTestApplication(size_t surfaceWidth  = DEFAULT_SURFACE_WIDTH,
+                         size_t surfaceHeight = DEFAULT_SURFACE_HEIGHT,
+                         float  horizontalDpi = DEFAULT_HORIZONTAL_DPI,
+                         float  verticalDpi   = DEFAULT_VERTICAL_DPI)
+  : TestApplication(surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi)
   {
     Internal::Adaptor::Adaptor::SetAvailable();
   }

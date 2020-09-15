@@ -19,13 +19,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 bool Adaptor::mAvailable = false;
 
 bool Adaptor::IsAvailable()

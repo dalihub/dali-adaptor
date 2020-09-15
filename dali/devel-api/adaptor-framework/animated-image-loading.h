@@ -24,12 +24,11 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 class PixelData;
 typedef Dali::Uint16Pair ImageDimensions;
 
@@ -44,7 +43,7 @@ namespace Adaptor
 {
 class AnimatedImageLoading;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * Class to manage loading frames of an animated image in small chunks. Lazy initializes only when
@@ -56,14 +55,13 @@ class AnimatedImageLoading;
 class DALI_ADAPTOR_API AnimatedImageLoading : public BaseHandle
 {
 public:
-
   /**
    * Create a GifLoading with the given url and resourceType.
    * @param[in] url The url of the animated image to load
    * @param[in] isLocalResource The true or false whether this is a local resource.
    * @return A newly created GifLoading.
    */
-  static AnimatedImageLoading New( const std::string& url, bool isLocalResource );
+  static AnimatedImageLoading New(const std::string& url, bool isLocalResource);
 
   /**
    * @brief Constructor
@@ -79,8 +77,7 @@ public:
    * @param[in] handle to An object.
    * @return handle to a Capture object or an uninitialized handle.
    */
-  static AnimatedImageLoading DownCast( BaseHandle handle );
-
+  static AnimatedImageLoading DownCast(BaseHandle handle);
 
   /**
    * @brief Copy constructor.
@@ -112,9 +109,9 @@ public:
    * @param[out] pixelData The vector in which to return the frame data
    * @return True if the frame data was successfully loaded
    */
-  bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData );
+  bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData);
 
-   /**
+  /**
    * @brief Load a frame of the animated image.
    *
    * @note This function will load the entire animated image into memory if not already loaded.
@@ -122,7 +119,7 @@ public:
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
 
-  Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex );
+  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex);
 
   /**
    * @brief Get the size of a animated image.
@@ -143,7 +140,7 @@ public:
    *
    * @return The time interval of the frame(microsecond).
    */
-  uint32_t GetFrameInterval( uint32_t frameIndex ) const;
+  uint32_t GetFrameInterval(uint32_t frameIndex) const;
 
   /**
    * @brief Get the animated image file URL
@@ -159,7 +156,7 @@ public: // Not intended for application developers
    *
    * @param[in] internal A pointer to a newly allocated Dali resource.
    */
-  explicit DALI_INTERNAL AnimatedImageLoading( Internal::Adaptor::AnimatedImageLoading* internal );
+  explicit DALI_INTERNAL AnimatedImageLoading(Internal::Adaptor::AnimatedImageLoading* internal);
   /// @endcond
 };
 

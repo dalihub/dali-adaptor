@@ -22,8 +22,8 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali
 {
@@ -39,34 +39,34 @@ namespace DevelWindow
  */
 enum class EffectState
 {
-  NONE = 0,    ///< None state
-  START,       ///< Transition effect is started.
-  END          ///< Transition effect is ended.
+  NONE = 0, ///< None state
+  START,    ///< Transition effect is started.
+  END       ///< Transition effect is ended.
 };
 
 /**
  * @brief Enumeration for transition effect's type.
  */
-enum class  EffectType
+enum class EffectType
 {
-  NONE = 0,    ///< None type
-  SHOW,        ///< Window show effect.
-  HIDE,        ///< Window hide effect.
+  NONE = 0, ///< None type
+  SHOW,     ///< Window show effect.
+  HIDE,     ///< Window hide effect.
 };
 
-typedef Signal< void () > EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
+typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
-typedef Signal< void (const KeyEvent&) > KeyEventSignalType;       ///< Key event signal type
+typedef Signal<void(const KeyEvent&)> KeyEventSignalType; ///< Key event signal type
 
-typedef Signal< void (const TouchEvent&) > TouchEventSignalType;   ///< Touch signal type
+typedef Signal<void(const TouchEvent&)> TouchEventSignalType; ///< Touch signal type
 
-typedef Signal< void (const WheelEvent&) > WheelEventSignalType;   ///< Touched signal type
+typedef Signal<void(const WheelEvent&)> WheelEventSignalType; ///< Touched signal type
 
-typedef Signal< void ( Window, bool ) > VisibilityChangedSignalType; ///< Visibility changed signal type
+typedef Signal<void(Window, bool)> VisibilityChangedSignalType; ///< Visibility changed signal type
 
-typedef Signal< void (Window, EffectState, EffectType) > TransitionEffectEventSignalType; ///< Effect signal type and state
+typedef Signal<void(Window, EffectState, EffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
 
-typedef Signal< void () > KeyboardRepeatSettingsChangedSignalType;  ///< Keyboard repeat settings changed signal type
+typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -99,7 +99,7 @@ DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std:
  * @param[in] window The window instance
  * @param[in] positionSize The new window position and size
  */
-DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize );
+DALI_ADAPTOR_API void SetPositionSize(Window window, PositionSize positionSize);
 
 /**
  * @brief Retrieve the window that the given actor is added to.
@@ -107,7 +107,7 @@ DALI_ADAPTOR_API void SetPositionSize( Window window, PositionSize positionSize 
  * @param[in] actor The actor
  * @return The window the actor is added to or an empty handle if the actor is not added to any window.
  */
-DALI_ADAPTOR_API Window Get( Actor actor );
+DALI_ADAPTOR_API Window Get(Actor actor);
 
 /**
  * @brief This signal is emitted just after the event processing is finished.
@@ -115,7 +115,7 @@ DALI_ADAPTOR_API Window Get( Actor actor );
  * @param[in] window The window instance
  * @return The signal to connect to
  */
-DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal( Window window );
+DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSignal(Window window);
 
 /**
  * @brief This signal is emitted when wheel event is received.
@@ -127,7 +127,7 @@ DALI_ADAPTOR_API EventProcessingFinishedSignalType& EventProcessingFinishedSigna
  * @param[in] window The window instance
  * @return The signal to connect to
  */
-DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
+DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal(Window window);
 
 /**
  * @brief This signal is emitted when the window is shown or hidden.
@@ -139,7 +139,7 @@ DALI_ADAPTOR_API WheelEventSignalType& WheelEventSignal( Window window );
  * @param[in] window The window instance
  * @return The signal to connect to
  */
-DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal( Window window );
+DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal(Window window);
 
 /**
  * @brief This signal is emitted for transition effect.
@@ -154,7 +154,7 @@ DALI_ADAPTOR_API VisibilityChangedSignalType& VisibilityChangedSignal( Window wi
  * @param[in] window The window instance
  * @return The signal to connect to
  */
-DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal( Window window );
+DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal(Window window);
 
 /**
  * @brief This signal is emitted just after the keyboard repeat setting is changed globally.
@@ -162,7 +162,7 @@ DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal( W
  * @param[in] window The window instance
  * @return The signal to connect to
  */
-DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal( Window window );
+DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window);
 
 /**
  * @brief Sets parent window of the window.
@@ -174,7 +174,7 @@ DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettings
  * @param[in] window The window instance
  * @param[in] parent The parent window instance
  */
-DALI_ADAPTOR_API void SetParent( Window window, Window parent );
+DALI_ADAPTOR_API void SetParent(Window window, Window parent);
 
 /**
  * @brief Unsets parent window of the window.
@@ -183,7 +183,7 @@ DALI_ADAPTOR_API void SetParent( Window window, Window parent );
  *
  * @param[in] window The window instance
  */
-DALI_ADAPTOR_API void Unparent( Window window );
+DALI_ADAPTOR_API void Unparent(Window window);
 
 /**
  * @brief Gets parent window of the window.
@@ -191,7 +191,7 @@ DALI_ADAPTOR_API void Unparent( Window window );
  * @param[in] window The window instance
  * @return The parent window of the window
  */
-DALI_ADAPTOR_API Window GetParent( Window window );
+DALI_ADAPTOR_API Window GetParent(Window window);
 
 /**
  * @brief Downcast sceneHolder to window
@@ -199,7 +199,7 @@ DALI_ADAPTOR_API Window GetParent( Window window );
  * @param[in] handle The handle need to downcast
  * @return The window cast from SceneHolder
  */
-DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
+DALI_ADAPTOR_API Window DownCast(BaseHandle handle);
 
 /**
  * @brief Gets current orientation of the window.
@@ -207,7 +207,7 @@ DALI_ADAPTOR_API Window DownCast(  BaseHandle handle );
  * @param[in] window The window instance
  * @return The current window orientation if previously set, or none
  */
-DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation( Window window );
+DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation(Window window);
 
 /**
  * @brief Sets available orientations of the window.
@@ -217,24 +217,14 @@ DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation( Window w
  * @param[in] window The window instance
  * @param[in] orientations The available orientation list to add
  */
-DALI_ADAPTOR_API void SetAvailableOrientations( Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
+DALI_ADAPTOR_API void SetAvailableOrientations(Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations);
 
 /**
  * @brief Gets current window ID.
  *
  * @param[in] window The window instance
  */
-DALI_ADAPTOR_API int32_t GetNativeId( Window window );
-
-/**
- * @brief Sets damaged areas of the window.
- *
- * This API is for setting static damaged areas of the window for partial update.
- *
- * @param[in] window The window instance
- * @param[in] areas The damaged areas list to set
- */
-DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>>& areas);
+DALI_ADAPTOR_API int32_t GetNativeId(Window window);
 
 /**
  * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
@@ -251,7 +241,7 @@ DALI_ADAPTOR_API void SetDamagedAreas(Window window, std::vector<Dali::Rect<int>
  *
  * @note Ownership of the callback is passed onto this class.
  */
-DALI_ADAPTOR_API void AddFrameRenderedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
+DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
 /**
  * @brief Adds a callback that is called when the frame is displayed on the display.
@@ -268,7 +258,7 @@ DALI_ADAPTOR_API void AddFrameRenderedCallback( Window window, std::unique_ptr< 
  *
  * @note Ownership of the callback is passed onto this class.
  */
-DALI_ADAPTOR_API void AddFramePresentedCallback( Window window, std::unique_ptr< CallbackBase > callback, int32_t frameId );
+DALI_ADAPTOR_API void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
 } // namespace DevelWindow
 

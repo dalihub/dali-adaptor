@@ -25,75 +25,74 @@
 
 namespace Dali
 {
-
 AnimatedImageLoading::AnimatedImageLoading()
 {
 }
 
-AnimatedImageLoading AnimatedImageLoading::New( const std::string& url, bool isLocalResource )
+AnimatedImageLoading AnimatedImageLoading::New(const std::string& url, bool isLocalResource)
 {
   const std::size_t urlSize = url.length();
 
   Internal::Adaptor::AnimatedImageLoadingPtr internal = NULL;
-  if(urlSize >= 4){ // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
-    if( !url.compare( urlSize - 4, 4, ".gif" )
-        || !url.compare( urlSize - 4, 4, ".GIF" ) )
+  if(urlSize >= 4)
+  { // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
+    if(!url.compare(urlSize - 4, 4, ".gif") || !url.compare(urlSize - 4, 4, ".GIF"))
     {
-      internal = Internal::Adaptor::GifLoading::New( url, isLocalResource );
+      internal = Internal::Adaptor::GifLoading::New(url, isLocalResource);
     }
   }
-  if(urlSize >= 5){ // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
-    if( !url.compare( urlSize - 5, 5, ".webp" )
-        || !url.compare( urlSize - 5, 5, ".WEBP" ) )
+  if(urlSize >= 5)
+  { // Avoid throwing out_of_range or failing silently if exceptions are turned-off on the compare(). (http://www.cplusplus.com/reference/string/string/compare/)
+    if(!url.compare(urlSize - 5, 5, ".webp") || !url.compare(urlSize - 5, 5, ".WEBP"))
     {
-      internal = Internal::Adaptor::WebPLoading::New( url, isLocalResource );
+      internal = Internal::Adaptor::WebPLoading::New(url, isLocalResource);
     }
   }
 
-  return AnimatedImageLoading( internal.Get() );
+  return AnimatedImageLoading(internal.Get());
 }
 
-AnimatedImageLoading AnimatedImageLoading::DownCast( BaseHandle handle )
+AnimatedImageLoading AnimatedImageLoading::DownCast(BaseHandle handle)
 {
-  return AnimatedImageLoading( dynamic_cast< Internal::Adaptor::AnimatedImageLoading* >( handle.GetObjectPtr() ) );
+  return AnimatedImageLoading(dynamic_cast<Internal::Adaptor::AnimatedImageLoading*>(handle.GetObjectPtr()));
 }
 
 AnimatedImageLoading::~AnimatedImageLoading()
 {
 }
 
-bool AnimatedImageLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData )
+bool AnimatedImageLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
 {
-  return GetImplementation( *this ).LoadNextNFrames( frameStartIndex, count, pixelData );
+  return GetImplementation(*this).LoadNextNFrames(frameStartIndex, count, pixelData);
 }
 
-Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame( uint32_t frameIndex )
+Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t frameIndex)
 {
-  return GetImplementation( *this ).LoadFrame( frameIndex );
+  return GetImplementation(*this).LoadFrame(frameIndex);
 }
 
 ImageDimensions AnimatedImageLoading::GetImageSize() const
 {
-  return GetImplementation( *this ).GetImageSize();
+  return GetImplementation(*this).GetImageSize();
 }
 
 uint32_t AnimatedImageLoading::GetImageCount() const
 {
-  return GetImplementation( *this ).GetImageCount();
+  return GetImplementation(*this).GetImageCount();
 }
 
-uint32_t AnimatedImageLoading::GetFrameInterval( uint32_t frameIndex ) const
+uint32_t AnimatedImageLoading::GetFrameInterval(uint32_t frameIndex) const
 {
-  return GetImplementation( *this ).GetFrameInterval( frameIndex );
+  return GetImplementation(*this).GetFrameInterval(frameIndex);
 }
 
 std::string AnimatedImageLoading::GetUrl() const
 {
-  return GetImplementation( *this ).GetUrl();
+  return GetImplementation(*this).GetUrl();
 }
 
-AnimatedImageLoading::AnimatedImageLoading( Internal::Adaptor::AnimatedImageLoading* internal )
-: BaseHandle( internal )
+AnimatedImageLoading::AnimatedImageLoading(Internal::Adaptor::AnimatedImageLoading* internal)
+: BaseHandle(internal)
 {
 }
 

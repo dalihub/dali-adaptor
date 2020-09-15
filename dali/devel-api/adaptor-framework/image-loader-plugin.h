@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,44 +23,45 @@
 
 namespace Dali
 {
-
 /**
  * @brief
  */
 class ImageLoaderPlugin
 {
 public:
-
   /**
    * @brief Constructor.
    */
-  ImageLoaderPlugin(){}
+  ImageLoaderPlugin()
+  {
+  }
 
   /**
    * @brief Destructor.
    */
-  virtual ~ImageLoaderPlugin(){}
+  virtual ~ImageLoaderPlugin()
+  {
+  }
 
   /**
    * @brief Get the image decorder
    * @param[in] filename The path to the resource.
    * @return BitmapLoader
    */
-  virtual const ImageLoader::BitmapLoader* BitmapLoaderLookup( const std::string& filename ) const = 0;
+  virtual const ImageLoader::BitmapLoader* BitmapLoaderLookup(const std::string& filename) const = 0;
 
   /**
    * @brief Function pointer called in adaptor to create a image loading plugin instance.
    * @return Pointer to the newly created plugin object
    */
-  typedef ImageLoaderPlugin* CreateImageLoaderPlugin( void );
+  typedef ImageLoaderPlugin* CreateImageLoaderPlugin(void);
 
   /**
    * @brief Function pointer called in adaptor to destory a image loading plugin instance.
    */
-  typedef void DestroyImageLoaderPlugin( ImageLoaderPlugin* plugin );
-
+  typedef void DestroyImageLoaderPlugin(ImageLoaderPlugin* plugin);
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif

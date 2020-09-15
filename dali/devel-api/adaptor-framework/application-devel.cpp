@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,11 @@
 
 namespace Dali
 {
-
 namespace DevelApplication
 {
-
-
-bool AddIdleWithReturnValue( Application application, CallbackBase* callback )
+bool AddIdleWithReturnValue(Application application, CallbackBase* callback)
 {
-  return Internal::Adaptor::GetImplementation( application ).AddIdle( callback, true );
+  return Internal::Adaptor::GetImplementation(application).AddIdle(callback, true);
 }
 
 std::string GetDataPath()
@@ -37,18 +34,16 @@ std::string GetDataPath()
   return Internal::Adaptor::Application::GetDataPath();
 }
 
-Application DownCast( Dali::RefObject* refObject )
+Application DownCast(Dali::RefObject* refObject)
 {
-  return Application( dynamic_cast<Dali::Internal::Adaptor::Application*>( refObject ) );
+  return Application(dynamic_cast<Dali::Internal::Adaptor::Application*>(refObject));
 }
 
 } // namespace DevelApplication
 
 } // namespace Dali
 
-extern "C"
-void ApplicationPreInitialize( int* argc, char** argv[] )
+extern "C" void ApplicationPreInitialize(int* argc, char** argv[])
 {
-  Dali::Internal::Adaptor::Application::PreInitialize( argc, argv );
+  Dali::Internal::Adaptor::Application::PreInitialize(argc, argv);
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 StyleMonitor::StyleMonitor()
 {
 }
@@ -42,9 +41,9 @@ StyleMonitor::~StyleMonitor()
 {
 }
 
-StyleMonitor StyleMonitor::DownCast( BaseHandle handle )
+StyleMonitor StyleMonitor::DownCast(BaseHandle handle)
 {
-  return StyleMonitor( dynamic_cast<Internal::Adaptor::StyleMonitor*>( handle.GetObjectPtr() ) );
+  return StyleMonitor(dynamic_cast<Internal::Adaptor::StyleMonitor*>(handle.GetObjectPtr()));
 }
 
 std::string StyleMonitor::GetDefaultFontFamily() const
@@ -72,9 +71,9 @@ void StyleMonitor::SetTheme(const std::string& themFilePath)
   return GetImplementation(*this).SetTheme(themFilePath);
 }
 
-bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
+bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& output)
 {
-  return GetImplementation(*this).LoadThemeFile( filename, output );
+  return GetImplementation(*this).LoadThemeFile(filename, output);
 }
 
 StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
@@ -84,7 +83,7 @@ StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 
 StyleMonitor& StyleMonitor::operator=(const StyleMonitor& monitor)
 {
-  if( *this != monitor )
+  if(*this != monitor)
   {
     BaseHandle::operator=(monitor);
   }

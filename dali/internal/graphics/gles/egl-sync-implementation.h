@@ -50,7 +50,7 @@ public:
   /**
    * @copydoc Dali::Integration::GlSyncAbstraction::SyncObject::IsSynced()
    */
-  virtual bool IsSynced();
+  bool IsSynced() override;
 
 private:
 #ifdef _ARCH_ARM_
@@ -92,12 +92,12 @@ public:
   /**
    * @copydoc Dali::Integration::GlSyncAbstraction::CreateSyncObject()
    */
-  virtual SyncObject* CreateSyncObject();
+  SyncObject* CreateSyncObject() override;
 
   /**
    * @copydoc Dali::Integration::GlSyncAbstraction::DestroySyncObject()
    */
-  virtual void DestroySyncObject(SyncObject* syncObject);
+  void DestroySyncObject(SyncObject* syncObject) override;
 
 private:
   /**

@@ -342,11 +342,6 @@ public:
    */
   void SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
 
-  /**
-   * @copydoc Dali::DevelWindow::SetDamagedAreas()
-   */
-  void SetDamagedAreas(std::vector<Dali::Rect<int>>& areas);
-
 public: // Dali::Internal::Adaptor::SceneHolder
 
   /**
@@ -387,7 +382,7 @@ private:
   /**
    * Destructor
    */
-  virtual ~Window();
+  ~Window() override;
 
   /**
    * Second stage initialization
@@ -423,6 +418,11 @@ private:
    * @brief Called when window receives a keyboard repeat event.
    */
   void OnKeyboardRepeatSettingsChanged();
+
+  /**
+   * @brief Called when the window redraw is requested.
+   */
+  void OnWindowRedrawRequest();
 
   /**
    * @brief Set available orientation to window base.

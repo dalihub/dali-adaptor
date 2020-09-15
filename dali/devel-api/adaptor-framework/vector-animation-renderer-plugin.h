@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 
 namespace Dali
 {
-
 /**
  * VectorAnimationRendererPlugin is an abstract interface, used by dali-adaptor to render a vector animation.
  * A concrete implementation must be created for each platform and provided as a dynamic library which
@@ -36,25 +35,28 @@ namespace Dali
 class VectorAnimationRendererPlugin
 {
 public:
-
   using UploadCompletedSignalType = Dali::VectorAnimationRenderer::UploadCompletedSignalType;
 
   /**
    * @brief Constructor
    */
-  VectorAnimationRendererPlugin() {}
+  VectorAnimationRendererPlugin()
+  {
+  }
 
   /**
    * @brief Destructor
    */
-  virtual ~VectorAnimationRendererPlugin() {}
+  virtual ~VectorAnimationRendererPlugin()
+  {
+  }
 
   /**
    * @brief Second-phase constructor.
    *
    * @param[in] url The url of the animation file
    */
-  virtual bool Initialize( const std::string& url ) = 0;
+  virtual bool Initialize(const std::string& url) = 0;
 
   /**
    * @brief Finalizes the renderer. It will be called in the main thread.
@@ -66,7 +68,7 @@ public:
    *
    * @param[in] renderer The renderer used to display the result image
    */
-  virtual void SetRenderer( Renderer renderer ) = 0;
+  virtual void SetRenderer(Renderer renderer) = 0;
 
   /**
    * @brief Sets the target image size.
@@ -74,7 +76,7 @@ public:
    * @param[in] width The target image width
    * @param[in] height The target image height
    */
-  virtual void SetSize( uint32_t width, uint32_t height ) = 0;
+  virtual void SetSize(uint32_t width, uint32_t height) = 0;
 
   /**
    * @brief Renders the content to the target buffer synchronously.
@@ -82,7 +84,7 @@ public:
    * @param[in] frameNumber The frame number to be rendered
    * @return True if the rendering success, false otherwise.
    */
-  virtual bool Render( uint32_t frameNumber ) = 0;
+  virtual bool Render(uint32_t frameNumber) = 0;
 
   /**
    * @brief Gets the total number of frames of the file.
@@ -104,14 +106,14 @@ public:
    * @param[out] width The default width of the file
    * @param[out] height The default height of the file
    */
-  virtual void GetDefaultSize( uint32_t& width, uint32_t& height ) const = 0;
+  virtual void GetDefaultSize(uint32_t& width, uint32_t& height) const = 0;
 
   /**
    * @brief Gets the layer information of all the child layers.
    *
    * @param[out] map The layer information
    */
-  virtual void GetLayerInfo( Property::Map& map ) const = 0;
+  virtual void GetLayerInfo(Property::Map& map) const = 0;
 
   /**
    * @brief Gets the start frame and the end frame number of the composition marker.
@@ -126,7 +128,7 @@ public:
    * Marker can be use to devide a resource in to separate animations by tagging the segment with comment string,
    * start frame and duration of that segment.
    */
-  virtual bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const = 0;
+  virtual bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const = 0;
 
   /**
    * @brief Ignores a rendered frame which is not shown yet.

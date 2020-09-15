@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,20 +28,19 @@ namespace Dali
 {
 namespace Devel
 {
-
-PixelBuffer PixelBuffer::New( unsigned int width,
-                              unsigned int height,
-                              Dali::Pixel::Format pixelFormat )
+PixelBuffer PixelBuffer::New(unsigned int        width,
+                             unsigned int        height,
+                             Dali::Pixel::Format pixelFormat)
 {
   Internal::Adaptor::PixelBufferPtr internal =
-    Internal::Adaptor::PixelBuffer::New( width, height, pixelFormat );
-  return Devel::PixelBuffer( internal.Get() );
+    Internal::Adaptor::PixelBuffer::New(width, height, pixelFormat);
+  return Devel::PixelBuffer(internal.Get());
 }
 
-Dali::PixelData PixelBuffer::Convert( PixelBuffer& pixelBuffer )
+Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
 {
   Dali::PixelData pixelData =
-    Internal::Adaptor::PixelBuffer::Convert( GetImplementation(pixelBuffer) );
+    Internal::Adaptor::PixelBuffer::Convert(GetImplementation(pixelBuffer));
   pixelBuffer.Reset();
   return pixelData;
 }
@@ -51,7 +50,6 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
   return GetImplementation(*this).CreatePixelData();
 }
 
-
 PixelBuffer::PixelBuffer()
 {
 }
@@ -60,13 +58,13 @@ PixelBuffer::~PixelBuffer()
 {
 }
 
-PixelBuffer::PixelBuffer( Internal::Adaptor::PixelBuffer* internal )
-: BaseHandle( internal )
+PixelBuffer::PixelBuffer(Internal::Adaptor::PixelBuffer* internal)
+: BaseHandle(internal)
 {
 }
 
 PixelBuffer::PixelBuffer(const PixelBuffer& handle)
-: BaseHandle( handle )
+: BaseHandle(handle)
 {
 }
 
@@ -101,24 +99,24 @@ const unsigned char* const PixelBuffer::GetBuffer() const
   return GetImplementation(*this).GetConstBuffer();
 }
 
-void PixelBuffer::ApplyMask( PixelBuffer mask, float contentScale, bool cropToMask )
+void PixelBuffer::ApplyMask(PixelBuffer mask, float contentScale, bool cropToMask)
 {
-  GetImplementation(*this).ApplyMask( GetImplementation( mask ), contentScale, cropToMask );
+  GetImplementation(*this).ApplyMask(GetImplementation(mask), contentScale, cropToMask);
 }
 
-void PixelBuffer::ApplyGaussianBlur( const float blurRadius )
+void PixelBuffer::ApplyGaussianBlur(const float blurRadius)
 {
-  GetImplementation(*this).ApplyGaussianBlur( blurRadius );
+  GetImplementation(*this).ApplyGaussianBlur(blurRadius);
 }
 
-void PixelBuffer::Crop( uint16_t x, uint16_t y, uint16_t width, uint16_t height )
+void PixelBuffer::Crop(uint16_t x, uint16_t y, uint16_t width, uint16_t height)
 {
-  GetImplementation(*this).Crop( x, y, ImageDimensions( width, height ) );
+  GetImplementation(*this).Crop(x, y, ImageDimensions(width, height));
 }
 
-void PixelBuffer::Resize( uint16_t width, uint16_t height )
+void PixelBuffer::Resize(uint16_t width, uint16_t height)
 {
-  GetImplementation(*this).Resize( ImageDimensions( width, height ) );
+  GetImplementation(*this).Resize(ImageDimensions(width, height));
 }
 
 void PixelBuffer::MultiplyColorByAlpha()
@@ -126,14 +124,14 @@ void PixelBuffer::MultiplyColorByAlpha()
   GetImplementation(*this).MultiplyColorByAlpha();
 }
 
-bool PixelBuffer::GetMetadata( Property::Map& metadata ) const
+bool PixelBuffer::GetMetadata(Property::Map& metadata) const
 {
   return GetImplementation(*this).GetMetadata(metadata);
 }
 
-bool PixelBuffer::Rotate( Degree angle )
+bool PixelBuffer::Rotate(Degree angle)
 {
-  return GetImplementation(*this).Rotate( angle );
+  return GetImplementation(*this).Rotate(angle);
 }
 
 bool PixelBuffer::IsAlphaPreMultiplied() const

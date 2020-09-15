@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,26 +23,25 @@
 
 namespace Dali
 {
-
 PerformanceLogger::PerformanceLogger()
 {
 }
 
-PerformanceLogger PerformanceLogger::New( const char* name )
+PerformanceLogger PerformanceLogger::New(const char* name)
 {
-  Internal::Adaptor::PerformanceLoggerPtr internal = Internal::Adaptor::PerformanceLogger::New( name );
+  Internal::Adaptor::PerformanceLoggerPtr internal = Internal::Adaptor::PerformanceLogger::New(name);
   return PerformanceLogger(internal.Get());
 }
 
-PerformanceLogger::PerformanceLogger( const PerformanceLogger& performanceLogger )
+PerformanceLogger::PerformanceLogger(const PerformanceLogger& performanceLogger)
 : BaseHandle(performanceLogger)
 {
 }
 
-PerformanceLogger& PerformanceLogger::operator=( const PerformanceLogger& performanceLogger )
+PerformanceLogger& PerformanceLogger::operator=(const PerformanceLogger& performanceLogger)
 {
   // check self assignment
-  if( *this != performanceLogger )
+  if(*this != performanceLogger)
   {
     BaseHandle::operator=(performanceLogger);
   }
@@ -53,24 +52,24 @@ PerformanceLogger::~PerformanceLogger()
 {
 }
 
-PerformanceLogger PerformanceLogger::DownCast( BaseHandle handle )
+PerformanceLogger PerformanceLogger::DownCast(BaseHandle handle)
 {
-  return PerformanceLogger( dynamic_cast<Internal::Adaptor::PerformanceLogger*>( handle.GetObjectPtr() ) );
+  return PerformanceLogger(dynamic_cast<Internal::Adaptor::PerformanceLogger*>(handle.GetObjectPtr()));
 }
 
-void PerformanceLogger::AddMarker( Marker markerType )
+void PerformanceLogger::AddMarker(Marker markerType)
 {
-  Internal::Adaptor::GetImplementation(*this).AddMarker( markerType );
+  Internal::Adaptor::GetImplementation(*this).AddMarker(markerType);
 }
 
-void PerformanceLogger::SetLoggingFrequency( unsigned int logFrequency)
+void PerformanceLogger::SetLoggingFrequency(unsigned int logFrequency)
 {
-  Internal::Adaptor::GetImplementation(*this).SetLoggingFrequency( logFrequency );
+  Internal::Adaptor::GetImplementation(*this).SetLoggingFrequency(logFrequency);
 }
 
-void PerformanceLogger::EnableLogging( bool enable )
+void PerformanceLogger::EnableLogging(bool enable)
 {
-  Internal::Adaptor::GetImplementation(*this).EnableLogging( enable );
+  Internal::Adaptor::GetImplementation(*this).EnableLogging(enable);
 }
 
 PerformanceLogger::PerformanceLogger(Internal::Adaptor::PerformanceLogger* PerformanceLogger)

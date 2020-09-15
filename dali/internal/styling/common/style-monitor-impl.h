@@ -108,7 +108,7 @@ protected:
   /**
    * Virtual Destructor.
    */
-  virtual ~StyleMonitor();
+  ~StyleMonitor() override;
 
 private:
 

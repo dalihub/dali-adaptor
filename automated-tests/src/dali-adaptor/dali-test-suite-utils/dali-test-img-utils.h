@@ -2,7 +2,7 @@
 #define DALI_TEST_IMG_UTILS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,20 @@
 // EXTERNAL INCLUDES
 #include <cstdarg>
 #include <cstdio>
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 // INTERNAL INCLUDES
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/public-api/dali-core.h>
 
+#include <dali-test-suite-utils.h>
 
 using namespace Dali;
 
 namespace
 {
-
 /**
  * Test whether two buffers are equal with tolerance value.
  * @param[in] buffer1 The first buffer
@@ -43,13 +43,13 @@ namespace
  * @param[in] location The TEST_LOCATION macro should be used here
  */
 
-inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char* buffer2, unsigned int tolerance, long size, const char* location)
+inline void DALI_TEST_EQUALS(const unsigned char* buffer1, const unsigned char* buffer2, unsigned int tolerance, long size, const char* location)
 {
-  if( !tolerance )
+  if(!tolerance)
   {
-    if ( memcmp( buffer1, buffer2, size) )
+    if(memcmp(buffer1, buffer2, size))
     {
-      fprintf(stderr, "%s, checking buffer1 == buffer2\n", location );
+      fprintf(stderr, "%s, checking buffer1 == buffer2\n", location);
       tet_result(TET_FAIL);
     }
     else
@@ -61,10 +61,10 @@ inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char*
   {
     const unsigned char* buff1 = buffer1;
     const unsigned char* buff2 = buffer2;
-    unsigned int i = 0;
+    unsigned int         i     = 0;
     //Create a mask to fast compare, it is expected to be similar values.
     unsigned int maskBits = 0;
-    while( maskBits < tolerance )
+    while(maskBits < tolerance)
     {
       maskBits |= (1 << i);
       i++;
@@ -73,15 +73,15 @@ inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char*
     maskBits = ~maskBits;
 
     bool equal = true;
-    for( i = 0; i < size; ++i, ++buff1, ++buff2 )
+    for(i = 0; i < size; ++i, ++buff1, ++buff2)
     {
       //Check bit difference, if exist, do more exhaustive comparison with tolerance value
-      if( (*buff1 ^ *buff2 ) & maskBits )
+      if((*buff1 ^ *buff2) & maskBits)
       {
-        if( *buff1 < *buff2 )
+        if(*buff1 < *buff2)
         {
           unsigned int diff = *buff2 - *buff1;
-          if( diff  > tolerance )
+          if(diff > tolerance)
           {
             equal = false;
             break;
@@ -90,7 +90,7 @@ inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char*
         else
         {
           unsigned int diff = *buff1 - *buff2;
-          if( diff > tolerance )
+          if(diff > tolerance)
           {
             equal = false;
             break;
@@ -98,9 +98,9 @@ inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char*
         }
       }
     }
-    if ( !equal )
+    if(!equal)
     {
-      fprintf(stderr, "%s, byte %d, checking %u == %u\n", location, i, *buff1, *buff2 );
+      fprintf(stderr, "%s, byte %d, checking %u == %u\n", location, i, *buff1, *buff2);
       tet_result(TET_FAIL);
     }
     else
@@ -118,24 +118,24 @@ inline void DALI_TEST_EQUALS( const unsigned char* buffer1, const unsigned char*
  * @param[in] location The TEST_LOCATION macro should be used here
  */
 
-inline void DALI_IMAGE_TEST_EQUALS( Dali::Devel::PixelBuffer pixelBuffer1, Dali::Devel::PixelBuffer pixelBuffer2, unsigned int tolerance, const char* location)
+inline void DALI_IMAGE_TEST_EQUALS(Dali::Devel::PixelBuffer pixelBuffer1, Dali::Devel::PixelBuffer pixelBuffer2, unsigned int tolerance, const char* location)
 {
-  if( ( pixelBuffer1.GetPixelFormat() != Pixel::RGB888 ) || ( pixelBuffer2.GetPixelFormat() != Pixel::RGB888 ) )
+  if((pixelBuffer1.GetPixelFormat() != Pixel::RGB888) || (pixelBuffer2.GetPixelFormat() != Pixel::RGB888))
   {
-    fprintf(stderr, "%s, PixelFormat != Pixel::RGB888, test only support Pixel::RGB888 formats\n", location );
+    fprintf(stderr, "%s, PixelFormat != Pixel::RGB888, test only support Pixel::RGB888 formats\n", location);
     tet_result(TET_FAIL);
   }
-  else if( ( pixelBuffer1.GetWidth() != pixelBuffer1.GetWidth() ) || ( pixelBuffer1.GetHeight() != pixelBuffer1.GetHeight() ) )
+  else if((pixelBuffer1.GetWidth() != pixelBuffer1.GetWidth()) || (pixelBuffer1.GetHeight() != pixelBuffer1.GetHeight()))
   {
-    fprintf(stderr, "%s, Different Image sizes\n", location );
+    fprintf(stderr, "%s, Different Image sizes\n", location);
     tet_result(TET_FAIL);
   }
   else
   {
-    DALI_TEST_EQUALS( pixelBuffer1.GetBuffer(), pixelBuffer2.GetBuffer(), tolerance, pixelBuffer1.GetHeight() * pixelBuffer1.GetWidth() * 3, location);
+    DALI_TEST_EQUALS(pixelBuffer1.GetBuffer(), pixelBuffer2.GetBuffer(), tolerance, pixelBuffer1.GetHeight() * pixelBuffer1.GetWidth() * 3, location);
   }
 }
 
-}
+} // namespace
 
 #endif // DALI_TEST_SUITE_UTILS_H

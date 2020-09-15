@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,8 @@
 
 namespace Dali
 {
-
 namespace DevelApplication
 {
-
-
 /**
  * @brief Ensures that the function passed in is called from the main loop when it is idle.
  * @param[in] application A handle to the Application
@@ -44,7 +41,7 @@ namespace DevelApplication
  *
  * @note Ownership of the callback is passed onto this class.
  */
-DALI_ADAPTOR_API bool AddIdleWithReturnValue( Application application, CallbackBase* callback );
+DALI_ADAPTOR_API bool AddIdleWithReturnValue(Application application, CallbackBase* callback);
 
 /**
 * @brief Gets the absolute path to the application's data directory which is used to store private data of the application.
@@ -61,7 +58,7 @@ DALI_ADAPTOR_API std::string GetDataPath();
  * @param[in] refObject to an Application
  * @return handle to an Application object or an uninitialized base handle
  */
-DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
+DALI_ADAPTOR_API Application DownCast(Dali::RefObject* refObject);
 
 } // namespace DevelApplication
 
@@ -76,7 +73,6 @@ DALI_ADAPTOR_API Application DownCast( Dali::RefObject* refObject );
  * @note Declared in C style for calling from app-launcher.
  *
  */
-extern "C"
-DALI_ADAPTOR_API void ApplicationPreInitialize( int* argc, char** argv[] );
+extern "C" DALI_ADAPTOR_API void ApplicationPreInitialize(int* argc, char** argv[]);
 
 #endif // DALI_APPLICATION_DEVEL_H

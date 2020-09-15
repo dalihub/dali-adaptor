@@ -54,22 +54,22 @@ public:
     /**
      * @copydoc CallbackManager::AddIdleCallback()
      */
-    virtual bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue );
+    bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue ) override;
 
     /**
      * @copydoc CallbackManager::RemoveIdleCallback()
      */
-    virtual void RemoveIdleCallback( CallbackBase* callback );
+    void RemoveIdleCallback( CallbackBase* callback ) override;
 
     /**
      * @copydoc CallbackManager::ProcessIdle()
      */
-    virtual bool ProcessIdle();
+    bool ProcessIdle() override;
 
     /**
      * @copydoc CallbackManager::ClearIdleCallbacks()
      */
-    virtual void ClearIdleCallbacks();
+    void ClearIdleCallbacks() override;
 
     /**
     * @brief Adds a @p callback to be run when entering an idle state.
@@ -85,7 +85,7 @@ public:
     *
     * @return true on success
     */
-    virtual bool AddIdleEntererCallback( CallbackBase* callback );
+    bool AddIdleEntererCallback( CallbackBase* callback ) override;
 
     /**
     * @brief Removes a previously added the idle enterer callback.
@@ -95,17 +95,17 @@ public:
     *
     * @param[in] callback The callback to be removed.
     */
-    virtual void RemoveIdleEntererCallback( CallbackBase* callback );
+    void RemoveIdleEntererCallback( CallbackBase* callback ) override;
 
     /**
      * @copydoc CallbackManager::Start()
      */
-    virtual void Start();
+    void Start() override;
 
     /**
      * @copydoc CallbackManager::Stop()
      */
-    virtual void Stop();
+    void Stop() override;
 
 private:
     std::set<CallbackBase*>        mCallbacks;

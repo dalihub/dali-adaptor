@@ -15,19 +15,19 @@
  *
  */
 
-#include <iostream>
-#include <stdlib.h>
 #include <dali-test-suite-utils.h>
+#include <stdlib.h>
+#include <iostream>
 
 #include <dali/internal/imaging/common/loader-gif.h>
 #include "image-loaders.h"
 
 using namespace Dali;
 
-namespace {
-static const LoadFunctions GifLoaders( TizenPlatform::LoadGifHeader, TizenPlatform::LoadBitmapFromGif );
+namespace
+{
+static const LoadFunctions GifLoaders(TizenPlatform::LoadGifHeader, TizenPlatform::LoadBitmapFromGif);
 }
-
 
 void gif_loader_startup(void)
 {
@@ -39,28 +39,28 @@ void gif_loader_cleanup(void)
 
 int UtcDaliGifLoaderInterlaced(void)
 {
-  ImageDetails interlaced( TEST_IMAGE_DIR "/interlaced.gif", 365u, 227u );
-  TestImageLoading( interlaced, GifLoaders );
+  ImageDetails interlaced(TEST_IMAGE_DIR "/interlaced.gif", 365u, 227u);
+  TestImageLoading(interlaced, GifLoaders);
   END_TEST;
 }
 
 int UtcDaliGifLoaderErrorBits(void)
 {
-  ImageDetails errorBits( TEST_IMAGE_DIR "/error-bits.gif", 534u, 749u, 1280u, 1024u );
-  TestImageLoading( errorBits, GifLoaders );
+  ImageDetails errorBits(TEST_IMAGE_DIR "/error-bits.gif", 534u, 749u, 1280u, 1024u);
+  TestImageLoading(errorBits, GifLoaders);
   END_TEST;
 }
 
 int UtcDaliGifLoaderPattern(void)
 {
-  ImageDetails pattern( TEST_IMAGE_DIR "/pattern.gif", 600u, 600u );
-  TestImageLoading( pattern, GifLoaders );
+  ImageDetails pattern(TEST_IMAGE_DIR "/pattern.gif", 600u, 600u);
+  TestImageLoading(pattern, GifLoaders);
   END_TEST;
 }
 
 int UtcDaliGifLoaderTransparency(void)
 {
-  ImageDetails transparency( TEST_IMAGE_DIR "/transparency.gif", 320u, 280u );
-  TestImageLoading( transparency, GifLoaders );
+  ImageDetails transparency(TEST_IMAGE_DIR "/transparency.gif", 320u, 280u);
+  TestImageLoading(transparency, GifLoaders);
   END_TEST;
 }

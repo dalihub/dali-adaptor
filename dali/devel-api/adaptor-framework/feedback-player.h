@@ -2,7 +2,7 @@
 #define DALI_FEEDBACK_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class FeedbackPlayer;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Plays feedback effects.
@@ -41,7 +40,6 @@ class FeedbackPlayer;
 class DALI_ADAPTOR_API FeedbackPlayer : public BaseHandle
 {
 public:
-
   /**
    * @brief Create an uninitialized handle.
    *
@@ -85,20 +83,20 @@ public:
    * @param[in] fileName Path to the sound file to play.
    * @return A handle which can be used to stop the sound playback.
    */
-  int PlaySound( const std::string& fileName );
+  int PlaySound(const std::string& fileName);
 
   /**
    * Stops a currently playing sound.
    * @param[in] handle A handle to the currently playing sound.
    */
-  void StopSound( int handle );
+  void StopSound(int handle);
 
   /**
    * Plays a feedback pattern.
    * @param[in] type The type of feedback.
    * @param[in] pattern The ID of the pattern to play.
    */
-  void PlayFeedbackPattern( int type, int pattern );
+  void PlayFeedbackPattern(int type, int pattern);
 
   /*
    * Loads a file into data
@@ -109,12 +107,11 @@ public:
   bool LoadFile(const std::string& filename, std::string& data);
 
 public: // Not intended for application developers
-
   /**
    * @brief This constructor is used by FeedbackPlayer::Get().
    * @param[in] feedbackPlayer A pointer to the feedback player.
    */
-  explicit DALI_INTERNAL FeedbackPlayer( Internal::Adaptor::FeedbackPlayer* feedbackPlayer );
+  explicit DALI_INTERNAL FeedbackPlayer(Internal::Adaptor::FeedbackPlayer* feedbackPlayer);
 };
 
 } // namespace Dali

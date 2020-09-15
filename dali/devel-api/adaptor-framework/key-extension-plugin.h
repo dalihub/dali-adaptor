@@ -2,7 +2,7 @@
 #define DALI_KEY_EXTENSION_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 /**
  * @brief KeyExtensionPlugin is an abstract interface, used by dali-adaptor to access key extension plugin.
  * A concrete implementation must be created for each platform and provided as dynamic library.
@@ -32,25 +31,28 @@ namespace Dali
 class KeyExtensionPlugin
 {
 public:
-
   struct KeyLookup
   {
-    const char* keyName;          ///< XF86 key name
-    const int   daliKeyCode;      ///< Dali key code
-    const bool  deviceButton;     ///< Whether the key is from a button on the device
+    const char* keyName;      ///< XF86 key name
+    const int   daliKeyCode;  ///< Dali key code
+    const bool  deviceButton; ///< Whether the key is from a button on the device
   };
 
   /**
    * @brief Constructor.
    * @SINCE_1_2.41
    */
-  KeyExtensionPlugin(){}
+  KeyExtensionPlugin()
+  {
+  }
 
   /**
    * @brief Destructor.
    * @SINCE_1_2.41
    */
-  virtual ~KeyExtensionPlugin(){}
+  virtual ~KeyExtensionPlugin()
+  {
+  }
 
   /**
    * @brief Get extension key lookup table.
@@ -69,6 +71,6 @@ public:
   virtual std::size_t GetKeyLookupTableCount() = 0;
 };
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif

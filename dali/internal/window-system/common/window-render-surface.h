@@ -51,7 +51,8 @@ class WindowRenderSurface : public Dali::RenderSurfaceInterface, public Connecti
 {
 public:
 
-  typedef Signal< void ( ) > OutputSignalType;
+  using OutputSignalType = Signal< void ( ) >;
+  using DamagedRectsContainer = std::list< std::vector< Rect< int > > >;
 
   /**
     * Uses an window surface to render to.
@@ -121,86 +122,86 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
-  virtual PositionSize GetPositionSize() const override;
+  PositionSize GetPositionSize() const override;
 
   /**
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
-  virtual void InitializeGraphics() override;
+  void InitializeGraphics() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
    */
-  virtual void CreateSurface() override;
+  void CreateSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
    */
-  virtual void DestroySurface() override;
+  void DestroySurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceGraphicsSurface() override;
+  bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
-  virtual void MoveResize( Dali::PositionSize positionSize) override;
+  void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
    */
-  virtual void StartRender() override;
+  void StartRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  virtual bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
    */
-  virtual void StopRender() override;
+  void StopRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
-  virtual void ReleaseLock() override;
+  void ReleaseLock() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
    */
-  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
+  Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
    */
-  virtual void MakeContextCurrent() override;
+  void MakeContextCurrent() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
    */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() override;
+  Integration::DepthBufferAvailable GetDepthBufferRequired() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
    */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
+  Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
 
@@ -230,6 +231,19 @@ private:
    * @param[in] fileDescriptor The file descriptor
    */
   void OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor );
+
+  /**
+   * @brief Set the buffer damage rects.
+   * @param[in] damagedRects List of damaged rects
+   * @param[in] clippingRect The rect to clip rendered scene
+   */
+  void SetBufferDamagedRects( const std::vector< Rect< int > >& damagedRects, Rect< int >& clippingRect );
+
+  /**
+   * @brief Swap buffers.
+   * @param[in] damagedRects List of damaged rects
+   */
+  void SwapBuffers( const std::vector<Rect<int>>& damagedRects );
 
 protected:
 
@@ -285,17 +299,17 @@ private: // Data
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
+  DamagedRectsContainer           mBufferDamagedRects;
   Dali::Mutex                     mMutex;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
+  uint32_t                        mDpiHorizontal;
+  uint32_t                        mDpiVertical;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
   bool                            mRotationSupported;
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-
-  uint32_t                        mDpiHorizontal;
-  uint32_t                        mDpiVertical;
 
 }; // class WindowRenderSurface
 

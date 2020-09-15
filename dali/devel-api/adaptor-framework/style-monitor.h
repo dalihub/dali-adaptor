@@ -2,7 +2,7 @@
 #define DALI_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
 class StyleMonitor;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Monitors the platform for style changes.
@@ -47,12 +46,10 @@ class StyleMonitor;
  */
 class DALI_ADAPTOR_API StyleMonitor : public BaseHandle
 {
-public: // Typedefs
-
-  typedef Signal< void ( StyleMonitor, StyleChange::Type ) > StyleChangeSignalType;   ///< StyleChange Signal type
+public:                                                                        // Typedefs
+  typedef Signal<void(StyleMonitor, StyleChange::Type)> StyleChangeSignalType; ///< StyleChange Signal type
 
 public: // Creation & Destruction
-
   /**
    * @brief Create an uninitialized StyleMonitor handle.
    *
@@ -92,10 +89,9 @@ public: // Creation & Destruction
    * @param[in] handle to An object @return handle to a Timer object
    * or an uninitialized handle
    */
-  static StyleMonitor DownCast( BaseHandle handle );
+  static StyleMonitor DownCast(BaseHandle handle);
 
 public: // Style Information
-
   /**
    * @brief Retrieves the default font family.
    * @return The default font family.
@@ -135,10 +131,9 @@ public: // Style Information
    * @param output to write the contents to
    * @return true if the load is successful
    */
-  bool LoadThemeFile( const std::string& filename, std::string& output );
+  bool LoadThemeFile(const std::string& filename, std::string& output);
 
 public: // Signals
-
   /**
    * @brief This signal is emitted whenever the style changes on the device.
    *
@@ -151,7 +146,6 @@ public: // Signals
   StyleChangeSignalType& StyleChangeSignal();
 
 public: // Operators
-
   /**
    * @brief Assignment operator.
    *

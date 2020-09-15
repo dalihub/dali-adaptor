@@ -15,11 +15,10 @@
  *
  */
 
-#include <dali/dali.h>
 #include <dali-test-suite-utils.h>
+#include <dali/dali.h>
 
 using namespace Dali;
-
 
 void utc_dali_native_image_source_startup(void)
 {
@@ -33,21 +32,21 @@ void utc_dali_native_image_source_cleanup(void)
 
 int UtcDaliNativeImageSourceNewN(void)
 {
-  unsigned int width = 256u;
+  unsigned int width  = 256u;
   unsigned int heigth = 256u;
 
   try
   {
-    NativeImageSourcePtr nativeImageSource = NativeImageSource::New(width, heigth, NativeImageSource::COLOR_DEPTH_DEFAULT );
+    NativeImageSourcePtr nativeImageSource = NativeImageSource::New(width, heigth, NativeImageSource::COLOR_DEPTH_DEFAULT);
   }
   catch(Dali::DaliException& e)
   {
-    DALI_TEST_PRINT_ASSERT( e );
+    DALI_TEST_PRINT_ASSERT(e);
     DALI_TEST_ASSERT(e, "Adaptor::IsAvailable()", TEST_LOCATION);
   }
   catch(...)
   {
-    tet_printf("Assertion test failed - wrong Exception\n" );
+    tet_printf("Assertion test failed - wrong Exception\n");
     tet_result(TET_FAIL);
   }
 

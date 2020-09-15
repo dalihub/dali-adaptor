@@ -1,8 +1,8 @@
-#ifndef  DALI_CLIPBOARD_H
-#define  DALI_CLIPBOARD_H
+#ifndef DALI_CLIPBOARD_H
+#define DALI_CLIPBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
  *
  */
 
-
 // EXTERNAL INCLUDES
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
@@ -28,15 +27,13 @@
 
 namespace Dali
 {
-
 namespace Internal DALI_INTERNAL
 {
-
 namespace Adaptor
 {
 class Clipboard;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Interface to the device's clipboard.
@@ -66,7 +63,7 @@ public:
    *
    * @param[in] clipboard A pointer to the clipboard.
    */
-  explicit DALI_INTERNAL Clipboard( Internal::Adaptor::Clipboard* clipboard );
+  explicit DALI_INTERNAL Clipboard(Internal::Adaptor::Clipboard* clipboard);
 
   /**
    * @brief Retrieve a handle to the ClipboardEventNotifier instance.
@@ -81,7 +78,7 @@ public:
    * @param[in] itemData string to send to clip board
    * @return bool true if the internal clip board sending was successful.
    */
-  bool SetItem( const std::string& itemData );
+  bool SetItem(const std::string& itemData);
 
   /**
    * @brief Request clipboard service to retrieve an item
@@ -113,7 +110,6 @@ public:
   * @return bool true if the clipboard is visible.
   */
   bool IsVisible() const;
-
 };
 } // namespace Dali
 

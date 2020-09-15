@@ -26,7 +26,6 @@
 
 namespace Dali
 {
-
 class NativeRenderSurface;
 
 /**
@@ -38,8 +37,7 @@ class NativeRenderSurface;
  * If you don't pass this, a native surface will be created.
  * @param [in] isTransparent Whether the surface has an alpha channel
  */
-NativeRenderSurface* CreateNativeSurface( SurfaceSize surfaceSize, Any surface,
-                                          bool isTransparent );
+NativeRenderSurface* CreateNativeSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent);
 
 } // namespace Dali
 

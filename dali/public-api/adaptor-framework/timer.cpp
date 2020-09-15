@@ -19,37 +19,36 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/timer-impl.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 Timer::Timer()
 {
 }
 
-Timer Timer::New( unsigned int milliSec )
+Timer Timer::New(unsigned int milliSec)
 {
-  Internal::Adaptor::TimerPtr internal = Internal::Adaptor::Timer::New( milliSec );
+  Internal::Adaptor::TimerPtr internal = Internal::Adaptor::Timer::New(milliSec);
   return Timer(internal.Get());
 }
 
-Timer::Timer( const Timer& copy ) = default;
+Timer::Timer(const Timer& copy) = default;
 
-Timer& Timer::operator=( const Timer& rhs ) = default;
+Timer& Timer::operator=(const Timer& rhs) = default;
 
-Timer::Timer( Timer&& rhs ) = default;
+Timer::Timer(Timer&& rhs) = default;
 
-Timer& Timer::operator=( Timer&& rhs ) = default;
+Timer& Timer::operator=(Timer&& rhs) = default;
 
 Timer::~Timer()
 {
 }
 
-Timer Timer::DownCast( BaseHandle handle )
+Timer Timer::DownCast(BaseHandle handle)
 {
-  return Timer( dynamic_cast<Internal::Adaptor::Timer*>( handle.GetObjectPtr() ) );
+  return Timer(dynamic_cast<Internal::Adaptor::Timer*>(handle.GetObjectPtr()));
 }
 
 void Timer::Start()
@@ -72,14 +71,14 @@ void Timer::Resume()
   Internal::Adaptor::GetImplementation(*this).Resume();
 }
 
-void Timer::SetInterval( unsigned int interval )
+void Timer::SetInterval(unsigned int interval)
 {
-  Internal::Adaptor::GetImplementation(*this).SetInterval( interval, true );
+  Internal::Adaptor::GetImplementation(*this).SetInterval(interval, true);
 }
 
-void Timer::SetInterval( unsigned int interval, bool restart )
+void Timer::SetInterval(unsigned int interval, bool restart)
 {
-  Internal::Adaptor::GetImplementation(*this).SetInterval( interval, restart );
+  Internal::Adaptor::GetImplementation(*this).SetInterval(interval, restart);
 }
 
 unsigned int Timer::GetInterval() const
@@ -101,6 +100,5 @@ Timer::Timer(Internal::Adaptor::Timer* timer)
 : BaseHandle(timer)
 {
 }
-
 
 } // namespace Dali

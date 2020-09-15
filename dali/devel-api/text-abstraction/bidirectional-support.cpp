@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,8 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 BidirectionalSupport::BidirectionalSupport()
 {
 }
@@ -35,8 +33,8 @@ BidirectionalSupport::~BidirectionalSupport()
 {
 }
 
-BidirectionalSupport::BidirectionalSupport( Internal::BidirectionalSupport* implementation )
-: BaseHandle( implementation )
+BidirectionalSupport::BidirectionalSupport(Internal::BidirectionalSupport* implementation)
+: BaseHandle(implementation)
 {
 }
 
@@ -45,54 +43,54 @@ BidirectionalSupport BidirectionalSupport::Get()
   return Internal::BidirectionalSupport::Get();
 }
 
-BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,
-                                                Length numberOfCharacters,
-                                                bool matchSystemLanguageDirection,
-                                                LayoutDirection::Type layoutDirection )
+BidiInfoIndex BidirectionalSupport::CreateInfo(const Character* const paragraph,
+                                               Length                 numberOfCharacters,
+                                               bool                   matchSystemLanguageDirection,
+                                               LayoutDirection::Type  layoutDirection)
 {
-  return GetImplementation( *this ).CreateInfo( paragraph,
-                                                numberOfCharacters,
-                                                matchSystemLanguageDirection,
-                                                layoutDirection );
+  return GetImplementation(*this).CreateInfo(paragraph,
+                                             numberOfCharacters,
+                                             matchSystemLanguageDirection,
+                                             layoutDirection);
 }
 
-void BidirectionalSupport::DestroyInfo( BidiInfoIndex bidiInfoIndex )
+void BidirectionalSupport::DestroyInfo(BidiInfoIndex bidiInfoIndex)
 {
-  GetImplementation( *this ).DestroyInfo( bidiInfoIndex );
+  GetImplementation(*this).DestroyInfo(bidiInfoIndex);
 }
 
-void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
-                                    CharacterIndex firstCharacterIndex,
-                                    Length numberOfCharacters,
-                                    CharacterIndex* visualToLogicalMap )
+void BidirectionalSupport::Reorder(BidiInfoIndex   bidiInfoIndex,
+                                   CharacterIndex  firstCharacterIndex,
+                                   Length          numberOfCharacters,
+                                   CharacterIndex* visualToLogicalMap)
 {
-  GetImplementation( *this ).Reorder( bidiInfoIndex,
-                                      firstCharacterIndex,
-                                      numberOfCharacters,
-                                      visualToLogicalMap );
+  GetImplementation(*this).Reorder(bidiInfoIndex,
+                                   firstCharacterIndex,
+                                   numberOfCharacters,
+                                   visualToLogicalMap);
 }
 
-bool BidirectionalSupport::GetMirroredText( Character* text,
-                                            CharacterDirection* directions,
-                                            Length numberOfCharacters )
+bool BidirectionalSupport::GetMirroredText(Character*          text,
+                                           CharacterDirection* directions,
+                                           Length              numberOfCharacters)
 {
-  return GetImplementation( *this ).GetMirroredText( text,
-                                                     directions,
-                                                     numberOfCharacters );
+  return GetImplementation(*this).GetMirroredText(text,
+                                                  directions,
+                                                  numberOfCharacters);
 }
 
-bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+bool BidirectionalSupport::GetParagraphDirection(BidiInfoIndex bidiInfoIndex) const
 {
-  return GetImplementation( *this ).GetParagraphDirection( bidiInfoIndex );
+  return GetImplementation(*this).GetParagraphDirection(bidiInfoIndex);
 }
 
-void BidirectionalSupport::GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
-                                                   CharacterDirection* directions,
-                                                   Length numberOfCharacters )
+void BidirectionalSupport::GetCharactersDirection(BidiInfoIndex       bidiInfoIndex,
+                                                  CharacterDirection* directions,
+                                                  Length              numberOfCharacters)
 {
-  GetImplementation( *this ).GetCharactersDirection( bidiInfoIndex,
-                                                     directions,
-                                                     numberOfCharacters );
+  GetImplementation(*this).GetCharactersDirection(bidiInfoIndex,
+                                                  directions,
+                                                  numberOfCharacters);
 }
 
 } // namespace TextAbstraction

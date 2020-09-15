@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,8 @@
 
 namespace Dali
 {
-
 namespace VirtualKeyboard
 {
-
 void Show()
 {
   Internal::Adaptor::VirtualKeyboard::Show();
@@ -42,14 +40,14 @@ bool IsVisible()
   return Internal::Adaptor::VirtualKeyboard::IsVisible();
 }
 
-void ApplySettings( const Property::Map& settingsMap )
+void ApplySettings(const Property::Map& settingsMap)
 {
-  Internal::Adaptor::VirtualKeyboard::ApplySettings( settingsMap );
+  Internal::Adaptor::VirtualKeyboard::ApplySettings(settingsMap);
 }
 
-void SetReturnKeyType( const InputMethod::ButtonAction::Type type )
+void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
 {
-  Internal::Adaptor::VirtualKeyboard::SetReturnKeyType( type );
+  Internal::Adaptor::VirtualKeyboard::SetReturnKeyType(type);
 }
 
 InputMethod::ButtonAction::Type GetReturnKeyType()

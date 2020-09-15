@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace Adaptor
 {
 class VectorAnimationRenderer;
 }
-}
+} // namespace DALI_INTERNAL
 
 /**
  * @brief Used for rendering a vector animation file
@@ -46,9 +46,8 @@ class VectorAnimationRenderer;
 class DALI_ADAPTOR_API VectorAnimationRenderer : public BaseHandle
 {
 public:
-
   /// @brief UploadCompleted signal type.
-  using UploadCompletedSignalType = Signal< void () >;
+  using UploadCompletedSignalType = Signal<void()>;
 
   /**
    * @brief Creates an initialized handle to a new VectorAnimationRenderer.
@@ -56,7 +55,7 @@ public:
    * @param[in] url The url of the vector animation file
    * @return A handle to a newly allocated VectorAnimationRenderer
    */
-  static VectorAnimationRenderer New( const std::string& url );
+  static VectorAnimationRenderer New(const std::string& url);
 
   /**
    * @brief Creates an empty handle.
@@ -74,7 +73,7 @@ public:
    *
    * @param[in] handle A reference to the copied handle
    */
-  VectorAnimationRenderer( const VectorAnimationRenderer& handle );
+  VectorAnimationRenderer(const VectorAnimationRenderer& handle);
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -82,7 +81,7 @@ public:
    * @param[in] rhs A reference to the copied handle
    * @return A reference to this
    */
-  VectorAnimationRenderer& operator=( const VectorAnimationRenderer& rhs );
+  VectorAnimationRenderer& operator=(const VectorAnimationRenderer& rhs);
 
   /**
    * @brief Finalizes the renderer.
@@ -94,7 +93,7 @@ public:
    *
    * @param[in] renderer The renderer used to display the result image
    */
-  void SetRenderer( Renderer renderer );
+  void SetRenderer(Renderer renderer);
 
   /**
    * @brief Sets the target image size.
@@ -102,7 +101,7 @@ public:
    * @param[in] width The target image width
    * @param[in] height The target image height
    */
-  void SetSize( uint32_t width, uint32_t height );
+  void SetSize(uint32_t width, uint32_t height);
 
   /**
    * @brief Renders the content to the target buffer synchronously.
@@ -110,7 +109,7 @@ public:
    * @param[in] frameNumber The frame number to be rendered
    * @return True if the rendering success, false otherwise.
    */
-  bool Render( uint32_t frameNumber );
+  bool Render(uint32_t frameNumber);
 
   /**
    * @brief Gets the total number of frames of the file
@@ -132,14 +131,14 @@ public:
    * @param[out] width The default width of the file
    * @param[out] height The default height of the file
    */
-  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+  void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
   /**
    * @brief Gets the layer information of all the child layers.
    *
    * @param[out] map The layer information
    */
-  void GetLayerInfo( Property::Map& map ) const;
+  void GetLayerInfo(Property::Map& map) const;
 
   /**
    * @brief Gets the start frame and the end frame number of the composition marker.
@@ -154,7 +153,7 @@ public:
    * Marker can be use to devide a resource in to separate animations by tagging the segment with comment string,
    * start frame and duration of that segment.
    */
-  bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
+  bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const;
 
   /**
    * @brief Ignores a rendered frame which is not shown yet.
@@ -162,7 +161,6 @@ public:
   void IgnoreRenderedFrame();
 
 public: // Signals
-
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
    *
@@ -171,7 +169,6 @@ public: // Signals
   UploadCompletedSignalType& UploadCompletedSignal();
 
 public: // Not intended for application developers
-
   /// @cond internal
   /**
    * @brief The constructor.
@@ -179,9 +176,8 @@ public: // Not intended for application developers
    *
    * @param[in] pointer A pointer to a newly allocated VectorAnimationRenderer
    */
-  explicit DALI_INTERNAL VectorAnimationRenderer( Internal::Adaptor::VectorAnimationRenderer* internal );
+  explicit DALI_INTERNAL VectorAnimationRenderer(Internal::Adaptor::VectorAnimationRenderer* internal);
   /// @endcond
-
 };
 
 /**

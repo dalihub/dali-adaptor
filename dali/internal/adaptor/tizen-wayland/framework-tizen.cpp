@@ -205,11 +205,13 @@ struct Framework::Impl
     if (region != nullptr)
     {
       mRegion = std::string( region );
+      free( region );
     }
 
     if ( language != nullptr)
     {
       mLanguage = std::string( language );
+      free( language );
     }
   }
 

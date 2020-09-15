@@ -22,10 +22,8 @@
 
 namespace Dali
 {
-
 namespace DevelNativeImageSource
 {
-
 /**
  * @brief Converts the current pixel contents to either a JPEG or PNG format
  * and write that to the filesystem.
@@ -37,7 +35,7 @@ namespace DevelNativeImageSource
  * @param[in] quality The value to control image quality for jpeg file format in the range [1, 100]
  * @return    @c true if the pixels were written, and @c false otherwise
  */
-DALI_ADAPTOR_API bool EncodeToFile( NativeImageSource& image, const std::string& filename, const uint32_t quality );
+DALI_ADAPTOR_API bool EncodeToFile(NativeImageSource& image, const std::string& filename, const uint32_t quality);
 
 /**
  * @brief Acquire buffer and information of an internal native image.
@@ -50,7 +48,7 @@ DALI_ADAPTOR_API bool EncodeToFile( NativeImageSource& image, const std::string&
  * @param[out] stride The stride of image
  * @return     The buffer of an internal native image
  */
-DALI_ADAPTOR_API uint8_t* AcquireBuffer( NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride );
+DALI_ADAPTOR_API uint8_t* AcquireBuffer(NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride);
 
 /**
  * @brief Release information of an internal native image.
@@ -60,7 +58,7 @@ DALI_ADAPTOR_API uint8_t* AcquireBuffer( NativeImageSource& image, uint16_t& wid
  * @param[in] image The instance of NativeImageSource.
  * @return     @c true If the buffer is released successfully, and @c false otherwise
  */
-DALI_ADAPTOR_API bool ReleaseBuffer( NativeImageSource& image );
+DALI_ADAPTOR_API bool ReleaseBuffer(NativeImageSource& image);
 
 } // namespace DevelNativeImageSource
 

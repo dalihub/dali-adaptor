@@ -90,62 +90,62 @@ public:
   /**
    * @copydoc ThreadControllerInterface::Initialize()
    */
-  virtual void Initialize();
+  void Initialize() override;
 
   /**
    * @copydoc ThreadControllerInterface::Start()
    */
-  virtual void Start();
+  void Start() override;
 
   /**
    * @copydoc ThreadControllerInterface::Pause()
    */
-  virtual void Pause();
+  void Pause() override;
 
   /**
    * @copydoc ThreadControllerInterface::Resume()
    */
-  virtual void Resume();
+  void Resume() override;
 
   /**
    * @copydoc ThreadControllerInterface::Stop()
    */
-  virtual void Stop();
+  void Stop() override;
 
   /**
    * @copydoc ThreadControllerInterface::RequestUpdate()
    */
-  virtual void RequestUpdate();
+  void RequestUpdate() override;
 
   /**
    * @copydoc ThreadControllerInterface::RequestUpdateOnce()
    */
-  virtual void RequestUpdateOnce( UpdateMode updateMode );
+  void RequestUpdateOnce( UpdateMode updateMode ) override;
 
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
+  void ReplaceSurface( Dali::RenderSurfaceInterface* surface ) override;
 
   /**
    * @copydoc ThreadControllerInterface::DeleteSurface()
    */
-  virtual void DeleteSurface( Dali::RenderSurfaceInterface* surface );
+  void DeleteSurface( Dali::RenderSurfaceInterface* surface ) override;
 
   /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
    */
-  virtual void ResizeSurface();
+  void ResizeSurface() override;
 
   /**
    * @copydoc ThreadControllerInterface::WaitForGraphicsInitialization()
    */
-  virtual void WaitForGraphicsInitialization();
+  void WaitForGraphicsInitialization() override;
 
   /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()
    */
-  virtual void SetRenderRefreshRate( unsigned int numberOfFramesPerRender );
+  void SetRenderRefreshRate( unsigned int numberOfFramesPerRender ) override;
 
   /**
    * @copydoc ThreadControllerInterface::SetPreRenderCallback
@@ -155,7 +155,7 @@ public:
   /**
    * @copydoc ThreadControllerInterface::AddSurface()
    */
-  virtual void AddSurface( Dali::RenderSurfaceInterface* surface );
+  void AddSurface( Dali::RenderSurfaceInterface* surface ) override;
 
 private:
 
@@ -322,7 +322,7 @@ private:
   /**
    * @copydoc ThreadSynchronizationInterface::PostRenderComplete()
    */
-  virtual void PostRenderComplete();
+  void PostRenderComplete() override;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   //// Called by the Render Thread if post-rendering is required
@@ -331,12 +331,12 @@ private:
   /**
    * @copydoc ThreadSynchronizationInterface::PostRenderStarted()
    */
-  virtual void PostRenderStarted();
+  void PostRenderStarted() override;
 
   /**
    * @copydoc ThreadSynchronizationInterface::PostRenderStarted()
    */
-  virtual void PostRenderWaitForCompletion();
+  void PostRenderWaitForCompletion() override;
 
 private:
 

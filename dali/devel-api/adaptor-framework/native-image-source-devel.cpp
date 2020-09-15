@@ -21,26 +21,23 @@
 //INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-impl.h>
 
-
 namespace Dali
 {
-
 namespace DevelNativeImageSource
 {
-
-bool EncodeToFile( NativeImageSource& image, const std::string& filename, const uint32_t quality )
+bool EncodeToFile(NativeImageSource& image, const std::string& filename, const uint32_t quality)
 {
-  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation( image ).EncodeToFile( filename, quality );
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).EncodeToFile(filename, quality);
 }
 
-uint8_t* AcquireBuffer( NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride )
+uint8_t* AcquireBuffer(NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride)
 {
-  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation( image ).AcquireBuffer( width, height, stride );
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).AcquireBuffer(width, height, stride);
 }
 
-bool ReleaseBuffer( NativeImageSource& image )
+bool ReleaseBuffer(NativeImageSource& image)
 {
-  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation( image ).ReleaseBuffer();
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).ReleaseBuffer();
 }
 
 } // namespace DevelNativeImageSource

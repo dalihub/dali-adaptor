@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@
 
 #include "utc-image-loading-common.h"
 
-double GetTimeMilliseconds( Integration::PlatformAbstraction& abstraction )
+double GetTimeMilliseconds(Integration::PlatformAbstraction& abstraction)
 {
   timespec timeSpec;
-  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
-  return ( timeSpec.tv_sec * 1e3 ) + ( timeSpec.tv_nsec / 1e6 );
+  clock_gettime(CLOCK_MONOTONIC, &timeSpec);
+  return (timeSpec.tv_sec * 1e3) + (timeSpec.tv_nsec / 1e6);
 }
 
 /** Live platform abstraction recreated for each test case. */
@@ -33,68 +33,68 @@ std::vector<ImageParameters> gCancelAttributes;
 void utc_dali_loading_startup(void)
 {
   test_return_value = TET_UNDEF;
-  gAbstraction = TizenPlatform::CreatePlatformAbstraction();
+  gAbstraction      = TizenPlatform::CreatePlatformAbstraction();
 
   // Setup some loading parameters to engage post-processing stages:
 
   ImageParameters scaleToFillAttributes;
   scaleToFillAttributes.second.first = FittingMode::SCALE_TO_FILL;
-  scaleToFillAttributes.first = ImageDimensions( 160, 120 );
-  gCancelAttributes.push_back( scaleToFillAttributes );
+  scaleToFillAttributes.first        = ImageDimensions(160, 120);
+  gCancelAttributes.push_back(scaleToFillAttributes);
 
   // Hit the derived dimensions code:
   ImageParameters scaleToFillAttributesDeriveWidth = scaleToFillAttributes;
-  scaleToFillAttributesDeriveWidth.first = ImageDimensions( 0, 120 );
-  gCancelAttributes.push_back( scaleToFillAttributesDeriveWidth );
+  scaleToFillAttributesDeriveWidth.first           = ImageDimensions(0, 120);
+  gCancelAttributes.push_back(scaleToFillAttributesDeriveWidth);
 
   ImageParameters scaleToFillAttributesDeriveHeight = scaleToFillAttributes;
-  scaleToFillAttributesDeriveHeight.first = ImageDimensions( 160, 0 );
-  gCancelAttributes.push_back( scaleToFillAttributesDeriveHeight );
+  scaleToFillAttributesDeriveHeight.first           = ImageDimensions(160, 0);
+  gCancelAttributes.push_back(scaleToFillAttributesDeriveHeight);
 
   // Try to push a tall crop:
-  ImageParameters scaleToFillAttributesTall = scaleToFillAttributes;
-  scaleToFillAttributesTall.first = ImageDimensions( 160, 480 );
+  ImageParameters scaleToFillAttributesTall  = scaleToFillAttributes;
+  scaleToFillAttributesTall.first            = ImageDimensions(160, 480);
   ImageParameters scaleToFillAttributesTall2 = scaleToFillAttributes;
-  scaleToFillAttributesTall2.first = ImageDimensions( 160, 509 );
+  scaleToFillAttributesTall2.first           = ImageDimensions(160, 509);
   ImageParameters scaleToFillAttributesTall3 = scaleToFillAttributes;
-  scaleToFillAttributesTall3.first = ImageDimensions( 37, 251 );
-  gCancelAttributes.push_back( scaleToFillAttributesTall );
-  gCancelAttributes.push_back( scaleToFillAttributesTall2 );
-  gCancelAttributes.push_back( scaleToFillAttributesTall3 );
+  scaleToFillAttributesTall3.first           = ImageDimensions(37, 251);
+  gCancelAttributes.push_back(scaleToFillAttributesTall);
+  gCancelAttributes.push_back(scaleToFillAttributesTall2);
+  gCancelAttributes.push_back(scaleToFillAttributesTall3);
 
   // Try to push a wide crop:
-  ImageParameters scaleToFillAttributesWide = scaleToFillAttributes;
-  scaleToFillAttributesWide.first = ImageDimensions( 320, 60 );
+  ImageParameters scaleToFillAttributesWide  = scaleToFillAttributes;
+  scaleToFillAttributesWide.first            = ImageDimensions(320, 60);
   ImageParameters scaleToFillAttributesWide2 = scaleToFillAttributes;
-  scaleToFillAttributesWide2.first = ImageDimensions( 317, 60 );
+  scaleToFillAttributesWide2.first           = ImageDimensions(317, 60);
   ImageParameters scaleToFillAttributesWide3 = scaleToFillAttributes;
-  scaleToFillAttributesWide3.first = ImageDimensions( 317, 53 );
-  gCancelAttributes.push_back( scaleToFillAttributesWide );
-  gCancelAttributes.push_back( scaleToFillAttributesWide2 );
-  gCancelAttributes.push_back( scaleToFillAttributesWide3 );
+  scaleToFillAttributesWide3.first           = ImageDimensions(317, 53);
+  gCancelAttributes.push_back(scaleToFillAttributesWide);
+  gCancelAttributes.push_back(scaleToFillAttributesWide2);
+  gCancelAttributes.push_back(scaleToFillAttributesWide3);
 
   ImageParameters shrinkToFitAttributes = scaleToFillAttributes;
-  shrinkToFitAttributes.second.first = FittingMode::SHRINK_TO_FIT;
-  gCancelAttributes.push_back( shrinkToFitAttributes );
+  shrinkToFitAttributes.second.first    = FittingMode::SHRINK_TO_FIT;
+  gCancelAttributes.push_back(shrinkToFitAttributes);
 
   ImageParameters fitWidthAttributes = scaleToFillAttributes;
-  fitWidthAttributes.second.first = FittingMode::FIT_WIDTH;
-  gCancelAttributes.push_back( fitWidthAttributes );
+  fitWidthAttributes.second.first    = FittingMode::FIT_WIDTH;
+  gCancelAttributes.push_back(fitWidthAttributes);
 
   ImageParameters fitHeightAttributes = scaleToFillAttributes;
-  fitHeightAttributes.second.first = FittingMode::FIT_HEIGHT;
-  gCancelAttributes.push_back( fitHeightAttributes );
+  fitHeightAttributes.second.first    = FittingMode::FIT_HEIGHT;
+  gCancelAttributes.push_back(fitHeightAttributes);
 
   ///@ToDo: Add attribute variants for all scale modes.
   ///@ToDo: Add attribute variants for all filter modes.
 
   // Pad the array to a prime number to mitigate any accidental periodic
   // patterns in which image file has which attributes applied to its load:
-  srand48( 104729 );
+  srand48(104729);
   const float lastUniques = gCancelAttributes.size() - 0.001f;
-  while( gCancelAttributes.size() < 61u )
+  while(gCancelAttributes.size() < 61u)
   {
-    gCancelAttributes.push_back( gCancelAttributes[unsigned(drand48() * lastUniques)] );
+    gCancelAttributes.push_back(gCancelAttributes[unsigned(drand48() * lastUniques)]);
   }
 }
 

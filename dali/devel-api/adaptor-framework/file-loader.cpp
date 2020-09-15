@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 
 // EXTERNAL INCLUDES
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
@@ -27,26 +27,24 @@
 
 namespace Dali
 {
-
 namespace
 {
-
 // limit maximum image down load size to 50 MB
-const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE  = 50 * 1024 * 1024 ;
+const size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
 
-}
+} // namespace
 
 namespace FileLoader
 {
-
-int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, FileLoader::FileType fileType)
+int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, FileLoader::FileType fileType)
 {
-  return Dali::Internal::Adaptor::ReadFile( filename, memblock, fileType );
+  return Dali::Internal::Adaptor::ReadFile(filename, memblock, fileType);
 }
 
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, FileLoader::FileType fileType)
 {
-  return Dali::Internal::Adaptor::ReadFile( filename, fileSize, memblock, fileType );;
+  return Dali::Internal::Adaptor::ReadFile(filename, fileSize, memblock, fileType);
+  ;
 }
 
 std::streampos GetFileSize(const std::string& filename)
@@ -54,12 +52,12 @@ std::streampos GetFileSize(const std::string& filename)
   return Dali::Internal::Adaptor::GetFileSize(filename);
 }
 
-bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t> &dataBuffer)
+bool DownloadFileSynchronously(const std::string& filename, Dali::Vector<uint8_t>& dataBuffer)
 {
   size_t dataSize;
-  return TizenPlatform::Network::DownloadRemoteFileIntoMemory( filename, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE );
+  return TizenPlatform::Network::DownloadRemoteFileIntoMemory(filename, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE);
 }
 
-} //FileLoader
+} // namespace FileLoader
 
-} //Dali
+} // namespace Dali
