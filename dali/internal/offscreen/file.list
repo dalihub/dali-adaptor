@@ -1,5 +1,0 @@
-# module: offscreen, backend: common
-SET( adaptor_offscreen_common_src_files
-    ${adaptor_offscreen_dir}/common/offscreen-application-impl.cpp
-    ${adaptor_offscreen_dir}/common/offscreen-window-impl.cpp
-)
