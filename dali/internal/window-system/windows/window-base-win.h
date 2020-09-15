@@ -327,6 +327,11 @@ public:
   void SetWindowRotationAngle( int degree ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetWindowRotationAngle()
+   */
+  virtual void GetWindowRotationAngle() override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
    */
   void WindowRotationCompleted( int degree, int width, int height ) override;
@@ -335,6 +340,12 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
    */
   void SetTransparency( bool transparent ) override;
+
+  /**
+   * @brief Return the orientation of the surface.
+   * @return The orientation
+   */
+  virtual int GetOrientation() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
