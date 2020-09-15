@@ -77,7 +77,7 @@ public:
    * @param[in] surface The native surface handle to create the OffscreenWindow
    * @param[in] renderMode The RenderMode of the OffscreenApplication
    */
-  static OffscreenApplication New( Dali::Any surface, bool isTranslucent, RenderMode renderMode = RenderMode::AUTO );
+  static OffscreenApplication New( Dali::Any surface, RenderMode renderMode = RenderMode::AUTO );
 
   /**
    * @brief Constructs an empty handle
