@@ -125,6 +125,11 @@ public:
 
   void Pause() override
   {
+    if (!IsUp())
+    {
+      return;
+    }
+
     auto r = directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).call( true );
     if (!r)
     {
@@ -134,6 +139,11 @@ public:
 
   void Resume() override
   {
+    if (!IsUp())
+    {
+      return;
+    }
+
     auto r = directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).call( false );
     if (!r)
     {
@@ -143,6 +153,11 @@ public:
 
   void Say( const std::string& text, bool discardable, std::function< void(std::string) > callback ) override
   {
+    if (!IsUp())
+    {
+      return;
+    }
+
     auto commandId = directReadingClient.method< DBus::ValueOrError< std::string, bool, int32_t >( std::string, bool ) > ( "ReadCommand" ).call( text, discardable );
     if ( !commandId )
     {
