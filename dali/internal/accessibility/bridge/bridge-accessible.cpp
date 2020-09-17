@@ -277,6 +277,15 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   double maximumValue = 0.0;
   double minimumValue = 0.0;
 
+  auto *value = dynamic_cast<Dali::Accessibility::Value *>(self);
+  if (value)
+  {
+    currentValue = value->GetCurrent();
+    minimumIncrement = value->GetMinimumIncrement();
+    maximumValue = value->GetMaximum();
+    minimumValue = value->GetMinimum();
+  }
+
   auto description = self->GetDescription();
   auto indexInParent = static_cast< int32_t >( self->GetIndexInParent() );
   bool isSelectedInParent = false;
