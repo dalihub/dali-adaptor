@@ -212,7 +212,8 @@ public:
         if (it != directReadingCallbacks.end())
         {
           it->second( readingState );
-          directReadingCallbacks.erase( it );
+          if (readingState != "ReadingPaused" && readingState != "ReadingResumed" && readingState != "ReadingStarted")
+            directReadingCallbacks.erase( it );
         }
       }
     );
