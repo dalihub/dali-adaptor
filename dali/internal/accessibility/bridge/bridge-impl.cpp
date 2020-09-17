@@ -130,11 +130,14 @@ public:
       return;
     }
 
-    auto r = directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).call( true );
-    if (!r)
-    {
-      LOG() << "Direct reading command failed (" << r.getError().message << ")";
-    }
+    directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).asyncCall(
+      []( DBus::ValueOrError< void > msg ) {
+        if (!msg)
+        {
+          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        }
+      },
+      true);
   }
 
   void Resume() override
@@ -144,11 +147,14 @@ public:
       return;
     }
 
-    auto r = directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).call( false );
-    if (!r)
-    {
-      LOG() << "Direct reading command failed (" << r.getError().message << ")";
-    }
+    directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).asyncCall(
+      []( DBus::ValueOrError< void > msg) {
+        if (!msg)
+        {
+          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        }
+      },
+      false);
   }
 
   void Say( const std::string& text, bool discardable, std::function< void(std::string) > callback ) override
@@ -158,15 +164,19 @@ public:
       return;
     }
 
-    auto commandId = directReadingClient.method< DBus::ValueOrError< std::string, bool, int32_t >( std::string, bool ) > ( "ReadCommand" ).call( text, discardable );
-    if ( !commandId )
-    {
-      LOG() << "Direct reading command failed (" << commandId.getError().message << ")";
-    }
-    else if( callback )
-    {
-      directReadingCallbacks.emplace( std::get< 2 >( commandId ), callback);
-    }
+    directReadingClient.method< DBus::ValueOrError< std::string, bool, int32_t >( std::string, bool ) > ( "ReadCommand" ).asyncCall(
+      [=]( DBus::ValueOrError<std::string, bool, int32_t> msg ) {
+        if ( !msg )
+        {
+          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        }
+        else if( callback )
+        {
+          directReadingCallbacks.emplace( std::get< 2 >( msg ), callback);
+        }
+      },
+      text,
+      discardable);
   }
 
   void ForceDown() override
