@@ -417,7 +417,7 @@ public:
 
   /**
    * @brief Emits property-changed event
-   * @param[in] Property changed event
+   * @param[in] event Property changed event
    **/
   void Emit( ObjectPropertyChangeEvent event );
 
@@ -894,7 +894,7 @@ public:
   /**
    * @brief Set caret offset
    *
-   * @param[in] caret offset
+   * @param[in] offset Caret offset
    *
    * @return True if successful
    */
