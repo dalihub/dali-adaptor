@@ -36,6 +36,10 @@ std::vector< std::string > Accessible::GetInterfaces()
     {
         tmp.push_back(AtspiDbusInterfaceText);
     }
+    if (dynamic_cast<EditableText*>(this))
+    {
+        tmp.push_back(AtspiDbusInterfaceEditableText);
+    }
     if (dynamic_cast<Value*>(this))
     {
         tmp.push_back(AtspiDbusInterfaceValue);
