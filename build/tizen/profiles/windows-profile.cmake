@@ -35,6 +35,7 @@ SET( SOURCES
         ${devel_api_text_abstraction_src_files}
         ${static_libraries_glyphy_src_files}
         ${static_libraries_libunibreak_src_files}
+        ${static_libraries_nanosvg_src_files}
         ${adaptor_windows_platform_src_files}
         ${adaptor_adaptor_windows_src_files}
         ${adaptor_window_system_windows_src_files}

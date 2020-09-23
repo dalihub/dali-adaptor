@@ -27,6 +27,9 @@
 #include <dali/internal/vector-image/common/vector-image-renderer-plugin-proxy.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
+struct NSVGrasterizer;
+struct NSVGimage;
+
 namespace Dali
 {
 
@@ -42,7 +45,7 @@ using VectorImageRendererPtr = IntrusivePtr< VectorImageRenderer >;
 /**
  * Dali internal VectorImageRenderer.
  */
-class VectorImageRenderer : public BaseObject, public ConnectionTracker
+class VectorImageRenderer : public BaseObject
 {
 public:
 
@@ -54,29 +57,14 @@ public:
   static VectorImageRendererPtr New();
 
   /**
-   * @brief Initializes member data.
-   */
-  void Initialize();
-
-  /**
-   * @copydoc Dali::VectorImageRenderer::SetBuffer()
-   */
-  void SetBuffer( Dali::Devel::PixelBuffer &buffer );
-
-  /**
-   * @copydoc Dali::VectorImageRenderer::Render()
-   */
-  bool Render(float scale);
-
-  /**
    * @copydoc Dali::VectorImageRenderer::Load()
    */
-  bool Load( const std::string& url );
+  bool Load(const Vector<uint8_t>& data, float dpi);
 
   /**
-   * @copydoc Dali::VectorImageRenderer::Load()
+   * @copydoc Dali::VectorImageRenderer::Rasterize()
    */
-  bool Load( const char *data, uint32_t size );
+  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
 
   /**
    * @copydoc Dali::VectorImageRenderer::GetDefaultSize()
@@ -98,11 +86,18 @@ private:
   /**
    * @brief Destructor.
    */
-  ~VectorImageRenderer() = default;
+  virtual ~VectorImageRenderer();
+
+  /**
+   * @brief Initializes member data.
+   */
+  void Initialize();
 
 private:
 
   VectorImageRendererPluginProxy mPlugin;
+  NSVGimage*                     mParsedImage;
+  NSVGrasterizer*                mRasterizer;
 };
 
 } // namespace Adaptor

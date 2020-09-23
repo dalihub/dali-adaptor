@@ -47,6 +47,7 @@ SET( SOURCES
     ${adaptor_addons_tizen_src_files}
     ${static_libraries_glyphy_src_files}
     ${static_libraries_libunibreak_src_files}
+    ${static_libraries_nanosvg_src_files}
      )
 IF( enable_ecore_wayland2 )
     SET( SOURCES ${SOURCES}

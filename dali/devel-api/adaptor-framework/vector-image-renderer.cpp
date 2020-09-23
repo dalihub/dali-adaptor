@@ -27,11 +27,6 @@ namespace Dali
 VectorImageRenderer VectorImageRenderer::New()
 {
   Internal::Adaptor::VectorImageRendererPtr imageRenderer = Internal::Adaptor::VectorImageRenderer::New();
-  if( imageRenderer )
-  {
-    imageRenderer->Initialize();
-  }
-
   return VectorImageRenderer( imageRenderer.Get() );
 }
 
@@ -48,24 +43,14 @@ VectorImageRenderer::VectorImageRenderer( Internal::Adaptor::VectorImageRenderer
 {
 }
 
-void VectorImageRenderer::SetBuffer( Dali::Devel::PixelBuffer &buffer )
+bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 {
-  GetImplementation( *this ).SetBuffer( buffer );
+  return GetImplementation(*this).Load(data, dpi);
 }
 
-bool VectorImageRenderer::Render(float scale)
+bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
 {
-  return GetImplementation( *this ).Render(scale);
-}
-
-bool VectorImageRenderer::Load( const std::string& url )
-{
-  return GetImplementation( *this ).Load( url );
-}
-
-bool VectorImageRenderer::Load( const char *data, uint32_t size )
-{
-  return GetImplementation( *this ).Load( data, size );
+  return GetImplementation(*this).Rasterize(buffer, scale);
 }
 
 void VectorImageRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
