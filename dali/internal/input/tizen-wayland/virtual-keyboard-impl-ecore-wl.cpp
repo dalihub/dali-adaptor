@@ -53,12 +53,9 @@ Ecore_IMF_Input_Panel_Return_Key_Type buttonActionMapping(Dali::InputMethod::But
     case InputMethod::ButtonAction::JOIN:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_JOIN;
     case InputMethod::ButtonAction::LOGIN:       return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_LOGIN;
     case InputMethod::ButtonAction::NEXT:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_NEXT;
-    case InputMethod::ButtonAction::PREVIOUS:    return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
     case InputMethod::ButtonAction::SEARCH:      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEARCH;
     case InputMethod::ButtonAction::SEND:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SEND;
-    case InputMethod::ButtonAction::SIGNIN:      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
-    case InputMethod::ButtonAction::UNSPECIFIED: return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
-    case InputMethod::ButtonAction::NONE:        return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
+    case InputMethod::ButtonAction::SIGNIN:      return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_SIGNIN;
     default:                                     return ECORE_IMF_INPUT_PANEL_RETURN_KEY_TYPE_DEFAULT;
   }
 }
