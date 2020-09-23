@@ -72,11 +72,6 @@ public: // from WindowRenderSurface
    */
   void WaitUntilSurfaceReplaced() override;
 
-  /**
-   * @copydoc Dali::NativeRenderSurface::GetNativeRenderable()
-   */
-  virtual Any GetNativeRenderable() override;
-
 public: // from Dali::RenderSurfaceInterface
 
   /**
