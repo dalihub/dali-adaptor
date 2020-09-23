@@ -57,14 +57,6 @@ public:
   void Initialize( EnvironmentOptions* environmentOptions ) override;
 
   /**
-   * Initialize the graphics interface with specific input parameters
-   * @param[in]  depth  The flag to enable depth buffer
-   * @param[in]  stencil  The flag to enable stencil buffer
-   * @param[in]  msaa  The value of multi sampleing bit
-   */
-  void Initialize( bool depth, bool stencil, int msaa );
-
-  /**
    * Creates the graphics interface for EGL
    * @return The graphics interface for EGL
    */

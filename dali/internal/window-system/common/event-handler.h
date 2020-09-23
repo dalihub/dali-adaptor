@@ -111,10 +111,10 @@ public:
 
   /**
    * Constructor.
-   * @param[in]  windowBase               The window base to be handled
+   * @param[in]  surface                  The render surface of the window.
    * @param[in]  damageObserver           The damage observer (to pass damage events to).
    */
-  EventHandler( WindowBase* windowBase, DamageObserver& damageObserver );
+  EventHandler( WindowRenderSurface* surface, DamageObserver& damageObserver );
 
   /**
    * Destructor.
