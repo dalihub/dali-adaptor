@@ -29,11 +29,13 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/tilt-sensor.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
 )
 
 
@@ -74,6 +76,8 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/tilt-sensor.h
   ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
@@ -86,6 +90,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/component-application.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-sync-mode.h
+  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
 )
 
 

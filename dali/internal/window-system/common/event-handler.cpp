@@ -95,7 +95,7 @@ static uint32_t GetCurrentMilliSeconds(void)
 } // unnamed namespace
 #endif
 
-EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damageObserver )
+EventHandler::EventHandler( WindowBase* windowBase, DamageObserver& damageObserver )
 : mStyleMonitor( StyleMonitor::Get() ),
   mDamageObserver( damageObserver ),
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
@@ -103,11 +103,9 @@ EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damage
   mClipboard( Clipboard::Get() ),
   mPaused( false )
 {
-  if( surface )
+  // Connect signals
+  if( windowBase )
   {
-    WindowBase* windowBase = surface->GetWindowBase();
-
-    // Connect signals
     windowBase->WindowDamagedSignal().Connect( this, &EventHandler::OnWindowDamaged );
     windowBase->FocusChangedSignal().Connect( this, &EventHandler::OnFocusChanged );
     windowBase->RotationSignal().Connect( this, &EventHandler::OnRotation );
@@ -118,6 +116,10 @@ EventHandler::EventHandler( WindowRenderSurface* surface, DamageObserver& damage
     windowBase->SelectionDataReceivedSignal().Connect( this, &EventHandler::OnSelectionDataReceived );
     windowBase->StyleChangedSignal().Connect( this, &EventHandler::OnStyleChanged );
     windowBase->AccessibilitySignal().Connect( this, &EventHandler::OnAccessibilityNotification );
+  }
+  else
+  {
+    DALI_LOG_ERROR("WindowBase is invalid!!!\n");
   }
 }
 

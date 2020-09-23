@@ -139,7 +139,8 @@ NativeImageSourceX::~NativeImageSourceX()
 {
   if (mOwnPixmap && mPixmap)
   {
-    ecore_x_pixmap_free(mPixmap);
+    // Temporarily disable this as this causes a crash with EFL Version 1.24.0
+    //ecore_x_pixmap_free(mPixmap);
   }
 }
 
