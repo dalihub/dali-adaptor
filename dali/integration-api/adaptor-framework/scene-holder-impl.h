@@ -160,6 +160,15 @@ public:
   }
 
   /**
+   * @brief Informs the scene that the set surface has been rotated.
+   *
+   * @param[in] width The width of rotated surface
+   * @param[in] height The height of rotated surface
+   * @param[in] orientation The orientation of rotated surface
+   */
+  void SurfaceRotated(float width, float height, int orientation);
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
    */
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);

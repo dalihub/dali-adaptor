@@ -395,6 +395,11 @@ public:
   void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   */
+  int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
   int GetScreenRotationAngle() override;
@@ -485,6 +490,9 @@ private:
 
   bool                                 mOwnSurface;
 
+  int                                  mWindowRotationAngle;
+  int                                  mScreenRotationAngle;
+  int                                  mSupportedPreProtation;
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection*                   mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE

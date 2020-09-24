@@ -462,6 +462,11 @@ void WindowBaseWin::SetTransparency( bool transparent )
 {
 }
 
+int WindowBaseWin::GetOrientation() const
+{
+  return 0;
+}
+
 uintptr_t WindowBaseWin::GetSurfaceId( Any surface ) const
 {
   uintptr_t surfaceId = 0;
