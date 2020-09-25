@@ -54,14 +54,11 @@ Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, fals
 } // unnamed namespace
 
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent )
-: mSurfaceSize( surfaceSize ),
-  mRenderNotification( NULL ),
+: mRenderNotification( NULL ),
   mGraphics( NULL ),
   mEGL( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
-  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
-  mTbmFormat( isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888 ),
   mOwnSurface( false ),
   mDrawableCompleted( false ),
   mTbmQueue( NULL ),
@@ -72,13 +69,22 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize,
 
   if( surface.Empty() )
   {
+    mSurfaceSize = surfaceSize;
+    mColorDepth = isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mTbmFormat = isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888;
     CreateNativeRenderable();
   }
   else
   {
-    // check we have a valid type
-    DALI_ASSERT_ALWAYS( ( surface.GetType() == typeid (tbm_surface_queue_h) ) && "Surface type is invalid" );
     mTbmQueue = AnyCast< tbm_surface_queue_h >( surface );
+
+    uint16_t width = static_cast<uint16_t>( tbm_surface_queue_get_width( mTbmQueue ) );
+    uint16_t height = static_cast<uint16_t>( tbm_surface_queue_get_height( mTbmQueue ) );
+    mSurfaceSize = SurfaceSize( width, height );
+
+    mTbmFormat = tbm_surface_queue_get_format( mTbmQueue );
+
+    mColorDepth = ( mTbmFormat == TBM_FORMAT_ARGB8888 ) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
 }
 
@@ -124,6 +130,11 @@ void NativeRenderSurfaceEcoreWl::WaitUntilSurfaceReplaced()
   }
 
   mDrawableCompleted = false;
+}
+
+Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
+{
+  return mTbmQueue;
 }
 
 PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
@@ -239,45 +250,62 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
     eglImpl.SwapBuffers( mEGLSurface, damagedRects );
   }
 
-  if( mThreadSynchronization )
+  //TODO: Move calling tbm_surface_queue_acruie to OffscreenWindow and Scene in EvasPlugin
+  if ( mOwnSurface )
   {
-    mThreadSynchronization->PostRenderStarted();
-  }
-
-  if( tbm_surface_queue_can_acquire( mTbmQueue, 1 ) )
-  {
-    if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+    if( mThreadSynchronization )
     {
-      DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
-      return;
+      mThreadSynchronization->PostRenderStarted();
+    }
+
+    if( tbm_surface_queue_can_acquire( mTbmQueue, 1 ) )
+    {
+      if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+      {
+        DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
+        return;
+      }
+    }
+
+    if ( mConsumeSurface )
+    {
+      tbm_surface_internal_ref( mConsumeSurface );
+    }
+
+    if( replacingSurface )
+    {
+      ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
+      mDrawableCompleted = true;
+      mTbmSurfaceCondition.Notify( lock );
+    }
+
+   // create damage for client applications which wish to know the update timing
+    if( !replacingSurface && mRenderNotification )
+    {
+      // use notification trigger
+      // Tell the event-thread to render the tbm_surface
+      mRenderNotification->Trigger();
+    }
+
+    if( mThreadSynchronization )
+    {
+      // wait until the event-thread completed to use the tbm_surface
+      mThreadSynchronization->PostRenderWaitForCompletion();
+    }
+
+    // release the consumed surface after post render was completed
+    ReleaseDrawable();
+  }
+  else
+  {
+    // create damage for client applications which wish to know the update timing
+    if( !replacingSurface && mRenderNotification )
+    {
+      // use notification trigger
+      // Tell the event-thread to render the tbm_surface
+      mRenderNotification->Trigger();
     }
   }
-
-  tbm_surface_internal_ref( mConsumeSurface );
-
-  if( replacingSurface )
-  {
-    ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
-    mDrawableCompleted = true;
-    mTbmSurfaceCondition.Notify( lock );
-  }
-
- // create damage for client applications which wish to know the update timing
-  if( !replacingSurface && mRenderNotification )
-  {
-    // use notification trigger
-    // Tell the event-thread to render the tbm_surface
-    mRenderNotification->Trigger();
-  }
-
-  if( mThreadSynchronization )
-  {
-    // wait until the event-thread completed to use the tbm_surface
-    mThreadSynchronization->PostRenderWaitForCompletion();
-  }
-
-  // release the consumed surface after post render was completed
-  ReleaseDrawable();
 }
 
 void NativeRenderSurfaceEcoreWl::StopRender()

@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+// CLASS HEADER
+#include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
+
+// EXTERNAL INCLUDES
+#include <dali/public-api/object/type-registry.h>
+
+// INTERNAL INCLUDES
+
+namespace Dali
+{
+
+namespace Internal
+{
+
+namespace Adaptor
+{
+
+namespace // unnamed namespace
+{
+
+// Type Registration
+Dali::BaseHandle Create()
+{
+  return Dali::BaseHandle();
+}
+
+Dali::TypeRegistration type( typeid( Dali::VectorImageRenderer ), typeid( Dali::BaseHandle ), Create );
+
+} // unnamed namespace
+
+VectorImageRendererPtr VectorImageRenderer::New()
+{
+  VectorImageRendererPtr renderer = new VectorImageRenderer();
+  return renderer;
+}
+
+VectorImageRenderer::VectorImageRenderer()
+: mPlugin( std::string() )
+{
+}
+
+void VectorImageRenderer::Initialize()
+{
+  mPlugin.Initialize();
+}
+
+void VectorImageRenderer::SetBuffer( Dali::Devel::PixelBuffer &buffer )
+{
+  mPlugin.SetBuffer( buffer );
+}
+
+bool VectorImageRenderer::Render(float scale)
+{
+  return mPlugin.Render( scale );
+}
+
+bool VectorImageRenderer::Load( const std::string& url )
+{
+  return mPlugin.Load( url );
+}
+
+bool VectorImageRenderer::Load( const char *data, uint32_t size )
+{
+  return mPlugin.Load( data, size );
+}
+
+void VectorImageRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+{
+  mPlugin.GetDefaultSize( width, height );
+}
+
+} // namespace Adaptor
+
+} // namespace internal
+
+} // namespace Dali

@@ -22,6 +22,7 @@ SET( SOURCES
         ${adaptor_integration_api_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
+        ${adaptor_offscreen_common_src_files}
         ${adaptor_public_api_src_files}
         ${adaptor_sensor_common_src_files}
         ${adaptor_sensor_ubuntu_src_files}
@@ -33,6 +34,7 @@ SET( SOURCES
         ${adaptor_text_ubuntu_src_files}
         ${adaptor_resampler_src_files}
         ${adaptor_vector_animation_common_src_files}
+        ${adaptor_vector_image_common_src_files}
         ${adaptor_video_common_src_files}
         ${adaptor_web_engine_common_src_files}
         ${adaptor_window_system_common_src_files}
