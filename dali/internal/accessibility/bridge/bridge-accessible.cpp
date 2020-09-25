@@ -156,9 +156,6 @@ static bool AcceptObject( Component* obj )
     return false;
   if ( !AcceptObjectCheckRelations( obj ) )
     return false;
-  //   if (CALL(get_object_in_relation_by_type, obj, ATSPI_RELATION_CONTROLLED_BY) != NULL) return 0;
-  if ( !AcceptObjectCheckRelations( obj ) )
-    return false;
   if( !states[State::HIGHLIGHTABLE] )
     return false;
 
@@ -357,14 +354,6 @@ DBus::ValueOrError< Accessible*, uint8_t, Accessible* > BridgeAccessible::GetNav
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordType;
   auto component = CalculateNavigableAccessibleAtPoint( accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH );
   bool recurse = false;
-  if( component )
-  {
-    const auto states = component->GetStates();
-    if( states[State::MODAL] )
-    {
-      component = nullptr;
-    }
-  }
   if( component )
   {
     recurse = component->IsProxy();
