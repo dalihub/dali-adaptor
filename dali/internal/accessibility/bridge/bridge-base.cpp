@@ -217,7 +217,7 @@ Accessible* BridgeBase::Find( const std::string& path ) const
     throw std::domain_error{"invalid path '" + path + "'"};
   }
   auto it = data->knownObjects.find( static_cast<Accessible*>( p ) );
-  if( it == data->knownObjects.end() || (*it)->GetStates()[State::DEFUNCT] )
+  if( it == data->knownObjects.end() )
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }
