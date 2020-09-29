@@ -178,17 +178,17 @@ void CombinedUpdateRenderController::Start()
     mEventThreadSemaphore.Acquire();
   }
 
-  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
-  {
-    currentSurface->StartRender();
-  }
-
   mRunning = TRUE;
 
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
   RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
+
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->StartRender();
+  }
 
   DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }

@@ -25,7 +25,7 @@
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/common/display-utils.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
-#include <dali/internal/window-system/common/window-render-surface.h>
+#include "window-render-surface-cocoa.h"
 
 namespace Dali::Internal::Adaptor
 {
@@ -37,7 +37,7 @@ RenderSurfaceFactoryCocoa::CreateWindowRenderSurface(
   bool isTransparent
 )
 {
-  return Utils::MakeUnique< WindowRenderSurface >( positionSize, surface, isTransparent );
+  return Utils::MakeUnique< WindowRenderSurfaceCocoa >( positionSize, surface, isTransparent );
 }
 
 std::unique_ptr< PixmapRenderSurface >
