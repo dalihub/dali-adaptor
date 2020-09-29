@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <cstdlib>
+#include <functional>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/math/math-utils.h>
 
@@ -44,7 +45,7 @@ const bool DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING = true;
 const bool DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
 const bool DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;
 
-unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int defaultValue )
+unsigned int GetEnvironmentVariable( const char* variable, unsigned int defaultValue )
 {
   const char* variableParameter = std::getenv(variable);
 
@@ -53,7 +54,7 @@ unsigned int GetIntegerEnvironmentVariable( const char* variable, unsigned int d
   return intValue;
 }
 
-bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
+bool GetEnvironmentVariable( const char* variable, int& intValue )
 {
   const char* variableParameter = std::getenv(variable);
 
@@ -66,7 +67,7 @@ bool GetIntegerEnvironmentVariable( const char* variable, int& intValue )
   return true;
 }
 
-bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
+bool GetEnvironmentVariable( const char* variable, float& floatValue )
 {
   const char* variableParameter = std::getenv(variable);
 
@@ -79,10 +80,119 @@ bool GetFloatEnvironmentVariable( const char* variable, float& floatValue )
   return true;
 }
 
-const char * GetCharEnvironmentVariable( const char * variable )
+void SetFromEnvironmentVariable(const char* variable, std::string& stringValue)
 {
-  return std::getenv( variable );
+  const char * charValue = std::getenv( variable );
+  if(charValue)
+  {
+    stringValue = charValue;
+  }
 }
+
+template<typename Type>
+void SetFromEnvironmentVariable(const char* variable, Type& memberVariable)
+{
+  Type envVarValue = -1;
+  if(GetEnvironmentVariable(variable, envVarValue))
+  {
+    memberVariable = envVarValue;
+  }
+}
+
+template<typename Type>
+void SetFromEnvironmentVariable(const char* variable, std::function<void(Type)> function)
+{
+  Type envVarValue = -1;
+  if(GetEnvironmentVariable(variable, envVarValue))
+  {
+    function(envVarValue);
+  }
+}
+
+/// Provides a functor which ensures a non-negative number is set for the given member variable
+struct MinimumZero
+{
+  MinimumZero(int& memberValue)
+  : mMemberValue(memberValue)
+  {
+  }
+
+  void operator()(int value)
+  {
+    // Negative Amounts do not make sense
+    mMemberValue = std::max(0, value);
+  }
+
+  int& mMemberValue;
+};
+
+/// Provides a functor which clamps the environment variable between 0.0f and 1.0f
+struct ClampBetweenZeroAndOne
+{
+  ClampBetweenZeroAndOne(float& memberValue)
+  : mMemberValue(memberValue)
+  {
+  }
+
+  void operator()(float value)
+  {
+    value = Clamp(value, 0.0f, 1.0f);
+    mMemberValue = value;
+  }
+
+  float& mMemberValue;
+};
+
+/// Provides a functor which only sets the member variable if the environment variable value is greater than the specified constant
+struct GreaterThan
+{
+  GreaterThan(unsigned int& memberValue, int greaterThanValue)
+  : mMemberValue(memberValue),
+    mGreaterThanValue(greaterThanValue)
+  {
+  }
+
+  void operator()(int value)
+  {
+    if(value > mGreaterThanValue)
+    {
+      mMemberValue = value;
+    }
+  }
+
+  unsigned int& mMemberValue;
+  const int mGreaterThanValue;
+};
+
+/// Provides a functor which sets the member to 1 if if the environment variable value is not zero
+struct EnableIfNonZero
+{
+  EnableIfNonZero(int& memberValue) : mMemberValue(memberValue) {}
+
+  void operator()(int value)
+  {
+    mMemberValue = ( value == 0 ) ? 0 : 1;
+  }
+
+  int& mMemberValue;
+};
+
+/// Provides a functor which sets the member to false if the environment variable value is not zero
+struct DisableIfNonZero
+{
+  DisableIfNonZero(bool& memberValue) : mMemberValue(memberValue) {}
+
+  void operator()(int value)
+  {
+    if( value > 0 )
+    {
+      mMemberValue = false;
+    }
+  }
+
+  bool& mMemberValue;
+};
+
 
 } // unnamed namespace
 
@@ -401,281 +511,96 @@ bool EnvironmentOptions::PartialUpdateRequired() const
 void EnvironmentOptions::ParseEnvironmentOptions()
 {
   // get logging options
-  mFpsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
-  mUpdateStatusFrequency = GetIntegerEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
-  mObjectProfilerInterval = GetIntegerEnvironmentVariable( DALI_ENV_OBJECT_PROFILER_INTERVAL, 0 );
-  mPerformanceStatsLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
-  mPerformanceStatsFrequency = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
-  mPerformanceTimeStampOutput = GetIntegerEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
-  mNetworkControl = GetIntegerEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
-  mPanGestureLoggingLevel = GetIntegerEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
+  mFpsFrequency = GetEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
+  mUpdateStatusFrequency = GetEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
+  mObjectProfilerInterval = GetEnvironmentVariable( DALI_ENV_OBJECT_PROFILER_INTERVAL, 0 );
+  mPerformanceStatsLevel = GetEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
+  mPerformanceStatsFrequency = GetEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
+  mPerformanceTimeStampOutput = GetEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
+  mNetworkControl = GetEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
+  mPanGestureLoggingLevel = GetEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
 
-  int predictionMode;
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, predictionMode) )
-  {
-    mPanGesturePredictionMode = predictionMode;
-  }
-  int predictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT, predictionAmount) )
-  {
-    if( predictionAmount < 0 )
-    {
-      // do not support times in the past
-      predictionAmount = 0;
-    }
-    mPanGesturePredictionAmount = predictionAmount;
-  }
-  int minPredictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, minPredictionAmount) )
-  {
-    if( minPredictionAmount < 0 )
-    {
-      // do not support times in the past
-      minPredictionAmount = 0;
-    }
-    mPanGestureMinPredictionAmount = minPredictionAmount;
-  }
-  int maxPredictionAmount(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT, maxPredictionAmount) )
-  {
-    if( minPredictionAmount > -1 && maxPredictionAmount < minPredictionAmount )
-    {
-      // maximum amount should not be smaller than minimum amount
-      maxPredictionAmount = minPredictionAmount;
-    }
-    mPanGestureMaxPredictionAmount = maxPredictionAmount;
-  }
-  int predictionAmountAdjustment(-1);
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, predictionAmountAdjustment) )
-  {
-    if( predictionAmountAdjustment < 0 )
-    {
-      // negative amount doesn't make sense
-      predictionAmountAdjustment = 0;
-    }
-    mPanGesturePredictionAmountAdjustment = predictionAmountAdjustment;
-  }
-  int smoothingMode;
-  if( GetIntegerEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, smoothingMode) )
-  {
-    mPanGestureSmoothingMode = smoothingMode;
-  }
-  float smoothingAmount = 1.0f;
-  if( GetFloatEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_AMOUNT, smoothingAmount) )
-  {
-    smoothingAmount = Clamp(smoothingAmount, 0.0f, 1.0f);
-    mPanGestureSmoothingAmount = smoothingAmount;
-  }
+  SetFromEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, mPanGesturePredictionMode);
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_PREDICTION_AMOUNT, MinimumZero(mPanGesturePredictionAmount));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, MinimumZero(mPanGestureMinPredictionAmount));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT,
+                                  [&](int maxPredictionAmount)
+                                  {
+                                    if( mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount )
+                                    {
+                                      // maximum amount should not be smaller than minimum amount
+                                      maxPredictionAmount = mPanGestureMinPredictionAmount;
+                                    }
+                                    mPanGestureMaxPredictionAmount = maxPredictionAmount;
+                                  });
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_PREDICTION_AMOUNT_ADJUSTMENT, MinimumZero(mPanGesturePredictionAmountAdjustment));
+  SetFromEnvironmentVariable(DALI_ENV_PAN_SMOOTHING_MODE, mPanGestureSmoothingMode);
+  SetFromEnvironmentVariable<float>(DALI_ENV_PAN_SMOOTHING_AMOUNT, ClampBetweenZeroAndOne(mPanGestureSmoothingAmount));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_USE_ACTUAL_TIMES, EnableIfNonZero(mPanGestureUseActualTimes));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_INTERPOLATION_TIME_RANGE, MinimumZero(mPanGestureInterpolationTimeRange));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_SCALAR_ONLY_PREDICTION_ENABLED, EnableIfNonZero(mPanGestureScalarOnlyPredictionEnabled));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_TWO_POINT_PREDICTION_ENABLED, EnableIfNonZero(mPanGestureTwoPointPredictionEnabled));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_TWO_POINT_PAST_INTERPOLATE_TIME, MinimumZero(mPanGestureTwoPointInterpolatePastTime));
+  SetFromEnvironmentVariable<float>(DALI_ENV_PAN_TWO_POINT_VELOCITY_BIAS, ClampBetweenZeroAndOne(mPanGestureTwoPointVelocityBias));
+  SetFromEnvironmentVariable<float>(DALI_ENV_PAN_TWO_POINT_ACCELERATION_BIAS, ClampBetweenZeroAndOne(mPanGestureTwoPointAccelerationBias));
+  SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MULTITAP_SMOOTHING_RANGE, MinimumZero(mPanGestureMultitapSmoothingRange));
+  SetFromEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, mPanMinimumDistance);
+  SetFromEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, mPanMinimumEvents);
 
-  int useActualTimes( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_USE_ACTUAL_TIMES, useActualTimes ) )
-  {
-    mPanGestureUseActualTimes = useActualTimes == 0 ? 0 : 1;
-  }
+  SetFromEnvironmentVariable(DALI_ENV_PINCH_MINIMUM_DISTANCE, mPinchMinimumDistance);
+  SetFromEnvironmentVariable(DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS, mPinchMinimumTouchEvents);
+  SetFromEnvironmentVariable(DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS_AFTER_START, mPinchMinimumTouchEventsAfterStart);
 
-  int interpolationTimeRange( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_INTERPOLATION_TIME_RANGE, interpolationTimeRange ) )
-  {
-    if( interpolationTimeRange < 0 )
-    {
-      interpolationTimeRange = 0;
-    }
-    mPanGestureInterpolationTimeRange = interpolationTimeRange;
-  }
+  SetFromEnvironmentVariable(DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS, mRotationMinimumTouchEvents);
+  SetFromEnvironmentVariable(DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS_AFTER_START, mRotationMinimumTouchEventsAfterStart);
 
-  int scalarOnlyPredictionEnabled( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_SCALAR_ONLY_PREDICTION_ENABLED, scalarOnlyPredictionEnabled ) )
-  {
-    mPanGestureScalarOnlyPredictionEnabled = scalarOnlyPredictionEnabled == 0 ? 0 : 1;
-  }
+  SetFromEnvironmentVariable(DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, mLongPressMinimumHoldingTime);
 
-  int twoPointPredictionEnabled( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_PREDICTION_ENABLED, twoPointPredictionEnabled ) )
-  {
-    mPanGestureTwoPointPredictionEnabled = twoPointPredictionEnabled == 0 ? 0 : 1;
-  }
-
-  int twoPointPastInterpolateTime( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_PAST_INTERPOLATE_TIME, twoPointPastInterpolateTime ) )
-  {
-    if( twoPointPastInterpolateTime < 0 )
-    {
-      twoPointPastInterpolateTime = 0;
-    }
-    mPanGestureTwoPointInterpolatePastTime = twoPointPastInterpolateTime;
-  }
-
-  float twoPointVelocityBias = -1.0f;
-  if( GetFloatEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_VELOCITY_BIAS, twoPointVelocityBias ) )
-  {
-    twoPointVelocityBias = Clamp( twoPointVelocityBias, 0.0f, 1.0f );
-    mPanGestureTwoPointVelocityBias = twoPointVelocityBias;
-  }
-
-  float twoPointAccelerationBias = -1.0f;
-  if( GetFloatEnvironmentVariable( DALI_ENV_PAN_TWO_POINT_ACCELERATION_BIAS, twoPointAccelerationBias ) )
-  {
-    twoPointAccelerationBias = Clamp( twoPointAccelerationBias, 0.0f, 1.0f );
-    mPanGestureTwoPointAccelerationBias = twoPointAccelerationBias;
-  }
-
-  int multitapSmoothingRange( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PAN_MULTITAP_SMOOTHING_RANGE, multitapSmoothingRange ) )
-  {
-    if( multitapSmoothingRange < 0 )
-    {
-      multitapSmoothingRange = 0;
-    }
-    mPanGestureMultitapSmoothingRange = multitapSmoothingRange;
-  }
-
-  int minimumDistance(-1);
-  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_DISTANCE, minimumDistance ))
-  {
-    mPanMinimumDistance = minimumDistance;
-  }
-
-  int minimumEvents(-1);
-  if ( GetIntegerEnvironmentVariable(DALI_ENV_PAN_MINIMUM_EVENTS, minimumEvents ))
-  {
-    mPanMinimumEvents = minimumEvents;
-  }
-
-  float pinchMinimumDistance = -1.0f;
-  if( GetFloatEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_DISTANCE, pinchMinimumDistance ) )
-  {
-    mPinchMinimumDistance = pinchMinimumDistance;
-  }
-
-  int pinchMinimumTouchEvents = -1;
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS, pinchMinimumTouchEvents ) )
-  {
-    mPinchMinimumTouchEvents = pinchMinimumTouchEvents;
-  }
-
-  int pinchMinimumTouchEventsAfterStart = -1;
-  if( GetIntegerEnvironmentVariable( DALI_ENV_PINCH_MINIMUM_TOUCH_EVENTS_AFTER_START, pinchMinimumTouchEventsAfterStart ) )
-  {
-    mPinchMinimumTouchEventsAfterStart = pinchMinimumTouchEventsAfterStart;
-  }
-
-  int rotationMinimumTouchEvents = -1;
-  if( GetIntegerEnvironmentVariable( DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS, rotationMinimumTouchEvents ) )
-  {
-    mRotationMinimumTouchEvents = rotationMinimumTouchEvents;
-  }
-
-  int rotationMinimumTouchEventsAfterStart = -1;
-  if( GetIntegerEnvironmentVariable( DALI_ENV_ROTATION_MINIMUM_TOUCH_EVENTS_AFTER_START, rotationMinimumTouchEventsAfterStart ) )
-  {
-    mRotationMinimumTouchEventsAfterStart = rotationMinimumTouchEventsAfterStart;
-  }
-
-  int longPressMinimumHoldingTime = -1;
-  if( GetIntegerEnvironmentVariable( DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME, longPressMinimumHoldingTime ) )
-  {
-    mLongPressMinimumHoldingTime = longPressMinimumHoldingTime;
-  }
-
-  int glesCallTime(0);
-  if ( GetIntegerEnvironmentVariable(DALI_GLES_CALL_TIME, glesCallTime ))
-  {
-    mGlesCallTime = glesCallTime;
-  }
-
-  int glesCallAccumulate( 0 );
-  if ( GetIntegerEnvironmentVariable( DALI_GLES_CALL_ACCUMULATE, glesCallAccumulate ) )
-  {
-    mGlesCallAccumulate = glesCallAccumulate != 0;
-  }
+  SetFromEnvironmentVariable(DALI_GLES_CALL_TIME, mGlesCallTime);
+  SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate) { mGlesCallAccumulate = glesCallAccumulate != 0; });
 
   int windowWidth(0), windowHeight(0);
-  if ( GetIntegerEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetIntegerEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  if ( GetEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
   {
     mWindowWidth = windowWidth;
     mWindowHeight = windowHeight;
   }
+  SetFromEnvironmentVariable(DALI_WINDOW_NAME, mWindowName );
+  SetFromEnvironmentVariable(DALI_WINDOW_CLASS_NAME, mWindowClassName);
 
-  const char * windowName = GetCharEnvironmentVariable( DALI_WINDOW_NAME );
-  if ( windowName )
-  {
-    mWindowName = windowName;
-  }
+  SetFromEnvironmentVariable<int>(DALI_THREADING_MODE,
+                                  [&](int threadingMode)
+                                  {
+                                    switch( threadingMode )
+                                    {
+                                      case ThreadingMode::COMBINED_UPDATE_RENDER:
+                                      {
+                                        mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
+                                        break;
+                                      }
+                                    }
+                                  });
 
-  const char * windowClassName = GetCharEnvironmentVariable( DALI_WINDOW_CLASS_NAME );
-  if ( windowClassName )
-  {
-    mWindowClassName = windowClassName;
-  }
+  SetFromEnvironmentVariable<int>(DALI_REFRESH_RATE, GreaterThan(mRenderRefreshRate, 1));
 
-  int threadingMode(0);
-  if ( GetIntegerEnvironmentVariable( DALI_THREADING_MODE, threadingMode ) )
-  {
-    switch( threadingMode )
-    {
-      case ThreadingMode::COMBINED_UPDATE_RENDER:
-      {
-        mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
-        break;
-      }
-    }
-  }
+  SetFromEnvironmentVariable(DALI_ENV_MULTI_SAMPLING_LEVEL, mMultiSamplingLevel);
 
-  int renderRefreshRate(0);
-  if ( GetIntegerEnvironmentVariable( DALI_REFRESH_RATE, renderRefreshRate ) )
-  {
-    // Only change it if it's valid
-    if( renderRefreshRate > 1 )
-    {
-      mRenderRefreshRate = renderRefreshRate;
-    }
-  }
+  SetFromEnvironmentVariable<int>(DALI_ENV_MAX_TEXTURE_SIZE, GreaterThan(mMaxTextureSize, 0));
 
-  int multiSamplingLevel( 0 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_MULTI_SAMPLING_LEVEL, multiSamplingLevel ) )
-  {
-    mMultiSamplingLevel = multiSamplingLevel;
-  }
+  mRenderToFboInterval = GetEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
 
-  int maxTextureSize( 0 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_MAX_TEXTURE_SIZE, maxTextureSize ) )
-  {
-    if( maxTextureSize > 0 )
-    {
-      mMaxTextureSize = maxTextureSize;
-    }
-  }
+  SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_DEPTH_BUFFER,
+                                  [&](int depthBufferRequired)
+                                  {
+                                    if( depthBufferRequired > 0 )
+                                    {
+                                      mDepthBufferRequired = false;
+                                      mStencilBufferRequired = false; // Disable stencil buffer as well
+                                    }
+                                  });
+  SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_STENCIL_BUFFER, DisableIfNonZero(mStencilBufferRequired));
 
-  mRenderToFboInterval = GetIntegerEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
-
-
-  int depthBufferRequired( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_DISABLE_DEPTH_BUFFER, depthBufferRequired ) )
-  {
-    if( depthBufferRequired > 0 )
-    {
-      mDepthBufferRequired = false;
-      mStencilBufferRequired = false; // Disable stencil buffer as well
-    }
-  }
-
-  int stencilBufferRequired( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_DISABLE_STENCIL_BUFFER, stencilBufferRequired ) )
-  {
-    if( stencilBufferRequired > 0 )
-    {
-      mStencilBufferRequired = false;
-    }
-  }
-
-  int partialUpdateRequired( -1 );
-  if( GetIntegerEnvironmentVariable( DALI_ENV_DISABLE_PARTIAL_UPDATE, partialUpdateRequired ) )
-  {
-    if( partialUpdateRequired > 0 )
-    {
-      mPartialUpdateRequired = false;
-    }
-  }
+  SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_PARTIAL_UPDATE, DisableIfNonZero(mPartialUpdateRequired));
 }
 
 } // Adaptor
