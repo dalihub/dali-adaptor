@@ -773,15 +773,6 @@ public:
   virtual bool ClearHighlight() = 0;
 
   /**
-   * @brief Get index of "highlighted" object
-   *
-   * @return The index of "highlighted" object
-   *
-   * @see Dali:Accessibility::State
-   */
-  virtual int GetHighlightIndex() = 0;
-
-  /**
    * @brief Check whether object can be scrolled
    *
    * @return true if object is scrollable, false otherwise

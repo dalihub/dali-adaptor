@@ -635,10 +635,6 @@ public:
   {
     return false;
   }
-  int GetHighlightIndex() override
-  {
-    return 0;
-  }
   bool IsScrollable() override
   {
     return false;
