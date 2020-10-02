@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 
+#include <array>
 #include <atomic>
 #include <bitset>
 #include <exception>
