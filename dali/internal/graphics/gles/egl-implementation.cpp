@@ -36,9 +36,12 @@
 namespace
 {
   const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
-  const uint32_t CHECK_EXTENSION_NUMBER = 2;
+  const uint32_t CHECK_EXTENSION_NUMBER = 4;
   const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
   const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
+  const std::string EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
+  const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage";
+
 }
 
 namespace Dali
@@ -133,6 +136,8 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
   std::istringstream stream( extensionStr );
   std::string currentExtension;
   uint32_t extensionCheckCount = 0;
+  bool isKhrPartialUpdateSupported = false;
+  bool isKhrSwapBuffersWithDamageSupported = false;
   while( std::getline( stream, currentExtension, ' ' ) && extensionCheckCount < CHECK_EXTENSION_NUMBER )
   {
     if( currentExtension == EGL_KHR_SURFACELESS_CONTEXT )
@@ -145,6 +150,21 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       mIsKhrCreateContextSupported = true;
       extensionCheckCount++;
     }
+    if( currentExtension == EGL_KHR_PARTIAL_UPDATE )
+    {
+      isKhrPartialUpdateSupported = true;
+      extensionCheckCount++;
+    }
+    if( currentExtension == EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE )
+    {
+      isKhrSwapBuffersWithDamageSupported = true;
+      extensionCheckCount++;
+    }
+  }
+
+  if( !isKhrPartialUpdateSupported || !isKhrSwapBuffersWithDamageSupported  )
+  {
+    mPartialUpdateRequired = false;
   }
 
   mGlesInitialized = true;

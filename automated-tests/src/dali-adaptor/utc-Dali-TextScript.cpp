@@ -48,10 +48,13 @@ void GetCharacterScriptCheckRange(Character start, Character end, Script expecte
 
 int UtcDaliGetCharacterScript(void)
 {
+  GetCharacterScriptCheckRange(0x0000, 0x001F, LATIN, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x0020, 0x002F, ASCII_PS, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x0030, 0x0039, ASCII_DIGITS, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x003A, 0x0040, ASCII_PS, TEST_LOCATION);
+  GetCharacterScriptCheckRange(0x0041, 0x005A, LATIN, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x005B, 0x0060, ASCII_PS, TEST_LOCATION);
+  GetCharacterScriptCheckRange(0x0061, 0x007A, LATIN, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x007B, 0x007E, ASCII_PS, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x007F, 0x009F, C1_CONTROLS, TEST_LOCATION);
 
