@@ -33,7 +33,10 @@ namespace Adaptor
 
 int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
 
-int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
+int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
+
+template<typename T>
+int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
 
 std::streampos GetFileSize(const std::string& filename);
 
