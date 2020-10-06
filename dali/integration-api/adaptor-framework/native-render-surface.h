@@ -61,12 +61,6 @@ public: // API
    */
   virtual void WaitUntilSurfaceReplaced() = 0;
 
-  /**
-   * @brief Get the native renderable handle
-   * @return The native renderable handle
-   */
-  virtual Any GetNativeRenderable() = 0;
-
 private: // from NativeRenderSurface
   /**
    * @brief Create a renderable
