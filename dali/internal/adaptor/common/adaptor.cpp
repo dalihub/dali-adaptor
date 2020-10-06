@@ -29,6 +29,7 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
+#include <dali/internal/adaptor/common/thread-controller-interface.h>
 
 namespace Dali
 {
@@ -44,7 +45,7 @@ Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surfac
 {
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
   Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL );
   return *adaptor;
 }
 
@@ -57,7 +58,7 @@ Adaptor& Adaptor::New( Dali::Integration::SceneHolder window )
 Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface )
 {
   Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL );
   return *adaptor;
 }
 

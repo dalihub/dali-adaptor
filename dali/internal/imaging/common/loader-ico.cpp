@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -335,6 +335,226 @@ bool LoadIcoHeaderHelper( FILE* fp,
   return true;
 }
 
+/**
+ * @brief Handle the different bits per pixel
+ * @param[in] bitcount The bit count
+ * @param[in/out] map The map to use/set
+ * @param[in/out] pix A reference to the pointer to the pix buffer
+ * @param[in/out] surface A reference to the surface buffer
+ * @param[in] width The width
+ * @param[in] height The height
+ * @param[in] fsize The file size
+ * @param[in/out] position The position in the file
+ * @param[/outin] pixbuf A reference to the pixbuf
+ * @param[in] stride The stride to use
+ * @param[in] palette The palette
+ */
+bool HandleBitsPerPixel(
+    const unsigned int bitcount,
+    Dali::Vector<unsigned char>& map,
+    unsigned int*& pix,
+    Dali::Vector<unsigned int>& surface,
+    const unsigned int width,
+    const unsigned int height,
+    const unsigned int fsize,
+    size_t& position,
+    Dali::Vector<unsigned char>& pixbuf,
+    const unsigned int stride,
+    const Dali::Vector<unsigned int>& palette)
+{
+  // Note: Switch is in order of most common format first.
+  switch( bitcount )
+  {
+    case 32:
+    {
+      unsigned char* p = &map[position];
+      pix = &surface[0] + ( ( height - 1 ) * width );
+
+      for( unsigned int i = 0; i < height; i++ )
+      {
+        for( unsigned int j = 0; j < width; j++ )
+        {
+          *pix++ = ARGB_JOIN( p[3], p[0], p[1], p[2] );
+          p += 4;
+        }
+        // Move the output up 1 line (we subtract 2 lines because we moved forward one line while copying).
+        pix -= ( width * 2 );
+      }
+      break;
+    }
+
+    case 24:
+    {
+      for( unsigned int i = 0; i < height; i++ )
+      {
+        pix = &surface[0] + ( ( height - 1 - i ) * width );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        {
+          return false;
+        }
+        unsigned char* p = &pixbuf[0];
+        for( unsigned int j = 0; j < width; j++ )
+        {
+          *pix++ = ARGB_JOIN( 0xff, p[0], p[1], p[2] );
+          p += 3;
+        }
+      }
+      break;
+    }
+
+    case 8:
+    {
+      for( unsigned int i = 0; i < height; i++ )
+      {
+        pix = &surface[0] + ( ( height - 1 - i ) * width );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        {
+          return false;
+        }
+        unsigned char* p = &pixbuf[0];
+        for( unsigned int j = 0; j < width; j++ )
+        {
+          *pix++ = palette[*p++];
+        }
+      }
+      break;
+    }
+
+    case 4:
+    {
+      for( unsigned int i = 0; i < height; i++ )
+      {
+        pix = &surface[0] + ( ( height - 1 - i ) * width );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        {
+          return false;
+        }
+        unsigned char* p = &pixbuf[0];
+        for( unsigned int j = 0; j < width; j++ )
+        {
+          if( j & 0x1 )
+          {
+            *pix = palette[*p & 0x0f];
+            p++;
+          }
+          else
+          {
+            *pix = palette[*p >> 4];
+          }
+          pix++;
+        }
+      }
+      break;
+    }
+
+    case 1:
+    {
+      for( unsigned int i = 0; i < height; i++ )
+      {
+        pix = &surface[0] + ( ( height - 1 - i ) * width );
+        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        {
+          return false;
+        }
+        unsigned char* p = &pixbuf[0];
+
+        for( unsigned int j = 0; j < width; j += 8 )
+        {
+          *pix++ = palette[ *p >> 7 ];
+          *pix++ = palette[ *p >> 6 & 0x01 ];
+          *pix++ = palette[ *p >> 5 & 0x01 ];
+          *pix++ = palette[ *p >> 4 & 0x01 ];
+          *pix++ = palette[ *p >> 3 & 0x01 ];
+          *pix++ = palette[ *p >> 2 & 0x01 ];
+          *pix++ = palette[ *p >> 1 & 0x01 ];
+          *pix++ = palette[ *p >> 0 & 0x01 ];
+
+          p++;
+        }
+      }
+      break;
+    }
+
+    default:
+    {
+      DALI_LOG_WARNING( "Image file contains unsupported bits-per-pixel %d\n", bitcount );
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * @brief Apply the mask if required
+ * @param[in/out] map The map to use/set
+ * @param[in] fsize The file size
+ * @param[in/out] position The position in the file
+ * @param[in//out] maskbuf The mask buffer
+ * @param[in] bitStride The stride
+ * @param[in] width The width
+ * @param[in] height The height
+ * @param[in/out] pix A reference to the pointer to the pix buffer
+ * @param[in/out] surface A reference to the surface buffer
+ */
+bool ApplyMask(
+    Dali::Vector<unsigned char>& map,
+    const unsigned int fsize,
+    size_t& position,
+    Dali::Vector<unsigned char>& maskbuf,
+    const unsigned int bitStride,
+    const unsigned int width,
+    const unsigned int height,
+    unsigned int*& pix,
+    Dali::Vector<unsigned int>& surface)
+{
+  if( !read_mem( &map[0], fsize, &position, &maskbuf[0], bitStride * height ) )
+  {
+    return false;
+  }
+
+  // Apply mask.
+  // Precalc to save time in the loops.
+  unsigned int bytesPerWidth = width / 8;
+  unsigned int bytesRemainingPerWidth = width - ( bytesPerWidth << 3 );
+
+  // Loop for each line of the image.
+  for( unsigned int i = 0; i < height; ++i )
+  {
+    unsigned char *m = &maskbuf[0] + ( bitStride * i );
+    pix = &surface[0] + ( ( height - 1 - i ) * width );
+
+    // Do chunks of 8 pixels first so mask operations can be unrolled.
+    for( unsigned int j = 0; j < bytesPerWidth; ++j )
+    {
+      // Unrolled 8 bits of the mask to avoid many conditions and branches.
+      A_VAL( pix++ ) = ( *m & ( 1 << 7 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 6 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 5 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 4 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 3 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 2 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 1 ) ) ? 0x00 : 0xff;
+      A_VAL( pix++ ) = ( *m & ( 1 << 0 ) ) ? 0x00 : 0xff;
+      m++;
+    }
+
+    // Handle any remaining width ( < 8 ) or images that are < 8 wide.
+    if( bytesRemainingPerWidth > 0 )
+    {
+      for( unsigned int j = 0; j < bytesRemainingPerWidth; ++j )
+      {
+        // Note: Although we are doing less that a bytes worth of mask, we still always start on the first bit.
+        // If the image is smaller than 8 pixels wide, each mask will still start on a new byte.
+        A_VAL( pix++ ) = ( *m & ( 1 << ( 7 - j ) ) ) ? 0x00 : 0xff;
+      }
+      m++;
+    }
+  }
+
+  return true;
+}
+
 }//unnamed namespace
 
 bool LoadIcoHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
@@ -493,172 +713,16 @@ bool LoadBitmapFromIco( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   maskbuf.Resize( bitStride * h );
 
   // Handle different bits-per-pixel.
-  // Note: Switch is in order of most common format first.
-  switch( bitcount )
+  if(!HandleBitsPerPixel(bitcount, map, pix, surface, w, h, fsize, position, pixbuf, stride, pal))
   {
-    case 32:
-    {
-      unsigned char* p = &map[position];
-      pix = &surface[0] + ( ( h - 1 ) * w );
-
-      for( unsigned int i = 0; i < h; i++ )
-      {
-        for( unsigned int j = 0; j < w; j++ )
-        {
-          *pix++ = ARGB_JOIN( p[3], p[0], p[1], p[2] );
-          p += 4;
-        }
-        // Move the output up 1 line (we subtract 2 lines because we moved forward one line while copying).
-        pix -= ( w * 2 );
-      }
-      break;
-    }
-
-    case 24:
-    {
-      for( unsigned int i = 0; i < h; i++ )
-      {
-        pix = &surface[0] + ( ( h - 1 - i ) * w );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
-        {
-          return false;
-        }
-        unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < w; j++ )
-        {
-          *pix++ = ARGB_JOIN( 0xff, p[0], p[1], p[2] );
-          p += 3;
-        }
-      }
-      break;
-    }
-
-    case 8:
-    {
-      for( unsigned int i = 0; i < h; i++ )
-      {
-        pix = &surface[0] + ( ( h - 1 - i ) * w );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
-        {
-          return false;
-        }
-        unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < w; j++ )
-        {
-          *pix++ = pal[*p++];
-        }
-      }
-      break;
-    }
-
-    case 4:
-    {
-      for( unsigned int i = 0; i < h; i++ )
-      {
-        pix = &surface[0] + ( ( h - 1 - i ) * w );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
-        {
-          return false;
-        }
-        unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < w; j++ )
-        {
-          if( j & 0x1 )
-          {
-            *pix = pal[*p & 0x0f];
-            p++;
-          }
-          else
-          {
-            *pix = pal[*p >> 4];
-          }
-          pix++;
-        }
-      }
-      break;
-    }
-
-    case 1:
-    {
-      for( unsigned int i = 0; i < h; i++ )
-      {
-        pix = &surface[0] + ( ( h - 1 - i ) * w );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
-        {
-          return false;
-        }
-        unsigned char* p = &pixbuf[0];
-
-        for( unsigned int j = 0; j < w; j += 8 )
-        {
-          *pix++ = pal[ *p >> 7 ];
-          *pix++ = pal[ *p >> 6 & 0x01 ];
-          *pix++ = pal[ *p >> 5 & 0x01 ];
-          *pix++ = pal[ *p >> 4 & 0x01 ];
-          *pix++ = pal[ *p >> 3 & 0x01 ];
-          *pix++ = pal[ *p >> 2 & 0x01 ];
-          *pix++ = pal[ *p >> 1 & 0x01 ];
-          *pix++ = pal[ *p >> 0 & 0x01 ];
-
-          p++;
-        }
-      }
-      break;
-    }
-
-    default:
-    {
-      DALI_LOG_WARNING( "Image file contains unsupported bits-per-pixel %d\n", bitcount );
-      return false;
-    }
+    return false;
   }
 
   // From the spec: If bpp is less than 32, there will be a 1bpp mask bitmap also.
-  if( bitcount < 32 )
+  if(( bitcount < 32 ) && !ApplyMask(map, fsize, position, maskbuf, bitStride, w, h, pix, surface))
   {
-    if( !read_mem( &map[0], fsize, &position, &maskbuf[0], bitStride * h ) )
-    {
-      return false;
-    }
-
-    // Apply mask.
-    // Precalc to save time in the loops.
-    unsigned int bytesPerWidth = w / 8;
-    unsigned int bytesRemainingPerWidth = w - ( bytesPerWidth << 3 );
-
-    // Loop for each line of the image.
-    for( unsigned int i = 0; i < h; ++i )
-    {
-      unsigned char *m = &maskbuf[0] + ( bitStride * i );
-      pix = &surface[0] + ( ( h - 1 - i ) * w );
-
-      // Do chunks of 8 pixels first so mask operations can be unrolled.
-      for( unsigned int j = 0; j < bytesPerWidth; ++j )
-      {
-        // Unrolled 8 bits of the mask to avoid many conditions and branches.
-        A_VAL( pix++ ) = ( *m & ( 1 << 7 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 6 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 5 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 4 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 3 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 2 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 1 ) ) ? 0x00 : 0xff;
-        A_VAL( pix++ ) = ( *m & ( 1 << 0 ) ) ? 0x00 : 0xff;
-        m++;
-      }
-
-      // Handle any remaining width ( < 8 ) or images that are < 8 wide.
-      if( bytesRemainingPerWidth > 0 )
-      {
-        for( unsigned int j = 0; j < bytesRemainingPerWidth; ++j )
-        {
-          // Note: Although we are doing less that a bytes worth of mask, we still always start on the first bit.
-          // If the image is smaller than 8 pixels wide, each mask will still start on a new byte.
-          A_VAL( pix++ ) = ( *m & ( 1 << ( 7 - j ) ) ) ? 0x00 : 0xff;
-        }
-        m++;
-      }
-    }
+    // Return false if not able to apply mask when the bpp is less than 32
+    return false;
   }
 
   bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);

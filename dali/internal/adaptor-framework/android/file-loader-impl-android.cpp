@@ -43,6 +43,13 @@ int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::Fi
   return Dali::Internal::Adaptor::ReadFile( filename, size, memblock, fileType);
 }
 
+int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali::FileLoader::FileType fileType)
+{
+  std::streampos size;
+
+  return Dali::Internal::Adaptor::ReadFile( filename, size, memblock, fileType);
+}
+
 inline bool hasPrefix(const std::string& prefix, const std::string& path)
 {
   return std::mismatch(prefix.begin(), prefix.end(), path.begin()).first == prefix.end();
@@ -61,7 +68,8 @@ inline std::string ConvertToAssetsInternalPath(const std::string& path, int offs
   return internalPath;
 }
 
-int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType)
+template<typename T>
+int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType)
 {
   int errorCode = 0;
   int length = 0;
@@ -87,7 +95,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
       length = AAsset_getLength( asset );
       memblock.Resize( length + 1 ); // 1 for extra zero at the end
 
-      char* buffer = &memblock[0];
+      char* buffer = reinterpret_cast<char*>(memblock.Begin());
       errorCode = ( AAsset_read( asset, buffer, length ) != length ) ? 0 : 1;
       fileSize = length;
 
@@ -105,9 +113,12 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     {
       fseek( file, 0, SEEK_END );
       length = ftell( file );
-      memblock.Resize( length + 1 ); // 1 for extra zero at the end
+      //Dali::Vector.Resize would lead to calling PushBack for each byte, waste of CPU resource
+      memblock.ResizeUninitialized( length + 1 );
+      //put last byte as 0, in case this is a text file without null-terminator
+      memblock[length] = 0;
 
-      char* buffer = &memblock[0];
+      char* buffer = reinterpret_cast<char*>(memblock.Begin());
       fseek( file, 0, SEEK_SET );
       errorCode = ( fread( buffer, 1, length, file ) != length ) ? 0 : 1;
       fileSize = length;

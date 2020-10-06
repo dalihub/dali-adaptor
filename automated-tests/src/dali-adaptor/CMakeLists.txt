@@ -12,13 +12,11 @@ SET(TC_SOURCES
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
     utc-Dali-PixelBuffer.cpp
+    utc-Dali-TextScript.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Window.cpp
     utc-Dali-Gl-Window.cpp
-    #utc-Dali-Watch.cpp
-    #utc-Dali-Watch-Time.cpp
-    #utc-Dali-KeyGrab.cpp
 )
 
 LIST(APPEND TC_SOURCES

@@ -54,6 +54,18 @@ DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<char>& m
  * @brief Load the file. It will load it either as a binary or as a text
  *
  * @param[in] filename  Filename of the file to load.
+ * @param[in] memblock  Dali::Vector containing the buffer loaded
+ * @param[in] fileType  How we want to load the file. Binary or Text. Binary default
+ * @return error code. 0 - Error, 1 - Ok
+ *
+ *
+ */
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, FileLoader::FileType fileType = BINARY);
+
+/**
+ * @brief Load the file. It will load it either as a binary or as a text
+ *
+ * @param[in] filename  Filename of the file to load.
  * @param[in] fileSize  Size of the loaded file
  * @param[in] memblock  Dali::Vector containing the buffer loaded
  * @param[in] fileType  How we want to load the file. Binary or Text. Binary default

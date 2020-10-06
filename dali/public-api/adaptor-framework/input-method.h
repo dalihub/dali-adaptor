@@ -115,12 +115,9 @@ enum Type
   JOIN,        ///< Join action @SINCE_1_3.20
   LOGIN,       ///< Login action @SINCE_1_3.20
   NEXT,        ///< Next action @SINCE_1_3.20
-  PREVIOUS,    ///< Previous action @SINCE_1_3.20
   SEARCH,      ///< Search action @SINCE_1_3.20
   SEND,        ///< Send action @SINCE_1_3.20
-  SIGNIN,      ///< Sign in action @SINCE_1_3.20
-  UNSPECIFIED, ///< Unspecified action @SINCE_1_3.20
-  NONE         ///< Nothing to do @SINCE_1_3.20
+  SIGNIN       ///< Sign in action @SINCE_1_3.20
 };
 
 } // namespace ButtonAction
