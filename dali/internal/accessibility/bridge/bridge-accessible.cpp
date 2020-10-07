@@ -287,7 +287,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto indexInParent = static_cast< int32_t >( self->GetIndexInParent() );
   bool isSelectedInParent = false;
   bool hasCheckBoxChild = false;
-  int32_t firstSelectedChildIndex = 0;
+  int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount = 0;
 
   for( auto i = 0u; i < static_cast< size_t >( childCount ); ++i )
@@ -296,9 +296,9 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     auto s = q->GetStates();
     if( s[State::SELECTABLE] )
     {
-      ++selectedChildCount;
       if( s[State::SELECTED] )
       {
+        ++selectedChildCount;
         if( firstSelectedChildIndex < 0 )
           firstSelectedChildIndex = static_cast< int32_t >( i );
       }
