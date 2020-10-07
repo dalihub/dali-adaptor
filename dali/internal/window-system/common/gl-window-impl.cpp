@@ -93,9 +93,9 @@ GlWindow::GlWindow()
   mFocusChangeSignal(),
   mResizeSignal(),
   mVisibilityChangedSignal(),
-  mGLInitCallback( 0 ),
-  mGLRenderFrameCallback( 0 ),
-  mGLTerminateCallback( 0 ),
+  mGLInitCallback(),
+  mGLRenderFrameCallback(),
+  mGLTerminateCallback(),
   mGLRenderCallback( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
@@ -117,7 +117,7 @@ GlWindow::~GlWindow()
 
   if( mGLTerminateCallback )
   {
-    mGLTerminateCallback();
+    CallbackBase::Execute(*mGLTerminateCallback);
   }
 
   if( mIsEGLInitialize )
@@ -747,15 +747,15 @@ void GlWindow::SetChild( Dali::Window& child )
   }
 }
 
-void GlWindow::RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate )
+void GlWindow::RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback )
 {
   if( mIsEGLInitialize == false )
   {
     InitializeGraphics();
   }
-  mGLInitCallback = glInit;
-  mGLRenderFrameCallback = glRenderFrame;
-  mGLTerminateCallback = glTerminate;
+  mGLInitCallback = std::unique_ptr< CallbackBase >(initCallback);
+  mGLRenderFrameCallback = std::unique_ptr< CallbackBase >( renderFrameCallback );
+  mGLTerminateCallback = std::unique_ptr< CallbackBase >( terminateCallback );
 
   mInitCallback = false;
 
@@ -783,6 +783,8 @@ bool GlWindow::RunCallback()
 
   eglImpl.MakeContextCurrent( mEGLSurface, mEGLContext );
 
+  int renderFrameResult = 0;
+
   if( mIsRotated )
   {
     mWindowBase->SetEglWindowBufferTransform( mTotalRotationAngle );
@@ -797,14 +799,14 @@ bool GlWindow::RunCallback()
   {
     if( mGLInitCallback )
     {
-      mGLInitCallback();
+      CallbackBase::Execute(*mGLInitCallback);
     }
     mInitCallback = true;
   }
 
   if( mGLRenderFrameCallback )
   {
-    mGLRenderFrameCallback();
+    renderFrameResult = CallbackBase::ExecuteReturn<int>(*mGLRenderFrameCallback);
   }
 
   if( mIsWindowRotated )
@@ -813,7 +815,10 @@ bool GlWindow::RunCallback()
     mIsWindowRotated = false;
   }
 
-  eglImpl.SwapBuffers( mEGLSurface );
+  if(renderFrameResult)
+  {
+    eglImpl.SwapBuffers( mEGLSurface );
+  }
 
   return true;
 }
