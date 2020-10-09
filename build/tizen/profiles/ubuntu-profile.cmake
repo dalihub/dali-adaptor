@@ -46,6 +46,7 @@ SET( SOURCES
         ${adaptor_addons_ubuntu_src_files}
         ${static_libraries_glyphy_src_files}
         ${static_libraries_libunibreak_src_files}
+        ${static_libraries_nanosvg_src_files}
 )
 
 IF( ECORE_WAYLAND2 )

@@ -39,13 +39,13 @@ const char* DEFAULT_OBJECT_NAME( "libdali2-vector-image-renderer-plugin.so" );
 
 }
 
-VectorImageRendererPluginProxy::VectorImageRendererPluginProxy( std::string sharedObjectName )
+VectorImageRendererPluginProxy::VectorImageRendererPluginProxy(std::string sharedObjectName)
 : mSharedObjectName(std::move(sharedObjectName)),
-  mLibHandle( nullptr ),
-  mPlugin( nullptr ),
-  mCreateVectorImageRendererPtr( nullptr )
+  mLibHandle(nullptr),
+  mPlugin(nullptr),
+  mCreateVectorImageRendererPtr(nullptr)
 {
-  if( mSharedObjectName.empty() )
+  if(mSharedObjectName.empty())
   {
     mSharedObjectName = DEFAULT_OBJECT_NAME;
   }
@@ -55,26 +55,26 @@ VectorImageRendererPluginProxy::VectorImageRendererPluginProxy( std::string shar
 
 VectorImageRendererPluginProxy::~VectorImageRendererPluginProxy()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     delete mPlugin;
     mPlugin = nullptr;
 
-    if( mLibHandle && dlclose( mLibHandle ) )
+    if(mLibHandle && dlclose(mLibHandle))
     {
-      DALI_LOG_ERROR( "Error closing vector image renderer plugin library: %s\n", dlerror() );
+      DALI_LOG_ERROR("Error closing vector image renderer plugin library: %s\n", dlerror());
     }
   }
 }
 
 void VectorImageRendererPluginProxy::InitializePlugin()
 {
-  mLibHandle = dlopen( mSharedObjectName.c_str(), RTLD_LAZY );
+  mLibHandle = dlopen(mSharedObjectName.c_str(), RTLD_LAZY);
 
   char* error = dlerror();
-  if( mLibHandle == nullptr || error != nullptr )
+  if(mLibHandle == nullptr || error != nullptr)
   {
-    DALI_LOG_ERROR( "VectorImageRendererPluginProxy::Initialize: dlopen error [%s]\n", error );
+    DALI_LOG_WARNING("VectorImageRendererPluginProxy::Initialize: dlopen error [%s]\n", error);
     return;
   }
 
@@ -96,46 +96,25 @@ void VectorImageRendererPluginProxy::InitializePlugin()
   }
 }
 
-bool VectorImageRendererPluginProxy::Initialize()
+bool VectorImageRendererPluginProxy::IsValid() const
 {
-  if( mPlugin )
+  return (mPlugin != nullptr);
+}
+
+bool VectorImageRendererPluginProxy::Load(const Vector<uint8_t>& data)
+{
+  if(mPlugin)
   {
-    return mPlugin->Initialize();
+    return mPlugin->Load(data);
   }
   return false;
 }
 
-void VectorImageRendererPluginProxy::SetBuffer( Dali::Devel::PixelBuffer &buffer )
+bool VectorImageRendererPluginProxy::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
 {
   if( mPlugin )
   {
-    mPlugin->SetBuffer( buffer );
-  }
-}
-
-bool VectorImageRendererPluginProxy::Render(float scale)
-{
-  if( mPlugin )
-  {
-    return mPlugin->Render( scale );
-  }
-  return false;
-}
-
-bool VectorImageRendererPluginProxy::Load( const std::string& url )
-{
-  if( mPlugin )
-  {
-    return mPlugin->Load( url );
-  }
-  return false;
-}
-
-bool VectorImageRendererPluginProxy::Load( const char *data, uint32_t size )
-{
-  if( mPlugin )
-  {
-    return mPlugin->Load( data, size );
+    return mPlugin->Rasterize(buffer, scale);
   }
   return false;
 }

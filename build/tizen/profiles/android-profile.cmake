@@ -44,6 +44,7 @@ SET( SOURCES
         ${devel_api_text_abstraction_src_files}
         ${static_libraries_libunibreak_src_files}
         ${static_libraries_glyphy_src_files}
+        ${static_libraries_nanosvg_src_files}
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_dummy_src_files}
 )

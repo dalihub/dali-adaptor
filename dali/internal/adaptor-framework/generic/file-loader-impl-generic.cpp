@@ -32,14 +32,22 @@ namespace Internal
 namespace Adaptor
 {
 
-int ReadFile(const std::string& filename, Dali::Vector<char> & memblock, Dali::FileLoader::FileType fileType)
+int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType)
 {
   std::streampos size;
 
   return Dali::Internal::Adaptor::ReadFile( filename, size, memblock, fileType);
 }
 
-int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char> & memblock, Dali::FileLoader::FileType fileType)
+int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali::FileLoader::FileType fileType)
+{
+  std::streampos size;
+
+  return Dali::Internal::Adaptor::ReadFile(filename, size, memblock, fileType);
+}
+
+template<typename T>
+int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType)
 {
   int errorCode = 0;
   std::ifstream * file;
@@ -64,7 +72,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     memblock.Resize( fileSize );
 
     file->seekg (0, std::ios::beg);
-    file->read( memblock.Begin(), fileSize );
+    file->read( reinterpret_cast<char*>(memblock.Begin()), fileSize );
     file->close();
 
     delete file;
