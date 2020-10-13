@@ -118,13 +118,13 @@ void Accessible::EmitFocused(bool set)
 void Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
 {
     if (auto b = GetBridgeData()) {
-        b->bridge->EmitTextChanged(this, TextChangedState::INSERT, position, length, content);
+        b->bridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
     }
 }
 void Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
 {
     if (auto b = GetBridgeData()) {
-        b->bridge->EmitTextChanged(this, TextChangedState::DELETE, position, length, content);
+        b->bridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
     }
 }
 void Accessible::EmitTextCaretMoved(unsigned int cursorPosition)

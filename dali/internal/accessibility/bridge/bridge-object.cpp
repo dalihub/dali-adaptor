@@ -539,12 +539,12 @@ void BridgeObject::EmitTextChanged( Accessible* obj, TextChangedState state, uns
   const char* stateName = nullptr;
   switch( state )
   {
-    case TextChangedState::INSERT:
+    case TextChangedState::INSERTED:
     {
       stateName = "insert";
       break;
     }
-    case TextChangedState::DELETE:
+    case TextChangedState::DELETED:
     {
       stateName = "delete";
       break;

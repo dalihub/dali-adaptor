@@ -298,8 +298,8 @@ enum class State : uint32_t
  */
 enum class TextChangedState : uint32_t
 {
-  INSERT,
-  DELETE,
+  INSERTED,
+  DELETED,
   MAX_COUNT
 };
 
@@ -435,7 +435,7 @@ enum class ReadingInfoType
  * @see Dali::Accessibility::Accessible::GetRoles
  */
 template < size_t I, typename S >
-class DALI_ADAPTOR_API BitSets
+class BitSets
 {
   std::array< uint32_t, I > data;
 
