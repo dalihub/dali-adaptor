@@ -9,19 +9,6 @@ SET( adaptor_accessibility_common_src_files
 SET( adaptor_accessibility_tizen_wayland_src_files
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-factory-tizen.cpp
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-impl-tizen.cpp
-    ${adaptor_accessibility_dir}/bridge/accessible.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-accessible.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-action.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-base.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-collection.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-component.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-editable-text.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-impl.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-object.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-text.cpp
-    ${adaptor_accessibility_dir}/bridge/bridge-value.cpp
-    ${adaptor_accessibility_dir}/bridge/component.cpp
-    ${adaptor_accessibility_dir}/bridge/dbus-tizen.cpp
 )
 
 # module: accessibility, backend: tizen-common profile
@@ -48,6 +35,19 @@ SET( adaptor_accessibility_tizen_wearable_src_files
 SET( adaptor_accessibility_ubuntu_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
+)
+
+# module: accessibility, backend: android
+SET( adaptor_accessibility_android_src_files
+    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
+    ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
+)
+
+# module: accessibility, backend: windows
+SET( adaptor_accessibility_windows_src_files
+)
+
+SET( adaptor_accessibility_atspi_bridge_src_files
     ${adaptor_accessibility_dir}/bridge/accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-action.cpp
@@ -63,14 +63,6 @@ SET( adaptor_accessibility_ubuntu_src_files
     ${adaptor_accessibility_dir}/bridge/dbus-tizen.cpp
 )
 
-# module: accessibility, backend: android
-SET( adaptor_accessibility_android_src_files
-    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
-    ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
-    ${adaptor_accessibility_dir}/bridge/dummy-atspi.cpp
-)
-
-# module: accessibility, backend: windows
-SET( adaptor_accessibility_windows_src_files
+SET( adaptor_accessibility_atspi_dummy_src_files
     ${adaptor_accessibility_dir}/bridge/dummy-atspi.cpp
 )
