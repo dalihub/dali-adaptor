@@ -23,6 +23,9 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 /**
@@ -41,7 +44,7 @@ class OffscreenApplication;
  * @brief Appliations can draw UI on offscreen surface with the OffscreenApplication.
  * When you use a OffscreenApplication, you don't have to create a Window.
  */
-class DALI_IMPORT_API OffscreenApplication : public Dali::BaseHandle
+class DALI_ADAPTOR_API OffscreenApplication : public Dali::BaseHandle
 {
 public:
   using OffscreenApplicationSignalType = Signal<void(void)>;

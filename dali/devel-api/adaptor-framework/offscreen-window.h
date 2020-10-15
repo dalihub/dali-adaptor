@@ -24,6 +24,9 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
 
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
+
 namespace Dali
 {
 /**
@@ -38,7 +41,7 @@ namespace Internal
 class OffscreenWindow;
 }
 
-class DALI_IMPORT_API OffscreenWindow : public Dali::BaseHandle
+class DALI_ADAPTOR_API OffscreenWindow : public Dali::BaseHandle
 {
 public:
   using WindowSize           = Uint16Pair;
