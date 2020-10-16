@@ -94,6 +94,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mUpdateStatusLogger( environmentOptions ),
   mEventThreadSemaphore(),
   mGraphicsInitializeSemaphore(),
+  mSurfaceSemaphore(),
   mUpdateRenderThreadWaitCondition(),
   mAdaptorInterfaces( adaptorInterfaces ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
@@ -140,6 +141,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   // Initialize to 0 so that it just waits if sem_post has not been called
   sem_init( &mEventThreadSemaphore, 0, 0 );
   sem_init( &mGraphicsInitializeSemaphore, 0, 0 );
+  sem_init( &mSurfaceSemaphore, 0, 0 );
 }
 
 CombinedUpdateRenderController::~CombinedUpdateRenderController()
@@ -319,7 +321,7 @@ void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterfac
     }
 
     // Wait until the surface has been replaced
-    sem_wait( &mEventThreadSemaphore );
+    sem_wait( &mSurfaceSemaphore );
 
     LOG_EVENT( "Surface replaced, event-thread continuing" );
   }
@@ -342,7 +344,7 @@ void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface
     }
 
     // Wait until the surface has been deleted
-    sem_wait( &mEventThreadSemaphore );
+    sem_wait( &mSurfaceSemaphore );
 
     LOG_EVENT( "Surface deleted, event-thread continuing" );
   }
@@ -940,7 +942,7 @@ Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeRep
 void CombinedUpdateRenderController::SurfaceReplaced()
 {
   // Just increment the semaphore
-  sem_post( &mEventThreadSemaphore );
+  sem_post( &mSurfaceSemaphore );
 }
 
 Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
@@ -956,7 +958,7 @@ Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDel
 void CombinedUpdateRenderController::SurfaceDeleted()
 {
   // Just increment the semaphore
-  sem_post( &mEventThreadSemaphore );
+  sem_post( &mSurfaceSemaphore );
 }
 
 bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
