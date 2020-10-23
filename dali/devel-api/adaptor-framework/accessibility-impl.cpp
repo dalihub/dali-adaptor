@@ -695,7 +695,6 @@ public:
     States s;
     if( root )
     {
-      s[State::HIGHLIGHTABLE] = true;
       s[State::ENABLED] = true;
       s[State::SENSITIVE] = true;
       s[State::SHOWING] = true;
