@@ -20,6 +20,7 @@
 
 // EXTERNAL_HEADERS
 #include <stdint.h>
+#include <string>
 #include <dali/public-api/signals/callback.h>
 
 typedef uintptr_t  WinWindowHandle;
@@ -49,7 +50,7 @@ intptr_t SetTimer(int interval, timerCallback callback, void *data);
 
 void KillTimer(intptr_t id);
 
-const char* GetKeyName( int keyCode );
+std::string GetKeyName( int keyCode );
 
 uint64_t GetCurrentThreadId();
 
