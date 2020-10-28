@@ -19,9 +19,12 @@
 #include <dali/internal/vector-image/common/vector-image-renderer-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
+#include <third-party/nanosvg/nanosvg.h>
+#include <third-party/nanosvg/nanosvgrast.h>
 
 namespace Dali
 {
@@ -34,6 +37,7 @@ namespace Adaptor
 
 namespace // unnamed namespace
 {
+const char* const UNITS("px");
 
 // Type Registration
 Dali::BaseHandle Create()
@@ -48,46 +52,95 @@ Dali::TypeRegistration type( typeid( Dali::VectorImageRenderer ), typeid( Dali::
 VectorImageRendererPtr VectorImageRenderer::New()
 {
   VectorImageRendererPtr renderer = new VectorImageRenderer();
+  if(renderer)
+  {
+    renderer->Initialize();
+  }
   return renderer;
 }
 
 VectorImageRenderer::VectorImageRenderer()
-: mPlugin( std::string() )
+: mPlugin(std::string()),
+  mParsedImage(nullptr),
+  mRasterizer(nullptr)
 {
+}
+
+VectorImageRenderer::~VectorImageRenderer()
+{
+  if(mParsedImage)
+  {
+    nsvgDelete(mParsedImage);
+  }
+
+  if(mRasterizer)
+  {
+    nsvgDeleteRasterizer(mRasterizer);
+  }
 }
 
 void VectorImageRenderer::Initialize()
 {
-  mPlugin.Initialize();
+  if(!mPlugin.IsValid())
+  {
+    mRasterizer = nsvgCreateRasterizer();
+  }
 }
 
-void VectorImageRenderer::SetBuffer( Dali::Devel::PixelBuffer &buffer )
+bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 {
-  mPlugin.SetBuffer( buffer );
+  if(mPlugin.IsValid())
+  {
+    return mPlugin.Load(data);
+  }
+  else
+  {
+    mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
+    if(!mParsedImage)
+    {
+      DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
+      return false;
+    }
+    return true;
+  }
 }
 
-bool VectorImageRenderer::Render(float scale)
+bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
 {
-  return mPlugin.Render( scale );
-}
-
-bool VectorImageRenderer::Load( const std::string& url )
-{
-  return mPlugin.Load( url );
-}
-
-bool VectorImageRenderer::Load( const char *data, uint32_t size )
-{
-  return mPlugin.Load( data, size );
+  if(mPlugin.IsValid())
+  {
+    return mPlugin.Rasterize(buffer, scale);
+  }
+  else
+  {
+    if(mParsedImage != nullptr)
+    {
+      int stride = buffer.GetWidth() * Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
+      nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, buffer.GetBuffer(), buffer.GetWidth(), buffer.GetHeight(), stride);
+      return true;
+    }
+    return false;
+  }
 }
 
 void VectorImageRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
 {
-  mPlugin.GetDefaultSize( width, height );
+  if(mPlugin.IsValid())
+  {
+    mPlugin.GetDefaultSize(width, height);
+  }
+  else
+  {
+    if(mParsedImage)
+    {
+      width  = mParsedImage->width;
+      height = mParsedImage->height;
+    }
+  }
 }
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

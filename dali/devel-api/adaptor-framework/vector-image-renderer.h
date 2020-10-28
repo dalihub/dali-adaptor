@@ -54,7 +54,6 @@ public:
    */
   static VectorImageRenderer New();
 
-
   /**
    * @brief Creates an empty handle.
    * Use VectorImageRenderer::New() to create an initialized object.
@@ -82,36 +81,22 @@ public:
   VectorImageRenderer& operator=( const VectorImageRenderer& rhs ) = default;
 
   /**
-   * @brief Sets the target buffer.
-   *
-   * @param[in] buffer The target buffer
-   */
-  void SetBuffer( Dali::Devel::PixelBuffer &buffer );
-
-  /**
-   * @brief Renders the content to the target buffer synchronously.
-   *
-   * @param[in] scale The target image scale
-   * @return True if the rendering success, false otherwise.
-   */
-  bool Render( float scale );
-
-  /**
-   * @brief Load vector image data form url.
-   *
-   * @param[in] url The url of the vector image file
-   * @return True if the rendering success, false otherwise.
-   */
-  bool Load( const std::string& url );
-
-  /**
    * @brief Load vector image data directly.
    *
-   * @param[in] data The memory data of vector image
-   * @param[in] size The size of memory data
+   * @param[in] data SVG image data to load.
+   * @param[in] dpi The DPI of the screen.
    * @return True if the load success, false otherwise.
    */
-  bool Load( const char *data, uint32_t size );
+  bool Load(const Vector<uint8_t>& data, float dpi);
+
+  /**
+   * @brief Rasterizes the content to the target buffer synchronously.
+   *
+   * @param[in] buffer The target buffer
+   * @param[in] scale The target image scale factor
+   * @return True if the rendering succeeds, false otherwise.
+   */
+  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
 
   /**
    * @brief Gets the default size of the file.
@@ -119,7 +104,7 @@ public:
    * @param[out] width The default width of the file
    * @param[out] height The default height of the file
    */
-  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+  void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
 public: // Not intended for application developers
 

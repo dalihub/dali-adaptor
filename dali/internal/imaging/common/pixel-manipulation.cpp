@@ -28,6 +28,269 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+
+constexpr Channel ALPHA_CHANNEL_ONLY[]       = {ALPHA};
+constexpr Channel LUMINANCE_CHANNEL_ONLY[]   = {LUMINANCE};
+constexpr Channel LUMINANCE_ALPHA_CHANNELS[] = {ALPHA, LUMINANCE};
+constexpr Channel RGB_CHANNELS[]             = {RED, GREEN, BLUE};
+constexpr Channel BGR_CHANNELS[]             = {BLUE, GREEN, RED};
+constexpr Channel RGBA_CHANNELS[]            = {RED, GREEN, BLUE, ALPHA};
+constexpr Channel BGRA_CHANNELS[]            = {BLUE, GREEN, RED, ALPHA};
+
+/**
+ * @brief Template to Read from a buffer with pixel formats that have one byte per channel.
+ *
+ * @tparam NumberOfChannels The number of channels to check
+ * @param pixelData The pixel data to retrieve the value from
+ * @param channel The channel we're after
+ * @param channels The array of channels in the pixel format
+ * @return The value of the required channel
+ */
+template<size_t NumberOfChannels>
+unsigned int ReadChannel(unsigned char* pixelData, Channel channel, const Channel (&channels)[NumberOfChannels])
+{
+  auto num = 0u;
+  auto retVal = 0u;
+  for(auto current : channels)
+  {
+    if( channel == current )
+    {
+      retVal = static_cast<unsigned int>(*(pixelData + num));
+      break;
+    }
+    ++num;
+  }
+  return retVal;
+}
+
+/**
+ * @brief Template to Write to a buffer with pixel formats that have one byte per channel.
+ *
+ * @tparam NumberOfChannels The number of channels to check
+ * @param pixelData The pixel data to write the value to
+ * @param channel The channel we're after
+ * @param channelValue The value of the channel to set
+ * @param channels The array of channels in the pixel format
+ */
+template<size_t NumberOfChannels>
+void WriteChannel(unsigned char* pixelData, Channel channel, unsigned int channelValue, const Channel (&channels)[NumberOfChannels])
+{
+  auto num = 0u;
+  for( auto current : channels )
+  {
+    if( channel == current )
+    {
+      *(pixelData + num) = static_cast<unsigned char>( channelValue & 0xFF );
+      break;
+    }
+    ++num;
+  }
+}
+
+/**
+ * @brief Reads from buffers with a pixel format of 565.
+ *
+ * @param pixelData The pixel data to read from
+ * @param channel The channel we're after
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ * @return The value of the required channel
+ */
+unsigned int ReadChannel565(unsigned char* pixelData, Channel channel, Channel one, Channel two, Channel three)
+{
+  if( channel == one )
+  {
+    return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
+  }
+  else if( channel == two )
+  {
+    return ((static_cast<unsigned int>(*pixelData) & 0x07) << 3) |
+      ((static_cast<unsigned int>(*(pixelData+1)) & 0xE0) >> 5);
+  }
+  else if( channel == three )
+  {
+    return static_cast<unsigned int>(*(pixelData+1)) & 0x1F;
+  }
+  return 0u;
+}
+
+/**
+ * @brief Writes to the buffer with a pixel format of 565.
+ *
+ * @param pixelData The pixel data to write to
+ * @param channel The channel we're after
+ * @param channelValue The value to write
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ */
+void WriteChannel565(unsigned char* pixelData, Channel channel, unsigned int channelValue, Channel one, Channel two, Channel three)
+{
+  if( channel == one )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0xF8 );
+    *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
+  }
+  else if( channel == two )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0x07 );
+    *pixelData |= static_cast<unsigned char>( (channelValue >> 3) & 0x07 );
+
+    *(pixelData+1) &= static_cast<unsigned char>( ~0xE0 );
+    *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 5) & 0xE0 );
+  }
+  else if( channel == three )
+  {
+    *(pixelData+1) &= static_cast<unsigned char>( ~0x1F );
+    *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x1F );
+  }
+}
+
+/**
+ * @brief Reads from buffers with a pixel format of 4444.
+ *
+ * @param pixelData The pixel data to read from
+ * @param channel The channel we're after
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ * @param four The fourth channel of the pixel format
+ * @return
+ */
+unsigned int ReadChannel4444(unsigned char* pixelData, Channel channel, Channel one, Channel two, Channel three, Channel four)
+{
+  if( channel == one )
+  {
+    return (static_cast<unsigned int>(*pixelData) & 0xF0) >> 4;
+  }
+  else if( channel == two )
+  {
+    return (static_cast<unsigned int>(*pixelData) & 0x0F);
+  }
+  else if( channel == three )
+  {
+    return (static_cast<unsigned int>(*(pixelData+1)) & 0xF0) >> 4;
+  }
+  else if( channel == four )
+  {
+    return (static_cast<unsigned int>(*(pixelData+1)) & 0x0F);
+  }
+  return 0u;
+}
+
+/**
+ * @brief Writes to the buffer with a pixel format of 565.
+ *
+ * @param pixelData The pixel data to write to
+ * @param channel The channel we're after
+ * @param channelValue The value to write
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ * @param four The fourth channel of the pixel format
+ */
+void WriteChannel4444(unsigned char* pixelData, Channel channel, unsigned int channelValue, Channel one, Channel two, Channel three, Channel four)
+{
+  if( channel == one )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0xF0 );
+    *pixelData |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
+  }
+  else if( channel == two )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0x0F );
+    *pixelData |= static_cast<unsigned char>( channelValue & 0x0F );
+  }
+  else if( channel == three )
+  {
+    *(pixelData+1) &= static_cast<unsigned char>( ~0xF0 );
+    *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
+  }
+  else if( channel == four )
+  {
+    *(pixelData+1) &= static_cast<unsigned char>( ~0x0F );
+    *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x0F );
+  }
+}
+
+/**
+ * @brief Reads from buffers with a pixel format of 5551.
+ *
+ * @param pixelData The pixel data to read from
+ * @param channel The channel we're after
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ * @param four The fourth channel of the pixel format
+ * @return
+ */
+unsigned int ReadChannel5551(unsigned char* pixelData, Channel channel, Channel one, Channel two, Channel three, Channel four)
+{
+  if( channel == one )
+  {
+    return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
+  }
+  else if( channel == two )
+  {
+    return ((static_cast<unsigned int>(*pixelData) & 0x07) << 2) |
+      ((static_cast<unsigned int>(*(pixelData+1)) & 0xC0) >> 6);
+  }
+  else if( channel == three )
+  {
+    return (static_cast<unsigned int>(*(pixelData+1)) & 0x3E) >> 1;
+  }
+  else if( channel == four )
+  {
+    return static_cast<unsigned int>(*(pixelData+1)) & 0x01;
+  }
+  return 0u;
+}
+
+/**
+ * @brief Writes to the buffer with a pixel format of 5551.
+ *
+ * @param pixelData The pixel data to write to
+ * @param channel The channel we're after
+ * @param channelValue The value to write
+ * @param one The first channel of the pixel format
+ * @param two The second channel of the pixel format
+ * @param three The third channel of the pixel format
+ * @param four The fourth channel of the pixel format
+ */
+void WriteChannel5551(unsigned char* pixelData, Channel channel, unsigned int channelValue, Channel one, Channel two, Channel three, Channel four)
+{
+  // 11111222 22333334
+  //    F8  7 C0  3E 1
+  if( channel == one )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0xF8 );
+    *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
+  }
+  else if( channel == two )
+  {
+    *pixelData &= static_cast<unsigned char>( ~0x07 );
+    *pixelData |= static_cast<unsigned char>( (channelValue >> 2) & 0x07 );
+
+    *(pixelData+1) &= static_cast<unsigned char>( ~0xC0 );
+    *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 6) & 0xC0 );
+  }
+  else if( channel == three )
+  {
+    *(pixelData+1) &= static_cast<unsigned char>( ~0x3E );
+    *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 1) & 0x3E );
+  }
+  else if( channel == four )
+  {
+    *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
+    *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
+  }
+}
+
+} // unnamed namespace
+
 struct Location
 {
   unsigned int bitShift;
@@ -151,231 +414,65 @@ unsigned int ReadChannel( unsigned char* pixelData,
   {
     case Dali::Pixel::A8:
     {
-      if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, ALPHA_CHANNEL_ONLY);
     }
     case Dali::Pixel::L8:
     {
-      if( channel == LUMINANCE )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, LUMINANCE_CHANNEL_ONLY);
     }
     case Dali::Pixel::LA88:
     {
-      if( channel == LUMINANCE )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*(pixelData+1));
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, LUMINANCE_ALPHA_CHANNELS);
     }
     case Dali::Pixel::RGB565:
     {
-      if( channel == RED )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
-      }
-      else if( channel == GREEN )
-      {
-        return ((static_cast<unsigned int>(*pixelData) & 0x07) << 3) |
-          ((static_cast<unsigned int>(*(pixelData+1)) & 0xE0) >> 5);
-      }
-      else if( channel == BLUE )
-      {
-        return static_cast<unsigned int>(*(pixelData+1)) & 0x1F;
-      }
-      else return 0u;
+      return ReadChannel565(pixelData, channel, RED, GREEN, BLUE);
     }
 
     case Dali::Pixel::BGR565:
     {
-      if( channel == BLUE )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
-      }
-      else if( channel == GREEN )
-      {
-        return ((static_cast<unsigned int>(*pixelData) & 0x07) << 3) |
-          ((static_cast<unsigned int>(*(pixelData+1)) & 0xE0) >> 5);
-      }
-      else if( channel == RED )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1) & 0x1F) );
-      }
-      else return 0u;
+      return ReadChannel565(pixelData, channel, BLUE, GREEN, RED);
     }
 
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     {
-      if( channel == RED )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else if( channel == GREEN )
-      {
-        return static_cast<unsigned int>(*(pixelData+1));
-      }
-      else if( channel == BLUE )
-      {
-        return static_cast<unsigned int>(*(pixelData+2));
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, RGB_CHANNELS);
     }
 
     case Dali::Pixel::BGR8888:
     {
-      if( channel == BLUE )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else if( channel == GREEN )
-      {
-        return static_cast<unsigned int>(*(pixelData+1));
-      }
-      else if( channel == RED )
-      {
-        return static_cast<unsigned int>(*(pixelData+2));
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, BGR_CHANNELS);
     }
 
     case Dali::Pixel::RGBA8888:
     {
-      if( channel == RED )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else if( channel == GREEN )
-      {
-        return static_cast<unsigned int>(*(pixelData+1));
-      }
-      else if( channel == BLUE )
-      {
-        return static_cast<unsigned int>(*(pixelData+2));
-      }
-      else if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*(pixelData+3));
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, RGBA_CHANNELS);
     }
 
     case Dali::Pixel::BGRA8888:
     {
-      if( channel == BLUE )
-      {
-        return static_cast<unsigned int>(*pixelData);
-      }
-      else if( channel == GREEN )
-      {
-        return static_cast<unsigned int>(*(pixelData+1));
-      }
-      else if( channel == RED )
-      {
-        return static_cast<unsigned int>(*(pixelData+2));
-      }
-      else if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*(pixelData+3));
-      }
-      else return 0u;
+      return ReadChannel(pixelData, channel, BGRA_CHANNELS);
     }
 
     case Dali::Pixel::RGBA4444:
     {
-      if( channel == RED )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF0) >> 4;
-      }
-      else if( channel == GREEN )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0x0F);
-      }
-      else if( channel == BLUE )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1)) & 0xF0) >> 4;
-      }
-      else if( channel == ALPHA )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1)) & 0x0F);
-      }
-      else return 0u;
+      return ReadChannel4444(pixelData, channel, RED, GREEN, BLUE, ALPHA);
     }
 
     case Dali::Pixel::BGRA4444:
     {
-      if( channel == BLUE )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF0) >> 4;
-      }
-      else if( channel == GREEN )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0x0F);
-      }
-      else if( channel == RED )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1)) & 0xF0) >> 4;
-      }
-      else if( channel == ALPHA )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1)) & 0x0F);
-      }
-      else return 0u;
+      return ReadChannel4444(pixelData, channel, BLUE, GREEN, RED, ALPHA);
     }
 
     case Dali::Pixel::RGBA5551:
     {
-      if( channel == RED )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
-      }
-      else if( channel == GREEN )
-      {
-        return ((static_cast<unsigned int>(*pixelData) & 0x07) << 2) |
-          ((static_cast<unsigned int>(*(pixelData+1)) & 0xC0) >> 6);
-      }
-      else if( channel == BLUE )
-      {
-        return (static_cast<unsigned int>(*(pixelData+1)) & 0x3E) >> 1;
-      }
-      else if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*(pixelData+1)) & 0x01;
-      }
-
-      else return 0u;
+      return ReadChannel5551(pixelData, channel, RED, GREEN, BLUE, ALPHA);
     }
 
     case Dali::Pixel::BGRA5551:
     {
-      if( channel == BLUE )
-      {
-        return (static_cast<unsigned int>(*pixelData) & 0xF8) >> 3;
-      }
-      else if( channel == GREEN )
-      {
-        return ((static_cast<unsigned int>(*pixelData) & 0x07) << 2) |
-          ((static_cast<unsigned int>(*(pixelData+1)) & 0xC0) >> 6);
-      }
-      else if( channel == RED )
-      {
-        return ( static_cast<unsigned int>(*(pixelData+1)) & 0x3E) >> 1;
-      }
-      else if( channel == ALPHA )
-      {
-        return static_cast<unsigned int>(*(pixelData+1)) & 0x01;
-      }
-
-      else return 0u;
+      return ReadChannel5551(pixelData, channel, BLUE, GREEN, RED, ALPHA);
     }
 
     case Dali::Pixel::DEPTH_UNSIGNED_INT:
@@ -401,260 +498,77 @@ void WriteChannel( unsigned char* pixelData,
   {
     case Dali::Pixel::A8:
     {
-      if( channel == ALPHA )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, ALPHA_CHANNEL_ONLY);
       break;
     }
     case Dali::Pixel::L8:
     {
-      if( channel == LUMINANCE )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, LUMINANCE_CHANNEL_ONLY);
       break;
     }
     case Dali::Pixel::LA88:
     {
-      if( channel == LUMINANCE )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+1) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, LUMINANCE_ALPHA_CHANNELS);
       break;
     }
     case Dali::Pixel::RGB565:
     {
-      if( channel == RED )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF8 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x07 );
-        *pixelData |= static_cast<unsigned char>( (channelValue >> 3) & 0x07 );
-
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xE0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 5) & 0xE0 );
-      }
-      else if( channel == BLUE )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x1F );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x1F );
-      }
+      WriteChannel565(pixelData, channel, channelValue, RED, GREEN, BLUE);
       break;
     }
 
     case Dali::Pixel::BGR565:
     {
-      if( channel == BLUE )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF8 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x07 );
-        *pixelData |= static_cast<unsigned char>( (channelValue >> 3) & 0x07 );
-
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xE0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 5) & 0xE0 );
-      }
-      else if( channel == RED )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x1F );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x1F );
-      }
+      WriteChannel565(pixelData, channel, channelValue, BLUE, GREEN, RED);
       break;
     }
 
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     {
-      if( channel == RED )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == GREEN )
-      {
-        *(pixelData+1) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == BLUE )
-      {
-        *(pixelData+2) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, RGB_CHANNELS);
       break;
     }
 
     case Dali::Pixel::BGR8888:
     {
-      if( channel == BLUE )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == GREEN )
-      {
-        *(pixelData+1) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == RED )
-      {
-        *(pixelData+2) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, BGR_CHANNELS);
       break;
     }
 
     case Dali::Pixel::RGBA8888:
     {
-      if( channel == RED )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == GREEN )
-      {
-        *(pixelData+1) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == BLUE )
-      {
-        *(pixelData+2) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+3) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, RGBA_CHANNELS);
       break;
     }
 
     case Dali::Pixel::BGRA8888:
     {
-      if( channel == BLUE )
-      {
-        *pixelData = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == GREEN )
-      {
-        *(pixelData+1) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == RED )
-      {
-        *(pixelData+2) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+3) = static_cast<unsigned char>( channelValue & 0xFF );
-      }
+      WriteChannel(pixelData, channel, channelValue, BGRA_CHANNELS);
       break;
     }
 
     case Dali::Pixel::RGBA4444:
     {
-      if( channel == RED )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF0 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x0F );
-        *pixelData |= static_cast<unsigned char>( channelValue & 0x0F );
-      }
-      else if( channel == BLUE )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xF0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x0F );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x0F );
-      }
+      WriteChannel4444(pixelData, channel, channelValue, RED, GREEN, BLUE, ALPHA);
       break;
     }
 
     case Dali::Pixel::BGRA4444:
     {
-      if( channel == BLUE )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF0 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x0F );
-        *pixelData |= static_cast<unsigned char>( channelValue & 0x0F );
-      }
-      else if( channel == RED )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xF0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 4) & 0xF0 );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x0F );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x0F );
-      }
+      WriteChannel4444(pixelData, channel, channelValue, BLUE, GREEN, RED, ALPHA);
       break;
     }
 
     case Dali::Pixel::RGBA5551:
     {
-      // rrrrrggg ggbbbbba
-      //    F8  7 C0  3E 1
-      if( channel == RED )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF8 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x07 );
-        *pixelData |= static_cast<unsigned char>( (channelValue >> 2) & 0x07 );
-
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xC0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 6) & 0xC0 );
-      }
-      else if( channel == BLUE )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x3E );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 1) & 0x3E );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
-      }
+      WriteChannel5551(pixelData, channel, channelValue, RED, GREEN, BLUE, ALPHA);
       break;
     }
 
     case Dali::Pixel::BGRA5551:
     {
-      if( channel == BLUE )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0xF8 );
-        *pixelData |= static_cast<unsigned char>( (channelValue << 3) & 0xF8 );
-      }
-      else if( channel == GREEN )
-      {
-        *pixelData &= static_cast<unsigned char>( ~0x07 );
-        *pixelData |= static_cast<unsigned char>( (channelValue >> 2) & 0x07 );
-
-        *(pixelData+1) &= static_cast<unsigned char>( ~0xC0 );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 6) & 0xC0 );
-      }
-      else if( channel == RED )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x3E );
-        *(pixelData+1) |= static_cast<unsigned char>( (channelValue << 1 ) & 0x3E );
-      }
-      else if( channel == ALPHA )
-      {
-        *(pixelData+1) &= static_cast<unsigned char>( ~0x01 );
-        *(pixelData+1) |= static_cast<unsigned char>( channelValue & 0x01 );
-      }
+      WriteChannel5551(pixelData, channel, channelValue, BLUE, GREEN, RED, ALPHA);
       break;
     }
 

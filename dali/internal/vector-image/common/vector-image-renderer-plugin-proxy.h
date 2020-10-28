@@ -21,7 +21,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/vector-image-renderer-plugin.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <memory>
 
 namespace Dali
 {
@@ -50,34 +49,25 @@ public:
   ~VectorImageRendererPluginProxy();
 
   /**
-   * @copydoc Dali::VectorImageRendererPlugin::Initialize()
+   * @brief Query whether the plugin is valid or not.
+   * @return True if valid, false otherwise
    */
-  bool Initialize();
-
-  /**
-   * @copydoc Dali::VectorImageRendererPlugin::SetBuffer()
-   */
-  void SetBuffer( Dali::Devel::PixelBuffer &buffer );
-
-  /**
-   * @copydoc Dali::VectorImageRendererPlugin::Render()
-   */
-  bool Render(float scale);
+  bool IsValid() const;
 
   /**
    * @copydoc Dali::VectorImageRendererPlugin::Load()
    */
-  bool Load( const std::string& url );
+  bool Load(const Vector<uint8_t>& data);
 
   /**
-   * @copydoc Dali::VectorImageRendererPlugin::Load()
+   * @copydoc Dali::VectorImageRendererPlugin::Rasterize()
    */
-  bool Load( const char *data, uint32_t size );
+  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
 
   /**
    * @copydoc Dali::VectorImageRendererPlugin::GetDefaultSize()
    */
-  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+  void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
   // Not copyable or movable
   VectorImageRendererPluginProxy( const VectorImageRendererPluginProxy& ) = delete; ///< Deleted copy constructor
