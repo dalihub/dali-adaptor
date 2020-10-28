@@ -316,6 +316,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
+  bool                            mDefaultScreenRotationAvailable;
 
 }; // class WindowRenderSurface
 
