@@ -454,19 +454,11 @@ void WindowBaseWin::SetWindowRotationAngle( int degree )
 {
 }
 
-int WindowBaseWin::GetWindowRotationAngle()
-{
-}
-
 void WindowBaseWin::WindowRotationCompleted( int degree, int width, int height )
 {
 }
 
 void WindowBaseWin::SetTransparency( bool transparent )
-{
-}
-
-int WindowBaseWin::GetOrientation() const
 {
 }
 
