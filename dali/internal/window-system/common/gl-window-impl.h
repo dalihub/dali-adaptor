@@ -363,8 +363,7 @@ public: // Signals
 private:
 
   std::unique_ptr< WindowBase >               mWindowBase;
-  std::unique_ptr< GraphicsInterface >        mGraphics;                    ///< Graphics interface
-  std::unique_ptr< Dali::DisplayConnection >  mDisplayConnection;
+  GraphicsInterface*                          mGraphics;                    ///< Graphics interface
   std::string                                 mName;
   std::string                                 mClassName;
   EventHandlerPtr                             mEventHandler;         ///< The window events handler
