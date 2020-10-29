@@ -65,7 +65,8 @@ GlWindow* GlWindow::New( const PositionSize& positionSize, const std::string& na
 
 GlWindow::GlWindow()
 : mWindowBase(),
-  mGraphics( nullptr ),
+  mGraphics(),
+  mDisplayConnection( nullptr ),
   mEventHandler( nullptr ),
   mPositionSize(),
   mColorDepth( COLOR_DEPTH_24 ),
@@ -114,11 +115,6 @@ GlWindow::~GlWindow()
     mEventHandler->RemoveObserver( *this );
   }
 
-  if( Dali::Adaptor::IsAvailable() && mGLRenderCallback )
-  {
-    Dali::Adaptor::Get().RemoveIdle( mGLRenderCallback );
-  }
-
   if( mGLTerminateCallback )
   {
     mGLTerminateCallback();
@@ -126,7 +122,8 @@ GlWindow::~GlWindow()
 
   if( mIsEGLInitialize )
   {
-    EglGraphics *eglGraphics = static_cast<EglGraphics*>( mGraphics );
+    GraphicsInterface* graphics = mGraphics.get();
+    EglGraphics *eglGraphics = static_cast<EglGraphics*>( graphics );
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
     if( mEGLSurface )
@@ -140,6 +137,10 @@ GlWindow::~GlWindow()
       eglImpl.DestroyContext( mEGLContext );
       mEGLContext = nullptr;
     }
+
+    eglImpl.TerminateGles();
+
+    mGraphics->Destroy();
   }
 }
 
@@ -776,7 +777,8 @@ void GlWindow::RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFr
 
 bool GlWindow::RunCallback()
 {
-  EglGraphics *eglGraphics = static_cast<EglGraphics*>( mGraphics );
+  GraphicsInterface* graphics = mGraphics.get();
+  EglGraphics *eglGraphics = static_cast<EglGraphics*>( graphics );
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
   eglImpl.MakeContextCurrent( mEGLSurface, mEGLContext );
@@ -825,10 +827,20 @@ void GlWindow::InitializeGraphics()
 {
   if( !mIsEGLInitialize )
   {
-    mGraphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-    EglGraphics *eglGraphics = static_cast<EglGraphics *>(mGraphics);
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    // Init Graphics
+    std::unique_ptr< GraphicsFactory > graphicsFactoryPtr = Utils::MakeUnique< GraphicsFactory >();
+    auto graphicsFactory = *graphicsFactoryPtr.get();
 
+    mGraphics = std::unique_ptr< GraphicsInterface >( &graphicsFactory.Create() );
+    GraphicsInterface* graphics = mGraphics.get();
+    EglGraphics *eglGraphics = static_cast<EglGraphics*>( graphics );
+    eglGraphics->Initialize( mDepth, mStencil, mMSAA );
+    eglGraphics->Create();
+
+    mDisplayConnection = std::unique_ptr< Dali::DisplayConnection >( Dali::DisplayConnection::New( *graphics, Dali::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE ) );
+    mDisplayConnection->Initialize();
+
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     if( mGLESVersion == Dali::GlWindow::GlesVersion::VERSION_2_0 )
     {
       eglImpl.SetGlesVersion( 20 );
