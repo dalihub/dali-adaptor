@@ -27,6 +27,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -76,21 +77,6 @@ public:
   // Enumerations
 
   /**
-   * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
-   *
-   * This Enumeration is used the available orientation APIs and the preferred orientation.
-   *
-   */
-  enum class GlWindowOrientation
-  {
-    PORTRAIT = 0,                       ///< Portrait orientation. The height of the display area is greater than the width.
-    LANDSCAPE = 1,                      ///< Landscape orientation. A wide view area is needed.
-    PORTRAIT_INVERSE = 2,               ///< Portrait inverse orientation
-    LANDSCAPE_INVERSE = 3,              ///< Landscape inverse orientation
-    NO_ORIENTATION_PREFERENCE = -1      ///< Invalid angle value. It is used to initialize or unset the preferred orientation.
-  };
-
-    /**
    * @brief Enumeration for GLES verion
    *
    * This Enumeration is used the GLES version for EGL configuration.
@@ -319,7 +305,7 @@ public:
    *
    * @return The current GlWindow rotation angle if previously set, or none
    */
-   Dali::GlWindow::GlWindowOrientation GetCurrentOrientation() const;
+   WindowOrientation GetCurrentOrientation() const;
 
    /**
     * @brief Sets available orientations of the window.
@@ -328,7 +314,7 @@ public:
     *
     * @param[in] orientations The available orientations list to add
     */
-   void SetAvailableOrientations( const Dali::Vector<Dali::GlWindow::GlWindowOrientation>& orientations );
+   void SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations );
 
   /**
    * @brief Sets a preferred orientation.
@@ -338,7 +324,7 @@ public:
    *
    * @note To unset the preferred orientation, angle should be set NO_ORIENTATION_PREFERENCE.
    */
-  void SetPreferredOrientation( Dali::GlWindow::GlWindowOrientation orientation );
+  void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
    * @brief Registers a GL callback function for application.

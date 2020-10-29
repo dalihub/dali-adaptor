@@ -30,6 +30,7 @@
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-event.h>
@@ -70,7 +71,7 @@ public:
   typedef Signal< void ( ) > DeleteSignalType;
   typedef Signal< void ( const DamageArea& ) > DamageSignalType;
   typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
-  typedef Signal< void ( DevelWindow::EffectState, DevelWindow::EffectType ) > TransitionEffectEventSignalType;
+  typedef Signal< void ( WindowEffectState, WindowEffectType ) > TransitionEffectEventSignalType;
   typedef Signal< void ( ) > KeyboardRepeatSettingsChangedSignalType;
   typedef Signal< void ( ) > WindowRedrawRequestSignalType;
 
@@ -248,17 +249,17 @@ public:
   /**
    * @copydoc Dali::Window::SetType()
    */
-  virtual void SetType( Dali::Window::Type type ) = 0;
+  virtual void SetType( Dali::WindowType type ) = 0;
 
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  virtual bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level ) = 0;
+  virtual bool SetNotificationLevel( Dali::WindowNotificationLevel level ) = 0;
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
    */
-  virtual Dali::Window::NotificationLevel::Type GetNotificationLevel() const = 0;
+  virtual Dali::WindowNotificationLevel GetNotificationLevel() const = 0;
 
   /**
    * @copydoc Dali::Window::SetOpaqueState()
@@ -268,12 +269,12 @@ public:
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
    */
-  virtual bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode) = 0;
+  virtual bool SetScreenOffMode(WindowScreenOffMode screenOffMode) = 0;
 
   /**
    * @copydoc Dali::Window::GetScreenOffMode()
    */
-  virtual Dali::Window::ScreenOffMode::Type GetScreenOffMode() const = 0;
+  virtual WindowScreenOffMode GetScreenOffMode() const = 0;
 
   /**
    * @copydoc Dali::Window::SetBrightness()
