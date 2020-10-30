@@ -27,6 +27,11 @@ namespace Internal
 namespace Adaptor
 {
 
+std::string Adaptor::GetApplicationPackageName()
+{
+  return "";
+}
+
 void Adaptor::GetDataStoragePath( std::string& path)
 {
   path = "";

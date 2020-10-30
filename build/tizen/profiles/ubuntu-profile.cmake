@@ -1,5 +1,7 @@
 # PROFILE: UBUNTU
 
+SET( ENABLE_ATSPI ON )
+
 # Set the sources
 SET( SOURCES
         ${adaptor_accessibility_common_src_files}

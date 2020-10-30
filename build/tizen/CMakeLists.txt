@@ -17,6 +17,7 @@ ENDIF()
 
 OPTION(ENABLE_PKG_CONFIGURE  "Use pkgconfig" ON)
 OPTION(ENABLE_LINK_TEST      "Enable the link test" ON)
+OPTION(ENABLE_ATSPI          "Enable AT-SPI accessibility" OFF)
 
 # Include additional macros
 INCLUDE( common.cmake )
@@ -134,6 +135,12 @@ INCLUDE( module-list.cmake )
 
 # Include profile specific setup
 INCLUDE( profiles/${PROFILE_LCASE}-profile.cmake )
+
+IF ( ENABLE_ATSPI )
+  SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_bridge_src_files} )
+ELSE()
+  SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_dummy_src_files} )
+ENDIF()
 
 IF( ENABLE_PKG_CONFIGURE )
   # Configure the pkg-config file
@@ -393,7 +400,6 @@ MESSAGE( STATUS "Freetype bitmap support (Emoji):  ${freetype_bitmap_support_ENA
 MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
 MESSAGE( STATUS "Data Dir (Read/Write):            ${dataReadWriteDir}")
 MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
-MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
 MESSAGE( STATUS "WebP:                             ${webp_available_ENABLED}")
 MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
 MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")

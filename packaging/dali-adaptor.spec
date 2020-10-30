@@ -102,6 +102,9 @@ BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
 
+# for ATSPI (Accessibility) support
+BuildRequires:  pkgconfig(eldbus)
+
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)

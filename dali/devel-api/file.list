@@ -1,9 +1,10 @@
 
 
 SET( devel_api_src_files
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-adaptor.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-impl.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
@@ -42,10 +43,8 @@ SET( devel_api_src_files
 
 
 SET( devel_api_adaptor_framework_header_files
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-adaptor.h
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-action-handler.h
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-handler.h
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-event.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-impl.h
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h

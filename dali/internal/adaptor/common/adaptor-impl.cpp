@@ -29,6 +29,7 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/devel-api/actors/actor-devel.h>
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/context-notifier.h>
@@ -54,7 +55,6 @@
 
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -67,6 +67,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
+#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/internal/system/common/logging.h>
 
 #include <dali/internal/system/common/locale-utils.h>
@@ -320,10 +321,36 @@ void Adaptor::Initialize( GraphicsFactory& graphicsFactory )
   }
 
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>( systemCachePath, eglGraphics, mThreadController );
+
+  auto appName = GetApplicationPackageName();
+  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  bridge->SetApplicationName( appName );
+  bridge->Initialize();
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect( &accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent );
+}
+
+void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent( const Dali::KeyEvent& event )
+{
+  Accessibility::KeyEventType type;
+  if( event.GetState() == Dali::KeyEvent::DOWN )
+  {
+    type = Accessibility::KeyEventType::KEY_PRESSED;
+  }
+  else if( event.GetState() == Dali::KeyEvent::UP )
+  {
+    type = Accessibility::KeyEventType::KEY_RELEASED;
+  }
+  else
+  {
+    return;
+  }
+  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit( type, event.GetKeyCode(), event.GetKeyName(), event.GetTime(), !event.GetKeyString().empty() );
 }
 
 Adaptor::~Adaptor()
 {
+  Accessibility::Bridge::GetCurrentBridge()->Terminate();
+
   // Ensure stop status
   Stop();
 
@@ -937,6 +964,8 @@ void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
 
 void Adaptor::OnWindowShown()
 {
+  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationShown();
+
   if( PAUSED_WHILE_HIDDEN == mState )
   {
     // Adaptor can now be resumed
@@ -967,6 +996,8 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
+  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
+
   if( RUNNING == mState || READY == mState )
   {
     bool allWindowsHidden = true;

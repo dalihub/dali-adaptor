@@ -3,72 +3,66 @@
 SET( adaptor_accessibility_common_src_files
     ${adaptor_accessibility_dir}/common/tts-player-factory.cpp
     ${adaptor_accessibility_dir}/common/tts-player-impl.cpp
-    ${adaptor_accessibility_dir}/common/accessibility-adaptor-impl.cpp
-    ${adaptor_accessibility_dir}/common/accessibility-gesture-detector.cpp
 )
 
 # module: accessibility, backend: tizen-wayland
 SET( adaptor_accessibility_tizen_wayland_src_files
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-factory-tizen.cpp
     ${adaptor_accessibility_dir}/tizen-wayland/tts-player-impl-tizen.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/atspi-accessibility-tizen.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/accessibility-impl.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/accessible.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-accessible.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-action.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-base.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-collection.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-component.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-editable-text.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-impl.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-object.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-text.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/bridge-value.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/component.cpp
-    ${adaptor_accessibility_dir}/tizen-wayland/atspi/dbus-tizen.cpp
 )
 
 # module: accessibility, backend: tizen-common profile
 SET( adaptor_accessibility_tizen_common_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-common/accessibility-adaptor-impl-tizen.cpp
 )
 
 # module: accessibility, backend: tizen-ivi profile
 SET( adaptor_accessibility_tizen_ivi_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-ivi/accessibility-adaptor-impl-ivi.cpp
 )
 
 # module: accessibility, backend: tizen-mobile profile
 SET( adaptor_accessibility_tizen_mobile_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-mobile/accessibility-adaptor-impl-mobile.cpp
 )
 
 # module: accessibility, backend: tizen-tv profile
 SET( adaptor_accessibility_tizen_tv_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-tv/accessibility-adaptor-impl-tv.cpp
 )
 
 # module: accessibility, backend: tizen-wearable profile
 SET( adaptor_accessibility_tizen_wearable_src_files
-    ${adaptor_accessibility_dir}/tizen-wayland/tizen-wearable/accessibility-adaptor-impl-wearable.cpp
 )
 
 # module: accessibility, backend: ubuntu
 SET( adaptor_accessibility_ubuntu_src_files
-    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp
-    ${adaptor_accessibility_dir}/generic/atspi-accessibility-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
 # module: accessibility, backend: android
 SET( adaptor_accessibility_android_src_files
-    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
 # module: accessibility, backend: windows
 SET( adaptor_accessibility_windows_src_files
-    ${adaptor_accessibility_dir}/generic/accessibility-adaptor-impl-generic.cpp
+)
+
+SET( adaptor_accessibility_atspi_bridge_src_files
+    ${adaptor_accessibility_dir}/bridge/accessible.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-accessible.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-action.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-base.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-collection.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-component.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-editable-text.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-impl.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-object.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-text.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-value.cpp
+    ${adaptor_accessibility_dir}/bridge/component.cpp
+    ${adaptor_accessibility_dir}/bridge/dbus-tizen.cpp
+)
+
+SET( adaptor_accessibility_atspi_dummy_src_files
+    ${adaptor_accessibility_dir}/bridge/dummy-atspi.cpp
 )
