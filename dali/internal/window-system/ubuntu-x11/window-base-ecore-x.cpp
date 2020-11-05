@@ -767,32 +767,32 @@ void WindowBaseEcoreX::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 
-void WindowBaseEcoreX::SetType( Dali::Window::Type type )
+void WindowBaseEcoreX::SetType( Dali::WindowType type )
 {
 }
 
-bool WindowBaseEcoreX::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
+bool WindowBaseEcoreX::SetNotificationLevel( Dali::WindowNotificationLevel level )
 {
   return false;
 }
 
-Dali::Window::NotificationLevel::Type WindowBaseEcoreX::GetNotificationLevel() const
+Dali::WindowNotificationLevel  WindowBaseEcoreX::GetNotificationLevel() const
 {
-  return Dali::Window::NotificationLevel::NONE;
+  return Dali::WindowNotificationLevel::NONE;
 }
 
 void WindowBaseEcoreX::SetOpaqueState( bool opaque )
 {
 }
 
-bool WindowBaseEcoreX::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
+bool WindowBaseEcoreX::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return false;
 }
 
-Dali::Window::ScreenOffMode::Type WindowBaseEcoreX::GetScreenOffMode() const
+WindowScreenOffMode WindowBaseEcoreX::GetScreenOffMode() const
 {
-  return Dali::Window::ScreenOffMode::TIMEOUT;
+  return WindowScreenOffMode::TIMEOUT;
 }
 
 bool WindowBaseEcoreX::SetBrightness( int brightness )

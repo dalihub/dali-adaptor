@@ -1531,28 +1531,28 @@ void WindowBaseEcoreWl::SetInputRegion( const Rect< int >& inputRegion )
   ecore_wl_window_input_region_set( mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
 
-void WindowBaseEcoreWl::SetType( Dali::Window::Type type )
+void WindowBaseEcoreWl::SetType( Dali::WindowType type )
 {
   Ecore_Wl_Window_Type windowType;
 
   switch( type )
   {
-    case Dali::Window::NORMAL:
+    case Dali::WindowType::NORMAL:
     {
       windowType = ECORE_WL_WINDOW_TYPE_TOPLEVEL;
       break;
     }
-    case Dali::Window::NOTIFICATION:
+    case Dali::WindowType::NOTIFICATION:
     {
       windowType = ECORE_WL_WINDOW_TYPE_NOTIFICATION;
       break;
     }
-    case Dali::Window::UTILITY:
+    case Dali::WindowType::UTILITY:
     {
       windowType = ECORE_WL_WINDOW_TYPE_UTILITY;
       break;
     }
-    case Dali::Window::DIALOG:
+    case Dali::WindowType::DIALOG:
     {
       windowType = ECORE_WL_WINDOW_TYPE_DIALOG;
       break;
@@ -1567,7 +1567,7 @@ void WindowBaseEcoreWl::SetType( Dali::Window::Type type )
   ecore_wl_window_type_set( mEcoreWindow, windowType );
 }
 
-bool WindowBaseEcoreWl::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
+bool WindowBaseEcoreWl::SetNotificationLevel( Dali::WindowNotificationLevel level )
 {
   while( !mTizenPolicy )
   {
@@ -1578,27 +1578,27 @@ bool WindowBaseEcoreWl::SetNotificationLevel( Dali::Window::NotificationLevel::T
 
   switch( level )
   {
-    case Dali::Window::NotificationLevel::NONE:
+    case Dali::WindowNotificationLevel::NONE:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_NONE;
       break;
     }
-    case Dali::Window::NotificationLevel::BASE:
+    case Dali::WindowNotificationLevel::BASE:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
       break;
     }
-    case Dali::Window::NotificationLevel::MEDIUM:
+    case Dali::WindowNotificationLevel::MEDIUM:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_MEDIUM;
       break;
     }
-    case Dali::Window::NotificationLevel::HIGH:
+    case Dali::WindowNotificationLevel::HIGH:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_HIGH;
       break;
     }
-    case Dali::Window::NotificationLevel::TOP:
+    case Dali::WindowNotificationLevel::TOP:
     {
       notificationLevel = TIZEN_POLICY_LEVEL_TOP;
       break;
@@ -1641,7 +1641,7 @@ bool WindowBaseEcoreWl::SetNotificationLevel( Dali::Window::NotificationLevel::T
   return true;
 }
 
-Dali::Window::NotificationLevel::Type WindowBaseEcoreWl::GetNotificationLevel() const
+Dali::WindowNotificationLevel WindowBaseEcoreWl::GetNotificationLevel() const
 {
   while( !mTizenPolicy )
   {
@@ -1663,39 +1663,39 @@ Dali::Window::NotificationLevel::Type WindowBaseEcoreWl::GetNotificationLevel() 
     return Dali::Window::NotificationLevel::NONE;
   }
 
-  Dali::Window::NotificationLevel::Type level;
+  Dali::WindowNotificationLevel level;
 
   switch( mNotificationLevel )
   {
     case TIZEN_POLICY_LEVEL_NONE:
     {
-      level = Dali::Window::NotificationLevel::NONE;
+      level = Dali::WindowNotificationLevel::NONE;
       break;
     }
     case TIZEN_POLICY_LEVEL_DEFAULT:
     {
-      level = Dali::Window::NotificationLevel::BASE;
+      level = Dali::WindowNotificationLevel::BASE;
       break;
     }
     case TIZEN_POLICY_LEVEL_MEDIUM:
     {
-      level = Dali::Window::NotificationLevel::MEDIUM;
+      level = Dali::WindowNotificationLevel::MEDIUM;
       break;
     }
     case TIZEN_POLICY_LEVEL_HIGH:
     {
-      level = Dali::Window::NotificationLevel::HIGH;
+      level = Dali::WindowNotificationLevel::HIGH;
       break;
     }
     case TIZEN_POLICY_LEVEL_TOP:
     {
-      level = Dali::Window::NotificationLevel::TOP;
+      level = Dali::WindowNotificationLevel::TOP;
       break;
     }
     default:
     {
       DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl::GetNotificationLevel: invalid level [%d]\n", mNotificationLevel );
-      level = Dali::Window::NotificationLevel::NONE;
+      level = Dali::WindowNotificationLevel::NONE;
       break;
     }
   }
@@ -1715,7 +1715,7 @@ void WindowBaseEcoreWl::SetOpaqueState( bool opaque )
   tizen_policy_set_opaque_state( mTizenPolicy, ecore_wl_window_surface_get( mEcoreWindow ), ( opaque ? 1 : 0 ) );
 }
 
-bool WindowBaseEcoreWl::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
+bool WindowBaseEcoreWl::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   while( !mTizenPolicy )
   {
@@ -1729,12 +1729,12 @@ bool WindowBaseEcoreWl::SetScreenOffMode(Dali::Window::ScreenOffMode::Type scree
 
   switch( screenOffMode )
   {
-    case Dali::Window::ScreenOffMode::TIMEOUT:
+    case WindowScreenOffMode::TIMEOUT:
     {
       mode = 0;
       break;
     }
-    case Dali::Window::ScreenOffMode::NEVER:
+    case WindowScreenOffMode::NEVER:
     {
       mode = 1;
       break;
@@ -1768,7 +1768,7 @@ bool WindowBaseEcoreWl::SetScreenOffMode(Dali::Window::ScreenOffMode::Type scree
   return true;
 }
 
-Dali::Window::ScreenOffMode::Type WindowBaseEcoreWl::GetScreenOffMode() const
+WindowScreenOffMode WindowBaseEcoreWl::GetScreenOffMode() const
 {
   while( !mTizenPolicy )
   {
@@ -1787,21 +1787,21 @@ Dali::Window::ScreenOffMode::Type WindowBaseEcoreWl::GetScreenOffMode() const
   if( !mScreenOffModeChangeDone )
   {
     DALI_LOG_INFO( gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl::GetScreenOffMode: Error! [%d]\n", mScreenOffModeChangeState );
-    return Dali::Window::ScreenOffMode::TIMEOUT;
+    return WindowScreenOffMode::TIMEOUT;
   }
 
-  Dali::Window::ScreenOffMode::Type screenMode = Dali::Window::ScreenOffMode::TIMEOUT;
+  WindowScreenOffMode screenMode = WindowScreenOffMode::TIMEOUT;
 
   switch( mScreenOffMode )
   {
     case 0:
     {
-      screenMode = Dali::Window::ScreenOffMode::TIMEOUT;
+      screenMode = WindowScreenOffMode::TIMEOUT;
       break;
     }
     case 1:
     {
-      screenMode = Dali::Window::ScreenOffMode::NEVER;
+      screenMode = WindowScreenOffMode::NEVER;
       break;
     }
   }

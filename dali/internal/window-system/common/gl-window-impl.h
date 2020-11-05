@@ -161,17 +161,17 @@ public:
   /**
    * @copydoc Dali::GlWindow::GetCurrentOrientation() const
    */
-  Dali::GlWindow::GlWindowOrientation GetCurrentOrientation() const;
+  WindowOrientation GetCurrentOrientation() const;
 
   /**
    * @copydoc Dali::GlWindow::SetAvailableOrientations()
    */
-  void SetAvailableOrientations( const Dali::Vector< Dali::GlWindow::GlWindowOrientation >& orientations );
+  void SetAvailableOrientations( const Dali::Vector< WindowOrientation >& orientations );
 
   /**
    * @copydoc Dali::GlWindow::SetPreferredOrientation()
    */
-  void SetPreferredOrientation( Dali::GlWindow::GlWindowOrientation orientation );
+  void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
    * @copydoc Dali::GlWindow::RegisterGlCallback()
@@ -254,7 +254,7 @@ private:
    *
    * @return true is available window orientation. false is not available.
    */
-  bool IsOrientationAvailable( Dali::GlWindow::GlWindowOrientation orientation ) const;
+  bool IsOrientationAvailable( WindowOrientation orientation ) const;
 
   /**
    * @brief Convert from window orientation to angle using orientation mode value.
@@ -263,7 +263,7 @@ private:
    *
    * @return The coverted angle value is returned.
    */
-  int ConvertToAngle( Dali::GlWindow::GlWindowOrientation orientation );
+  int ConvertToAngle( WindowOrientation orientation );
 
   /**
    * @brief Convert from angle to window orientation using orientation mode value.
@@ -272,7 +272,7 @@ private:
    *
    * @return The converted window orientation value is returned.
    */
-  Dali::GlWindow::GlWindowOrientation ConvertToOrientation( int angle ) const;
+  WindowOrientation ConvertToOrientation( int angle ) const;
 
   /**
    * @brief Run Ui GL callback function.

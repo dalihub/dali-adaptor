@@ -35,6 +35,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/widget.h
   ${adaptor_public_api_dir}/adaptor-framework/widget-application.h
   ${adaptor_public_api_dir}/adaptor-framework/widget-impl.h
+  ${adaptor_public_api_dir}/adaptor-framework/window-enumerations.h
 )
 
 

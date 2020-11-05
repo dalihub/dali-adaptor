@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 
 namespace Dali
 {
@@ -34,25 +35,6 @@ class RenderTaskList;
 
 namespace DevelWindow
 {
-/**
- * @brief Enumeration for transition effect's state.
- */
-enum class EffectState
-{
-  NONE = 0, ///< None state
-  START,    ///< Transition effect is started.
-  END       ///< Transition effect is ended.
-};
-
-/**
- * @brief Enumeration for transition effect's type.
- */
-enum class EffectType
-{
-  NONE = 0, ///< None type
-  SHOW,     ///< Window show effect.
-  HIDE,     ///< Window hide effect.
-};
 
 typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
@@ -64,7 +46,7 @@ typedef Signal<void(const WheelEvent&)> WheelEventSignalType; ///< Touched signa
 
 typedef Signal<void(Window, bool)> VisibilityChangedSignalType; ///< Visibility changed signal type
 
-typedef Signal<void(Window, EffectState, EffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
+typedef Signal<void(Window, WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
 
 typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
 
@@ -207,7 +189,7 @@ DALI_ADAPTOR_API Window DownCast(BaseHandle handle);
  * @param[in] window The window instance
  * @return The current window orientation if previously set, or none
  */
-DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation(Window window);
+DALI_ADAPTOR_API WindowOrientation GetCurrentOrientation(Window window);
 
 /**
  * @brief Sets available orientations of the window.
@@ -217,7 +199,7 @@ DALI_ADAPTOR_API Dali::Window::WindowOrientation GetCurrentOrientation(Window wi
  * @param[in] window The window instance
  * @param[in] orientations The available orientation list to add
  */
-DALI_ADAPTOR_API void SetAvailableOrientations(Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations);
+DALI_ADAPTOR_API void SetAvailableOrientations(Window window, const Dali::Vector<WindowOrientation>& orientations);
 
 /**
  * @brief Gets current window ID.

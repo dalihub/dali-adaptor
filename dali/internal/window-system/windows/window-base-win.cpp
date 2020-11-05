@@ -372,32 +372,32 @@ void WindowBaseWin::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 
-void WindowBaseWin::SetType( Dali::Window::Type type )
+void WindowBaseWin::SetType( Dali::WindowType type )
 {
 }
 
-bool WindowBaseWin::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
+bool WindowBaseWin::SetNotificationLevel( Dali::WindowNotificationLevel level )
 {
   return false;
 }
 
-Dali::Window::NotificationLevel::Type WindowBaseWin::GetNotificationLevel() const
+Dali::WindowNotificationLevel WindowBaseWin::GetNotificationLevel() const
 {
-  return Dali::Window::NotificationLevel::NONE;
+  return Dali::WindowNotificationLevel::NONE;
 }
 
 void WindowBaseWin::SetOpaqueState( bool opaque )
 {
 }
 
-bool WindowBaseWin::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
+bool WindowBaseWin::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return false;
 }
 
-Dali::Window::ScreenOffMode::Type WindowBaseWin::GetScreenOffMode() const
+WindowScreenOffMode WindowBaseWin::GetScreenOffMode() const
 {
-  return Dali::Window::ScreenOffMode::TIMEOUT;
+  return WindowScreenOffMode::TIMEOUT;
 }
 
 bool WindowBaseWin::SetBrightness( int brightness )

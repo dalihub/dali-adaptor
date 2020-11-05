@@ -203,7 +203,7 @@ int UtcDaliWindowAddAvailableOrientationN(void)
   Dali::Window window;
   try
   {
-    window.AddAvailableOrientation(Dali::Window::PORTRAIT);
+    window.AddAvailableOrientation(Dali::WindowOrientation::PORTRAIT);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -219,7 +219,7 @@ int UtcDaliWindowRemoveAvailableOrientationN(void)
   Dali::Window window;
   try
   {
-    window.RemoveAvailableOrientation(Dali::Window::PORTRAIT);
+    window.RemoveAvailableOrientation(Dali::WindowOrientation::PORTRAIT);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -235,7 +235,7 @@ int UtcDaliWindowSetPreferredOrientationN(void)
   Dali::Window window;
   try
   {
-    window.SetPreferredOrientation(Dali::Window::PORTRAIT);
+    window.SetPreferredOrientation(Dali::WindowOrientation::PORTRAIT);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)
@@ -251,8 +251,8 @@ int UtcDaliWindowGetPreferredOrientationN(void)
   Dali::Window window;
   try
   {
-    Dali::Window::WindowOrientation orientation = window.GetPreferredOrientation();
-    DALI_TEST_CHECK(orientation == Dali::Window::PORTRAIT); // Should not reach here!
+    Dali::WindowOrientation orientation = window.GetPreferredOrientation();
+    DALI_TEST_CHECK(orientation == Dali::WindowOrientation::PORTRAIT); // Should not reach here!
   }
   catch(...)
   {
