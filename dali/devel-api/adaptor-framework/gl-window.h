@@ -48,13 +48,6 @@ class GlWindow;
 }
 }
 
-namespace
-{
-typedef void  (*GlInitialize)();
-typedef void  (*GlRenderFrame)();
-typedef void  (*GlTerminate)();
-}
-
 class TouchEvent;
 class KeyEvent;
 
@@ -350,12 +343,31 @@ public:
   /**
    * @brief Registers a GL callback function for application.
    *
-   * @param[in] glInit  the callback function for application initialize
-   * @param[in] glRenderFrame the callback function to render to the frame.
-   * @param[in] glTerminate the callback function to clean-up application GL resource.
+   * @param[in] initCallback  the callback function for application initialize
+   * @param[in] renderFrameCallback the callback function to render for the frame.
+   * @param[in] terminateCallback the callback function to clean-up application GL resource.
    *
+   * @note Function must be called on idle time
+   *
+   * A initCallback of the following type should be used:
+   * @code
+   *   void intializeGL();
+   * @endcode
+   * This callback will be called before renderFrame callback is called at once.
+   *
+   * A renderFrameCallback of the following type should be used:
+   * @code
+   *   int renderFrameGL();
+   * @endcode
+   * This callback's return value is not 0, the eglSwapBuffers() will be called.
+   *
+   * A terminateCallback of the following type should be used:
+   * @code
+   *   void terminateGL();
+   * @endcode
+   * This callback is called when GlWindow is deleted.
    */
-  void RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate );
+  void RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback );
 
   /**
    * @brief Renders once more even if GL render functions are not added to idler.

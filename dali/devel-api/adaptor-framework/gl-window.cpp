@@ -150,9 +150,9 @@ void GlWindow::SetPreferredOrientation( Dali::GlWindow::GlWindowOrientation orie
 {
   GetImplementation(*this).SetPreferredOrientation( orientation );
 }
-void GlWindow::RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate )
+void GlWindow::RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback )
 {
-  GetImplementation(*this).RegisterGlCallback( glInit, glRenderFrame, glTerminate );
+  GetImplementation(*this).RegisterGlCallback( initCallback, renderFrameCallback, terminateCallback );
 }
 void GlWindow::RenderOnce()
 {

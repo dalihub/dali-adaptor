@@ -382,15 +382,17 @@ int UtcDaliWindowGetCurrentOrientation(void)
 }
 
 // Internal callback function
-void glInit()
+void glInit(void)
 {
 }
 
-void glRenderFrame()
+int glRenderFrame(void)
 {
+  static unsigned int retFlag = 0;
+  return retFlag++;
 }
 
-void glTerminate()
+void glTerminate(void)
 {
 }
 
@@ -400,7 +402,7 @@ int UtcDaliGlWindowRegisterGlCallback(void)
 
   try
   {
-    window.RegisterGlCallback( glInit, glRenderFrame, glTerminate );
+    window.RegisterGlCallback( Dali::MakeCallback( glInit ), Dali::MakeCallback( glRenderFrame ), Dali::MakeCallback( glTerminate ) );
 
     DALI_TEST_CHECK( false );
   }
@@ -417,7 +419,7 @@ int UtcDaliGlWindowRenderOnce(void)
 
   try
   {
-    window.RegisterGlCallback( glInit, glRenderFrame, glTerminate );
+    window.RegisterGlCallback( Dali::MakeCallback( glInit ), Dali::MakeCallback( glRenderFrame ), Dali::MakeCallback( glTerminate ) );
     window.RenderOnce();
 
     DALI_TEST_CHECK( false );

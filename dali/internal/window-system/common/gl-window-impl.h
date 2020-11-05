@@ -176,7 +176,7 @@ public:
   /**
    * @copydoc Dali::GlWindow::RegisterGlCallback()
    */
-  void RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate );
+  void RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback );
 
   /**
    * @copydoc Dali::GlWindow::RenderOnce()
@@ -399,9 +399,9 @@ private:
   VisibilityChangedSignalType                 mVisibilityChangedSignal;
 
   // EGL, GL Resource
-  GlInitialize                                mGLInitCallback;
-  GlRenderFrame                               mGLRenderFrameCallback;
-  GlTerminate                                 mGLTerminateCallback;
+  std::unique_ptr< CallbackBase >             mGLInitCallback;
+  std::unique_ptr< CallbackBase >             mGLRenderFrameCallback;
+  std::unique_ptr< CallbackBase >             mGLTerminateCallback;
   CallbackBase*                               mGLRenderCallback;
   EGLSurface                                  mEGLSurface;
   EGLContext                                  mEGLContext;
