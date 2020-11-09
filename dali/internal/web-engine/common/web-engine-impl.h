@@ -239,6 +239,16 @@ public:
   void SetFocus( bool focused );
 
   /**
+   * @copydoc Dali::WebEngine::UpdateDisplayArea()
+   */
+  void UpdateDisplayArea( Dali::Rect< int > displayArea );
+
+  /**
+   * @copydoc Dali::WebEngine::EnableVideoHole()
+   */
+  void EnableVideoHole( bool enabled );
+
+  /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();

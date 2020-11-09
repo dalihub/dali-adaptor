@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/images/native-image-interface.h>
+#include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <functional>
 
@@ -292,6 +293,18 @@ public:
    * @brief Sets focus.
    */
   virtual void SetFocus( bool focused ) = 0;
+
+  /**
+   * @brief Update display area.
+   * @param[in] displayArea The display area need be updated.
+   */
+  virtual void UpdateDisplayArea( Dali::Rect< int > displayArea ) = 0;
+
+  /**
+   * @brief Enable video hole.
+   * @param[in] enabled True if enabled, false othewise.
+   */
+  virtual void EnableVideoHole( bool enabled ) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.

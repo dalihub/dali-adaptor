@@ -348,6 +348,16 @@ void WebEngine::SetFocus( bool focused )
   mPlugin->SetFocus( focused );
 }
 
+void WebEngine::UpdateDisplayArea( Dali::Rect< int > displayArea )
+{
+  mPlugin->UpdateDisplayArea( displayArea );
+}
+
+void WebEngine::EnableVideoHole( bool enabled )
+{
+  mPlugin->EnableVideoHole( enabled );
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return mPlugin->PageLoadStartedSignal();
