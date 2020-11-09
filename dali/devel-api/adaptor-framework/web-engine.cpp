@@ -249,6 +249,16 @@ void WebEngine::SetFocus( bool focused )
   GetImplementation( *this ).SetFocus( focused );
 }
 
+void WebEngine::UpdateDisplayArea( Dali::Rect< int > displayArea )
+{
+  GetImplementation( *this ).UpdateDisplayArea( displayArea );
+}
+
+void WebEngine::EnableVideoHole( bool enabled )
+{
+  GetImplementation( *this ).EnableVideoHole( enabled );
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return GetImplementation(*this).PageLoadStartedSignal();
