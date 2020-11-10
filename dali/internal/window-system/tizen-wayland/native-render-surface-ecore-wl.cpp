@@ -161,6 +161,11 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   dpiVertical   = int( yres + 0.5f );
 }
 
+int NativeRenderSurfaceEcoreWl::GetOrientation() const
+{
+  return 0;
+}
+
 void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 {
   DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );

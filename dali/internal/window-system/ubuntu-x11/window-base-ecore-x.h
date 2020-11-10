@@ -329,6 +329,12 @@ public:
   void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @brief Return the orientation of the surface.
+   * @return The orientation
+   */
+  virtual int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
   int GetScreenRotationAngle() override;
@@ -337,6 +343,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
    */
   void SetWindowRotationAngle( int degree ) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetWindowRotationAngle()
+   */
+  virtual int GetWindowRotationAngle() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
