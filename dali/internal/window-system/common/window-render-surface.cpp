@@ -108,7 +108,8 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true )
+  mResizeFinished( true ),
+  mDefaultScreenRotationAvailable( false )
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -139,6 +140,16 @@ void WindowRenderSurface::Initialize( Any surface )
 
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect( this, &WindowRenderSurface::OutputTransformed );
+
+  // Check screen rotation
+  mScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  if( mScreenRotationAngle != 0 )
+  {
+    mScreenRotationFinished = false;
+    mResizeFinished = false;
+    mDefaultScreenRotationAvailable = true;
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", mScreenRotationAngle );
+  }
 }
 
 Any WindowRenderSurface::GetNativeWindow()
@@ -249,8 +260,20 @@ void WindowRenderSurface::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  int width, height;
+  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  {
+    width = mPositionSize.width;
+    height = mPositionSize.height;
+  }
+  else
+  {
+    width = mPositionSize.height;
+    height = mPositionSize.width;
+  }
+
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( mPositionSize.width, mPositionSize.height );
+  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
 
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 
@@ -435,7 +458,7 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
 
   MakeContextCurrent();
 
-  if( resizingSurface )
+  if( resizingSurface || mDefaultScreenRotationAvailable )
   {
     int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
 
@@ -448,7 +471,7 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       // Reset only screen rotation flag
       mScreenRotationFinished = true;
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
+      DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
     }
 
     // Only window rotate
@@ -476,10 +499,11 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       mWindowBase->ResizeEglWindow( positionSize );
       mResizeFinished = true;
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
+      DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: Set resize\n" );
     }
 
     SetFullSwapNextFrame();
+    mDefaultScreenRotationAvailable = false;
   }
 
   SetBufferDamagedRects( damagedRects, clippingRect );
