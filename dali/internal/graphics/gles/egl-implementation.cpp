@@ -37,6 +37,7 @@ namespace
 {
   const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
   const uint32_t CHECK_EXTENSION_NUMBER = 4;
+  const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
   const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
   const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
   const std::string EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
@@ -131,38 +132,51 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     mIsOwnSurface = isOwnSurface;
   }
 
-  // Query EGL extensions to check whether surfaceless context is supported
+  const char* const versionStr = eglQueryString( mEglDisplay, EGL_VERSION );
   const char* const extensionStr = eglQueryString( mEglDisplay, EGL_EXTENSIONS );
-  std::istringstream stream( extensionStr );
-  std::string currentExtension;
+
+  // Query EGL extensions to check whether required extensions are supported
+  std::istringstream versionStream( versionStr );
+  std::string majorVersion, minorVersion;
+  std::getline( versionStream, majorVersion, '.' );
+  std::getline( versionStream, minorVersion );
   uint32_t extensionCheckCount = 0;
+  if( stoul( majorVersion ) * 10 + stoul( minorVersion ) >= EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT )
+  {
+    mIsSurfacelessContextSupported = true;
+    mIsKhrCreateContextSupported = true;
+    extensionCheckCount += 2;
+  }
+
+  std::istringstream stream(extensionStr);
+  std::string currentExtension;
   bool isKhrPartialUpdateSupported = false;
   bool isKhrSwapBuffersWithDamageSupported = false;
-  while( std::getline( stream, currentExtension, ' ' ) && extensionCheckCount < CHECK_EXTENSION_NUMBER )
+  while(std::getline(stream, currentExtension, ' ') && extensionCheckCount < CHECK_EXTENSION_NUMBER)
   {
-    if( currentExtension == EGL_KHR_SURFACELESS_CONTEXT )
+    if(currentExtension == EGL_KHR_SURFACELESS_CONTEXT && !mIsSurfacelessContextSupported)
     {
       mIsSurfacelessContextSupported = true;
       extensionCheckCount++;
     }
-    if( currentExtension == EGL_KHR_CREATE_CONTEXT )
+    if(currentExtension == EGL_KHR_CREATE_CONTEXT && !mIsKhrCreateContextSupported)
     {
       mIsKhrCreateContextSupported = true;
       extensionCheckCount++;
     }
-    if( currentExtension == EGL_KHR_PARTIAL_UPDATE )
+    if(currentExtension == EGL_KHR_PARTIAL_UPDATE)
     {
       isKhrPartialUpdateSupported = true;
       extensionCheckCount++;
     }
-    if( currentExtension == EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE )
+    if(currentExtension == EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE)
     {
       isKhrSwapBuffersWithDamageSupported = true;
       extensionCheckCount++;
     }
   }
 
-  if( !isKhrPartialUpdateSupported || !isKhrSwapBuffersWithDamageSupported  )
+  if(!isKhrPartialUpdateSupported || !isKhrSwapBuffersWithDamageSupported)
   {
     mPartialUpdateRequired = false;
   }
@@ -178,7 +192,7 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
       "            Extensions:    %s\n",
       mPartialUpdateRequired,
       eglQueryString( mEglDisplay, EGL_VENDOR ),
-      eglQueryString( mEglDisplay, EGL_VERSION ),
+      versionStr,
       eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
       extensionStr);
 

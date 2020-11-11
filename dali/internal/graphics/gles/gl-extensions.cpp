@@ -33,9 +33,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECoreX
-{
-
 GlExtensions::GlExtensions()
 :
 #ifdef GL_EXT_discard_framebuffer
@@ -118,6 +115,27 @@ void GlExtensions::ProgramBinaryOES(GLuint program, GLenum binaryFormat, const G
 #endif
 }
 
+bool GlExtensions::BlendBarrierKHR()
+{
+  // initialize extension on first use as on some hw platforms a context
+  // has to be bound for the extensions to return correct pointer
+  if( !mInitialized )
+  {
+    Initialize();
+  }
+
+#ifdef GL_KHR_blend_equation_advanced
+  if (mBlendBarrierKHR)
+  {
+    mBlendBarrierKHR();
+    return true;
+  }
+  return false;
+#endif
+
+  return false;
+}
+
 void GlExtensions::Initialize()
 {
   mInitialized = true;
@@ -130,9 +148,11 @@ void GlExtensions::Initialize()
   mGlGetProgramBinaryOES = reinterpret_cast< PFNGLGETPROGRAMBINARYOESPROC >( eglGetProcAddress("glGetProgramBinaryOES") );
   mGlProgramBinaryOES = reinterpret_cast< PFNGLPROGRAMBINARYOESPROC >( eglGetProcAddress("glProgramBinaryOES") );
 #endif
-}
 
-} // namespace ECoreX
+#ifdef GL_KHR_blend_equation_advanced
+  mBlendBarrierKHR = reinterpret_cast< PFNGLBLENDBARRIERKHRPROC >( eglGetProcAddress("glBlendBarrierKHR") );
+#endif
+}
 
 } // namespace Adaptor
 

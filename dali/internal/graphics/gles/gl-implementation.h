@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@
 #include <memory>
 #include <cstdlib>
 #include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/devel-api/threading/conditional-wait.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/gles-abstraction.h>
@@ -39,6 +41,24 @@ namespace Internal
 namespace Adaptor
 {
 
+namespace
+{
+
+const int32_t INITIAL_GLES_VERSION = 30;
+const int32_t GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
+const char* KHR_BLEND_EQUATION_ADVANCED = "GL_KHR_blend_equation_advanced";
+
+const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
+  "#extension GL_KHR_blend_equation_advanced : enable\n"
+
+  "#if GL_KHR_blend_equation_advanced==1 || __VERSION__>=320\n"
+  "  layout(blend_support_all_equations) out;\n"
+  "#endif\n";
+
+const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
+  "out mediump vec4 fragColor;\n";
+}
+
 /**
  * GlImplementation is a concrete implementation for GlAbstraction.
  * The class provides an OpenGL-ES 2.0 or 3.0 implementation.
@@ -49,11 +69,16 @@ class GlImplementation : public Dali::Integration::GlAbstraction
 
 public:
   GlImplementation()
-    : mGlesVersion( 30 ),
+    : mContextCreatedWaitCondition(),
+      mMaxTextureSize( 0 ),
+      mVertexShaderPrefix(""),
+      mGlesVersion( INITIAL_GLES_VERSION ),
+      mShadingLanguageVersion( 100 ),
+      mShadingLanguageVersionCached( false ),
       mIsSurfacelessContextSupported( false ),
-      mIsContextCreated( false ),
-      mContextCreatedWaitCondition(),
-      mMaxTextureSize( 0 )
+      mIsAdvancedBlendEquationSupportedCached( false ),
+      mIsAdvancedBlendEquationSupported( false ),
+      mIsContextCreated( false )
   {
     mImpl.reset( new Gles3Implementation() );
   }
@@ -74,16 +99,64 @@ public:
   {
     glGetIntegerv( GL_MAX_TEXTURE_SIZE, &mMaxTextureSize );
 
-    if( !mIsContextCreated )
+    GLint majorVersion, minorVersion;
+    glGetIntegerv( GL_MAJOR_VERSION, &majorVersion );
+    glGetIntegerv( GL_MINOR_VERSION, &minorVersion );
+    mGlesVersion = majorVersion * 10 + minorVersion;
+
+    if( mGlesVersion >= GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED )
     {
-      mContextCreatedWaitCondition.Notify();
+      mIsAdvancedBlendEquationSupported = true;
     }
-    mIsContextCreated = true;
+    else
+    {
+      // when mIsAdvancedBlendEquationSupported is cached, we don't need to check all the extensions.
+      if( !mIsAdvancedBlendEquationSupportedCached )
+      {
+        const char* const  extensionStr = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
+        std::istringstream stream(extensionStr);
+        std::string currentExtension;
+        while(std::getline(stream, currentExtension, ' '))
+        {
+          if(currentExtension == KHR_BLEND_EQUATION_ADVANCED)
+          {
+            mIsAdvancedBlendEquationSupported = true;
+            break;
+          }
+        }
+      }
+    }
+
+    if(!mShadingLanguageVersionCached)
+    {
+      std::istringstream shadingLanguageVersionStream(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
+      std::string token;
+      uint32_t tokenCount = 0;
+      while(std::getline(shadingLanguageVersionStream, token, ' '))
+      {
+        if(tokenCount == 3 && token == "ES")
+        {
+          std::getline(shadingLanguageVersionStream, token, '.');
+          mShadingLanguageVersion = std::atoi(token.c_str());
+          mShadingLanguageVersion *= 100;
+          std::getline(shadingLanguageVersionStream, token, '.');
+          mShadingLanguageVersion += std::atoi(token.c_str());
+          break;
+        }
+        tokenCount++;
+      }
+    }
+
+    {
+      ConditionalWait::ScopedLock lock( mContextCreatedWaitCondition );
+      mIsContextCreated = true;
+      mContextCreatedWaitCondition.Notify( lock );
+    }
   }
 
   void SetGlesVersion( const int32_t glesVersion )
   {
-    if( mGlesVersion != glesVersion )
+    if( mGlesVersion / 10 != glesVersion / 10 )
     {
       mGlesVersion = glesVersion;
       if( mGlesVersion >= 30 )
@@ -107,6 +180,131 @@ public:
     return mIsSurfacelessContextSupported;
   }
 
+  void SetIsAdvancedBlendEquationSupported(const bool isSupported)
+  {
+    mIsAdvancedBlendEquationSupported       = isSupported;
+    mIsAdvancedBlendEquationSupportedCached = true;
+  }
+
+  bool IsAdvancedBlendEquationSupported()
+  {
+    ConditionalWait::ScopedLock lock( mContextCreatedWaitCondition );
+    if(!mIsContextCreated && !mIsAdvancedBlendEquationSupportedCached)
+    {
+      mContextCreatedWaitCondition.Wait( lock );
+    }
+    return mIsAdvancedBlendEquationSupported;
+  }
+
+  bool IsBlendEquationSupported(DevelBlendEquation::Type blendEquation)
+  {
+    switch(blendEquation)
+    {
+      case DevelBlendEquation::ADD:
+      case DevelBlendEquation::SUBTRACT:
+      case DevelBlendEquation::REVERSE_SUBTRACT:
+      {
+        return true;
+      }
+      case DevelBlendEquation::MIN:
+      case DevelBlendEquation::MAX:
+      {
+        return (GetGlesVersion() >= 30);
+      }
+      case DevelBlendEquation::MULTIPLY:
+      case DevelBlendEquation::SCREEN:
+      case DevelBlendEquation::OVERLAY:
+      case DevelBlendEquation::DARKEN:
+      case DevelBlendEquation::LIGHTEN:
+      case DevelBlendEquation::COLOR_DODGE:
+      case DevelBlendEquation::COLOR_BURN:
+      case DevelBlendEquation::HARD_LIGHT:
+      case DevelBlendEquation::SOFT_LIGHT:
+      case DevelBlendEquation::DIFFERENCE:
+      case DevelBlendEquation::EXCLUSION:
+      case DevelBlendEquation::HUE:
+      case DevelBlendEquation::SATURATION:
+      case DevelBlendEquation::COLOR:
+      case DevelBlendEquation::LUMINOSITY:
+      {
+        return IsAdvancedBlendEquationSupported();
+      }
+
+      default:
+      {
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  std::string GetShaderVersionPrefix()
+  {
+    if(mShaderVersionPrefix == "")
+    {
+      mShaderVersionPrefix = "#version " + std::to_string( GetShadingLanguageVersion() );
+      if(GetShadingLanguageVersion() < 300)
+      {
+        mShaderVersionPrefix += "\n";
+      }
+      else
+      {
+        mShaderVersionPrefix += " es\n";
+      }
+    }
+    return mShaderVersionPrefix;
+  }
+
+  std::string GetVertexShaderPrefix()
+  {
+    if(mVertexShaderPrefix == "")
+    {
+      mVertexShaderPrefix = GetShaderVersionPrefix();
+
+      if(GetShadingLanguageVersion() < 300)
+      {
+        mVertexShaderPrefix += "#define INPUT attribute\n";
+        mVertexShaderPrefix += "#define OUTPUT varying\n";
+      }
+      else
+      {
+        mVertexShaderPrefix += "#define INPUT in\n";
+        mVertexShaderPrefix += "#define OUTPUT out\n";
+      }
+    }
+    return mVertexShaderPrefix;
+  }
+
+  std::string GetFragmentShaderPrefix()
+  {
+    if(mFragmentShaderPrefix == "")
+    {
+      mFragmentShaderPrefix = GetShaderVersionPrefix();
+
+      if(GetShadingLanguageVersion() < 300)
+      {
+        mFragmentShaderPrefix += "#define INPUT varying\n";
+        mFragmentShaderPrefix += "#define OUT_COLOR gl_FragColor\n";
+        mFragmentShaderPrefix += "#define TEXTURE texture2D\n";
+      }
+      else
+      {
+        mFragmentShaderPrefix += "#define INPUT in\n";
+        mFragmentShaderPrefix += "#define OUT_COLOR fragColor\n";
+        mFragmentShaderPrefix += "#define TEXTURE texture\n";
+
+        if(IsAdvancedBlendEquationSupported())
+        {
+          mFragmentShaderPrefix += FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX;
+        }
+
+        mFragmentShaderPrefix += FRAGMENT_SHADER_OUTPUT_COLOR_STRING;
+      }
+    }
+    return mFragmentShaderPrefix;
+  }
+
   bool TextureRequiresConverting( const GLenum imageGlFormat, const GLenum textureGlFormat, const bool isSubImage ) const override
   {
     bool convert = ( ( imageGlFormat == GL_RGB ) && ( textureGlFormat == GL_RGBA ) );
@@ -120,11 +318,38 @@ public:
 
   int GetMaxTextureSize()
   {
+    ConditionalWait::ScopedLock lock( mContextCreatedWaitCondition );
     if( !mIsContextCreated )
     {
-      mContextCreatedWaitCondition.Wait();
+      mContextCreatedWaitCondition.Wait( lock );
     }
     return mMaxTextureSize;
+  }
+
+  int GetGlesVersion()
+  {
+    ConditionalWait::ScopedLock lock( mContextCreatedWaitCondition );
+    if( !mIsContextCreated )
+    {
+      mContextCreatedWaitCondition.Wait( lock );
+    }
+    return mGlesVersion;
+  }
+
+  void SetShadingLanguageVersion( int shadingLanguageVersion )
+  {
+    mShadingLanguageVersion = shadingLanguageVersion;
+    mShadingLanguageVersionCached = true;
+  }
+
+  int GetShadingLanguageVersion()
+  {
+    ConditionalWait::ScopedLock lock( mContextCreatedWaitCondition );
+    if( !mIsContextCreated && !mShadingLanguageVersionCached )
+    {
+      mContextCreatedWaitCondition.Wait( lock );
+    }
+    return mShadingLanguageVersion;
   }
 
   /* OpenGL ES 2.0 */
@@ -1361,13 +1586,29 @@ public:
     mImpl->GetInternalformativ( target, internalformat, pname, bufSize, params );
   }
 
+  void BlendBarrier(void)
+  {
+    if(mIsAdvancedBlendEquationSupported)
+    {
+      mImpl->BlendBarrier();
+    }
+  }
+
 private:
-  int32_t mGlesVersion;
-  bool mIsSurfacelessContextSupported;
-  bool mIsContextCreated;
-  ConditionalWait mContextCreatedWaitCondition;
-  GLint mMaxTextureSize;
   std::unique_ptr<GlesAbstraction> mImpl;
+
+  ConditionalWait                  mContextCreatedWaitCondition;
+  GLint                            mMaxTextureSize;
+  std::string                      mShaderVersionPrefix;
+  std::string                      mVertexShaderPrefix;
+  std::string                      mFragmentShaderPrefix;
+  int32_t                          mGlesVersion;
+  int32_t                          mShadingLanguageVersion;
+  bool                             mShadingLanguageVersionCached;
+  bool                             mIsSurfacelessContextSupported;
+  bool                             mIsAdvancedBlendEquationSupportedCached;
+  bool                             mIsAdvancedBlendEquationSupported;
+  bool                             mIsContextCreated;
 };
 
 } // namespace Adaptor
