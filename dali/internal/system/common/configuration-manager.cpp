@@ -82,6 +82,7 @@ ConfigurationManager::ConfigurationManager( std::string systemCachePath, EglGrap
   mEglGraphics( eglGraphics ),
   mThreadController( threadController ),
   mMaxTextureSize( 0u ),
+  mGlslVersion( 0u),
   mIsMultipleWindowSupported( true ),
   mIsAdvancedBlendEquationSupported( true ),
   mMaxTextureSizeCached( false ),

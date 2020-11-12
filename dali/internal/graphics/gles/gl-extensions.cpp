@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,14 @@ namespace Adaptor
 GlExtensions::GlExtensions()
 :
 #ifdef GL_EXT_discard_framebuffer
-  mGlDiscardFramebuffer( NULL ),
+  mGlDiscardFramebuffer( nullptr ),
 #endif
 #ifdef GL_OES_get_program_binary
-  mGlGetProgramBinaryOES( NULL ),
-  mGlProgramBinaryOES( NULL ),
+  mGlGetProgramBinaryOES( nullptr ),
+  mGlProgramBinaryOES( nullptr ),
+#endif
+#ifdef GL_KHR_blend_equation_advanced
+  mBlendBarrierKHR( nullptr ),
 #endif
   mInitialized( false )
 {
