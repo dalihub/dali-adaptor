@@ -180,7 +180,7 @@ struct Framework::Impl
         {
           if ( callback() ) // keep the callback
           {
-            AddIdle( callback.timeout, callback.data, callback.callback );
+            AddIdle( callback.timeout, callback.data, callback.callback, callback.id );
           }
         }
 
@@ -199,21 +199,30 @@ struct Framework::Impl
     }
   }
 
-  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) , unsigned int existingId = 0 )
   {
-    ++mIdleId;
-    if( mIdleId == 0 )
+    unsigned int chosenId;
+    if (existingId)
+    {
+      chosenId = existingId;
+    }
+    else
     {
       ++mIdleId;
+      if( mIdleId == 0 )
+      {
+        ++mIdleId;
+      }
+      chosenId = mIdleId;
     }
 
-    mIdleCallbacks.push( IdleCallback( timeout, mIdleId, data, callback ) );
+    mIdleCallbacks.push( IdleCallback( timeout, chosenId, data, callback ) );
 
     // To wake up the idle pipe and to trigger OnIdle
     int8_t msg = 1;
     write( mIdleWritePipe, &msg, sizeof( msg ) );
 
-    return mIdleId;
+    return chosenId;
   }
 
   void RemoveIdle( unsigned int id )
