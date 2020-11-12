@@ -343,6 +343,11 @@ bool WebEngine::SendKeyEvent( const Dali::KeyEvent& event )
   return mPlugin->SendKeyEvent( event );
 }
 
+void WebEngine::SetFocus( bool focused )
+{
+  mPlugin->SetFocus( focused );
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return mPlugin->PageLoadStartedSignal();
@@ -361,4 +366,5 @@ Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErro
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
+
 
