@@ -28,7 +28,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>
-#include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/internal/window-system/common/gl-window-render-thread.h>
 
 namespace Dali
 {
@@ -182,6 +182,16 @@ public:
    */
   void RenderOnce();
 
+  /**
+   * @copydoc Dali::GlWindow::SetRenderingMode()
+   */
+  void SetRenderingMode(Dali::GlWindow::RenderingMode mode);
+
+  /**
+   * @copydoc Dali::GlWindow::GetRenderingMode()
+   */
+  Dali::GlWindow::RenderingMode GetRenderingMode() const;
+
 public: // For implementation
   /**
    * @brief Sets child window with Dali::Window
@@ -271,13 +281,6 @@ private:
    * @return The converted window orientation value is returned.
    */
   WindowOrientation ConvertToOrientation(int angle) const;
-
-  /**
-   * @brief Run Ui GL callback function.
-   *
-   * @return true is the callback function works continuos.
-   */
-  bool RunCallback();
 
   /**
    * @brief Initialize and create EGL resource
@@ -372,14 +375,13 @@ public: // Signals
 
 private:
   std::unique_ptr<WindowBase>              mWindowBase;
-  std::unique_ptr<GraphicsInterface>       mGraphics; ///< Graphics interface
-  std::unique_ptr<Dali::DisplayConnection> mDisplayConnection;
+  std::unique_ptr<GraphicsInterface>       mGraphics;             ///< Graphics interface
+  std::unique_ptr<Dali::DisplayConnection> mDisplayConnection;    ///< The native display connection
+  std::unique_ptr<GlWindowRenderThread>    mGlWindowRenderThread; ///< The render thread
+  EventHandlerPtr                          mEventHandler;         ///< The window events handler
+  Dali::Window                             mChildWindow;          ///< The default child UI Window
   std::string                              mName;
   std::string                              mClassName;
-  EventHandlerPtr                          mEventHandler; ///< The window events handler
-  PositionSize                             mPositionSize;
-  ColorDepth                               mColorDepth;
-  Dali::Window                             mChildWindow;
   bool                                     mIsTransparent : 1;
   bool                                     mIsFocusAcceptable : 1;
   bool                                     mIconified : 1;
@@ -389,16 +391,25 @@ private:
   bool                                     mIsRotated : 1;
   bool                                     mIsWindowRotated : 1;
   bool                                     mIsTouched : 1;
+  bool                                     mIsEGLInitialized : 1;
+  bool                                     mDepth : 1;
+  bool                                     mStencil : 1;
 
-  std::vector<int> mAvailableAngles;
-  int              mPreferredAngle;
-  int              mTotalRotationAngle;  ///< The angle of window + screen rotation angle % 360
-  int              mWindowRotationAngle; ///< The angle of window rotation angle
-  int              mScreenRotationAngle; ///< The angle of screen rotation angle
-  int              mOrientationMode;     ///< 0: Default portrati, 1:Default landscape
-  int              mWindowWidth;         ///< The width of the window
-  int              mWindowHeight;        ///< The height of the window
-  int              mNativeWindowId;      ///< The Native Window Id
+  PositionSize                  mPositionSize; ///< The window position and size
+  EnvironmentOptions            mEnvironmentOptions;
+  std::vector<int>              mAvailableAngles; ///< The list of available angle
+  ColorDepth                    mColorDepth;      ///< The color depth of window
+  Dali::GlWindow::RenderingMode mRenderingMode;   ///< The rendering mode
+
+  int mPreferredAngle;      ///< The angle of preferred angle
+  int mTotalRotationAngle;  ///< The angle of window + screen rotation angle % 360
+  int mWindowRotationAngle; ///< The angle of window rotation angle
+  int mScreenRotationAngle; ///< The angle of screen rotation angle
+  int mOrientationMode;     ///< 0: Default portrati, 1:Default landscape
+  int mWindowWidth;         ///< The width of the window
+  int mWindowHeight;        ///< The height of the window
+  int mNativeWindowId;      ///< The Native Window Id
+  int mMSAA;                ///< The multisample anti-aliasing for EGL Configuration
 
   // Signals
   KeyEventSignalType          mKeyEventSignal;
@@ -406,21 +417,6 @@ private:
   FocusChangeSignalType       mFocusChangeSignal;
   ResizeSignalType            mResizeSignal;
   VisibilityChangedSignalType mVisibilityChangedSignal;
-
-  // EGL, GL Resource
-  EnvironmentOptions            mEnvironmentOptions;
-  std::unique_ptr<CallbackBase> mGLInitCallback;
-  std::unique_ptr<CallbackBase> mGLRenderFrameCallback;
-  std::unique_ptr<CallbackBase> mGLTerminateCallback;
-  CallbackBase*                 mGLRenderCallback;
-  EGLSurface                    mEGLSurface;
-  EGLContext                    mEGLContext;
-  Dali::GlWindow::GlesVersion   mGLESVersion;
-  bool                          mInitCallback : 1;
-  bool                          mDepth : 1;
-  bool                          mStencil : 1;
-  bool                          mIsEGLInitialize : 1;
-  int                           mMSAA;
 };
 
 } // namespace Adaptor

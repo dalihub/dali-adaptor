@@ -66,9 +66,8 @@ GlWindow::GlWindow()
 : mWindowBase(),
   mGraphics(),
   mDisplayConnection(nullptr),
+  mGlWindowRenderThread(nullptr),
   mEventHandler(nullptr),
-  mPositionSize(),
-  mColorDepth(COLOR_DEPTH_24),
   mIsTransparent(false),
   mIsFocusAcceptable(false),
   mIconified(false),
@@ -78,7 +77,13 @@ GlWindow::GlWindow()
   mIsRotated(false),
   mIsWindowRotated(false),
   mIsTouched(false),
+  mIsEGLInitialized(false),
+  mDepth(false),
+  mStencil(false),
+  mPositionSize(),
   mAvailableAngles(),
+  mColorDepth(COLOR_DEPTH_24),
+  mRenderingMode(Dali::GlWindow::RenderingMode::CONTINUOUS),
   mPreferredAngle(0),
   mTotalRotationAngle(0),
   mWindowRotationAngle(0),
@@ -87,23 +92,12 @@ GlWindow::GlWindow()
   mWindowWidth(0),
   mWindowHeight(0),
   mNativeWindowId(-1),
+  mMSAA(0),
   mKeyEventSignal(),
   mTouchedSignal(),
   mFocusChangeSignal(),
   mResizeSignal(),
-  mVisibilityChangedSignal(),
-  mGLInitCallback(),
-  mGLRenderFrameCallback(),
-  mGLTerminateCallback(),
-  mGLRenderCallback(nullptr),
-  mEGLSurface(nullptr),
-  mEGLContext(nullptr),
-  mGLESVersion(Dali::GlWindow::GlesVersion::VERSION_3_0),
-  mInitCallback(false),
-  mDepth(false),
-  mStencil(false),
-  mIsEGLInitialize(false),
-  mMSAA(0)
+  mVisibilityChangedSignal()
 {
 }
 
@@ -114,31 +108,14 @@ GlWindow::~GlWindow()
     mEventHandler->RemoveObserver(*this);
   }
 
-  if(mGLTerminateCallback)
+  if(mGlWindowRenderThread)
   {
-    CallbackBase::Execute(*mGLTerminateCallback);
+    mGlWindowRenderThread->Stop();
+    mGlWindowRenderThread->Join();
   }
 
-  if(mIsEGLInitialize)
+  if(mIsEGLInitialized)
   {
-    GraphicsInterface*                    graphics    = mGraphics.get();
-    EglGraphics*                          eglGraphics = static_cast<EglGraphics*>(graphics);
-    Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-    if(mEGLSurface)
-    {
-      eglImpl.DestroySurface(mEGLSurface);
-      mEGLSurface = nullptr;
-    }
-
-    if(mEGLContext)
-    {
-      eglImpl.DestroyContext(mEGLContext);
-      mEGLContext = nullptr;
-    }
-
-    eglImpl.TerminateGles();
-
     mGraphics->Destroy();
   }
 }
@@ -217,12 +194,24 @@ void GlWindow::SetClass(const std::string& name, const std::string className)
 void GlWindow::SetEglConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version)
 {
   // Init Graphics
-  mDepth       = depth;
-  mStencil     = stencil;
-  mMSAA        = msaa;
-  mGLESVersion = version;
+  mDepth   = depth;
+  mStencil = stencil;
+  mMSAA    = msaa;
 
   InitializeGraphics();
+
+  int rVersion = 30;
+
+  if(version == Dali::GlWindow::GlesVersion::VERSION_2_0)
+  {
+    rVersion = 20;
+  }
+  else if(version == Dali::GlWindow::GlesVersion::VERSION_3_0)
+  {
+    rVersion = 30;
+  }
+
+  mGlWindowRenderThread->SetEglConfig(depth, stencil, msaa, rVersion);
 }
 
 void GlWindow::Raise()
@@ -260,6 +249,11 @@ void GlWindow::Show()
     mEventHandler->Resume();
   }
 
+  if(mGlWindowRenderThread)
+  {
+    mGlWindowRenderThread->Resume();
+  }
+
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Show(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
 }
 
@@ -278,6 +272,11 @@ void GlWindow::Hide()
   if(mEventHandler)
   {
     mEventHandler->Pause();
+  }
+
+  if(mGlWindowRenderThread)
+  {
+    mGlWindowRenderThread->Pause();
   }
 
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Hide(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
@@ -423,6 +422,11 @@ void GlWindow::OnIconifyChanged(bool iconified)
       mEventHandler->Pause();
     }
 
+    if(mGlWindowRenderThread)
+    {
+      mGlWindowRenderThread->Pause();
+    }
+
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
   }
   else
@@ -438,6 +442,11 @@ void GlWindow::OnIconifyChanged(bool iconified)
     if(mEventHandler)
     {
       mEventHandler->Resume();
+    }
+
+    if(mGlWindowRenderThread)
+    {
+      mGlWindowRenderThread->Resume();
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -745,87 +754,44 @@ void GlWindow::SetChild(Dali::Window& child)
 
 void GlWindow::RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
 {
-  if(mIsEGLInitialize == false)
+  if(mIsEGLInitialized == false)
   {
     InitializeGraphics();
   }
-  mGLInitCallback        = std::unique_ptr<CallbackBase>(initCallback);
-  mGLRenderFrameCallback = std::unique_ptr<CallbackBase>(renderFrameCallback);
-  mGLTerminateCallback   = std::unique_ptr<CallbackBase>(terminateCallback);
-
-  mInitCallback = false;
-
-  if(!mGLRenderCallback)
-  {
-    mGLRenderCallback = MakeCallback(this, &GlWindow::RunCallback);
-
-    if(Dali::Adaptor::IsAvailable())
-    {
-      Dali::Adaptor::Get().AddIdle(mGLRenderCallback, true);
-    }
-    else
-    {
-      DALI_LOG_RELEASE_INFO("RegisterGlCallback: Adaptor is not avaiable\n");
-    }
-  }
-}
-
-bool GlWindow::RunCallback()
-{
-  GraphicsInterface*                    graphics    = mGraphics.get();
-  EglGraphics*                          eglGraphics = static_cast<EglGraphics*>(graphics);
-  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  eglImpl.MakeContextCurrent(mEGLSurface, mEGLContext);
-
-  int renderFrameResult = 0;
-
-  if(mIsRotated)
-  {
-    mWindowBase->SetEglWindowBufferTransform(mTotalRotationAngle);
-    if(mIsWindowRotated)
-    {
-      mWindowBase->SetEglWindowTransform(mWindowRotationAngle);
-    }
-    mIsRotated = false;
-  }
-
-  if(!mInitCallback)
-  {
-    if(mGLInitCallback)
-    {
-      CallbackBase::Execute(*mGLInitCallback);
-    }
-    mInitCallback = true;
-  }
-
-  if(mGLRenderFrameCallback)
-  {
-    renderFrameResult = CallbackBase::ExecuteReturn<int>(*mGLRenderFrameCallback);
-  }
-
-  if(mIsWindowRotated)
-  {
-    mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
-    mIsWindowRotated = false;
-  }
-
-  if(renderFrameResult)
-  {
-    eglImpl.SwapBuffers(mEGLSurface);
-  }
-
-  return true;
+  mGlWindowRenderThread->RegisterGlCallback(initCallback, renderFrameCallback, terminateCallback);
+  mGlWindowRenderThread->Start();
 }
 
 void GlWindow::RenderOnce()
 {
-  RunCallback();
+  if(mGlWindowRenderThread)
+  {
+    mGlWindowRenderThread->RenderOnce();
+  }
+}
+
+void GlWindow::SetRenderingMode(Dali::GlWindow::RenderingMode mode)
+{
+  mRenderingMode = mode;
+  if(mGlWindowRenderThread)
+  {
+    bool onDemand = false;
+    if(mRenderingMode == Dali::GlWindow::RenderingMode::ON_DEMAND)
+    {
+      onDemand = true;
+    }
+    mGlWindowRenderThread->SetOnDemandRenderMode(onDemand);
+  }
+}
+
+Dali::GlWindow::RenderingMode GlWindow::GetRenderingMode() const
+{
+  return mRenderingMode;
 }
 
 void GlWindow::InitializeGraphics()
 {
-  if(!mIsEGLInitialize)
+  if(!mIsEGLInitialized)
   {
     // Init Graphics
     std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(mEnvironmentOptions);
@@ -839,42 +805,24 @@ void GlWindow::InitializeGraphics()
     mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(*graphics, Dali::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
     mDisplayConnection->Initialize();
 
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    if(mGLESVersion == Dali::GlWindow::GlesVersion::VERSION_2_0)
+    // Create Render Thread
+    mGlWindowRenderThread = std::unique_ptr<Dali::Internal::Adaptor::GlWindowRenderThread>(new GlWindowRenderThread(mPositionSize, mColorDepth));
+    if(!mGlWindowRenderThread)
     {
-      eglImpl.SetGlesVersion(20);
-    }
-    else if(mGLESVersion == Dali::GlWindow::GlesVersion::VERSION_3_0)
-    {
-      eglImpl.SetGlesVersion(30);
+      DALI_LOG_ERROR("Fail to create GlWindow Render Thread!!!!\n");
+      return;
     }
 
-    if(eglImpl.ChooseConfig(true, mColorDepth) == false)
+    mGlWindowRenderThread->SetGraphicsInterface(graphics);
+    mGlWindowRenderThread->SetWindowBase(mWindowBase.get());
+    bool onDemand = false;
+    if(mRenderingMode == Dali::GlWindow::RenderingMode::ON_DEMAND)
     {
-      if(mGLESVersion == Dali::GlWindow::GlesVersion::VERSION_3_0)
-      {
-        DALI_LOG_RELEASE_INFO("InitializeGraphics: Fail to choose config with GLES30, retry with GLES20\n");
-        eglImpl.SetGlesVersion(20);
-        mGLESVersion = Dali::GlWindow::GlesVersion::VERSION_2_0;
-        if(eglImpl.ChooseConfig(true, mColorDepth) == false)
-        {
-          DALI_LOG_ERROR("InitializeGraphics: Fail to choose config with GLES20");
-          return;
-        }
-      }
-      else
-      {
-        DALI_LOG_ERROR("InitializeGraphics: Fail to choose config with GLES20");
-        return;
-      }
+      onDemand = true;
     }
-    eglImpl.CreateWindowContext(mEGLContext);
+    mGlWindowRenderThread->SetOnDemandRenderMode(onDemand);
 
-    // Create the EGL window
-    EGLNativeWindowType window = mWindowBase->CreateEglWindow(mPositionSize.width, mPositionSize.height);
-    mEGLSurface                = eglImpl.CreateSurfaceWindow(window, mColorDepth);
-
-    mIsEGLInitialize = true;
+    mIsEGLInitialized = true;
   }
 }
 

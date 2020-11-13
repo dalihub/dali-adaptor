@@ -90,6 +90,20 @@ public:
   };
 
   /**
+   * @brief Enumeration for rendering mode
+   *
+   * This Enumeration is used to choose the rendering mode.
+   * It has two options.
+   * One of them is continuous mode. It is rendered continuously.
+   * The other is on demand mode. It is rendered by application.
+   */
+  enum class RenderingMode
+  {
+    CONTINUOUS,                  ///< continuous mode
+    ON_DEMAND                    ///< on demand by application
+  };
+
+  /**
    * @brief Creates an initialized handle to a new GlWindow.
    *
    * @return A new GlWindow
@@ -361,6 +375,26 @@ public:
    *
    */
   void RenderOnce();
+
+  /**
+   * @brief Sets rendering mode.
+   *
+   * @param[in] mode the rendering mode for GlWindow
+   *
+   * @note The default Rendering mode is continuous.
+   * If OnDemand mode is set, it is rendered by RenderOnce()
+   */
+  void SetRenderingMode( RenderingMode mode );
+
+  /**
+   * @brief Gets rendering mode.
+   *
+   * @return current rendering mode in this GlWindow
+   *
+   * @note The default Rendering mode is continuous.
+   * If OnDemand mode is set, it is rendered by RenderOnce()
+   */
+  RenderingMode GetRenderingMode() const;
 
 public: // Signals
 
