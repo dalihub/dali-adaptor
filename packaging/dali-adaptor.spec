@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.0.0
+Version:    2.0.1
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -476,7 +476,7 @@ exit 0
 
 %post
 pushd %{_libdir}
-for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.0; done
+for i in mobile tv wearable ivi; do [[ -f libdali2-adaptor.so.$i ]] && ln -sf libdali2-adaptor.so.$i libdali2-adaptor.so.2.0.1; done
 popd
 /sbin/ldconfig
 exit 0
@@ -496,7 +496,7 @@ exit 0
 %post profile_mobile
 %if "%{?profile}" != "mobile"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.mobile libdali2-adaptor.so.2.0.0
+ln -sf libdali2-adaptor.so.mobile libdali2-adaptor.so.2.0.1
 popd
 %endif
 /sbin/ldconfig
@@ -514,7 +514,7 @@ exit 0
 %post profile_tv
 %if "%{?profile}" != "tv"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.tv libdali2-adaptor.so.2.0.0
+ln -sf libdali2-adaptor.so.tv libdali2-adaptor.so.2.0.1
 popd
 %endif
 /sbin/ldconfig
@@ -532,7 +532,7 @@ exit 0
 %post profile_wearable
 %if "%{?profile}" != "wearable"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.wearable libdali2-adaptor.so.2.0.0
+ln -sf libdali2-adaptor.so.wearable libdali2-adaptor.so.2.0.1
 popd
 %endif
 /sbin/ldconfig
@@ -550,7 +550,7 @@ exit 0
 %post profile_ivi
 %if "%{?profile}" != "ivi"
 pushd %{_libdir}
-ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.2.0.0
+ln -sf libdali2-adaptor.so.ivi libdali2-adaptor.so.2.0.1
 popd
 %endif
 /sbin/ldconfig
@@ -586,7 +586,7 @@ exit 0
 %defattr(-,root,root,-)
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
-%{_libdir}/libdali2-adaptor.so.2.0.0
+%{_libdir}/libdali2-adaptor.so.2.0.1
 
 #################################################
 
