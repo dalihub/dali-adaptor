@@ -344,14 +344,14 @@ void SceneHolder::AddFrameRenderedCallback(std::unique_ptr<CallbackBase> callbac
 {
   mScene.AddFrameRenderedCallback(std::move(callback), frameId);
 
-  DALI_LOG_INFO(gSceneHolderLogFilter, Debug::General, "SceneHolder::AddFrameRenderedCallback:: Added [%d]\n", frameId);
+  DALI_LOG_RELEASE_INFO("SceneHolder::AddFrameRenderedCallback:: Added [%d]\n", frameId);
 }
 
 void SceneHolder::AddFramePresentedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
   mScene.AddFramePresentedCallback(std::move(callback), frameId);
 
-  DALI_LOG_INFO(gSceneHolderLogFilter, Debug::General, "SceneHolder::AddFramePresentedCallback:: Added [%d]\n", frameId);
+  DALI_LOG_RELEASE_INFO("SceneHolder::AddFramePresentedCallback:: Added [%d]\n", frameId);
 }
 
 Dali::Integration::SceneHolder SceneHolder::Get(Dali::Actor actor)

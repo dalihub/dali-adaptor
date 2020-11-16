@@ -407,7 +407,7 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       {
         Dali::Mutex::ScopedLock lock( mMutex );
 
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
+        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
 
         mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, frameRenderedSync ) ) );
 
@@ -430,7 +430,7 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
       {
         Dali::Mutex::ScopedLock lock( mMutex );
 
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
+        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
 
         mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, framePresentedSync ) ) );
 
@@ -643,7 +643,7 @@ void WindowRenderSurface::ProcessFrameCallback()
       iter->fileDescriptorMonitor = std::unique_ptr< FileDescriptorMonitor >( new FileDescriptorMonitor( iter->fileDescriptor,
                                                                              MakeCallback( this, &WindowRenderSurface::OnFileDescriptorEventDispatched ), FileDescriptorMonitor::FD_READABLE ) );
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
+      DALI_LOG_RELEASE_INFO( "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
     }
   }
 }
@@ -657,7 +657,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor
     return;
   }
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
+  DALI_LOG_RELEASE_INFO( "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
 
   std::unique_ptr< FrameCallbackInfo > callbackInfo;
   {
