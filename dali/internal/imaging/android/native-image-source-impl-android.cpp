@@ -183,9 +183,30 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<unsigned char>& pixbuf, uns
     return success;
   }
 
-  uint32_t size = bufferDescription.stride * bufferDescription.height;
-  pixbuf.resize( size );
-  memcpy( pixbuf.data(), buffer, size );
+  uint32_t pixelBytes = GetBytesPerPixel(pixelFormat);
+  if ( bufferDescription.stride < (pixelBytes * bufferDescription.width) )
+  {
+    //On Android device, bufferDescription.stride doesn't seem to mean (width * pixelbytes)
+    //in an actual case, (AHardwareBuffer_Desc) bufferDescription = (width = 1080, height = 1060, layers = 1, format = 1, usage = 306, stride = 1088, rfu0 = 0, rfu1 = 0)
+    //deal with situation
+    uint32_t dstStride = pixelBytes * bufferDescription.width;
+    uint32_t srcStride = pixelBytes * bufferDescription.stride;
+    uint32_t size = dstStride * bufferDescription.height;
+    pixbuf.resize( size );
+    //copy each row over
+    const unsigned char* ptrSrc = reinterpret_cast<const unsigned char*>(buffer);
+    unsigned char* ptrDst = pixbuf.data();
+    for (int y=0; y < bufferDescription.height; y++, ptrSrc += srcStride, ptrDst += dstStride )
+    {
+      memcpy( ptrDst, ptrSrc, dstStride );
+    }
+  }
+  else
+  {
+    uint32_t size = bufferDescription.stride * bufferDescription.height;
+    pixbuf.resize( size );
+    memcpy( pixbuf.data(), buffer, size );
+  }
 
   ret = AHardwareBuffer_unlock( mPixmap, NULL );
   if( ret != 0 )
