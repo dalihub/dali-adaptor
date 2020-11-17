@@ -29,6 +29,7 @@
 #include <cstring>
 #include <memory>
 
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/common/file-reader.h>
@@ -1238,7 +1239,8 @@ struct GifLoading::Impl
 public:
   Impl(const std::string& url, bool isLocalResource)
   : mUrl(url),
-    mLoadSucceeded(true)
+    mLoadSucceeded(true),
+    mMutex()
   {
     loaderInfo.gifAccessor = nullptr;
     int error;
@@ -1258,6 +1260,7 @@ public:
   LoaderInfo      loaderInfo;
   ImageProperties imageProperties;
   bool            mLoadSucceeded;
+  Mutex           mMutex;
 };
 
 AnimatedImageLoadingPtr GifLoading::New(const std::string& url, bool isLocalResource)
@@ -1279,6 +1282,8 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
 {
   int  error;
   bool ret = false;
+
+  Mutex::ScopedLock lock(mImpl->mMutex);
   if(!mImpl->mLoadSucceeded)
   {
     return false;
@@ -1316,6 +1321,7 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
     return pixelBuffer;
   }
 
+  Mutex::ScopedLock lock(mImpl->mMutex);
   DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
 
   pixelBuffer = Dali::Devel::PixelBuffer::New(mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888);
