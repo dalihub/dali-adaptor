@@ -38,6 +38,7 @@
 #include <cstring>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/devel-api/threading/mutex.h>
 
 typedef unsigned char WebPByteType;
 
@@ -65,7 +66,8 @@ struct WebPLoading::Impl
 {
 public:
   Impl( const std::string& url, bool isLocalResource )
-  : mUrl( url )
+  : mUrl( url ),
+    mMutex()
   {
 #ifdef DALI_WEBP_ENABLED
     if( ReadWebPInformation( isLocalResource ) )
@@ -180,6 +182,7 @@ public:
   std::string mUrl;
   std::vector<uint32_t> mTimeStamp;
   uint32_t mLoadingFrame{0};
+  Mutex mMutex;
 
 #ifdef DALI_WEBP_ENABLED
   WebPData mWebPData{0};
@@ -209,6 +212,7 @@ WebPLoading::~WebPLoading()
 bool WebPLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData> &pixelData )
 {
 #ifdef DALI_WEBP_ENABLED
+  Mutex::ScopedLock lock( mImpl->mMutex );
   if( frameStartIndex  >= mImpl->mWebPAnimInfo.frame_count )
   {
     return false;
@@ -266,6 +270,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame( uint32_t frameIndex )
 {
   Dali::Devel::PixelBuffer pixelBuffer;
 #ifdef DALI_WEBP_ENABLED
+  Mutex::ScopedLock lock( mImpl->mMutex );
   if( frameIndex  >= mImpl->mWebPAnimInfo.frame_count )
   {
     return pixelBuffer;

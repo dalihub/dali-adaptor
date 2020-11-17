@@ -31,6 +31,7 @@
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/common/file-reader.h>
+#include <dali/devel-api/threading/mutex.h>
 
 #define IMG_TOO_BIG( w, h )                                                        \
   ( ( static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h) ) >= \
@@ -1192,7 +1193,8 @@ struct GifLoading::Impl
 {
 public:
   Impl( const std::string& url, bool isLocalResource )
-  : mUrl( url )
+  : mUrl( url ),
+    mMutex()
   {
     loaderInfo.gif = nullptr;
     int error;
@@ -1232,6 +1234,7 @@ public:
   std::string mUrl;
   LoaderInfo loaderInfo;
   ImageProperties imageProperties;
+  Mutex mMutex;
 };
 
 AnimatedImageLoadingPtr GifLoading::New( const std::string &url, bool isLocalResource )
@@ -1255,6 +1258,7 @@ bool GifLoading::LoadNextNFrames( uint32_t frameStartIndex, int count, std::vect
   int error;
   bool ret = false;
 
+  Mutex::ScopedLock lock( mImpl->mMutex );
   const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof( uint32_t );
 
   DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameStartIndex:%d, count:%d )\n", frameStartIndex, count );
@@ -1285,6 +1289,7 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame( uint32_t frameIndex )
   int error;
   Dali::Devel::PixelBuffer pixelBuffer;
 
+  Mutex::ScopedLock lock( mImpl->mMutex );
   DALI_LOG_INFO( gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex );
 
   pixelBuffer = Dali::Devel::PixelBuffer::New( mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888 );
