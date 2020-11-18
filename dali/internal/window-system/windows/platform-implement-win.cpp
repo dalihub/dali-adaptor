@@ -279,7 +279,7 @@ void KillTimer(intptr_t id)
   delete info;
 }
 
-const char* GetKeyName( int keyCode )
+std::string GetKeyName( int keyCode )
 {
   switch( keyCode )
   {
@@ -361,6 +361,10 @@ const char* GetKeyName( int keyCode )
     }
     default:
     {
+      if (keyCode > 0 && keyCode < 128)
+      {
+        return std::string(1u, static_cast<char>(keyCode));
+      }
       break;
     }
   }
