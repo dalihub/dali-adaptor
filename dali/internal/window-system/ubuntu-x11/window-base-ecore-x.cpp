@@ -834,6 +834,11 @@ void WindowBaseEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVer
   dpiVertical   = ecore_x_dpi_get();
 }
 
+int WindowBaseEcoreX::GetOrientation() const
+{
+  return 0;
+}
+
 int WindowBaseEcoreX::GetScreenRotationAngle()
 {
   return 0;
@@ -841,6 +846,11 @@ int WindowBaseEcoreX::GetScreenRotationAngle()
 
 void WindowBaseEcoreX::SetWindowRotationAngle( int degree )
 {
+}
+
+int WindowBaseEcoreX::GetWindowRotationAngle()
+{
+  return 0;
 }
 
 void WindowBaseEcoreX::WindowRotationCompleted( int degree, int width, int height )
