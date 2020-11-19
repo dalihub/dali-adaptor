@@ -243,8 +243,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create the scene
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  int orientation = mSurface->GetOrientation();
-  mScene = Dali::Integration::Scene::New( Size(static_cast<float>( surfacePositionSize.width ), static_cast<float>( surfacePositionSize.height )), orientation );
+  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)));
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
