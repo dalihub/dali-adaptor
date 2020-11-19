@@ -26,7 +26,6 @@
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/window-base.h>
@@ -204,11 +203,6 @@ private:
    */
   void OnStyleChanged( StyleChange::Type styleChange );
 
-  /**
-   * Called when Ecore ElDBus accessibility event is received.
-   */
-  void OnAccessibilityNotification( const WindowBase::AccessibilityInfo& info );
-
 private:
 
   // Undefined
@@ -222,7 +216,6 @@ private:
   Dali::StyleMonitor mStyleMonitor; ///< Handle to the style monitor, set on construction, to send font size and font change events to.
   DamageObserver& mDamageObserver; ///< Reference to the DamageObserver, set on construction, to sent damage events to.
 
-  Dali::AccessibilityAdaptor mAccessibilityAdaptor; ///< Pointer to the accessibility adaptor
   Dali::ClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
   Dali::Clipboard mClipboard;///< Pointer to the clipboard
 

@@ -17,6 +17,7 @@ ENDIF()
 
 OPTION(ENABLE_PKG_CONFIGURE  "Use pkgconfig" ON)
 OPTION(ENABLE_LINK_TEST      "Enable the link test" ON)
+OPTION(ENABLE_ATSPI          "Enable AT-SPI accessibility" ON)
 
 # Include additional macros
 INCLUDE( common.cmake )
@@ -104,6 +105,10 @@ IF( UNIX )
   INCLUDE( deps-check.cmake )
 ENDIF()
 
+IF( NOT DALI_ELDBUS_AVAILABLE )
+  SET( ENABLE_ATSPI OFF )
+ENDIF()
+
 # Set up compiler flags and warnings
 IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
@@ -134,6 +139,12 @@ INCLUDE( module-list.cmake )
 
 # Include profile specific setup
 INCLUDE( profiles/${PROFILE_LCASE}-profile.cmake )
+
+IF ( ENABLE_ATSPI )
+  SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_bridge_src_files} )
+ELSE()
+  SET( SOURCES ${SOURCES} ${adaptor_accessibility_atspi_dummy_src_files} )
+ENDIF()
 
 IF( ENABLE_PKG_CONFIGURE )
   # Configure the pkg-config file
@@ -393,7 +404,6 @@ MESSAGE( STATUS "Freetype bitmap support (Emoji):  ${freetype_bitmap_support_ENA
 MESSAGE( STATUS "Profile:                          ${ENABLE_PROFILE}")
 MESSAGE( STATUS "Data Dir (Read/Write):            ${dataReadWriteDir}")
 MESSAGE( STATUS "Data Dir (Read Only):             ${dataReadOnlyDir}")
-MESSAGE( STATUS "EldBus:                           ${eldbus_available_ENABLED}")
 MESSAGE( STATUS "WebP:                             ${webp_available_ENABLED}")
 MESSAGE( STATUS "Shader Binary Cache:              ${ENABLE_SHADERBINCACHE}")
 MESSAGE( STATUS "Network logging enabled:          ${ENABLE_NETWORKLOGGING}")
@@ -401,6 +411,7 @@ MESSAGE( STATUS "Font config file:                 ${fontConfigurationFile}")
 MESSAGE( STATUS "Using Tizen APP FW libraries:     ${ENABLE_APPFW}")
 MESSAGE( STATUS "Use pkg configure:                ${ENABLE_PKG_CONFIGURE}" )
 MESSAGE( STATUS "Enable link test:                 ${ENABLE_LINK_TEST}" )
+MESSAGE( STATUS "Enable AT-SPI:                    ${ENABLE_ATSPI}" )
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_C_FLAGS}")

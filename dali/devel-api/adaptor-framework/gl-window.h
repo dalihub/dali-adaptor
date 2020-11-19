@@ -27,6 +27,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -46,13 +47,6 @@ namespace Adaptor
 {
 class GlWindow;
 }
-}
-
-namespace
-{
-typedef void  (*GlInitialize)();
-typedef void  (*GlRenderFrame)();
-typedef void  (*GlTerminate)();
 }
 
 class TouchEvent;
@@ -83,21 +77,6 @@ public:
   // Enumerations
 
   /**
-   * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
-   *
-   * This Enumeration is used the available orientation APIs and the preferred orientation.
-   *
-   */
-  enum class GlWindowOrientation
-  {
-    PORTRAIT = 0,                       ///< Portrait orientation. The height of the display area is greater than the width.
-    LANDSCAPE = 1,                      ///< Landscape orientation. A wide view area is needed.
-    PORTRAIT_INVERSE = 2,               ///< Portrait inverse orientation
-    LANDSCAPE_INVERSE = 3,              ///< Landscape inverse orientation
-    NO_ORIENTATION_PREFERENCE = -1      ///< Invalid angle value. It is used to initialize or unset the preferred orientation.
-  };
-
-    /**
    * @brief Enumeration for GLES verion
    *
    * This Enumeration is used the GLES version for EGL configuration.
@@ -326,7 +305,7 @@ public:
    *
    * @return The current GlWindow rotation angle if previously set, or none
    */
-   Dali::GlWindow::GlWindowOrientation GetCurrentOrientation() const;
+   WindowOrientation GetCurrentOrientation() const;
 
    /**
     * @brief Sets available orientations of the window.
@@ -335,7 +314,7 @@ public:
     *
     * @param[in] orientations The available orientations list to add
     */
-   void SetAvailableOrientations( const Dali::Vector<Dali::GlWindow::GlWindowOrientation>& orientations );
+   void SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations );
 
   /**
    * @brief Sets a preferred orientation.
@@ -345,17 +324,36 @@ public:
    *
    * @note To unset the preferred orientation, angle should be set NO_ORIENTATION_PREFERENCE.
    */
-  void SetPreferredOrientation( Dali::GlWindow::GlWindowOrientation orientation );
+  void SetPreferredOrientation( WindowOrientation orientation );
 
   /**
    * @brief Registers a GL callback function for application.
    *
-   * @param[in] glInit  the callback function for application initialize
-   * @param[in] glRenderFrame the callback function to render to the frame.
-   * @param[in] glTerminate the callback function to clean-up application GL resource.
+   * @param[in] initCallback  the callback function for application initialize
+   * @param[in] renderFrameCallback the callback function to render for the frame.
+   * @param[in] terminateCallback the callback function to clean-up application GL resource.
    *
+   * @note Function must be called on idle time
+   *
+   * A initCallback of the following type should be used:
+   * @code
+   *   void intializeGL();
+   * @endcode
+   * This callback will be called before renderFrame callback is called at once.
+   *
+   * A renderFrameCallback of the following type should be used:
+   * @code
+   *   int renderFrameGL();
+   * @endcode
+   * This callback's return value is not 0, the eglSwapBuffers() will be called.
+   *
+   * A terminateCallback of the following type should be used:
+   * @code
+   *   void terminateGL();
+   * @endcode
+   * This callback is called when GlWindow is deleted.
    */
-  void RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate );
+  void RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback );
 
   /**
    * @brief Renders once more even if GL render functions are not added to idler.

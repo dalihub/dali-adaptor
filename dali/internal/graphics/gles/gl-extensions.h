@@ -34,9 +34,6 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECoreX
-{
-
 /**
  * GlExtensions class provides GL extensions support
  */
@@ -91,6 +88,12 @@ public:
    */
   void ProgramBinaryOES (GLuint program, GLenum binaryFormat, const GLvoid *binary, GLint length);
 
+  /**
+   * KHR extension
+   * Specify a boundary between passes when using advanced blend equations.
+   */
+  bool BlendBarrierKHR ();
+
 private:
 
   /**
@@ -107,11 +110,13 @@ private:
   PFNGLPROGRAMBINARYOESPROC mGlProgramBinaryOES;
 #endif
 
+#ifdef GL_KHR_blend_equation_advanced
+  PFNGLBLENDBARRIERKHRPROC mBlendBarrierKHR;
+#endif
+
   bool mInitialized;
 
 };
-
-} // namespace ECoreX
 
 } // namespace Adaptor
 

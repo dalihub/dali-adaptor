@@ -27,6 +27,7 @@
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/public-api/rendering/frame-buffer.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 
@@ -41,6 +42,7 @@
 #include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 
 namespace Dali
 {
@@ -80,9 +82,9 @@ Window::Window()
   mIconified( false ),
   mOpaqueState( false ),
   mResizeEnabled( false ),
-  mType( Dali::Window::NORMAL ),
+  mType( WindowType::NORMAL ),
   mParentWindow( NULL ),
-  mPreferredAngle( Dali::Window::NO_ORIENTATION_PREFERENCE ),
+  mPreferredAngle( static_cast< int >( WindowOrientation::NO_ORIENTATION_PREFERENCE ) ),
   mRotationAngle( -1 ),
   mWindowWidth( 0 ),
   mWindowHeight( 0 ),
@@ -99,6 +101,16 @@ Window::Window()
 
 Window::~Window()
 {
+  if ( mAdaptor )
+  {
+    auto bridge = Accessibility::Bridge::GetCurrentBridge();
+    auto accessible2 = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get( accessible2 );
+    bridge->RemoveTopLevelWindow( accessible );
+
+    mAdaptor->RemoveWindow( this );
+  }
+
   if ( mEventHandler )
   {
     mEventHandler->RemoveObserver( *this );
@@ -156,6 +168,14 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
   mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface->GetWindowBase(), *mAdaptor ) );
   mEventHandler->AddObserver( *this );
+
+  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  auto v = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get( v, true );
+  bridge->AddTopLevelWindow( accessible );
+
+  //FIXME: line below is temporary solution for missing "activate" signal and should be removed
+  Show();
 }
 
 void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
@@ -217,7 +237,7 @@ Dali::RenderTaskList Window::GetRenderTaskList() const
   return mScene.GetRenderTaskList();
 }
 
-void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
+void Window::AddAvailableOrientation( WindowOrientation orientation )
 {
   if( IsOrientationAvailable( orientation ) == false )
   {
@@ -243,7 +263,7 @@ void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientatio
   }
 }
 
-void Window::RemoveAvailableOrientation( Dali::Window::WindowOrientation orientation )
+void Window::RemoveAvailableOrientation( WindowOrientation orientation )
 {
   if( IsOrientationAvailable( orientation ) == false )
   {
@@ -265,9 +285,9 @@ void Window::RemoveAvailableOrientation( Dali::Window::WindowOrientation orienta
   SetAvailableAnlges( mAvailableAngles );
 }
 
-void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientation )
+void Window::SetPreferredOrientation( WindowOrientation orientation )
 {
-  if( orientation < Dali::Window::NO_ORIENTATION_PREFERENCE || orientation > Dali::Window::LANDSCAPE_INVERSE )
+  if( orientation < WindowOrientation::NO_ORIENTATION_PREFERENCE || orientation > WindowOrientation::LANDSCAPE_INVERSE )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::CheckOrientation: Invalid input orientation [%d]\n", orientation );
     return;
@@ -277,10 +297,10 @@ void Window::SetPreferredOrientation( Dali::Window::WindowOrientation orientatio
   mWindowBase->SetPreferredAngle( mPreferredAngle );
 }
 
-Dali::Window::WindowOrientation Window::GetPreferredOrientation()
+WindowOrientation Window::GetPreferredOrientation()
 {
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), GetPreferredOrientation: %d\n", this, mNativeWindowId, mPreferredAngle );
-  Dali::Window::WindowOrientation preferredOrientation = ConvertToOrientation( mPreferredAngle );
+  WindowOrientation preferredOrientation = ConvertToOrientation( mPreferredAngle );
   return preferredOrientation;
 }
 
@@ -295,34 +315,34 @@ void Window::SetAvailableAnlges( const std::vector< int >& angles )
   mWindowBase->SetAvailableAnlges( angles );
 }
 
-int Window::ConvertToAngle( Dali::Window::WindowOrientation orientation )
+int Window::ConvertToAngle( WindowOrientation orientation )
 {
   int convertAngle = static_cast< int >( orientation );
   if( mOrientationMode == Internal::Adaptor::Window::OrientationMode::LANDSCAPE )
   {
     switch( orientation )
     {
-      case Dali::Window::LANDSCAPE:
+      case WindowOrientation::LANDSCAPE:
       {
         convertAngle = 0;
         break;
       }
-      case Dali::Window::PORTRAIT:
+      case WindowOrientation::PORTRAIT:
       {
         convertAngle = 90;
         break;
       }
-      case Dali::Window::LANDSCAPE_INVERSE:
+      case WindowOrientation::LANDSCAPE_INVERSE:
       {
         convertAngle = 180;
         break;
       }
-      case Dali::Window::PORTRAIT_INVERSE:
+      case WindowOrientation::PORTRAIT_INVERSE:
       {
         convertAngle = 270;
         break;
       }
-      case Dali::Window::NO_ORIENTATION_PREFERENCE:
+      case WindowOrientation::NO_ORIENTATION_PREFERENCE:
       {
         convertAngle = -1;
         break;
@@ -332,36 +352,36 @@ int Window::ConvertToAngle( Dali::Window::WindowOrientation orientation )
   return convertAngle;
 }
 
-Dali::Window::WindowOrientation Window::ConvertToOrientation( int angle ) const
+WindowOrientation Window::ConvertToOrientation( int angle ) const
 {
-  Dali::Window::WindowOrientation orientation = static_cast< Dali::Window::WindowOrientation >( angle );
+  WindowOrientation orientation = static_cast< WindowOrientation >( angle );
   if( mOrientationMode == Internal::Adaptor::Window::OrientationMode::LANDSCAPE )
   {
     switch( angle )
     {
       case 0:
       {
-        orientation = Dali::Window::LANDSCAPE;
+        orientation = WindowOrientation::LANDSCAPE;
         break;
       }
       case 90:
       {
-        orientation = Dali::Window::PORTRAIT;
+        orientation = WindowOrientation::PORTRAIT;
         break;
       }
       case 180:
       {
-        orientation = Dali::Window::LANDSCAPE_INVERSE;
+        orientation = WindowOrientation::LANDSCAPE_INVERSE;
         break;
       }
       case 270:
       {
-        orientation = Dali::Window::PORTRAIT_INVERSE;
+        orientation = WindowOrientation::PORTRAIT_INVERSE;
         break;
       }
       case -1:
       {
-        orientation = Dali::Window::NO_ORIENTATION_PREFERENCE;
+        orientation = WindowOrientation::NO_ORIENTATION_PREFERENCE;
         break;
       }
     }
@@ -369,9 +389,9 @@ Dali::Window::WindowOrientation Window::ConvertToOrientation( int angle ) const
   return orientation;
 }
 
-bool Window::IsOrientationAvailable( Dali::Window::WindowOrientation orientation ) const
+bool Window::IsOrientationAvailable( WindowOrientation orientation ) const
 {
-  if( orientation <= Dali::Window::NO_ORIENTATION_PREFERENCE || orientation > Dali::Window::LANDSCAPE_INVERSE )
+  if( orientation <= WindowOrientation::NO_ORIENTATION_PREFERENCE || orientation > WindowOrientation::LANDSCAPE_INVERSE )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::IsOrientationAvailable: Invalid input orientation [%d]\n", orientation );
     return false;
@@ -482,7 +502,7 @@ void Window::SetInputRegion( const Rect< int >& inputRegion )
   DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height );
 }
 
-void Window::SetType( Dali::Window::Type type )
+void Window::SetType( WindowType type )
 {
   if( type != mType )
   {
@@ -492,14 +512,14 @@ void Window::SetType( Dali::Window::Type type )
   }
 }
 
-Dali::Window::Type Window::GetType() const
+WindowType Window::GetType() const
 {
   return mType;
 }
 
-bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
+bool Window::SetNotificationLevel( WindowNotificationLevel level )
 {
-  if( mType != Dali::Window::NOTIFICATION )
+  if( mType != WindowType::NOTIFICATION )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType );
     return false;
@@ -508,12 +528,12 @@ bool Window::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
   return mWindowBase->SetNotificationLevel( level );
 }
 
-Dali::Window::NotificationLevel::Type Window::GetNotificationLevel() const
+WindowNotificationLevel Window::GetNotificationLevel() const
 {
-  if( mType != Dali::Window::NOTIFICATION )
+  if( mType != WindowType::NOTIFICATION )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", mType );
-    return Dali::Window::NotificationLevel::NONE;
+    return WindowNotificationLevel::NONE;
   }
 
   return mWindowBase->GetNotificationLevel();
@@ -533,12 +553,12 @@ bool Window::IsOpaqueState() const
   return mOpaqueState;
 }
 
-bool Window::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
+bool Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return mWindowBase->SetScreenOffMode( screenOffMode );
 }
 
-Dali::Window::ScreenOffMode::Type Window::GetScreenOffMode() const
+WindowScreenOffMode Window::GetScreenOffMode() const
 {
   return mWindowBase->GetScreenOffMode();
 }
@@ -726,6 +746,18 @@ void Window::OnFocusChanged( bool focusIn )
   mFocusChangeSignal.Emit( handle, focusIn );
 
   mSurface->SetFullSwapNextFrame();
+
+  if (auto b = Dali::Accessibility::Bridge::GetCurrentBridge())
+  {
+    if (focusIn)
+    {
+      b->ApplicationShown();
+    }
+    else
+    {
+      b->ApplicationHidden();
+    }
+  }
 }
 
 void Window::OnOutputTransformed()
@@ -741,7 +773,7 @@ void Window::OnDeleteRequest()
   mDeleteRequestSignal.Emit();
 }
 
-void Window::OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type )
+void Window::OnTransitionEffectEvent( WindowEffectState state, WindowEffectType type )
 {
   Dali::Window handle( this );
   mTransitionEffectEventSignal.Emit( handle, state, type );
@@ -892,13 +924,13 @@ Dali::Window Window::GetParent()
   return mParentWindow;
 }
 
-Dali::Window::WindowOrientation Window::GetCurrentOrientation() const
+WindowOrientation Window::GetCurrentOrientation() const
 {
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), GetCurrentOrientation(): %d\n", this, mNativeWindowId, mRotationAngle );
   return ConvertToOrientation( mRotationAngle );
 }
 
-void Window::SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations )
+void Window::SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations )
 {
   Dali::Vector<float>::SizeType count = orientations.Count();
   for( Dali::Vector<float>::SizeType index = 0; index < count; ++index )

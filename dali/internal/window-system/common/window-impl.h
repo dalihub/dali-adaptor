@@ -24,6 +24,7 @@
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/render-tasks/render-task-list.h>
 #include <dali/public-api/object/property-array.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window.h>
@@ -130,22 +131,22 @@ public:
   /**
    * @copydoc Dali::Window::AddAvailableOrientation()
    */
-  void AddAvailableOrientation(Dali::Window::WindowOrientation orientation);
+  void AddAvailableOrientation(WindowOrientation orientation);
 
   /**
    * @copydoc Dali::Window::RemoveAvailableOrientation()
    */
-  void RemoveAvailableOrientation(Dali::Window::WindowOrientation orientation);
+  void RemoveAvailableOrientation(WindowOrientation orientation);
 
   /**
    * @copydoc Dali::Window::SetPreferredOrientation()
    */
-  void SetPreferredOrientation(Dali::Window::WindowOrientation orientation);
+  void SetPreferredOrientation(WindowOrientation orientation);
 
   /**
    * @copydoc Dali::Window::GetPreferredOrientation()
    */
-  Dali::Window::WindowOrientation GetPreferredOrientation();
+  WindowOrientation GetPreferredOrientation();
 
   /**
    * @copydoc Dali::Window::SetAcceptFocus()
@@ -210,22 +211,22 @@ public:
   /**
    * @copydoc Dali::Window::SetType()
    */
-  void SetType( Dali::Window::Type type );
+  void SetType( WindowType type );
 
   /**
    * @copydoc Dali::Window::GetType() const
    */
-  Dali::Window::Type GetType() const;
+  WindowType GetType() const;
 
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level );
+  bool SetNotificationLevel( WindowNotificationLevel level );
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
    */
-  Dali::Window::NotificationLevel::Type GetNotificationLevel() const;
+  WindowNotificationLevel GetNotificationLevel() const;
 
   /**
    * @copydoc Dali::Window::SetOpaqueState()
@@ -240,12 +241,12 @@ public:
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
    */
-  bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode);
+  bool SetScreenOffMode(WindowScreenOffMode screenOffMode);
 
   /**
    * @copydoc Dali::Window::GetScreenOffMode()
    */
-  Dali::Window::ScreenOffMode::Type GetScreenOffMode() const;
+  WindowScreenOffMode GetScreenOffMode() const;
 
   /**
    * @copydoc Dali::Window::SetBrightness()
@@ -335,12 +336,12 @@ public:
   /**
    * @copydoc Dali::DevelWindow::GetCurrentOrientation()
    */
-  Dali::Window::WindowOrientation GetCurrentOrientation() const;
+  WindowOrientation GetCurrentOrientation() const;
 
   /**
    * @copydoc Dali::DevelWindow::SetAvailableOrientations()
    */
-  void SetAvailableOrientations( const Dali::Vector<Dali::Window::WindowOrientation>& orientations );
+  void SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations );
 
 public: // Dali::Internal::Adaptor::SceneHolder
 
@@ -412,7 +413,7 @@ private:
   /**
    * Called when the window receives a Transition effect-start/end event.
    */
-  void OnTransitionEffectEvent( DevelWindow::EffectState state, DevelWindow::EffectType type );
+  void OnTransitionEffectEvent( WindowEffectState state, WindowEffectType type );
 
   /**
    * @brief Called when window receives a keyboard repeat event.
@@ -432,17 +433,17 @@ private:
   /**
    * @brief Convert from window orientation to angle using OrientationMode.
    */
-  int ConvertToAngle( Dali::Window::WindowOrientation orientation );
+  int ConvertToAngle( WindowOrientation orientation );
 
   /**
    * @brief Convert from angle to window orientation using OrientationMode.
    */
-  Dali::Window::WindowOrientation ConvertToOrientation( int angle ) const;
+  WindowOrientation ConvertToOrientation( int angle ) const;
 
   /**
    * @brief Check available window orientation for Available orientation.
    */
-  bool IsOrientationAvailable( Dali::Window::WindowOrientation orientation ) const;
+  bool IsOrientationAvailable( WindowOrientation orientation ) const;
 
 private: // Dali::Internal::Adaptor::SceneHolder
 
@@ -541,7 +542,7 @@ private:
   bool                                  mIconified:1;
   bool                                  mOpaqueState:1;
   bool                                  mResizeEnabled:1;
-  Dali::Window::Type                    mType;
+  WindowType                            mType;
   Dali::Window                          mParentWindow;
 
   OrientationPtr                        mOrientation;

@@ -37,7 +37,8 @@ class ThreadController;
 
 /**
  * This class retrieves and caches the system configuration.
- *
+ * Some of the methods in this class can block system until GL has been initialized,
+ * only at the first time the DALi application is launched in the system.
  */
 class ConfigurationManager
 {
@@ -62,13 +63,25 @@ public:
    * @brief Get the maximum texture size.
    * @return The maximum texture size
    */
-  unsigned int GetMaxTextureSize();
+  uint32_t GetMaxTextureSize();
+
+  /**
+   * @brief Get the GLSL version that the system supports
+   * @return the GLSL version.
+   */
+  uint32_t GetShadingLanguageVersion();
 
   /**
    * @brief Check whether multiple window is supported
    * @return Whether multiple window is supported
    */
   bool IsMultipleWindowSupported();
+
+  /**
+   * @brief Check whether blend equation advanced (extension) is supported
+   * @return Whether blend equation advanced (extension is supported
+   */
+  bool IsAdvancedBlendEquationSupported();
 
   // Deleted copy constructor.
   ConfigurationManager( const ConfigurationManager& ) = delete;
@@ -88,9 +101,13 @@ private: // Data
   EglGraphics* mEglGraphics;                     ///< EGL graphics
   ThreadController* mThreadController;           ///< The thread controller
   unsigned int mMaxTextureSize;                  ///< The largest texture that the GL can handle
+  unsigned int mGlslVersion;                     ///< The GLSL version that the system supports.
   bool mIsMultipleWindowSupported:1;             ///< Whether multiple window is supported by the GLES
+  bool mIsAdvancedBlendEquationSupported:1;      ///< Whether blend equation advanced (extension) is supported by the GLES
   bool mMaxTextureSizeCached:1;                  ///< Whether we have checked the maximum texture size
   bool mIsMultipleWindowSupportedCached:1;       ///< Whether we have checked the support of multiple window
+  bool mIsAdvancedBlendEquationSupportedCached:1;///< Whether we have checked the support of blend equation advanced (extension)
+  bool mGlslVersionCached:1;                     ///< Whether we have checked the GLSL version
 };
 
 } // Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GLES3_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
  // EXTERNAL INCLUDES
 #include <GLES3/gl3.h>
+#include <GLES3/gl32.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/gles-abstraction.h>
@@ -560,6 +561,17 @@ public:
   {
     glGetInternalformativ( target, internalformat, pname, bufSize, params );
   }
+
+  void BlendBarrier( void ) override
+  {
+    if(!mGlExtensions.BlendBarrierKHR())
+    {
+      glBlendBarrier();
+    }
+  }
+
+private:
+  GlExtensions mGlExtensions;
 };
 
 } // namespace Adaptor

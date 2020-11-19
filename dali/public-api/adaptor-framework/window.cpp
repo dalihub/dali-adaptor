@@ -158,7 +158,7 @@ void Window::SetPreferredOrientation(WindowOrientation orientation)
   GetImplementation(*this).SetPreferredOrientation(orientation);
 }
 
-Dali::Window::WindowOrientation Window::GetPreferredOrientation()
+WindowOrientation Window::GetPreferredOrientation()
 {
   return GetImplementation(*this).GetPreferredOrientation();
 }
@@ -238,22 +238,22 @@ void Window::SetInputRegion(const Rect<int>& inputRegion)
   return GetImplementation(*this).SetInputRegion(inputRegion);
 }
 
-void Window::SetType(Window::Type type)
+void Window::SetType(WindowType type)
 {
   GetImplementation(*this).SetType(type);
 }
 
-Window::Type Window::GetType() const
+WindowType Window::GetType() const
 {
   return GetImplementation(*this).GetType();
 }
 
-bool Window::SetNotificationLevel(Window::NotificationLevel::Type level)
+bool Window::SetNotificationLevel(WindowNotificationLevel level)
 {
   return GetImplementation(*this).SetNotificationLevel(level);
 }
 
-Window::NotificationLevel::Type Window::GetNotificationLevel() const
+WindowNotificationLevel Window::GetNotificationLevel() const
 {
   return GetImplementation(*this).GetNotificationLevel();
 }
@@ -268,12 +268,12 @@ bool Window::IsOpaqueState() const
   return GetImplementation(*this).IsOpaqueState();
 }
 
-bool Window::SetScreenOffMode(Window::ScreenOffMode::Type screenMode)
+bool Window::SetScreenOffMode(WindowScreenOffMode screenMode)
 {
   return GetImplementation(*this).SetScreenOffMode(screenMode);
 }
 
-Window::ScreenOffMode::Type Window::GetScreenOffMode() const
+WindowScreenOffMode Window::GetScreenOffMode() const
 {
   return GetImplementation(*this).GetScreenOffMode();
 }

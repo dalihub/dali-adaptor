@@ -19,6 +19,8 @@
 #undef min
 #undef max
 
+#undef DIFFERENCE
+
 #include <EGL/eglext.h>
 
 #endif // EGL_INCLUDE_H

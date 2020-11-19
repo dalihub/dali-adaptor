@@ -18,6 +18,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/events/key-event.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -120,12 +121,12 @@ Window DownCast(BaseHandle handle)
   return Window(dynamic_cast<Dali::Internal::Adaptor::Window*>(handle.GetObjectPtr()));
 }
 
-Dali::Window::WindowOrientation GetCurrentOrientation(Window window)
+WindowOrientation GetCurrentOrientation(Window window)
 {
   return GetImplementation(window).GetCurrentOrientation();
 }
 
-void SetAvailableOrientations(Window window, const Dali::Vector<Dali::Window::WindowOrientation>& orientations)
+void SetAvailableOrientations(Window window, const Dali::Vector<WindowOrientation>& orientations)
 {
   GetImplementation(window).SetAvailableOrientations(orientations);
 }

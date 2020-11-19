@@ -309,15 +309,15 @@ int UtcDaliGlWindowSetAvailableOrientations(void)
 
   try
   {
-    Dali::Vector< Dali::GlWindow::GlWindowOrientation> orientations;
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::PORTRAIT );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::LANDSCAPE );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::PORTRAIT_INVERSE );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::LANDSCAPE_INVERSE );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::PORTRAIT );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::LANDSCAPE );
-    orientations.PushBack( Dali::GlWindow::GlWindowOrientation::PORTRAIT_INVERSE );
+    Dali::Vector< Dali::WindowOrientation> orientations;
+    orientations.PushBack( Dali::WindowOrientation::PORTRAIT );
+    orientations.PushBack( Dali::WindowOrientation::LANDSCAPE );
+    orientations.PushBack( Dali::WindowOrientation::PORTRAIT_INVERSE );
+    orientations.PushBack( Dali::WindowOrientation::LANDSCAPE_INVERSE );
+    orientations.PushBack( Dali::WindowOrientation::NO_ORIENTATION_PREFERENCE );
+    orientations.PushBack( Dali::WindowOrientation::PORTRAIT );
+    orientations.PushBack( Dali::WindowOrientation::LANDSCAPE );
+    orientations.PushBack( Dali::WindowOrientation::PORTRAIT_INVERSE );
     window.SetAvailableOrientations(orientations);
 
     DALI_TEST_CHECK( false );
@@ -335,7 +335,7 @@ int UtcDaliGlWindowSetPreferredOrientation(void)
 
   try
   {
-    window.SetPreferredOrientation(Dali::GlWindow::GlWindowOrientation::PORTRAIT);
+    window.SetPreferredOrientation(Dali::WindowOrientation::PORTRAIT);
 
     DALI_TEST_CHECK( false );
   }
@@ -352,7 +352,7 @@ int UtcDaliGlWindowSetPreferredOrientation1(void)
 
   try
   {
-    window.SetPreferredOrientation(Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE);
+    window.SetPreferredOrientation(Dali::WindowOrientation::NO_ORIENTATION_PREFERENCE);
 
     DALI_TEST_CHECK( false );
   }
@@ -369,8 +369,8 @@ int UtcDaliWindowGetCurrentOrientation(void)
 
   try
   {
-    Dali::GlWindow::GlWindowOrientation orientation = window.GetCurrentOrientation();
-    DALI_TEST_CHECK( orientation == Dali::GlWindow::GlWindowOrientation::PORTRAIT );
+    Dali::WindowOrientation orientation = window.GetCurrentOrientation();
+    DALI_TEST_CHECK( orientation == Dali::WindowOrientation::PORTRAIT );
 
     DALI_TEST_CHECK( false );
   }
@@ -382,15 +382,17 @@ int UtcDaliWindowGetCurrentOrientation(void)
 }
 
 // Internal callback function
-void glInit()
+void glInit(void)
 {
 }
 
-void glRenderFrame()
+int glRenderFrame(void)
 {
+  static unsigned int retFlag = 0;
+  return retFlag++;
 }
 
-void glTerminate()
+void glTerminate(void)
 {
 }
 
@@ -400,7 +402,7 @@ int UtcDaliGlWindowRegisterGlCallback(void)
 
   try
   {
-    window.RegisterGlCallback( glInit, glRenderFrame, glTerminate );
+    window.RegisterGlCallback( Dali::MakeCallback( glInit ), Dali::MakeCallback( glRenderFrame ), Dali::MakeCallback( glTerminate ) );
 
     DALI_TEST_CHECK( false );
   }
@@ -417,7 +419,7 @@ int UtcDaliGlWindowRenderOnce(void)
 
   try
   {
-    window.RegisterGlCallback( glInit, glRenderFrame, glTerminate );
+    window.RegisterGlCallback( Dali::MakeCallback( glInit ), Dali::MakeCallback( glRenderFrame ), Dali::MakeCallback( glTerminate ) );
     window.RenderOnce();
 
     DALI_TEST_CHECK( false );

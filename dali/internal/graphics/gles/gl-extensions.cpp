@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,17 +33,17 @@ namespace Internal
 namespace Adaptor
 {
 
-namespace ECoreX
-{
-
 GlExtensions::GlExtensions()
 :
 #ifdef GL_EXT_discard_framebuffer
-  mGlDiscardFramebuffer( NULL ),
+  mGlDiscardFramebuffer( nullptr ),
 #endif
 #ifdef GL_OES_get_program_binary
-  mGlGetProgramBinaryOES( NULL ),
-  mGlProgramBinaryOES( NULL ),
+  mGlGetProgramBinaryOES( nullptr ),
+  mGlProgramBinaryOES( nullptr ),
+#endif
+#ifdef GL_KHR_blend_equation_advanced
+  mBlendBarrierKHR( nullptr ),
 #endif
   mInitialized( false )
 {
@@ -118,6 +118,27 @@ void GlExtensions::ProgramBinaryOES(GLuint program, GLenum binaryFormat, const G
 #endif
 }
 
+bool GlExtensions::BlendBarrierKHR()
+{
+  // initialize extension on first use as on some hw platforms a context
+  // has to be bound for the extensions to return correct pointer
+  if( !mInitialized )
+  {
+    Initialize();
+  }
+
+#ifdef GL_KHR_blend_equation_advanced
+  if (mBlendBarrierKHR)
+  {
+    mBlendBarrierKHR();
+    return true;
+  }
+  return false;
+#endif
+
+  return false;
+}
+
 void GlExtensions::Initialize()
 {
   mInitialized = true;
@@ -130,9 +151,11 @@ void GlExtensions::Initialize()
   mGlGetProgramBinaryOES = reinterpret_cast< PFNGLGETPROGRAMBINARYOESPROC >( eglGetProcAddress("glGetProgramBinaryOES") );
   mGlProgramBinaryOES = reinterpret_cast< PFNGLPROGRAMBINARYOESPROC >( eglGetProcAddress("glProgramBinaryOES") );
 #endif
-}
 
-} // namespace ECoreX
+#ifdef GL_KHR_blend_equation_advanced
+  mBlendBarrierKHR = reinterpret_cast< PFNGLBLENDBARRIERKHRPROC >( eglGetProcAddress("glBlendBarrierKHR") );
+#endif
+}
 
 } // namespace Adaptor
 

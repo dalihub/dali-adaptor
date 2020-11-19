@@ -266,17 +266,17 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
    */
-  void SetType( Dali::Window::Type type ) override;
+  void SetType( Dali::WindowType type ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
-  bool SetNotificationLevel( Dali::Window::NotificationLevel::Type level ) override;
+  bool SetNotificationLevel( Dali::WindowNotificationLevel level ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNotificationLevel()
    */
-  Dali::Window::NotificationLevel::Type GetNotificationLevel() const override;
+  Dali::WindowNotificationLevel GetNotificationLevel() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetOpaqueState()
@@ -286,12 +286,12 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreenOffMode()
    */
-  bool SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode) override;
+  bool SetScreenOffMode(WindowScreenOffMode screenOffMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenOffMode()
    */
-  Dali::Window::ScreenOffMode::Type GetScreenOffMode() const override;
+  WindowScreenOffMode GetScreenOffMode() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBrightness()

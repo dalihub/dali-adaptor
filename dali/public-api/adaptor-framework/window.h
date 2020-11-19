@@ -26,6 +26,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -78,74 +79,6 @@ public:
   using TouchEventSignalType  = Signal<void(const TouchEvent&)>;  ///< Touch signal type @SINCE_1_9.28
 
 public:
-  // Enumerations
-
-  /**
-   * @brief Enumeration for orientation of the window is the way in which a rectangular page is oriented for normal viewing.
-   *
-   * This Enumeration is used the available orientation APIs and the preferred orientation.
-   *
-   * @SINCE_1_0.0
-   */
-  enum WindowOrientation
-  {
-    PORTRAIT                  = 0,   ///< Portrait orientation. The height of the display area is greater than the width. @SINCE_1_0.0
-    LANDSCAPE                 = 90,  ///< Landscape orientation. A wide view area is needed. @SINCE_1_0.0
-    PORTRAIT_INVERSE          = 180, ///< Portrait inverse orientation @SINCE_1_0.0
-    LANDSCAPE_INVERSE         = 270, ///< Landscape inverse orientation @SINCE_1_0.0
-    NO_ORIENTATION_PREFERENCE = -1   ///< No orientation. It is used to initialize or unset the preferred orientation.  @SINCE_1_4.51
-  };
-
-  /**
-   * @brief An enum of Window types.
-   * @SINCE_1_2.60
-   */
-  enum Type
-  {
-    NORMAL,       ///< A default window type. Indicates a normal, top-level window. Almost every window will be created with this type. @SINCE_1_2.60
-    NOTIFICATION, ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_1_2.60
-    UTILITY,      ///< A persistent utility window, like a toolbox or palette. @SINCE_1_2.60
-    DIALOG        ///< Used for simple dialog windows. @SINCE_1_2.60
-  };
-
-  /**
-   * @brief An enum of screen mode.
-   * @SINCE_1_2.60
-   */
-  struct NotificationLevel
-  {
-    /**
-     * @brief An enum of screen mode.
-     * @SINCE_1_2.60
-     */
-    enum Type
-    {
-      NONE   = -1, ///< No notification level. Default level. This value makes the notification window place in the layer of the normal window. @SINCE_1_2.60
-      BASE   = 10, ///< Base notification level. @SINCE_1_2.60
-      MEDIUM = 20, ///< Higher notification level than base. @SINCE_1_2.60
-      HIGH   = 30, ///< Higher notification level than medium. @SINCE_1_2.60
-      TOP    = 40  ///< The highest notification level. @SINCE_1_2.60
-    };
-  };
-
-  /**
-   * @brief An enum of screen mode.
-   * @SINCE_1_2.60
-   */
-  struct ScreenOffMode
-  {
-    /**
-     * @brief An enum of screen mode.
-     * @SINCE_1_2.60
-     */
-    enum Type
-    {
-      TIMEOUT, ///< The mode which turns the screen off after a timeout. @SINCE_1_2.60
-      NEVER,   ///< The mode which keeps the screen turned on. @SINCE_1_2.60
-    };
-
-    static constexpr Type DEFAULT{TIMEOUT}; ///< The default mode. @SINCE_1_2.60
-  };
 
   // Methods
 
@@ -471,37 +404,37 @@ public:
 
   /**
    * @brief Sets a window type.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @param[in] type The window type.
    * @remarks The default window type is NORMAL.
    */
-  void SetType(Type type);
+  void SetType(WindowType type);
 
   /**
    * @brief Gets a window type.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @return A window type.
    */
-  Type GetType() const;
+  WindowType GetType() const;
 
   /**
    * @brief Sets a priority level for the specified notification window.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @param[in] level The notification window level.
    * @return True if no error occurred, false otherwise.
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_WINDOW_PRIORITY
    * @remarks This can be used for a notification type window only. The default level is NotificationLevel::NONE.
    */
-  bool SetNotificationLevel(NotificationLevel::Type level);
+  bool SetNotificationLevel(WindowNotificationLevel level);
 
   /**
    * @brief Gets a priority level for the specified notification window.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @return The notification window level.
    * @remarks This can be used for a notification type window only.
    */
-  NotificationLevel::Type GetNotificationLevel() const;
+  WindowNotificationLevel GetNotificationLevel() const;
 
   /**
    * @brief Sets a transparent window's visual state to opaque.
@@ -525,23 +458,23 @@ public:
   /**
    * @brief Sets a window's screen off mode.
    * @details This API is useful when the application needs to keep the display turned on.
-   * If the application sets the screen mode to #::Dali::Window::ScreenOffMode::NEVER to its window and the window is shown,
+   * If the application sets the screen mode to #::Dali::WindowScreenOffMode::NEVER to its window and the window is shown,
    * the window manager requests the display system to keep the display on as long as the window is shown.
    * If the window is no longer shown, then the window manager requests the display system to go back to normal operation.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @param[in] screenOffMode The screen mode.
    * @return True if no error occurred, false otherwise.
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    */
-  bool SetScreenOffMode(ScreenOffMode::Type screenOffMode);
+  bool SetScreenOffMode(WindowScreenOffMode screenOffMode);
 
   /**
    * @brief Gets a screen off mode of the window.
-   * @SINCE_1_2.60
+   * @@SINCE_2_0.0
    * @return The screen off mode.
    */
-  ScreenOffMode::Type GetScreenOffMode() const;
+  WindowScreenOffMode GetScreenOffMode() const;
 
   /**
    * @brief Sets preferred brightness of the window.

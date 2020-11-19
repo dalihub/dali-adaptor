@@ -249,32 +249,32 @@ void WindowBaseAndroid::SetInputRegion( const Rect< int >& inputRegion )
 {
 }
 
-void WindowBaseAndroid::SetType( Dali::Window::Type type )
+void WindowBaseAndroid::SetType( Dali::WindowType type )
 {
 }
 
-bool WindowBaseAndroid::SetNotificationLevel( Dali::Window::NotificationLevel::Type level )
+bool WindowBaseAndroid::SetNotificationLevel( Dali::WindowNotificationLevel level )
 {
   return false;
 }
 
-Dali::Window::NotificationLevel::Type WindowBaseAndroid::GetNotificationLevel() const
+Dali::WindowNotificationLevel WindowBaseAndroid::GetNotificationLevel() const
 {
-  return Dali::Window::NotificationLevel::NONE;
+  return Dali::WindowNotificationLevel::NONE;
 }
 
 void WindowBaseAndroid::SetOpaqueState( bool opaque )
 {
 }
 
-bool WindowBaseAndroid::SetScreenOffMode(Dali::Window::ScreenOffMode::Type screenOffMode)
+bool WindowBaseAndroid::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return false;
 }
 
-Dali::Window::ScreenOffMode::Type WindowBaseAndroid::GetScreenOffMode() const
+WindowScreenOffMode WindowBaseAndroid::GetScreenOffMode() const
 {
-  return Dali::Window::ScreenOffMode::TIMEOUT;
+  return WindowScreenOffMode::TIMEOUT;
 }
 
 bool WindowBaseAndroid::SetBrightness( int brightness )

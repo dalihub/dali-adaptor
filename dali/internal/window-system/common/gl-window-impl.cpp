@@ -93,9 +93,9 @@ GlWindow::GlWindow()
   mFocusChangeSignal(),
   mResizeSignal(),
   mVisibilityChangedSignal(),
-  mGLInitCallback( 0 ),
-  mGLRenderFrameCallback( 0 ),
-  mGLTerminateCallback( 0 ),
+  mGLInitCallback(),
+  mGLRenderFrameCallback(),
+  mGLTerminateCallback(),
   mGLRenderCallback( nullptr ),
   mEGLSurface( nullptr ),
   mEGLContext( nullptr ),
@@ -117,7 +117,7 @@ GlWindow::~GlWindow()
 
   if( mGLTerminateCallback )
   {
-    mGLTerminateCallback();
+    CallbackBase::Execute(*mGLTerminateCallback);
   }
 
   if( mIsEGLInitialize )
@@ -586,10 +586,10 @@ void GlWindow::SetAvailableAnlges( const std::vector< int >& angles )
   mWindowBase->SetAvailableAnlges( angles );
 }
 
-bool GlWindow::IsOrientationAvailable( Dali::GlWindow::GlWindowOrientation orientation ) const
+bool GlWindow::IsOrientationAvailable( WindowOrientation orientation ) const
 {
-  if( orientation <= Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE
-      || orientation > Dali::GlWindow::GlWindowOrientation::LANDSCAPE_INVERSE )
+  if( orientation <= WindowOrientation::NO_ORIENTATION_PREFERENCE
+      || orientation > WindowOrientation::LANDSCAPE_INVERSE )
   {
     DALI_LOG_INFO( gWindowLogFilter, Debug::Verbose, "Window::IsOrientationAvailable: Invalid input orientation [%d]\n", orientation );
     return false;
@@ -597,38 +597,38 @@ bool GlWindow::IsOrientationAvailable( Dali::GlWindow::GlWindowOrientation orien
   return true;
 }
 
-int GlWindow::ConvertToAngle(  Dali::GlWindow::GlWindowOrientation  orientation )
+int GlWindow::ConvertToAngle(  WindowOrientation  orientation )
 {
   int convertAngle = 0;
   if ( mOrientationMode == 0 )
   {
-    convertAngle = ( static_cast< int >( orientation ) ) * 90;
+    convertAngle = static_cast< int >( orientation );
   }
   else if( mOrientationMode == 1)
   {
     switch( orientation )
     {
-      case Dali::GlWindow::GlWindowOrientation::LANDSCAPE:
+      case WindowOrientation::LANDSCAPE:
       {
         convertAngle = 0;
         break;
       }
-      case Dali::GlWindow::GlWindowOrientation::PORTRAIT:
+      case WindowOrientation::PORTRAIT:
       {
         convertAngle = 90;
         break;
       }
-      case Dali::GlWindow::GlWindowOrientation::LANDSCAPE_INVERSE:
+      case WindowOrientation::LANDSCAPE_INVERSE:
       {
         convertAngle = 180;
         break;
       }
-      case Dali::GlWindow::GlWindowOrientation::PORTRAIT_INVERSE:
+      case WindowOrientation::PORTRAIT_INVERSE:
       {
         convertAngle = 270;
         break;
       }
-      case Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE:
+      case WindowOrientation::NO_ORIENTATION_PREFERENCE:
       {
         convertAngle = -1;
         break;
@@ -638,12 +638,12 @@ int GlWindow::ConvertToAngle(  Dali::GlWindow::GlWindowOrientation  orientation 
   return convertAngle;
 }
 
-Dali::GlWindow::GlWindowOrientation GlWindow::ConvertToOrientation( int angle ) const
+WindowOrientation GlWindow::ConvertToOrientation( int angle ) const
 {
-  Dali::GlWindow::GlWindowOrientation orientation = Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE;
+  WindowOrientation orientation = WindowOrientation::NO_ORIENTATION_PREFERENCE;
   if ( mOrientationMode == 0 ) // Portrate mode
   {
-    orientation = static_cast< Dali::GlWindow::GlWindowOrientation >( angle / 90 );
+    orientation = static_cast< WindowOrientation >( angle );
   }
   else if( mOrientationMode == 1 ) // Landscape mode
   {
@@ -651,27 +651,27 @@ Dali::GlWindow::GlWindowOrientation GlWindow::ConvertToOrientation( int angle ) 
     {
       case 0:
       {
-        orientation = Dali::GlWindow::GlWindowOrientation::LANDSCAPE;
+        orientation = WindowOrientation::LANDSCAPE;
         break;
       }
       case 90:
       {
-        orientation = Dali::GlWindow::GlWindowOrientation::PORTRAIT;
+        orientation = WindowOrientation::PORTRAIT;
         break;
       }
       case 180:
       {
-        orientation = Dali::GlWindow::GlWindowOrientation::LANDSCAPE_INVERSE;
+        orientation = WindowOrientation::LANDSCAPE_INVERSE;
         break;
       }
       case 270:
       {
-        orientation = Dali::GlWindow::GlWindowOrientation::PORTRAIT_INVERSE;
+        orientation = WindowOrientation::PORTRAIT_INVERSE;
         break;
       }
       case -1:
       {
-        orientation = Dali::GlWindow::GlWindowOrientation::NO_ORIENTATION_PREFERENCE;
+        orientation = WindowOrientation::NO_ORIENTATION_PREFERENCE;
         break;
       }
     }
@@ -679,13 +679,13 @@ Dali::GlWindow::GlWindowOrientation GlWindow::ConvertToOrientation( int angle ) 
   return orientation;
 }
 
-Dali::GlWindow::GlWindowOrientation GlWindow::GetCurrentOrientation() const
+WindowOrientation GlWindow::GetCurrentOrientation() const
 {
   DALI_LOG_RELEASE_INFO( "Window (%p), WinId (%d), GetCurrentOrientation(): %d\n", this, mNativeWindowId, mTotalRotationAngle );
   return ConvertToOrientation( mTotalRotationAngle );
 }
 
-void GlWindow::SetAvailableOrientations( const Dali::Vector< Dali::GlWindow::GlWindowOrientation >& orientations )
+void GlWindow::SetAvailableOrientations( const Dali::Vector< WindowOrientation >& orientations )
 {
   Dali::Vector<float>::SizeType count = orientations.Count();
   for( Dali::Vector<float>::SizeType index = 0; index < count; ++index )
@@ -717,7 +717,7 @@ void GlWindow::SetAvailableOrientations( const Dali::Vector< Dali::GlWindow::GlW
   SetAvailableAnlges( mAvailableAngles );
 }
 
-void GlWindow::SetPreferredOrientation( Dali::GlWindow::GlWindowOrientation orientation  )
+void GlWindow::SetPreferredOrientation( WindowOrientation orientation  )
 {
   if( IsOrientationAvailable( orientation ) == false )
   {
@@ -747,15 +747,15 @@ void GlWindow::SetChild( Dali::Window& child )
   }
 }
 
-void GlWindow::RegisterGlCallback( GlInitialize glInit, GlRenderFrame glRenderFrame, GlTerminate glTerminate )
+void GlWindow::RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback )
 {
   if( mIsEGLInitialize == false )
   {
     InitializeGraphics();
   }
-  mGLInitCallback = glInit;
-  mGLRenderFrameCallback = glRenderFrame;
-  mGLTerminateCallback = glTerminate;
+  mGLInitCallback = std::unique_ptr< CallbackBase >(initCallback);
+  mGLRenderFrameCallback = std::unique_ptr< CallbackBase >( renderFrameCallback );
+  mGLTerminateCallback = std::unique_ptr< CallbackBase >( terminateCallback );
 
   mInitCallback = false;
 
@@ -783,6 +783,8 @@ bool GlWindow::RunCallback()
 
   eglImpl.MakeContextCurrent( mEGLSurface, mEGLContext );
 
+  int renderFrameResult = 0;
+
   if( mIsRotated )
   {
     mWindowBase->SetEglWindowBufferTransform( mTotalRotationAngle );
@@ -797,14 +799,14 @@ bool GlWindow::RunCallback()
   {
     if( mGLInitCallback )
     {
-      mGLInitCallback();
+      CallbackBase::Execute(*mGLInitCallback);
     }
     mInitCallback = true;
   }
 
   if( mGLRenderFrameCallback )
   {
-    mGLRenderFrameCallback();
+    renderFrameResult = CallbackBase::ExecuteReturn<int>(*mGLRenderFrameCallback);
   }
 
   if( mIsWindowRotated )
@@ -813,7 +815,10 @@ bool GlWindow::RunCallback()
     mIsWindowRotated = false;
   }
 
-  eglImpl.SwapBuffers( mEGLSurface );
+  if(renderFrameResult)
+  {
+    eglImpl.SwapBuffers( mEGLSurface );
+  }
 
   return true;
 }

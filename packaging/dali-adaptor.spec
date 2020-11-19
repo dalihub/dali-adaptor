@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    1.9.36
+Version:    2.0.1
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -101,6 +101,9 @@ BuildRequires:  pkgconfig(capi-appfw-app-control)
 BuildRequires:  pkgconfig(ecore-imf)
 
 BuildRequires:  pkgconfig(capi-system-system-settings)
+
+# for ATSPI (Accessibility) support
+BuildRequires:  pkgconfig(eldbus)
 
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
@@ -260,7 +263,7 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
-cmake_flags=" -DENABLE_WAYLAND=ON"
+cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=OFF"
 
 # Use this conditional when Tizen version is 5.x or greater
 %if 0%{?tizen_version_major} >= 5
