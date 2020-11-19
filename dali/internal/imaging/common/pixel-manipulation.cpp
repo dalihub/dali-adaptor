@@ -33,7 +33,7 @@ namespace
 
 constexpr Channel ALPHA_CHANNEL_ONLY[]       = {ALPHA};
 constexpr Channel LUMINANCE_CHANNEL_ONLY[]   = {LUMINANCE};
-constexpr Channel LUMINANCE_ALPHA_CHANNELS[] = {LUMINANCE, ALPHA};
+constexpr Channel LUMINANCE_ALPHA_CHANNELS[] = {ALPHA, LUMINANCE};
 constexpr Channel RGB_CHANNELS[]             = {RED, GREEN, BLUE};
 constexpr Channel BGR_CHANNELS[]             = {BLUE, GREEN, RED};
 constexpr Channel RGBA_CHANNELS[]            = {RED, GREEN, BLUE, ALPHA};
