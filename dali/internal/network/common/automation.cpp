@@ -245,42 +245,55 @@ std::string GetPropertyValueString(Dali::Handle handle, int propertyIndex)
   {
     Dali::Property::Value value = handle.GetProperty(propertyIndex);
 
-    if(value.GetType() == Dali::Property::STRING)
+    switch(value.GetType())
     {
-      // Escape the string (to ensure valid json)
-      // Write out quotes, escapes and control characters using unicode syntax \uXXXX
-      std::ostringstream unescapedValue;
-      unescapedValue << value;
-      std::string        valueString = unescapedValue.str();
-      std::ostringstream escapedValue;
-      for(std::string::iterator c = valueString.begin(); c != valueString.end(); ++c)
+      case Dali::Property::STRING:
+      case Dali::Property::MAP:
+      case Dali::Property::ARRAY:
       {
-        if(*c == '"')
+        // Escape the string (to ensure valid json)
+        // Write out quotes, escapes and control characters using unicode syntax \uXXXX
+        std::ostringstream unescapedValue;
+        unescapedValue << value;
+        std::string        valueString = unescapedValue.str();
+        std::ostringstream escapedValue;
+        for(std::string::iterator c = valueString.begin(); c != valueString.end(); ++c)
         {
-          escapedValue << "\\\"";
+          if(*c == '"')
+          {
+            escapedValue << "\\\"";
+          }
+          else if(*c == '\\')
+          {
+            escapedValue << "\\\\";
+          }
+          else if(*c == '\r')
+          {
+            escapedValue << "\\\n";
+          }
+          else if('\x00' <= *c && *c <= '\x1f')
+          {
+            escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(*c);
+          }
+          else
+          {
+            escapedValue << *c;
+          }
         }
-        else if(*c == '\\')
-        {
-          escapedValue << "\\\\";
-        }
-        else if('\x00' <= *c && *c <= '\x1f')
-        {
-          escapedValue << "\\u" << std::hex << std::setw(4) << std::setfill('0') << int(*c);
-        }
-        else
-        {
-          escapedValue << *c;
-        }
+        valueStream << escapedValue.str();
+        break;
       }
-      valueStream << escapedValue.str();
-    }
-    else if(value.GetType() == Dali::Property::MATRIX || value.GetType() == Dali::Property::MATRIX3)
-    {
-      MatrixToStream(value, valueStream);
-    }
-    else
-    {
-      valueStream << value;
+      case Dali::Property::MATRIX:
+      case Dali::Property::MATRIX3:
+      {
+        MatrixToStream(value, valueStream);
+        break;
+      }
+      default:
+      {
+        valueStream << value;
+        break;
+      }
     }
   }
   else
