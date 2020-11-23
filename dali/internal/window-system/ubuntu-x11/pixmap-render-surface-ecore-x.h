@@ -82,6 +82,11 @@ public: // from Dali::RenderSurfaceInterface
   void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   */
+  int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
   void InitializeGraphics() override;

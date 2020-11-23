@@ -205,7 +205,8 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create the scene
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)));
+  int orientation = mSurface->GetOrientation();
+  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), orientation);
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
@@ -233,6 +234,11 @@ void SceneHolder::Resume()
   Reset();
 
   OnResume();
+}
+
+void SceneHolder::SurfaceRotated(float width, float height, int orientation)
+{
+  mScene.SurfaceRotated(width, height, orientation);
 }
 
 void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)

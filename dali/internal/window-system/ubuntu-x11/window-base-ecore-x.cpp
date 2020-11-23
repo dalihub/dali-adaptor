@@ -243,14 +243,15 @@ static Eina_Bool EcoreEventKeyUp( void* data, int type, void* event )
 
 } // unnamed namespace
 
-WindowBaseEcoreX::WindowBaseEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+WindowBaseEcoreX::WindowBaseEcoreX(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mEcoreEventHandler(),
-  mEcoreWindow( 0 ),
-  mOwnSurface( false ),
-  mIsTransparent( false ), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
-  mRotationAppSet( false )
+  mEcoreWindow(0),
+  mOwnSurface(false),
+  mIsTransparent(false), // Should only be set to true once we actually create a transparent window regardless of what isTransparent is.
+  mRotationAppSet(false),
+  mWindowRotationAngle(0)
 {
-  Initialize( positionSize, surface, isTransparent );
+  Initialize(positionSize, surface, isTransparent);
 }
 
 WindowBaseEcoreX::~WindowBaseEcoreX()
@@ -834,6 +835,11 @@ void WindowBaseEcoreX::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVer
   dpiVertical   = ecore_x_dpi_get();
 }
 
+int WindowBaseEcoreX::GetOrientation() const
+{
+  return 0;
+}
+
 int WindowBaseEcoreX::GetScreenRotationAngle()
 {
   return 0;
@@ -841,6 +847,7 @@ int WindowBaseEcoreX::GetScreenRotationAngle()
 
 void WindowBaseEcoreX::SetWindowRotationAngle( int degree )
 {
+  mWindowRotationAngle = degree;
 }
 
 void WindowBaseEcoreX::WindowRotationCompleted( int degree, int width, int height )
