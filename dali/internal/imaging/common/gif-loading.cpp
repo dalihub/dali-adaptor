@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <gif_lib.h>
 #include <cstring>
+#include <memory>
+
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/internal/imaging/common/file-download.h>
@@ -98,6 +100,12 @@ struct ImageFrame
 
   ~ImageFrame()
   {
+    if( data != nullptr )
+    {
+      // De-allocate memory of the frame data.
+      delete[] data;
+      data = nullptr;
+    }
   }
 
   int       index;
@@ -124,11 +132,12 @@ struct GifAnimationData
   bool animated;
 };
 
+// Forward declaration
+struct GifAccessor;
+
 struct LoaderInfo
 {
   LoaderInfo()
-  : gif( nullptr ) ,
-    imageNumber ( 0 )
   {
   }
 
@@ -142,10 +151,26 @@ struct LoaderInfo
     {
     }
 
-    const char *fileName;  /**< The absolute path of the file. */
-    unsigned char *globalMap ;      /**< A pointer to the entire contents of the file that have been mapped with mmap(2). */
-    long long length;  /**< The length of the file in bytes. */
-    bool isLocalResource; /**< The flag whether the file is a local resource */
+    ~FileData()
+    {
+      if( globalMap  )
+      {
+        free( globalMap );
+        globalMap = nullptr;
+      }
+    }
+
+    bool LoadFile();
+
+  private:
+    bool LoadLocalFile();
+    bool LoadRemoteFile();
+
+  public:
+    const char *fileName;      /**< The absolute path of the file. */
+    unsigned char *globalMap ; /**< A pointer to the entire contents of the file */
+    long long length;          /**< The length of the file in bytes. */
+    bool isLocalResource;      /**< The flag whether the file is a local resource */
   };
 
   struct FileInfo
@@ -163,24 +188,170 @@ struct LoaderInfo
 
   FileData fileData;
   GifAnimationData animated;
-  GifFileType *gif;
-  int imageNumber;
+  std::unique_ptr<GifAccessor> gifAccessor{nullptr};
+  int imageNumber{0};
   FileInfo fileInfo;
 };
 
 struct ImageProperties
 {
-  ImageProperties()
-  : w( 0 ),
-    h( 0 ),
-    alpha( 0 )
+  unsigned int w{0};
+  unsigned int h{0};
+  bool alpha{0};
+};
+
+/**
+ * Class to access gif open/close using riaa
+ */
+struct GifAccessor
+{
+  /**
+   * Constructor
+   * @param[in,out] fileInfo Contains ptr to memory, and is updated by DGifOpen
+   */
+  GifAccessor(LoaderInfo::FileInfo& fileInfo)
   {
+
+// actually ask libgif to open the file
+#if GIFLIB_MAJOR >= 5
+    gif = DGifOpen( &fileInfo, FileRead, NULL );
+#else
+    gif = DGifOpen( &fileInfo, FileRead );
+#endif
+
+    if (!gif)
+    {
+      DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+    }
   }
 
-  unsigned int w;
-  unsigned int h;
-  bool alpha;
+  ~GifAccessor()
+  {
+    if(gif)
+    {
+#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
+      DGifCloseFile( gif, NULL );
+#else
+      DGifCloseFile( gif );
+#endif
+    }
+  }
+
+  /**
+   * @brief Copy data from gif file into buffer.
+   *
+   * @param[in] gifFileType A pointer pointing to GIF File Type
+   * @param[out] buffer A pointer to buffer containing GIF raw data
+   * @param[in] len The length in bytes to be copied
+   * @return The data length of the image in bytes
+   */
+  static int FileRead( GifFileType *gifFileType, GifByteType *buffer, int length )
+  {
+    LoaderInfo::FileInfo *fi = reinterpret_cast<LoaderInfo::FileInfo *>( gifFileType->UserData );
+
+    if( fi->position >= fi->length )
+    {
+      return 0; // if at or past end - no
+    }
+    if( (fi->position + length) >= fi->length )
+    {
+      length = fi->length - fi->position;
+    }
+    memcpy( buffer, fi->map + fi->position, length );
+    fi->position += length;
+    return length;
+  }
+
+
+  GifFileType *gif = nullptr;
 };
+
+bool LoaderInfo::FileData::LoadFile()
+{
+  bool success=false;
+  if( isLocalResource )
+  {
+    success = LoadLocalFile();
+  }
+  else
+  {
+    success = LoadRemoteFile();
+  }
+  return success;
+}
+
+bool LoaderInfo::FileData::LoadLocalFile()
+{
+  Internal::Platform::FileReader fileReader( fileName );
+  FILE *fp = fileReader.GetFile();
+  if( fp == NULL )
+  {
+    return false;
+  }
+
+  if( fseek( fp, 0, SEEK_END ) <= -1 )
+  {
+    return false;
+  }
+
+  length = ftell( fp );
+  if( length <= -1 )
+  {
+    return false;
+  }
+
+  if( ( ! fseek( fp, 0, SEEK_SET ) ) )
+  {
+    globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * length ) );
+    length = fread( globalMap, sizeof( GifByteType ), length, fp);
+  }
+  else
+  {
+    return false;
+  }
+  return true;
+}
+
+bool LoaderInfo::FileData::LoadRemoteFile()
+{
+  // remote file
+  bool succeeded=false;
+  Dali::Vector<uint8_t> dataBuffer;
+  size_t dataSize;
+
+  succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory( fileName, dataBuffer, dataSize,
+                                                                    MAXIMUM_DOWNLOAD_IMAGE_SIZE );
+  if( succeeded )
+  {
+    size_t blobSize = dataBuffer.Size();
+    if( blobSize > 0U )
+    {
+      // Open a file handle on the memory buffer:
+      Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
+      FILE * const fp = fileReader.GetFile();
+      if ( NULL != fp )
+      {
+        if( ( ! fseek( fp, 0, SEEK_SET ) ) )
+        {
+          globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * blobSize ) );
+          length = fread( globalMap, sizeof( GifByteType ), blobSize, fp);
+          succeeded = true;
+        }
+        else
+        {
+          DALI_LOG_ERROR( "Error seeking within file\n" );
+        }
+      }
+      else
+      {
+        DALI_LOG_ERROR( "Error reading file\n" );
+      }
+    }
+  }
+
+  return succeeded;
+}
+
 
 /**
  * @brief This combines R, G, B and Alpha values into a single 32-bit (ABGR) value.
@@ -451,30 +622,6 @@ FrameInfo *NewFrame( GifAnimationData &animated, int transparent, int dispose, i
   return &( animated.frames.back().info );
 }
 
-/**
- * @brief Copy data from gif file into buffer.
- *
- * @param[in] gifFileType A pointer pointing to GIF File Type
- * @param[out] buffer A pointer to buffer containing GIF raw data
- * @param[in] len The length in bytes to be copied
- * @return The data length of the image in bytes
- */
-int FileRead( GifFileType *gifFileType, GifByteType *buffer, int length )
-{
-  LoaderInfo::FileInfo *fi = reinterpret_cast<LoaderInfo::FileInfo *>( gifFileType->UserData );
-
-  if( fi->position >= fi->length )
-  {
-    return 0; // if at or past end - no
-  }
-  if( (fi->position + length) >= fi->length )
-  {
-    length = fi->length - fi->position;
-  }
-  memcpy( buffer, fi->map + fi->position, length );
-  fi->position += length;
-  return length;
-}
 
 /**
  * @brief Decode a gif image into rows then expand to 32bit into the destination
@@ -506,7 +653,7 @@ bool DecodeImage( GifFileType *gif, uint32_t *data, int rowpix, int xin, int yin
 
   // build a blob of memory to have pointers to rows of pixels
   // AND store the decoded gif pixels (1 byte per pixel) as welll
-  rows = static_cast<GifRowType *>(malloc( (gifH * sizeof(GifRowType) ) + ( gifW * gifH * sizeof(GifPixelType) )));
+  rows = static_cast<GifRowType *>( malloc( (gifH * sizeof(GifRowType) ) + ( gifW * gifH * sizeof(GifPixelType) )));
   if( !rows )
   {
     goto on_error;
@@ -620,6 +767,8 @@ on_error:
   return ret;
 }
 
+
+
 /**
  * @brief Reader header from the gif file and populates structures accordingly.
  *
@@ -634,10 +783,10 @@ bool ReadHeader( LoaderInfo &loaderInfo,
 {
   GifAnimationData &animated = loaderInfo.animated;
   LoaderInfo::FileData &fileData = loaderInfo.fileData;
-  bool ret = false;
+  bool success = false;
   LoaderInfo::FileInfo fileInfo;
   GifRecordType rec;
-  GifFileType *gif = NULL;
+
   // it is possible which gif file have error midle of frames,
   // in that case we should play gif file until meet error frame.
   int imageNumber = 0;
@@ -645,256 +794,195 @@ bool ReadHeader( LoaderInfo &loaderInfo,
   FrameInfo *frameInfo = NULL;
   bool full = true;
 
-  if( fileData.isLocalResource )
+  success = fileData.LoadFile();
+  if(!success || !fileData.globalMap)
   {
-    Internal::Platform::FileReader fileReader( fileData.fileName );
-    FILE *fp = fileReader.GetFile();
-    if( fp == NULL )
-    {
-      return false;
-    }
-
-    if( fseek( fp, 0, SEEK_END ) <= -1 )
-    {
-      return false;
-    }
-
-    fileData.length = ftell( fp );
-    if( fileData.length <= -1 )
-    {
-      return false;
-    }
-
-    if( ( ! fseek( fp, 0, SEEK_SET ) ) )
-    {
-      fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * fileData.length ) );
-      fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), fileData.length, fp);
-      fileInfo.map = fileData.globalMap;
-    }
-    else
-    {
-      return false;
-    }
+    success = false;
+    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
   }
   else
   {
-    // remote file
-    bool succeeded;
-    Dali::Vector<uint8_t> dataBuffer;
-    size_t dataSize;
+    fileInfo.map = fileData.globalMap;
+    fileInfo.length = fileData.length;
+    fileInfo.position = 0;
+    GifAccessor gifAccessor(fileInfo);
 
-    succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory( fileData.fileName, dataBuffer, dataSize,
-                                                                      MAXIMUM_DOWNLOAD_IMAGE_SIZE );
-    if( succeeded )
+    if( gifAccessor.gif )
     {
-      size_t blobSize = dataBuffer.Size();
-      if( blobSize > 0U )
+      // get the gif "screen size" (the actual image size)
+      prop.w = gifAccessor.gif->SWidth;
+      prop.h = gifAccessor.gif->SHeight;
+
+      // if size is invalid - abort here
+      if( (prop.w < 1) || (prop.h < 1) || (prop.w > IMG_MAX_SIZE) || (prop.h > IMG_MAX_SIZE) || IMG_TOO_BIG(prop.w, prop.h) )
       {
-        // Open a file handle on the memory buffer:
-        Dali::Internal::Platform::FileReader fileReader( dataBuffer, blobSize );
-        FILE * const fp = fileReader.GetFile();
-        if ( NULL != fp )
+        if( IMG_TOO_BIG(prop.w, prop.h) )
         {
-          if( ( ! fseek( fp, 0, SEEK_SET ) ) )
-          {
-            fileData.globalMap = reinterpret_cast<GifByteType*>( malloc(sizeof( GifByteType ) * blobSize ) );
-            fileData.length = fread( fileData.globalMap, sizeof( GifByteType ), blobSize, fp);
-            fileInfo.map = fileData.globalMap;
-          }
-          else
-          {
-            DALI_LOG_ERROR( "Error seeking within file\n" );
-          }
+          success = false;
+          DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
         }
         else
         {
-          DALI_LOG_ERROR( "Error reading file\n" );
+          success = false;
+          DALI_LOG_ERROR("LOAD_ERROR_GENERIC");
         }
       }
-    }
-  }
-
-  if( !fileInfo.map )
-  {
-    LOADERR("LOAD_ERROR_CORRUPT_FILE");
-  }
-  fileInfo.length = fileData.length;
-  fileInfo.position = 0;
-
-// actually ask libgif to open the file
-#if GIFLIB_MAJOR >= 5
-  gif = DGifOpen( &fileInfo, FileRead, NULL );
-#else
-  gif = DGifOpen( &fileInfo, FileRead );
-#endif
-
-  if (!gif)
-  {
-    LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-  }
-
-  // get the gif "screen size" (the actual image size)
-  prop.w = gif->SWidth;
-  prop.h = gif->SHeight;
-
-  // if size is invalid - abort here
-  if( (prop.w < 1) || (prop.h < 1) || (prop.w > IMG_MAX_SIZE) || (prop.h > IMG_MAX_SIZE) || IMG_TOO_BIG(prop.w, prop.h) )
-  {
-    if( IMG_TOO_BIG(prop.w, prop.h) )
-    {
-      LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-    }
-    LOADERR("LOAD_ERROR_GENERIC");
-  }
-  // walk through gif records in file to figure out info
-  do
-  {
-    if( DGifGetRecordType(gif, &rec) == GIF_ERROR )
-    {
-      // if we have a gif that ends part way through a sequence
-      // (or animation) consider it valid and just break - no error
-      if( imageNumber > 1 )
-      {
-        break;
-      }
-      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-    }
-
-    // get image description section
-    if( rec == IMAGE_DESC_RECORD_TYPE )
-    {
-      int img_code;
-      GifByteType *img;
-
-      // get image desc
-      if( DGifGetImageDesc(gif) == GIF_ERROR )
-      {
-        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-      }
-      // skip decoding and just walk image to next
-      if( DGifGetCode(gif, &img_code, &img) == GIF_ERROR )
-      {
-        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-      }
-      // skip till next...
-      while( img )
-      {
-        img = NULL;
-        DGifGetCodeNext( gif, &img );
-      }
-      // store geometry in the last frame info data
-      if( frameInfo )
-      {
-        StoreFrameInfo( gif, frameInfo );
-        CheckTransparency( full, frameInfo, prop.w, prop.h );
-      }
-      // or if we dont have a frameInfo entry - create one even for stills
       else
       {
-        // allocate and save frame with field data
-        frameInfo = NewFrame( animated, -1, 0, 0, imageNumber + 1 );
-        if (!frameInfo)
+        // walk through gif records in file to figure out info
+        success=true;
+        do
         {
-          LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-        }
-        // store geometry info from gif image
-        StoreFrameInfo( gif, frameInfo );
-        // check for transparency/alpha
-        CheckTransparency( full, frameInfo, prop.w, prop.h );
-      }
-      imageNumber++;
-    }
-    // we have an extension code block - for animated gifs for sure
-    else if( rec == EXTENSION_RECORD_TYPE )
-    {
-      int ext_code;
-      GifByteType *ext;
-
-      ext = NULL;
-      // get the first extension entry
-      DGifGetExtension( gif, &ext_code, &ext );
-      while( ext )
-      {
-        // graphic control extension - for animated gif data
-        // and transparent index + flag
-        if( ext_code == 0xf9 )
-        {
-          // create frame and store it in image
-          int transparencyIndex = (ext[1] & 1) ? ext[4] : -1;
-          int disposeMode = (ext[1] >> 2) & 0x7;
-          int delay = (int(ext[3]) << 8) | int(ext[2]);
-          frameInfo = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
-          if( !frameInfo )
+          if( DGifGetRecordType(gifAccessor.gif, &rec) == GIF_ERROR )
           {
-            LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-          }
-        }
-        // netscape extension indicating loop count.
-        else if( ext_code == 0xff ) /* application extension */
-        {
-          if( !strncmp(reinterpret_cast<char *>(&ext[1]), "NETSCAPE2.0", 11) ||
-              !strncmp(reinterpret_cast<char *>(&ext[1]), "ANIMEXTS1.0", 11) )
-          {
-            ext = NULL;
-            DGifGetExtensionNext( gif, &ext );
-            if( ext[1] == 0x01 )
+            // if we have a gif that ends part way through a sequence
+            // (or animation) consider it valid and just break - no error
+            if( imageNumber <= 1 )
             {
-              loopCount = (int(ext[3]) << 8) | int(ext[2]);
-              if( loopCount > 0 )
+              success=true;
+            }
+            else
+            {
+              success=false;
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+            }
+            break;
+          }
+
+          // get image description section
+          if( rec == IMAGE_DESC_RECORD_TYPE )
+          {
+            int img_code;
+            GifByteType *img;
+
+            // get image desc
+            if( DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR )
+            {
+              success=false;
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+              break;
+            }
+            // skip decoding and just walk image to next
+            if( DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR )
+            {
+              success=false;
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+              break;
+            }
+            // skip till next...
+            while( img )
+            {
+              img = NULL;
+              DGifGetCodeNext( gifAccessor.gif, &img );
+            }
+            // store geometry in the last frame info data
+            if( frameInfo )
+            {
+              StoreFrameInfo( gifAccessor.gif, frameInfo );
+              CheckTransparency( full, frameInfo, prop.w, prop.h );
+            }
+            // or if we dont have a frameInfo entry - create one even for stills
+            else
+            {
+              // allocate and save frame with field data
+              frameInfo = NewFrame( animated, -1, 0, 0, imageNumber + 1 );
+              if (!frameInfo)
               {
-                loopCount++;
+                success=false;
+                DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+                break;
               }
+              // store geometry info from gif image
+              StoreFrameInfo( gifAccessor.gif, frameInfo );
+              // check for transparency/alpha
+              CheckTransparency( full, frameInfo, prop.w, prop.h );
+            }
+            imageNumber++;
+          }
+          // we have an extension code block - for animated gifs for sure
+          else if( rec == EXTENSION_RECORD_TYPE )
+          {
+            int ext_code;
+            GifByteType *ext = NULL;
+
+            // get the first extension entry
+            DGifGetExtension( gifAccessor.gif, &ext_code, &ext );
+            while( ext )
+            {
+              // graphic control extension - for animated gif data
+              // and transparent index + flag
+              if( ext_code == 0xf9 )
+              {
+                // create frame and store it in image
+                int transparencyIndex = (ext[1] & 1) ? ext[4] : -1;
+                int disposeMode = (ext[1] >> 2) & 0x7;
+                int delay = (int(ext[3]) << 8) | int(ext[2]);
+                frameInfo = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
+                if( !frameInfo )
+                {
+                  success=false;
+                  DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+                  break;
+                }
+              }
+              // netscape extension indicating loop count.
+              else if( ext_code == 0xff ) /* application extension */
+              {
+                if( !strncmp(reinterpret_cast<char *>(&ext[1]), "NETSCAPE2.0", 11) ||
+                    !strncmp(reinterpret_cast<char *>(&ext[1]), "ANIMEXTS1.0", 11) )
+                {
+                  ext = NULL;
+                  DGifGetExtensionNext( gifAccessor.gif, &ext );
+                  if( ext[1] == 0x01 )
+                  {
+                    loopCount = (int(ext[3]) << 8) | int(ext[2]);
+                    if( loopCount > 0 )
+                    {
+                      loopCount++;
+                    }
+                  }
+                }
+              }
+
+              // and continue onto the next extension entry
+              ext = NULL;
+              DGifGetExtensionNext( gifAccessor.gif, &ext );
             }
           }
+        } while( rec != TERMINATE_RECORD_TYPE && success );
+
+        if( success )
+        {
+          // if the gif main says we have more than one image or our image counting
+          // says so, then this image is animated - indicate this
+          if( (gifAccessor.gif->ImageCount > 1) || (imageNumber > 1) )
+          {
+            animated.animated = 1;
+            animated.loopCount = loopCount;
+          }
+          animated.frameCount = std::min( gifAccessor.gif->ImageCount, imageNumber );
+
+          if( !full )
+          {
+            prop.alpha = 1;
+          }
+
+          animated.currentFrame = 1;
+
+          // no errors in header scan etc. so set err and return value
+          *error = 0;
         }
-        // and continue onto the next extension entry
-        ext = NULL;
-        DGifGetExtensionNext( gif, &ext );
       }
     }
-  } while( rec != TERMINATE_RECORD_TYPE );
-
-  // if the gif main says we have more than one image or our image counting
-  // says so, then this image is animated - indicate this
-  if( (gif->ImageCount > 1) || (imageNumber > 1) )
-  {
-    animated.animated = 1;
-    animated.loopCount = loopCount;
   }
-  animated.frameCount = std::min( gif->ImageCount, imageNumber );
-
-  if( !full )
-  {
-    prop.alpha = 1;
-  }
-
-  animated.currentFrame = 1;
-
-  // no errors in header scan etc. so set err and return value
-  *error = 0;
-  ret = true;
-
-on_error: // jump here on any errors to clean up
-#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
-  if( gif )
-  {
-    DGifCloseFile( gif, NULL );
-  }
-#else
-  if( gif )
-  {
-    DGifCloseFile( gif );
-  }
-#endif
-
-  return ret;
+  return success;
 }
 
 /**
  * @brief Reader next frame of the gif file and populates structures accordingly.
  *
- * @param[in] loaderInfo A LoaderInfo structure containing file descriptor and other data about GIF.
- * @param[in/out] prop A ImageProperties structure containing information about gif data.
+ * @param[in,out] loaderInfo A LoaderInfo structure containing file descriptor and other data about GIF.
+ * @param[in,out] prop A ImageProperties structure containing information about gif data.
  * @param[out] pixels A pointer to buffer which will contain all pixel data of the frame on return.
  * @param[out] error Error code
  * @return The true or false whether reading was successful or not.
@@ -906,7 +994,6 @@ bool ReadNextFrame( LoaderInfo &loaderInfo, ImageProperties &prop, //  use for w
   LoaderInfo::FileData &fileData = loaderInfo.fileData;
   bool ret = false;
   GifRecordType rec;
-  GifFileType *gif = NULL;
   int index = 0, imageNumber = 0;
   FrameInfo *frameInfo;
   ImageFrame *frame = NULL;
@@ -917,260 +1004,241 @@ bool ReadNextFrame( LoaderInfo &loaderInfo, ImageProperties &prop, //  use for w
   // if index is invalid for animated image - error out
   if ((animated.animated) && ((index <= 0) || (index > animated.frameCount)))
   {
-    LOADERR("LOAD_ERROR_GENERIC");
+    DALI_LOG_ERROR("LOAD_ERROR_GENERIC");
+    return false;
   }
 
   // find the given frame index
   frame = FindFrame( animated, index );
-  if( frame )
+  if( !frame )
   {
-    if( (frame->loaded) && (frame->data) )
-    {
-      // frame is already there and decoded - jump to end
-      goto on_ok;
-    }
+    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
+    return false;
   }
-  else
+  else if( !(frame->loaded) || !(frame->data) )
   {
-    LOADERR("LOAD_ERROR_CORRUPT_FILE");
-  }
-
-open_file:
-  // actually ask libgif to open the file
-  gif = loaderInfo.gif;
-  if( !gif )
-  {
-    loaderInfo.fileInfo.map = fileData.globalMap ;
-    if( !loaderInfo.fileInfo.map )
+    // if we want to go backwards, we likely need/want to re-decode from the
+    // start as we have nothing to build on. If there is a gif, imageNumber
+    // has been set already.
+    if( loaderInfo.gifAccessor && loaderInfo.imageNumber > 0)
     {
-      LOADERR("LOAD_ERROR_CORRUPT_FILE");
-    }
-    loaderInfo.fileInfo.length = fileData.length;
-    loaderInfo.fileInfo.position = 0;
-
-#if GIFLIB_MAJOR >= 5
-    gif = DGifOpen( &( loaderInfo.fileInfo ), FileRead, NULL );
-#else
-    gif = DGifOpen( &( loaderInfo.fileInfo ), FileRead );
-#endif
-    // if gif open failed... get out of here
-    if( !gif )
-    {
-      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-    }
-    loaderInfo.gif = gif;
-    loaderInfo.imageNumber = 1;
-  }
-
-  // if we want to go backwards, we likely need/want to re-decode from the
-  // start as we have nothing to build on
-  if( (index > 0) && (index < loaderInfo.imageNumber) && (animated.animated) )
-  {
-#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
-    if( loaderInfo.gif )
-      DGifCloseFile( loaderInfo.gif, NULL );
-#else
-    if( loaderInfo.gif )
-      DGifCloseFile( loaderInfo.gif );
-#endif
-    loaderInfo.gif = NULL;
-    loaderInfo.imageNumber = 0;
-    goto open_file;
-  }
-
-  // our current position is the previous frame we decoded from the file
-  imageNumber = loaderInfo.imageNumber;
-
-  // walk through gif records in file to figure out info
-  do
-  {
-    if( DGifGetRecordType( gif, &rec ) == GIF_ERROR )
-    {
-      LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-    }
-
-    if( rec == EXTENSION_RECORD_TYPE )
-    {
-      int ext_code;
-      GifByteType *ext = NULL;
-      DGifGetExtension( gif, &ext_code, &ext );
-
-      while( ext )
+      if( (index > 0) && (index < loaderInfo.imageNumber) && (animated.animated) )
       {
-        ext = NULL;
-        DGifGetExtensionNext( gif, &ext );
+        loaderInfo.gifAccessor.reset();
+        loaderInfo.imageNumber = 0;
       }
     }
-    // get image description section
-    else if( rec == IMAGE_DESC_RECORD_TYPE )
-    {
-      int xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
-      int img_code;
-      GifByteType *img;
-      ImageFrame *previousFrame = NULL;
-      ImageFrame *thisFrame = NULL;
 
-      // get image desc
-      if( DGifGetImageDesc(gif) == GIF_ERROR )
+    // actually ask libgif to open the file
+    if( !loaderInfo.gifAccessor )
+    {
+      loaderInfo.fileInfo.map = fileData.globalMap ;
+      loaderInfo.fileInfo.length = fileData.length;
+      loaderInfo.fileInfo.position = 0;
+      if( !loaderInfo.fileInfo.map )
       {
-        LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
+        DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
+        return false;
+      }
+      std::unique_ptr<GifAccessor> gifAccessor = std::make_unique<GifAccessor>(loaderInfo.fileInfo);
+      if( !gifAccessor->gif )
+      {
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+        return false;
+      }
+      loaderInfo.gifAccessor = std::move(gifAccessor);
+      loaderInfo.imageNumber = 1;
+    }
+
+    // our current position is the previous frame we decoded from the file
+    imageNumber = loaderInfo.imageNumber;
+
+    // walk through gif records in file to figure out info
+    do
+    {
+      if( DGifGetRecordType( loaderInfo.gifAccessor->gif, &rec ) == GIF_ERROR )
+      {
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+        return false;
       }
 
-      // get the previous frame entry AND the current one to fill in
-      previousFrame = FindFrame(animated, imageNumber - 1);
-      thisFrame = FindFrame(animated, imageNumber);
-
-      // if we have a frame AND we're animated AND we have no data...
-      if( (thisFrame) && (!thisFrame->data) && (animated.animated) )
+      if( rec == EXTENSION_RECORD_TYPE )
       {
-        bool first = false;
+        int ext_code;
+        GifByteType *ext = NULL;
+        DGifGetExtension( loaderInfo.gifAccessor->gif, &ext_code, &ext );
 
-        // allocate it
-        thisFrame->data = new uint32_t[prop.w * prop.h];
-
-        if( !thisFrame->data )
+        while( ext )
         {
-          LOADERR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+          ext = NULL;
+          DGifGetExtensionNext( loaderInfo.gifAccessor->gif, &ext );
+        }
+      }
+      // get image description section
+      else if( rec == IMAGE_DESC_RECORD_TYPE )
+      {
+        int xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
+        int img_code;
+        GifByteType *img;
+        ImageFrame *previousFrame = NULL;
+        ImageFrame *thisFrame = NULL;
+
+        // get image desc
+        if( DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR )
+        {
+          DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+          return false;
         }
 
-        // if we have no prior frame OR prior frame data... empty
-        if( (!previousFrame) || (!previousFrame->data) )
-        {
-          first = true;
-          frameInfo = &(thisFrame->info);
-          memset( thisFrame->data, 0, prop.w * prop.h * sizeof(uint32_t) );
-        }
-        // we have a prior frame to copy data from...
-        else
-        {
-          frameInfo = &( previousFrame->info );
+        // get the previous frame entry AND the current one to fill in
+        previousFrame = FindFrame(animated, imageNumber - 1);
+        thisFrame = FindFrame(animated, imageNumber);
 
-          // fix coords of sub image in case it goes out...
-          ClipCoordinates( prop.w, prop.h, &xin, &yin,
-                           frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
-                           &x, &y, &w, &h );
+        // if we have a frame AND we're animated AND we have no data...
+        if( (thisFrame) && (!thisFrame->data) && (animated.animated) )
+        {
+          bool first = false;
 
-          // if dispose mode is not restore - then copy pre frame
-          if( frameInfo->dispose != DISPOSE_PREVIOUS )
+          // allocate it
+          thisFrame->data = new uint32_t[prop.w * prop.h];
+
+          if( !thisFrame->data )
           {
-            memcpy( thisFrame->data, previousFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+            DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+            return false;
           }
 
-          // if dispose mode is "background" then fill with bg
-          if( frameInfo->dispose == DISPOSE_BACKGROUND )
+          // if we have no prior frame OR prior frame data... empty
+          if( (!previousFrame) || (!previousFrame->data) )
           {
-            FillFrame( thisFrame->data, prop.w, gif, frameInfo, x, y, w, h );
+            first = true;
+            frameInfo = &(thisFrame->info);
+            memset( thisFrame->data, 0, prop.w * prop.h * sizeof(uint32_t) );
           }
-          else if( frameInfo->dispose == DISPOSE_PREVIOUS ) // GIF_DISPOSE_RESTORE
+          // we have a prior frame to copy data from...
+          else
           {
-            int prevIndex = 2;
-            do
+            frameInfo = &( previousFrame->info );
+
+            // fix coords of sub image in case it goes out...
+            ClipCoordinates( prop.w, prop.h, &xin, &yin,
+                             frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
+                             &x, &y, &w, &h );
+
+            // if dispose mode is not restore - then copy pre frame
+            if( frameInfo->dispose != DISPOSE_PREVIOUS )
             {
-              // Find last preserved frame.
-              lastPreservedFrame = FindFrame( animated, imageNumber - prevIndex );
-              if( ! lastPreservedFrame )
+              memcpy( thisFrame->data, previousFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+            }
+
+            // if dispose mode is "background" then fill with bg
+            if( frameInfo->dispose == DISPOSE_BACKGROUND )
+            {
+              FillFrame( thisFrame->data, prop.w, loaderInfo.gifAccessor->gif, frameInfo, x, y, w, h );
+            }
+            else if( frameInfo->dispose == DISPOSE_PREVIOUS ) // GIF_DISPOSE_RESTORE
+            {
+              int prevIndex = 2;
+              do
               {
-                LOADERR( "LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND" );
-              }
-              prevIndex++;
-            } while( lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS );
+                // Find last preserved frame.
+                lastPreservedFrame = FindFrame( animated, imageNumber - prevIndex );
+                if( ! lastPreservedFrame )
+                {
+                  DALI_LOG_ERROR( "LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND" );
+                  return false;
+                }
+                prevIndex++;
+              } while( lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS );
 
-            if ( lastPreservedFrame )
-            {
-              memcpy( thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+              if ( lastPreservedFrame )
+              {
+                memcpy( thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t) );
+              }
             }
           }
-        }
-        // now draw this frame on top
-        frameInfo = &( thisFrame->info );
-        ClipCoordinates( prop.w, prop.h, &xin, &yin,
-                         frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
-                         &x, &y, &w, &h );
-        if( !DecodeImage( gif, thisFrame->data, prop.w,
-                          xin, yin, frameInfo->transparent,
-                          x, y, w, h, first) )
-        {
-          LOADERR("LOAD_ERROR_CORRUPT_FILE");
-        }
-
-        // mark as loaded and done
-        thisFrame->loaded = true;
-
-        FlushFrames( animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame );
-      }
-      // if we have a frame BUT the image is not animated. different
-      // path
-      else if( (thisFrame) && (!thisFrame->data) && (!animated.animated) )
-      {
-        // if we don't have the data decoded yet - decode it
-        if( (!thisFrame->loaded) || (!thisFrame->data) )
-        {
-          // use frame info but we WONT allocate frame pixels
+          // now draw this frame on top
           frameInfo = &( thisFrame->info );
           ClipCoordinates( prop.w, prop.h, &xin, &yin,
                            frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
                            &x, &y, &w, &h );
-
-          // clear out all pixels
-          FillFrame( reinterpret_cast<uint32_t *>(pixels), prop.w, gif, frameInfo, 0, 0, prop.w, prop.h );
-
-          // and decode the gif with overwriting
-          if( !DecodeImage( gif, reinterpret_cast<uint32_t *>(pixels), prop.w,
-                            xin, yin, frameInfo->transparent, x, y, w, h, true) )
+          if( !DecodeImage( loaderInfo.gifAccessor->gif, thisFrame->data, prop.w,
+                            xin, yin, frameInfo->transparent,
+                            x, y, w, h, first) )
           {
-            LOADERR("LOAD_ERROR_CORRUPT_FILE");
+            DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
+            return false;
           }
 
           // mark as loaded and done
           thisFrame->loaded = true;
+
+          FlushFrames( animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame );
         }
-        // flush mem we don't need (at expense of decode cpu)
-      }
-      else
-      {
-        // skip decoding and just walk image to next
-        if( DGifGetCode( gif, &img_code, &img ) == GIF_ERROR )
+        // if we have a frame BUT the image is not animated. different
+        // path
+        else if( (thisFrame) && (!thisFrame->data) && (!animated.animated) )
         {
-          LOADERR("LOAD_ERROR_UNKNOWN_FORMAT");
-        }
+          // if we don't have the data decoded yet - decode it
+          if( (!thisFrame->loaded) || (!thisFrame->data) )
+          {
+            // use frame info but we WONT allocate frame pixels
+            frameInfo = &( thisFrame->info );
+            ClipCoordinates( prop.w, prop.h, &xin, &yin,
+                             frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h,
+                             &x, &y, &w, &h );
 
-        while( img )
+            // clear out all pixels
+            FillFrame( reinterpret_cast<uint32_t *>(pixels), prop.w, loaderInfo.gifAccessor->gif,
+                       frameInfo, 0, 0, prop.w, prop.h );
+
+            // and decode the gif with overwriting
+            if( !DecodeImage( loaderInfo.gifAccessor->gif, reinterpret_cast<uint32_t *>(pixels),
+                              prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true) )
+            {
+              DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
+              return false;
+            }
+
+            // mark as loaded and done
+            thisFrame->loaded = true;
+          }
+          // flush mem we don't need (at expense of decode cpu)
+        }
+        else
         {
-          img = NULL;
-          DGifGetCodeNext( gif, &img );
+          // skip decoding and just walk image to next
+          if( DGifGetCode( loaderInfo.gifAccessor->gif, &img_code, &img ) == GIF_ERROR )
+          {
+            DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
+            return false;
+          }
+
+          while( img )
+          {
+            img = NULL;
+            DGifGetCodeNext( loaderInfo.gifAccessor->gif, &img );
+          }
+        }
+
+        imageNumber++;
+        // if we found the image we wanted - get out of here
+        if( imageNumber > index )
+        {
+          break;
         }
       }
+    } while( rec != TERMINATE_RECORD_TYPE );
 
-      imageNumber++;
-      // if we found the image we wanted - get out of here
-      if( imageNumber > index )
-      {
-        break;
-      }
-    }
-  } while( rec != TERMINATE_RECORD_TYPE );
-
-  // if we are at the end of the animation or not animated, close file
-  loaderInfo.imageNumber = imageNumber;
-  if( (animated.frameCount <= 1) || (rec == TERMINATE_RECORD_TYPE) )
-  {
-#if (GIFLIB_MAJOR > 5) || ((GIFLIB_MAJOR == 5) && (GIFLIB_MINOR >= 1))
-    if( loaderInfo.gif )
+    // if we are at the end of the animation or not animated, close file
+    loaderInfo.imageNumber = imageNumber;
+    if( (animated.frameCount <= 1) || (rec == TERMINATE_RECORD_TYPE) )
     {
-      DGifCloseFile( loaderInfo.gif, NULL );
+      loaderInfo.gifAccessor.reset();
+      loaderInfo.imageNumber = 0;
     }
-#else
-    if( loaderInfo.gif )
-    {
-      DGifCloseFile( loaderInfo.gif );
-    }
-#endif
-
-    loaderInfo.gif = NULL;
-    loaderInfo.imageNumber = 0;
   }
 
-on_ok:
   // no errors in header scan etc. so set err and return value
   *error = 0;
   ret = true;
@@ -1182,7 +1250,6 @@ on_ok:
     memcpy( pixels, frame->data, prop.w * prop.h * sizeof( uint32_t ) );
   }
 
-on_error: // jump here on any errors to clean up
   return ret;
 }
 
@@ -1194,7 +1261,7 @@ public:
   Impl( const std::string& url, bool isLocalResource )
   : mUrl( url )
   {
-    loaderInfo.gif = nullptr;
+    loaderInfo.gifAccessor = nullptr;
     int error;
     loaderInfo.fileData.fileName = mUrl.c_str();
     loaderInfo.fileData.isLocalResource = isLocalResource;
@@ -1203,31 +1270,10 @@ public:
   }
 
   // Moveable but not copyable
-
   Impl( const Impl& ) = delete;
   Impl& operator=( const Impl& ) = delete;
   Impl( Impl&& ) = default;
   Impl& operator=( Impl&& ) = default;
-
-  ~Impl()
-  {
-    if( loaderInfo.fileData.globalMap  )
-    {
-      free( loaderInfo.fileData.globalMap );
-      loaderInfo.fileData.globalMap  = nullptr;
-    }
-
-    // Delete all image frames
-    for( auto &&frame : loaderInfo.animated.frames )
-    {
-      if( frame.data != nullptr )
-      {
-        // De-allocate memory of the frame data.
-        delete[] frame.data;
-        frame.data = nullptr;
-      }
-    }
-  }
 
   std::string mUrl;
   LoaderInfo loaderInfo;
