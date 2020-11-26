@@ -329,6 +329,11 @@ public:
   void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   */
+  int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()
    */
   int GetScreenRotationAngle() override;
@@ -397,6 +402,7 @@ private:
   bool                                 mOwnSurface:1;       ///< Whether we own the surface (responsible for deleting it)
   bool                                 mIsTransparent;      ///< Whether the window is transparent (32 bit or 24 bit)
   bool                                 mRotationAppSet:1;
+  int                                  mWindowRotationAngle;
 };
 
 } // namespace Adaptor

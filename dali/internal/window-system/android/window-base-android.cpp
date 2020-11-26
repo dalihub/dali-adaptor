@@ -353,6 +353,11 @@ int WindowBaseAndroid::CreateFramePresentedSyncFence()
   return -1;
 }
 
+int WindowBaseAndroid::GetOrientation() const
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

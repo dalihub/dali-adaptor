@@ -83,32 +83,32 @@ void InsertRects( WindowRenderSurface::DamagedRectsContainer& damagedRectsList, 
 
 } // unnamed namespace
 
-WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
-: mEGL( nullptr ),
-  mDisplayConnection( nullptr ),
-  mPositionSize( positionSize ),
+WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
+: mEGL(nullptr),
+  mDisplayConnection(nullptr),
+  mPositionSize(positionSize),
   mWindowBase(),
-  mThreadSynchronization( NULL ),
-  mRenderNotification( NULL ),
-  mRotationTrigger( NULL ),
+  mThreadSynchronization(nullptr),
+  mRenderNotification(nullptr),
+  mRotationTrigger(nullptr),
   mFrameRenderedTrigger(),
-  mGraphics( nullptr ),
-  mEGLSurface( nullptr ),
-  mEGLContext( nullptr ),
-  mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
+  mGraphics(nullptr),
+  mEGLSurface(nullptr),
+  mEGLContext(nullptr),
+  mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
   mOutputTransformedSignal(),
   mFrameCallbackInfoContainer(),
   mBufferDamagedRects(),
   mMutex(),
-  mRotationAngle( 0 ),
-  mScreenRotationAngle( 0 ),
-  mDpiHorizontal( 0 ),
-  mDpiVertical( 0 ),
-  mOwnSurface( false ),
-  mRotationSupported( false ),
-  mRotationFinished( true ),
-  mScreenRotationFinished( true ),
-  mResizeFinished( true )
+  mWindowRotationAngle(0),
+  mScreenRotationAngle(0),
+  mDpiHorizontal(0),
+  mDpiVertical(0),
+  mOwnSurface(false),
+  mWindowRotationFinished(true),
+  mScreenRotationFinished(true),
+  mResizeFinished(true),
+  mDefaultScreenRotationAvailable(false)
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -145,6 +145,9 @@ void WindowRenderSurface::Initialize( Any surface )
   if( mScreenRotationAngle != 0 )
   {
     mScreenRotationFinished = false;
+    mResizeFinished = false;
+    mDefaultScreenRotationAvailable = true;
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", mScreenRotationAngle );
   }
 }
 
@@ -173,28 +176,22 @@ void WindowRenderSurface::SetTransparency( bool transparent )
   mWindowBase->SetTransparency( transparent );
 }
 
-void WindowRenderSurface::RequestRotation( int angle, int width, int height )
+void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 {
-  if( !mRotationSupported )
+  if(!mRotationTrigger)
   {
-    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: Rotation is not supported!\n" );
-    return;
+    mRotationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessRotationRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
   }
 
-  if( !mRotationTrigger )
-  {
-    mRotationTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessRotationRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
-  }
-
-  mPositionSize.width = width;
+  mPositionSize.width  = width;
   mPositionSize.height = height;
 
-  mRotationAngle = angle;
-  mRotationFinished = false;
+  mWindowRotationAngle    = angle;
+  mWindowRotationFinished = false;
 
-  mWindowBase->SetWindowRotationAngle( mRotationAngle );
+  mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mWindowRotationAngle, mScreenRotationAngle);
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -232,6 +229,11 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   dpiVertical = mDpiVertical;
 }
 
+int WindowRenderSurface::GetOrientation() const
+{
+  return mWindowBase->GetOrientation();
+}
+
 void WindowRenderSurface::InitializeGraphics()
 {
   mGraphics = &mAdaptor->GetGraphicsInterface();
@@ -255,33 +257,34 @@ void WindowRenderSurface::InitializeGraphics()
 
 void WindowRenderSurface::CreateSurface()
 {
-  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
   int width, height;
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  if(mScreenRotationAngle == 0 || mScreenRotationAngle == 180)
   {
-    width = mPositionSize.width;
+    width  = mPositionSize.width;
     height = mPositionSize.height;
   }
   else
   {
-    width = mPositionSize.height;
+    width  = mPositionSize.height;
     height = mPositionSize.width;
   }
 
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
+  EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  mEGLSurface = eglImpl.CreateSurfaceWindow( window, mColorDepth );
-
-  // Check rotation capability
-  mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
+  mEGLSurface                                   = eglImpl.CreateSurfaceWindow(window, mColorDepth);
 
   DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
-      mWindowBase->GetNativeWindowId(), mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
+                        mWindowBase->GetNativeWindowId(),
+                        mPositionSize.width,
+                        mPositionSize.height,
+                        mWindowRotationAngle,
+                        mScreenRotationAngle);
 }
 
 void WindowRenderSurface::DestroySurface()
@@ -387,67 +390,67 @@ void WindowRenderSurface::StartRender()
 {
 }
 
-bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
+bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
   Dali::Integration::Scene scene = mScene.GetHandle();
-  if( scene )
+  if(scene)
   {
     bool needFrameRenderedTrigger = false;
 
-    scene.GetFrameRenderedCallback( callbacks );
-    if( !callbacks.empty() )
+    scene.GetFrameRenderedCallback(callbacks);
+    if(!callbacks.empty())
     {
       int frameRenderedSync = mWindowBase->CreateFrameRenderedSyncFence();
-      if( frameRenderedSync != -1 )
+      if(frameRenderedSync != -1)
       {
-        Dali::Mutex::ScopedLock lock( mMutex );
+        Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
+        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
 
-        mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, frameRenderedSync ) ) );
+        mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, frameRenderedSync)));
 
         needFrameRenderedTrigger = true;
       }
       else
       {
-        DALI_LOG_ERROR( "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence is failed\n" );
+        DALI_LOG_ERROR("WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence is failed\n");
       }
 
       // Clear callbacks
       callbacks.clear();
     }
 
-    scene.GetFramePresentedCallback( callbacks );
-    if( !callbacks.empty() )
+    scene.GetFramePresentedCallback(callbacks);
+    if(!callbacks.empty())
     {
       int framePresentedSync = mWindowBase->CreateFramePresentedSyncFence();
-      if( framePresentedSync != -1 )
+      if(framePresentedSync != -1)
       {
-        Dali::Mutex::ScopedLock lock( mMutex );
+        Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
+        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
 
-        mFrameCallbackInfoContainer.push_back( std::unique_ptr< FrameCallbackInfo >( new FrameCallbackInfo( callbacks, framePresentedSync ) ) );
+        mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, framePresentedSync)));
 
         needFrameRenderedTrigger = true;
       }
       else
       {
-        DALI_LOG_ERROR( "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence is failed\n" );
+        DALI_LOG_ERROR("WindowRenderSurface::PreRender: CreateFramePresentedSyncFence is failed\n");
       }
 
       // Clear callbacks
       callbacks.clear();
     }
 
-    if( needFrameRenderedTrigger )
+    if(needFrameRenderedTrigger)
     {
-      if( !mFrameRenderedTrigger )
+      if(!mFrameRenderedTrigger)
       {
-        mFrameRenderedTrigger = std::unique_ptr< TriggerEventInterface >( TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &WindowRenderSurface::ProcessFrameCallback ),
-                                                                                                                   TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER ) );
+        mFrameRenderedTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessFrameCallback),
+                                                                                                               TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
       }
       mFrameRenderedTrigger->Trigger();
     }
@@ -455,76 +458,98 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
 
   MakeContextCurrent();
 
-  if( resizingSurface )
-  {
-    // Window rotate or screen rotate
-    if( !mRotationFinished || !mScreenRotationFinished )
-    {
-      int totalAngle = (mRotationAngle + mScreenRotationAngle) % 360;
+  /**
+    * wl_egl_window_tizen_set_rotation(SetEglWindowRotation)                -> PreRotation
+    * wl_egl_window_tizen_set_buffer_transform(SetEglWindowBufferTransform) -> Screen Rotation
+    * wl_egl_window_tizen_set_window_transform(SetEglWindowTransform)       -> Window Rotation
+    * These function should be called before calling first drawing gl Function.
+    * Notice : PreRotation is not used in the latest tizen,
+    *          because output transform event should be occured before egl window is not created.
+    */
 
-      mWindowBase->SetEglWindowRotation( totalAngle );
-      mWindowBase->SetEglWindowBufferTransform( totalAngle );
+  if(resizingSurface || mDefaultScreenRotationAvailable)
+  {
+    int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+
+    // Window rotate or screen rotate
+    if(!mWindowRotationFinished || !mScreenRotationFinished)
+    {
+      mWindowBase->SetEglWindowBufferTransform(totalAngle);
 
       // Reset only screen rotation flag
       mScreenRotationFinished = true;
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mRotationAngle, mScreenRotationAngle );
+      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mWindowRotationAngle, mScreenRotationAngle);
     }
 
     // Only window rotate
-    if( !mRotationFinished )
+    if(!mWindowRotationFinished)
     {
-      mWindowBase->SetEglWindowTransform( mRotationAngle );
+      mWindowBase->SetEglWindowTransform(mWindowRotationAngle);
     }
 
     // Resize case
-    if( !mResizeFinished )
+    if(!mResizeFinished)
     {
-      mWindowBase->ResizeEglWindow( mPositionSize );
+      Dali::PositionSize positionSize;
+      positionSize.x = mPositionSize.x;
+      positionSize.y = mPositionSize.y;
+      if(totalAngle == 0 || totalAngle == 180)
+      {
+        positionSize.width  = mPositionSize.width;
+        positionSize.height = mPositionSize.height;
+      }
+      else
+      {
+        positionSize.width  = mPositionSize.height;
+        positionSize.height = mPositionSize.width;
+      }
+      mWindowBase->ResizeEglWindow(positionSize);
       mResizeFinished = true;
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PreRender: Set resize\n" );
+      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize\n");
     }
 
     SetFullSwapNextFrame();
+    mDefaultScreenRotationAvailable = false;
   }
 
-  SetBufferDamagedRects( damagedRects, clippingRect );
+  SetBufferDamagedRects(damagedRects, clippingRect);
 
   return true;
 }
 
-void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects )
+void WindowRenderSurface::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
 {
   // Inform the gl implementation that rendering has finished before informing the surface
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  if ( eglGraphics )
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  if(eglGraphics)
   {
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if( renderToFbo )
+    if(renderToFbo)
     {
       mGLES.Flush();
       mGLES.Finish();
     }
     else
     {
-      if( resizingSurface )
+      if(resizingSurface)
       {
-        if( !mRotationFinished )
+        if(!mWindowRotationFinished)
         {
-          if( mThreadSynchronization )
+          if(mThreadSynchronization)
           {
             // Enable PostRender flag
             mThreadSynchronization->PostRenderStarted();
           }
 
-          DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n" );
+          DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
 
           mRotationTrigger->Trigger();
 
-          if( mThreadSynchronization )
+          if(mThreadSynchronization)
           {
             // Wait until the event-thread complete the rotation event processing
             mThreadSynchronization->PostRenderWaitForCompletion();
@@ -533,9 +558,9 @@ void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, b
       }
     }
 
-    SwapBuffers( damagedRects );
+    SwapBuffers(damagedRects);
 
-    if( mRenderNotification )
+    if(mRenderNotification)
     {
       mRenderNotification->Trigger();
     }
@@ -585,30 +610,31 @@ void WindowRenderSurface::OutputTransformed()
 {
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
 
-  if( mScreenRotationAngle != screenRotationAngle )
+  if(mScreenRotationAngle != screenRotationAngle)
   {
-    mScreenRotationAngle = screenRotationAngle;
+    mScreenRotationAngle    = screenRotationAngle;
     mScreenRotationFinished = false;
+    mResizeFinished         = false;
 
     mOutputTransformedSignal.Emit();
 
-    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: angle = %d screen rotation = %d\n", mRotationAngle, mScreenRotationAngle );
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: window = %d screen = %d\n", mWindowRotationAngle, mScreenRotationAngle);
   }
   else
   {
-    DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle );
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: Ignore output transform [%d]\n", mScreenRotationAngle);
   }
 }
 
 void WindowRenderSurface::ProcessRotationRequest()
 {
-  mRotationFinished = true;
+  mWindowRotationFinished = true;
 
-  mWindowBase->WindowRotationCompleted( mRotationAngle, mPositionSize.width, mPositionSize.height );
+  mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n" );
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n");
 
-  if( mThreadSynchronization )
+  if(mThreadSynchronization)
   {
     mThreadSynchronization->PostRenderComplete();
   }
@@ -625,7 +651,7 @@ void WindowRenderSurface::ProcessFrameCallback()
       iter->fileDescriptorMonitor = std::unique_ptr< FileDescriptorMonitor >( new FileDescriptorMonitor( iter->fileDescriptor,
                                                                              MakeCallback( this, &WindowRenderSurface::OnFileDescriptorEventDispatched ), FileDescriptorMonitor::FD_READABLE ) );
 
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
+      DALI_LOG_RELEASE_INFO( "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
     }
   }
 }
@@ -639,7 +665,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor
     return;
   }
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
+  DALI_LOG_RELEASE_INFO( "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
 
   std::unique_ptr< FrameCallbackInfo > callbackInfo;
   {

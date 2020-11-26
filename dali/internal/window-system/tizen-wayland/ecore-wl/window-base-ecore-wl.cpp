@@ -565,32 +565,36 @@ const struct tizen_display_policy_listener tizenDisplayPolicyListener =
 
 } // unnamed namespace
 
-WindowBaseEcoreWl::WindowBaseEcoreWl( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+WindowBaseEcoreWl::WindowBaseEcoreWl(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 : mEcoreEventHandler(),
-  mEcoreWindow( NULL ),
-  mWlSurface( NULL ),
-  mEglWindow( NULL ),
-  mDisplay( NULL ),
-  mEventQueue( NULL ),
-  mTizenPolicy( NULL ),
-  mTizenDisplayPolicy( NULL ),
+  mEcoreWindow(nullptr),
+  mWlSurface(nullptr),
+  mEglWindow(nullptr),
+  mDisplay(nullptr),
+  mEventQueue(nullptr),
+  mTizenPolicy(nullptr),
+  mTizenDisplayPolicy(nullptr),
   mSupportedAuxiliaryHints(),
   mAuxiliaryHints(),
-  mNotificationLevel( -1 ),
-  mNotificationChangeState( 0 ),
-  mNotificationLevelChangeDone( true ),
-  mScreenOffMode( 0 ),
-  mScreenOffModeChangeState( 0 ),
-  mScreenOffModeChangeDone( true ),
-  mBrightness( 0 ),
-  mBrightnessChangeState( 0 ),
-  mBrightnessChangeDone( true ),
-  mOwnSurface( false )
+  mNotificationLevel(-1),
+  mNotificationChangeState(0),
+  mNotificationLevelChangeDone(true),
+  mScreenOffMode(0),
+  mScreenOffModeChangeState(0),
+  mScreenOffModeChangeDone(true),
+  mBrightness(0),
+  mBrightnessChangeState(0),
+  mBrightnessChangeDone(true),
+  mOwnSurface(false),
+  mWindowRotationAngle(0),
+  mScreenRotationAngle(0),
+  mSupportedPreProtation(0)
 #ifdef DALI_ELDBUS_AVAILABLE
-  , mSystemConnection( NULL )
+  ,
+  mSystemConnection(NULL)
 #endif
 {
-  Initialize( positionSize, surface, isTransparent );
+  Initialize(positionSize, surface, isTransparent);
 }
 
 WindowBaseEcoreWl::~WindowBaseEcoreWl()
@@ -1326,9 +1330,10 @@ bool WindowBaseEcoreWl::IsEglWindowRotationSupported()
   wl_egl_window_capability capability = static_cast< wl_egl_window_capability >( wl_egl_window_get_capabilities( mEglWindow ) );
   if( capability == WL_EGL_WINDOW_CAPABILITY_ROTATION_SUPPORTED )
   {
+    mSupportedPreProtation = true;
     return true;
   }
-
+  mSupportedPreProtation = false;
   return false;
 }
 
@@ -2071,6 +2076,16 @@ void WindowBaseEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVe
   dpiVertical   = int( yres + 0.5f );
 }
 
+int WindowBaseEcoreWl::GetOrientation() const
+{
+  int orientation = (mScreenRotationAngle + mWindowRotationAngle) % 360;
+  if(mSupportedPreProtation)
+  {
+    orientation = 0;
+  }
+  return orientation;
+}
+
 int WindowBaseEcoreWl::GetScreenRotationAngle()
 {
   int transform = 0;
@@ -2084,11 +2099,13 @@ int WindowBaseEcoreWl::GetScreenRotationAngle()
     transform = ecore_wl_output_transform_get( ecore_wl_window_output_find( mEcoreWindow ) );
   }
 
-  return transform * 90;
+  mScreenRotationAngle = transform * 90;
+  return mScreenRotationAngle;
 }
 
 void WindowBaseEcoreWl::SetWindowRotationAngle( int degree )
 {
+  mWindowRotationAngle = degree;
   ecore_wl_window_rotation_set( mEcoreWindow, degree );
 }
 

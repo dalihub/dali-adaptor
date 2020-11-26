@@ -337,6 +337,11 @@ public:
   void SetTransparency( bool transparent ) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   */
+  int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
    */
   void SetParent( WindowBase* parentWinBase ) override;

@@ -129,6 +129,11 @@ public: // from Dali::RenderSurfaceInterface
   void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
+   * @copydoc Dali::RenderSurfaceInterface::GetOrientation()
+   */
+  int GetOrientation() const override;
+
+  /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
    */
   void InitializeGraphics() override;
@@ -301,15 +306,15 @@ private: // Data
   FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
   DamagedRectsContainer           mBufferDamagedRects;
   Dali::Mutex                     mMutex;
-  int                             mRotationAngle;
+  int                             mWindowRotationAngle;
   int                             mScreenRotationAngle;
   uint32_t                        mDpiHorizontal;
   uint32_t                        mDpiVertical;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
-  bool                            mRotationSupported;
-  bool                            mRotationFinished;
+  bool                            mWindowRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
+  bool                            mDefaultScreenRotationAvailable;
 
 }; // class WindowRenderSurface
 

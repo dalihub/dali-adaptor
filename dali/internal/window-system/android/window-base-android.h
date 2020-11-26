@@ -362,6 +362,11 @@ public:
    */
   int CreateFramePresentedSyncFence() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   */
+  int GetOrientation() const override;
+
 private:
 
   /**
