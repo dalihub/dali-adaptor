@@ -314,12 +314,6 @@ public:
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
 
   /**
-   * @brief Return the orientation of the surface.
-   * @return The orientation
-   */
-  virtual int GetOrientation() const = 0;
-
-  /**
    * @brief Get the screen rotation angle of the window
    */
   virtual int GetScreenRotationAngle() = 0;
@@ -328,11 +322,6 @@ public:
    * @brief Set the rotation angle of the window
    */
   virtual void SetWindowRotationAngle( int degree ) = 0;
-
-    /**
-   * @brief Get the rotation angle of the window
-   */
-  virtual int GetWindowRotationAngle() = 0;
 
   /**
    * @brief Inform the window rotation is completed
