@@ -41,6 +41,18 @@ Vector2 AccessibilityAdaptor::GetReadPosition() const
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).GetReadPosition();
 }
 
+void AccessibilityAdaptor::EnableAccessibility(bool enabled)
+{
+  if(enabled)
+  {
+    Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).EnableAccessibility();
+  }
+  else
+  {
+    Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).DisableAccessibility();
+  }
+}
+
 bool AccessibilityAdaptor::IsEnabled() const
 {
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).IsEnabled();

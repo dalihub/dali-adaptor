@@ -72,6 +72,12 @@ public:
   Vector2 GetReadPosition() const;
 
   /**
+   * @brief Enables Accessibility action or not.
+   * @param[in] enabled True if Accessibility action should be enabled.
+   */
+  void EnableAccessibility( bool enabled );
+
+  /**
    * @brief Query whether the accessibility(screen-reader) is enabled.
    *
    * The accessibility will be enabled by system setting.
