@@ -663,6 +663,7 @@ void Framework::AbortCallback( )
 
 bool Framework::AppStatusHandler(int type, void* data)
 {
+  Dali::Adaptor* adaptor = nullptr;
   switch (type)
   {
     case APP_WINDOW_CREATED:
@@ -681,6 +682,8 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_RESUME:
       mObserver.OnResume();
+      adaptor = &Dali::Adaptor::Get();
+      adaptor->Resume();
       break;
 
     case APP_WINDOW_DESTROYED:
@@ -688,6 +691,8 @@ bool Framework::AppStatusHandler(int type, void* data)
       break;
 
     case APP_PAUSE:
+      adaptor = &Dali::Adaptor::Get();
+      adaptor->Pause();
       mObserver.OnPause();
       break;
 
