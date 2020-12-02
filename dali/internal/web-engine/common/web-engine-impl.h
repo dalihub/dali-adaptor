@@ -28,6 +28,12 @@
 namespace Dali
 {
 
+// forward declaration
+class WebEngineBackForwardList;
+class WebEngineContext;
+class WebEngineCookieManager;
+class WebEngineSettings;
+
 namespace Internal
 {
 
@@ -58,6 +64,11 @@ public:
   void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
 
   /**
+   * @copydoc Dali::WebEngine::Create()
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @copydoc Dali::WebEngine::Destroy()
    */
   void Destroy();
@@ -68,9 +79,39 @@ public:
   Dali::NativeImageInterfacePtr GetNativeImageSource();
 
   /**
+   * @copydoc Dali::WebEngine::GetSettings()
+   */
+  Dali::WebEngineSettings& GetSettings() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetContext()
+   */
+  Dali::WebEngineContext& GetContext() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetCookieManager()
+   */
+  Dali::WebEngineCookieManager& GetCookieManager() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetBackForwardList()
+   */
+  Dali::WebEngineBackForwardList& GetBackForwardList() const;
+
+  /**
    * @copydoc Dali::WebEngine::LoadUrl()
    */
   void LoadUrl( const std::string& url );
+
+  /**
+   * @copydoc Dali::WebEngine::GetTitle()
+   */
+  std::string GetTitle() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetFavicon()
+   */
+  Dali::PixelData GetFavicon() const;
 
   /**
    * @copydoc Dali::WebEngine::GetUrl()
@@ -78,9 +119,19 @@ public:
   const std::string& GetUrl();
 
   /**
-   * @copydoc Dali::WebEngine::LoadHTMLString()
+   * @copydoc Dali::WebEngine::GetUserAgent()
    */
-  void LoadHTMLString( const std::string& htmlString );
+  const std::string& GetUserAgent() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetUserAgent()
+   */
+  void SetUserAgent( const std::string& userAgent );
+
+  /**
+   * @copydoc Dali::WebEngine::LoadHtmlString()
+   */
+  void LoadHtmlString( const std::string& htmlString );
 
   /**
    * @copydoc Dali::WebEngine::Reload()
@@ -158,89 +209,14 @@ public:
   void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void(const std::string&) > handler );
 
   /**
+   * @copydoc Dali::WebEngine::ClearAllTilesResources()
+   */
+  void ClearAllTilesResources();
+
+  /**
    * @copydoc Dali::WebEngine::ClearHistory()
    */
   void ClearHistory();
-
-  /**
-   * @copydoc Dali::WebEngine::ClearCache()
-   */
-  void ClearCache();
-
-  /**
-   * @copydoc Dali::WebEngine::ClearCookies()
-   */
-  void ClearCookies();
-
-  /**
-   * @copydoc Dali::WebEngine::GetCacheModel()
-   */
-  Dali::WebEnginePlugin::CacheModel GetCacheModel() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetCacheModel()
-   */
-  void SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel );
-
-  /**
-   * @copydoc Dali::WebEngine::GetCookieAcceptPolicy()
-   */
-  Dali::WebEnginePlugin::CookieAcceptPolicy GetCookieAcceptPolicy() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetCookieAcceptPolicy()
-   */
-  void SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy );
-
-  /**
-   * @copydoc Dali::WebEngine::GetUserAgent()
-   */
-  const std::string& GetUserAgent() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetUserAgent()
-   */
-  void SetUserAgent( const std::string& userAgent );
-
-  /**
-   * @copydoc Dali::WebEngine::IsJavaScriptEnabled()
-   */
-  bool IsJavaScriptEnabled() const;
-
-  /**
-   * @copydoc Dali::WebEngine::EnableJavaScript()
-   */
-  void EnableJavaScript( bool enabled );
-
-  /**
-   * @copydoc Dali::WebEngine::AreImagesAutomaticallyLoaded()
-   */
-  bool AreImagesAutomaticallyLoaded() const;
-
-  /**
-   * @copydoc Dali::WebEngine::LoadImagesAutomatically()
-   */
-  void LoadImagesAutomatically( bool automatic );
-
-  /**
-   * @copydoc Dali::WebEngine::GetDefaultTextEncodingName()
-   */
-  const std::string& GetDefaultTextEncodingName() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetDefaultTextEncodingName()
-   */
-  void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName );
-
-  /**
-   * @copydoc Dali::WebEngine::GetDefaultFontSize()
-   */
-  int GetDefaultFontSize() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetDefaultFontSize()
-   */
-  void SetDefaultFontSize( int defaultFontSize );
 
   /**
    * @copydoc Dali::WebEngine::SetSize()

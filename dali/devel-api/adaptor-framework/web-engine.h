@@ -97,6 +97,16 @@ public:
   void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
 
   /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @brief Destroys WebEngine instance.
    */
   void Destroy();
@@ -107,11 +117,45 @@ public:
   NativeImageInterfacePtr GetNativeImageSource();
 
   /**
+   * @brief Get settings of WebEngine.
+   */
+  Dali::WebEngineSettings& GetSettings() const;
+
+  /**
+   * @brief Get context of WebEngine.
+   */
+  Dali::WebEngineContext& GetContext() const;
+
+  /**
+   * @brief Get cookie manager of WebEngine.
+   */
+  Dali::WebEngineCookieManager& GetCookieManager() const;
+
+  /**
+   * @brief Get back-forward list of WebEngine.
+   */
+  Dali::WebEngineBackForwardList& GetBackForwardList() const;
+
+  /**
    * @brief Loads a web page based on a given URL.
    *
    * @param [in] url The URL of the resource to load
    */
   void LoadUrl(const std::string& url);
+
+  /**
+   * @brief Returns the title of the Web.
+   *
+   * @return The title of web page
+   */
+  std::string GetTitle() const;
+
+  /**
+   * @brief Returns the Favicon of the Web.
+   *
+   * @return FavIcon of Dali::PixelData& type
+   */
+  Dali::PixelData GetFavicon() const;
 
   /**
    * @brief Gets the url.
@@ -123,7 +167,7 @@ public:
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
-  void LoadHTMLString(const std::string& htmlString);
+  void LoadHtmlString(const std::string& htmlString);
 
   /**
    * @brief Reloads the Web.
@@ -211,47 +255,14 @@ public:
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
 
   /**
+   * @brief Clears all tiles resources of Web.
+   */
+  void ClearAllTilesResources();
+
+  /**
    * @brief Clears the history of Web.
    */
   void ClearHistory();
-
-  /**
-   * @brief Clears the cache of Web.
-   */
-  void ClearCache();
-
-  /**
-   * @brief Clears all the cookies of Web.
-   */
-  void ClearCookies();
-
-  /**
-   * @brief Get cache model option. The default is DOCUMENT_VIEWER.
-   *
-   * @return The cache model option
-   */
-  Dali::WebEnginePlugin::CacheModel GetCacheModel() const;
-
-  /**
-   * @brief Set cache model option. The default is DOCUMENT_VIEWER.
-   *
-   * @param[in] cacheModel The cache model option
-   */
-  void SetCacheModel(Dali::WebEnginePlugin::CacheModel cacheModel);
-
-  /**
-   * @brief Gets the cookie acceptance policy. The default is NO_THIRD_PARTY.
-   *
-   * @return The cookie acceptance policy
-   */
-  Dali::WebEnginePlugin::CookieAcceptPolicy GetCookieAcceptPolicy() const;
-
-  /**
-   * @brief Sets the cookie acceptance policy. The default is NO_THIRD_PARTY.
-   *
-   * @param[in] policy The cookie acceptance policy
-   */
-  void SetCookieAcceptPolicy(Dali::WebEnginePlugin::CookieAcceptPolicy policy);
 
   /**
    * @brief Get user agent string.
@@ -266,62 +277,6 @@ public:
    * @param[in] userAgent The string value of user agent
    */
   void SetUserAgent(const std::string& userAgent);
-
-  /**
-   * @brief Returns whether JavaScript can be executable. The default is true.
-   *
-   * @return true if JavaScript executing is enabled, false otherwise
-   */
-  bool IsJavaScriptEnabled() const;
-
-  /**
-   * @brief Enables/disables JavaScript executing. The default is enabled.
-   *
-   * @param[in] enabled True if JavaScript executing is enabled, false otherwise
-   */
-  void EnableJavaScript(bool enabled);
-
-  /**
-   * @brief Returns whether JavaScript can be executable. The default is true.
-   *
-   * @return true if images are loaded automatically, false otherwise
-   */
-  bool AreImagesAutomaticallyLoaded() const;
-
-  /**
-   * @brief Enables/disables auto loading of images. The default is enabled.
-   *
-   * @param[in] automatic True if images are loaded automatically, false otherwise
-   */
-  void LoadImagesAutomatically(bool automatic);
-
-  /**
-   * @brief Gets the default text encoding name.
-   *
-   * @return The default text encoding name
-   */
-  const std::string& GetDefaultTextEncodingName() const;
-
-  /**
-   * @brief Sets the default text encoding name.
-   *
-   * @param[in] defaultTextEncodingName The default text encoding name
-   */
-  void SetDefaultTextEncodingName(const std::string& defaultTextEncodingName);
-
-  /**
-   * @brief Returns the default font size in pixel. The default value is 16.
-   *
-   * @return The default font size
-   */
-  int GetDefaultFontSize() const;
-
-  /**
-   * @brief Sets the default font size in pixel. The default value is 16.
-   *
-   * @param[in] defaultFontSize A new default font size to set
-   */
-  void SetDefaultFontSize(int defaultFontSize);
 
   /**
    * @brief Sets the size of Web Pages.

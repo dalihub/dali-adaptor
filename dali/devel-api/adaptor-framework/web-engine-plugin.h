@@ -26,7 +26,12 @@
 namespace Dali
 {
 class KeyEvent;
+class PixelData;
 class TouchEvent;
+class WebEngineBackForwardList;
+class WebEngineContext;
+class WebEngineCookieManager;
+class WebEngineSettings;
 
 /**
  * @brief WebEnginePlugin is an abstract interface, used by dali-adaptor to access WebEngine plugin.
@@ -52,48 +57,6 @@ public:
    * @brief WebView signal type related with scroll edge reached.
    */
   typedef Signal< void( const ScrollEdge )> WebEngineScrollEdgeReachedSignalType;
-
-  /**
-   * @brief Enumeration for cache model options.
-   */
-  enum class CacheModel
-  {
-    /**
-     * @brief Use the smallest cache capacity.
-     */
-    DOCUMENT_VIEWER,
-
-    /**
-     * @brief Use the bigger cache capacity than DocumentBrowser.
-     */
-    DOCUMENT_BROWSER,
-
-    /**
-     * @brief Use the biggest cache capacity.
-     */
-    PRIMARY_WEB_BROWSER
-  };
-
-  /**
-   * @brief Enumeration for the cookies accept policies.
-   */
-  enum class CookieAcceptPolicy
-  {
-    /**
-     * @brief Accepts every cookie sent from any page.
-     */
-    ALWAYS,
-
-    /**
-     * @brief Rejects all the cookies.
-     */
-    NEVER,
-
-    /**
-     * @brief Accepts only cookies set by the main document that is loaded.
-     */
-    NO_THIRD_PARTY
-  };
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -127,9 +90,39 @@ public:
   virtual void Create(int width, int height, const std::string& locale, const std::string& timezoneId) = 0;
 
   /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  virtual void Create( int width, int height, int argc, char** argv ) = 0;
+
+  /**
    * @brief Destroys WebEngine instance.
    */
   virtual void Destroy() = 0;
+
+  /**
+   * @brief Get settings of WebEngine.
+   */
+  virtual WebEngineSettings& GetSettings() const = 0;
+
+  /**
+   * @brief Get context of WebEngine.
+   */
+  virtual WebEngineContext& GetContext() const = 0;
+
+  /**
+   * @brief Get cookie manager of WebEngine.
+   */
+  virtual WebEngineCookieManager& GetCookieManager() const = 0;
+
+  /**
+   * @brief Get back-forward list of WebEngine.
+   */
+  virtual WebEngineBackForwardList& GetBackForwardList() const = 0;
 
   /**
    * @brief Loads a web page based on a given URL.
@@ -137,6 +130,20 @@ public:
    * @param [in] url The URL of the resource to load
    */
   virtual void LoadUrl(const std::string& url) = 0;
+
+  /**
+   * @brief Returns the title of the Web.
+   *
+   * @return The title of web page
+   */
+  virtual std::string GetTitle() const = 0;
+
+  /**
+   * @brief Returns the Favicon of the Web.
+   *
+   * @return Favicon of Dali::PixelData& type
+   */
+  virtual Dali::PixelData GetFavicon() const = 0;
 
   /**
    * @brief Gets image to render.
@@ -155,7 +162,7 @@ public:
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
-  virtual void LoadHTMLString(const std::string& htmlString) = 0;
+  virtual void LoadHtmlString(const std::string& htmlString) = 0;
 
   /**
    * @brief Reloads the Web.
@@ -243,47 +250,14 @@ public:
   virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
 
   /**
+   * @brief Clears all tiles resources of Web.
+   */
+  virtual void ClearAllTilesResources() = 0;
+
+  /**
    * @brief Clears the history of Web.
    */
   virtual void ClearHistory() = 0;
-
-  /**
-   * @brief Clears the cache of Web.
-   */
-  virtual void ClearCache() = 0;
-
-  /**
-   * @brief Clears all the cookies of Web.
-   */
-  virtual void ClearCookies() = 0;
-
-  /**
-   * @brief Get cache model option. The default is DOCUMENT_VIEWER.
-   *
-   * @return The cache model option
-   */
-  virtual CacheModel GetCacheModel() const = 0;
-
-  /**
-   * @brief Set cache model option. The default is DOCUMENT_VIEWER.
-   *
-   * @param[in] cacheModel The cache model option
-   */
-  virtual void SetCacheModel(CacheModel cacheModel) = 0;
-
-  /**
-   * @brief Gets the cookie acceptance policy. The default is NO_THIRD_PARTY.
-   *
-   * @return The cookie acceptance policy
-   */
-  virtual CookieAcceptPolicy GetCookieAcceptPolicy() const = 0;
-
-  /**
-   * @brief Sets the cookie acceptance policy. The default is NO_THIRD_PARTY.
-   *
-   * @param[in] policy The cookie acceptance policy
-   */
-  virtual void SetCookieAcceptPolicy(CookieAcceptPolicy policy) = 0;
 
   /**
    * @brief Get user agent string.
@@ -298,62 +272,6 @@ public:
    * @param[in] userAgent The string value of user agent
    */
   virtual void SetUserAgent(const std::string& userAgent) = 0;
-
-  /**
-   * @brief Returns whether JavaScript can be executable. The default is true.
-   *
-   * @return true if JavaScript executing is enabled, false otherwise
-   */
-  virtual bool IsJavaScriptEnabled() const = 0;
-
-  /**
-   * @brief Enables/disables JavaScript executing. The default is enabled.
-   *
-   * @param[in] enabled True if JavaScript executing is enabled, false otherwise
-   */
-  virtual void EnableJavaScript(bool enabled) = 0;
-
-  /**
-   * @brief Returns whether images can be loaded automatically. The default is true.
-   *
-   * @return true if images are loaded automatically, false otherwise
-   */
-  virtual bool AreImagesAutomaticallyLoaded() const = 0;
-
-  /**
-   * @brief Enables/disables auto loading of images. The default is enabled.
-   *
-   * @param[in] automatic True if images are loaded automatically, false otherwise
-   */
-  virtual void LoadImagesAutomatically(bool automatic) = 0;
-
-  /**
-   * @brief Gets the default text encoding name (e.g. UTF-8).
-   *
-   * @return The default text encoding name
-   */
-  virtual const std::string& GetDefaultTextEncodingName() const = 0;
-
-  /**
-   * @brief Sets the default text encoding name (e.g. UTF-8).
-   *
-   * @param[in] defaultTextEncodingName The default text encoding name
-   */
-  virtual void SetDefaultTextEncodingName(const std::string& defaultTextEncodingName) = 0;
-
-  /**
-   * @brief Returns the default font size in pixel. The default value is 16.
-   *
-   * @return The default font size
-   */
-  virtual int GetDefaultFontSize() const = 0;
-
-  /**
-   * @brief Sets the default font size in pixel. The default value is 16.
-   *
-   * @param[in] defaultFontSize A new default font size to set
-   */
-  virtual void SetDefaultFontSize(int defaultFontSize) = 0;
 
   /**
    * @brief Sets size of Web Page.
