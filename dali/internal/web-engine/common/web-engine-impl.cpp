@@ -26,6 +26,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context.h>
+#include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
@@ -178,6 +182,26 @@ Dali::NativeImageInterfacePtr WebEngine::GetNativeImageSource()
   return mPlugin->GetNativeImageSource();
 }
 
+Dali::WebEngineSettings& WebEngine::GetSettings() const
+{
+  return mPlugin->GetSettings();
+}
+
+Dali::WebEngineContext& WebEngine::GetContext() const
+{
+  return mPlugin->GetContext();
+}
+
+Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
+{
+  return mPlugin->GetCookieManager();
+}
+
+Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
+{
+  return mPlugin->GetBackForwardList();
+}
+
 void WebEngine::LoadUrl( const std::string& url )
 {
   mPlugin->LoadUrl( url );
@@ -188,9 +212,9 @@ const std::string& WebEngine::GetUrl()
   return mPlugin->GetUrl();
 }
 
-void WebEngine::LoadHTMLString( const std::string& htmlString )
+void WebEngine::LoadHtmlString( const std::string& htmlString )
 {
-  mPlugin->LoadHTMLString( htmlString );
+  mPlugin->LoadHtmlString( htmlString );
 }
 
 void WebEngine::Reload()
@@ -268,41 +292,6 @@ void WebEngine::AddJavaScriptMessageHandler( const std::string& exposedObjectNam
   mPlugin->AddJavaScriptMessageHandler( exposedObjectName, handler );
 }
 
-void WebEngine::ClearHistory()
-{
-  mPlugin->ClearHistory();
-}
-
-void WebEngine::ClearCache()
-{
-  mPlugin->ClearCache();
-}
-
-void WebEngine::ClearCookies()
-{
-  mPlugin->ClearCookies();
-}
-
-Dali::WebEnginePlugin::CacheModel WebEngine::GetCacheModel() const
-{
-  return mPlugin->GetCacheModel();
-}
-
-void WebEngine::SetCacheModel( Dali::WebEnginePlugin::CacheModel cacheModel )
-{
-  mPlugin->SetCacheModel( cacheModel );
-}
-
-Dali::WebEnginePlugin::CookieAcceptPolicy WebEngine::GetCookieAcceptPolicy() const
-{
-  return mPlugin->GetCookieAcceptPolicy();
-}
-
-void WebEngine::SetCookieAcceptPolicy( Dali::WebEnginePlugin::CookieAcceptPolicy policy )
-{
-  mPlugin->SetCookieAcceptPolicy( policy );
-}
-
 const std::string& WebEngine::GetUserAgent() const
 {
   return mPlugin->GetUserAgent();
@@ -313,44 +302,9 @@ void WebEngine::SetUserAgent( const std::string& userAgent )
   mPlugin->SetUserAgent( userAgent );
 }
 
-bool WebEngine::IsJavaScriptEnabled() const
+void WebEngine::ClearHistory()
 {
-  return mPlugin->IsJavaScriptEnabled();
-}
-
-void WebEngine::EnableJavaScript( bool enabled )
-{
-  mPlugin->EnableJavaScript( enabled );
-}
-
-bool WebEngine::AreImagesAutomaticallyLoaded() const
-{
-  return mPlugin->AreImagesAutomaticallyLoaded();
-}
-
-void WebEngine::LoadImagesAutomatically( bool automatic )
-{
-  mPlugin->LoadImagesAutomatically( automatic );
-}
-
-const std::string& WebEngine::GetDefaultTextEncodingName() const
-{
-  return mPlugin->GetDefaultTextEncodingName();
-}
-
-void WebEngine::SetDefaultTextEncodingName( const std::string& defaultTextEncodingName )
-{
-  mPlugin->SetDefaultTextEncodingName( defaultTextEncodingName );
-}
-
-int WebEngine::GetDefaultFontSize() const
-{
-  return mPlugin->GetDefaultFontSize();
-}
-
-void WebEngine::SetDefaultFontSize( int defaultFontSize )
-{
-  mPlugin->SetDefaultFontSize( defaultFontSize );
+  mPlugin->ClearHistory();
 }
 
 void WebEngine::SetSize( int width, int height )
