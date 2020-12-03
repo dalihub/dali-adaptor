@@ -209,6 +209,11 @@ private:
    */
   void OnAccessibilityNotification( const WindowBase::AccessibilityInfo& info );
 
+  /**
+   * Called when Ecore ElDBus quick panel event for accessibility is received.
+   */
+  void OnAccessibilityQuickpanelChanged( const unsigned char& info );
+
 private:
 
   // Undefined

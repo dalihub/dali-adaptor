@@ -56,6 +56,9 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 namespace
 {
 
+static constexpr auto QUICKPANEL_TYPE_SYSTEM_DEFAULT = 1;
+static constexpr auto QUICKPANEL_TYPE_APPS_MENU = 3;
+
 // Copied from x server
 static uint32_t GetCurrentMilliSeconds(void)
 {
@@ -116,6 +119,7 @@ EventHandler::EventHandler( WindowBase* windowBase, DamageObserver& damageObserv
     windowBase->SelectionDataReceivedSignal().Connect( this, &EventHandler::OnSelectionDataReceived );
     windowBase->StyleChangedSignal().Connect( this, &EventHandler::OnStyleChanged );
     windowBase->AccessibilitySignal().Connect( this, &EventHandler::OnAccessibilityNotification );
+    windowBase->QuickPanelSignal().Connect( this, &EventHandler::OnAccessibilityQuickpanelChanged );
   }
   else
   {
@@ -264,6 +268,12 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   if( !accessibilityAdaptor )
   {
     DALI_LOG_ERROR( "Cannot access accessibility adaptor\n" );
+    return;
+  }
+
+  if( ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) )
+  {
+    DALI_LOG_ERROR("Quickpanel is top now, so all dali apps should be stopped \n");
     return;
   }
 
@@ -497,6 +507,55 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
       break;
     }
   }
+#endif
+}
+
+void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
+{
+#ifdef DALI_ELDBUS_AVAILABLE
+  if( mPaused )
+  {
+    return;
+  }
+
+  if( !mAccessibilityAdaptor )
+  {
+    DALI_LOG_ERROR( "Invalid accessibility adaptor\n" );
+    return;
+  }
+
+  AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( mAccessibilityAdaptor ) );
+  if( !accessibilityAdaptor )
+  {
+    DALI_LOG_ERROR( "Cannot access accessibility adaptor\n" );
+    return;
+  }
+
+  // Both QuickPanel and Apps are shown
+  if( ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) )
+  {
+    // dali apps should be disabled.
+    accessibilityAdaptor->DisableAccessibility();
+  }
+  // Only Apps menu (dali application) is shown
+  else if( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) )
+  {
+    // dali app should be enabled.
+    accessibilityAdaptor->EnableAccessibility();
+  }
+  // QuickPanel is shown
+  else if( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) )
+  {
+    // dali app should be disabled.
+    accessibilityAdaptor->DisableAccessibility();
+  }
+  else
+  {
+    // dali app should be enabled.
+    accessibilityAdaptor->EnableAccessibility();
+  }
+
+
 #endif
 }
 

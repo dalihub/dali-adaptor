@@ -595,6 +595,16 @@ static void EcoreElDBusAccessibilityNotification( void* context, const Eldbus_Me
     windowBase->OnEcoreElDBusAccessibilityNotification( context, message );
   }
 }
+
+// Callback for Ecore ElDBus accessibility quickpanel changed event.
+static void EcoreElDBusAccessibilityQuickpanelChanged( void* context, const Eldbus_Message* message )
+{
+  WindowBaseEcoreWl2* windowBase = static_cast< WindowBaseEcoreWl2* >( context );
+  if( windowBase )
+  {
+    windowBase->OnEcoreElDBusAccessibilityQuickpanelChanged( context, message );
+  }
+}
 #endif // DALI_ELDBUS_AVAILABLE
 
 static void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version )
@@ -1316,6 +1326,33 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification( void* context, 
   }
 
   mAccessibilitySignal.Emit( info );
+#endif
+}
+
+void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityQuickpanelChanged( void* context, const Eldbus_Message* message )
+{
+#ifdef DALI_ELDBUS_AVAILABLE
+  AccessibilityInfo info;
+
+  unsigned int type = 0; // For example, type 1 is QuickPanel, type 3 is AllApps
+  unsigned int state = 0; // 0 is hidden, 1 is shown
+
+  // The string defines the arg-list's respective types.
+  if( !eldbus_message_arguments_get( message, "uu", &type, &state ) )
+  {
+    DALI_LOG_ERROR( "OnEcoreElDBusAccessibilityQuickpanelChanged: Error getting arguments\n" );
+  }
+
+  if( state == 1 ) // Shown
+  {
+    info.quickpanelInfo |= 1 << type;
+  }
+  else // Hidden
+  {
+    info.quickpanelInfo &= ~( 1 << type );
+  }
+
+  mQuickPanelSignal.Emit( info.quickpanelInfo );
 #endif
 }
 
@@ -2421,6 +2458,11 @@ void WindowBaseEcoreWl2::InitializeEcoreElDBus()
   if( !eldbus_proxy_signal_handler_add( manager, "GestureDetected", EcoreElDBusAccessibilityNotification, this ) )
   {
     DALI_LOG_ERROR( "No signal handler returned\n" );
+  }
+
+  if( !eldbus_proxy_signal_handler_add( manager, "QuickpanelChanged", EcoreElDBusAccessibilityQuickpanelChanged, this ) )
+  {
+    DALI_LOG_ERROR( "No signal handler returned for QuickpanelChanged signal\n" );
   }
 #endif
 }

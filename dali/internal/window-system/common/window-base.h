@@ -61,6 +61,7 @@ public:
     int endY;
     int state;
     int eventTime;
+    unsigned char quickpanelInfo; // to retrieve quick panel information for Accessibility
   };
 
   // Window
@@ -85,6 +86,7 @@ public:
   // Accessibility
   typedef Signal< void ( StyleChange::Type ) > StyleSignalType;
   typedef Signal< void ( const AccessibilityInfo& ) > AccessibilitySignalType;
+  typedef Signal< void ( const unsigned char& ) > QuickPanelSignalType;
 
   /**
    * @brief Default constructor
@@ -428,6 +430,11 @@ public:
   AccessibilitySignalType& AccessibilitySignal();
 
   /**
+   * @brief This signal is emitted when a quick panel event for accessibility is received.
+   */
+  QuickPanelSignalType& QuickPanelSignal();
+
+  /**
    * @brief This signal is emitted when window's transition animation is started or ended.
    */
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
@@ -468,6 +475,7 @@ protected:
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
+  QuickPanelSignalType                    mQuickPanelSignal;
 };
 
 } // namespace Adaptor

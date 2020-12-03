@@ -176,6 +176,11 @@ public:
    * @brief Called when Ecore ElDBus accessibility event is received.
    */
   void OnEcoreElDBusAccessibilityNotification( void* context, const Eldbus_Message* message );
+
+  /**
+   * @brief Called when Ecore ElDBus quick panel event for accessibility is received.
+   */
+  void OnEcoreElDBusAccessibilityQuickpanelChanged( void* context, const Eldbus_Message* message );
 #endif
 
   /**

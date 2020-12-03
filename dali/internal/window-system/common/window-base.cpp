@@ -42,7 +42,8 @@ WindowBase::WindowBase()
   mStyleChangedSignal(),
   mAccessibilitySignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal()
+  mKeyboardRepeatSettingsChangedSignal(),
+  mQuickPanelSignal()
 {
 }
 
@@ -113,6 +114,11 @@ WindowBase::StyleSignalType& WindowBase::StyleChangedSignal()
 WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
 {
   return mAccessibilitySignal;
+}
+
+WindowBase::QuickPanelSignalType& WindowBase::QuickPanelSignal()
+{
+  return mQuickPanelSignal;
 }
 
 WindowBase::TransitionEffectEventSignalType& WindowBase::TransitionEffectEventSignal()
