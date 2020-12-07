@@ -110,11 +110,11 @@ bool VectorImageRendererPluginProxy::Load(const Vector<uint8_t>& data)
   return false;
 }
 
-bool VectorImageRendererPluginProxy::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
+bool VectorImageRendererPluginProxy::Rasterize(Dali::Devel::PixelBuffer& buffer)
 {
   if( mPlugin )
   {
-    return mPlugin->Rasterize(buffer, scale);
+    return mPlugin->Rasterize(buffer);
   }
   return false;
 }

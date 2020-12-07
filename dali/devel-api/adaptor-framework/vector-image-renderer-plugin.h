@@ -54,10 +54,9 @@ public:
    * @brief Rasterizes the content to the target buffer synchronously.
    *
    * @param[in] buffer The target buffer
-   * @param[in] scale The target image scale
    * @return True if the rendering succeeds, false otherwise.
    */
-  virtual bool Rasterize(Dali::Devel::PixelBuffer &buffer, float scale) = 0;
+  virtual bool Rasterize(Dali::Devel::PixelBuffer &buffer) = 0;
 
   /**
    * @brief Gets the default size of the file.
