@@ -531,22 +531,11 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
     return;
   }
 
-  // Both QuickPanel and Apps are shown
-  if( ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) )
+  if( ( ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) ) || // Both QuickPanel and Apps are shown
+      ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) || // Only Apps menu (dali application) is shown
+      ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) ) // QuickPanel is shown
   {
     // dali apps should be disabled.
-    accessibilityAdaptor->DisableAccessibility();
-  }
-  // Only Apps menu (dali application) is shown
-  else if( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) )
-  {
-    // dali app should be enabled.
-    accessibilityAdaptor->EnableAccessibility();
-  }
-  // QuickPanel is shown
-  else if( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) )
-  {
-    // dali app should be disabled.
     accessibilityAdaptor->DisableAccessibility();
   }
   else
@@ -554,7 +543,6 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
     // dali app should be enabled.
     accessibilityAdaptor->EnableAccessibility();
   }
-
 
 #endif
 }
