@@ -187,7 +187,7 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
         pixbuf.resize(width*height*3);
         unsigned char* bufPtr = &pixbuf[0];
 
-        for(unsigned y = height-1; y < height; --y)
+        for(unsigned y = 0; y < height; ++y)
         {
           for(unsigned x = 0; x < width; ++x, bufPtr+=3)
           {
@@ -218,7 +218,7 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
           const size_t copy_count = static_cast< size_t >( width ) * 4;
           pixelFormat = Pixel::BGRA8888;
 
-          for(unsigned y = height-1; y < height; --y, bufPtr += width)
+          for(unsigned y = 0; y < height; ++y, bufPtr += width)
           {
             const char * const in = pXImage->data + xDataLineSkip * y;
 
