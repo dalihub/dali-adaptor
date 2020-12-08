@@ -50,7 +50,8 @@ Debug::Filter* gAccessibilityAdaptorLogFilter = Debug::Filter::New(Debug::NoLogg
 AccessibilityAdaptor::AccessibilityAdaptor()
 : mReadPosition(),
   mActionHandler( NULL ),
-  mIsEnabled( false )
+  mIsEnabled( false ),
+  mIsForced( false )
 {
   mAccessibilityGestureDetector = new AccessibilityGestureDetector();
 }
@@ -92,6 +93,16 @@ void AccessibilityAdaptor::DisableAccessibility()
 bool AccessibilityAdaptor::IsEnabled() const
 {
   return mIsEnabled;
+}
+
+void AccessibilityAdaptor::SetForcedEnable( bool forced )
+{
+  mIsForced = forced;
+}
+
+bool AccessibilityAdaptor::IsForcedEnable() const
+{
+  return mIsForced;
 }
 
 Vector2 AccessibilityAdaptor::GetReadPosition() const
