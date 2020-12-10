@@ -86,12 +86,6 @@ public:
   bool IsEnabled() const;
 
   /**
-   * @brief Sets Accessibility enabled forcibly,
-   * @param forced Whether accessibility sets enabled forcibly
-   */
-  void SetForcedEnable( bool forced );
-
-  /**
    * @brief Set the handler to handle accessibility actions.
    *
    * @param[in] handler The Accessibility action handler.

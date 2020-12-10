@@ -79,16 +79,6 @@ public:
   bool IsEnabled() const;
 
   /**
-   * @copydoc Dali::AccessibilityAdaptor::SetForcedEnable()
-   */
-  void SetForcedEnable( bool forced );
-
-  /**
-   * Whether the accessibility is enabled forcibly or not
-   */
-  bool IsForcedEnable() const;
-
-  /**
    * @copydoc Dali::AccessibilityAdaptor::GetReadPosition() const
    */
   Vector2 GetReadPosition() const;
@@ -265,8 +255,6 @@ protected:
   AccessibilityGestureDetectorPtr mAccessibilityGestureDetector; ///< The accessibility gesture detector
 
   bool mIsEnabled        : 1; ///< enable/disable the accessibility action
-
-  bool mIsForced         : 1; ///< Is the accessibility enabled forcibly
 
 public:
 
