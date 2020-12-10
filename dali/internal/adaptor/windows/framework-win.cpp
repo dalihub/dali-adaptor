@@ -38,6 +38,10 @@ namespace Adaptor
 namespace
 {
 
+struct EmptyEnvVar : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 /// Application Status Enum
 enum
 {
@@ -255,15 +259,17 @@ std::string Framework::GetBundleId() const
 
 std::string Framework::GetResourcePath()
 {
+  using namespace std::string_literals;
   // "DALI_APPLICATION_PACKAGE" is used by Windows specifically to get the already configured Application package path.
   const char* winEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
   char* value = getenv( winEnvironmentVariable );
 
-  std::string resourcePath;
-  if ( value != NULL )
+  if( !value )
   {
-    resourcePath = value;
+    throw EmptyEnvVar{winEnvironmentVariable + " is not set"s};
   }
+
+  std::string resourcePath = value;
 
   if( resourcePath.back() != '/' )
   {
