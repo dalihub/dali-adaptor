@@ -266,14 +266,6 @@ private:
   void SurfaceDeleted();
 
   /**
-   * Checks to see if the surface needs to be resized.
-   * This will lock the mutex in mUpdateRenderThreadWaitCondition.
-   *
-   * @return true if the surface should be resized, false otherwise
-   */
-  bool ShouldSurfaceBeResized();
-
-  /**
    * Called by the Update/Render thread after a surface has been resized.
    *
    * This will lock the mutex in mEventThreadWaitCondition

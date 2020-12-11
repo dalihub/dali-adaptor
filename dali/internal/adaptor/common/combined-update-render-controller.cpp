@@ -115,7 +115,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mNewSurface(NULL),
   mDeletedSurface(nullptr),
   mPostRendering(FALSE),
-  mSurfaceResized(FALSE),
+  mSurfaceResized(0),
   mForceClear(FALSE),
   mUploadWithoutRendering(FALSE),
   mFirstFrameAfterResume(FALSE)
@@ -366,8 +366,9 @@ void CombinedUpdateRenderController::ResizeSurface()
 
   {
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-    mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
-    mSurfaceResized = TRUE;
+    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
+    // Surface is resized and the surface resized count is increased.
+    mSurfaceResized++;
     mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
@@ -633,19 +634,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       LOG_UPDATE_RENDER("Notification Triggered");
     }
 
-    // Check resize
-    bool surfaceResized         = false;
-    bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
-    if(DALI_UNLIKELY(shouldSurfaceBeResized))
-    {
-      if(updateStatus.SurfaceRectChanged())
-      {
-        LOG_UPDATE_RENDER_TRACE_FMT("Resizing Surface");
-        SurfaceResized();
-        surfaceResized = true;
-      }
-    }
-
     // Optional logging of update/render status
     mUpdateStatusLogger.Log(keepUpdatingStatus);
 
@@ -688,6 +676,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       WindowContainer windows;
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
+      bool sceneSurfaceResized;
+
       for(auto&& window : windows)
       {
         Dali::Integration::Scene      scene         = window->GetScene();
@@ -696,6 +686,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         if(scene && windowSurface)
         {
           Integration::RenderStatus windowRenderStatus;
+
+          // Get Surface Resized flag
+          sceneSurfaceResized = scene.IsSurfaceRectChanged();
 
           windowSurface->InitializeGraphics();
 
@@ -711,7 +704,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           Rect<int> clippingRect; // Empty for fbo rendering
 
           // Switch to the context of the surface, merge damaged areas for previous frames
-          windowSurface->PreRender(surfaceResized, mDamagedRects, clippingRect); // Switch GL context
+          windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
 
           if(clippingRect.IsEmpty())
           {
@@ -723,7 +716,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           if(windowRenderStatus.NeedsPostRender())
           {
-            windowSurface->PostRender(false, false, surfaceResized, mDamagedRects); // Swap Buffer with damage
+            windowSurface->PostRender(false, false, sceneSurfaceResized, mDamagedRects); // Swap Buffer with damage
+          }
+
+          // If surface is resized, the surface resized count is decreased.
+          if(DALI_UNLIKELY(sceneSurfaceResized))
+          {
+            SurfaceResized();
           }
         }
       }
@@ -912,16 +911,13 @@ void CombinedUpdateRenderController::SurfaceDeleted()
   mSurfaceSemaphore.Release(1);
 }
 
-bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
-{
-  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-  return mSurfaceResized;
-}
-
 void CombinedUpdateRenderController::SurfaceResized()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-  mSurfaceResized = FALSE;
+  if(mSurfaceResized)
+  {
+    mSurfaceResized--;
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
