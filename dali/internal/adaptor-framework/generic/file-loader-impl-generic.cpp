@@ -18,7 +18,7 @@
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
 
 // EXTERNAL INCLUDES
-#include <string>
+#include <cstring>
 #include <fstream>
 
 #include <dali/integration-api/debug.h>
@@ -81,7 +81,8 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   }
   else
   {
-    DALI_LOG_ERROR( "file open failed for: \"%s\"\n", filename.c_str() );
+    char buf[512];
+    DALI_LOG_ERROR( "file open failed for: \"%s\", error : %s\n", filename.c_str(), strerror_r( errno, buf, 512 )  );
   }
 
   return errorCode;
