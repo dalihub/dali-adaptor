@@ -271,6 +271,12 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     return;
   }
 
+  if( !accessibilityAdaptor->IsEnabled() )
+  {
+    DALI_LOG_ERROR( "The current dali accessibility is not available. \n" );
+    return;
+  }
+
   if( ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) )
   {
     DALI_LOG_ERROR("Quickpanel is top now, so all dali apps should be stopped \n");
@@ -532,14 +538,28 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
   }
 
   if( ( ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) ) || // Both QuickPanel and Apps are shown
-      ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) || // Only Apps menu (dali application) is shown
       ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) ) // QuickPanel is shown
   {
     // dali apps should be disabled.
+    DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Quickpanel show -> DisableAccessibility \n" );
     accessibilityAdaptor->DisableAccessibility();
+  }
+  else if( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) // Only Apps menu (dali application) is shown
+  {
+    if( !accessibilityAdaptor->IsForcedEnable() ) // It is not in case of that an application controls the accessibility status itself
+    {
+      DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Only Apps show, but not forced dali -> DisableAccessibility \n" );
+      accessibilityAdaptor->DisableAccessibility();
+    }
+    else
+    {
+      DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Only Apps show and it is a forced dali -> EnableAccessibility \n" );
+      accessibilityAdaptor->EnableAccessibility();
+    }
   }
   else
   {
+    DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Nothing shows -> EnableAccessibility \n" );
     // dali app should be enabled.
     accessibilityAdaptor->EnableAccessibility();
   }

@@ -19,6 +19,7 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 
 // EXTERNAL INCLUDES
+#include <system_settings.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
@@ -50,13 +51,22 @@ Debug::Filter* gAccessibilityAdaptorLogFilter = Debug::Filter::New(Debug::NoLogg
 AccessibilityAdaptor::AccessibilityAdaptor()
 : mReadPosition(),
   mActionHandler( NULL ),
-  mIsEnabled( false )
+  mIsEnabled( false ),
+  mIsForced( false )
 {
   mAccessibilityGestureDetector = new AccessibilityGestureDetector();
 }
 
 void AccessibilityAdaptor::EnableAccessibility()
 {
+  bool accessibilityState = false;
+  system_settings_get_value_bool( SYSTEM_SETTINGS_KEY_ACCESSIBILITY_TTS, &accessibilityState );
+  if(accessibilityState == false)
+  {
+    DALI_LOG_ERROR("The Current Accessibility system cannot run. \n");
+    return;
+  }
+
   if(mIsEnabled == false)
   {
     mIsEnabled = true;
@@ -92,6 +102,16 @@ void AccessibilityAdaptor::DisableAccessibility()
 bool AccessibilityAdaptor::IsEnabled() const
 {
   return mIsEnabled;
+}
+
+void AccessibilityAdaptor::SetForcedEnable( bool forced )
+{
+  mIsForced = forced;
+}
+
+bool AccessibilityAdaptor::IsForcedEnable() const
+{
+  return mIsForced;
 }
 
 Vector2 AccessibilityAdaptor::GetReadPosition() const
