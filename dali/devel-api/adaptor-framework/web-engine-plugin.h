@@ -26,6 +26,7 @@
 namespace Dali
 {
 class KeyEvent;
+class PixelData;
 class TouchEvent;
 class WebEngineBackForwardList;
 class WebEngineContext;
@@ -89,6 +90,16 @@ public:
   virtual void Create(int width, int height, const std::string& locale, const std::string& timezoneId) = 0;
 
   /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  virtual void Create( int width, int height, int argc, char** argv ) = 0;
+
+  /**
    * @brief Destroys WebEngine instance.
    */
   virtual void Destroy() = 0;
@@ -119,6 +130,20 @@ public:
    * @param [in] url The URL of the resource to load
    */
   virtual void LoadUrl(const std::string& url) = 0;
+
+  /**
+   * @brief Returns the title of the Web.
+   *
+   * @return The title of web page
+   */
+  virtual std::string GetTitle() const = 0;
+
+  /**
+   * @brief Returns the Favicon of the Web.
+   *
+   * @return Favicon of Dali::PixelData& type
+   */
+  virtual Dali::PixelData GetFavicon() const = 0;
 
   /**
    * @brief Gets image to render.
@@ -223,6 +248,11 @@ public:
    * @param[in] handler The callback function
    */
   virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
+
+  /**
+   * @brief Clears all tiles resources of Web.
+   */
+  virtual void ClearAllTilesResources() = 0;
 
   /**
    * @brief Clears the history of Web.

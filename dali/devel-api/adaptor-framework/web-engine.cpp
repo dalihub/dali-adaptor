@@ -25,6 +25,9 @@
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/images/pixel-data.h>
+
 namespace Dali
 {
 WebEngine::WebEngine()
@@ -71,6 +74,11 @@ void WebEngine::Create(int width, int height, const std::string& locale, const s
   GetImplementation(*this).Create(width, height, locale, timezoneId);
 }
 
+void WebEngine::Create( int width, int height, int argc, char** argv )
+{
+  GetImplementation( *this ).Create( width, height, argc, argv );
+}
+
 void WebEngine::Destroy()
 {
   GetImplementation(*this).Destroy();
@@ -104,6 +112,16 @@ Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
 void WebEngine::LoadUrl(const std::string& url)
 {
   return GetImplementation(*this).LoadUrl(url);
+}
+
+std::string WebEngine::GetTitle() const
+{
+  return GetImplementation( *this ).GetTitle();
+}
+
+Dali::PixelData WebEngine::GetFavicon() const
+{
+  return GetImplementation( *this ).GetFavicon();
 }
 
 const std::string& WebEngine::GetUrl()
@@ -189,6 +207,11 @@ void WebEngine::EvaluateJavaScript(const std::string& script, std::function<void
 void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler)
 {
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
+}
+
+void WebEngine::ClearAllTilesResources()
+{
+  GetImplementation( *this ).ClearAllTilesResources();
 }
 
 void WebEngine::ClearHistory()

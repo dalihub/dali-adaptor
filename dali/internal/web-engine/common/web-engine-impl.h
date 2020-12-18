@@ -64,6 +64,11 @@ public:
   void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
 
   /**
+   * @copydoc Dali::WebEngine::Create()
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @copydoc Dali::WebEngine::Destroy()
    */
   void Destroy();
@@ -99,9 +104,29 @@ public:
   void LoadUrl( const std::string& url );
 
   /**
+   * @copydoc Dali::WebEngine::GetTitle()
+   */
+  std::string GetTitle() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetFavicon()
+   */
+  Dali::PixelData GetFavicon() const;
+
+  /**
    * @copydoc Dali::WebEngine::GetUrl()
    */
   const std::string& GetUrl();
+
+  /**
+   * @copydoc Dali::WebEngine::GetUserAgent()
+   */
+  const std::string& GetUserAgent() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetUserAgent()
+   */
+  void SetUserAgent( const std::string& userAgent );
 
   /**
    * @copydoc Dali::WebEngine::LoadHtmlString()
@@ -184,14 +209,9 @@ public:
   void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void(const std::string&) > handler );
 
   /**
-   * @copydoc Dali::WebEngine::GetUserAgent()
+   * @copydoc Dali::WebEngine::ClearAllTilesResources()
    */
-  const std::string& GetUserAgent() const;
-
-  /**
-   * @copydoc Dali::WebEngine::SetUserAgent()
-   */
-  void SetUserAgent( const std::string& userAgent );
+  void ClearAllTilesResources();
 
   /**
    * @copydoc Dali::WebEngine::ClearHistory()
