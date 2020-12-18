@@ -1317,22 +1317,20 @@ void WindowBaseEcoreWl2::OnFontSizeChanged()
 void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification( void* context, const Eldbus_Message* message )
 {
 #ifdef DALI_ELDBUS_AVAILABLE
-  AccessibilityInfo info;
 
   // The string defines the arg-list's respective types.
-  if( !eldbus_message_arguments_get( message, "iiiiiiu", &info.gestureValue, &info.startX, &info.startY, &info.endX, &info.endY, &info.state, &info.eventTime ) )
+  if( !eldbus_message_arguments_get( message, "iiiiiiu", &mAccessibilityInfo.gestureValue, &mAccessibilityInfo.startX, &mAccessibilityInfo.startY, &mAccessibilityInfo.endX, &mAccessibilityInfo.endY, &mAccessibilityInfo.state, &mAccessibilityInfo.eventTime ) )
   {
     DALI_LOG_ERROR( "OnEcoreElDBusAccessibilityNotification: Error getting arguments\n" );
   }
 
-  mAccessibilitySignal.Emit( info );
+  mAccessibilitySignal.Emit( mAccessibilityInfo );
 #endif
 }
 
 void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityQuickpanelChanged( void* context, const Eldbus_Message* message )
 {
 #ifdef DALI_ELDBUS_AVAILABLE
-  AccessibilityInfo info;
 
   unsigned int type = 0; // For example, type 1 is QuickPanel, type 3 is AllApps
   unsigned int state = 0; // 0 is hidden, 1 is shown
@@ -1343,16 +1341,16 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityQuickpanelChanged( void* cont
     DALI_LOG_ERROR( "OnEcoreElDBusAccessibilityQuickpanelChanged: Error getting arguments\n" );
   }
 
-  if( state == 1 ) // Shown
+  if( state ) // Shown
   {
-    info.quickpanelInfo |= 1 << type;
+    mAccessibilityInfo.quickpanelInfo |= 1 << type;
   }
   else // Hidden
   {
-    info.quickpanelInfo &= ~( 1 << type );
+    mAccessibilityInfo.quickpanelInfo &= ~( 1 << type );
   }
 
-  mQuickPanelSignal.Emit( info.quickpanelInfo );
+  mQuickPanelSignal.Emit( mAccessibilityInfo.quickpanelInfo );
 #endif
 }
 

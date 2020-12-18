@@ -476,6 +476,7 @@ protected:
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
   QuickPanelSignalType                    mQuickPanelSignal;
+  AccessibilityInfo                       mAccessibilityInfo;
 };
 
 } // namespace Adaptor

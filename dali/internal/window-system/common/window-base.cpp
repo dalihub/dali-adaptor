@@ -43,7 +43,8 @@ WindowBase::WindowBase()
   mAccessibilitySignal(),
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
-  mQuickPanelSignal()
+  mQuickPanelSignal(),
+  mAccessibilityInfo()
 {
 }
 
