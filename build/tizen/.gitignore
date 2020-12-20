@@ -12,3 +12,5 @@ doc
 install_manifest.txt
 libdali2-adaptor.so.*
 linker-test
+*config.cmake
+*.dylib

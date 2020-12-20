@@ -75,6 +75,7 @@ FIND_PACKAGE( harfbuzz REQUIRED )
 FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi REQUIRED )
 
 FIND_PACKAGE( unofficial-angle REQUIRED )
+FIND_PACKAGE( unofficial-cairo REQUIRED )
 FIND_PACKAGE( dali2-core REQUIRED)
 
 FIND_PACKAGE( WebP REQUIRED )
@@ -102,9 +103,8 @@ SET(REQUIRED_LIBS
   harfbuzz::harfbuzz
   ${FRIBIDI_LIBRARY}
   unofficial::angle::libEGL
-  unofficial::angle::libANGLE
   unofficial::angle::libGLESv2
-  unofficial::angle::angle_common
+  unofficial::cairo::cairo
   WebP::webp
   WebP::webpdemux
   dali2-core::dali2-core
