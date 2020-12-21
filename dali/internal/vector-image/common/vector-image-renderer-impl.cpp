@@ -109,7 +109,7 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
 {
   if(mPlugin.IsValid())
   {
-    return mPlugin.Rasterize(buffer, scale);
+    return mPlugin.Rasterize(buffer);
   }
   else
   {

@@ -62,7 +62,7 @@ public:
   /**
    * @copydoc Dali::VectorImageRendererPlugin::Rasterize()
    */
-  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
+  bool Rasterize(Dali::Devel::PixelBuffer& buffer);
 
   /**
    * @copydoc Dali::VectorImageRendererPlugin::GetDefaultSize()
