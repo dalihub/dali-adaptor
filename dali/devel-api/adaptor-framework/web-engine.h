@@ -255,14 +255,50 @@ public:
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
 
   /**
-   * @brief Clears all tiles resources of Web.
+   * @brief Register a callback for JavaScript alert.
+   *
+   * @param[in] callback The callback function
    */
-  void ClearAllTilesResources();
+  void RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
+
+  /**
+   * @brief Reply for JavaScript alert.
+   */
+  void JavaScriptAlertReply();
+
+  /**
+   * @brief Register a callback for JavaScript confirm.
+   *
+   * @param[in] callback The callback function
+   */
+  void RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
+
+  /**
+   * @brief Reply for JavaScript confirm.
+   */
+  void JavaScriptConfirmReply( bool confirmed );
+
+  /**
+   * @brief Register a callback for JavaScript prompt.
+   *
+   * @param[in] callback The callback function
+   */
+  void RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback );
+
+  /**
+   * @brief Reply for JavaScript prompt.
+   */
+  void JavaScriptPromptReply( const std::string& result );
 
   /**
    * @brief Clears the history of Web.
    */
   void ClearHistory();
+
+  /**
+   * @brief Clears all tiles resources of Web.
+   */
+  void ClearAllTilesResources();
 
   /**
    * @brief Get user agent string.
@@ -319,6 +355,13 @@ public:
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
 
   /**
+   * @brief Connects to this signal to be notified when page loading is in progress.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
+
+  /**
    * @brief Connects to this signal to be notified when page loading is finished.
    *
    * @return A signal object to connect with.
@@ -338,6 +381,13 @@ public:
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when url is changed.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
 
 private: // Not intended for application developers
   /**

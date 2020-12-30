@@ -204,7 +204,7 @@ Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
   return mPlugin->GetBackForwardList();
 }
 
-void WebEngine::LoadUrl(const std::string& url)
+void WebEngine::LoadUrl( const std::string& url )
 {
   mPlugin->LoadUrl(url);
 }
@@ -284,6 +284,36 @@ Dali::Vector2 WebEngine::GetContentSize() const
   return mPlugin->GetContentSize();
 }
 
+void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
+{
+  mPlugin->RegisterJavaScriptAlertCallback( callback );
+}
+
+void WebEngine::JavaScriptAlertReply()
+{
+  mPlugin->JavaScriptAlertReply();
+}
+
+void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+{
+  mPlugin->RegisterJavaScriptAlertCallback( callback );
+}
+
+void WebEngine::JavaScriptConfirmReply( bool confirmed )
+{
+  mPlugin->JavaScriptConfirmReply( confirmed );
+}
+
+void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+{
+  mPlugin->RegisterJavaScriptPromptCallback( callback );
+}
+
+void WebEngine::JavaScriptPromptReply( const std::string& result )
+{
+  mPlugin->JavaScriptPromptReply( result );
+}
+
 bool WebEngine::CanGoForward()
 {
   return mPlugin->CanGoForward();
@@ -359,6 +389,11 @@ Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSi
   return mPlugin->PageLoadStartedSignal();
 }
 
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadInProgressSignal()
+{
+  return mPlugin->PageLoadInProgressSignal();
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedSignal()
 {
   return mPlugin->PageLoadFinishedSignal();
@@ -374,6 +409,12 @@ Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEd
   return mPlugin->ScrollEdgeReachedSignal();
 }
 
-} // namespace Adaptor
-} // namespace Internal
-} // namespace Dali
+Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSignal()
+{
+  return mPlugin->UrlChangedSignal();
+}
+
+} // namespace Adaptor;
+} // namespace Internal;
+} // namespace Dali;
+

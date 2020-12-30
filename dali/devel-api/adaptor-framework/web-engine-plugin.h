@@ -60,6 +60,30 @@ public:
   using WebEngineScrollEdgeReachedSignalType = Signal<void(const ScrollEdge)>;
 
   /**
+   * @brief WebView signal type related with page url changed.
+   */
+  using WebEngineUrlChangedSignalType = Signal<void(const std::string&)>;
+
+  /**
+   * @brief Alert callback when JavaScript alert is called with a message.
+   *  It returns true if a pop-up is created successfully, false otherwise.
+   */
+  using JavaScriptAlertCallback = std::function<bool(const std::string&)>;
+
+  /**
+   * @brief Confirm callback when JavaScript confirm is called with a message.
+   *  It returns true if a pop-up is created successfully, false otherwise.
+   */
+  using JavaScriptConfirmCallback = std::function<bool(const std::string&)>;
+
+  /**
+   * @brief Prompt callback when JavaScript prompt is called with a message
+   *  and an optional value that is the default value for the input field.
+   *  It returns true if a pop-up is created successfully, false otherwise.
+   */
+  using JavaScriptPromptCallback = std::function<bool(const std::string&, const std::string&)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -251,14 +275,50 @@ public:
   virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
 
   /**
-   * @brief Clears all tiles resources of Web.
+   * @brief Register a callback for JavaScript alert.
+   *
+   * @param[in] callback The callback function
    */
-  virtual void ClearAllTilesResources() = 0;
+  virtual void RegisterJavaScriptAlertCallback(JavaScriptAlertCallback callback) = 0;
+
+  /**
+   * @brief Reply for JavaScript alert.
+   */
+  virtual void JavaScriptAlertReply() = 0;
+
+  /**
+   * @brief Register a callback for JavaScript confirm.
+   *
+   * @param[in] callback The callback function
+   */
+  virtual void RegisterJavaScriptConfirmCallback(JavaScriptConfirmCallback callback) = 0;
+
+  /**
+   * @brief Reply for JavaScript confirm.
+   */
+  virtual void JavaScriptConfirmReply( bool confirmed ) = 0;
+
+  /**
+   * @brief Register a callback for JavaScript prompt.
+   *
+   * @param[in] callback The callback function
+   */
+  virtual void RegisterJavaScriptPromptCallback( JavaScriptPromptCallback callback ) = 0;
+
+  /**
+   * @brief Reply for JavaScript prompt.
+   */
+  virtual void JavaScriptPromptReply( const std::string& result ) = 0;
 
   /**
    * @brief Clears the history of Web.
    */
   virtual void ClearHistory() = 0;
+
+  /**
+   * @brief Clears all tiles resources of Web.
+   */
+  virtual void ClearAllTilesResources() = 0;
 
   /**
    * @brief Get user agent string.
@@ -314,6 +374,13 @@ public:
   virtual WebEnginePageLoadSignalType& PageLoadStartedSignal() = 0;
 
   /**
+   * @brief Connects to this signal to be notified when page loading is in progress.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEnginePageLoadSignalType& PageLoadInProgressSignal() = 0;
+
+  /**
    * @brief Connects to this signal to be notified when page loading is finished.
    *
    * @return A signal object to connect with.
@@ -333,6 +400,14 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when url is changed.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
+
 };
 
 } // namespace Dali
