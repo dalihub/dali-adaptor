@@ -168,6 +168,11 @@ void WebEngine::Create( int width, int height, const std::string& locale, const 
   mPlugin->Create( width, height, locale, timezoneId );
 }
 
+void WebEngine::Create( int width, int height, int argc, char** argv )
+{
+  mPlugin->Create( width, height, argc, argv );
+}
+
 void WebEngine::Destroy()
 {
   mPlugin->Destroy();
@@ -211,6 +216,31 @@ void WebEngine::Suspend()
 void WebEngine::Resume()
 {
   mPlugin->Resume();
+}
+
+void WebEngine::ScrollBy( int deltaX, int deltaY )
+{
+  mPlugin->ScrollBy( deltaX, deltaY );
+}
+
+void WebEngine::SetScrollPosition( int x, int y )
+{
+  mPlugin->SetScrollPosition( x, y );
+}
+
+Dali::Vector2 WebEngine::GetScrollPosition() const
+{
+  return mPlugin->GetScrollPosition();
+}
+
+Dali::Vector2 WebEngine::GetScrollSize() const
+{
+  return mPlugin->GetScrollSize();
+}
+
+Dali::Vector2 WebEngine::GetContentSize() const
+{
+  return mPlugin->GetContentSize();
 }
 
 bool WebEngine::CanGoForward()
@@ -343,6 +373,11 @@ bool WebEngine::SendKeyEvent( const Dali::KeyEvent& event )
   return mPlugin->SendKeyEvent( event );
 }
 
+void WebEngine::SetFocus( bool focused )
+{
+  mPlugin->SetFocus( focused );
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return mPlugin->PageLoadStartedSignal();
@@ -358,7 +393,13 @@ Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErro
   return mPlugin->PageLoadErrorSignal();
 }
 
+Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
+{
+  return mPlugin->ScrollEdgeReachedSignal();
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
+
 

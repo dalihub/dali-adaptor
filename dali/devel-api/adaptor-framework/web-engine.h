@@ -100,6 +100,16 @@ public:
   void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
 
   /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @brief Destroys WebEngine instance.
    */
   void Destroy();
@@ -147,6 +157,31 @@ public:
    * @brief Resumes the operation associated with the view object after calling Suspend().
    */
   void Resume();
+
+  /**
+   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   */
+  void ScrollBy( int deltaX, int deltaY );
+
+  /**
+   * @brief Sets an absolute scroll of the given view.
+   */
+  void SetScrollPosition( int x, int y );
+
+  /**
+   * @brief Gets the current scroll position of the given view.
+   */
+  Dali::Vector2 GetScrollPosition() const;
+
+  /**
+   * @brief Gets the possible scroll size of the given view.
+   */
+  Dali::Vector2 GetScrollSize() const;
+
+  /**
+   * @brief Gets the last known content's size.
+   */
+  Dali::Vector2 GetContentSize() const;
 
   /**
    * @brief Returns whether forward is possible.
@@ -317,6 +352,11 @@ public:
   bool SendKeyEvent( const KeyEvent& event );
 
   /**
+   * @brief Set focus.
+   */
+  void SetFocus( bool focused );
+
+  /**
    * @brief Connects to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with.
@@ -336,6 +376,13 @@ public:
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when scroll edge is reached.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
 private: // Not intended for application developers
 

@@ -40,12 +40,20 @@ public:
   /**
    * @brief WebEngine signal type related with page loading.
    */
-  typedef Signal< void( const std::string& ) > WebEnginePageLoadSignalType;
+  using WebEnginePageLoadSignalType = Signal< void( const std::string& ) >;
 
   /**
    * @brief WebView signal type related with page loading error.
    */
-  typedef Signal< void( const std::string&, int ) > WebEnginePageLoadErrorSignalType;
+  using WebEnginePageLoadErrorSignalType = Signal< void( const std::string&, int ) >;
+
+  // forward declaration.
+  enum class ScrollEdge;
+
+  /**
+   * @brief WebView signal type related with scroll edge reached.
+   */
+  using WebEngineScrollEdgeReachedSignalType = Signal< void( const ScrollEdge ) >;
 
   /**
    * @brief Enumeration for cache model options.
@@ -90,18 +98,25 @@ public:
   };
 
   /**
+   * @brief Enumeration for the scroll edge.
+   */
+  enum class ScrollEdge
+  {
+    LEFT,   ///< Left edge reached.
+    RIGHT,  ///< Right edge reached.
+    TOP,    ///< Top edge reached.
+    BOTTOM, ///< Bottom edge reached.
+  };
+
+  /**
    * @brief Constructor.
    */
-  WebEnginePlugin()
-  {
-  }
+  WebEnginePlugin() = default;
 
   /**
    * @brief Destructor.
    */
-  virtual ~WebEnginePlugin()
-  {
-  }
+  virtual ~WebEnginePlugin() = default;
 
   /**
    * @brief Creates WebEngine instance.
@@ -112,6 +127,16 @@ public:
    * @param [in] timezoneId The timezoneID of Web
    */
   virtual void Create( int width, int height, const std::string& locale, const std::string& timezoneId ) = 0;
+
+  /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  virtual void Create( int width, int height, int argc, char** argv ) = 0;
 
   /**
    * @brief Destroys WebEngine instance.
@@ -163,6 +188,31 @@ public:
    * @brief Resumes the operation associated with the view object after calling Suspend().
    */
   virtual void Resume() = 0;
+
+  /**
+   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   */
+  virtual void ScrollBy( int deltaX, int deltaY ) = 0;
+
+  /**
+   * @brief Scroll to the specified position of the given view.
+   */
+  virtual void SetScrollPosition( int x, int y ) = 0;
+
+  /**
+   * @brief Gets the current scroll position of the given view.
+   */
+  virtual Dali::Vector2 GetScrollPosition() const = 0;
+
+  /**
+   * @brief Gets the possible scroll size of the given view.
+   */
+  virtual Dali::Vector2 GetScrollSize() const = 0;
+
+  /**
+   * @brief Gets the last known content's size.
+   */
+  virtual Dali::Vector2 GetContentSize() const = 0;
 
   /**
    * @brief Returns whether forward is possible.
@@ -333,6 +383,11 @@ public:
   virtual bool SendKeyEvent( const KeyEvent& event ) = 0;
 
   /**
+   * @brief Sets focus.
+   */
+  virtual void SetFocus( bool focused ) = 0;
+
+  /**
    * @brief Connects to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with.
@@ -353,6 +408,12 @@ public:
    */
   virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
 
+  /**
+   * @brief Connects to this signal to be notified when scroll edge is reached.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
 };
 
 } // namespace Dali;

@@ -58,6 +58,11 @@ public:
   void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
 
   /**
+   * @copydoc Dali::WebEngine::Create()
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @copydoc Dali::WebEngine::Destroy()
    */
   void Destroy();
@@ -101,6 +106,31 @@ public:
    * @copydoc Dali::WebEngine::Resume()
    */
   void Resume();
+
+  /**
+   * @copydoc Dali::WebEngine::ScrollBy()
+   */
+  void ScrollBy( int deltaX, int deltaY );
+
+  /**
+   * @copydoc Dali::WebEngine::SetScrollPosition()
+   */
+  void SetScrollPosition( int x, int y );
+
+  /**
+   * @copydoc Dali::WebEngine::GetScrollPosition()
+   */
+  Dali::Vector2 GetScrollPosition() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetScrollSize()
+   */
+  Dali::Vector2 GetScrollSize() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetContentSize()
+   */
+  Dali::Vector2 GetContentSize() const;
 
   /**
    * @copydoc Dali::WebEngine::CanGoForward()
@@ -233,6 +263,11 @@ public:
   bool SendKeyEvent( const Dali::KeyEvent& event );
 
   /**
+   * @copydoc Dali::WebEngine::SetFocus()
+   */
+  void SetFocus( bool focused );
+
+  /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
@@ -246,6 +281,11 @@ public:
    * @copydoc Dali::WebEngine::PageLoadErrorSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::ScrollEdgeReachedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
 private:
 
