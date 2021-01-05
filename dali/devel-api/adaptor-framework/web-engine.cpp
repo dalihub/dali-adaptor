@@ -112,6 +112,31 @@ void WebEngine::Resume()
   GetImplementation(*this).Resume();
 }
 
+void WebEngine::ScrollBy( int deltaX, int deltaY )
+{
+  GetImplementation( *this ).ScrollBy( deltaX, deltaY );
+}
+
+void WebEngine::SetScrollPosition( int x, int y )
+{
+  GetImplementation( *this ).SetScrollPosition( x, y );
+}
+
+void WebEngine::GetScrollPosition( int& x, int& y ) const
+{
+  GetImplementation( *this ).GetScrollPosition( x, y );
+}
+
+void WebEngine::GetScrollSize( int& width, int& height ) const
+{
+  GetImplementation( *this ).GetScrollSize( width, height );
+}
+
+void WebEngine::GetContentSize( int& width, int& height ) const
+{
+  GetImplementation( *this ).GetContentSize( width, height );
+}
+
 bool WebEngine::CanGoForward()
 {
   return GetImplementation(*this).CanGoForward();
@@ -260,6 +285,11 @@ Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedS
 Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErrorSignal()
 {
   return GetImplementation(*this).PageLoadErrorSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
+{
+  return GetImplementation( *this ).ScrollEdgeReachedSignal();
 }
 
 } // namespace Dali

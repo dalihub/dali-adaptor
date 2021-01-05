@@ -103,6 +103,31 @@ public:
   void Resume();
 
   /**
+   * @copydoc Dali::WebEngine::ScrollBy()
+   */
+  void ScrollBy( int deltaX, int deltaY );
+
+  /**
+   * @copydoc Dali::WebEngine::SetScrollPosition()
+   */
+  void SetScrollPosition( int x, int y );
+
+  /**
+   * @copydoc Dali::WebEngine::GetScrollPosition()
+   */
+  void GetScrollPosition( int& x, int& y ) const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetScrollSize()
+   */
+  void GetScrollSize( int& width, int& height ) const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetContentSize()
+   */
+  void GetContentSize( int& width, int& height ) const;
+
+  /**
    * @copydoc Dali::WebEngine::CanGoForward()
    */
   bool CanGoForward();
@@ -251,6 +276,11 @@ public:
    * @copydoc Dali::WebEngine::PageLoadErrorSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::ScrollEdgeReachedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
 private:
 
