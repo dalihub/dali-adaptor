@@ -146,6 +146,31 @@ public:
   void Resume();
 
   /**
+   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   */
+  void ScrollBy( int deltaX, int deltaY );
+
+  /**
+   * @brief Sets an absolute scroll of the given view.
+   */
+  void SetScrollPosition( int x, int y );
+
+  /**
+   * @brief Gets the current scroll position of the given view.
+   */
+  void GetScrollPosition( int& x, int& y ) const;
+
+  /**
+   * @brief Gets the possible scroll size of the given view.
+   */
+  void GetScrollSize( int& width, int& height ) const;
+
+  /**
+   * @brief Gets the last known content's size.
+   */
+  void GetContentSize( int& width, int& height ) const;
+
+  /**
    * @brief Returns whether forward is possible.
    *
    * @return True if forward is possible, false otherwise
@@ -338,6 +363,13 @@ public:
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when scroll edge is reached.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
 private: // Not intended for application developers
   /**
