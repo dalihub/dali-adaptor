@@ -25,6 +25,10 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
 
+#if !defined(_NSIG) && defined(NSIG)
+#define _NSIG NSIG
+#endif
+
 namespace Dali
 {
 namespace Internal

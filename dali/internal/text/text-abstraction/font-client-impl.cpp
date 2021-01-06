@@ -19,7 +19,7 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
-#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32))
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
 #include <vconf.h>
 #endif
 
@@ -128,7 +128,7 @@ int FontClient::GetDefaultFontSize()
 {
   int fontSize( -1 );
 
-#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32))
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
   vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
 #endif
 
