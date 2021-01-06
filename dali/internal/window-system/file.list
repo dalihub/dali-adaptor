@@ -71,6 +71,7 @@ SET( adaptor_window_system_windows_src_files
 SET( adaptor_window_system_macos_src_files
     ${adaptor_window_system_dir}/macos/display-connection-factory-mac.cpp
     ${adaptor_window_system_dir}/macos/display-connection-impl-mac.cpp
+    ${adaptor_window_system_dir}/macos/window-render-surface-cocoa.cpp
     ${adaptor_window_system_dir}/macos/window-system-mac.mm
     ${adaptor_window_system_dir}/macos/window-base-mac.mm
     ${adaptor_window_system_dir}/macos/window-factory-mac.cpp
