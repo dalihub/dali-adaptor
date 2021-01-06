@@ -242,6 +242,11 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
+void WebEngine::SetFocus( bool focused )
+{
+  GetImplementation( *this ).SetFocus( focused );
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
 {
   return GetImplementation(*this).PageLoadStartedSignal();

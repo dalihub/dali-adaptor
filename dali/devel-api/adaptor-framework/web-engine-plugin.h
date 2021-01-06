@@ -331,6 +331,11 @@ public:
   virtual bool SendKeyEvent(const KeyEvent& event) = 0;
 
   /**
+   * @brief Sets focus.
+   */
+  virtual void SetFocus( bool focused ) = 0;
+
+  /**
    * @brief Connects to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with.
