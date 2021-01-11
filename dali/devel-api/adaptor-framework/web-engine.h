@@ -314,6 +314,11 @@ public:
   bool SendKeyEvent(const KeyEvent& event);
 
   /**
+   * @brief Set focus.
+   */
+  void SetFocus( bool focused );
+
+  /**
    * @brief Connects to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with.

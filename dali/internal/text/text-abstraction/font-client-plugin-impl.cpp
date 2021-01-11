@@ -32,6 +32,8 @@
 
 // EXTERNAL INCLUDES
 #include <fontconfig/fontconfig.h>
+#include <algorithm>
+#include <iterator>
 
 namespace
 {
@@ -841,6 +843,21 @@ FontId FontClient::Plugin::FindFallbackFont( Character charcode,
     characterSetList = new CharacterSetList;
 
     SetFontList( fontDescription, *fontList, *characterSetList );
+#ifdef __APPLE__
+    FontDescription appleColorEmoji;
+    appleColorEmoji.family = "Apple Color Emoji";
+    appleColorEmoji.width = fontDescription.width;
+    appleColorEmoji.weight = fontDescription.weight;
+    appleColorEmoji.slant = fontDescription.slant;
+    FontList emojiFontList;
+    CharacterSetList emojiCharSetList;
+    SetFontList(appleColorEmoji, emojiFontList, emojiCharSetList);
+
+    std::move(fontList->begin(), fontList->end(), std::back_inserter(emojiFontList));
+    emojiCharSetList.Insert(emojiCharSetList.End(), characterSetList->Begin(), characterSetList->End());
+    *fontList = std::move(emojiFontList);
+    *characterSetList = std::move(emojiCharSetList);
+#endif
 
     // Add the font-list to the cache.
     mFallbackCache.push_back( std::move( FallbackCacheItem( std::move( fontDescription ), fontList, characterSetList ) ) );

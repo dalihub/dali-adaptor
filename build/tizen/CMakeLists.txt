@@ -164,10 +164,16 @@ IF( WIN32 )
   SET( THIRD_PARTY_WINDOWS_PLATFORM ${ROOT_SRC_DIR}/third-party/windows-platform )
 ENDIF()
 
+SET( THIRD_PARTY_MACOS_PLATFORM "" )
+IF( APPLE )
+  SET( THIRD_PARTY_MACOS_PLATFORM ${ROOT_SRC_DIR}/third-party/macos-platform )
+ENDIF()
+
 INCLUDE_DIRECTORIES(
   ${ROOT_SRC_DIR}
   ${PROFILE_INCLUDE_DIRECTORIES}
   ${THIRD_PARTY_WINDOWS_PLATFORM}
+  ${THIRD_PARTY_MACOS_PLATFORM}
   ${VCPKG_INCLUDE_DIR}
   ${INCLUDE_DIR}
 )
@@ -230,7 +236,7 @@ IF( INSTALL_CMAKE_MODULES )
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}-config.cmake DESTINATION share/${name})
 
   # Install the pdb file.
-  IF( ENABLE_DEBUG )
+  IF( ENABLE_DEBUG AND WIN32 )
     install( FILES ${CMAKE_CURRENT_BINARY_DIR}/Debug/${name}.pdb DESTINATION ${BIN_DIR} )
   ENDIF()
 ELSE()
@@ -290,7 +296,7 @@ SET( package_doxy_dir ${ADAPTOR_ROOT}/doc )
 INCLUDE( ${ADAPTOR_ROOT}/doc/file.list )
 INSTALL( FILES ${package_doxy_files} DESTINATION ${packagedoxydir} )
 
-IF( NOT UBUNTU_PROFILE AND NOT ANDROID_PROFILE AND NOT WINDOWS_PROFILE )
+IF( NOT UBUNTU_PROFILE AND NOT ANDROID_PROFILE AND NOT WINDOWS_PROFILE AND NOT MACOS_PROFILE )
   INSTALL( FILES ${public_api_adaptor_tizen_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
   IF( NOT WAYLAND )
     INSTALL( FILES ${devel_api_adaptor_tizen_x11_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )

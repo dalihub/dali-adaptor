@@ -24,3 +24,7 @@ SET( adaptor_clipboard_windows_src_files
     ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
 )
 
+# module: clipboard, backend: macos
+SET( adaptor_clipboard_macos_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)

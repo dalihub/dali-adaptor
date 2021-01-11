@@ -52,3 +52,9 @@ SET( adaptor_adaptor_component_application_src_files
     ${adaptor_adaptor_dir}/tizen-wayland/component-application.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/component-application-impl.cpp
 )
+
+# module: adaptor, backend: macos
+SET( adaptor_adaptor_macos_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/macos/framework-mac.mm
+)

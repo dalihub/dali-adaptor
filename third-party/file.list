@@ -38,3 +38,7 @@ SET( static_libraries_nanosvg_src_files
   ${adaptor_thirdparty_dir}/nanosvg/nanosvgrast.cc
 )
 
+SET( adaptor_macos_platform_src_files
+    ${adaptor_thirdparty_dir}/macos-platform/environment.cpp
+    ${adaptor_thirdparty_dir}/macos-platform/thread.cpp
+)

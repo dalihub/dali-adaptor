@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <unistd.h>
+#include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
@@ -92,9 +93,8 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
-  mEventThreadSemaphore(),
-  mGraphicsInitializeSemaphore(),
-  mSurfaceSemaphore(),
+  mEventThreadSemaphore(0),
+  mSurfaceSemaphore(0),
   mUpdateRenderThreadWaitCondition(),
   mAdaptorInterfaces( adaptorInterfaces ),
   mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
@@ -137,11 +137,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   }
 
   mSleepTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &CombinedUpdateRenderController::ProcessSleepRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
-
-  // Initialize to 0 so that it just waits if sem_post has not been called
-  sem_init( &mEventThreadSemaphore, 0, 0 );
-  sem_init( &mGraphicsInitializeSemaphore, 0, 0 );
-  sem_init( &mSurfaceSemaphore, 0, 0 );
 }
 
 CombinedUpdateRenderController::~CombinedUpdateRenderController()
@@ -162,6 +157,7 @@ void CombinedUpdateRenderController::Initialize()
   DALI_ASSERT_ALWAYS( ! mUpdateRenderThread );
 
   // Create Update/Render Thread
+  ConditionalWait::ScopedLock lock(mGraphicsInitializeWait);
   mUpdateRenderThread = new pthread_t();
   int error = pthread_create( mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this );
   DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() when creating UpdateRenderThread" );
@@ -179,13 +175,7 @@ void CombinedUpdateRenderController::Start()
   // Wait until all threads created in Initialise are up and running
   for( unsigned int i = 0; i < CREATED_THREAD_COUNT; ++i )
   {
-    sem_wait( &mEventThreadSemaphore );
-  }
-
-  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
-  {
-    currentSurface->StartRender();
+    mEventThreadSemaphore.Acquire();
   }
 
   mRunning = TRUE;
@@ -193,6 +183,12 @@ void CombinedUpdateRenderController::Start()
   LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
 
   RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
+
+  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  if( currentSurface )
+  {
+    currentSurface->StartRender();
+  }
 
   DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
 }
@@ -321,7 +317,7 @@ void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterfac
     }
 
     // Wait until the surface has been replaced
-    sem_wait( &mSurfaceSemaphore );
+    mSurfaceSemaphore.Acquire();
 
     LOG_EVENT( "Surface replaced, event-thread continuing" );
   }
@@ -344,7 +340,7 @@ void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface
     }
 
     // Wait until the surface has been deleted
-    sem_wait( &mSurfaceSemaphore );
+    mSurfaceSemaphore.Acquire();
 
     LOG_EVENT( "Surface deleted, event-thread continuing" );
   }
@@ -352,6 +348,7 @@ void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface
 
 void CombinedUpdateRenderController::WaitForGraphicsInitialization()
 {
+  ConditionalWait::ScopedLock lk(mGraphicsInitializeWait);
   LOG_EVENT_TRACE;
 
   if( mUpdateRenderThread )
@@ -359,7 +356,7 @@ void CombinedUpdateRenderController::WaitForGraphicsInitialization()
     LOG_EVENT( "Waiting for graphics initialisation, event-thread blocked" );
 
     // Wait until the graphics has been initialised
-    sem_wait( &mGraphicsInitializeSemaphore );
+    mGraphicsInitializeWait.Wait(lk);
 
     LOG_EVENT( "graphics initialised, event-thread continuing" );
   }
@@ -944,7 +941,7 @@ Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeRep
 void CombinedUpdateRenderController::SurfaceReplaced()
 {
   // Just increment the semaphore
-  sem_post( &mSurfaceSemaphore );
+  mSurfaceSemaphore.Release(1);
 }
 
 Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
@@ -960,7 +957,7 @@ Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDel
 void CombinedUpdateRenderController::SurfaceDeleted()
 {
   // Just increment the semaphore
-  sem_post( &mSurfaceSemaphore );
+  mSurfaceSemaphore.Release(1);
 }
 
 bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
@@ -982,12 +979,12 @@ void CombinedUpdateRenderController::SurfaceResized()
 void CombinedUpdateRenderController::NotifyThreadInitialised()
 {
   // Just increment the semaphore
-  sem_post( &mEventThreadSemaphore );
+  mEventThreadSemaphore.Release(1);
 }
 
 void CombinedUpdateRenderController::NotifyGraphicsInitialised()
 {
-  sem_post( &mGraphicsInitializeSemaphore );
+  mGraphicsInitializeWait.Notify();
 }
 
 void CombinedUpdateRenderController::AddPerformanceMarker( PerformanceInterface::MarkerType type )

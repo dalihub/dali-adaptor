@@ -233,6 +233,11 @@ public:
   bool SendKeyEvent( const Dali::KeyEvent& event );
 
   /**
+   * @copydoc Dali::WebEngine::SetFocus()
+   */
+  void SetFocus( bool focused );
+
+  /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();

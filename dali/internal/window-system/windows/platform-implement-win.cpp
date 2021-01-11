@@ -261,13 +261,24 @@ void CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT_PTR nTimerid, DWORD dwTime)
 
 intptr_t SetTimer(int interval, timerCallback callback, void *data)
 {
+  HWND hwnd = GetActiveWindow();
+  if (!hwnd)
+  {
+    hwnd = FindWindow(DALI_WINDOW_CLASS_NAME.c_str(), nullptr);
+  }
+
+  if (!hwnd)
+  {
+    return -1;
+  }
+
   TTimerCallbackInfo *callbackInfo = new TTimerCallbackInfo;
   callbackInfo->data = data;
   callbackInfo->callback = callback;
-  callbackInfo->hWnd = ::GetActiveWindow();
+  callbackInfo->hWnd = hwnd;
 
   INT_PTR timerID = (INT_PTR)callbackInfo;
-  ::SetTimer( callbackInfo->hWnd, timerID, interval, TimerProc );
+  ::SetTimer( hwnd, timerID, interval, TimerProc );
 
   return timerID;
 }

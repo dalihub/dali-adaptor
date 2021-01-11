@@ -53,3 +53,11 @@ SET( adaptor_imaging_windows_src_files
     ${adaptor_imaging_dir}/windows/native-image-source-factory-win.cpp
     ${adaptor_imaging_dir}/windows/native-image-source-impl-win.cpp
 )
+
+# module: imaging, backend: macos
+SET( adaptor_imaging_macos_src_files
+    ${adaptor_imaging_dir}/common/file-download.cpp
+    ${adaptor_imaging_dir}/macos/native-image-source-factory-mac.cpp
+    ${adaptor_imaging_dir}/macos/native-image-source-impl-mac.cpp
+)
+
