@@ -15,18 +15,18 @@
  *
  */
 
-#include "test-application.h"
+#include "test-graphics-application.h"
 
 namespace Dali
 {
-bool TestApplication::mLoggingEnabled = true;
+bool TestGraphicsApplication::mLoggingEnabled = true;
 
-TestApplication::TestApplication(uint32_t surfaceWidth,
-                                 uint32_t surfaceHeight,
-                                 uint32_t horizontalDpi,
-                                 uint32_t verticalDpi,
-                                 bool     initialize,
-                                 bool     enablePartialUpdate)
+TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
+                                                 uint32_t surfaceHeight,
+                                                 uint32_t horizontalDpi,
+                                                 uint32_t verticalDpi,
+                                                 bool     initialize,
+                                                 bool     enablePartialUpdate)
 : mCore(NULL),
   mSurfaceWidth(surfaceWidth),
   mSurfaceHeight(surfaceHeight),
@@ -41,17 +41,20 @@ TestApplication::TestApplication(uint32_t surfaceWidth,
   }
 }
 
-void TestApplication::Initialize()
+void TestGraphicsApplication::Initialize()
 {
   CreateCore();
   CreateScene();
   InitializeCore();
 }
 
-void TestApplication::CreateCore()
+void TestGraphicsApplication::CreateCore()
 {
   // We always need the first update!
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
+
+  mGraphicsController.InitializeGLES(mGlAbstraction);
+  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -63,34 +66,34 @@ void TestApplication::CreateCore()
 
   mCore->ContextCreated();
 
-  Dali::Integration::Log::LogFunction logFunction(&TestApplication::LogMessage);
+  Dali::Integration::Log::LogFunction logFunction(&TestGraphicsApplication::LogMessage);
   Dali::Integration::Log::InstallLogFunction(logFunction);
 
-  Dali::Integration::Trace::LogContextFunction logContextFunction(&TestApplication::LogContext);
+  Dali::Integration::Trace::LogContextFunction logContextFunction(&TestGraphicsApplication::LogContext);
   Dali::Integration::Trace::InstallLogContextFunction(logContextFunction);
 
   Dali::Integration::Trace::LogContext(true, "Test");
 }
 
-void TestApplication::CreateScene()
+void TestGraphicsApplication::CreateScene()
 {
   mScene = Dali::Integration::Scene::New(Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)));
   mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
 }
 
-void TestApplication::InitializeCore()
+void TestGraphicsApplication::InitializeCore()
 {
   mCore->SceneCreated();
   mCore->Initialize();
 }
 
-TestApplication::~TestApplication()
+TestGraphicsApplication::~TestGraphicsApplication()
 {
   Dali::Integration::Log::UninstallLogFunction();
   delete mCore;
 }
 
-void TestApplication::LogContext(bool start, const char* tag)
+void TestGraphicsApplication::LogContext(bool start, const char* tag)
 {
   if(start)
   {
@@ -102,7 +105,7 @@ void TestApplication::LogContext(bool start, const char* tag)
   }
 }
 
-void TestApplication::LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
+void TestGraphicsApplication::LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
 {
   if(mLoggingEnabled)
   {
@@ -124,53 +127,53 @@ void TestApplication::LogMessage(Dali::Integration::Log::DebugPriority level, st
   }
 }
 
-Dali::Integration::Core& TestApplication::GetCore()
+Dali::Integration::Core& TestGraphicsApplication::GetCore()
 {
   return *mCore;
 }
 
-TestPlatformAbstraction& TestApplication::GetPlatform()
+TestPlatformAbstraction& TestGraphicsApplication::GetPlatform()
 {
   return mPlatformAbstraction;
 }
 
-TestRenderController& TestApplication::GetRenderController()
+TestRenderController& TestGraphicsApplication::GetRenderController()
 {
   return mRenderController;
 }
 
-TestGraphicsController& TestApplication::GetGraphicsController()
+Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
 {
   return mGraphicsController;
 }
 
-TestGlAbstraction& TestApplication::GetGlAbstraction()
+TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
 {
   return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
 }
 
-TestGlSyncAbstraction& TestApplication::GetGlSyncAbstraction()
+TestGlSyncAbstraction& TestGraphicsApplication::GetGlSyncAbstraction()
 {
   return static_cast<TestGlSyncAbstraction&>(mGraphicsController.GetGlSyncAbstraction());
 }
 
-TestGlContextHelperAbstraction& TestApplication::GetGlContextHelperAbstraction()
+TestGlContextHelperAbstraction& TestGraphicsApplication::GetGlContextHelperAbstraction()
 {
   return static_cast<TestGlContextHelperAbstraction&>(mGraphicsController.GetGlContextHelperAbstraction());
 }
 
-void TestApplication::ProcessEvent(const Integration::Event& event)
+void TestGraphicsApplication::ProcessEvent(const Integration::Event& event)
 {
   mCore->QueueEvent(event);
   mCore->ProcessEvents();
 }
 
-void TestApplication::SendNotification()
+void TestGraphicsApplication::SendNotification()
 {
   mCore->ProcessEvents();
 }
 
-void TestApplication::DoUpdate(uint32_t intervalMilliseconds, const char* location)
+void TestGraphicsApplication::DoUpdate(uint32_t intervalMilliseconds, const char* location)
 {
   if(GetUpdateStatus() == 0 &&
      mRenderStatus.NeedsUpdate() == false &&
@@ -189,7 +192,7 @@ void TestApplication::DoUpdate(uint32_t intervalMilliseconds, const char* locati
   mLastVSyncTime = nextVSyncTime;
 }
 
-bool TestApplication::Render(uint32_t intervalMilliseconds, const char* location)
+bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* location)
 {
   DoUpdate(intervalMilliseconds, location);
 
@@ -207,7 +210,7 @@ bool TestApplication::Render(uint32_t intervalMilliseconds, const char* location
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects)
+bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, const char* location, std::vector<Rect<int>>& damagedRects)
 {
   DoUpdate(intervalMilliseconds, location);
 
@@ -217,7 +220,7 @@ bool TestApplication::PreRenderWithPartialUpdate(uint32_t intervalMilliseconds, 
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-bool TestApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
+bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
@@ -228,28 +231,28 @@ bool TestApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& damagedRec
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
 }
 
-uint32_t TestApplication::GetUpdateStatus()
+uint32_t TestGraphicsApplication::GetUpdateStatus()
 {
   return mStatus.KeepUpdating();
 }
 
-bool TestApplication::UpdateOnly(uint32_t intervalMilliseconds)
+bool TestGraphicsApplication::UpdateOnly(uint32_t intervalMilliseconds)
 {
   DoUpdate(intervalMilliseconds);
   return mStatus.KeepUpdating();
 }
 
-bool TestApplication::GetRenderNeedsUpdate()
+bool TestGraphicsApplication::GetRenderNeedsUpdate()
 {
   return mRenderStatus.NeedsUpdate();
 }
 
-bool TestApplication::GetRenderNeedsPostRender()
+bool TestGraphicsApplication::GetRenderNeedsPostRender()
 {
   return mRenderStatus.NeedsPostRender();
 }
 
-bool TestApplication::RenderOnly()
+bool TestGraphicsApplication::RenderOnly()
 {
   // Update Time values
   mCore->PreRender(mRenderStatus, false /*do not force clear*/, false /*do not skip rendering*/);
@@ -262,14 +265,15 @@ bool TestApplication::RenderOnly()
   return mRenderStatus.NeedsUpdate();
 }
 
-void TestApplication::ResetContext()
+void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
-  mGraphicsController.Initialize();
+  mGraphicsController.InitializeGLES(mGlAbstraction);
+  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
   mCore->ContextCreated();
 }
 
-uint32_t TestApplication::Wait(uint32_t durationToWait)
+uint32_t TestGraphicsApplication::Wait(uint32_t durationToWait)
 {
   int time = 0;
 

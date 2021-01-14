@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,13 @@
 
 namespace Dali
 {
-
 class FileStream;
 
 namespace Internal
 {
 namespace Adaptor
 {
-
-class EglGraphics;
+class GraphicsInterface;
 class ThreadController;
 
 /**
@@ -43,11 +41,10 @@ class ThreadController;
 class ConfigurationManager
 {
 public:
-
   /**
    * @brief Constructor
    */
-  ConfigurationManager( std::string systemCachePath, EglGraphics* eglGraphics, ThreadController* threadController );
+  ConfigurationManager(std::string systemCachePath, GraphicsInterface* graphics, ThreadController* threadController);
 
   /**
    * @brief Virtual Destructor for interface cleanup
@@ -57,7 +54,7 @@ public:
   /**
    * @brief Retrieve all keys from the config file if the file exists.
    */
-  void RetrieveKeysFromConfigFile( const std::string& configFilePath );
+  void RetrieveKeysFromConfigFile(const std::string& configFilePath);
 
   /**
    * @brief Get the maximum texture size.
@@ -66,8 +63,8 @@ public:
   uint32_t GetMaxTextureSize();
 
   /**
-   * @brief Get the GLSL version that the system supports
-   * @return the GLSL version.
+   * @brief Get the shader language version that the system supports
+   * @return the shader language version.
    */
   uint32_t GetShadingLanguageVersion();
 
@@ -84,34 +81,33 @@ public:
   bool IsAdvancedBlendEquationSupported();
 
   // Deleted copy constructor.
-  ConfigurationManager( const ConfigurationManager& ) = delete;
+  ConfigurationManager(const ConfigurationManager&) = delete;
 
   // Deleted move constructor.
-  ConfigurationManager( const ConfigurationManager&& ) = delete;
+  ConfigurationManager(const ConfigurationManager&&) = delete;
 
   // Deleted assignment operator.
-  ConfigurationManager& operator=( const ConfigurationManager& ) = delete;
+  ConfigurationManager& operator=(const ConfigurationManager&) = delete;
 
   // Deleted move assignment operator.
-  ConfigurationManager& operator=( const ConfigurationManager&& ) = delete;
+  ConfigurationManager& operator=(const ConfigurationManager&&) = delete;
 
-private: // Data
-
-  std::string mSystemCacheFilePath;              ///< The path of system cache file
-  EglGraphics* mEglGraphics;                     ///< EGL graphics
-  ThreadController* mThreadController;           ///< The thread controller
-  unsigned int mMaxTextureSize;                  ///< The largest texture that the GL can handle
-  unsigned int mGlslVersion;                     ///< The GLSL version that the system supports.
-  bool mIsMultipleWindowSupported:1;             ///< Whether multiple window is supported by the GLES
-  bool mIsAdvancedBlendEquationSupported:1;      ///< Whether blend equation advanced (extension) is supported by the GLES
-  bool mMaxTextureSizeCached:1;                  ///< Whether we have checked the maximum texture size
-  bool mIsMultipleWindowSupportedCached:1;       ///< Whether we have checked the support of multiple window
-  bool mIsAdvancedBlendEquationSupportedCached:1;///< Whether we have checked the support of blend equation advanced (extension)
-  bool mGlslVersionCached:1;                     ///< Whether we have checked the GLSL version
+private:                                                          // Data
+  std::string        mSystemCacheFilePath;                        ///< The path of system cache file
+  GraphicsInterface* mGraphics;                                   ///< Graphics interface
+  ThreadController*  mThreadController;                           ///< The thread controller
+  unsigned int       mMaxTextureSize;                             ///< The largest texture that the GL can handle
+  unsigned int       mShaderLanguageVersion;                      ///< The shader language version that the system supports.
+  bool               mIsMultipleWindowSupported : 1;              ///< Whether multiple window is supported by the GLES
+  bool               mIsAdvancedBlendEquationSupported : 1;       ///< Whether blend equation advanced (extension) is supported by the GLES
+  bool               mMaxTextureSizeCached : 1;                   ///< Whether we have checked the maximum texture size
+  bool               mIsMultipleWindowSupportedCached : 1;        ///< Whether we have checked the support of multiple window
+  bool               mIsAdvancedBlendEquationSupportedCached : 1; ///< Whether we have checked the support of blend equation advanced (extension)
+  bool               mShaderLanguageVersionCached : 1;            ///< Whether we have checked the shader language version
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H

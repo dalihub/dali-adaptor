@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,21 @@
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
-
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-AdaptorBuilder::AdaptorBuilder()
+AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
+: mEnvironmentOptions(environmentOptions)
 {
   // Construct Graphics Factory
-  mGraphicsFactory = Utils::MakeUnique< GraphicsFactory >();
+  mGraphicsFactory = Utils::MakeUnique<GraphicsFactory>(environmentOptions);
 }
 
 GraphicsFactory& AdaptorBuilder::GetGraphicsFactory() const
