@@ -45,6 +45,14 @@ public:
    */
   typedef Signal<void(const std::string&, int)> WebEnginePageLoadErrorSignalType;
 
+  // forward declaration.
+  enum class ScrollEdge;
+
+  /**
+   * @brief WebView signal type related with scroll edge reached.
+   */
+  typedef Signal< void( const ScrollEdge )> WebEngineScrollEdgeReachedSignalType;
+
   /**
    * @brief Enumeration for cache model options.
    */
@@ -88,18 +96,25 @@ public:
   };
 
   /**
+   * @brief Enumeration for the scroll edge.
+   */
+  enum class ScrollEdge
+  {
+    LEFT,   ///< Left edge reached.
+    RIGHT,  ///< Right edge reached.
+    TOP,    ///< Top edge reached.
+    BOTTOM, ///< Bottom edge reached.
+  };
+
+  /**
    * @brief Constructor.
    */
-  WebEnginePlugin()
-  {
-  }
+  WebEnginePlugin() = default;
 
   /**
    * @brief Destructor.
    */
-  virtual ~WebEnginePlugin()
-  {
-  }
+  virtual ~WebEnginePlugin() = default;
 
   /**
    * @brief Creates WebEngine instance.
@@ -161,6 +176,31 @@ public:
    * @brief Resumes the operation associated with the view object after calling Suspend().
    */
   virtual void Resume() = 0;
+
+  /**
+   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   */
+  virtual void ScrollBy( int deltaX, int deltaY ) = 0;
+
+  /**
+   * @brief Scroll to the specified position of the given view.
+   */
+  virtual void SetScrollPosition( int x, int y ) = 0;
+
+  /**
+   * @brief Gets the current scroll position of the given view.
+   */
+  virtual void GetScrollPosition( int& x, int& y ) const = 0;
+
+  /**
+   * @brief Gets the possible scroll size of the given view.
+   */
+  virtual void GetScrollSize( int& width, int& height ) const = 0;
+
+  /**
+   * @brief Gets the last known content's size.
+   */
+  virtual void GetContentSize( int& width, int& height ) const = 0;
 
   /**
    * @brief Returns whether forward is possible.
@@ -355,6 +395,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when scroll edge is reached.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
 };
 
 } // namespace Dali

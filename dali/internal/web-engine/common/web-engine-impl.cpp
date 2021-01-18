@@ -213,6 +213,31 @@ void WebEngine::Resume()
   mPlugin->Resume();
 }
 
+void WebEngine::ScrollBy( int deltaX, int deltaY )
+{
+  mPlugin->ScrollBy( deltaX, deltaY );
+}
+
+void WebEngine::SetScrollPosition( int x, int y )
+{
+  mPlugin->SetScrollPosition( x, y );
+}
+
+void WebEngine::GetScrollPosition( int& x, int& y ) const
+{
+  mPlugin->GetScrollPosition( x, y );
+}
+
+void WebEngine::GetScrollSize( int& width, int& height ) const
+{
+  mPlugin->GetScrollSize( width, height );
+}
+
+void WebEngine::GetContentSize( int& width, int& height ) const
+{
+  mPlugin->GetContentSize( width, height );
+}
+
 bool WebEngine::CanGoForward()
 {
   return mPlugin->CanGoForward();
@@ -361,6 +386,11 @@ Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedS
 Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErrorSignal()
 {
   return mPlugin->PageLoadErrorSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
+{
+  return mPlugin->ScrollEdgeReachedSignal();
 }
 
 } // namespace Adaptor;
