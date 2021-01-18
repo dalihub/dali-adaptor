@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,52 +19,48 @@
 #include <dali/internal/adaptor/common/combined-update-render-controller.h>
 
 // EXTERNAL INCLUDES
-#include <errno.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <errno.h>
 #include <unistd.h>
 #include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
-#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 const unsigned int CREATED_THREAD_COUNT = 1u;
 
 const int CONTINUOUS = -1;
-const int ONCE = 1;
+const int ONCE       = 1;
 
-const unsigned int TRUE = 1u;
+const unsigned int TRUE  = 1u;
 const unsigned int FALSE = 0u;
 
-const unsigned int MILLISECONDS_PER_SECOND( 1e+3 );
-const float        NANOSECONDS_TO_SECOND( 1e-9f );
-const unsigned int NANOSECONDS_PER_SECOND( 1e+9 );
-const unsigned int NANOSECONDS_PER_MILLISECOND( 1e+6 );
+const unsigned int MILLISECONDS_PER_SECOND(1e+3);
+const float        NANOSECONDS_TO_SECOND(1e-9f);
+const unsigned int NANOSECONDS_PER_SECOND(1e+9);
+const unsigned int NANOSECONDS_PER_MILLISECOND(1e+6);
 
 // The following values will get calculated at compile time
-const float        DEFAULT_FRAME_DURATION_IN_SECONDS( 1.0f / 60.0f );
-const uint64_t DEFAULT_FRAME_DURATION_IN_MILLISECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * MILLISECONDS_PER_SECOND );
-const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS( DEFAULT_FRAME_DURATION_IN_SECONDS * NANOSECONDS_PER_SECOND );
+const float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
+const uint64_t DEFAULT_FRAME_DURATION_IN_MILLISECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* MILLISECONDS_PER_SECOND);
+const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
 
 /**
  * Handles the use case when an update-request is received JUST before we process a sleep-request. If we did not have an update-request count then
@@ -90,53 +86,53 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode )
-: mFpsTracker( environmentOptions ),
-  mUpdateStatusLogger( environmentOptions ),
+CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode)
+: mFpsTracker(environmentOptions),
+  mUpdateStatusLogger(environmentOptions),
   mEventThreadSemaphore(0),
   mSurfaceSemaphore(0),
   mUpdateRenderThreadWaitCondition(),
-  mAdaptorInterfaces( adaptorInterfaces ),
-  mPerformanceInterface( adaptorInterfaces.GetPerformanceInterface() ),
-  mCore( adaptorInterfaces.GetCore() ),
-  mEnvironmentOptions( environmentOptions ),
-  mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
-  mSleepTrigger( NULL ),
-  mPreRenderCallback( NULL ),
-  mUpdateRenderThread( NULL ),
-  mDefaultFrameDelta( 0.0f ),
-  mDefaultFrameDurationMilliseconds( 0u ),
-  mDefaultFrameDurationNanoseconds( 0u ),
-  mDefaultHalfFrameNanoseconds( 0u ),
-  mUpdateRequestCount( 0u ),
-  mRunning( FALSE ),
-  mThreadMode( threadMode ),
-  mUpdateRenderRunCount( 0 ),
-  mDestroyUpdateRenderThread( FALSE ),
-  mUpdateRenderThreadCanSleep( FALSE ),
-  mPendingRequestUpdate( FALSE ),
-  mUseElapsedTimeAfterWait( FALSE ),
-  mNewSurface( NULL ),
-  mDeletedSurface( nullptr ),
-  mPostRendering( FALSE ),
-  mSurfaceResized( FALSE ),
-  mForceClear( FALSE ),
-  mUploadWithoutRendering( FALSE ),
-  mFirstFrameAfterResume( FALSE )
+  mAdaptorInterfaces(adaptorInterfaces),
+  mPerformanceInterface(adaptorInterfaces.GetPerformanceInterface()),
+  mCore(adaptorInterfaces.GetCore()),
+  mEnvironmentOptions(environmentOptions),
+  mNotificationTrigger(adaptorInterfaces.GetProcessCoreEventsTrigger()),
+  mSleepTrigger(NULL),
+  mPreRenderCallback(NULL),
+  mUpdateRenderThread(NULL),
+  mDefaultFrameDelta(0.0f),
+  mDefaultFrameDurationMilliseconds(0u),
+  mDefaultFrameDurationNanoseconds(0u),
+  mDefaultHalfFrameNanoseconds(0u),
+  mUpdateRequestCount(0u),
+  mRunning(FALSE),
+  mThreadMode(threadMode),
+  mUpdateRenderRunCount(0),
+  mDestroyUpdateRenderThread(FALSE),
+  mUpdateRenderThreadCanSleep(FALSE),
+  mPendingRequestUpdate(FALSE),
+  mUseElapsedTimeAfterWait(FALSE),
+  mNewSurface(NULL),
+  mDeletedSurface(nullptr),
+  mPostRendering(FALSE),
+  mSurfaceResized(FALSE),
+  mForceClear(FALSE),
+  mUploadWithoutRendering(FALSE),
+  mFirstFrameAfterResume(FALSE)
 {
   LOG_EVENT_TRACE;
 
   // Initialise frame delta/duration variables first
-  SetRenderRefreshRate( environmentOptions.GetRenderRefreshRate() );
+  SetRenderRefreshRate(environmentOptions.GetRenderRefreshRate());
 
   // Set the thread-synchronization interface on the render-surface
   Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+  if(currentSurface)
   {
-    currentSurface->SetThreadSynchronization( *this );
+    currentSurface->SetThreadSynchronization(*this);
   }
 
-  mSleepTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &CombinedUpdateRenderController::ProcessSleepRequest ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER );
+  mSleepTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 }
 
 CombinedUpdateRenderController::~CombinedUpdateRenderController()
@@ -154,13 +150,13 @@ void CombinedUpdateRenderController::Initialize()
   LOG_EVENT_TRACE;
 
   // Ensure Update/Render Thread not already created
-  DALI_ASSERT_ALWAYS( ! mUpdateRenderThread );
+  DALI_ASSERT_ALWAYS(!mUpdateRenderThread);
 
   // Create Update/Render Thread
   ConditionalWait::ScopedLock lock(mGraphicsInitializeWait);
   mUpdateRenderThread = new pthread_t();
-  int error = pthread_create( mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this );
-  DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() when creating UpdateRenderThread" );
+  int error           = pthread_create(mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this);
+  DALI_ASSERT_ALWAYS(!error && "Return code from pthread_create() when creating UpdateRenderThread");
 
   // The Update/Render thread will now run and initialise the graphics interface etc. and will then wait for Start to be called
   // When this function returns, the application initialisation on the event thread should occur
@@ -170,27 +166,27 @@ void CombinedUpdateRenderController::Start()
 {
   LOG_EVENT_TRACE;
 
-  DALI_ASSERT_ALWAYS( !mRunning && mUpdateRenderThread );
+  DALI_ASSERT_ALWAYS(!mRunning && mUpdateRenderThread);
 
   // Wait until all threads created in Initialise are up and running
-  for( unsigned int i = 0; i < CREATED_THREAD_COUNT; ++i )
+  for(unsigned int i = 0; i < CREATED_THREAD_COUNT; ++i)
   {
     mEventThreadSemaphore.Acquire();
   }
 
   mRunning = TRUE;
 
-  LOG_EVENT( "Startup Complete, starting Update/Render Thread" );
+  LOG_EVENT("Startup Complete, starting Update/Render Thread");
 
-  RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
+  RunUpdateRenderThread(CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL);
 
   Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+  if(currentSurface)
   {
     currentSurface->StartRender();
   }
 
-  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Start\n" );
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Start\n");
 }
 
 void CombinedUpdateRenderController::Pause()
@@ -201,32 +197,32 @@ void CombinedUpdateRenderController::Pause()
 
   PauseUpdateRenderThread();
 
-  AddPerformanceMarker( PerformanceInterface::PAUSED );
+  AddPerformanceMarker(PerformanceInterface::PAUSED);
 
-  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Pause\n" );
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Pause\n");
 }
 
 void CombinedUpdateRenderController::Resume()
 {
   LOG_EVENT_TRACE;
 
-  if( !mRunning && IsUpdateRenderThreadPaused() )
+  if(!mRunning && IsUpdateRenderThreadPaused())
   {
-    LOG_EVENT( "Resuming" );
+    LOG_EVENT("Resuming");
 
-    RunUpdateRenderThread( CONTINUOUS, AnimationProgression::USE_ELAPSED_TIME, UpdateMode::NORMAL );
+    RunUpdateRenderThread(CONTINUOUS, AnimationProgression::USE_ELAPSED_TIME, UpdateMode::NORMAL);
 
-    AddPerformanceMarker( PerformanceInterface::RESUME );
+    AddPerformanceMarker(PerformanceInterface::RESUME);
 
-    mRunning = TRUE;
-    mForceClear = TRUE;
+    mRunning               = TRUE;
+    mForceClear            = TRUE;
     mFirstFrameAfterResume = TRUE;
 
-    DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume\n" );
+    DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Resume\n");
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Resume: Already resumed [%d, %d, %d]\n", mRunning, mUpdateRenderRunCount, mUpdateRenderThreadCanSleep );
+    DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Resume: Already resumed [%d, %d, %d]\n", mRunning, mUpdateRenderRunCount, mUpdateRenderThreadCanSleep);
   }
 }
 
@@ -236,19 +232,19 @@ void CombinedUpdateRenderController::Stop()
 
   // Stop Rendering and the Update/Render Thread
   Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+  if(currentSurface)
   {
     currentSurface->StopRender();
   }
 
   StopUpdateRenderThread();
 
-  if( mUpdateRenderThread )
+  if(mUpdateRenderThread)
   {
-    LOG_EVENT( "Destroying UpdateRenderThread" );
+    LOG_EVENT("Destroying UpdateRenderThread");
 
     // wait for the thread to finish
-    pthread_join( *mUpdateRenderThread, NULL );
+    pthread_join(*mUpdateRenderThread, NULL);
 
     delete mUpdateRenderThread;
     mUpdateRenderThread = NULL;
@@ -256,7 +252,7 @@ void CombinedUpdateRenderController::Stop()
 
   mRunning = FALSE;
 
-  DALI_LOG_RELEASE_INFO( "CombinedUpdateRenderController::Stop\n" );
+  DALI_LOG_RELEASE_INFO("CombinedUpdateRenderController::Stop\n");
 }
 
 void CombinedUpdateRenderController::RequestUpdate()
@@ -264,85 +260,85 @@ void CombinedUpdateRenderController::RequestUpdate()
   LOG_EVENT_TRACE;
 
   // Increment the update-request count to the maximum
-  if( mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS )
+  if(mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS)
   {
     ++mUpdateRequestCount;
   }
 
-  if( mRunning && IsUpdateRenderThreadPaused() )
+  if(mRunning && IsUpdateRenderThreadPaused())
   {
-    LOG_EVENT( "Processing" );
+    LOG_EVENT("Processing");
 
-    RunUpdateRenderThread( CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL );
+    RunUpdateRenderThread(CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL);
   }
 
-  ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock updateLock(mUpdateRenderThreadWaitCondition);
   mPendingRequestUpdate = TRUE;
 }
 
-void CombinedUpdateRenderController::RequestUpdateOnce( UpdateMode updateMode )
+void CombinedUpdateRenderController::RequestUpdateOnce(UpdateMode updateMode)
 {
   // Increment the update-request count to the maximum
-  if( mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS )
+  if(mUpdateRequestCount < MAXIMUM_UPDATE_REQUESTS)
   {
     ++mUpdateRequestCount;
   }
 
-  if( IsUpdateRenderThreadPaused() || updateMode == UpdateMode::FORCE_RENDER )
+  if(IsUpdateRenderThreadPaused() || updateMode == UpdateMode::FORCE_RENDER)
   {
     LOG_EVENT_TRACE;
 
     // Run Update/Render once
-    RunUpdateRenderThread( ONCE, AnimationProgression::NONE, updateMode );
+    RunUpdateRenderThread(ONCE, AnimationProgression::NONE, updateMode);
   }
 }
 
-void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
+void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface* newSurface)
 {
   LOG_EVENT_TRACE;
 
-  if( mUpdateRenderThread )
+  if(mUpdateRenderThread)
   {
     // Set the ThreadSyncronizationInterface on the new surface
-    newSurface->SetThreadSynchronization( *this );
+    newSurface->SetThreadSynchronization(*this);
 
-    LOG_EVENT( "Starting to replace the surface, event-thread blocked" );
+    LOG_EVENT("Starting to replace the surface, event-thread blocked");
 
     // Start replacing the surface.
     {
-      ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+      ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
-      mNewSurface = newSurface;
-      mUpdateRenderThreadWaitCondition.Notify( lock );
+      mNewSurface    = newSurface;
+      mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
     // Wait until the surface has been replaced
     mSurfaceSemaphore.Acquire();
 
-    LOG_EVENT( "Surface replaced, event-thread continuing" );
+    LOG_EVENT("Surface replaced, event-thread continuing");
   }
 }
 
-void CombinedUpdateRenderController::DeleteSurface( Dali::RenderSurfaceInterface* surface )
+void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface* surface)
 {
   LOG_EVENT_TRACE;
 
-  if( mUpdateRenderThread )
+  if(mUpdateRenderThread)
   {
-    LOG_EVENT( "Starting to delete the surface, event-thread blocked" );
+    LOG_EVENT("Starting to delete the surface, event-thread blocked");
 
     // Start replacing the surface.
     {
-      ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-      mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
+      ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+      mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
-      mUpdateRenderThreadWaitCondition.Notify( lock );
+      mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
     // Wait until the surface has been deleted
     mSurfaceSemaphore.Acquire();
 
-    LOG_EVENT( "Surface deleted, event-thread continuing" );
+    LOG_EVENT("Surface deleted, event-thread continuing");
   }
 }
 
@@ -351,14 +347,14 @@ void CombinedUpdateRenderController::WaitForGraphicsInitialization()
   ConditionalWait::ScopedLock lk(mGraphicsInitializeWait);
   LOG_EVENT_TRACE;
 
-  if( mUpdateRenderThread )
+  if(mUpdateRenderThread)
   {
-    LOG_EVENT( "Waiting for graphics initialisation, event-thread blocked" );
+    LOG_EVENT("Waiting for graphics initialisation, event-thread blocked");
 
     // Wait until the graphics has been initialised
     mGraphicsInitializeWait.Wait(lk);
 
-    LOG_EVENT( "graphics initialised, event-thread continuing" );
+    LOG_EVENT("graphics initialised, event-thread continuing");
   }
 }
 
@@ -366,48 +362,48 @@ void CombinedUpdateRenderController::ResizeSurface()
 {
   LOG_EVENT_TRACE;
 
-  LOG_EVENT( "Resize the surface" );
+  LOG_EVENT("Resize the surface");
 
   {
-    ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
+    ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+    mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
     mSurfaceResized = TRUE;
-    mUpdateRenderThreadWaitCondition.Notify( lock );
+    mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
 
-void CombinedUpdateRenderController::SetRenderRefreshRate( unsigned int numberOfFramesPerRender )
+void CombinedUpdateRenderController::SetRenderRefreshRate(unsigned int numberOfFramesPerRender)
 {
   // Not protected by lock, but written to rarely so not worth adding a lock when reading
-  mDefaultFrameDelta                  = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
-  mDefaultFrameDurationMilliseconds   = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
-  mDefaultFrameDurationNanoseconds    = uint64_t( numberOfFramesPerRender ) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
-  mDefaultHalfFrameNanoseconds        = mDefaultFrameDurationNanoseconds / 2u;
+  mDefaultFrameDelta                = numberOfFramesPerRender * DEFAULT_FRAME_DURATION_IN_SECONDS;
+  mDefaultFrameDurationMilliseconds = uint64_t(numberOfFramesPerRender) * DEFAULT_FRAME_DURATION_IN_MILLISECONDS;
+  mDefaultFrameDurationNanoseconds  = uint64_t(numberOfFramesPerRender) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
+  mDefaultHalfFrameNanoseconds      = mDefaultFrameDurationNanoseconds / 2u;
 
-  LOG_EVENT( "mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds );
+  LOG_EVENT("mDefaultFrameDelta(%.6f), mDefaultFrameDurationMilliseconds(%lld), mDefaultFrameDurationNanoseconds(%lld)", mDefaultFrameDelta, mDefaultFrameDurationMilliseconds, mDefaultFrameDurationNanoseconds);
 }
 
-void CombinedUpdateRenderController::SetPreRenderCallback( CallbackBase* callback )
+void CombinedUpdateRenderController::SetPreRenderCallback(CallbackBase* callback)
 {
   LOG_EVENT_TRACE;
-  LOG_EVENT( "Set PreRender Callback" );
+  LOG_EVENT("Set PreRender Callback");
 
-  ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
-  if( mPreRenderCallback )
+  ConditionalWait::ScopedLock updateLock(mUpdateRenderThreadWaitCondition);
+  if(mPreRenderCallback)
   {
     delete mPreRenderCallback;
   }
   mPreRenderCallback = callback;
 }
 
-void CombinedUpdateRenderController::AddSurface( Dali::RenderSurfaceInterface* surface )
+void CombinedUpdateRenderController::AddSurface(Dali::RenderSurfaceInterface* surface)
 {
   LOG_EVENT_TRACE;
-  LOG_EVENT( "Surface is added" );
-  if( mUpdateRenderThread )
+  LOG_EVENT("Surface is added");
+  if(mUpdateRenderThread)
   {
     // Set the ThreadSyncronizationInterface on the added surface
-    surface->SetThreadSynchronization( *this );
+    surface->SetThreadSynchronization(*this);
   }
 }
 
@@ -415,63 +411,63 @@ void CombinedUpdateRenderController::AddSurface( Dali::RenderSurfaceInterface* s
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CombinedUpdateRenderController::RunUpdateRenderThread( int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode )
+void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode)
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
-  switch( mThreadMode )
+  switch(mThreadMode)
   {
     case ThreadMode::NORMAL:
     {
-      mUpdateRenderRunCount = numberOfCycles;
-      mUseElapsedTimeAfterWait = ( animationProgression == AnimationProgression::USE_ELAPSED_TIME );
+      mUpdateRenderRunCount    = numberOfCycles;
+      mUseElapsedTimeAfterWait = (animationProgression == AnimationProgression::USE_ELAPSED_TIME);
       break;
     }
     case ThreadMode::RUN_IF_REQUESTED:
     {
-      if( updateMode != UpdateMode::FORCE_RENDER )
+      if(updateMode != UpdateMode::FORCE_RENDER)
       {
         // Render only if the update mode is FORCE_RENDER which means the application requests it.
         // We don't want to awake the update thread.
         return;
       }
 
-      mUpdateRenderRunCount++;          // Increase the update request count
-      mUseElapsedTimeAfterWait = TRUE;  // The elapsed time should be used. We want animations to proceed.
+      mUpdateRenderRunCount++;         // Increase the update request count
+      mUseElapsedTimeAfterWait = TRUE; // The elapsed time should be used. We want animations to proceed.
       break;
     }
   }
 
   mUpdateRenderThreadCanSleep = FALSE;
-  mUploadWithoutRendering = ( updateMode == UpdateMode::SKIP_RENDER );
-  LOG_COUNTER_EVENT( "mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait );
-  mUpdateRenderThreadWaitCondition.Notify( lock );
+  mUploadWithoutRendering     = (updateMode == UpdateMode::SKIP_RENDER);
+  LOG_COUNTER_EVENT("mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait);
+  mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
 void CombinedUpdateRenderController::PauseUpdateRenderThread()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mUpdateRenderRunCount = 0;
 }
 
 void CombinedUpdateRenderController::StopUpdateRenderThread()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mDestroyUpdateRenderThread = TRUE;
-  mUpdateRenderThreadWaitCondition.Notify( lock );
+  mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
 bool CombinedUpdateRenderController::IsUpdateRenderThreadPaused()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
-  if( mThreadMode == ThreadMode::RUN_IF_REQUESTED )
+  if(mThreadMode == ThreadMode::RUN_IF_REQUESTED)
   {
     return !mRunning || mUpdateRenderThreadCanSleep;
   }
 
-  return ( mUpdateRenderRunCount != CONTINUOUS ) || // Report paused if NOT continuously running
-         mUpdateRenderThreadCanSleep;               // Report paused if sleeping
+  return (mUpdateRenderRunCount != CONTINUOUS) || // Report paused if NOT continuously running
+         mUpdateRenderThreadCanSleep;             // Report paused if sleeping
 }
 
 void CombinedUpdateRenderController::ProcessSleepRequest()
@@ -479,18 +475,18 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
   LOG_EVENT_TRACE;
 
   // Decrement Update request count
-  if( mUpdateRequestCount > 0 )
+  if(mUpdateRequestCount > 0)
   {
     --mUpdateRequestCount;
   }
 
   // Can sleep if our update-request count is 0
   // Update/Render thread can choose to carry on updating if it determines more update/renders are required
-  if( mUpdateRequestCount == 0 )
+  if(mUpdateRequestCount == 0)
   {
-    LOG_EVENT( "Going to sleep" );
+    LOG_EVENT("Going to sleep");
 
-    ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+    ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     mUpdateRenderThreadCanSleep = TRUE;
   }
 }
@@ -509,58 +505,19 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Install a function for tracing
   mEnvironmentOptions.InstallTraceFunction();
 
-  LOG_UPDATE_RENDER( "THREAD CREATED" );
+  LOG_UPDATE_RENDER("THREAD CREATED");
 
-  // Initialize EGL & OpenGL
+  // Initialize graphics
+  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
+  graphics.Initialize();
+
   Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
-  displayConnection.Initialize();
+  displayConnection.Initialize(); //@todo Move InitializeGraphics code into graphics implementation
 
-  // EGL has been initialised at this point
   NotifyGraphicsInitialised();
 
-  RenderSurfaceInterface* currentSurface = nullptr;
-
-  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
-  EglGraphics* eglGraphics = static_cast<EglGraphics *>(&graphics);
-
-  // This will only be created once
-  EglInterface* eglInterface = &eglGraphics->GetEglInterface();
-
-  Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>( *eglInterface );
-
-  // Try to use OpenGL es 3.0
-  // ChooseConfig returns false here when the device only support gles 2.0.
-  // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
-  if( !eglImpl.ChooseConfig( true, COLOR_DEPTH_32 ) )
-  {
-    // Retry to use OpenGL es 2.0
-    eglGraphics->SetGlesVersion( 20 );
-    eglImpl.ChooseConfig( true, COLOR_DEPTH_32 );
-  }
-
-  // Check whether surfaceless context is supported
-  bool isSurfacelessContextSupported = eglImpl.IsSurfacelessContextSupported();
-  eglGraphics->SetIsSurfacelessContextSupported( isSurfacelessContextSupported );
-
-  if ( isSurfacelessContextSupported )
-  {
-    // Create a surfaceless OpenGL context for shared resources
-    eglImpl.CreateContext();
-    eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
-  }
-  else
-  {
-    currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-    if( currentSurface )
-    {
-      currentSurface->InitializeGraphics();
-      currentSurface->MakeContextCurrent();
-    }
-  }
-
-  GlImplementation& gles = eglGraphics->GetGlesInterface();
-  gles.ContextCreated();
-  eglGraphics->SetGlesVersion( gles.GetGlesVersion() );
+  //@todo Vk swaps this around, but we need to support surfaceless context for multi-window
+  graphics.ConfigureSurface(mAdaptorInterfaces.GetRenderSurfaceInterface());
 
   // Tell core it has a context
   mCore.ContextCreated();
@@ -569,36 +526,36 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Update time
   uint64_t lastFrameTime;
-  TimeService::GetNanoseconds( lastFrameTime );
+  TimeService::GetNanoseconds(lastFrameTime);
 
-  LOG_UPDATE_RENDER( "THREAD INITIALISED" );
+  LOG_UPDATE_RENDER("THREAD INITIALISED");
 
-  bool useElapsedTime = true;
-  bool updateRequired = true;
-  uint64_t timeToSleepUntil = 0;
-  int extraFramesDropped = 0;
+  bool     useElapsedTime     = true;
+  bool     updateRequired     = true;
+  uint64_t timeToSleepUntil   = 0;
+  int      extraFramesDropped = 0;
 
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
-  const bool renderToFboEnabled = 0u != renderToFboInterval;
-  unsigned int frameCount = 0u;
+  const bool         renderToFboEnabled  = 0u != renderToFboInterval;
+  unsigned int       frameCount          = 0u;
 
-  while( UpdateRenderReady( useElapsedTime, updateRequired, timeToSleepUntil ) )
+  while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
     LOG_UPDATE_RENDER_TRACE;
 
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
-    AddPerformanceMarker( PerformanceInterface::VSYNC );
+    AddPerformanceMarker(PerformanceInterface::VSYNC);
 
     uint64_t currentFrameStartTime = 0;
-    TimeService::GetNanoseconds( currentFrameStartTime );
+    TimeService::GetNanoseconds(currentFrameStartTime);
 
     uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
 
     // Optional FPS Tracking when continuously rendering
-    if( useElapsedTime && mFpsTracker.Enabled() )
+    if(useElapsedTime && mFpsTracker.Enabled())
     {
       float absoluteTimeSinceLastRender = timeSinceLastFrame * NANOSECONDS_TO_SECOND;
-      mFpsTracker.Track( absoluteTimeSinceLastRender );
+      mFpsTracker.Track(absoluteTimeSinceLastRender);
     }
 
     lastFrameTime = currentFrameStartTime; // Store frame start time
@@ -608,9 +565,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     //////////////////////////////
 
     Dali::RenderSurfaceInterface* newSurface = ShouldSurfaceBeReplaced();
-    if( DALI_UNLIKELY( newSurface ) )
+    if(DALI_UNLIKELY(newSurface))
     {
-      LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
+      LOG_UPDATE_RENDER_TRACE_FMT("Replacing Surface");
       // This is designed for replacing pixmap surfaces, but should work for window as well
       // we need to delete the surface and renderable (pixmap / window)
       // Then create a new pixmap/window and new surface
@@ -625,27 +582,27 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceReplaced();
     }
 
-    const bool isRenderingToFbo = renderToFboEnabled && ( ( 0u == frameCount ) || ( 0u != frameCount % renderToFboInterval ) );
+    const bool isRenderingToFbo = renderToFboEnabled && ((0u == frameCount) || (0u != frameCount % renderToFboInterval));
     ++frameCount;
 
     //////////////////////////////
     // UPDATE
     //////////////////////////////
 
-    const unsigned int currentTime = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
+    const unsigned int currentTime   = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
     const unsigned int nextFrameTime = currentTime + mDefaultFrameDurationMilliseconds;
 
     uint64_t noOfFramesSinceLastUpdate = 1;
-    float frameDelta = 0.0f;
-    if( useElapsedTime )
+    float    frameDelta                = 0.0f;
+    if(useElapsedTime)
     {
-      if( mThreadMode == ThreadMode::RUN_IF_REQUESTED )
+      if(mThreadMode == ThreadMode::RUN_IF_REQUESTED)
       {
         extraFramesDropped = 0;
-        while( timeSinceLastFrame >= mDefaultFrameDurationNanoseconds )
+        while(timeSinceLastFrame >= mDefaultFrameDurationNanoseconds)
         {
-           timeSinceLastFrame -= mDefaultFrameDurationNanoseconds;
-           extraFramesDropped++;
+          timeSinceLastFrame -= mDefaultFrameDurationNanoseconds;
+          extraFramesDropped++;
         }
       }
 
@@ -654,43 +611,43 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
       frameDelta = mDefaultFrameDelta * noOfFramesSinceLastUpdate;
     }
-    LOG_UPDATE_RENDER( "timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta );
+    LOG_UPDATE_RENDER("timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta);
 
     Integration::UpdateStatus updateStatus;
 
-    AddPerformanceMarker( PerformanceInterface::UPDATE_START );
-    mCore.Update( frameDelta,
-                  currentTime,
-                  nextFrameTime,
-                  updateStatus,
-                  renderToFboEnabled,
-                  isRenderingToFbo );
-    AddPerformanceMarker( PerformanceInterface::UPDATE_END );
+    AddPerformanceMarker(PerformanceInterface::UPDATE_START);
+    mCore.Update(frameDelta,
+                 currentTime,
+                 nextFrameTime,
+                 updateStatus,
+                 renderToFboEnabled,
+                 isRenderingToFbo);
+    AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
 
     // Tell the event-thread to wake up (if asleep) and send a notification event to Core if required
-    if( updateStatus.NeedsNotification() )
+    if(updateStatus.NeedsNotification())
     {
       mNotificationTrigger.Trigger();
-      LOG_UPDATE_RENDER( "Notification Triggered" );
+      LOG_UPDATE_RENDER("Notification Triggered");
     }
 
     // Check resize
-    bool surfaceResized = false;
+    bool surfaceResized         = false;
     bool shouldSurfaceBeResized = ShouldSurfaceBeResized();
-    if( DALI_UNLIKELY( shouldSurfaceBeResized ) )
+    if(DALI_UNLIKELY(shouldSurfaceBeResized))
     {
-      if( updateStatus.SurfaceRectChanged() )
+      if(updateStatus.SurfaceRectChanged())
       {
-        LOG_UPDATE_RENDER_TRACE_FMT( "Resizing Surface" );
+        LOG_UPDATE_RENDER_TRACE_FMT("Resizing Surface");
         SurfaceResized();
         surfaceResized = true;
       }
     }
 
     // Optional logging of update/render status
-    mUpdateStatusLogger.Log( keepUpdatingStatus );
+    mUpdateStatusLogger.Log(keepUpdatingStatus);
 
     //////////////////////////////
     // RENDER
@@ -698,49 +655,45 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
-    if( mPreRenderCallback != NULL )
+    if(mPreRenderCallback != NULL)
     {
       bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
-      if( ! keepCallback )
+      if(!keepCallback)
       {
         delete mPreRenderCallback;
         mPreRenderCallback = NULL;
       }
     }
 
-    if( eglImpl.IsSurfacelessContextSupported() )
-    {
-      // Make the shared surfaceless context as current before rendering
-      eglImpl.MakeContextCurrent( EGL_NO_SURFACE, eglImpl.GetContext() );
-    }
+    graphics.ActivateResourceContext();
 
-    if( mFirstFrameAfterResume )
+    if(mFirstFrameAfterResume)
     {
       // mFirstFrameAfterResume is set to true when the thread is resumed
-      // Let eglImplementation know the first frame after thread initialized or resumed.
-      eglImpl.SetFirstFrameAfterResume();
+      // Let graphics know the first frame after thread initialized or resumed.
+      graphics.SetFirstFrameAfterResume();
       mFirstFrameAfterResume = FALSE;
     }
 
     Integration::RenderStatus renderStatus;
 
-    AddPerformanceMarker( PerformanceInterface::RENDER_START );
+    AddPerformanceMarker(PerformanceInterface::RENDER_START);
 
     // Upload shared resources
-    mCore.PreRender( renderStatus, mForceClear, mUploadWithoutRendering );
+    mCore.PreRender(renderStatus, mForceClear, mUploadWithoutRendering);
 
-    if ( !mUploadWithoutRendering )
+    if(!mUploadWithoutRendering)
     {
       // Go through each window
       WindowContainer windows;
-      mAdaptorInterfaces.GetWindowContainerInterface( windows );
+      mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
-      for( auto&& window : windows )
+      for(auto&& window : windows)
       {
-        Dali::Integration::Scene scene = window->GetScene();
+        Dali::Integration::Scene      scene         = window->GetScene();
         Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
 
-        if ( scene && windowSurface )
+        if(scene && windowSurface)
         {
           Integration::RenderStatus windowRenderStatus;
 
@@ -750,58 +703,58 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          mCore.PreRender( scene, mDamagedRects );
+          mCore.PreRender(scene, mDamagedRects);
 
           // Render off-screen frame buffers first if any
-          mCore.RenderScene( windowRenderStatus, scene, true );
+          mCore.RenderScene(windowRenderStatus, scene, true);
 
           Rect<int> clippingRect; // Empty for fbo rendering
 
-          // Switch to the EGL context of the surface, merge damaged areas for previous frames
-          windowSurface->PreRender( surfaceResized, mDamagedRects, clippingRect ); // Switch GL context
+          // Switch to the context of the surface, merge damaged areas for previous frames
+          windowSurface->PreRender(surfaceResized, mDamagedRects, clippingRect); // Switch GL context
 
-          if (clippingRect.IsEmpty())
+          if(clippingRect.IsEmpty())
           {
             mDamagedRects.clear();
           }
 
           // Render the surface
-          mCore.RenderScene( windowRenderStatus, scene, false, clippingRect );
+          mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
 
-          if( windowRenderStatus.NeedsPostRender() )
+          if(windowRenderStatus.NeedsPostRender())
           {
-            windowSurface->PostRender( false, false, surfaceResized, mDamagedRects ); // Swap Buffer with damage
+            windowSurface->PostRender(false, false, surfaceResized, mDamagedRects); // Swap Buffer with damage
           }
         }
       }
     }
 
-    mCore.PostRender( mUploadWithoutRendering );
+    mCore.PostRender(mUploadWithoutRendering);
 
     //////////////////////////////
     // DELETE SURFACE
     //////////////////////////////
 
     Dali::RenderSurfaceInterface* deletedSurface = ShouldSurfaceBeDeleted();
-    if( DALI_UNLIKELY( deletedSurface ) )
+    if(DALI_UNLIKELY(deletedSurface))
     {
-      LOG_UPDATE_RENDER_TRACE_FMT( "Deleting Surface" );
+      LOG_UPDATE_RENDER_TRACE_FMT("Deleting Surface");
 
       deletedSurface->DestroySurface();
 
       SurfaceDeleted();
     }
 
-    AddPerformanceMarker( PerformanceInterface::RENDER_END );
+    AddPerformanceMarker(PerformanceInterface::RENDER_END);
 
     mForceClear = false;
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
-    if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )
+    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus) && !renderStatus.NeedsUpdate())
     {
       mSleepTrigger->Trigger();
       updateRequired = false;
-      LOG_UPDATE_RENDER( "Sleep Triggered" );
+      LOG_UPDATE_RENDER("Sleep Triggered");
     }
     else
     {
@@ -814,7 +767,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     extraFramesDropped = 0;
 
-    if (timeToSleepUntil == 0)
+    if(timeToSleepUntil == 0)
     {
       // If this is the first frame after the thread is initialized or resumed, we
       // use the actual time the current frame starts from to calculate the time to
@@ -833,22 +786,22 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
       // Check the current time at the end of the frame
       uint64_t currentFrameEndTime = 0;
-      TimeService::GetNanoseconds( currentFrameEndTime );
-      while ( currentFrameEndTime > timeToSleepUntil + mDefaultFrameDurationNanoseconds )
+      TimeService::GetNanoseconds(currentFrameEndTime);
+      while(currentFrameEndTime > timeToSleepUntil + mDefaultFrameDurationNanoseconds)
       {
-         // We are more than one frame behind already, so just drop the next frames
-         // until the sleep-until time is later than the current time so that we can
-         // catch up.
-         timeToSleepUntil += mDefaultFrameDurationNanoseconds;
-         extraFramesDropped++;
+        // We are more than one frame behind already, so just drop the next frames
+        // until the sleep-until time is later than the current time so that we can
+        // catch up.
+        timeToSleepUntil += mDefaultFrameDurationNanoseconds;
+        extraFramesDropped++;
       }
     }
 
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
-    if( 0u == renderToFboInterval )
+    if(0u == renderToFboInterval)
     {
       // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
-      TimeService::SleepUntil( timeToSleepUntil );
+      TimeService::SleepUntil(timeToSleepUntil);
     }
   }
 
@@ -856,84 +809,83 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   mCore.ContextDestroyed();
 
   WindowContainer windows;
-  mAdaptorInterfaces.GetWindowContainerInterface( windows );
+  mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
   // Destroy surfaces
-  for( auto&& window : windows )
+  for(auto&& window : windows)
   {
     Dali::RenderSurfaceInterface* surface = window->GetSurface();
     surface->DestroySurface();
   }
 
-  // Shutdown EGL
-  eglInterface->TerminateGles();
+  graphics.Shutdown();
 
-  LOG_UPDATE_RENDER( "THREAD DESTROYED" );
+  LOG_UPDATE_RENDER("THREAD DESTROYED");
 
   // Uninstall the logging function
   mEnvironmentOptions.UnInstallLogFunction();
 }
 
-bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil )
+bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil)
 {
   useElapsedTime = true;
 
-  ConditionalWait::ScopedLock updateLock( mUpdateRenderThreadWaitCondition );
-  while( ( ! mUpdateRenderRunCount || // Should try to wait if event-thread has paused the Update/Render thread
-           ( mUpdateRenderThreadCanSleep && ! updateRequired && ! mPendingRequestUpdate ) ) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
-         ! mDestroyUpdateRenderThread && // Ensure we don't wait if the update-render-thread is supposed to be destroyed
-         ! mNewSurface &&  // Ensure we don't wait if we need to replace the surface
-         ! mDeletedSurface && // Ensure we don't wait if we need to delete the surface
-         ! mSurfaceResized ) // Ensure we don't wait if we need to resize the surface
+  ConditionalWait::ScopedLock updateLock(mUpdateRenderThreadWaitCondition);
+  while((!mUpdateRenderRunCount ||                                                      // Should try to wait if event-thread has paused the Update/Render thread
+         (mUpdateRenderThreadCanSleep && !updateRequired && !mPendingRequestUpdate)) && // Ensure we wait if we're supposed to be sleeping AND do not require another update
+        !mDestroyUpdateRenderThread &&                                                  // Ensure we don't wait if the update-render-thread is supposed to be destroyed
+        !mNewSurface &&                                                                 // Ensure we don't wait if we need to replace the surface
+        !mDeletedSurface &&                                                             // Ensure we don't wait if we need to delete the surface
+        !mSurfaceResized)                                                               // Ensure we don't wait if we need to resize the surface
   {
-    LOG_UPDATE_RENDER( "WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
-    LOG_UPDATE_RENDER( "      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
-    LOG_UPDATE_RENDER( "      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
-    LOG_UPDATE_RENDER( "      mNewSurface:                 %d", mNewSurface );
-    LOG_UPDATE_RENDER( "      mDeletedSurface:             %d", mDeletedSurface );
-    LOG_UPDATE_RENDER( "      mSurfaceResized:             %d", mSurfaceResized );
+    LOG_UPDATE_RENDER("WAIT: mUpdateRenderRunCount:       %d", mUpdateRenderRunCount);
+    LOG_UPDATE_RENDER("      mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
+    LOG_UPDATE_RENDER("      mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread);
+    LOG_UPDATE_RENDER("      mNewSurface:                 %d", mNewSurface);
+    LOG_UPDATE_RENDER("      mDeletedSurface:             %d", mDeletedSurface);
+    LOG_UPDATE_RENDER("      mSurfaceResized:             %d", mSurfaceResized);
 
     // Reset the time when the thread is waiting, so the sleep-until time for
     // the first frame after resuming should be based on the actual start time
     // of the first frame.
     timeToSleepUntil = 0;
 
-    mUpdateRenderThreadWaitCondition.Wait( updateLock );
+    mUpdateRenderThreadWaitCondition.Wait(updateLock);
 
-    if( ! mUseElapsedTimeAfterWait )
+    if(!mUseElapsedTimeAfterWait)
     {
       useElapsedTime = false;
     }
   }
 
-  LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderRunCount:       %d", mUpdateRenderRunCount );
-  LOG_COUNTER_UPDATE_RENDER( "mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate );
-  LOG_COUNTER_UPDATE_RENDER( "mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread );
-  LOG_COUNTER_UPDATE_RENDER( "mNewSurface:                 %d", mNewSurface );
-  LOG_COUNTER_UPDATE_RENDER( "mDeletedSurface:             %d", mDeletedSurface );
-  LOG_COUNTER_UPDATE_RENDER( "mSurfaceResized:             %d", mSurfaceResized );
+  LOG_COUNTER_UPDATE_RENDER("mUpdateRenderRunCount:       %d", mUpdateRenderRunCount);
+  LOG_COUNTER_UPDATE_RENDER("mUpdateRenderThreadCanSleep: %d, updateRequired: %d, mPendingRequestUpdate: %d", mUpdateRenderThreadCanSleep, updateRequired, mPendingRequestUpdate);
+  LOG_COUNTER_UPDATE_RENDER("mDestroyUpdateRenderThread:  %d", mDestroyUpdateRenderThread);
+  LOG_COUNTER_UPDATE_RENDER("mNewSurface:                 %d", mNewSurface);
+  LOG_COUNTER_UPDATE_RENDER("mDeletedSurface:             %d", mDeletedSurface);
+  LOG_COUNTER_UPDATE_RENDER("mSurfaceResized:             %d", mSurfaceResized);
 
-  mUseElapsedTimeAfterWait = FALSE;
+  mUseElapsedTimeAfterWait    = FALSE;
   mUpdateRenderThreadCanSleep = FALSE;
-  mPendingRequestUpdate = FALSE;
+  mPendingRequestUpdate       = FALSE;
 
   // If we've been asked to run Update/Render cycles a finite number of times then decrement so we wait after the
   // requested number of cycles
-  if( mUpdateRenderRunCount > 0 )
+  if(mUpdateRenderRunCount > 0)
   {
     --mUpdateRenderRunCount;
   }
 
   // Keep the update-render thread alive if this thread is NOT to be destroyed
-  return ! mDestroyUpdateRenderThread;
+  return !mDestroyUpdateRenderThread;
 }
 
 Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
   Dali::RenderSurfaceInterface* newSurface = mNewSurface;
-  mNewSurface = NULL;
+  mNewSurface                              = NULL;
 
   return newSurface;
 }
@@ -946,10 +898,10 @@ void CombinedUpdateRenderController::SurfaceReplaced()
 
 Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
   Dali::RenderSurfaceInterface* deletedSurface = mDeletedSurface;
-  mDeletedSurface = NULL;
+  mDeletedSurface                              = NULL;
 
   return deletedSurface;
 }
@@ -962,13 +914,13 @@ void CombinedUpdateRenderController::SurfaceDeleted()
 
 bool CombinedUpdateRenderController::ShouldSurfaceBeResized()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   return mSurfaceResized;
 }
 
 void CombinedUpdateRenderController::SurfaceResized()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mSurfaceResized = FALSE;
 }
 
@@ -987,11 +939,11 @@ void CombinedUpdateRenderController::NotifyGraphicsInitialised()
   mGraphicsInitializeWait.Notify();
 }
 
-void CombinedUpdateRenderController::AddPerformanceMarker( PerformanceInterface::MarkerType type )
+void CombinedUpdateRenderController::AddPerformanceMarker(PerformanceInterface::MarkerType type)
 {
-  if( mPerformanceInterface )
+  if(mPerformanceInterface)
   {
-    mPerformanceInterface->AddMarker( type );
+    mPerformanceInterface->AddMarker(type);
   }
 }
 
@@ -1001,9 +953,9 @@ void CombinedUpdateRenderController::AddPerformanceMarker( PerformanceInterface:
 
 void CombinedUpdateRenderController::PostRenderComplete()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
-  mUpdateRenderThreadWaitCondition.Notify( lock );
+  mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1012,19 +964,19 @@ void CombinedUpdateRenderController::PostRenderComplete()
 
 void CombinedUpdateRenderController::PostRenderStarted()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = TRUE;
 }
 
 void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 {
-  ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
-  while( mPostRendering &&
-         ! mNewSurface &&                // We should NOT wait if we're replacing the surface
-         ! mDeletedSurface &&            // We should NOT wait if we're deleting the surface
-         ! mDestroyUpdateRenderThread )
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+  while(mPostRendering &&
+        !mNewSurface &&     // We should NOT wait if we're replacing the surface
+        !mDeletedSurface && // We should NOT wait if we're deleting the surface
+        !mDestroyUpdateRenderThread)
   {
-    mUpdateRenderThreadWaitCondition.Wait( lock );
+    mUpdateRenderThreadWaitCondition.Wait(lock);
   }
 }
 

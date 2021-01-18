@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/object/base-object.h>
 #include <dali/public-api/adaptor-framework/window.h>
+#include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/ref-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/gl-window.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
 
 namespace Dali
 {
@@ -41,8 +41,8 @@ namespace Adaptor
 class WindowBase;
 
 class GlWindow;
-using GlWindowPtr = IntrusivePtr< GlWindow >;
-using EventHandlerPtr = IntrusivePtr< EventHandler >;
+using GlWindowPtr     = IntrusivePtr<GlWindow>;
+using EventHandlerPtr = IntrusivePtr<EventHandler>;
 
 /**
  * Window provides a surface to render onto with orientation.
@@ -50,13 +50,12 @@ using EventHandlerPtr = IntrusivePtr< EventHandler >;
 class GlWindow : public BaseObject, public EventHandler::Observer, public DamageObserver, public ConnectionTracker
 {
 public:
-
-  using KeyEventSignalType = Dali::GlWindow::KeyEventSignalType;
-  using TouchEventSignalType = Dali::GlWindow::TouchEventSignalType;
-  using FocusChangeSignalType = Dali::GlWindow::FocusChangeSignalType;
-  using ResizeSignalType = Dali::GlWindow::ResizeSignalType;
+  using KeyEventSignalType          = Dali::GlWindow::KeyEventSignalType;
+  using TouchEventSignalType        = Dali::GlWindow::TouchEventSignalType;
+  using FocusChangeSignalType       = Dali::GlWindow::FocusChangeSignalType;
+  using ResizeSignalType            = Dali::GlWindow::ResizeSignalType;
   using VisibilityChangedSignalType = Dali::GlWindow::VisibilityChangedSignalType;
-  using SignalType = Signal< void () >;
+  using SignalType                  = Signal<void()>;
 
   /**
    * @brief Create a new GlWindow. This should only be called once by the Application class
@@ -66,12 +65,12 @@ public:
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static GlWindow* New( const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false );
+  static GlWindow* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @copydoc Dali::GlWindow::SetEglConfig()
    */
-  void SetEglConfig( bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version );
+  void SetEglConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version);
 
   /**
    * @copydoc Dali::GlWindow::Raise()
@@ -106,42 +105,42 @@ public:
   /**
    * @copydoc Dali::GlWindow::GetSupportedAuxiliaryHint()
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const;
 
   /**
    * @copydoc Dali::GlWindow::AddAuxiliaryHint()
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value);
 
   /**
    * @copydoc Dali::GlWindow::RemoveAuxiliaryHint()
    */
-  bool RemoveAuxiliaryHint( unsigned int id );
+  bool RemoveAuxiliaryHint(unsigned int id);
 
   /**
    * @copydoc Dali::GlWindow::SetAuxiliaryHintValue()
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value);
 
   /**
    * @copydoc Dali::GlWindow::GetAuxiliaryHintValue()
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+  std::string GetAuxiliaryHintValue(unsigned int id) const;
 
   /**
    * @copydoc Dali::GlWindow::GetAuxiliaryHintId()
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const;
 
   /**
    * @copydoc Dali::GlWindow::SetInputRegion()
    */
-  void SetInputRegion( const Rect< int >& inputRegion );
+  void SetInputRegion(const Rect<int>& inputRegion);
 
   /**
    * @copydoc Dali::GlWindow::SetOpaqueState()
    */
-  void SetOpaqueState( bool opaque );
+  void SetOpaqueState(bool opaque);
 
   /**
    * @copydoc Dali::GlWindow::IsOpaqueState()
@@ -151,7 +150,7 @@ public:
   /**
    * @copydoc Dali::GlWindow::SetPositionSize()
    */
-  void SetPositionSize( PositionSize positionSize );
+  void SetPositionSize(PositionSize positionSize);
 
   /**
    * @copydoc Dali::GlWindow::GetPositionSize()
@@ -166,17 +165,17 @@ public:
   /**
    * @copydoc Dali::GlWindow::SetAvailableOrientations()
    */
-  void SetAvailableOrientations( const Dali::Vector< WindowOrientation >& orientations );
+  void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
   /**
    * @copydoc Dali::GlWindow::SetPreferredOrientation()
    */
-  void SetPreferredOrientation( WindowOrientation orientation );
+  void SetPreferredOrientation(WindowOrientation orientation);
 
   /**
    * @copydoc Dali::GlWindow::RegisterGlCallback()
    */
-  void RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback );
+  void RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
 
   /**
    * @copydoc Dali::GlWindow::RenderOnce()
@@ -193,10 +192,9 @@ public: // For implementation
    *
    * Currently the child window is default window.
    */
-  void SetChild( Dali::Window& child );
+  void SetChild(Dali::Window& child);
 
 private:
-
   /**
    * Private constructor.
    * @sa Window::New()
@@ -215,20 +213,20 @@ private:
    * @param[in] name The window title
    * @param[in] className The window class name
    */
-  void Initialize( const PositionSize& positionSize, const std::string& name, const std::string& className );
+  void Initialize(const PositionSize& positionSize, const std::string& name, const std::string& className);
 
   /**
    * Called when the window becomes iconified or deiconified.
    *
    * @param[in] iconified The flag whether window is iconifed or deiconfied.
    */
-  void OnIconifyChanged( bool iconified );
+  void OnIconifyChanged(bool iconified);
 
   /**
    * Called when the window focus is changed.
    * @param[in] focusIn The flag whether window is focused or not.
    */
-  void OnFocusChanged( bool focusIn );
+  void OnFocusChanged(bool focusIn);
 
   /**
    * Called when the output is transformed.
@@ -245,7 +243,7 @@ private:
    *
    * @param[in] angles The list of the avaiabled rotation angle.
    */
-  void SetAvailableAnlges( const std::vector< int >& angles );
+  void SetAvailableAnlges(const std::vector<int>& angles);
 
   /**
    * @brief Check available window orientation for Available angle.
@@ -254,7 +252,7 @@ private:
    *
    * @return true is available window orientation. false is not available.
    */
-  bool IsOrientationAvailable( WindowOrientation orientation ) const;
+  bool IsOrientationAvailable(WindowOrientation orientation) const;
 
   /**
    * @brief Convert from window orientation to angle using orientation mode value.
@@ -263,7 +261,7 @@ private:
    *
    * @return The coverted angle value is returned.
    */
-  int ConvertToAngle( WindowOrientation orientation );
+  int ConvertToAngle(WindowOrientation orientation);
 
   /**
    * @brief Convert from angle to window orientation using orientation mode value.
@@ -272,7 +270,7 @@ private:
    *
    * @return The converted window orientation value is returned.
    */
-  WindowOrientation ConvertToOrientation( int angle ) const;
+  WindowOrientation ConvertToOrientation(int angle) const;
 
   /**
    * @brief Run Ui GL callback function.
@@ -289,12 +287,12 @@ private:
   /**
    * @brief Sets event handler for window's events.
    */
-  void SetEventHandler() ;
+  void SetEventHandler();
 
   /**
    * @brief calculate touch position for rotation.
    */
-  void RecalculateTouchPosition( Integration::Point& point ) ;
+  void RecalculateTouchPosition(Integration::Point& point);
 
   /**
    * @brief Sets window and class name.
@@ -302,132 +300,144 @@ private:
    * @param[in] name The name of the window
    * @param[in] className The class of the window
    */
-  void SetClass( const std::string& name, const std::string className );
+  void SetClass(const std::string& name, const std::string className);
 
 private:
-
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnTouchPoint
    */
-  void OnTouchPoint( Dali::Integration::Point& point, int timeStamp ) override;
+  void OnTouchPoint(Dali::Integration::Point& point, int timeStamp) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnWheelEvent
    */
-  void OnWheelEvent( Dali::Integration::WheelEvent& wheelEvent ) override;
+  void OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnKeyEvent
    */
-  void OnKeyEvent( Dali::Integration::KeyEvent& keyEvent ) override;
+  void OnKeyEvent(Dali::Integration::KeyEvent& keyEvent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnRotation
    */
-  void OnRotation( const RotationEvent& rotation ) override;
+  void OnRotation(const RotationEvent& rotation) override;
 
 private: // From Dali::Internal::Adaptor::DamageObserver
-
   /**
    * @copydoc Dali::Internal::Adaptor::DamageObserver::OnDamaged()
    */
-  void OnDamaged( const DamageArea& area );
+  void OnDamaged(const DamageArea& area);
 
 public: // Signals
-
   /**
    * @copydoc Dali::GlWindow::FocusChangeSignal()
    */
-  FocusChangeSignalType& FocusChangeSignal() { return mFocusChangeSignal; }
+  FocusChangeSignalType& FocusChangeSignal()
+  {
+    return mFocusChangeSignal;
+  }
 
   /**
    * @copydoc Dali::GlWindow::ResizeSignal()
    */
-  ResizeSignalType& ResizeSignal() { return mResizeSignal; }
+  ResizeSignalType& ResizeSignal()
+  {
+    return mResizeSignal;
+  }
 
   /**
    * @copydoc Dali::GlWindow::KeyEventSignal()
    */
-  KeyEventSignalType& KeyEventSignal() { return mKeyEventSignal; }
+  KeyEventSignalType& KeyEventSignal()
+  {
+    return mKeyEventSignal;
+  }
 
   /**
    * @copydoc Dali::GlWindow::TouchSignal()
    */
-  TouchEventSignalType& TouchedSignal() { return mTouchedSignal; }
+  TouchEventSignalType& TouchedSignal()
+  {
+    return mTouchedSignal;
+  }
 
   /**
    * @copydoc Dali::GlWindow::VisibilityChangedSignal()
    */
-  VisibilityChangedSignalType& VisibilityChangedSignal() { return mVisibilityChangedSignal; }
+  VisibilityChangedSignalType& VisibilityChangedSignal()
+  {
+    return mVisibilityChangedSignal;
+  }
 
 private:
+  std::unique_ptr<WindowBase>              mWindowBase;
+  std::unique_ptr<GraphicsInterface>       mGraphics; ///< Graphics interface
+  std::unique_ptr<Dali::DisplayConnection> mDisplayConnection;
+  std::string                              mName;
+  std::string                              mClassName;
+  EventHandlerPtr                          mEventHandler; ///< The window events handler
+  PositionSize                             mPositionSize;
+  ColorDepth                               mColorDepth;
+  Dali::Window                             mChildWindow;
+  bool                                     mIsTransparent : 1;
+  bool                                     mIsFocusAcceptable : 1;
+  bool                                     mIconified : 1;
+  bool                                     mOpaqueState : 1;
+  bool                                     mResizeEnabled : 1;
+  bool                                     mVisible : 1;
+  bool                                     mIsRotated : 1;
+  bool                                     mIsWindowRotated : 1;
+  bool                                     mIsTouched : 1;
 
-  std::unique_ptr< WindowBase >               mWindowBase;
-  std::unique_ptr< GraphicsInterface >        mGraphics;                    ///< Graphics interface
-  std::unique_ptr< Dali::DisplayConnection >  mDisplayConnection;
-  std::string                                 mName;
-  std::string                                 mClassName;
-  EventHandlerPtr                             mEventHandler;         ///< The window events handler
-  PositionSize                                mPositionSize;
-  ColorDepth                                  mColorDepth;
-  Dali::Window                                mChildWindow;
-  bool                                        mIsTransparent:1;
-  bool                                        mIsFocusAcceptable:1;
-  bool                                        mIconified:1;
-  bool                                        mOpaqueState:1;
-  bool                                        mResizeEnabled:1;
-  bool                                        mVisible:1;
-  bool                                        mIsRotated:1;
-  bool                                        mIsWindowRotated:1;
-  bool                                        mIsTouched:1;
-
-  std::vector< int >                          mAvailableAngles;
-  int                                         mPreferredAngle;
-  int                                         mTotalRotationAngle;   ///< The angle of window + screen rotation angle % 360
-  int                                         mWindowRotationAngle;  ///< The angle of window rotation angle
-  int                                         mScreenRotationAngle;  ///< The angle of screen rotation angle
-  int                                         mOrientationMode;      ///< 0: Default portrati, 1:Default landscape
-  int                                         mWindowWidth;          ///< The width of the window
-  int                                         mWindowHeight;         ///< The height of the window
-  int                                         mNativeWindowId;       ///< The Native Window Id
+  std::vector<int> mAvailableAngles;
+  int              mPreferredAngle;
+  int              mTotalRotationAngle;  ///< The angle of window + screen rotation angle % 360
+  int              mWindowRotationAngle; ///< The angle of window rotation angle
+  int              mScreenRotationAngle; ///< The angle of screen rotation angle
+  int              mOrientationMode;     ///< 0: Default portrati, 1:Default landscape
+  int              mWindowWidth;         ///< The width of the window
+  int              mWindowHeight;        ///< The height of the window
+  int              mNativeWindowId;      ///< The Native Window Id
 
   // Signals
-  KeyEventSignalType                          mKeyEventSignal;
-  TouchEventSignalType                        mTouchedSignal;
-  FocusChangeSignalType                       mFocusChangeSignal;
-  ResizeSignalType                            mResizeSignal;
-  VisibilityChangedSignalType                 mVisibilityChangedSignal;
+  KeyEventSignalType          mKeyEventSignal;
+  TouchEventSignalType        mTouchedSignal;
+  FocusChangeSignalType       mFocusChangeSignal;
+  ResizeSignalType            mResizeSignal;
+  VisibilityChangedSignalType mVisibilityChangedSignal;
 
   // EGL, GL Resource
-  std::unique_ptr< CallbackBase >             mGLInitCallback;
-  std::unique_ptr< CallbackBase >             mGLRenderFrameCallback;
-  std::unique_ptr< CallbackBase >             mGLTerminateCallback;
-  CallbackBase*                               mGLRenderCallback;
-  EGLSurface                                  mEGLSurface;
-  EGLContext                                  mEGLContext;
-  Dali::GlWindow::GlesVersion                 mGLESVersion;
-  bool                                        mInitCallback:1;
-  bool                                        mDepth:1;
-  bool                                        mStencil:1;
-  bool                                        mIsEGLInitialize:1;
-  int                                         mMSAA;
+  EnvironmentOptions            mEnvironmentOptions;
+  std::unique_ptr<CallbackBase> mGLInitCallback;
+  std::unique_ptr<CallbackBase> mGLRenderFrameCallback;
+  std::unique_ptr<CallbackBase> mGLTerminateCallback;
+  CallbackBase*                 mGLRenderCallback;
+  EGLSurface                    mEGLSurface;
+  EGLContext                    mEGLContext;
+  Dali::GlWindow::GlesVersion   mGLESVersion;
+  bool                          mInitCallback : 1;
+  bool                          mDepth : 1;
+  bool                          mStencil : 1;
+  bool                          mIsEGLInitialize : 1;
+  int                           mMSAA;
 };
 
 } // namespace Adaptor
-} // namepsace Internal
+} // namespace Internal
 
 // Helpers for public-api forwarding methods
 
 inline Internal::Adaptor::GlWindow& GetImplementation(Dali::GlWindow& window)
 {
-  DALI_ASSERT_ALWAYS( window && "Window handle is empty" );
+  DALI_ASSERT_ALWAYS(window && "Window handle is empty");
   BaseObject& object = window.GetBaseObject();
   return static_cast<Internal::Adaptor::GlWindow&>(object);
 }
 
 inline const Internal::Adaptor::GlWindow& GetImplementation(const Dali::GlWindow& window)
 {
-  DALI_ASSERT_ALWAYS( window && "Window handle is empty" );
+  DALI_ASSERT_ALWAYS(window && "Window handle is empty");
   const BaseObject& object = window.GetBaseObject();
   return static_cast<const Internal::Adaptor::GlWindow&>(object);
 }
