@@ -1,5 +1,5 @@
-#ifndef DALI_TEST_APPLICATION_H
-#define DALI_TEST_APPLICATION_H
+#ifndef DALI_TEST_GRAPHICS_APPLICATION_H
+#define DALI_TEST_GRAPHICS_APPLICATION_H
 
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
@@ -19,19 +19,23 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/core.h>
 #include <dali/integration-api/resource-policies.h>
 #include <dali/integration-api/scene.h>
 #include <dali/integration-api/trace.h>
 
+#include <dali/internal/graphics/gles/egl-graphics-controller.h>
 #include <dali/public-api/common/dali-common.h>
-#include <test-platform-abstraction.h>
 
-#include "test-graphics-controller.h"
-#include "test-render-controller.h"
+#include <test-gl-abstraction.h>
+#include <test-gl-context-helper-abstraction.h>
+#include <test-gl-sync-abstraction.h>
+#include <test-platform-abstraction.h>
+#include <test-render-controller.h>
 
 namespace Dali
 {
-class DALI_CORE_API TestApplication : public ConnectionTracker
+class DALI_CORE_API TestGraphicsApplication : public ConnectionTracker
 {
 public:
   // Default values derived from H2 device.
@@ -45,24 +49,24 @@ public:
 
   static const uint32_t RENDER_FRAME_INTERVAL = 16;
 
-  TestApplication(uint32_t surfaceWidth        = DEFAULT_SURFACE_WIDTH,
-                  uint32_t surfaceHeight       = DEFAULT_SURFACE_HEIGHT,
-                  uint32_t horizontalDpi       = DEFAULT_HORIZONTAL_DPI,
-                  uint32_t verticalDpi         = DEFAULT_VERTICAL_DPI,
-                  bool     initialize          = true,
-                  bool     enablePartialUpdate = false);
+  TestGraphicsApplication(uint32_t surfaceWidth        = DEFAULT_SURFACE_WIDTH,
+                          uint32_t surfaceHeight       = DEFAULT_SURFACE_HEIGHT,
+                          uint32_t horizontalDpi       = DEFAULT_HORIZONTAL_DPI,
+                          uint32_t verticalDpi         = DEFAULT_VERTICAL_DPI,
+                          bool     initialize          = true,
+                          bool     enablePartialUpdate = false);
 
   void Initialize();
   void CreateCore();
   void CreateScene();
   void InitializeCore();
-  ~TestApplication() override;
+  ~TestGraphicsApplication() override;
   static void              LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
   static void              LogContext(bool start, const char* tag);
   Dali::Integration::Core& GetCore();
   TestPlatformAbstraction& GetPlatform();
   TestRenderController&    GetRenderController();
-  TestGraphicsController&  GetGraphicsController();
+  Graphics::Controller&    GetGraphicsController();
 
   TestGlAbstraction&              GetGlAbstraction();
   TestGlSyncAbstraction&          GetGlSyncAbstraction();
@@ -94,9 +98,12 @@ private:
   void DoUpdate(uint32_t intervalMilliseconds, const char* location = NULL);
 
 protected:
-  TestPlatformAbstraction mPlatformAbstraction;
-  TestRenderController    mRenderController;
-  TestGraphicsController  mGraphicsController;
+  TestPlatformAbstraction         mPlatformAbstraction;
+  TestRenderController            mRenderController;
+  Graphics::EglGraphicsController mGraphicsController; // Use real controller in Adaptor
+  TestGlAbstraction               mGlAbstraction;
+  TestGlSyncAbstraction           mGlSyncAbstraction;
+  TestGlContextHelperAbstraction  mGlContextHelperAbstraction;
 
   Integration::UpdateStatus mStatus;
   Integration::RenderStatus mRenderStatus;
@@ -120,4 +127,4 @@ protected:
 
 } // namespace Dali
 
-#endif // DALI_TEST_APPLICATION_H
+#endif // DALI_TEST_GRAPHICS_APPLICATION_H

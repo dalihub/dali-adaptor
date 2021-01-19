@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,63 +16,63 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/addons/common/addon-manager-impl.h>
-#include <dali/internal/addons/common/addon-manager-factory.h>
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
+#include <dali/internal/addons/common/addon-manager-impl.h>
 
 // EXTERNAL INCLUDES
-#include <errno.h>
-#include <sys/stat.h>
-#include <dali/public-api/actors/layer.h>
-#include <dali/public-api/object/any.h>
-#include <dali/public-api/object/object-registry.h>
-#include <dali/public-api/events/wheel-event.h>
 #include <dali/devel-api/actors/actor-devel.h>
 #include <dali/devel-api/common/stage.h>
-#include <dali/integration-api/debug.h>
-#include <dali/integration-api/core.h>
+#include <dali/integration-api/addon-manager.h>
 #include <dali/integration-api/context-notifier.h>
-#include <dali/integration-api/profiling.h>
-#include <dali/integration-api/input-options.h>
+#include <dali/integration-api/core.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
-#include <dali/integration-api/addon-manager.h>
+#include <dali/integration-api/profiling.h>
+#include <dali/public-api/actors/layer.h>
+#include <dali/public-api/events/wheel-event.h>
+#include <dali/public-api/object/any.h>
+#include <dali/public-api/object/object-registry.h>
+#include <errno.h>
+#include <sys/stat.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/system/common/thread-controller.h>
-#include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/system/common/performance-interface-factory.h>
+#include <dali/internal/system/common/thread-controller.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h> // Temporary until Core is abstracted
 
 #include <dali/devel-api/text-abstraction/font-client.h>
 
-#include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/window-system/common/event-handler.h>
-#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
-#include <dali/internal/graphics/gles/egl-sync-implementation.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/graphics/common/egl-image-extensions.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
+#include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
+#include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/internal/system/common/logging.h>
 
-#include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 #include <dali/internal/imaging/common/image-loader.h>
+#include <dali/internal/system/common/locale-utils.h>
 
 #include <dali/internal/system/common/configuration-manager.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -83,260 +83,242 @@ extern std::string GetSystemCachePath();
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
+Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions, threadMode );
-  adaptor->mImpl = impl;
+  Adaptor*       impl    = new Adaptor(window, *adaptor, surface, environmentOptions, threadMode);
+  adaptor->mImpl         = impl;
 
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder();
-  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder(*environmentOptions);
+  auto                                     graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
-  impl->Initialize( graphicsFactory );
+  impl->Initialize(graphicsFactory);
   delete mAdaptorBuilder; // Not needed anymore as the graphics interface has now been created
 
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions)
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL );
-  windowImpl.SetAdaptor( *adaptor );
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation(window);
+  Dali::Adaptor*                  adaptor    = New(window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL);
+  windowImpl.SetAdaptor(*adaptor);
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface *surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
+Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 {
-  Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions, threadMode ); // Impl adaptor
-  adaptor->mImpl = impl;
+  Dali::Adaptor* adaptor = new Dali::Adaptor;                                                      // Public adaptor
+  Adaptor*       impl    = new Adaptor(window, *adaptor, surface, environmentOptions, threadMode); // Impl adaptor
+  adaptor->mImpl         = impl;
 
-  impl->Initialize( graphicsFactory );
+  impl->Initialize(graphicsFactory);
 
   return adaptor;
 } // Called second
 
-Dali::Adaptor* Adaptor::New( GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions )
+Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions)
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( window );
-  Dali::Adaptor* adaptor = New( graphicsFactory, window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL );
-  windowImpl.SetAdaptor( *adaptor );
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation(window);
+  Dali::Adaptor*                  adaptor    = New(graphicsFactory, window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL);
+  windowImpl.SetAdaptor(*adaptor);
   return adaptor;
 } // Called first
 
-void Adaptor::Initialize( GraphicsFactory& graphicsFactory )
+void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
-  Dali::Integration::Log::LogFunction logFunction( Dali::TizenPlatform::LogMessage );
-  mEnvironmentOptions->SetLogFunction( logFunction );
+  Dali::Integration::Log::LogFunction logFunction(Dali::TizenPlatform::LogMessage);
+  mEnvironmentOptions->SetLogFunction(logFunction);
   mEnvironmentOptions->InstallLogFunction(); // install logging for main thread
 
   mPlatformAbstraction = new TizenPlatform::TizenPlatformAbstraction;
 
   std::string path;
-  GetDataStoragePath( path );
-  mPlatformAbstraction->SetDataStoragePath( path );
+  GetDataStoragePath(path);
+  mPlatformAbstraction->SetDataStoragePath(path);
 
-  if( mEnvironmentOptions->PerformanceServerRequired() )
+  if(mEnvironmentOptions->PerformanceServerRequired())
   {
-    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface( *this, *mEnvironmentOptions );
+    mPerformanceInterface = PerformanceInterfaceFactory::CreateInterface(*this, *mEnvironmentOptions);
   }
 
-  mEnvironmentOptions->CreateTraceManager( mPerformanceInterface );
+  mEnvironmentOptions->CreateTraceManager(mPerformanceInterface);
   mEnvironmentOptions->InstallTraceFunction(); // install tracing for main thread
 
   mCallbackManager = CallbackManager::New();
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
-  DALI_ASSERT_DEBUG( defaultWindow->GetSurface() && "Surface not initialized" );
+  DALI_ASSERT_DEBUG(defaultWindow->GetSurface() && "Surface not initialized");
 
-  mGraphics = std::unique_ptr< GraphicsInterface >( &graphicsFactory.Create() );
-  mGraphics->Initialize( mEnvironmentOptions );
-
-  GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
-  auto eglGraphics = static_cast<EglGraphics *>( graphics );
-
-  // This will only be created once
-  eglGraphics->Create();
-
-  GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-  EglSyncImplementation& eglSyncImpl = eglGraphics->GetSyncImplementation();
-  EglContextHelperImplementation& eglContextHelperImpl = eglGraphics->GetContextHelperImplementation();
+  mGraphics = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
 
   // Create the AddOnManager
-  mAddOnManager.reset( Dali::Internal::AddOnManagerFactory::CreateAddOnManager() );
+  mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
 
-  mCore = Integration::Core::New( *this,
-                                  *mPlatformAbstraction,
-                                  mGLES,
-                                  eglSyncImpl,
-                                  eglContextHelperImpl,
-                                  ( 0u != mEnvironmentOptions->GetRenderToFboInterval() ) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
-                                  mGraphics->GetDepthBufferRequired(),
-                                  mGraphics->GetStencilBufferRequired(),
-                                  mGraphics->GetPartialUpdateRequired() );
+  mCore = Integration::Core::New(*this,
+                                 *mPlatformAbstraction,
+                                 mGraphics->GetController(),
+                                 (0u != mEnvironmentOptions->GetRenderToFboInterval()) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
+                                 mGraphics->GetDepthBufferRequired(),
+                                 mGraphics->GetStencilBufferRequired(),
+                                 mGraphics->GetPartialUpdateRequired());
 
+  defaultWindow->SetAdaptor(Get());
 
-  defaultWindow->SetAdaptor( Get() );
+  Dali::Integration::SceneHolder defaultSceneHolder(defaultWindow);
 
-  Dali::Integration::SceneHolder defaultSceneHolder( defaultWindow );
-
-  mWindowCreatedSignal.Emit( defaultSceneHolder );
+  mWindowCreatedSignal.Emit(defaultSceneHolder);
 
   const unsigned int timeInterval = mEnvironmentOptions->GetObjectProfilerInterval();
-  if( 0u < timeInterval )
+  if(0u < timeInterval)
   {
-    mObjectProfiler = new ObjectProfiler( mCore->GetObjectRegistry(), timeInterval );
+    mObjectProfiler = new ObjectProfiler(mCore->GetObjectRegistry(), timeInterval);
   }
 
-  mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+  mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
-  mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow->GetSurface()->GetSurfaceType() );
+  mDisplayConnection = Dali::DisplayConnection::New(*mGraphics, defaultWindow->GetSurface()->GetSurfaceType());
 
-  mThreadController = new ThreadController( *this, *mEnvironmentOptions, mThreadMode );
+  mThreadController = new ThreadController(*this, *mEnvironmentOptions, mThreadMode);
 
   // Should be called after Core creation
-  if( mEnvironmentOptions->GetPanGestureLoggingLevel() )
+  if(mEnvironmentOptions->GetPanGestureLoggingLevel())
   {
-    Integration::EnableProfiling( Dali::Integration::PROFILING_TYPE_PAN_GESTURE );
+    Integration::EnableProfiling(Dali::Integration::PROFILING_TYPE_PAN_GESTURE);
   }
-  if( mEnvironmentOptions->GetPanGesturePredictionMode() >= 0 )
+  if(mEnvironmentOptions->GetPanGesturePredictionMode() >= 0)
   {
     Integration::SetPanGesturePredictionMode(mEnvironmentOptions->GetPanGesturePredictionMode());
   }
-  if( mEnvironmentOptions->GetPanGesturePredictionAmount() >= 0 )
+  if(mEnvironmentOptions->GetPanGesturePredictionAmount() >= 0)
   {
     Integration::SetPanGesturePredictionAmount(mEnvironmentOptions->GetPanGesturePredictionAmount());
   }
-  if( mEnvironmentOptions->GetPanGestureMaximumPredictionAmount() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount() >= 0)
   {
     Integration::SetPanGestureMaximumPredictionAmount(mEnvironmentOptions->GetPanGestureMaximumPredictionAmount());
   }
-  if( mEnvironmentOptions->GetPanGestureMinimumPredictionAmount() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount() >= 0)
   {
     Integration::SetPanGestureMinimumPredictionAmount(mEnvironmentOptions->GetPanGestureMinimumPredictionAmount());
   }
-  if( mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment() >= 0 )
+  if(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment() >= 0)
   {
     Integration::SetPanGesturePredictionAmountAdjustment(mEnvironmentOptions->GetPanGesturePredictionAmountAdjustment());
   }
-  if( mEnvironmentOptions->GetPanGestureSmoothingMode() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureSmoothingMode() >= 0)
   {
     Integration::SetPanGestureSmoothingMode(mEnvironmentOptions->GetPanGestureSmoothingMode());
   }
-  if( mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f )
+  if(mEnvironmentOptions->GetPanGestureSmoothingAmount() >= 0.0f)
   {
     Integration::SetPanGestureSmoothingAmount(mEnvironmentOptions->GetPanGestureSmoothingAmount());
   }
-  if( mEnvironmentOptions->GetPanGestureUseActualTimes() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureUseActualTimes() >= 0)
   {
-    Integration::SetPanGestureUseActualTimes( mEnvironmentOptions->GetPanGestureUseActualTimes() == 0 ? true : false );
+    Integration::SetPanGestureUseActualTimes(mEnvironmentOptions->GetPanGestureUseActualTimes() == 0 ? true : false);
   }
-  if( mEnvironmentOptions->GetPanGestureInterpolationTimeRange() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureInterpolationTimeRange() >= 0)
   {
-    Integration::SetPanGestureInterpolationTimeRange( mEnvironmentOptions->GetPanGestureInterpolationTimeRange() );
+    Integration::SetPanGestureInterpolationTimeRange(mEnvironmentOptions->GetPanGestureInterpolationTimeRange());
   }
-  if( mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() >= 0)
   {
-    Integration::SetPanGestureScalarOnlyPredictionEnabled( mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() == 0 ? true : false  );
+    Integration::SetPanGestureScalarOnlyPredictionEnabled(mEnvironmentOptions->GetPanGestureScalarOnlyPredictionEnabled() == 0 ? true : false);
   }
-  if( mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() >= 0)
   {
-    Integration::SetPanGestureTwoPointPredictionEnabled( mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() == 0 ? true : false  );
+    Integration::SetPanGestureTwoPointPredictionEnabled(mEnvironmentOptions->GetPanGestureTwoPointPredictionEnabled() == 0 ? true : false);
   }
-  if( mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() >= 0)
   {
-    Integration::SetPanGestureTwoPointInterpolatePastTime( mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime() );
+    Integration::SetPanGestureTwoPointInterpolatePastTime(mEnvironmentOptions->GetPanGestureTwoPointInterpolatePastTime());
   }
-  if( mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() >= 0.0f )
+  if(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() >= 0.0f)
   {
-    Integration::SetPanGestureTwoPointVelocityBias( mEnvironmentOptions->GetPanGestureTwoPointVelocityBias() );
+    Integration::SetPanGestureTwoPointVelocityBias(mEnvironmentOptions->GetPanGestureTwoPointVelocityBias());
   }
-  if( mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() >= 0.0f )
+  if(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() >= 0.0f)
   {
-    Integration::SetPanGestureTwoPointAccelerationBias( mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias() );
+    Integration::SetPanGestureTwoPointAccelerationBias(mEnvironmentOptions->GetPanGestureTwoPointAccelerationBias());
   }
-  if( mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() >= 0 )
+  if(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() >= 0)
   {
-    Integration::SetPanGestureMultitapSmoothingRange( mEnvironmentOptions->GetPanGestureMultitapSmoothingRange() );
+    Integration::SetPanGestureMultitapSmoothingRange(mEnvironmentOptions->GetPanGestureMultitapSmoothingRange());
   }
-  if( mEnvironmentOptions->GetMinimumPanDistance() >= 0 )
+  if(mEnvironmentOptions->GetMinimumPanDistance() >= 0)
   {
-    Integration::SetPanGestureMinimumDistance( mEnvironmentOptions->GetMinimumPanDistance() );
+    Integration::SetPanGestureMinimumDistance(mEnvironmentOptions->GetMinimumPanDistance());
   }
-  if( mEnvironmentOptions->GetMinimumPanEvents() >= 0 )
+  if(mEnvironmentOptions->GetMinimumPanEvents() >= 0)
   {
-    Integration::SetPanGestureMinimumPanEvents( mEnvironmentOptions->GetMinimumPanEvents() );
+    Integration::SetPanGestureMinimumPanEvents(mEnvironmentOptions->GetMinimumPanEvents());
   }
-  if( mEnvironmentOptions->GetMinimumPinchDistance() >= 0 )
+  if(mEnvironmentOptions->GetMinimumPinchDistance() >= 0)
   {
-    Integration::SetPinchGestureMinimumDistance( mEnvironmentOptions->GetMinimumPinchDistance() );
+    Integration::SetPinchGestureMinimumDistance(mEnvironmentOptions->GetMinimumPinchDistance());
   }
-  if( mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0 )
+  if(mEnvironmentOptions->GetMinimumPinchTouchEvents() >= 0)
   {
-    Integration::SetPinchGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumPinchTouchEvents() );
+    Integration::SetPinchGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumPinchTouchEvents());
   }
-  if( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0 )
+  if(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() >= 0)
   {
-    Integration::SetPinchGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart() );
+    Integration::SetPinchGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumPinchTouchEventsAfterStart());
   }
-  if( mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0 )
+  if(mEnvironmentOptions->GetMinimumRotationTouchEvents() >= 0)
   {
-    Integration::SetRotationGestureMinimumTouchEvents( mEnvironmentOptions->GetMinimumRotationTouchEvents() );
+    Integration::SetRotationGestureMinimumTouchEvents(mEnvironmentOptions->GetMinimumRotationTouchEvents());
   }
-  if( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0 )
+  if(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() >= 0)
   {
-    Integration::SetRotationGestureMinimumTouchEventsAfterStart( mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart() );
+    Integration::SetRotationGestureMinimumTouchEventsAfterStart(mEnvironmentOptions->GetMinimumRotationTouchEventsAfterStart());
   }
-  if( mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0 )
+  if(mEnvironmentOptions->GetLongPressMinimumHoldingTime() >= 0)
   {
-    Integration::SetLongPressMinimumHoldingTime( mEnvironmentOptions->GetLongPressMinimumHoldingTime() );
+    Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
   }
 
   std::string systemCachePath = GetSystemCachePath();
-  if( ! systemCachePath.empty() )
+  if(!systemCachePath.empty())
   {
-    const int dir_err = mkdir( systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH );
-    if ( 0 != dir_err && errno != EEXIST )
+    const int dir_err = mkdir(systemCachePath.c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    if(0 != dir_err && errno != EEXIST)
     {
-      DALI_LOG_ERROR( "Error creating system cache directory: %s!\n", systemCachePath.c_str() );
-      exit( 1 );
+      DALI_LOG_ERROR("Error creating system cache directory: %s!\n", systemCachePath.c_str());
+      exit(1);
     }
   }
 
-  mConfigurationManager = Utils::MakeUnique<ConfigurationManager>( systemCachePath, eglGraphics, mThreadController );
+  mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
 
   auto appName = GetApplicationPackageName();
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
-  bridge->SetApplicationName( appName );
+  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
+  bridge->SetApplicationName(appName);
   bridge->Initialize();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect( &accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent );
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 }
 
-void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent( const Dali::KeyEvent& event )
+void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)
 {
   Accessibility::KeyEventType type;
-  if( event.GetState() == Dali::KeyEvent::DOWN )
+  if(event.GetState() == Dali::KeyEvent::DOWN)
   {
     type = Accessibility::KeyEventType::KEY_PRESSED;
   }
-  else if( event.GetState() == Dali::KeyEvent::UP )
+  else if(event.GetState() == Dali::KeyEvent::UP)
   {
     type = Accessibility::KeyEventType::KEY_RELEASED;
   }
@@ -344,7 +326,7 @@ void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent( const Dali::KeyEvent&
   {
     return;
   }
-  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit( type, event.GetKeyCode(), event.GetKeyName(), event.GetTime(), !event.GetKeyString().empty() );
+  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit(type, event.GetKeyCode(), event.GetKeyName(), event.GetTime(), !event.GetKeyString().empty());
 }
 
 Adaptor::~Adaptor()
@@ -357,7 +339,7 @@ Adaptor::~Adaptor()
   // set to NULL first as we do not want any access to Adaptor as it is being destroyed.
   gThreadLocalAdaptor = NULL;
 
-  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
   {
     (*iter)->OnDestroy();
   }
@@ -381,7 +363,7 @@ Adaptor::~Adaptor()
   Dali::Integration::Log::UninstallLogFunction();
 
   // Delete environment options if we own it
-  if( mEnvironmentOptionsOwned )
+  if(mEnvironmentOptionsOwned)
   {
     delete mEnvironmentOptions;
   }
@@ -390,7 +372,7 @@ Adaptor::~Adaptor()
 void Adaptor::Start()
 {
   // It doesn't support restart after stop at this moment to support restarting, need more testing
-  if( READY != mState )
+  if(READY != mState)
   {
     return;
   }
@@ -407,44 +389,40 @@ void Adaptor::Start()
   unsigned int dpiHor, dpiVer;
   dpiHor = dpiVer = 0;
 
-  defaultWindow->GetSurface()->GetDpi( dpiHor, dpiVer );
+  defaultWindow->GetSurface()->GetDpi(dpiHor, dpiVer);
 
   // set the DPI value for font rendering
   FontClient fontClient = FontClient::Get();
-  fontClient.SetDpi( dpiHor, dpiVer );
+  fontClient.SetDpi(dpiHor, dpiVer);
 
   // Initialize the thread controller
   mThreadController->Initialize();
 
   // Set max texture size
-  if( mEnvironmentOptions->GetMaxTextureSize() > 0 )
+  if(mEnvironmentOptions->GetMaxTextureSize() > 0)
   {
-    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( mEnvironmentOptions->GetMaxTextureSize() );
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(mEnvironmentOptions->GetMaxTextureSize());
   }
   else
   {
     unsigned int maxTextureSize = mConfigurationManager->GetMaxTextureSize();
-    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize( maxTextureSize );
+    Dali::TizenPlatform::ImageLoader::SetMaxTextureSize(maxTextureSize);
   }
 
-  // Set cached isAdvancedBlendEquationSupported
-  GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
-  auto eglGraphics = static_cast<EglGraphics *>( graphics );
-  GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-  mGLES.SetIsAdvancedBlendEquationSupported( mConfigurationManager->IsAdvancedBlendEquationSupported() );
-  mGLES.SetShadingLanguageVersion( mConfigurationManager->GetShadingLanguageVersion() );
+  // cache advanced blending and shader language version
+  mGraphics->CacheConfigurations(*mConfigurationManager.get());
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   // Initialize the image loader plugin
   Internal::Adaptor::ImageLoaderPluginProxy::Initialize();
 
-  for ( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+  for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
   {
     (*iter)->OnStart();
   }
 
-  if (mAddOnManager)
+  if(mAddOnManager)
   {
     mAddOnManager->Start();
   }
@@ -454,22 +432,22 @@ void Adaptor::Start()
 void Adaptor::Pause()
 {
   // Only pause the adaptor if we're actually running.
-  if( RUNNING == mState )
+  if(RUNNING == mState)
   {
     // Inform observers that we are about to be paused.
-    for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+    for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
     {
       (*iter)->OnPause();
     }
 
     // Extensions
-    if (mAddOnManager)
+    if(mAddOnManager)
     {
       mAddOnManager->Pause();
     }
 
     // Pause all windows event handlers when adaptor paused
-    for( auto window : mWindows )
+    for(auto window : mWindows)
     {
       window->Pause();
     }
@@ -480,11 +458,11 @@ void Adaptor::Pause()
     // Ensure any messages queued during pause callbacks are processed by doing another update.
     RequestUpdateOnce();
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::Pause: Paused\n" );
+    DALI_LOG_RELEASE_INFO("Adaptor::Pause: Paused\n");
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::Pause: Not paused [%d]\n", mState );
+    DALI_LOG_RELEASE_INFO("Adaptor::Pause: Not paused [%d]\n", mState);
   }
 }
 
@@ -492,24 +470,24 @@ void Adaptor::Pause()
 void Adaptor::Resume()
 {
   // Only resume the adaptor if we are in the suspended state.
-  if( PAUSED == mState )
+  if(PAUSED == mState)
   {
     mState = RUNNING;
 
     // Reset the event handlers when adaptor resumed
-    for( auto window : mWindows )
+    for(auto window : mWindows)
     {
       window->Resume();
     }
 
     // Resume AddOnManager
-    if (mAddOnManager)
+    if(mAddOnManager)
     {
       mAddOnManager->Resume();
     }
 
     // Inform observers that we have resumed.
-    for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+    for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
     {
       (*iter)->OnResume();
     }
@@ -520,26 +498,26 @@ void Adaptor::Resume()
     // Do at end to ensure our first update/render after resumption includes the processed messages as well
     mThreadController->Resume();
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::Resume: Resumed\n");
+    DALI_LOG_RELEASE_INFO("Adaptor::Resume: Resumed\n");
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::Resume: Not resumed [%d]\n", mState );
+    DALI_LOG_RELEASE_INFO("Adaptor::Resume: Not resumed [%d]\n", mState);
   }
 }
 
 void Adaptor::Stop()
 {
-  if( RUNNING == mState ||
-      PAUSED  == mState ||
-      PAUSED_WHILE_HIDDEN == mState )
+  if(RUNNING == mState ||
+     PAUSED == mState ||
+     PAUSED_WHILE_HIDDEN == mState)
   {
-    for( ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter )
+    for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
     {
       (*iter)->OnStop();
     }
 
-    if (mAddOnManager)
+    if(mAddOnManager)
     {
       mAddOnManager->Stop();
     }
@@ -547,9 +525,9 @@ void Adaptor::Stop()
     mThreadController->Stop();
 
     // Delete the TTS player
-    for( int i =0; i < Dali::TtsPlayer::MODE_NUM; i++ )
+    for(int i = 0; i < Dali::TtsPlayer::MODE_NUM; i++)
     {
-      if( mTtsPlayers[i] )
+      if(mTtsPlayers[i])
       {
         mTtsPlayers[i].Reset();
       }
@@ -565,7 +543,7 @@ void Adaptor::Stop()
 
     mState = STOPPED;
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::Stop\n" );
+    DALI_LOG_RELEASE_INFO("Adaptor::Stop\n");
   }
 }
 
@@ -582,54 +560,54 @@ void Adaptor::ContextRegained()
   mCore->GetContextNotifier()->NotifyContextRegained(); // Inform stage
 }
 
-void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
+void Adaptor::FeedTouchPoint(TouchPoint& point, int timeStamp)
 {
-  Integration::Point convertedPoint( point );
-  mWindows.front()->FeedTouchPoint( convertedPoint, timeStamp );
+  Integration::Point convertedPoint(point);
+  mWindows.front()->FeedTouchPoint(convertedPoint, timeStamp);
 }
 
-void Adaptor::FeedWheelEvent( Dali::WheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent(Dali::WheelEvent& wheelEvent)
 {
-  Integration::WheelEvent event( static_cast< Integration::WheelEvent::Type >( wheelEvent.GetType() ), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime() );
-  mWindows.front()->FeedWheelEvent( event );
+  Integration::WheelEvent event(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  mWindows.front()->FeedWheelEvent(event);
 }
 
-void Adaptor::FeedKeyEvent( Dali::KeyEvent& keyEvent )
+void Adaptor::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
-  Integration::KeyEvent convertedEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
-  mWindows.front()->FeedKeyEvent( convertedEvent );
+  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  mWindows.front()->FeedKeyEvent(convertedEvent);
 }
 
-void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& newSurface )
+void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& newSurface)
 {
-  Internal::Adaptor::SceneHolder* windowImpl = &Dali::GetImplementation( window );
-  for( auto windowPtr : mWindows )
+  Internal::Adaptor::SceneHolder* windowImpl = &Dali::GetImplementation(window);
+  for(auto windowPtr : mWindows)
   {
-    if( windowPtr == windowImpl ) // the window is not deleted
+    if(windowPtr == windowImpl) // the window is not deleted
     {
-      mResizedSignal.Emit( mAdaptor );
+      mResizedSignal.Emit(mAdaptor);
 
-      windowImpl->SetSurface( &newSurface );
+      windowImpl->SetSurface(&newSurface);
 
       // Flush the event queue to give the update-render thread chance
       // to start processing messages for new camera setup etc as soon as possible
       ProcessCoreEvents();
 
       // This method blocks until the render thread has completed the replace.
-      mThreadController->ReplaceSurface( &newSurface );
+      mThreadController->ReplaceSurface(&newSurface);
       break;
     }
   }
 }
 
-void Adaptor::DeleteSurface( Dali::RenderSurfaceInterface& surface )
+void Adaptor::DeleteSurface(Dali::RenderSurfaceInterface& surface)
 {
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
   ProcessCoreEvents();
 
   // This method blocks until the render thread has finished rendering the current surface.
-  mThreadController->DeleteSurface( &surface );
+  mThreadController->DeleteSurface(&surface);
 }
 
 Dali::RenderSurfaceInterface& Adaptor::GetSurface() const
@@ -644,7 +622,7 @@ void Adaptor::ReleaseSurfaceLock()
 
 Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
 {
-  if( !mTtsPlayers[mode] )
+  if(!mTtsPlayers[mode])
   {
     // Create the TTS player when it needed, because it can reduce launching time.
     mTtsPlayers[mode] = TtsPlayer::New(mode);
@@ -653,63 +631,63 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue, bool forceAdd )
+bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue, bool forceAdd)
 {
   bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState || READY == mState || forceAdd )
+  if(RUNNING == mState || READY == mState || forceAdd)
   {
-    idleAdded = mCallbackManager->AddIdleCallback( callback, hasReturnValue );
+    idleAdded = mCallbackManager->AddIdleCallback(callback, hasReturnValue);
   }
 
   return idleAdded;
 }
 
-void Adaptor::RemoveIdle( CallbackBase* callback )
+void Adaptor::RemoveIdle(CallbackBase* callback)
 {
-  mCallbackManager->RemoveIdleCallback( callback );
+  mCallbackManager->RemoveIdleCallback(callback);
 }
 
 void Adaptor::ProcessIdle()
 {
-  bool idleProcessed = mCallbackManager->ProcessIdle();
+  bool idleProcessed           = mCallbackManager->ProcessIdle();
   mNotificationOnIdleInstalled = mNotificationOnIdleInstalled && !idleProcessed;
 }
 
-void Adaptor::SetPreRenderCallback( CallbackBase* callback )
+void Adaptor::SetPreRenderCallback(CallbackBase* callback)
 {
-  mThreadController->SetPreRenderCallback( callback );
+  mThreadController->SetPreRenderCallback(callback);
 }
 
-bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow )
+bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( childWindow );
-  windowImpl.SetAdaptor( Get() );
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation(childWindow);
+  windowImpl.SetAdaptor(Get());
 
   // ChildWindow is set to the layout direction of the default window.
-  windowImpl.GetRootLayer().SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
+  windowImpl.GetRootLayer().SetProperty(Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection);
 
   // Add the new Window to the container - the order is not important
-  mWindows.push_back( &windowImpl );
+  mWindows.push_back(&windowImpl);
 
   Dali::RenderSurfaceInterface* surface = windowImpl.GetSurface();
 
-  mThreadController->AddSurface( surface );
+  mThreadController->AddSurface(surface);
 
-  mWindowCreatedSignal.Emit( childWindow );
+  mWindowCreatedSignal.Emit(childWindow);
 
   return true;
 }
 
-bool Adaptor::RemoveWindow( Dali::Integration::SceneHolder* childWindow )
+bool Adaptor::RemoveWindow(Dali::Integration::SceneHolder* childWindow)
 {
-  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation( *childWindow );
-  for ( WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation(*childWindow);
+  for(WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter)
   {
-    if( *iter == &windowImpl )
+    if(*iter == &windowImpl)
     {
-      mWindows.erase( iter );
+      mWindows.erase(iter);
       return true;
     }
   }
@@ -717,13 +695,13 @@ bool Adaptor::RemoveWindow( Dali::Integration::SceneHolder* childWindow )
   return false;
 }
 
-bool Adaptor::RemoveWindow( std::string childWindowName )
+bool Adaptor::RemoveWindow(std::string childWindowName)
 {
-  for ( WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  for(WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter)
   {
-    if( ( *iter )->GetName() == childWindowName )
+    if((*iter)->GetName() == childWindowName)
     {
-      mWindows.erase( iter );
+      mWindows.erase(iter);
       return true;
     }
   }
@@ -731,13 +709,13 @@ bool Adaptor::RemoveWindow( std::string childWindowName )
   return false;
 }
 
-bool Adaptor::RemoveWindow( Internal::Adaptor::SceneHolder* childWindow )
+bool Adaptor::RemoveWindow(Internal::Adaptor::SceneHolder* childWindow)
 {
-  for ( WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  for(WindowContainer::iterator iter = mWindows.begin(); iter != mWindows.end(); ++iter)
   {
-    if( ( *iter )->GetId() == childWindow->GetId() )
+    if((*iter)->GetId() == childWindow->GetId())
     {
-      mWindows.erase( iter );
+      mWindows.erase(iter);
       return true;
     }
   }
@@ -747,7 +725,7 @@ bool Adaptor::RemoveWindow( Internal::Adaptor::SceneHolder* childWindow )
 
 Dali::Adaptor& Adaptor::Get()
 {
-  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
+  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
   return gThreadLocalAdaptor->mAdaptor;
 }
 
@@ -766,21 +744,21 @@ Dali::Integration::Core& Adaptor::GetCore()
   return *mCore;
 }
 
-void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
+void Adaptor::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender)
 {
-  mThreadController->SetRenderRefreshRate( numberOfVSyncsPerRender );
+  mThreadController->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
 Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
 {
-  DALI_ASSERT_DEBUG( mDisplayConnection && "Display connection not created" );
+  DALI_ASSERT_DEBUG(mDisplayConnection && "Display connection not created");
   return *mDisplayConnection;
 }
 
 GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
-  DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
-  return *( mGraphics.get() );
+  DALI_ASSERT_DEBUG(mGraphics && "Graphics interface not created");
+  return *(mGraphics.get());
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
@@ -800,7 +778,7 @@ SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
 
 Dali::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
 {
-  if( !mWindows.empty() )
+  if(!mWindows.empty())
   {
     return mWindows.front()->GetSurface();
   }
@@ -825,18 +803,18 @@ PerformanceInterface* Adaptor::GetPerformanceInterface()
 
 Integration::PlatformAbstraction& Adaptor::GetPlatformAbstraction() const
 {
-  DALI_ASSERT_DEBUG( mPlatformAbstraction && "PlatformAbstraction not created" );
+  DALI_ASSERT_DEBUG(mPlatformAbstraction && "PlatformAbstraction not created");
   return *mPlatformAbstraction;
 }
 
-void Adaptor::GetWindowContainerInterface( WindowContainer& windows )
+void Adaptor::GetWindowContainerInterface(WindowContainer& windows)
 {
   windows = mWindows;
 }
 
 void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
 {
-  if( mTtsPlayers[mode] )
+  if(mTtsPlayers[mode])
   {
     mTtsPlayers[mode].Reset();
   }
@@ -847,15 +825,15 @@ Any Adaptor::GetNativeWindowHandle()
   return mWindows.front()->GetNativeHandle();
 }
 
-Any Adaptor::GetNativeWindowHandle( Dali::Actor actor )
+Any Adaptor::GetNativeWindowHandle(Dali::Actor actor)
 {
   Any nativeWindowHandle;
 
-  Dali::Integration::Scene scene = Dali::Integration::Scene::Get( actor );
+  Dali::Integration::Scene scene = Dali::Integration::Scene::Get(actor);
 
-  for( auto sceneHolder : mWindows )
+  for(auto sceneHolder : mWindows)
   {
-    if ( scene == sceneHolder->GetScene() )
+    if(scene == sceneHolder->GetScene())
     {
       nativeWindowHandle = sceneHolder->GetNativeHandle();
       break;
@@ -869,13 +847,13 @@ Any Adaptor::GetGraphicsDisplay()
 {
   Any display;
 
-  if (mGraphics)
+  if(mGraphics)
   {
-    GraphicsInterface* graphics = mGraphics.get(); // This interface is temporary until Core has been updated to match
-    auto eglGraphics = static_cast<EglGraphics *>( graphics );
+    GraphicsInterface* graphics    = mGraphics.get(); // This interface is temporary until Core has been updated to match
+    auto               eglGraphics = static_cast<EglGraphics*>(graphics);
 
     EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    display = eglImpl.GetDisplay();
+    display                    = eglImpl.GetDisplay();
   }
 
   return display;
@@ -886,29 +864,29 @@ void Adaptor::SetUseRemoteSurface(bool useRemoteSurface)
   mUseRemoteSurface = useRemoteSurface;
 }
 
-void Adaptor::AddObserver( LifeCycleObserver& observer )
+void Adaptor::AddObserver(LifeCycleObserver& observer)
 {
-  ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
+  ObserverContainer::iterator match(find(mObservers.begin(), mObservers.end(), &observer));
 
-  if ( match == mObservers.end() )
+  if(match == mObservers.end())
   {
-    mObservers.push_back( &observer );
+    mObservers.push_back(&observer);
   }
 }
 
-void Adaptor::RemoveObserver( LifeCycleObserver& observer )
+void Adaptor::RemoveObserver(LifeCycleObserver& observer)
 {
-  ObserverContainer::iterator match ( find(mObservers.begin(), mObservers.end(), &observer) );
+  ObserverContainer::iterator match(find(mObservers.begin(), mObservers.end(), &observer));
 
-  if ( match != mObservers.end() )
+  if(match != mObservers.end())
   {
-    mObservers.erase( match );
+    mObservers.erase(match);
   }
 }
 
 void Adaptor::QueueCoreEvent(const Dali::Integration::Event& event)
 {
-  if( mCore )
+  if(mCore)
   {
     mCore->QueueEvent(event);
   }
@@ -916,25 +894,25 @@ void Adaptor::QueueCoreEvent(const Dali::Integration::Event& event)
 
 void Adaptor::ProcessCoreEvents()
 {
-  if( mCore )
+  if(mCore)
   {
-    if( mPerformanceInterface )
+    if(mPerformanceInterface)
     {
-      mPerformanceInterface->AddMarker( PerformanceInterface::PROCESS_EVENTS_START );
+      mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_START);
     }
 
     mCore->ProcessEvents();
 
-    if( mPerformanceInterface )
+    if(mPerformanceInterface)
     {
-      mPerformanceInterface->AddMarker( PerformanceInterface::PROCESS_EVENTS_END );
+      mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_END);
     }
   }
 }
 
-void Adaptor::RequestUpdate( bool forceUpdate )
+void Adaptor::RequestUpdate(bool forceUpdate)
 {
-  switch( mState )
+  switch(mState)
   {
     case RUNNING:
     {
@@ -944,10 +922,10 @@ void Adaptor::RequestUpdate( bool forceUpdate )
     case PAUSED:
     case PAUSED_WHILE_HIDDEN:
     {
-      if( forceUpdate )
+      if(forceUpdate)
       {
         // Update (and resource upload) without rendering
-        mThreadController->RequestUpdateOnce( UpdateMode::SKIP_RENDER );
+        mThreadController->RequestUpdateOnce(UpdateMode::SKIP_RENDER);
       }
       break;
     }
@@ -959,13 +937,13 @@ void Adaptor::RequestUpdate( bool forceUpdate )
   }
 }
 
-void Adaptor::RequestProcessEventsOnIdle( bool forceProcess )
+void Adaptor::RequestProcessEventsOnIdle(bool forceProcess)
 {
   // Only request a notification if the Adaptor is actually running
   // and we haven't installed the idle notification
-  if( ( ! mNotificationOnIdleInstalled ) && ( RUNNING == mState || READY == mState || forceProcess ) )
+  if((!mNotificationOnIdleInstalled) && (RUNNING == mState || READY == mState || forceProcess))
   {
-    mNotificationOnIdleInstalled = AddIdleEnterer( MakeCallback( this, &Adaptor::ProcessCoreEventsFromIdle ), forceProcess );
+    mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), forceProcess);
   }
 }
 
@@ -973,7 +951,7 @@ void Adaptor::OnWindowShown()
 {
   Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationShown();
 
-  if( PAUSED_WHILE_HIDDEN == mState )
+  if(PAUSED_WHILE_HIDDEN == mState)
   {
     // Adaptor can now be resumed
     mState = PAUSED;
@@ -983,21 +961,21 @@ void Adaptor::OnWindowShown()
     // Force a render task
     RequestUpdateOnce();
   }
-  else if( RUNNING == mState )
+  else if(RUNNING == mState)
   {
     // Force a render task
     RequestUpdateOnce();
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Update requested.\n" );
+    DALI_LOG_RELEASE_INFO("Adaptor::OnWindowShown: Update requested.\n");
   }
-  else if( PAUSED_WHILE_INITIALIZING == mState )
+  else if(PAUSED_WHILE_INITIALIZING == mState)
   {
     // Change the state to READY again. It will be changed to RUNNING after the adaptor is started.
     mState = READY;
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowShown: Adaptor is not paused state.[%d]\n", mState );
+    DALI_LOG_RELEASE_INFO("Adaptor::OnWindowShown: Adaptor is not paused state.[%d]\n", mState);
   }
 }
 
@@ -1005,13 +983,13 @@ void Adaptor::OnWindowHidden()
 {
   Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
 
-  if( RUNNING == mState || READY == mState )
+  if(RUNNING == mState || READY == mState)
   {
     bool allWindowsHidden = true;
 
-    for( auto window : mWindows )
+    for(auto window : mWindows)
     {
-      if ( window->IsVisible() )
+      if(window->IsVisible())
       {
         allWindowsHidden = false;
         break;
@@ -1019,16 +997,16 @@ void Adaptor::OnWindowHidden()
     }
 
     // Only pause the adaptor when all the windows are hidden
-    if( allWindowsHidden )
+    if(allWindowsHidden)
     {
-      if( mState == RUNNING )
+      if(mState == RUNNING)
       {
         Pause();
 
         // Adaptor cannot be resumed until any window is shown
         mState = PAUSED_WHILE_HIDDEN;
       }
-      else  // mState is READY
+      else // mState is READY
       {
         // Pause the adaptor after the state gets RUNNING
         mState = PAUSED_WHILE_INITIALIZING;
@@ -1036,28 +1014,28 @@ void Adaptor::OnWindowHidden()
     }
     else
     {
-      DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Some windows are shown. Don't pause adaptor.\n" );
+      DALI_LOG_RELEASE_INFO("Adaptor::OnWindowHidden: Some windows are shown. Don't pause adaptor.\n");
     }
   }
   else
   {
-    DALI_LOG_RELEASE_INFO( "Adaptor::OnWindowHidden: Adaptor is not running state.[%d]\n", mState );
+    DALI_LOG_RELEASE_INFO("Adaptor::OnWindowHidden: Adaptor is not running state.[%d]\n", mState);
   }
 }
 
 // Dali::Internal::Adaptor::Adaptor::OnDamaged
-void Adaptor::OnDamaged( const DamageArea& area )
+void Adaptor::OnDamaged(const DamageArea& area)
 {
   // This is needed for the case where Dali window is partially obscured
-  RequestUpdate( false );
+  RequestUpdate(false);
 }
 
-void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
-  mResizedSignal.Emit( mAdaptor );
+  mResizedSignal.Emit(mAdaptor);
 }
 
-void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
   // Nofify surface resizing before flushing event queue
   mThreadController->ResizeSurface();
@@ -1081,11 +1059,11 @@ void Adaptor::NotifySceneCreated()
   // Process after surface is created (registering to remote surface provider if required)
   SurfaceInitialized();
 
-  if( mState != PAUSED_WHILE_INITIALIZING )
+  if(mState != PAUSED_WHILE_INITIALIZING)
   {
     mState = RUNNING;
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated: Adaptor is running\n" );
+    DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Adaptor is running\n");
   }
   else
   {
@@ -1095,21 +1073,21 @@ void Adaptor::NotifySceneCreated()
 
     mState = PAUSED_WHILE_HIDDEN;
 
-    DALI_LOG_RELEASE_INFO( "Adaptor::NotifySceneCreated: Adaptor is paused\n" );
+    DALI_LOG_RELEASE_INFO("Adaptor::NotifySceneCreated: Adaptor is paused\n");
   }
 }
 
 void Adaptor::NotifyLanguageChanged()
 {
-  mLanguageChangedSignal.Emit( mAdaptor );
+  mLanguageChangedSignal.Emit(mAdaptor);
 }
 
 void Adaptor::RenderOnce()
 {
-  if( mThreadController )
+  if(mThreadController)
   {
     UpdateMode updateMode;
-    if( mThreadMode == ThreadMode::NORMAL )
+    if(mThreadMode == ThreadMode::NORMAL)
     {
       updateMode = UpdateMode::NORMAL;
     }
@@ -1119,7 +1097,7 @@ void Adaptor::RenderOnce()
 
       ProcessCoreEvents();
     }
-    mThreadController->RequestUpdateOnce( updateMode );
+    mThreadController->RequestUpdateOnce(updateMode);
   }
 }
 
@@ -1128,12 +1106,12 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return *mEnvironmentOptions;
 }
 
-void Adaptor::RegisterProcessor( Integration::Processor& processor )
+void Adaptor::RegisterProcessor(Integration::Processor& processor)
 {
   GetCore().RegisterProcessor(processor);
 }
 
-void Adaptor::UnregisterProcessor( Integration::Processor& processor )
+void Adaptor::UnregisterProcessor(Integration::Processor& processor)
 {
   GetCore().UnregisterProcessor(processor);
 }
@@ -1145,9 +1123,9 @@ bool Adaptor::IsMultipleWindowSupported() const
 
 void Adaptor::RequestUpdateOnce()
 {
-  if( mThreadController )
+  if(mThreadController)
   {
-    mThreadController->RequestUpdateOnce( UpdateMode::NORMAL );
+    mThreadController->RequestUpdateOnce(UpdateMode::NORMAL);
   }
 }
 
@@ -1161,13 +1139,13 @@ bool Adaptor::ProcessCoreEventsFromIdle()
   return false;
 }
 
-Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow( Dali::Actor& actor )
+Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow(Dali::Actor& actor)
 {
-  Dali::Integration::Scene scene = Dali::Integration::Scene::Get( actor );
+  Dali::Integration::Scene scene = Dali::Integration::Scene::Get(actor);
 
-  for( auto window : mWindows )
+  for(auto window : mWindows)
   {
-    if ( scene == window->GetScene() )
+    if(scene == window->GetScene())
     {
       return window;
     }
@@ -1180,13 +1158,13 @@ Dali::WindowContainer Adaptor::GetWindows() const
 {
   Dali::WindowContainer windows;
 
-  for ( auto iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  for(auto iter = mWindows.begin(); iter != mWindows.end(); ++iter)
   {
     // Downcast to Dali::Window
-    Dali::Window window( dynamic_cast<Dali::Internal::Adaptor::Window*>( *iter ) );
-    if ( window )
+    Dali::Window window(dynamic_cast<Dali::Internal::Adaptor::Window*>(*iter));
+    if(window)
     {
-      windows.push_back( window );
+      windows.push_back(window);
     }
   }
 
@@ -1197,9 +1175,9 @@ Dali::SceneHolderList Adaptor::GetSceneHolders() const
 {
   Dali::SceneHolderList sceneHolderList;
 
-  for( auto iter = mWindows.begin(); iter != mWindows.end(); ++iter )
+  for(auto iter = mWindows.begin(); iter != mWindows.end(); ++iter)
   {
-    sceneHolderList.push_back( Dali::Integration::SceneHolder( *iter ) );
+    sceneHolderList.push_back(Dali::Integration::SceneHolder(*iter));
   }
 
   return sceneHolderList;
@@ -1208,71 +1186,71 @@ Dali::SceneHolderList Adaptor::GetSceneHolders() const
 Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
 {
   Dali::ObjectRegistry registry;
-  if( mCore )
+  if(mCore)
   {
     registry = mCore->GetObjectRegistry();
   }
   return registry;
 }
 
-Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode )
+Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mWindowCreatedSignal(),
-  mAdaptor( adaptor ),
-  mState( READY ),
-  mCore( nullptr ),
-  mThreadController( nullptr ),
-  mGraphics( nullptr ),
-  mDisplayConnection( nullptr ),
+  mAdaptor(adaptor),
+  mState(READY),
+  mCore(nullptr),
+  mThreadController(nullptr),
+  mGraphics(nullptr),
+  mDisplayConnection(nullptr),
   mWindows(),
-  mConfigurationManager( nullptr ),
-  mPlatformAbstraction( nullptr ),
-  mCallbackManager( nullptr ),
-  mNotificationOnIdleInstalled( false ),
-  mNotificationTrigger( nullptr ),
+  mConfigurationManager(nullptr),
+  mPlatformAbstraction(nullptr),
+  mCallbackManager(nullptr),
+  mNotificationOnIdleInstalled(false),
+  mNotificationTrigger(nullptr),
   mDaliFeedbackPlugin(),
-  mFeedbackController( nullptr ),
+  mFeedbackController(nullptr),
   mTtsPlayers(),
   mObservers(),
-  mEnvironmentOptions( environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
-  mPerformanceInterface( nullptr ),
+  mEnvironmentOptions(environmentOptions ? environmentOptions : new EnvironmentOptions /* Create the options if not provided */),
+  mPerformanceInterface(nullptr),
   mKernelTracer(),
   mSystemTracer(),
-  mObjectProfiler( nullptr ),
+  mObjectProfiler(nullptr),
   mSocketFactory(),
-  mThreadMode( threadMode ),
-  mEnvironmentOptionsOwned( environmentOptions ? false : true /* If not provided then we own the object */ ),
-  mUseRemoteSurface( false ),
-  mRootLayoutDirection( Dali::LayoutDirection::LEFT_TO_RIGHT )
+  mThreadMode(threadMode),
+  mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
+  mUseRemoteSurface(false),
+  mRootLayoutDirection(Dali::LayoutDirection::LEFT_TO_RIGHT)
 {
-  DALI_ASSERT_ALWAYS( !IsAvailable() && "Cannot create more than one Adaptor per thread" );
-  mWindows.insert( mWindows.begin(), &Dali::GetImplementation( window ) );
+  DALI_ASSERT_ALWAYS(!IsAvailable() && "Cannot create more than one Adaptor per thread");
+  mWindows.insert(mWindows.begin(), &Dali::GetImplementation(window));
 
   gThreadLocalAdaptor = this;
 }
 
-void Adaptor::SetRootLayoutDirection( std::string locale )
+void Adaptor::SetRootLayoutDirection(std::string locale)
 {
-  mRootLayoutDirection = static_cast< LayoutDirection::Type >( Internal::Adaptor::Locale::GetDirection( std::string( locale ) ) );
-  for ( auto& window : mWindows )
+  mRootLayoutDirection = static_cast<LayoutDirection::Type>(Internal::Adaptor::Locale::GetDirection(std::string(locale)));
+  for(auto& window : mWindows)
   {
     Dali::Actor root = window->GetRootLayer();
-    root.SetProperty( Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection );
+    root.SetProperty(Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection);
   }
 }
 
-bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
+bool Adaptor::AddIdleEnterer(CallbackBase* callback, bool forceAdd)
 {
-  bool idleAdded( false );
+  bool idleAdded(false);
 
   // Only add an idle if the Adaptor is actually running
-  if( RUNNING == mState || READY == mState || forceAdd )
+  if(RUNNING == mState || READY == mState || forceAdd)
   {
-    idleAdded = mCallbackManager->AddIdleEntererCallback( callback );
+    idleAdded = mCallbackManager->AddIdleEntererCallback(callback);
   }
 
-  if( !idleAdded )
+  if(!idleAdded)
   {
     // Delete callback
     delete callback;
@@ -1281,9 +1259,9 @@ bool Adaptor::AddIdleEnterer( CallbackBase* callback, bool forceAdd )
   return idleAdded;
 }
 
-void Adaptor::RemoveIdleEnterer( CallbackBase* callback )
+void Adaptor::RemoveIdleEnterer(CallbackBase* callback)
 {
-  mCallbackManager->RemoveIdleEntererCallback( callback );
+  mCallbackManager->RemoveIdleEntererCallback(callback);
 }
 
 } // namespace Adaptor

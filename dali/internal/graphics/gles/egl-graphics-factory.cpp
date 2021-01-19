@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  *
  */
 
-
 // CLASS HEADER
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -28,8 +27,8 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-GraphicsFactory::GraphicsFactory()
+GraphicsFactory::GraphicsFactory(EnvironmentOptions& environmentOptions)
+: mEnvironmentOptions(environmentOptions)
 {
 }
 
@@ -40,7 +39,7 @@ GraphicsFactory::~GraphicsFactory()
 
 GraphicsInterface& GraphicsFactory::Create()
 {
-  GraphicsInterface* eglGraphicsInterface = new EglGraphics;
+  GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions);
   return *eglGraphicsInterface;
 }
 
@@ -49,6 +48,6 @@ void GraphicsFactory::Destroy()
   /* Deleted by EglGraphics */
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

@@ -9,6 +9,7 @@ SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
+    ${adaptor_graphics_dir}/gles/egl-graphics-controller.cpp
 )
 
 # module: graphics, backend: tizen
@@ -35,4 +36,3 @@ SET( adaptor_graphics_windows_src_files
 SET( adaptor_graphics_macos_src_files
     ${adaptor_graphics_dir}/macos/egl-image-extensions.cpp
 )
-
