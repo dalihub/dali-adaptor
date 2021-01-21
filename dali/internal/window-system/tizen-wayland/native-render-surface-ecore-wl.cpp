@@ -59,7 +59,6 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, 
   mEGLContext(nullptr),
   mOwnSurface(false),
   mTbmQueue(NULL),
-  mConsumeSurface(NULL),
   mThreadSynchronization(NULL)
 {
   Dali::Internal::Adaptor::WindowSystem::Initialize();
@@ -95,8 +94,6 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
   // release the surface if we own one
   if(mOwnSurface)
   {
-    ReleaseDrawable();
-
     if(mTbmQueue)
     {
       tbm_surface_queue_destroy(mTbmQueue);
@@ -106,11 +103,6 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
   }
 
   Dali::Internal::Adaptor::WindowSystem::Shutdown();
-}
-
-Any NativeRenderSurfaceEcoreWl::GetDrawable()
-{
-  return mConsumeSurface;
 }
 
 void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* renderNotification)
@@ -242,53 +234,20 @@ void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurf
     eglImpl.SwapBuffers(mEGLSurface, damagedRects);
   }
 
-  //TODO: Move calling tbm_surface_queue_acruie to OffscreenWindow and Scene in EvasPlugin
-  if(mOwnSurface)
+  if(mRenderNotification)
   {
     if(mThreadSynchronization)
     {
       mThreadSynchronization->PostRenderStarted();
     }
 
-    if(tbm_surface_queue_can_acquire(mTbmQueue, 1))
-    {
-      if(tbm_surface_queue_acquire(mTbmQueue, &mConsumeSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
-      {
-        DALI_LOG_ERROR("Failed to acquire a tbm_surface\n");
-        return;
-      }
-    }
-
-    if(mConsumeSurface)
-    {
-      tbm_surface_internal_ref(mConsumeSurface);
-    }
-
-    // create damage for client applications which wish to know the update timing
-    if(mRenderNotification)
-    {
-      // use notification trigger
-      // Tell the event-thread to render the tbm_surface
-      mRenderNotification->Trigger();
-    }
+    // Tell the event-thread to render the tbm_surface
+    mRenderNotification->Trigger();
 
     if(mThreadSynchronization)
     {
       // wait until the event-thread completed to use the tbm_surface
       mThreadSynchronization->PostRenderWaitForCompletion();
-    }
-
-    // release the consumed surface after post render was completed
-    ReleaseDrawable();
-  }
-  else
-  {
-    // create damage for client applications which wish to know the update timing
-    if(mRenderNotification)
-    {
-      // use notification trigger
-      // Tell the event-thread to render the tbm_surface
-      mRenderNotification->Trigger();
     }
   }
 }
@@ -351,20 +310,6 @@ void NativeRenderSurfaceEcoreWl::CreateNativeRenderable()
   else
   {
     mOwnSurface = false;
-  }
-}
-
-void NativeRenderSurfaceEcoreWl::ReleaseDrawable()
-{
-  if(mConsumeSurface)
-  {
-    tbm_surface_internal_unref(mConsumeSurface);
-
-    if(tbm_surface_internal_is_valid(mConsumeSurface))
-    {
-      tbm_surface_queue_release(mTbmQueue, mConsumeSurface);
-    }
-    mConsumeSurface = NULL;
   }
 }
 
