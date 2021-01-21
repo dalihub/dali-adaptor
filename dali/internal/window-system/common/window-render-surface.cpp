@@ -465,7 +465,6 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
     // Window rotate or screen rotate
     if( !mRotationFinished || !mScreenRotationFinished )
     {
-      mWindowBase->SetEglWindowRotation( totalAngle );
       mWindowBase->SetEglWindowBufferTransform( totalAngle );
 
       // Reset only screen rotation flag
