@@ -19,6 +19,10 @@
 #include <dali/devel-api/adaptor-framework/web-engine.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context.h>
+#include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
 namespace Dali
@@ -77,6 +81,26 @@ NativeImageInterfacePtr WebEngine::GetNativeImageSource()
   return GetImplementation(*this).GetNativeImageSource();
 }
 
+Dali::WebEngineSettings& WebEngine::GetSettings() const
+{
+  return GetImplementation( *this ).GetSettings();
+}
+
+Dali::WebEngineContext& WebEngine::GetContext() const
+{
+  return GetImplementation( *this ).GetContext();
+}
+
+Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
+{
+  return GetImplementation( *this ).GetCookieManager();
+}
+
+Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
+{
+  return GetImplementation( *this ).GetBackForwardList();
+}
+
 void WebEngine::LoadUrl(const std::string& url)
 {
   return GetImplementation(*this).LoadUrl(url);
@@ -87,9 +111,9 @@ const std::string& WebEngine::GetUrl()
   return GetImplementation(*this).GetUrl();
 }
 
-void WebEngine::LoadHTMLString(const std::string& htmlString)
+void WebEngine::LoadHtmlString(const std::string& htmlString)
 {
-  GetImplementation(*this).LoadHTMLString(htmlString);
+  GetImplementation(*this).LoadHtmlString(htmlString);
 }
 
 void WebEngine::Reload()
@@ -172,36 +196,6 @@ void WebEngine::ClearHistory()
   return GetImplementation(*this).ClearHistory();
 }
 
-void WebEngine::ClearCache()
-{
-  return GetImplementation(*this).ClearCache();
-}
-
-void WebEngine::ClearCookies()
-{
-  return GetImplementation(*this).ClearCookies();
-}
-
-Dali::WebEnginePlugin::CacheModel WebEngine::GetCacheModel() const
-{
-  return GetImplementation(*this).GetCacheModel();
-}
-
-void WebEngine::SetCacheModel(Dali::WebEnginePlugin::CacheModel cacheModel)
-{
-  GetImplementation(*this).SetCacheModel(cacheModel);
-}
-
-Dali::WebEnginePlugin::CookieAcceptPolicy WebEngine::GetCookieAcceptPolicy() const
-{
-  return GetImplementation(*this).GetCookieAcceptPolicy();
-}
-
-void WebEngine::SetCookieAcceptPolicy(Dali::WebEnginePlugin::CookieAcceptPolicy policy)
-{
-  GetImplementation(*this).SetCookieAcceptPolicy(policy);
-}
-
 const std::string& WebEngine::GetUserAgent() const
 {
   return GetImplementation(*this).GetUserAgent();
@@ -210,46 +204,6 @@ const std::string& WebEngine::GetUserAgent() const
 void WebEngine::SetUserAgent(const std::string& userAgent)
 {
   GetImplementation(*this).SetUserAgent(userAgent);
-}
-
-bool WebEngine::IsJavaScriptEnabled() const
-{
-  return GetImplementation(*this).IsJavaScriptEnabled();
-}
-
-void WebEngine::EnableJavaScript(bool enabled)
-{
-  GetImplementation(*this).EnableJavaScript(enabled);
-}
-
-bool WebEngine::AreImagesAutomaticallyLoaded() const
-{
-  return GetImplementation(*this).AreImagesAutomaticallyLoaded();
-}
-
-void WebEngine::LoadImagesAutomatically(bool automatic)
-{
-  GetImplementation(*this).LoadImagesAutomatically(automatic);
-}
-
-const std::string& WebEngine::GetDefaultTextEncodingName() const
-{
-  return GetImplementation(*this).GetDefaultTextEncodingName();
-}
-
-void WebEngine::SetDefaultTextEncodingName(const std::string& defaultTextEncodingName)
-{
-  GetImplementation(*this).SetDefaultTextEncodingName(defaultTextEncodingName);
-}
-
-int WebEngine::GetDefaultFontSize() const
-{
-  return GetImplementation(*this).GetDefaultFontSize();
-}
-
-void WebEngine::SetDefaultFontSize(int defaultFontSize)
-{
-  GetImplementation(*this).SetDefaultFontSize(defaultFontSize);
 }
 
 void WebEngine::SetSize(int width, int height)
