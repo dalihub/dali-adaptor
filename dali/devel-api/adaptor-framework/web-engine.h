@@ -202,17 +202,17 @@ public:
   /**
    * @brief Gets the current scroll position of the given view.
    */
-  void GetScrollPosition( int& x, int& y ) const;
+  Dali::Vector2 GetScrollPosition() const;
 
   /**
    * @brief Gets the possible scroll size of the given view.
    */
-  void GetScrollSize( int& width, int& height ) const;
+  Dali::Vector2 GetScrollSize() const;
 
   /**
    * @brief Gets the last known content's size.
    */
-  void GetContentSize( int& width, int& height ) const;
+  Dali::Vector2 GetContentSize() const;
 
   /**
    * @brief Returns whether forward is possible.

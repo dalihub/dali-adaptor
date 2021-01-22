@@ -273,19 +273,19 @@ void WebEngine::SetScrollPosition( int x, int y )
   mPlugin->SetScrollPosition( x, y );
 }
 
-void WebEngine::GetScrollPosition( int& x, int& y ) const
+Dali::Vector2 WebEngine::GetScrollPosition() const
 {
-  mPlugin->GetScrollPosition( x, y );
+  return mPlugin->GetScrollPosition();
 }
 
-void WebEngine::GetScrollSize( int& width, int& height ) const
+Dali::Vector2 WebEngine::GetScrollSize() const
 {
-  mPlugin->GetScrollSize( width, height );
+  return mPlugin->GetScrollSize();
 }
 
-void WebEngine::GetContentSize( int& width, int& height ) const
+Dali::Vector2 WebEngine::GetContentSize() const
 {
-  mPlugin->GetContentSize( width, height );
+  return mPlugin->GetContentSize();
 }
 
 bool WebEngine::CanGoForward()

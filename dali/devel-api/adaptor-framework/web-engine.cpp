@@ -164,19 +164,19 @@ void WebEngine::SetScrollPosition( int x, int y )
   GetImplementation( *this ).SetScrollPosition( x, y );
 }
 
-void WebEngine::GetScrollPosition( int& x, int& y ) const
+Dali::Vector2 WebEngine::GetScrollPosition() const
 {
-  GetImplementation( *this ).GetScrollPosition( x, y );
+  return GetImplementation( *this ).GetScrollPosition();
 }
 
-void WebEngine::GetScrollSize( int& width, int& height ) const
+Dali::Vector2 WebEngine::GetScrollSize() const
 {
-  GetImplementation( *this ).GetScrollSize( width, height );
+  return GetImplementation( *this ).GetScrollSize();
 }
 
-void WebEngine::GetContentSize( int& width, int& height ) const
+Dali::Vector2 WebEngine::GetContentSize() const
 {
-  GetImplementation( *this ).GetContentSize( width, height );
+  return GetImplementation( *this ).GetContentSize();
 }
 
 bool WebEngine::CanGoForward()

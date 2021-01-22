@@ -166,17 +166,17 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetScrollPosition()
    */
-  void GetScrollPosition( int& x, int& y ) const;
+  Dali::Vector2 GetScrollPosition() const;
 
   /**
    * @copydoc Dali::WebEngine::GetScrollSize()
    */
-  void GetScrollSize( int& width, int& height ) const;
+  Dali::Vector2 GetScrollSize() const;
 
   /**
    * @copydoc Dali::WebEngine::GetContentSize()
    */
-  void GetContentSize( int& width, int& height ) const;
+  Dali::Vector2 GetContentSize() const;
 
   /**
    * @copydoc Dali::WebEngine::CanGoForward()

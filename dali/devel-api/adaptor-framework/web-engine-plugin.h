@@ -43,12 +43,12 @@ public:
   /**
    * @brief WebEngine signal type related with page loading.
    */
-  typedef Signal<void(const std::string&)> WebEnginePageLoadSignalType;
+  using WebEnginePageLoadSignalType = Signal< void( const std::string& ) >;
 
   /**
    * @brief WebView signal type related with page loading error.
    */
-  typedef Signal<void(const std::string&, int)> WebEnginePageLoadErrorSignalType;
+  using WebEnginePageLoadErrorSignalType = Signal< void( const std::string&, int ) >;
 
   // forward declaration.
   enum class ScrollEdge;
@@ -56,7 +56,7 @@ public:
   /**
    * @brief WebView signal type related with scroll edge reached.
    */
-  typedef Signal< void( const ScrollEdge )> WebEngineScrollEdgeReachedSignalType;
+  using WebEngineScrollEdgeReachedSignalType = Signal< void( const ScrollEdge ) >;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -197,17 +197,17 @@ public:
   /**
    * @brief Gets the current scroll position of the given view.
    */
-  virtual void GetScrollPosition( int& x, int& y ) const = 0;
+  virtual Dali::Vector2 GetScrollPosition() const = 0;
 
   /**
    * @brief Gets the possible scroll size of the given view.
    */
-  virtual void GetScrollSize( int& width, int& height ) const = 0;
+  virtual Dali::Vector2 GetScrollSize() const = 0;
 
   /**
    * @brief Gets the last known content's size.
    */
-  virtual void GetContentSize( int& width, int& height ) const = 0;
+  virtual Dali::Vector2 GetContentSize() const = 0;
 
   /**
    * @brief Returns whether forward is possible.
