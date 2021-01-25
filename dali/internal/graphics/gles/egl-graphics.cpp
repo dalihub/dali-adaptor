@@ -56,7 +56,11 @@ EglGraphics::~EglGraphics()
 
 void EglGraphics::SetGlesVersion(const int32_t glesVersion)
 {
-  mEglImplementation->SetGlesVersion(glesVersion);
+  if(mEglImplementation)
+  {
+    mEglImplementation->SetGlesVersion(glesVersion);
+  }
+
   mGLES->SetGlesVersion(glesVersion);
 }
 
@@ -67,7 +71,7 @@ void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 
 void EglGraphics::ActivateResourceContext()
 {
-  if(mEglImplementation->IsSurfacelessContextSupported())
+  if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
     // Make the shared surfaceless context as current before rendering
     mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
@@ -76,7 +80,10 @@ void EglGraphics::ActivateResourceContext()
 
 void EglGraphics::SetFirstFrameAfterResume()
 {
-  mEglImplementation->SetFirstFrameAfterResume();
+  if(mEglImplementation)
+  {
+    mEglImplementation->SetFirstFrameAfterResume();
+  }
 }
 
 void EglGraphics::Initialize()
@@ -110,6 +117,8 @@ void EglGraphics::EglInitialize()
 
 void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
 {
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
+
   // Try to use OpenGL es 3.0
   // ChooseConfig returns false here when the device only support gles 2.0.
   // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
@@ -147,7 +156,10 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
 
 void EglGraphics::Shutdown()
 {
-  mEglImplementation->TerminateGles();
+  if(mEglImplementation)
+  {
+    mEglImplementation->TerminateGles();
+  }
 }
 
 void EglGraphics::Destroy()
@@ -167,13 +179,13 @@ Integration::GlAbstraction& EglGraphics::GetGlAbstraction() const
 
 EglImplementation& EglGraphics::GetEglImplementation() const
 {
-  DALI_ASSERT_DEBUG(mEglImplementation && "EGLImplementation not created");
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
   return *mEglImplementation;
 }
 
 EglInterface& EglGraphics::GetEglInterface() const
 {
-  DALI_ASSERT_DEBUG(mEglImplementation && "EGLImplementation not created");
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
   EglInterface* eglInterface = mEglImplementation.get();
   return *eglInterface;
 }
