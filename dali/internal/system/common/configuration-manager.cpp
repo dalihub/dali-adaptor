@@ -42,34 +42,6 @@ const std::string DALI_ENV_MULTIPLE_WINDOW_SUPPORT     = "DALI_ENV_MULTIPLE_WIND
 const std::string DALI_BLEND_EQUATION_ADVANCED_SUPPORT = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
 const std::string DALI_GLSL_VERSION                    = "DALI_GLSL_VERSION";
 
-bool RetrieveKeyFromConfigFile(std::iostream& stream, const std::string& key, std::string& value)
-{
-  bool keyFound = false;
-
-  std::string line;
-  while(std::getline(stream, line))
-  {
-    line.erase(line.find_last_not_of(" \t\r\n") + 1);
-    line.erase(0, line.find_first_not_of(" \t\r\n"));
-    if('#' == *(line.cbegin()) || line == "")
-    {
-      continue;
-    }
-
-    std::istringstream stream(line);
-    std::string        name;
-    std::getline(stream, name, ' ');
-    if(name == key)
-    {
-      std::getline(stream, value);
-      keyFound = true;
-      break;
-    }
-  }
-
-  return keyFound;
-}
-
 } // unnamed namespace
 
 ConfigurationManager::ConfigurationManager(std::string systemCachePath, GraphicsInterface* graphics, ThreadController* threadController)
@@ -97,33 +69,44 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
   std::iostream&   stream = configFile.GetStream();
   if(stream.rdbuf()->in_avail())
   {
-    std::string value;
-    if(!mMaxTextureSizeCached &&
-       RetrieveKeyFromConfigFile(stream, DALI_ENV_MAX_TEXTURE_SIZE, value))
+    std::string line;
+    while( std::getline( stream, line ) )
     {
-      mMaxTextureSize       = std::atoi(value.c_str());
-      mMaxTextureSizeCached = true;
-    }
+      line.erase( line.find_last_not_of( " \t\r\n" ) + 1 );
+      line.erase( 0, line.find_first_not_of( " \t\r\n" ) );
+      if( '#' == *( line.cbegin() ) || line == "" )
+      {
+        continue;
+      }
 
-    if(!mShaderLanguageVersionCached &&
-       RetrieveKeyFromConfigFile(stream, DALI_GLSL_VERSION, value))
-    {
-      mShaderLanguageVersion       = std::atoi(value.c_str());
-      mShaderLanguageVersionCached = true;
-    }
-
-    if(!mIsMultipleWindowSupportedCached &&
-       RetrieveKeyFromConfigFile(stream, DALI_ENV_MULTIPLE_WINDOW_SUPPORT, value))
-    {
-      mIsMultipleWindowSupported       = std::atoi(value.c_str());
-      mIsMultipleWindowSupportedCached = true;
-    }
-
-    if(!mIsAdvancedBlendEquationSupportedCached &&
-       RetrieveKeyFromConfigFile(stream, DALI_BLEND_EQUATION_ADVANCED_SUPPORT, value))
-    {
-      mIsAdvancedBlendEquationSupported       = std::atoi(value.c_str());
-      mIsAdvancedBlendEquationSupportedCached = true;
+      std::istringstream subStream(line);
+      std::string name;
+      std::string value;
+      std::getline(subStream, name, ' ');
+      if(!mMaxTextureSizeCached && name == DALI_ENV_MAX_TEXTURE_SIZE)
+      {
+        std::getline(subStream, value);
+        mMaxTextureSize       = std::atoi(value.c_str());
+        mMaxTextureSizeCached = true;
+      }
+      else if(!mIsAdvancedBlendEquationSupportedCached && name == DALI_BLEND_EQUATION_ADVANCED_SUPPORT)
+      {
+        std::getline(subStream, value);
+        mIsAdvancedBlendEquationSupported       = std::atoi(value.c_str());
+        mIsAdvancedBlendEquationSupportedCached = true;
+      }
+      else if(!mShaderLanguageVersionCached && name == DALI_GLSL_VERSION)
+      {
+        std::getline(subStream, value);
+        mShaderLanguageVersion       = std::atoi(value.c_str());
+        mShaderLanguageVersionCached = true;
+      }
+      else if(!mIsMultipleWindowSupportedCached && name == DALI_ENV_MULTIPLE_WINDOW_SUPPORT)
+      {
+        std::getline(subStream, value);
+        mIsMultipleWindowSupported       = std::atoi(value.c_str());
+        mIsMultipleWindowSupportedCached = true;
+      }
     }
   }
 }
@@ -172,7 +155,6 @@ uint32_t ConfigurationManager::GetShadingLanguageVersion()
 
       // Query from graphics and save the cache
       mShaderLanguageVersion = mGraphics->GetShaderLanguageVersion();
-      DALI_LOG_ERROR("mShaderLanguageVersion : %d\n", mShaderLanguageVersion);
       mShaderLanguageVersionCached = true;
 
       Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
