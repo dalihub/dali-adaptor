@@ -185,6 +185,16 @@ void GlWindow::RenderOnce()
   GetImplementation(*this).RenderOnce();
 }
 
+void GlWindow::SetRenderingMode( RenderingMode mode )
+{
+  GetImplementation(*this).SetRenderingMode( mode );
+}
+
+GlWindow::RenderingMode GlWindow::GetRenderingMode() const
+{
+  return GetImplementation(*this).GetRenderingMode();
+}
+
 GlWindow::FocusChangeSignalType& GlWindow::FocusChangeSignal()
 {
   return GetImplementation(*this).FocusChangeSignal();
