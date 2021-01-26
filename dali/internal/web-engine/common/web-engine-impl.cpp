@@ -32,6 +32,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/public-api/images/pixel-data.h>
 
 namespace Dali
 {
@@ -172,6 +173,11 @@ void WebEngine::Create( int width, int height, const std::string& locale, const 
   mPlugin->Create( width, height, locale, timezoneId );
 }
 
+void WebEngine::Create( int width, int height, int argc, char** argv )
+{
+  mPlugin->Create( width, height, argc, argv );
+}
+
 void WebEngine::Destroy()
 {
   mPlugin->Destroy();
@@ -207,9 +213,29 @@ void WebEngine::LoadUrl( const std::string& url )
   mPlugin->LoadUrl( url );
 }
 
+std::string WebEngine::GetTitle() const
+{
+  return mPlugin->GetTitle();
+}
+
+Dali::PixelData WebEngine::GetFavicon() const
+{
+  return mPlugin->GetFavicon();
+}
+
 const std::string& WebEngine::GetUrl()
 {
   return mPlugin->GetUrl();
+}
+
+const std::string& WebEngine::GetUserAgent() const
+{
+  return mPlugin->GetUserAgent();
+}
+
+void WebEngine::SetUserAgent( const std::string& userAgent )
+{
+  mPlugin->SetUserAgent( userAgent );
 }
 
 void WebEngine::LoadHtmlString( const std::string& htmlString )
@@ -292,14 +318,9 @@ void WebEngine::AddJavaScriptMessageHandler( const std::string& exposedObjectNam
   mPlugin->AddJavaScriptMessageHandler( exposedObjectName, handler );
 }
 
-const std::string& WebEngine::GetUserAgent() const
+void WebEngine::ClearAllTilesResources()
 {
-  return mPlugin->GetUserAgent();
-}
-
-void WebEngine::SetUserAgent( const std::string& userAgent )
-{
-  mPlugin->SetUserAgent( userAgent );
+  mPlugin->ClearAllTilesResources();
 }
 
 void WebEngine::ClearHistory()
