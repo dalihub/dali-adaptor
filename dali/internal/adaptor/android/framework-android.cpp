@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 #include <dali/devel-api/events/touch-point.h>
 #include <dali/public-api/events/key-event.h>
+#include <dali/public-api/actors/actor.h>
+#include <dali/public-api/actors/layer.h>
 #include <dali/devel-api/events/key-event-devel.h>
 
 // INTERNAL INCLUDES
@@ -81,6 +83,30 @@ static unsigned int GetCurrentMilliSeconds(void)
 
   gettimeofday(&tv, NULL);
   return (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+}
+
+/// Recursively removes constraints from an actor and all it's children.
+void RemoveAllConstraints(Dali::Actor actor)
+{
+  if(actor)
+  {
+    const auto childCount = actor.GetChildCount();
+    for(auto i = 0u; i < childCount; ++i)
+    {
+      Dali::Actor child = actor.GetChildAt(i);
+      RemoveAllConstraints(child);
+    }
+    actor.RemoveConstraints();
+  }
+}
+
+/// Removes constraints from all actors in all windows.
+void RemoveAllConstraints(const Dali::WindowContainer& windows)
+{
+  for( auto& window : windows )
+  {
+    RemoveAllConstraints(window.GetRootLayer());
+  }
 }
 
 } // Unnamed namespace
@@ -667,6 +693,7 @@ bool Framework::AppStatusHandler(int type, void* data)
   switch (type)
   {
     case APP_WINDOW_CREATED:
+    {
       if( !mInitialised )
       {
         mObserver.OnInit();
@@ -675,38 +702,57 @@ bool Framework::AppStatusHandler(int type, void* data)
 
       mObserver.OnSurfaceCreated( data );
       break;
+    }
 
     case APP_RESET:
+    {
       mObserver.OnReset();
       break;
+    }
 
     case APP_RESUME:
+    {
       mObserver.OnResume();
       adaptor = &Dali::Adaptor::Get();
       adaptor->Resume();
       break;
+    }
 
     case APP_WINDOW_DESTROYED:
+    {
       mObserver.OnSurfaceDestroyed( data );
       break;
+    }
 
     case APP_PAUSE:
+    {
       adaptor = &Dali::Adaptor::Get();
       adaptor->Pause();
       mObserver.OnPause();
       break;
+    }
 
     case APP_LANGUAGE_CHANGE:
+    {
       mObserver.OnLanguageChanged();
       break;
+    }
 
     case APP_DESTROYED:
+    {
+      adaptor = &Dali::Adaptor::Get();
+      // Need to remove constraints before Terminate is called as the constraint function
+      // can be destroyed before the constraints get a chance to clean up.
+      RemoveAllConstraints(adaptor->GetWindows());
       mObserver.OnTerminate();
       mInitialised = false;
       break;
+    }
 
     default:
+    {
       break;
+    }
   }
 
   return true;
