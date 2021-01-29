@@ -81,6 +81,12 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
                           SamplingMode::Type samplingMode,
                           bool orientationCorrection );
 
+ImageDimensions  GetRotatedImageSize( const std::string& filename,
+                          ImageDimensions size,
+                          FittingMode::Type fittingMode,
+                          SamplingMode::Type samplingMode,
+                          bool orientationCorrection );
+
 /**
  * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
  *

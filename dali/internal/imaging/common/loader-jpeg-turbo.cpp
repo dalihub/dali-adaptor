@@ -1121,6 +1121,34 @@ bool LoadJpegHeader( const Dali::ImageLoader::Input& input, unsigned int& width,
   FILE* const fp = input.file;
 
   bool success = false;
+
+  // If rotatedSizeRequested is true, just get size
+  if( input.rotatedSizeRequested )
+  {
+    unsigned int headerWidth;
+    unsigned int headerHeight;
+    if( LoadJpegHeader( fp, headerWidth, headerHeight ) )
+    {
+      auto transform = JpegTransform::NONE;
+      if( input.reorientationRequested )
+      {
+        auto exifData = LoadExifData( fp );
+        if( exifData )
+        {
+          transform = ConvertExifOrientation(exifData.get());
+        }
+        if( transform == JpegTransform::ROTATE_90 || transform == JpegTransform::ROTATE_270 || transform == JpegTransform::TRANSPOSE || transform == JpegTransform::TRANSVERSE)
+        {
+          std::swap( headerWidth, headerHeight );
+        }
+      }
+      success = true;
+      width = headerWidth;
+      height = headerHeight;
+    }
+    return success;
+  }
+
   if( requiredWidth == 0 && requiredHeight == 0 )
   {
     success = LoadJpegHeader( fp, width, height );

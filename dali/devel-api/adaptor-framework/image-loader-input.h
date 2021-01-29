@@ -51,15 +51,17 @@ public:
    */
 struct Input
 {
-  Input(FILE* file, ScalingParameters scalingParameters = ScalingParameters(), bool reorientationRequested = true)
+  Input(FILE* file, ScalingParameters scalingParameters = ScalingParameters(), bool reorientationRequested = true, bool rotatedSizeRequested = false )
   : file(file),
     scalingParameters(scalingParameters),
-    reorientationRequested(reorientationRequested)
+    reorientationRequested(reorientationRequested),
+    rotatedSizeRequested(rotatedSizeRequested)
   {
   }
   FILE*             file;
   ScalingParameters scalingParameters;
   bool              reorientationRequested;
+  bool              rotatedSizeRequested;
 };
 
 using LoadBitmapFunction       = bool (*)(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& pixelData);

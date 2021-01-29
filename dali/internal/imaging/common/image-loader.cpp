@@ -355,7 +355,7 @@ ImageDimensions  GetClosestImageSize( const std::string& filename,
                                    profile,
                                    filename ) )
     {
-      const Dali::ImageLoader::Input input( fp, Dali::ImageLoader::ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection );
+      const Dali::ImageLoader::Input input( fp, Dali::ImageLoader::ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection , false );
 
       const bool read_res = headerFunction( input, width, height );
       if(!read_res)
@@ -417,6 +417,45 @@ ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer
   return ImageDimensions( width, height );
 }
 
+ImageDimensions GetRotatedImageSize( const std::string& filename,
+                                      ImageDimensions size,
+                                      FittingMode::Type fittingMode,
+                                      SamplingMode::Type samplingMode,
+                                      bool orientationCorrection )
+{
+  unsigned int width = 0;
+  unsigned int height = 0;
+
+  Internal::Platform::FileReader fileReader( filename );
+  FILE *fp = fileReader.GetFile();
+  if (fp != NULL)
+  {
+    Dali::ImageLoader::LoadBitmapFunction loaderFunction;
+    Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
+    Bitmap::Profile profile;
+
+    if ( GetBitmapLoaderFunctions( fp,
+                                   GetFormatHint(filename),
+                                   loaderFunction,
+                                   headerFunction,
+                                   profile,
+                                   filename ) )
+    {
+      const Dali::ImageLoader::Input input( fp, Dali::ImageLoader::ScalingParameters( size, fittingMode, samplingMode ), orientationCorrection , true );
+
+      const bool read_res = headerFunction( input, width, height );
+      if(!read_res)
+      {
+        DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", filename.c_str());
+      }
+    }
+    else
+    {
+      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", filename.c_str());
+    }
+  }
+  return ImageDimensions( width, height );
+}
 void SetMaxTextureSize( unsigned int size )
 {
   gMaxTextureSize = size;
