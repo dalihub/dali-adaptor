@@ -162,12 +162,12 @@ public:
    */
   bool IsInitialized() override
   {
-    return mEglImplementation->IsGlesInitialized();
+    return mEglImplementation && mEglImplementation->IsGlesInitialized();
   }
 
   bool IsResourceContextSupported() override
   {
-    return mEglImplementation->IsSurfacelessContextSupported();
+    return mEglImplementation && mEglImplementation->IsSurfacelessContextSupported();
   }
 
   uint32_t GetMaxTextureSize() override

@@ -97,6 +97,16 @@ public:
   void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
 
   /**
+   * @brief Creates WebEngine instance.
+   *
+   * @param [in] width The width of Web
+   * @param [in] height The height of Web
+   * @param [in] argc The count of application arguments
+   * @param [in] argv The string array of application arguments
+   */
+  void Create( int width, int height, int argc, char** argv );
+
+  /**
    * @brief Destroys WebEngine instance.
    */
   void Destroy();
@@ -132,6 +142,20 @@ public:
    * @param [in] url The URL of the resource to load
    */
   void LoadUrl(const std::string& url);
+
+  /**
+   * @brief Returns the title of the Web.
+   *
+   * @return The title of web page
+   */
+  std::string GetTitle() const;
+
+  /**
+   * @brief Returns the Favicon of the Web.
+   *
+   * @return FavIcon of Dali::PixelData& type
+   */
+  Dali::PixelData GetFavicon() const;
 
   /**
    * @brief Gets the url.
@@ -178,17 +202,17 @@ public:
   /**
    * @brief Gets the current scroll position of the given view.
    */
-  void GetScrollPosition( int& x, int& y ) const;
+  Dali::Vector2 GetScrollPosition() const;
 
   /**
    * @brief Gets the possible scroll size of the given view.
    */
-  void GetScrollSize( int& width, int& height ) const;
+  Dali::Vector2 GetScrollSize() const;
 
   /**
    * @brief Gets the last known content's size.
    */
-  void GetContentSize( int& width, int& height ) const;
+  Dali::Vector2 GetContentSize() const;
 
   /**
    * @brief Returns whether forward is possible.
@@ -229,6 +253,11 @@ public:
    * @param[in] handler The callback function
    */
   void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
+
+  /**
+   * @brief Clears all tiles resources of Web.
+   */
+  void ClearAllTilesResources();
 
   /**
    * @brief Clears the history of Web.

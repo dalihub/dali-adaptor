@@ -32,6 +32,7 @@
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 
 namespace Dali
 {
@@ -155,15 +156,15 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
   // First check the system location where shaders are stored at install time:
   path = DALI_SHADERBIN_DIR;
   path += filename;
-  result = LoadFile( path, buffer );
+  result = Dali::FileLoader::ReadFile( path, buffer );
 
   // Fallback to the cache of shaders stored after previous runtime compilations:
   // On desktop this looks in the current working directory that the app was launched from.
-  if( mResourceLoader && result == false )
+  if( result == false )
   {
     path = mDataStoragePath;
     path += filename;
-    result = LoadFile( path, buffer );
+    result = Dali::FileLoader::ReadFile( path, buffer );
   }
 #endif
 
