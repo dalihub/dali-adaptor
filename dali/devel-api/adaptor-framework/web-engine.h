@@ -295,8 +295,21 @@ public:
 
   /**
    * @brief Set focus.
+   * @param[in] focused True if web view is focused, false otherwise
    */
   void SetFocus( bool focused );
+
+  /**
+   * @brief Update display area.
+   * @param[in] displayArea The area to display web page.
+   */
+  void UpdateDisplayArea( Dali::Rect< int > displayArea );
+
+  /**
+   * @brief Enable video hole.
+   * @param[in] enabled True if video hole is enabled, false otherwise
+   */
+  void EnableVideoHole( bool enabled );
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
