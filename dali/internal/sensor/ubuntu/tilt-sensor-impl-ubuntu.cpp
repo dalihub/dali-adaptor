@@ -16,17 +16,16 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/sensor/ubuntu/tilt-sensor-impl-ubuntu.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
+#include <dali/internal/sensor/ubuntu/tilt-sensor-impl-ubuntu.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
-#include <dali/integration-api/debug.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace // unnamed namespace
 {
-
 const char* const SIGNAL_TILTED = "tilted";
 
 const int NUMBER_OF_SAMPLES = 10;
@@ -39,21 +38,18 @@ Dali::BaseHandle GetInstance()
   return Dali::Internal::Adaptor::TiltSensorFactory::Get();
 }
 
-Dali::TypeRegistration typeRegistration( typeid(Dali::TiltSensor), typeid(Dali::BaseHandle), GetInstance );
+Dali::TypeRegistration typeRegistration(typeid(Dali::TiltSensor), typeid(Dali::BaseHandle), GetInstance);
 
-Dali::SignalConnectorType signalConnector1( typeRegistration, SIGNAL_TILTED, Dali::Internal::Adaptor::TiltSensor::DoConnectSignal );
+Dali::SignalConnectorType signalConnector1(typeRegistration, SIGNAL_TILTED, Dali::Internal::Adaptor::TiltSensor::DoConnectSignal);
 
 } // unnamed namespace
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 TiltSensorUbuntu* TiltSensorUbuntu::New()
 {
   return new TiltSensorUbuntu();
@@ -69,16 +65,16 @@ bool TiltSensorUbuntu::Start()
   // Make sure sensor API is responding
   bool success = Update();
 
-  if ( success )
+  if(success)
   {
-    if ( !mTimer )
+    if(!mTimer)
     {
-      mTimer = Dali::Timer::New( 1000.0f / mFrequencyHertz );
-      mTimer.TickSignal().Connect( mTimerSlot, &TiltSensorUbuntu::Update );
+      mTimer = Dali::Timer::New(1000.0f / mFrequencyHertz);
+      mTimer.TickSignal().Connect(mTimerSlot, &TiltSensorUbuntu::Update);
     }
 
-    if ( mTimer &&
-         !mTimer.IsRunning() )
+    if(mTimer &&
+       !mTimer.IsRunning())
     {
       mTimer.Start();
     }
@@ -89,7 +85,7 @@ bool TiltSensorUbuntu::Start()
 
 void TiltSensorUbuntu::Stop()
 {
-  if ( mTimer )
+  if(mTimer)
   {
     mTimer.Stop();
     mTimer.Reset();
@@ -98,7 +94,7 @@ void TiltSensorUbuntu::Stop()
 
 bool TiltSensorUbuntu::IsStarted() const
 {
-  return ( mTimer && mTimer.IsRunning() );
+  return (mTimer && mTimer.IsRunning());
 }
 
 float TiltSensorUbuntu::GetRoll() const
@@ -121,17 +117,17 @@ TiltSensor::TiltedSignalType& TiltSensorUbuntu::TiltedSignal()
   return mTiltedSignal;
 }
 
-void TiltSensorUbuntu::SetUpdateFrequency( float frequencyHertz )
+void TiltSensorUbuntu::SetUpdateFrequency(float frequencyHertz)
 {
-  DALI_ASSERT_ALWAYS( frequencyHertz > 0.0f && "Frequency must have a positive value" );
+  DALI_ASSERT_ALWAYS(frequencyHertz > 0.0f && "Frequency must have a positive value");
 
-  if ( fabsf(mFrequencyHertz - frequencyHertz) >= GetRangedEpsilon(mFrequencyHertz, frequencyHertz) )
+  if(fabsf(mFrequencyHertz - frequencyHertz) >= GetRangedEpsilon(mFrequencyHertz, frequencyHertz))
   {
     mFrequencyHertz = frequencyHertz;
 
-    if ( mTimer )
+    if(mTimer)
     {
-      mTimer.SetInterval( 1000.0f / mFrequencyHertz );
+      mTimer.SetInterval(1000.0f / mFrequencyHertz);
     }
   }
 }
@@ -151,14 +147,14 @@ Radian TiltSensorUbuntu::GetRotationThreshold() const
   return mRotationThreshold;
 }
 
-bool TiltSensorUbuntu::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
+bool TiltSensorUbuntu::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
 {
-  bool connected( true );
-  TiltSensor* sensor = dynamic_cast<TiltSensor*>( object );
+  bool        connected(true);
+  TiltSensor* sensor = dynamic_cast<TiltSensor*>(object);
 
-  if( sensor && ( SIGNAL_TILTED == signalName ) )
+  if(sensor && (SIGNAL_TILTED == signalName))
   {
-    sensor->TiltedSignal().Connect( tracker, functor );
+    sensor->TiltedSignal().Connect(tracker, functor);
   }
   else
   {
@@ -170,36 +166,36 @@ bool TiltSensorUbuntu::DoConnectSignal( BaseObject* object, ConnectionTrackerInt
 }
 
 TiltSensorUbuntu::TiltSensorUbuntu()
-: mFrequencyHertz( Dali::TiltSensor::DEFAULT_UPDATE_FREQUENCY ),
-  mTimerSlot( this ),
-  mSensorFrameworkHandle( -1 ),
-  mRoll( 0.0f ),
-  mPitch( 0.0f ),
-  mRotation( Dali::ANGLE_0, Vector3::YAXIS ),
-  mRotationThreshold( 0.0f )
+: mFrequencyHertz(Dali::TiltSensor::DEFAULT_UPDATE_FREQUENCY),
+  mTimerSlot(this),
+  mSensorFrameworkHandle(-1),
+  mRoll(0.0f),
+  mPitch(0.0f),
+  mRotation(Dali::ANGLE_0, Vector3::YAXIS),
+  mRotationThreshold(0.0f)
 {
-  mRollValues.resize( NUMBER_OF_SAMPLES, 0.0f );
-  mPitchValues.resize( NUMBER_OF_SAMPLES, 0.0f );
+  mRollValues.resize(NUMBER_OF_SAMPLES, 0.0f);
+  mPitchValues.resize(NUMBER_OF_SAMPLES, 0.0f);
 }
 
 bool TiltSensorUbuntu::Update()
 {
-  float newRoll = 0.0f;
-  float newPitch = 0.0f;
+  float      newRoll  = 0.0f;
+  float      newPitch = 0.0f;
   Quaternion newRotation;
 
   Radian angle(Quaternion::AngleBetween(newRotation, mRotation));
   // If the change in value is more than the threshold then emit tilted signal.
-  if( angle > mRotationThreshold )
+  if(angle > mRotationThreshold)
   {
-    mRoll = newRoll;
-    mPitch = newPitch;
+    mRoll     = newRoll;
+    mPitch    = newPitch;
     mRotation = newRotation;
 
-    if ( !mTiltedSignal.Empty() )
+    if(!mTiltedSignal.Empty())
     {
-      Dali::TiltSensor handle( this );
-      mTiltedSignal.Emit( handle );
+      Dali::TiltSensor handle(this);
+      mTiltedSignal.Emit(handle);
     }
   }
 

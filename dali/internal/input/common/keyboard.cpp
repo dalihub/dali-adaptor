@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,18 @@
 
 namespace Dali
 {
-
 namespace Keyboard
 {
-
-bool SetRepeatInfo( float rate, float delay )
+bool SetRepeatInfo(float rate, float delay)
 {
-  return Dali::Internal::Adaptor::WindowSystem::SetKeyboardRepeatInfo( rate, delay );
+  return Dali::Internal::Adaptor::WindowSystem::SetKeyboardRepeatInfo(rate, delay);
 }
 
-bool GetRepeatInfo( float& rate, float& delay )
+bool GetRepeatInfo(float& rate, float& delay)
 {
-  return Dali::Internal::Adaptor::WindowSystem::GetKeyboardRepeatInfo( rate, delay );
+  return Dali::Internal::Adaptor::WindowSystem::GetKeyboardRepeatInfo(rate, delay);
 }
 
 } // namespace Keyboard
 
 } // namespace Dali
-

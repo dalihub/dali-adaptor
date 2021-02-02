@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,27 +29,24 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options )
-: mCallback( callback ),
-  mThreadID( -1 ),
-  mOptions( options )
+TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+: mCallback(callback),
+  mThreadID(-1),
+  mOptions(options)
 {
   // Create accompanying file descriptor.
   mThreadID = WindowsPlatform::GetCurrentThreadId();
 
-  if ( mThreadID < 0)
+  if(mThreadID < 0)
   {
     DALI_LOG_ERROR("Unable to create TriggerEvent File descriptor\n");
   }
 
-  mSelfCallback = MakeCallback( this, &TriggerEvent::Triggered );
+  mSelfCallback = MakeCallback(this, &TriggerEvent::Triggered);
 }
 
 TriggerEvent::~TriggerEvent()
@@ -57,7 +54,7 @@ TriggerEvent::~TriggerEvent()
   delete mCallback;
   delete mSelfCallback;
 
-  if ( mThreadID >= 0)
+  if(mThreadID >= 0)
   {
     mThreadID = 0;
   }
@@ -65,12 +62,12 @@ TriggerEvent::~TriggerEvent()
 
 void TriggerEvent::Trigger()
 {
-  if ( mThreadID >= 0)
+  if(mThreadID >= 0)
   {
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
-    WindowsPlatform::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>( mSelfCallback ), 0, mThreadID );
+    WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0, mThreadID);
   }
   else
   {
@@ -81,10 +78,10 @@ void TriggerEvent::Trigger()
 void TriggerEvent::Triggered()
 {
   // Call the connected callback
-  CallbackBase::Execute( *mCallback );
+  CallbackBase::Execute(*mCallback);
 
   //check if we should delete ourselves after the trigger
-  if( mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER )
+  if(mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
   {
     delete this;
   }

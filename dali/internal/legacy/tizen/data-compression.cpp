@@ -25,7 +25,6 @@ namespace TizenPlatform
 {
 namespace DataCompression
 {
-
 std::size_t GetMaximumRleCompressedSize(const std::size_t inputLength)
 {
   // RLE has worst case scenerio of double the input data
@@ -34,8 +33,7 @@ std::size_t GetMaximumRleCompressedSize(const std::size_t inputLength)
 
   // we also encode the original size into the stream to check
   // the decode buffers are big enough and for corruption
-  return (inputLength * 2) + 4;  // 4 bytes is space for size
-
+  return (inputLength * 2) + 4; // 4 bytes is space for size
 }
 
 // Run length encode a byte stream, consisting of byte values.
@@ -48,97 +46,96 @@ std::size_t GetMaximumRleCompressedSize(const std::size_t inputLength)
 // 2, 5
 // First 4 bytes are the size of the decoded data
 //
-void EncodeRle( const unsigned char* input,
-                const std::size_t inputLength,
-                unsigned char* output,
-                const std::size_t outputLength,
-                std::size_t& encodedSize)
+void EncodeRle(const unsigned char* input,
+               const std::size_t    inputLength,
+               unsigned char*       output,
+               const std::size_t    outputLength,
+               std::size_t&         encodedSize)
 {
-  DALI_ASSERT_DEBUG( outputLength >= GetMaximumRleCompressedSize( inputLength ));
+  DALI_ASSERT_DEBUG(outputLength >= GetMaximumRleCompressedSize(inputLength));
 
   unsigned int index(0);
   unsigned int runLength(0);
   encodedSize = 0;
 
   // encode the input length in the first 4 bytes.
-  output[ encodedSize++ ] =  inputLength & 0xFF;
-  output[ encodedSize++ ] = (inputLength >> 8) & 0xFF;
-  output[ encodedSize++ ] = (inputLength >> 16) & 0xFF;
-  output[ encodedSize++ ] = (inputLength >> 24) & 0xFF;
+  output[encodedSize++] = inputLength & 0xFF;
+  output[encodedSize++] = (inputLength >> 8) & 0xFF;
+  output[encodedSize++] = (inputLength >> 16) & 0xFF;
+  output[encodedSize++] = (inputLength >> 24) & 0xFF;
 
-  while( index < inputLength  )
+  while(index < inputLength)
   {
-    unsigned char curChar = input[ index ];
-    runLength = 1;
+    unsigned char curChar = input[index];
+    runLength             = 1;
 
-    if( ( (index + 1) == inputLength )         // is more data available
-        || input[index + 1] != curChar  )      // character doesn't match
+    if(((index + 1) == inputLength)    // is more data available
+       || input[index + 1] != curChar) // character doesn't match
     {
       // we out of data, or the next character doesn't match (run of zero)
       index++;
     }
     else
     {
-      while( ( (index+1) < inputLength ) &&
-               ( input[index + 1] == curChar ) &&
-               ( runLength < 0xFF ) )
+      while(((index + 1) < inputLength) &&
+            (input[index + 1] == curChar) &&
+            (runLength < 0xFF))
       {
         runLength++;
         index++;
       }
       index++;
     }
-    output[ encodedSize++ ] = runLength;
-    output[ encodedSize++ ] = curChar;
-
+    output[encodedSize++] = runLength;
+    output[encodedSize++] = curChar;
   }
 }
 
-bool DecodeRle( const unsigned char* input,
-                const std::size_t inputLength,
-                unsigned char* output,
-                const std::size_t outputLength,
-                std::size_t& decodedSize)
+bool DecodeRle(const unsigned char* input,
+               const std::size_t    inputLength,
+               unsigned char*       output,
+               const std::size_t    outputLength,
+               std::size_t&         decodedSize)
 {
   unsigned int index(0);
   unsigned int outputIndex(0);
 
   // there should be at least 4 bytes for the size field
-  if( inputLength < 4)
+  if(inputLength < 4)
   {
     DALI_LOG_ERROR("input buffer too small\n");
     return false;
   }
 
-  decodedSize = input[ index++ ] ;
-  decodedSize|= input[ index++ ]<<8 ;
-  decodedSize|= input[ index++ ]<<16 ;
-  decodedSize|= input[ index++ ]<<24 ;
+  decodedSize = input[index++];
+  decodedSize |= input[index++] << 8;
+  decodedSize |= input[index++] << 16;
+  decodedSize |= input[index++] << 24;
 
   // check the decoded data will fit in to
-  if( outputLength < decodedSize )
+  if(outputLength < decodedSize)
   {
-    DALI_LOG_ERROR("buffer too small, buffer size =%d, data size = %d \n",outputLength, decodedSize);
+    DALI_LOG_ERROR("buffer too small, buffer size =%d, data size = %d \n", outputLength, decodedSize);
     return false;
   }
 
-  while( (index+1)< inputLength )
+  while((index + 1) < inputLength)
   {
     // read the value and the run length
-    unsigned char runLength =  input[ index++ ];
-    unsigned char value = input[ index++ ];
+    unsigned char runLength = input[index++];
+    unsigned char value     = input[index++];
 
-    if( (runLength + outputIndex) > decodedSize)
+    if((runLength + outputIndex) > decodedSize)
     {
-      DALI_LOG_ERROR( "corrupted RLE data\n" );
+      DALI_LOG_ERROR("corrupted RLE data\n");
       // corrupted
       return false;
     }
     // set the value run Length times
-    memset( &output[ outputIndex ], value, runLength * sizeof( unsigned char) );
-    outputIndex+= runLength;
+    memset(&output[outputIndex], value, runLength * sizeof(unsigned char));
+    outputIndex += runLength;
   }
-  if( outputIndex != decodedSize)
+  if(outputIndex != decodedSize)
   {
     DALI_LOG_ERROR(" RLE data size missmatch\n");
     return false;
@@ -147,7 +144,7 @@ bool DecodeRle( const unsigned char* input,
   return true;
 }
 
-} // DataCompression
+} // namespace DataCompression
 
 } // namespace TizenPlatform
 

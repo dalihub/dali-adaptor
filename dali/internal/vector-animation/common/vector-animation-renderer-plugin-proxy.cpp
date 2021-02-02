@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,34 +19,30 @@
 #include <dali/internal/vector-animation/common/vector-animation-renderer-plugin-proxy.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/debug.h>
+#include <dlfcn.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 // The default plugin name
-const char* DEFAULT_OBJECT_NAME( "libdali2-vector-animation-renderer-plugin.so" );
+const char* DEFAULT_OBJECT_NAME("libdali2-vector-animation-renderer-plugin.so");
 
-}
+} // namespace
 
-VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy( const std::string& sharedObjectName )
+VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy(const std::string& sharedObjectName)
 : mSharedObjectName(),
-  mLibHandle( NULL ),
-  mPlugin( NULL ),
-  mCreateVectorAnimationRendererPtr( NULL ),
+  mLibHandle(NULL),
+  mPlugin(NULL),
+  mCreateVectorAnimationRendererPtr(NULL),
   mDefaultSignal()
 {
-  if( !sharedObjectName.empty() )
+  if(!sharedObjectName.empty())
   {
     mSharedObjectName = sharedObjectName;
   }
@@ -60,92 +56,92 @@ VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy( const st
 
 VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     delete mPlugin;
     mPlugin = NULL;
 
-    if( mLibHandle && dlclose( mLibHandle ) )
+    if(mLibHandle && dlclose(mLibHandle))
     {
-      DALI_LOG_ERROR( "Error closing vector animation renderer plugin library: %s\n", dlerror() );
+      DALI_LOG_ERROR("Error closing vector animation renderer plugin library: %s\n", dlerror());
     }
   }
 }
 
 void VectorAnimationRendererPluginProxy::Initialize()
 {
-  mLibHandle = dlopen( mSharedObjectName.c_str(), RTLD_LAZY );
+  mLibHandle = dlopen(mSharedObjectName.c_str(), RTLD_LAZY);
 
   char* error = dlerror();
-  if( mLibHandle == NULL || error != NULL )
+  if(mLibHandle == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: dlopen error [%s]\n", error );
+    DALI_LOG_ERROR("VectorAnimationRendererPluginProxy::Initialize: dlopen error [%s]\n", error);
     return;
   }
 
   // load plugin
-  mCreateVectorAnimationRendererPtr = reinterpret_cast< CreateVectorAnimationRendererFunction >( dlsym( mLibHandle, "CreateVectorAnimationRendererPlugin" ) );
+  mCreateVectorAnimationRendererPtr = reinterpret_cast<CreateVectorAnimationRendererFunction>(dlsym(mLibHandle, "CreateVectorAnimationRendererPlugin"));
 
   error = dlerror();
-  if( mCreateVectorAnimationRendererPtr == NULL || error != NULL )
+  if(mCreateVectorAnimationRendererPtr == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "VectorAnimationRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error );
+    DALI_LOG_ERROR("VectorAnimationRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error);
     return;
   }
 
   mPlugin = mCreateVectorAnimationRendererPtr();
-  if( !mPlugin )
+  if(!mPlugin)
   {
     DALI_LOG_ERROR("VectorAnimationRendererPluginProxy::Initialize: Plugin creation failed\n");
     return;
   }
 }
 
-bool VectorAnimationRendererPluginProxy::Initialize( const std::string& url )
+bool VectorAnimationRendererPluginProxy::Initialize(const std::string& url)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    return mPlugin->Initialize( url );
+    return mPlugin->Initialize(url);
   }
   return false;
 }
 
 void VectorAnimationRendererPluginProxy::Finalize()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     mPlugin->Finalize();
   }
 }
 
-void VectorAnimationRendererPluginProxy::SetRenderer( Dali::Renderer renderer )
+void VectorAnimationRendererPluginProxy::SetRenderer(Dali::Renderer renderer)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->SetRenderer( renderer );
+    mPlugin->SetRenderer(renderer);
   }
 }
 
-void VectorAnimationRendererPluginProxy::SetSize( uint32_t width, uint32_t height )
+void VectorAnimationRendererPluginProxy::SetSize(uint32_t width, uint32_t height)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->SetSize( width, height );
+    mPlugin->SetSize(width, height);
   }
 }
 
-bool VectorAnimationRendererPluginProxy::Render( uint32_t frameNumber )
+bool VectorAnimationRendererPluginProxy::Render(uint32_t frameNumber)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    return mPlugin->Render( frameNumber );
+    return mPlugin->Render(frameNumber);
   }
   return false;
 }
 
 uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber() const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     return mPlugin->GetTotalFrameNumber();
   }
@@ -154,41 +150,41 @@ uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber() const
 
 float VectorAnimationRendererPluginProxy::GetFrameRate() const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     return mPlugin->GetFrameRate();
   }
   return 0.0f;
 }
 
-void VectorAnimationRendererPluginProxy::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorAnimationRendererPluginProxy::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->GetDefaultSize( width, height );
+    mPlugin->GetDefaultSize(width, height);
   }
 }
 
-void VectorAnimationRendererPluginProxy::GetLayerInfo( Property::Map& map ) const
+void VectorAnimationRendererPluginProxy::GetLayerInfo(Property::Map& map) const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->GetLayerInfo( map );
+    mPlugin->GetLayerInfo(map);
   }
 }
 
-bool VectorAnimationRendererPluginProxy::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+bool VectorAnimationRendererPluginProxy::GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    return mPlugin->GetMarkerInfo( marker, startFrame, endFrame );
+    return mPlugin->GetMarkerInfo(marker, startFrame, endFrame);
   }
   return false;
 }
 
 void VectorAnimationRendererPluginProxy::IgnoreRenderedFrame()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     mPlugin->IgnoreRenderedFrame();
   }
@@ -196,7 +192,7 @@ void VectorAnimationRendererPluginProxy::IgnoreRenderedFrame()
 
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     return mPlugin->UploadCompletedSignal();
   }

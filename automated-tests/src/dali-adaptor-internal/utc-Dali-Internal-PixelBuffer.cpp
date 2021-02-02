@@ -24,15 +24,14 @@
 
 // Internal headers are allowed here
 
-#include <dali/internal/imaging/common/pixel-manipulation.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/internal/imaging/common/pixel-manipulation.h>
 
 using namespace Dali;
 using namespace Dali::Internal::Adaptor;
 
 namespace
 {
-
 // resolution: 96*96, pixel format: LA88
 const char* TEST_IMAGE_LA88 = TEST_IMAGE_DIR "/circle1-LA88.png";
 
@@ -184,14 +183,14 @@ int UtcDaliPixelManipulationLA88(void)
   Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(TEST_IMAGE_LA88);
   DALI_TEST_CHECK(pixelBuffer);
 
-  unsigned int width = pixelBuffer.GetWidth();
+  unsigned int width  = pixelBuffer.GetWidth();
   unsigned int height = pixelBuffer.GetHeight();
   DALI_TEST_EQUALS(width, 96u, TEST_LOCATION);
   DALI_TEST_EQUALS(height, 96u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBuffer.GetPixelFormat(), Pixel::LA88, TEST_LOCATION);
 
   unsigned char* pixel = pixelBuffer.GetBuffer();
-  unsigned int value;
+  unsigned int   value;
 
   value = Dali::Internal::Adaptor::ReadChannel(&pixel[0], Dali::Pixel::LA88, Dali::Internal::Adaptor::LUMINANCE);
   DALI_TEST_EQUALS(value, 0x0, TEST_LOCATION);
@@ -201,7 +200,7 @@ int UtcDaliPixelManipulationLA88(void)
   // Get center pixel
   unsigned int stride = width * Pixel::GetBytesPerPixel(Dali::Pixel::LA88);
   unsigned int center = height / 2 * stride + width / 2 * Pixel::GetBytesPerPixel(Dali::Pixel::LA88);
-  value = Dali::Internal::Adaptor::ReadChannel(&pixel[center], Dali::Pixel::LA88, Dali::Internal::Adaptor::LUMINANCE);
+  value               = Dali::Internal::Adaptor::ReadChannel(&pixel[center], Dali::Pixel::LA88, Dali::Internal::Adaptor::LUMINANCE);
   DALI_TEST_EQUALS(value, 0x0, TEST_LOCATION);
   value = Dali::Internal::Adaptor::ReadChannel(&pixel[center], Dali::Pixel::LA88, Dali::Internal::Adaptor::ALPHA);
   DALI_TEST_EQUALS(value, 0xFF, TEST_LOCATION);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,10 @@
 
 namespace Dali
 {
-
 VectorImageRenderer VectorImageRenderer::New()
 {
   Internal::Adaptor::VectorImageRendererPtr imageRenderer = Internal::Adaptor::VectorImageRenderer::New();
-  return VectorImageRenderer( imageRenderer.Get() );
+  return VectorImageRenderer(imageRenderer.Get());
 }
 
 VectorImageRenderer::VectorImageRenderer()
@@ -38,8 +37,8 @@ VectorImageRenderer::~VectorImageRenderer()
 {
 }
 
-VectorImageRenderer::VectorImageRenderer( Internal::Adaptor::VectorImageRenderer* internal )
-: BaseHandle( internal )
+VectorImageRenderer::VectorImageRenderer(Internal::Adaptor::VectorImageRenderer* internal)
+: BaseHandle(internal)
 {
 }
 
@@ -53,9 +52,9 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
   return GetImplementation(*this).Rasterize(buffer, scale);
 }
 
-void VectorImageRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  GetImplementation( *this ).GetDefaultSize( width, height );
+  GetImplementation(*this).GetDefaultSize(width, height);
 }
 
 } // namespace Dali

@@ -19,21 +19,17 @@
 #include <dali/internal/system/common/sound-player-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-
 const char* const SIGNAL_SOUND_PLAY_FINISHED = "soundPlayFinished";
 
 // Type Registration
@@ -42,15 +38,15 @@ Dali::BaseHandle GetInstance()
   return SoundPlayer::Get();
 }
 
-Dali::TypeRegistration SOUND_PLAYER_TYPE( typeid(Dali::SoundPlayer), typeid(Dali::BaseHandle), GetInstance );
+Dali::TypeRegistration SOUND_PLAYER_TYPE(typeid(Dali::SoundPlayer), typeid(Dali::BaseHandle), GetInstance);
 
-Dali::SignalConnectorType SIGNAL_CONNECTOR_1( SOUND_PLAYER_TYPE, SIGNAL_SOUND_PLAY_FINISHED, Dali::Internal::Adaptor::SoundPlayer::DoConnectSignal );
+Dali::SignalConnectorType SIGNAL_CONNECTOR_1(SOUND_PLAYER_TYPE, SIGNAL_SOUND_PLAY_FINISHED, Dali::Internal::Adaptor::SoundPlayer::DoConnectSignal);
 
 } // unnamed namespace
 
 Dali::SoundPlayer SoundPlayer::New()
 {
-  Dali::SoundPlayer player = Dali::SoundPlayer( new SoundPlayer() );
+  Dali::SoundPlayer player = Dali::SoundPlayer(new SoundPlayer());
   return player;
 }
 
@@ -58,34 +54,34 @@ Dali::SoundPlayer SoundPlayer::Get()
 {
   Dali::SoundPlayer player;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::SoundPlayer ) );
-    if ( handle )
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::SoundPlayer));
+    if(handle)
     {
       // If so, downcast the handle
-      player = Dali::SoundPlayer( dynamic_cast< SoundPlayer* >( handle.GetObjectPtr() ) );
+      player = Dali::SoundPlayer(dynamic_cast<SoundPlayer*>(handle.GetObjectPtr()));
     }
     else
     {
-      player = Dali::SoundPlayer( New() );
-      service.Register( typeid( player ), player );
+      player = Dali::SoundPlayer(New());
+      service.Register(typeid(player), player);
     }
   }
 
   return player;
 }
 
-int SoundPlayer::PlaySound( const std::string fileName )
+int SoundPlayer::PlaySound(const std::string fileName)
 {
-  return mPlugin.PlaySound( fileName );
+  return mPlugin.PlaySound(fileName);
 }
 
-void SoundPlayer::Stop( int handle )
+void SoundPlayer::Stop(int handle)
 {
-  mPlugin.StopSound( handle );
+  mPlugin.StopSound(handle);
 }
 
 SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
@@ -93,14 +89,14 @@ SoundPlayer::SoundPlayFinishedSignalType& SoundPlayer::SoundPlayFinishedSignal()
   return mSoundPlayFinishedSignal;
 }
 
-bool SoundPlayer::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
+bool SoundPlayer::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
 {
-  bool connected( true );
-  SoundPlayer* player = dynamic_cast<SoundPlayer*>( object );
+  bool         connected(true);
+  SoundPlayer* player = dynamic_cast<SoundPlayer*>(object);
 
-  if( player && ( SIGNAL_SOUND_PLAY_FINISHED == signalName ) )
+  if(player && (SIGNAL_SOUND_PLAY_FINISHED == signalName))
   {
-    player->SoundPlayFinishedSignal().Connect( tracker, functor );
+    player->SoundPlayFinishedSignal().Connect(tracker, functor);
   }
   else
   {
@@ -112,7 +108,7 @@ bool SoundPlayer::DoConnectSignal( BaseObject* object, ConnectionTrackerInterfac
 }
 
 SoundPlayer::SoundPlayer()
-: mPlugin( FeedbackPluginProxy::DEFAULT_OBJECT_NAME )
+: mPlugin(FeedbackPluginProxy::DEFAULT_OBJECT_NAME)
 {
 }
 
@@ -124,10 +120,10 @@ void SoundPlayer::EmitSoundPlayFinishedSignal()
 {
   // Emit SoundPlayFinished signal
 
-  if ( !mSoundPlayFinishedSignal.Empty() )
+  if(!mSoundPlayFinishedSignal.Empty())
   {
-    Dali::SoundPlayer handle( this );
-    mSoundPlayFinishedSignal.Emit( handle );
+    Dali::SoundPlayer handle(this);
+    mSoundPlayFinishedSignal.Emit(handle);
   }
 }
 

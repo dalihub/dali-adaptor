@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 TiltSensor::TiltSensor() = default;
 
 TiltSensor::~TiltSensor() = default;
@@ -37,7 +34,6 @@ bool TiltSensor::Start()
 
 void TiltSensor::Stop()
 {
-
 }
 
 bool TiltSensor::IsStarted() const
@@ -60,17 +56,14 @@ Quaternion TiltSensor::GetRotation() const
   return Quaternion::IDENTITY;
 }
 
-
 TiltSensor::TiltedSignalType& TiltSensor::TiltedSignal()
 {
   static TiltSensor::TiltedSignalType signal;
   return signal;
 }
 
-
 void TiltSensor::SetUpdateFrequency(float frequencyHertz)
 {
-
 }
 
 float TiltSensor::GetUpdateFrequency() const
@@ -80,7 +73,6 @@ float TiltSensor::GetUpdateFrequency() const
 
 void TiltSensor::SetRotationThreshold(Radian rotationThreshold)
 {
-
 }
 
 /**
@@ -100,7 +92,7 @@ Radian TiltSensor::GetRotationThreshold() const
  * @return True if the signal was connected.
  * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
  */
-bool TiltSensor::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
+bool TiltSensor::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
 {
   return false;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/window-system/windows/window-factory-win.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/windows/window-base-win.h>
 #include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/windows/window-base-win.h>
 
 namespace Dali
 {
@@ -28,17 +28,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-std::unique_ptr< WindowBase > WindowFactoryWin::CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr<WindowBase> WindowFactoryWin::CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique< WindowBaseWin >( positionSize, surface, isTransparent );
+  return Utils::MakeUnique<WindowBaseWin>(positionSize, surface, isTransparent);
 }
 
 // this should be created from Window impl
-std::unique_ptr< WindowFactory > GetWindowFactory()
+std::unique_ptr<WindowFactory> GetWindowFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< WindowFactoryWin >();
+  return Utils::MakeUnique<WindowFactoryWin>();
 }
 
 } // namespace Adaptor

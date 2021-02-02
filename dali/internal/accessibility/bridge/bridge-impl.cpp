@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
 #include <dali/internal/accessibility/bridge/bridge-component.h>
-#include <dali/internal/accessibility/bridge/bridge-object.h>
-#include <dali/internal/accessibility/bridge/bridge-value.h>
-#include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-editable-text.h>
+#include <dali/internal/accessibility/bridge/bridge-object.h>
+#include <dali/internal/accessibility/bridge/bridge-text.h>
+#include <dali/internal/accessibility/bridge/bridge-value.h>
 
 using namespace Dali::Accessibility;
 
@@ -44,59 +44,55 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeText,
                    public BridgeEditableText
 {
-  DBus::DBusClient listenOnAtspiEnabledSignalClient;
-  DBus::DBusClient registryClient, directReadingClient;
-  bool screenReaderEnabled = false;
-  bool isEnabled = false;
-  bool isShown = false;
-  std::unordered_map <int32_t, std::function<void(std::string)>> directReadingCallbacks;
-  Dali::Actor highlightedActor;
-  std::function<void(Dali::Actor)> highlightClearAction;
+  DBus::DBusClient                                              listenOnAtspiEnabledSignalClient;
+  DBus::DBusClient                                              registryClient, directReadingClient;
+  bool                                                          screenReaderEnabled = false;
+  bool                                                          isEnabled           = false;
+  bool                                                          isShown             = false;
+  std::unordered_map<int32_t, std::function<void(std::string)>> directReadingCallbacks;
+  Dali::Actor                                                   highlightedActor;
+  std::function<void(Dali::Actor)>                              highlightClearAction;
 
 public:
   BridgeImpl()
   {
-    listenOnAtspiEnabledSignalClient = DBus::DBusClient{ A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION };
+    listenOnAtspiEnabledSignalClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
 
-    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent< bool >( "ScreenReaderEnabled", [this]( bool res )
+    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+      screenReaderEnabled = res;
+      if(screenReaderEnabled || isEnabled)
       {
-        screenReaderEnabled = res;
-        if( screenReaderEnabled || isEnabled )
-        {
-          ForceUp();
-        }
-        else
-        {
-          ForceDown();
-        }
+        ForceUp();
       }
-    );
+      else
+      {
+        ForceDown();
+      }
+    });
 
-    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent< bool >( "IsEnabled", [this]( bool res )
+    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
+      isEnabled = res;
+      if(screenReaderEnabled || isEnabled)
       {
-        isEnabled = res;
-        if( screenReaderEnabled || isEnabled )
-        {
-          ForceUp();
-        }
-        else
-        {
-          ForceDown();
-        }
+        ForceUp();
       }
-    );
+      else
+      {
+        ForceDown();
+      }
+    });
   }
 
-  Consumed Emit( KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText ) override
+  Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
-    if (!IsUp())
+    if(!IsUp())
     {
       return Consumed::NO;
     }
 
     unsigned int evType = 0;
 
-    switch( type )
+    switch(type)
     {
       case KeyEventType::KEY_PRESSED:
       {
@@ -113,107 +109,104 @@ public:
         return Consumed::NO;
       }
     }
-    auto m = registryClient.method< bool( std::tuple< uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool > ) >( "NotifyListenersSync" );
-    auto result = m.call( std::tuple< uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool >{evType, 0, static_cast< int32_t >( keyCode ), 0, static_cast< int32_t >( timeStamp ), keyName, isText ? 1 : 0} );
-    if( !result )
+    auto m      = registryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
+    auto result = m.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{evType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
+    if(!result)
     {
       LOG() << result.getError().message;
       return Consumed::NO;
     }
-    return std::get< 0 >( result ) ? Consumed::YES : Consumed::NO;
+    return std::get<0>(result) ? Consumed::YES : Consumed::NO;
   }
 
   void Pause() override
   {
-    if (!IsUp())
+    if(!IsUp())
     {
       return;
     }
 
-    directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).asyncCall(
-      []( DBus::ValueOrError< void > msg ) {
-        if (!msg)
-        {
-          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
-        }
-      },
-      true);
+    directReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+      if(!msg)
+      {
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+      }
+    },
+                                                                                        true);
   }
 
   void Resume() override
   {
-    if (!IsUp())
+    if(!IsUp())
     {
       return;
     }
 
-    directReadingClient.method< DBus::ValueOrError< void >( bool ) > ( "PauseResume" ).asyncCall(
-      []( DBus::ValueOrError< void > msg) {
-        if (!msg)
-        {
-          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
-        }
-      },
-      false);
+    directReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+      if(!msg)
+      {
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+      }
+    },
+                                                                                        false);
   }
 
-  void Say( const std::string& text, bool discardable, std::function< void(std::string) > callback ) override
+  void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
   {
-    if (!IsUp())
+    if(!IsUp())
     {
       return;
     }
 
-    directReadingClient.method< DBus::ValueOrError< std::string, bool, int32_t >( std::string, bool ) > ( "ReadCommand" ).asyncCall(
-      [=]( DBus::ValueOrError<std::string, bool, int32_t> msg ) {
-        if ( !msg )
-        {
-          LOG() << "Direct reading command failed (" << msg.getError().message << ")";
-        }
-        else if( callback )
-        {
-          directReadingCallbacks.emplace( std::get< 2 >( msg ), callback);
-        }
-      },
-      text,
-      discardable);
+    directReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
+      if(!msg)
+      {
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+      }
+      else if(callback)
+      {
+        directReadingCallbacks.emplace(std::get<2>(msg), callback);
+      }
+    },
+                                                                                                                           text,
+                                                                                                                           discardable);
   }
 
   void ForceDown() override
   {
-    if (data)
+    if(data)
     {
-      if (data->currentlyHighlightedActor && data->highlightActor)
+      if(data->currentlyHighlightedActor && data->highlightActor)
       {
         data->currentlyHighlightedActor.Remove(data->highlightActor);
       }
       data->currentlyHighlightedActor = {};
-      data->highlightActor = {};
+      data->highlightActor            = {};
     }
-    highlightedActor = {};
+    highlightedActor     = {};
     highlightClearAction = {};
     BridgeAccessible::ForceDown();
-    registryClient = {};
+    registryClient      = {};
     directReadingClient = {};
     directReadingCallbacks.clear();
   }
 
   void Terminate() override
   {
-    if (data)
+    if(data)
     {
       data->currentlyHighlightedActor = {};
-      data->highlightActor = {};
+      data->highlightActor            = {};
     }
     ForceDown();
     listenOnAtspiEnabledSignalClient = {};
-    dbusServer = {};
-    con = {};
+    dbusServer                       = {};
+    con                              = {};
   }
 
   ForceUpResult ForceUp() override
   {
-    if( BridgeAccessible::ForceUp() == ForceUpResult::ALREADY_UP )
+    if(BridgeAccessible::ForceUp() == ForceUpResult::ALREADY_UP)
     {
       return ForceUpResult::ALREADY_UP;
     }
@@ -227,32 +220,30 @@ public:
     BridgeText::RegisterInterfaces();
     BridgeEditableText::RegisterInterfaces();
 
-    RegisterOnBridge( &application );
+    RegisterOnBridge(&application);
 
-    registryClient = { AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, con };
-    directReadingClient = DBus::DBusClient{ DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, con };
-    directReadingClient.addSignal< void(int32_t, std::string) >( "ReadingStateChanged", [=]( int32_t id, std::string readingState )
+    registryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, con};
+    directReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, con};
+    directReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
+      auto it = directReadingCallbacks.find(id);
+      if(it != directReadingCallbacks.end())
       {
-        auto it = directReadingCallbacks.find( id );
-        if (it != directReadingCallbacks.end())
-        {
-          it->second( readingState );
-          if (readingState != "ReadingPaused" && readingState != "ReadingResumed" && readingState != "ReadingStarted")
-            directReadingCallbacks.erase( it );
-        }
+        it->second(readingState);
+        if(readingState != "ReadingPaused" && readingState != "ReadingResumed" && readingState != "ReadingStarted")
+          directReadingCallbacks.erase(it);
       }
-    );
+    });
 
-    auto proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, con};
+    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, con};
     Address root{"", "root"};
-    auto res = proxy.method< Address( Address ) >( "Embed" ).call( root );
-    if (!res)
+    auto    res = proxy.method<Address(Address)>("Embed").call(root);
+    if(!res)
     {
       LOG() << "Call to Embed failed: " << res.getError().message;
     }
-    assert( res );
-    application.parent.SetAddress( std::move( std::get< 0 >( res ) ) );
-    if (isShown)
+    assert(res);
+    application.parent.SetAddress(std::move(std::get<0>(res)));
+    if(isShown)
     {
       EmitActivate();
     }
@@ -262,24 +253,24 @@ public:
   void EmitActivate()
   {
     auto win = application.getActiveWindow();
-    if (win)
+    if(win)
     {
-      win->Emit( WindowEvent::ACTIVATE, 0 );
+      win->Emit(WindowEvent::ACTIVATE, 0);
     }
   }
 
   void EmitDeactivate()
   {
     auto win = application.getActiveWindow();
-    if (win)
+    if(win)
     {
-      win->Emit( WindowEvent::DEACTIVATE, 0 );
+      win->Emit(WindowEvent::DEACTIVATE, 0);
     }
   }
 
   void ApplicationHidden() override
   {
-    if ( isShown && IsUp() )
+    if(isShown && IsUp())
     {
       EmitDeactivate();
     }
@@ -288,7 +279,7 @@ public:
 
   void ApplicationShown() override
   {
-    if ( !isShown && IsUp() )
+    if(!isShown && IsUp())
     {
       EmitActivate();
     }
@@ -298,17 +289,17 @@ public:
   void Initialize() override
   {
     auto req = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
-    auto p = req.property< bool >( "ScreenReaderEnabled" ).get();
-    if( p )
+    auto p   = req.property<bool>("ScreenReaderEnabled").get();
+    if(p)
     {
-      screenReaderEnabled = std::get< 0 >( p );
+      screenReaderEnabled = std::get<0>(p);
     }
-    p = req.property< bool >( "IsEnabled" ).get();
-    if( p )
+    p = req.property<bool>("IsEnabled").get();
+    if(p)
     {
-      isEnabled = std::get< 0 >( p );
+      isEnabled = std::get<0>(p);
     }
-    if( screenReaderEnabled || isEnabled )
+    if(screenReaderEnabled || isEnabled)
     {
       ForceUp();
     }
@@ -323,12 +314,10 @@ public:
   {
     return isEnabled;
   }
-
 };
 
 Bridge* Bridge::GetCurrentBridge()
 {
-  static BridgeImpl *bridge = new BridgeImpl;
+  static BridgeImpl* bridge = new BridgeImpl;
   return bridge;
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,22 +30,22 @@ __attribute__((weak)) Dali::Integration::AddOnManager* CreateAddOnManager()
   return nullptr;
 }
 
-} // AddOnManagerFactory
-}
+} // namespace AddOnManagerFactory
+} // namespace Internal
 
 namespace Adaptor
 {
-
-AddOnManager::AddOnManager(Internal::AddOnManager* impl ) : Integration::AddOnManager()
+AddOnManager::AddOnManager(Internal::AddOnManager* impl)
+: Integration::AddOnManager()
 {
   mImpl.reset(impl);
 }
 
 AddOnManager::~AddOnManager() = default;
 
-void AddOnManager::RegisterAddOnDispatchTable( const AddOnDispatchTable* dispatchTable )
+void AddOnManager::RegisterAddOnDispatchTable(const AddOnDispatchTable* dispatchTable)
 {
-  mImpl->RegisterAddOnDispatchTable( dispatchTable );
+  mImpl->RegisterAddOnDispatchTable(dispatchTable);
 }
 
 std::vector<std::string> AddOnManager::EnumerateAddOns()
@@ -53,24 +53,24 @@ std::vector<std::string> AddOnManager::EnumerateAddOns()
   return mImpl->EnumerateAddOns();
 }
 
-bool AddOnManager::GetAddOnInfo(const std::string& name, AddOnInfo& info )
+bool AddOnManager::GetAddOnInfo(const std::string& name, AddOnInfo& info)
 {
-  return mImpl->GetAddOnInfo( name, info );
+  return mImpl->GetAddOnInfo(name, info);
 }
 
-std::vector<Dali::AddOnLibrary> AddOnManager::LoadAddOns(const std::vector<std::string>& addonNames )
+std::vector<Dali::AddOnLibrary> AddOnManager::LoadAddOns(const std::vector<std::string>& addonNames)
 {
-  return std::move(mImpl->LoadAddOns( addonNames ));
+  return std::move(mImpl->LoadAddOns(addonNames));
 }
 
-void* AddOnManager::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char *procName)
+void* AddOnManager::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
 {
-  return mImpl->GetGlobalProc( addonHandle, procName );
+  return mImpl->GetGlobalProc(addonHandle, procName);
 }
 
-void* AddOnManager::GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName )
+void* AddOnManager::GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
 {
-  return mImpl->GetInstanceProc( addonHandle, procName );
+  return mImpl->GetInstanceProc(addonHandle, procName);
 }
 
 void AddOnManager::Pause()
@@ -93,5 +93,5 @@ void AddOnManager::Stop()
   mImpl->Stop();
 }
 
-}
-}
+} // namespace Adaptor
+} // namespace Dali

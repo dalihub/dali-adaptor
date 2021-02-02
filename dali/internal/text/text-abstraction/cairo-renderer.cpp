@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 #include <dali/internal/text/text-abstraction/cairo-renderer.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/constants.h>
-#include <cairo.h>
 #include <cairo-ft.h>
+#include <cairo.h>
+#include <dali/public-api/common/constants.h>
 #include <cstring>
 #include <memory>
 
@@ -42,10 +42,9 @@ using namespace std;
 
 namespace
 {
-
 const float TO_FLOAT = 1.f / 255.f;
 const float TO_UCHAR = 255.f;
-const float TWO_PI = 2.f * Dali::Math::PI; ///< 360 degrees in radians
+const float TWO_PI   = 2.f * Dali::Math::PI; ///< 360 degrees in radians
 
 /**
  * @brief Run of glyphs that have the same style.
@@ -53,24 +52,25 @@ const float TWO_PI = 2.f * Dali::Math::PI; ///< 360 degrees in radians
 struct GlyphRun
 {
   GlyphRun()
-  : fontFace{ nullptr },
-    fontSize{ 0.0 },
-    glyphIndex{ 0u },
-    numberOfGlyphs{ 0u },
-    fontId{ 0u },
-    colorIndex{ 0u },
-    isItalicRequired{ false },
-    isBoldRequired{ false }
-  {}
+  : fontFace{nullptr},
+    fontSize{0.0},
+    glyphIndex{0u},
+    numberOfGlyphs{0u},
+    fontId{0u},
+    colorIndex{0u},
+    isItalicRequired{false},
+    isBoldRequired{false}
+  {
+  }
 
-  FT_Face      fontFace;           ///< The font face used by the glyphs in the run.
-  double       fontSize;           ///< The font size used by the glyphs in the run. According the Cairo's documentation this is in user space units. It works if I set the size in pixels.
-  unsigned int glyphIndex;         ///< Index to the first glyph of the run.
-  unsigned int numberOfGlyphs;     ///< Number of glyphs in the run.
-  unsigned int fontId;             ///< The id of the font.
-  unsigned int colorIndex;         ///< The index to the color of the glyphs.
-  bool         isItalicRequired:1; ///< Whether the italic style is required.
-  bool         isBoldRequired:1;   ///< Whether the bold style is required.
+  FT_Face      fontFace;             ///< The font face used by the glyphs in the run.
+  double       fontSize;             ///< The font size used by the glyphs in the run. According the Cairo's documentation this is in user space units. It works if I set the size in pixels.
+  unsigned int glyphIndex;           ///< Index to the first glyph of the run.
+  unsigned int numberOfGlyphs;       ///< Number of glyphs in the run.
+  unsigned int fontId;               ///< The id of the font.
+  unsigned int colorIndex;           ///< The index to the color of the glyphs.
+  bool         isItalicRequired : 1; ///< Whether the italic style is required.
+  bool         isBoldRequired : 1;   ///< Whether the bold style is required.
 };
 
 /**
@@ -92,19 +92,19 @@ struct GlyphBuffer
     DELETE
   };
 
-  GlyphBuffer( Dali::TextAbstraction::FontClient::GlyphBufferData& data, DestructorType type )
-  : data( data ),
-    type( type )
+  GlyphBuffer(Dali::TextAbstraction::FontClient::GlyphBufferData& data, DestructorType type)
+  : data(data),
+    type(type)
   {
   }
 
   ~GlyphBuffer()
   {
-    switch( type )
+    switch(type)
     {
       case FREE:
       {
-        free( data.buffer );
+        free(data.buffer);
         break;
       }
       case DELETE:
@@ -115,7 +115,7 @@ struct GlyphBuffer
   }
 
   Dali::TextAbstraction::FontClient::GlyphBufferData& data;
-  DestructorType type;
+  DestructorType                                      type;
 };
 
 /**
@@ -125,16 +125,16 @@ struct GlyphBuffer
  *
  * @return The pixel buffer.
  */
-Dali::Devel::PixelBuffer CreateVoidPixelBuffer( const Dali::TextAbstraction::TextRenderer::Parameters& parameters )
+Dali::Devel::PixelBuffer CreateVoidPixelBuffer(const Dali::TextAbstraction::TextRenderer::Parameters& parameters)
 {
-  Dali::Pixel::Format pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
-  Dali::Devel::PixelBuffer pixelBuffer = Dali::Devel::PixelBuffer::New( parameters.width,
-                                                                        parameters.height,
-                                                                        pixelFormat );
+  Dali::Pixel::Format      pixelFormat = parameters.pixelFormat == Dali::TextAbstraction::TextRenderer::Parameters::A8 ? Dali::Pixel::A8 : Dali::Pixel::RGBA8888;
+  Dali::Devel::PixelBuffer pixelBuffer = Dali::Devel::PixelBuffer::New(parameters.width,
+                                                                       parameters.height,
+                                                                       pixelFormat);
 
-  const unsigned int bufferSize = parameters.width * parameters.height * Dali::Pixel::GetBytesPerPixel( pixelFormat );
-  unsigned char* buffer = pixelBuffer.GetBuffer();
-  memset( buffer, 0, bufferSize );
+  const unsigned int bufferSize = parameters.width * parameters.height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+  unsigned char*     buffer     = pixelBuffer.GetBuffer();
+  memset(buffer, 0, bufferSize);
 
   return pixelBuffer;
 }
@@ -149,41 +149,41 @@ Dali::Devel::PixelBuffer CreateVoidPixelBuffer( const Dali::TextAbstraction::Tex
  * @param[in] circularCr The extra cairo context created to layout horizontal text.
  * @param[in] parameters The parameters of the circular path.
  */
-void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstraction::CircularTextParameters& parameters )
+void WrapToCircularPath(cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstraction::CircularTextParameters& parameters)
 {
   bool first = true;
 
   // Copy the path to get a cairo_path_t pointer used to iterate through all its items.
-  std::unique_ptr<cairo_path_t, void(*)(cairo_path_t*)> path( cairo_copy_path( circularCr ), cairo_path_destroy );
+  std::unique_ptr<cairo_path_t, void (*)(cairo_path_t*)> path(cairo_copy_path(circularCr), cairo_path_destroy);
 
   // Iterates through all the path items and transform each vertex to follow the circle.
   // Transformed vertices are added to a new path in the 'cr' context (the one used to render the circular text)
-  for( int i = 0; i < path->num_data; i += path->data[i].header.length )
+  for(int i = 0; i < path->num_data; i += path->data[i].header.length)
   {
     cairo_path_data_t* data = &path->data[i];
 
-    switch( data->header.type )
+    switch(data->header.type)
     {
       case CAIRO_PATH_MOVE_TO:
       {
-        if( first )
+        if(first)
         {
-          cairo_new_path( cr );
+          cairo_new_path(cr);
         }
 
-        first = false;
+        first    = false;
         double x = data[1].point.x;
         double y = data[1].point.y;
-        Dali::TextAbstraction::TransformToArc( parameters, x, y );
-        cairo_move_to( cr, x, y );
+        Dali::TextAbstraction::TransformToArc(parameters, x, y);
+        cairo_move_to(cr, x, y);
         break;
       }
       case CAIRO_PATH_LINE_TO:
       {
         double x = data[1].point.x;
         double y = data[1].point.y;
-        Dali::TextAbstraction::TransformToArc( parameters, x, y );
-        cairo_line_to( cr, x, y );
+        Dali::TextAbstraction::TransformToArc(parameters, x, y);
+        cairo_line_to(cr, x, y);
         break;
       }
       case CAIRO_PATH_CURVE_TO:
@@ -194,20 +194,20 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
         double y2 = data[2].point.y;
         double x3 = data[3].point.x;
         double y3 = data[3].point.y;
-        Dali::TextAbstraction::TransformToArc( parameters, x1, y1 );
-        Dali::TextAbstraction::TransformToArc( parameters, x2, y2 );
-        Dali::TextAbstraction::TransformToArc( parameters, x3, y3 );
-        cairo_curve_to( cr, x1, y1, x2, y2, x3, y3 );
+        Dali::TextAbstraction::TransformToArc(parameters, x1, y1);
+        Dali::TextAbstraction::TransformToArc(parameters, x2, y2);
+        Dali::TextAbstraction::TransformToArc(parameters, x3, y3);
+        cairo_curve_to(cr, x1, y1, x2, y2, x3, y3);
         break;
       }
       case CAIRO_PATH_CLOSE_PATH:
       {
-        cairo_close_path( cr );
+        cairo_close_path(cr);
         break;
       }
       default:
       {
-        DALI_LOG_WARNING( "Type of path not handled.\n" );
+        DALI_LOG_WARNING("Type of path not handled.\n");
         // Nothing else to do.
         break;
       }
@@ -219,16 +219,12 @@ void WrapToCircularPath( cairo_t* cr, cairo_t* circularCr, const Dali::TextAbstr
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 namespace
 {
-
 /**
  * @brief Converts the size so that it can be used by Cairo
  * @param[in] fontClient A reference to the font client
@@ -239,12 +235,12 @@ namespace
  * @param[in/out] glyphRuns A vector of glyph-runs
  */
 bool ConvertSizeForCairo(
-    TextAbstraction::FontClient& fontClient,
-    FT_Library& ftLibrary,
-    const unsigned int numberOfGlyphs,
-    const GlyphInfo* const daliGlyphsBuffer,
-    const ColorIndex* const colorIndicesBuffer,
-    std::vector<GlyphRun>& glyphRuns)
+  TextAbstraction::FontClient& fontClient,
+  FT_Library&                  ftLibrary,
+  const unsigned int           numberOfGlyphs,
+  const GlyphInfo* const       daliGlyphsBuffer,
+  const ColorIndex* const      colorIndicesBuffer,
+  std::vector<GlyphRun>&       glyphRuns)
 {
   // The size set in Cairo and FreeType has different units.
   // Before the size is set in Cairo it needs to be converted according the formula
@@ -252,73 +248,72 @@ bool ConvertSizeForCairo(
   // https://www.freetype.org/freetype2/docs/glyphs/glyphs-2.html
 
   unsigned int horizontalDpi = 0u;
-  unsigned int verticalDpi = 0u;
-  fontClient.GetDpi( horizontalDpi, verticalDpi );
-  const double dVerticalDpi = static_cast<double>( verticalDpi );
+  unsigned int verticalDpi   = 0u;
+  fontClient.GetDpi(horizontalDpi, verticalDpi);
+  const double dVerticalDpi = static_cast<double>(verticalDpi);
 
-  const double FROM_26_DOT_6_TO_PIXELS = dVerticalDpi / ( 64.0 * 72.0 );
-
+  const double FROM_26_DOT_6_TO_PIXELS = dVerticalDpi / (64.0 * 72.0);
 
   GlyphRun currentGlyphRun;
-  currentGlyphRun.fontId = 0u;
-  currentGlyphRun.colorIndex = 0u;
+  currentGlyphRun.fontId           = 0u;
+  currentGlyphRun.colorIndex       = 0u;
   currentGlyphRun.isItalicRequired = false;
-  currentGlyphRun.isBoldRequired = false;
-  for( unsigned index = 0u; index < numberOfGlyphs; ++index )
+  currentGlyphRun.isBoldRequired   = false;
+  for(unsigned index = 0u; index < numberOfGlyphs; ++index)
   {
-    const GlyphInfo& daliGlyph = *( daliGlyphsBuffer + index );
-    const FontId fontId = daliGlyph.fontId;
-    const ColorIndex colorIndex = ( nullptr == colorIndicesBuffer ) ? 0u : *( colorIndicesBuffer + index );
-    const bool isItalicRequired = daliGlyph.isItalicRequired;
-    const bool isBoldRequired = daliGlyph.isBoldRequired;
+    const GlyphInfo& daliGlyph        = *(daliGlyphsBuffer + index);
+    const FontId     fontId           = daliGlyph.fontId;
+    const ColorIndex colorIndex       = (nullptr == colorIndicesBuffer) ? 0u : *(colorIndicesBuffer + index);
+    const bool       isItalicRequired = daliGlyph.isItalicRequired;
+    const bool       isBoldRequired   = daliGlyph.isBoldRequired;
 
-    if( ( fontId != currentGlyphRun.fontId ) ||
-        ( ( 0u == fontId ) && ( 0u != daliGlyph.index ) ) ||
-        ( colorIndex != currentGlyphRun.colorIndex ) ||
-        ( isItalicRequired != currentGlyphRun.isItalicRequired ) ||
-        ( isBoldRequired != currentGlyphRun.isBoldRequired ) )
+    if((fontId != currentGlyphRun.fontId) ||
+       ((0u == fontId) && (0u != daliGlyph.index)) ||
+       (colorIndex != currentGlyphRun.colorIndex) ||
+       (isItalicRequired != currentGlyphRun.isItalicRequired) ||
+       (isBoldRequired != currentGlyphRun.isBoldRequired))
     {
       // There is a new run. First set the number of glyphs of the previous run and store it.
       currentGlyphRun.numberOfGlyphs = index - currentGlyphRun.glyphIndex;
-      if( 0u != currentGlyphRun.numberOfGlyphs )
+      if(0u != currentGlyphRun.numberOfGlyphs)
       {
-        glyphRuns.push_back( currentGlyphRun );
+        glyphRuns.push_back(currentGlyphRun);
       }
 
-      currentGlyphRun.fontFace = nullptr;
-      currentGlyphRun.fontSize = 0.0;
-      currentGlyphRun.glyphIndex = index;
-      currentGlyphRun.numberOfGlyphs = 0u;
-      currentGlyphRun.fontId = 0u;
-      currentGlyphRun.colorIndex = 0u;
+      currentGlyphRun.fontFace         = nullptr;
+      currentGlyphRun.fontSize         = 0.0;
+      currentGlyphRun.glyphIndex       = index;
+      currentGlyphRun.numberOfGlyphs   = 0u;
+      currentGlyphRun.fontId           = 0u;
+      currentGlyphRun.colorIndex       = 0u;
       currentGlyphRun.isItalicRequired = false;
-      currentGlyphRun.isBoldRequired = false;
+      currentGlyphRun.isBoldRequired   = false;
 
-      if( 0u != fontId )
+      if(0u != fontId)
       {
         // Get the font's path file name from the font Id.
         FontDescription fontDescription;
-        fontClient.GetDescription( fontId, fontDescription );
+        fontClient.GetDescription(fontId, fontDescription);
 
-        switch( fontDescription.type )
+        switch(fontDescription.type)
         {
           case FontDescription::FACE_FONT:
           {
             // Create a FreeType font's face.
-            auto error = FT_New_Face( ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace );
-            if( error )
+            auto error = FT_New_Face(ftLibrary, fontDescription.path.c_str(), 0u, &currentGlyphRun.fontFace);
+            if(error)
             {
-              DALI_LOG_ERROR( "Error in FT while creating a new face\n" );
+              DALI_LOG_ERROR("Error in FT while creating a new face\n");
 
               // Error so just return false
               return false;
             }
 
             // Set the font's size. It needs to be set in the Freetype font and in the Cairo's context.
-            unsigned int fontSize = fontClient.GetPointSize( fontId );
+            unsigned int fontSize = fontClient.GetPointSize(fontId);
 
             // Font's size to be set in the Cairo's context.
-            currentGlyphRun.fontSize = FROM_26_DOT_6_TO_PIXELS * static_cast<double>( fontSize );
+            currentGlyphRun.fontSize = FROM_26_DOT_6_TO_PIXELS * static_cast<double>(fontSize);
             break;
           }
           case FontDescription::BITMAP_FONT:
@@ -333,18 +328,18 @@ bool ConvertSizeForCairo(
           }
         }
       }
-      currentGlyphRun.fontId = fontId;
-      currentGlyphRun.colorIndex = colorIndex;
+      currentGlyphRun.fontId           = fontId;
+      currentGlyphRun.colorIndex       = colorIndex;
       currentGlyphRun.isItalicRequired = isItalicRequired;
-      currentGlyphRun.isBoldRequired = isBoldRequired;
+      currentGlyphRun.isBoldRequired   = isBoldRequired;
     }
   }
 
   // Calculate the number of glyphs of the last run and store it.
   currentGlyphRun.numberOfGlyphs = numberOfGlyphs - currentGlyphRun.glyphIndex;
-  if( 0u != currentGlyphRun.numberOfGlyphs )
+  if(0u != currentGlyphRun.numberOfGlyphs)
   {
-    glyphRuns.push_back( currentGlyphRun );
+    glyphRuns.push_back(currentGlyphRun);
   }
 
   return true; // Successfully converted
@@ -367,115 +362,115 @@ bool ConvertSizeForCairo(
  * @param[in] doBlendWithTextColor Whether to blend with the text color or not)
  */
 void CopyImageToSurface(
-    const TextAbstraction::TextRenderer::Parameters& parameters,
-    const Pixel::Format pixelFormat,
-    TextAbstraction::FontClient::GlyphBufferData& data,
-    unsigned char * buffer,
-    const int rgbaCase,
-    const double glyphX,
-    const double glyphY,
-    const int strideWidth,
-    const Vector4& color,
-    const bool doBlendWithTextColor)
+  const TextAbstraction::TextRenderer::Parameters& parameters,
+  const Pixel::Format                              pixelFormat,
+  TextAbstraction::FontClient::GlyphBufferData&    data,
+  unsigned char*                                   buffer,
+  const int                                        rgbaCase,
+  const double                                     glyphX,
+  const double                                     glyphY,
+  const int                                        strideWidth,
+  const Vector4&                                   color,
+  const bool                                       doBlendWithTextColor)
 {
   // Select the cropped source image area to copy into the surface buffer
   unsigned int glyphUintX = 0u;
   unsigned int glyphUintY = 0u;
-  unsigned int srcWidth = data.width;
-  unsigned int srcHeight = data.height;
-  unsigned int xSrcIndex = 0u;
-  unsigned int ySrcIndex = 0u;
-  if( glyphX < 0.f )
+  unsigned int srcWidth   = data.width;
+  unsigned int srcHeight  = data.height;
+  unsigned int xSrcIndex  = 0u;
+  unsigned int ySrcIndex  = 0u;
+  if(glyphX < 0.f)
   {
-    xSrcIndex = static_cast<unsigned int>( abs( glyphX ) );
+    xSrcIndex = static_cast<unsigned int>(abs(glyphX));
     srcWidth -= xSrcIndex;
   }
   else
   {
-    glyphUintX = static_cast<unsigned int>( glyphX );
+    glyphUintX = static_cast<unsigned int>(glyphX);
   }
 
-  if( glyphUintX + srcWidth > static_cast<unsigned int>( strideWidth ) )
+  if(glyphUintX + srcWidth > static_cast<unsigned int>(strideWidth))
   {
-    srcWidth -= ( ( glyphUintX + srcWidth ) - strideWidth );
+    srcWidth -= ((glyphUintX + srcWidth) - strideWidth);
   }
 
-  if( glyphY - static_cast<float>( srcHeight ) < 0.f )
+  if(glyphY - static_cast<float>(srcHeight) < 0.f)
   {
-    ySrcIndex = static_cast<unsigned int>( abs( glyphY - static_cast<float>( srcHeight ) ) );
+    ySrcIndex = static_cast<unsigned int>(abs(glyphY - static_cast<float>(srcHeight)));
     srcHeight -= ySrcIndex;
   }
   else
   {
-    glyphUintY = static_cast<unsigned int>( glyphY - static_cast<float>( srcHeight ) );
+    glyphUintY = static_cast<unsigned int>(glyphY - static_cast<float>(srcHeight));
   }
 
-  if( glyphUintY + srcHeight > parameters.height )
+  if(glyphUintY + srcHeight > parameters.height)
   {
-    srcHeight -= ( ( glyphUintY + srcHeight ) - parameters.height );
+    srcHeight -= ((glyphUintY + srcHeight) - parameters.height);
   }
 
   // Calculate the source and destination indices.
-  const unsigned int srcPixelSize = Pixel::GetBytesPerPixel( data.format );
-  const unsigned int dstPixelSize = Pixel::GetBytesPerPixel( pixelFormat );
+  const unsigned int srcPixelSize = Pixel::GetBytesPerPixel(data.format);
+  const unsigned int dstPixelSize = Pixel::GetBytesPerPixel(pixelFormat);
 
-  unsigned int srcIndex = srcPixelSize * ( ySrcIndex * srcWidth + xSrcIndex );
-  unsigned int dstIndex = dstPixelSize * ( glyphUintY * strideWidth + glyphUintX );
+  unsigned int srcIndex = srcPixelSize * (ySrcIndex * srcWidth + xSrcIndex);
+  unsigned int dstIndex = dstPixelSize * (glyphUintY * strideWidth + glyphUintX);
 
-  const unsigned int srcWidthOffset = srcPixelSize * ( data.width - srcWidth );
-  const unsigned int dstWidthOffset = dstPixelSize * ( strideWidth - srcWidth );
+  const unsigned int srcWidthOffset = srcPixelSize * (data.width - srcWidth);
+  const unsigned int dstWidthOffset = dstPixelSize * (strideWidth - srcWidth);
 
   // Copy the image to the surface
-  for( unsigned int j = 0; j < srcHeight; ++j )
+  for(unsigned int j = 0; j < srcHeight; ++j)
   {
-    for( unsigned int i = 0; i < srcWidth; ++i )
+    for(unsigned int i = 0; i < srcWidth; ++i)
     {
-      switch( rgbaCase )
+      switch(rgbaCase)
       {
         case 0: // Both the image's buffer and cairo's buffer are A8
         {
-          const unsigned char alpha = *( data.buffer + srcIndex );
-          if( alpha != 0u )
+          const unsigned char alpha = *(data.buffer + srcIndex);
+          if(alpha != 0u)
           {
             // @todo needs a proper blending!
-            *( buffer + dstIndex ) = alpha;
+            *(buffer + dstIndex) = alpha;
           }
           break;
         }
         case 1: // The image's buffer is A8 and the cairo's buffer is ARGB
         {
-          const unsigned char alpha = *( data.buffer + srcIndex );
-          if( alpha != 0u )
+          const unsigned char alpha = *(data.buffer + srcIndex);
+          if(alpha != 0u)
           {
             // @todo needs a proper blending!
-            const float srcAlpha = TO_FLOAT * static_cast<float>( alpha );
+            const float srcAlpha = TO_FLOAT * static_cast<float>(alpha);
 
             // Write the RGBA modulated with the given default color.
             const float* const colorPtr = color.AsFloat();
-            *( buffer + dstIndex + 0u ) = static_cast<unsigned char>( TO_UCHAR * colorPtr[0u] * srcAlpha );
-            *( buffer + dstIndex + 1u ) = static_cast<unsigned char>( TO_UCHAR * colorPtr[1u] * srcAlpha );
-            *( buffer + dstIndex + 2u ) = static_cast<unsigned char>( TO_UCHAR * colorPtr[2u] * srcAlpha );
-            *( buffer + dstIndex + 3u ) = static_cast<unsigned char>( TO_UCHAR * colorPtr[3u] * srcAlpha );
+            *(buffer + dstIndex + 0u)   = static_cast<unsigned char>(TO_UCHAR * colorPtr[0u] * srcAlpha);
+            *(buffer + dstIndex + 1u)   = static_cast<unsigned char>(TO_UCHAR * colorPtr[1u] * srcAlpha);
+            *(buffer + dstIndex + 2u)   = static_cast<unsigned char>(TO_UCHAR * colorPtr[2u] * srcAlpha);
+            *(buffer + dstIndex + 3u)   = static_cast<unsigned char>(TO_UCHAR * colorPtr[3u] * srcAlpha);
           }
           break;
         }
         case 2: // The image's buffer is RGBA and the cairo's buffer is ARGB
         {
           const unsigned char alpha = *(data.buffer + srcIndex + 3u);
-          if( alpha != 0u )
+          if(alpha != 0u)
           {
-            if( doBlendWithTextColor )
+            if(doBlendWithTextColor)
             {
               const float* const colorPtr = color.AsFloat();
 
               const float srcAlpha = TO_FLOAT * static_cast<float>(alpha) * colorPtr[3u];
 
-              *(buffer + dstIndex + 0u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 0u) ) * colorPtr[0u] );
-              *(buffer + dstIndex + 1u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 1u) ) * colorPtr[1u] );
-              *(buffer + dstIndex + 2u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 2u) ) * colorPtr[2u] );
+              *(buffer + dstIndex + 0u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 0u)) * colorPtr[0u]);
+              *(buffer + dstIndex + 1u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 1u)) * colorPtr[1u]);
+              *(buffer + dstIndex + 2u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 2u)) * colorPtr[2u]);
 
               // Write the alpha.
-              *(buffer + dstIndex + 3u) = static_cast<unsigned char>( TO_UCHAR * srcAlpha );
+              *(buffer + dstIndex + 3u) = static_cast<unsigned char>(TO_UCHAR * srcAlpha);
             }
             else
             {
@@ -494,20 +489,20 @@ void CopyImageToSurface(
         case 3: // The image's buffer is BGRA and the cairo's buffer is ARGB
         {
           const unsigned char alpha = *(data.buffer + srcIndex + 3u);
-          if( alpha != 0u )
+          if(alpha != 0u)
           {
-            if( doBlendWithTextColor )
+            if(doBlendWithTextColor)
             {
               const float* const colorPtr = color.AsFloat();
 
               const float srcAlpha = TO_FLOAT * static_cast<float>(alpha) * colorPtr[3u];
 
-              *(buffer + dstIndex + 0u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 2u) ) * colorPtr[0u] );
-              *(buffer + dstIndex + 1u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 1u) ) * colorPtr[1u] );
-              *(buffer + dstIndex + 2u) = static_cast<unsigned char>( static_cast<float>( *(data.buffer + srcIndex + 0u) ) * colorPtr[2u] );
+              *(buffer + dstIndex + 0u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 2u)) * colorPtr[0u]);
+              *(buffer + dstIndex + 1u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 1u)) * colorPtr[1u]);
+              *(buffer + dstIndex + 2u) = static_cast<unsigned char>(static_cast<float>(*(data.buffer + srcIndex + 0u)) * colorPtr[2u]);
 
               // Write the alpha.
-              *(buffer + dstIndex + 3u) = static_cast<unsigned char>( TO_UCHAR * srcAlpha );
+              *(buffer + dstIndex + 3u) = static_cast<unsigned char>(TO_UCHAR * srcAlpha);
             }
             else
             {
@@ -523,7 +518,7 @@ void CopyImageToSurface(
         }
         default:
         {
-          DALI_ASSERT_ALWAYS( !"Cairo Renderer: The accepted values for this switch case are: 0, 1, 2!" );
+          DALI_ASSERT_ALWAYS(!"Cairo Renderer: The accepted values for this switch case are: 0, 1, 2!");
         }
       } // switch
       srcIndex += srcPixelSize;
@@ -545,81 +540,81 @@ void CopyImageToSurface(
  * @param[in/out] circularTextParameters The circular text parameters
  */
 void RenderGlyphs(
-    const TextAbstraction::TextRenderer::Parameters& parameters,
-    const GlyphRun& run,
-    cairo_glyph_t*& cairoGlyphsBuffer,
-    cairo_t*& cr,
-    cairo_t*& circularCr,
-    const bool isCircularText,
-    CircularTextParameters& circularTextParameters)
+  const TextAbstraction::TextRenderer::Parameters& parameters,
+  const GlyphRun&                                  run,
+  cairo_glyph_t*&                                  cairoGlyphsBuffer,
+  cairo_t*&                                        cr,
+  cairo_t*&                                        circularCr,
+  const bool                                       isCircularText,
+  CircularTextParameters&                          circularTextParameters)
 {
   // Sets the color. The color is actually BGRA
   const Vector4& color = parameters.colors[run.colorIndex];
 
-  cairo_set_source_rgba( cr,
-                         static_cast<double>( color.b ),
-                         static_cast<double>( color.g ),
-                         static_cast<double>( color.r ),
-                         static_cast<double>( color.a ) );
+  cairo_set_source_rgba(cr,
+                        static_cast<double>(color.b),
+                        static_cast<double>(color.g),
+                        static_cast<double>(color.r),
+                        static_cast<double>(color.a));
 
   // Create the Cairo's font from the FreeType font.
   int options = 0;
-  options = CAIRO_HINT_STYLE_SLIGHT;
-  std::unique_ptr<cairo_font_face_t, void(*)(cairo_font_face_t*)> fontFacePtr( cairo_ft_font_face_create_for_ft_face( run.fontFace, options ), cairo_font_face_destroy );
-  cairo_font_face_t* fontFace = fontFacePtr.get();
+  options     = CAIRO_HINT_STYLE_SLIGHT;
+  std::unique_ptr<cairo_font_face_t, void (*)(cairo_font_face_t*)> fontFacePtr(cairo_ft_font_face_create_for_ft_face(run.fontFace, options), cairo_font_face_destroy);
+  cairo_font_face_t*                                               fontFace = fontFacePtr.get();
 
-  static const cairo_user_data_key_t key = { 0 };
-  cairo_status_t status = cairo_font_face_set_user_data( fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>( FT_Done_Face ) );
-  if( status )
+  static const cairo_user_data_key_t key    = {0};
+  cairo_status_t                     status = cairo_font_face_set_user_data(fontFace, &key, run.fontFace, reinterpret_cast<cairo_destroy_func_t>(FT_Done_Face));
+  if(status)
   {
-    cairo_font_face_destroy( fontFace );
+    cairo_font_face_destroy(fontFace);
   }
 
   unsigned int ftSynthesizeFlag = 0u;
-  if( run.isBoldRequired && !( run.fontFace->style_flags & FT_STYLE_FLAG_BOLD ) )
+  if(run.isBoldRequired && !(run.fontFace->style_flags & FT_STYLE_FLAG_BOLD))
   {
     ftSynthesizeFlag |= CAIRO_FT_SYNTHESIZE_BOLD;
   }
 
-  cairo_ft_font_face_set_synthesize( fontFace, ftSynthesizeFlag );
+  cairo_ft_font_face_set_synthesize(fontFace, ftSynthesizeFlag);
 
-  cairo_font_face_reference( fontFace );
+  cairo_font_face_reference(fontFace);
 
-  const bool synthesizeItalic = ( run.isItalicRequired && !( run.fontFace->style_flags & FT_STYLE_FLAG_ITALIC ) );
+  const bool synthesizeItalic = (run.isItalicRequired && !(run.fontFace->style_flags & FT_STYLE_FLAG_ITALIC));
 
-  if( CAIRO_STATUS_SUCCESS != cairo_font_face_status( fontFace ) )
+  if(CAIRO_STATUS_SUCCESS != cairo_font_face_status(fontFace))
   {
-    DALI_LOG_ERROR( "Failed to load the Freetype Font\n" );
+    DALI_LOG_ERROR("Failed to load the Freetype Font\n");
   }
 
   // Sets the font.
-  cairo_set_font_face( isCircularText ? circularCr : cr, fontFace );
+  cairo_set_font_face(isCircularText ? circularCr : cr, fontFace);
 
   // Sets the size
-  cairo_set_font_size( isCircularText ? circularCr : cr, run.fontSize );
+  cairo_set_font_size(isCircularText ? circularCr : cr, run.fontSize);
 
   // Render the glyphs.
-  if( isCircularText )
+  if(isCircularText)
   {
     circularTextParameters.synthesizeItalic = synthesizeItalic;
 
     const unsigned int glyphJump = circularTextParameters.synthesizeItalic ? 1u : run.numberOfGlyphs;
 
-    for( unsigned int index = 0u; index < run.numberOfGlyphs; index += glyphJump )
+    for(unsigned int index = 0u; index < run.numberOfGlyphs; index += glyphJump)
     {
       // Clears the current path where the text is laid out on a horizontal straight line.
-      cairo_new_path( circularCr );
-      cairo_move_to( circularCr, 0.0, 0.0 );
+      cairo_new_path(circularCr);
+      cairo_move_to(circularCr, 0.0, 0.0);
 
-      cairo_glyph_path( circularCr, ( cairoGlyphsBuffer + run.glyphIndex + index ), glyphJump );
+      cairo_glyph_path(circularCr, (cairoGlyphsBuffer + run.glyphIndex + index), glyphJump);
 
-      WrapToCircularPath( cr, circularCr, circularTextParameters );
-      cairo_fill( cr );
+      WrapToCircularPath(cr, circularCr, circularTextParameters);
+      cairo_fill(cr);
     }
   }
   else
   {
-    if( synthesizeItalic )
+    if(synthesizeItalic)
     {
       // Apply a shear transform to synthesize the italics.
       // For a reason Cairo may trim some glyphs if the CAIRO_FT_SYNTHESIZE_OBLIQUE flag is used.
@@ -627,44 +622,47 @@ void RenderGlyphs(
       // This is to calculate an offset used to compensate the 'translation' done by the shear transform
       // as it's done for the whole render buffer.
       double maxY = 0.0;
-      for( unsigned int index = run.glyphIndex, endIndex = run.glyphIndex + run.numberOfGlyphs; index < endIndex; ++index )
+      for(unsigned int index = run.glyphIndex, endIndex = run.glyphIndex + run.numberOfGlyphs; index < endIndex; ++index)
       {
-        maxY = std::max( maxY, (*( cairoGlyphsBuffer + index )).y );
+        maxY = std::max(maxY, (*(cairoGlyphsBuffer + index)).y);
       }
 
       cairo_matrix_t matrix;
-      cairo_matrix_init( &matrix,
-                                                                              1.0, 0.0,
-                               -TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE, 1.0,
-                         maxY * TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE, 0.0 );
+      cairo_matrix_init(&matrix,
+                        1.0,
+                        0.0,
+                        -TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE,
+                        1.0,
+                        maxY * TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE,
+                        0.0);
 
-      cairo_transform( cr, &matrix );
+      cairo_transform(cr, &matrix);
     }
 
-    cairo_show_glyphs( cr, ( cairoGlyphsBuffer + run.glyphIndex ), run.numberOfGlyphs );
+    cairo_show_glyphs(cr, (cairoGlyphsBuffer + run.glyphIndex), run.numberOfGlyphs);
 
-    if( synthesizeItalic )
+    if(synthesizeItalic)
     {
       // Restore the transform matrix to the identity.
       cairo_matrix_t matrix;
-      cairo_matrix_init_identity( &matrix );
-      cairo_set_matrix( cr, &matrix );
+      cairo_matrix_init_identity(&matrix);
+      cairo_set_matrix(cr, &matrix);
     }
 
-    cairo_fill( cr );
+    cairo_fill(cr);
   }
 }
 
 } // unnamed namespace
 
-Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Parameters& parameters )
+Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Parameters& parameters)
 {
   const unsigned int numberOfGlyphs = parameters.glyphs.Count();
 
-  if( 0u == numberOfGlyphs )
+  if(0u == numberOfGlyphs)
   {
     // return a pixel buffer with all pixels set to transparent.
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
   // Choose the pixel format to be used.
@@ -674,86 +672,86 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   //
   //       Here in practice Cairo's ARGB32 is like DALi's RGBA8888.
   //
-  const bool isDstRgba = TextAbstraction::TextRenderer::Parameters::RGBA8888 == parameters.pixelFormat;
-  const Pixel::Format pixelFormat = isDstRgba ? Pixel::Format::RGBA8888 : Pixel::Format::A8;
+  const bool           isDstRgba   = TextAbstraction::TextRenderer::Parameters::RGBA8888 == parameters.pixelFormat;
+  const Pixel::Format  pixelFormat = isDstRgba ? Pixel::Format::RGBA8888 : Pixel::Format::A8;
   const cairo_format_t cairoFormat = isDstRgba ? CAIRO_FORMAT_ARGB32 : CAIRO_FORMAT_A8;
 
-  const int bpp = Pixel::GetBytesPerPixel( pixelFormat );
-  if( 0u == bpp )
+  const int bpp = Pixel::GetBytesPerPixel(pixelFormat);
+  if(0u == bpp)
   {
     // return a pixel buffer with all pixels set to transparent.
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
   // This function provides a stride value that will respect all alignment requirements of the
   // accelerated image-rendering code within cairo.
-  const int stride = cairo_format_stride_for_width( cairoFormat,
-                                                    static_cast<int>( parameters.width ) );
+  const int stride      = cairo_format_stride_for_width(cairoFormat,
+                                                   static_cast<int>(parameters.width));
   const int strideWidth = stride / bpp;
 
   // Convert from DALi glyphs to Cairo glyphs.
   std::vector<cairo_glyph_t> cairoGlyphs;
-  cairoGlyphs.resize( numberOfGlyphs );
+  cairoGlyphs.resize(numberOfGlyphs);
   cairo_glyph_t* cairoGlyphsBuffer = &cairoGlyphs[0u];
 
-  const GlyphInfo* const daliGlyphsBuffer = parameters.glyphs.Begin();
-  const Vector2* const positionsBuffer = parameters.positions.Begin();
-  const ColorIndex* const colorIndicesBuffer = ( 0u == parameters.colorIndices.Count() ) ? nullptr : parameters.colorIndices.Begin();
+  const GlyphInfo* const  daliGlyphsBuffer   = parameters.glyphs.Begin();
+  const Vector2* const    positionsBuffer    = parameters.positions.Begin();
+  const ColorIndex* const colorIndicesBuffer = (0u == parameters.colorIndices.Count()) ? nullptr : parameters.colorIndices.Begin();
 
-  for( unsigned index = 0u; index < numberOfGlyphs; ++index )
+  for(unsigned index = 0u; index < numberOfGlyphs; ++index)
   {
-    const GlyphInfo& daliGlyph = *( daliGlyphsBuffer + index );
-    const Vector2& position = *( positionsBuffer + index );
-    cairo_glyph_t& cairoGlyph = *( cairoGlyphsBuffer + index );
+    const GlyphInfo& daliGlyph  = *(daliGlyphsBuffer + index);
+    const Vector2&   position   = *(positionsBuffer + index);
+    cairo_glyph_t&   cairoGlyph = *(cairoGlyphsBuffer + index);
 
     cairoGlyph.index = daliGlyph.index;
-    cairoGlyph.x = round( position.x );
-    cairoGlyph.y = round( position.y );
+    cairoGlyph.x     = round(position.x);
+    cairoGlyph.y     = round(position.y);
   }
 
   // Retrieve the FreeType fonts needed by Cairo from the font-client.
   Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient::Get();
 
   FT_Library ftLibrary;
-  auto error = FT_Init_FreeType( &ftLibrary );
-  if( error )
+  auto       error = FT_Init_FreeType(&ftLibrary);
+  if(error)
   {
-    DALI_LOG_ERROR( "Error initializing FT library\n" );
+    DALI_LOG_ERROR("Error initializing FT library\n");
 
     // return a pixel buffer with all pixels set to transparent.
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
   // Vector used to store the FreeType font faces, its size and the run of glyphs that use the font.
   std::vector<GlyphRun> glyphRuns;
-  glyphRuns.reserve( 8u );
+  glyphRuns.reserve(8u);
 
-  if( ! ConvertSizeForCairo(fontClient, ftLibrary, numberOfGlyphs, daliGlyphsBuffer, colorIndicesBuffer, glyphRuns) )
+  if(!ConvertSizeForCairo(fontClient, ftLibrary, numberOfGlyphs, daliGlyphsBuffer, colorIndicesBuffer, glyphRuns))
   {
     // return a pixel buffer with all pixels set to transparent.
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
   // Creates the pixel buffer and retrieves the buffer pointer used to create the Cairo's surface.
-  Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New( strideWidth, parameters.height, pixelFormat );
+  Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(strideWidth, parameters.height, pixelFormat);
 
-  unsigned char* buffer = pixelBuffer.GetBuffer();
+  unsigned char*     buffer     = pixelBuffer.GetBuffer();
   const unsigned int bufferSize = stride * parameters.height;
-  memset( buffer, 0, bufferSize );
+  memset(buffer, 0, bufferSize);
 
-  std::unique_ptr<cairo_surface_t, void(*)(cairo_surface_t*)> surfacePtr( cairo_image_surface_create_for_data( buffer,
-                                                                                                               cairoFormat,
-                                                                                                               parameters.width,
-                                                                                                               parameters.height,
-                                                                                                               stride ),
-                                                                          cairo_surface_destroy );
-  cairo_surface_t* surface = surfacePtr.get();
+  std::unique_ptr<cairo_surface_t, void (*)(cairo_surface_t*)> surfacePtr(cairo_image_surface_create_for_data(buffer,
+                                                                                                              cairoFormat,
+                                                                                                              parameters.width,
+                                                                                                              parameters.height,
+                                                                                                              stride),
+                                                                          cairo_surface_destroy);
+  cairo_surface_t*                                             surface = surfacePtr.get();
 
-  if( ( nullptr == surface ) || ( CAIRO_STATUS_SUCCESS != cairo_surface_status( surface ) ) )
+  if((nullptr == surface) || (CAIRO_STATUS_SUCCESS != cairo_surface_status(surface)))
   {
-    DALI_LOG_ERROR( "Failed to create a cairo's surface\n" );
+    DALI_LOG_ERROR("Failed to create a cairo's surface\n");
 
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
   // Whether the text is circular.
@@ -768,104 +766,104 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
   //
   // As the glyphs are laid out first in a straight line they may exceed the
   // boundaries of the surface in that case cairo ignores them.
-  std::unique_ptr<cairo_surface_t, void(*)(cairo_surface_t*)> circularSurfacePtr( nullptr, cairo_surface_destroy );
-  cairo_surface_t* circularSurface = nullptr;
-  if( isCircularText )
+  std::unique_ptr<cairo_surface_t, void (*)(cairo_surface_t*)> circularSurfacePtr(nullptr, cairo_surface_destroy);
+  cairo_surface_t*                                             circularSurface = nullptr;
+  if(isCircularText)
   {
-    circularSurfacePtr.reset( cairo_surface_create_similar( surface,
-                                                            CAIRO_CONTENT_ALPHA,
-                                                            parameters.circularWidth,
-                                                            parameters.circularHeight ) );
+    circularSurfacePtr.reset(cairo_surface_create_similar(surface,
+                                                          CAIRO_CONTENT_ALPHA,
+                                                          parameters.circularWidth,
+                                                          parameters.circularHeight));
     circularSurface = circularSurfacePtr.get();
 
-    if( ( nullptr == circularSurface ) || ( CAIRO_STATUS_SUCCESS != cairo_surface_status( circularSurface ) ) )
+    if((nullptr == circularSurface) || (CAIRO_STATUS_SUCCESS != cairo_surface_status(circularSurface)))
     {
-      DALI_LOG_ERROR( "Failed to create a cairo's circular surface\n" );
+      DALI_LOG_ERROR("Failed to create a cairo's circular surface\n");
 
-      return CreateVoidPixelBuffer( parameters );
+      return CreateVoidPixelBuffer(parameters);
     }
   }
 
-  std::unique_ptr<cairo_t, void(*)(cairo_t*)> crPtr( cairo_create( surface ), cairo_destroy );
-  cairo_t* cr = crPtr.get();
+  std::unique_ptr<cairo_t, void (*)(cairo_t*)> crPtr(cairo_create(surface), cairo_destroy);
+  cairo_t*                                     cr = crPtr.get();
 
-  if( CAIRO_STATUS_SUCCESS != cairo_status( cr ) )
+  if(CAIRO_STATUS_SUCCESS != cairo_status(cr))
   {
-    DALI_LOG_ERROR( "Failed to create a cairo context\n" );
+    DALI_LOG_ERROR("Failed to create a cairo context\n");
 
-    return CreateVoidPixelBuffer( parameters );
+    return CreateVoidPixelBuffer(parameters);
   }
 
-  std::unique_ptr<cairo_t, void(*)(cairo_t*)> circularCrPtr( nullptr, cairo_destroy );
-  cairo_t* circularCr = nullptr;
+  std::unique_ptr<cairo_t, void (*)(cairo_t*)> circularCrPtr(nullptr, cairo_destroy);
+  cairo_t*                                     circularCr = nullptr;
 
-  if( isCircularText )
+  if(isCircularText)
   {
-    circularCrPtr.reset( cairo_create( circularSurface ) );
+    circularCrPtr.reset(cairo_create(circularSurface));
     circularCr = circularCrPtr.get();
 
-    if( CAIRO_STATUS_SUCCESS != cairo_status( circularCr ) )
+    if(CAIRO_STATUS_SUCCESS != cairo_status(circularCr))
     {
-      DALI_LOG_ERROR( "Failed to create a cairo context\n" );
+      DALI_LOG_ERROR("Failed to create a cairo context\n");
 
-      return CreateVoidPixelBuffer( parameters );
+      return CreateVoidPixelBuffer(parameters);
     }
   }
 
   CircularTextParameters circularTextParameters;
 
   // Render the glyphs.
-  if( isCircularText )
+  if(isCircularText)
   {
     // Set the parameters.
-    circularTextParameters.isClockwise = ( TextAbstraction::TextRenderer::Parameters::CLOCKWISE == parameters.circularLayout );
+    circularTextParameters.isClockwise = (TextAbstraction::TextRenderer::Parameters::CLOCKWISE == parameters.circularLayout);
 
-    circularTextParameters.centerX = static_cast<double>( parameters.centerX );
-    circularTextParameters.centerY = static_cast<double>( parameters.centerY );
-    circularTextParameters.radius = static_cast<double>( parameters.radius );
-    circularTextParameters.invRadius = 1.0 / circularTextParameters.radius;
+    circularTextParameters.centerX    = static_cast<double>(parameters.centerX);
+    circularTextParameters.centerY    = static_cast<double>(parameters.centerY);
+    circularTextParameters.radius     = static_cast<double>(parameters.radius);
+    circularTextParameters.invRadius  = 1.0 / circularTextParameters.radius;
     circularTextParameters.beginAngle = -parameters.beginAngle + Dali::Math::PI_2;
   }
 
-  cairo_move_to( cr, 0.0, 0.0 );
+  cairo_move_to(cr, 0.0, 0.0);
 
-  for( const auto& run: glyphRuns )
+  for(const auto& run : glyphRuns)
   {
     const bool isEmoji = parameters.isEmoji[run.glyphIndex];
-    if( isEmoji || ( nullptr == run.fontFace ) )
+    if(isEmoji || (nullptr == run.fontFace))
     {
       // Retrieve the color for the glyph.
       const Vector4& color = parameters.colors[run.colorIndex];
 
       const unsigned int lastGlyphIndex = run.glyphIndex + run.numberOfGlyphs;
-      for( unsigned int index = run.glyphIndex; index < lastGlyphIndex; ++index )
+      for(unsigned int index = run.glyphIndex; index < lastGlyphIndex; ++index)
       {
         // Whether it's a bitmap font.
-        const bool doBlendWithTextColor = !isEmoji && ( ColorBlendingMode::MULTIPLY == parameters.blendingMode[index] );
+        const bool doBlendWithTextColor = !isEmoji && (ColorBlendingMode::MULTIPLY == parameters.blendingMode[index]);
 
         // Check if there is an embedded image or a bitmap font image.
         const GlyphIndex glyphFontIndex = daliGlyphsBuffer[index].index;
-        if( 0u != glyphFontIndex )
+        if(0u != glyphFontIndex)
         {
           // The embedded image could be A8, RGBA8888 or BGRA8888.
           //
           // If the embedded image is RGBA8888 or BGRA8888 then the cairo's buffer is ARGB32. It's needed to convert from RGBA or BGRA to ARGB.
           // If the embedded image is A8 it's needed to check if the cairo's buffer is A8 or ARGB32 and do the conversion if needed.
 
-          const cairo_glyph_t& glyph = *( cairoGlyphsBuffer + index );
+          const cairo_glyph_t& glyph = *(cairoGlyphsBuffer + index);
 
           // Retrieve the image
           TextAbstraction::FontClient::GlyphBufferData data;
-          std::unique_ptr<GlyphBuffer> glyphBufferPtr( new GlyphBuffer( data, GlyphBuffer::DELETE ) );
-          if( isEmoji )
+          std::unique_ptr<GlyphBuffer>                 glyphBufferPtr(new GlyphBuffer(data, GlyphBuffer::DELETE));
+          if(isEmoji)
           {
-            data.width = parameters.glyphs[run.glyphIndex].width;
+            data.width  = parameters.glyphs[run.glyphIndex].width;
             data.height = parameters.glyphs[run.glyphIndex].height;
           }
 
-          fontClient.CreateBitmap( run.fontId, glyphFontIndex, false, false, data, 0u );
+          fontClient.CreateBitmap(run.fontId, glyphFontIndex, false, false, data, 0u);
 
-          if( nullptr == data.buffer )
+          if(nullptr == data.buffer)
           {
             // nothing else to do if there is no image.
             continue;
@@ -875,68 +873,67 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           double glyphX = glyph.x;
           double glyphY = glyph.y;
 
-          if( isCircularText )
+          if(isCircularText)
           {
             // Center of the bitmap.
-            const double halfWidth = 0.5 * static_cast<double>( data.width );
-            const double halfHeight = 0.5 * static_cast<double>( data.height );
+            const double halfWidth  = 0.5 * static_cast<double>(data.width);
+            const double halfHeight = 0.5 * static_cast<double>(data.height);
 
             double centerX = glyph.x + halfWidth;
             double centerY = glyph.y - halfHeight;
 
-            float radians = circularTextParameters.beginAngle + ( circularTextParameters.isClockwise ? -1.f : 1.f ) * ( Dali::Math::PI_2 + circularTextParameters.invRadius * centerX );
-            radians = fmod( radians, TWO_PI );
-            radians += ( radians < 0.f ) ? TWO_PI : 0.f;
+            float radians = circularTextParameters.beginAngle + (circularTextParameters.isClockwise ? -1.f : 1.f) * (Dali::Math::PI_2 + circularTextParameters.invRadius * centerX);
+            radians       = fmod(radians, TWO_PI);
+            radians += (radians < 0.f) ? TWO_PI : 0.f;
 
-            TransformToArc( circularTextParameters, centerX, centerY );
+            TransformToArc(circularTextParameters, centerX, centerY);
 
-            uint8_t* pixelsOut = nullptr;
-            unsigned int widthOut = data.width;
-            unsigned int heightOut = data.height;
-            const unsigned int pixelSize = Pixel::GetBytesPerPixel( data.format );
+            uint8_t*           pixelsOut = nullptr;
+            unsigned int       widthOut  = data.width;
+            unsigned int       heightOut = data.height;
+            const unsigned int pixelSize = Pixel::GetBytesPerPixel(data.format);
 
-            Dali::Internal::Platform::RotateByShear( data.buffer,
-                                                     data.width,
-                                                     data.height,
-                                                     pixelSize,
-                                                     radians,
-                                                     pixelsOut,
-                                                     widthOut,
-                                                     heightOut );
-            if( nullptr != pixelsOut )
+            Dali::Internal::Platform::RotateByShear(data.buffer,
+                                                    data.width,
+                                                    data.height,
+                                                    pixelSize,
+                                                    radians,
+                                                    pixelsOut,
+                                                    widthOut,
+                                                    heightOut);
+            if(nullptr != pixelsOut)
             {
               delete[] data.buffer;
-              data.buffer = pixelsOut;
+              data.buffer                = pixelsOut;
               glyphBufferPtr.get()->type = GlyphBuffer::FREE;
-              data.width = widthOut;
-              data.height = heightOut;
+              data.width                 = widthOut;
+              data.height                = heightOut;
             }
 
-            glyphX = centerX - 0.5 * static_cast<double>( data.width );
-            glyphY = centerY + 0.5 * static_cast<double>( data.height );
+            glyphX = centerX - 0.5 * static_cast<double>(data.width);
+            glyphY = centerY + 0.5 * static_cast<double>(data.height);
           }
 
-
-          if( ( Pixel::A8 != data.format ) &&
-              ( Pixel::L8 != data.format ) &&
-              ( Pixel::RGBA8888 != data.format ) &&
-              ( Pixel::BGRA8888 != data.format ) )
+          if((Pixel::A8 != data.format) &&
+             (Pixel::L8 != data.format) &&
+             (Pixel::RGBA8888 != data.format) &&
+             (Pixel::BGRA8888 != data.format))
           {
-            DALI_LOG_ERROR( " Cairo Renderer: The valid pixel format for embedded items are A8 or RGBA8888\n" );
+            DALI_LOG_ERROR(" Cairo Renderer: The valid pixel format for embedded items are A8 or RGBA8888\n");
             continue;
           }
 
           // Check if the item is out of the buffer.
-          if( ( glyphX + static_cast<float>( data.width ) < 0.f ) ||
-              ( glyphX > static_cast<float>( strideWidth ) ) ||
-              ( glyphY < 0.f ) ||
-              ( glyphY - static_cast<float>( data.height ) > static_cast<float>( parameters.height ) ) )
+          if((glyphX + static_cast<float>(data.width) < 0.f) ||
+             (glyphX > static_cast<float>(strideWidth)) ||
+             (glyphY < 0.f) ||
+             (glyphY - static_cast<float>(data.height) > static_cast<float>(parameters.height)))
           {
             // The embedded item is completely out of the buffer.
             continue;
           }
 
-          const bool isSrcA = ( Pixel::A8 == data.format ) || ( Pixel::L8 == data.format );
+          const bool isSrcA    = (Pixel::A8 == data.format) || (Pixel::L8 == data.format);
           const bool isSrcRgba = Pixel::RGBA8888 == data.format;
           const bool isSrcBgra = Pixel::BGRA8888 == data.format;
 
@@ -945,21 +942,21 @@ Devel::PixelBuffer RenderTextCairo( const TextAbstraction::TextRenderer::Paramet
           // 2 -> image is RGBA and cairo buffer is ARGB
           // 3 -> image is BGRA and cairo buffer is ARGB
           int rgbaCase = 0;
-          if( isSrcA && isDstRgba )
+          if(isSrcA && isDstRgba)
           {
             rgbaCase = 1;
           }
-          else if( isSrcRgba && isDstRgba )
+          else if(isSrcRgba && isDstRgba)
           {
             rgbaCase = 2;
           }
-          else if( isSrcBgra && isDstRgba )
+          else if(isSrcBgra && isDstRgba)
           {
             rgbaCase = 3;
           }
-          else if( ( isSrcRgba || isSrcBgra ) && !isDstRgba )
+          else if((isSrcRgba || isSrcBgra) && !isDstRgba)
           {
-            DALI_LOG_ERROR( "Cairo Renderer: The embedded image is RGBA or BGRA and the Cairo's buffer has been creates with A8 format!\n" );
+            DALI_LOG_ERROR("Cairo Renderer: The embedded image is RGBA or BGRA and the Cairo's buffer has been creates with A8 format!\n");
             continue;
           }
 

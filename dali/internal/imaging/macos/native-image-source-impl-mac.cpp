@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,73 +22,70 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali::Internal::Adaptor
 {
-
 using Dali::Integration::PixelBuffer;
 
 NativeImageSourceCocoa* NativeImageSourceCocoa::New(
-  unsigned int width,
-  unsigned int height,
+  unsigned int                        width,
+  unsigned int                        height,
   Dali::NativeImageSource::ColorDepth depth,
-  Any nativeImageSource
-)
+  Any                                 nativeImageSource)
 {
-  return new NativeImageSourceCocoa( width, height, depth, nativeImageSource );
+  return new NativeImageSourceCocoa(width, height, depth, nativeImageSource);
 }
 
 NativeImageSourceCocoa::NativeImageSourceCocoa(
-  unsigned int width,
-  unsigned int height,
+  unsigned int                        width,
+  unsigned int                        height,
   Dali::NativeImageSource::ColorDepth depth,
-  Any nativeImageSource
-)
+  Any                                 nativeImageSource)
 : mImage(MakeRef<CGImageRef>(nullptr))
 {
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
-  DALI_ASSERT_ALWAYS( nativeImageSource.Empty() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(nativeImageSource.Empty());
 
-  CFStringRef colorSpaceName;
+  CFStringRef      colorSpaceName;
   CGImageAlphaInfo alphaInfo;
-  std::size_t bitsPerPixel;
+  std::size_t      bitsPerPixel;
 
-  switch (depth)
+  switch(depth)
   {
     case Dali::NativeImageSource::COLOR_DEPTH_8:
       colorSpaceName = kCGColorSpaceGenericGray;
-      alphaInfo = kCGImageAlphaNone;
-      bitsPerPixel = 8;
+      alphaInfo      = kCGImageAlphaNone;
+      bitsPerPixel   = 8;
       break;
     case Dali::NativeImageSource::COLOR_DEPTH_16:
       colorSpaceName = kCGColorSpaceSRGB;
-      alphaInfo = kCGImageAlphaNone;
-      bitsPerPixel = 16;
+      alphaInfo      = kCGImageAlphaNone;
+      bitsPerPixel   = 16;
       break;
     case Dali::NativeImageSource::COLOR_DEPTH_24:
       colorSpaceName = kCGColorSpaceSRGB;
-      alphaInfo = kCGImageAlphaNone;
-      bitsPerPixel = 24;
+      alphaInfo      = kCGImageAlphaNone;
+      bitsPerPixel   = 24;
       break;
     case Dali::NativeImageSource::COLOR_DEPTH_32:
     default:
       colorSpaceName = kCGColorSpaceSRGB;
-      alphaInfo = kCGImageAlphaLast;
-      bitsPerPixel = 32;
+      alphaInfo      = kCGImageAlphaLast;
+      bitsPerPixel   = 32;
       break;
   }
 
   // round to next 16 bytes boundary
   std::size_t bytesPerRow = width & ~0xf;
-  bytesPerRow = bytesPerRow ? bytesPerRow + 16 : width;
+  bytesPerRow             = bytesPerRow ? bytesPerRow + 16 : width;
 
   auto dataProvider = MakeRef(CGDataProviderCreateWithData(nullptr, nullptr, 0, nullptr));
-  auto colorSpace = MakeRef(CGColorSpaceCreateWithName(colorSpaceName));
-  mImage = MakeRef(CGImageCreate(
+  auto colorSpace   = MakeRef(CGColorSpaceCreateWithName(colorSpaceName));
+  mImage            = MakeRef(CGImageCreate(
     width,
     height,
     8,
@@ -99,10 +96,9 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
     dataProvider.get(),
     nullptr,
     true,
-    kCGRenderingIntentDefault
-  ));
+    kCGRenderingIntentDefault));
 
-  if (mImage)
+  if(mImage)
   {
     colorSpace.release();
     dataProvider.release();
@@ -122,20 +118,20 @@ Any NativeImageSourceCocoa::GetNativeImageSource() const
 
 bool NativeImageSourceCocoa::GetPixels(
   std::vector<uint8_t>& pixbuf,
-  unsigned& width, unsigned& height,
-  Pixel::Format& pixelFormat
-) const
+  unsigned&             width,
+  unsigned&             height,
+  Pixel::Format&        pixelFormat) const
 {
   width  = CGImageGetWidth(mImage.get());
   height = CGImageGetHeight(mImage.get());
   return true;
 }
 
-void NativeImageSourceCocoa::SetSource( Any source )
+void NativeImageSourceCocoa::SetSource(Any source)
 {
 }
 
-bool NativeImageSourceCocoa::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
+bool NativeImageSourceCocoa::IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth)
 {
   return true;
 }
@@ -191,10 +187,7 @@ unsigned int NativeImageSourceCocoa::GetHeight() const
 bool NativeImageSourceCocoa::RequiresBlending() const
 {
   const auto alphaInfo = CGImageGetAlphaInfo(mImage.get());
-  return
-    alphaInfo != kCGImageAlphaNone
-    && alphaInfo != kCGImageAlphaNoneSkipFirst
-    && alphaInfo != kCGImageAlphaNoneSkipLast;
+  return alphaInfo != kCGImageAlphaNone && alphaInfo != kCGImageAlphaNoneSkipFirst && alphaInfo != kCGImageAlphaNoneSkipLast;
 }
 
 bool NativeImageSourceCocoa::SourceChanged() const
@@ -202,11 +195,10 @@ bool NativeImageSourceCocoa::SourceChanged() const
   return false;
 }
 
-uint8_t* NativeImageSourceCocoa::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+uint8_t* NativeImageSourceCocoa::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
 {
   return nullptr;
 }
-
 
 bool NativeImageSourceCocoa::ReleaseBuffer()
 {

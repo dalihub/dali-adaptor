@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,27 +23,22 @@
 
 #include <dali/public-api/object/type-registry.h>
 
-
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-
 /**
  * Helper function to convert Tizen-specific TTS state to external state.
  * @param state The Tizen TTS state.
  * @return The external TTS state.
  */
-Dali::TtsPlayer::State InternalToExternalState( tts_state_e state )
+Dali::TtsPlayer::State InternalToExternalState(tts_state_e state)
 {
-  switch( state )
+  switch(state)
   {
     case TTS_STATE_CREATED:
     {
@@ -94,14 +89,14 @@ TtsPlayerTizen::~TtsPlayerTizen()
 
   // Unset the callback funtion for TTS state change
   int retVal = tts_unset_state_changed_cb(mTtsHandle);
-  if( retVal != TTS_ERROR_NONE )
+  if(retVal != TTS_ERROR_NONE)
   {
     LogErrorCode(static_cast<tts_error_e>(retVal));
   }
 
   // Destroy the TTS handle and disconnects the daemon
   retVal = tts_destroy(mTtsHandle);
-  if( retVal != TTS_ERROR_NONE )
+  if(retVal != TTS_ERROR_NONE)
   {
     LogErrorCode(static_cast<tts_error_e>(retVal));
   }
@@ -112,7 +107,7 @@ void TtsPlayerTizen::Initialize()
   // Create the TTS handle
   int retVal = tts_create(&mTtsHandle);
 
-  if( retVal != TTS_ERROR_NONE )
+  if(retVal != TTS_ERROR_NONE)
   {
     LogErrorCode(static_cast<tts_error_e>(retVal));
   }
@@ -120,26 +115,26 @@ void TtsPlayerTizen::Initialize()
   {
     // Set the callback funtion for TTS state change
     retVal = tts_set_state_changed_cb(mTtsHandle, &StateChangedCallback, this);
-    if( retVal != TTS_ERROR_NONE )
+    if(retVal != TTS_ERROR_NONE)
     {
       LogErrorCode(static_cast<tts_error_e>(retVal));
     }
 
     // Check tts mode
     tts_mode_e ttsMode = TTS_MODE_DEFAULT;
-    switch (mTtsMode)
+    switch(mTtsMode)
     {
       case Dali::TtsPlayer::DEFAULT:
         ttsMode = TTS_MODE_DEFAULT;
-      break;
+        break;
       case Dali::TtsPlayer::NOTIFICATION:
         ttsMode = TTS_MODE_NOTIFICATION;
-      break;
+        break;
       case Dali::TtsPlayer::SCREEN_READER:
         ttsMode = TTS_MODE_SCREEN_READER;
-      break;
+        break;
       default:
-      break;
+        break;
     }
 
     // Set mode
@@ -192,7 +187,7 @@ void TtsPlayerTizen::Stop()
   {
     // Check the current TTS state
     tts_state_e state;
-    int retVal = tts_get_state(mTtsHandle, &state);
+    int         retVal = tts_get_state(mTtsHandle, &state);
     if(retVal != TTS_ERROR_NONE)
     {
       LogErrorCode(static_cast<tts_error_e>(retVal));
@@ -201,7 +196,7 @@ void TtsPlayerTizen::Stop()
     {
       // If it is playing or paused, stop playing and clear the queue
       retVal = tts_stop(mTtsHandle);
-      if( retVal != TTS_ERROR_NONE )
+      if(retVal != TTS_ERROR_NONE)
       {
         LogErrorCode(static_cast<tts_error_e>(retVal));
       }
@@ -215,7 +210,7 @@ void TtsPlayerTizen::Pause()
   {
     // Check the current TTS state
     tts_state_e state;
-    int retVal = tts_get_state(mTtsHandle, &state);
+    int         retVal = tts_get_state(mTtsHandle, &state);
     if(retVal != TTS_ERROR_NONE)
     {
       LogErrorCode(static_cast<tts_error_e>(retVal));
@@ -224,7 +219,7 @@ void TtsPlayerTizen::Pause()
     {
       // If the player is playing, pause it.
       retVal = tts_pause(mTtsHandle);
-      if( retVal != TTS_ERROR_NONE )
+      if(retVal != TTS_ERROR_NONE)
       {
         LogErrorCode(static_cast<tts_error_e>(retVal));
       }
@@ -238,7 +233,7 @@ void TtsPlayerTizen::Resume()
   {
     // Check the current TTS state
     tts_state_e state;
-    int retVal = tts_get_state(mTtsHandle, &state);
+    int         retVal = tts_get_state(mTtsHandle, &state);
     if(retVal != TTS_ERROR_NONE)
     {
       LogErrorCode(static_cast<tts_error_e>(retVal));
@@ -247,7 +242,7 @@ void TtsPlayerTizen::Resume()
     {
       // If the player is paused, resume it.
       retVal = tts_play(mTtsHandle);
-      if( retVal != TTS_ERROR_NONE )
+      if(retVal != TTS_ERROR_NONE)
       {
         LogErrorCode(static_cast<tts_error_e>(retVal));
       }
@@ -263,14 +258,14 @@ Dali::TtsPlayer::State TtsPlayerTizen::GetState()
   {
     // Check the current TTS state
     tts_state_e state;
-    int retVal = tts_get_state(mTtsHandle, &state);
+    int         retVal = tts_get_state(mTtsHandle, &state);
     if(retVal != TTS_ERROR_NONE)
     {
       LogErrorCode(static_cast<tts_error_e>(retVal));
     }
     else
     {
-      ttsState = InternalToExternalState( state );
+      ttsState = InternalToExternalState(state);
     }
   }
 
@@ -282,22 +277,22 @@ Dali::TtsPlayer::StateChangedSignalType& TtsPlayerTizen::StateChangedSignal()
   return mStateChangedSignal;
 }
 
-void TtsPlayerTizen::EmitStateChangedSignal( tts_state_e previous, tts_state_e current )
+void TtsPlayerTizen::EmitStateChangedSignal(tts_state_e previous, tts_state_e current)
 {
   // Convert the previous and current states to external states and emit them as a signal.
-  if( !mStateChangedSignal.Empty() )
+  if(!mStateChangedSignal.Empty())
   {
-    mStateChangedSignal.Emit( InternalToExternalState( previous ), InternalToExternalState( current ) );
+    mStateChangedSignal.Emit(InternalToExternalState(previous), InternalToExternalState(current));
   }
 }
 
-void TtsPlayerTizen::StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData)
+void TtsPlayerTizen::StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void* userData)
 {
   // Get the implementation (this is a static function).
   TtsPlayerTizen* obj = static_cast<TtsPlayerTizen*>(userData);
 
   // Emit the signal.
-  obj->EmitStateChangedSignal( previous, current );
+  obj->EmitStateChangedSignal(previous, current);
 
   if(!obj->mInitialized && current == TTS_STATE_READY)
   {
@@ -316,7 +311,7 @@ void TtsPlayerTizen::LogErrorCode(tts_error_e reason)
 {
   std::string error_string;
 
-  switch (reason)
+  switch(reason)
   {
     case TTS_ERROR_NONE:
     {

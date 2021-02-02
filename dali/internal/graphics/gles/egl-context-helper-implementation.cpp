@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,28 +31,27 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 EglContextHelperImplementation::EglContextHelperImplementation()
-: mEglImplementation( NULL )
+: mEglImplementation(NULL)
 {
 }
 
-void EglContextHelperImplementation::Initialize( EglImplementation* eglImpl )
+void EglContextHelperImplementation::Initialize(EglImplementation* eglImpl)
 {
   mEglImplementation = eglImpl;
 }
 
 void EglContextHelperImplementation::MakeSurfacelessContextCurrent()
 {
-  if ( mEglImplementation && mEglImplementation->IsSurfacelessContextSupported() )
+  if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
-    mEglImplementation->MakeContextCurrent( EGL_NO_SURFACE, mEglImplementation->GetContext() );
+    mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
   }
 }
 
 void EglContextHelperImplementation::MakeContextNull()
 {
-  if ( mEglImplementation )
+  if(mEglImplementation)
   {
     mEglImplementation->MakeContextNull();
   }
@@ -60,12 +59,12 @@ void EglContextHelperImplementation::MakeContextNull()
 
 void EglContextHelperImplementation::WaitClient()
 {
-  if ( mEglImplementation )
+  if(mEglImplementation)
   {
     mEglImplementation->WaitClient();
   }
 }
 
-} // namespace Dali
-} // namespace Internal
 } // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

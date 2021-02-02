@@ -26,9 +26,9 @@
 #include <dali/public-api/object/type-registry-helper.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 using namespace Dali::Accessibility;
 using namespace Dali;
@@ -50,7 +50,7 @@ std::string Accessible::GetLocalizedRoleName()
 
 std::string Accessible::GetRoleName()
 {
-  switch( GetRole() )
+  switch(GetRole())
   {
     case Role::INVALID:
     {
@@ -551,7 +551,7 @@ Dali::Actor Accessible::GetCurrentlyHighlightedActor()
 
 void Accessible::SetCurrentlyHighlightedActor(Dali::Actor actor)
 {
-  if (IsUp())
+  if(IsUp())
   {
     Bridge::GetCurrentBridge()->data->currentlyHighlightedActor = actor;
   }
@@ -564,7 +564,7 @@ Dali::Actor Accessible::GetHighlightActor()
 
 void Accessible::SetHighlightActor(Dali::Actor actor)
 {
-  if (IsUp())
+  if(IsUp())
   {
     Bridge::GetCurrentBridge()->data->highlightActor = actor;
   }
@@ -573,10 +573,10 @@ void Accessible::SetHighlightActor(Dali::Actor actor)
 void Bridge::ForceDown()
 {
   auto highlighted = Accessible::GetCurrentlyHighlightedActor();
-  if( highlighted )
+  if(highlighted)
   {
-    auto p = dynamic_cast< Component* >( Accessible::Get( highlighted ) );
-    if( p )
+    auto p = dynamic_cast<Component*>(Accessible::Get(highlighted));
+    if(p)
     {
       p->ClearHighlight();
     }
@@ -584,7 +584,7 @@ void Bridge::ForceDown()
   data = {};
 }
 
-void Bridge::SetIsOnRootLevel( Accessible* o )
+void Bridge::SetIsOnRootLevel(Accessible* o)
 {
   o->isOnRootLevel = true;
 }
@@ -595,21 +595,23 @@ class NonControlAccessible : public virtual Accessible, public virtual Collectio
 {
 public:
   Dali::Actor actor;
-  bool root = false;
+  bool        root = false;
 
-  NonControlAccessible( Dali::Actor actor, bool root ) : actor( actor ), root( root )
+  NonControlAccessible(Dali::Actor actor, bool root)
+  : actor(actor),
+    root(root)
   {
   }
 
-  Dali::Rect<> GetExtents( Dali::Accessibility::CoordType ctype ) override
+  Dali::Rect<> GetExtents(Dali::Accessibility::CoordType ctype) override
   {
-    Vector2 screenPosition = actor.GetProperty( Actor::Property::SCREEN_POSITION ).Get< Vector2 >();
-    Vector3 size = actor.GetCurrentProperty< Vector3 >( Actor::Property::SIZE ) * actor.GetCurrentProperty< Vector3 >( Actor::Property::WORLD_SCALE );
-    bool positionUsesAnchorPoint = actor.GetProperty( Actor::Property::POSITION_USES_ANCHOR_POINT ).Get< bool >();
-    Vector3 anchorPointOffSet = size * ( positionUsesAnchorPoint ? actor.GetCurrentProperty< Vector3 >( Actor::Property::ANCHOR_POINT ) : AnchorPoint::TOP_LEFT );
-    Vector2 position = Vector2( screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y );
+    Vector2 screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
+    Vector3 size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
+    bool    positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
+    Vector3 anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
+    Vector2 position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
 
-    return { position.x, position.y, size.x, size.y };
+    return {position.x, position.y, size.x, size.y};
   }
   Dali::Accessibility::ComponentLayer GetLayer() override
   {
@@ -641,7 +643,7 @@ public:
   }
   std::string GetName() override
   {
-    return actor.GetProperty< std::string >( Dali::Actor::Property::NAME );
+    return actor.GetProperty<std::string>(Dali::Actor::Property::NAME);
   }
   std::string GetDescription() override
   {
@@ -649,37 +651,37 @@ public:
   }
   Accessible* GetParent() override
   {
-    if( GetIsOnRootLevel() )
+    if(GetIsOnRootLevel())
     {
       auto b = GetBridgeData();
       return b->bridge->GetApplication();
     }
-    return Get( actor.GetParent() );
+    return Get(actor.GetParent());
   }
   size_t GetChildCount() override
   {
-    return static_cast< size_t >( actor.GetChildCount() );
+    return static_cast<size_t>(actor.GetChildCount());
   }
-  Accessible* GetChildAtIndex( size_t index ) override
+  Accessible* GetChildAtIndex(size_t index) override
   {
-    auto s = static_cast< size_t >( actor.GetChildCount() );
-    if( index >= s )
+    auto s = static_cast<size_t>(actor.GetChildCount());
+    if(index >= s)
     {
-      throw std::domain_error{"invalid index " + std::to_string( index ) + " for object with " + std::to_string( s ) + " children"};
+      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(s) + " children"};
     }
-    return Get( actor.GetChildAt( static_cast< unsigned int >( index ) ) );
+    return Get(actor.GetChildAt(static_cast<unsigned int>(index)));
   }
   size_t GetIndexInParent() override
   {
     auto parent = actor.GetParent();
-    if( !parent )
+    if(!parent)
     {
       return 0;
     }
-    auto size = static_cast< size_t >( parent.GetChildCount() );
-    for( auto i = 0u; i < size; ++i )
+    auto size = static_cast<size_t>(parent.GetChildCount());
+    for(auto i = 0u; i < size; ++i)
     {
-      if( parent.GetChildAt( i ) == actor )
+      if(parent.GetChildAt(i) == actor)
       {
         return i;
       }
@@ -693,17 +695,17 @@ public:
   States GetStates() override
   {
     States s;
-    if( root )
+    if(root)
     {
-      s[State::ENABLED] = true;
+      s[State::ENABLED]   = true;
       s[State::SENSITIVE] = true;
-      s[State::SHOWING] = true;
-      s[State::VISIBLE] = true;
-      s[State::ACTIVE] = true;
+      s[State::SHOWING]   = true;
+      s[State::VISIBLE]   = true;
+      s[State::ACTIVE]    = true;
     }
     else
     {
-      auto t = GetParent()->GetStates();
+      auto t            = GetParent()->GetStates();
       s[State::SHOWING] = t[State::SHOWING];
       s[State::VISIBLE] = t[State::VISIBLE];
     }
@@ -712,11 +714,13 @@ public:
   Attributes GetAttributes() override
   {
     Dali::TypeInfo type;
-    actor.GetTypeInfo( type );
-    return { {"t", type.GetName()}, };
+    actor.GetTypeInfo(type);
+    return {
+      {"t", type.GetName()},
+    };
   }
 
-  bool DoGesture(const GestureInfo &gestureInfo) override
+  bool DoGesture(const GestureInfo& gestureInfo) override
   {
     return false;
   }
@@ -727,12 +731,11 @@ public:
   }
 };
 
-using NonControlAccessiblesType = std::unordered_map< const Dali::RefObject*, std::unique_ptr< NonControlAccessible > >;
+using NonControlAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<NonControlAccessible> >;
 
 NonControlAccessiblesType nonControlAccessibles;
 
-std::function< Accessible*( Dali::Actor ) > convertingFunctor = []( Dali::Actor ) -> Accessible*
-{
+std::function<Accessible*(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> Accessible* {
   return nullptr;
 };
 
@@ -744,32 +747,30 @@ void Accessible::SetObjectRegistry(ObjectRegistry registry)
   objectRegistry = registry;
 }
 
-void Accessible::RegisterControlAccessibilityGetter( std::function< Accessible*( Dali::Actor ) > functor )
+void Accessible::RegisterControlAccessibilityGetter(std::function<Accessible*(Dali::Actor)> functor)
 {
   convertingFunctor = functor;
 }
 
-Accessible* Accessible::Get( Dali::Actor actor, bool root )
+Accessible* Accessible::Get(Dali::Actor actor, bool root)
 {
-  if( !actor )
+  if(!actor)
   {
     return nullptr;
   }
-  auto accessible = convertingFunctor( actor );
-  if( !accessible )
+  auto accessible = convertingFunctor(actor);
+  if(!accessible)
   {
-    if( nonControlAccessibles.empty() && objectRegistry )
+    if(nonControlAccessibles.empty() && objectRegistry)
     {
-      objectRegistry.ObjectDestroyedSignal().Connect( []( const Dali::RefObject* obj )
-      {
-        nonControlAccessibles.erase( obj );
-      }
-      );
+      objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
+        nonControlAccessibles.erase(obj);
+      });
     }
-    auto it = nonControlAccessibles.emplace( &actor.GetBaseObject(), nullptr );
-    if( it.second )
+    auto it = nonControlAccessibles.emplace(&actor.GetBaseObject(), nullptr);
+    if(it.second)
     {
-      it.first->second.reset( new NonControlAccessible( actor, root ) );
+      it.first->second.reset(new NonControlAccessible(actor, root));
     }
     accessible = it.first->second.get();
   }

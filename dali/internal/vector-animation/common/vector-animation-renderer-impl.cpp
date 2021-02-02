@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,19 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-
 // Type Registration
 Dali::BaseHandle Create()
 {
   return Dali::BaseHandle();
 }
 
-Dali::TypeRegistration type( typeid( Dali::VectorAnimationRenderer ), typeid( Dali::BaseHandle ), Create );
+Dali::TypeRegistration type(typeid(Dali::VectorAnimationRenderer), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 
@@ -52,7 +48,7 @@ VectorAnimationRendererPtr VectorAnimationRenderer::New()
 }
 
 VectorAnimationRenderer::VectorAnimationRenderer()
-: mPlugin( std::string() )
+: mPlugin(std::string())
 {
 }
 
@@ -60,9 +56,9 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 {
 }
 
-void VectorAnimationRenderer::Initialize( const std::string& url )
+void VectorAnimationRenderer::Initialize(const std::string& url)
 {
-  mPlugin.Initialize( url );
+  mPlugin.Initialize(url);
 }
 
 void VectorAnimationRenderer::Finalize()
@@ -70,19 +66,19 @@ void VectorAnimationRenderer::Finalize()
   mPlugin.Finalize();
 }
 
-void VectorAnimationRenderer::SetRenderer( Dali::Renderer renderer )
+void VectorAnimationRenderer::SetRenderer(Dali::Renderer renderer)
 {
-  mPlugin.SetRenderer( renderer );
+  mPlugin.SetRenderer(renderer);
 }
 
-void VectorAnimationRenderer::SetSize( uint32_t width, uint32_t height )
+void VectorAnimationRenderer::SetSize(uint32_t width, uint32_t height)
 {
-  mPlugin.SetSize( width, height );
+  mPlugin.SetSize(width, height);
 }
 
-bool VectorAnimationRenderer::Render( uint32_t frameNumber )
+bool VectorAnimationRenderer::Render(uint32_t frameNumber)
 {
-  return mPlugin.Render( frameNumber );
+  return mPlugin.Render(frameNumber);
 }
 
 uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
@@ -95,19 +91,19 @@ float VectorAnimationRenderer::GetFrameRate() const
   return mPlugin.GetFrameRate();
 }
 
-void VectorAnimationRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorAnimationRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  mPlugin.GetDefaultSize( width, height );
+  mPlugin.GetDefaultSize(width, height);
 }
 
-void VectorAnimationRenderer::GetLayerInfo( Property::Map& map ) const
+void VectorAnimationRenderer::GetLayerInfo(Property::Map& map) const
 {
-  mPlugin.GetLayerInfo( map );
+  mPlugin.GetLayerInfo(map);
 }
 
-bool VectorAnimationRenderer::GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const
+bool VectorAnimationRenderer::GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const
 {
-  return mPlugin.GetMarkerInfo( marker, startFrame, endFrame );
+  return mPlugin.GetMarkerInfo(marker, startFrame, endFrame);
 }
 
 void VectorAnimationRenderer::IgnoreRenderedFrame()
@@ -122,6 +118,6 @@ Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRendere
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

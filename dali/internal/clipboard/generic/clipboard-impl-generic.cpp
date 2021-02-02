@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 struct Clipboard::Impl
 {
 };
 
-Clipboard::Clipboard( Impl* impl )
-: mImpl( impl )
+Clipboard::Clipboard(Impl* impl)
+: mImpl(impl)
 {
 }
 
@@ -47,28 +44,28 @@ Dali::Clipboard Clipboard::Get()
 {
   Dali::Clipboard clipboard;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::Clipboard ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard( dynamic_cast< Clipboard* >( handle.GetObjectPtr() ) );
+      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
     }
     else
     {
-      Clipboard::Impl* impl( new Clipboard::Impl() );
-      clipboard = Dali::Clipboard( new Clipboard(impl) );
-      service.Register( typeid(Dali::Clipboard), clipboard );
+      Clipboard::Impl* impl(new Clipboard::Impl());
+      clipboard = Dali::Clipboard(new Clipboard(impl));
+      service.Register(typeid(Dali::Clipboard), clipboard);
     }
   }
 
   return clipboard;
 }
 
-bool Clipboard::SetItem(const std::string &itemData )
+bool Clipboard::SetItem(const std::string& itemData)
 {
   return true;
 }
@@ -95,7 +92,7 @@ bool Clipboard::IsVisible() const
   return false;
 }
 
-char* Clipboard::ExcuteBuffered( bool type, void *event )
+char* Clipboard::ExcuteBuffered(bool type, void* event)
 {
   return NULL;
 }

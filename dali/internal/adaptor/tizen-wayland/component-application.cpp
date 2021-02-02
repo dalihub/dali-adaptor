@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,19 @@
 
 namespace Dali
 {
-
 ComponentApplication ComponentApplication::New()
 {
-  return New( NULL, NULL );
+  return New(NULL, NULL);
 }
 
-ComponentApplication ComponentApplication::New( int* argc, char **argv[] )
+ComponentApplication ComponentApplication::New(int* argc, char** argv[])
 {
-  return New( argc, argv, "" );
+  return New(argc, argv, "");
 }
 
-ComponentApplication ComponentApplication::New( int* argc, char **argv[], const std::string& stylesheet )
+ComponentApplication ComponentApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  Internal::Adaptor::ComponentApplicationPtr internal = Internal::Adaptor::ComponentApplication::New( argc, argv, stylesheet, TRANSPARENT );
+  Internal::Adaptor::ComponentApplicationPtr internal = Internal::Adaptor::ComponentApplication::New(argc, argv, stylesheet, TRANSPARENT);
   return ComponentApplication(internal.Get());
 }
 

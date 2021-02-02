@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,25 @@
 #include <dali/internal/adaptor/common/framework.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
+#include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/adaptor-framework/application.h>
-#include <dali/devel-api/adaptor-framework/application-devel.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/adaptor/android/android-framework-impl.h>
+#include <dali/internal/adaptor/common/application-impl.h>
 #include <dali/internal/system/common/callback-manager.h>
 
 using namespace Dali;
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Impl to hide android data members
  */
@@ -48,18 +45,18 @@ struct Framework::Impl
 {
   // Constructor
 
-  Impl( Framework* framework )
-  : mAbortCallBack( nullptr ),
-    mCallbackManager( CallbackManager::New() ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" )
+  Impl(Framework* framework)
+  : mAbortCallBack(nullptr),
+    mCallbackManager(CallbackManager::New()),
+    mLanguage("NOT_SUPPORTED"),
+    mRegion("NOT_SUPPORTED")
   {
-    AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( framework );
+    AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(framework);
   }
 
   ~Impl()
   {
-    AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( nullptr );
+    AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(nullptr);
 
     delete mAbortCallBack;
     mAbortCallBack = nullptr;
@@ -81,30 +78,30 @@ struct Framework::Impl
     return mRegion;
   }
 
-  CallbackBase* mAbortCallBack;
+  CallbackBase*    mAbortCallBack;
   CallbackManager* mCallbackManager;
-  std::string mLanguage;
-  std::string mRegion;
+  std::string      mLanguage;
+  std::string      mRegion;
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
-: mObserver( observer ),
-  mInitialised( false ),
-  mPaused( false ),
-  mRunning( false ),
-  mArgc( argc ),
-  mArgv( argv ),
-  mBundleName( "" ),
-  mBundleId( "" ),
-  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
-  mImpl( NULL )
+Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Type type)
+: mObserver(observer),
+  mInitialised(false),
+  mPaused(false),
+  mRunning(false),
+  mArgc(argc),
+  mArgv(argv),
+  mBundleName(""),
+  mBundleId(""),
+  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
+  mImpl(NULL)
 {
-  mImpl = new Impl( this );
+  mImpl = new Impl(this);
 }
 
 Framework::~Framework()
 {
-  if( mRunning )
+  if(mRunning)
   {
     Quit();
   }
@@ -115,63 +112,63 @@ Framework::~Framework()
 
 void Framework::Run()
 {
-  AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( this );
+  AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(this);
   mRunning = true;
 }
 
-unsigned int Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* data))
 {
-  JNIEnv *env = nullptr;
+  JNIEnv* env    = nullptr;
   JavaVM* javaVM = AndroidFramework::Get().GetJVM();
-  if( javaVM == nullptr || javaVM->GetEnv( reinterpret_cast<void **>( &env ), JNI_VERSION_1_6 ) != JNI_OK )
+  if(javaVM == nullptr || javaVM->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
   {
     DALI_LOG_ERROR("Couldn't get JNI env.");
     return -1;
   }
 
-  jclass clazz = env->FindClass( "com/sec/daliview/DaliView" );
-  if ( !clazz )
+  jclass clazz = env->FindClass("com/sec/daliview/DaliView");
+  if(!clazz)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.");
     return -1;
   }
 
-  jmethodID addIdle = env->GetStaticMethodID( clazz, "addIdle", "(JJJ)I" );
-  if (!addIdle)
+  jmethodID addIdle = env->GetStaticMethodID(clazz, "addIdle", "(JJJ)I");
+  if(!addIdle)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.addIdle.");
     return -1;
   }
 
-  jint id = env->CallStaticIntMethod( clazz, addIdle, reinterpret_cast<jlong>( callback ), reinterpret_cast<jlong>( data ), static_cast<jlong>( timeout ) );
-  return static_cast<unsigned int>( id );
+  jint id = env->CallStaticIntMethod(clazz, addIdle, reinterpret_cast<jlong>(callback), reinterpret_cast<jlong>(data), static_cast<jlong>(timeout));
+  return static_cast<unsigned int>(id);
 }
 
-void Framework::RemoveIdle( unsigned int id )
+void Framework::RemoveIdle(unsigned int id)
 {
-  JNIEnv *env = nullptr;
+  JNIEnv* env    = nullptr;
   JavaVM* javaVM = AndroidFramework::Get().GetJVM();
-  if( javaVM == nullptr || javaVM->GetEnv( reinterpret_cast<void **>( &env ), JNI_VERSION_1_6 ) != JNI_OK )
+  if(javaVM == nullptr || javaVM->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
   {
     DALI_LOG_ERROR("Couldn't get JNI env.");
     return;
   }
 
-  jclass clazz = env->FindClass( "com/sec/daliview/DaliView" );
-  if( !clazz )
+  jclass clazz = env->FindClass("com/sec/daliview/DaliView");
+  if(!clazz)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.");
     return;
   }
 
-  jmethodID removeIdle = env->GetStaticMethodID( clazz, "removeIdle", "(I)V" );
-  if( !removeIdle )
+  jmethodID removeIdle = env->GetStaticMethodID(clazz, "removeIdle", "(I)V");
+  if(!removeIdle)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.removeIdle.");
     return;
   }
 
-  env->CallStaticVoidMethod( clazz, removeIdle, static_cast<jint>( id ) );
+  env->CallStaticVoidMethod(clazz, removeIdle, static_cast<jint>(id));
 }
 
 void Framework::Quit()
@@ -184,7 +181,7 @@ bool Framework::IsMainLoopRunning()
   return mRunning;
 }
 
-void Framework::AddAbortCallback( CallbackBase* callback )
+void Framework::AddAbortCallback(CallbackBase* callback)
 {
   mImpl->mAbortCallBack = callback;
 }
@@ -219,12 +216,12 @@ void Framework::SetBundleId(const std::string& id)
   mBundleId = id;
 }
 
-void Framework::AbortCallback( )
+void Framework::AbortCallback()
 {
   // if an abort call back has been installed run it.
-  if (mImpl->mAbortCallBack)
+  if(mImpl->mAbortCallBack)
   {
-    CallbackBase::Execute( *mImpl->mAbortCallBack );
+    CallbackBase::Execute(*mImpl->mAbortCallBack);
   }
   else
   {
@@ -235,20 +232,20 @@ void Framework::AbortCallback( )
 bool Framework::AppStatusHandler(int type, void* data)
 {
   Dali::Adaptor* adaptor = nullptr;
-  switch (type)
+  switch(type)
   {
     case APP_WINDOW_CREATED:
-      if( !mInitialised )
+      if(!mInitialised)
       {
         mObserver.OnInit();
         mInitialised = true;
       }
 
-      mObserver.OnSurfaceCreated( data );
+      mObserver.OnSurfaceCreated(data);
       break;
 
     case APP_WINDOW_DESTROYED:
-      mObserver.OnSurfaceDestroyed( data );
+      mObserver.OnSurfaceDestroyed(data);
       break;
 
     case APP_RESET:
@@ -273,8 +270,8 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_DESTROYED:
       mObserver.OnTerminate();
-      mRunning = false;
-      mPaused = false;
+      mRunning     = false;
+      mPaused      = false;
       mInitialised = false;
       break;
 

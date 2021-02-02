@@ -30,25 +30,22 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-TriggerEvent::TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options )
-: mFileDescriptorMonitor( NULL ),
-  mCallback( callback ),
-  mFileDescriptor( -1 ),
-  mOptions( options )
+TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
+: mFileDescriptorMonitor(NULL),
+  mCallback(callback),
+  mFileDescriptor(-1),
+  mOptions(options)
 {
   // Create accompanying file descriptor.
   mFileDescriptor = eventfd(0, EFD_NONBLOCK);
-  if (mFileDescriptor >= 0)
+  if(mFileDescriptor >= 0)
   {
     // Now Monitor the created event file descriptor
-    mFileDescriptorMonitor = new FileDescriptorMonitor( mFileDescriptor, MakeCallback( this, &TriggerEvent::Triggered ), FileDescriptorMonitor::FD_READABLE );
+    mFileDescriptorMonitor = new FileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
   }
   else
   {
@@ -61,7 +58,7 @@ TriggerEvent::~TriggerEvent()
   delete mFileDescriptorMonitor;
   delete mCallback;
 
-  if (mFileDescriptor >= 0)
+  if(mFileDescriptor >= 0)
   {
     close(mFileDescriptor);
     mFileDescriptor = 0;
@@ -70,16 +67,16 @@ TriggerEvent::~TriggerEvent()
 
 void TriggerEvent::Trigger()
 {
-  if (mFileDescriptor >= 0)
+  if(mFileDescriptor >= 0)
   {
     // Increment event counter by 1.
     // Writing to the file descriptor triggers the Dispatch() method in the other thread
     // (if in multi-threaded environment).
 
     uint64_t data = 1;
-    int size = write(mFileDescriptor, &data, sizeof(uint64_t));
+    int      size = write(mFileDescriptor, &data, sizeof(uint64_t));
 
-    if (size != sizeof(uint64_t))
+    if(size != sizeof(uint64_t))
     {
       DALI_LOG_ERROR("Unable to write to UpdateEvent File descriptor\n");
     }
@@ -90,28 +87,28 @@ void TriggerEvent::Trigger()
   }
 }
 
-void TriggerEvent::Triggered( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor )
+void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  if( !( eventBitMask & FileDescriptorMonitor::FD_READABLE ) )
+  if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
-    DALI_ASSERT_ALWAYS( 0 && "Trigger event file descriptor error");
+    DALI_ASSERT_ALWAYS(0 && "Trigger event file descriptor error");
     return;
   }
 
   // Reading from the file descriptor resets the event counter, we can ignore the count.
   uint64_t receivedData;
-  size_t size;
+  size_t   size;
   size = read(mFileDescriptor, &receivedData, sizeof(uint64_t));
-  if (size != sizeof(uint64_t))
+  if(size != sizeof(uint64_t))
   {
     DALI_LOG_WARNING("Unable to read to UpdateEvent File descriptor\n");
   }
 
   // Call the connected callback
-  CallbackBase::Execute( *mCallback );
+  CallbackBase::Execute(*mCallback);
 
   //check if we should delete ourselves after the trigger
-  if( mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER )
+  if(mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
   {
     delete this;
   }

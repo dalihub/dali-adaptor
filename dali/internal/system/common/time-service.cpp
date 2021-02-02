@@ -24,17 +24,13 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TimeService
 {
-
-void GetNanoseconds( uint64_t& timeInNanoseconds )
+void GetNanoseconds(uint64_t& timeInNanoseconds)
 {
   // Get the time of a monotonic clock since its epoch.
   auto epoch = std::chrono::steady_clock::now().time_since_epoch();
@@ -54,14 +50,13 @@ uint32_t GetMilliSeconds()
   return static_cast<uint32_t>(duration.count());
 }
 
-
-void SleepUntil( uint64_t timeInNanoseconds )
+void SleepUntil(uint64_t timeInNanoseconds)
 {
-  using Clock = std::chrono::steady_clock;
+  using Clock     = std::chrono::steady_clock;
   using TimePoint = std::chrono::time_point<Clock>;
 
   const Clock::duration duration = std::chrono::nanoseconds(timeInNanoseconds);
-  const TimePoint timePoint(duration);
+  const TimePoint       timePoint(duration);
 
   std::this_thread::sleep_until(timePoint);
 }

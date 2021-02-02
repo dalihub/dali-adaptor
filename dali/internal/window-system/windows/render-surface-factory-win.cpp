@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,28 +33,27 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-std::unique_ptr< WindowRenderSurface > RenderSurfaceFactoryWin::CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryWin::CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique< WindowRenderSurface >( positionSize, surface, isTransparent );
+  return Utils::MakeUnique<WindowRenderSurface>(positionSize, surface, isTransparent);
 }
 
-std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryWin::CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryWin::CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
   DALI_LOG_ERROR("Pixmap isn't been supported in Windows");
   return nullptr;
 }
 
-std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryWin::CreateNativeRenderSurface( SurfaceSize surfaceSize, Any surface, bool isTransparent )
+std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryWin::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
-  return std::unique_ptr< NativeRenderSurface >( nullptr );
+  return std::unique_ptr<NativeRenderSurface>(nullptr);
 }
 
 // this should be created from somewhere
-std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory()
+std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< RenderSurfaceFactoryWin >();
+  return Utils::MakeUnique<RenderSurfaceFactoryWin>();
 }
 
 } // namespace Adaptor

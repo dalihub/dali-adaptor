@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@ BridgeValue::BridgeValue()
 void BridgeValue::RegisterInterfaces()
 {
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceValue};
-  AddGetSetPropertyToInterface( desc, "CurrentValue", &BridgeValue::GetCurrentValue, &BridgeValue::SetCurrentValue );
-  AddGetPropertyToInterface( desc, "MaximumValue", &BridgeValue::GetMaximumValue );
-  AddGetPropertyToInterface( desc, "MinimumIncrement", &BridgeValue::GetMinimumIncrement );
-  AddGetPropertyToInterface( desc, "MinimumValue", &BridgeValue::GetMinimumValue );
-  dbusServer.addInterface( "/", desc, true );
+  AddGetSetPropertyToInterface(desc, "CurrentValue", &BridgeValue::GetCurrentValue, &BridgeValue::SetCurrentValue);
+  AddGetPropertyToInterface(desc, "MaximumValue", &BridgeValue::GetMaximumValue);
+  AddGetPropertyToInterface(desc, "MinimumIncrement", &BridgeValue::GetMinimumIncrement);
+  AddGetPropertyToInterface(desc, "MinimumValue", &BridgeValue::GetMinimumValue);
+  dbusServer.addInterface("/", desc, true);
 }
 
 Value* BridgeValue::FindSelf() const
 {
   auto s = BridgeBase::FindSelf();
-  assert( s );
-  auto s2 = dynamic_cast< Value* >( s );
-  if( !s2 )
+  assert(s);
+  auto s2 = dynamic_cast<Value*>(s);
+  if(!s2)
     throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Value interface"};
   return s2;
 }
@@ -50,9 +50,9 @@ double BridgeValue::GetCurrentValue()
 {
   return FindSelf()->GetCurrent();
 }
-void BridgeValue::SetCurrentValue( double new_value )
+void BridgeValue::SetCurrentValue(double new_value)
 {
-  FindSelf()->SetCurrent( new_value );
+  FindSelf()->SetCurrent(new_value);
 }
 double BridgeValue::GetMaximumValue()
 {

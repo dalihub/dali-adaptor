@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
 #include <dali/internal/adaptor/common/framework.h>
 
 // EXTERNAL INCLUDES
+#include <X11/Xlib.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/system/linux/dali-elementary.h>
-#include <X11/Xlib.h>
 
 #include <dali/integration-api/debug.h>
 
@@ -30,16 +30,12 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 /// Application Status Enum
 enum
 {
@@ -61,10 +57,10 @@ struct Framework::Impl
   // Constructor
 
   Impl(void* data)
-  : mAbortCallBack( NULL ),
-    mCallbackManager( CallbackManager::New() ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" )
+  : mAbortCallBack(NULL),
+    mCallbackManager(CallbackManager::New()),
+    mLanguage("NOT_SUPPORTED"),
+    mRegion("NOT_SUPPORTED")
   {
   }
 
@@ -89,17 +85,17 @@ struct Framework::Impl
   }
 
   // Data
-  CallbackBase* mAbortCallBack;
-  CallbackManager *mCallbackManager;
-  std::string mLanguage;
-  std::string mRegion;
+  CallbackBase*    mAbortCallBack;
+  CallbackManager* mCallbackManager;
+  std::string      mLanguage;
+  std::string      mRegion;
 
   // Static methods
 
   /**
    * Called by AppCore on application creation.
    */
-  static bool AppCreate(void *data)
+  static bool AppCreate(void* data)
   {
     return static_cast<Framework*>(data)->AppStatusHandler(APP_CREATE, NULL);
   }
@@ -107,7 +103,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application should terminate.
    */
-  static void AppTerminate(void *data)
+  static void AppTerminate(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_TERMINATE, NULL);
   }
@@ -115,7 +111,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application is paused.
    */
-  static void AppPause(void *data)
+  static void AppPause(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_PAUSE, NULL);
   }
@@ -123,7 +119,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application is resumed.
    */
-  static void AppResume(void *data)
+  static void AppResume(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_RESUME, NULL);
   }
@@ -135,10 +131,9 @@ struct Framework::Impl
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_LANGUAGE_CHANGE, NULL);
   }
-
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
+Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Type type)
 : mObserver(observer),
   mInitialised(false),
   mPaused(false),
@@ -147,7 +142,7 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
   mArgv(argv),
   mBundleName(""),
   mBundleId(""),
-  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
+  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
   mImpl(NULL)
 {
   InitThreads();
@@ -156,7 +151,7 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
 
 Framework::~Framework()
 {
-  if (mRunning)
+  if(mRunning)
   {
     Quit();
   }
@@ -168,7 +163,7 @@ void Framework::Run()
 {
   mRunning = true;
 
-  elm_init( mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr );
+  elm_init(mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr);
 
   Impl::AppCreate(this);
 
@@ -189,7 +184,7 @@ bool Framework::IsMainLoopRunning()
   return mRunning;
 }
 
-void Framework::AddAbortCallback( CallbackBase* callback )
+void Framework::AddAbortCallback(CallbackBase* callback)
 {
   mImpl->mAbortCallBack = callback;
 }
@@ -213,16 +208,16 @@ std::string Framework::GetResourcePath()
 {
   // "DALI_APPLICATION_PACKAGE" is used by Ubuntu specifically to get the already configured Application package path.
   const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
-  char* value = getenv( ubuntuEnvironmentVariable );
+  char*       value                     = getenv(ubuntuEnvironmentVariable);
   std::string resourcePath;
-  if ( value != NULL )
+  if(value != NULL)
   {
     resourcePath = value;
   }
 
-  if( resourcePath.back() != '/' )
+  if(resourcePath.back() != '/')
   {
-    resourcePath+="/";
+    resourcePath += "/";
   }
 
   return resourcePath;
@@ -231,9 +226,9 @@ std::string Framework::GetResourcePath()
 std::string Framework::GetDataPath()
 {
   const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
-  char* value = getenv( ubuntuEnvironmentVariable );
+  char*       value                     = getenv(ubuntuEnvironmentVariable);
   std::string dataPath;
-  if ( value != NULL )
+  if(value != NULL)
   {
     dataPath = value;
   }
@@ -246,12 +241,12 @@ void Framework::SetBundleId(const std::string& id)
   mBundleId = id;
 }
 
-void Framework::AbortCallback( )
+void Framework::AbortCallback()
 {
   // if an abort call back has been installed run it.
-  if (mImpl->mAbortCallBack)
+  if(mImpl->mAbortCallBack)
   {
-    CallbackBase::Execute( *mImpl->mAbortCallBack );
+    CallbackBase::Execute(*mImpl->mAbortCallBack);
   }
   else
   {
@@ -259,9 +254,9 @@ void Framework::AbortCallback( )
   }
 }
 
-bool Framework::AppStatusHandler(int type, void *bundleData)
+bool Framework::AppStatusHandler(int type, void* bundleData)
 {
-  switch (type)
+  switch(type)
   {
     case APP_CREATE:
     {

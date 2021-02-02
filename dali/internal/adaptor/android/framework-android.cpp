@@ -19,55 +19,51 @@
 #include <dali/internal/adaptor/common/framework.h>
 
 // EXTERNAL INCLUDES
+#include <android_native_app_glue.h>
 #include <unistd.h>
 #include <queue>
 #include <unordered_set>
-#include <android_native_app_glue.h>
 
-#include <dali/integration-api/debug.h>
+#include <dali/devel-api/events/key-event-devel.h>
+#include <dali/devel-api/events/touch-point.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
-#include <dali/devel-api/events/touch-point.h>
-#include <dali/public-api/events/key-event.h>
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/devel-api/events/key-event-devel.h>
+#include <dali/public-api/events/key-event.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/adaptor/android/android-framework-impl.h>
+#include <dali/internal/system/common/callback-manager.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 // Copied from x server
 static unsigned int GetCurrentMilliSeconds(void)
 {
   struct timeval tv;
 
-  struct timespec tp;
+  struct timespec  tp;
   static clockid_t clockid;
 
-  if (!clockid)
+  if(!clockid)
   {
 #ifdef CLOCK_MONOTONIC_COARSE
-    if (clock_getres(CLOCK_MONOTONIC_COARSE, &tp) == 0 &&
-      (tp.tv_nsec / 1000) <= 1000 && clock_gettime(CLOCK_MONOTONIC_COARSE, &tp) == 0)
+    if(clock_getres(CLOCK_MONOTONIC_COARSE, &tp) == 0 &&
+       (tp.tv_nsec / 1000) <= 1000 && clock_gettime(CLOCK_MONOTONIC_COARSE, &tp) == 0)
     {
       clockid = CLOCK_MONOTONIC_COARSE;
     }
     else
 #endif
-    if (clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
+      if(clock_gettime(CLOCK_MONOTONIC, &tp) == 0)
     {
       clockid = CLOCK_MONOTONIC;
     }
@@ -76,7 +72,7 @@ static unsigned int GetCurrentMilliSeconds(void)
       clockid = ~0L;
     }
   }
-  if (clockid != ~0L && clock_gettime(clockid, &tp) == 0)
+  if(clockid != ~0L && clock_gettime(clockid, &tp) == 0)
   {
     return (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000L);
   }
@@ -103,7 +99,7 @@ void RemoveAllConstraints(Dali::Actor actor)
 /// Removes constraints from all actors in all windows.
 void RemoveAllConstraints(const Dali::WindowContainer& windows)
 {
-  for( auto& window : windows )
+  for(auto& window : windows)
   {
     RemoveAllConstraints(window.GetRootLayer());
   }
@@ -116,30 +112,29 @@ void RemoveAllConstraints(const Dali::WindowContainer& windows)
  */
 struct Framework::Impl
 {
-
   struct IdleCallback
   {
-    int timestamp;
-    int timeout;
-    int id;
+    int   timestamp;
+    int   timeout;
+    int   id;
     void* data;
-    bool ( *callback )( void *data );
+    bool (*callback)(void* data);
 
-    IdleCallback( int timeout, int id, void* data, bool ( *callback )( void *data ) )
-    : timestamp( GetCurrentMilliSeconds() + timeout ),
-      timeout( timeout ),
-      id ( id ),
-      data( data ),
-      callback( callback )
+    IdleCallback(int timeout, int id, void* data, bool (*callback)(void* data))
+    : timestamp(GetCurrentMilliSeconds() + timeout),
+      timeout(timeout),
+      id(id),
+      data(data),
+      callback(callback)
     {
     }
 
     bool operator()()
     {
-      return callback( data );
+      return callback(data);
     }
 
-    bool operator<( const IdleCallback& rhs ) const
+    bool operator<(const IdleCallback& rhs) const
     {
       return timestamp > rhs.timestamp;
     }
@@ -147,24 +142,23 @@ struct Framework::Impl
 
   // Constructor
 
-  Impl( Framework* framework )
-  : mAbortCallBack( nullptr ),
-    mCallbackManager( CallbackManager::New() ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" ),
-    mFinishRequested( false ),
-    mIdleId( 0 ),
-    mIdleReadPipe( -1 ),
-    mIdleWritePipe( -1 )
-
+  Impl(Framework* framework)
+  : mAbortCallBack(nullptr),
+    mCallbackManager(CallbackManager::New()),
+    mLanguage("NOT_SUPPORTED"),
+    mRegion("NOT_SUPPORTED"),
+    mFinishRequested(false),
+    mIdleId(0),
+    mIdleReadPipe(-1),
+    mIdleWritePipe(-1)
 
   {
-    AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( framework );
+    AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(framework);
   }
 
   ~Impl()
   {
-    AndroidFramework::GetImplementation( AndroidFramework::Get() ).SetFramework( nullptr );
+    AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(nullptr);
 
     delete mAbortCallBack;
     mAbortCallBack = nullptr;
@@ -190,72 +184,72 @@ struct Framework::Impl
   {
     // Dequeue the pipe
     int8_t msg = -1;
-    read( mIdleReadPipe, &msg, sizeof( msg ) );
+    read(mIdleReadPipe, &msg, sizeof(msg));
 
     unsigned int ts = GetCurrentMilliSeconds();
 
-    if ( !mIdleCallbacks.empty() )
+    if(!mIdleCallbacks.empty())
     {
       IdleCallback callback = mIdleCallbacks.top();
-      if( callback.timestamp <= ts )
+      if(callback.timestamp <= ts)
       {
         mIdleCallbacks.pop();
 
         // Callback wasn't removed
-        if( mRemovedIdleCallbacks.find( callback.id ) == mRemovedIdleCallbacks.end() )
+        if(mRemovedIdleCallbacks.find(callback.id) == mRemovedIdleCallbacks.end())
         {
-          if ( callback() ) // keep the callback
+          if(callback()) // keep the callback
           {
-            AddIdle( callback.timeout, callback.data, callback.callback, callback.id );
+            AddIdle(callback.timeout, callback.data, callback.callback, callback.id);
           }
         }
 
         // Callback cane be also removed during the callback call
-        auto i = mRemovedIdleCallbacks.find( callback.id );
-        if( i != mRemovedIdleCallbacks.end() )
+        auto i = mRemovedIdleCallbacks.find(callback.id);
+        if(i != mRemovedIdleCallbacks.end())
         {
-          mRemovedIdleCallbacks.erase( i );
+          mRemovedIdleCallbacks.erase(i);
         }
       }
     }
 
-    if( mIdleCallbacks.empty() )
+    if(mIdleCallbacks.empty())
     {
       mRemovedIdleCallbacks.clear();
     }
   }
 
-  unsigned int AddIdle( int timeout, void* data, bool ( *callback )( void *data ) , unsigned int existingId = 0 )
+  unsigned int AddIdle(int timeout, void* data, bool (*callback)(void* data), unsigned int existingId = 0)
   {
     unsigned int chosenId;
-    if (existingId)
+    if(existingId)
     {
       chosenId = existingId;
     }
     else
     {
       ++mIdleId;
-      if( mIdleId == 0 )
+      if(mIdleId == 0)
       {
         ++mIdleId;
       }
       chosenId = mIdleId;
     }
 
-    mIdleCallbacks.push( IdleCallback( timeout, chosenId, data, callback ) );
+    mIdleCallbacks.push(IdleCallback(timeout, chosenId, data, callback));
 
     // To wake up the idle pipe and to trigger OnIdle
     int8_t msg = 1;
-    write( mIdleWritePipe, &msg, sizeof( msg ) );
+    write(mIdleWritePipe, &msg, sizeof(msg));
 
     return chosenId;
   }
 
-  void RemoveIdle( unsigned int id )
+  void RemoveIdle(unsigned int id)
   {
-    if( id != 0 )
+    if(id != 0)
     {
-      mRemovedIdleCallbacks.insert( id );
+      mRemovedIdleCallbacks.insert(id);
     }
   }
 
@@ -263,13 +257,13 @@ struct Framework::Impl
   {
     int timeout = -1;
 
-    if( !mIdleCallbacks.empty() )
+    if(!mIdleCallbacks.empty())
     {
       IdleCallback idleTimeout = mIdleCallbacks.top();
-      timeout = idleTimeout.timestamp - GetCurrentMilliSeconds();
-      if( timeout < 0 )
+      timeout                  = idleTimeout.timestamp - GetCurrentMilliSeconds();
+      if(timeout < 0)
       {
-         timeout = 0;
+        timeout = 0;
       }
     }
 
@@ -277,92 +271,92 @@ struct Framework::Impl
   }
 
   // Data
-  CallbackBase* mAbortCallBack;
+  CallbackBase*    mAbortCallBack;
   CallbackManager* mCallbackManager;
-  std::string mLanguage;
-  std::string mRegion;
-  bool mFinishRequested;
+  std::string      mLanguage;
+  std::string      mRegion;
+  bool             mFinishRequested;
 
-  int mIdleReadPipe;
-  int mIdleWritePipe;
-  unsigned int mIdleId;
+  int                               mIdleReadPipe;
+  int                               mIdleWritePipe;
+  unsigned int                      mIdleId;
   std::priority_queue<IdleCallback> mIdleCallbacks;
-  std::unordered_set<int> mRemovedIdleCallbacks;
+  std::unordered_set<int>           mRemovedIdleCallbacks;
 
   // Static methods
 
   /**
    * Called by the native activity loop when the application APP_CMD_INIT_WINDOW event is processed.
    */
-  static void NativeWindowCreated( Framework* framework, ANativeWindow* window )
+  static void NativeWindowCreated(Framework* framework, ANativeWindow* window)
   {
-    if( framework )
+    if(framework)
     {
-      framework->AppStatusHandler( APP_WINDOW_CREATED, window );
+      framework->AppStatusHandler(APP_WINDOW_CREATED, window);
     }
   }
 
   /**
    * Called by the native activity loop when the application APP_CMD_DESTROY event is processed.
    */
-  static void NativeWindowDestroyed( Framework* framework, ANativeWindow* window )
+  static void NativeWindowDestroyed(Framework* framework, ANativeWindow* window)
   {
-    if( framework )
+    if(framework)
     {
-      framework->AppStatusHandler( APP_WINDOW_DESTROYED, window );
+      framework->AppStatusHandler(APP_WINDOW_DESTROYED, window);
     }
   }
 
   /**
    * Called by the native activity loop when the application APP_CMD_INIT_WINDOW event is processed.
    */
-  static void NativeAppPaused( Framework* framework )
+  static void NativeAppPaused(Framework* framework)
   {
-    if( framework )
+    if(framework)
     {
-      framework->AppStatusHandler( APP_PAUSE, nullptr );
+      framework->AppStatusHandler(APP_PAUSE, nullptr);
     }
   }
 
   /**
    * Called by the native activity loop when the application APP_CMD_TERM_WINDOW event is processed.
    */
-  static void NativeAppResumed( Framework* framework )
+  static void NativeAppResumed(Framework* framework)
   {
-    if( framework )
+    if(framework)
     {
-      framework->AppStatusHandler( APP_RESUME, nullptr );
+      framework->AppStatusHandler(APP_RESUME, nullptr);
     }
   }
 
   /**
    * Called by the native activity loop when the application input touch event is processed.
    */
-  static void NativeAppTouchEvent( Framework* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp )
+  static void NativeAppTouchEvent(Framework* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp)
   {
-    Dali::Adaptor::Get().FeedTouchPoint( touchPoint, timeStamp );
+    Dali::Adaptor::Get().FeedTouchPoint(touchPoint, timeStamp);
   }
 
   /**
    * Called by the native activity loop when the application input key event is processed.
    */
-  static void NativeAppKeyEvent( Framework* framework, Dali::KeyEvent& keyEvent )
+  static void NativeAppKeyEvent(Framework* framework, Dali::KeyEvent& keyEvent)
   {
-    Dali::Adaptor::Get().FeedKeyEvent( keyEvent );
+    Dali::Adaptor::Get().FeedKeyEvent(keyEvent);
   }
 
   /**
    * Called by the native activity loop when the application APP_CMD_DESTROY event is processed.
    */
-  static void NativeAppDestroyed( Framework* framework )
+  static void NativeAppDestroyed(Framework* framework)
   {
-    if( framework )
+    if(framework)
     {
-      framework->AppStatusHandler( APP_DESTROYED, nullptr );
+      framework->AppStatusHandler(APP_DESTROYED, nullptr);
     }
   }
 
-/*
+  /*
   Order of events:
 
   APP_CMD_START
@@ -379,8 +373,8 @@ struct Framework::Impl
 
   static void HandleAppCmd(struct android_app* app, int32_t cmd)
   {
-    Framework* framework = AndroidFramework::GetImplementation( AndroidFramework::Get() ).GetFramework();
-    switch( cmd )
+    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
+    switch(cmd)
     {
       case APP_CMD_SAVE_STATE:
         break;
@@ -394,124 +388,124 @@ struct Framework::Impl
         break;
       case APP_CMD_INIT_WINDOW:
         // The window is being shown, get it ready.
-        AndroidFramework::Get().SetApplicationWindow( app->window );
-        Dali::Internal::Adaptor::Framework::Impl::NativeWindowCreated( framework, app->window );
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppResumed( framework );
+        AndroidFramework::Get().SetApplicationWindow(app->window);
+        Dali::Internal::Adaptor::Framework::Impl::NativeWindowCreated(framework, app->window);
+        Dali::Internal::Adaptor::Framework::Impl::NativeAppResumed(framework);
         break;
       case APP_CMD_TERM_WINDOW:
         // The window is being hidden or closed, clean it up.
-        AndroidFramework::Get().SetApplicationWindow( nullptr );
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused( framework );
-        Dali::Internal::Adaptor::Framework::Impl::NativeWindowDestroyed( framework, app->window );
+        AndroidFramework::Get().SetApplicationWindow(nullptr);
+        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused(framework);
+        Dali::Internal::Adaptor::Framework::Impl::NativeWindowDestroyed(framework, app->window);
         break;
       case APP_CMD_GAINED_FOCUS:
         break;
       case APP_CMD_LOST_FOCUS:
         break;
       case APP_CMD_DESTROY:
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused( framework );
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppDestroyed( framework );
+        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused(framework);
+        Dali::Internal::Adaptor::Framework::Impl::NativeAppDestroyed(framework);
         break;
     }
   }
 
   static int32_t HandleAppInput(struct android_app* app, AInputEvent* event)
   {
-    Framework* framework = AndroidFramework::GetImplementation( AndroidFramework::Get() ).GetFramework();
+    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
 
-    if( AInputEvent_getType( event ) == AINPUT_EVENT_TYPE_MOTION )
+    if(AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
-      int32_t deviceId = AInputEvent_getDeviceId( event );
-      float x = AMotionEvent_getX( event, 0 );
-      float y = AMotionEvent_getY( event, 0 );
-      Dali::PointState::Type state = Dali::PointState::DOWN;
-      int32_t action = AMotionEvent_getAction( event );
-      int64_t timeStamp = AMotionEvent_getEventTime( event );
+      int32_t                deviceId  = AInputEvent_getDeviceId(event);
+      float                  x         = AMotionEvent_getX(event, 0);
+      float                  y         = AMotionEvent_getY(event, 0);
+      Dali::PointState::Type state     = Dali::PointState::DOWN;
+      int32_t                action    = AMotionEvent_getAction(event);
+      int64_t                timeStamp = AMotionEvent_getEventTime(event);
 
-      switch ( action & AMOTION_EVENT_ACTION_MASK )
+      switch(action & AMOTION_EVENT_ACTION_MASK)
       {
-      case AMOTION_EVENT_ACTION_DOWN:
-        break;
-      case AMOTION_EVENT_ACTION_UP:
-        state = Dali::PointState::UP;
-        break;
-      case AMOTION_EVENT_ACTION_MOVE:
-        state = Dali::PointState::MOTION;
-        break;
-      case AMOTION_EVENT_ACTION_CANCEL:
-        state = Dali::PointState::INTERRUPTED;
-        break;
-      case AMOTION_EVENT_ACTION_OUTSIDE:
-        state = Dali::PointState::LEAVE;
-        break;
+        case AMOTION_EVENT_ACTION_DOWN:
+          break;
+        case AMOTION_EVENT_ACTION_UP:
+          state = Dali::PointState::UP;
+          break;
+        case AMOTION_EVENT_ACTION_MOVE:
+          state = Dali::PointState::MOTION;
+          break;
+        case AMOTION_EVENT_ACTION_CANCEL:
+          state = Dali::PointState::INTERRUPTED;
+          break;
+        case AMOTION_EVENT_ACTION_OUTSIDE:
+          state = Dali::PointState::LEAVE;
+          break;
       }
 
-      Dali::TouchPoint point( deviceId, state, x, y );
-      Dali::Internal::Adaptor::Framework::Impl::NativeAppTouchEvent( framework, point, timeStamp );
+      Dali::TouchPoint point(deviceId, state, x, y);
+      Dali::Internal::Adaptor::Framework::Impl::NativeAppTouchEvent(framework, point, timeStamp);
       return 1;
     }
-    else if ( AInputEvent_getType( event ) == AINPUT_EVENT_TYPE_KEY )
+    else if(AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
     {
-      int32_t deviceId = AInputEvent_getDeviceId( event );
-      int32_t keyCode = AKeyEvent_getKeyCode( event );
-      int32_t action = AKeyEvent_getAction( event );
-      int64_t timeStamp = AKeyEvent_getEventTime( event );
+      int32_t deviceId  = AInputEvent_getDeviceId(event);
+      int32_t keyCode   = AKeyEvent_getKeyCode(event);
+      int32_t action    = AKeyEvent_getAction(event);
+      int64_t timeStamp = AKeyEvent_getEventTime(event);
 
       Dali::KeyEvent::State state = Dali::KeyEvent::DOWN;
-      switch ( action )
+      switch(action)
       {
-      case AKEY_EVENT_ACTION_DOWN:
-        break;
-      case AKEY_EVENT_ACTION_UP:
-        state = Dali::KeyEvent::UP;
-        break;
+        case AKEY_EVENT_ACTION_DOWN:
+          break;
+        case AKEY_EVENT_ACTION_UP:
+          state = Dali::KeyEvent::UP;
+          break;
       }
 
       std::string keyName = "";
-      switch( keyCode )
+      switch(keyCode)
       {
-      case 4:
-        keyName = "XF86Back";
-        break;
-      default:
-        break;
+        case 4:
+          keyName = "XF86Back";
+          break;
+        default:
+          break;
       }
-      Dali::KeyEvent keyEvent = Dali::DevelKeyEvent::New( keyName, "", "", keyCode, 0, timeStamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE );
-      Dali::Internal::Adaptor::Framework::Impl::NativeAppKeyEvent( framework, keyEvent );
+      Dali::KeyEvent keyEvent = Dali::DevelKeyEvent::New(keyName, "", "", keyCode, 0, timeStamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
+      Dali::Internal::Adaptor::Framework::Impl::NativeAppKeyEvent(framework, keyEvent);
       return 1;
     }
 
     return 0;
   }
 
-  static void HandleAppIdle(struct android_app* app, struct android_poll_source* source) {
-    Framework* framework = AndroidFramework::GetImplementation( AndroidFramework::Get() ).GetFramework();
-    if( framework && framework->mImpl )
+  static void HandleAppIdle(struct android_app* app, struct android_poll_source* source)
+  {
+    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
+    if(framework && framework->mImpl)
     {
       framework->mImpl->OnIdle();
     }
   }
-
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
-: mObserver( observer ),
-  mInitialised( false ),
+Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Type type)
+: mObserver(observer),
+  mInitialised(false),
   mPaused(false),
-  mRunning( false ),
-  mArgc( argc ),
-  mArgv( argv ),
-  mBundleName( "" ),
-  mBundleId( "" ),
-  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
-  mImpl( NULL )
+  mRunning(false),
+  mArgc(argc),
+  mArgv(argv),
+  mBundleName(""),
+  mBundleId(""),
+  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
+  mImpl(NULL)
 {
-  mImpl = new Impl( this );
+  mImpl = new Impl(this);
 }
 
 Framework::~Framework()
 {
-  if( mRunning )
+  if(mRunning)
   {
     Quit();
   }
@@ -523,26 +517,30 @@ Framework::~Framework()
 void Framework::Run()
 {
   struct android_app* app = AndroidFramework::Get().GetNativeApplication();
-  app->onAppCmd = Framework::Impl::HandleAppCmd;
-  app->onInputEvent = Framework::Impl::HandleAppInput;
+  app->onAppCmd           = Framework::Impl::HandleAppCmd;
+  app->onInputEvent       = Framework::Impl::HandleAppInput;
 
   struct android_poll_source* source;
-  struct android_poll_source idlePollSource;
-  idlePollSource.id = LOOPER_ID_USER;
-  idlePollSource.app = app;
+  struct android_poll_source  idlePollSource;
+  idlePollSource.id      = LOOPER_ID_USER;
+  idlePollSource.app     = app;
   idlePollSource.process = Impl::HandleAppIdle;
 
   int idlePipe[2];
-  if( pipe( idlePipe ) )
+  if(pipe(idlePipe))
   {
-    DALI_LOG_ERROR( "Failed to open idle pipe\n" );
+    DALI_LOG_ERROR("Failed to open idle pipe\n");
     return;
   }
 
-  mImpl->mIdleReadPipe = idlePipe[0];
+  mImpl->mIdleReadPipe  = idlePipe[0];
   mImpl->mIdleWritePipe = idlePipe[1];
-  ALooper_addFd( app->looper,
-      idlePipe[0], LOOPER_ID_USER, ALOOPER_EVENT_INPUT, NULL, &idlePollSource );
+  ALooper_addFd(app->looper,
+                idlePipe[0],
+                LOOPER_ID_USER,
+                ALOOPER_EVENT_INPUT,
+                NULL,
+                &idlePollSource);
 
   mRunning = true;
 
@@ -550,44 +548,44 @@ void Framework::Run()
   int events;
   int idleTimeout = -1;
 
-  while( true )
+  while(true)
   {
-    if ( mImpl )
+    if(mImpl)
     {
       idleTimeout = mImpl->GetIdleTimeout();
     }
 
-    int id = ALooper_pollAll( idleTimeout, NULL, &events, (void**)&source );
+    int id = ALooper_pollAll(idleTimeout, NULL, &events, (void**)&source);
 
     // Process the error.
-    if( id == ALOOPER_POLL_ERROR )
+    if(id == ALOOPER_POLL_ERROR)
     {
-       DALI_LOG_ERROR( "ALooper error\n" );
-       Quit();
-       std::abort();
+      DALI_LOG_ERROR("ALooper error\n");
+      Quit();
+      std::abort();
     }
 
     // Process the timeout, trigger OnIdle.
-    if( id == ALOOPER_POLL_TIMEOUT )
+    if(id == ALOOPER_POLL_TIMEOUT)
     {
       int8_t msg = 1;
-      write( mImpl->mIdleWritePipe, &msg, sizeof( msg ) );
+      write(mImpl->mIdleWritePipe, &msg, sizeof(msg));
     }
 
     // Process the application event.
-    if( id >= 0 && source != NULL )
+    if(id >= 0 && source != NULL)
     {
-      source->process( app, source );
+      source->process(app, source);
     }
 
     // Check if we are exiting.
-    if( app->destroyRequested )
+    if(app->destroyRequested)
     {
       break;
     }
   }
 
-  while (!mImpl->mIdleCallbacks.empty())
+  while(!mImpl->mIdleCallbacks.empty())
   {
     mImpl->mIdleCallbacks.pop();
   }
@@ -595,42 +593,42 @@ void Framework::Run()
   mImpl->mRemovedIdleCallbacks.clear();
   mImpl->mIdleId = 0;
 
-  ALooper_removeFd( app->looper, idlePipe[0] );
-  if ( mImpl )
+  ALooper_removeFd(app->looper, idlePipe[0]);
+  if(mImpl)
   {
-    mImpl->mIdleReadPipe = -1;
+    mImpl->mIdleReadPipe  = -1;
     mImpl->mIdleWritePipe = -1;
   }
-  close( idlePipe[0] );
-  close( idlePipe[1] );
+  close(idlePipe[0]);
+  close(idlePipe[1]);
 
   mRunning = false;
 }
 
-unsigned int Framework::AddIdle( int timeout, void* data, bool ( *callback )( void *data ) )
+unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* data))
 {
-  if( mImpl )
+  if(mImpl)
   {
-    return mImpl->AddIdle( timeout, data, callback );
+    return mImpl->AddIdle(timeout, data, callback);
   }
 
   return -1;
 }
-void Framework::RemoveIdle( unsigned int id )
+void Framework::RemoveIdle(unsigned int id)
 {
-  if( mImpl )
+  if(mImpl)
   {
-    mImpl->RemoveIdle( id );
+    mImpl->RemoveIdle(id);
   }
 }
 
 void Framework::Quit()
 {
   struct android_app* app = AndroidFramework::Get().GetNativeApplication();
-  if( app && !app->destroyRequested && !mImpl->mFinishRequested )
+  if(app && !app->destroyRequested && !mImpl->mFinishRequested)
   {
     mImpl->mFinishRequested = true;
-    ANativeActivity_finish( app->activity );
+    ANativeActivity_finish(app->activity);
   }
 }
 
@@ -639,7 +637,7 @@ bool Framework::IsMainLoopRunning()
   return mRunning;
 }
 
-void Framework::AddAbortCallback( CallbackBase* callback )
+void Framework::AddAbortCallback(CallbackBase* callback)
 {
   mImpl->mAbortCallBack = callback;
 }
@@ -674,12 +672,12 @@ void Framework::SetBundleId(const std::string& id)
   mBundleId = id;
 }
 
-void Framework::AbortCallback( )
+void Framework::AbortCallback()
 {
   // if an abort call back has been installed run it.
-  if( mImpl->mAbortCallBack )
+  if(mImpl->mAbortCallBack)
   {
-    CallbackBase::Execute( *mImpl->mAbortCallBack );
+    CallbackBase::Execute(*mImpl->mAbortCallBack);
   }
   else
   {
@@ -690,17 +688,17 @@ void Framework::AbortCallback( )
 bool Framework::AppStatusHandler(int type, void* data)
 {
   Dali::Adaptor* adaptor = nullptr;
-  switch (type)
+  switch(type)
   {
     case APP_WINDOW_CREATED:
     {
-      if( !mInitialised )
+      if(!mInitialised)
       {
         mObserver.OnInit();
         mInitialised = true;
       }
 
-      mObserver.OnSurfaceCreated( data );
+      mObserver.OnSurfaceCreated(data);
       break;
     }
 
@@ -720,7 +718,7 @@ bool Framework::AppStatusHandler(int type, void* data)
 
     case APP_WINDOW_DESTROYED:
     {
-      mObserver.OnSurfaceDestroyed( data );
+      mObserver.OnSurfaceDestroyed(data);
       break;
     }
 

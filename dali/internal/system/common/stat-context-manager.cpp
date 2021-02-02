@@ -23,121 +23,115 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-const char* const UPDATE_CONTEXT_NAME = "Update";
-const char* const RENDER_CONTEXT_NAME = "Render";
-const char* const EVENT_CONTEXT_NAME = "Event";
+const char* const  UPDATE_CONTEXT_NAME   = "Update";
+const char* const  RENDER_CONTEXT_NAME   = "Render";
+const char* const  EVENT_CONTEXT_NAME    = "Event";
 const unsigned int DEFAULT_LOG_FREQUENCY = 2;
-}
+} // namespace
 
-StatContextManager::StatContextManager( StatContextLogInterface& logInterface )
-: mLogInterface( logInterface ),
-  mNextContextId( 0 ),
+StatContextManager::StatContextManager(StatContextLogInterface& logInterface)
+: mLogInterface(logInterface),
+  mNextContextId(0),
   mStatisticsLogBitmask(0),
-  mLogFrequency( DEFAULT_LOG_FREQUENCY )
+  mLogFrequency(DEFAULT_LOG_FREQUENCY)
 {
-
   mStatContexts.Reserve(4); // intially reserve enough for 3 internal + 1 custom
 
   // Add defaults
-  mUpdateStats = AddContext( UPDATE_CONTEXT_NAME, PerformanceMarker::UPDATE );
-  mRenderStats = AddContext( RENDER_CONTEXT_NAME, PerformanceMarker::RENDER );
-  mEventStats = AddContext( EVENT_CONTEXT_NAME,   PerformanceMarker::EVENT_PROCESS );
-
+  mUpdateStats = AddContext(UPDATE_CONTEXT_NAME, PerformanceMarker::UPDATE);
+  mRenderStats = AddContext(RENDER_CONTEXT_NAME, PerformanceMarker::RENDER);
+  mEventStats  = AddContext(EVENT_CONTEXT_NAME, PerformanceMarker::EVENT_PROCESS);
 }
 
 StatContextManager::~StatContextManager()
 {
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
     StatContext* context = *it;
     delete context;
   }
   mStatContexts.Clear();
 }
-PerformanceInterface::ContextId StatContextManager::AddContext( const char* const name,
-                                                                PerformanceMarker::MarkerFilter type  )
+PerformanceInterface::ContextId StatContextManager::AddContext(const char* const               name,
+                                                               PerformanceMarker::MarkerFilter type)
 {
   unsigned int contextId = mNextContextId++;
 
-  DALI_ASSERT_DEBUG( NULL == GetContext( contextId ) );
+  DALI_ASSERT_DEBUG(NULL == GetContext(contextId));
 
   // logging enabled by default
-  StatContext* statContext = new StatContext( contextId, name, type,  mLogFrequency , mLogInterface );
+  StatContext* statContext = new StatContext(contextId, name, type, mLogFrequency, mLogInterface);
 
   // check to see if custom markers are enabled
-  if( ! ( mStatisticsLogBitmask & PerformanceInterface::LOG_CUSTOM_MARKERS ) )
+  if(!(mStatisticsLogBitmask & PerformanceInterface::LOG_CUSTOM_MARKERS))
   {
-    statContext->EnableLogging( false );
+    statContext->EnableLogging(false);
   }
 
-  mStatContexts.PushBack( statContext );
+  mStatContexts.PushBack(statContext);
 
   return contextId;
 }
 
-void StatContextManager::AddInternalMarker( const PerformanceMarker& marker )
+void StatContextManager::AddInternalMarker(const PerformanceMarker& marker)
 {
   // log to the stat contexts, can be called from multiple threads so we
   // protect the data
-  Mutex::ScopedLock lock( mDataMutex );
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  Mutex::ScopedLock lock(mDataMutex);
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
     StatContext* context = *it;
-    context->ProcessInternalMarker( marker );
+    context->ProcessInternalMarker(marker);
   }
 }
 
-void StatContextManager::AddCustomMarker( const PerformanceMarker& marker, PerformanceInterface::ContextId contextId )
+void StatContextManager::AddCustomMarker(const PerformanceMarker& marker, PerformanceInterface::ContextId contextId)
 {
   // log to the stat contexts, can be called from multiple threads so we
   // protect the data
-  Mutex::ScopedLock lock( mDataMutex );
-  StatContext* context = GetContext( contextId );
-  if( context )
+  Mutex::ScopedLock lock(mDataMutex);
+  StatContext*      context = GetContext(contextId);
+  if(context)
   {
-    context->ProcessCustomMarker( marker );
+    context->ProcessCustomMarker(marker);
   }
 }
 
-void StatContextManager::RemoveContext(PerformanceInterface::ContextId contextId )
+void StatContextManager::RemoveContext(PerformanceInterface::ContextId contextId)
 {
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
     StatContext* context = *it;
 
-    if( context->GetId() == contextId )
+    if(context->GetId() == contextId)
     {
       delete context;
-      mStatContexts.Erase( it );
+      mStatContexts.Erase(it);
       return;
     }
   }
 }
 
-
-void StatContextManager::EnableLogging( bool enable, PerformanceInterface::ContextId contextId )
+void StatContextManager::EnableLogging(bool enable, PerformanceInterface::ContextId contextId)
 {
-  StatContext* context = GetContext( contextId );
-  if( context )
+  StatContext* context = GetContext(contextId);
+  if(context)
   {
-    context->EnableLogging( enable );
+    context->EnableLogging(enable);
   }
 }
 
-void StatContextManager::SetLoggingLevel(  unsigned int statisticsLogOptions, unsigned int logFrequency)
+void StatContextManager::SetLoggingLevel(unsigned int statisticsLogOptions, unsigned int logFrequency)
 {
   mStatisticsLogBitmask = statisticsLogOptions;
 
-  if( mStatisticsLogBitmask == PerformanceInterface::LOG_EVERYTHING )
+  if(mStatisticsLogBitmask == PerformanceInterface::LOG_EVERYTHING)
   {
     mStatisticsLogBitmask = 0xFFFFFFFF; // enable everything
   }
@@ -146,62 +140,61 @@ void StatContextManager::SetLoggingLevel(  unsigned int statisticsLogOptions, un
 
   // currently uses DALI_LOG_PERFORMANCE_STATS_FREQ environment variable to determine to log frequency
   // if it's not set it will be zero
-  if( mLogFrequency == 0 )
+  if(mLogFrequency == 0)
   {
     mLogFrequency = DEFAULT_LOG_FREQUENCY;
   }
-  EnableLogging( mStatisticsLogBitmask & PerformanceInterface::LOG_UPDATE_RENDER, mUpdateStats );
-  EnableLogging( mStatisticsLogBitmask & PerformanceInterface::LOG_UPDATE_RENDER, mRenderStats );
-  EnableLogging( mStatisticsLogBitmask & PerformanceInterface::LOG_EVENT_PROCESS, mEventStats );
+  EnableLogging(mStatisticsLogBitmask & PerformanceInterface::LOG_UPDATE_RENDER, mUpdateStats);
+  EnableLogging(mStatisticsLogBitmask & PerformanceInterface::LOG_UPDATE_RENDER, mRenderStats);
+  EnableLogging(mStatisticsLogBitmask & PerformanceInterface::LOG_EVENT_PROCESS, mEventStats);
 
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
-     StatContext* context = *it;
-     context->SetLogFrequency( mLogFrequency );
+    StatContext* context = *it;
+    context->SetLogFrequency(mLogFrequency);
   }
 }
 
-void StatContextManager::SetLoggingFrequency( unsigned int logFrequency,
-                                              PerformanceInterface::ContextId contextId  )
+void StatContextManager::SetLoggingFrequency(unsigned int                    logFrequency,
+                                             PerformanceInterface::ContextId contextId)
 {
-  StatContext* context = GetContext( contextId );
-  if( context )
+  StatContext* context = GetContext(contextId);
+  if(context)
   {
-    if( logFrequency == 0 )
+    if(logFrequency == 0)
     {
       logFrequency = DEFAULT_LOG_FREQUENCY;
     }
-    context->SetLogFrequency( logFrequency );
+    context->SetLogFrequency(logFrequency);
   }
 }
 const char* StatContextManager::GetContextName(PerformanceInterface::ContextId contextId) const
 {
   StatContext* context = GetContext(contextId);
-  if( context )
+  if(context)
   {
     return context->GetName();
   }
   return "context not found";
 }
 
-const char* StatContextManager::GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const
+const char* StatContextManager::GetMarkerDescription(PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId) const
 {
   StatContext* context = GetContext(contextId);
-  if( context )
+  if(context)
   {
-    return context->GetMarkerDescription( type );
+    return context->GetMarkerDescription(type);
   }
   return "context not found";
 }
 
-
-StatContext* StatContextManager::GetContext( PerformanceInterface::ContextId contextId ) const
+StatContext* StatContextManager::GetContext(PerformanceInterface::ContextId contextId) const
 {
-  for( StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it )
+  for(StatContexts::Iterator it = mStatContexts.Begin(), itEnd = mStatContexts.End(); it != itEnd; ++it)
   {
     StatContext* context = *it;
 
-    if( context->GetId() == contextId )
+    if(context->GetId() == contextId)
     {
       return context;
     }
@@ -210,11 +203,8 @@ StatContext* StatContextManager::GetContext( PerformanceInterface::ContextId con
   return NULL;
 }
 
+} // namespace Adaptor
 
 } // namespace Internal
 
-} // namespace Adaptor
-
 } // namespace Dali
-
-

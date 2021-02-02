@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,55 +19,52 @@
 #include <dali/internal/system/windows/callback-manager-win.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <Windows.h>
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 WinCallbackManager::WinCallbackManager()
-:mRunning(false)
+: mRunning(false)
 {
 }
 
 void WinCallbackManager::Start()
 {
-  DALI_ASSERT_DEBUG( mRunning == false );
+  DALI_ASSERT_DEBUG(mRunning == false);
   mRunning = true;
 }
 
 void WinCallbackManager::Stop()
 {
   // make sure we're not called twice
-  DALI_ASSERT_DEBUG( mRunning == true );
+  DALI_ASSERT_DEBUG(mRunning == true);
 
   mRunning = false;
 }
 
-bool WinCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasReturnValue )
+bool WinCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasReturnValue)
 {
-  if( !mRunning )
+  if(!mRunning)
   {
     return false;
   }
 
   mCallbacks.insert(callback);
 
-  WindowsPlatform::PostWinThreadMessage( WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0 );
+  WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0);
 
   return true;
 }
 
-void WinCallbackManager::RemoveIdleCallback( CallbackBase* callback )
+void WinCallbackManager::RemoveIdleCallback(CallbackBase* callback)
 {
   //Wait for deal
 }
@@ -76,7 +73,7 @@ bool WinCallbackManager::ProcessIdle()
 {
   const bool idleProcessed = !mCallbacks.empty();
 
-  for (CallbackBase* cb : mCallbacks)
+  for(CallbackBase* cb : mCallbacks)
   {
     Dali::CallbackBase::Execute(*cb);
   }
@@ -90,14 +87,13 @@ void WinCallbackManager::ClearIdleCallbacks()
   mCallbacks.clear();
 }
 
-bool WinCallbackManager::AddIdleEntererCallback( CallbackBase* callback )
+bool WinCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
 {
-  return AddIdleCallback( callback, true );
+  return AddIdleCallback(callback, true);
 }
 
-void WinCallbackManager::RemoveIdleEntererCallback( CallbackBase* callback )
+void WinCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
 {
-
 }
 
 // Creates a concrete interface for CallbackManager

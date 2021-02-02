@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/trace/android/trace-manager-impl-android.h>
 #include <dali/internal/system/common/performance-interface.h>
+#include <dali/internal/trace/android/trace-manager-impl-android.h>
 
 // INTERNAL INCLUDES
 
 namespace Dali
 {
-
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 TraceManagerAndroid* TraceManagerAndroid::traceManagerAndroid = nullptr;
 
-TraceManagerAndroid::TraceManagerAndroid( PerformanceInterface* performanceInterface )
-: TraceManager( performanceInterface )
+TraceManagerAndroid::TraceManagerAndroid(PerformanceInterface* performanceInterface)
+: TraceManager(performanceInterface)
 {
   TraceManagerAndroid::traceManagerAndroid = this;
 }
@@ -44,17 +40,17 @@ Dali::Integration::Trace::LogContextFunction TraceManagerAndroid::GetLogContextF
   return LogContext;
 }
 
-void TraceManagerAndroid::LogContext( bool start, const char* tag )
+void TraceManagerAndroid::LogContext(bool start, const char* tag)
 {
-  if( start )
+  if(start)
   {
-    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext( tag );
-    traceManagerAndroid->mPerformanceInterface->AddMarker( PerformanceInterface::START, contextId );
+    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
+    traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
   }
   else
   {
-    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext( tag );
-    traceManagerAndroid->mPerformanceInterface->AddMarker( PerformanceInterface::END, contextId );
+    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
+    traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
   }
 }
 

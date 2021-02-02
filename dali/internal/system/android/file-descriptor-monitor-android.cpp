@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,23 +26,20 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Using Impl to hide away Android specific members
  */
 struct FileDescriptorMonitor::Impl
 {
   // Construction
-  Impl( int fileDescriptor, CallbackBase* callback, int eventBitmask )
-  : mCallback( callback ),
-    mFileDescriptor( fileDescriptor ),
-    mEventsToMonitor( eventBitmask )
+  Impl(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+  : mCallback(callback),
+    mFileDescriptor(fileDescriptor),
+    mEventsToMonitor(eventBitmask)
   {
   }
 
@@ -53,57 +50,53 @@ struct FileDescriptorMonitor::Impl
 
   // Data
   CallbackBase* mCallback;
-  int mFileDescriptor;
-  int mEventsToMonitor;
+  int           mFileDescriptor;
+  int           mEventsToMonitor;
 
   // Static Methods
 
   /**
    * Called when the file descriptor receives an event.
    */
-  static int EventDispatch( int fd, int events, void* data )
+  static int EventDispatch(int fd, int events, void* data)
   {
     Impl* impl = reinterpret_cast<Impl*>(data);
 
     // if we want read events, check to see if a read event is available
     int type = FileDescriptorMonitor::FD_NO_EVENT;
 
-    if( impl->mEventsToMonitor & ALOOPER_EVENT_INPUT )
+    if(impl->mEventsToMonitor & ALOOPER_EVENT_INPUT)
     {
-
       type = FileDescriptorMonitor::FD_READABLE;
-
     }
     // check if we want write events
-    if( impl->mEventsToMonitor & ALOOPER_EVENT_OUTPUT )
+    if(impl->mEventsToMonitor & ALOOPER_EVENT_OUTPUT)
     {
-
       type |= FileDescriptorMonitor::FD_WRITABLE;
-
     }
 
     // if there is an event, execute the callback
-    if( type != FileDescriptorMonitor::FD_NO_EVENT )
+    if(type != FileDescriptorMonitor::FD_NO_EVENT)
     {
-      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >( type ), impl->mFileDescriptor );
+      CallbackBase::Execute(*impl->mCallback, static_cast<FileDescriptorMonitor::EventType>(type), impl->mFileDescriptor);
     }
 
     return 1; // Continue receiving callbacks
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask )
+FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
   mImpl = new Impl(fileDescriptor, callback, eventBitmask);
 
-  if (fileDescriptor >= 0)
+  if(fileDescriptor >= 0)
   {
     int events = 0;
-    if( eventBitmask & FD_READABLE)
+    if(eventBitmask & FD_READABLE)
     {
       events = ALOOPER_EVENT_INPUT;
     }
-    if( eventBitmask & FD_WRITABLE)
+    if(eventBitmask & FD_WRITABLE)
     {
       events |= ALOOPER_EVENT_OUTPUT;
     }
@@ -111,21 +104,21 @@ FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* 
     mImpl->mEventsToMonitor = events;
 
     ALooper* looper = ALooper_forThread();
-    if( looper )
+    if(looper)
     {
-      ALooper_addFd( looper, fileDescriptor, ALOOPER_POLL_CALLBACK, events, &Impl::EventDispatch, mImpl );
+      ALooper_addFd(looper, fileDescriptor, ALOOPER_POLL_CALLBACK, events, &Impl::EventDispatch, mImpl);
     }
   }
 }
 
 FileDescriptorMonitor::~FileDescriptorMonitor()
 {
-  if( mImpl->mFileDescriptor )
+  if(mImpl->mFileDescriptor)
   {
     ALooper* looper = ALooper_forThread();
-    if( looper )
+    if(looper)
     {
-      ALooper_removeFd( looper, mImpl->mFileDescriptor );
+      ALooper_removeFd(looper, mImpl->mFileDescriptor);
     }
   }
 
@@ -138,4 +131,3 @@ FileDescriptorMonitor::~FileDescriptorMonitor()
 } // namespace Internal
 
 } // namespace Dali
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@
 #include <dali/internal/adaptor-framework/common/file-loader-impl.h>
 
 // EXTERNAL INCLUDES
-#include <cstdio>
-#include <string>
-#include <fstream>
 #include <dali/integration-api/debug.h>
+#include <cstdio>
+#include <fstream>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
@@ -29,25 +29,22 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType)
 {
   std::streampos size;
 
-  return Dali::Internal::Adaptor::ReadFile( filename, size, memblock, fileType);
+  return Dali::Internal::Adaptor::ReadFile(filename, size, memblock, fileType);
 }
 
 int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali::FileLoader::FileType fileType)
 {
   std::streampos size;
 
-  return Dali::Internal::Adaptor::ReadFile( filename, size, memblock, fileType);
+  return Dali::Internal::Adaptor::ReadFile(filename, size, memblock, fileType);
 }
 
 inline bool hasPrefix(const std::string& prefix, const std::string& path)
@@ -60,7 +57,7 @@ inline std::string ConvertToAssetsInternalPath(const std::string& path, int offs
   std::string internalPath = std::string(path.c_str() + offset);
 
   int i = 0;
-  while ((i = internalPath.find("//", i)) != std::string::npos)
+  while((i = internalPath.find("//", i)) != std::string::npos)
   {
     internalPath.replace(i, 2, "/");
   }
@@ -71,63 +68,63 @@ inline std::string ConvertToAssetsInternalPath(const std::string& path, int offs
 template<typename T>
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<T>& memblock, Dali::FileLoader::FileType fileType)
 {
-  int errorCode = 0;
-  int length = 0;
-  char mode[3] = { 'r', 0, 0 };
+  int  errorCode = 0;
+  int  length    = 0;
+  char mode[3]   = {'r', 0, 0};
 
-  if( fileType == Dali::FileLoader::BINARY )
+  if(fileType == Dali::FileLoader::BINARY)
   {
     mode[1] = 'b';
   }
-  else if( fileType != Dali::FileLoader::TEXT )
+  else if(fileType != Dali::FileLoader::TEXT)
   {
     return errorCode;
   }
 
   const std::string assetsPrefix = "assets/";
-  if( hasPrefix( assetsPrefix, filename ) )
+  if(hasPrefix(assetsPrefix, filename))
   {
-    std::string internalPath = ConvertToAssetsInternalPath( filename, assetsPrefix.length() );
+    std::string    internalPath = ConvertToAssetsInternalPath(filename, assetsPrefix.length());
     AAssetManager* assetManager = Dali::Integration::AndroidFramework::Get().GetApplicationAssets();
-    AAsset* asset = AAssetManager_open( assetManager, internalPath.c_str(), AASSET_MODE_BUFFER );
-    if( asset )
+    AAsset*        asset        = AAssetManager_open(assetManager, internalPath.c_str(), AASSET_MODE_BUFFER);
+    if(asset)
     {
-      length = AAsset_getLength( asset );
-      memblock.Resize( length + 1 ); // 1 for extra zero at the end
+      length = AAsset_getLength(asset);
+      memblock.Resize(length + 1); // 1 for extra zero at the end
 
       char* buffer = reinterpret_cast<char*>(memblock.Begin());
-      errorCode = ( AAsset_read( asset, buffer, length ) != length ) ? 0 : 1;
-      fileSize = length;
+      errorCode    = (AAsset_read(asset, buffer, length) != length) ? 0 : 1;
+      fileSize     = length;
 
-      AAsset_close( asset );
+      AAsset_close(asset);
     }
     else
     {
-      DALI_LOG_ERROR( "Asset not found %s\n", internalPath.c_str() );
+      DALI_LOG_ERROR("Asset not found %s\n", internalPath.c_str());
     }
   }
   else
   {
-    FILE* file = fopen( filename.c_str(),  mode );
-    if( file )
+    FILE* file = fopen(filename.c_str(), mode);
+    if(file)
     {
-      fseek( file, 0, SEEK_END );
-      length = ftell( file );
+      fseek(file, 0, SEEK_END);
+      length = ftell(file);
       //Dali::Vector.Resize would lead to calling PushBack for each byte, waste of CPU resource
-      memblock.ResizeUninitialized( length + 1 );
+      memblock.ResizeUninitialized(length + 1);
       //put last byte as 0, in case this is a text file without null-terminator
       memblock[length] = 0;
 
       char* buffer = reinterpret_cast<char*>(memblock.Begin());
-      fseek( file, 0, SEEK_SET );
-      errorCode = ( fread( buffer, 1, length, file ) != length ) ? 0 : 1;
-      fileSize = length;
+      fseek(file, 0, SEEK_SET);
+      errorCode = (fread(buffer, 1, length, file) != length) ? 0 : 1;
+      fileSize  = length;
 
-      fclose( file );
+      fclose(file);
     }
     else
     {
-      DALI_LOG_ERROR( "File not found %s\n", filename.c_str() );
+      DALI_LOG_ERROR("File not found %s\n", filename.c_str());
     }
   }
 
@@ -139,41 +136,41 @@ std::streampos GetFileSize(const std::string& filename)
   std::streampos size = 0;
 
   const std::string assetsPrefix = "assets/";
-  if( hasPrefix( assetsPrefix, filename ) )
+  if(hasPrefix(assetsPrefix, filename))
   {
-    std::string internalPath = ConvertToAssetsInternalPath( filename, assetsPrefix.length() );
+    std::string    internalPath = ConvertToAssetsInternalPath(filename, assetsPrefix.length());
     AAssetManager* assetManager = Dali::Integration::AndroidFramework::Get().GetApplicationAssets();
-    AAsset* asset = AAssetManager_open( assetManager, internalPath.c_str(), AASSET_MODE_BUFFER );
-    if( asset )
+    AAsset*        asset        = AAssetManager_open(assetManager, internalPath.c_str(), AASSET_MODE_BUFFER);
+    if(asset)
     {
-      size = AAsset_getLength( asset );
-      AAsset_close( asset );
+      size = AAsset_getLength(asset);
+      AAsset_close(asset);
     }
     else
     {
-      DALI_LOG_ERROR( "Asset not found %s\n", internalPath.c_str() );
+      DALI_LOG_ERROR("Asset not found %s\n", internalPath.c_str());
     }
   }
   else
   {
-    FILE* file = fopen( filename.c_str(), "r" );
-    if( file )
+    FILE* file = fopen(filename.c_str(), "r");
+    if(file)
     {
-      fseek( file, 0, SEEK_END );
-      size = ftell( file );
-      fclose( file );
+      fseek(file, 0, SEEK_END);
+      size = ftell(file);
+      fclose(file);
     }
     else
     {
-      DALI_LOG_ERROR( "File not found %s\n", filename.c_str() );
+      DALI_LOG_ERROR("File not found %s\n", filename.c_str());
     }
   }
 
   return size;
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

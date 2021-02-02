@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 int GetElmAccessActionOver()
 {
   return 0;
 }
 
-int GetLongPressTime( int defaultTime )
+int GetLongPressTime(int defaultTime)
 {
   return defaultTime;
 }

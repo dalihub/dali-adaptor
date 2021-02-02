@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,19 @@
  */
 
 // EXTERNAL INCLUDES
-#include <ttrace.h>
 #include <dali/internal/trace/tizen/trace-manager-impl-tizen.h>
+#include <ttrace.h>
 
 // INTERNAL INCLUDES
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-TraceManagerTizen::TraceManagerTizen( PerformanceInterface* performanceInterface )
-: TraceManager( performanceInterface )
+TraceManagerTizen::TraceManagerTizen(PerformanceInterface* performanceInterface)
+: TraceManager(performanceInterface)
 {
 }
 
@@ -40,15 +37,15 @@ Dali::Integration::Trace::LogContextFunction TraceManagerTizen::GetLogContextFun
   return LogContext;
 }
 
-void TraceManagerTizen::LogContext( bool start, const char* tag )
+void TraceManagerTizen::LogContext(bool start, const char* tag)
 {
-  if( start )
+  if(start)
   {
-    traceBegin( TTRACE_TAG_GRAPHICS, tag );
+    traceBegin(TTRACE_TAG_GRAPHICS, tag);
   }
   else
   {
-    traceEnd( TTRACE_TAG_GRAPHICS );
+    traceEnd(TTRACE_TAG_GRAPHICS);
   }
 }
 

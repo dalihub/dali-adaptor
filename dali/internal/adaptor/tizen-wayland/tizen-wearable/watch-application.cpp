@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,20 @@
 
 namespace Dali
 {
-
 WatchApplication WatchApplication::New()
 {
-  return New( NULL, NULL );
+  return New(NULL, NULL);
 }
 
-WatchApplication WatchApplication::New( int* argc, char **argv[] )
+WatchApplication WatchApplication::New(int* argc, char** argv[])
 {
-  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New( argc, argv, "", OPAQUE );
+  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, "", OPAQUE);
   return WatchApplication(internal.Get());
 }
 
-WatchApplication WatchApplication::New( int* argc, char **argv[], const std::string& stylesheet )
+WatchApplication WatchApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New( argc, argv, stylesheet, OPAQUE );
+  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, stylesheet, OPAQUE);
   return WatchApplication(internal.Get());
 }
 
@@ -52,13 +51,13 @@ WatchApplication::WatchApplication()
 {
 }
 
-WatchApplication::WatchApplication( const WatchApplication& copy ) = default;
+WatchApplication::WatchApplication(const WatchApplication& copy) = default;
 
-WatchApplication& WatchApplication::operator=( const WatchApplication& rhs ) = default;
+WatchApplication& WatchApplication::operator=(const WatchApplication& rhs) = default;
 
-WatchApplication::WatchApplication( WatchApplication&& rhs ) = default;
+WatchApplication::WatchApplication(WatchApplication&& rhs) = default;
 
-WatchApplication& WatchApplication::operator=( WatchApplication&& rhs ) = default;
+WatchApplication& WatchApplication::operator=(WatchApplication&& rhs) = default;
 
 WatchApplication::WatchTimeSignal& WatchApplication::TimeTickSignal()
 {
@@ -79,6 +78,5 @@ WatchApplication::WatchApplication(Internal::Adaptor::WatchApplication* implemen
 : Application(implementation)
 {
 }
-
 
 } // namespace Dali

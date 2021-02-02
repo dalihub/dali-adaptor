@@ -21,24 +21,20 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 #if defined(DEBUG_ENABLED)
 Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_STYLE_MONITOR");
 #endif
@@ -48,12 +44,12 @@ Dali::Integration::Log::Filter* gLogFilter = Dali::Integration::Log::Filter::New
  * @param[in] fontClient handle to font client
  * @param[out] fontFamily string representing font family
  */
-void GetSystemDefaultFontFamily( TextAbstraction::FontClient& fontClient, std::string& fontFamily )
+void GetSystemDefaultFontFamily(TextAbstraction::FontClient& fontClient, std::string& fontFamily)
 {
   TextAbstraction::FontDescription defaultFontDescription;
-  if ( fontClient )
+  if(fontClient)
   {
-    fontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
+    fontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
     fontFamily = defaultFontDescription.family;
   }
 }
@@ -64,20 +60,20 @@ Dali::StyleMonitor StyleMonitor::Get()
 {
   Dali::StyleMonitor styleMonitor;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::StyleMonitor ) );
-    if( handle )
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::StyleMonitor));
+    if(handle)
     {
       // If so, downcast the handle
-      styleMonitor = Dali::StyleMonitor( dynamic_cast< StyleMonitor* >( handle.GetObjectPtr() ) );
+      styleMonitor = Dali::StyleMonitor(dynamic_cast<StyleMonitor*>(handle.GetObjectPtr()));
     }
     else
     {
-      styleMonitor = Dali::StyleMonitor( new StyleMonitor() );
-      service.Register( typeid( styleMonitor ), styleMonitor );
+      styleMonitor = Dali::StyleMonitor(new StyleMonitor());
+      service.Register(typeid(styleMonitor), styleMonitor);
     }
   }
 
@@ -88,8 +84,8 @@ StyleMonitor::StyleMonitor()
 : mDefaultFontSize(-1)
 {
   mFontClient = TextAbstraction::FontClient::Get();
-  GetSystemDefaultFontFamily( mFontClient, mDefaultFontFamily );
-  DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
+  GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
+  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str());
   mDefaultFontSize = mFontClient.GetDefaultFontSize();
 }
 
@@ -97,18 +93,18 @@ StyleMonitor::~StyleMonitor()
 {
 }
 
-void StyleMonitor::StyleChanged( StyleChange::Type styleChange )
+void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
 {
-  switch ( styleChange )
+  switch(styleChange)
   {
     case StyleChange::DEFAULT_FONT_CHANGE:
     {
-      if ( mFontClient )
+      if(mFontClient)
       {
         mFontClient.ResetSystemDefaults();
-        GetSystemDefaultFontFamily( mFontClient, mDefaultFontFamily );
+        GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
       }
-      DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::StyleChanged::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str() );
+      DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::StyleChanged::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str());
       break;
     }
 
@@ -150,18 +146,18 @@ const std::string& StyleMonitor::GetTheme() const
 void StyleMonitor::SetTheme(const std::string& path)
 {
   mUserDefinedThemeFilePath = path;
-  EmitStyleChangeSignal( StyleChange::THEME_CHANGE );
+  EmitStyleChangeSignal(StyleChange::THEME_CHANGE);
 }
 
-bool StyleMonitor::LoadThemeFile( const std::string& filename, std::string& output )
+bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& output)
 {
-  bool retval( false );
+  bool retval(false);
 
-  std::streampos bufferSize = 0;
+  std::streampos     bufferSize = 0;
   Dali::Vector<char> fileBuffer;
-  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::BINARY ) )
+  if(Dali::FileLoader::ReadFile(filename, bufferSize, fileBuffer, FileLoader::FileType::BINARY))
   {
-    output.assign( &fileBuffer[0], bufferSize );
+    output.assign(&fileBuffer[0], bufferSize);
     retval = true;
   }
 
@@ -173,13 +169,13 @@ Dali::StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
   return mStyleChangeSignal;
 }
 
-void StyleMonitor::EmitStyleChangeSignal( StyleChange::Type styleChange )
+void StyleMonitor::EmitStyleChangeSignal(StyleChange::Type styleChange)
 {
-  if( !mStyleChangeSignal.Empty() )
+  if(!mStyleChangeSignal.Empty())
   {
-    DALI_LOG_INFO( gLogFilter, Debug::Verbose, "StyleMonitor::EmitStyleChangeSignal\n" );
-    Dali::StyleMonitor handle( this );
-    mStyleChangeSignal.Emit( handle, styleChange );
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::EmitStyleChangeSignal\n");
+    Dali::StyleMonitor handle(this);
+    mStyleChangeSignal.Emit(handle, styleChange);
   }
 }
 

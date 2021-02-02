@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
 const char* const UNITS("px");
@@ -45,7 +42,7 @@ Dali::BaseHandle Create()
   return Dali::BaseHandle();
 }
 
-Dali::TypeRegistration type( typeid( Dali::VectorImageRenderer ), typeid( Dali::BaseHandle ), Create );
+Dali::TypeRegistration type(typeid(Dali::VectorImageRenderer), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 
@@ -123,7 +120,7 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
   }
 }
 
-void VectorImageRenderer::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
   if(mPlugin.IsValid())
   {

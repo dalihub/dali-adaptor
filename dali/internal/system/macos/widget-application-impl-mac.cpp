@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,27 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/macos/widget-application-impl-mac.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/macos/widget-application-impl-mac.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 WidgetApplicationPtr WidgetApplicationCocoa::New(
-  int* argc,
-  char **argv[],
+  int*               argc,
+  char**             argv[],
   const std::string& stylesheet)
 {
-  return new WidgetApplicationCocoa(argc, argv, stylesheet );
+  return new WidgetApplicationCocoa(argc, argv, stylesheet);
 }
 
 WidgetApplicationCocoa::WidgetApplicationCocoa(
-  int* argc,
-  char** argv[],
-  const std::string& stylesheet
-)
+  int*               argc,
+  char**             argv[],
+  const std::string& stylesheet)
 : WidgetApplication(argc, argv, stylesheet)
 {
   DALI_LOG_ERROR("WidgetApplication is not implemented in MACOS profile.\n");
@@ -51,9 +47,8 @@ WidgetApplicationCocoa::~WidgetApplicationCocoa()
 }
 
 void WidgetApplicationCocoa::RegisterWidgetCreatingFunction(
-  const std::string& widgetName,
-  Dali::WidgetApplication::CreateWidgetFunction createFunction
-)
+  const std::string&                            widgetName,
+  Dali::WidgetApplication::CreateWidgetFunction createFunction)
 {
 }
 
@@ -66,12 +61,12 @@ namespace WidgetApplicationFactory
  * @param[in]  argv         A pointer to the argument list
  * @param[in]  stylesheet   The path to user defined theme file
  */
-WidgetApplicationPtr Create( int* argc, char **argv[], const std::string& stylesheet )
+WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet)
 {
-  return WidgetApplicationCocoa::New( argc, argv, stylesheet );
+  return WidgetApplicationCocoa::New(argc, argv, stylesheet);
 }
 
-} // namespace Factory
+} // namespace WidgetApplicationFactory
 
 } // namespace Adaptor
 

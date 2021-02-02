@@ -19,8 +19,8 @@
 #include <dali/internal/system/common/system-trace.h>
 
 // EXTERNAL HEADERS
-#include <string>
 #include <dali/devel-api/common/hash.h>
+#include <string>
 
 // INTERNAL HEADERS
 #include <dali/integration-api/debug.h>
@@ -34,54 +34,50 @@ namespace
 {
 const int TTRACE_TAG_GRAPHICS = 1;
 
-void traceAsyncBegin(int tag, int cookie, const char *name, ...)
+void traceAsyncBegin(int tag, int cookie, const char* name, ...)
 {
-  Debug::LogMessage(Debug::DebugInfo, "AsyncBegin: %s : cookie %d\n", name, cookie );
+  Debug::LogMessage(Debug::DebugInfo, "AsyncBegin: %s : cookie %d\n", name, cookie);
 }
-void traceAsyncEnd(int tag, int cookie, const char *name, ...)
+void traceAsyncEnd(int tag, int cookie, const char* name, ...)
 {
-  Debug::LogMessage(Debug::DebugInfo, "AsyncEnd: %s : cookie %d\n", name, cookie );
+  Debug::LogMessage(Debug::DebugInfo, "AsyncEnd: %s : cookie %d\n", name, cookie);
 }
-void traceMark(int tag, const char *name, ...)
+void traceMark(int tag, const char* name, ...)
 {
   Debug::LogMessage(Debug::DebugInfo, "Marker: %s \n", name);
 }
-} // un-named namespace
+} // namespace
 #endif
 
 namespace
 {
-
-int GetCookie( const std::string& description, std::string& markerName )
+int GetCookie(const std::string& description, std::string& markerName)
 {
   // description holds the marker name and postfix of _START or _END
   std::size_t pos = description.find("_START");
-  if( pos == std::string::npos )
+  if(pos == std::string::npos)
   {
     pos = description.find("_END");
   }
-  if( !pos )
+  if(!pos)
   {
     // if this asserts then check the postfix strings in StatContext.cpp for
     // custom markers and performance-marker.cpp for built-in markers
     DALI_ASSERT_DEBUG(0);
   }
-  markerName = description.substr( 0, pos );
+  markerName = description.substr(0, pos);
 
-  std::size_t hash =  Dali::CalculateHash( markerName.c_str() );
-  return static_cast<int>( hash );
+  std::size_t hash = Dali::CalculateHash(markerName.c_str());
+  return static_cast<int>(hash);
 }
-}
+} // namespace
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 SystemTrace::SystemTrace()
 {
 }
@@ -89,34 +85,33 @@ SystemTrace::~SystemTrace()
 {
 }
 
-void SystemTrace::Trace( const PerformanceMarker& marker, const std::string& traceMessage )
+void SystemTrace::Trace(const PerformanceMarker& marker, const std::string& traceMessage)
 {
   PerformanceMarker::MarkerEventType eventType = marker.GetEventType();
 
-  if( eventType == PerformanceMarker::SINGLE_EVENT )
+  if(eventType == PerformanceMarker::SINGLE_EVENT)
   {
-    traceMark( TTRACE_TAG_GRAPHICS, traceMessage.c_str() );
+    traceMark(TTRACE_TAG_GRAPHICS, traceMessage.c_str());
     return;
   }
 
   // DALi is multi-threaded so timed events will occur asynchronously
   std::string markerName;
 
-  int cookie = GetCookie(traceMessage, markerName );
+  int cookie = GetCookie(traceMessage, markerName);
 
-  if( eventType == PerformanceMarker::START_TIMED_EVENT )
+  if(eventType == PerformanceMarker::START_TIMED_EVENT)
   {
-    traceAsyncBegin( TTRACE_TAG_GRAPHICS, cookie,  markerName.c_str() );
+    traceAsyncBegin(TTRACE_TAG_GRAPHICS, cookie, markerName.c_str());
   }
   else
   {
-    traceAsyncEnd( TTRACE_TAG_GRAPHICS, cookie,  markerName.c_str() );
+    traceAsyncEnd(TTRACE_TAG_GRAPHICS, cookie, markerName.c_str());
   }
 }
 
-} // namespace Internal
-
 } // namespace Adaptor
 
-} // namespace Dali
+} // namespace Internal
 
+} // namespace Dali

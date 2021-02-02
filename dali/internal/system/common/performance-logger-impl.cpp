@@ -23,21 +23,17 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 PerformanceInterface* GetPerformanceInterface()
 {
-  if( Adaptor::IsAvailable() )
+  if(Adaptor::IsAvailable())
   {
-    return Internal::Adaptor::Adaptor::GetImplementation( Adaptor::Get() ).GetPerformanceInterface();
+    return Internal::Adaptor::Adaptor::GetImplementation(Adaptor::Get()).GetPerformanceInterface();
   }
 
   return NULL;
@@ -45,38 +41,38 @@ PerformanceInterface* GetPerformanceInterface()
 
 } // Anonymous namespace
 
-PerformanceLoggerPtr PerformanceLogger::New( const char* name )
+PerformanceLoggerPtr PerformanceLogger::New(const char* name)
 {
-  PerformanceLoggerPtr logger = new PerformanceLogger( name );
+  PerformanceLoggerPtr logger = new PerformanceLogger(name);
   return logger;
 }
 
-PerformanceLogger::PerformanceLogger( const char* name )
-: mContext( 0 )
+PerformanceLogger::PerformanceLogger(const char* name)
+: mContext(0)
 {
   PerformanceInterface* performance = GetPerformanceInterface();
-  if( performance )
+  if(performance)
   {
-    mContext = performance->AddContext( name );
+    mContext = performance->AddContext(name);
   }
 }
 
 PerformanceLogger::~PerformanceLogger()
 {
   PerformanceInterface* performance = GetPerformanceInterface();
-  if( performance )
+  if(performance)
   {
-    performance->RemoveContext( mContext );
+    performance->RemoveContext(mContext);
   }
 }
 
-void PerformanceLogger::AddMarker( Dali::PerformanceLogger::Marker markerType )
+void PerformanceLogger::AddMarker(Dali::PerformanceLogger::Marker markerType)
 {
   PerformanceInterface* performance = GetPerformanceInterface();
-  if( performance )
+  if(performance)
   {
     PerformanceInterface::MarkerType newMarkerType = PerformanceInterface::START;
-    switch( markerType )
+    switch(markerType)
     {
       case Dali::PerformanceLogger::START_EVENT:
       {
@@ -90,25 +86,25 @@ void PerformanceLogger::AddMarker( Dali::PerformanceLogger::Marker markerType )
       }
     }
 
-    performance->AddMarker( newMarkerType, mContext );
+    performance->AddMarker(newMarkerType, mContext);
   }
 }
 
-void PerformanceLogger::SetLoggingFrequency( unsigned int logFrequency)
+void PerformanceLogger::SetLoggingFrequency(unsigned int logFrequency)
 {
   PerformanceInterface* performance = GetPerformanceInterface();
-  if( performance )
+  if(performance)
   {
-    performance->SetLoggingFrequency( logFrequency, mContext );
+    performance->SetLoggingFrequency(logFrequency, mContext);
   }
 }
 
-void PerformanceLogger::EnableLogging( bool enable )
+void PerformanceLogger::EnableLogging(bool enable)
 {
   PerformanceInterface* performance = GetPerformanceInterface();
-  if( performance )
+  if(performance)
   {
-    performance->EnableLogging( enable, mContext );
+    performance->EnableLogging(enable, mContext);
   }
 }
 

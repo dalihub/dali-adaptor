@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,16 @@
 #include <dali/internal/network/common/network-performance-protocol.h>
 
 // EXTERNAL INCLUDES
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 namespace Dali
 {
-
 namespace PerformanceProtocol
 {
-
 namespace
 {
-
 /**
  * Command parameter type
  */
@@ -49,32 +46,35 @@ enum PARAMETER_TYPE
  */
 struct CommandInfo
 {
-  CommandId     cmdId;
-  CommandString cmdString;
+  CommandId      cmdId;
+  CommandString  cmdString;
   PARAMETER_TYPE paramType;
 };
 
 /**
  * Command lookup table
  */
+// clang-format off
 CommandInfo CommandLookup[]=
 {
-  {  HELP_MESSAGE               , "help"               ,NO_PARAMS     },
-  {  ENABLE_METRIC              , "enable_metric"      ,UNSIGNED_INT  },
-  {  DISABLE_METRIC             , "disable_metric"     ,UNSIGNED_INT  },
-  {  LIST_METRICS_AVAILABLE     , "list_metrics"       ,NO_PARAMS     },
-  {  ENABLE_TIME_MARKER_BIT_MASK, "set_marker",         UNSIGNED_INT  },
-  {  DUMP_SCENE_GRAPH           , "dump_scene"         ,NO_PARAMS     },
-  {  SET_PROPERTIES             , "set_properties"     ,STRING        },
-  {  UNKNOWN_COMMAND            , "unknown"            ,NO_PARAMS     }
+  {HELP_MESSAGE,                "help",           NO_PARAMS   },
+  {ENABLE_METRIC,               "enable_metric",  UNSIGNED_INT},
+  {DISABLE_METRIC,              "disable_metric", UNSIGNED_INT},
+  {LIST_METRICS_AVAILABLE,      "list_metrics",   NO_PARAMS   },
+  {ENABLE_TIME_MARKER_BIT_MASK, "set_marker",     UNSIGNED_INT},
+  {DUMP_SCENE_GRAPH,            "dump_scene",     NO_PARAMS   },
+  {SET_PROPERTIES,              "set_properties", STRING      },
+  {UNKNOWN_COMMAND,             "unknown",        NO_PARAMS   }
 };
-const unsigned int CommandLookupLength = sizeof( CommandLookup ) /sizeof( CommandInfo );
+// clang-format on
+const unsigned int CommandLookupLength = sizeof(CommandLookup) / sizeof(CommandInfo);
 
-#define GREEN  "\033[01;32m"
-#define NORMAL  "\e[m"
+#define GREEN "\033[01;32m"
+#define NORMAL "\e[m"
 #define PARAM "\033[22;32m"
 #define YELLOW "\033[01;33m"
 
+// clang-format off
 const char* const helpMsg =
     YELLOW
     "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
@@ -97,7 +97,7 @@ const char* const helpMsg =
     GREEN " set_properties " PARAM "|178;Size;[ 144.0, 144.0, 144.0 ]|178;Color;[ 1.0, 1,0, 1.0 ]|\n"
     "\n"
     GREEN " dump_scene" NORMAL " - dump the current scene in json format\n";
-
+// clang-format off
 } // un-named namespace
 
 bool GetCommandId( const char* const commandString, unsigned int lengthInBytes, CommandId& commandId, unsigned int& intParam, std::string& stringParam  )

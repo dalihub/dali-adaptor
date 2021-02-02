@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,25 +26,24 @@
 
 namespace Dali
 {
-
 struct WatchTime::Impl
 {
-  Impl(void *time_handle)
+  Impl(void* time_handle)
   : mTimeHandle(time_handle)
   {
   }
 
-  void *mTimeHandle;
+  void* mTimeHandle;
 };
 
-WatchTime::WatchTime(void *time_handle)
+WatchTime::WatchTime(void* time_handle)
 {
   mImpl = new Impl(time_handle);
 }
 
 WatchTime::~WatchTime()
 {
-  if( mImpl )
+  if(mImpl)
   {
     delete mImpl;
     mImpl = NULL;
@@ -55,7 +54,9 @@ WatchTime::~WatchTime()
 
 WatchTime::WatchTime()
 {
-  watch_time_h watch_time = {0,};
+  watch_time_h watch_time = {
+    0,
+  };
 
   watch_time_get_current_time(&watch_time);
   mImpl = new Impl(watch_time);
@@ -167,7 +168,7 @@ bool WatchTime::GetDaylightSavingTimeStatus() const
 
 #else
 WatchTime::WatchTime()
-  :mImpl(NULL)
+: mImpl(NULL)
 {
 }
 

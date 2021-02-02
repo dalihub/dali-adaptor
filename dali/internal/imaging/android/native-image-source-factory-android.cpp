@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,26 +28,23 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-std::unique_ptr< NativeImageSource > NativeImageSourceFactoryAndroid::CreateNativeImageSource( uint32_t width, uint32_t height,
-                                                                                         Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+std::unique_ptr<NativeImageSource> NativeImageSourceFactoryAndroid::CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  return std::unique_ptr< NativeImageSource >( NativeImageSourceAndroid::New( width, height, depth, nativeImageSource ) );
+  return std::unique_ptr<NativeImageSource>(NativeImageSourceAndroid::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryAndroid::CreateNativeImageSourceQueue( uint32_t width, uint32_t height,
-                                                                                                   Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryAndroid::CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
 {
-  return std::unique_ptr< NativeImageSourceQueue >( NativeImageSourceQueueAndroid::New( width, height, depth, nativeImageSourceQueue ) );
+  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueAndroid::New(width, height, depth, nativeImageSourceQueue));
 }
 
 // this should be created from somewhere
-std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory()
+std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
 {
   // returns native image source factory
-  return std::unique_ptr< NativeImageSourceFactoryAndroid >( new NativeImageSourceFactoryAndroid() );
+  return std::unique_ptr<NativeImageSourceFactoryAndroid>(new NativeImageSourceFactoryAndroid());
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

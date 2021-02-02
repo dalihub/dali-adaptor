@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  *
  */
 
- // CLASS HEADER
+// CLASS HEADER
 #include <EGL/egl.h>
 #include <dali/internal/window-system/macos/display-connection-impl-mac.h>
 
@@ -27,7 +27,6 @@
 
 namespace Dali::Internal::Adaptor
 {
-
 DisplayConnection* DisplayConnectionCocoa::New()
 {
   return new DisplayConnectionCocoa();
@@ -53,11 +52,11 @@ void DisplayConnectionCocoa::ConsumeEvents()
 
 bool DisplayConnectionCocoa::InitializeEgl(EglInterface& egl)
 {
-  EglImplementation& eglImpl = static_cast<EglImplementation&>( egl );
+  EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
 
   if(!eglImpl.InitializeGles(EGL_DEFAULT_DISPLAY))
   {
-    DALI_LOG_ERROR( "Failed to initialize GLES.\n" );
+    DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
   }
 
@@ -66,23 +65,23 @@ bool DisplayConnectionCocoa::InitializeEgl(EglInterface& egl)
 
 bool DisplayConnectionCocoa::InitializeGraphics()
 {
-  auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
   if(!eglImpl.InitializeGles(EGL_DEFAULT_DISPLAY))
   {
-    DALI_LOG_ERROR( "Failed to initialize GLES.\n" );
+    DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
   }
 
   return true;
 }
 
-void DisplayConnectionCocoa::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
+void DisplayConnectionCocoa::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
 }
 
-void DisplayConnectionCocoa::SetGraphicsInterface( GraphicsInterface& graphics )
+void DisplayConnectionCocoa::SetGraphicsInterface(GraphicsInterface& graphics)
 {
   mGraphics = &graphics;
 }

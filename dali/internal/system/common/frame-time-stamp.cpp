@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 FrameTimeStamp::FrameTimeStamp()
 : frame(0),
   microseconds(0),
@@ -37,20 +34,20 @@ FrameTimeStamp::FrameTimeStamp()
 FrameTimeStamp::FrameTimeStamp(unsigned int frame,
                                uint64_t     microseconds,
                                unsigned int bufferIndex)
-: frame( frame ),
-  microseconds( microseconds ),
-  bufferIndex( bufferIndex )
+: frame(frame),
+  microseconds(microseconds),
+  bufferIndex(bufferIndex)
 {
 }
 
-FrameTimeStamp::FrameTimeStamp( unsigned int bufferIndex )
-: frame( 0 ),
-  microseconds( 0 ),
-  bufferIndex( bufferIndex )
+FrameTimeStamp::FrameTimeStamp(unsigned int bufferIndex)
+: frame(0),
+  microseconds(0),
+  bufferIndex(bufferIndex)
 {
 }
 
-unsigned int FrameTimeStamp::MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end )
+unsigned int FrameTimeStamp::MicrosecondDiff(const FrameTimeStamp& start, const FrameTimeStamp& end)
 {
   return end.microseconds - start.microseconds;
 }
@@ -60,4 +57,3 @@ unsigned int FrameTimeStamp::MicrosecondDiff( const FrameTimeStamp& start,const 
 } // namespace Internal
 
 } // namespace Dali
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,40 +28,36 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
 struct Argument
 {
-  const char * const opt;
-  const char * const optDescription;
+  const char* const opt;
+  const char* const optDescription;
 
   void Print()
   {
     const std::ios_base::fmtflags flags = std::cout.flags();
     std::cout << std::left << "  --";
-    std::cout.width( 18 );
+    std::cout.width(18);
     std::cout << opt;
     std::cout << optDescription;
     std::cout << std::endl;
-    std::cout.flags( flags );
+    std::cout.flags(flags);
   }
 };
 
 Argument EXPECTED_ARGS[] =
-{
-  { "width",       "Stage Width"             },
-  { "height",      "Stage Height"            },
-  { "dpi",         "Emulated DPI"            },
-  { "help",        "Help"                    },
-  { NULL,          NULL                      }
-};
+  {
+    {"width", "Stage Width"},
+    {"height", "Stage Height"},
+    {"dpi", "Emulated DPI"},
+    {"help", "Help"},
+    {NULL, NULL}};
 
 enum Option
 {
@@ -71,13 +67,13 @@ enum Option
   OPTION_HELP
 };
 
-typedef Dali::Vector< int32_t > UnhandledContainer;
+typedef Dali::Vector<int32_t> UnhandledContainer;
 
 void ShowHelp()
 {
   std::cout << "Available options:" << std::endl;
   Argument* arg = EXPECTED_ARGS;
-  while ( arg->opt )
+  while(arg->opt)
   {
     arg->Print();
     ++arg;
@@ -86,51 +82,51 @@ void ShowHelp()
 
 } // unnamed namespace
 
-CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
+CommandLineOptions::CommandLineOptions(int32_t* argc, char** argv[])
 : stageWidth(0),
   stageHeight(0)
 {
   // Exit gracefully if no arguments provided
-  if ( !argc || !argv )
+  if(!argc || !argv)
   {
     return;
   }
 
-  if ( *argc > 1 )
+  if(*argc > 1)
   {
     // We do not want to print out errors.
-    int32_t origOptErrValue( opterr );
+    int32_t origOptErrValue(opterr);
     opterr = 0;
 
-    int32_t help( 0 );
+    int32_t help(0);
 
-    const struct option options[]=
-    {
-      { EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt,  required_argument, NULL,             'w' },  // "--width"
-      { EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL,             'h' },  // "--height"
-      { EXPECTED_ARGS[OPTION_DPI].opt,          required_argument, NULL,             'd' },  // "--dpi"
-      { EXPECTED_ARGS[OPTION_HELP].opt,         no_argument,       &help,            '?' },  // "--help"
-      { 0, 0, 0, 0 } // end of options
-    };
+    const struct option options[] =
+      {
+        {EXPECTED_ARGS[OPTION_STAGE_WIDTH].opt, required_argument, NULL, 'w'},  // "--width"
+        {EXPECTED_ARGS[OPTION_STAGE_HEIGHT].opt, required_argument, NULL, 'h'}, // "--height"
+        {EXPECTED_ARGS[OPTION_DPI].opt, required_argument, NULL, 'd'},          // "--dpi"
+        {EXPECTED_ARGS[OPTION_HELP].opt, no_argument, &help, '?'},              // "--help"
+        {0, 0, 0, 0}                                                            // end of options
+      };
 
-    int32_t shortOption( 0 );
-    int32_t optionIndex( 0 );
+    int32_t shortOption(0);
+    int32_t optionIndex(0);
 
     const char* optString = "-w:h:d:"; // The '-' ensures that argv is NOT permuted
-    bool optionProcessed( false );
+    bool        optionProcessed(false);
 
     UnhandledContainer unhandledOptions; // We store indices of options we do not handle here
 
     do
     {
-      shortOption = getopt_long( *argc, *argv, optString, options, &optionIndex );
+      shortOption = getopt_long(*argc, *argv, optString, options, &optionIndex);
 
-      switch ( shortOption )
+      switch(shortOption)
       {
         case 0:
         {
           // Check if we want help
-          if ( help )
+          if(help)
           {
             ShowHelp();
             optionProcessed = true;
@@ -140,9 +136,9 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
 
         case 'w':
         {
-          if ( optarg )
+          if(optarg)
           {
-            stageWidth = atoi( optarg );
+            stageWidth      = atoi(optarg);
             optionProcessed = true;
           }
           break;
@@ -150,9 +146,9 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
 
         case 'h':
         {
-          if ( optarg )
+          if(optarg)
           {
-            stageHeight = atoi( optarg );
+            stageHeight     = atoi(optarg);
             optionProcessed = true;
           }
           break;
@@ -160,9 +156,9 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
 
         case 'd':
         {
-          if ( optarg )
+          if(optarg)
           {
-            stageDPI.assign( optarg );
+            stageDPI.assign(optarg);
             optionProcessed = true;
           }
           break;
@@ -176,24 +172,24 @@ CommandLineOptions::CommandLineOptions(int32_t *argc, char **argv[])
 
         default:
         {
-          unhandledOptions.PushBack( optind - 1 );
+          unhandledOptions.PushBack(optind - 1);
           break;
         }
       }
-    } while ( shortOption != -1 );
+    } while(shortOption != -1);
 
     // Take out the options we have processed
-    if ( optionProcessed )
+    if(optionProcessed)
     {
-      if ( unhandledOptions.Count() > 0 )
+      if(unhandledOptions.Count() > 0)
       {
-        int32_t index( 1 );
+        int32_t index(1);
 
         // Overwrite the argv with the values from the unhandled indices
         const UnhandledContainer::ConstIterator endIter = unhandledOptions.End();
-        for ( UnhandledContainer::Iterator iter = unhandledOptions.Begin(); iter != endIter; ++iter )
+        for(UnhandledContainer::Iterator iter = unhandledOptions.Begin(); iter != endIter; ++iter)
         {
-          (*argv)[ index++ ] = (*argv)[ *iter ];
+          (*argv)[index++] = (*argv)[*iter];
         }
         *argc = unhandledOptions.Count() + 1; // +1 for the program name
       }

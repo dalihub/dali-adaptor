@@ -19,119 +19,116 @@
 #include <dali/internal/haptics/common/feedback-plugin-proxy.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/debug.h>
+#include <dlfcn.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
+const char* const FeedbackPluginProxy::DEFAULT_OBJECT_NAME("libdali2-feedback-plugin.so");
 
-const char * const FeedbackPluginProxy::DEFAULT_OBJECT_NAME( "libdali2-feedback-plugin.so" );
-
-FeedbackPluginProxy::FeedbackPluginProxy( const std::string& sharedObjectName )
-: mInitializeAttempted( false ),
-  mLibHandle( NULL ),
-  mSharedObjectName( sharedObjectName ),
-  mCreatePluginFunctionPtr( NULL ),
-  mFeedbackPlugin( NULL )
+FeedbackPluginProxy::FeedbackPluginProxy(const std::string& sharedObjectName)
+: mInitializeAttempted(false),
+  mLibHandle(NULL),
+  mSharedObjectName(sharedObjectName),
+  mCreatePluginFunctionPtr(NULL),
+  mFeedbackPlugin(NULL)
 {
   // Lazily initialize when sound/haptic is first played
 }
 
 FeedbackPluginProxy::~FeedbackPluginProxy()
 {
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
     delete mFeedbackPlugin;
     mFeedbackPlugin = NULL;
 
-    if( mLibHandle && dlclose( mLibHandle ) )
+    if(mLibHandle && dlclose(mLibHandle))
     {
-      DALI_LOG_ERROR( "Error closing dali feedback plugin library: %s\n", dlerror() );
+      DALI_LOG_ERROR("Error closing dali feedback plugin library: %s\n", dlerror());
     }
   }
 }
 
-void FeedbackPluginProxy::PlayHaptic( const std::string& filePath )
+void FeedbackPluginProxy::PlayHaptic(const std::string& filePath)
 {
   // Lazy initialization
   Initialize();
 
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
-    mFeedbackPlugin->PlayHaptic( filePath );
+    mFeedbackPlugin->PlayHaptic(filePath);
   }
 }
 
-void FeedbackPluginProxy::PlayHapticMonotone( unsigned int duration )
+void FeedbackPluginProxy::PlayHapticMonotone(unsigned int duration)
 {
   // Lazy initialization
   Initialize();
 
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
-    mFeedbackPlugin->PlayHapticMonotone( duration );
+    mFeedbackPlugin->PlayHapticMonotone(duration);
   }
 }
 
 void FeedbackPluginProxy::StopHaptic()
 {
   // Must already have been initialized to play haptic
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
     mFeedbackPlugin->StopHaptic();
   }
 }
 
-int FeedbackPluginProxy::PlaySound( const std::string& fileName )
+int FeedbackPluginProxy::PlaySound(const std::string& fileName)
 {
   // Lazy initialization
   Initialize();
 
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
-    return mFeedbackPlugin->PlaySound( fileName );
+    return mFeedbackPlugin->PlaySound(fileName);
   }
 
   return 0;
 }
 
-void FeedbackPluginProxy::StopSound( int handle )
+void FeedbackPluginProxy::StopSound(int handle)
 {
   // Must already have been initialized to play sound
-  if ( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
-    mFeedbackPlugin->StopSound( handle );
+    mFeedbackPlugin->StopSound(handle);
   }
 }
 
-void FeedbackPluginProxy::PlayFeedbackPattern( int type, int pattern )
+void FeedbackPluginProxy::PlayFeedbackPattern(int type, int pattern)
 {
   // Lazy initialization
   Initialize();
 
-  if( mFeedbackPlugin )
+  if(mFeedbackPlugin)
   {
-    mFeedbackPlugin->PlayFeedbackPattern( type, pattern );
+    mFeedbackPlugin->PlayFeedbackPattern(type, pattern);
   }
 }
 
 void FeedbackPluginProxy::Initialize()
 {
   // Only attempt to load dll once
-  if ( !mInitializeAttempted )
+  if(!mInitializeAttempted)
   {
     mInitializeAttempted = true;
 
-    mLibHandle = dlopen( mSharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL );
-    if( !mLibHandle )
+    mLibHandle = dlopen(mSharedObjectName.c_str(), RTLD_NOW | RTLD_GLOBAL);
+    if(!mLibHandle)
     {
-      DALI_LOG_ERROR( "Cannot load dali feedback plugin library error: %s\n", dlerror() );
+      DALI_LOG_ERROR("Cannot load dali feedback plugin library error: %s\n", dlerror());
       return;
     }
 

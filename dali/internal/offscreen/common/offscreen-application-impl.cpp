@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,37 +19,34 @@
 #include <dali/internal/offscreen/common/offscreen-application-impl.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/offscreen/common/offscreen-window-impl.h>
-#include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/offscreen/common/offscreen-window-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 using RenderMode = Dali::OffscreenApplication::RenderMode;
 
-IntrusivePtr< OffscreenApplication > OffscreenApplication::New( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode )
+IntrusivePtr<OffscreenApplication> OffscreenApplication::New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
 {
-  IntrusivePtr< OffscreenApplication > offscreenApplication = new OffscreenApplication( width, height, surface, isTranslucent, renderMode );
+  IntrusivePtr<OffscreenApplication> offscreenApplication = new OffscreenApplication(width, height, surface, isTranslucent, renderMode);
   return offscreenApplication;
 }
 
-OffscreenApplication::OffscreenApplication( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode )
+OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
 {
   // Generate a default window
-  IntrusivePtr< Internal::OffscreenWindow > impl = Internal::OffscreenWindow::New( width, height, surface, isTranslucent );
-  mDefaultWindow = Dali::OffscreenWindow( impl.Get() );
+  IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
+  mDefaultWindow                               = Dali::OffscreenWindow(impl.Get());
 
-  mAdaptor.reset( Dali::Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( impl.Get() ), impl->GetSurface(), NULL,
-                            renderMode == RenderMode::AUTO ? Dali::Internal::Adaptor::ThreadMode::NORMAL : Dali::Internal::Adaptor::ThreadMode::RUN_IF_REQUESTED ) );
+  mAdaptor.reset(Dali::Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(impl.Get()), impl->GetSurface(), NULL, renderMode == RenderMode::AUTO ? Dali::Internal::Adaptor::ThreadMode::NORMAL : Dali::Internal::Adaptor::ThreadMode::RUN_IF_REQUESTED));
 
   // Initialize default window
-  impl->Initialize( true );
+  impl->Initialize(true);
 }
 
 void OffscreenApplication::Start()
@@ -57,7 +54,7 @@ void OffscreenApplication::Start()
   // Start the adaptor
   mAdaptor->Start();
 
-  Dali::OffscreenApplication handle( this );
+  Dali::OffscreenApplication handle(this);
   mInitSignal.Emit();
   mAdaptor->NotifySceneCreated();
 }
@@ -67,7 +64,7 @@ void OffscreenApplication::Stop()
   // Stop the adaptor
   mAdaptor->Stop();
 
-  Dali::OffscreenApplication handle( this );
+  Dali::OffscreenApplication handle(this);
   mTerminateSignal.Emit();
 }
 

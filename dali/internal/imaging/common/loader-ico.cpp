@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,19 +51,17 @@
 #include <dali/internal/imaging/common/loader-ico.h>
 
 // EXTERNAL INCLUDES
-#include <cstring>
 #include <dali/public-api/common/dali-vector.h>
+#include <cstring>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 namespace
 {
 // Reserved 2 bytes + type 2 bytes + count 2 bytes + count * 16 bytes
@@ -73,20 +71,20 @@ const unsigned char ICO_FILE_HEADER = 22;
 // besides, there are rgba color data = numberOfColors * 4 bytes
 const unsigned char ICO_IMAGE_INFO_HEADER = 40;
 
-typedef unsigned char  DATA8;
-#define A_VAL(p) (reinterpret_cast< DATA8 * >( p )[3])
+typedef unsigned char DATA8;
+#define A_VAL(p) (reinterpret_cast<DATA8*>(p)[3])
 
-#define RGB_JOIN(r,g,b) \
-                (((r) << 16) + ((g) << 8) + (b))
+#define RGB_JOIN(r, g, b) \
+  (((r) << 16) + ((g) << 8) + (b))
 
-#define ARGB_JOIN(a,r,g,b) \
-                (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
+#define ARGB_JOIN(a, r, g, b) \
+  (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
 
-bool read_ushort(unsigned char *map, size_t length, size_t *position, unsigned short *ret)
+bool read_ushort(unsigned char* map, size_t length, size_t* position, unsigned short* ret)
 {
   unsigned char b[2];
 
-  if (*position + 2 > length)
+  if(*position + 2 > length)
   {
     return false;
   }
@@ -96,16 +94,16 @@ bool read_ushort(unsigned char *map, size_t length, size_t *position, unsigned s
   return true;
 }
 
-bool read_uint(unsigned char *map, size_t length, size_t *position, unsigned int *ret)
+bool read_uint(unsigned char* map, size_t length, size_t* position, unsigned int* ret)
 {
   unsigned char b[4];
-  unsigned int i;
+  unsigned int  i;
 
-  if (*position + 4 > length)
+  if(*position + 4 > length)
   {
     return false;
   }
-  for (i = 0; i < 4; i++)
+  for(i = 0; i < 4; i++)
   {
     b[i] = map[(*position)++];
   }
@@ -113,9 +111,9 @@ bool read_uint(unsigned char *map, size_t length, size_t *position, unsigned int
   return true;
 }
 
-bool read_uchar(unsigned char *map, size_t length, size_t *position, unsigned char *ret)
+bool read_uchar(unsigned char* map, size_t length, size_t* position, unsigned char* ret)
 {
-  if (*position + 1 > length)
+  if(*position + 1 > length)
   {
     return false;
   }
@@ -123,9 +121,9 @@ bool read_uchar(unsigned char *map, size_t length, size_t *position, unsigned ch
   return true;
 }
 
-bool read_mem(unsigned char *map, size_t length, size_t *position, void *buffer, int size)
+bool read_mem(unsigned char* map, size_t length, size_t* position, void* buffer, int size)
 {
-  if (*position + size > length)
+  if(*position + size > length)
   {
     return false;
   }
@@ -144,62 +142,62 @@ enum
 
 enum
 {
-  ICON = 1,
+  ICON   = 1,
   CURSOR = 2
 };
 
 struct IcoData
 {
-  int pdelta;
-  int w, h;
-  int cols;
-  int bpp, planes;
-  int hot_x, hot_y;
+  int          pdelta;
+  int          w, h;
+  int          cols;
+  int          bpp, planes;
+  int          hot_x, hot_y;
   unsigned int bmoffset, bmsize;
 };
 
-bool LoadIcoHeaderHelper( FILE* fp,
-                          IcoData& chosen,
-                          Dali::Vector<unsigned char>& map,
-                          unsigned int& fsize )
+bool LoadIcoHeaderHelper(FILE*                        fp,
+                         IcoData&                     chosen,
+                         Dali::Vector<unsigned char>& map,
+                         unsigned int&                fsize)
 {
-  memset( &chosen, 0, sizeof(chosen) );
+  memset(&chosen, 0, sizeof(chosen));
 
   if(fp == NULL)
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
     return false;
   }
-  size_t position = 0;
+  size_t         position = 0;
   unsigned short word;
-  unsigned char byte;
+  unsigned char  byte;
 
-  if( fseek(fp,0,SEEK_END) )
+  if(fseek(fp, 0, SEEK_END))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
   }
 
   long positionIndicator = ftell(fp);
-  fsize = 0u;
+  fsize                  = 0u;
 
-  if( positionIndicator > -1L )
+  if(positionIndicator > -1L)
   {
     fsize = static_cast<unsigned int>(positionIndicator);
   }
 
-  if( 0u == fsize )
+  if(0u == fsize)
   {
     return false;
   }
 
-  if( fseek(fp, 0, SEEK_SET) )
+  if(fseek(fp, 0, SEEK_SET))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
   }
 
-  if (fsize < (ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER)) //6 + 16 + 40
+  if(fsize < (ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER)) //6 + 16 + 40
   {
     return false;
   }
@@ -211,123 +209,122 @@ bool LoadIcoHeaderHelper( FILE* fp,
     return false;
   }
 
-  int search = BIGGEST;
+  int            search = BIGGEST;
   unsigned short reserved, type, count;
-  if (!read_ushort(&map[0], fsize, &position, &reserved))
+  if(!read_ushort(&map[0], fsize, &position, &reserved))
   {
     return false;
   }
-  if (!read_ushort(&map[0], fsize, &position, &type))
+  if(!read_ushort(&map[0], fsize, &position, &type))
   {
     return false;
   }
-  if (!read_ushort(&map[0], fsize, &position, &count))
+  if(!read_ushort(&map[0], fsize, &position, &count))
   {
     return false;
   }
-  if (!((reserved == 0) &&
+  if(!((reserved == 0) &&
        ((type == ICON) || (type == CURSOR)) && (count != 0)))
   {
     return false;
   }
-  search = BIGGEST;
-  chosen.pdelta = 0;
+  search           = BIGGEST;
+  chosen.pdelta    = 0;
   bool have_choice = false;
 
-  for (unsigned short i = 0; i < count; i++)
+  for(unsigned short i = 0; i < count; i++)
   {
     unsigned char tw = 0, th = 0, tcols = 0;
-    if (!read_uchar(&map[0], fsize, &position, &tw))
+    if(!read_uchar(&map[0], fsize, &position, &tw))
     {
       return false;
     }
     int w = tw;
-    if (w <= 0)
+    if(w <= 0)
     {
       w = 256;
     }
-    if (!read_uchar(&map[0], fsize, &position, &th))
+    if(!read_uchar(&map[0], fsize, &position, &th))
     {
       return false;
-
     }
     int h = th;
-    if (h <= 0)
+    if(h <= 0)
     {
       h = 256;
     }
-    if (!read_uchar(&map[0], fsize, &position, &tcols))
+    if(!read_uchar(&map[0], fsize, &position, &tcols))
     {
       return false;
     }
     int cols = tcols;
-    if (!read_uchar(&map[0], fsize, &position, &byte))
+    if(!read_uchar(&map[0], fsize, &position, &byte))
     {
       return false;
     }
-    if (!read_ushort(&map[0], fsize, &position, &word))
+    if(!read_ushort(&map[0], fsize, &position, &word))
     {
       return false;
     }
-    int planes=0;
-    if (type == 1)
+    int planes = 0;
+    if(type == 1)
     {
       planes = word;
     }
     //else hot_x = word;
-    if (!read_ushort(&map[0], fsize, &position, &word))
+    if(!read_ushort(&map[0], fsize, &position, &word))
     {
       return false;
     }
-    int bpp=0;
-    if (type == 1)
+    int bpp = 0;
+    if(type == 1)
     {
       bpp = word;
     }
 
     // 0 colors means 256 for paletized modes.
     // Note: We must not do this conversion for bpp greater than 8, as there is no palette.
-    if( bpp <= 8 && cols == 0 )
+    if(bpp <= 8 && cols == 0)
     {
       cols = 256;
     }
 
     //else hot_y = word;
     unsigned int bmoffset, bmsize;
-    if (!read_uint(&map[0], fsize, &position, &bmsize))
+    if(!read_uint(&map[0], fsize, &position, &bmsize))
     {
       return false;
     }
-    if (!read_uint(&map[0], fsize, &position, &bmoffset))
+    if(!read_uint(&map[0], fsize, &position, &bmoffset))
     {
       return false;
     }
-    if ((bmsize <= 0) || (bmoffset <= 0) || (bmoffset >= fsize))
+    if((bmsize <= 0) || (bmoffset <= 0) || (bmoffset >= fsize))
     {
       return false;
     }
-    if (search == BIGGEST)
+    if(search == BIGGEST)
     {
       int pdelta = w * h;
-      if ((!have_choice) ||
-       ((pdelta >= chosen.pdelta) &&
-           (((bpp >= 3) && (bpp >= chosen.bpp)) ||
-               ((bpp < 3) && (cols >= chosen.cols)))))
+      if((!have_choice) ||
+         ((pdelta >= chosen.pdelta) &&
+          (((bpp >= 3) && (bpp >= chosen.bpp)) ||
+           ((bpp < 3) && (cols >= chosen.cols)))))
       {
-        have_choice = true;
-        chosen.pdelta = pdelta;
-        chosen.w = w;
-        chosen.h = h;
-        chosen.cols = cols;
-        chosen.bpp = bpp;
-        chosen.planes = planes;
-        chosen.bmsize = bmsize;
+        have_choice     = true;
+        chosen.pdelta   = pdelta;
+        chosen.w        = w;
+        chosen.h        = h;
+        chosen.cols     = cols;
+        chosen.bpp      = bpp;
+        chosen.planes   = planes;
+        chosen.bmsize   = bmsize;
         chosen.bmoffset = bmoffset;
       }
     }
   }
 
-  if (chosen.bmoffset == 0)
+  if(chosen.bmoffset == 0)
   {
     return false;
   }
@@ -350,52 +347,52 @@ bool LoadIcoHeaderHelper( FILE* fp,
  * @param[in] palette The palette
  */
 bool HandleBitsPerPixel(
-    const unsigned int bitcount,
-    Dali::Vector<unsigned char>& map,
-    unsigned int*& pix,
-    Dali::Vector<unsigned int>& surface,
-    const unsigned int width,
-    const unsigned int height,
-    const unsigned int fsize,
-    size_t& position,
-    Dali::Vector<unsigned char>& pixbuf,
-    const unsigned int stride,
-    const Dali::Vector<unsigned int>& palette)
+  const unsigned int                bitcount,
+  Dali::Vector<unsigned char>&      map,
+  unsigned int*&                    pix,
+  Dali::Vector<unsigned int>&       surface,
+  const unsigned int                width,
+  const unsigned int                height,
+  const unsigned int                fsize,
+  size_t&                           position,
+  Dali::Vector<unsigned char>&      pixbuf,
+  const unsigned int                stride,
+  const Dali::Vector<unsigned int>& palette)
 {
   // Note: Switch is in order of most common format first.
-  switch( bitcount )
+  switch(bitcount)
   {
     case 32:
     {
       unsigned char* p = &map[position];
-      pix = &surface[0] + ( ( height - 1 ) * width );
+      pix              = &surface[0] + ((height - 1) * width);
 
-      for( unsigned int i = 0; i < height; i++ )
+      for(unsigned int i = 0; i < height; i++)
       {
-        for( unsigned int j = 0; j < width; j++ )
+        for(unsigned int j = 0; j < width; j++)
         {
-          *pix++ = ARGB_JOIN( p[3], p[0], p[1], p[2] );
+          *pix++ = ARGB_JOIN(p[3], p[0], p[1], p[2]);
           p += 4;
         }
         // Move the output up 1 line (we subtract 2 lines because we moved forward one line while copying).
-        pix -= ( width * 2 );
+        pix -= (width * 2);
       }
       break;
     }
 
     case 24:
     {
-      for( unsigned int i = 0; i < height; i++ )
+      for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ( ( height - 1 - i ) * width );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        pix = &surface[0] + ((height - 1 - i) * width);
+        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
         {
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < width; j++ )
+        for(unsigned int j = 0; j < width; j++)
         {
-          *pix++ = ARGB_JOIN( 0xff, p[0], p[1], p[2] );
+          *pix++ = ARGB_JOIN(0xff, p[0], p[1], p[2]);
           p += 3;
         }
       }
@@ -404,15 +401,15 @@ bool HandleBitsPerPixel(
 
     case 8:
     {
-      for( unsigned int i = 0; i < height; i++ )
+      for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ( ( height - 1 - i ) * width );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        pix = &surface[0] + ((height - 1 - i) * width);
+        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
         {
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < width; j++ )
+        for(unsigned int j = 0; j < width; j++)
         {
           *pix++ = palette[*p++];
         }
@@ -422,17 +419,17 @@ bool HandleBitsPerPixel(
 
     case 4:
     {
-      for( unsigned int i = 0; i < height; i++ )
+      for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ( ( height - 1 - i ) * width );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        pix = &surface[0] + ((height - 1 - i) * width);
+        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
         {
           return false;
         }
         unsigned char* p = &pixbuf[0];
-        for( unsigned int j = 0; j < width; j++ )
+        for(unsigned int j = 0; j < width; j++)
         {
-          if( j & 0x1 )
+          if(j & 0x1)
           {
             *pix = palette[*p & 0x0f];
             p++;
@@ -449,25 +446,25 @@ bool HandleBitsPerPixel(
 
     case 1:
     {
-      for( unsigned int i = 0; i < height; i++ )
+      for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ( ( height - 1 - i ) * width );
-        if( !read_mem( &map[0], fsize, &position, &pixbuf[0], stride ) )
+        pix = &surface[0] + ((height - 1 - i) * width);
+        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
         {
           return false;
         }
         unsigned char* p = &pixbuf[0];
 
-        for( unsigned int j = 0; j < width; j += 8 )
+        for(unsigned int j = 0; j < width; j += 8)
         {
-          *pix++ = palette[ *p >> 7 ];
-          *pix++ = palette[ *p >> 6 & 0x01 ];
-          *pix++ = palette[ *p >> 5 & 0x01 ];
-          *pix++ = palette[ *p >> 4 & 0x01 ];
-          *pix++ = palette[ *p >> 3 & 0x01 ];
-          *pix++ = palette[ *p >> 2 & 0x01 ];
-          *pix++ = palette[ *p >> 1 & 0x01 ];
-          *pix++ = palette[ *p >> 0 & 0x01 ];
+          *pix++ = palette[*p >> 7];
+          *pix++ = palette[*p >> 6 & 0x01];
+          *pix++ = palette[*p >> 5 & 0x01];
+          *pix++ = palette[*p >> 4 & 0x01];
+          *pix++ = palette[*p >> 3 & 0x01];
+          *pix++ = palette[*p >> 2 & 0x01];
+          *pix++ = palette[*p >> 1 & 0x01];
+          *pix++ = palette[*p >> 0 & 0x01];
 
           p++;
         }
@@ -477,7 +474,7 @@ bool HandleBitsPerPixel(
 
     default:
     {
-      DALI_LOG_WARNING( "Image file contains unsupported bits-per-pixel %d\n", bitcount );
+      DALI_LOG_WARNING("Image file contains unsupported bits-per-pixel %d\n", bitcount);
       return false;
     }
   }
@@ -498,55 +495,55 @@ bool HandleBitsPerPixel(
  * @param[in/out] surface A reference to the surface buffer
  */
 bool ApplyMask(
-    Dali::Vector<unsigned char>& map,
-    const unsigned int fsize,
-    size_t& position,
-    Dali::Vector<unsigned char>& maskbuf,
-    const unsigned int bitStride,
-    const unsigned int width,
-    const unsigned int height,
-    unsigned int*& pix,
-    Dali::Vector<unsigned int>& surface)
+  Dali::Vector<unsigned char>& map,
+  const unsigned int           fsize,
+  size_t&                      position,
+  Dali::Vector<unsigned char>& maskbuf,
+  const unsigned int           bitStride,
+  const unsigned int           width,
+  const unsigned int           height,
+  unsigned int*&               pix,
+  Dali::Vector<unsigned int>&  surface)
 {
-  if( !read_mem( &map[0], fsize, &position, &maskbuf[0], bitStride * height ) )
+  if(!read_mem(&map[0], fsize, &position, &maskbuf[0], bitStride * height))
   {
     return false;
   }
 
   // Apply mask.
   // Precalc to save time in the loops.
-  unsigned int bytesPerWidth = width / 8;
-  unsigned int bytesRemainingPerWidth = width - ( bytesPerWidth << 3 );
+  unsigned int bytesPerWidth          = width / 8;
+  unsigned int bytesRemainingPerWidth = width - (bytesPerWidth << 3);
 
   // Loop for each line of the image.
-  for( unsigned int i = 0; i < height; ++i )
+  for(unsigned int i = 0; i < height; ++i)
   {
-    unsigned char *m = &maskbuf[0] + ( bitStride * i );
-    pix = &surface[0] + ( ( height - 1 - i ) * width );
+    unsigned char* m = &maskbuf[0] + (bitStride * i);
+    pix              = &surface[0] + ((height - 1 - i) * width);
 
     // Do chunks of 8 pixels first so mask operations can be unrolled.
-    for( unsigned int j = 0; j < bytesPerWidth; ++j )
+    for(unsigned int j = 0; j < bytesPerWidth; ++j)
     {
       // Unrolled 8 bits of the mask to avoid many conditions and branches.
-      A_VAL( pix++ ) = ( *m & ( 1 << 7 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 6 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 5 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 4 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 3 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 2 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 1 ) ) ? 0x00 : 0xff;
-      A_VAL( pix++ ) = ( *m & ( 1 << 0 ) ) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 7)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 6)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 5)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 4)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 3)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 2)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 1)) ? 0x00 : 0xff;
+      A_VAL(pix++) = (*m & (1 << 0)) ? 0x00 : 0xff;
       m++;
     }
 
     // Handle any remaining width ( < 8 ) or images that are < 8 wide.
-    if( bytesRemainingPerWidth > 0 )
+    if(bytesRemainingPerWidth > 0)
     {
-      for( unsigned int j = 0; j < bytesRemainingPerWidth; ++j )
+      for(unsigned int j = 0; j < bytesRemainingPerWidth; ++j)
       {
         // Note: Although we are doing less that a bytes worth of mask, we still always start on the first bit.
         // If the image is smaller than 8 pixels wide, each mask will still start on a new byte.
-        A_VAL( pix++ ) = ( *m & ( 1 << ( 7 - j ) ) ) ? 0x00 : 0xff;
+        A_VAL(pix++) = (*m & (1 << (7 - j))) ? 0x00 : 0xff;
       }
       m++;
     }
@@ -555,162 +552,162 @@ bool ApplyMask(
   return true;
 }
 
-}//unnamed namespace
+} //unnamed namespace
 
-bool LoadIcoHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadIcoHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
-  IcoData chosen;
+  IcoData                     chosen;
   Dali::Vector<unsigned char> map;
-  unsigned int fsize;
-  FILE* const fp = input.file;
+  unsigned int                fsize;
+  FILE* const                 fp = input.file;
 
-  if ( false == LoadIcoHeaderHelper(fp, chosen, map, fsize) )
+  if(false == LoadIcoHeaderHelper(fp, chosen, map, fsize))
   {
     return false;
   }
 
-  width = chosen.w;
+  width  = chosen.w;
   height = chosen.h;
 
   return true;
 }
 
-bool LoadBitmapFromIco( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
-  IcoData chosen;
+  IcoData                     chosen;
   Dali::Vector<unsigned char> map;
-  unsigned int fsize;
-  FILE* const fp = input.file;
+  unsigned int                fsize;
+  FILE* const                 fp = input.file;
 
-  if ( false == LoadIcoHeaderHelper(fp, chosen, map, fsize) )
+  if(false == LoadIcoHeaderHelper(fp, chosen, map, fsize))
   {
     return false;
   }
 
-  Dali::Vector<unsigned int> pal;
-  Dali::Vector<unsigned int> surface;
+  Dali::Vector<unsigned int>  pal;
+  Dali::Vector<unsigned int>  surface;
   Dali::Vector<unsigned char> maskbuf;
   Dali::Vector<unsigned char> pixbuf;
   pal.Resize(256 * 4);
 
-  unsigned int dword;
+  unsigned int   dword;
   unsigned short word;
 
-  int diff_size = 0;
+  int           diff_size = 0;
   unsigned int* pix;
 
-  size_t position = chosen.bmoffset;//22 == position
+  size_t position = chosen.bmoffset; //22 == position
 
-  unsigned int w = chosen.w;
-  unsigned int h = chosen.h;
+  unsigned int w    = chosen.w;
+  unsigned int h    = chosen.h;
   unsigned int cols = chosen.cols;
 
   // read bmp header time... let's do some checking
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // headersize - dont care
   }
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // width
   }
-  if (dword > 0)
+  if(dword > 0)
   {
-    if (dword != w)
+    if(dword != w)
     {
-      w = dword;
+      w         = dword;
       diff_size = 1;
     }
   }
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // height
   }
-  if (dword > 0)
+  if(dword > 0)
   {
-    if (dword != (h * 2))
+    if(dword != (h * 2))
     {
-      h = dword / 2;
+      h         = dword / 2;
       diff_size = 1;
     }
   }
-  if (diff_size)
+  if(diff_size)
   {
     DALI_LOG_WARNING("Broken ICO file!\n");
   }
 
   // Set up the surface as soon as we have the width and height, so we have a black image if there are any further errors.
-  surface.Resize( w * h * 4 );
-  memset( &surface[0], 0, w * h * 4 );
+  surface.Resize(w * h * 4);
+  memset(&surface[0], 0, w * h * 4);
 
-  if (!read_ushort(&map[0], fsize, &position, &word))
+  if(!read_ushort(&map[0], fsize, &position, &word))
   {
     return false; // planes
   }
   //planes2 = word;
-  if (!read_ushort(&map[0], fsize, &position, &word))
+  if(!read_ushort(&map[0], fsize, &position, &word))
   {
     return false; // bitcount
   }
   unsigned int bitcount = word;
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // compression
   }
   //compression = dword;
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // imagesize
   }
   //imagesize = dword;
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // z pixels per m
   }
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // y pizels per m
   }
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // colors used
   }
   //colorsused = dword;
-  if (!read_uint(&map[0], fsize, &position, &dword))
+  if(!read_uint(&map[0], fsize, &position, &dword))
   {
     return false; // colors important
   }
 
-  for( unsigned int i = 0; i < cols ; i ++ )
+  for(unsigned int i = 0; i < cols; i++)
   {
     unsigned char a, r, g, b;
 
-    if (!read_uchar(&map[0], fsize, &position, &b))
+    if(!read_uchar(&map[0], fsize, &position, &b))
     {
       return false;
     }
-    if (!read_uchar(&map[0], fsize, &position, &g))
+    if(!read_uchar(&map[0], fsize, &position, &g))
     {
       return false;
     }
-    if (!read_uchar(&map[0], fsize, &position, &r))
+    if(!read_uchar(&map[0], fsize, &position, &r))
     {
       return false;
     }
-    if (!read_uchar(&map[0], fsize, &position, &a))
+    if(!read_uchar(&map[0], fsize, &position, &a))
     {
       return false;
     }
-    pal[i] = ARGB_JOIN( 0xff, b, g, r );
+    pal[i] = ARGB_JOIN(0xff, b, g, r);
   }
 
   // This is the reference way of calculating the total number of bytes necessary to store one row of pixels.
-  unsigned int stride = ( ( ( bitcount * w ) + 31 ) / 32 ) * 4;
-  unsigned int bitStride = ( ( w + 31 ) / 32 ) * 4;
+  unsigned int stride    = (((bitcount * w) + 31) / 32) * 4;
+  unsigned int bitStride = ((w + 31) / 32) * 4;
 
   // Pixbuf only ever contains one scanline worth of data.
-  pixbuf.Resize( stride );
-  maskbuf.Resize( bitStride * h );
+  pixbuf.Resize(stride);
+  maskbuf.Resize(bitStride * h);
 
   // Handle different bits-per-pixel.
   if(!HandleBitsPerPixel(bitcount, map, pix, surface, w, h, fsize, position, pixbuf, stride, pal))
@@ -719,19 +716,19 @@ bool LoadBitmapFromIco( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   }
 
   // From the spec: If bpp is less than 32, there will be a 1bpp mask bitmap also.
-  if(( bitcount < 32 ) && !ApplyMask(map, fsize, position, maskbuf, bitStride, w, h, pix, surface))
+  if((bitcount < 32) && !ApplyMask(map, fsize, position, maskbuf, bitStride, w, h, pix, surface))
   {
     // Return false if not able to apply mask when the bpp is less than 32
     return false;
   }
 
-  bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
+  bitmap      = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
   auto pixels = bitmap.GetBuffer();
-  memcpy( pixels, &surface[0], w * h * 4 );
+  memcpy(pixels, &surface[0], w * h * 4);
 
   return true;
 }
 
-}
+} // namespace TizenPlatform
 
-}
+} // namespace Dali

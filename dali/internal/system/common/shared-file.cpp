@@ -19,16 +19,15 @@
 #include <dali/internal/system/common/shared-file.h>
 
 // EXTERNAL INCLUDES
-#include <sys/types.h>
-#include <unistd.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <sys/file.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <cstring>
-
 
 namespace Dali
 {
@@ -36,15 +35,14 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 SharedFile* SharedFile::New(const char* filename, int size, bool isSystem)
 {
-  SharedFile *sf = NULL;
+  SharedFile* sf = NULL;
 
   sf = new SharedFile;
 
-  bool opened = sf->OpenFile( filename, size, isSystem );
-  if( !opened )
+  bool opened = sf->OpenFile(filename, size, isSystem);
+  if(!opened)
   {
     delete sf;
     sf = NULL;
@@ -67,22 +65,22 @@ SharedFile::~SharedFile()
 
 void SharedFile::Close()
 {
-  if( mAddress != NULL )
+  if(mAddress != NULL)
   {
-    munmap( mAddress, mSize );
+    munmap(mAddress, mSize);
     mAddress = NULL;
   }
 
-  if( mFileDescriptor >= 0 )
+  if(mFileDescriptor >= 0)
   {
-    close( mFileDescriptor );
+    close(mFileDescriptor);
     mFileDescriptor = -1;
   }
 }
 
 unsigned char* SharedFile::GetAddress()
 {
-  return static_cast<unsigned char *>( mAddress );
+  return static_cast<unsigned char*>(mAddress);
 }
 
 bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
@@ -92,24 +90,24 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
   mode_t mode;
 
   mode = S_IRUSR | S_IWUSR;
-  if( isSystem )
+  if(isSystem)
   {
     mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
   }
 
-  mFileDescriptor = Open( filename, size, O_RDONLY, mode );
+  mFileDescriptor = Open(filename, size, O_RDONLY, mode);
 
-  if( mFileDescriptor >= 0 )
+  if(mFileDescriptor >= 0)
   {
     mFilename = filename;
 
-    mSize = size;
-    mAddress = mmap( NULL, mSize, PROT_READ, MAP_SHARED, mFileDescriptor, 0 );
+    mSize    = size;
+    mAddress = mmap(NULL, mSize, PROT_READ, MAP_SHARED, mFileDescriptor, 0);
 
 // MAP_FAILED is a macro with C cast
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-    if( mAddress != MAP_FAILED )
+    if(mAddress != MAP_FAILED)
     {
       opened = true;
     }
@@ -118,6 +116,6 @@ bool SharedFile::OpenFile(const char* filename, int size, bool isSystem)
   return opened;
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

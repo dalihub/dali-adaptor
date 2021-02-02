@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,27 +19,24 @@
 #include <dali/internal/system/common/thread-controller.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller.h>
+#include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode )
-: mThreadControllerInterface( NULL )
+ThreadController::ThreadController(AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode)
+: mThreadControllerInterface(NULL)
 {
-  switch( environmentOptions.GetThreadingMode() )
+  switch(environmentOptions.GetThreadingMode())
   {
     case ThreadingMode::COMBINED_UPDATE_RENDER:
     {
-      mThreadControllerInterface = new CombinedUpdateRenderController( adaptorInterfaces, environmentOptions, threadMode );
+      mThreadControllerInterface = new CombinedUpdateRenderController(adaptorInterfaces, environmentOptions, threadMode);
       break;
     }
   }
@@ -80,19 +77,19 @@ void ThreadController::RequestUpdate()
   mThreadControllerInterface->RequestUpdate();
 }
 
-void ThreadController::RequestUpdateOnce(   UpdateMode updateMode )
+void ThreadController::RequestUpdateOnce(UpdateMode updateMode)
 {
-  mThreadControllerInterface->RequestUpdateOnce( updateMode );
+  mThreadControllerInterface->RequestUpdateOnce(updateMode);
 }
 
-void ThreadController::ReplaceSurface( Dali::RenderSurfaceInterface* newSurface )
+void ThreadController::ReplaceSurface(Dali::RenderSurfaceInterface* newSurface)
 {
-  mThreadControllerInterface->ReplaceSurface( newSurface );
+  mThreadControllerInterface->ReplaceSurface(newSurface);
 }
 
-void ThreadController::DeleteSurface( Dali::RenderSurfaceInterface* surface )
+void ThreadController::DeleteSurface(Dali::RenderSurfaceInterface* surface)
 {
-  mThreadControllerInterface->DeleteSurface( surface );
+  mThreadControllerInterface->DeleteSurface(surface);
 }
 
 void ThreadController::ResizeSurface()
@@ -105,19 +102,19 @@ void ThreadController::WaitForGraphicsInitialization()
   mThreadControllerInterface->WaitForGraphicsInitialization();
 }
 
-void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender )
+void ThreadController::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender)
 {
-  mThreadControllerInterface->SetRenderRefreshRate( numberOfVSyncsPerRender );
+  mThreadControllerInterface->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
-void ThreadController::SetPreRenderCallback( CallbackBase* callback )
+void ThreadController::SetPreRenderCallback(CallbackBase* callback)
 {
-  mThreadControllerInterface->SetPreRenderCallback( callback );
+  mThreadControllerInterface->SetPreRenderCallback(callback);
 }
 
-void ThreadController::AddSurface( Dali::RenderSurfaceInterface* newSurface )
+void ThreadController::AddSurface(Dali::RenderSurfaceInterface* newSurface)
 {
-  mThreadControllerInterface->AddSurface( newSurface );
+  mThreadControllerInterface->AddSurface(newSurface);
 }
 
 } // namespace Adaptor

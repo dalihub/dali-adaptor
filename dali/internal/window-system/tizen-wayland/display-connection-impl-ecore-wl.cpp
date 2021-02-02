@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
-#include <tbm_dummy_display.h>
 #include <dali/integration-api/debug.h>
+#include <tbm_dummy_display.h>
 
 #ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
@@ -31,13 +31,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 DisplayConnection* DisplayConnectionEcoreWl::New()
 {
   DisplayConnection* pDisplayConnection(new DisplayConnectionEcoreWl());
@@ -46,15 +43,15 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 }
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
-: mDisplay( NULL ),
-  mSurfaceType( RenderSurfaceInterface::WINDOW_RENDER_SURFACE ),
-  mGraphics( nullptr )
+: mDisplay(NULL),
+  mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
+  mGraphics(nullptr)
 {
 }
 
 DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 {
-  if( mSurfaceType == RenderSurfaceInterface::NATIVE_RENDER_SURFACE )
+  if(mSurfaceType == RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     ReleaseNativeDisplay();
   }
@@ -62,7 +59,7 @@ DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 
 Any DisplayConnectionEcoreWl::GetDisplay()
 {
-  return Any( mDisplay );
+  return Any(mDisplay);
 }
 
 void DisplayConnectionEcoreWl::ConsumeEvents()
@@ -71,10 +68,10 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 
 bool DisplayConnectionEcoreWl::InitializeGraphics()
 {
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  if( !eglImpl.InitializeGles( mDisplay ) )
+  if(!eglImpl.InitializeGles(mDisplay))
   {
     DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
@@ -83,40 +80,40 @@ bool DisplayConnectionEcoreWl::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionEcoreWl::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
+void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
   mSurfaceType = type;
 
-  if( mSurfaceType == Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE )
+  if(mSurfaceType == Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     mDisplay = GetNativeDisplay();
   }
   else
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get( NULL );
-    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl2_display_get( display ) );
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+    mDisplay                   = reinterpret_cast<EGLNativeDisplayType>(ecore_wl2_display_get(display));
 #else
-    mDisplay = reinterpret_cast< EGLNativeDisplayType >( ecore_wl_display_get() );
+    mDisplay = reinterpret_cast<EGLNativeDisplayType>(ecore_wl_display_get());
 #endif
   }
 }
 
-void DisplayConnectionEcoreWl::SetGraphicsInterface( GraphicsInterface& graphics )
+void DisplayConnectionEcoreWl::SetGraphicsInterface(GraphicsInterface& graphics)
 {
   mGraphics = &graphics;
 }
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  return reinterpret_cast< EGLNativeDisplayType >( tbm_dummy_display_create() );
+  return reinterpret_cast<EGLNativeDisplayType>(tbm_dummy_display_create());
 }
 
 void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
 {
-  if( mDisplay )
+  if(mDisplay)
   {
-     tbm_dummy_display_destroy( reinterpret_cast< tbm_dummy_display* >( mDisplay ) );
+    tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
   }
 }
 

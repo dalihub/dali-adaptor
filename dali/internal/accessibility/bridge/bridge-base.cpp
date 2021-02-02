@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,15 +38,15 @@ BridgeBase::BridgeBase()
 {
 }
 
-void BridgeBase::addFilteredEvent( FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor )
+void BridgeBase::addFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
 {
-  if( delay < 0 )
+  if(delay < 0)
   {
     delay = 0;
   }
 
-  auto it = filteredEvents.insert({ { kind, obj }, { static_cast<unsigned int>(delay * 10), {} } });
-  if (it.second)
+  auto it = filteredEvents.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
+  if(it.second)
   {
     functor();
   }
@@ -55,7 +55,7 @@ void BridgeBase::addFilteredEvent( FilteredEvents kind, Dali::Accessibility::Acc
     it.first->second.second = std::move(functor);
   }
 
-  if (!tickTimer)
+  if(!tickTimer)
   {
     tickTimer = Dali::Timer::New(100);
     tickTimer.TickSignal().Connect(this, &BridgeBase::tickFilteredEvents);
@@ -64,15 +64,15 @@ void BridgeBase::addFilteredEvent( FilteredEvents kind, Dali::Accessibility::Acc
 
 bool BridgeBase::tickFilteredEvents()
 {
-  for(auto it = filteredEvents.begin(); it != filteredEvents.end(); )
+  for(auto it = filteredEvents.begin(); it != filteredEvents.end();)
   {
-    if (it->second.first)
+    if(it->second.first)
     {
       --it->second.first;
     }
     else
     {
-      if (it->second.second)
+      if(it->second.second)
       {
         it->second.second();
         it->second.second = {};
@@ -90,31 +90,31 @@ bool BridgeBase::tickFilteredEvents()
 
 BridgeBase::ForceUpResult BridgeBase::ForceUp()
 {
-  if( Bridge::ForceUp() == ForceUpResult::ALREADY_UP )
+  if(Bridge::ForceUp() == ForceUpResult::ALREADY_UP)
   {
     return ForceUpResult::ALREADY_UP;
   }
   auto proxy = DBus::DBusClient{dbusLocators::atspi::BUS, dbusLocators::atspi::OBJ_PATH, dbusLocators::atspi::BUS_INTERFACE, DBus::ConnectionType::SESSION};
-  auto addr = proxy.method< std::string() >( dbusLocators::atspi::GET_ADDRESS ).call();
+  auto addr  = proxy.method<std::string()>(dbusLocators::atspi::GET_ADDRESS).call();
 
-  if( !addr )
+  if(!addr)
   {
-    throw std::domain_error{std::string( "failed at call '" ) + dbusLocators::atspi::GET_ADDRESS + "': " + addr.getError().message};
+    throw std::domain_error{std::string("failed at call '") + dbusLocators::atspi::GET_ADDRESS + "': " + addr.getError().message};
   }
 
-  con = DBusWrapper::Installed()->eldbus_address_connection_get_impl( std::get< 0 >( addr ) );
-  data->busName = DBus::getConnectionName( con );
-  dbusServer = { con };
+  con           = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));
+  data->busName = DBus::getConnectionName(con);
+  dbusServer    = {con};
 
   {
     DBus::DBusInterfaceDescription desc{"org.a11y.atspi.Cache"};
-    AddFunctionToInterface( desc, "GetItems", &BridgeBase::GetItems );
-    dbusServer.addInterface( "/org/a11y/atspi/cache", desc );
+    AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
+    dbusServer.addInterface("/org/a11y/atspi/cache", desc);
   }
   {
     DBus::DBusInterfaceDescription desc{"org.a11y.atspi.Application"};
-    AddGetSetPropertyToInterface( desc, "Id", &BridgeBase::IdGet, &BridgeBase::IdSet );
-    dbusServer.addInterface( AtspiPath, desc );
+    AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::IdGet, &BridgeBase::IdSet);
+    dbusServer.addInterface(AtspiPath, desc);
   }
 
   return ForceUpResult::JUST_STARTED;
@@ -124,7 +124,7 @@ void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
   dbusServer = {};
-  con = {};
+  con        = {};
 }
 
 const std::string& BridgeBase::GetBusName() const
@@ -133,64 +133,64 @@ const std::string& BridgeBase::GetBusName() const
   return data ? data->busName : empty;
 }
 
-Accessible* BridgeBase::FindByPath( const std::string& name ) const
+Accessible* BridgeBase::FindByPath(const std::string& name) const
 {
   try
   {
-    return Find( name );
+    return Find(name);
   }
-  catch( std::domain_error& )
+  catch(std::domain_error&)
   {
     return nullptr;
   }
 }
 
-void BridgeBase::AddPopup( Accessible* obj )
+void BridgeBase::AddPopup(Accessible* obj)
 {
-  if( std::find( popups.begin(), popups.end(), obj ) != popups.end() )
+  if(std::find(popups.begin(), popups.end(), obj) != popups.end())
   {
     return;
   }
-  popups.push_back( obj );
-  if (IsUp())
+  popups.push_back(obj);
+  if(IsUp())
   {
-    obj->Emit( WindowEvent::ACTIVATE, 0 );
+    obj->Emit(WindowEvent::ACTIVATE, 0);
   }
 }
 
-void BridgeBase::RemovePopup( Accessible* obj )
+void BridgeBase::RemovePopup(Accessible* obj)
 {
-  auto it = std::find( popups.begin(), popups.end(), obj );
-  if( it == popups.end() )
+  auto it = std::find(popups.begin(), popups.end(), obj);
+  if(it == popups.end())
   {
     return;
   }
-  popups.erase( it );
-  if (IsUp())
+  popups.erase(it);
+  if(IsUp())
   {
-    obj->Emit( WindowEvent::DEACTIVATE, 0 );
-    if( popups.empty() )
+    obj->Emit(WindowEvent::DEACTIVATE, 0);
+    if(popups.empty())
     {
-      application.children.back()->Emit( WindowEvent::ACTIVATE, 0 );
+      application.children.back()->Emit(WindowEvent::ACTIVATE, 0);
     }
     else
     {
-      popups.back()->Emit( WindowEvent::ACTIVATE, 0 );
+      popups.back()->Emit(WindowEvent::ACTIVATE, 0);
     }
   }
 }
 
-void BridgeBase::AddTopLevelWindow( Accessible* root )
+void BridgeBase::AddTopLevelWindow(Accessible* root)
 {
-  application.children.push_back( root );
-  SetIsOnRootLevel( root );
+  application.children.push_back(root);
+  SetIsOnRootLevel(root);
 }
 
-void BridgeBase::RemoveTopLevelWindow( Accessible* root )
+void BridgeBase::RemoveTopLevelWindow(Accessible* root)
 {
   for(auto i = 0u; i < application.children.size(); ++i)
   {
-    if( application.children[i] == root )
+    if(application.children[i] == root)
     {
       application.children.erase(application.children.begin() + i);
       break;
@@ -198,58 +198,58 @@ void BridgeBase::RemoveTopLevelWindow( Accessible* root )
   }
 }
 
-std::string BridgeBase::StripPrefix( const std::string& path )
+std::string BridgeBase::StripPrefix(const std::string& path)
 {
-  auto size = strlen( AtspiPath );
-  return path.substr( size + 1 );
+  auto size = strlen(AtspiPath);
+  return path.substr(size + 1);
 }
 
-Accessible* BridgeBase::Find( const std::string& path ) const
+Accessible* BridgeBase::Find(const std::string& path) const
 {
-  if( path == "root" )
+  if(path == "root")
   {
     return &application;
   }
-  void* p;
-  std::istringstream tmp{ path };
-  if (! ( tmp >> p) )
+  void*              p;
+  std::istringstream tmp{path};
+  if(!(tmp >> p))
   {
     throw std::domain_error{"invalid path '" + path + "'"};
   }
-  auto it = data->knownObjects.find( static_cast<Accessible*>( p ) );
-  if( it == data->knownObjects.end() )
+  auto it = data->knownObjects.find(static_cast<Accessible*>(p));
+  if(it == data->knownObjects.end())
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }
-  return static_cast<Accessible*>( p );
+  return static_cast<Accessible*>(p);
 }
 
-Accessible* BridgeBase::Find( const Address& ptr ) const
+Accessible* BridgeBase::Find(const Address& ptr) const
 {
-  assert( ptr.GetBus() == data->busName );
-  return Find( ptr.GetPath() );
+  assert(ptr.GetBus() == data->busName);
+  return Find(ptr.GetPath());
 }
 
 Accessible* BridgeBase::FindSelf() const
 {
-  auto pth = DBus::DBusServer::getCurrentObjectPath();
-  auto size = strlen( AtspiPath );
-  if( pth.size() <= size )
+  auto pth  = DBus::DBusServer::getCurrentObjectPath();
+  auto size = strlen(AtspiPath);
+  if(pth.size() <= size)
   {
     throw std::domain_error{"invalid path '" + pth + "'"};
   }
-  if( pth.substr( 0, size ) != AtspiPath )
+  if(pth.substr(0, size) != AtspiPath)
   {
     throw std::domain_error{"invalid path '" + pth + "'"};
   }
-  if( pth[size] != '/' )
+  if(pth[size] != '/')
   {
     throw std::domain_error{"invalid path '" + pth + "'"};
   }
-  return Find( StripPrefix( pth ) );
+  return Find(StripPrefix(pth));
 }
 
-void BridgeBase::IdSet( int id )
+void BridgeBase::IdSet(int id)
 {
   this->id = id;
 }
@@ -259,39 +259,38 @@ int BridgeBase::IdGet()
   return this->id;
 }
 
-auto BridgeBase::GetItems() -> DBus::ValueOrError< std::vector< CacheElementType > >
+auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType> >
 {
   auto root = &application;
 
-  std::vector< CacheElementType > res;
+  std::vector<CacheElementType> res;
 
-  std::function< void(Accessible*) > proc =
-    [&]( Accessible* item )
-    {
-      res.emplace_back( std::move( CreateCacheElement( root ) ) );
-      for( auto i = 0u; i < item->GetChildCount(); ++i )
+  std::function<void(Accessible*)> proc =
+    [&](Accessible* item) {
+      res.emplace_back(std::move(CreateCacheElement(root)));
+      for(auto i = 0u; i < item->GetChildCount(); ++i)
       {
-        proc( item->GetChildAtIndex( i ) );
+        proc(item->GetChildAtIndex(i));
       }
     };
 
   return res;
 }
 
-auto BridgeBase::CreateCacheElement( Accessible* item ) -> CacheElementType
+auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
 {
-  if( !item )
+  if(!item)
   {
     return {};
   }
 
-  auto root = &application;
+  auto root   = &application;
   auto parent = item->GetParent();
 
-  std::vector< Address > children;
-  for( auto i = 0u; i < item->GetChildCount(); ++i )
+  std::vector<Address> children;
+  for(auto i = 0u; i < item->GetChildCount(); ++i)
   {
-    children.emplace_back( item->GetChildAtIndex( i )->GetAddress() );
+    children.emplace_back(item->GetChildAtIndex(i)->GetAddress());
   }
 
   return std::make_tuple(
@@ -303,7 +302,5 @@ auto BridgeBase::CreateCacheElement( Accessible* item ) -> CacheElementType
     item->GetName(),
     item->GetRole(),
     item->GetDescription(),
-    item->GetStates().GetRawData()
-  );
+    item->GetStates().GetRawData());
 }
-

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,16 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/addons/linux/addon-manager-impl-linux.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/addons/linux/addon-manager-impl-linux.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 #include <dlfcn.h>
-#include <functional>
 #include <algorithm>
+#include <functional>
 #include <iterator>
 #include <sstream>
 
@@ -33,54 +33,52 @@ namespace Dali
 {
 namespace Internal
 {
-
 AddOnManagerLinux::AddOnManagerLinux() = default;
 
 AddOnManagerLinux::~AddOnManagerLinux() = default;
 
-void AddOnManagerLinux::RegisterAddOnDispatchTable( const AddOnDispatchTable* dispatchTable )
+void AddOnManagerLinux::RegisterAddOnDispatchTable(const AddOnDispatchTable* dispatchTable)
 {
   mAddOnNames.emplace_back(dispatchTable->name);
   mAddOnCache.emplace_back();
-  mAddOnCache.back().GetGlobalProc = dispatchTable->GetGlobalProc;
+  mAddOnCache.back().GetGlobalProc   = dispatchTable->GetGlobalProc;
   mAddOnCache.back().GetInstanceProc = dispatchTable->GetInstanceProc;
-  mAddOnCache.back().GetAddOnInfo = dispatchTable->GetAddOnInfo;
+  mAddOnCache.back().GetAddOnInfo    = dispatchTable->GetAddOnInfo;
 
   auto& callbacks = mAddOnCache.back().lifecycleCallbacks;
-  auto initEvent = [&callbacks](uint32_t event, void(*fn)() ) {
-    callbacks[event].function = fn;
+  auto  initEvent = [&callbacks](uint32_t event, void (*fn)()) {
+    callbacks[event].function    = fn;
     callbacks[event].initialized = true;
   };
 
-  initEvent( LifecycleCallback::EVENT_START, dispatchTable->OnStart );
-  initEvent( LifecycleCallback::EVENT_STOP, dispatchTable->OnStop );
-  initEvent( LifecycleCallback::EVENT_PAUSE, dispatchTable->OnPause );
-  initEvent( LifecycleCallback::EVENT_RESUME, dispatchTable->OnResume );
+  initEvent(LifecycleCallback::EVENT_START, dispatchTable->OnStart);
+  initEvent(LifecycleCallback::EVENT_STOP, dispatchTable->OnStop);
+  initEvent(LifecycleCallback::EVENT_PAUSE, dispatchTable->OnPause);
+  initEvent(LifecycleCallback::EVENT_RESUME, dispatchTable->OnResume);
 }
 
 std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
 {
-  if( mAddOnNames.empty() )
+  if(mAddOnNames.empty())
   {
     // AddOn libs must be separated with ':' character
-    const char *addonsLibs = Dali::EnvironmentVariable::GetEnvironmentVariable( DALI_ENV_ADDONS_LIBS );
-    if (!addonsLibs)
+    const char* addonsLibs = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ADDONS_LIBS);
+    if(!addonsLibs)
     {
       return {};
     }
 
     // Get the path where addon libs are stored
-    const char *addonsPath = Dali::EnvironmentVariable::GetEnvironmentVariable( DALI_ENV_ADDONS_PATH );
+    const char* addonsPath = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ADDONS_PATH);
     std::string addonsPathStr(addonsPath ? addonsPath : "/usr/lib");
 
     // Split libs
-    std::string addonLibsStr(addonsLibs);
+    std::string              addonLibsStr(addonsLibs);
     std::vector<std::string> results;
     results.emplace_back();
 
-    std::find_if(addonLibsStr.begin(), addonLibsStr.end(), [&results](char &c)
-    {
-      if (c == ':')
+    std::find_if(addonLibsStr.begin(), addonLibsStr.end(), [&results](char& c) {
+      if(c == ':')
       {
         results.emplace_back();
       }
@@ -91,9 +89,9 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
       return false;
     });
 
-    const char *EXTENSION_PATH = (addonsPath) ? addonsPath : "/usr/lib";
+    const char* EXTENSION_PATH = (addonsPath) ? addonsPath : "/usr/lib";
 
-    for (auto &name : results)
+    for(auto& name : results)
     {
       std::string fullPath(EXTENSION_PATH);
       fullPath += "/";
@@ -101,16 +99,16 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
 
       // open lib, look for essential symbols. The libary is opened with RTLD_DEEPBIND flag
       // to make sure the local symbol table is going to be used during lookup first.
-      auto* handle = dlopen(fullPath.c_str(), RTLD_DEEPBIND|RTLD_LAZY);
-      if (handle)
+      auto* handle = dlopen(fullPath.c_str(), RTLD_DEEPBIND | RTLD_LAZY);
+      if(handle)
       {
-        auto& cacheEntry = mAddOnCache.back();
+        auto&     cacheEntry = mAddOnCache.back();
         AddOnInfo info{};
         cacheEntry.GetAddOnInfo(info);
-        cacheEntry.info             = info;
-        cacheEntry.addOnLib         = fullPath;
-        cacheEntry.libHandle        = handle;
-        cacheEntry.opened           = false;
+        cacheEntry.info      = info;
+        cacheEntry.addOnLib  = fullPath;
+        cacheEntry.libHandle = handle;
+        cacheEntry.opened    = false;
       }
       else
       {
@@ -121,24 +119,23 @@ std::vector<std::string> AddOnManagerLinux::EnumerateAddOns()
   return mAddOnNames;
 }
 
-bool AddOnManagerLinux::GetAddOnInfo(const std::string& name, AddOnInfo& info )
+bool AddOnManagerLinux::GetAddOnInfo(const std::string& name, AddOnInfo& info)
 {
-  if( mAddOnNames.empty() )
+  if(mAddOnNames.empty())
   {
     EnumerateAddOns();
   }
 
-  if( mAddOnNames.empty() )
+  if(mAddOnNames.empty())
   {
     return false;
   }
 
-  auto iter = std::find_if( mAddOnCache.begin(), mAddOnCache.end(), [name]( AddOnCacheEntry& item )
-  {
+  auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [name](AddOnCacheEntry& item) {
     return (item.info.name == name);
   });
 
-  if (iter == mAddOnCache.end())
+  if(iter == mAddOnCache.end())
   {
     return false;
   }
@@ -147,13 +144,13 @@ bool AddOnManagerLinux::GetAddOnInfo(const std::string& name, AddOnInfo& info )
   return true;
 }
 
-std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns( const std::vector<std::string>& addonNames )
+std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns(const std::vector<std::string>& addonNames)
 {
   std::vector<AddOnLibrary> retval{};
-  retval.resize( addonNames.size() );
-  std::fill( retval.begin(), retval.end(), nullptr );
+  retval.resize(addonNames.size());
+  std::fill(retval.begin(), retval.end(), nullptr);
 
-  if( mAddOnCache.empty() )
+  if(mAddOnCache.empty())
   {
     EnumerateAddOns();
     if(mAddOnCache.empty())
@@ -164,12 +161,11 @@ std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns( const std::vector
   }
 
   auto nameIndex = 0u;
-  for( const auto& name : addonNames )
+  for(const auto& name : addonNames)
   {
     auto index = 0u;
     nameIndex++;
-    auto iter = std::find_if( mAddOnCache.begin(), mAddOnCache.end(), [&index, name]( AddOnCacheEntry& item )
-    {
+    auto iter = std::find_if(mAddOnCache.begin(), mAddOnCache.end(), [&index, name](AddOnCacheEntry& item) {
       ++index;
       return (item.info.name == name);
     });
@@ -182,36 +178,36 @@ std::vector<Dali::AddOnLibrary> AddOnManagerLinux::LoadAddOns( const std::vector
     if(!iter->opened && iter->libHandle)
     {
       // Open library, pull symbols and keep the handle
-      auto& entry = *iter;
+      auto& entry  = *iter;
       entry.opened = true;
     }
 
     // Store cache index of extension for indirect calling
     // Stored number in this implementation is always +1 (0 is nullptr, unsuccessful)
-    retval[nameIndex-1] = reinterpret_cast<void*>( index );
+    retval[nameIndex - 1] = reinterpret_cast<void*>(index);
   }
 
   return retval;
 }
 
-void* AddOnManagerLinux::GetGlobalProc( const Dali::AddOnLibrary& addonHandle, const char* procName )
+void* AddOnManagerLinux::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
 {
-  if( !addonHandle )
+  if(!addonHandle)
   {
     return nullptr;
   }
 
-  auto index = (intptr_t(addonHandle));
-  const auto& entry = mAddOnCache[ index-1 ];
+  auto        index = (intptr_t(addonHandle));
+  const auto& entry = mAddOnCache[index - 1];
 
-  if(entry.opened && entry.libHandle )
+  if(entry.opened && entry.libHandle)
   {
     // First call into dispatch table
-    auto retval = entry.GetGlobalProc( procName );
-    if( !retval )
+    auto retval = entry.GetGlobalProc(procName);
+    if(!retval)
     {
       // fallback
-      retval = dlsym( entry.libHandle, procName );
+      retval = dlsym(entry.libHandle, procName);
     }
     return retval;
   }
@@ -222,23 +218,23 @@ void* AddOnManagerLinux::GetGlobalProc( const Dali::AddOnLibrary& addonHandle, c
   return nullptr;
 }
 
-void* AddOnManagerLinux::GetInstanceProc( const Dali::AddOnLibrary& addonHandle, const char* procName )
+void* AddOnManagerLinux::GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
 {
-  if( !addonHandle )
+  if(!addonHandle)
   {
     return nullptr;
   }
 
-  auto index = (intptr_t(addonHandle));
-  const auto& entry = mAddOnCache[ index-1 ];
-  if(entry.opened && entry.libHandle )
+  auto        index = (intptr_t(addonHandle));
+  const auto& entry = mAddOnCache[index - 1];
+  if(entry.opened && entry.libHandle)
   {
     // First call into dispatch table
-    auto retval = entry.GetInstanceProc( procName );
-    if( !retval )
+    auto retval = entry.GetInstanceProc(procName);
+    if(!retval)
     {
       // fallback
-      retval = dlsym( entry.libHandle, procName );
+      retval = dlsym(entry.libHandle, procName);
     }
     return retval;
   }
@@ -247,27 +243,27 @@ void* AddOnManagerLinux::GetInstanceProc( const Dali::AddOnLibrary& addonHandle,
 
 void AddOnManagerLinux::Pause()
 {
-  InvokeLifecycleFunction( LifecycleCallback::EVENT_PAUSE );
+  InvokeLifecycleFunction(LifecycleCallback::EVENT_PAUSE);
 }
 
 void AddOnManagerLinux::Resume()
 {
-  InvokeLifecycleFunction( LifecycleCallback::EVENT_RESUME );
+  InvokeLifecycleFunction(LifecycleCallback::EVENT_RESUME);
 }
 
 void AddOnManagerLinux::Start()
 {
-  InvokeLifecycleFunction( LifecycleCallback::EVENT_START );
+  InvokeLifecycleFunction(LifecycleCallback::EVENT_START);
 }
 
 void AddOnManagerLinux::Stop()
 {
-  InvokeLifecycleFunction( LifecycleCallback::EVENT_STOP );
+  InvokeLifecycleFunction(LifecycleCallback::EVENT_STOP);
 }
 
-void AddOnManagerLinux::InvokeLifecycleFunction( uint32_t lifecycleEvent )
+void AddOnManagerLinux::InvokeLifecycleFunction(uint32_t lifecycleEvent)
 {
-  for( auto& entry : mAddOnCache )
+  for(auto& entry : mAddOnCache)
   {
     auto& callback = entry.lifecycleCallbacks[lifecycleEvent];
 

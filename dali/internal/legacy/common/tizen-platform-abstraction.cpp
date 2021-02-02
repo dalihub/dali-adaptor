@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,43 +19,41 @@
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 
 // EXTERNAL INCLUDES
-#include <dirent.h>
-#include <fstream>
-#include <algorithm>
-#include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/resource-types.h>
 #include <dali/public-api/signals/callback.h>
+#include <dirent.h>
+#include <algorithm>
+#include <fstream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-loader.h>
-#include <dali/internal/system/common/file-reader.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
-#include <dali/devel-api/adaptor-framework/file-loader.h>
+#include <dali/internal/system/common/file-reader.h>
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 struct TizenPlatformAbstraction::TimerCallback : ConnectionTracker
 {
-  Dali::Timer mTimer;
-  TizenPlatformAbstraction* mOwner;
-  std::unique_ptr< CallbackBase > mCallback;
-  const uint32_t mIdNumber;
+  Dali::Timer                   mTimer;
+  TizenPlatformAbstraction*     mOwner;
+  std::unique_ptr<CallbackBase> mCallback;
+  const uint32_t                mIdNumber;
 
   static uint32_t sNextTimerId;
 
   TimerCallback(TizenPlatformAbstraction* owner, CallbackBase* callback, uint32_t ms)
   : mTimer(Dali::Timer::New(ms)),
     mOwner(owner),
-    mCallback( std::unique_ptr< CallbackBase >( callback ) ),
+    mCallback(std::unique_ptr<CallbackBase>(callback)),
     mIdNumber(++sNextTimerId)
   {
-    mTimer.TickSignal().Connect( this, &TimerCallback::Tick );
+    mTimer.TickSignal().Connect(this, &TimerCallback::Tick);
     mTimer.Start();
   }
   ~TimerCallback()
@@ -72,7 +70,7 @@ struct TizenPlatformAbstraction::TimerCallback : ConnectionTracker
 uint32_t TizenPlatformAbstraction::TimerCallback::sNextTimerId = 0;
 
 TizenPlatformAbstraction::TizenPlatformAbstraction()
-: mDataStoragePath( "" ),
+: mDataStoragePath(""),
   mTimerPairsWaiting(),
   mTimerPairsSpent()
 
@@ -83,43 +81,43 @@ TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
 }
 
-ImageDimensions TizenPlatformAbstraction::GetClosestImageSize( const std::string& filename,
-                                                               ImageDimensions size,
-                                                               FittingMode::Type fittingMode,
-                                                               SamplingMode::Type samplingMode,
-                                                               bool orientationCorrection )
+ImageDimensions TizenPlatformAbstraction::GetClosestImageSize(const std::string& filename,
+                                                              ImageDimensions    size,
+                                                              FittingMode::Type  fittingMode,
+                                                              SamplingMode::Type samplingMode,
+                                                              bool               orientationCorrection)
 {
-  return ImageLoader::GetClosestImageSize( filename, size, fittingMode, samplingMode, orientationCorrection );
+  return ImageLoader::GetClosestImageSize(filename, size, fittingMode, samplingMode, orientationCorrection);
 }
 
-ImageDimensions TizenPlatformAbstraction::GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                                               ImageDimensions size,
-                                                               FittingMode::Type fittingMode,
-                                                               SamplingMode::Type samplingMode,
-                                                               bool orientationCorrection )
+ImageDimensions TizenPlatformAbstraction::GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
+                                                              ImageDimensions              size,
+                                                              FittingMode::Type            fittingMode,
+                                                              SamplingMode::Type           samplingMode,
+                                                              bool                         orientationCorrection)
 {
-  return ImageLoader::GetClosestImageSize( resourceBuffer, size, fittingMode, samplingMode, orientationCorrection );
+  return ImageLoader::GetClosestImageSize(resourceBuffer, size, fittingMode, samplingMode, orientationCorrection);
 }
 
 Integration::ResourcePointer TizenPlatformAbstraction::LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& resourcePath)
 {
-  return ImageLoader::LoadImageSynchronously( resource, resourcePath );
+  return ImageLoader::LoadImageSynchronously(resource, resourcePath);
 }
 
-Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size )
+Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer(const Integration::BitmapResourceType& resource, uint8_t* buffer, size_t size)
 {
-  Integration::BitmapPtr resultBitmap;
+  Integration::BitmapPtr   resultBitmap;
   Dali::Devel::PixelBuffer bitmap;
 
-  Dali::Internal::Platform::FileReader fileReader( buffer, size );
-  FILE * const fp = fileReader.GetFile();
-  if( fp )
+  Dali::Internal::Platform::FileReader fileReader(buffer, size);
+  FILE* const                          fp = fileReader.GetFile();
+  if(fp)
   {
-    bool result = ImageLoader::ConvertStreamToBitmap( resource, "", fp, bitmap );
-    if ( !result || !bitmap )
+    bool result = ImageLoader::ConvertStreamToBitmap(resource, "", fp, bitmap);
+    if(!result || !bitmap)
     {
       bitmap.Reset();
-      DALI_LOG_WARNING( "Unable to decode bitmap supplied as in-memory blob.\n" );
+      DALI_LOG_WARNING("Unable to decode bitmap supplied as in-memory blob.\n");
     }
     else
     {
@@ -129,16 +127,15 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
       auto retval = Integration::Bitmap::New(profile, Dali::ResourcePolicy::OWNED_DISCARD);
 
       retval->GetPackedPixelsProfile()->ReserveBuffer(
-              bitmap.GetPixelFormat(),
-              bitmap.GetWidth(),
-              bitmap.GetHeight(),
-              bitmap.GetWidth(),
-              bitmap.GetHeight()
-            );
+        bitmap.GetPixelFormat(),
+        bitmap.GetWidth(),
+        bitmap.GetHeight(),
+        bitmap.GetWidth(),
+        bitmap.GetHeight());
 
       auto& impl = Dali::GetImplementation(bitmap);
 
-      std::copy( impl.GetBuffer(), impl.GetBuffer()+impl.GetBufferSize(), retval->GetBuffer());
+      std::copy(impl.GetBuffer(), impl.GetBuffer() + impl.GetBufferSize(), retval->GetBuffer());
       resultBitmap.Reset(retval);
     }
   }
@@ -146,7 +143,7 @@ Integration::BitmapPtr TizenPlatformAbstraction::DecodeBuffer( const Integration
   return resultBitmap;
 }
 
-bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
+bool TizenPlatformAbstraction::LoadShaderBinaryFile(const std::string& filename, Dali::Vector<unsigned char>& buffer) const
 {
   bool result = false;
 
@@ -156,22 +153,22 @@ bool TizenPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename
   // First check the system location where shaders are stored at install time:
   path = DALI_SHADERBIN_DIR;
   path += filename;
-  result = Dali::FileLoader::ReadFile( path, buffer );
+  result = Dali::FileLoader::ReadFile(path, buffer);
 
   // Fallback to the cache of shaders stored after previous runtime compilations:
   // On desktop this looks in the current working directory that the app was launched from.
-  if( result == false )
+  if(result == false)
   {
     path = mDataStoragePath;
     path += filename;
-    result = Dali::FileLoader::ReadFile( path, buffer );
+    result = Dali::FileLoader::ReadFile(path, buffer);
   }
 #endif
 
   return result;
 }
 
-bool TizenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const
+bool TizenPlatformAbstraction::SaveShaderBinaryFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes) const
 {
   bool result = false;
 
@@ -181,35 +178,33 @@ bool TizenPlatformAbstraction::SaveShaderBinaryFile( const std::string& filename
   // On desktop this looks in the current working directory that the app was launched from.
   std::string path = mDataStoragePath;
   path += filename;
-  result = SaveFile( path, buffer, numBytes );
+  result = SaveFile(path, buffer, numBytes);
 
 #endif
 
   return result;
 }
 
-void TizenPlatformAbstraction::SetDataStoragePath( const std::string& path )
+void TizenPlatformAbstraction::SetDataStoragePath(const std::string& path)
 {
   mDataStoragePath = path;
 }
 
-uint32_t TizenPlatformAbstraction::StartTimer( uint32_t milliseconds, CallbackBase* callback )
+uint32_t TizenPlatformAbstraction::StartTimer(uint32_t milliseconds, CallbackBase* callback)
 {
   TimerCallback* timerCallbackPtr = new TimerCallback(this, callback, milliseconds);
 
   // Stick it in the list
-  mTimerPairsWaiting.push_back( std::unique_ptr< TimerCallback >( timerCallbackPtr ) );
+  mTimerPairsWaiting.push_back(std::unique_ptr<TimerCallback>(timerCallbackPtr));
 
   return timerCallbackPtr->mIdNumber;
 }
 
-void TizenPlatformAbstraction::CancelTimer ( uint32_t timerId )
+void TizenPlatformAbstraction::CancelTimer(uint32_t timerId)
 {
   auto iter = std::remove_if(
-    mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(),
-    [&timerId]( std::unique_ptr< TimerCallback >& timerCallbackPtr )
-    {
-      if( timerCallbackPtr->mIdNumber == timerId )
+    mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&timerId](std::unique_ptr<TimerCallback>& timerCallbackPtr) {
+      if(timerCallbackPtr->mIdNumber == timerId)
       {
         timerCallbackPtr->mTimer.Stop();
         return true;
@@ -218,54 +213,49 @@ void TizenPlatformAbstraction::CancelTimer ( uint32_t timerId )
       {
         return false;
       }
-    }
-  );
+    });
 
-  mTimerPairsWaiting.erase( iter, mTimerPairsWaiting.end() );
+  mTimerPairsWaiting.erase(iter, mTimerPairsWaiting.end());
 }
 
 void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 {
-  CallbackBase::Execute( *timerPtr.mCallback );
+  CallbackBase::Execute(*timerPtr.mCallback);
 
-  std::vector< std::unique_ptr< TimerCallback > >::iterator timerIter = std::find_if( mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(),
-                                                                                      [&]( std::unique_ptr< TimerCallback >& p )
-                                                                                      { return p.get() == &timerPtr;} );
+  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&](std::unique_ptr<TimerCallback>& p) { return p.get() == &timerPtr; });
 
-  if( timerIter == std::end(mTimerPairsWaiting) )
+  if(timerIter == std::end(mTimerPairsWaiting))
   {
     DALI_ASSERT_DEBUG(false);
   }
 
   // ...and move it
-  std::move(timerIter, timerIter+1, std::back_inserter(mTimerPairsSpent));
+  std::move(timerIter, timerIter + 1, std::back_inserter(mTimerPairsSpent));
 
-  mTimerPairsWaiting.erase(timerIter, timerIter+1);
+  mTimerPairsWaiting.erase(timerIter, timerIter + 1);
 
-  Dali::Adaptor::Get().AddIdle( MakeCallback( this, &TizenPlatformAbstraction::CleanupTimers ), false );
+  Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false);
 }
-
 
 void TizenPlatformAbstraction::CleanupTimers()
 {
   mTimerPairsSpent.clear();
 }
 
-
 TizenPlatformAbstraction* CreatePlatformAbstraction()
 {
   return new TizenPlatformAbstraction();
 }
 
-bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes )
+bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes)
 {
-  DALI_ASSERT_DEBUG( 0 != filename.length());
+  DALI_ASSERT_DEBUG(0 != filename.length());
 
   bool result = false;
 
   std::filebuf buf;
   buf.open(filename.c_str(), std::ios::out | std::ios_base::trunc | std::ios::binary);
-  if( buf.is_open() )
+  if(buf.is_open())
   {
     std::ostream stream(&buf);
 
@@ -275,7 +265,7 @@ bool SaveFile( const std::string& filename, const unsigned char * buffer, unsign
     // write contents of buffer to the file
     stream.write(reinterpret_cast<const char*>(buffer), length);
 
-    if( !stream.bad() )
+    if(!stream.bad())
     {
       result = true;
     }
@@ -284,6 +274,6 @@ bool SaveFile( const std::string& filename, const unsigned char * buffer, unsign
   return result;
 }
 
-}  // namespace TizenPlatform
+} // namespace TizenPlatform
 
-}  // namespace Dali
+} // namespace Dali

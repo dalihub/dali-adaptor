@@ -19,78 +19,75 @@
 #include <dali/internal/text/text-abstraction/bidirectional-support-impl.h>
 
 // EXTERNAL INCLUDES
-#include <memory.h>
-#include <fribidi/fribidi.h>
-#include <dali/integration-api/debug.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/integration-api/debug.h>
+#include <fribidi/fribidi.h>
+#include <memory.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 namespace
 {
-  typedef unsigned char BidiDirection;
+typedef unsigned char BidiDirection;
 
-  // Internal charcter's direction.
-  const BidiDirection LEFT_TO_RIGHT = 0u;
-  const BidiDirection NEUTRAL = 1u;
-  const BidiDirection RIGHT_TO_LEFT = 2u;
+// Internal charcter's direction.
+const BidiDirection LEFT_TO_RIGHT = 0u;
+const BidiDirection NEUTRAL       = 1u;
+const BidiDirection RIGHT_TO_LEFT = 2u;
 
-  /**
+/**
    * @param[in] paragraphDirection The FriBiDi paragraph's direction.
    *
    * @return Whether the paragraph is right to left.
    */
-  bool GetBidiParagraphDirection( FriBidiParType paragraphDirection )
+bool GetBidiParagraphDirection(FriBidiParType paragraphDirection)
+{
+  switch(paragraphDirection)
   {
-    switch( paragraphDirection )
+    case FRIBIDI_PAR_RTL:  // Right-To-Left paragraph.
+    case FRIBIDI_PAR_WRTL: // Weak Right To Left paragraph.
     {
-      case FRIBIDI_PAR_RTL:  // Right-To-Left paragraph.
-      case FRIBIDI_PAR_WRTL: // Weak Right To Left paragraph.
-      {
-        return true;
-      }
-      case FRIBIDI_PAR_LTR:  // Left-To-Right paragraph.
-      case FRIBIDI_PAR_ON:   // DirectiOn-Neutral paragraph.
-      case FRIBIDI_PAR_WLTR: // Weak Left To Right paragraph.
-      {
-        return false;
-      }
+      return true;
     }
-
-    return false;
+    case FRIBIDI_PAR_LTR:  // Left-To-Right paragraph.
+    case FRIBIDI_PAR_ON:   // DirectiOn-Neutral paragraph.
+    case FRIBIDI_PAR_WLTR: // Weak Left To Right paragraph.
+    {
+      return false;
+    }
   }
 
-  BidiDirection GetBidiCharacterDirection( FriBidiCharType characterDirection )
+  return false;
+}
+
+BidiDirection GetBidiCharacterDirection(FriBidiCharType characterDirection)
+{
+  switch(characterDirection)
   {
-    switch( characterDirection )
+    case FRIBIDI_TYPE_LTR: // Left-To-Right letter.
     {
-      case FRIBIDI_TYPE_LTR: // Left-To-Right letter.
-      {
-        return LEFT_TO_RIGHT;
-      }
-      case FRIBIDI_TYPE_AL:  // Arabic Letter.
-      case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
-      {
-        return RIGHT_TO_LEFT;
-      }
-      case FRIBIDI_TYPE_AN:  // Arabic Numeral.
-      case FRIBIDI_TYPE_ES:  // European number Separator.
-      case FRIBIDI_TYPE_ET:  // European number Terminator.
-      case FRIBIDI_TYPE_EN:  // European Numeral.
-      default :
-      {
-        return NEUTRAL;
-      }
+      return LEFT_TO_RIGHT;
+    }
+    case FRIBIDI_TYPE_AL:  // Arabic Letter.
+    case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
+    {
+      return RIGHT_TO_LEFT;
+    }
+    case FRIBIDI_TYPE_AN: // Arabic Numeral.
+    case FRIBIDI_TYPE_ES: // European number Separator.
+    case FRIBIDI_TYPE_ET: // European number Terminator.
+    case FRIBIDI_TYPE_EN: // European Numeral.
+    default:
+    {
+      return NEUTRAL;
     }
   }
 }
+} // namespace
 
 struct BidirectionalSupport::Plugin
 {
@@ -99,176 +96,175 @@ struct BidirectionalSupport::Plugin
    */
   struct BidirectionalInfo
   {
-    FriBidiCharType* characterTypes;      ///< The type of each character (right, left, neutral, ...)
-    FriBidiLevel*    embeddedLevels;      ///< Embedded levels.
-    FriBidiParType   paragraphDirection;  ///< The paragraph's direction.
+    FriBidiCharType* characterTypes;     ///< The type of each character (right, left, neutral, ...)
+    FriBidiLevel*    embeddedLevels;     ///< Embedded levels.
+    FriBidiParType   paragraphDirection; ///< The paragraph's direction.
   };
 
   Plugin()
   : mParagraphBidirectionalInfo(),
     mFreeIndices()
-  {}
+  {
+  }
 
   ~Plugin()
   {
     // free all resources.
-    for( Vector<BidirectionalInfo*>::Iterator it = mParagraphBidirectionalInfo.Begin(),
-           endIt = mParagraphBidirectionalInfo.End();
-         it != endIt;
-         ++it )
+    for(Vector<BidirectionalInfo*>::Iterator it    = mParagraphBidirectionalInfo.Begin(),
+                                             endIt = mParagraphBidirectionalInfo.End();
+        it != endIt;
+        ++it)
     {
       BidirectionalInfo* info = *it;
 
-      free( info->embeddedLevels );
-      free( info->characterTypes );
+      free(info->embeddedLevels);
+      free(info->characterTypes);
       delete info;
     }
   }
 
-  BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters,
-                            bool matchSystemLanguageDirection,
-                            LayoutDirection::Type layoutDirection )
+  BidiInfoIndex CreateInfo(const Character* const paragraph,
+                           Length                 numberOfCharacters,
+                           bool                   matchSystemLanguageDirection,
+                           LayoutDirection::Type  layoutDirection)
   {
     // Reserve memory for the paragraph's bidirectional info.
     BidirectionalInfo* bidirectionalInfo = new BidirectionalInfo();
 
-    bidirectionalInfo->characterTypes = reinterpret_cast<FriBidiCharType*>( malloc( numberOfCharacters * sizeof( FriBidiCharType ) ) );
-    if( !bidirectionalInfo->characterTypes )
+    bidirectionalInfo->characterTypes = reinterpret_cast<FriBidiCharType*>(malloc(numberOfCharacters * sizeof(FriBidiCharType)));
+    if(!bidirectionalInfo->characterTypes)
     {
       delete bidirectionalInfo;
       return 0;
     }
 
-    bidirectionalInfo->embeddedLevels = reinterpret_cast<FriBidiLevel*>( malloc( numberOfCharacters * sizeof( FriBidiLevel ) ) );
-    if( !bidirectionalInfo->embeddedLevels )
+    bidirectionalInfo->embeddedLevels = reinterpret_cast<FriBidiLevel*>(malloc(numberOfCharacters * sizeof(FriBidiLevel)));
+    if(!bidirectionalInfo->embeddedLevels)
     {
-      free( bidirectionalInfo->characterTypes );
+      free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
       return 0;
     }
 
     // Retrieve the type of each character..
-    fribidi_get_bidi_types( paragraph, numberOfCharacters, bidirectionalInfo->characterTypes );
+    fribidi_get_bidi_types(paragraph, numberOfCharacters, bidirectionalInfo->characterTypes);
 
     // Retrieve the paragraph's direction.
-    bidirectionalInfo->paragraphDirection = matchSystemLanguageDirection == true ?
-                                           ( layoutDirection == LayoutDirection::RIGHT_TO_LEFT ? FRIBIDI_PAR_RTL : FRIBIDI_PAR_LTR ) :
-                                           ( fribidi_get_par_direction( bidirectionalInfo->characterTypes, numberOfCharacters ) );
+    bidirectionalInfo->paragraphDirection = matchSystemLanguageDirection == true ? (layoutDirection == LayoutDirection::RIGHT_TO_LEFT ? FRIBIDI_PAR_RTL : FRIBIDI_PAR_LTR) : (fribidi_get_par_direction(bidirectionalInfo->characterTypes, numberOfCharacters));
 
     // Retrieve the embedding levels.
-    if (fribidi_get_par_embedding_levels( bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels ) == 0)
+    if(fribidi_get_par_embedding_levels(bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels) == 0)
     {
-      free( bidirectionalInfo->characterTypes );
+      free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
       return 0;
     }
 
     // Store the bidirectional info and return the index.
     BidiInfoIndex index = 0u;
-    if( 0u != mFreeIndices.Count() )
+    if(0u != mFreeIndices.Count())
     {
       Vector<BidiInfoIndex>::Iterator it = mFreeIndices.End() - 1u;
 
       index = *it;
 
-      mFreeIndices.Remove( it );
+      mFreeIndices.Remove(it);
 
-      *( mParagraphBidirectionalInfo.Begin() + index ) = bidirectionalInfo;
+      *(mParagraphBidirectionalInfo.Begin() + index) = bidirectionalInfo;
     }
     else
     {
-      index = static_cast<BidiInfoIndex>( mParagraphBidirectionalInfo.Count() );
+      index = static_cast<BidiInfoIndex>(mParagraphBidirectionalInfo.Count());
 
-      mParagraphBidirectionalInfo.PushBack( bidirectionalInfo );
+      mParagraphBidirectionalInfo.PushBack(bidirectionalInfo);
     }
 
     return index;
   }
 
-  void DestroyInfo( BidiInfoIndex bidiInfoIndex )
+  void DestroyInfo(BidiInfoIndex bidiInfoIndex)
   {
-    if( bidiInfoIndex >= mParagraphBidirectionalInfo.Count() )
+    if(bidiInfoIndex >= mParagraphBidirectionalInfo.Count())
     {
       return;
     }
 
     // Retrieve the paragraph's bidirectional info.
-    Vector<BidirectionalInfo*>::Iterator it = mParagraphBidirectionalInfo.Begin() + bidiInfoIndex;
-    BidirectionalInfo* bidirectionalInfo = *it;
+    Vector<BidirectionalInfo*>::Iterator it                = mParagraphBidirectionalInfo.Begin() + bidiInfoIndex;
+    BidirectionalInfo*                   bidirectionalInfo = *it;
 
-    if( NULL != bidirectionalInfo )
+    if(NULL != bidirectionalInfo)
     {
       // Free resources and destroy the container.
-      free( bidirectionalInfo->embeddedLevels );
-      free( bidirectionalInfo->characterTypes );
+      free(bidirectionalInfo->embeddedLevels);
+      free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
 
       *it = NULL;
     }
 
     // Add the index to the free indices vector.
-    mFreeIndices.PushBack( bidiInfoIndex );
+    mFreeIndices.PushBack(bidiInfoIndex);
   }
 
-  void Reorder( BidiInfoIndex bidiInfoIndex,
-                CharacterIndex firstCharacterIndex,
-                Length numberOfCharacters,
-                CharacterIndex* visualToLogicalMap )
+  void Reorder(BidiInfoIndex   bidiInfoIndex,
+               CharacterIndex  firstCharacterIndex,
+               Length          numberOfCharacters,
+               CharacterIndex* visualToLogicalMap)
   {
     const FriBidiFlags flags = FRIBIDI_FLAGS_DEFAULT | FRIBIDI_FLAGS_ARABIC;
 
     // Retrieve the paragraph's bidirectional info.
-    const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
+    const BidirectionalInfo* const bidirectionalInfo = *(mParagraphBidirectionalInfo.Begin() + bidiInfoIndex);
 
     // Initialize the visual to logical mapping table to the identity. Otherwise fribidi_reorder_line fails to retrieve a valid mapping table.
-    for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
+    for(CharacterIndex index = 0u; index < numberOfCharacters; ++index)
     {
-      visualToLogicalMap[ index ] = index;
+      visualToLogicalMap[index] = index;
     }
 
     // Copy embedded levels as fribidi_reorder_line() may change them.
-    const uint32_t embeddedLevelsSize = numberOfCharacters * sizeof( FriBidiLevel );
-    FriBidiLevel* embeddedLevels = reinterpret_cast<FriBidiLevel*>( malloc( embeddedLevelsSize ) );
-    if( embeddedLevels )
+    const uint32_t embeddedLevelsSize = numberOfCharacters * sizeof(FriBidiLevel);
+    FriBidiLevel*  embeddedLevels     = reinterpret_cast<FriBidiLevel*>(malloc(embeddedLevelsSize));
+    if(embeddedLevels)
     {
-      memcpy( embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex,  embeddedLevelsSize );
+      memcpy(embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex, embeddedLevelsSize);
 
       // Reorder the line.
-      if (fribidi_reorder_line( flags,
-                                bidirectionalInfo->characterTypes + firstCharacterIndex,
-                                numberOfCharacters,
-                                0u,
-                                bidirectionalInfo->paragraphDirection,
-                                embeddedLevels,
-                                NULL,
-                                reinterpret_cast<FriBidiStrIndex*>( visualToLogicalMap ) ) == 0)
+      if(fribidi_reorder_line(flags,
+                              bidirectionalInfo->characterTypes + firstCharacterIndex,
+                              numberOfCharacters,
+                              0u,
+                              bidirectionalInfo->paragraphDirection,
+                              embeddedLevels,
+                              NULL,
+                              reinterpret_cast<FriBidiStrIndex*>(visualToLogicalMap)) == 0)
       {
         DALI_LOG_ERROR("fribidi_reorder_line is failed\n");
       }
 
       // Free resources.
-      free( embeddedLevels );
+      free(embeddedLevels);
     }
   }
 
-  bool GetMirroredText( Character* text,
-                        CharacterDirection* directions,
-                        Length numberOfCharacters ) const
+  bool GetMirroredText(Character*          text,
+                       CharacterDirection* directions,
+                       Length              numberOfCharacters) const
   {
     bool updated = false;
 
-    for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
+    for(CharacterIndex index = 0u; index < numberOfCharacters; ++index)
     {
       // Get a reference to the character inside the text.
-      Character& character = *( text + index );
+      Character& character = *(text + index);
 
       // Retrieve the mirrored character.
       FriBidiChar mirroredCharacter = character;
-      bool mirrored = false;
-      if( *( directions + index ) )
+      bool        mirrored          = false;
+      if(*(directions + index))
       {
-        mirrored = fribidi_get_mirror_char( character, &mirroredCharacter );
+        mirrored = fribidi_get_mirror_char(character, &mirroredCharacter);
       }
       updated = updated || mirrored;
 
@@ -279,39 +275,39 @@ struct BidirectionalSupport::Plugin
     return updated;
   }
 
-  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+  bool GetParagraphDirection(BidiInfoIndex bidiInfoIndex) const
   {
     // Retrieve the paragraph's bidirectional info.
-    const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
+    const BidirectionalInfo* const bidirectionalInfo = *(mParagraphBidirectionalInfo.Begin() + bidiInfoIndex);
 
-    return GetBidiParagraphDirection( bidirectionalInfo->paragraphDirection );
+    return GetBidiParagraphDirection(bidirectionalInfo->paragraphDirection);
   }
 
-  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
-                               CharacterDirection* directions,
-                               Length numberOfCharacters )
+  void GetCharactersDirection(BidiInfoIndex       bidiInfoIndex,
+                              CharacterDirection* directions,
+                              Length              numberOfCharacters)
   {
-    const BidirectionalInfo* const bidirectionalInfo = *( mParagraphBidirectionalInfo.Begin() + bidiInfoIndex );
+    const BidirectionalInfo* const bidirectionalInfo = *(mParagraphBidirectionalInfo.Begin() + bidiInfoIndex);
 
-    const CharacterDirection paragraphDirection = GetBidiParagraphDirection( bidirectionalInfo->paragraphDirection );
-    CharacterDirection previousDirection = paragraphDirection;
+    const CharacterDirection paragraphDirection = GetBidiParagraphDirection(bidirectionalInfo->paragraphDirection);
+    CharacterDirection       previousDirection  = paragraphDirection;
 
-    for( CharacterIndex index = 0u; index < numberOfCharacters; ++index )
+    for(CharacterIndex index = 0u; index < numberOfCharacters; ++index)
     {
-      CharacterDirection& characterDirection = *( directions + index );
-      CharacterDirection nextDirection = false;
+      CharacterDirection& characterDirection = *(directions + index);
+      CharacterDirection  nextDirection      = false;
 
       characterDirection = false;
 
       // Get the bidi direction.
-      const BidiDirection bidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + index ) );
+      const BidiDirection bidiDirection = GetBidiCharacterDirection(*(bidirectionalInfo->characterTypes + index));
 
-      if( RIGHT_TO_LEFT == bidiDirection )
+      if(RIGHT_TO_LEFT == bidiDirection)
       {
         characterDirection = true;
-        nextDirection = true;
+        nextDirection      = true;
       }
-      else if( NEUTRAL == bidiDirection )
+      else if(NEUTRAL == bidiDirection)
       {
         // For neutral characters it check's the next and previous directions.
         // If they are equals set that direction. If they are not, sets the paragraph's direction.
@@ -320,10 +316,10 @@ struct BidirectionalSupport::Plugin
 
         // Look for the next non-neutral character.
         Length nextIndex = index + 1u;
-        for( ; nextIndex < numberOfCharacters; ++nextIndex )
+        for(; nextIndex < numberOfCharacters; ++nextIndex)
         {
-          BidiDirection nextBidiDirection = GetBidiCharacterDirection( *( bidirectionalInfo->characterTypes + nextIndex ) );
-          if( nextBidiDirection != NEUTRAL )
+          BidiDirection nextBidiDirection = GetBidiCharacterDirection(*(bidirectionalInfo->characterTypes + nextIndex));
+          if(nextBidiDirection != NEUTRAL)
           {
             nextDirection = RIGHT_TO_LEFT == nextBidiDirection;
             break;
@@ -337,16 +333,16 @@ struct BidirectionalSupport::Plugin
         // The indices from currentIndex + 1u to nextIndex - 1u are neutral characters.
         ++index;
 
-        for( ; index < nextIndex; ++index )
+        for(; index < nextIndex; ++index)
         {
-          CharacterDirection& nextCharacterDirection = *( directions + index );
-          nextCharacterDirection = characterDirection;
+          CharacterDirection& nextCharacterDirection = *(directions + index);
+          nextCharacterDirection                     = characterDirection;
         }
 
         // Set the direction of the next non-neutral character.
-        if( nextIndex < numberOfCharacters )
+        if(nextIndex < numberOfCharacters)
         {
-          *( directions + nextIndex ) = nextDirection;
+          *(directions + nextIndex) = nextDirection;
         }
       }
 
@@ -359,7 +355,7 @@ struct BidirectionalSupport::Plugin
 };
 
 BidirectionalSupport::BidirectionalSupport()
-: mPlugin( NULL )
+: mPlugin(NULL)
 {
 }
 
@@ -372,93 +368,93 @@ TextAbstraction::BidirectionalSupport BidirectionalSupport::Get()
 {
   TextAbstraction::BidirectionalSupport bidirectionalSupportHandle;
 
-  SingletonService service( SingletonService::Get() );
-  if( service )
+  SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    BaseHandle handle = service.GetSingleton( typeid( TextAbstraction::BidirectionalSupport ) );
+    BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::BidirectionalSupport));
     if(handle)
     {
       // If so, downcast the handle
-      BidirectionalSupport* impl = dynamic_cast< Internal::BidirectionalSupport* >( handle.GetObjectPtr() );
-      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport( impl );
+      BidirectionalSupport* impl = dynamic_cast<Internal::BidirectionalSupport*>(handle.GetObjectPtr());
+      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(impl);
     }
     else // create and register the object
     {
-      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport( new BidirectionalSupport );
-      service.Register( typeid( bidirectionalSupportHandle ), bidirectionalSupportHandle );
+      bidirectionalSupportHandle = TextAbstraction::BidirectionalSupport(new BidirectionalSupport);
+      service.Register(typeid(bidirectionalSupportHandle), bidirectionalSupportHandle);
     }
   }
 
   return bidirectionalSupportHandle;
 }
 
-BidiInfoIndex BidirectionalSupport::CreateInfo( const Character* const paragraph,
-                                                Length numberOfCharacters,
-                                                bool matchSystemLanguageDirection,
-                                                Dali::LayoutDirection::Type layoutDirection )
+BidiInfoIndex BidirectionalSupport::CreateInfo(const Character* const      paragraph,
+                                               Length                      numberOfCharacters,
+                                               bool                        matchSystemLanguageDirection,
+                                               Dali::LayoutDirection::Type layoutDirection)
 {
   CreatePlugin();
 
-  return mPlugin->CreateInfo( paragraph,
-                              numberOfCharacters,
-                              matchSystemLanguageDirection,
-                              layoutDirection );
+  return mPlugin->CreateInfo(paragraph,
+                             numberOfCharacters,
+                             matchSystemLanguageDirection,
+                             layoutDirection);
 }
 
-void BidirectionalSupport::DestroyInfo( BidiInfoIndex bidiInfoIndex )
+void BidirectionalSupport::DestroyInfo(BidiInfoIndex bidiInfoIndex)
 {
   CreatePlugin();
 
-  mPlugin->DestroyInfo( bidiInfoIndex );
+  mPlugin->DestroyInfo(bidiInfoIndex);
 }
 
-void BidirectionalSupport::Reorder( BidiInfoIndex bidiInfoIndex,
-                                    CharacterIndex firstCharacterIndex,
-                                    Length numberOfCharacters,
-                                    CharacterIndex* visualToLogicalMap )
+void BidirectionalSupport::Reorder(BidiInfoIndex   bidiInfoIndex,
+                                   CharacterIndex  firstCharacterIndex,
+                                   Length          numberOfCharacters,
+                                   CharacterIndex* visualToLogicalMap)
 {
   CreatePlugin();
 
-  mPlugin->Reorder( bidiInfoIndex,
-                    firstCharacterIndex,
-                    numberOfCharacters,
-                    visualToLogicalMap );
+  mPlugin->Reorder(bidiInfoIndex,
+                   firstCharacterIndex,
+                   numberOfCharacters,
+                   visualToLogicalMap);
 }
 
-bool BidirectionalSupport::GetMirroredText( Character* text,
-                                            CharacterDirection* directions,
-                                            Length numberOfCharacters )
+bool BidirectionalSupport::GetMirroredText(Character*          text,
+                                           CharacterDirection* directions,
+                                           Length              numberOfCharacters)
 {
   CreatePlugin();
 
-  return mPlugin->GetMirroredText( text, directions, numberOfCharacters );
+  return mPlugin->GetMirroredText(text, directions, numberOfCharacters);
 }
 
-bool BidirectionalSupport::GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const
+bool BidirectionalSupport::GetParagraphDirection(BidiInfoIndex bidiInfoIndex) const
 {
-  if( !mPlugin )
+  if(!mPlugin)
   {
     return false;
   }
 
-  return mPlugin->GetParagraphDirection( bidiInfoIndex );
+  return mPlugin->GetParagraphDirection(bidiInfoIndex);
 }
 
-void BidirectionalSupport::GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
-                                                   CharacterDirection* directions,
-                                                   Length numberOfCharacters )
+void BidirectionalSupport::GetCharactersDirection(BidiInfoIndex       bidiInfoIndex,
+                                                  CharacterDirection* directions,
+                                                  Length              numberOfCharacters)
 {
   CreatePlugin();
 
-  mPlugin->GetCharactersDirection( bidiInfoIndex,
-                                   directions,
-                                   numberOfCharacters );
+  mPlugin->GetCharactersDirection(bidiInfoIndex,
+                                  directions,
+                                  numberOfCharacters);
 }
 
 void BidirectionalSupport::CreatePlugin()
 {
-  if( !mPlugin )
+  if(!mPlugin)
   {
     mPlugin = new Plugin();
   }

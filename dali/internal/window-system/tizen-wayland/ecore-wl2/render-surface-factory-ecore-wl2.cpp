@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
 #include <dali/internal/window-system/tizen-wayland/ecore-wl2/render-surface-factory-ecore-wl2.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
-#include <dali/internal/window-system/common/pixmap-render-surface.h>
-#include <dali/internal/window-system/common/display-utils.h>
 
 // EXTERNAL INCLUDES
 #include <memory>
@@ -33,27 +33,26 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-std::unique_ptr< WindowRenderSurface > RenderSurfaceFactoryEcoreWl2::CreateWindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateWindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique< WindowRenderSurface >( positionSize, surface, isTransparent );
+  return Utils::MakeUnique<WindowRenderSurface>(positionSize, surface, isTransparent);
 }
 
-std::unique_ptr< PixmapRenderSurface > RenderSurfaceFactoryEcoreWl2::CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent )
+std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreWl2::CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
-  return std::unique_ptr< PixmapRenderSurface >( nullptr );
+  return std::unique_ptr<PixmapRenderSurface>(nullptr);
 }
 
-std::unique_ptr< NativeRenderSurface > RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface( SurfaceSize surfaceSize, Any surface, bool isTransparent )
+std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreWl2::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
-  return Utils::MakeUnique< NativeRenderSurfaceEcoreWl >( surfaceSize, surface, isTransparent );
+  return Utils::MakeUnique<NativeRenderSurfaceEcoreWl>(surfaceSize, surface, isTransparent);
 }
 
 // this should be created from somewhere
-std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory()
+std::unique_ptr<RenderSurfaceFactory> GetRenderSurfaceFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< RenderSurfaceFactoryEcoreWl2 >();
+  return Utils::MakeUnique<RenderSurfaceFactoryEcoreWl2>();
 }
 
 } // namespace Adaptor

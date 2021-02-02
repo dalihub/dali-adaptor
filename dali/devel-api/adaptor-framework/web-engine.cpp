@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,9 +74,9 @@ void WebEngine::Create(int width, int height, const std::string& locale, const s
   GetImplementation(*this).Create(width, height, locale, timezoneId);
 }
 
-void WebEngine::Create( int width, int height, int argc, char** argv )
+void WebEngine::Create(int width, int height, int argc, char** argv)
 {
-  GetImplementation( *this ).Create( width, height, argc, argv );
+  GetImplementation(*this).Create(width, height, argc, argv);
 }
 
 void WebEngine::Destroy()
@@ -91,22 +91,22 @@ NativeImageInterfacePtr WebEngine::GetNativeImageSource()
 
 Dali::WebEngineSettings& WebEngine::GetSettings() const
 {
-  return GetImplementation( *this ).GetSettings();
+  return GetImplementation(*this).GetSettings();
 }
 
 Dali::WebEngineContext& WebEngine::GetContext() const
 {
-  return GetImplementation( *this ).GetContext();
+  return GetImplementation(*this).GetContext();
 }
 
 Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
 {
-  return GetImplementation( *this ).GetCookieManager();
+  return GetImplementation(*this).GetCookieManager();
 }
 
 Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
 {
-  return GetImplementation( *this ).GetBackForwardList();
+  return GetImplementation(*this).GetBackForwardList();
 }
 
 void WebEngine::LoadUrl(const std::string& url)
@@ -116,12 +116,12 @@ void WebEngine::LoadUrl(const std::string& url)
 
 std::string WebEngine::GetTitle() const
 {
-  return GetImplementation( *this ).GetTitle();
+  return GetImplementation(*this).GetTitle();
 }
 
 Dali::PixelData WebEngine::GetFavicon() const
 {
-  return GetImplementation( *this ).GetFavicon();
+  return GetImplementation(*this).GetFavicon();
 }
 
 const std::string& WebEngine::GetUrl()
@@ -154,29 +154,29 @@ void WebEngine::Resume()
   GetImplementation(*this).Resume();
 }
 
-void WebEngine::ScrollBy( int deltaX, int deltaY )
+void WebEngine::ScrollBy(int deltaX, int deltaY)
 {
-  GetImplementation( *this ).ScrollBy( deltaX, deltaY );
+  GetImplementation(*this).ScrollBy(deltaX, deltaY);
 }
 
-void WebEngine::SetScrollPosition( int x, int y )
+void WebEngine::SetScrollPosition(int x, int y)
 {
-  GetImplementation( *this ).SetScrollPosition( x, y );
+  GetImplementation(*this).SetScrollPosition(x, y);
 }
 
 Dali::Vector2 WebEngine::GetScrollPosition() const
 {
-  return GetImplementation( *this ).GetScrollPosition();
+  return GetImplementation(*this).GetScrollPosition();
 }
 
 Dali::Vector2 WebEngine::GetScrollSize() const
 {
-  return GetImplementation( *this ).GetScrollSize();
+  return GetImplementation(*this).GetScrollSize();
 }
 
 Dali::Vector2 WebEngine::GetContentSize() const
 {
-  return GetImplementation( *this ).GetContentSize();
+  return GetImplementation(*this).GetContentSize();
 }
 
 bool WebEngine::CanGoForward()
@@ -211,7 +211,7 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
 
 void WebEngine::ClearAllTilesResources()
 {
-  GetImplementation( *this ).ClearAllTilesResources();
+  GetImplementation(*this).ClearAllTilesResources();
 }
 
 void WebEngine::ClearHistory()
@@ -244,19 +244,19 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
-void WebEngine::SetFocus( bool focused )
+void WebEngine::SetFocus(bool focused)
 {
-  GetImplementation( *this ).SetFocus( focused );
+  GetImplementation(*this).SetFocus(focused);
 }
 
-void WebEngine::UpdateDisplayArea( Dali::Rect< int > displayArea )
+void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
-  GetImplementation( *this ).UpdateDisplayArea( displayArea );
+  GetImplementation(*this).UpdateDisplayArea(displayArea);
 }
 
-void WebEngine::EnableVideoHole( bool enabled )
+void WebEngine::EnableVideoHole(bool enabled)
 {
-  GetImplementation( *this ).EnableVideoHole( enabled );
+  GetImplementation(*this).EnableVideoHole(enabled);
 }
 
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
@@ -276,7 +276,7 @@ Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErro
 
 Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
 {
-  return GetImplementation( *this ).ScrollEdgeReachedSignal();
+  return GetImplementation(*this).ScrollEdgeReachedSignal();
 }
 
 } // namespace Dali

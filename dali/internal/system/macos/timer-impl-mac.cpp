@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,23 +21,26 @@
 
 namespace Dali::Internal::Adaptor
 {
-
-
 /**
  * Struct to hide away macOS implementation details
  */
 struct Timer::Impl
 {
-  Impl(Timer *parent, unsigned int milliSec)
-    : mTimer(CreateTimer(parent, milliSec)) {}
+  Impl(Timer* parent, unsigned int milliSec)
+  : mTimer(CreateTimer(parent, milliSec))
+  {
+  }
 
-  ~Impl() { Stop(); }
+  ~Impl()
+  {
+    Stop();
+  }
 
-  static void TimerProc(CFRunLoopTimerRef timer, void *info);
+  static void TimerProc(CFRunLoopTimerRef timer, void* info);
 
   void Start();
   void Stop();
-  void Reset(Timer *parent, unsigned int milliSec);
+  void Reset(Timer* parent, unsigned int milliSec);
 
   unsigned int GetInterval() const noexcept
   {
@@ -50,20 +53,20 @@ struct Timer::Impl
   }
 
 private:
-  CFRef<CFRunLoopTimerRef> CreateTimer(Timer *parent, unsigned int milliSec);
+  CFRef<CFRunLoopTimerRef> CreateTimer(Timer* parent, unsigned int milliSec);
 
   CFRef<CFRunLoopTimerRef> mTimer;
 };
 
-void Timer::Impl::TimerProc(CFRunLoopTimerRef timer, void *info)
+void Timer::Impl::TimerProc(CFRunLoopTimerRef timer, void* info)
 {
-  auto *pTimer = static_cast<Timer*>(info);
+  auto* pTimer = static_cast<Timer*>(info);
   pTimer->Tick();
 }
 
 void Timer::Impl::Start()
 {
-  if (!IsRunning())
+  if(!IsRunning())
   {
     auto runLoop = CFRunLoopGetMain();
     CFRunLoopAddTimer(runLoop, mTimer.get(), kCFRunLoopDefaultMode);
@@ -72,7 +75,7 @@ void Timer::Impl::Start()
 
 void Timer::Impl::Stop()
 {
-  if (IsRunning())
+  if(IsRunning())
   {
     CFRunLoopTimerContext context;
     CFRunLoopTimerGetContext(mTimer.get(), &context);
@@ -89,12 +92,11 @@ void Timer::Impl::Stop()
       0,
       0,
       TimerProc,
-      &context
-    ));
+      &context));
   }
 }
 
-void Timer::Impl::Reset(Timer *parent, unsigned int milliSec)
+void Timer::Impl::Reset(Timer* parent, unsigned int milliSec)
 {
   Stop();
   mTimer = CreateTimer(parent, milliSec);
@@ -102,34 +104,34 @@ void Timer::Impl::Reset(Timer *parent, unsigned int milliSec)
 }
 
 CFRef<CFRunLoopTimerRef>
-Timer::Impl::CreateTimer(Timer *parent, unsigned int milliSec)
+Timer::Impl::CreateTimer(Timer* parent, unsigned int milliSec)
 {
-  const auto interval = static_cast<CFAbsoluteTime>(milliSec) / 1000;
-  const auto fireDate = CFAbsoluteTimeGetCurrent() + interval;
+  const auto            interval = static_cast<CFAbsoluteTime>(milliSec) / 1000;
+  const auto            fireDate = CFAbsoluteTimeGetCurrent() + interval;
   CFRunLoopTimerContext context =
-  {
-    .version = 0,
-    .info = parent,
-    .retain = nullptr,
-    .release = nullptr,
-  };
+    {
+      .version = 0,
+      .info    = parent,
+      .retain  = nullptr,
+      .release = nullptr,
+    };
 
   return MakeRef(CFRunLoopTimerCreate(
     kCFAllocatorDefault,
-    fireDate, interval,
+    fireDate,
+    interval,
     0,
     0,
     TimerProc,
-    &context
-  ));
+    &context));
 }
 
-TimerPtr Timer::New( unsigned int milliSec )
+TimerPtr Timer::New(unsigned int milliSec)
 {
-  return new Timer( milliSec );
+  return new Timer(milliSec);
 }
 
-Timer::Timer( unsigned int milliSec )
+Timer::Timer(unsigned int milliSec)
 : mImpl(new Impl(this, milliSec))
 {
 }
@@ -155,15 +157,13 @@ void Timer::Stop()
 
 void Timer::Pause()
 {
-
 }
 
 void Timer::Resume()
 {
-
 }
 
-void Timer::SetInterval( unsigned int interval, bool restart )
+void Timer::SetInterval(unsigned int interval, bool restart)
 {
   mImpl->Reset(this, interval);
 }
@@ -176,23 +176,23 @@ unsigned int Timer::GetInterval() const
 bool Timer::Tick()
 {
   // Guard against destruction during signal emission
-  Dali::Timer handle( this );
+  Dali::Timer handle(this);
 
-  bool retVal( false );
+  bool retVal(false);
 
   // Override with new signal if used
-  if( !mTickSignal.Empty() )
+  if(!mTickSignal.Empty())
   {
     retVal = mTickSignal.Emit();
 
     // Timer stops if return value is false
-    if (retVal == false)
+    if(retVal == false)
     {
       Stop();
     }
     else
     {
-      retVal = true;   // continue emission
+      retVal = true; // continue emission
     }
   }
   else // no callbacks registered
@@ -215,4 +215,3 @@ bool Timer::IsRunning() const
 }
 
 } // namespace Dali::Internal::Adaptor
-

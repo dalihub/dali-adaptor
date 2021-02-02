@@ -28,30 +28,27 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
 const char* TRACE_MARKER_FILE = "/sys/kernel/debug/tracing/trace_marker";
-const char* SPI_PREFIX = "SPI_EV_DALI_"; ///< prefix to let the SPI tool know it should read the trace
-}// un-named name space
+const char* SPI_PREFIX        = "SPI_EV_DALI_"; ///< prefix to let the SPI tool know it should read the trace
+} // namespace
 
 KernelTrace::KernelTrace()
-: mFileDescriptor( 0 ),
-  mLoggedError( false )
+: mFileDescriptor(0),
+  mLoggedError(false)
 {
 }
 
 KernelTrace::~KernelTrace()
 {
-  if( mFileDescriptor )
+  if(mFileDescriptor)
   {
-    close( mFileDescriptor );
+    close(mFileDescriptor);
   }
 }
 
@@ -68,46 +65,44 @@ KernelTrace::~KernelTrace()
 // If the message did not get added to the trace, then check you have write permissions to the trace_marker file.
 //
 //
-void KernelTrace::Trace( const PerformanceMarker& marker, const std::string& traceMessage )
+void KernelTrace::Trace(const PerformanceMarker& marker, const std::string& traceMessage)
 {
   // Open the trace_marker file
-  if( mFileDescriptor == 0 )
+  if(mFileDescriptor == 0)
   {
-    mFileDescriptor = open( TRACE_MARKER_FILE , O_WRONLY);
-    if( mFileDescriptor == -1 )
+    mFileDescriptor = open(TRACE_MARKER_FILE, O_WRONLY);
+    if(mFileDescriptor == -1)
     {
       // we want to keep trying to open it, so it will start working if someone fixes
       // the permissions on the trace marker
       mFileDescriptor = 0;
 
       // first time we fail to open the file, log an error
-      if( !mLoggedError )
+      if(!mLoggedError)
       {
         mLoggedError = true;
         DALI_LOG_ERROR("Failed to open /sys/kernel/debug/tracing/trace_marker for writing please check file permissions.\n");
       }
-
     }
   }
 
-  if( mFileDescriptor > 0 )
+  if(mFileDescriptor > 0)
   {
-      std::string msg( SPI_PREFIX );
-      msg+=traceMessage;
+    std::string msg(SPI_PREFIX);
+    msg += traceMessage;
 
-      int ret = write( mFileDescriptor, msg.c_str(), msg.length() );
-          // if it failed then close the file description and try again next time we trace
-      if( ret < 0 )
-      {
-        close( mFileDescriptor );
-        mFileDescriptor = 0;
-      }
+    int ret = write(mFileDescriptor, msg.c_str(), msg.length());
+    // if it failed then close the file description and try again next time we trace
+    if(ret < 0)
+    {
+      close(mFileDescriptor);
+      mFileDescriptor = 0;
+    }
   }
 }
 
-} // namespace Internal
-
 } // namespace Adaptor
 
-} // namespace Dali
+} // namespace Internal
 
+} // namespace Dali

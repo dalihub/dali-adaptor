@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,24 +20,20 @@
 
 // EXTERNAL INCLUDES
 #include <dlfcn.h>
-#include <map>
 #include <string.h>
 #include <iostream>
+#include <map>
 
 #include <dali/integration-api/debug.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace KeyLookup
 {
-
 namespace
 {
 #if defined(DEBUG_ENABLED)
@@ -45,62 +41,61 @@ Debug::Filter* gKeyExtensionLogFilter = Debug::Filter::New(Debug::NoLogging, fal
 #endif
 
 // Path for loading extension keys
-const char* KEY_EXTENSION_PLUGIN_SO( "libdali2-key-extension.so" );
+const char* KEY_EXTENSION_PLUGIN_SO("libdali2-key-extension.so");
 
 class KeyMap
 {
-  public:
-
-  KeyMap():
-  mExtensionKeyLookupTable(NULL),
-  mPlugin(NULL),
-  mHandle(NULL),
-  mCreateKeyExtensionPluginPtr(NULL),
-  mDestroyKeyExtensionPluginPtr(NULL),
-  mLookup( cmpString ),
-  mExtensionLookup( cmpString ),
-  mExtensionLookupCount(0),
-  mIsLookupTableInitialized( false ),
-  mIsExtensionLookupTableInitialized( false )
+public:
+  KeyMap()
+  : mExtensionKeyLookupTable(NULL),
+    mPlugin(NULL),
+    mHandle(NULL),
+    mCreateKeyExtensionPluginPtr(NULL),
+    mDestroyKeyExtensionPluginPtr(NULL),
+    mLookup(cmpString),
+    mExtensionLookup(cmpString),
+    mExtensionLookupCount(0),
+    mIsLookupTableInitialized(false),
+    mIsExtensionLookupTableInitialized(false)
   {
   }
 
   ~KeyMap()
   {
-    if( mHandle != NULL )
+    if(mHandle != NULL)
     {
-      if( mDestroyKeyExtensionPluginPtr != NULL )
+      if(mDestroyKeyExtensionPluginPtr != NULL)
       {
-        mDestroyKeyExtensionPluginPtr( mPlugin );
+        mDestroyKeyExtensionPluginPtr(mPlugin);
       }
 
-      dlclose( mHandle );
+      dlclose(mHandle);
     }
   }
 
-  int GetDaliKeyEnum( const char* keyName )
+  int GetDaliKeyEnum(const char* keyName)
   {
     // If lookup table is not initialized, initialize lookup table
-    if( !mIsLookupTableInitialized )
+    if(!mIsLookupTableInitialized)
     {
       InitializeLookupTable();
     }
 
-    Lookup::const_iterator i = mLookup.find( keyName );
+    Lookup::const_iterator i = mLookup.find(keyName);
 
-    if( i == mLookup.end() )
+    if(i == mLookup.end())
     {
       // If cannot find target, find it at the extension
       // If extension lookup table is not initialized, initialize extension lookup table
-      if( !mIsExtensionLookupTableInitialized )
+      if(!mIsExtensionLookupTableInitialized)
       {
         InitializeExtensionLookupTable();
       }
 
       // Find at extension
-      i = mExtensionLookup.find( keyName );
+      i = mExtensionLookup.find(keyName);
 
-      if( i == mExtensionLookup.end() )
+      if(i == mExtensionLookup.end())
       {
         return -1;
       }
@@ -115,31 +110,31 @@ class KeyMap
     }
   }
 
-  const char* GetKeyName( int daliKeyCode )
+  const char* GetKeyName(int daliKeyCode)
   {
     // If lookup table is not initialized, initialize lookup table
-    if( !mIsLookupTableInitialized )
+    if(!mIsLookupTableInitialized)
     {
       InitializeLookupTable();
     }
 
-    for( size_t i = 0; i < KEY_LOOKUP_COUNT ; ++i )
+    for(size_t i = 0; i < KEY_LOOKUP_COUNT; ++i)
     {
-      if( KeyLookupTable[i].daliKeyCode == daliKeyCode )
+      if(KeyLookupTable[i].daliKeyCode == daliKeyCode)
       {
         return KeyLookupTable[i].keyName;
       }
     }
 
     // If extension lookup table is not initialized, initialize extension lookup table
-    if( !mIsExtensionLookupTableInitialized )
+    if(!mIsExtensionLookupTableInitialized)
     {
       InitializeExtensionLookupTable();
     }
 
-    for( size_t i = 0; i < mExtensionLookupCount ; ++i )
+    for(size_t i = 0; i < mExtensionLookupCount; ++i)
     {
-      if( mExtensionKeyLookupTable[i].daliKeyCode == daliKeyCode )
+      if(mExtensionKeyLookupTable[i].daliKeyCode == daliKeyCode)
       {
         return mExtensionKeyLookupTable[i].keyName;
       }
@@ -148,28 +143,28 @@ class KeyMap
     return NULL;
   }
 
-  bool IsDeviceButton( const char* keyName )
+  bool IsDeviceButton(const char* keyName)
   {
     // If lookup table is not initialized, initialize lookup table
-    if( !mIsLookupTableInitialized )
+    if(!mIsLookupTableInitialized)
     {
       InitializeLookupTable();
     }
 
-    Lookup::const_iterator i = mLookup.find( keyName );
-    if( i == mLookup.end() )
+    Lookup::const_iterator i = mLookup.find(keyName);
+    if(i == mLookup.end())
     {
       // If cannot find target, find it at the extension.
       // If extension lookup table is not initialized, initialize extension lookup table
-      if( !mIsExtensionLookupTableInitialized )
+      if(!mIsExtensionLookupTableInitialized)
       {
         InitializeExtensionLookupTable();
       }
 
       // Find at extension
-      i = mExtensionLookup.find( keyName );
+      i = mExtensionLookup.find(keyName);
 
-      if( i == mExtensionLookup.end() )
+      if(i == mExtensionLookup.end())
       {
         return false;
       }
@@ -186,15 +181,13 @@ class KeyMap
     return false;
   }
 
-
-  private:
-
+private:
   void InitializeLookupTable()
   {
     // create the lookup
-    for( size_t i = 0; i < KEY_LOOKUP_COUNT ; ++i )
+    for(size_t i = 0; i < KEY_LOOKUP_COUNT; ++i)
     {
-      mLookup[ KeyLookupTable[i].keyName ] = DaliKeyType( KeyLookupTable[i].daliKeyCode, KeyLookupTable[i].deviceButton );
+      mLookup[KeyLookupTable[i].keyName] = DaliKeyType(KeyLookupTable[i].daliKeyCode, KeyLookupTable[i].deviceButton);
     }
 
     mIsLookupTableInitialized = true;
@@ -204,49 +197,49 @@ class KeyMap
   {
     // Try to load extension keys
     char* error = NULL;
-    mHandle = dlopen( KEY_EXTENSION_PLUGIN_SO, RTLD_NOW );
-    error = dlerror();
+    mHandle     = dlopen(KEY_EXTENSION_PLUGIN_SO, RTLD_NOW);
+    error       = dlerror();
 
-    if( mHandle == NULL )
+    if(mHandle == NULL)
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to get handle from libdali2-key-extension.so\n" );
+      DALI_LOG_INFO(gKeyExtensionLogFilter, Debug::General, "Failed to get handle from libdali2-key-extension.so\n");
       return;
     }
 
-    if( error != NULL )
+    if(error != NULL)
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "dlopen got error: %s  \n", error );
+      DALI_LOG_INFO(gKeyExtensionLogFilter, Debug::General, "dlopen got error: %s  \n", error);
       return;
     }
 
-    mCreateKeyExtensionPluginPtr = reinterpret_cast< CreateKeyExtensionPluginFunction >( dlsym( mHandle, "CreateKeyExtensionPlugin" ) );
-    if( mCreateKeyExtensionPluginPtr == NULL )
+    mCreateKeyExtensionPluginPtr = reinterpret_cast<CreateKeyExtensionPluginFunction>(dlsym(mHandle, "CreateKeyExtensionPlugin"));
+    if(mCreateKeyExtensionPluginPtr == NULL)
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to get CreateKeyExtensionPlugin function\n" );
+      DALI_LOG_INFO(gKeyExtensionLogFilter, Debug::General, "Failed to get CreateKeyExtensionPlugin function\n");
       return;
     }
 
     mPlugin = mCreateKeyExtensionPluginPtr();
-    if( mPlugin == NULL )
+    if(mPlugin == NULL)
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to create plugin object\n" );
+      DALI_LOG_INFO(gKeyExtensionLogFilter, Debug::General, "Failed to create plugin object\n");
       return;
     }
 
-    mDestroyKeyExtensionPluginPtr = reinterpret_cast< DestroyKeyExtensionPluginFunction >( dlsym( mHandle, "DestroyKeyExtensionPlugin" ) );
-    if( mDestroyKeyExtensionPluginPtr == NULL )
+    mDestroyKeyExtensionPluginPtr = reinterpret_cast<DestroyKeyExtensionPluginFunction>(dlsym(mHandle, "DestroyKeyExtensionPlugin"));
+    if(mDestroyKeyExtensionPluginPtr == NULL)
     {
-      DALI_LOG_INFO( gKeyExtensionLogFilter, Debug::General, "Failed to get DestroyKeyExtensionPlugin function\n" );
+      DALI_LOG_INFO(gKeyExtensionLogFilter, Debug::General, "Failed to get DestroyKeyExtensionPlugin function\n");
       return;
     }
 
     mExtensionKeyLookupTable = mPlugin->GetKeyLookupTable();
-    mExtensionLookupCount = mPlugin->GetKeyLookupTableCount();
+    mExtensionLookupCount    = mPlugin->GetKeyLookupTableCount();
 
     // Add extension keys to lookup
-    for( size_t i = 0; i < mExtensionLookupCount ; ++i )
+    for(size_t i = 0; i < mExtensionLookupCount; ++i)
     {
-      mExtensionLookup[ mExtensionKeyLookupTable[i].keyName  ] = DaliKeyType( mExtensionKeyLookupTable[i].daliKeyCode, mExtensionKeyLookupTable[i].deviceButton );
+      mExtensionLookup[mExtensionKeyLookupTable[i].keyName] = DaliKeyType(mExtensionKeyLookupTable[i].daliKeyCode, mExtensionKeyLookupTable[i].deviceButton);
     }
 
     mIsExtensionLookupTableInitialized = true;
@@ -255,50 +248,52 @@ class KeyMap
   /**
    * compare function, to compare string by pointer
    */
-  static bool cmpString( const char* a, const char* b)
+  static bool cmpString(const char* a, const char* b)
   {
     return strcmp(a, b) < 0;
   }
 
-  KeyExtensionPlugin::KeyLookup* mExtensionKeyLookupTable;                               ///< Lookup table for extension keys
-  Dali::KeyExtensionPlugin* mPlugin;                                                     ///< Key extension plugin handle
-  void* mHandle;                                                                         ///< Handle for the loaded library
-  typedef Dali::KeyExtensionPlugin* (*CreateKeyExtensionPluginFunction)();               ///< Type of function pointer to get KeyExtensionPlugin object
-  typedef void (*DestroyKeyExtensionPluginFunction)( Dali::KeyExtensionPlugin* plugin ); ///< Type of function pointer to delete KeyExtensionPlugin object
-  CreateKeyExtensionPluginFunction mCreateKeyExtensionPluginPtr;                         ///< Function pointer to get KeyExtensionPlugin object
-  DestroyKeyExtensionPluginFunction mDestroyKeyExtensionPluginPtr;                       ///< Function pointer to delete KeyExtensionPlugin object
+  KeyExtensionPlugin::KeyLookup* mExtensionKeyLookupTable;                             ///< Lookup table for extension keys
+  Dali::KeyExtensionPlugin*      mPlugin;                                              ///< Key extension plugin handle
+  void*                          mHandle;                                              ///< Handle for the loaded library
+  typedef Dali::KeyExtensionPlugin* (*CreateKeyExtensionPluginFunction)();             ///< Type of function pointer to get KeyExtensionPlugin object
+  typedef void (*DestroyKeyExtensionPluginFunction)(Dali::KeyExtensionPlugin* plugin); ///< Type of function pointer to delete KeyExtensionPlugin object
+  CreateKeyExtensionPluginFunction  mCreateKeyExtensionPluginPtr;                      ///< Function pointer to get KeyExtensionPlugin object
+  DestroyKeyExtensionPluginFunction mDestroyKeyExtensionPluginPtr;                     ///< Function pointer to delete KeyExtensionPlugin object
 
-  typedef std::pair< int, bool > DaliKeyType;
-  typedef std::map<const char* /* key name */, DaliKeyType /* key code */, bool(*) ( char const* a, char const* b) > Lookup;
+  typedef std::pair<int, bool> DaliKeyType;
+
+  typedef std::map<const char* /* key name */, DaliKeyType /* key code */, bool (*)(char const* a, char const* b)> Lookup;
+
   Lookup mLookup;
   Lookup mExtensionLookup;
-  size_t mExtensionLookupCount;                                                          ///< count of extension lookup table
-  bool mIsLookupTableInitialized;                                                        ///< flag for basic lookup table initialization
-  bool mIsExtensionLookupTableInitialized;                                               ///< flag for extension lookup table initialization
+  size_t mExtensionLookupCount;              ///< count of extension lookup table
+  bool   mIsLookupTableInitialized;          ///< flag for basic lookup table initialization
+  bool   mIsExtensionLookupTableInitialized; ///< flag for extension lookup table initialization
 };
 KeyMap globalKeyLookup;
 
-} // un-named name space
+} // namespace
 
-bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
+bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
 {
-  int key = globalKeyLookup.GetDaliKeyEnum( keyEvent.GetKeyName().c_str() );
+  int key = globalKeyLookup.GetDaliKeyEnum(keyEvent.GetKeyName().c_str());
   return daliKey == key;
 }
 
-bool IsDeviceButton( const char* keyName )
+bool IsDeviceButton(const char* keyName)
 {
-  return globalKeyLookup.IsDeviceButton( keyName );
+  return globalKeyLookup.IsDeviceButton(keyName);
 }
 
-const char* GetKeyName( Dali::KEY daliKey )
+const char* GetKeyName(Dali::KEY daliKey)
 {
-  return globalKeyLookup.GetKeyName( daliKey );
+  return globalKeyLookup.GetKeyName(daliKey);
 }
 
-int GetDaliKeyCode( const char* keyName )
+int GetDaliKeyCode(const char* keyName)
 {
-  return globalKeyLookup.GetDaliKeyEnum( keyName );
+  return globalKeyLookup.GetDaliKeyEnum(keyName);
 }
 
 } // namespace KeyLookup

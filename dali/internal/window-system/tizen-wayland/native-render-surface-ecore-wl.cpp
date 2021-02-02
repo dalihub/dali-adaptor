@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/window-system/tizen-wayland/native-render-surface-ecore-wl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 #ifdef ECORE_WAYLAND2
 #include <Ecore_Wl2.h>
@@ -43,69 +43,67 @@
 
 namespace Dali
 {
-
 namespace
 {
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_NATIVE_RENDER_SURFACE");
 #endif
 
 } // unnamed namespace
 
-NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent )
-: mRenderNotification( NULL ),
-  mGraphics( NULL ),
-  mEGL( nullptr ),
-  mEGLSurface( nullptr ),
-  mEGLContext( nullptr ),
-  mOwnSurface( false ),
-  mDrawableCompleted( false ),
-  mTbmQueue( NULL ),
-  mConsumeSurface( NULL ),
-  mThreadSynchronization( NULL )
+NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent)
+: mRenderNotification(NULL),
+  mGraphics(NULL),
+  mEGL(nullptr),
+  mEGLSurface(nullptr),
+  mEGLContext(nullptr),
+  mOwnSurface(false),
+  mDrawableCompleted(false),
+  mTbmQueue(NULL),
+  mConsumeSurface(NULL),
+  mThreadSynchronization(NULL)
 {
   Dali::Internal::Adaptor::WindowSystem::Initialize();
 
-  if( surface.Empty() )
+  if(surface.Empty())
   {
     mSurfaceSize = surfaceSize;
-    mColorDepth = isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
-    mTbmFormat = isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888;
+    mColorDepth  = isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mTbmFormat   = isTransparent ? TBM_FORMAT_ARGB8888 : TBM_FORMAT_RGB888;
     CreateNativeRenderable();
   }
   else
   {
-    mTbmQueue = AnyCast< tbm_surface_queue_h >( surface );
+    mTbmQueue = AnyCast<tbm_surface_queue_h>(surface);
 
-    uint16_t width = static_cast<uint16_t>( tbm_surface_queue_get_width( mTbmQueue ) );
-    uint16_t height = static_cast<uint16_t>( tbm_surface_queue_get_height( mTbmQueue ) );
-    mSurfaceSize = SurfaceSize( width, height );
+    uint16_t width  = static_cast<uint16_t>(tbm_surface_queue_get_width(mTbmQueue));
+    uint16_t height = static_cast<uint16_t>(tbm_surface_queue_get_height(mTbmQueue));
+    mSurfaceSize    = SurfaceSize(width, height);
 
-    mTbmFormat = tbm_surface_queue_get_format( mTbmQueue );
+    mTbmFormat = tbm_surface_queue_get_format(mTbmQueue);
 
-    mColorDepth = ( mTbmFormat == TBM_FORMAT_ARGB8888 ) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
+    mColorDepth = (mTbmFormat == TBM_FORMAT_ARGB8888) ? COLOR_DEPTH_32 : COLOR_DEPTH_24;
   }
 }
 
 NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
 {
-  if ( mEGLSurface )
+  if(mEGLSurface)
   {
     DestroySurface();
   }
 
   // release the surface if we own one
-  if( mOwnSurface )
+  if(mOwnSurface)
   {
     ReleaseDrawable();
 
-    if( mTbmQueue )
+    if(mTbmQueue)
     {
-      tbm_surface_queue_destroy( mTbmQueue );
+      tbm_surface_queue_destroy(mTbmQueue);
     }
 
-    DALI_LOG_INFO( gNativeSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n" );
+    DALI_LOG_INFO(gNativeSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n");
   }
 
   Dali::Internal::Adaptor::WindowSystem::Shutdown();
@@ -116,17 +114,17 @@ Any NativeRenderSurfaceEcoreWl::GetDrawable()
   return mConsumeSurface;
 }
 
-void NativeRenderSurfaceEcoreWl::SetRenderNotification( TriggerEventInterface* renderNotification )
+void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* renderNotification)
 {
   mRenderNotification = renderNotification;
 }
 
 void NativeRenderSurfaceEcoreWl::WaitUntilSurfaceReplaced()
 {
-  ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
-  while( !mDrawableCompleted )
+  ConditionalWait::ScopedLock lock(mTbmSurfaceCondition);
+  while(!mDrawableCompleted)
   {
-    mTbmSurfaceCondition.Wait( lock );
+    mTbmSurfaceCondition.Wait(lock);
   }
 
   mDrawableCompleted = false;
@@ -139,10 +137,10 @@ Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
 
 PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
 {
-  return PositionSize( 0, 0, static_cast<int>( mSurfaceSize.GetWidth() ), static_cast<int>( mSurfaceSize.GetHeight() ) );
+  return PositionSize(0, 0, static_cast<int>(mSurfaceSize.GetWidth()), static_cast<int>(mSurfaceSize.GetHeight()));
 }
 
-void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
+void NativeRenderSurfaceEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
   // calculate DPI
   float xres, yres;
@@ -157,8 +155,8 @@ void NativeRenderSurfaceEcoreWl::GetDpi( unsigned int& dpiHorizontal, unsigned i
   yres = ecore_wl_dpi_get();
 #endif
 
-  dpiHorizontal = int( xres + 0.5f );  // rounding
-  dpiVertical   = int( yres + 0.5f );
+  dpiHorizontal = int(xres + 0.5f); // rounding
+  dpiVertical   = int(yres + 0.5f);
 }
 
 int NativeRenderSurfaceEcoreWl::GetOrientation() const
@@ -168,18 +166,18 @@ int NativeRenderSurfaceEcoreWl::GetOrientation() const
 
 void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 {
-  DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
-  mGraphics = &mAdaptor->GetGraphicsInterface();
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
+  mGraphics        = &mAdaptor->GetGraphicsInterface();
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
 
   mEGL = &eglGraphics->GetEglInterface();
 
-  if ( mEGLContext == NULL )
+  if(mEGLContext == NULL)
   {
     // Create the OpenGL context for this window
     Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
-    eglImpl.CreateWindowContext( mEGLContext );
+    eglImpl.CreateWindowContext(mEGLContext);
 
     // Create the OpenGL surface
     CreateSurface();
@@ -188,111 +186,111 @@ void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 
 void NativeRenderSurfaceEcoreWl::CreateSurface()
 {
-  DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  mEGLSurface = eglImpl.CreateSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mColorDepth );
+  mEGLSurface = eglImpl.CreateSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(mTbmQueue), mColorDepth);
 }
 
 void NativeRenderSurfaceEcoreWl::DestroySurface()
 {
-  DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  eglImpl.DestroySurface( mEGLSurface );
+  eglImpl.DestroySurface(mEGLSurface);
 }
 
 bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
 {
-  DALI_LOG_TRACE_METHOD( gNativeSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
 
-  if( !mTbmQueue )
+  if(!mTbmQueue)
   {
     return false;
   }
 
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  return eglImpl.ReplaceSurfaceWindow( reinterpret_cast< EGLNativeWindowType >( mTbmQueue ), mEGLSurface, mEGLContext );
+  return eglImpl.ReplaceSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(mTbmQueue), mEGLSurface, mEGLContext);
 }
 
-void NativeRenderSurfaceEcoreWl::MoveResize( Dali::PositionSize positionSize )
+void NativeRenderSurfaceEcoreWl::MoveResize(Dali::PositionSize positionSize)
 {
   tbm_surface_queue_error_e error = TBM_SURFACE_QUEUE_ERROR_NONE;
 
-  error = tbm_surface_queue_reset( mTbmQueue, positionSize.width, positionSize.height, mTbmFormat );
+  error = tbm_surface_queue_reset(mTbmQueue, positionSize.width, positionSize.height, mTbmFormat);
 
-  if( error != TBM_SURFACE_QUEUE_ERROR_NONE )
+  if(error != TBM_SURFACE_QUEUE_ERROR_NONE)
   {
-    DALI_LOG_ERROR( "Failed to resize tbm_surface_queue" );
+    DALI_LOG_ERROR("Failed to resize tbm_surface_queue");
   }
 
-  mSurfaceSize.SetWidth( static_cast<uint16_t>( positionSize.width ) );
-  mSurfaceSize.SetHeight( static_cast<uint16_t>( positionSize.height ) );
+  mSurfaceSize.SetWidth(static_cast<uint16_t>(positionSize.width));
+  mSurfaceSize.SetHeight(static_cast<uint16_t>(positionSize.height));
 }
 
 void NativeRenderSurfaceEcoreWl::StartRender()
 {
 }
 
-bool NativeRenderSurfaceEcoreWl::PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect )
+bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   //TODO: Need to support partial update
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects )
+void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
 {
-  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics *>(mGraphics);
-  if (eglGraphics)
+  auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  if(eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers( mEGLSurface, damagedRects );
+    eglImpl.SwapBuffers(mEGLSurface, damagedRects);
   }
 
   //TODO: Move calling tbm_surface_queue_acruie to OffscreenWindow and Scene in EvasPlugin
-  if ( mOwnSurface )
+  if(mOwnSurface)
   {
-    if( mThreadSynchronization )
+    if(mThreadSynchronization)
     {
       mThreadSynchronization->PostRenderStarted();
     }
 
-    if( tbm_surface_queue_can_acquire( mTbmQueue, 1 ) )
+    if(tbm_surface_queue_can_acquire(mTbmQueue, 1))
     {
-      if( tbm_surface_queue_acquire( mTbmQueue, &mConsumeSurface ) != TBM_SURFACE_QUEUE_ERROR_NONE )
+      if(tbm_surface_queue_acquire(mTbmQueue, &mConsumeSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
       {
-        DALI_LOG_ERROR( "Failed to acquire a tbm_surface\n" );
+        DALI_LOG_ERROR("Failed to acquire a tbm_surface\n");
         return;
       }
     }
 
-    if ( mConsumeSurface )
+    if(mConsumeSurface)
     {
-      tbm_surface_internal_ref( mConsumeSurface );
+      tbm_surface_internal_ref(mConsumeSurface);
     }
 
-    if( replacingSurface )
+    if(replacingSurface)
     {
-      ConditionalWait::ScopedLock lock( mTbmSurfaceCondition );
+      ConditionalWait::ScopedLock lock(mTbmSurfaceCondition);
       mDrawableCompleted = true;
-      mTbmSurfaceCondition.Notify( lock );
+      mTbmSurfaceCondition.Notify(lock);
     }
 
-   // create damage for client applications which wish to know the update timing
-    if( !replacingSurface && mRenderNotification )
+    // create damage for client applications which wish to know the update timing
+    if(!replacingSurface && mRenderNotification)
     {
       // use notification trigger
       // Tell the event-thread to render the tbm_surface
       mRenderNotification->Trigger();
     }
 
-    if( mThreadSynchronization )
+    if(mThreadSynchronization)
     {
       // wait until the event-thread completed to use the tbm_surface
       mThreadSynchronization->PostRenderWaitForCompletion();
@@ -304,7 +302,7 @@ void NativeRenderSurfaceEcoreWl::PostRender( bool renderToFbo, bool replacingSur
   else
   {
     // create damage for client applications which wish to know the update timing
-    if( !replacingSurface && mRenderNotification )
+    if(!replacingSurface && mRenderNotification)
     {
       // use notification trigger
       // Tell the event-thread to render the tbm_surface
@@ -318,7 +316,7 @@ void NativeRenderSurfaceEcoreWl::StopRender()
   ReleaseLock();
 }
 
-void NativeRenderSurfaceEcoreWl::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
+void NativeRenderSurfaceEcoreWl::SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization)
 {
   mThreadSynchronization = &threadSynchronization;
 }
@@ -330,9 +328,9 @@ Dali::RenderSurfaceInterface::Type NativeRenderSurfaceEcoreWl::GetSurfaceType()
 
 void NativeRenderSurfaceEcoreWl::MakeContextCurrent()
 {
-  if ( mEGL != nullptr )
+  if(mEGL != nullptr)
   {
-    mEGL->MakeContextCurrent( mEGLSurface, mEGLContext );
+    mEGL->MakeContextCurrent(mEGLSurface, mEGLContext);
   }
 }
 
@@ -348,7 +346,7 @@ Integration::StencilBufferAvailable NativeRenderSurfaceEcoreWl::GetStencilBuffer
 
 void NativeRenderSurfaceEcoreWl::ReleaseLock()
 {
-  if( mThreadSynchronization )
+  if(mThreadSynchronization)
   {
     mThreadSynchronization->PostRenderComplete();
   }
@@ -356,15 +354,15 @@ void NativeRenderSurfaceEcoreWl::ReleaseLock()
 
 void NativeRenderSurfaceEcoreWl::CreateNativeRenderable()
 {
-  int width = static_cast<int>( mSurfaceSize.GetWidth() );
-  int height = static_cast<int>( mSurfaceSize.GetHeight() );
+  int width  = static_cast<int>(mSurfaceSize.GetWidth());
+  int height = static_cast<int>(mSurfaceSize.GetHeight());
 
   // check we're creating one with a valid size
-  DALI_ASSERT_ALWAYS( width > 0 && height > 0 && "tbm_surface size is invalid" );
+  DALI_ASSERT_ALWAYS(width > 0 && height > 0 && "tbm_surface size is invalid");
 
-  mTbmQueue = tbm_surface_queue_create( 3, width, height, mTbmFormat, TBM_BO_DEFAULT );
+  mTbmQueue = tbm_surface_queue_create(3, width, height, mTbmFormat, TBM_BO_DEFAULT);
 
-  if( mTbmQueue )
+  if(mTbmQueue)
   {
     mOwnSurface = true;
   }
@@ -376,13 +374,13 @@ void NativeRenderSurfaceEcoreWl::CreateNativeRenderable()
 
 void NativeRenderSurfaceEcoreWl::ReleaseDrawable()
 {
-  if( mConsumeSurface )
+  if(mConsumeSurface)
   {
-    tbm_surface_internal_unref( mConsumeSurface );
+    tbm_surface_internal_unref(mConsumeSurface);
 
-    if( tbm_surface_internal_is_valid( mConsumeSurface ) )
+    if(tbm_surface_internal_is_valid(mConsumeSurface))
     {
-      tbm_surface_queue_release( mTbmQueue, mConsumeSurface );
+      tbm_surface_queue_release(mTbmQueue, mConsumeSurface);
     }
     mConsumeSurface = NULL;
   }

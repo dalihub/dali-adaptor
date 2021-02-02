@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,23 @@
  */
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/common/window-system.h>
 #include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 // EXTERNAL_HEADERS
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace WindowSystem
 {
-
 void Initialize()
 {
-  ecore_x_init( NULL );
+  ecore_x_init(NULL);
 }
 
 void Shutdown()
@@ -44,17 +40,17 @@ void Shutdown()
   ecore_x_shutdown();
 }
 
-void GetScreenSize( int& width, int& height )
+void GetScreenSize(int& width, int& height)
 {
-  ecore_x_screen_size_get( ecore_x_default_screen_get(), &width, &height );
+  ecore_x_screen_size_get(ecore_x_default_screen_get(), &width, &height);
 }
 
-bool SetKeyboardRepeatInfo( float rate, float delay )
+bool SetKeyboardRepeatInfo(float rate, float delay)
 {
   return false;
 }
 
-bool GetKeyboardRepeatInfo( float& rate, float& delay )
+bool GetKeyboardRepeatInfo(float& rate, float& delay)
 {
   return false;
 }

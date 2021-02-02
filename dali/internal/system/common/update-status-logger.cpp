@@ -19,24 +19,21 @@
 #include <dali/internal/system/common/update-status-logger.h>
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/integration-api/core.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-UpdateStatusLogger::UpdateStatusLogger( const EnvironmentOptions& environmentOptions )
-: mStatusLogInterval( environmentOptions.GetUpdateStatusLoggingFrequency() ),
-  mStatusLogCount( 0u )
+UpdateStatusLogger::UpdateStatusLogger(const EnvironmentOptions& environmentOptions)
+: mStatusLogInterval(environmentOptions.GetUpdateStatusLoggingFrequency()),
+  mStatusLogCount(0u)
 {
 }
 
@@ -44,43 +41,43 @@ UpdateStatusLogger::~UpdateStatusLogger()
 {
 }
 
-void UpdateStatusLogger::Log( unsigned int keepUpdatingStatus )
+void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
 {
-  if ( mStatusLogInterval )
+  if(mStatusLogInterval)
   {
     std::string oss;
 
-    if ( !(++mStatusLogCount % mStatusLogInterval) )
+    if(!(++mStatusLogCount % mStatusLogInterval))
     {
       oss = "UpdateStatusLogging keepUpdating: ";
-      oss += (keepUpdatingStatus ? "true":"false");
+      oss += (keepUpdatingStatus ? "true" : "false");
 
-      if ( keepUpdatingStatus )
+      if(keepUpdatingStatus)
       {
         oss += " because: ";
       }
 
-      if ( keepUpdatingStatus & Integration::KeepUpdating::STAGE_KEEP_RENDERING )
+      if(keepUpdatingStatus & Integration::KeepUpdating::STAGE_KEEP_RENDERING)
       {
         oss += "<Stage::KeepRendering() used> ";
       }
 
-      if ( keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING )
+      if(keepUpdatingStatus & Integration::KeepUpdating::ANIMATIONS_RUNNING)
       {
-        oss  +=  "<Animations running> ";
+        oss += "<Animations running> ";
       }
 
-      if ( keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE )
+      if(keepUpdatingStatus & Integration::KeepUpdating::MONITORING_PERFORMANCE)
       {
         oss += "<Monitoring performance> ";
       }
 
-      if ( keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC )
+      if(keepUpdatingStatus & Integration::KeepUpdating::RENDER_TASK_SYNC)
       {
         oss += "<Render task waiting for completion> ";
       }
 
-      DALI_LOG_UPDATE_STATUS( "%s\n", oss.c_str());
+      DALI_LOG_UPDATE_STATUS("%s\n", oss.c_str());
     }
   }
 }

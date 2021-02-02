@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class TtsPlayer;
@@ -33,14 +31,15 @@ namespace TtsPlayerFactory
  * @return dummy implementation of Tts Player
  */
 __attribute__((weak))
-std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode)
+std::unique_ptr<TtsPlayer>
+New(Dali::TtsPlayer::Mode mode)
 {
   return std::unique_ptr<TtsPlayer>(new Internal::Adaptor::TtsPlayer());
 }
-}
+} // namespace TtsPlayerFactory
 
-}
+} // namespace Adaptor
 
-}
+} // namespace Internal
 
-}
+} // namespace Dali

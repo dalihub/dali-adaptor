@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 namespace Dali::Internal::Adaptor
 {
 WindowRenderSurfaceCocoa::WindowRenderSurfaceCocoa(Dali::PositionSize positionSize, Any surface, bool isTransparent)
-  : WindowRenderSurface(positionSize, surface, isTransparent)
-  , mReady(false)
+: WindowRenderSurface(positionSize, surface, isTransparent),
+  mReady(false)
 {
 }
 
@@ -29,7 +29,7 @@ void WindowRenderSurfaceCocoa::StartRender()
 {
   std::unique_lock<std::mutex> lock(mCondMutex);
   WindowRenderSurface::StartRender();
-  while (!mReady)
+  while(!mReady)
   {
     mRenderWait.wait(lock);
   }
@@ -42,4 +42,4 @@ void WindowRenderSurfaceCocoa::CreateSurface()
   mReady = true;
   mRenderWait.notify_all();
 }
-} // Dali::Internal::Adaptor
+} // namespace Dali::Internal::Adaptor

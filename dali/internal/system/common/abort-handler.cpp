@@ -27,17 +27,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 AbortHandler* AbortHandler::gInstance(NULL);
 
-AbortHandler::AbortHandler( CallbackBase* callback )
-: mSignalMask( 0 ),
-  mCallback( callback )
+AbortHandler::AbortHandler(CallbackBase* callback)
+: mSignalMask(0),
+  mCallback(callback)
 {
-  DALI_ASSERT_ALWAYS( gInstance == NULL && "Only one instance of abort handler allowed" );
+  DALI_ASSERT_ALWAYS(gInstance == NULL && "Only one instance of abort handler allowed");
   gInstance = this;
 
-  memset( mSignalOldHandlers, 0, sizeof(SignalHandlerFuncPtr) * (_NSIG-1));
+  memset(mSignalOldHandlers, 0, sizeof(SignalHandlerFuncPtr) * (_NSIG - 1));
 }
 
 AbortHandler::~AbortHandler()
@@ -45,32 +44,32 @@ AbortHandler::~AbortHandler()
   delete mCallback;
 
   int signum;
-  for ( signum = 1; signum < _NSIG; signum++ )
+  for(signum = 1; signum < _NSIG; signum++)
   {
-    if ( mSignalMask & (1ULL << (signum-1) ) )
+    if(mSignalMask & (1ULL << (signum - 1)))
     {
       // set signals back to default handling
-      signal( signum, mSignalOldHandlers[signum-1] );
+      signal(signum, mSignalOldHandlers[signum - 1]);
     }
   }
   gInstance = NULL;
 }
 
-bool AbortHandler::AbortOnSignal( int signum )
+bool AbortHandler::AbortOnSignal(int signum)
 {
   bool status = false;
 
-  if ( signum < _NSIG )
+  if(signum < _NSIG)
   {
-    SignalHandlerFuncPtr signalHandlerPrevious = signal( signum, &AbortHandler::SignalHandler );
+    SignalHandlerFuncPtr signalHandlerPrevious = signal(signum, &AbortHandler::SignalHandler);
 
 // SIG_ERR is a macro with C cast
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-  if ( SIG_ERR != signalHandlerPrevious )
+    if(SIG_ERR != signalHandlerPrevious)
     {
-      mSignalOldHandlers[signum-1] = signalHandlerPrevious;
-      mSignalMask |= ( 1ULL << (signum-1) );
+      mSignalOldHandlers[signum - 1] = signalHandlerPrevious;
+      mSignalMask |= (1ULL << (signum - 1));
       status = true;
     }
   }
@@ -78,17 +77,17 @@ bool AbortHandler::AbortOnSignal( int signum )
   return status;
 }
 
-void AbortHandler::SignalHandler( int signum )
+void AbortHandler::SignalHandler(int signum)
 {
-  if( gInstance )
+  if(gInstance)
   {
-    if( gInstance->mCallback )
+    if(gInstance->mCallback)
     {
-      CallbackBase::Execute( *gInstance->mCallback );
+      CallbackBase::Execute(*gInstance->mCallback);
     }
   }
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

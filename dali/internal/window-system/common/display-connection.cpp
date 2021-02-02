@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,37 +16,35 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
+#include <dali/internal/window-system/common/display-connection.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
-
+#include <dali/internal/window-system/common/display-connection-impl.h>
 
 namespace Dali
 {
-
-DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics )
+DisplayConnection* DisplayConnection::New(Dali::Internal::Adaptor::GraphicsInterface& graphics)
 {
-  auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
+  auto factory           = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
-  Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
-  internal->SetGraphicsInterface( graphics );
+  Internal::Adaptor::DisplayConnection* internal(displayConnection.release());
+  internal->SetGraphicsInterface(graphics);
 
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type )
+DisplayConnection* DisplayConnection::New(Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type)
 {
-  auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
+  auto factory           = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
-  Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
+  Internal::Adaptor::DisplayConnection* internal(displayConnection.release());
 
-  internal->SetGraphicsInterface( graphics );
-  internal->SetSurfaceType( type );
+  internal->SetGraphicsInterface(graphics);
+  internal->SetSurfaceType(type);
 
   return new DisplayConnection(internal);
 }
@@ -57,7 +55,7 @@ DisplayConnection::~DisplayConnection() = default;
 
 DisplayConnection::DisplayConnection(Internal::Adaptor::DisplayConnection* impl)
 {
-  mImpl.reset( impl );
+  mImpl.reset(impl);
 }
 
 Any DisplayConnection::GetDisplay()
@@ -75,4 +73,4 @@ bool DisplayConnection::Initialize()
   return mImpl->InitializeGraphics();
 }
 
-}
+} // namespace Dali

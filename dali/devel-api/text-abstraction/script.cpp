@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,18 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace
 {
-constexpr unsigned int WHITE_SPACE_THRESHOLD  = 0x21; ///< All characters below 0x21 are considered white spaces.
-constexpr unsigned int CHAR_LF   = 0x000A; ///< NL Line feed, new line.
-constexpr unsigned int CHAR_VT   = 0x000B; ///< Vertical tab.
-constexpr unsigned int CHAR_FF   = 0x000C; ///< NP Form feed, new page.
-constexpr unsigned int CHAR_CR   = 0x000D; ///< Carriage return, new line.
-constexpr unsigned int CHAR_NEL  = 0x0085; ///< Next line.
-constexpr unsigned int CHAR_LS   = 0x2028; ///< Line separator.
-constexpr unsigned int CHAR_PS   = 0x2029; ///< Paragraph separator
+constexpr unsigned int WHITE_SPACE_THRESHOLD = 0x21;   ///< All characters below 0x21 are considered white spaces.
+constexpr unsigned int CHAR_LF               = 0x000A; ///< NL Line feed, new line.
+constexpr unsigned int CHAR_VT               = 0x000B; ///< Vertical tab.
+constexpr unsigned int CHAR_FF               = 0x000C; ///< NP Form feed, new page.
+constexpr unsigned int CHAR_CR               = 0x000D; ///< Carriage return, new line.
+constexpr unsigned int CHAR_NEL              = 0x0085; ///< Next line.
+constexpr unsigned int CHAR_LS               = 0x2028; ///< Line separator.
+constexpr unsigned int CHAR_PS               = 0x2029; ///< Paragraph separator
 
 constexpr unsigned int CHAR_ZWS  = 0x200B; ///< Zero width space.
 constexpr unsigned int CHAR_ZWNJ = 0x200C; ///< Zero width non joiner.
@@ -263,31 +261,30 @@ constexpr unsigned int CHAR_TS   = 0x2009; ///< Thin Space.
 // 0x25aa
 // 0x262a
 
-
 /// character <= 0x077f
 inline Script GetScriptTillArabicSupplement(Character character)
 {
   Script script = UNKNOWN;
 
-  if( ( 0x0030 <= character ) && ( character <= 0x0039 ) )
+  if((0x0030 <= character) && (character <= 0x0039))
   {
     script = ASCII_DIGITS;
   }
-  else if( character <= 0x007E )
+  else if(character <= 0x007E)
   {
-    if( ( 0x0020 <= character ) && ( character <= 0x002F ) )
+    if((0x0020 <= character) && (character <= 0x002F))
     {
       script = ASCII_PS;
     }
-    else if( ( 0x003A <= character ) && ( character <= 0x0040 ) )
+    else if((0x003A <= character) && (character <= 0x0040))
     {
       script = ASCII_PS;
     }
-    else if( ( 0x005B <= character ) && ( character <= 0x0060 ) )
+    else if((0x005B <= character) && (character <= 0x0060))
     {
       script = ASCII_PS;
     }
-    else if( ( 0x007B <= character ) && ( character <= 0x007E ) )
+    else if((0x007B <= character) && (character <= 0x007E))
     {
       script = ASCII_PS;
     }
@@ -296,19 +293,19 @@ inline Script GetScriptTillArabicSupplement(Character character)
       script = LATIN;
     }
   }
-  else if( ( 0x007F <= character ) && ( character <= 0x009F ) )
+  else if((0x007F <= character) && (character <= 0x009F))
   {
     // 0x007F is actually part of C0 Controls and Basic Latin. However, is the last and only control character of its block
     // and the following characters of the next block are consecutive.
     script = C1_CONTROLS;
   }
-  else if( ( 0x00A0 <= character ) && ( character <= 0x00BF ) )
+  else if((0x00A0 <= character) && (character <= 0x00BF))
   {
-    if( character == 0x00A9 )
+    if(character == 0x00A9)
     {
       script = EMOJI; // 5. Uncategorized: copyright sign
     }
-    else if( character == 0x00AE )
+    else if(character == 0x00AE)
     {
       script = EMOJI; // 5. Uncategorized: registered sign
     }
@@ -317,17 +314,17 @@ inline Script GetScriptTillArabicSupplement(Character character)
       script = C1_PS;
     }
   }
-  else if( character == 0x00D7 )
+  else if(character == 0x00D7)
   {
     script = C1_MATH;
   }
-  else if( character == 0x00F7 )
+  else if(character == 0x00F7)
   {
     script = C1_MATH;
   }
-  else if( ( 0x00C0 <= character ) && ( character <= 0x02ff ) )
+  else if((0x00C0 <= character) && (character <= 0x02ff))
   {
-    if( ( 0x02B9 <= character ) && ( character <= 0x02BF ) )
+    if((0x02B9 <= character) && (character <= 0x02BF))
     {
       script = SML_P;
     }
@@ -336,31 +333,31 @@ inline Script GetScriptTillArabicSupplement(Character character)
       script = LATIN;
     }
   }
-  else if( ( 0x0370 <= character ) && ( character <= 0x03ff ) )
+  else if((0x0370 <= character) && (character <= 0x03ff))
   {
     script = GREEK;
   }
-  else if( ( 0x0400 <= character ) && ( character <= 0x04ff ) )
+  else if((0x0400 <= character) && (character <= 0x04ff))
   {
     script = CYRILLIC;
   }
-  else if( ( 0x0500 <= character ) && ( character <= 0x052f ) )
+  else if((0x0500 <= character) && (character <= 0x052f))
   {
     script = CYRILLIC;
   }
-  else if( ( 0x0530 <= character ) && ( character <= 0x058f ) )
+  else if((0x0530 <= character) && (character <= 0x058f))
   {
     script = ARMENIAN;
   }
-  else if( ( 0x0591 <= character ) && ( character <= 0x05f4 ) )
+  else if((0x0591 <= character) && (character <= 0x05f4))
   {
     script = HEBREW;
   }
-  else if( ( 0x0600 <= character ) && ( character <= 0x06ff ) )
+  else if((0x0600 <= character) && (character <= 0x06ff))
   {
     script = ARABIC;
   }
-  else if( ( 0x0750 <= character ) && ( character <= 0x077f ) )
+  else if((0x0750 <= character) && (character <= 0x077f))
   {
     script = ARABIC;
   }
@@ -373,21 +370,21 @@ inline Script GetScriptTillBengali(Character character)
 {
   Script script = UNKNOWN;
 
-  if( character <= 0x077f )
+  if(character <= 0x077f)
   {
     script = GetScriptTillArabicSupplement(character);
   }
   else // > 0x077f
   {
-    if( ( 0x08A0 <= character ) && ( character <= 0x08ff ) )
+    if((0x08A0 <= character) && (character <= 0x08ff))
     {
       script = ARABIC;
     }
-    else if( ( 0x0900 <= character ) && ( character <= 0x097f ) )
+    else if((0x0900 <= character) && (character <= 0x097f))
     {
       script = DEVANAGARI;
     }
-    else if( ( 0x0980 <= character ) && ( character <= 0x09ff ) )
+    else if((0x0980 <= character) && (character <= 0x09ff))
     {
       script = BENGALI;
     }
@@ -397,36 +394,36 @@ inline Script GetScriptTillBengali(Character character)
 }
 
 /// 0x09ff < character <= 0x0cff
-inline Script GetScriptBetweenBengaliAndKannada( Character character )
+inline Script GetScriptBetweenBengaliAndKannada(Character character)
 {
   Script script = UNKNOWN;
 
-  if( character <= 0x0b7f )
+  if(character <= 0x0b7f)
   {
-    if( ( 0x0a00 <= character ) && ( character <= 0x0a7f ) )
+    if((0x0a00 <= character) && (character <= 0x0a7f))
     {
       script = GURMUKHI;
     }
-    else if( ( 0x0a80 <= character ) && ( character <= 0x0aff ) )
+    else if((0x0a80 <= character) && (character <= 0x0aff))
     {
       script = GUJARATI;
     }
-    else if( ( 0x0b00 <= character ) && ( character <= 0x0b7f ) )
+    else if((0x0b00 <= character) && (character <= 0x0b7f))
     {
       script = ORIYA;
     }
   }
   else // > 0x0b7f
   {
-    if( ( 0x0b80 <= character ) && ( character <= 0x0bff ) )
+    if((0x0b80 <= character) && (character <= 0x0bff))
     {
       script = TAMIL;
     }
-    else if( ( 0x0c00 <= character ) && ( character <= 0x0c7f ) )
+    else if((0x0c00 <= character) && (character <= 0x0c7f))
     {
       script = TELUGU;
     }
-    else if( ( 0x0c80 <= character ) && ( character <= 0x0cff ) )
+    else if((0x0c80 <= character) && (character <= 0x0cff))
     {
       script = KANNADA;
     }
@@ -440,85 +437,85 @@ inline Script GetScriptBetweenKannadaAndLatinExtendedAdditional(Character charac
 {
   Script script = UNKNOWN;
 
-  if( ( 0x0d00 <= character ) && ( character <= 0x0d7f ) )
+  if((0x0d00 <= character) && (character <= 0x0d7f))
   {
     script = MALAYALAM;
   }
-  else if( ( 0x0d80 <= character ) && ( character <= 0x0dff ) )
+  else if((0x0d80 <= character) && (character <= 0x0dff))
   {
     script = SINHALA;
   }
-  else if( ( 0x0e00 <= character ) && ( character <= 0x0e7f ) )
+  else if((0x0e00 <= character) && (character <= 0x0e7f))
   {
     script = THAI;
   }
-  else if( ( 0x0e80 <= character ) && ( character <= 0x0eff ) )
+  else if((0x0e80 <= character) && (character <= 0x0eff))
   {
     script = LAO;
   }
-  else if( ( 0x1000 <= character ) && ( character <= 0x109f ) )
+  else if((0x1000 <= character) && (character <= 0x109f))
   {
     script = BURMESE;
   }
-  else if( ( 0x10a0 <= character ) && ( character <= 0x10ff ) )
+  else if((0x10a0 <= character) && (character <= 0x10ff))
   {
     script = GEORGIAN;
   }
-  else if( ( 0x1100 <= character ) && ( character <= 0x11ff ) )
+  else if((0x1100 <= character) && (character <= 0x11ff))
   {
     script = HANGUL;
   }
-  else if( ( 0x1200 <= character ) && ( character <= 0x137f ) )
+  else if((0x1200 <= character) && (character <= 0x137f))
   {
     script = GEEZ;
   }
-  else if( ( 0x1380 <= character ) && ( character <= 0x139f ) )
+  else if((0x1380 <= character) && (character <= 0x139f))
   {
     script = GEEZ;
   }
-  else if( ( 0x1700 <= character ) && ( character <= 0x171f ) )
+  else if((0x1700 <= character) && (character <= 0x171f))
   {
     script = BAYBAYIN;
   }
-  else if( ( 0x1780 <= character ) && ( character <= 0x17ff ) )
+  else if((0x1780 <= character) && (character <= 0x17ff))
   {
     script = KHMER;
   }
-  else if( ( 0x19e0 <= character ) && ( character <= 0x19ff ) )
+  else if((0x19e0 <= character) && (character <= 0x19ff))
   {
     script = KHMER;
   }
-  else if( ( 0x1b80 <= character ) && ( character <= 0x1bbf ) )
+  else if((0x1b80 <= character) && (character <= 0x1bbf))
   {
     script = SUNDANESE;
   }
-  else if( ( 0x1c50 <= character ) && ( character <= 0x1c7f ) )
+  else if((0x1c50 <= character) && (character <= 0x1c7f))
   {
     script = OL_CHIKI;
   }
-  else if( ( 0x1cc0 <= character ) && ( character <= 0x1ccf ) )
+  else if((0x1cc0 <= character) && (character <= 0x1ccf))
   {
     script = SUNDANESE;
   }
-  else if( ( 0x1d00 <= character ) && ( character <= 0x1eff ) )
+  else if((0x1d00 <= character) && (character <= 0x1eff))
   {
-    if( ( 0x1D26 <= character ) && ( character <= 0x1D2B ) )
+    if((0x1D26 <= character) && (character <= 0x1D2B))
     {
       script = PHONETIC_U;
     }
-    else if( ( 0x1D5D <= character ) && ( character <= 0x1D61 ) )
+    else if((0x1D5D <= character) && (character <= 0x1D61))
     {
       script = PHONETIC_SS;
     }
-    else if( ( 0x1D66 <= character ) && ( character <= 0x1D6A ) )
+    else if((0x1D66 <= character) && (character <= 0x1D6A))
     {
       script = PHONETIC_SS;
     }
-    else if( character == 0x1D78 )
+    else if(character == 0x1D78)
     {
       script = PHONETIC_SS;
     }
-    else if( character == 0x1DBF)
+    else if(character == 0x1DBF)
     {
       script = PHONETIC_SS;
     }
@@ -536,25 +533,25 @@ inline Script GetScriptBetweenLatinExtendedAdditionalAndLatinExtendedC(Character
 {
   Script script = UNKNOWN;
 
-  if( ( 0x1f00 <= character ) && ( character <= 0x1fff ) )
+  if((0x1f00 <= character) && (character <= 0x1fff))
   {
     script = GREEK;
   }
-  else if( character == 0x203c )
+  else if(character == 0x203c)
   {
     script = EMOJI; // 5. Uncategorized: double exclamation mark
   }
-  else if( character == 0x2049 )
+  else if(character == 0x2049)
   {
     script = EMOJI; // 5. Uncategorized: exclamation question mark
   }
-  else if( ( 0x2070 <= character ) && ( character <= 0x209f ) )
+  else if((0x2070 <= character) && (character <= 0x209f))
   {
-    if( character == 0x2070 )
+    if(character == 0x2070)
     {
       script = NUMERIC_SS;
     }
-    else if( ( 0x2074 <= character ) && ( character <= 0x207E ) )
+    else if((0x2074 <= character) && (character <= 0x207E))
     {
       script = NUMERIC_SS;
     }
@@ -563,31 +560,31 @@ inline Script GetScriptBetweenLatinExtendedAdditionalAndLatinExtendedC(Character
       script = LATIN;
     }
   }
-  else if( character == 0x20e3 )
+  else if(character == 0x20e3)
   {
     script = EMOJI; // 5. Uncategorized: combining enclosing keycap
   }
-  else if( character == 0x2122 )
+  else if(character == 0x2122)
   {
     script = EMOJI; // 5. Uncategorized: trade mark sign
   }
-  else if( character == 0x2139 )
+  else if(character == 0x2139)
   {
     script = EMOJI; // 5. Uncategorized: information source
   }
-  else if( ( 0x2100 <= character ) && ( character <= 0x2189 ) )
+  else if((0x2100 <= character) && (character <= 0x2189))
   {
-    if( ( 0x2100 <= character ) && ( character <= 0x214f ) )
+    if((0x2100 <= character) && (character <= 0x214f))
     {
-      if( ( 0x212A <= character ) && ( character <= 0x212B ) )
+      if((0x212A <= character) && (character <= 0x212B))
       {
         script = LATIN;
       }
-      else if( character == 0x2132 )
+      else if(character == 0x2132)
       {
         script = LATIN;
       }
-      else if( character == 0x214E )
+      else if(character == 0x214E)
       {
         script = LATIN;
       }
@@ -596,11 +593,11 @@ inline Script GetScriptBetweenLatinExtendedAdditionalAndLatinExtendedC(Character
         script = LETTER_LIKE;
       }
     }
-    else if( ( 0x2150 <= character ) && ( character <= 0x215F ) )
+    else if((0x2150 <= character) && (character <= 0x215F))
     {
       script = FRACTIONS_NF;
     }
-    else if( character == 0x2189 )
+    else if(character == 0x2189)
     {
       script = FRACTIONS_NF;
     }
@@ -610,39 +607,39 @@ inline Script GetScriptBetweenLatinExtendedAdditionalAndLatinExtendedC(Character
     }
   }
   // Symbols
-  else if( ( 0x25cb == character ) ||
-           ( 0x25cf == character ) ||
-           ( 0x25a1 == character ) )
+  else if((0x25cb == character) ||
+          (0x25cf == character) ||
+          (0x25a1 == character))
   {
     script = SYMBOLS1;
   }
-  else if( 0x25a0 == character )
+  else if(0x25a0 == character)
   {
     script = SYMBOLS2;
   }
-  else if( ( 0x2664 == character ) ||
-           ( 0x2661 == character ) ||
-           ( 0x2662 == character ) ||
-           ( 0x2667 == character ) )
+  else if((0x2664 == character) ||
+          (0x2661 == character) ||
+          (0x2662 == character) ||
+          (0x2667 == character))
   {
     script = SYMBOLS3;
   }
-  else if( ( 0x2606 == character ) ||
-           ( 0x25aa == character ) )
+  else if((0x2606 == character) ||
+          (0x25aa == character))
   {
     script = SYMBOLS4;
   }
-  else if( 0x262a == character )
+  else if(0x262a == character)
   {
     script = SYMBOLS5;
   }
   // U+2194 5. Uncategorized: left right arrow
   // U+2B55 5. Uncategorized: heavy large circle
-  else if( ( 0x2194 <= character ) && ( character <= 0x2B55 ) )
+  else if((0x2194 <= character) && (character <= 0x2B55))
   {
     script = EMOJI;
   }
-  else if( ( 0x2c60 <= character ) && ( character <= 0x2c7f ) )
+  else if((0x2c60 <= character) && (character <= 0x2c7f))
   {
     script = LATIN;
   }
@@ -655,7 +652,7 @@ inline Script GetScriptBetweenKannadaAndLatinExtendedC(Character character)
 {
   Script script = UNKNOWN;
 
-  if( character <= 0x1eff )
+  if(character <= 0x1eff)
   {
     script = GetScriptBetweenKannadaAndLatinExtendedAdditional(character);
   }
@@ -672,97 +669,97 @@ inline Script GetScriptBetweenLatinExtendedCAndLatinExtendedD(Character characte
 {
   Script script = UNKNOWN;
 
-  if( ( 0x2d00 <= character ) && ( character <= 0x2d2f ) )
+  if((0x2d00 <= character) && (character <= 0x2d2f))
   {
     script = GEORGIAN;
   }
-  else if( ( 0x2d80 <= character ) && ( character <= 0x2ddf ) )
+  else if((0x2d80 <= character) && (character <= 0x2ddf))
   {
     script = GEEZ;
   }
-  else if( ( 0x2de0 <= character ) && ( character <= 0x2dff ) )
+  else if((0x2de0 <= character) && (character <= 0x2dff))
   {
     script = CYRILLIC;
   }
-  else if( ( 0x2e80 <= character ) && ( character <= 0x2eff ) )
+  else if((0x2e80 <= character) && (character <= 0x2eff))
   {
     script = CJK;
   }
-  else if( ( 0x2f00 <= character ) && ( character <= 0x2fdf ) )
+  else if((0x2f00 <= character) && (character <= 0x2fdf))
   {
     script = CJK;
   }
-  else if( ( 0x3000 <= character ) && ( character <= 0x303f ) )
+  else if((0x3000 <= character) && (character <= 0x303f))
   {
     script = CJK;
   }
-  else if( ( 0x3040 <= character ) && ( character <= 0x309f ) )
+  else if((0x3040 <= character) && (character <= 0x309f))
   {
     script = HIRAGANA;
   }
-  else if( ( 0x30a0 <= character ) && ( character <= 0x30ff ) )
+  else if((0x30a0 <= character) && (character <= 0x30ff))
   {
     script = KATAKANA;
   }
-  else if( ( 0x3100 <= character ) && ( character <= 0x312f ) )
+  else if((0x3100 <= character) && (character <= 0x312f))
   {
     script = BOPOMOFO;
   }
-  else if( ( 0x3130 <= character ) && ( character <= 0x318f ) )
+  else if((0x3130 <= character) && (character <= 0x318f))
   {
     script = HANGUL;
   }
-  else if( ( 0x31a0 <= character ) && ( character <= 0x31bf ) )
+  else if((0x31a0 <= character) && (character <= 0x31bf))
   {
     script = BOPOMOFO;
   }
-  else if( ( 0x3200 <= character ) && ( character <= 0x32ff ) )
+  else if((0x3200 <= character) && (character <= 0x32ff))
   {
     script = CJK;
   }
-  else if( ( 0x3400 <= character ) && ( character <= 0x4dbf ) )
+  else if((0x3400 <= character) && (character <= 0x4dbf))
   {
     script = CJK;
   }
-  else if( ( 0x4e00 <= character ) && ( character <= 0x62ff ) )
+  else if((0x4e00 <= character) && (character <= 0x62ff))
   {
     script = CJK;
   }
-  else if( ( 0x6300 <= character ) && ( character <= 0x77ff ) )
+  else if((0x6300 <= character) && (character <= 0x77ff))
   {
     script = CJK;
   }
-  else if( ( 0x7800 <= character ) && ( character <= 0x8cff ) )
+  else if((0x7800 <= character) && (character <= 0x8cff))
   {
     script = CJK;
   }
-  else if( ( 0x8d00 <= character ) && ( character <= 0x9fff ) )
+  else if((0x8d00 <= character) && (character <= 0x9fff))
   {
     script = CJK;
   }
-  else if( ( 0xa640 <= character ) && ( character <= 0xa69f ) )
+  else if((0xa640 <= character) && (character <= 0xa69f))
   {
     script = CYRILLIC;
   }
-  else if( ( 0xa720 <= character ) && ( character <= 0xa7ff ) )
+  else if((0xa720 <= character) && (character <= 0xa7ff))
   {
-    if( character == 0xA720 )
+    if(character == 0xA720)
     {
       script = PHONETIC_U;
     }
-    else if( character == 0xA721 )
+    else if(character == 0xA721)
     {
       script = PHONETIC_U;
     }
-    else if( character == 0xA788 )
+    else if(character == 0xA788)
     {
       script = NON_LATIN_LED;
     }
-    else if( character == 0xA789 )
+    else if(character == 0xA789)
     {
       script = NON_LATIN_LED;
     }
-    else if( character == 0xA78A )
+    else if(character == 0xA78A)
     {
       script = NON_LATIN_LED;
     }
@@ -780,51 +777,51 @@ inline Script GetScriptBetweenLatinExtendedCAndArabicPresentationFormsA(Characte
 {
   Script script = GetScriptBetweenLatinExtendedCAndLatinExtendedD(character);
 
-  if( ( 0xa960 <= character ) && ( character <= 0xa97f ) )
+  if((0xa960 <= character) && (character <= 0xa97f))
   {
     script = HANGUL;
   }
-  else if( ( 0xa980 <= character ) && ( character <= 0xa9fd ) )
+  else if((0xa980 <= character) && (character <= 0xa9fd))
   {
     script = JAVANESE;
   }
-  else if( ( 0xab00 <= character ) && ( character <= 0xab2f ) )
+  else if((0xab00 <= character) && (character <= 0xab2f))
   {
     script = GEEZ;
   }
-  else if( ( 0xab30 <= character ) && ( character <= 0xab6f ) )
+  else if((0xab30 <= character) && (character <= 0xab6f))
   {
     script = LATIN;
   }
-  else if( ( 0xaae0 <= character ) && ( character <= 0xaaff ) )
+  else if((0xaae0 <= character) && (character <= 0xaaff))
   {
     script = MEITEI;
   }
-  else if( ( 0xabc0 <= character ) && ( character <= 0xabff ) )
+  else if((0xabc0 <= character) && (character <= 0xabff))
   {
     script = MEITEI;
   }
-  else if( ( 0xac00 <= character ) && ( character <= 0xd7af ) )
+  else if((0xac00 <= character) && (character <= 0xd7af))
   {
     script = HANGUL;
   }
-  else if( ( 0xd7b0 <= character ) && ( character <= 0xd7ff ) )
+  else if((0xd7b0 <= character) && (character <= 0xd7ff))
   {
     script = HANGUL;
   }
-  else if( ( 0xfb00 <= character ) && ( character <= 0xfb06 ) )
+  else if((0xfb00 <= character) && (character <= 0xfb06))
   {
     script = LATIN;
   }
-  else if( ( 0xfb13 <= character ) && ( character <= 0xfb17 ) )
+  else if((0xfb13 <= character) && (character <= 0xfb17))
   {
     script = ARMENIAN;
   }
-  else if( ( 0xfb1d <= character ) && ( character <= 0xfb4f ) )
+  else if((0xfb1d <= character) && (character <= 0xfb4f))
   {
     script = HEBREW;
   }
-  else if( ( 0xfb50 <= character ) && ( character <= 0xfdff ) )
+  else if((0xfb50 <= character) && (character <= 0xfdff))
   {
     script = ARABIC;
   }
@@ -837,21 +834,21 @@ inline Script GetScriptAboveArabicPresentationFormsA(Character character)
 {
   Script script = UNKNOWN;
 
-  if( ( 0xfe70 <= character ) && ( character <= 0xfeff ) )
+  if((0xfe70 <= character) && (character <= 0xfeff))
   {
     script = ARABIC;
   }
-  else if( ( 0xff00 <= character ) && ( character <= 0xffef ) )
+  else if((0xff00 <= character) && (character <= 0xffef))
   {
-    if( ( 0xFF00 <= character ) && ( character <= 0xFF20 ) )
+    if((0xFF00 <= character) && (character <= 0xFF20))
     {
       script = HWFW_S;
     }
-    else if( ( 0xFF3B <= character ) && ( character <= 0xFF40 ) )
+    else if((0xFF3B <= character) && (character <= 0xFF40))
     {
       script = HWFW_S;
     }
-    else if( ( 0xFF5B <= character ) && ( character <= 0xFFEF ) )
+    else if((0xFF5B <= character) && (character <= 0xFFEF))
     {
       script = HWFW_S;
     }
@@ -860,54 +857,54 @@ inline Script GetScriptAboveArabicPresentationFormsA(Character character)
       script = LATIN;
     }
   }
-  else if( ( 0x1ee00 <= character ) && ( character <= 0x1eeff ) )
+  else if((0x1ee00 <= character) && (character <= 0x1eeff))
   {
     script = ARABIC;
   }
   // U+1f170 4. Enclosed characters: negative squared latin capital letter A
   // U+1f6ff 6b. Additional transport and map symbols
-  else if( ( 0x1f170 <= character ) && ( character <= 0x1f6ff ) )
+  else if((0x1f170 <= character) && (character <= 0x1f6ff))
   {
     script = EMOJI;
   }
   // 7. Supplemental Symbols and Pictographs
-  else if( ( 0x1f900 <= character ) && ( character <= 0x1f9ff ) )
+  else if((0x1f900 <= character) && (character <= 0x1f9ff))
   {
     script = EMOJI;
   }
-  else if( ( 0x20000 <= character ) && ( character <= 0x215ff ) )
+  else if((0x20000 <= character) && (character <= 0x215ff))
   {
     script = CJK;
   }
-  else if( ( 0x21600 <= character ) && ( character <= 0x230ff ) )
+  else if((0x21600 <= character) && (character <= 0x230ff))
   {
     script = CJK;
   }
-  else if( ( 0x23100 <= character ) && ( character <= 0x245ff ) )
+  else if((0x23100 <= character) && (character <= 0x245ff))
   {
     script = CJK;
   }
-  else if( ( 0x24600 <= character ) && ( character <= 0x260ff ) )
+  else if((0x24600 <= character) && (character <= 0x260ff))
   {
     script = CJK;
   }
-  else if( ( 0x26100 <= character ) && ( character <= 0x275ff ) )
+  else if((0x26100 <= character) && (character <= 0x275ff))
   {
     script = CJK;
   }
-  else if( ( 0x27600 <= character ) && ( character <= 0x290ff ) )
+  else if((0x27600 <= character) && (character <= 0x290ff))
   {
     script = CJK;
   }
-  else if( ( 0x29100 <= character ) && ( character <= 0x2a6df ) )
+  else if((0x29100 <= character) && (character <= 0x2a6df))
   {
     script = CJK;
   }
-  else if( ( 0x2a700 <= character ) && ( character <= 0x2b73f ) )
+  else if((0x2a700 <= character) && (character <= 0x2b73f))
   {
     script = CJK;
   }
-  else if( ( 0x2b740 <= character ) && ( character <= 0x2b81f ) )
+  else if((0x2b740 <= character) && (character <= 0x2b81f))
   {
     script = CJK;
   }
@@ -920,7 +917,7 @@ inline Script GetScriptAboveLatinExtendedC(Character character)
 {
   Script script = UNKNOWN;
 
-  if( character <= 0xfdff )
+  if(character <= 0xfdff)
   {
     script = GetScriptBetweenLatinExtendedCAndArabicPresentationFormsA(character);
   }
@@ -934,23 +931,23 @@ inline Script GetScriptAboveLatinExtendedC(Character character)
 
 } // namespace
 
-bool IsRightToLeftScript( Script script )
+bool IsRightToLeftScript(Script script)
 {
-  return ( ( ARABIC == script ) ||
-           ( HEBREW == script ) );
+  return ((ARABIC == script) ||
+          (HEBREW == script));
 }
 
-Script GetCharacterScript( Character character )
+Script GetCharacterScript(Character character)
 {
   Script script = UNKNOWN;
 
-  if( IsCommonScript( character ) )
+  if(IsCommonScript(character))
   {
     script = COMMON;
   }
-  else if( character <= 0x0cff )
+  else if(character <= 0x0cff)
   {
-    if( character <= 0x09ff )
+    if(character <= 0x09ff)
     {
       script = GetScriptTillBengali(character);
     }
@@ -961,9 +958,9 @@ Script GetCharacterScript( Character character )
   }
   else // > 0x0cff
   {
-    if( character <= 0x2c7f )
+    if(character <= 0x2c7f)
     {
-       script = GetScriptBetweenKannadaAndLatinExtendedC(character);
+      script = GetScriptBetweenKannadaAndLatinExtendedC(character);
     }
     else // > 0x2c7f
     {

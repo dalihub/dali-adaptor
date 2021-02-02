@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
 AndroidFramework* gAndroidFramework = nullptr; // raw specific pointer to allow AndroidFramework::Get
@@ -35,20 +32,20 @@ AndroidFramework* gAndroidFramework = nullptr; // raw specific pointer to allow 
 Dali::Integration::AndroidFramework& AndroidFramework::New()
 {
   Dali::Integration::AndroidFramework* androidFramework = new Dali::Integration::AndroidFramework;
-  AndroidFramework* impl = new AndroidFramework( androidFramework );
-  androidFramework->mImpl = impl;
+  AndroidFramework*                    impl             = new AndroidFramework(androidFramework);
+  androidFramework->mImpl                               = impl;
   return *androidFramework;
 }
 
 void AndroidFramework::Delete()
 {
-  DALI_ASSERT_ALWAYS( gAndroidFramework != nullptr && "Cannot delete already deleted AndroidFramework." );
+  DALI_ASSERT_ALWAYS(gAndroidFramework != nullptr && "Cannot delete already deleted AndroidFramework.");
 
   delete gAndroidFramework->mAndroidFramework;
   gAndroidFramework = nullptr;
 }
 
-void AndroidFramework::SetNativeApplication( android_app* application )
+void AndroidFramework::SetNativeApplication(android_app* application)
 {
   mNativeApplication = application;
 }
@@ -58,7 +55,7 @@ android_app* AndroidFramework::GetNativeApplication() const
   return mNativeApplication;
 }
 
-void AndroidFramework::SetJVM( JavaVM* jvm )
+void AndroidFramework::SetJVM(JavaVM* jvm)
 {
   mJVM = jvm;
 }
@@ -68,7 +65,7 @@ JavaVM* AndroidFramework::GetJVM() const
   return mJVM;
 }
 
-void AndroidFramework::SetApplicationAssets( AAssetManager* assets )
+void AndroidFramework::SetApplicationAssets(AAssetManager* assets)
 {
   mAssets = assets;
 }
@@ -78,7 +75,7 @@ AAssetManager* AndroidFramework::GetApplicationAssets() const
   return mAssets;
 }
 
-void AndroidFramework::SetInternalDataPath( const std::string& path )
+void AndroidFramework::SetInternalDataPath(const std::string& path)
 {
   mInternalDataPath = path;
 }
@@ -88,7 +85,7 @@ std::string AndroidFramework::GetInternalDataPath() const
   return mInternalDataPath;
 }
 
-void AndroidFramework::SetApplicationConfiguration( AConfiguration* configuration )
+void AndroidFramework::SetApplicationConfiguration(AConfiguration* configuration)
 {
   mConfiguration = configuration;
 }
@@ -98,7 +95,7 @@ AConfiguration* AndroidFramework::GetApplicationConfiguration() const
   return mConfiguration;
 }
 
-void AndroidFramework::SetApplicationWindow( ANativeWindow* window )
+void AndroidFramework::SetApplicationWindow(ANativeWindow* window)
 {
   mWindow = window;
 }
@@ -110,46 +107,46 @@ ANativeWindow* AndroidFramework::GetApplicationWindow() const
 
 void AndroidFramework::OnTerminate()
 {
-  mFramework->AppStatusHandler( APP_DESTROYED, nullptr );
+  mFramework->AppStatusHandler(APP_DESTROYED, nullptr);
 }
 
 void AndroidFramework::OnPause()
 {
-  mFramework->AppStatusHandler( APP_PAUSE, nullptr );
+  mFramework->AppStatusHandler(APP_PAUSE, nullptr);
 }
 
 void AndroidFramework::OnResume()
 {
-  mFramework->AppStatusHandler( APP_RESUME, nullptr );
+  mFramework->AppStatusHandler(APP_RESUME, nullptr);
 }
 
-void AndroidFramework::OnWindowCreated( ANativeWindow* window )
+void AndroidFramework::OnWindowCreated(ANativeWindow* window)
 {
-  mFramework->AppStatusHandler( APP_WINDOW_CREATED, window );
+  mFramework->AppStatusHandler(APP_WINDOW_CREATED, window);
 }
 
-void AndroidFramework::OnWindowDestroyed( ANativeWindow* window )
+void AndroidFramework::OnWindowDestroyed(ANativeWindow* window)
 {
-  mFramework->AppStatusHandler( APP_WINDOW_DESTROYED, window );
+  mFramework->AppStatusHandler(APP_WINDOW_DESTROYED, window);
 }
 
 Dali::Integration::AndroidFramework& AndroidFramework::Get()
 {
-  DALI_ASSERT_ALWAYS( gAndroidFramework != nullptr && "AndroidFramework not instantiated" );
+  DALI_ASSERT_ALWAYS(gAndroidFramework != nullptr && "AndroidFramework not instantiated");
 
   return *gAndroidFramework->mAndroidFramework;
 }
 
-AndroidFramework::AndroidFramework( Dali::Integration::AndroidFramework* androidFramework )
- : mAndroidFramework( androidFramework ),
-   mFramework( nullptr ),
-   mNativeApplication( nullptr ),
-   mWindow( nullptr ),
-   mAssets( nullptr ),
-   mConfiguration( nullptr ),
-   mJVM( nullptr )
+AndroidFramework::AndroidFramework(Dali::Integration::AndroidFramework* androidFramework)
+: mAndroidFramework(androidFramework),
+  mFramework(nullptr),
+  mNativeApplication(nullptr),
+  mWindow(nullptr),
+  mAssets(nullptr),
+  mConfiguration(nullptr),
+  mJVM(nullptr)
 {
-  DALI_ASSERT_ALWAYS( gAndroidFramework == nullptr && "Cannot create more than one AndroidFramework." );
+  DALI_ASSERT_ALWAYS(gAndroidFramework == nullptr && "Cannot create more than one AndroidFramework.");
 
   gAndroidFramework = this;
 }

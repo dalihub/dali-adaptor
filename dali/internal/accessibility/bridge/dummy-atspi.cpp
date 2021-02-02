@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,13 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
-namespace Dali {
-namespace {
-
+namespace Dali
+{
+namespace
+{
 struct DummyBridge : Dali::Accessibility::Bridge
 {
   const std::string& GetBusName() const override
@@ -29,19 +30,19 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return name;
   }
 
-  void AddTopLevelWindow(Accessibility::Accessible *) override
+  void AddTopLevelWindow(Accessibility::Accessible*) override
   {
   }
 
-  void RemoveTopLevelWindow(Accessibility::Accessible *) override
+  void RemoveTopLevelWindow(Accessibility::Accessible*) override
   {
   }
 
-  void AddPopup(Accessibility::Accessible *) override
+  void AddPopup(Accessibility::Accessible*) override
   {
   }
 
-  void RemovePopup(Accessibility::Accessible *) override
+  void RemovePopup(Accessibility::Accessible*) override
   {
   }
 
@@ -49,12 +50,12 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  Accessibility::Accessible *GetApplication() const override
+  Accessibility::Accessible* GetApplication() const override
   {
     return nullptr;
   }
 
-  Accessibility::Accessible *FindByPath(const std::string& s) const override
+  Accessibility::Accessible* FindByPath(const std::string& s) const override
   {
     return nullptr;
   }
@@ -84,31 +85,31 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitCaretMoved(Accessibility::Accessible *obj, unsigned int cursorPosition) override
+  void EmitCaretMoved(Accessibility::Accessible* obj, unsigned int cursorPosition) override
   {
   }
 
-  void EmitActiveDescendantChanged(Accessibility::Accessible *obj, Accessibility::Accessible *child) override
+  void EmitActiveDescendantChanged(Accessibility::Accessible* obj, Accessibility::Accessible* child) override
   {
   }
 
-  void EmitTextChanged(Accessibility::Accessible *obj, Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string &content) override
+  void EmitTextChanged(Accessibility::Accessible* obj, Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override
   {
   }
 
-  void EmitStateChanged(Accessibility::Accessible *obj, Accessibility::State state, int val1, int val2) override
+  void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int val1, int val2) override
   {
   }
 
-  void Emit(Accessibility::Accessible *obj, Accessibility::WindowEvent we, unsigned int detail1) override
+  void Emit(Accessibility::Accessible* obj, Accessibility::WindowEvent we, unsigned int detail1) override
   {
   }
 
-  void Emit(Accessibility::Accessible *obj, Accessibility::ObjectPropertyChangeEvent event) override
+  void Emit(Accessibility::Accessible* obj, Accessibility::ObjectPropertyChangeEvent event) override
   {
   }
 
-  void EmitBoundsChanged(Accessibility::Accessible *obj, Rect<> rect) override
+  void EmitBoundsChanged(Accessibility::Accessible* obj, Rect<> rect) override
   {
   }
 
@@ -117,7 +118,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return Accessibility::Consumed::YES;
   }
 
-  void Say( const std::string& text, bool discardable, std::function<void(std::string)> callback ) override
+  void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
   {
   }
 
@@ -152,12 +153,12 @@ Accessibility::Accessible::~Accessible()
 {
 }
 
-std::vector<Accessibility::Accessible *> Accessibility::Accessible::GetChildren()
+std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
 {
   return {};
 }
 
-Accessibility::Accessible *Accessibility::Accessible::GetDefaultLabel()
+Accessibility::Accessible* Accessibility::Accessible::GetDefaultLabel()
 {
   return nullptr;
 }
@@ -167,7 +168,7 @@ Accessibility::Address Accessibility::Accessible::GetAddress()
   return {};
 }
 
-std::shared_ptr< Accessibility::Bridge::Data > Accessibility::Accessible::GetBridgeData()
+std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridgeData()
 {
   return {};
 }
@@ -187,12 +188,12 @@ bool Accessibility::Component::Contains(Point p, CoordType ctype)
   return false;
 }
 
-Accessibility::Accessible *Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point p, Accessibility::CoordType ctype)
+Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point p, Accessibility::CoordType ctype)
 {
   return nullptr;
 }
 
-Accessibility::Bridge *Accessibility::Bridge::GetCurrentBridge()
+Accessibility::Bridge* Accessibility::Bridge::GetCurrentBridge()
 {
   return &dummyBridge;
 }
@@ -225,11 +226,11 @@ void Accessibility::Accessible::EmitVisible(bool visible)
 {
 }
 
-void Accessibility::Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string &content)
+void Accessibility::Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
 {
 }
 
-void Accessibility::Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string &content)
+void Accessibility::Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
 {
 }
 
@@ -237,15 +238,15 @@ void Accessibility::Accessible::EmitTextCaretMoved(unsigned int cursorPosition)
 {
 }
 
-void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* obj, Accessibility::Accessible *child)
+void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* obj, Accessibility::Accessible* child)
 {
 }
 
-void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t *s, size_t length, const char *language, char *breaks)
+void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
 {
 }
 
-void Accessibility::Accessible::FindLineSeparationsUtf8(const utf8_t *s, size_t length, const char *language, char *breaks)
+void Accessibility::Accessible::FindLineSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
 {
 }
 

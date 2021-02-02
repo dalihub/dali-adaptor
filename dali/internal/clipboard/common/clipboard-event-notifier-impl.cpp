@@ -19,18 +19,15 @@
 #include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 Dali::ClipboardEventNotifier ClipboardEventNotifier::New()
 {
   Dali::ClipboardEventNotifier notifier = Dali::ClipboardEventNotifier(new ClipboardEventNotifier());
@@ -42,20 +39,20 @@ Dali::ClipboardEventNotifier ClipboardEventNotifier::Get()
 {
   Dali::ClipboardEventNotifier notifier;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::ClipboardEventNotifier ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::ClipboardEventNotifier));
     if(handle)
     {
       // If so, downcast the handle
-      notifier = Dali::ClipboardEventNotifier( dynamic_cast< ClipboardEventNotifier* >( handle.GetObjectPtr() ) );
+      notifier = Dali::ClipboardEventNotifier(dynamic_cast<ClipboardEventNotifier*>(handle.GetObjectPtr()));
     }
     else
     {
-      notifier = Dali::ClipboardEventNotifier( ClipboardEventNotifier::New() );
-      service.Register( typeid( notifier ), notifier );
+      notifier = Dali::ClipboardEventNotifier(ClipboardEventNotifier::New());
+      service.Register(typeid(notifier), notifier);
     }
   }
 
@@ -67,7 +64,7 @@ const std::string& ClipboardEventNotifier::GetContent() const
   return mContent;
 }
 
-void ClipboardEventNotifier::SetContent( const std::string& content )
+void ClipboardEventNotifier::SetContent(const std::string& content)
 {
   mContent = content;
 }
@@ -79,10 +76,10 @@ void ClipboardEventNotifier::ClearContent()
 
 void ClipboardEventNotifier::EmitContentSelectedSignal()
 {
-  if ( !mContentSelectedSignal.Empty() )
+  if(!mContentSelectedSignal.Empty())
   {
-    Dali::ClipboardEventNotifier handle( this );
-    mContentSelectedSignal.Emit( handle );
+    Dali::ClipboardEventNotifier handle(this);
+    mContentSelectedSignal.Emit(handle);
   }
 }
 

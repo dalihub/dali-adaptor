@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,33 +23,31 @@
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 namespace
 {
 const unsigned int MIN_HTTP_URL_LENGTH = 12; // assume we have a least http://xx/yy
-const char HTTP_URL[] = "http://";
-const char HTTPS_URL[] = "https://";
-}
+const char         HTTP_URL[]          = "http://";
+const char         HTTPS_URL[]         = "https://";
+} // namespace
 
-bool Network::IsHttpUrl( const std::string& path )
+bool Network::IsHttpUrl(const std::string& path)
 {
- if( path.size() <= MIN_HTTP_URL_LENGTH )
- {
-   return false;
- }
+  if(path.size() <= MIN_HTTP_URL_LENGTH)
+  {
+    return false;
+  }
 
- if( ( strncasecmp( path.c_str(), HTTP_URL,  sizeof(HTTP_URL)  -1 ) == 0 )  ||
-     ( strncasecmp( path.c_str(), HTTPS_URL, sizeof(HTTPS_URL) -1 ) == 0 ) )
- {
-   return true;
- }
+  if((strncasecmp(path.c_str(), HTTP_URL, sizeof(HTTP_URL) - 1) == 0) ||
+     (strncasecmp(path.c_str(), HTTPS_URL, sizeof(HTTPS_URL) - 1) == 0))
+  {
+    return true;
+  }
 
- return false;
+  return false;
 }
 
-} // TizenPlatform
+} // namespace TizenPlatform
 
-} // Dali
+} // namespace Dali

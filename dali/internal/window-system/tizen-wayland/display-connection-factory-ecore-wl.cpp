@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> DisplayConnectionFactoryEcoreWl::CreateDisplayConnection()
 {
   return Utils::MakeUnique<DisplayConnectionEcoreWl>();
@@ -37,6 +36,6 @@ std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory()
   return Utils::MakeUnique<DisplayConnectionFactoryEcoreWl>();
 }
 
-}
-}
-}
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

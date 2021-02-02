@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,36 +19,32 @@
 #include <dali/internal/haptics/common/feedback-player-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-
 // Type Registration
 Dali::BaseHandle Create()
 {
   return FeedbackPlayer::Get();
 }
 
-Dali::TypeRegistration FEEDBACK_PLAYER_TYPE( typeid(Dali::FeedbackPlayer), typeid(Dali::BaseHandle), Create );
+Dali::TypeRegistration FEEDBACK_PLAYER_TYPE(typeid(Dali::FeedbackPlayer), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 
 Dali::FeedbackPlayer FeedbackPlayer::New()
 {
-  Dali::FeedbackPlayer player = Dali::FeedbackPlayer( new FeedbackPlayer() );
+  Dali::FeedbackPlayer player = Dali::FeedbackPlayer(new FeedbackPlayer());
   return player;
 }
 
@@ -56,34 +52,34 @@ Dali::FeedbackPlayer FeedbackPlayer::Get()
 {
   Dali::FeedbackPlayer player;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::FeedbackPlayer ) );
-    if ( handle )
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::FeedbackPlayer));
+    if(handle)
     {
       // If so, downcast the handle
-      player = Dali::FeedbackPlayer( dynamic_cast< FeedbackPlayer* >( handle.GetObjectPtr() ) );
+      player = Dali::FeedbackPlayer(dynamic_cast<FeedbackPlayer*>(handle.GetObjectPtr()));
     }
     else
     {
-      player = Dali::FeedbackPlayer( New() );
-      service.Register( typeid( player ), player );
+      player = Dali::FeedbackPlayer(New());
+      service.Register(typeid(player), player);
     }
   }
 
   return player;
 }
 
-void FeedbackPlayer::PlayMonotone( unsigned int duration )
+void FeedbackPlayer::PlayMonotone(unsigned int duration)
 {
-  mPlugin.PlayHapticMonotone( duration );
+  mPlugin.PlayHapticMonotone(duration);
 }
 
-void FeedbackPlayer::PlayFile( const std::string& filePath )
+void FeedbackPlayer::PlayFile(const std::string& filePath)
 {
-  mPlugin.PlayHaptic( filePath );
+  mPlugin.PlayHaptic(filePath);
 }
 
 void FeedbackPlayer::Stop()
@@ -91,17 +87,17 @@ void FeedbackPlayer::Stop()
   mPlugin.StopHaptic();
 }
 
-int FeedbackPlayer::PlaySound( const std::string& filename )
+int FeedbackPlayer::PlaySound(const std::string& filename)
 {
   return mPlugin.PlaySound(filename);
 }
 
-void FeedbackPlayer::StopSound( int handle )
+void FeedbackPlayer::StopSound(int handle)
 {
   mPlugin.StopSound(handle);
 }
 
-void FeedbackPlayer::PlayFeedbackPattern( int type, int pattern )
+void FeedbackPlayer::PlayFeedbackPattern(int type, int pattern)
 {
   mPlugin.PlayFeedbackPattern(type, pattern);
 }
@@ -110,11 +106,11 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
 {
   bool loaded = false;
 
-  std::streampos bufferSize = 0;
+  std::streampos     bufferSize = 0;
   Dali::Vector<char> fileBuffer;
-  if( Dali::FileLoader::ReadFile( filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT ) )
+  if(Dali::FileLoader::ReadFile(filename, bufferSize, fileBuffer, FileLoader::FileType::TEXT))
   {
-    data.assign( &fileBuffer[0], bufferSize );
+    data.assign(&fileBuffer[0], bufferSize);
     loaded = true;
   }
 
@@ -122,7 +118,7 @@ bool FeedbackPlayer::LoadFile(const std::string& filename, std::string& data)
 }
 
 FeedbackPlayer::FeedbackPlayer()
-: mPlugin( FeedbackPluginProxy::DEFAULT_OBJECT_NAME )
+: mPlugin(FeedbackPluginProxy::DEFAULT_OBJECT_NAME)
 {
 }
 

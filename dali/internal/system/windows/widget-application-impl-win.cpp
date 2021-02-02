@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,24 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/windows/widget-application-impl-win.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/windows/widget-application-impl-win.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 WidgetApplicationPtr WidgetApplicationWin::New(
-  int* argc,
-  char **argv[],
+  int*               argc,
+  char**             argv[],
   const std::string& stylesheet)
 {
-  return new WidgetApplicationWin(argc, argv, stylesheet );
+  return new WidgetApplicationWin(argc, argv, stylesheet);
 }
 
-WidgetApplicationWin::WidgetApplicationWin( int* argc, char** argv[], const std::string& stylesheet )
+WidgetApplicationWin::WidgetApplicationWin(int* argc, char** argv[], const std::string& stylesheet)
 : WidgetApplication(argc, argv, stylesheet)
 {
   DALI_LOG_ERROR("WidgetApplication is not implemented in UBUNTU profile.\n");
@@ -46,8 +43,7 @@ WidgetApplicationWin::~WidgetApplicationWin()
 {
 }
 
-
-void WidgetApplicationWin::RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction )
+void WidgetApplicationWin::RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction)
 {
 }
 
@@ -60,12 +56,12 @@ namespace WidgetApplicationFactory
  * @param[in]  argv         A pointer to the argument list
  * @param[in]  stylesheet   The path to user defined theme file
  */
-WidgetApplicationPtr Create( int* argc, char **argv[], const std::string& stylesheet )
+WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet)
 {
-  return WidgetApplicationWin::New( argc, argv, stylesheet );
+  return WidgetApplicationWin::New(argc, argv, stylesheet);
 }
 
-} // namespace Factory
+} // namespace WidgetApplicationFactory
 
 } // namespace Adaptor
 
