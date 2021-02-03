@@ -23,8 +23,9 @@
 #include <dali/devel-api/adaptor-framework/web-engine-console-message.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
-#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-load-error.h>
+#include <dali/devel-api/adaptor-framework/web-engine-policy-decision.h>
+#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
@@ -510,6 +511,11 @@ Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& WebEngine::Request
 Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& WebEngine::ConsoleMessageSignal()
 {
   return GetImplementation(*this).ConsoleMessageSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& WebEngine::PolicyDecisionSignal()
+{
+  return GetImplementation(*this).PolicyDecisionSignal();
 }
 
 } // namespace Dali

@@ -494,6 +494,11 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
 
+  /**
+   @copydoc Dali::WebEngine::PolicyDecisionSignal()
+   */
+  Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
+
 private:
   /**
    * @brief Constructor.

@@ -36,8 +36,9 @@ class WebEngineConsoleMessage;
 class WebEngineContext;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
-class WebEngineRequestInterceptor;
 class WebEngineLoadError;
+class WebEnginePolicyDecision;
+class WebEngineRequestInterceptor;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
@@ -128,6 +129,11 @@ public:
    * @brief WebView signal type related with frame rendered.
    */
   using WebEngineFrameRenderedSignalType = Signal<void(void)>;
+
+  /**
+   * @brief WebView signal type related with policy would be decided.
+   */
+  using WebEnginePolicyDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -755,6 +761,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineConsoleMessageSignalType& ConsoleMessageSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when new policy would be decided.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEnginePolicyDecisionSignalType& PolicyDecisionSignal() = 0;
 };
 
 // specialization has to be done in the same namespace

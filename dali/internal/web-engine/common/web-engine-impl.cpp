@@ -32,6 +32,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
 #include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-load-error.h>
+#include <dali/devel-api/adaptor-framework/web-engine-policy-decision.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
@@ -605,6 +606,11 @@ Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& WebEngine::Request
 Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& WebEngine::ConsoleMessageSignal()
 {
   return mPlugin->ConsoleMessageSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& WebEngine::PolicyDecisionSignal()
+{
+  return mPlugin->PolicyDecisionSignal();
 }
 
 } // namespace Adaptor

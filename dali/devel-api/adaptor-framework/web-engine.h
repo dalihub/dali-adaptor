@@ -678,6 +678,13 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
 
+  /**
+   * @brief Connects to this signal to be notified when new policy would be decided.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor
