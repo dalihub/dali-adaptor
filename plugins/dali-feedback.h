@@ -2,7 +2,7 @@
 #define FEEDBACK_PLUGIN_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,14 @@
 
 namespace Dali
 {
-
 namespace Plugin
 {
-
 /**
  * Plays feedback effects for Dali-Toolkit UI Controls.
  */
 class DaliFeedback : public Dali::FeedbackPlugin
 {
-
 public: // Construction & Destruction
-
   /**
    * Constructor
    */
@@ -46,16 +42,15 @@ public: // Construction & Destruction
   virtual ~DaliFeedback();
 
 public: // FeedbackPlugin overrides
-
   /**
    * @copydoc Dali::Integration::FeedbackPlugin::PlayHaptic()
    */
-  void PlayHaptic( const std::string& filePath );
+  void PlayHaptic(const std::string& filePath);
 
   /**
    * @copydoc Dali::FeedbackPlugin::PlayHapticMonotone()
    */
-  void PlayHapticMonotone( unsigned int duration );
+  void PlayHapticMonotone(unsigned int duration);
 
   /**
    * @copydoc Dali::FeedbackPlugin::StopHaptic()
@@ -65,21 +60,21 @@ public: // FeedbackPlugin overrides
   /**
    * @copydoc Dali::FeedbackPlugin::PlaySound()
    */
-  int PlaySound( const std::string& fileName );
+  int PlaySound(const std::string& fileName);
 
   /**
    * @copydoc Dali::FeedbackPlugin::StopSound()
    */
-  void StopSound( int handle );
+  void StopSound(int handle);
 
   /**
    * @copydoc Dali::FeedbackPlugin::PlayFeedbackPattern()
    */
-  void PlayFeedbackPattern( int type, int pattern );
+  void PlayFeedbackPattern(int type, int pattern);
 };
 
-}  // namespace Plugin
+} // namespace Plugin
 
-}  // namespace Dali
+} // namespace Dali
 
 #endif // FEEDBACK_PLUGIN_H

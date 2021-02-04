@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_NETWORK_FILE_DOWNLOAD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,19 +20,16 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
-#include <string>
-#include <mutex> //c++11
 #include <stdint.h> // uint8
+#include <mutex>    //c++11
+#include <string>
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 namespace Network
 {
-
 /**
  * Set up the cURL environment - this will ensure curl_global_init is called on startup
  * and curl_global_cleanup is called on shutdown.
@@ -54,12 +51,11 @@ public:
 
   // Moveable but not copyable
 
-  CurlEnvironment( const CurlEnvironment& ) = delete;
-  CurlEnvironment& operator=( const CurlEnvironment& ) = delete;
-  CurlEnvironment( CurlEnvironment&& ) = default;
-  CurlEnvironment& operator=( CurlEnvironment&& ) = default;
+  CurlEnvironment(const CurlEnvironment&) = delete;
+  CurlEnvironment& operator=(const CurlEnvironment&) = delete;
+  CurlEnvironment(CurlEnvironment&&)                 = default;
+  CurlEnvironment& operator=(CurlEnvironment&&) = default;
 };
-
 
 /**
  * Download a requested file into a memory buffer.
@@ -75,10 +71,10 @@ public:
  * @return true on success, false on failure
  *
  */
-bool DownloadRemoteFileIntoMemory( const std::string& url,
-                                   Dali::Vector<uint8_t>& dataBuffer,
-                                   size_t& dataSize,
-                                   size_t maximumAllowedSizeBytes );
+bool DownloadRemoteFileIntoMemory(const std::string&     url,
+                                  Dali::Vector<uint8_t>& dataBuffer,
+                                  size_t&                dataSize,
+                                  size_t                 maximumAllowedSizeBytes);
 
 } // namespace Network
 

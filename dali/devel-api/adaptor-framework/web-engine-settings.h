@@ -22,15 +22,12 @@
 
 namespace Dali
 {
-
 /**
  * @brief A class WebEngineSettings for settings of web engine.
  */
 class WebEngineSettings
 {
-
 public:
-
   /**
    * @brief Constructor.
    */
@@ -47,7 +44,7 @@ public:
    * @param[in] allowed if true, allow to run mixed contents,
    *      otherwise not allow
    */
-  virtual void AllowMixedContents( bool allowed ) = 0;
+  virtual void AllowMixedContents(bool allowed) = 0;
 
   /**
    * @brief Enable the spatial navigation or not.
@@ -55,7 +52,7 @@ public:
    * @param[in] enabled if true, use spatial navigation,
    *       otherwise to disable
    */
-  virtual void EnableSpatialNavigation( bool enabled ) = 0;
+  virtual void EnableSpatialNavigation(bool enabled) = 0;
 
   /**
    * @brief Get the default font size.
@@ -69,7 +66,7 @@ public:
    *
    * @param[in] size a new default font size to set
    */
-  virtual void SetDefaultFontSize( uint32_t size ) = 0;
+  virtual void SetDefaultFontSize(uint32_t size) = 0;
 
   /**
    * @brief Enables/disables web security.
@@ -77,7 +74,7 @@ public:
    * @param[in] enabled if true, to enable the web security
    *       otherwise to disable
    */
-  virtual void EnableWebSecurity( bool enabled ) = 0;
+  virtual void EnableWebSecurity(bool enabled) = 0;
 
   /**
    * @brief Allow/Disallow file access from external url
@@ -85,7 +82,7 @@ public:
    * @param[in] allowed if true, to allow file access from external url
    *       otherwise to disallow
    */
-  virtual void AllowFileAccessFromExternalUrl( bool allowed ) = 0;
+  virtual void AllowFileAccessFromExternalUrl(bool allowed) = 0;
 
   /**
    * @brief Check if javascript is enabled or not.
@@ -100,7 +97,7 @@ public:
    * @param[in] enabled if true, to enable javascript
    *       otherwise to disable
    */
-  virtual void EnableJavaScript( bool enabled ) = 0;
+  virtual void EnableJavaScript(bool enabled) = 0;
 
   /**
    * @brief Allow if the scripts can open new windows.
@@ -108,7 +105,7 @@ public:
    * @param[in] allowed if true, the scripts can open new windows,
    *       otherwise not
    */
-  virtual void AllowScriptsOpenWindows( bool allowed ) = 0;
+  virtual void AllowScriptsOpenWindows(bool allowed) = 0;
 
   /**
    * @brief Check if images are loaded automatically or not.
@@ -123,7 +120,7 @@ public:
    * @param[in] automatic if true, to load images automatically,
    *       otherwise not
    */
-  virtual void AllowImagesLoadAutomatically( bool automatic ) = 0;
+  virtual void AllowImagesLoadAutomatically(bool automatic) = 0;
 
   /**
    * @brief Get the default encoding name.
@@ -137,8 +134,7 @@ public:
    *
    * @param[in] defaultTextEncodingName a default encoding name to set
    */
-  virtual void SetDefaultTextEncodingName( const std::string& defaultTextEncodingName ) = 0;
-
+  virtual void SetDefaultTextEncodingName(const std::string& defaultTextEncodingName) = 0;
 };
 
 } // namespace Dali

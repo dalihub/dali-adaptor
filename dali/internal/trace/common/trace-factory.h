@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRACE_FACTORY_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,17 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TraceManagerFactory
 {
-
 using TraceManagerUPtr = std::unique_ptr<TraceManager>;
 
 // Factory function creating new TraceFactory
 // Symbol exists but may be overriden during linking
-TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface );
+TraceManagerUPtr CreateTraceFactory(PerformanceInterface* performanceInterface);
 
 } // namespace TraceManagerFactory
 

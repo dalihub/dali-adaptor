@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMPONENT_APPLICATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,8 @@ class Adaptor;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class ComponentApplication;
 typedef IntrusivePtr<ComponentApplication> ComponentApplicationPtr;
 
@@ -52,17 +50,17 @@ public:
    * @param[in]  windowMode   A member of WINDOW_MODE
    * @return A handle to the ComponentApplication
    */
-  static ComponentApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  static ComponentApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * @brief The default constructor.
    */
-  ComponentApplication( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * @brief Undefined copy constructor.
    */
-  ComponentApplication( const ComponentApplication& ) = default;
+  ComponentApplication(const ComponentApplication&) = default;
 
   /**
    * @brief Destructor
@@ -72,16 +70,16 @@ public:
   /**
    *@brief Undefined assignment operator.
    */
-  ComponentApplication& operator=( const ComponentApplication& ) = delete;
+  ComponentApplication& operator=(const ComponentApplication&) = delete;
 
-public:  // From Framework::Observer
+public: // From Framework::Observer
   /**
    * Called when the framework is Component Application Created.
    */
   Any OnCreate() override;
 
 public:
-  CreateSignal                           mCreateSignal;
+  CreateSignal mCreateSignal;
 };
 
 inline ComponentApplication& GetImplementation(Dali::ComponentApplication& application)
@@ -101,7 +99,6 @@ inline const ComponentApplication& GetImplementation(const Dali::ComponentApplic
 
   return static_cast<const Internal::Adaptor::ComponentApplication&>(handle);
 }
-
 
 } // namespace Adaptor
 

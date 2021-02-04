@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ORIENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <cmath>
 #include <dali/public-api/common/constants.h>
 #include <dali/public-api/object/base-object.h>
+#include <cmath>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/orientation.h>
@@ -29,10 +29,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class Window;
@@ -43,7 +41,6 @@ typedef IntrusivePtr<Orientation> OrientationPtr;
 class Orientation : public BaseObject
 {
 public:
-
   typedef Dali::Orientation::OrientationSignalType OrientationSignalType;
 
   static Orientation* New(Window* window);
@@ -60,7 +57,6 @@ protected:
   ~Orientation() override;
 
 public:
-
   /**
    * Returns the actual orientation in degrees
    * @return The device's orientation
@@ -77,33 +73,30 @@ public:
    * Called by the Window when orientation is changed
    * @param[in] rotation The rotation event
    */
-  void OnOrientationChange( const RotationEvent& rotation );
+  void OnOrientationChange(const RotationEvent& rotation);
 
 public: // Signals
-
   /**
    * @copydoc Dali::Orientation::ChangedSignal()
    */
   OrientationSignalType& ChangedSignal();
 
 private:
-
   // Undefined
   Orientation(const Orientation&);
   Orientation& operator=(Orientation&);
 
 private:
-
-  Window*                                  mWindow;
+  Window* mWindow;
 
   OrientationSignalType mChangedSignal;
 
-  int                                      mOrientation;
-  int                                      mWindowWidth;
-  int                                      mWindowHeight;
+  int mOrientation;
+  int mWindowWidth;
+  int mWindowHeight;
 };
 
-inline Orientation& GetImplementation (Dali::Orientation& orientation)
+inline Orientation& GetImplementation(Dali::Orientation& orientation)
 {
   DALI_ASSERT_ALWAYS(orientation && "Orientation handle is empty");
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_VISIBILITY_OBSERVER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,20 +20,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * An interface used to observe when the application's window is shown/hidden.
  */
 class WindowVisibilityObserver
 {
 public:
-
   /**
    * Called when the window becomes fully or partially visible.
    */
@@ -45,7 +41,6 @@ public:
   virtual void OnWindowHidden() = 0;
 
 protected:
-
   /**
    * Protected Constructor.
    */

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_CORE_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 namespace Dali
 {
-
 namespace Integration
 {
 struct Event;
@@ -28,10 +27,8 @@ struct Event;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * This interface should be used by adaptor components to send events to Core.
  * This is preferable to using Core directly i.e. so there is a common place for measuring performance.
@@ -39,7 +36,6 @@ namespace Adaptor
 class CoreEventInterface
 {
 public:
-
   /**
    * Queue an event with Core.
    * @param[in] event The new event.
@@ -52,16 +48,17 @@ public:
   virtual void ProcessCoreEvents() = 0;
 
 protected:
-
   /**
    * Protected virtual destructor
    */
-  virtual ~CoreEventInterface() {}
+  virtual ~CoreEventInterface()
+  {
+  }
 };
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

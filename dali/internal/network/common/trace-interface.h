@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_TRACE_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,15 @@
 // EXTERNAL INCLUDES
 #include <string>
 
-
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/performance-marker.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Abstract Tracing Interface.
  * Used to log trace messages.
@@ -42,18 +38,15 @@ namespace Adaptor
  */
 class TraceInterface
 {
-
 public:
-
   /**
    * Write a trace message
    * @param marker performance marker
    * @param traceMessage trace message
    */
-  virtual void Trace( const PerformanceMarker& marker, const std::string& traceMessage ) = 0;
+  virtual void Trace(const PerformanceMarker& marker, const std::string& traceMessage) = 0;
 
 protected:
-
   /**
    * Constructor
    */
@@ -69,15 +62,15 @@ protected:
   }
 
   // Undefined copy constructor.
-  TraceInterface( const TraceInterface& );
+  TraceInterface(const TraceInterface&);
 
   // Undefined assignment operator.
-  TraceInterface& operator=( const TraceInterface& );
+  TraceInterface& operator=(const TraceInterface&);
 };
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_CLIENT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,21 +22,17 @@
 #include <pthread.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/performance-marker.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/network/common/client-send-data-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
-#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
-
+#include <dali/internal/system/common/performance-marker.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  *  @brief Network Performance client
  *
@@ -58,7 +54,6 @@ namespace Adaptor
 class NetworkPerformanceClient
 {
 public:
-
   /**
    * @brief Constructor
    * @param thread thread pointer
@@ -67,11 +62,11 @@ public:
    * @param sendDataInterface used to send data to the socket from main thread
    * @param SocketFactoryInterface used to delete the socket when the client is destroyed
    */
-  NetworkPerformanceClient( pthread_t* thread,
-                            SocketInterface *socket,
-                            unsigned int clientId,
-                            ClientSendDataInterface& sendDataInterface,
-                            SocketFactoryInterface& socketFactory );
+  NetworkPerformanceClient(pthread_t*               thread,
+                           SocketInterface*         socket,
+                           unsigned int             clientId,
+                           ClientSendDataInterface& sendDataInterface,
+                           SocketFactoryInterface&  socketFactory);
 
   /**
    * @brief Destructor
@@ -92,20 +87,20 @@ public:
    * @brief Write data to a socket. Can be called from any thread
    * @copydoc Dali::SocketInterface::Send
    */
-  bool WriteSocket( const void* buffer, unsigned int bufferSizeInBytes );
+  bool WriteSocket(const void* buffer, unsigned int bufferSizeInBytes);
 
   /**
    * @brief Process a command
    * @param buffer pointer to command data
    * @param bufferSizeInBytes how big the buffer is in bytes
    */
-  void ProcessCommand( char* buffer, unsigned int bufferSizeInBytes );
+  void ProcessCommand(char* buffer, unsigned int bufferSizeInBytes);
 
   /**
    * @brief Write a marker to the socket, if this client is filtering this marker.
    * @param marker
    */
-  bool TransmitMarker( const PerformanceMarker& marker, const char* const description );
+  bool TransmitMarker(const PerformanceMarker& marker, const char* const description);
 
   /**
    * @brief If the client is waiting inside a select statement, this will cause it
@@ -120,21 +115,18 @@ public:
   pthread_t* GetThread();
 
 private:
-
-  pthread_t* mThread;                                   ///< thread for the client
-  SocketInterface* mSocket;                             ///< socket interface
-  PerformanceMarker::MarkerFilter mMarkerBitmask;       ///< What markers are currently filtered
-  ClientSendDataInterface& mSendDataInterface;          ///< used to send data to a client from the main event thread
-  SocketFactoryInterface& mSocketFactoryInterface;      ///< used to delete the socket
-  unsigned int mClientId;                               ///< unique client id
-  bool mConsoleClient;                                  ///< if connected via a console then all responses are in ASCII, not binary packed data.
-
+  pthread_t*                      mThread;                 ///< thread for the client
+  SocketInterface*                mSocket;                 ///< socket interface
+  PerformanceMarker::MarkerFilter mMarkerBitmask;          ///< What markers are currently filtered
+  ClientSendDataInterface&        mSendDataInterface;      ///< used to send data to a client from the main event thread
+  SocketFactoryInterface&         mSocketFactoryInterface; ///< used to delete the socket
+  unsigned int                    mClientId;               ///< unique client id
+  bool                            mConsoleClient;          ///< if connected via a console then all responses are in ASCII, not binary packed data.
 };
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_X_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class NativeImageSourceFactoryWin : public NativeImageSourceFactory
 {
 public:
+  std::unique_ptr<NativeImageSource> CreateNativeImageSource(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource) override;
 
-  std::unique_ptr< NativeImageSource > CreateNativeImageSource( unsigned int width, unsigned int height,
-                                                                Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource ) override;
-
-  std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
-                                                                          Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue ) override;
-
+  std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue) override;
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_X_H

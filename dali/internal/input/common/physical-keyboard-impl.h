@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PHYSICAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,17 +26,13 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class PhysicalKeyboard : public BaseObject
 {
 public:
-
   /**
    * Creates a new instance of the PhysicalKeyboard.
    */
@@ -57,27 +53,28 @@ public:
    * keyboard then the parameter should be true.
    * @param[in]  fromPhysicalKeyboard  true if received from a physical keyboard, false otherwise.
    */
-  void KeyReceived( bool fromPhysicalKeyboard );
+  void KeyReceived(bool fromPhysicalKeyboard);
 
   // Signals
 
   /**
    * @copydoc Dali::PhysicalKeyboard::StatusChangedSignal()
    */
-  Dali::PhysicalKeyboard::PhysicalKeyboardSignalType& StatusChangedSignal() { return mStatusChangedSignal; }
+  Dali::PhysicalKeyboard::PhysicalKeyboardSignalType& StatusChangedSignal()
+  {
+    return mStatusChangedSignal;
+  }
 
 protected:
-
   /**
    * A reference counted object may only be deleted by calling Unreference()
    */
   ~PhysicalKeyboard() override;
 
 private:
-
   // Undefined
-  PhysicalKeyboard( const PhysicalKeyboard& );
-  PhysicalKeyboard& operator=( PhysicalKeyboard& );
+  PhysicalKeyboard(const PhysicalKeyboard&);
+  PhysicalKeyboard& operator=(PhysicalKeyboard&);
 
   /**
    * Constructor
@@ -85,9 +82,8 @@ private:
   PhysicalKeyboard();
 
 private:
-
   Dali::PhysicalKeyboard::PhysicalKeyboardSignalType mStatusChangedSignal; ///< Status changed signal
-  bool mAttached; ///< true if the physical keyboard is attached, false otherwise
+  bool                                               mAttached;            ///< true if the physical keyboard is attached, false otherwise
 };
 
 } // namespace Adaptor
@@ -96,22 +92,22 @@ private:
 
 // Helpers for public-api forwarding methods
 
-inline static Internal::Adaptor::PhysicalKeyboard& GetImplementation( PhysicalKeyboard& keyboard )
+inline static Internal::Adaptor::PhysicalKeyboard& GetImplementation(PhysicalKeyboard& keyboard)
 {
-  DALI_ASSERT_ALWAYS( keyboard && "PhysicalKeyboard handle is empty" );
+  DALI_ASSERT_ALWAYS(keyboard && "PhysicalKeyboard handle is empty");
 
   BaseObject& handle = keyboard.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::PhysicalKeyboard& >( handle );
+  return static_cast<Internal::Adaptor::PhysicalKeyboard&>(handle);
 }
 
-inline static const  Internal::Adaptor::PhysicalKeyboard& GetImplementation( const PhysicalKeyboard& keyboard )
+inline static const Internal::Adaptor::PhysicalKeyboard& GetImplementation(const PhysicalKeyboard& keyboard)
 {
-  DALI_ASSERT_ALWAYS( keyboard && "PhysicalKeyboard handle is empty" );
+  DALI_ASSERT_ALWAYS(keyboard && "PhysicalKeyboard handle is empty");
 
   const BaseObject& handle = keyboard.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::PhysicalKeyboard& >( handle );
+  return static_cast<const Internal::Adaptor::PhysicalKeyboard&>(handle);
 }
 
 } // namespace Dali

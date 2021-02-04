@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,19 +22,19 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/public-api/adaptor-framework/style-change.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/rotation-event.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
 {
@@ -42,14 +42,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * WindowBase interface
  */
 class WindowBase
 {
 public:
-
   /**
    * @brief Struct used to retrieve accessibility information
    */
@@ -65,27 +63,27 @@ public:
   };
 
   // Window
-  typedef Signal< void ( bool ) > IconifySignalType;
-  typedef Signal< void ( bool ) > FocusSignalType;
-  typedef Signal< void ( ) > OutputSignalType;
-  typedef Signal< void ( ) > DeleteSignalType;
-  typedef Signal< void ( const DamageArea& ) > DamageSignalType;
-  typedef Signal< void ( const RotationEvent& ) > RotationSignalType;
-  typedef Signal< void ( WindowEffectState, WindowEffectType ) > TransitionEffectEventSignalType;
-  typedef Signal< void ( ) > KeyboardRepeatSettingsChangedSignalType;
-  typedef Signal< void ( ) > WindowRedrawRequestSignalType;
+  typedef Signal<void(bool)>                                IconifySignalType;
+  typedef Signal<void(bool)>                                FocusSignalType;
+  typedef Signal<void()>                                    OutputSignalType;
+  typedef Signal<void()>                                    DeleteSignalType;
+  typedef Signal<void(const DamageArea&)>                   DamageSignalType;
+  typedef Signal<void(const RotationEvent&)>                RotationSignalType;
+  typedef Signal<void(WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType;
+  typedef Signal<void()>                                    KeyboardRepeatSettingsChangedSignalType;
+  typedef Signal<void()>                                    WindowRedrawRequestSignalType;
 
   // Input events
-  typedef Signal< void ( Integration::Point&, uint32_t ) > TouchEventSignalType;
-  typedef Signal< void ( Integration::WheelEvent& ) > WheelEventSignalType;
-  typedef Signal< void( Integration::KeyEvent& ) > KeyEventSignalType;
+  typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
+  typedef Signal<void(Integration::WheelEvent&)>      WheelEventSignalType;
+  typedef Signal<void(Integration::KeyEvent&)>        KeyEventSignalType;
 
   // Clipboard
-  typedef Signal< void ( void* ) > SelectionSignalType;
+  typedef Signal<void(void*)> SelectionSignalType;
 
   // Accessibility
-  typedef Signal< void ( StyleChange::Type ) > StyleSignalType;
-  typedef Signal< void ( const AccessibilityInfo& ) > AccessibilitySignalType;
+  typedef Signal<void(StyleChange::Type)>        StyleSignalType;
+  typedef Signal<void(const AccessibilityInfo&)> AccessibilitySignalType;
 
   /**
    * @brief Default constructor
@@ -98,7 +96,6 @@ public:
   virtual ~WindowBase();
 
 public:
-
   /**
    * @brief Get the native window handle
    * @return The native window handle
@@ -114,7 +111,7 @@ public:
   /**
    * @brief Create the egl window
    */
-  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) = 0;
+  virtual EGLNativeWindowType CreateEglWindow(int width, int height) = 0;
 
   /**
    * @brief Destroy the egl window
@@ -124,22 +121,22 @@ public:
   /**
    * @brief Set the egl window rotation
    */
-  virtual void SetEglWindowRotation( int angle ) = 0;
+  virtual void SetEglWindowRotation(int angle) = 0;
 
   /**
    * @brief Set the egl window buffer transform
    */
-  virtual void SetEglWindowBufferTransform( int angle ) = 0;
+  virtual void SetEglWindowBufferTransform(int angle) = 0;
 
   /**
    * @brief Set the egl window transform
    */
-  virtual void SetEglWindowTransform( int angle ) = 0;
+  virtual void SetEglWindowTransform(int angle) = 0;
 
   /**
    * @brief Resize the egl window
    */
-  virtual void ResizeEglWindow( Dali::PositionSize positionSize ) = 0;
+  virtual void ResizeEglWindow(Dali::PositionSize positionSize) = 0;
 
   /**
    * @brief Returns whether the egl window support rotation or not
@@ -149,22 +146,22 @@ public:
   /**
    * @brief Move the window
    */
-  virtual void Move( Dali::PositionSize positionSize ) = 0;
+  virtual void Move(Dali::PositionSize positionSize) = 0;
 
   /**
    * @brief Resize the window
    */
-  virtual void Resize( Dali::PositionSize positionSize ) = 0;
+  virtual void Resize(Dali::PositionSize positionSize) = 0;
 
   /**
    * @brief Move and resize the window
    */
-  virtual void MoveResize( Dali::PositionSize positionSize ) = 0;
+  virtual void MoveResize(Dali::PositionSize positionSize) = 0;
 
   /**
    * @copydoc Dali::Window::SetClass()
    */
-  virtual void SetClass( const std::string& name, const std::string& className ) = 0;
+  virtual void SetClass(const std::string& name, const std::string& className) = 0;
 
   /**
    * @copydoc Dali::Window::Raise()
@@ -184,17 +181,17 @@ public:
   /**
    * @copydoc Dali::Window::SetAvailableOrientations()
    */
-  virtual void SetAvailableAnlges( const std::vector< int >& angles ) = 0;
+  virtual void SetAvailableAnlges(const std::vector<int>& angles) = 0;
 
   /**
    * @copydoc Dali::Window::SetPreferredOrientation()
    */
-  virtual void SetPreferredAngle( int angle ) = 0;
+  virtual void SetPreferredAngle(int angle) = 0;
 
   /**
    * @copydoc Dali::Window::SetAcceptFocus()
    */
-  virtual void SetAcceptFocus( bool accept ) = 0;
+  virtual void SetAcceptFocus(bool accept) = 0;
 
   /**
    * @copydoc Dali::Window::Show()
@@ -214,47 +211,47 @@ public:
   /**
    * @copydoc Dali::Window::GetSupportedAuxiliaryHint()
    */
-  virtual std::string GetSupportedAuxiliaryHint( unsigned int index ) const = 0;
+  virtual std::string GetSupportedAuxiliaryHint(unsigned int index) const = 0;
 
   /**
    * @copydoc Dali::Window::AddAuxiliaryHint()
    */
-  virtual unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value ) = 0;
+  virtual unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value) = 0;
 
   /**
    * @copydoc Dali::Window::RemoveAuxiliaryHint()
    */
-  virtual bool RemoveAuxiliaryHint( unsigned int id ) = 0;
+  virtual bool RemoveAuxiliaryHint(unsigned int id) = 0;
 
   /**
    * @copydoc Dali::Window::SetAuxiliaryHintValue()
    */
-  virtual bool SetAuxiliaryHintValue( unsigned int id, const std::string& value ) = 0;
+  virtual bool SetAuxiliaryHintValue(unsigned int id, const std::string& value) = 0;
 
   /**
    * @copydoc Dali::Window::GetAuxiliaryHintValue()
    */
-  virtual std::string GetAuxiliaryHintValue( unsigned int id ) const = 0;
+  virtual std::string GetAuxiliaryHintValue(unsigned int id) const = 0;
 
   /**
    * @copydoc Dali::Window::GetAuxiliaryHintId()
    */
-  virtual unsigned int GetAuxiliaryHintId( const std::string& hint ) const = 0;
+  virtual unsigned int GetAuxiliaryHintId(const std::string& hint) const = 0;
 
   /**
    * @copydoc Dali::Window::SetInputRegion()
    */
-  virtual void SetInputRegion( const Rect< int >& inputRegion ) = 0;
+  virtual void SetInputRegion(const Rect<int>& inputRegion) = 0;
 
   /**
    * @copydoc Dali::Window::SetType()
    */
-  virtual void SetType( Dali::WindowType type ) = 0;
+  virtual void SetType(Dali::WindowType type) = 0;
 
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  virtual bool SetNotificationLevel( Dali::WindowNotificationLevel level ) = 0;
+  virtual bool SetNotificationLevel(Dali::WindowNotificationLevel level) = 0;
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
@@ -264,7 +261,7 @@ public:
   /**
    * @copydoc Dali::Window::SetOpaqueState()
    */
-  virtual void SetOpaqueState( bool opaque ) = 0;
+  virtual void SetOpaqueState(bool opaque) = 0;
 
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
@@ -279,7 +276,7 @@ public:
   /**
    * @copydoc Dali::Window::SetBrightness()
    */
-  virtual bool SetBrightness( int brightness ) = 0;
+  virtual bool SetBrightness(int brightness) = 0;
 
   /**
    * @copydoc Dali::Window::GetBrightness()
@@ -289,29 +286,29 @@ public:
   /**
    * @copydoc Dali::KeyGrab::GrabKey()
    */
-  virtual bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) = 0;
+  virtual bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKey()
    */
-  virtual bool UngrabKey( Dali::KEY key ) = 0;
+  virtual bool UngrabKey(Dali::KEY key) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::GrabKeyList()
    */
-  virtual bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) = 0;
+  virtual bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) = 0;
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKeyList()
    */
-  virtual bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) = 0;
+  virtual bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result) = 0;
 
   /**
    * @brief Get DPI
    * @param[out] dpiHorizontal set to the horizontal dpi
    * @param[out] dpiVertical set to the vertical dpi
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
+  virtual void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) = 0;
 
   /**
    * @brief Return the orientation of the surface.
@@ -327,22 +324,22 @@ public:
   /**
    * @brief Set the rotation angle of the window
    */
-  virtual void SetWindowRotationAngle( int degree ) = 0;
+  virtual void SetWindowRotationAngle(int degree) = 0;
 
   /**
    * @brief Inform the window rotation is completed
    */
-  virtual void WindowRotationCompleted( int degree, int width, int height ) = 0;
+  virtual void WindowRotationCompleted(int degree, int width, int height) = 0;
 
   /**
    * @copydoc Dali::Window::SetTransparency()
    */
-  virtual void SetTransparency( bool transparent ) = 0;
+  virtual void SetTransparency(bool transparent) = 0;
 
   /**
    * @copydoc Dali::Window::SetParent()
    */
-  virtual void SetParent( WindowBase* parentWinBase ) = 0;
+  virtual void SetParent(WindowBase* parentWinBase) = 0;
 
   /**
    * @brief Create a sync fence that can tell the frame is rendered by the graphics driver.
@@ -361,7 +358,7 @@ public:
   /**
    * @brief This signal is emitted when the window becomes iconified or deiconified.
    */
-   IconifySignalType& IconifyChangedSignal();
+  IconifySignalType& IconifyChangedSignal();
 
   /**
    * @brief This signal is emitted when the window focus is changed.
@@ -439,7 +436,6 @@ public:
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
 
 protected:
-
   // Undefined
   WindowBase(const WindowBase&) = delete;
 
@@ -447,7 +443,6 @@ protected:
   WindowBase& operator=(const WindowBase& rhs) = delete;
 
 protected:
-
   IconifySignalType                       mIconifyChangedSignal;
   FocusSignalType                         mFocusChangedSignal;
   OutputSignalType                        mOutputTransformedSignal;
@@ -468,7 +463,7 @@ protected:
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

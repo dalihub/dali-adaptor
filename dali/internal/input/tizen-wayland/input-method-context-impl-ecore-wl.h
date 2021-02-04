@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_METHOD_CONTEXT_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,35 +22,31 @@
 #include <dali/internal/input/linux/dali-ecore-imf.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
+#include <dali/integration-api/events/key-event-integ.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/integration-api/events/key-event-integ.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/input/common/input-method-context-impl.h>
 
 namespace Dali
 {
-
 class RenderSurface;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class InputMethodContextEcoreWl : public Dali::Internal::Adaptor::InputMethodContext, public Dali::ConnectionTracker
 {
 public:
-
   /**
    * @brief Creates a new InputMethodContext handle
    *
    * @param[in] actor The actor that uses the new InputMethodContext instance.
    * @return InputMethodContext pointer
    */
-  static InputMethodContextPtr New( Dali::Actor actor );
+  static InputMethodContextPtr New(Dali::Actor actor);
 
   /**
    * @brief Initializes member data.
@@ -58,7 +54,6 @@ public:
   void Initialize() override;
 
 public:
-
   /**
    * @copydoc Dali::InputMethodContext::Finalize()
    */
@@ -104,37 +99,37 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetRestoreAfterFocusLost()
    */
-  void SetRestoreAfterFocusLost( bool toggle ) override;
+  void SetRestoreAfterFocusLost(bool toggle) override;
 
   /**
    * @copydoc Dali::InputMethodContext::PreEditChanged()
    */
-  void PreEditChanged( void *data, ImfContext *imfContext, void *eventInfo ) override;
+  void PreEditChanged(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   /**
    * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
    */
-  void CommitReceived( void *data, ImfContext *imfContext, void *eventInfo ) override;
+  void CommitReceived(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   /**
    * @copydoc Dali::InputMethodContext::NotifyCursorPosition()
    */
-  bool RetrieveSurrounding( void *data, ImfContext *imfContext, char** text, int* cursorPosition ) override;
+  bool RetrieveSurrounding(void* data, ImfContext* imfContext, char** text, int* cursorPosition) override;
 
   /**
    * @copydoc Dali::InputMethodContext::DeleteSurrounding()
    */
-  void DeleteSurrounding( void *data, ImfContext *imfContext, void *eventInfo ) override;
+  void DeleteSurrounding(void* data, ImfContext* imfContext, void* eventInfo) override;
 
- /**
+  /**
   * @copydoc Dali::InputMethodContext::SendPrivateCommand()
   */
-  void SendPrivateCommand( void* data, ImfContext* imfContext, void* eventInfo ) override;
+  void SendPrivateCommand(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   /**
    * @copydoc Dali::InputMethodContext::SendCommitContent()
    */
-   void SendCommitContent( void* data, ImfContext* imfContext, void* eventInfo ) override;
+  void SendCommitContent(void* data, ImfContext* imfContext, void* eventInfo) override;
 
   // Cursor related
   /**
@@ -145,7 +140,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetCursorPosition()
    */
-  void SetCursorPosition( unsigned int cursorPosition ) override;
+  void SetCursorPosition(unsigned int cursorPosition) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetCursorPosition()
@@ -155,7 +150,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetSurroundingText()
    */
-  void SetSurroundingText( const std::string& text ) override;
+  void SetSurroundingText(const std::string& text) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetSurroundingText()
@@ -165,7 +160,7 @@ public:
   /**
   * @copydoc Dali::InputMethodContext::NotifyTextInputMultiLine()
   */
-  void NotifyTextInputMultiLine( bool multiLine ) override;
+  void NotifyTextInputMultiLine(bool multiLine) override;
 
   /**
   * @copydoc Dali::InputMethodContext::GetTextDirection()
@@ -180,17 +175,17 @@ public:
   /**
   * @copydoc Dali::InputMethodContext::ApplyOptions()
   */
-  void ApplyOptions( const InputMethodOptions& options ) override;
+  void ApplyOptions(const InputMethodOptions& options) override;
 
   /**
    * @copydoc Dali::InputMethodContext::SetInputPanelData()
    */
-  void SetInputPanelData( const std::string& data ) override;
+  void SetInputPanelData(const std::string& data) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetInputPanelData()
    */
-  void GetInputPanelData( std::string& data ) override;
+  void GetInputPanelData(std::string& data) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetInputPanelState()
@@ -200,12 +195,12 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetReturnKeyState()
    */
-  void SetReturnKeyState( bool visible ) override;
+  void SetReturnKeyState(bool visible) override;
 
   /**
    * @copydoc Dali::InputMethodContext::AutoEnableInputPanel()
    */
-  void AutoEnableInputPanel( bool enabled ) override;
+  void AutoEnableInputPanel(bool enabled) override;
 
   /**
    * @copydoc Dali::InputMethodContext::ShowInputPanel()
@@ -230,17 +225,17 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetContentMIMETypes()
    */
-  void SetContentMIMETypes( const std::string& mimeTypes ) override;
+  void SetContentMIMETypes(const std::string& mimeTypes) override;
 
   /**
    * @copydoc Dali::InputMethodContext::FilterEventKey()
    */
-  bool FilterEventKey( const Dali::KeyEvent& keyEvent ) override;
+  bool FilterEventKey(const Dali::KeyEvent& keyEvent) override;
 
   /**
    * @copydoc Dali::InputMethodContext::AllowTextPrediction()
    */
-  void AllowTextPrediction( bool prediction ) override;
+  void AllowTextPrediction(bool prediction) override;
 
   /**
    * @copydoc Dali::InputMethodContext::IsTextPredictionAllowed()
@@ -250,7 +245,7 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetInputPanelLanguage()
    */
-  void SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language ) override;
+  void SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetInputPanelLanguage()
@@ -260,12 +255,12 @@ public:
   /**
    * @copydoc Dali::InputMethodContext::SetInputPanelPosition()
    */
-  void SetInputPanelPosition( unsigned int x, unsigned int y ) override;
+  void SetInputPanelPosition(unsigned int x, unsigned int y) override;
 
   /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
-  void GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const override;
+  void GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;
 
 private:
   /**
@@ -279,14 +274,13 @@ private:
   void DeleteContext();
 
 private:
-
   /**
    * @brief Process event key down, whether filter a key to isf.
    *
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyDown( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyDown(const Dali::KeyEvent& keyEvent);
 
   /**
    * @brief Process event key up, whether filter a key to isf.
@@ -294,7 +288,7 @@ private:
    * @param[in] keyEvent The event key to be handled.
    * @return Whether the event key is handled.
    */
-  bool ProcessEventKeyUp( const Dali::KeyEvent& keyEvent );
+  bool ProcessEventKeyUp(const Dali::KeyEvent& keyEvent);
 
   /**
   * Ecore_Event_Modifier enums in Ecore_Input.h do not match Ecore_IMF_Keyboard_Modifiers in Ecore_IMF.h.
@@ -302,25 +296,25 @@ private:
   * @param[in] ecoreModifier the Ecore_Event_Modifier input.
   * @return the Ecore_IMF_Keyboard_Modifiers output.
   */
-  Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier( unsigned int ecoreModifier );
+  Ecore_IMF_Keyboard_Modifiers EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier);
 
   /**
    * EcoreInputModifierToEcoreIMFLock function converts from Ecore_Event_Modifier to Ecore_IMF_Keyboard_Locks enums.
    * @param[in] modifier the Ecore_Event_Modifier input.
    * @return the Ecore_IMF_Keyboard_Locks output.
    */
-  Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock( unsigned int modifier );
+  Ecore_IMF_Keyboard_Locks EcoreInputModifierToEcoreIMFLock(unsigned int modifier);
 
   /**
    * Called when the binded actor is added to a window.
    */
-  void OnStaged( Dali::Actor actor );
+  void OnStaged(Dali::Actor actor);
 
 private:
   /**
    * @brief Constructor.
    */
-  explicit InputMethodContextEcoreWl( Dali::Actor actor );
+  explicit InputMethodContextEcoreWl(Dali::Actor actor);
 
 protected:
   /**
@@ -330,26 +324,26 @@ protected:
 
 private:
   // Undefined copy constructor
-  explicit InputMethodContextEcoreWl( const InputMethodContextEcoreWl& inputMethodContext) = delete;
+  explicit InputMethodContextEcoreWl(const InputMethodContextEcoreWl& inputMethodContext) = delete;
 
   // Undefined assignment operator
-  InputMethodContextEcoreWl& operator=( const InputMethodContextEcoreWl& inputMethodContext ) = delete;
+  InputMethodContextEcoreWl& operator=(const InputMethodContextEcoreWl& inputMethodContext) = delete;
 
 private:
   Ecore_IMF_Context* mIMFContext;
-  int mIMFCursorPosition;
-  std::string mSurroundingText;
+  int                mIMFCursorPosition;
+  std::string        mSurroundingText;
 
-  bool mRestoreAfterFocusLost:1;             ///< Whether the keyboard needs to be restored (activated ) after focus regained.
-  bool mIdleCallbackConnected:1;             ///< Whether the idle callback is already connected.
+  bool mRestoreAfterFocusLost : 1; ///< Whether the keyboard needs to be restored (activated ) after focus regained.
+  bool mIdleCallbackConnected : 1; ///< Whether the idle callback is already connected.
 
   std::vector<Dali::Integration::KeyEvent> mKeyEvents; ///< Stores key events to be sent from idle call-back.
-  InputMethodOptions mOptions;
+  InputMethodOptions                       mOptions;
+
   Dali::InputMethodContext::PreEditAttributeDataContainer mPreeditAttrs; ///< Stores preedit attribute data
 
   int mWindowId;
 };
-
 
 } // namespace Adaptor
 

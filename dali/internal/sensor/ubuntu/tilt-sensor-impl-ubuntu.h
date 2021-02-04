@@ -19,30 +19,26 @@
  */
 
 // EXTERNAL INCLUDES
-#include <deque>
 #include <dali/public-api/object/base-object.h>
+#include <deque>
 
 // INTERNAL INCLUDES
-#include <dali/internal/sensor/common/tilt-sensor-impl.h>
 #include <dali/devel-api/adaptor-framework/tilt-sensor.h>
+#include <dali/internal/sensor/common/tilt-sensor-impl.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * TiltSensor provides pitch & roll values when the device is tilted.
  */
 class TiltSensorUbuntu : public Dali::Internal::Adaptor::TiltSensor
 {
 public:
-
   typedef Dali::TiltSensor::TiltedSignalType TiltedSignalType;
 
   /**
@@ -89,7 +85,7 @@ public:
   /**
    * @copydoc Dali::TiltSensor::SetUpdateFrequency()
    */
-  void SetUpdateFrequency( float frequencyHertz ) override;
+  void SetUpdateFrequency(float frequencyHertz) override;
 
   /**
    * @copydoc Dali::TiltSensor::GetUpdateFrequency()
@@ -115,10 +111,9 @@ public:
    * @return True if the signal was connected.
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
-  static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
+  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor);
 
 private:
-
   /**
  * Private constructor; see also TiltSensor::New()
  */
@@ -141,15 +136,14 @@ private:
   TiltSensorUbuntu& operator=(TiltSensorUbuntu&) = delete;
 
 private:
-
-  float mFrequencyHertz;
-  Dali::Timer mTimer;
-  SlotDelegate< TiltSensorUbuntu > mTimerSlot;
+  float                          mFrequencyHertz;
+  Dali::Timer                    mTimer;
+  SlotDelegate<TiltSensorUbuntu> mTimerSlot;
 
   int mSensorFrameworkHandle;
 
-  float mRoll;
-  float mPitch;
+  float      mRoll;
+  float      mPitch;
   Quaternion mRotation;
 
   Radian mRotationThreshold;

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/application.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/public-api/adaptor-framework/application.h>
 
+#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 namespace Dali
 {
@@ -37,21 +37,18 @@ class Window;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace Launchpad
 {
-
 /**
  * @brief Launchpad is used to improve application launch performance.
  * When an application is pre-initialized, so files are preloaded, some functions are initialized and a window is made in advance.
  */
 enum State
 {
-  NONE,              ///< The default state
-  PRE_INITIALIZED    ///< Application is pre-initialized.
+  NONE,           ///< The default state
+  PRE_INITIALIZED ///< Application is pre-initialized.
 };
 
 } // namespace Launchpad
@@ -70,12 +67,11 @@ typedef IntrusivePtr<Application> ApplicationPtr;
 class Application : public BaseObject, public Framework::Observer
 {
 public:
-
   typedef Dali::Application::LowBatterySignalType LowBatterySignalType;
-  typedef Dali::Application::LowMemorySignalType LowMemorySignalType;
-  typedef Dali::Application::AppSignalType AppSignalType;
+  typedef Dali::Application::LowMemorySignalType  LowMemorySignalType;
+  typedef Dali::Application::AppSignalType        AppSignalType;
   typedef Dali::Application::AppControlSignalType AppControlSignalType;
-  typedef Dali::Application::WINDOW_MODE WINDOW_MODE;
+  typedef Dali::Application::WINDOW_MODE          WINDOW_MODE;
 
   /**
    * Create a new application
@@ -86,16 +82,14 @@ public:
    * @param[in]  positionSize A position and a size of the window
    * @param[in]  applicationType  A member of Dali::Framework::Type
    */
-  static ApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet,
-    WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType );
+  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType);
 
   /**
    * @copydoc Dali::DevelApplication::PreInitialize()
    */
-  static void PreInitialize( int* argc, char** argv[] );
+  static void PreInitialize(int* argc, char** argv[]);
 
 public:
-
   /**
    * @copydoc Dali::Application::MainLoop()
    */
@@ -114,7 +108,7 @@ public:
   /**
    * @copydoc Dali::Application::AddIdle()
    */
-  bool AddIdle( CallbackBase* callback, bool hasReturnValue );
+  bool AddIdle(CallbackBase* callback, bool hasReturnValue);
 
   /**
    * @copydoc Dali::Application::GetAdaptor();
@@ -159,7 +153,6 @@ public:
   static ApplicationPtr GetPreInitializedApplication();
 
 public: // From Framework::Observer
-
   /**
    * Called when the framework is initialised.
    */
@@ -184,7 +177,7 @@ public: // From Framework::Observer
   * Called when the framework received AppControlSignal.
   * @param[in] The bundle data of AppControl event.
   */
-  void OnAppControl(void *data) override;
+  void OnAppControl(void* data) override;
 
   /**
    * Called when the framework informs the application that it should reset itself.
@@ -204,31 +197,30 @@ public: // From Framework::Observer
   /**
   * Called when the framework informs the application that the battery level of the device is low.
   */
-  void OnBatteryLow( Dali::DeviceStatus::Battery::Status status ) override;
+  void OnBatteryLow(Dali::DeviceStatus::Battery::Status status) override;
 
   /**
   * Called when the framework informs the application that the memory level of the device is low.
   */
-  void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) override;
+  void OnMemoryLow(Dali::DeviceStatus::Memory::Status status) override;
 
   /**
    * Called when the framework informs the application that the platform surface is created.
    */
-  void OnSurfaceCreated( Any newSurface ) override;
+  void OnSurfaceCreated(Any newSurface) override;
 
   /**
    * Called when the framework informs the application that the platform surface is destroyed.
    */
-  void OnSurfaceDestroyed( Any newSurface ) override;
+  void OnSurfaceDestroyed(Any newSurface) override;
 
 public:
-
   /**
    * Sets a user defined theme file.
    * This should be called before initialization.
    * @param[in] stylesheet The path to user defined theme file
    */
-  void SetStyleSheet( const std::string& stylesheet );
+  void SetStyleSheet(const std::string& stylesheet);
 
   /**
    * Sets a command line options.
@@ -236,62 +228,90 @@ public:
    * @param[in] argc A pointer to the number of arguments
    * @param[in] argv A pointer to the argument list
    */
-  void SetCommandLineOptions( int* argc, char **argv[] );
+  void SetCommandLineOptions(int* argc, char** argv[]);
 
-public:  // Signals
-
+public: // Signals
   /**
    * @copydoc Dali::Application::InitSignal()
    */
-  Dali::Application::AppSignalType& InitSignal() { return mInitSignal; }
+  Dali::Application::AppSignalType& InitSignal()
+  {
+    return mInitSignal;
+  }
 
   /**
    * @copydoc Dali::Application::TerminateSignal()
    */
-  Dali::Application::AppSignalType& TerminateSignal() { return mTerminateSignal; }
+  Dali::Application::AppSignalType& TerminateSignal()
+  {
+    return mTerminateSignal;
+  }
 
   /**
    * @copydoc Dali::Application::PauseSignal()
    */
-  Dali::Application::AppSignalType& PauseSignal() { return mPauseSignal; }
+  Dali::Application::AppSignalType& PauseSignal()
+  {
+    return mPauseSignal;
+  }
 
   /**
    * @copydoc Dali::Application::ResumeSignal()
    */
-  Dali::Application::AppSignalType& ResumeSignal() { return mResumeSignal; }
+  Dali::Application::AppSignalType& ResumeSignal()
+  {
+    return mResumeSignal;
+  }
 
   /**
    * @copydoc Dali::Application::ResetSignal()
    */
-  Dali::Application::AppSignalType& ResetSignal() { return mResetSignal; }
+  Dali::Application::AppSignalType& ResetSignal()
+  {
+    return mResetSignal;
+  }
 
   /**
   * @copydoc Dali::Application::AppControlSignal()
   */
-  Dali::Application::AppControlSignalType& AppControlSignal() { return mAppControlSignal; }
+  Dali::Application::AppControlSignalType& AppControlSignal()
+  {
+    return mAppControlSignal;
+  }
 
   /**
    * @copydoc Dali::Application::LanguageChangedSignal()
    */
-  Dali::Application::AppSignalType& LanguageChangedSignal() { return mLanguageChangedSignal; }
+  Dali::Application::AppSignalType& LanguageChangedSignal()
+  {
+    return mLanguageChangedSignal;
+  }
 
   /**
   * @copydoc Dali::Application::RegionChangedSignal()
   */
-  Dali::Application::AppSignalType& RegionChangedSignal() { return mRegionChangedSignal; }
+  Dali::Application::AppSignalType& RegionChangedSignal()
+  {
+    return mRegionChangedSignal;
+  }
 
   /**
   * @copydoc Dali::Application::LowBatterySignal()
   */
-  Dali::Application::LowBatterySignalType& LowBatterySignal() { return mLowBatterySignal; }
+  Dali::Application::LowBatterySignalType& LowBatterySignal()
+  {
+    return mLowBatterySignal;
+  }
 
   /**
   * @copydoc Dali::Application:::LowMemorySignal()
   */
-  Dali::Application::LowMemorySignalType& LowMemorySignal() { return mLowMemorySignal; }
+  Dali::Application::LowMemorySignalType& LowMemorySignal()
+  {
+    return mLowMemorySignal;
+  }
 
 protected:
-
   /**
    * Private Constructor
    * @param[in]  argc         A pointer to the number of arguments
@@ -301,8 +321,7 @@ protected:
    * @param[in]  positionSize A position and a size of the window
    * @param[in]  applicationType  A member of Dali::Framework::Type
    */
-  Application( int* argc, char **argv[], const std::string& stylesheet,
-      WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType );
+  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType);
 
   /**
    * Destructor
@@ -334,41 +353,40 @@ protected:
   void QuitFromMainLoop();
 
 private:
+  AppSignalType        mInitSignal;
+  AppSignalType        mTerminateSignal;
+  AppSignalType        mPauseSignal;
+  AppSignalType        mResumeSignal;
+  AppSignalType        mResetSignal;
+  AppControlSignalType mAppControlSignal;
+  AppSignalType        mLanguageChangedSignal;
+  AppSignalType        mRegionChangedSignal;
+  LowBatterySignalType mLowBatterySignal;
+  LowMemorySignalType  mLowMemorySignal;
 
-  AppSignalType                         mInitSignal;
-  AppSignalType                         mTerminateSignal;
-  AppSignalType                         mPauseSignal;
-  AppSignalType                         mResumeSignal;
-  AppSignalType                         mResetSignal;
-  AppControlSignalType                  mAppControlSignal;
-  AppSignalType                         mLanguageChangedSignal;
-  AppSignalType                         mRegionChangedSignal;
-  LowBatterySignalType                  mLowBatterySignal;
-  LowMemorySignalType                   mLowMemorySignal;
+  EventLoop* mEventLoop;
+  Framework* mFramework;
 
-  EventLoop*                            mEventLoop;
-  Framework*                            mFramework;
+  CommandLineOptions* mCommandLineOptions;
 
-  CommandLineOptions*                   mCommandLineOptions;
-
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder;   ///< The adaptor builder
+  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder; ///< The adaptor builder
   Dali::Adaptor*                           mAdaptor;
 
   // The Main Window is that window created by the Application during initial startup
   // (previously this was the only window)
-  Dali::Window                             mMainWindow;       ///< Main Window instance
-  Dali::Application::WINDOW_MODE           mMainWindowMode;   ///< Window mode of the main window
-  std::string                              mMainWindowName;   ///< Name of the main window as obtained from environment options
+  Dali::Window                   mMainWindow;     ///< Main Window instance
+  Dali::Application::WINDOW_MODE mMainWindowMode; ///< Window mode of the main window
+  std::string                    mMainWindowName; ///< Name of the main window as obtained from environment options
 
-  std::string                              mStylesheet;
-  EnvironmentOptions                       mEnvironmentOptions;
-  PositionSize                             mWindowPositionSize;
-  Launchpad::State                         mLaunchpadState;
-  bool                                     mUseRemoteSurface;
+  std::string        mStylesheet;
+  EnvironmentOptions mEnvironmentOptions;
+  PositionSize       mWindowPositionSize;
+  Launchpad::State   mLaunchpadState;
+  bool               mUseRemoteSurface;
 
-  SlotDelegate< Application >              mSlotDelegate;
+  SlotDelegate<Application> mSlotDelegate;
 
-  static ApplicationPtr                    gPreInitializedApplication;
+  static ApplicationPtr gPreInitializedApplication;
 };
 
 inline Application& GetImplementation(Dali::Application& application)
@@ -388,7 +406,6 @@ inline const Application& GetImplementation(const Dali::Application& application
 
   return static_cast<const Internal::Adaptor::Application&>(handle);
 }
-
 
 } // namespace Adaptor
 

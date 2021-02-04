@@ -2,7 +2,7 @@
 #define DALI_ECORE_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,16 +24,12 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
 
-
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 struct CallbackData;
 
 /**
@@ -41,89 +37,85 @@ struct CallbackData;
  */
 class EcoreCallbackManager : public CallbackManager
 {
-
 public:
-
-    /**
+  /**
      * @brief constructor
      */
-    EcoreCallbackManager();
+  EcoreCallbackManager();
 
-    /**
+  /**
      * @brief destructor
      */
-    ~EcoreCallbackManager()
-    {
-    }
+  ~EcoreCallbackManager()
+  {
+  }
 
-    /**
+  /**
      * @copydoc CallbackManager::AddIdleCallback()
      */
-    bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue ) override;
+  bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::RemoveIdleCallback()
      */
-    void RemoveIdleCallback( CallbackBase* callback ) override;
+  void RemoveIdleCallback(CallbackBase* callback) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::ProcessIdle()
      */
-    bool ProcessIdle() override;
+  bool ProcessIdle() override;
 
-    /**
+  /**
      * @copydoc CallbackManager::ProcessIdle()
      */
-    void ClearIdleCallbacks() override;
+  void ClearIdleCallbacks() override;
 
-    /**
+  /**
      * @copydoc CallbackManager::AddIdleEntererCallback()
      */
-    bool AddIdleEntererCallback( CallbackBase* callback ) override;
+  bool AddIdleEntererCallback(CallbackBase* callback) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::RemoveIdleEntererCallback()
      */
-    void RemoveIdleEntererCallback( CallbackBase* callback ) override;
+  void RemoveIdleEntererCallback(CallbackBase* callback) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::Start()
      */
-    void Start() override;
+  void Start() override;
 
-    /**
+  /**
      * @copydoc CallbackManager::Stop()
      */
-    void Stop() override;
+  void Stop() override;
 
 private:
-
-    /**
+  /**
      * @brief Remove all idle call backs that are pending
      * Called by Stop()
      * Always called from the main thread
      */
-    void RemoveAllCallbacks();
+  void RemoveAllCallbacks();
 
-    /**
+  /**
      * @brief Removes a single call back from the container
      * Always called from main thread
      * @param callbackData callback data
      */
-    void RemoveCallbackFromContainer(CallbackData *callbackData);
+  void RemoveCallbackFromContainer(CallbackData* callbackData);
 
-    /**
+  /**
      * @brief Remove a standard call back from ecore
      * Always called from main thread
      * @param callbackData callback data
      */
-    void RemoveStandardCallback(CallbackData *callbackData);
+  void RemoveStandardCallback(CallbackData* callbackData);
 
+  typedef std::list<CallbackData*> CallbackList;
 
-    typedef std::list<CallbackData *>  CallbackList;
-
-    bool                           mRunning;            ///< flag is set to true if when running
-    CallbackList                   mCallbackContainer;  ///< container of live idle callbacks
+  bool         mRunning;           ///< flag is set to true if when running
+  CallbackList mCallbackContainer; ///< container of live idle callbacks
 };
 
 } // namespace Adaptor

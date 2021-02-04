@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BASE_SOCKET_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * @brief Abstract socket interface.
  * The typical usage is:
@@ -53,14 +52,13 @@ namespace Adaptor
 class SocketInterface
 {
 public:
-
   /**
    * @brief Protocol type
    */
   enum Protocol
   {
-    TCP,          ///< Reliable, connection oriented
-    UDP,          ///< Connection less, no guarantees of packet delivery, ordering
+    TCP, ///< Reliable, connection oriented
+    UDP, ///< Connection less, no guarantees of packet delivery, ordering
   };
 
   /**
@@ -80,14 +78,14 @@ public:
    * @param[in] port network port
    * @return true on success, false on failure
    */
-  virtual bool Bind( uint16_t port ) = 0;
+  virtual bool Bind(uint16_t port) = 0;
 
   /**
    * @brief Indicate a willingness to accept incoming connection requests
    * @param[in] backlog maximum length of the queue of pending connections.
    * @return true on success, false on failure
    */
-  virtual bool Listen( int blacklog) = 0;
+  virtual bool Listen(int blacklog) = 0;
 
   /**
    * @brief Wait for connection request and make connection
@@ -100,9 +98,9 @@ public:
    */
   enum SelectReturn
   {
-    DATA_AVAILABLE,   ///< Data is available to read
-    QUIT,             ///< ExitSelect() has been called on the socket
-    ERROR             ///< Socket error
+    DATA_AVAILABLE, ///< Data is available to read
+    QUIT,           ///< ExitSelect() has been called on the socket
+    ERROR           ///< Socket error
   };
 
   /**
@@ -128,7 +126,7 @@ public:
    * @param[out] bytesRead number of bytes read
    * @return true on success, false on failure
    */
-  virtual bool Read( void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead  ) = 0;
+  virtual bool Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead) = 0;
 
   /**
    * @brief Send data to the socket
@@ -136,7 +134,7 @@ public:
    * @param[in] bufferSizeInBytes buffer size in write
    * @return true on success, false on failure
    */
-  virtual bool Write( const void* buffer, unsigned int bufferSizeInBytes ) = 0;
+  virtual bool Write(const void* buffer, unsigned int bufferSizeInBytes) = 0;
 
   //
   // Common socket options. Please add more as required.
@@ -147,15 +145,15 @@ public:
    * @param[in] reuse flag.
    * @return true on success, false on failure
    */
-  virtual bool ReuseAddress( bool reUse ) = 0;
+  virtual bool ReuseAddress(bool reUse) = 0;
 
   /**
    * @brief Socket buffer type
    */
   enum BufferType
   {
-    SEND_BUFFER,        ///< (SO_SNDBUF) Send buffer size
-    RECIEVE_BUFFER      ///< (SO_RCVBUF) Size of buffer allocated to hold data arriving to the socket
+    SEND_BUFFER,   ///< (SO_SNDBUF) Send buffer size
+    RECIEVE_BUFFER ///< (SO_RCVBUF) Size of buffer allocated to hold data arriving to the socket
   };
 
   /**
@@ -164,14 +162,13 @@ public:
    * @param[in] size buffer size
    * @return true on success, false on failure
    */
-  virtual bool SetBufferSize( BufferType type, unsigned int size ) = 0;
+  virtual bool SetBufferSize(BufferType type, unsigned int size) = 0;
 
 protected:
-
   /**
    * @brief Constructor
    */
-  SocketInterface( )
+  SocketInterface()
   {
   }
 
@@ -183,18 +180,15 @@ protected:
   }
 
 private:
-
   // Undefined copy constructor.
-  SocketInterface( const SocketInterface& );
+  SocketInterface(const SocketInterface&);
 
   // Undefined assignment operator.
-  SocketInterface& operator=( const SocketInterface& );
-
+  SocketInterface& operator=(const SocketInterface&);
 };
 
-
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_BASE_SOCKET_INTERFACE_H

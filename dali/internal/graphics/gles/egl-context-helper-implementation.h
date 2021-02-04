@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_CONTEXT_HELPER_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 
 namespace Dali
 {
-
 namespace Integration
 {
 class RenderSurface;
@@ -37,7 +36,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class EglImplementation;
 
 /**
@@ -61,7 +59,7 @@ public:
    * Initialize with the Egl implementation.
    * @param[in] impl The EGL implementation (to access the EGL context)
    */
-  void Initialize( EglImplementation* impl );
+  void Initialize(EglImplementation* impl);
 
   /**
    * @copydoc Dali::Integration::GlContextHelperAbstraction::MakeSurfacelessContextCurrent()
@@ -79,7 +77,6 @@ public:
   void WaitClient() override;
 
 private:
-
   EglImplementation* mEglImplementation; ///< Egl implementation (to access the EGL context)
 };
 

@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_DATA_COMPRESSION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@
  *
  */
 
-
 namespace Dali
 {
 namespace TizenPlatform
 {
 namespace DataCompression
 {
-
 /**
  * Return the maximum size of a buffer required to hold a number of bytes.
  * Required because compressing data, can end up being bigger
@@ -42,11 +40,11 @@ std::size_t GetMaximumRleCompressedSize(const std::size_t inputSize);
  * @param outputLength size of the output buffer in bytes
  * @param encodedSize number of bytes written to outputBuffer
  */
-void EncodeRle(  const unsigned char* input,
-                 const std::size_t inputLength,
-                 unsigned char* output,
-                 const std::size_t outputLength,
-                 std::size_t &encodedSize );
+void EncodeRle(const unsigned char* input,
+               const std::size_t    inputLength,
+               unsigned char*       output,
+               const std::size_t    outputLength,
+               std::size_t&         encodedSize);
 
 /**
  * RLE Decodes an array of data.
@@ -56,12 +54,11 @@ void EncodeRle(  const unsigned char* input,
  * @param[in] outputLength size of output data in bytes
  * @param[out] decodedSize the number of bytes decoded into outputBuffer
  */
-bool DecodeRle( const unsigned char* input,
-                const std::size_t inputLength,
-                unsigned char* output,
-                const std::size_t outputLength,
-               std::size_t& decodedSize);
-
+bool DecodeRle(const unsigned char* input,
+               const std::size_t    inputLength,
+               unsigned char*       output,
+               const std::size_t    outputLength,
+               std::size_t&         decodedSize);
 
 } // namespace DataCompression
 

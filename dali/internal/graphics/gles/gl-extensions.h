@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_EXTENSION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,22 @@
 
 // EXTERNAL INCLUDES
 
-#include <GLES3/gl3.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-
+#include <GLES3/gl3.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * GlExtensions class provides GL extensions support
  */
 class GlExtensions
 {
 public:
-
   /**
    * Constructor
    */
@@ -51,9 +46,7 @@ public:
    */
   ~GlExtensions();
 
-
 public:
-
   /**
    * If the GL extension is available this function discards specified data in attachments
    * from being copied from the target to improve performance.
@@ -65,7 +58,7 @@ public:
    * @param numAttachments is the count of attachments
    * @param attachments is a pointer to the attachments
    */
-  void DiscardFrameBuffer (GLenum target, GLsizei numAttachments, const GLenum *attachments);
+  void DiscardFrameBuffer(GLenum target, GLsizei numAttachments, const GLenum* attachments);
 
   /**
    * GLES extension
@@ -76,7 +69,7 @@ public:
    * @param[out] binaryFormat The format of the program binary
    * @param[out] binary       The actual program bytecode
    */
-  void GetProgramBinaryOES (GLuint program, GLsizei bufSize, GLsizei *length, GLenum *binaryFormat, GLvoid *binary);
+  void GetProgramBinaryOES(GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, GLvoid* binary);
 
   /**
    * GLES extension
@@ -86,16 +79,15 @@ public:
    * @param[in] binary        The program bytecode
    * @param[in] length        The number of bytes in binary
    */
-  void ProgramBinaryOES (GLuint program, GLenum binaryFormat, const GLvoid *binary, GLint length);
+  void ProgramBinaryOES(GLuint program, GLenum binaryFormat, const GLvoid* binary, GLint length);
 
   /**
    * KHR extension
    * Specify a boundary between passes when using advanced blend equations.
    */
-  bool BlendBarrierKHR ();
+  bool BlendBarrierKHR();
 
 private:
-
   /**
    * Lazy Initialize extensions on first use
    */
@@ -107,7 +99,7 @@ private:
 
 #ifdef GL_OES_get_program_binary
   PFNGLGETPROGRAMBINARYOESPROC mGlGetProgramBinaryOES;
-  PFNGLPROGRAMBINARYOESPROC mGlProgramBinaryOES;
+  PFNGLPROGRAMBINARYOESPROC    mGlProgramBinaryOES;
 #endif
 
 #ifdef GL_KHR_blend_equation_advanced
@@ -115,7 +107,6 @@ private:
 #endif
 
   bool mInitialized;
-
 };
 
 } // namespace Adaptor

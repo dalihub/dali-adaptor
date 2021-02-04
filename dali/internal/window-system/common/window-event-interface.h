@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_WINDOW_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,53 +19,48 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/key-event.h>
-#include <dali/public-api/events/wheel-event.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
+#include <dali/public-api/events/key-event.h>
+#include <dali/public-api/events/wheel-event.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief Abstract interface for handling DALi events received from the native window system
  *
  */
 class WindowEventInterface
 {
-
 public:
-
   /**
    * @brief Touch Event callback
    * @param[in] point touch point
    * @param[in] timeStamp time stamp
    */
-  virtual void TouchEvent( Dali::Integration::Point& point, unsigned long timeStamp ) = 0;
+  virtual void TouchEvent(Dali::Integration::Point& point, unsigned long timeStamp) = 0;
 
   /**
    * @brief Key Event callback
    * @param[in] keyEvent key event
    */
-  virtual void KeyEvent( Dali::Integration::KeyEvent& keyEvent ) = 0;
+  virtual void KeyEvent(Dali::Integration::KeyEvent& keyEvent) = 0;
 
   /**
    * @brief Wheel Event callback
    * @param[in] wheelEvent wheel event
    */
-  virtual void WheelEvent( Dali::WheelEvent& wheelEvent ) = 0;
+  virtual void WheelEvent(Dali::WheelEvent& wheelEvent) = 0;
 
   /**
    * @brief Window damage callback
    * @param[in] damageArea Window damage area
    */
-  virtual void DamageEvent( Dali::Rect<int>& damageArea ) = 0;
+  virtual void DamageEvent(Dali::Rect<int>& damageArea) = 0;
 
   /**
    * @brief Window Focused
@@ -78,7 +73,6 @@ public:
   virtual void WindowFocusOut() = 0;
 
 protected:
-
   /**
    * @brief Constructor
    */
@@ -94,11 +88,10 @@ protected:
   }
 
   // Undefined copy constructor.
-  WindowEventInterface( const WindowEventInterface& );
+  WindowEventInterface(const WindowEventInterface&);
 
   // Undefined assignment operator.
-  WindowEventInterface& operator=( const WindowEventInterface& );
-
+  WindowEventInterface& operator=(const WindowEventInterface&);
 };
 
 } // namespace Adaptor

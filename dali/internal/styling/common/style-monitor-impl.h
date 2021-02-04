@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,19 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/object/base-object.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
+#include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/ref-object.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * This holds the platform's style information.
  * It provides a signal when any aspect of the default style changes on the device.
@@ -42,7 +39,6 @@ namespace Adaptor
 class StyleMonitor : public BaseObject
 {
 public:
-
   // Creation & Destruction
 
   /**
@@ -62,7 +58,7 @@ public:
    * Informs the Style Monitor that the style has changed.
    * @param[in]  styleChange  The details of the change.
    */
-  void StyleChanged( StyleChange::Type styleChange );
+  void StyleChanged(StyleChange::Type styleChange);
 
   // Style Information
 
@@ -94,7 +90,7 @@ public:
   /**
    * @copydoc Dali::StyleMonitor::LoadThemeFile()
    */
-  bool LoadThemeFile( const std::string& filename, std::string& output );
+  bool LoadThemeFile(const std::string& filename, std::string& output);
 
   // Signals
 
@@ -104,29 +100,26 @@ public:
   Dali::StyleMonitor::StyleChangeSignalType& StyleChangeSignal();
 
 protected:
-
   /**
    * Virtual Destructor.
    */
   ~StyleMonitor() override;
 
 private:
-
   /**
    * Emit the style change signal.
    * @param[in]  styleChange  The details of the style change
    */
-  inline void EmitStyleChangeSignal( StyleChange::Type styleChange );
+  inline void EmitStyleChangeSignal(StyleChange::Type styleChange);
 
 private:
-
   Dali::StyleMonitor::StyleChangeSignalType mStyleChangeSignal; ///< Emitted when the style changes
 
   TextAbstraction::FontClient mFontClient;
-  std::string mDefaultFontFamily;        ///< The system default font family
-  std::string mDefaultFontStyle;         ///< The default font style
-  std::string mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
-  int mDefaultFontSize;                  ///< The default accessibility font size e.g. 0 is smallest
+  std::string                 mDefaultFontFamily;        ///< The system default font family
+  std::string                 mDefaultFontStyle;         ///< The default font style
+  std::string                 mUserDefinedThemeFilePath; ///< String containing the user defined theme file path
+  int                         mDefaultFontSize;          ///< The default accessibility font size e.g. 0 is smallest
 };
 
 } // namespace Adaptor

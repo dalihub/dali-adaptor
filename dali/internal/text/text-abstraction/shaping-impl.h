@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_SHAPING_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,25 +22,21 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/common/dali-vector.h>
 #include <dali/devel-api/text-abstraction/shaping.h>
+#include <dali/public-api/common/dali-vector.h>
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 /**
  * Implementation of the Shaping
  */
 class Shaping : public BaseObject
 {
 public:
-
   /**
    * Constructor
    */
@@ -59,31 +55,29 @@ public:
   /**
    * @copydoc Dali::Shaping::Shape()
    */
-  Length Shape( const Character* const text,
-                Length numberOfCharacters,
-                FontId fontId,
-                Script script );
+  Length Shape(const Character* const text,
+               Length                 numberOfCharacters,
+               FontId                 fontId,
+               Script                 script);
 
   /**
    * @copydoc Dali::Shaping::GetGlyphs()
    */
-  void GetGlyphs( GlyphInfo* glyphInfo,
-                  CharacterIndex* glyphToCharacterMap );
+  void GetGlyphs(GlyphInfo*      glyphInfo,
+                 CharacterIndex* glyphToCharacterMap);
 
 private:
-
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
 
 private:
-
   // Undefined copy constructor.
-  Shaping( const Shaping& );
+  Shaping(const Shaping&);
 
   // Undefined assignment constructor.
-  Shaping& operator=( const Shaping& );
+  Shaping& operator=(const Shaping&);
 
   struct Plugin;
   Plugin* mPlugin;
@@ -94,18 +88,18 @@ private:
 
 } // namespace TextAbstraction
 
-inline static TextAbstraction::Internal::Shaping& GetImplementation( TextAbstraction::Shaping& shaping )
+inline static TextAbstraction::Internal::Shaping& GetImplementation(TextAbstraction::Shaping& shaping)
 {
-  DALI_ASSERT_ALWAYS( shaping && "shaping handle is empty" );
+  DALI_ASSERT_ALWAYS(shaping && "shaping handle is empty");
   BaseObject& handle = shaping.GetBaseObject();
-  return static_cast<TextAbstraction::Internal::Shaping&>( handle );
+  return static_cast<TextAbstraction::Internal::Shaping&>(handle);
 }
 
-inline static const TextAbstraction::Internal::Shaping& GetImplementation( const TextAbstraction::Shaping& shaping )
+inline static const TextAbstraction::Internal::Shaping& GetImplementation(const TextAbstraction::Shaping& shaping)
 {
-  DALI_ASSERT_ALWAYS( shaping && "shaping handle is empty" );
+  DALI_ASSERT_ALWAYS(shaping && "shaping handle is empty");
   const BaseObject& handle = shaping.GetBaseObject();
-  return static_cast<const TextAbstraction::Internal::Shaping&>( handle );
+  return static_cast<const TextAbstraction::Internal::Shaping&>(handle);
 }
 
 } // namespace Dali

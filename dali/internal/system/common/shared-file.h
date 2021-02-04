@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SHARED_FILE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <sys/types.h>
+#include <string>
 
 namespace Dali
 {
@@ -28,7 +28,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class SharedFile
 {
 public:
@@ -36,7 +35,7 @@ public:
    * Open an existing shared file for read/write
    * @return The shared file, or NULL if a file could not be opened and mapped.
    */
-  static SharedFile* New( const char* filename, int size, bool isSystem );
+  static SharedFile* New(const char* filename, int size, bool isSystem);
 
   /**
    * Constructor
@@ -52,13 +51,13 @@ public:
    * Opens a file descriptor to shared memory segment
    * @return The file descriptor
    */
-  int Open( const char* filename, int size, int oflag, mode_t mode );
+  int Open(const char* filename, int size, int oflag, mode_t mode);
 
   /**
    * Opens a file for read/write
    * @return true if opened, false on error.
    */
-  bool OpenFile( const char* filename, int size, bool isSystem );
+  bool OpenFile(const char* filename, int size, bool isSystem);
 
   /**
    * Close the shared file
@@ -78,8 +77,8 @@ private:
   std::string mFilename;
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_SHARED_FILE_H

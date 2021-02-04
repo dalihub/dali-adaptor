@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_PNG_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
  *
  */
 
-#include <cstdio>
+#include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <dali/internal/legacy/tizen/image-encoder.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/images/pixel.h>
-#include <dali/internal/legacy/tizen/image-encoder.h>
-#include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <cstdio>
 
 namespace Dali
 {
@@ -33,7 +33,6 @@ class PixelBuffer;
 
 namespace TizenPlatform
 {
-
 class ResourceLoadingClient;
 
 namespace Png
@@ -49,7 +48,7 @@ const unsigned char MAGIC_BYTE_2 = 0x50;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
 
 /**
  * Loads the header of a PNG file and fills in the width and height appropriately.
@@ -59,7 +58,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
  * @param[out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadPngHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height);
 
 /**
  * Encode raw pixel data to PNG format.
@@ -69,7 +68,7 @@ bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, 
  * @param[in]  height         Image height
  * @param[in]  pixelFormat    Input pixel format (must be Pixel::RGB888)
  */
-bool EncodeToPng( const unsigned char* pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat );
+bool EncodeToPng(const unsigned char* pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat);
 
 } // namespace TizenPlatform
 

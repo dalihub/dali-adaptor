@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -31,29 +31,24 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class NativeImageSource;
 class NativeImageSourceQueue;
 
 class NativeImageSourceFactory
 {
 public:
-
-  NativeImageSourceFactory() = default;
+  NativeImageSourceFactory()          = default;
   virtual ~NativeImageSourceFactory() = default;
 
-  virtual std::unique_ptr< NativeImageSource > CreateNativeImageSource( uint32_t width, uint32_t height,
-                                                                        Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource ) = 0;
+  virtual std::unique_ptr<NativeImageSource> CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource) = 0;
 
-  virtual std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue( uint32_t width, uint32_t height,
-                                                                                  Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue ) = 0;
-
+  virtual std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue) = 0;
 };
 
-extern std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory();
+extern std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory();
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_NATIVE_IMAGE_SOURCE_FACTORY_H

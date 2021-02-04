@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_FRAME_TIME_STAMP_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,52 +23,48 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Simple structure to hold information about an event in time
  * within Dali. For example when rendering started.
  */
 struct FrameTimeStamp
 {
+  static const unsigned int BUFFER_NOT_USED = 2; ///< no index buffer was used
 
-  static const unsigned int BUFFER_NOT_USED = 2;  ///< no index buffer was used
-
-    /**
+  /**
      * Constructor
      */
-    FrameTimeStamp();
+  FrameTimeStamp();
 
-    /**
+  /**
      * Constructor
      * @param frame the frame number
      * @param microseconds the time from a monotonic clock
      * @param bufferIndex  double buffered index used for performing an update / render
      */
-    FrameTimeStamp( unsigned int frame, uint64_t microseconds, unsigned int bufferIndex = BUFFER_NOT_USED );
+  FrameTimeStamp(unsigned int frame, uint64_t microseconds, unsigned int bufferIndex = BUFFER_NOT_USED);
 
-    /**
+  /**
      * Constructor
      * @param bufferIndex  double buffered index used for performing an update / render
      */
-    FrameTimeStamp( unsigned int bufferIndex );
+  FrameTimeStamp(unsigned int bufferIndex);
 
-    /**
+  /**
      * @param start start time
      * @param end end time
      * @return difference in microseconds between two time stamps
      */
-    static unsigned int MicrosecondDiff( const FrameTimeStamp& start,const FrameTimeStamp& end );
+  static unsigned int MicrosecondDiff(const FrameTimeStamp& start, const FrameTimeStamp& end);
 
-    unsigned int frame;            ///< Frame number ( not always available)
-    uint64_t     microseconds;     ///< Microsecond time stamp
-    unsigned int bufferIndex;      ///< The double buffered index used for performing an update / render
-  };
+  unsigned int frame;        ///< Frame number ( not always available)
+  uint64_t     microseconds; ///< Microsecond time stamp
+  unsigned int bufferIndex;  ///< The double buffered index used for performing an update / render
+};
 } // namespace Adaptor
 
 } // namespace Internal
@@ -76,4 +72,3 @@ struct FrameTimeStamp
 } // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_FRAME_TIME_STAMP_H
-

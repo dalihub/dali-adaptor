@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_TIZEN_TTS_PLAYER_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,33 +20,28 @@
 
 // EXTERNAL INCLUDES
 #include <tts.h>
-#include <string>
 #include <memory>
+#include <string>
 
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/internal/accessibility/common/tts-player-impl.h>
+#include <dali/public-api/adaptor-framework/tts-player.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Text-to-speech player
  */
 class TtsPlayerTizen : public Dali::Internal::Adaptor::TtsPlayer
 {
-
 public:
-
   /**
    * Create a TtsPlayer with the given mode.
    * This should only be called once by the Adaptor class for each given mode.
@@ -91,7 +86,6 @@ public:
   ~TtsPlayerTizen() override;
 
 private:
-
   /**
    * Private Constructor; see also TtsPlayer::New()
    * @param mode the mode of tts-player
@@ -114,7 +108,7 @@ private:
    * @param[in] previous The previous state
    * @param[in] current The current state
    */
-  void EmitStateChangedSignal( tts_state_e previous, tts_state_e current );
+  void EmitStateChangedSignal(tts_state_e previous, tts_state_e current);
 
   /**
    * Called when the state of TTS is changed.
@@ -124,7 +118,7 @@ private:
    * @param[in] current A current state
    * @param[in] userData The user data passed from the callback registration function.
    */
-  static void StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData);
+  static void StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void* userData);
 
   // Undefined
   TtsPlayerTizen(const TtsPlayerTizen&);
@@ -133,12 +127,11 @@ private:
   TtsPlayerTizen& operator=(TtsPlayerTizen&);
 
 private:
-
   Dali::TtsPlayer::StateChangedSignalType mStateChangedSignal; ///< Signal emitted when the TTS state changes
-  bool mInitialized; ///< Whether the TTS player is initialised successfully or not
-  std::string mUnplayedString; ///< The text that can not be played because tts engine is not yet initialized
-  tts_h mTtsHandle;  ///< The handle of TTS
-  int mUtteranceId;  ///< The utterance ID
+  bool                                    mInitialized;        ///< Whether the TTS player is initialised successfully or not
+  std::string                             mUnplayedString;     ///< The text that can not be played because tts engine is not yet initialized
+  tts_h                                   mTtsHandle;          ///< The handle of TTS
+  int                                     mUtteranceId;        ///< The utterance ID
 
   Dali::TtsPlayer::Mode mTtsMode; ///< The current mode of tts engine
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRACE_MANAGER_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class PerformanceInterface;
@@ -45,7 +43,7 @@ public:
   /**
    * Explicit Constructor
    */
-  explicit TraceManagerAndroid( PerformanceInterface* performanceInterface );
+  explicit TraceManagerAndroid(PerformanceInterface* performanceInterface);
 
 protected:
   /**
@@ -59,11 +57,10 @@ protected:
   Dali::Integration::Trace::LogContextFunction GetLogContextFunction() final;
 
 private:
-
   /**
    * LogContext method (Android specific) used for tracing
    */
-  static void LogContext( bool start, const char* tag );
+  static void LogContext(bool start, const char* tag);
 };
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIN_DIPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,25 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
 
 namespace Dali
 {
-
 class RenderSurface;
 class DisplayConnection;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * DisplayConnection implementation
  */
 class DisplayConnectionWin : public Dali::Internal::Adaptor::DisplayConnection
 {
 public:
-
   /**
    * @brief Default constructor
    */
@@ -55,7 +51,6 @@ public:
   static DisplayConnection* New();
 
 public:
-
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
@@ -79,22 +74,20 @@ public:
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
   */
-  void SetSurfaceType( Dali::RenderSurfaceInterface::Type type );
+  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
 
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
   */
-  void SetGraphicsInterface( GraphicsInterface& graphics );
+  void SetGraphicsInterface(GraphicsInterface& graphics);
 
 public:
-
   /**
    * Destructor
    */
   virtual ~DisplayConnectionWin();
 
 private:
-
   // Undefined
   DisplayConnectionWin(const DisplayConnectionWin&) = delete;
 
@@ -102,14 +95,13 @@ private:
   DisplayConnectionWin& operator=(const DisplayConnectionWin& rhs) = delete;
 
 private:
-
-  GraphicsInterface *mGraphics; ///< The graphics interface
-  HDC mDisplay;
+  GraphicsInterface* mGraphics; ///< The graphics interface
+  HDC                mDisplay;
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

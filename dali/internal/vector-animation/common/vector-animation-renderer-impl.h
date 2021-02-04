@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,15 +27,12 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class VectorAnimationRenderer;
-using VectorAnimationRendererPtr = IntrusivePtr< VectorAnimationRenderer >;
+using VectorAnimationRendererPtr = IntrusivePtr<VectorAnimationRenderer>;
 
 /**
  * Dali internal VectorAnimationRenderer.
@@ -43,7 +40,6 @@ using VectorAnimationRendererPtr = IntrusivePtr< VectorAnimationRenderer >;
 class VectorAnimationRenderer : public BaseObject, public ConnectionTracker
 {
 public:
-
   /**
    * @brief Creates a VectorAnimationRenderer object.
    *
@@ -54,7 +50,7 @@ public:
   /**
    * @brief Initializes member data.
    */
-  void Initialize( const std::string& url );
+  void Initialize(const std::string& url);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::Finalize()
@@ -64,17 +60,17 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRenderer::SetRenderer()
    */
-  void SetRenderer( Dali::Renderer renderer );
+  void SetRenderer(Dali::Renderer renderer);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::SetSize()
    */
-  void SetSize( uint32_t width, uint32_t height );
+  void SetSize(uint32_t width, uint32_t height);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::Render()
    */
-  bool Render( uint32_t frameNumber );
+  bool Render(uint32_t frameNumber);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::GetTotalFrameNumber()
@@ -89,17 +85,17 @@ public:
   /**
    * @copydoc Dali::VectorAnimationRenderer::GetDefaultSize()
    */
-  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+  void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::GetLayerInfo()
    */
-  void GetLayerInfo( Property::Map& map ) const;
+  void GetLayerInfo(Property::Map& map) const;
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::GetMarkerInfo()
    */
-  bool GetMarkerInfo( const std::string& marker, uint32_t& startFrame, uint32_t& endFrame ) const;
+  bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const;
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::IgnoreRenderedFrame()
@@ -112,7 +108,6 @@ public:
   Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();
 
 private:
-
   /**
    * @brief Constructor
    */
@@ -124,12 +119,10 @@ private:
   ~VectorAnimationRenderer();
 
 private:
-
-  VectorAnimationRenderer( const VectorAnimationRenderer& ) = delete;
-  VectorAnimationRenderer& operator=( VectorAnimationRenderer& )  = delete;
+  VectorAnimationRenderer(const VectorAnimationRenderer&) = delete;
+  VectorAnimationRenderer& operator=(VectorAnimationRenderer&) = delete;
 
 private:
-
   VectorAnimationRendererPluginProxy mPlugin;
 };
 
@@ -137,22 +130,22 @@ private:
 
 } // namespace Internal
 
-inline static Internal::Adaptor::VectorAnimationRenderer& GetImplementation( Dali::VectorAnimationRenderer& renderer )
+inline static Internal::Adaptor::VectorAnimationRenderer& GetImplementation(Dali::VectorAnimationRenderer& renderer)
 {
-  DALI_ASSERT_ALWAYS( renderer && "VectorAnimationRenderer handle is empty." );
+  DALI_ASSERT_ALWAYS(renderer && "VectorAnimationRenderer handle is empty.");
 
   BaseObject& handle = renderer.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::VectorAnimationRenderer& >( handle );
+  return static_cast<Internal::Adaptor::VectorAnimationRenderer&>(handle);
 }
 
-inline static const Internal::Adaptor::VectorAnimationRenderer& GetImplementation( const Dali::VectorAnimationRenderer& renderer )
+inline static const Internal::Adaptor::VectorAnimationRenderer& GetImplementation(const Dali::VectorAnimationRenderer& renderer)
 {
-  DALI_ASSERT_ALWAYS( renderer && "VectorAnimationRenderer handle is empty." );
+  DALI_ASSERT_ALWAYS(renderer && "VectorAnimationRenderer handle is empty.");
 
   const BaseObject& handle = renderer.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::VectorAnimationRenderer& >( handle );
+  return static_cast<const Internal::Adaptor::VectorAnimationRenderer&>(handle);
 }
 
 } // namespace Dali

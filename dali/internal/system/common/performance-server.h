@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PERFORMANCE_SERVER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,22 @@
  */
 
 // EXTERNAL INCLDUES
-#include <dali/public-api/common/dali-vector.h>
 #include <dali/devel-api/threading/mutex.h>
+#include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/frame-time-stats.h>
-#include <dali/internal/network/common/network-performance-server.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/internal/network/common/network-performance-server.h>
+#include <dali/internal/system/common/frame-time-stats.h>
 #include <dali/internal/system/common/performance-marker.h>
 #include <dali/internal/system/common/stat-context-manager.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class EnvironmentOptions;
 class StatContext;
 /**
@@ -48,14 +45,13 @@ class StatContext;
 class PerformanceServer : public PerformanceInterface, public StatContextLogInterface
 {
 public:
-
   /**
    * @brief Constructor
    * @param[in] adaptorServices adaptor internal services
    * @param[in] environmentOptions environment options
    */
-  PerformanceServer( AdaptorInternalServices& adaptorServices,
-                     const EnvironmentOptions& environmentOptions );
+  PerformanceServer(AdaptorInternalServices&  adaptorServices,
+                    const EnvironmentOptions& environmentOptions);
 
   /**
    * Destructor
@@ -65,80 +61,76 @@ public:
   /**
    * @copydoc PerformanceLogger::AddContext()
    */
-  ContextId AddContext( const char* name ) override;
+  ContextId AddContext(const char* name) override;
 
   /**
    * @copydoc PerformanceLogger::RemoveContext()
    */
-  void RemoveContext( ContextId contextId ) override;
+  void RemoveContext(ContextId contextId) override;
 
   /**
    * @copydoc PerformanceInterface::AddMarker( MarkerType markerType )
    */
-  void AddMarker( MarkerType markerType ) override;
+  void AddMarker(MarkerType markerType) override;
 
   /**
    * @copydoc PerformanceLogger::AddMarker( MarkerType markerType, ContextId contextId )
    */
-  void AddMarker( MarkerType markerType, ContextId contextId ) override;
+  void AddMarker(MarkerType markerType, ContextId contextId) override;
 
   /**
    * @copydoc PerformanceInterface::SetLogging()
    */
-  virtual void SetLogging( unsigned int statisticsLogOptions,
-                           unsigned int timeStampOutput,
-                           unsigned int logFrequency );
+  virtual void SetLogging(unsigned int statisticsLogOptions,
+                          unsigned int timeStampOutput,
+                          unsigned int logFrequency);
 
   /**
    * @copydoc PerformanceLogger::SetLoggingFrequency()
    */
-  void SetLoggingFrequency( unsigned int logFrequency, ContextId contextId ) override;
+  void SetLoggingFrequency(unsigned int logFrequency, ContextId contextId) override;
 
   /**
    * @copydoc PerformanceLogger::EnableLogging()
    */
-  void EnableLogging( bool enable, ContextId contextId ) override;
+  void EnableLogging(bool enable, ContextId contextId) override;
 
 public: //StatLogInterface
-
   /**
    * @copydoc StatLogInterface::LogContextStatistics()
    */
-  void LogContextStatistics( const char* const text ) override;
+  void LogContextStatistics(const char* const text) override;
 
 private:
-
   /**
    * @brief log the marker out to kernel/ DALi log
    * @param[in] marker performance marker
    * @param[in] description marker description
    */
-  void LogMarker( const PerformanceMarker& marker, const char* const description );
+  void LogMarker(const PerformanceMarker& marker, const char* const description);
 
 private:
-
-  const EnvironmentOptions& mEnvironmentOptions;          ///< environment options
-  TraceInterface& mKernelTrace;                           ///< kernel trace interface
-  TraceInterface& mSystemTrace;                           ///< system trace interface
-  Dali::Mutex mLogMutex;                                  ///< mutex
+  const EnvironmentOptions& mEnvironmentOptions; ///< environment options
+  TraceInterface&           mKernelTrace;        ///< kernel trace interface
+  TraceInterface&           mSystemTrace;        ///< system trace interface
+  Dali::Mutex               mLogMutex;           ///< mutex
 
 #if defined(NETWORK_LOGGING_ENABLED)
-  NetworkPerformanceServer mNetworkServer;                ///< network server
-  bool mNetworkControlEnabled;                            ///< Whether network control is enabled
+  NetworkPerformanceServer mNetworkServer;         ///< network server
+  bool                     mNetworkControlEnabled; ///< Whether network control is enabled
 #endif
 
-  StatContextManager mStatContextManager;                 ///< Stat context manager
-  unsigned int mStatisticsLogBitmask;                     ///< statistics log level
-  unsigned int mPerformanceOutputBitmask;                 ///< performance marker output
+  StatContextManager mStatContextManager;       ///< Stat context manager
+  unsigned int       mStatisticsLogBitmask;     ///< statistics log level
+  unsigned int       mPerformanceOutputBitmask; ///< performance marker output
 
-  bool mLoggingEnabled:1;                                 ///< whether logging update / render to a log is enabled
-  bool mLogFunctionInstalled:1;                           ///< whether the log function is installed
+  bool mLoggingEnabled : 1;       ///< whether logging update / render to a log is enabled
+  bool mLogFunctionInstalled : 1; ///< whether the log function is installed
 };
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_WIDGET_CONTROLLER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 /**
@@ -38,11 +36,10 @@ namespace Adaptor
 class Widget::Impl : public Dali::ConnectionTracker
 {
 public:
-
   /**
    * Set content information to widget framework
    */
-  virtual void SetContentInfo( const std::string& contentInfo ) = 0;
+  virtual void SetContentInfo(const std::string& contentInfo) = 0;
 };
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BASE_SOCKET_FACTORY_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,33 +26,30 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * @brief abstract class to create and destroy sockets
  */
 class SocketFactoryInterface
 {
 public:
-
   /**
    * @brief Create a new socket
    * @param protocol network protocol
    * @return true on success, false on failure
    */
-   virtual SocketInterface* NewSocket( SocketInterface::Protocol protocol  ) = 0;
+  virtual SocketInterface* NewSocket(SocketInterface::Protocol protocol) = 0;
 
-   /**
+  /**
     * @brief destroy a socket
     * @param[in] socket socket to destroy
     */
-   virtual void DestroySocket( SocketInterface* socket  ) = 0;
+  virtual void DestroySocket(SocketInterface* socket) = 0;
 
 protected:
-
   /**
    * @brief Constructor
    */
-   SocketFactoryInterface( )
+  SocketFactoryInterface()
   {
   }
 
@@ -64,19 +61,15 @@ protected:
   }
 
 private:
-
   // Undefined copy constructor.
-  SocketFactoryInterface( const SocketFactoryInterface& );
+  SocketFactoryInterface(const SocketFactoryInterface&);
 
   // Undefined assignment operator.
-  SocketFactoryInterface& operator=( const SocketFactoryInterface& );
-
+  SocketFactoryInterface& operator=(const SocketFactoryInterface&);
 };
 
-
-
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_BASE_SOCKET_FACTORY_INTERFACE_H

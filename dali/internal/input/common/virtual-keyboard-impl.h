@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VIRTUAL_KEYBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,15 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Implementation of the virtual keyboard namespace
  */
 namespace VirtualKeyboard
 {
-
 /**
  * @copydoc Dali::VirtualKeyboard::Show()
  */
@@ -54,12 +50,12 @@ bool IsVisible();
 /**
  * @copydoc Dali::VirtualKeyboard::ApplySettings()
  */
-void ApplySettings( const Property::Map& settingsMap );
+void ApplySettings(const Property::Map& settingsMap);
 
 /**
  * @copydoc Dali::VirtualKeyboard::SetReturnKeyType()
  */
-void SetReturnKeyType( const Dali::InputMethod::ButtonAction::Type type );
+void SetReturnKeyType(const Dali::InputMethod::ButtonAction::Type type);
 
 /**
  * @copydoc Dali::VirtualKeyboard::GetReturnKeyType()

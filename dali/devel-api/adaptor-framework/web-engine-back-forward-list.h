@@ -19,12 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list-item.h>
+#include <string>
 
 namespace Dali
 {
-
 class WebEngineBackForwardListItem;
 
 /**
@@ -32,9 +31,7 @@ class WebEngineBackForwardListItem;
  */
 class WebEngineBackForwardList
 {
-
 public:
-
   /**
    * @brief Constructor.
    */
@@ -56,7 +53,7 @@ public:
    * @param[in] index The index of the item
    * @return The item of back-forward list.
    */
-  virtual WebEngineBackForwardListItem& GetItemAtIndex( uint32_t index ) const = 0;
+  virtual WebEngineBackForwardListItem& GetItemAtIndex(uint32_t index) const = 0;
 
   /**
    * @brief Returns the length of the back-forward list including the current
@@ -65,7 +62,6 @@ public:
    *         otherwise @c 0 in case of an error
    */
   virtual uint32_t GetItemCount() const = 0;
-
 };
 
 } // namespace Dali

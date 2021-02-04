@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <memory>
 #include <dali/integration-api/debug.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
@@ -43,7 +43,6 @@ class PerformanceInterface;
 class EnvironmentOptions : public Dali::LogFactoryInterface
 {
 public:
-
   /**
    * Constructor
    */
@@ -58,7 +57,7 @@ public:
    * Create a TraceManager which is used for tracing.
    * @param PerformanceInterface for using network logging for tracing on Ubuntu
    */
-  void CreateTraceManager( PerformanceInterface* performanceInterface );
+  void CreateTraceManager(PerformanceInterface* performanceInterface);
 
   /**
    * Initialize TraceManager by installing Trace function.
@@ -68,7 +67,7 @@ public:
   /**
    * @param logFunction logging function
    */
-  void SetLogFunction( const Dali::Integration::Log::LogFunction& logFunction );
+  void SetLogFunction(const Dali::Integration::Log::LogFunction& logFunction);
 
   /**
    * Install the log function for the current thread.
@@ -322,19 +321,18 @@ public:
   bool PartialUpdateRequired() const;
 
   /// Deleted copy constructor.
-  EnvironmentOptions( const EnvironmentOptions& ) = delete;
+  EnvironmentOptions(const EnvironmentOptions&) = delete;
 
   /// Deleted move constructor.
-  EnvironmentOptions( const EnvironmentOptions&& ) = delete;
+  EnvironmentOptions(const EnvironmentOptions&&) = delete;
 
   /// Deleted assignment operator.
-  EnvironmentOptions& operator=( const EnvironmentOptions& ) = delete;
+  EnvironmentOptions& operator=(const EnvironmentOptions&) = delete;
 
   /// Deleted move assignment operator.
-  EnvironmentOptions& operator=( const EnvironmentOptions&& ) = delete;
+  EnvironmentOptions& operator=(const EnvironmentOptions&&) = delete;
 
 private: // Internal
-
   /**
    * Parses the environment options.
    * Called from the constructor
@@ -342,58 +340,63 @@ private: // Internal
   void ParseEnvironmentOptions();
 
 private: // Data
-
   Dali::Integration::Log::LogFunction mLogFunction;
-  std::string mWindowName;                        ///< name of the window
-  std::string mWindowClassName;                   ///< name of the class the window belongs to
-  unsigned int mNetworkControl;                   ///< whether network control is enabled
-  unsigned int mFpsFrequency;                     ///< how often fps is logged out in seconds
-  unsigned int mUpdateStatusFrequency;            ///< how often update status is logged out in frames
-  unsigned int mObjectProfilerInterval;           ///< how often object counts are logged out in seconds
-  unsigned int mPerformanceStatsLevel;            ///< performance statistics logging bitmask
-  unsigned int mPerformanceStatsFrequency;        ///< performance statistics logging frequency (seconds)
-  unsigned int mPerformanceTimeStampOutput;       ///< performance time stamp output ( bitmask)
-  unsigned int mPanGestureLoggingLevel;           ///< pan-gesture log level
-  unsigned int mWindowWidth;                      ///< width of the window
-  unsigned int mWindowHeight;                     ///< height of the window
-  unsigned int mRenderRefreshRate;                ///< render refresh rate
-  unsigned int mMaxTextureSize;                   ///< The maximum texture size that GL can handle
-  unsigned int mRenderToFboInterval;              ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
-  int mPanGesturePredictionMode;                  ///< prediction mode for pan gestures
-  int mPanGesturePredictionAmount;                ///< prediction amount for pan gestures
-  int mPanGestureMaxPredictionAmount;             ///< maximum prediction amount for pan gestures
-  int mPanGestureMinPredictionAmount;             ///< minimum prediction amount for pan gestures
-  int mPanGesturePredictionAmountAdjustment;      ///< adjustment of prediction amount for pan gestures
-  int mPanGestureSmoothingMode;                   ///< prediction mode for pan gestures
-  float mPanGestureSmoothingAmount;               ///< prediction amount for pan gestures
-  int mPanGestureUseActualTimes;                  ///< Disable to optionally override actual times if they make results worse.
-  int mPanGestureInterpolationTimeRange;          ///< Time into past history (ms) to use points to interpolate the first point.
-  int mPanGestureScalarOnlyPredictionEnabled;     ///< If enabled, prediction is done using velocity alone (no integration or acceleration).
-  int mPanGestureTwoPointPredictionEnabled;       ///< If enabled, a second interpolated point is predicted and combined with the first to get more stable values.
-  int mPanGestureTwoPointInterpolatePastTime;     ///< The target time in the past to generate the second interpolated point.
-  float mPanGestureTwoPointVelocityBias;          ///< The ratio of first and second interpolated points to use for velocity. 0.0f = 100% of first point. 1.0f = 100% of second point.
-  float mPanGestureTwoPointAccelerationBias;      ///< The ratio of first and second interpolated points to use for acceleration. 0.0f = 100% of first point. 1.0f = 100% of second point.
-  int mPanGestureMultitapSmoothingRange;          ///< The range in time (ms) of points in the history to smooth the final output against.
-  int mPanMinimumDistance;                        ///< minimum distance required before pan starts
-  int mPanMinimumEvents;                          ///< minimum events required before pan starts
-  float mPinchMinimumDistance;                    ///< minimum number of pixels moved before a pinch starts
-  int mPinchMinimumTouchEvents;                   ///< minimum events required before a pinch starts
-  int mPinchMinimumTouchEventsAfterStart;         ///< minimum events required after a pinch started
-  int mRotationMinimumTouchEvents;                ///< minimum events required before a rotation starts
-  int mRotationMinimumTouchEventsAfterStart;      ///< minimum events required after a rotation started
-  int mLongPressMinimumHoldingTime;               ///< minimum holding time required to be recognized as a long press gesture (millisecond)
-  int mGlesCallTime;                              ///< time in seconds between status updates
-  int mMultiSamplingLevel;                        ///< The number of samples required in multisample buffers
-  ThreadingMode::Type mThreadingMode;             ///< threading mode
-  bool mGlesCallAccumulate;                       ///< Whether or not to accumulate gles call statistics
-  bool mDepthBufferRequired;                      ///< Whether the depth buffer is required
-  bool mStencilBufferRequired;                    ///< Whether the stencil buffer is required
-  bool mPartialUpdateRequired;                    ///< Whether the partial update is required
-  std::unique_ptr<TraceManager> mTraceManager;    ///< TraceManager
+
+  std::string mWindowName;      ///< name of the window
+  std::string mWindowClassName; ///< name of the class the window belongs to
+
+  unsigned int mNetworkControl;             ///< whether network control is enabled
+  unsigned int mFpsFrequency;               ///< how often fps is logged out in seconds
+  unsigned int mUpdateStatusFrequency;      ///< how often update status is logged out in frames
+  unsigned int mObjectProfilerInterval;     ///< how often object counts are logged out in seconds
+  unsigned int mPerformanceStatsLevel;      ///< performance statistics logging bitmask
+  unsigned int mPerformanceStatsFrequency;  ///< performance statistics logging frequency (seconds)
+  unsigned int mPerformanceTimeStampOutput; ///< performance time stamp output ( bitmask)
+  unsigned int mPanGestureLoggingLevel;     ///< pan-gesture log level
+  unsigned int mWindowWidth;                ///< width of the window
+  unsigned int mWindowHeight;               ///< height of the window
+  unsigned int mRenderRefreshRate;          ///< render refresh rate
+  unsigned int mMaxTextureSize;             ///< The maximum texture size that GL can handle
+  unsigned int mRenderToFboInterval;        ///< The number of frames that are going to be rendered into the Frame Buffer Object but the last one which is going to be rendered into the Frame Buffer.
+
+  int   mPanGesturePredictionMode;              ///< prediction mode for pan gestures
+  int   mPanGesturePredictionAmount;            ///< prediction amount for pan gestures
+  int   mPanGestureMaxPredictionAmount;         ///< maximum prediction amount for pan gestures
+  int   mPanGestureMinPredictionAmount;         ///< minimum prediction amount for pan gestures
+  int   mPanGesturePredictionAmountAdjustment;  ///< adjustment of prediction amount for pan gestures
+  int   mPanGestureSmoothingMode;               ///< prediction mode for pan gestures
+  float mPanGestureSmoothingAmount;             ///< prediction amount for pan gestures
+  int   mPanGestureUseActualTimes;              ///< Disable to optionally override actual times if they make results worse.
+  int   mPanGestureInterpolationTimeRange;      ///< Time into past history (ms) to use points to interpolate the first point.
+  int   mPanGestureScalarOnlyPredictionEnabled; ///< If enabled, prediction is done using velocity alone (no integration or acceleration).
+  int   mPanGestureTwoPointPredictionEnabled;   ///< If enabled, a second interpolated point is predicted and combined with the first to get more stable values.
+  int   mPanGestureTwoPointInterpolatePastTime; ///< The target time in the past to generate the second interpolated point.
+  float mPanGestureTwoPointVelocityBias;        ///< The ratio of first and second interpolated points to use for velocity. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  float mPanGestureTwoPointAccelerationBias;    ///< The ratio of first and second interpolated points to use for acceleration. 0.0f = 100% of first point. 1.0f = 100% of second point.
+  int   mPanGestureMultitapSmoothingRange;      ///< The range in time (ms) of points in the history to smooth the final output against.
+  int   mPanMinimumDistance;                    ///< minimum distance required before pan starts
+  int   mPanMinimumEvents;                      ///< minimum events required before pan starts
+  float mPinchMinimumDistance;                  ///< minimum number of pixels moved before a pinch starts
+  int   mPinchMinimumTouchEvents;               ///< minimum events required before a pinch starts
+  int   mPinchMinimumTouchEventsAfterStart;     ///< minimum events required after a pinch started
+  int   mRotationMinimumTouchEvents;            ///< minimum events required before a rotation starts
+  int   mRotationMinimumTouchEventsAfterStart;  ///< minimum events required after a rotation started
+  int   mLongPressMinimumHoldingTime;           ///< minimum holding time required to be recognized as a long press gesture (millisecond)
+  int   mGlesCallTime;                          ///< time in seconds between status updates
+  int   mMultiSamplingLevel;                    ///< The number of samples required in multisample buffers
+
+  ThreadingMode::Type mThreadingMode; ///< threading mode
+
+  bool mGlesCallAccumulate;    ///< Whether or not to accumulate gles call statistics
+  bool mDepthBufferRequired;   ///< Whether the depth buffer is required
+  bool mStencilBufferRequired; ///< Whether the stencil buffer is required
+  bool mPartialUpdateRequired; ///< Whether the partial update is required
+
+  std::unique_ptr<TraceManager> mTraceManager; ///< TraceManager
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H

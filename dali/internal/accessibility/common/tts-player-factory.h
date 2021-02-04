@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_FACTORY_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,16 +23,13 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class TtsPlayer;
 namespace TtsPlayerFactory
 {
-
 /**
  * Factory function that ought to be overriden by platform implementation.
  * @return
@@ -41,7 +38,7 @@ std::unique_ptr<TtsPlayer> New(Dali::TtsPlayer::Mode mode);
 
 } // namespace TtsPlayerFactory
 
-} // namespaceAdaptor
+} // namespace Adaptor
 
 } // namespace Internal
 

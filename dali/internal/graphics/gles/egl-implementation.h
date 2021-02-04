@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@
 #include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
+#include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/integration-api/core-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
@@ -37,14 +37,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * EglImplementation class provides an EGL implementation.
  */
 class EglImplementation : public EglInterface
 {
 public:
-
   /**
    * Constructor
    * @param[in] multiSamplingLevel The Multi-sampling level required
@@ -52,10 +50,10 @@ public:
    * @param[in] stencilBufferRequired Whether the stencil buffer is required
    * @param[in] partialUpdatedRequired Whether the partial update is required
    */
-  EglImplementation( int multiSamplingLevel,
-                     Integration::DepthBufferAvailable depthBufferRequired,
-                     Integration::StencilBufferAvailable stencilBufferRequired,
-                     Integration::PartialUpdateAvailable partialUpdateRequired );
+  EglImplementation(int                                 multiSamplingLevel,
+                    Integration::DepthBufferAvailable   depthBufferRequired,
+                    Integration::StencilBufferAvailable stencilBufferRequired,
+                    Integration::PartialUpdateAvailable partialUpdateRequired);
 
   /**
    * Destructor
@@ -63,7 +61,6 @@ public:
   ~EglImplementation() override;
 
 public:
-
   /**
    * (Called from RenderSurface, not RenderThread, so not in i/f, hence, not virtual)
    * Initialize GL
@@ -71,7 +68,7 @@ public:
    * @param isOwnSurface whether the surface is own or not
    * @return true on success, false on failure
    */
-  bool InitializeGles( EGLNativeDisplayType display, bool isOwnSurface = true );
+  bool InitializeGles(EGLNativeDisplayType display, bool isOwnSurface = true);
 
   /**
     * Create the OpenGL context for the shared resource.
@@ -83,22 +80,22 @@ public:
     * Create the OpenGL context for the window.
     * @return true if successful
     */
-  bool CreateWindowContext( EGLContext& mEglContext );
+  bool CreateWindowContext(EGLContext& mEglContext);
 
   /**
     * Destroy the OpenGL context.
     */
-  void DestroyContext( EGLContext& eglContext );
+  void DestroyContext(EGLContext& eglContext);
 
   /**
     * Destroy the OpenGL surface.
     */
-  void DestroySurface( EGLSurface& eglSurface );
+  void DestroySurface(EGLSurface& eglSurface);
 
   /**
    * Make the OpenGL context current
    */
-  void MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext ) override;
+  void MakeContextCurrent(EGLSurface eglSurface, EGLContext eglContext) override;
 
   /**
    * clear the OpenGL context
@@ -111,7 +108,7 @@ public:
    * @param pixmap The pixmap to replace the current surface
    * @param eglSurface The eglSurface to replace the current OpenGL surface.
    */
-  void MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface );
+  void MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSurface);
 
   /**
    * Terminate GL
@@ -127,27 +124,27 @@ public:
   /**
    * Performs an OpenGL swap buffers command
    */
-  void SwapBuffers( EGLSurface& eglSurface ) override;
+  void SwapBuffers(EGLSurface& eglSurface) override;
 
   /**
    * Gets current back buffer age
    */
-  EGLint GetBufferAge( EGLSurface& eglSurface ) const;
+  EGLint GetBufferAge(EGLSurface& eglSurface) const;
 
   /**
    * Performs an OpenGL set damage command with damaged rects
    */
-  void SetDamageRegion( EGLSurface& eglSurface, std::vector< Rect< int > >& damagedRects );
+  void SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects);
 
   /**
    * Performs an OpenGL swap buffers command with damaged rects
    */
-  virtual void SwapBuffers( EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects );
+  virtual void SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects);
 
   /**
    * Performs an OpenGL copy buffers command
    */
-  void CopyBuffers( EGLSurface& eglSurface ) override;
+  void CopyBuffers(EGLSurface& eglSurface) override;
 
   /**
    * Performs an EGL wait GL command
@@ -160,7 +157,7 @@ public:
    * @param colorDepth Bit per pixel value (ex. 32 or 24)
    * @return true if the eglChooseConfig is succeed.
   */
-  bool ChooseConfig( bool isWindowType, ColorDepth depth );
+  bool ChooseConfig(bool isWindowType, ColorDepth depth);
 
   /**
     * Create an OpenGL surface using a window
@@ -168,7 +165,7 @@ public:
     * @param colorDepth Bit per pixel value (ex. 32 or 24)
     * @return Handle to an on-screen EGL window surface (the requester has an ownership of this egl surface)
     */
-  EGLSurface CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth );
+  EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth);
 
   /**
    * Create the OpenGL surface using a pixmap
@@ -176,7 +173,7 @@ public:
    * @param colorDepth Bit per pixel value (ex. 32 or 24)
    * @return Handle to an off-screen EGL pixmap surface (the requester has an ownership of this egl surface)
    */
-  EGLSurface CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth );
+  EGLSurface CreateSurfacePixmap(EGLNativePixmapType pixmap, ColorDepth depth);
 
   /**
    * Replaces the render surface
@@ -184,7 +181,7 @@ public:
    * @return true if the context was lost due to a change in display
    *         between old surface and new surface
    */
-  bool ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext );
+  bool ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext);
 
   /**
    * Replaces the render surface
@@ -193,12 +190,12 @@ public:
    * @return true if the context was lost due to a change in x-display
    *         between old surface and new surface
    */
-  bool ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSurface& eglSurface );
+  bool ReplaceSurfacePixmap(EGLNativePixmapType pixmap, EGLSurface& eglSurface);
 
   /**
    * Sets gles version
    */
-  void SetGlesVersion( const int32_t glesVersion );
+  void SetGlesVersion(const int32_t glesVersion);
 
   /**
    * Sets Whether the frame is the first after Resume.
@@ -241,46 +238,44 @@ public:
   bool IsPartialUpdateRequired() const;
 
 private:
-
-  Vector<EGLint>       mContextAttribs;
+  Vector<EGLint> mContextAttribs;
 
   EGLNativeDisplayType mEglNativeDisplay;
 
-  EGLNativeWindowType  mEglNativeWindow;
+  EGLNativeWindowType mEglNativeWindow;
 
-  EGLNativePixmapType  mCurrentEglNativePixmap;
+  EGLNativePixmapType mCurrentEglNativePixmap;
 
-  EGLDisplay           mEglDisplay;
-  EGLConfig            mEglConfig;
-  EGLContext           mEglContext;                            ///< The resource context holding assets such as textures to be shared
+  EGLDisplay mEglDisplay;
+  EGLConfig  mEglConfig;
+  EGLContext mEglContext; ///< The resource context holding assets such as textures to be shared
 
   typedef std::vector<EGLContext> EglWindowContextContainer;
-  EglWindowContextContainer mEglWindowContexts;                ///< The EGL context for the window
+  EglWindowContextContainer       mEglWindowContexts; ///< The EGL context for the window
 
-  EGLSurface           mCurrentEglSurface;
-  EGLContext           mCurrentEglContext;
+  EGLSurface mCurrentEglSurface;
+  EGLContext mCurrentEglContext;
 
   typedef std::vector<EGLSurface> EglWindowSurfaceContainer;
-  EglWindowSurfaceContainer mEglWindowSurfaces;                ///< The EGL surface for the window
+  EglWindowSurfaceContainer       mEglWindowSurfaces; ///< The EGL surface for the window
 
-  int32_t              mMultiSamplingLevel;
-  int32_t              mGlesVersion;
+  int32_t mMultiSamplingLevel;
+  int32_t mGlesVersion;
 
-  ColorDepth           mColorDepth;
+  ColorDepth mColorDepth;
 
-  bool                 mGlesInitialized;
-  bool                 mIsOwnSurface;
-  bool                 mIsWindow;
-  bool                 mDepthBufferRequired;
-  bool                 mStencilBufferRequired;
-  bool                 mPartialUpdateRequired;
-  bool                 mIsSurfacelessContextSupported;
-  bool                 mIsKhrCreateContextSupported;
+  bool mGlesInitialized;
+  bool mIsOwnSurface;
+  bool mIsWindow;
+  bool mDepthBufferRequired;
+  bool mStencilBufferRequired;
+  bool mPartialUpdateRequired;
+  bool mIsSurfacelessContextSupported;
+  bool mIsKhrCreateContextSupported;
 
-  uint32_t              mSwapBufferCountAfterResume;
-  PFNEGLSETDAMAGEREGIONKHRPROC mEglSetDamageRegionKHR;
+  uint32_t                           mSwapBufferCountAfterResume;
+  PFNEGLSETDAMAGEREGIONKHRPROC       mEglSetDamageRegionKHR;
   PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC mEglSwapBuffersWithDamageKHR;
-
 };
 
 } // namespace Adaptor

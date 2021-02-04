@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 
-
 namespace Dali
 {
 namespace Internal
@@ -34,19 +33,18 @@ namespace Adaptor
 {
 class DisplayConnection;
 }
-}
+} // namespace Internal
 
 class DisplayConnection
 {
 public:
-
   /**
    * @brief Create an initialized DisplayConnection.
    *
    * @param[in] graphics The abstracted graphics interface
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Internal::Adaptor::GraphicsInterface& graphics );
+  static DisplayConnection* New(Dali::Internal::Adaptor::GraphicsInterface& graphics);
 
   /**
    * @brief Create an initialized DisplayConnection.
@@ -56,7 +54,7 @@ public:
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New( Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type );
+  static DisplayConnection* New(Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type);
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().
@@ -90,7 +88,6 @@ public:
   bool Initialize();
 
 public:
-
   /**
    * @brief This constructor is used by DisplayConnection New() methods.
    *
@@ -99,10 +96,9 @@ public:
   explicit DALI_INTERNAL DisplayConnection(Internal::Adaptor::DisplayConnection* impl);
 
 private:
-
   std::unique_ptr<Internal::Adaptor::DisplayConnection> mImpl;
 };
 
-}
+} // namespace Dali
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H

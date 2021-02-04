@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_BIDIRECTIONAL_SUPPORT_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,20 +27,16 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 /**
  * Implementation of the BidirectionalSupport
  */
 class BidirectionalSupport : public BaseObject
 {
 public:
-
   /**
    * Constructor
    */
@@ -59,60 +55,57 @@ public:
   /**
    * @copydoc Dali::BidirectionalSupport::CreateInfo()
    */
-  BidiInfoIndex CreateInfo( const Character* const paragraph,
-                            Length numberOfCharacters,
-                            bool matchSystemLanguageDirection,
-                            LayoutDirection::Type layoutDirection );
+  BidiInfoIndex CreateInfo(const Character* const paragraph,
+                           Length                 numberOfCharacters,
+                           bool                   matchSystemLanguageDirection,
+                           LayoutDirection::Type  layoutDirection);
 
   /**
    * @copydoc Dali::BidirectionalSupport::DestroyInfo()
    */
-  void DestroyInfo( BidiInfoIndex bidiInfoIndex );
+  void DestroyInfo(BidiInfoIndex bidiInfoIndex);
 
   /**
    * @copydoc Dali::BidirectionalSupport::Reorder()
    */
-  void Reorder( BidiInfoIndex bidiInfoIndex,
-                CharacterIndex firstCharacterIndex,
-                Length numberOfCharacters,
-                CharacterIndex* visualToLogicalMap );
+  void Reorder(BidiInfoIndex   bidiInfoIndex,
+               CharacterIndex  firstCharacterIndex,
+               Length          numberOfCharacters,
+               CharacterIndex* visualToLogicalMap);
 
   /**
    * @copydoc Dali::BidirectionalSupport::GetMirroredText()
    */
-  bool GetMirroredText( Character* text,
-                        CharacterDirection* directions,
-                        Length numberOfCharacters );
+  bool GetMirroredText(Character*          text,
+                       CharacterDirection* directions,
+                       Length              numberOfCharacters);
 
   /**
    * @copydoc Dali::BidirectionalSupport::GetParagraphDirection()
    */
-  bool GetParagraphDirection( BidiInfoIndex bidiInfoIndex ) const;
+  bool GetParagraphDirection(BidiInfoIndex bidiInfoIndex) const;
 
   /**
    * @copydoc Dali::BidirectionalSupport::GetCharactersDirection()
    */
-  void GetCharactersDirection( BidiInfoIndex bidiInfoIndex,
-                               CharacterDirection* directions,
-                               Length numberOfCharacters );
+  void GetCharactersDirection(BidiInfoIndex       bidiInfoIndex,
+                              CharacterDirection* directions,
+                              Length              numberOfCharacters);
 
 private:
-
   /**
    * Helper for lazy initialization.
    */
   void CreatePlugin();
 
 private:
-
   // Undefined copy constructor.
-  BidirectionalSupport( const BidirectionalSupport& );
+  BidirectionalSupport(const BidirectionalSupport&);
 
   // Undefined assignment constructor.
-  BidirectionalSupport& operator=( const BidirectionalSupport& );
+  BidirectionalSupport& operator=(const BidirectionalSupport&);
 
 private:
-
   struct Plugin;
   Plugin* mPlugin;
 
@@ -122,16 +115,16 @@ private:
 
 } // namespace TextAbstraction
 
-inline static TextAbstraction::Internal::BidirectionalSupport& GetImplementation( TextAbstraction::BidirectionalSupport& bidirectionalSupport )
+inline static TextAbstraction::Internal::BidirectionalSupport& GetImplementation(TextAbstraction::BidirectionalSupport& bidirectionalSupport)
 {
-  DALI_ASSERT_ALWAYS( bidirectionalSupport && "bidirectional support handle is empty" );
+  DALI_ASSERT_ALWAYS(bidirectionalSupport && "bidirectional support handle is empty");
   BaseObject& handle = bidirectionalSupport.GetBaseObject();
   return static_cast<TextAbstraction::Internal::BidirectionalSupport&>(handle);
 }
 
-inline static const TextAbstraction::Internal::BidirectionalSupport& GetImplementation( const TextAbstraction::BidirectionalSupport& bidirectionalSupport )
+inline static const TextAbstraction::Internal::BidirectionalSupport& GetImplementation(const TextAbstraction::BidirectionalSupport& bidirectionalSupport)
 {
-  DALI_ASSERT_ALWAYS( bidirectionalSupport && "bidirectional support handle is empty" );
+  DALI_ASSERT_ALWAYS(bidirectionalSupport && "bidirectional support handle is empty");
   const BaseObject& handle = bidirectionalSupport.GetBaseObject();
   return static_cast<const TextAbstraction::Internal::BidirectionalSupport&>(handle);
 }

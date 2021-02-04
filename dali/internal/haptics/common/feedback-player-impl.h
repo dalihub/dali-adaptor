@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_FEEDBACK_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/object/base-object.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/feedback-player.h>
@@ -28,13 +28,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class FeedbackPluginProxy;
 
 /**
@@ -42,9 +39,7 @@ class FeedbackPluginProxy;
  */
 class FeedbackPlayer : public Dali::BaseObject
 {
-
 public:
-
   /**
    * Create a FeedbackPlayer.
    * This should only be called once by the Adaptor class.
@@ -66,7 +61,7 @@ public:
   /**
    * @copydoc Dali::FeedbackPlayer::PlayFile()
    */
-  void PlayFile( const std::string& filePath );
+  void PlayFile(const std::string& filePath);
 
   /**
    * @copydoc Dali::FeedbackPlayer::Stop()
@@ -76,17 +71,17 @@ public:
   /**
    * @copydoc Dali::FeedbackPlayer::PlaySound()
    */
-  int PlaySound( const std::string& fileName );
+  int PlaySound(const std::string& fileName);
 
   /**
    * @copydoc Dali::FeedbackPlayer::StopSound()
    */
-  void StopSound( int handle );
+  void StopSound(int handle);
 
   /**
    * @copydoc Dali::FeedbackPlayer::PlayFeedbackPattern()
    */
-  void PlayFeedbackPattern( int type, int pattern );
+  void PlayFeedbackPattern(int type, int pattern);
 
   /**
    * @copydoc Dali::FeedbackPlayer::LoadFile()
@@ -94,7 +89,6 @@ public:
   bool LoadFile(const std::string& filename, std::string& data);
 
 private:
-
   /**
    * Private Constructor; see also FeedbackPlayer::New()
    */
@@ -112,7 +106,6 @@ private:
   FeedbackPlayer& operator=(FeedbackPlayer&);
 
 private:
-
   FeedbackPluginProxy mPlugin;
 };
 
@@ -124,7 +117,7 @@ private:
 
 inline Internal::Adaptor::FeedbackPlayer& GetImplementation(Dali::FeedbackPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "FeedbackPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "FeedbackPlayer handle is empty");
 
   BaseObject& handle = player.GetBaseObject();
 
@@ -133,7 +126,7 @@ inline Internal::Adaptor::FeedbackPlayer& GetImplementation(Dali::FeedbackPlayer
 
 inline const Internal::Adaptor::FeedbackPlayer& GetImplementation(const Dali::FeedbackPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "FeedbackPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "FeedbackPlayer handle is empty");
 
   const BaseObject& handle = player.GetBaseObject();
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_GAUSSIAN_BLUR_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Perform a one dimension Gaussian blur convolution and write its output buffer transposed.
  *
@@ -37,7 +34,7 @@ namespace Adaptor
  * @param[in] bufferHeight The height of the buffer
  * @param[in] blurRadius The radius for Gaussian blur
  */
-void ConvoluteAndTranspose( unsigned char* inBuffer, unsigned char* outBuffer, const unsigned int bufferWidth, const unsigned int bufferHeight, const float blurRadius );
+void ConvoluteAndTranspose(unsigned char* inBuffer, unsigned char* outBuffer, const unsigned int bufferWidth, const unsigned int bufferHeight, const float blurRadius);
 
 /**
  * Perform Gaussian blur on a buffer.
@@ -50,7 +47,7 @@ void ConvoluteAndTranspose( unsigned char* inBuffer, unsigned char* outBuffer, c
  * @param[in] buffer The buffer to apply the Gaussian blur to
  * @param[in] blurRadius The radius for Gaussian blur
  */
-void PerformGaussianBlurRGBA( PixelBuffer& buffer, const float blurRadius );
+void PerformGaussianBlurRGBA(PixelBuffer& buffer, const float blurRadius);
 
 } //namespace Adaptor
 

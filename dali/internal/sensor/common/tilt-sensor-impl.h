@@ -2,7 +2,7 @@
 #define DALI_SENSOR_COMMON_TILT_SENSOR_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,22 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/devel-api/adaptor-framework/tilt-sensor.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 #include <deque>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * TiltSensor provides pitch & roll values when the device is tilted.
  */
 class TiltSensor : public Dali::BaseObject
 {
 public:
-
   /**
    * Constructor
    */
@@ -92,7 +88,7 @@ public:
   /**
    * @copydoc Dali::TiltSensor::SetUpdateFrequency()
    */
-  virtual void SetUpdateFrequency( float frequencyHertz );
+  virtual void SetUpdateFrequency(float frequencyHertz);
 
   /**
    * @copydoc Dali::TiltSensor::GetUpdateFrequency()
@@ -118,7 +114,7 @@ public:
    * @return True if the signal was connected.
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
-  static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
+  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor);
 };
 
 } // namespace Adaptor
@@ -127,7 +123,7 @@ public:
 
 inline Internal::Adaptor::TiltSensor& GetImplementation(Dali::TiltSensor& sensor)
 {
-  DALI_ASSERT_ALWAYS( sensor && "TiltSensor handle is empty" );
+  DALI_ASSERT_ALWAYS(sensor && "TiltSensor handle is empty");
 
   BaseObject& handle = sensor.GetBaseObject();
 
@@ -136,7 +132,7 @@ inline Internal::Adaptor::TiltSensor& GetImplementation(Dali::TiltSensor& sensor
 
 inline const Internal::Adaptor::TiltSensor& GetImplementation(const Dali::TiltSensor& sensor)
 {
-  DALI_ASSERT_ALWAYS( sensor && "TiltSensor handle is empty" );
+  DALI_ASSERT_ALWAYS(sensor && "TiltSensor handle is empty");
 
   const BaseObject& handle = sensor.GetBaseObject();
 

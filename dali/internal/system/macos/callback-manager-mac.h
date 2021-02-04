@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 
 namespace Dali::Internal::Adaptor
 {
-
 /**
  * @brief Cocoa Implementation of CallbackManager
  */
@@ -34,12 +33,12 @@ public:
   /**
      * @copydoc CallbackManager::AddIdleCallback()
    */
-  bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue ) override;
+  bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
   /**
    * @caopydoc CallbackManager::RemoveIdleCallback
    */
-  void RemoveIdleCallback( CallbackBase* callback ) override;
+  void RemoveIdleCallback(CallbackBase* callback) override;
 
   /**
    * @copydoc CallbackManager::ProcessIdle
@@ -54,12 +53,12 @@ public:
   /**
    * @copydoc CallbackManager::AddIdleEntererCallback
    */
-  bool AddIdleEntererCallback( CallbackBase* callback ) override;
+  bool AddIdleEntererCallback(CallbackBase* callback) override;
 
   /**
    * @copydoc CallbackManager::RemoveIdleEntererCallback
    */
-  void RemoveIdleEntererCallback( CallbackBase* callback ) override;
+  void RemoveIdleEntererCallback(CallbackBase* callback) override;
 
   /**
    * @copydoc CallbackManager::Start
@@ -75,7 +74,7 @@ public:
 
 private:
   std::unique_ptr<Impl> mImpl;
-  bool mRunning;
+  bool                  mRunning;
 };
 
-}
+} // namespace Dali::Internal::Adaptor

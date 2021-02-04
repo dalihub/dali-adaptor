@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_IMAGE_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,24 +23,21 @@
 #include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/adaptor-framework/vector-image-renderer.h>
 #include <dali/internal/vector-image/common/vector-image-renderer-plugin-proxy.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 struct NSVGrasterizer;
 struct NSVGimage;
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class VectorImageRenderer;
-using VectorImageRendererPtr = IntrusivePtr< VectorImageRenderer >;
+using VectorImageRendererPtr = IntrusivePtr<VectorImageRenderer>;
 
 /**
  * Dali internal VectorImageRenderer.
@@ -48,7 +45,6 @@ using VectorImageRendererPtr = IntrusivePtr< VectorImageRenderer >;
 class VectorImageRenderer : public BaseObject
 {
 public:
-
   /**
    * @brief Creates a VectorImageRenderer object.
    *
@@ -69,15 +65,14 @@ public:
   /**
    * @copydoc Dali::VectorImageRenderer::GetDefaultSize()
    */
-  void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
+  void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
-  VectorImageRenderer( const VectorImageRenderer& ) = delete;
-  VectorImageRenderer& operator=( VectorImageRenderer& )  = delete;
-  VectorImageRenderer( VectorImageRenderer&& ) = delete;
-  VectorImageRenderer& operator=( VectorImageRenderer&& )  = delete;
+  VectorImageRenderer(const VectorImageRenderer&) = delete;
+  VectorImageRenderer& operator=(VectorImageRenderer&) = delete;
+  VectorImageRenderer(VectorImageRenderer&&)           = delete;
+  VectorImageRenderer& operator=(VectorImageRenderer&&) = delete;
 
 private:
-
   /**
    * @brief Constructor
    */
@@ -94,7 +89,6 @@ private:
   void Initialize();
 
 private:
-
   VectorImageRendererPluginProxy mPlugin;
   NSVGimage*                     mParsedImage;
   NSVGrasterizer*                mRasterizer;
@@ -104,22 +98,22 @@ private:
 
 } // namespace Internal
 
-inline static Internal::Adaptor::VectorImageRenderer& GetImplementation( Dali::VectorImageRenderer& renderer )
+inline static Internal::Adaptor::VectorImageRenderer& GetImplementation(Dali::VectorImageRenderer& renderer)
 {
-  DALI_ASSERT_ALWAYS( renderer && "VectorImageRenderer handle is empty." );
+  DALI_ASSERT_ALWAYS(renderer && "VectorImageRenderer handle is empty.");
 
   BaseObject& handle = renderer.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::VectorImageRenderer& >( handle );
+  return static_cast<Internal::Adaptor::VectorImageRenderer&>(handle);
 }
 
-inline static const Internal::Adaptor::VectorImageRenderer& GetImplementation( const Dali::VectorImageRenderer& renderer )
+inline static const Internal::Adaptor::VectorImageRenderer& GetImplementation(const Dali::VectorImageRenderer& renderer)
 {
-  DALI_ASSERT_ALWAYS( renderer && "VectorImageRenderer handle is empty." );
+  DALI_ASSERT_ALWAYS(renderer && "VectorImageRenderer handle is empty.");
 
   const BaseObject& handle = renderer.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::VectorImageRenderer& >( handle );
+  return static_cast<const Internal::Adaptor::VectorImageRenderer&>(handle);
 }
 
 } // namespace Dali

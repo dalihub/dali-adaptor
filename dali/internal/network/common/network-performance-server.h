@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_SERVER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,24 +19,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <pthread.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <pthread.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/network/common/network-performance-client.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/internal/network/common/network-performance-client.h>
+#include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class SocketInterface;
 class PerformanceMarker;
 
@@ -60,16 +57,13 @@ class PerformanceMarker;
  */
 class NetworkPerformanceServer : public ClientSendDataInterface
 {
-
 public:
-
   /**
    * @brief Constructor
    * @param[in] adaptorServices adaptor internal services
    * @param[in] logOptions log options
    */
-  NetworkPerformanceServer( AdaptorInternalServices& adaptorServices, const EnvironmentOptions& logOptions );
-
+  NetworkPerformanceServer(AdaptorInternalServices& adaptorServices, const EnvironmentOptions& logOptions);
 
   /**
    * @brief Start the server, to be called form Dali main thread
@@ -95,29 +89,27 @@ public:
    * @pre Can be called from any thread
    *
    */
-  void TransmitMarker( const PerformanceMarker& marker, const char* const description );
+  void TransmitMarker(const PerformanceMarker& marker, const char* const description);
 
   /**
    * Destructor
    */
-   ~NetworkPerformanceServer();
+  ~NetworkPerformanceServer();
 
-protected:  // ClientSendDataInterface
-
+protected: // ClientSendDataInterface
   /**
    * @copydoc ClientSendDataInterface::ClientSendDataInterface()
    */
-  void SendData( const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId ) override;
+  void SendData(const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId) override;
 
 private:
-
   /**
    * Helper for the thread calling the entry function.
    * @param[in] This A pointer to the current RenderThread object
    */
-  static void* ConnectionListenerFunc( void* This )
+  static void* ConnectionListenerFunc(void* This)
   {
-    ( static_cast<NetworkPerformanceServer*>( This ) )->ConnectionListener();
+    (static_cast<NetworkPerformanceServer*>(This))->ConnectionListener();
     return NULL;
   }
 
@@ -125,13 +117,13 @@ private:
    * Helper for the thread calling the entry function.
    * @param[in] This A pointer to the current RenderThread object
    */
-  static void* ClientThreadFunc( void* data );
+  static void* ClientThreadFunc(void* data);
 
   /**
    * @brief Client thread function
    * @param client network client object
    */
-  void ClientThread( NetworkPerformanceClient* client );
+  void ClientThread(NetworkPerformanceClient* client);
 
   /**
    * @brief Stop all client threads
@@ -149,33 +141,31 @@ private:
    * @param clientThread client thread
    * @return client
    */
-  NetworkPerformanceClient* AddClient( SocketInterface* clientSocket, pthread_t* clientThread );
+  NetworkPerformanceClient* AddClient(SocketInterface* clientSocket, pthread_t* clientThread);
 
   /**
    * @brief Delete a client from the client list
    * @param client  network client
    */
-  void DeleteClient( NetworkPerformanceClient* client );
+  void DeleteClient(NetworkPerformanceClient* client);
 
-  NetworkPerformanceServer( const NetworkPerformanceServer& );            ///< undefined copy constructor
-  NetworkPerformanceServer& operator=( const NetworkPerformanceServer& ); ///< undefined assignment operator
+  NetworkPerformanceServer(const NetworkPerformanceServer&);            ///< undefined copy constructor
+  NetworkPerformanceServer& operator=(const NetworkPerformanceServer&); ///< undefined assignment operator
 
-  SocketFactoryInterface& mSocketFactory;                 ///< used to create sockets
-  const EnvironmentOptions& mLogOptions;                  ///< log options
-  Dali::Vector< NetworkPerformanceClient* > mClients;     ///< list of connected clients
-  pthread_t mServerThread;                                ///< thread that listens for new connections
-  SocketInterface* mListeningSocket;                      ///< socket used to listen for new connections
-  Dali::Mutex mClientListMutex;                           ///< mutex
-  unsigned int mClientUniqueId;                           ///< increments for every client connection
-  volatile unsigned int mClientCount;                     ///< client count
-  bool mLogFunctionInstalled;                             ///< whether the log function is installed
-
+  SocketFactoryInterface&                 mSocketFactory;        ///< used to create sockets
+  const EnvironmentOptions&               mLogOptions;           ///< log options
+  Dali::Vector<NetworkPerformanceClient*> mClients;              ///< list of connected clients
+  pthread_t                               mServerThread;         ///< thread that listens for new connections
+  SocketInterface*                        mListeningSocket;      ///< socket used to listen for new connections
+  Dali::Mutex                             mClientListMutex;      ///< mutex
+  unsigned int                            mClientUniqueId;       ///< increments for every client connection
+  volatile unsigned int                   mClientCount;          ///< client count
+  bool                                    mLogFunctionInstalled; ///< whether the log function is installed
 };
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
 

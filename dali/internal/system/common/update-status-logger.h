@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_UPDATE_STATUS_LOGGER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class EnvironmentOptions;
 
 /**
@@ -39,12 +36,11 @@ class EnvironmentOptions;
 class UpdateStatusLogger
 {
 public:
-
   /**
    * Create the update-status-logger.
    * @param[in] environmentOptions environment options
    */
-  UpdateStatusLogger( const EnvironmentOptions& environmentOptions );
+  UpdateStatusLogger(const EnvironmentOptions& environmentOptions);
 
   /**
    * Non-virtual destructor; UpdateThread is not suitable as a base class.
@@ -55,12 +51,11 @@ public:
    * Optionally output the update thread status.
    * @param[in] keepUpdatingStatus Whether the update-thread requested further updates.
    */
-  void Log( unsigned int keepUpdatingStatus );
+  void Log(unsigned int keepUpdatingStatus);
 
-private: // Data
-
-  unsigned int mStatusLogInterval;   ///< Interval in frames between status debug prints
-  unsigned int mStatusLogCount;      ///< Used to count frames between status debug prints
+private:                           // Data
+  unsigned int mStatusLogInterval; ///< Interval in frames between status debug prints
+  unsigned int mStatusLogCount;    ///< Used to count frames between status debug prints
 };
 
 } // namespace Adaptor

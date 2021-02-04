@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <memory>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
@@ -36,7 +36,6 @@ class TriggerEventInterface;
 
 namespace Internal
 {
-
 /**
  * Implementation of the OffscreenWindow class.
  */
@@ -44,7 +43,7 @@ class OffscreenWindow : public Dali::Internal::Adaptor::SceneHolder,
                         public ConnectionTracker
 {
 public:
-  using WindowSize = Dali::OffscreenWindow::WindowSize;
+  using WindowSize           = Dali::OffscreenWindow::WindowSize;
   using PostRenderSignalType = Dali::OffscreenWindow::PostRenderSignalType;
 
   /**
@@ -55,12 +54,11 @@ public:
    * @param[in] surface The native surface handle of your platform
    * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
    */
-  static OffscreenWindow* New( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent );
+  static OffscreenWindow* New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent);
 
   OffscreenWindow() = default;
 
 public:
-
   /**
    * Destructor
    */
@@ -74,7 +72,7 @@ public:
   /**
    * @copydoc Dali::OffscreenWindow::GetLayer
    */
-  Dali::Layer GetLayer( uint32_t depth ) const;
+  Dali::Layer GetLayer(uint32_t depth) const;
 
   /**
    * @copydoc Dali::OffscreenWindow::GetSize
@@ -90,10 +88,9 @@ public:
    * @brief Initialize the OffscreenWindow
    * @param[in] isDefaultWindow Whether the OffscreenWindow is a default one or not
    */
-  void Initialize( bool isDefaultWindow );
+  void Initialize(bool isDefaultWindow);
 
-public:  // Signals
-
+public: // Signals
   /**
    * @copydoc Dali::OffscreenWindow::PostRenderSignal
    */
@@ -112,8 +109,7 @@ private:
   NativeRenderSurface* GetNativeRenderSurface() const;
 
 private:
-
- /**
+  /**
    * Private constructor
    *
    * @param[in] width The initial width of the OffscreenWindow
@@ -121,11 +117,11 @@ private:
    * @param[in] surface The native surface handle
    * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
    */
-  OffscreenWindow( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent );
+  OffscreenWindow(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent);
 
   // Undefined
-  OffscreenWindow( const OffscreenWindow& );
-  OffscreenWindow& operator=( OffscreenWindow& );
+  OffscreenWindow(const OffscreenWindow&);
+  OffscreenWindow& operator=(OffscreenWindow&);
 
   /*
    * @brief Initialize the OffscreenWindow (for internal use)
@@ -133,27 +129,26 @@ private:
   void Initialize();
 
 private:
-
-  std::unique_ptr< TriggerEventInterface >  mRenderNotification;
-  PostRenderSignalType                      mPostRenderSignal;
+  std::unique_ptr<TriggerEventInterface> mRenderNotification;
+  PostRenderSignalType                   mPostRenderSignal;
 };
 
-inline OffscreenWindow& GetImplementation( Dali::OffscreenWindow& offscreenWindow )
+inline OffscreenWindow& GetImplementation(Dali::OffscreenWindow& offscreenWindow)
 {
-  DALI_ASSERT_ALWAYS( offscreenWindow && "Dali::OffscreenWindow handle is empty" );
+  DALI_ASSERT_ALWAYS(offscreenWindow && "Dali::OffscreenWindow handle is empty");
 
   BaseObject& handle = offscreenWindow.GetBaseObject();
 
-  return static_cast<OffscreenWindow&>( handle );
+  return static_cast<OffscreenWindow&>(handle);
 }
 
-inline const OffscreenWindow& GetImplementation( const Dali::OffscreenWindow& offscreenWindow )
+inline const OffscreenWindow& GetImplementation(const Dali::OffscreenWindow& offscreenWindow)
 {
-  DALI_ASSERT_ALWAYS( offscreenWindow && "Dali::OffscreenWindow handle is empty" );
+  DALI_ASSERT_ALWAYS(offscreenWindow && "Dali::OffscreenWindow handle is empty");
 
   const BaseObject& handle = offscreenWindow.GetBaseObject();
 
-  return static_cast<const OffscreenWindow&>( handle );
+  return static_cast<const OffscreenWindow&>(handle);
 }
 
 } // namespace Internal

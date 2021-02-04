@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,20 +30,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class PixelBuffer;
 typedef IntrusivePtr<PixelBuffer> PixelBufferPtr;
 
 class PixelBuffer : public BaseObject
 {
 public:
-
   /**
    * @brief Create a PixelBuffer object with a pre-allocated buffer.
    * The PixelBuffer object owns this buffer, which may be retrieved
@@ -53,9 +49,9 @@ public:
    * @param [in] height           Buffer height in pixels
    * @param [in] pixelFormat      The pixel format
    */
-  static PixelBufferPtr New( unsigned int width,
-                             unsigned int height,
-                             Pixel::Format pixelFormat );
+  static PixelBufferPtr New(unsigned int  width,
+                            unsigned int  height,
+                            Pixel::Format pixelFormat);
 
   /**
    * @brief Create a PixelBuffer object. For internal use only.
@@ -67,11 +63,11 @@ public:
    * @param [in] pixelFormat      The pixel format
    * @param [in] releaseFunction  The function used to release the memory.
    */
-  static PixelBufferPtr New( unsigned char* buffer,
-                             unsigned int bufferSize,
-                             unsigned int width,
-                             unsigned int height,
-                             Pixel::Format pixelFormat );
+  static PixelBufferPtr New(unsigned char* buffer,
+                            unsigned int   bufferSize,
+                            unsigned int   width,
+                            unsigned int   height,
+                            Pixel::Format  pixelFormat);
 
   /**
    * Convert a pixelBuffer object into a PixelData object.
@@ -80,7 +76,7 @@ public:
    * @param[in] pixelBuffer The buffer to convert
    * @return the pixelData
    */
-  static Dali::PixelData Convert( PixelBuffer& pixelBuffer );
+  static Dali::PixelData Convert(PixelBuffer& pixelBuffer);
 
   /**
    * @brief Constructor.
@@ -91,14 +87,13 @@ public:
    * @param [in] height           Buffer height in pixels
    * @param [in] pixelFormat      The pixel format
    */
-  PixelBuffer( unsigned char* buffer,
-               unsigned int bufferSize,
-               unsigned int width,
-               unsigned int height,
-               Pixel::Format pixelFormat );
+  PixelBuffer(unsigned char* buffer,
+              unsigned int   bufferSize,
+              unsigned int   width,
+              unsigned int   height,
+              Pixel::Format  pixelFormat);
 
 protected:
-
   /**
    * @brief Destructor.
    *
@@ -107,7 +102,6 @@ protected:
   ~PixelBuffer() override;
 
 public:
-
   /**
    * Get the width of the buffer in pixels.
    * @return The width of the buffer in pixels
@@ -159,14 +153,14 @@ public:
    * @param[in] cropToMask Whether to crop the output to the mask size (true) or scale the
    * mask to the content size (false)
    */
-  void ApplyMask( const PixelBuffer& mask, float contentScale, bool cropToMask );
+  void ApplyMask(const PixelBuffer& mask, float contentScale, bool cropToMask);
 
   /**
    * @brief Apply a Gaussian blur to the current buffer with the given radius.
    *
    * @param[in] blurRadius The radius for Gaussian blur
    */
-  void ApplyGaussianBlur( const float blurRadius );
+  void ApplyGaussianBlur(const float blurRadius);
 
   /**
    * Crops this buffer to the given crop rectangle. Assumes the crop rectangle
@@ -175,14 +169,14 @@ public:
    * @param[in] y The top left corner's y
    * @param[in] cropDimensions The dimensions of the crop
    */
-  void Crop( uint16_t x, uint16_t y, ImageDimensions cropDimensions );
+  void Crop(uint16_t x, uint16_t y, ImageDimensions cropDimensions);
 
   /**
    * Resizes the buffer to the given dimensions. Uses either Lanczos4 for downscaling
    * or Mitchell for upscaling
    * @param[in] outDimensions The new dimensions
    */
-  void Resize( ImageDimensions outDimensions );
+  void Resize(ImageDimensions outDimensions);
 
   /**
    * Multiplies the image's color values by the alpha value. This provides better
@@ -195,7 +189,7 @@ public:
    *
    * @param map Property map containing Exif fields
    */
-  void SetMetadata( const Property::Map& map );
+  void SetMetadata(const Property::Map& map);
 
   /**
    * @brief Returns image metadata as a property map
@@ -215,12 +209,12 @@ public:
    * Allocates fixed amount of memory for the pixel data. Used by compressed formats.
    * @param[in] size Size of memory to be allocated
    */
-  void AllocateFixedSize( uint32_t size );
+  void AllocateFixedSize(uint32_t size);
 
   /**
    * @copydoc Devel::PixelBuffer::Rotate()
    */
-  bool Rotate( Degree angle );
+  bool Rotate(Degree angle);
 
   /**
    * @copydoc Devel::PixelBuffer::IsAlphaPreMultiplied()
@@ -236,17 +230,17 @@ private:
   /*
    * Undefined assignment operator.
    */
-  PixelBuffer& operator= (const PixelBuffer& other);
+  PixelBuffer& operator=(const PixelBuffer& other);
 
   /**
    * Internal method to apply the mask to this buffer. Expects that they are the same size.
    */
-  void ApplyMaskInternal( const PixelBuffer& mask );
+  void ApplyMaskInternal(const PixelBuffer& mask);
 
   /**
    * Takes ownership of the other object's pixel buffer.
    */
-  void TakeOwnershipOfBuffer( PixelBuffer& pixelBuffer );
+  void TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer);
 
   /**
    * Release the buffer
@@ -257,7 +251,7 @@ private:
    * Scales this buffer buffer by the given factor, and crops at the center to the
    * given dimensions.
    */
-  void ScaleAndCrop( float scaleFactor, ImageDimensions cropDimensions );
+  void ScaleAndCrop(float scaleFactor, ImageDimensions cropDimensions);
 
   /**
    * Creates a new buffer which is a crop of the passed in buffer,
@@ -269,7 +263,7 @@ private:
    * @param[in] cropDimensions The dimensions of the crop
    * @return the new pixel buffer
    */
-  static PixelBufferPtr NewCrop( const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions );
+  static PixelBufferPtr NewCrop(const PixelBuffer& inBuffer, uint16_t x, uint16_t y, ImageDimensions cropDimensions);
 
   /**
    * Creates a new buffer which is a resized version of the passed in buffer.
@@ -278,17 +272,16 @@ private:
    * @param[in] outDimensions The new dimensions
    * @return a new buffer of the given size.
    */
-  static PixelBufferPtr NewResize( const PixelBuffer& inBuffer, ImageDimensions outDimensions );
+  static PixelBufferPtr NewResize(const PixelBuffer& inBuffer, ImageDimensions outDimensions);
 
 private:
-
-  std::unique_ptr<Property::Map>  mMetadata;         ///< Metadata fields
-  unsigned char*                  mBuffer;           ///< The raw pixel data
-  unsigned int                    mBufferSize;       ///< Buffer sized in bytes
-  unsigned int                    mWidth;            ///< Buffer width in pixels
-  unsigned int                    mHeight;           ///< Buffer height in pixels
-  Pixel::Format                   mPixelFormat;      ///< Pixel format
-  bool                            mPreMultiplied; ///< PreMultiplied
+  std::unique_ptr<Property::Map> mMetadata;      ///< Metadata fields
+  unsigned char*                 mBuffer;        ///< The raw pixel data
+  unsigned int                   mBufferSize;    ///< Buffer sized in bytes
+  unsigned int                   mWidth;         ///< Buffer width in pixels
+  unsigned int                   mHeight;        ///< Buffer height in pixels
+  Pixel::Format                  mPixelFormat;   ///< Pixel format
+  bool                           mPreMultiplied; ///< PreMultiplied
 };
 
 } // namespace Adaptor
@@ -298,22 +291,22 @@ private:
 /**
  * Helper methods for public API
  */
-inline Internal::Adaptor::PixelBuffer& GetImplementation( Devel::PixelBuffer& handle )
+inline Internal::Adaptor::PixelBuffer& GetImplementation(Devel::PixelBuffer& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "handle is empty" );
+  DALI_ASSERT_ALWAYS(handle && "handle is empty");
 
   BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<Internal::Adaptor::PixelBuffer&>( object );
+  return static_cast<Internal::Adaptor::PixelBuffer&>(object);
 }
 
-inline const Internal::Adaptor::PixelBuffer& GetImplementation( const Devel::PixelBuffer& handle )
+inline const Internal::Adaptor::PixelBuffer& GetImplementation(const Devel::PixelBuffer& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "handle is empty" );
+  DALI_ASSERT_ALWAYS(handle && "handle is empty");
 
   const BaseObject& object = handle.GetBaseObject();
 
-  return static_cast<const Internal::Adaptor::PixelBuffer&>( object );
+  return static_cast<const Internal::Adaptor::PixelBuffer&>(object);
 }
 
 } // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_FACTORY_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,21 +30,19 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class Adaptor;
 class WindowBase;
 
 class WindowFactory
 {
 public:
-
-  WindowFactory() = default;
+  WindowFactory()          = default;
   virtual ~WindowFactory() = default;
 
-  virtual std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) = 0;
+  virtual std::unique_ptr<WindowBase> CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent) = 0;
 };
 
-extern std::unique_ptr< WindowFactory > GetWindowFactory();
+extern std::unique_ptr<WindowFactory> GetWindowFactory();
 
 } // namespace Adaptor
 } // namespace Internal

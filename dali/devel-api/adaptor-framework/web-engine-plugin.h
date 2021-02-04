@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,12 @@ public:
   /**
    * @brief WebEngine signal type related with page loading.
    */
-  using WebEnginePageLoadSignalType = Signal< void( const std::string& ) >;
+  using WebEnginePageLoadSignalType = Signal<void(const std::string&)>;
 
   /**
    * @brief WebView signal type related with page loading error.
    */
-  using WebEnginePageLoadErrorSignalType = Signal< void( const std::string&, int ) >;
+  using WebEnginePageLoadErrorSignalType = Signal<void(const std::string&, int)>;
 
   // forward declaration.
   enum class ScrollEdge;
@@ -57,7 +57,7 @@ public:
   /**
    * @brief WebView signal type related with scroll edge reached.
    */
-  using WebEngineScrollEdgeReachedSignalType = Signal< void( const ScrollEdge ) >;
+  using WebEngineScrollEdgeReachedSignalType = Signal<void(const ScrollEdge)>;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -98,7 +98,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  virtual void Create( int width, int height, int argc, char** argv ) = 0;
+  virtual void Create(int width, int height, int argc, char** argv) = 0;
 
   /**
    * @brief Destroys WebEngine instance.
@@ -188,12 +188,12 @@ public:
   /**
    * @brief Scrolls the webpage of view by deltaX and deltaY.
    */
-  virtual void ScrollBy( int deltaX, int deltaY ) = 0;
+  virtual void ScrollBy(int deltaX, int deltaY) = 0;
 
   /**
    * @brief Scroll to the specified position of the given view.
    */
-  virtual void SetScrollPosition( int x, int y ) = 0;
+  virtual void SetScrollPosition(int x, int y) = 0;
 
   /**
    * @brief Gets the current scroll position of the given view.
@@ -292,19 +292,19 @@ public:
   /**
    * @brief Sets focus.
    */
-  virtual void SetFocus( bool focused ) = 0;
+  virtual void SetFocus(bool focused) = 0;
 
   /**
    * @brief Update display area.
    * @param[in] displayArea The display area need be updated.
    */
-  virtual void UpdateDisplayArea( Dali::Rect< int > displayArea ) = 0;
+  virtual void UpdateDisplayArea(Dali::Rect<int> displayArea) = 0;
 
   /**
    * @brief Enable video hole.
    * @param[in] enabled True if enabled, false othewise.
    */
-  virtual void EnableVideoHole( bool enabled ) = 0;
+  virtual void EnableVideoHole(bool enabled) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.

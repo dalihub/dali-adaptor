@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_FPS_TRACKER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class EnvironmentOptions;
 
 /**
@@ -37,12 +34,11 @@ class EnvironmentOptions;
 class FpsTracker
 {
 public:
-
   /**
    * Create the FPS Tracker.
    * @param[in] environmentOptions environment options
    */
-  FpsTracker( const EnvironmentOptions& environmentOptions );
+  FpsTracker(const EnvironmentOptions& environmentOptions);
 
   /**
    * Non-virtual destructor; UpdateThread is not suitable as a base class.
@@ -62,7 +58,6 @@ public:
   bool Enabled() const;
 
 private:
-
   /**
    * Output the FPS information
    * when the FSP tracking is enabled,
@@ -70,11 +65,10 @@ private:
    */
   void OutputFPSRecord();
 
-private: // Data
-
-  float mFpsTrackingSeconds;  ///< fps tracking time length in seconds
-  float mFrameCount;          ///< how many frames occurred during tracking period
-  float mElapsedTime;         ///< time elapsed from previous fps tracking output
+private:                     // Data
+  float mFpsTrackingSeconds; ///< fps tracking time length in seconds
+  float mFrameCount;         ///< how many frames occurred during tracking period
+  float mElapsedTime;        ///< time elapsed from previous fps tracking output
 };
 
 } // namespace Adaptor

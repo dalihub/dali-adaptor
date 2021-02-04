@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class WindowRenderSurface;
 class WindowRenderSurfaceEcoreWl2;
 
@@ -48,11 +47,10 @@ class WindowRenderSurfaceEcoreWl2;
 class WindowBaseEcoreWl2 : public WindowBase
 {
 public:
-
   /**
    * @brief Constructor
    */
-  WindowBaseEcoreWl2( PositionSize positionSize, Any surface, bool isTransparent );
+  WindowBaseEcoreWl2(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
    * @brief Destructor
@@ -60,91 +58,90 @@ public:
   virtual ~WindowBaseEcoreWl2();
 
 public:
-
   /**
    * @brief Called when the window iconify state is changed.
    */
-  Eina_Bool OnIconifyStateChanged( void* data, int type, void* event );
+  Eina_Bool OnIconifyStateChanged(void* data, int type, void* event);
 
   /**
    * @brief Called when the window gains focus.
    */
-  Eina_Bool OnFocusIn( void* data, int type, void* event );
+  Eina_Bool OnFocusIn(void* data, int type, void* event);
 
   /**
    * @brief Called when the window loses focus.
    */
-  Eina_Bool OnFocusOut( void* data, int type, void* event );
+  Eina_Bool OnFocusOut(void* data, int type, void* event);
 
   /**
    * @brief Called when the output is transformed.
    */
-  Eina_Bool OnOutputTransform( void* data, int type, void* event );
+  Eina_Bool OnOutputTransform(void* data, int type, void* event);
 
   /**
    * @brief Called when the output transform should be ignored.
    */
-  Eina_Bool OnIgnoreOutputTransform( void* data, int type, void* event );
+  Eina_Bool OnIgnoreOutputTransform(void* data, int type, void* event);
 
   /**
    * @brief Called when a rotation event is recevied.
    */
-  void OnRotation( void* data, int type, void* event );
+  void OnRotation(void* data, int type, void* event);
 
   /**
    * @brief Called when a configure event is recevied.
    */
-  void OnConfiguration( void* data, int type, void* event );
+  void OnConfiguration(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch down is received.
    */
-  void OnMouseButtonDown( void* data, int type, void* event );
+  void OnMouseButtonDown(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch up is received.
    */
-  void OnMouseButtonUp( void* data, int type, void* event );
+  void OnMouseButtonUp(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch motion is received.
    */
-  void OnMouseButtonMove( void* data, int type, void* event );
+  void OnMouseButtonMove(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch is canceled.
    */
-  void OnMouseButtonCancel( void* data, int type, void* event );
+  void OnMouseButtonCancel(void* data, int type, void* event);
 
   /**
    * @brief Called when a mouse wheel is received.
    */
-  void OnMouseWheel( void* data, int type, void* event );
+  void OnMouseWheel(void* data, int type, void* event);
 
   /**
    * @brief Called when a detent rotation event is recevied.
    */
-  void OnDetentRotation( void* data, int type, void* event );
+  void OnDetentRotation(void* data, int type, void* event);
 
   /**
    * @brief Called when a key down is received.
    */
-  void OnKeyDown( void* data, int type, void* event );
+  void OnKeyDown(void* data, int type, void* event);
 
   /**
    * @brief Called when a key up is received.
    */
-  void OnKeyUp( void* data, int type, void* event );
+  void OnKeyUp(void* data, int type, void* event);
 
   /**
    * @brief Called when the source window notifies us the content in clipboard is selected.
    */
-  void OnDataSend( void* data, int type, void* event );
+  void OnDataSend(void* data, int type, void* event);
 
   /**
    * @brief Called when the source window sends us about the selected content.
    */
-  void OnDataReceive( void* data, int type, void* event );
+  void OnDataReceive(void* data, int type, void* event);
 
   /**
    * @brief Called when a font name is changed.
@@ -159,7 +156,7 @@ public:
   /**
    * @brief Called when a transition effect-start/end event is received.
    */
-  void OnTransitionEffectEvent( WindowEffectState state, WindowEffectType type );
+  void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
 
   /**
    * @brief Called when a keyboard repeat event is changed.
@@ -175,47 +172,45 @@ public:
   /**
    * @brief Called when Ecore ElDBus accessibility event is received.
    */
-  void OnEcoreElDBusAccessibilityNotification( void* context, const Eldbus_Message* message );
+  void OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message);
 #endif
 
   /**
    * @brief Called when a keymap is changed.
    */
-  void KeymapChanged(void *data, int type, void *event);
+  void KeymapChanged(void* data, int type, void* event);
 
   /**
    * @brief RegistryGlobalCallback
    */
-  void RegistryGlobalCallback( void* data, struct wl_registry *registry, uint32_t name, const char* interface, uint32_t version );
+  void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version);
 
   /**
    * @brief RegistryGlobalCallbackRemove
    */
-  void RegistryGlobalCallbackRemove( void* data, struct wl_registry* registry, uint32_t id );
+  void RegistryGlobalCallbackRemove(void* data, struct wl_registry* registry, uint32_t id);
 
   /**
    * @brief TizenPolicyNotificationChangeDone
    */
-  void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state );
+  void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state);
 
   /**
    * @brief TizenPolicyScreenModeChangeDone
    */
-  void TizenPolicyScreenModeChangeDone( void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t mode, uint32_t state );
+  void TizenPolicyScreenModeChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t mode, uint32_t state);
 
   /**
    * @brief DisplayPolicyBrightnessChangeDone
    */
-  void DisplayPolicyBrightnessChangeDone( void* data, struct tizen_display_policy *displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state );
-
+  void DisplayPolicyBrightnessChangeDone(void* data, struct tizen_display_policy* displayPolicy, struct wl_surface* surface, int32_t brightness, uint32_t state);
 
   /**
    * @brief Gets the key code by keyName.
    */
-  void GetKeyCode( std::string keyName, int32_t& keyCode );
+  void GetKeyCode(std::string keyName, int32_t& keyCode);
 
 public:
-
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
    */
@@ -229,7 +224,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
    */
-  EGLNativeWindowType CreateEglWindow( int width, int height ) override;
+  EGLNativeWindowType CreateEglWindow(int width, int height) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
@@ -239,22 +234,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
    */
-  void SetEglWindowRotation( int angle ) override;
+  void SetEglWindowRotation(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
    */
-  void SetEglWindowBufferTransform( int angle ) override;
+  void SetEglWindowBufferTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
    */
-  void SetEglWindowTransform( int angle ) override;
+  void SetEglWindowTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
    */
-  void ResizeEglWindow( PositionSize positionSize ) override;
+  void ResizeEglWindow(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
@@ -264,22 +259,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
    */
-  void Move( PositionSize positionSize ) override;
+  void Move(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Resize()
    */
-  void Resize( PositionSize positionSize ) override;
+  void Resize(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
    */
-  void MoveResize( PositionSize positionSize ) override;
+  void MoveResize(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
-  void SetClass( const std::string& name, const std::string& className ) override;
+  void SetClass(const std::string& name, const std::string& className) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Raise()
@@ -299,17 +294,17 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
-  void SetAvailableAnlges( const std::vector< int >& angles ) override;
+  void SetAvailableAnlges(const std::vector<int>& angles) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetPreferredAngle()
    */
-  void SetPreferredAngle( int angle ) override;
+  void SetPreferredAngle(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAcceptFocus()
    */
-  void SetAcceptFocus( bool accept ) override;
+  void SetAcceptFocus(bool accept) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Show()
@@ -329,47 +324,47 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetSupportedAuxiliaryHint()
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const override;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::AddAuxiliaryHint()
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value ) override;
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::RemoveAuxiliaryHint()
    */
-  bool RemoveAuxiliaryHint( unsigned int id ) override;
+  bool RemoveAuxiliaryHint(unsigned int id) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAuxiliaryHintValue()
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value ) override;
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintValue()
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const override;
+  std::string GetAuxiliaryHintValue(unsigned int id) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintId()
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const override;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion( const Rect< int >& inputRegion ) override;
+  void SetInputRegion(const Rect<int>& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
    */
-  void SetType( Dali::WindowType type ) override;
+  void SetType(Dali::WindowType type) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
-  bool SetNotificationLevel( Dali::WindowNotificationLevel level ) override;
+  bool SetNotificationLevel(Dali::WindowNotificationLevel level) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNotificationLevel()
@@ -379,7 +374,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetOpaqueState()
    */
-  void SetOpaqueState( bool opaque ) override;
+  void SetOpaqueState(bool opaque) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreenOffMode()
@@ -394,7 +389,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBrightness()
    */
-  bool SetBrightness( int brightness ) override;
+  bool SetBrightness(int brightness) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBrightness()
@@ -404,27 +399,27 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKey()
    */
-  bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) override;
+  bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKey()
    */
-  bool UngrabKey( Dali::KEY key ) override;
+  bool UngrabKey(Dali::KEY key) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKeyList()
    */
-  bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) override;
+  bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKeyList()
    */
-  bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
+  bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetDpi()
    */
-  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
@@ -439,22 +434,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
    */
-  void SetWindowRotationAngle( int degree ) override;
+  void SetWindowRotationAngle(int degree) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
    */
-  void WindowRotationCompleted( int degree, int width, int height ) override;
+  void WindowRotationCompleted(int degree, int width, int height) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
    */
-  void SetTransparency( bool transparent ) override;
+  void SetTransparency(bool transparent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
    */
-  void SetParent( WindowBase* parentWinBase ) override;
+  void SetParent(WindowBase* parentWinBase) override;
 
   /**
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFrameRenderedSyncFence()
@@ -467,11 +462,10 @@ public:
   int CreateFramePresentedSyncFence() override;
 
 private:
-
   /**
    * Second stage initialization
    */
-  void Initialize( PositionSize positionSize, Any surface, bool isTransparent );
+  void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
    * Initialize Ecore ElDBus
@@ -481,10 +475,9 @@ private:
   /**
    * @brief Create window
    */
-  void CreateWindow( PositionSize positionSize );
+  void CreateWindow(PositionSize positionSize);
 
 protected:
-
   // Undefined
   WindowBaseEcoreWl2(const WindowBaseEcoreWl2&) = delete;
 
@@ -492,54 +485,53 @@ protected:
   WindowBaseEcoreWl2& operator=(const WindowBaseEcoreWl2& rhs) = delete;
 
 private:
+  typedef std::vector<std::pair<std::string, std::string> > AuxiliaryHints;
 
-  typedef std::vector< std::pair< std::string, std::string > > AuxiliaryHints;
+  Dali::Vector<Ecore_Event_Handler*> mEcoreEventHandler;
 
-  Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
+  Ecore_Wl2_Window*     mEcoreWindow;
+  wl_surface*           mWlSurface;
+  wl_egl_window*        mEglWindow;
+  wl_display*           mDisplay;
+  wl_event_queue*       mEventQueue;
+  tizen_policy*         mTizenPolicy;
+  tizen_display_policy* mTizenDisplayPolicy;
+  xkb_keymap*           mKeyMap;
 
-  Ecore_Wl2_Window*                    mEcoreWindow;
-  wl_surface*                          mWlSurface;
-  wl_egl_window*                       mEglWindow;
-  wl_display*                          mDisplay;
-  wl_event_queue*                      mEventQueue;
-  tizen_policy*                        mTizenPolicy;
-  tizen_display_policy*                mTizenDisplayPolicy;
-  xkb_keymap*                          mKeyMap;
+  std::vector<std::string> mSupportedAuxiliaryHints;
+  AuxiliaryHints           mAuxiliaryHints;
 
-  std::vector< std::string >           mSupportedAuxiliaryHints;
-  AuxiliaryHints                       mAuxiliaryHints;
+  int      mNotificationLevel;
+  uint32_t mNotificationChangeState;
+  bool     mNotificationLevelChangeDone;
 
-  int                                  mNotificationLevel;
-  uint32_t                             mNotificationChangeState;
-  bool                                 mNotificationLevelChangeDone;
+  int      mScreenOffMode;
+  uint32_t mScreenOffModeChangeState;
+  bool     mScreenOffModeChangeDone;
 
-  int                                  mScreenOffMode;
-  uint32_t                             mScreenOffModeChangeState;
-  bool                                 mScreenOffModeChangeDone;
+  int      mBrightness;
+  uint32_t mBrightnessChangeState;
+  bool     mBrightnessChangeDone;
 
-  int                                  mBrightness;
-  uint32_t                             mBrightnessChangeState;
-  bool                                 mBrightnessChangeDone;
+  bool               mVisible : 1;
+  Dali::PositionSize mWindowPositionSize;
 
-  bool                                 mVisible:1;
-  Dali::PositionSize                   mWindowPositionSize;
+  bool mOwnSurface;
 
-  bool                                 mOwnSurface;
+  volatile uint32_t mMoveResizeSerial;
+  uint32_t          mLastSubmittedMoveResizeSerial;
 
-  volatile uint32_t                    mMoveResizeSerial;
-  uint32_t                             mLastSubmittedMoveResizeSerial;
-
-  int                                  mWindowRotationAngle;
-  int                                  mScreenRotationAngle;
-  int                                  mSupportedPreProtation;
+  int mWindowRotationAngle;
+  int mScreenRotationAngle;
+  int mSupportedPreProtation;
 #ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Connection*                   mSystemConnection;
+  Eldbus_Connection* mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Interface for a timer class
  */
@@ -54,7 +53,7 @@ public:
   /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  virtual void SetInterval( unsigned int intervalInMilliseconds, bool restart ) = 0;
+  virtual void SetInterval(unsigned int intervalInMilliseconds, bool restart) = 0;
 
   /**
    * @copydoc Dali::Timer::GetInterval()
@@ -70,12 +69,13 @@ protected:
   /**
    * Virtual protected destructor, no deletion through this interface
    */
-  virtual ~TimerInterface() { }
+  virtual ~TimerInterface()
+  {
+  }
 };
 
-
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H

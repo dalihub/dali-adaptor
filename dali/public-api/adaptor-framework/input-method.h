@@ -2,7 +2,7 @@
 #define DALI_INPUT_MEHTOD_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,15 +109,15 @@ namespace ButtonAction
 */
 enum Type
 {
-  DEFAULT,     ///< Default action @SINCE_1_3.20
-  DONE,        ///< Done @SINCE_1_3.20
-  GO,          ///< Go action @SINCE_1_3.20
-  JOIN,        ///< Join action @SINCE_1_3.20
-  LOGIN,       ///< Login action @SINCE_1_3.20
-  NEXT,        ///< Next action @SINCE_1_3.20
-  SEARCH,      ///< Search action @SINCE_1_3.20
-  SEND,        ///< Send action @SINCE_1_3.20
-  SIGNIN       ///< Sign in action @SINCE_1_3.20
+  DEFAULT, ///< Default action @SINCE_1_3.20
+  DONE,    ///< Done @SINCE_1_3.20
+  GO,      ///< Go action @SINCE_1_3.20
+  JOIN,    ///< Join action @SINCE_1_3.20
+  LOGIN,   ///< Login action @SINCE_1_3.20
+  NEXT,    ///< Next action @SINCE_1_3.20
+  SEARCH,  ///< Search action @SINCE_1_3.20
+  SEND,    ///< Send action @SINCE_1_3.20
+  SIGNIN   ///< Sign in action @SINCE_1_3.20
 };
 
 } // namespace ButtonAction

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ALPHA_MASK_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Apply the mask to a buffer's alpha channel
  * @param[in] buffer The buffer to apply the mask to
  * @param[in] mask The mask to apply
  */
-void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask );
+void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask);
 
 /**
  * Create a new PixelBuffer with an alpha channel large enough to handle the alpha from
@@ -42,7 +41,7 @@ void ApplyMaskToAlphaChannel( PixelBuffer& buffer, const PixelBuffer& mask );
  * @param[in] mask The mask to apply
  * @return A new pixel buffer containing the masked image
  */
-PixelBufferPtr CreateNewMaskedBuffer( const PixelBuffer& buffer, const PixelBuffer& mask );
+PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffer& mask);
 
 } //namespace Adaptor
 } //namespace Internal
