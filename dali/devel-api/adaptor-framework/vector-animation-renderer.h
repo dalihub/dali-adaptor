@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,10 +52,9 @@ public:
   /**
    * @brief Creates an initialized handle to a new VectorAnimationRenderer.
    *
-   * @param[in] url The url of the vector animation file
    * @return A handle to a newly allocated VectorAnimationRenderer
    */
-  static VectorAnimationRenderer New(const std::string& url);
+  static VectorAnimationRenderer New();
 
   /**
    * @brief Creates an empty handle.
@@ -87,6 +86,14 @@ public:
    * @brief Finalizes the renderer.
    */
   void Finalize();
+
+  /**
+   * @brief Loads the animation file.
+   *
+   * @param[in] url The url of the vector animation file
+   * @return True if loading success, false otherwise.
+   */
+  bool Load(const std::string& url);
 
   /**
    * @brief Sets the renderer used to display the result image.

@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_PLUGIN_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,16 +52,17 @@ public:
   }
 
   /**
-   * @brief Second-phase constructor.
-   *
-   * @param[in] url The url of the animation file
-   */
-  virtual bool Initialize(const std::string& url) = 0;
-
-  /**
    * @brief Finalizes the renderer. It will be called in the main thread.
    */
   virtual void Finalize() = 0;
+
+  /**
+   * @brief Loads the animation file.
+   *
+   * @param[in] url The url of the vector animation file
+   * @return True if loading success, false otherwise.
+   */
+  virtual bool Load(const std::string& url) = 0;
 
   /**
    * @brief Sets the renderer used to display the result image.

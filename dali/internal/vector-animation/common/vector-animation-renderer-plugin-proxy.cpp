@@ -97,21 +97,21 @@ void VectorAnimationRendererPluginProxy::Initialize()
   }
 }
 
-bool VectorAnimationRendererPluginProxy::Initialize(const std::string& url)
-{
-  if(mPlugin)
-  {
-    return mPlugin->Initialize(url);
-  }
-  return false;
-}
-
 void VectorAnimationRendererPluginProxy::Finalize()
 {
   if(mPlugin)
   {
     mPlugin->Finalize();
   }
+}
+
+bool VectorAnimationRendererPluginProxy::Load(const std::string& url)
+{
+  if(mPlugin)
+  {
+    return mPlugin->Load(url);
+  }
+  return false;
 }
 
 void VectorAnimationRendererPluginProxy::SetRenderer(Dali::Renderer renderer)

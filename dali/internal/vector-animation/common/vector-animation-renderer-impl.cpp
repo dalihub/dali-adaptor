@@ -56,14 +56,14 @@ VectorAnimationRenderer::~VectorAnimationRenderer()
 {
 }
 
-void VectorAnimationRenderer::Initialize(const std::string& url)
-{
-  mPlugin.Initialize(url);
-}
-
 void VectorAnimationRenderer::Finalize()
 {
   mPlugin.Finalize();
+}
+
+bool VectorAnimationRenderer::Load(const std::string& url)
+{
+  return mPlugin.Load(url);
 }
 
 void VectorAnimationRenderer::SetRenderer(Dali::Renderer renderer)

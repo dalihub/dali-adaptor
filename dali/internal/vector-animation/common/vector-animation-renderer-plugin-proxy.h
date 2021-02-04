@@ -44,14 +44,14 @@ public:
   ~VectorAnimationRendererPluginProxy();
 
   /**
-   * @copydoc Dali::VectorAnimationRendererPlugin::Initialize()
-   */
-  bool Initialize(const std::string& url);
-
-  /**
    * @copydoc Dali::VectorAnimationRendererPlugin::Finalize()
    */
   void Finalize();
+
+  /**
+   * @copydoc Dali::VectorAnimationRendererPlugin::Load()
+   */
+  bool Load(const std::string& url);
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::SetRenderer()
