@@ -304,6 +304,12 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   DALI_ASSERT_DEBUG(pixels);
   rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
+  if(!rows)
+  {
+    DALI_LOG_ERROR("malloc is failed\n");
+    return false;
+  }
+
   for(y = 0; y < height; y++)
   {
     rows[y] = pixels + y * stride;
