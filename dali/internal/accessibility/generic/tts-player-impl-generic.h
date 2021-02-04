@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_GENERIC_TTS_PLAYER_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/base-object.h>
@@ -32,21 +32,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Text-to-speech player
  */
 class TtsPlayerGeneric : public Dali::Internal::Adaptor::TtsPlayer
 {
-
 public:
-
   /**
    * Create a TtsPlayer with the given mode.
    * This should only be called once by the Adaptor class for each given mode.
@@ -97,7 +92,6 @@ public:
   ~TtsPlayerGeneric() override;
 
 private:
-
   Dali::TtsPlayer::StateChangedSignalType mStateChangedSignal; ///< Signal emitted when the TTS state changes (non-functional, for interface compatibility).
 
 #if defined(DEBUG_ENABLED)

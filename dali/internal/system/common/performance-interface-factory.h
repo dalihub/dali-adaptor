@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_PERFORMANCE_INTERFACE_FACTORY_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Performance interface factory class
  *
@@ -41,21 +38,19 @@ namespace Adaptor
 class PerformanceInterfaceFactory
 {
 public:
-
   /**
    * Create a new concrete implementation of the performance interface.
    * @param adaptorServices adaptor internal services
    * @param environmentOptions environment options
    * @return pointer to a new performance interface
    */
-  static PerformanceInterface* CreateInterface( AdaptorInternalServices& adaptorServices,
-                                                const EnvironmentOptions& environmentOptions );
-
+  static PerformanceInterface* CreateInterface(AdaptorInternalServices&  adaptorServices,
+                                               const EnvironmentOptions& environmentOptions);
 };
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

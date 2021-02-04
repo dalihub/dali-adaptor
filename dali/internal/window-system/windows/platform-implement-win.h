@@ -2,7 +2,7 @@
 #define PLATFORM_IMPLEMENT_WIN_INCLUDE
 
 /*
-* Copyright (c) 2018 Samsung Electronics Co., Ltd.
+* Copyright (c) 2021 Samsung Electronics Co., Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,97 +19,91 @@
 */
 
 // EXTERNAL_HEADERS
+#include <dali/public-api/signals/callback.h>
 #include <stdint.h>
 #include <string>
-#include <dali/public-api/signals/callback.h>
 
-typedef uintptr_t  WinWindowHandle;
-typedef uint64_t   WinPixmap;
+typedef uintptr_t WinWindowHandle;
+typedef uint64_t  WinPixmap;
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace WindowsPlatform
 {
-
 bool PostWinThreadMessage(
-    _In_ uint32_t Msg,
-    _In_ uint64_t wParam,
-    _In_ uint64_t lParam,
-    _In_ uint64_t threadID = -1 );
+  _In_ uint32_t Msg,
+  _In_ uint64_t wParam,
+  _In_ uint64_t lParam,
+  _In_ uint64_t threadID = -1);
 
-using timerCallback = bool(*)(void *data);
+using timerCallback = bool (*)(void* data);
 
-intptr_t SetTimer(int interval, timerCallback callback, void *data);
+intptr_t SetTimer(int interval, timerCallback callback, void* data);
 
 void KillTimer(intptr_t id);
 
-std::string GetKeyName( int keyCode );
+std::string GetKeyName(int keyCode);
 
 uint64_t GetCurrentThreadId();
 
-void GetNanoseconds( uint64_t& timeInNanoseconds );
+void GetNanoseconds(uint64_t& timeInNanoseconds);
 
-unsigned int GetCurrentMilliSeconds( void );
+unsigned int GetCurrentMilliSeconds(void);
 
 class WindowImpl
 {
 public:
   static const uint32_t STYLE;
-  static const int32_t EDGE_WIDTH;
-  static const int32_t EDGE_HEIGHT;
+  static const int32_t  EDGE_WIDTH;
+  static const int32_t  EDGE_HEIGHT;
 
   WindowImpl();
 
   virtual ~WindowImpl();
 
-  static void ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam );
+  static void ProcWinMessage(uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam);
 
   static uint64_t CreateHwnd(
-    _In_opt_ const char *lpWindowName,
-    _In_ int X,
-    _In_ int Y,
-    _In_ int nWidth,
-    _In_ int nHeight,
-    _In_opt_ uint64_t parent );
+    _In_opt_ const char* lpWindowName,
+    _In_ int             X,
+    _In_ int             Y,
+    _In_ int             nWidth,
+    _In_ int             nHeight,
+    _In_opt_ uint64_t    parent);
 
   static void DestroyHWnd(uint64_t hWnd);
 
-  void GetDPI( float &xDpi, float &yDpi );
+  void GetDPI(float& xDpi, float& yDpi);
 
   int GetColorDepth();
 
-  void SetListener( CallbackBase *callback );
+  void SetListener(CallbackBase* callback);
 
   bool PostWinMessage(
     _In_ uint32_t Msg,
     _In_ uint64_t wParam,
-    _In_ uint64_t lParam );
+    _In_ uint64_t lParam);
 
   void SetHWND(uint64_t inHWnd);
   void SetWinProc();
 
-protected:
-
 private:
-  int colorDepth;
+  int      colorDepth;
   uint64_t mHWnd; // no ownership, managed outside
   uint64_t mHdc;
 
-  CallbackBase *listener;
+  CallbackBase* listener;
 };
 
-} // namespace WindowsPlatformImplement
+} // namespace WindowsPlatform
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PORTABLE_FILE_WRITER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ namespace Internal
 {
 namespace Platform
 {
-
 class FileWriter : public FileStream
 {
 public:
@@ -38,8 +37,8 @@ public:
    * @param[in,out] vector The vector to write to
    * @param[in] dataSize the amount of data to be written
    */
-  FileWriter( Dali::Vector<uint8_t>& vector, size_t dataSize )
-  : FileStream( vector, dataSize, FileStream::WRITE | FileStream::BINARY )
+  FileWriter(Dali::Vector<uint8_t>& vector, size_t dataSize)
+  : FileStream(vector, dataSize, FileStream::WRITE | FileStream::BINARY)
   {
   }
 };

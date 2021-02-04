@@ -1,7 +1,7 @@
 #ifndef DALI_ADDON_MANAGER_IMPL_LINUX
 #define DALI_ADDON_MANAGER_IMPL_LINUX
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +24,19 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 
-#include <string>
 #include <memory>
+#include <string>
 
 namespace Dali
 {
 namespace Internal
 {
-
 /**
  * Implementation of AddOnManager for Linux based platforms (ie. Tizen, Ubuntu)
  */
 class AddOnManagerLinux : public Internal::AddOnManager
 {
 public:
-
   /**
    * @copydoc Dali::Internal::AddOnManager()
    */
@@ -52,7 +50,7 @@ public:
   /**
    * @copydoc Dali::Internal::AddOnManager::RegisterAddOnDispatchTable()
    */
-  void RegisterAddOnDispatchTable( const AddOnDispatchTable* dispatchTable ) override;
+  void RegisterAddOnDispatchTable(const AddOnDispatchTable* dispatchTable) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::EnumerateAddOns()
@@ -62,22 +60,22 @@ public:
   /**
    * @copydoc Dali::Internal::AddOnManager::GetAddOnInfo()
    */
-  bool GetAddOnInfo(const std::string& name, AddOnInfo& info ) override;
+  bool GetAddOnInfo(const std::string& name, AddOnInfo& info) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::LoadAddOns()
    */
-  std::vector<Dali::AddOnLibrary> LoadAddOns( const std::vector<std::string>& extensionNames ) override;
+  std::vector<Dali::AddOnLibrary> LoadAddOns(const std::vector<std::string>& extensionNames) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::GetGlobalProc()
    */
-  void* GetGlobalProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) override;
+  void* GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::GetInstanceProc()
    */
-  void* GetInstanceProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) override;
+  void* GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName) override;
 
   /**
    * @copydoc Dali::Internal::AddOnManager::Pause()
@@ -100,12 +98,11 @@ public:
   void Stop() override;
 
 private:
-
   /**
    * @brief Invokes lifecycle event handling function based on incoming event
    * @param[in] lifecycleEvent The lifecycle event
    */
-  void InvokeLifecycleFunction( uint32_t lifecycleEvent );
+  void InvokeLifecycleFunction(uint32_t lifecycleEvent);
 
   /**
    * @struct Lifecycle callback structure
@@ -116,10 +113,10 @@ private:
    */
   struct LifecycleCallback
   {
-    const static uint32_t EVENT_PAUSE = 0u; ///< pause event
+    const static uint32_t EVENT_PAUSE  = 0u; ///< pause event
     const static uint32_t EVENT_RESUME = 1u; ///< resume event
-    const static uint32_t EVENT_START = 2u; ///< start event
-    const static uint32_t EVENT_STOP = 3u; ///< stop event
+    const static uint32_t EVENT_START  = 2u; ///< start event
+    const static uint32_t EVENT_STOP   = 3u; ///< stop event
 
     /**
      * @brief Constructor
@@ -130,9 +127,9 @@ private:
       functionName = funcName;
     }
 
-    std::string functionName; ///< Name of lifecycle function
-    void(*function)() = nullptr; ///< Lifecycle function pointer
-    bool initialized { false }; ///< Flag indicates whether LifecycleCallback is initialized
+    std::string functionName;     ///< Name of lifecycle function
+    void (*function)() = nullptr; ///< Lifecycle function pointer
+    bool initialized{false};      ///< Flag indicates whether LifecycleCallback is initialized
   };
 
   /**
@@ -143,32 +140,31 @@ private:
   struct AddOnCacheEntry
   {
     std::string addOnLib{};
-    AddOnInfo info{};
+    AddOnInfo   info{};
 
     // library handle
-    void* libHandle {nullptr};
+    void* libHandle{nullptr};
 
     // main function pointers
-    void(*GetAddOnInfo)(AddOnInfo& ) = nullptr; ///< Returns AddOnInfo structure
-    void*(*GetInstanceProc)( const char* ) = nullptr; ///< Returns pointer of instance function (member funtion)
-    void*(*GetGlobalProc)( const char* ) = nullptr; ///< Returns pointer of global function (non-member function)
+    void (*GetAddOnInfo)(AddOnInfo&)      = nullptr; ///< Returns AddOnInfo structure
+    void* (*GetInstanceProc)(const char*) = nullptr; ///< Returns pointer of instance function (member funtion)
+    void* (*GetGlobalProc)(const char*)   = nullptr; ///< Returns pointer of global function (non-member function)
 
     // lifecycle functions
     std::vector<LifecycleCallback> lifecycleCallbacks =
-                                     {
-                                       LifecycleCallback{ "OnPause" },
-                                       LifecycleCallback{ "OnResume" },
-                                       LifecycleCallback{ "OnStart" },
-                                       LifecycleCallback{ "OnStop" },
-                                     };
+      {
+        LifecycleCallback{"OnPause"},
+        LifecycleCallback{"OnResume"},
+        LifecycleCallback{"OnStart"},
+        LifecycleCallback{"OnStop"},
+      };
     bool opened{false};
   };
 
   std::vector<AddOnCacheEntry> mAddOnCache;
-  std::vector<std::string> mAddOnNames;
+  std::vector<std::string>     mAddOnNames;
 };
 
-
-}
-}
+} // namespace Internal
+} // namespace Dali
 #endif //DALI_CMAKE_EXTENSION_MANAGER_IMPL_UBUNTU

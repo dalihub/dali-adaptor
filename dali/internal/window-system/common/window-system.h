@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_SYSTEM_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,8 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 namespace WindowSystem
 {
-
 /**
  * @brief Initialize a window system
  */
@@ -41,22 +39,22 @@ void Shutdown();
 /**
  * @brief Get the screen size
  */
-void GetScreenSize( int& width, int& height );
+void GetScreenSize(int& width, int& height);
 
 /**
  * @copydoc Dali::Keyboard::SetRepeatInfo()
  */
-bool SetKeyboardRepeatInfo( float rate, float delay );
+bool SetKeyboardRepeatInfo(float rate, float delay);
 
 /**
  * @copydoc Dali::Keyboard::GetRepeatInfo()
  */
-bool GetKeyboardRepeatInfo( float& rate, float& delay );
+bool GetKeyboardRepeatInfo(float& rate, float& delay);
 
 } // namespace WindowSystem
 
 } // namespace Adaptor
-} // namespace internal
+} // namespace Internal
 } // namespace Dali
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_SYSTEM_H

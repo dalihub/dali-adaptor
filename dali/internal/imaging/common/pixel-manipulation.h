@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_MANIPULATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 enum Channel
 {
   LUMINANCE,
@@ -46,8 +43,7 @@ enum Channel
  * @param[in] channel The channel to test for
  * @return true if the channel exists
  */
-bool HasChannel( Dali::Pixel::Format pixelFormat, Channel channel );
-
+bool HasChannel(Dali::Pixel::Format pixelFormat, Channel channel);
 
 /**
  * Read a colour channel from the pixel with the given pixel format.
@@ -57,9 +53,9 @@ bool HasChannel( Dali::Pixel::Format pixelFormat, Channel channel );
  * @param[in] channel The channel to read
  * @return the channel value
  */
-unsigned int ReadChannel( unsigned char* pixelData,
-                          Dali::Pixel::Format pixelFormat,
-                          Channel channel );
+unsigned int ReadChannel(unsigned char*      pixelData,
+                         Dali::Pixel::Format pixelFormat,
+                         Channel             channel);
 
 /**
  * Write a colour channel to the pixel with the given pixel format.
@@ -68,10 +64,10 @@ unsigned int ReadChannel( unsigned char* pixelData,
  * @param[in] channel The channel to write
  * @param[in] channelValue the value to write to the channel
  */
-void WriteChannel( unsigned char* pixelData,
-                   Dali::Pixel::Format pixelFormat,
-                   Channel channel,
-                   unsigned int channelValue );
+void WriteChannel(unsigned char*      pixelData,
+                  Dali::Pixel::Format pixelFormat,
+                  Channel             channel,
+                  unsigned int        channelValue);
 
 /**
  * Convert the colors in the source pixel from their natural format to RGBA8888.
@@ -82,8 +78,7 @@ void WriteChannel( unsigned char* pixelData,
  * @param[in] destOffset The offset of the pixel to write
  */
 void ConvertColorChannelsToRGBA8888(
-  unsigned char* srcBuffer,  int srcOffset,  Dali::Pixel::Format srcFormat,
-  unsigned char* destBuffer, int destOffset );
+  unsigned char* srcBuffer, int srcOffset, Dali::Pixel::Format srcFormat, unsigned char* destBuffer, int destOffset);
 
 /**
  * Convert the alpha in the source pixel to A8.
@@ -92,12 +87,10 @@ void ConvertColorChannelsToRGBA8888(
  * @param[in] srcFormat The pixel format of the source pixel
  * @return the alpha value in the range 0-255
  */
-int ConvertAlphaChannelToA8( unsigned char* srcPixel, int srcOffset, Dali::Pixel::Format srcFormat );
+int ConvertAlphaChannelToA8(unsigned char* srcPixel, int srcOffset, Dali::Pixel::Format srcFormat);
 
-
-} // Adaptor
-} // Internal
-} // Dali
-
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_PIXEL_MANIPULATION_H

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ATSPI_ACCESSIBILITY_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,11 @@
 #include <exception>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <stdexcept>
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
@@ -83,7 +83,7 @@ struct DALI_ADAPTOR_API Bridge
    * object as direct ancestor of application and therefore make it visible for
    * accessibility clients.
    */
-  virtual void AddTopLevelWindow( Accessible* ) = 0;
+  virtual void AddTopLevelWindow(Accessible*) = 0;
 
   /**
    * @brief Removes top level window
@@ -92,7 +92,7 @@ struct DALI_ADAPTOR_API Bridge
    * structure created from Actors objects. This method removes previously added
    * window from visible accessibility objects.
    */
-  virtual void RemoveTopLevelWindow( Accessible* ) = 0;
+  virtual void RemoveTopLevelWindow(Accessible*) = 0;
 
   /**
    * @brief Adds popup window
@@ -100,7 +100,7 @@ struct DALI_ADAPTOR_API Bridge
    * Hierarchy of objects visible for accessibility clients is based on tree-like
    * structure created from Actors objects. This method adds new popup to the tree.
    */
-  virtual void AddPopup( Accessible* ) = 0;
+  virtual void AddPopup(Accessible*) = 0;
 
   /**
    * @brief Removes popup window
@@ -109,12 +109,12 @@ struct DALI_ADAPTOR_API Bridge
    * structure created from Actors objects. This method removes previously added
    * popup window.
    */
-  virtual void RemovePopup( Accessible* ) = 0;
+  virtual void RemovePopup(Accessible*) = 0;
 
   /**
    * @brief Set name of current application which will be visible on accessibility bus
    */
-  virtual void SetApplicationName( std::string ) = 0;
+  virtual void SetApplicationName(std::string) = 0;
 
   /**
    * @brief Get object being root of accessibility tree
@@ -130,7 +130,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @return handler to accessibility object
    */
-  virtual Accessible* FindByPath( const std::string& s) const = 0;
+  virtual Accessible* FindByPath(const std::string& s) const = 0;
 
   /**
    * @brief Show application on accessibility bus
@@ -157,11 +157,11 @@ struct DALI_ADAPTOR_API Bridge
    */
   virtual ForceUpResult ForceUp()
   {
-    if( data )
+    if(data)
     {
       return ForceUpResult::ALREADY_UP;
     }
-    data = std::make_shared< Data >();
+    data         = std::make_shared<Data>();
     data->bridge = this;
     return ForceUpResult::JUST_STARTED;
   }
@@ -183,37 +183,37 @@ struct DALI_ADAPTOR_API Bridge
   /**
    * @brief Emits caret-moved event on at-spi bus.
    **/
-  virtual void EmitCaretMoved( Accessible* obj, unsigned int cursorPosition ) = 0;
+  virtual void EmitCaretMoved(Accessible* obj, unsigned int cursorPosition) = 0;
 
   /**
    * @brief Emits active-descendant-changed event on at-spi bus.
    **/
-  virtual void EmitActiveDescendantChanged( Accessible* obj, Accessible *child ) = 0;
+  virtual void EmitActiveDescendantChanged(Accessible* obj, Accessible* child) = 0;
 
   /**
    * @brief Emits text-changed event on at-spi bus.
    **/
-  virtual void EmitTextChanged( Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string &content ) = 0;
+  virtual void EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content) = 0;
 
   /**
    * @brief Emits state-changed event on at-spi bus.
    **/
-  virtual void EmitStateChanged( Accessible* obj, State state, int val1, int val2 = 0 ) = 0;
+  virtual void EmitStateChanged(Accessible* obj, State state, int val1, int val2 = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
    **/
-  virtual void Emit( Accessible* obj, WindowEvent we, unsigned int detail1 = 0 ) = 0;
+  virtual void Emit(Accessible* obj, WindowEvent we, unsigned int detail1 = 0) = 0;
 
   /**
    * @brief Emits property-changed event on at-spi bus.
    **/
-  virtual void Emit( Accessible* obj, ObjectPropertyChangeEvent event ) = 0;
+  virtual void Emit(Accessible* obj, ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
    **/
-  virtual void EmitBoundsChanged( Accessible* obj, Rect<> rect ) = 0;
+  virtual void EmitBoundsChanged(Accessible* obj, Rect<> rect) = 0;
 
   /**
    * @brief Emits key event on at-spi bus.
@@ -221,7 +221,7 @@ struct DALI_ADAPTOR_API Bridge
    * Screen-reader might receive this event and reply, that given keycode is consumed. In that case
    * further processing of the keycode should be ignored.
    **/
-  virtual Consumed Emit( KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText ) = 0;
+  virtual Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) = 0;
 
   /**
    * @brief Reads given text by screen reader
@@ -234,7 +234,7 @@ struct DALI_ADAPTOR_API Bridge
    * Callback can be one of the following signals:
    * ReadingCancelled, ReadingStopped, ReadingSkipped
    */
-  virtual void Say( const std::string& text, bool discardable, std::function<void(std::string)> callback ) = 0;
+  virtual void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) = 0;
 
   /**
    * @brief Force accessibility client to pause.
@@ -264,12 +264,12 @@ struct DALI_ADAPTOR_API Bridge
 protected:
   struct Data
   {
-    std::unordered_set< Accessible* > knownObjects;
-    std::string busName;
-    Bridge* bridge = nullptr;
-    Actor highlightActor, currentlyHighlightedActor;
+    std::unordered_set<Accessible*> knownObjects;
+    std::string                     busName;
+    Bridge*                         bridge = nullptr;
+    Actor                           highlightActor, currentlyHighlightedActor;
   };
-  std::shared_ptr< Data > data;
+  std::shared_ptr<Data> data;
   friend class Accessible;
 
   /**
@@ -279,7 +279,7 @@ protected:
    * might come and object will be identified by number id (it's memory address).
    * To avoid memory corruption number id is checked against set of known objects.
    **/
-  void RegisterOnBridge( Accessible* );
+  void RegisterOnBridge(Accessible*);
 
   /**
    * @brief Tells bridge, that given object is considered root (doesn't have any parents).
@@ -287,7 +287,7 @@ protected:
    * All root objects will have the same parent - application object. Application object
    * is controlled by bridge and private.
    **/
-  void SetIsOnRootLevel( Accessible* );
+  void SetIsOnRootLevel(Accessible*);
 };
 
 /**
@@ -296,11 +296,11 @@ protected:
  */
 inline bool IsUp()
 {
-  if( Bridge::GetCurrentBridge() == nullptr )
+  if(Bridge::GetCurrentBridge() == nullptr)
   {
     return false;
   }
-  if( Bridge::GetCurrentBridge()->GetIsEnabled() == false )
+  if(Bridge::GetCurrentBridge()->GetIsEnabled() == false)
   {
     return false;
   }
@@ -324,7 +324,7 @@ public:
    * language to use. Word boundaries are returned as non-zero values in table breaks, which
    * must be of size at least length.
    **/
-  void FindWordSeparationsUtf8( const utf8_t *s, size_t length, const char *language, char *breaks );
+  void FindWordSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks);
 
   /**
    * @brief Calculaties line boundaries in given utf8 text.
@@ -333,22 +333,22 @@ public:
    * language to use. Line boundaries are returned as non-zero values in table breaks, which
    * must be of size at least length.
    **/
-  void FindLineSeparationsUtf8( const utf8_t *s, size_t length, const char *language, char *breaks );
+  void FindLineSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks);
 
   /**
    * @brief Helper function for emiting active-descendant-changed event
    **/
-  void EmitActiveDescendantChanged( Accessible* obj, Accessible *child );
+  void EmitActiveDescendantChanged(Accessible* obj, Accessible* child);
 
   /**
    * @brief Helper function for emiting state-changed event
    **/
-  void EmitStateChanged( State state, int newValue1, int newValue2 = 0 );
+  void EmitStateChanged(State state, int newValue1, int newValue2 = 0);
 
   /**
    * @brief Helper function for emiting bounds-changed event
    **/
-  void EmitBoundsChanged( Rect<> rect );
+  void EmitBoundsChanged(Rect<> rect);
 
   /**
    * @brief Emit "showing" event.
@@ -356,7 +356,7 @@ public:
    *
    * @param[in] showing flag pointing if object is showing
    */
-  void EmitShowing( bool showing );
+  void EmitShowing(bool showing);
 
   /**
    * @brief Emit "visible" event.
@@ -364,7 +364,7 @@ public:
    *
    * @param[in] visible flag pointing if object is visible
    */
-  void EmitVisible( bool visible );
+  void EmitVisible(bool visible);
 
   /**
    * @brief Emit "highlighted" event.
@@ -372,7 +372,7 @@ public:
    *
    * @param[in] set flag pointing if object is highlighted
    */
-  void EmitHighlighted( bool set );
+  void EmitHighlighted(bool set);
 
   /**
    * @brief Emit "focused" event.
@@ -380,7 +380,7 @@ public:
    *
    * @param[in] set flag pointing if object is focused
    */
-  void EmitFocused( bool set );
+  void EmitFocused(bool set);
 
   /**
    * @brief Emit "text inserted" event
@@ -389,7 +389,7 @@ public:
    * @param[in] length text length
    * @param[in] content inserted text
    */
-  void EmitTextInserted( unsigned int position, unsigned int length, const std::string &content );
+  void EmitTextInserted(unsigned int position, unsigned int length, const std::string& content);
 
   /**
    * @brief Emit "text deleted" event
@@ -398,14 +398,14 @@ public:
    * @param[in] length text length
    * @param[in] content deleted text
    */
-  void EmitTextDeleted( unsigned int position, unsigned int length, const std::string &content );
+  void EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content);
 
   /**
    * @brief Emit "caret moved" event
    *
    * @param[in] cursorPosition new caret position
    */
-  void EmitTextCaretMoved( unsigned int cursorPosition );
+  void EmitTextCaretMoved(unsigned int cursorPosition);
 
   /**
    * @brief Emit "highlighted" event
@@ -413,13 +413,13 @@ public:
    * @param[in] we enumerated window event
    * @param[in] detail1 additional parameter which interpretation depends on chosen event
    */
-  void Emit( WindowEvent we, unsigned int detail1 = 0 );
+  void Emit(WindowEvent we, unsigned int detail1 = 0);
 
   /**
    * @brief Emits property-changed event
    * @param[in] event Property changed event
    **/
-  void Emit( ObjectPropertyChangeEvent event );
+  void Emit(ObjectPropertyChangeEvent event);
 
   /**
    * @brief Get accessibility name
@@ -454,14 +454,14 @@ public:
    *
    * @return collection of accessibility objects
    */
-  virtual std::vector< Accessible* > GetChildren();
+  virtual std::vector<Accessible*> GetChildren();
 
   /**
    * @brief Get nth child
    *
    * @return accessibility object
    */
-  virtual Accessible* GetChildAtIndex( size_t index ) = 0;
+  virtual Accessible* GetChildAtIndex(size_t index) = 0;
 
   /**
    * @brief Get index that current object has in its parent's children collection
@@ -552,7 +552,7 @@ public:
    *
    * @see Dali::Accessibility::GestureInfo
    */
-  virtual bool DoGesture(const GestureInfo &gestureInfo) = 0;
+  virtual bool DoGesture(const GestureInfo& gestureInfo) = 0;
 
   /**
    * @brief Re-emits selected states of an Accessibility Object
@@ -560,7 +560,7 @@ public:
    * @param[in] states chosen states to re-emit
    * @param[in] doRecursive if true all children of the Accessibility Object will also re-emit the states
    */
-  void NotifyAccessibilityStateChange( Dali::Accessibility::States states, bool doRecursive );
+  void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool doRecursive);
 
   /**
    * @brief Get information about current object and all relations that connects
@@ -577,18 +577,21 @@ public:
    *
    * @return collection of strings with implemented interfaces
    */
-  std::vector< std::string > GetInterfaces();
+  std::vector<std::string> GetInterfaces();
 
   /**
    * @brief Check if object is on root level
    */
-  bool GetIsOnRootLevel() const { return isOnRootLevel; }
+  bool GetIsOnRootLevel() const
+  {
+    return isOnRootLevel;
+  }
 
   /**
    * @brief The method registers functor resposible for converting Actor into Accessible
    * @param functor returning Accessible handle from Actor object
    */
-  static void RegisterControlAccessibilityGetter( std::function< Accessible*( Dali::Actor ) > functor);
+  static void RegisterControlAccessibilityGetter(std::function<Accessible*(Dali::Actor)> functor);
 
   /**
    * @brief Acquire Accessible object from Actor object
@@ -598,28 +601,28 @@ public:
    *
    * @return handle to Accessible object
    */
-  static Accessible* Get( Dali::Actor actor, bool root = false );
+  static Accessible* Get(Dali::Actor actor, bool root = false);
 
 protected:
   Accessible();
-  Accessible( const Accessible& ) = delete;
-  Accessible( Accessible&& ) = delete;
-  Accessible& operator=( const Accessible& ) = delete;
-  Accessible& operator=( Accessible&& ) = delete;
-  std::shared_ptr< Bridge::Data > GetBridgeData();
+  Accessible(const Accessible&)         = delete;
+  Accessible(Accessible&&)              = delete;
+  Accessible&                   operator=(const Accessible&) = delete;
+  Accessible&                   operator=(Accessible&&) = delete;
+  std::shared_ptr<Bridge::Data> GetBridgeData();
 
 public:
   static Dali::Actor GetHighlightActor();
-  static void SetHighlightActor(Dali::Actor actor);
+  static void        SetHighlightActor(Dali::Actor actor);
   static Dali::Actor GetCurrentlyHighlightedActor();
-  static void SetCurrentlyHighlightedActor(Dali::Actor);
-  static void SetObjectRegistry(ObjectRegistry registry);
+  static void        SetCurrentlyHighlightedActor(Dali::Actor);
+  static void        SetObjectRegistry(ObjectRegistry registry);
 
 private:
   friend class Bridge;
 
-  std::weak_ptr< Bridge::Data > bridgeData;
-  bool isOnRootLevel = false;
+  std::weak_ptr<Bridge::Data> bridgeData;
+  bool                        isOnRootLevel = false;
 };
 
 /**
@@ -635,7 +638,7 @@ public:
    *
    * @return string with name of action
    */
-  virtual std::string GetActionName( size_t index ) = 0;
+  virtual std::string GetActionName(size_t index) = 0;
 
   /**
    * @brief Get translated name of action with given index
@@ -646,7 +649,7 @@ public:
    *
    * @note translation is not supported in this version
    */
-  virtual std::string GetLocalizedActionName( size_t index ) = 0;
+  virtual std::string GetLocalizedActionName(size_t index) = 0;
 
   /**
    * @brief Get description of action with given index
@@ -655,7 +658,7 @@ public:
    *
    * @return string with description of action
    */
-  virtual std::string GetActionDescription( size_t index ) = 0;
+  virtual std::string GetActionDescription(size_t index) = 0;
 
   /**
    * @brief Get key code binded to action with given index
@@ -664,7 +667,7 @@ public:
    *
    * @return string with key name
    */
-  virtual std::string GetActionKeyBinding( size_t index ) = 0;
+  virtual std::string GetActionKeyBinding(size_t index) = 0;
 
   /**
    * @brief Get number of provided actions
@@ -680,7 +683,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction( size_t index ) = 0;
+  virtual bool DoAction(size_t index) = 0;
 
   /**
    * @brief Perform an action with given name
@@ -689,8 +692,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction( const std::string& name ) = 0;
-
+  virtual bool DoAction(const std::string& name) = 0;
 };
 
 /**
@@ -719,7 +721,7 @@ public:
    *
    * @see Dali::Rect
    */
-  virtual Rect<> GetExtents( CoordType ctype ) = 0;
+  virtual Rect<> GetExtents(CoordType ctype) = 0;
 
   /**
    * @brief Get layer current object is localized on
@@ -791,7 +793,7 @@ public:
    *
    * @see Dali::Accessibility::Point
    */
-  virtual Accessible* GetAccessibleAtPoint( Point p, CoordType ctype );
+  virtual Accessible* GetAccessibleAtPoint(Point p, CoordType ctype);
 
   /**
    * @brief Check if current object contains given point
@@ -803,7 +805,7 @@ public:
    *
    * @see Dali::Accessibility::Point
    */
-  virtual bool Contains( Point p, CoordType ctype );
+  virtual bool Contains(Point p, CoordType ctype);
 };
 
 /**
@@ -840,7 +842,7 @@ public:
    *
    * @return true if value could have been assigned, false otherwise
   */
-  virtual bool SetCurrent( double val) = 0;
+  virtual bool SetCurrent(double val) = 0;
 
   /**
    * @brief Get the lowest increment that can be distinguished
@@ -866,7 +868,7 @@ public:
    *
    * @return substring of stored text
    */
-  virtual std::string GetText( size_t startOffset, size_t endOffset ) = 0;
+  virtual std::string GetText(size_t startOffset, size_t endOffset) = 0;
 
   /**
    * @brief Get number of all stored characters
@@ -901,7 +903,7 @@ public:
    *
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetTextAtOffset( size_t offset, TextBoundary boundary ) = 0;
+  virtual Range GetTextAtOffset(size_t offset, TextBoundary boundary) = 0;
 
   /**
    * @brief Get selected text
@@ -913,7 +915,7 @@ public:
    *
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetSelection( size_t selectionNum ) = 0;
+  virtual Range GetSelection(size_t selectionNum) = 0;
 
   /**
    * @brief Remove selection
@@ -923,7 +925,7 @@ public:
    *
    * @return bool on success, false otherwise
    */
-  virtual bool RemoveSelection( size_t selectionNum ) = 0;
+  virtual bool RemoveSelection(size_t selectionNum) = 0;
 
   /**
    * @brief Get selected text
@@ -936,7 +938,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool SetSelection( size_t selectionNum, size_t startOffset, size_t endOffset ) = 0;
+  virtual bool SetSelection(size_t selectionNum, size_t startOffset, size_t endOffset) = 0;
 };
 
 /**
@@ -957,7 +959,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CopyText( size_t startPosition, size_t endPosition ) = 0;
+  virtual bool CopyText(size_t startPosition, size_t endPosition) = 0;
 
   /**
    * @brief Cut text in range to system clipboard
@@ -967,7 +969,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool CutText( size_t startPosition, size_t endPosition ) = 0;
+  virtual bool CutText(size_t startPosition, size_t endPosition) = 0;
 };
 
 /**
@@ -981,29 +983,62 @@ class DALI_ADAPTOR_API EmptyAccessibleWithAddress : public virtual Accessible
 {
 public:
   EmptyAccessibleWithAddress() = default;
-  EmptyAccessibleWithAddress( Address address ) : address( std::move( address ) ) {}
-
-  void SetAddress( Address address ) { this->address = std::move( address ); }
-
-  std::string GetName() override { return ""; }
-  std::string GetDescription() override { return ""; }
-  Accessible* GetParent() override { return nullptr; }
-  size_t GetChildCount() override { return 0; }
-  std::vector< Accessible* > GetChildren() override { return {}; }
-  Accessible* GetChildAtIndex( size_t index ) override
+  EmptyAccessibleWithAddress(Address address)
+  : address(std::move(address))
   {
-    throw std::domain_error{"out of bounds index (" + std::to_string( index ) + ") - no children"};
   }
-  size_t GetIndexInParent() override { return static_cast< size_t >( -1 ); }
-  Role GetRole() override { return {}; }
+
+  void SetAddress(Address address)
+  {
+    this->address = std::move(address);
+  }
+
+  std::string GetName() override
+  {
+    return "";
+  }
+  std::string GetDescription() override
+  {
+    return "";
+  }
+  Accessible* GetParent() override
+  {
+    return nullptr;
+  }
+  size_t GetChildCount() override
+  {
+    return 0;
+  }
+  std::vector<Accessible*> GetChildren() override
+  {
+    return {};
+  }
+  Accessible* GetChildAtIndex(size_t index) override
+  {
+    throw std::domain_error{"out of bounds index (" + std::to_string(index) + ") - no children"};
+  }
+  size_t GetIndexInParent() override
+  {
+    return static_cast<size_t>(-1);
+  }
+  Role GetRole() override
+  {
+    return {};
+  }
   std::string GetRoleName() override;
-  States GetStates() override { return {}; }
-  Attributes GetAttributes() override { return {}; }
+  States      GetStates() override
+  {
+    return {};
+  }
+  Attributes GetAttributes() override
+  {
+    return {};
+  }
   Address GetAddress() override
   {
     return address;
   }
-  bool DoGesture(const GestureInfo &gestureInfo) override
+  bool DoGesture(const GestureInfo& gestureInfo) override
   {
     return false;
   }
@@ -1016,7 +1051,7 @@ private:
   Address address;
 };
 
-}
-}
+} // namespace Accessibility
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ATSPI_ACCESSIBILITY_IMPL_H

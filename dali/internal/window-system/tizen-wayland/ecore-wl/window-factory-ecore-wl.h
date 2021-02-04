@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_FACTORY_ECORE_WL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,10 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class WindowFactoryEcoreWl : public WindowFactory
 {
 public:
-  std::unique_ptr< WindowBase > CreateWindowBase( Dali::PositionSize positionSize, Any surface, bool isTransparent ) override;
+  std::unique_ptr<WindowBase> CreateWindowBase(Dali::PositionSize positionSize, Any surface, bool isTransparent) override;
 };
 
 } // namespace Adaptor

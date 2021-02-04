@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_CONTEXT_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,12 @@
 
 namespace Dali
 {
-
 /**
  * @brief A class WebEngineContext for context of web engine.
  */
 class WebEngineContext
 {
-
 public:
-
   /**
    * @brief Enumeration for cache model options.
    */
@@ -61,13 +58,13 @@ public:
    * @brief Requests to set the cache model.
    * @param[in] cacheModel The cache model
    */
-  virtual void SetCacheModel( CacheModel cacheModel ) = 0;
+  virtual void SetCacheModel(CacheModel cacheModel) = 0;
 
   /**
    * @brief Sets the given proxy URI to network backend of specific context.
    * @param[in] uri The proxy URI to set
    */
-  virtual void SetProxyUri( const std::string& uri ) = 0;
+  virtual void SetProxyUri(const std::string& uri) = 0;
 
   /**
    * @brief Sets a proxy auth credential to network backend of specific context.
@@ -78,7 +75,7 @@ public:
    * @param[in] username username to set
    * @param[in] password password to set
    */
-  virtual void SetDefaultProxyAuth( const std::string& username, const std::string& password ) = 0;
+  virtual void SetDefaultProxyAuth(const std::string& username, const std::string& password) = 0;
 
   /**
    * Adds CA certificates to persistent NSS certificate database
@@ -88,7 +85,7 @@ public:
    * Directories are traversed recursively.
    * @param[in] certificatePath path to a CA certificate file(s), see above for details
    */
-  virtual void SetCertificateFilePath( const std::string& certificatePath ) = 0;
+  virtual void SetCertificateFilePath(const std::string& certificatePath) = 0;
 
   /**
    * Requests for deleting all web databases.
@@ -113,13 +110,12 @@ public:
    * By default the cache is disabled resulting in not storing network data on disk.
    * @param[in] cacheDisabled enable or disable cache
    */
-  virtual void DisableCache( bool cacheDisabled ) = 0;
+  virtual void DisableCache(bool cacheDisabled) = 0;
 
   /**
    * @brief Requests to clear cache
    */
   virtual void ClearCache() = 0;
-
 };
 
 } // namespace Dali

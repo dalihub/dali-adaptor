@@ -2,7 +2,7 @@
 #define DALI_VIDEO_PLAYER_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-object.h>
 #include <dali/devel-api/adaptor-framework/video-sync-mode.h>
+#include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/video-player.h>
 #include <dali/devel-api/adaptor-framework/video-player-plugin.h>
+#include <dali/devel-api/adaptor-framework/video-player.h>
 
 namespace Dali
 {
@@ -32,22 +32,19 @@ class Any;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class VideoPlayer;
 
-typedef IntrusivePtr< VideoPlayer > VideoPlayerPtr;
+typedef IntrusivePtr<VideoPlayer> VideoPlayerPtr;
 
 /**
  * @brief VideoPlayer class is used for video playback.
  * @SINCE_1_1.24
  */
-class VideoPlayer: public Dali::BaseObject
+class VideoPlayer : public Dali::BaseObject
 {
 public:
-
   /**
    * @brief Creates a new VideoPlayer handle
    * @SINCE_1_1.24
@@ -58,7 +55,7 @@ public:
   /**
    * @copydoc Dali::VideoPlayer::SetUrl()
    */
-  void SetUrl( const std::string& url );
+  void SetUrl(const std::string& url);
 
   /**
    * @copydoc Dali::VideoPlayer::GetUrl()
@@ -93,7 +90,7 @@ public:
   /**
    * @copydoc Dali::VideoPlayer::SetMute()
    */
-  void SetMute( bool mute );
+  void SetMute(bool mute);
 
   /**
    * @copydoc Dali::VideoPlayer::IsMuted()
@@ -103,22 +100,22 @@ public:
   /**
    * @copydoc Dali::VideoPlayer::SetVolume()
    */
-  void SetVolume( float left, float right );
+  void SetVolume(float left, float right);
 
   /**
    * @copydoc Dali::VideoPlayer::GetVolume()
    */
-  void GetVolume( float& left, float& right );
+  void GetVolume(float& left, float& right);
 
   /**
    * @copydoc Dali::VideoPlayer::SetRenderingTarget()
    */
-  void SetRenderingTarget( Dali::Any target );
+  void SetRenderingTarget(Dali::Any target);
 
   /**
    * @copydoc Dali::VideoPlayer::SetPlayPosition()
    */
-  void SetPlayPosition( int millisecond );
+  void SetPlayPosition(int millisecond);
 
   /**
    * @copydoc Dali::VideoPlayer::GetPlayPosition()
@@ -128,12 +125,12 @@ public:
   /**
    * @copydoc Dali::VideoPlayer::SetDisplayArea()
    */
-  void SetDisplayArea( DisplayArea area );
+  void SetDisplayArea(DisplayArea area);
 
   /**
    * @copydoc Dali::VideoPlayer::SetSetDisplayRotation()
    */
-  void SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation );
+  void SetDisplayRotation(Dali::VideoPlayerPlugin::DisplayRotation rotation);
 
   /**
    * @copydoc Dali::VideoPlayer::GetDisplayRotation()
@@ -148,17 +145,17 @@ public:
   /**
    * @brief Initializes member data.
    */
-  void Initialize( Dali::Actor actor, VideoSyncMode syncMode );
+  void Initialize(Dali::Actor actor, VideoSyncMode syncMode);
 
   /**
    * @brief Dali::VideoPlayer::Forward()
    */
-  void Forward( int millisecond );
+  void Forward(int millisecond);
 
   /**
    * @brief Dali::VideoPlayer::Backward()
    */
-  void Backward( int millisecond );
+  void Backward(int millisecond);
 
   /**
    * @brief Dali::VideoPlayer::IsVideoTextureSupported()
@@ -168,7 +165,7 @@ public:
   /**
    * @brief Dali::VideoPlayer::SetCodecType()
    */
-  void SetCodecType( Dali::VideoPlayerPlugin::CodecType type );
+  void SetCodecType(Dali::VideoPlayerPlugin::CodecType type);
 
   /**
    * @brief Dali::VideoPlayer::GetCodecType()
@@ -178,7 +175,7 @@ public:
   /**
    * @copydoc Dali::VideoPlayer::SetDisplayMode()
    */
-  void SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode );
+  void SetDisplayMode(Dali::VideoPlayerPlugin::DisplayMode::Type mode);
 
   /**
    * @brief Dali::VideoPlayer::GetDisplayMode()
@@ -201,7 +198,6 @@ public:
   void FinishSynchronization();
 
 private:
-
   /**
    * @brief Constructor.
    * @SINCE_1_1.24
@@ -215,20 +211,19 @@ private:
   virtual ~VideoPlayer();
 
   // Undefined copy constructor
-  VideoPlayer( const VideoPlayer& player );
+  VideoPlayer(const VideoPlayer& player);
 
   // Undefined assignment operator
-  VideoPlayer& operator=( const VideoPlayer& player );
+  VideoPlayer& operator=(const VideoPlayer& player);
 
 private:
-
   Dali::VideoPlayerPlugin* mPlugin; ///< Videoplayer plugin handle
-  void* mHandle; ///< Handle for the loaded library
+  void*                    mHandle; ///< Handle for the loaded library
 
-  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)( Dali::Actor actor, Dali::VideoSyncMode syncMode );
-  typedef void (*DestroyVideoPlayerFunction)( Dali::VideoPlayerPlugin* plugin );
+  typedef Dali::VideoPlayerPlugin* (*CreateVideoPlayerFunction)(Dali::Actor actor, Dali::VideoSyncMode syncMode);
+  typedef void (*DestroyVideoPlayerFunction)(Dali::VideoPlayerPlugin* plugin);
 
-  CreateVideoPlayerFunction mCreateVideoPlayerPtr;
+  CreateVideoPlayerFunction  mCreateVideoPlayerPtr;
   DestroyVideoPlayerFunction mDestroyVideoPlayerPtr;
 
   Dali::VideoPlayerPlugin::VideoPlayerSignalType mFinishedSignal;
@@ -237,25 +232,24 @@ private:
 } // namespace Adaptor
 } // namespace Internal
 
-inline static Internal::Adaptor::VideoPlayer& GetImplementation( Dali::VideoPlayer& player )
+inline static Internal::Adaptor::VideoPlayer& GetImplementation(Dali::VideoPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "VideoPlayer handle is empty." );
+  DALI_ASSERT_ALWAYS(player && "VideoPlayer handle is empty.");
 
   BaseObject& handle = player.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::VideoPlayer& >( handle );
+  return static_cast<Internal::Adaptor::VideoPlayer&>(handle);
 }
 
-inline static const Internal::Adaptor::VideoPlayer& GetImplementation( const Dali::VideoPlayer& player )
+inline static const Internal::Adaptor::VideoPlayer& GetImplementation(const Dali::VideoPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "VideoPlayer handle is empty." );
+  DALI_ASSERT_ALWAYS(player && "VideoPlayer handle is empty.");
 
   const BaseObject& handle = player.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::VideoPlayer& >( handle );
+  return static_cast<const Internal::Adaptor::VideoPlayer&>(handle);
 }
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif // DALI_VIDEO_PLAYER_IMPL_H
-

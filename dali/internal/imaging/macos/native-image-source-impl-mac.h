@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,12 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
+#include <CoreGraphics/CoreGraphics.h>
 #include <dali/internal/imaging/common/native-image-source-impl.h>
 #include <extern-definitions.h>
-#include <CoreGraphics/CoreGraphics.h>
 
 namespace Dali::Internal::Adaptor
 {
-
 class EglImageExtensions;
 
 /**
@@ -35,7 +34,6 @@ class EglImageExtensions;
 class NativeImageSourceCocoa : public Internal::Adaptor::NativeImageSource
 {
 public:
-
   /**
    * Create a new NativeImageSource internally.
    * Depending on hardware the width and height may have to be a power of two.
@@ -46,11 +44,10 @@ public:
    * @return A smart-pointer to a newly allocated image.
    */
   static NativeImageSourceCocoa* New(
-    unsigned int width,
-    unsigned int height,
+    unsigned int                        width,
+    unsigned int                        height,
     Dali::NativeImageSource::ColorDepth depth,
-    Any nativeImageSource
-  );
+    Any                                 nativeImageSource);
 
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
@@ -61,21 +58,20 @@ public:
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
   bool GetPixels(
-    std::vector<unsigned char> &pixbuf,
-    unsigned int &width,
-    unsigned int &height,
-    Pixel::Format& pixelFormat
-  ) const override;
+    std::vector<unsigned char>& pixbuf,
+    unsigned int&               width,
+    unsigned int&               height,
+    Pixel::Format&              pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
-  void SetSource( Any source ) override;
+  void SetSource(Any source) override;
 
   /**
    * @copydoc Dali::NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
    */
-  bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth ) override;
+  bool IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth) override;
 
   /**
    * destructor
@@ -153,7 +149,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
    */
-  uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) override;
+  uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
@@ -161,7 +157,6 @@ public:
   bool ReleaseBuffer() override;
 
 private:
-
   /**
    * Private constructor; @see NativeImageSource::New()
    * @param[in] width The width of the image.
@@ -170,11 +165,10 @@ private:
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    */
   NativeImageSourceCocoa(
-    unsigned int width,
-    unsigned  int height,
+    unsigned int                        width,
+    unsigned int                        height,
     Dali::NativeImageSource::ColorDepth depth,
-    Any nativeImageSource
-  );
+    Any                                 nativeImageSource);
 
 private:
   CFRef<CGImageRef> mImage;

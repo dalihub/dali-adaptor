@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_SOCKET_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief Concrete implementation of a socket under Linux.
  *
@@ -37,13 +34,12 @@ namespace Adaptor
 class Socket : public SocketInterface
 {
 public:
-
   /**
    * @brief Constructor
    * @param protocol network protocol
    * @param fileDescriptor option file descriptor if the socket is already open
    */
-  Socket( Protocol protocol , int fileDescriptor = -1 );
+  Socket(Protocol protocol, int fileDescriptor = -1);
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketIsOpen()
@@ -58,22 +54,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Bind
    */
-  bool Bind( uint16_t port )  override;
+  bool Bind(uint16_t port) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Listen
    */
-  bool Listen( int blacklog) override;
+  bool Listen(int blacklog) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Accept
    */
-  SocketInterface* Accept() const  override;
+  SocketInterface* Accept() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Select
    */
-  SelectReturn Select( ) override;
+  SelectReturn Select() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::ExitSelect
@@ -83,23 +79,23 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Recieve
    */
-  bool Read( void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead ) override;
+  bool Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& bytesRead) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::Send
    */
-  bool Write( const void* buffer, unsigned int bufferLength ) override;
+  bool Write(const void* buffer, unsigned int bufferLength) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::ReuseAddress
    */
-  bool ReuseAddress( bool reUse ) override;
+  bool ReuseAddress(bool reUse) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SocketInterface::SetBufferSize
    *
    */
-  bool SetBufferSize( SocketInterface::BufferType type, unsigned int bufferSizeInBytes ) override;
+  bool SetBufferSize(SocketInterface::BufferType type, unsigned int bufferSizeInBytes) override;
 
   /**
    * @brief Virtual destructor
@@ -107,8 +103,6 @@ public:
   virtual ~Socket();
 
 private:
-
-
   /**
    * @brief Helper to create the quit pipe
    */
@@ -119,20 +113,18 @@ private:
    */
   void DeleteQuitPipe();
 
-  int mSocketFileDescriptor; ///< file descriptor
-  int mQuitPipe[2];          ///< Pipe to inform Select to quit.
-  bool mBound:1;             ///< whether the socket is bound
-  bool mListening:1;         ///< whether the socket is being listen to
-  bool mQuitPipeCreated:1;   ///< whether the quit pipe has been created
-  bool mBlocked:1;           ///< whether the socket is blocked waiting for a connection
+  int  mSocketFileDescriptor; ///< file descriptor
+  int  mQuitPipe[2];          ///< Pipe to inform Select to quit.
+  bool mBound : 1;            ///< whether the socket is bound
+  bool mListening : 1;        ///< whether the socket is being listen to
+  bool mQuitPipeCreated : 1;  ///< whether the quit pipe has been created
+  bool mBlocked : 1;          ///< whether the socket is blocked waiting for a connection
 };
 
+} // namespace Adaptor
 
+} // namespace Internal
 
-} // Adaptor
-
-} // Internal
-
-} // Dali
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_SOCKET_IMPL_H

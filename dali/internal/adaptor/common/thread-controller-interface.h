@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,23 @@
 
 namespace Dali
 {
-
 class RenderSurfaceInterface;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 enum class UpdateMode
 {
-  NORMAL,                     ///< Update and render
-  SKIP_RENDER,                ///< Update and resource upload but no rendering
-  FORCE_RENDER                ///< Force update and render
+  NORMAL,      ///< Update and render
+  SKIP_RENDER, ///< Update and resource upload but no rendering
+  FORCE_RENDER ///< Force update and render
 };
 
 enum class ThreadMode
 {
-  NORMAL,                     ///< The thread runs continuously
-  RUN_IF_REQUESTED            ///< The threads runs when it is requested
+  NORMAL,          ///< The thread runs continuously
+  RUN_IF_REQUESTED ///< The threads runs when it is requested
 };
 
 /**
@@ -50,11 +47,12 @@ enum class ThreadMode
 class ThreadControllerInterface
 {
 public:
-
   /**
    * Virtual destructor. Not intended as base class.
    */
-  virtual ~ThreadControllerInterface() { }
+  virtual ~ThreadControllerInterface()
+  {
+  }
 
   /**
    * Initializes the thread controller
@@ -91,19 +89,19 @@ public:
    * If Adaptor is paused, we do one update/render and return to pause
    * @param updateMode The update mode (i.e. i.e. either update & render or skip rendering)
    */
-  virtual void RequestUpdateOnce( UpdateMode updateMode ) = 0;
+  virtual void RequestUpdateOnce(UpdateMode updateMode) = 0;
 
   /**
    * Replaces the surface.
    * @param surface new surface
    */
-  virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface ) = 0;
+  virtual void ReplaceSurface(Dali::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Deletes the surface.
    * @param[in] surface The surface to be deleted
    */
-  virtual void DeleteSurface( Dali::RenderSurfaceInterface* surface ) = 0;
+  virtual void DeleteSurface(Dali::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Resize the surface.
@@ -118,33 +116,33 @@ public:
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
-  virtual void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender ) = 0;
+  virtual void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender) = 0;
 
   /**
    * @copydoc Dali::Adaptor::SetPreRenderCallback()
    */
-  virtual void SetPreRenderCallback( CallbackBase* callback ) = 0;
+  virtual void SetPreRenderCallback(CallbackBase* callback) = 0;
 
   /**
    * @brief Adds the new surface.
    * @param surface new surface
    */
-  virtual void AddSurface( Dali::RenderSurfaceInterface* surface ) = 0;
+  virtual void AddSurface(Dali::RenderSurfaceInterface* surface) = 0;
 
 protected:
-
   /**
    * Constructor
    */
-  ThreadControllerInterface() { }
+  ThreadControllerInterface()
+  {
+  }
 
 private:
-
   // Undefined copy constructor.
-  ThreadControllerInterface( const ThreadControllerInterface& );
+  ThreadControllerInterface(const ThreadControllerInterface&);
 
   // Undefined assignment operator.
-  ThreadControllerInterface& operator=( const ThreadControllerInterface& );
+  ThreadControllerInterface& operator=(const ThreadControllerInterface&);
 };
 
 } // namespace Adaptor

@@ -22,15 +22,12 @@
 
 namespace Dali
 {
-
 /**
  * @brief A class WebEngineCookieManager to wrap ewk cookie manager.
  */
 class WebEngineCookieManager
 {
-
 public:
-
   /**
    * @brief Enumeration for the cookies accept policies.
    */
@@ -67,7 +64,7 @@ public:
    *
    * @param[in] policy A #Dali::WebEngineCookieManager::CookieAcceptPolicy
    */
-  virtual void SetCookieAcceptPolicy( CookieAcceptPolicy policy ) = 0;
+  virtual void SetCookieAcceptPolicy(CookieAcceptPolicy policy) = 0;
 
   /**
    * @brief Gets the cookie acceptance policy.
@@ -92,8 +89,7 @@ public:
    * @param[in] path The path where to read/write Cookies
    * @param[in] storage The type of storage
    */
-  virtual void SetPersistentStorage( const std::string& path, CookiePersistentStorage storage ) = 0;
-
+  virtual void SetPersistentStorage(const std::string& path, CookiePersistentStorage storage) = 0;
 };
 
 } // namespace Dali

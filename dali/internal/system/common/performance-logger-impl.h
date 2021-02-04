@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PERFORMANCE_LOGGER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,18 +22,15 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/performance-interface.h>
 #include <dali/devel-api/adaptor-framework/performance-logger.h>
+#include <dali/internal/system/common/performance-interface.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class PerformanceLogger;
 
 typedef IntrusivePtr<PerformanceLogger> PerformanceLoggerPtr;
@@ -44,20 +41,19 @@ typedef IntrusivePtr<PerformanceLogger> PerformanceLoggerPtr;
 class PerformanceLogger : public BaseObject
 {
 public:
-
   /**
    * @brief Create a new logger
    *
    * @param[in] name The name of the logger. This needs to be a compile-time literal and alive for the whole lifetime of the performance logger.
    * @return a new logger
    */
-  static PerformanceLoggerPtr New( const char* name );
+  static PerformanceLoggerPtr New(const char* name);
 
   /**
    * Constructor
    * @param[in] name The name to assing to the logger
    */
-  PerformanceLogger( const char* name );
+  PerformanceLogger(const char* name);
 
   /**
    * Destructor.
@@ -69,52 +65,49 @@ public:
    *
    * @param markerType Performance marker type
    */
-  void AddMarker( Dali::PerformanceLogger::Marker markerType );
+  void AddMarker(Dali::PerformanceLogger::Marker markerType);
 
   /**
    * Set the logging frequency
    *
    * @param logFrequency how often to log out in seconds
    */
-  void SetLoggingFrequency( unsigned int logFrequency);
+  void SetLoggingFrequency(unsigned int logFrequency);
 
   /**
    * Set logging on or off for this logger
    *
    * @param[in] enable Enable logging or not
    */
-  void EnableLogging( bool enable );
+  void EnableLogging(bool enable);
 
 private: // Implementation
-
   // not implemented
-  PerformanceLogger( const PerformanceLogger& );
-  PerformanceLogger& operator=( const PerformanceLogger& );
+  PerformanceLogger(const PerformanceLogger&);
+  PerformanceLogger& operator=(const PerformanceLogger&);
 
 private:
-
-  PerformanceInterface::ContextId mContext;   ///< Context of this logger
-
+  PerformanceInterface::ContextId mContext; ///< Context of this logger
 };
 
 // Helpers for public-api forwarding methods
 
-inline static Internal::Adaptor::PerformanceLogger& GetImplementation( Dali::PerformanceLogger& logger )
+inline static Internal::Adaptor::PerformanceLogger& GetImplementation(Dali::PerformanceLogger& logger)
 {
-  DALI_ASSERT_ALWAYS( logger && "PerformanceLogger handle is empty" );
+  DALI_ASSERT_ALWAYS(logger && "PerformanceLogger handle is empty");
 
   BaseObject& handle = logger.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::PerformanceLogger& >( handle );
+  return static_cast<Internal::Adaptor::PerformanceLogger&>(handle);
 }
 
-inline static const  Internal::Adaptor::PerformanceLogger& GetImplementation( const Dali::PerformanceLogger& logger )
+inline static const Internal::Adaptor::PerformanceLogger& GetImplementation(const Dali::PerformanceLogger& logger)
 {
-  DALI_ASSERT_ALWAYS( logger && "PerformanceLogger handle is empty" );
+  DALI_ASSERT_ALWAYS(logger && "PerformanceLogger handle is empty");
 
   const BaseObject& handle = logger.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::PerformanceLogger& >( handle );
+  return static_cast<const Internal::Adaptor::PerformanceLogger&>(handle);
 }
 
 } // namespace Adaptor

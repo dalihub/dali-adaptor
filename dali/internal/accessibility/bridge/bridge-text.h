@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_TEXT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,14 +31,14 @@ protected:
   Dali::Accessibility::Text* FindSelf() const;
 
 public:
-  DBus::ValueOrError< std::string > GetText( int startOffset, int endOffset );
-  DBus::ValueOrError< int32_t > GetCharacterCount();
-  DBus::ValueOrError< int32_t > GetCaretOffset();
-  DBus::ValueOrError< bool > SetCaretOffset( int32_t offset );
-  DBus::ValueOrError< std::string, int, int > GetTextAtOffset( int32_t offset, uint32_t boundary );
-  DBus::ValueOrError< int, int > GetSelection( int32_t selectionNum );
-  DBus::ValueOrError< bool > RemoveSelection( int32_t selectionNum );
-  DBus::ValueOrError< bool > SetSelection( int32_t selectionNum, int32_t startOffset, int32_t endOffset );
+  DBus::ValueOrError<std::string>           GetText(int startOffset, int endOffset);
+  DBus::ValueOrError<int32_t>               GetCharacterCount();
+  DBus::ValueOrError<int32_t>               GetCaretOffset();
+  DBus::ValueOrError<bool>                  SetCaretOffset(int32_t offset);
+  DBus::ValueOrError<std::string, int, int> GetTextAtOffset(int32_t offset, uint32_t boundary);
+  DBus::ValueOrError<int, int>              GetSelection(int32_t selectionNum);
+  DBus::ValueOrError<bool>                  RemoveSelection(int32_t selectionNum);
+  DBus::ValueOrError<bool>                  SetSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_TEXT_H

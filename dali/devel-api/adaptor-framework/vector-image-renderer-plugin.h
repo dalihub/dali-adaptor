@@ -2,7 +2,7 @@
 #define DALI_VECTOR_IMAGE_RENDERER_PLUGIN_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 /**
  * VectorImageRendererPlugin is an abstract interface, used by dali-adaptor to render a vector image(SVG).
  * A concrete implementation must be created for each platform and provided as a dynamic library which
@@ -35,12 +34,16 @@ public:
   /**
    * @brief Constructor
    */
-  VectorImageRendererPlugin() {}
+  VectorImageRendererPlugin()
+  {
+  }
 
   /**
    * @brief Destructor
    */
-  virtual ~VectorImageRendererPlugin() {}
+  virtual ~VectorImageRendererPlugin()
+  {
+  }
 
   /**
    * @brief Load vector image data directly.
@@ -56,7 +59,7 @@ public:
    * @param[in] buffer The target buffer
    * @return True if the rendering succeeds, false otherwise.
    */
-  virtual bool Rasterize(Dali::Devel::PixelBuffer &buffer) = 0;
+  virtual bool Rasterize(Dali::Devel::PixelBuffer& buffer) = 0;
 
   /**
    * @brief Gets the default size of the file.
@@ -64,7 +67,7 @@ public:
    * @param[out] width The default width of the file
    * @param[out] height The default height of the file
    */
-  virtual void GetDefaultSize( uint32_t& width, uint32_t& height ) const = 0;
+  virtual void GetDefaultSize(uint32_t& width, uint32_t& height) const = 0;
 
   /**
    * @brief Function pointer called in adaptor to create a plugin instance.

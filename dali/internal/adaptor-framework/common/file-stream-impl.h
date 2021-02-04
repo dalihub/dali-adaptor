@@ -2,7 +2,7 @@
 #define DALI_FILE_STREAM_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 
 namespace Dali
 {
-
 class FileStream::Impl
 {
 public:
@@ -44,16 +43,16 @@ public:
 
 private:
   std::string mFileName;
-  uint8_t mMode;
-  uint8_t* mBuffer; // external buffer, not owned
-  size_t mDataSize;
+  uint8_t     mMode;
+  uint8_t*    mBuffer; // external buffer, not owned
+  size_t      mDataSize;
 
   Dali::Vector<char> mFileBuffer; // for internal usage only
-  FILE* mFile;
-  std::fstream mFileStream;
-  std::stringstream mBufferStream;
+  FILE*              mFile;
+  std::fstream       mFileStream;
+  std::stringstream  mBufferStream;
 };
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_FILE_STREAM_IMPL_GENERIC_H

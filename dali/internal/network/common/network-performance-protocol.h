@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_PROTOCOL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,29 +23,26 @@
 
 namespace Dali
 {
-
 namespace PerformanceProtocol
 {
-
-const unsigned int MAX_COMMAND_STRING_LENGTH = 256;  ///< maximum length of a command including null terminator
+const unsigned int MAX_COMMAND_STRING_LENGTH = 256; ///< maximum length of a command including null terminator
 
 /**
  * @brief List of commands id's
  */
 enum CommandId
 {
-  HELP_MESSAGE            = 0, ///<  help message
-  ENABLE_METRIC           = 1, ///< enable metric
-  DISABLE_METRIC          = 2, ///< disable metric
-  LIST_METRICS_AVAILABLE  = 3, ///< list  metrics that are available
+  HELP_MESSAGE                = 0, ///<  help message
+  ENABLE_METRIC               = 1, ///< enable metric
+  DISABLE_METRIC              = 2, ///< disable metric
+  LIST_METRICS_AVAILABLE      = 3, ///< list  metrics that are available
   ENABLE_TIME_MARKER_BIT_MASK = 4, ///< bit mask of time markers to enable
-  SET_PROPERTIES            = 5, ///< set property
-  DUMP_SCENE_GRAPH          = 6, ///< dump the scene graph
-  UNKNOWN_COMMAND           = 4096
+  SET_PROPERTIES              = 5, ///< set property
+  DUMP_SCENE_GRAPH            = 6, ///< dump the scene graph
+  UNKNOWN_COMMAND             = 4096
 };
 
-
-typedef char CommandString[ MAX_COMMAND_STRING_LENGTH ];
+typedef char CommandString[MAX_COMMAND_STRING_LENGTH];
 
 /**
  * @brief given a command id, get the command string
@@ -53,7 +50,7 @@ typedef char CommandString[ MAX_COMMAND_STRING_LENGTH ];
  * @param[out] commandString command string
  * @return true on success, false on failure
  */
-bool GetCommandString( CommandId commandId, CommandString& commandString );
+bool GetCommandString(CommandId commandId, CommandString& commandString);
 
 /**
  * @brief given a command string, get the command id and an integer parameter if it exists
@@ -64,11 +61,11 @@ bool GetCommandString( CommandId commandId, CommandString& commandString );
  * @param[out] stringParam string parameter
  * @param true on success, false on failure
  */
-bool GetCommandId( const char* const commandString,
-                   unsigned int lengthInBytes,
-                   CommandId& commandId,
-                   unsigned int& intParam,
-                   std::string& stringParam);
+bool GetCommandId(const char* const commandString,
+                  unsigned int      lengthInBytes,
+                  CommandId&        commandId,
+                  unsigned int&     intParam,
+                  std::string&      stringParam);
 
 /**
  * @return the protocol help message for console users

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,23 +29,19 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class EglGraphics;
 class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSource.
  */
-class NativeImageSourceQueueTizen: public Internal::Adaptor::NativeImageSourceQueue
+class NativeImageSourceQueueTizen : public Internal::Adaptor::NativeImageSourceQueue
 {
 public:
-
   /**
    * Create a new NativeImageSourceQueueTizen internally.
    * Depending on hardware the width and height may have to be a power of two.
@@ -55,7 +51,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueueTizen* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -65,7 +61,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  void SetSize( uint32_t width, uint32_t height ) override;
+  void SetSize(uint32_t width, uint32_t height) override;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::IgnoreSourceImage
@@ -155,7 +151,6 @@ public:
   }
 
 private:
-
   /**
    * Private constructor; @see NativeImageSourceQueue::New()
    * @param[in] width The width of the image.
@@ -163,30 +158,29 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
 
-  void Initialize( Dali::NativeImageSourceQueue::ColorDepth depth );
+  void Initialize(Dali::NativeImageSourceQueue::ColorDepth depth);
 
   void ResetEglImageList();
 
-  tbm_surface_queue_h GetSurfaceFromAny( Any source ) const;
+  tbm_surface_queue_h GetSurfaceFromAny(Any source) const;
 
-  bool CheckBlending( int format );
+  bool CheckBlending(int format);
 
 private:
+  typedef std::pair<tbm_surface_h, void*> EglImagePair;
 
-  typedef std::pair< tbm_surface_h, void* > EglImagePair;
-
-  Dali::Mutex                      mMutex;                ///< Mutex
-  uint32_t                         mWidth;                ///< image width
-  uint32_t                         mHeight;               ///< image height
-  tbm_surface_queue_h              mTbmQueue;             ///< Tbm surface queue handle
-  tbm_surface_h                    mConsumeSurface;       ///< The current tbm surface
-  std::vector< EglImagePair >      mEglImages;            ///< EGL Image vector
-  EglGraphics*                     mEglGraphics;          ///< EGL Graphics
-  EglImageExtensions*              mEglImageExtensions;   ///< The EGL Image Extensions
-  bool                             mOwnTbmQueue;          ///< Whether we created tbm queue
-  bool                             mBlendingRequired;     ///< Whether blending is required
+  Dali::Mutex               mMutex;              ///< Mutex
+  uint32_t                  mWidth;              ///< image width
+  uint32_t                  mHeight;             ///< image height
+  tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h             mConsumeSurface;     ///< The current tbm surface
+  std::vector<EglImagePair> mEglImages;          ///< EGL Image vector
+  EglGraphics*              mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
+  bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                      mBlendingRequired;   ///< Whether blending is required
 };
 
 } // namespace Adaptor

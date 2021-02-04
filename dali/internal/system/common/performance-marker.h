@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PERFORMANCE_MARKER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,41 +19,36 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/system/common/frame-time-stamp.h>
+#include <dali/internal/system/common/performance-interface.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Marker used to record an event with a time stamp in Dali
  */
 class PerformanceMarker
 {
 public:
-
-
   /**
    * Bitmask used to filter different types of markers based
    * on what group they belong to.
    */
   enum MarkerFilter
   {
-    FILTERING_DISABLED   = 0,      ///< disabled
-    V_SYNC_EVENTS        = 1 << 0, ///< v-sync
-    UPDATE               = 1 << 1, ///< update start / end
-    RENDER               = 1 << 2, ///< render start / end
-    EVENT_PROCESS        = 1 << 3, ///< process events start / end
-    SWAP_BUFFERS         = 1 << 4, ///< swap buffers start / end
-    LIFE_CYCLE_EVENTS    = 1 << 5, ///< pause / resume
-    RESOURCE_EVENTS      = 1 << 6, ///< resource events
-    CUSTOM_EVENTS        = 1 << 7
+    FILTERING_DISABLED = 0,      ///< disabled
+    V_SYNC_EVENTS      = 1 << 0, ///< v-sync
+    UPDATE             = 1 << 1, ///< update start / end
+    RENDER             = 1 << 2, ///< render start / end
+    EVENT_PROCESS      = 1 << 3, ///< process events start / end
+    SWAP_BUFFERS       = 1 << 4, ///< swap buffers start / end
+    LIFE_CYCLE_EVENTS  = 1 << 5, ///< pause / resume
+    RESOURCE_EVENTS    = 1 << 6, ///< resource events
+    CUSTOM_EVENTS      = 1 << 7
   };
 
   /**
@@ -61,25 +56,24 @@ public:
    */
   enum MarkerEventType
   {
-    SINGLE_EVENT,           ///< event is something that has no duration associated with it
-    START_TIMED_EVENT,      ///< start of a timed event
-    END_TIMED_EVENT         ///< end of a timed event
+    SINGLE_EVENT,      ///< event is something that has no duration associated with it
+    START_TIMED_EVENT, ///< start of a timed event
+    END_TIMED_EVENT    ///< end of a timed event
 
   };
-
 
   /**
    * @brief Constructor
    * @param[in] type marker type
    */
-  PerformanceMarker( PerformanceInterface::MarkerType type );
+  PerformanceMarker(PerformanceInterface::MarkerType type);
 
   /**
    * @brief Constructor
    * @param[in] type marker type
    * @param[in] time time stamp
    */
-  PerformanceMarker( PerformanceInterface::MarkerType type,  FrameTimeStamp time );
+  PerformanceMarker(PerformanceInterface::MarkerType type, FrameTimeStamp time);
 
   /**
    * @return the time stamp
@@ -107,28 +101,26 @@ public:
    */
   MarkerFilter GetFilterType() const;
 
-
   /**
    * @return marker name
    */
-  const char* GetName( ) const;
+  const char* GetName() const;
 
   /**
    * @param start the start marker
    * @param end the end marker
    * @return difference in microseconds between two markers
    */
-  static unsigned int MicrosecondDiff( const PerformanceMarker& start, const PerformanceMarker& end  );
+  static unsigned int MicrosecondDiff(const PerformanceMarker& start, const PerformanceMarker& end);
 
   /**
    * @return if a marker is enabled as part of a group
    */
-  bool IsFilterEnabled( MarkerFilter filter ) const;
+  bool IsFilterEnabled(MarkerFilter filter) const;
+
 private:
-
-  PerformanceInterface::MarkerType mType;         ///< marker type
-  FrameTimeStamp mTimeStamp;                      ///< frame time stamp
-
+  PerformanceInterface::MarkerType mType;      ///< marker type
+  FrameTimeStamp                   mTimeStamp; ///< frame time stamp
 };
 
 } // namespace Adaptor

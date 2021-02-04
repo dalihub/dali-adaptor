@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 typedef IntrusivePtr<WidgetApplication> WidgetApplicationPtr;
 
 /**
@@ -41,9 +40,8 @@ typedef IntrusivePtr<WidgetApplication> WidgetApplicationPtr;
 class WidgetApplication : public Application
 {
 public:
-
-  typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction >  CreateWidgetFunctionPair;
-  typedef std::vector< CreateWidgetFunctionPair >   CreateWidgetFunctionContainer;
+  typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction> CreateWidgetFunctionPair;
+  typedef std::vector<CreateWidgetFunctionPair>                                       CreateWidgetFunctionContainer;
 
   /**
    * Create a new widget application
@@ -51,24 +49,22 @@ public:
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    */
-  static WidgetApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet );
+  static WidgetApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet);
 
 public:
-
   /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()
    */
-  virtual void RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction );
+  virtual void RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction);
 
 protected:
-
   /**
    * Private Constructor
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    */
-  WidgetApplication( int* argc, char **argv[], const std::string& stylesheet );
+  WidgetApplication(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * Destructor

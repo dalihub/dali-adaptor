@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TIMER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,14 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/system/common/timer-interface.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class Timer;
@@ -44,13 +42,13 @@ typedef IntrusivePtr<Timer> TimerPtr;
 class Timer : public BaseObject, public TimerInterface
 {
 public:
-  static TimerPtr New( unsigned int milliSec );
+  static TimerPtr New(unsigned int milliSec);
 
   /**
    * Constructor
    * @param[in]  milliSec  Interval in milliseconds.
    */
-  Timer( unsigned int milliSec );
+  Timer(unsigned int milliSec);
 
   /**
    * Destructor.
@@ -58,7 +56,6 @@ public:
   virtual ~Timer();
 
 public:
-
   /**
    * @copydoc Dali::Timer::Start()
    */
@@ -82,7 +79,7 @@ public:
   /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  void SetInterval( unsigned int interval, bool restart ) override;
+  void SetInterval(unsigned int interval, bool restart) override;
 
   /**
    * @copydoc Dali::Timer::GetInterval()
@@ -100,14 +97,12 @@ public:
   bool Tick();
 
 public: // Signals
-
   Dali::Timer::TimerSignalType& TickSignal();
 
 private: // Implementation
-
   // not implemented
-  Timer( const Timer& );
-  Timer& operator=( const Timer& );
+  Timer(const Timer&);
+  Timer& operator=(const Timer&);
 
   /**
    * Resets any stored timer data.
@@ -115,7 +110,6 @@ private: // Implementation
   void ResetTimerData();
 
 private: // Data
-
   Dali::Timer::TimerSignalType mTickSignal;
 
   // To hide away implementation details

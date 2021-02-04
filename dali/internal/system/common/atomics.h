@@ -32,7 +32,6 @@ namespace Dali
 {
 namespace Internal
 {
-
 /**
  * @brief Atomic write to an aligned memory location in cacheable memory.
  *
@@ -46,9 +45,9 @@ namespace Internal
  *        aligned to a 4 byte boundary.
  * @param value A value to assign to the memory location in address.
  */
-inline void AtomicWriteToCacheableAlignedAddress( volatile uint32_t * const address, const uint32_t value )
+inline void AtomicWriteToCacheableAlignedAddress(volatile uint32_t* const address, const uint32_t value)
 {
-  DALI_ASSERT_DEBUG( ptrdiff_t(address) % 4 == 0 && "Address must be 32 bit aligned" );
+  DALI_ASSERT_DEBUG(ptrdiff_t(address) % 4 == 0 && "Address must be 32 bit aligned");
   *address = value;
 }
 
@@ -64,9 +63,9 @@ inline void AtomicWriteToCacheableAlignedAddress( volatile uint32_t * const addr
  *         aligned to a 4 byte boundary.
  * @return The value stored at the memory location in address.
  */
-inline uint32_t AtomicReadFromCacheableAlignedAddress( const volatile uint32_t * const address )
+inline uint32_t AtomicReadFromCacheableAlignedAddress(const volatile uint32_t* const address)
 {
-  DALI_ASSERT_DEBUG( ptrdiff_t(address) % 4 == 0 && "Address must be 32 bit aligned" );
+  DALI_ASSERT_DEBUG(ptrdiff_t(address) % 4 == 0 && "Address must be 32 bit aligned");
   return *address;
 }
 

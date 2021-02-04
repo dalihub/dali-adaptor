@@ -2,7 +2,7 @@
 #define DALI_WIDGET_CONTROLLER_WIN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 /**
@@ -38,7 +36,6 @@ namespace Adaptor
 class WidgetImplWin : public Widget::Impl
 {
 public:
-
   /**
    * Constructor
    */
@@ -50,11 +47,10 @@ public:
   ~WidgetImplWin() override;
 
 public:
-
   /**
    * Set content information to widget framework
    */
-  void SetContentInfo( const std::string& contentInfo ) override;
+  void SetContentInfo(const std::string& contentInfo) override;
 };
 
 } // namespace Adaptor

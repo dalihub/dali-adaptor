@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_EDITABLE_TEXT_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ protected:
   Dali::Accessibility::EditableText* FindSelf() const;
 
 public:
-  DBus::ValueOrError< bool > CopyText( int32_t startPos, int32_t endPos );
-  DBus::ValueOrError< bool > CutText( int32_t startPos, int32_t endPos );
-  DBus::ValueOrError< bool > PasteText( int32_t pos );
+  DBus::ValueOrError<bool> CopyText(int32_t startPos, int32_t endPos);
+  DBus::ValueOrError<bool> CutText(int32_t startPos, int32_t endPos);
+  DBus::ValueOrError<bool> PasteText(int32_t pos);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_EDITABLE_TEXT_H

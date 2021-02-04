@@ -1,7 +1,7 @@
 #ifndef DALI_ATSPI_ACCESSIBILITY_H
 #define DALI_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@
 
 // EXTERNAL INCLUDES
 
+#include <string.h>
 #include <array>
 #include <atomic>
 #include <bitset>
+#include <cassert>
 #include <exception>
 #include <functional>
-#include <memory>
-#include <string>
+#include <list>
 #include <map>
+#include <memory>
+#include <sstream>
+#include <string>
 #include <unordered_map>
 #include <vector>
-#include <list>
-#include <cassert>
-#include <sstream>
-#include <string.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -41,7 +41,6 @@ namespace Dali
 {
 namespace Accessibility
 {
-
 /**
  * @brief Enumeration describing a relation between accessible objects
  * 1 to 0..N relation model is supported. By default relation is not symmetrical.
@@ -49,29 +48,29 @@ namespace Accessibility
  */
 enum class RelationType : uint32_t
 {
-  NULL_OF, ///< Null Relation.
-  LABEL_FOR, ///< Label For.
-  LABELLED_BY, ///< Labelled By.
-  CONTROLLER_FOR, ///< Controller For.
-  CONTROLLED_BY, ///< Controlled By.
-  MEMBER_OF, ///< Member Of.
-  TOOLTIP_FOR, ///< ToolTip For.
-  NODE_CHILD_OF, ///< Node Child Of.
-  NODE_PARENT_OF, ///< Node Parent Of.
-  EXTENDED, ///< Extended.
-  FLOWS_TO, ///< Flows To.
-  FLOWS_FROM, ///< Flows From.
-  SUBWINDOW_OF, ///< Sub Window Of.
-  EMBEDS, ///< Embeds.
-  EMBEDDED_BY, ///< Embedded By.
-  POPUP_FOR, ///< Popup For
+  NULL_OF,          ///< Null Relation.
+  LABEL_FOR,        ///< Label For.
+  LABELLED_BY,      ///< Labelled By.
+  CONTROLLER_FOR,   ///< Controller For.
+  CONTROLLED_BY,    ///< Controlled By.
+  MEMBER_OF,        ///< Member Of.
+  TOOLTIP_FOR,      ///< ToolTip For.
+  NODE_CHILD_OF,    ///< Node Child Of.
+  NODE_PARENT_OF,   ///< Node Parent Of.
+  EXTENDED,         ///< Extended.
+  FLOWS_TO,         ///< Flows To.
+  FLOWS_FROM,       ///< Flows From.
+  SUBWINDOW_OF,     ///< Sub Window Of.
+  EMBEDS,           ///< Embeds.
+  EMBEDDED_BY,      ///< Embedded By.
+  POPUP_FOR,        ///< Popup For
   PARENT_WINDOW_OF, ///< Parent Window Of.
-  DESCRIPTION_FOR, ///< Description For.
-  DESCRIBED_BY, ///< Described By.
-  DETAILS, ///< Details.
-  DETAILS_FOR, ///< Details For.
-  ERROR_MESSAGE, ///< Error Message.
-  ERROR_FOR, ///< Error For.
+  DESCRIPTION_FOR,  ///< Description For.
+  DESCRIBED_BY,     ///< Described By.
+  DETAILS,          ///< Details.
+  DETAILS_FOR,      ///< Details For.
+  ERROR_MESSAGE,    ///< Error Message.
+  ERROR_FOR,        ///< Error For.
   MAX_COUNT
 };
 
@@ -83,7 +82,7 @@ enum class RelationType : uint32_t
 enum class CoordType
 {
   SCREEN, ///< Screen.
-  WINDOW ///< Window.
+  WINDOW  ///< Window.
 };
 
 /**
@@ -95,14 +94,14 @@ enum class CoordType
  */
 enum class ComponentLayer
 {
-  INVALID, ///< Invalid.
+  INVALID,    ///< Invalid.
   BACKGROUND, ///< Background.
-  CANVAS, ///< Canvas.
-  WIDGET, ///< Widget.
-  MDI, ///< MDI.
-  POPUP, ///< Popup.
-  OVERLAY, ///< Overlay.
-  WINDOW, ///< Window.
+  CANVAS,     ///< Canvas.
+  WIDGET,     ///< Widget.
+  MDI,        ///< MDI.
+  POPUP,      ///< Popup.
+  OVERLAY,    ///< Overlay.
+  WINDOW,     ///< Window.
   MAX_COUNT
 };
 
@@ -350,9 +349,9 @@ enum class WindowEvent
 enum class TextBoundary : uint32_t
 {
   CHARACTER, ///> Only one character is acquired.
-  WORD, ///> Not supported.
-  SENTENCE, ///> Not supported.
-  LINE, ///> Not supported.
+  WORD,      ///> Not supported.
+  SENTENCE,  ///> Not supported.
+  LINE,      ///> Not supported.
   PARAGRAPH, ///> Not supported.
   MAX_COUNT
 };
@@ -434,10 +433,10 @@ enum class ReadingInfoType
  * @see Dali::Accessibility::Accessible::GetStates
  * @see Dali::Accessibility::Accessible::GetRoles
  */
-template < size_t I, typename S >
+template<size_t I, typename S>
 class BitSets
 {
-  std::array< uint32_t, I > data;
+  std::array<uint32_t, I> data;
 
   void _set()
   {
@@ -448,72 +447,77 @@ class BitSets
     return true;
   }
 
-  template < typename T > static constexpr bool _accepts()
+  template<typename T>
+  static constexpr bool _accepts()
   {
-    return std::is_enum< T >::value;
+    return std::is_enum<T>::value;
   }
 
-  template < typename T, typename T2, typename ... ARGS > static constexpr bool _accepts()
+  template<typename T, typename T2, typename... ARGS>
+  static constexpr bool _accepts()
   {
-    return std::is_enum< T >::value && _accepts< T2, ARGS... >();
+    return std::is_enum<T>::value && _accepts<T2, ARGS...>();
   }
 
-  template < typename T, typename ... ARGS > void _set(T t, ARGS ... args)
+  template<typename T, typename... ARGS>
+  void _set(T t, ARGS... args)
   {
     (*this)[t] = true;
     _set(args...);
   }
+
 public:
   BitSets()
   {
-    for( auto& u : data )
+    for(auto& u : data)
     {
       u = 0;
     }
   }
   BitSets(const BitSets&) = default;
-  BitSets(BitSets&&) = default;
+  BitSets(BitSets&&)      = default;
 
-  template < typename T, typename ... ARGS, typename std::enable_if< _accepts< T, ARGS... >() >::type * = nullptr >BitSets( T t, ARGS ... args )
+  template<typename T, typename... ARGS, typename std::enable_if<_accepts<T, ARGS...>()>::type* = nullptr>
+  BitSets(T t, ARGS... args)
   {
-    for( auto& u : data )
-    u = 0;
-    _set( t, args... );
+    for(auto& u : data)
+      u = 0;
+    _set(t, args...);
   }
 
-  explicit BitSets( std::array< uint32_t, I > d )
+  explicit BitSets(std::array<uint32_t, I> d)
   {
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
       data[i] = d[i];
     }
   }
 
-  explicit BitSets( std::array< int32_t, I > d )
+  explicit BitSets(std::array<int32_t, I> d)
   {
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
-      data[i] = static_cast<uint32_t>( d[i] );
+      data[i] = static_cast<uint32_t>(d[i]);
     }
   }
 
-  BitSets& operator = (const BitSets&) = default;
-  BitSets& operator = (BitSets&&) = default;
+  BitSets& operator=(const BitSets&) = default;
+  BitSets& operator=(BitSets&&) = default;
 
   struct reference
   {
-    std::array< uint32_t, I >& data;
-    size_t pos;
+    std::array<uint32_t, I>& data;
+    size_t                   pos;
 
-    reference& operator=( reference r )
+    reference& operator=(reference r)
     {
-      (*this) = static_cast<bool>( r );
+      (*this) = static_cast<bool>(r);
       return *this;
     }
 
-    reference& operator=( bool v )
+    reference& operator=(bool v)
     {
-      if( v )
+      if(v)
       {
         data[pos / 32] |= 1 << (pos & 31);
       }
@@ -526,62 +530,62 @@ public:
 
     operator bool() const
     {
-      auto i = static_cast<size_t>( pos );
+      auto i = static_cast<size_t>(pos);
       return (data[i / 32] & (1 << (i & 31))) != 0;
     }
   };
 
-  reference operator[]( S index )
+  reference operator[](S index)
   {
-    return { data, static_cast<size_t>( index ) };
+    return {data, static_cast<size_t>(index)};
   }
 
-  bool operator[]( S index ) const
+  bool operator[](S index) const
   {
-    auto i = static_cast<size_t>( index );
-    return ( data[i / 32] & ( 1 << (i & 31) ) ) != 0;
+    auto i = static_cast<size_t>(index);
+    return (data[i / 32] & (1 << (i & 31))) != 0;
   }
 
-  std::array< uint32_t, I > GetRawData() const
+  std::array<uint32_t, I> GetRawData() const
   {
     return data;
   }
 
-  BitSets operator|( BitSets b ) const
+  BitSets operator|(BitSets b) const
   {
     BitSets r;
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
       r.data[i] = data[i] | b.data[i];
     }
     return r;
   }
 
-  BitSets operator^( BitSets b ) const
+  BitSets operator^(BitSets b) const
   {
     BitSets r;
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
       r.data[i] = data[i] ^ b.data[i];
     }
     return r;
   }
 
-  BitSets operator&( BitSets b ) const
+  BitSets operator&(BitSets b) const
   {
     BitSets r;
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
       r.data[i] = data[i] & b.data[i];
     }
     return r;
   }
 
-  bool operator==( BitSets b ) const
+  bool operator==(BitSets b) const
   {
-    for( auto i = 0u; i < I; ++i )
+    for(auto i = 0u; i < I; ++i)
     {
-      if( data[i] != b.data[i] )
+      if(data[i] != b.data[i])
       {
         return false;
       }
@@ -596,9 +600,9 @@ public:
 
   explicit operator bool() const
   {
-    for( auto& u : data )
+    for(auto& u : data)
     {
-      if( u )
+      if(u)
       {
         return true;
       }
@@ -613,8 +617,8 @@ public:
 };
 
 using ReadingInfoTypes = BitSets<1, ReadingInfoType>;
-using States = BitSets< 2, State >;
-using Attributes = std::unordered_map< std::string, std::string >;
+using States           = BitSets<2, State>;
+using Attributes       = std::unordered_map<std::string, std::string>;
 
 /**
  * @brief Class representing unique object address on accessibility bus
@@ -625,7 +629,7 @@ class DALI_ADAPTOR_API Address
 public:
   Address() = default;
 
-  Address( std::string bus, std::string path )
+  Address(std::string bus, std::string path)
   : mBus(std::move(bus)),
     mPath(std::move(path))
   {
@@ -648,12 +652,12 @@ public:
     return mPath;
   }
 
-  bool operator == ( const Address& a ) const
+  bool operator==(const Address& a) const
   {
     return mBus == a.mBus && mPath == a.mPath;
   }
 
-  bool operator != ( const Address& a ) const
+  bool operator!=(const Address& a) const
   {
     return !(*this == a);
   }
@@ -692,7 +696,7 @@ struct DALI_ADAPTOR_API Point
 
   Point() = default;
 
-  Point( int x, int y )
+  Point(int x, int y)
   : x(x),
     y(y)
   {
@@ -713,7 +717,7 @@ struct DALI_ADAPTOR_API Point
 */
 struct DALI_ADAPTOR_API Size
 {
-  int width = 0;
+  int width  = 0;
   int height = 0;
 
   Size() = default;
@@ -724,12 +728,12 @@ struct DALI_ADAPTOR_API Size
   {
   }
 
-  bool operator==( Size p ) const
+  bool operator==(Size p) const
   {
     return width == p.width && height == p.height;
   }
 
-  bool operator!=( Size p ) const
+  bool operator!=(Size p) const
   {
     return !(*this == p);
   }
@@ -742,8 +746,8 @@ struct DALI_ADAPTOR_API Size
  */
 struct DALI_ADAPTOR_API Range
 {
-  int32_t startOffset = 0;
-  int32_t endOffset = 0;
+  int32_t     startOffset = 0;
+  int32_t     endOffset   = 0;
   std::string content;
 
   Range() = default;
@@ -785,13 +789,13 @@ struct DALI_ADAPTOR_API GestureInfo
   {
   }
 
-  Gesture type{};
-  int32_t xBeg{};
-  int32_t xEnd{};
-  int32_t yBeg{};
-  int32_t yEnd{};
+  Gesture      type{};
+  int32_t      xBeg{};
+  int32_t      xEnd{};
+  int32_t      yBeg{};
+  int32_t      yEnd{};
   GestureState state{};
-  uint32_t eventTime{};
+  uint32_t     eventTime{};
 };
 
 /**
@@ -804,14 +808,14 @@ struct DALI_ADAPTOR_API GestureInfo
  */
 struct DALI_ADAPTOR_API Relation
 {
-Relation(RelationType relationType, std::vector<Address> targets)
-: relationType(relationType),
-  targets(targets)
-{
-}
+  Relation(RelationType relationType, std::vector<Address> targets)
+  : relationType(relationType),
+    targets(targets)
+  {
+  }
 
-RelationType relationType;
-std::vector<Address> targets;
+  RelationType         relationType;
+  std::vector<Address> targets;
 };
 
 } // namespace Accessibility

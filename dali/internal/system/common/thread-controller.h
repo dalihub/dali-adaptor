@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,12 @@
 
 namespace Dali
 {
-
 class RenderSurfaceInterface;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 enum class UpdateMode;
 enum class ThreadMode;
 
@@ -46,11 +43,10 @@ class ThreadControllerInterface;
 class ThreadController
 {
 public:
-
   /**
    * Constructor
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode );
+  ThreadController(AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode);
 
   /**
    * Non virtual destructor. Not intended as base class.
@@ -103,20 +99,20 @@ public:
    *
    * @param updateMode The update mode (i.e. either update and render, or update and upload without rendering)
    */
-  void RequestUpdateOnce( UpdateMode updateMode );
+  void RequestUpdateOnce(UpdateMode updateMode);
 
   /**
    * @brief Replaces the surface.
    *
    * @param surface new surface
    */
-  void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
+  void ReplaceSurface(Dali::RenderSurfaceInterface* surface);
 
   /**
    * Deletes the surface.
    * @param surface The surface to be deleted
    */
-  void DeleteSurface( Dali::RenderSurfaceInterface* surface );
+  void DeleteSurface(Dali::RenderSurfaceInterface* surface);
 
   /**
    * Resize the surface.
@@ -131,30 +127,28 @@ public:
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
    */
-  void SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender );
+  void SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender);
 
   /**
    * @copydoc Dali::Adaptor::SetPreRenderCallback
    */
-  void SetPreRenderCallback( CallbackBase* callback );
+  void SetPreRenderCallback(CallbackBase* callback);
 
   /**
    * @brief Adds the new surface.
    *
    * @param surface new surface
    */
-  void AddSurface( Dali::RenderSurfaceInterface* surface );
+  void AddSurface(Dali::RenderSurfaceInterface* surface);
 
 private:
-
   // Undefined copy constructor.
-  ThreadController( const ThreadController& ) = delete;
+  ThreadController(const ThreadController&) = delete;
 
   // Undefined assignment operator.
-  ThreadController& operator=( const ThreadController& ) = delete;
+  ThreadController& operator=(const ThreadController&) = delete;
 
 private:
-
   ThreadControllerInterface* mThreadControllerInterface;
 };
 

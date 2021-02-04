@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  void Create( int width, int height, int argc, char** argv );
+  void Create(int width, int height, int argc, char** argv);
 
   /**
    * @brief Destroys WebEngine instance.
@@ -192,12 +192,12 @@ public:
   /**
    * @brief Scrolls the webpage of view by deltaX and deltaY.
    */
-  void ScrollBy( int deltaX, int deltaY );
+  void ScrollBy(int deltaX, int deltaY);
 
   /**
    * @brief Sets an absolute scroll of the given view.
    */
-  void SetScrollPosition( int x, int y );
+  void SetScrollPosition(int x, int y);
 
   /**
    * @brief Gets the current scroll position of the given view.
@@ -297,19 +297,19 @@ public:
    * @brief Set focus.
    * @param[in] focused True if web view is focused, false otherwise
    */
-  void SetFocus( bool focused );
+  void SetFocus(bool focused);
 
   /**
    * @brief Update display area.
    * @param[in] displayArea The area to display web page.
    */
-  void UpdateDisplayArea( Dali::Rect< int > displayArea );
+  void UpdateDisplayArea(Dali::Rect<int> displayArea);
 
   /**
    * @brief Enable video hole.
    * @param[in] enabled True if video hole is enabled, false otherwise
    */
-  void EnableVideoHole( bool enabled );
+  void EnableVideoHole(bool enabled);
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,18 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/threading/conditional-wait.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
-#include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 class DisplayConnection;
 class EglInterface;
 
@@ -41,14 +40,13 @@ class EglInterface;
 class NativeRenderSurfaceEcoreWl : public Dali::NativeRenderSurface
 {
 public:
-
   /**
     * Uses an Wayland surface to render to.
     * @param [in] surfaceSize the size of the surface
     * @param [in] surface the native surface handle
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  NativeRenderSurfaceEcoreWl( SurfaceSize surfaceSize, Any surface, bool isTransparent = false );
+  NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent = false);
 
   /**
    * @brief Destructor
@@ -56,7 +54,6 @@ public:
   virtual ~NativeRenderSurfaceEcoreWl();
 
 public: // from WindowRenderSurface
-
   /**
    * @copydoc Dali::NativeRenderSurface::GetSurface()
    */
@@ -65,7 +62,7 @@ public: // from WindowRenderSurface
   /**
    * @copydoc Dali::NativeRenderSurface::SetRenderNotification()
    */
-  void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+  void SetRenderNotification(TriggerEventInterface* renderNotification) override;
 
   /**
    * @copydoc Dali::NativeRenderSurface::WaitUntilSurfaceReplaced()
@@ -78,7 +75,6 @@ public: // from WindowRenderSurface
   virtual Any GetNativeRenderable() override;
 
 public: // from Dali::RenderSurfaceInterface
-
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
@@ -87,7 +83,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
-  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetOrientation()
@@ -117,7 +113,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
-  void MoveResize( Dali::PositionSize positionSize) override;
+  void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
@@ -127,12 +123,12 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
@@ -142,7 +138,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )override;
+  void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
@@ -165,7 +161,6 @@ public: // from Dali::RenderSurfaceInterface
   Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
-
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
@@ -182,23 +177,21 @@ private:
   void ReleaseDrawable() override;
 
 private: // Data
+  SurfaceSize                           mSurfaceSize;
+  TriggerEventInterface*                mRenderNotification;
+  Internal::Adaptor::GraphicsInterface* mGraphics; ///< The graphics interface
+  EglInterface*                         mEGL;
+  EGLSurface                            mEGLSurface;
+  EGLContext                            mEGLContext;
+  ColorDepth                            mColorDepth;
+  tbm_format                            mTbmFormat;
+  bool                                  mOwnSurface;
+  bool                                  mDrawableCompleted;
 
-  SurfaceSize                            mSurfaceSize;
-  TriggerEventInterface*                 mRenderNotification;
-  Internal::Adaptor::GraphicsInterface*  mGraphics;                  ///< The graphics interface
-  EglInterface*                          mEGL;
-  EGLSurface                             mEGLSurface;
-  EGLContext                             mEGLContext;
-  ColorDepth                             mColorDepth;
-  tbm_format                             mTbmFormat;
-  bool                                   mOwnSurface;
-  bool                                   mDrawableCompleted;
-
-  tbm_surface_queue_h                    mTbmQueue;
-  tbm_surface_h                          mConsumeSurface;
-  ThreadSynchronizationInterface*        mThreadSynchronization;     ///< A pointer to the thread-synchronization
-  ConditionalWait                        mTbmSurfaceCondition;
-
+  tbm_surface_queue_h             mTbmQueue;
+  tbm_surface_h                   mConsumeSurface;
+  ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
+  ConditionalWait                 mTbmSurfaceCondition;
 };
 
 } // namespace Dali

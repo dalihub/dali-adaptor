@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRIGGER_EVENT_IMPL_H
 
 /*
-* Copyright (c) 2019 Samsung Electronics Co., Ltd.
+* Copyright (c) 2021 Samsung Electronics Co., Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,22 +22,18 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class TriggerEvent : public TriggerEventInterface
 {
 public:
-
   /**
    * Constructor
    * Creates an event file descriptor and starts a GSource which reads from the file
@@ -47,7 +43,7 @@ public:
    * @param[in] options Trigger event options.
    * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options );
+  TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
 
   /**
    * Destructor
@@ -55,7 +51,6 @@ public:
   ~TriggerEvent();
 
 public:
-
   /**
    * Triggers the event.
    *
@@ -64,7 +59,6 @@ public:
   void Trigger();
 
 private:
-
   /**
    * @brief Called when our event file descriptor has been written to.
    * @param[in] eventBitMask bit mask of events that occured on the file descriptor
@@ -72,10 +66,9 @@ private:
   void Triggered();
 
 private:
-
-  CallbackBase* mCallback;
-  CallbackBase* mSelfCallback;
-  int32_t mThreadID;
+  CallbackBase*                  mCallback;
+  CallbackBase*                  mSelfCallback;
+  int32_t                        mThreadID;
   TriggerEventInterface::Options mOptions;
 };
 

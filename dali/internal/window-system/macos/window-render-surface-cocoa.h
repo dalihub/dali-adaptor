@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -33,7 +33,6 @@ namespace Dali::Internal::Adaptor
 class WindowRenderSurfaceCocoa : public WindowRenderSurface
 {
 public:
-
   /**
    * @copydoc Dali::WindowRenderSurface()
    */
@@ -50,8 +49,8 @@ public:
   void CreateSurface() override;
 
 private:
-  std::mutex mCondMutex;
+  std::mutex              mCondMutex;
   std::condition_variable mRenderWait;
-  bool mReady;
+  bool                    mReady;
 };
-} // Dali::Internal::Adaptor
+} // namespace Dali::Internal::Adaptor

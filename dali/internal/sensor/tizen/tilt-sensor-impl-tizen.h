@@ -2,7 +2,7 @@
 #define DALI_SENSOR_TIZEN_TILT_SENSOR_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,30 +24,26 @@
 #define SENSOR_ENABLED
 #endif
 
-#include <deque>
-#include <dali/public-api/object/base-object.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
+#include <dali/public-api/object/base-object.h>
+#include <deque>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/devel-api/adaptor-framework/tilt-sensor.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * TiltSensorTizen provides pitch & roll values when the device is tilted.
  */
 class TiltSensorTizen : public Dali::Internal::Adaptor::TiltSensor
 {
 public:
-
   typedef Dali::TiltSensor::TiltedSignalType TiltedSignalType;
 
   /**
@@ -94,7 +90,7 @@ public:
   /**
    * @copydoc Dali::TiltSensor::SetUpdateFrequency()
    */
-  void SetUpdateFrequency( float frequencyHertz ) override;
+  void SetUpdateFrequency(float frequencyHertz) override;
 
   /**
    * @copydoc Dali::TiltSensor::GetUpdateFrequency()
@@ -120,7 +116,7 @@ public:
    * @return True if the signal was connected.
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
-  static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
+  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor);
 
   /**
    * Update sensor data
@@ -128,12 +124,10 @@ public:
    * @param[in] event sensor event data
    */
 #ifdef SENSOR_ENABLED
-  void Update(sensor_event_s *event);
+  void Update(sensor_event_s* event);
 #endif
 
-
 private:
-
   enum State
   {
     DISCONNECTED,
@@ -172,17 +166,17 @@ private:
   float mFrequencyHertz;
 
 #ifdef SENSOR_ENABLED
-  sensor_type_e mSensorType;
-  sensor_h mSensor;
+  sensor_type_e     mSensorType;
+  sensor_h          mSensor;
   sensor_listener_h mSensorListener;
 #else
-  int mSensorType;
+  int  mSensorType;
   int* mSensor;
   int* mSensorListener;
 #endif
 
-  float mRoll;
-  float mPitch;
+  float      mRoll;
+  float      mPitch;
   Quaternion mRotation;
 
   Radian mRotationThreshold;

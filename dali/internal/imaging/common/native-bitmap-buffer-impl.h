@@ -2,7 +2,7 @@
 #define DALI_NATIVE_BITMAP_BUFFER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@
  */
 
 // EXTERNAL HEADERS
-#include <dali/public-api/images/native-image-interface.h>
-#include <dali/public-api/images/pixel.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/lockless-buffer.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/images/native-image-interface.h>
+#include <dali/public-api/images/pixel.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -31,13 +31,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class NativeBitmapBuffer;
 typedef IntrusivePtr<NativeBitmapBuffer> NativeBitmapBufferPtr;
 
@@ -46,7 +43,6 @@ typedef IntrusivePtr<NativeBitmapBuffer> NativeBitmapBufferPtr;
  */
 class NativeBitmapBuffer : public NativeImageInterface
 {
-
 public:
   /**
    * Constructor.
@@ -55,7 +51,7 @@ public:
    * @param height height of image
    * @param pixelFormat pixel format for image
    */
-  NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pixelFormat );
+  NativeBitmapBuffer(Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pixelFormat);
 
   /**
    * virtual destructor
@@ -68,7 +64,7 @@ public:
    * @param[in] size size of data in bytes
    * @return true if successful, false if currently reading from buffer in render thread
    */
-  void Write( const unsigned char* src, size_t size );
+  void Write(const unsigned char* src, size_t size);
 
 public:
   /**
@@ -131,19 +127,18 @@ public:
    */
   bool SourceChanged() const override;
 
+private:
+  NativeBitmapBuffer(const NativeBitmapBuffer&);            ///< not defined
+  NativeBitmapBuffer& operator=(const NativeBitmapBuffer&); ///< not defined
+  NativeBitmapBuffer();                                     ///< not defined
 
 private:
-  NativeBitmapBuffer( const NativeBitmapBuffer& );             ///< not defined
-  NativeBitmapBuffer& operator =( const NativeBitmapBuffer& ); ///< not defined
-  NativeBitmapBuffer(); ///< not defined
+  Integration::GlAbstraction* mGlAbstraction; ///< GlAbstraction used
 
-private:
-  Integration::GlAbstraction*  mGlAbstraction; ///< GlAbstraction used
-
-  Integration::LocklessBuffer* mBuffer;        ///< bitmap data double buffered
-  unsigned int                 mWidth;         ///< Image width
-  unsigned int                 mHeight;        ///< Image height
-  Pixel::Format                mPixelFormat;   ///< Image pixelformat
+  Integration::LocklessBuffer* mBuffer;         ///< bitmap data double buffered
+  unsigned int                 mWidth;          ///< Image width
+  unsigned int                 mHeight;         ///< Image height
+  Pixel::Format                mPixelFormat;    ///< Image pixelformat
   const unsigned char*         mLastReadBuffer; ///< last buffer that was read
 };
 

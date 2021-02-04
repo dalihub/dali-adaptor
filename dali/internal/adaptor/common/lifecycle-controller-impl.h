@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_LIFECYCLE_CONTROLLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/ref-object.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
@@ -28,22 +28,18 @@
 
 namespace Dali
 {
-
 class Adaptor;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * This provides signals that are emitted according the lifecylce of the program.
  */
 class LifecycleController : public BaseObject, public ConnectionTracker
 {
 public:
-
   // Creation & Destruction
 
   /**
@@ -90,58 +86,55 @@ public:
   Dali::LifecycleController::LifecycleSignalType& LanguageChangedSignal();
 
 public:
-
   /**
    * Called when the framework is initialised.
    *
    * @param[in] app The application instance
    */
-  void OnInit( Dali::Application& app );
+  void OnInit(Dali::Application& app);
 
   /**
    * Called when the framework is terminated.
    *
    * @param[in] app The application instance
    */
-  void OnTerminate( Dali::Application& app );
+  void OnTerminate(Dali::Application& app);
 
   /**
    * Called when the framework is paused.
    *
    * @param[in] app The application instance
    */
-  void OnPause( Dali::Application& app );
+  void OnPause(Dali::Application& app);
 
   /**
    * Called when the framework resumes from a paused state.
    *
    * @param[in] app The application instance
    */
-  void OnResume( Dali::Application& app );
+  void OnResume(Dali::Application& app);
 
   /**
    * Called when the framework informs the application that it should reset itself.
    *
    * @param[in] app The application instance
    */
-  void OnReset( Dali::Application& app );
+  void OnReset(Dali::Application& app);
 
   /**
    * Called when the framework informs the application that the language of the device has changed.
    *
    * @param[in] app The application instance
    */
-  void OnLanguageChanged( Dali::Application& app );
+  void OnLanguageChanged(Dali::Application& app);
 
 protected:
-
   /**
    * Virtual Destructor.
    */
   ~LifecycleController() override;
 
 private:
-
   /**
    * Emit the init signal.
    */
@@ -173,7 +166,6 @@ private:
   void EmitLanguageChangedSignal();
 
 private:
-
   // Signals
   Dali::LifecycleController::LifecycleSignalType mInitSignal;
   Dali::LifecycleController::LifecycleSignalType mTerminateSignal;
@@ -181,7 +173,6 @@ private:
   Dali::LifecycleController::LifecycleSignalType mResumeSignal;
   Dali::LifecycleController::LifecycleSignalType mResetSignal;
   Dali::LifecycleController::LifecycleSignalType mLanguageChangedSignal;
-
 };
 
 } // namespace Adaptor

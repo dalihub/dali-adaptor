@@ -2,7 +2,7 @@
 #define DALI_ECORE_X_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -36,21 +36,19 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Ecore X11 Pixmap implementation of render surface.
  */
 class PixmapRenderSurfaceEcoreX : public PixmapRenderSurface
 {
 public:
-
   /**
     * Uses an X11 surface to render to.
     * @param [in] positionSize the position and size of the surface
     * @param [in] surface can be a X-window or X-pixmap (type must be unsigned int).
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  PixmapRenderSurfaceEcoreX( Dali::PositionSize positionSize, Any surface, bool isTransparent = false );
+  PixmapRenderSurfaceEcoreX(Dali::PositionSize positionSize, Any surface, bool isTransparent = false);
 
   /**
    * @brief Destructor
@@ -58,7 +56,6 @@ public:
   virtual ~PixmapRenderSurfaceEcoreX();
 
 public: // from WindowRenderSurface
-
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::GetSurface()
    */
@@ -67,10 +64,9 @@ public: // from WindowRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::SetRenderNotification()
    */
-  void SetRenderNotification( TriggerEventInterface* renderNotification ) override;
+  void SetRenderNotification(TriggerEventInterface* renderNotification) override;
 
 public: // from Dali::RenderSurfaceInterface
-
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
@@ -79,7 +75,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
-  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
@@ -109,7 +105,9 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
-  virtual void MoveResize( Dali::PositionSize positionSize) override {}
+  virtual void MoveResize(Dali::PositionSize positionSize) override
+  {
+  }
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
@@ -119,12 +117,12 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
@@ -134,7 +132,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+  void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
@@ -147,7 +145,6 @@ public: // from Dali::RenderSurfaceInterface
   void MakeContextCurrent() override;
 
 private: // from PixmapRenderSurface
-
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
    */
@@ -156,7 +153,7 @@ private: // from PixmapRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
    */
-  void Initialize( Any surface ) override;
+  void Initialize(Any surface) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
@@ -166,38 +163,36 @@ private: // from PixmapRenderSurface
   /**
    * @copydoc Dali::Internal::Adaptor::PixmapRenderSurface::Initialize()
    */
-  void UseExistingRenderable( unsigned int surfaceId ) override;
+  void UseExistingRenderable(unsigned int surfaceId) override;
 
 private:
-
   /**
    * Get the surface id if the surface parameter is not empty
    * @param surface Any containing a surface id, or can be empty
    * @return surface id, or zero if surface is empty
    */
-  unsigned int GetSurfaceId( Any surface ) const;
+  unsigned int GetSurfaceId(Any surface) const;
 
 private: // Data
-
-  static const int BUFFER_COUNT = 2;
-  GraphicsInterface*              mGraphics;               ///< Graphics interface
-  Dali::DisplayConnection*        mDisplayConnection;      ///< Display connection
-  PositionSize                    mPosition;               ///< Position
-  TriggerEventInterface*          mRenderNotification;     ///< Render notification trigger
-  ColorDepth                      mColorDepth;             ///< Color depth of surface (32 bit or 24 bit)
-  bool                            mOwnSurface;             ///< Whether we own the surface (responsible for deleting it)
+  static const int         BUFFER_COUNT = 2;
+  GraphicsInterface*       mGraphics;           ///< Graphics interface
+  Dali::DisplayConnection* mDisplayConnection;  ///< Display connection
+  PositionSize             mPosition;           ///< Position
+  TriggerEventInterface*   mRenderNotification; ///< Render notification trigger
+  ColorDepth               mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
+  bool                     mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
 
   int                             mProduceBufferIndex;
   int                             mConsumeBufferIndex;
-  XPixmap                         mX11Pixmaps[BUFFER_COUNT];  ///< X-Pixmap
+  XPixmap                         mX11Pixmaps[BUFFER_COUNT]; ///< X-Pixmap
   EGLSurface                      mEglSurfaces[BUFFER_COUNT];
-  ThreadSynchronizationInterface* mThreadSynchronization;     ///< A pointer to the thread-synchronization
-  ConditionalWait                 mPixmapCondition;           ///< condition to share pixmap
+  ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
+  ConditionalWait                 mPixmapCondition;       ///< condition to share pixmap
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

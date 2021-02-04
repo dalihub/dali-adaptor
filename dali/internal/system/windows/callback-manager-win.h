@@ -2,7 +2,7 @@
 #define DALI_WIN_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 /**
@@ -38,40 +36,40 @@ namespace Adaptor
  */
 class WinCallbackManager : public CallbackManager
 {
-
 public:
-
-     /**
+  /**
      * @brief constructor
      */
-    WinCallbackManager();
+  WinCallbackManager();
 
-    /**
+  /**
      * @brief destructor
      */
-    ~WinCallbackManager(){}
+  ~WinCallbackManager()
+  {
+  }
 
-    /**
+  /**
      * @copydoc CallbackManager::AddIdleCallback()
      */
-    bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue ) override;
+  bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::RemoveIdleCallback()
      */
-    void RemoveIdleCallback( CallbackBase* callback ) override;
+  void RemoveIdleCallback(CallbackBase* callback) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::ProcessIdle()
      */
-    bool ProcessIdle() override;
+  bool ProcessIdle() override;
 
-    /**
+  /**
      * @copydoc CallbackManager::ClearIdleCallbacks()
      */
-    void ClearIdleCallbacks() override;
+  void ClearIdleCallbacks() override;
 
-    /**
+  /**
     * @brief Adds a @p callback to be run when entering an idle state.
     * @note Must be called from the main thread only.
     *
@@ -85,9 +83,9 @@ public:
     *
     * @return true on success
     */
-    bool AddIdleEntererCallback( CallbackBase* callback ) override;
+  bool AddIdleEntererCallback(CallbackBase* callback) override;
 
-    /**
+  /**
     * @brief Removes a previously added the idle enterer callback.
     * @note Must be called from main thread only.
     *
@@ -95,21 +93,21 @@ public:
     *
     * @param[in] callback The callback to be removed.
     */
-    void RemoveIdleEntererCallback( CallbackBase* callback ) override;
+  void RemoveIdleEntererCallback(CallbackBase* callback) override;
 
-    /**
+  /**
      * @copydoc CallbackManager::Start()
      */
-    void Start() override;
+  void Start() override;
 
-    /**
+  /**
      * @copydoc CallbackManager::Stop()
      */
-    void Stop() override;
+  void Stop() override;
 
 private:
-    std::set<CallbackBase*>        mCallbacks;
-    bool                           mRunning;            ///< flag is set to true if when running
+  std::set<CallbackBase*> mCallbacks;
+  bool                    mRunning; ///< flag is set to true if when running
 };
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_WIN_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
-#include <dali/internal/system/common//widget-application-impl.h>
+#include <dali/internal/system/common/widget-application-impl.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
 
 namespace Dali
@@ -29,23 +29,20 @@ class Widget;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Implementation of the WidgetApplicationCocoa class.
  */
 class WidgetApplicationCocoa : public WidgetApplication
 {
 public:
-
   typedef std::pair<
     const std::string,
-    Dali::WidgetApplication::CreateWidgetFunction
-  > CreateWidgetFunctionPair;
+    Dali::WidgetApplication::CreateWidgetFunction>
+    CreateWidgetFunctionPair;
 
-  typedef std::vector< CreateWidgetFunctionPair > CreateWidgetFunctionContainer;
+  typedef std::vector<CreateWidgetFunctionPair> CreateWidgetFunctionContainer;
 
   /**
    * Create a new widget application
@@ -54,30 +51,26 @@ public:
    * @param[in]  stylesheet   The path to user defined theme file
    */
   static WidgetApplicationPtr New(
-    int* argc,
-    char **argv[],
-    const std::string& stylesheet
-  );
+    int*               argc,
+    char**             argv[],
+    const std::string& stylesheet);
 
 public:
-
   /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()
    */
   void RegisterWidgetCreatingFunction(
-    const std::string& widgetName,
-    Dali::WidgetApplication::CreateWidgetFunction createFunction
-  ) override;
+    const std::string&                            widgetName,
+    Dali::WidgetApplication::CreateWidgetFunction createFunction) override;
 
 protected:
-
   /**
    * Private Constructor
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    */
-  WidgetApplicationCocoa( int* argc, char **argv[], const std::string& stylesheet );
+  WidgetApplicationCocoa(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * Destructor

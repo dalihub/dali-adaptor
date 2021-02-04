@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DAMAGE_OBSERVER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 typedef Rect<int> DamageArea;
 
 /**
@@ -39,15 +36,13 @@ typedef Rect<int> DamageArea;
 class DamageObserver
 {
 public:
-
   /**
    * Deriving classes should override this to be notified when we receive a damage event.
    * @param[in]  area  The area that has been damaged.
    */
-  virtual void OnDamaged( const DamageArea& area ) = 0;
+  virtual void OnDamaged(const DamageArea& area) = 0;
 
 protected:
-
   /**
    * Protected Constructor.
    */

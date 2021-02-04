@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_OBJECT_PROFILER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
-#include <cstdint> // uint32_t
-#include <cstddef> // size_t
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#include <cstddef> // size_t
+#include <cstdint> // uint32_t
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/timer.h>
@@ -35,20 +35,18 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Class to profile the number of instances of Objects in the system
  */
 class ObjectProfiler : public ConnectionTracker
 {
 public:
-
   /**
    * Constructor
    * @param objectRegistry The objectRegistry
    * @param timeInterval to specify the frequency of reporting
    */
-  ObjectProfiler( Dali::ObjectRegistry objectRegistry, uint32_t timeInterval );
+  ObjectProfiler(Dali::ObjectRegistry objectRegistry, uint32_t timeInterval);
 
   /**
    * Destructor
@@ -70,32 +68,31 @@ private:
    * Callback used when objects are created. Increases instance count for that object type
    * @param[in] handle of the created object
    */
-  void OnObjectCreated( BaseHandle handle );
+  void OnObjectCreated(BaseHandle handle);
 
   /**
    * Callback used when objects are created. Decreases instance count for that object type
    * @param[in] object The object being destroyed
    */
-  void OnObjectDestroyed( const Dali::RefObject* object );
+  void OnObjectDestroyed(const Dali::RefObject* object);
 
   /**
    * Get the memory size of the given object
    */
-  std::size_t GetMemorySize( const std::string& name, uint32_t count );
+  std::size_t GetMemorySize(const std::string& name, uint32_t count);
 
 private:
+  using InstanceCountPair = std::pair<const std::string, uint32_t>;
+  using InstanceTypePair  = std::pair<BaseObject*, std::string>;
 
-  using InstanceCountPair = std::pair< const std::string, uint32_t >;
-  using InstanceTypePair = std::pair< BaseObject*, std::string >;
-
-  Dali::ObjectRegistry    mObjectRegistry;
-  Dali::Timer             mTimer;
-  std::vector< InstanceCountPair > mInstanceCountContainer;
-  std::vector< InstanceTypePair >  mInstanceTypes;
+  Dali::ObjectRegistry           mObjectRegistry;
+  Dali::Timer                    mTimer;
+  std::vector<InstanceCountPair> mInstanceCountContainer;
+  std::vector<InstanceTypePair>  mInstanceTypes;
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_ADAPTOR_OBJECT_PROFILER_H

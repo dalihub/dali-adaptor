@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_NETWORK_UTILS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,21 +21,18 @@
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 namespace Network
 {
-
 /**
  * @brief Tests if a string starts with either http:// or https://
  * @param[in] path string
  * @return true if the path is a http url
  */
-bool IsHttpUrl( const std::string& path );
+bool IsHttpUrl(const std::string& path);
 
-} // Network
+} // namespace Network
 
 } // namespace TizenPlatform
 

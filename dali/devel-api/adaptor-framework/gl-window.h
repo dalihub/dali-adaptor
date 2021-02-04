@@ -2,7 +2,7 @@
 #define DALI_GL_WINDOW_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
 #include <dali/public-api/math/vector4.h>
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -47,7 +47,7 @@ namespace Adaptor
 {
 class GlWindow;
 }
-}
+} // namespace DALI_INTERNAL
 
 class TouchEvent;
 class KeyEvent;
@@ -63,17 +63,15 @@ class KeyEvent;
 class DALI_ADAPTOR_API GlWindow : public BaseHandle
 {
 public:
+  using WindowSize = Uint16Pair;
 
-  using WindowSize = Uint16Pair ;
-
-  typedef Signal< void ( const KeyEvent& ) >        KeyEventSignalType;           ///< GlWindow Key Event signal type
-  typedef Signal< void ( const TouchEvent& ) >      TouchEventSignalType;         ///< GlWindow Touch Event signal type
-  typedef Signal< void ( GlWindow, bool ) >         FocusChangeSignalType;        ///< GlWindow Focus signal type
-  typedef Signal< void ( WindowSize ) >             ResizeSignalType;             ///< GlWindow resize signal type
-  typedef Signal< void ( GlWindow, bool ) >         VisibilityChangedSignalType;  ///< GlWindow visibility change signal type
+  typedef Signal<void(const KeyEvent&)>   KeyEventSignalType;          ///< GlWindow Key Event signal type
+  typedef Signal<void(const TouchEvent&)> TouchEventSignalType;        ///< GlWindow Touch Event signal type
+  typedef Signal<void(GlWindow, bool)>    FocusChangeSignalType;       ///< GlWindow Focus signal type
+  typedef Signal<void(WindowSize)>        ResizeSignalType;            ///< GlWindow resize signal type
+  typedef Signal<void(GlWindow, bool)>    VisibilityChangedSignalType; ///< GlWindow visibility change signal type
 
 public:
-
   // Enumerations
 
   /**
@@ -85,8 +83,8 @@ public:
    */
   enum class GlesVersion
   {
-    VERSION_2_0 = 0,                    ///< GLES version 2.0
-    VERSION_3_0,                        ///< GLES version 3.0
+    VERSION_2_0 = 0, ///< GLES version 2.0
+    VERSION_3_0,     ///< GLES version 3.0
   };
 
   /**
@@ -99,8 +97,8 @@ public:
    */
   enum class RenderingMode
   {
-    CONTINUOUS,                  ///< continuous mode
-    ON_DEMAND                    ///< on demand by application
+    CONTINUOUS, ///< continuous mode
+    ON_DEMAND   ///< on demand by application
   };
 
   /**
@@ -121,7 +119,7 @@ public:
    * @note This creates an extra GlWindow in addition to the default main GlWindow
    * @return A new GlWindow
    */
-  static GlWindow New( PositionSize positionSize, const std::string& name, const std::string& className, bool isTransparent = false );
+  static GlWindow New(PositionSize positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
    * @brief Creates an uninitialized handle.
@@ -155,7 +153,7 @@ public:
    */
   GlWindow& operator=(const GlWindow& rhs);
 
- /**
+  /**
    * @brief Move constructor.
    *
    * @param[in] rhs A reference to the moved handle
@@ -179,7 +177,7 @@ public:
    * @param[in] version the GLES version
    *
    */
-  void SetEglConfig( bool depth, bool stencil, int msaa, GlesVersion version );
+  void SetEglConfig(bool depth, bool stencil, int msaa, GlesVersion version);
 
   /**
    * @brief Raises GlWindow to the top of GlWindow stack.
@@ -216,7 +214,7 @@ public:
    *
    * @param[in] positionSize The new GlWindow position
    */
-  void SetPositionSize( PositionSize positionSize );
+  void SetPositionSize(PositionSize positionSize);
 
   /**
    * @brief Gets a position of the GlWindow.
@@ -244,7 +242,7 @@ public:
    * @note The window auxiliary hint is the value which is used to decide which actions should be made available to the user by the window manager.
    * If you want to set specific hint to your window, then you should check whether it exists in the supported auxiliary hints.
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const;
 
   /**
    * @brief Creates an auxiliary hint of the window.
@@ -253,7 +251,7 @@ public:
    * @param[in] value The value string.
    * @return The ID of created auxiliary hint, or @c 0 on failure.
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value);
 
   /**
    * @brief Removes an auxiliary hint of the window.
@@ -261,7 +259,7 @@ public:
    * @param[in] id The ID of the auxiliary hint.
    * @return True if no error occurred, false otherwise.
    */
-  bool RemoveAuxiliaryHint( unsigned int id );
+  bool RemoveAuxiliaryHint(unsigned int id);
 
   /**
    * @brief Changes a value of the auxiliary hint.
@@ -270,7 +268,7 @@ public:
    * @param[in] value The value string to be set.
    * @return True if no error occurred, false otherwise.
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value);
 
   /**
    * @brief Gets a value of the auxiliary hint.
@@ -278,7 +276,7 @@ public:
    * @param[in] id The auxiliary hint ID.
    * @return The string value of the auxiliary hint ID, or an empty string if none exists.
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+  std::string GetAuxiliaryHintValue(unsigned int id) const;
 
   /**
    * @brief Gets a ID of the auxiliary hint string.
@@ -286,14 +284,14 @@ public:
    * @param[in] hint The auxiliary hint string.
    * @return The ID of the auxiliary hint string, or @c 0 if none exists.
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const;
 
   /**
    * @brief Sets a region to accept input events.
    *
    * @param[in] inputRegion The region to accept input events.
    */
-  void SetInputRegion( const Rect< int >& inputRegion );
+  void SetInputRegion(const Rect<int>& inputRegion);
 
   /**
    * @brief Sets a transparent window's visual state to opaque.
@@ -304,7 +302,7 @@ public:
    * @remarks This will have no effect on an opaque window.
    * It doesn't change transparent window to opaque window but lets the window manager know the visual state of the window.
    */
-  void SetOpaqueState( bool opaque );
+  void SetOpaqueState(bool opaque);
 
   /**
    * @brief Returns whether a transparent window's visual state is opaque or not.
@@ -319,16 +317,16 @@ public:
    *
    * @return The current GlWindow rotation angle if previously set, or none
    */
-   WindowOrientation GetCurrentOrientation() const;
+  WindowOrientation GetCurrentOrientation() const;
 
-   /**
+  /**
     * @brief Sets available orientations of the window.
     *
     * This API is for setting several orientations one time.
     *
     * @param[in] orientations The available orientations list to add
     */
-   void SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations );
+  void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
   /**
    * @brief Sets a preferred orientation.
@@ -338,7 +336,7 @@ public:
    *
    * @note To unset the preferred orientation, angle should be set NO_ORIENTATION_PREFERENCE.
    */
-  void SetPreferredOrientation( WindowOrientation orientation );
+  void SetPreferredOrientation(WindowOrientation orientation);
 
   /**
    * @brief Registers a GL callback function for application.
@@ -367,7 +365,7 @@ public:
    * @endcode
    * This callback is called when GlWindow is deleted.
    */
-  void RegisterGlCallback( CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback );
+  void RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
 
   /**
    * @brief Renders once more even if GL render functions are not added to idler.
@@ -384,7 +382,7 @@ public:
    * @note The default Rendering mode is continuous.
    * If OnDemand mode is set, it is rendered by RenderOnce()
    */
-  void SetRenderingMode( RenderingMode mode );
+  void SetRenderingMode(RenderingMode mode);
 
   /**
    * @brief Gets rendering mode.
@@ -397,7 +395,6 @@ public:
   RenderingMode GetRenderingMode() const;
 
 public: // Signals
-
   /**
    * @brief The user should connect to this signal to get a timing when GlWindow gains focus or loses focus.
    *
@@ -474,7 +471,7 @@ public: // Not intended for application developers
    * @brief This constructor is used by Dali::Application::GetGlWindow().
    * @param[in] GlWindow A pointer to the GlWindow
    */
-  explicit DALI_INTERNAL GlWindow( Internal::Adaptor::GlWindow* GlWindow );
+  explicit DALI_INTERNAL GlWindow(Internal::Adaptor::GlWindow* GlWindow);
   /// @endcond
 };
 

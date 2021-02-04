@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ANDROID_FRAMEWORK_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /// Android application events
 enum
 {
@@ -67,7 +64,7 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::SetNativeApplication()
    */
-  void SetNativeApplication( android_app* application );
+  void SetNativeApplication(android_app* application);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::GetNativeApplication()
@@ -77,7 +74,7 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::SetJVM()
    */
-  void SetJVM( JavaVM* jvm );
+  void SetJVM(JavaVM* jvm);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::GetJVM()
@@ -87,7 +84,7 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::SetApplicationAssets()
    */
-  void SetApplicationAssets( AAssetManager* assets );
+  void SetApplicationAssets(AAssetManager* assets);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::GetApplicationAssets()
@@ -97,7 +94,7 @@ public:
   /**
    *  copydoc Dali::Integration::AndroidFramework::SetInternalDataPath()
    */
-  void SetInternalDataPath( const std::string& path );
+  void SetInternalDataPath(const std::string& path);
 
   /**
    *  copydoc Dali::Integration::AndroidFramework::GetInternalDataPath()
@@ -107,7 +104,7 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::SetApplicationConfiguration()
    */
-  void SetApplicationConfiguration( AConfiguration* configuration );
+  void SetApplicationConfiguration(AConfiguration* configuration);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::GetApplicationConfiguration()
@@ -117,7 +114,7 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::SetApplicationWindow()
    */
-  void SetApplicationWindow( ANativeWindow* window );
+  void SetApplicationWindow(ANativeWindow* window);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::GetApplicationWindow()
@@ -142,12 +139,12 @@ public:
   /**
    * @copydoc Dali::Integration::AndroidFramework::OnWindowCreated()
    */
-  void OnWindowCreated( ANativeWindow* window );
+  void OnWindowCreated(ANativeWindow* window);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::OnWindowDestroyed()
    */
-  void OnWindowDestroyed( ANativeWindow* window );
+  void OnWindowDestroyed(ANativeWindow* window);
 
   /**
    * @copydoc Dali::Integration::AndroidFramework::Get()
@@ -157,14 +154,20 @@ public:
   /**
    * @brief Sets an internal framework.
    */
-  void SetFramework( Framework* framework ) { mFramework = framework; }
+  void SetFramework(Framework* framework)
+  {
+    mFramework = framework;
+  }
 
   /**
    * @brief Gets an internal framework.
    *
    * @return a pointer to the internal framework
    */
-  Framework* GetFramework() { return mFramework; }
+  Framework* GetFramework()
+  {
+    return mFramework;
+  }
 
   /**
    * Virtual destructor.
@@ -172,33 +175,38 @@ public:
   virtual ~AndroidFramework();
 
   // Not copyable or movable
-  AndroidFramework( const AndroidFramework& ) = delete; ///< Deleted copy constructor
-  AndroidFramework( AndroidFramework&& ) = delete; ///< Deleted move constructor
-  AndroidFramework& operator=( const AndroidFramework& ) = delete; ///< Deleted copy assignment operator
-  AndroidFramework& operator=( AndroidFramework&& ) = delete; ///< Deleted move assignment operator
+  AndroidFramework(const AndroidFramework&) = delete;            ///< Deleted copy constructor
+  AndroidFramework(AndroidFramework&&)      = delete;            ///< Deleted move constructor
+  AndroidFramework& operator=(const AndroidFramework&) = delete; ///< Deleted copy assignment operator
+  AndroidFramework& operator=(AndroidFramework&&) = delete;      ///< Deleted move assignment operator
 
 private:
-  AndroidFramework( Dali::Integration::AndroidFramework* androidFramework );
+  AndroidFramework(Dali::Integration::AndroidFramework* androidFramework);
   Dali::Integration::AndroidFramework* mAndroidFramework;
-  Framework* mFramework;
+  Framework*                           mFramework;
 
-  android_app* mNativeApplication;
-  ANativeWindow* mWindow;
-  AAssetManager* mAssets;
-  std::string mInternalDataPath;
+  android_app*    mNativeApplication;
+  ANativeWindow*  mWindow;
+  AAssetManager*  mAssets;
+  std::string     mInternalDataPath;
   AConfiguration* mConfiguration;
-  JavaVM* mJVM;
+  JavaVM*         mJVM;
 
 public:
-  static AndroidFramework& GetImplementation( Dali::Integration::AndroidFramework& androidFramework ) { return *androidFramework.mImpl; }
-  static Framework& GetFramework( Dali::Integration::AndroidFramework& androidFramework ) { return *androidFramework.mImpl->mFramework; }
+  static AndroidFramework& GetImplementation(Dali::Integration::AndroidFramework& androidFramework)
+  {
+    return *androidFramework.mImpl;
+  }
+  static Framework& GetFramework(Dali::Integration::AndroidFramework& androidFramework)
+  {
+    return *androidFramework.mImpl->mFramework;
+  }
 };
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 
 #endif // DALI_INTEGRATION_ANDROID_FRAMEWORK_IMPL_H
-

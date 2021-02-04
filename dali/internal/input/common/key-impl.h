@@ -2,7 +2,7 @@
 #define DALI_KEY_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,58 +19,54 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/key.h>
-#include <dali/devel-api/adaptor-framework/key-extension-plugin.h>
 #include <dali/devel-api/adaptor-framework/key-devel.h>
+#include <dali/devel-api/adaptor-framework/key-extension-plugin.h>
+#include <dali/public-api/adaptor-framework/key.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Implementation of the Key matching
  */
 namespace KeyLookup
 {
-
 struct KeyLookup
 {
-  const char* keyName;          ///< XF86 key name
+  const char*     keyName;      ///< XF86 key name
   const Dali::KEY daliKeyCode;  ///< Dali key code
-  const bool  deviceButton;     ///< Whether the key is from a button on the device
+  const bool      deviceButton; ///< Whether the key is from a button on the device
 };
 
-extern KeyLookup KeyLookupTable[];
+extern KeyLookup         KeyLookupTable[];
 extern const std::size_t KEY_LOOKUP_COUNT;
 
 /**
  * @copydoc Dali::IsKey()
  */
-bool IsKey( const Dali::KeyEvent& keyEvent, Dali::KEY daliKey );
+bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey);
 
 /**
  * Check if a the given key name string is a button on the device itself.
  * @param keyName A pointer to the key name
  * @return true if the key is matched, false if not
  */
-bool IsDeviceButton( const char* keyName );
+bool IsDeviceButton(const char* keyName);
 
 /**
  * Get a key name from a dali key code.
  * @param daliKey The dali key code
  * @return The key name. NULL if the daliKey does not exist in the supported key lookup table.
  */
-const char* GetKeyName( Dali::KEY daliKey );
+const char* GetKeyName(Dali::KEY daliKey);
 
 /**
  * @copydoc Dali::DevelKey::GetDaliKeyCode()
  */
-int GetDaliKeyCode( const char* keyName );
+int GetDaliKeyCode(const char* keyName);
 
 } // namespace KeyLookup
 

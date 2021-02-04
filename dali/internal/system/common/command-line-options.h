@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMMAND_LINE_OPTIONS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,18 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <cstdint> // int32_t
+#include <string>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Parses the passed command line arguments and sets the values stored within this
  * class appropriately.
@@ -49,24 +46,22 @@ namespace Adaptor
 struct CommandLineOptions
 {
 public:
-
   /**
    * Constructor
    * @param[in,out]  argc  The number of arguments
    * @param[in,out]  argv  The argument list
    * @note Supported options are stripped from argv, and argc is updated appropriately.
    */
-  CommandLineOptions( int32_t *argc, char **argv[] );
+  CommandLineOptions(int32_t* argc, char** argv[]);
 
   /**
    * Destructor
    */
   ~CommandLineOptions();
 
-public: // Command line parsed values
-
-  int32_t stageWidth;      ///< The width of the stage required.  0 if not set.
-  int32_t stageHeight;     ///< The height of the stage required.   0 if not set.
+public:                    // Command line parsed values
+  int32_t     stageWidth;  ///< The width of the stage required.  0 if not set.
+  int32_t     stageHeight; ///< The height of the stage required.   0 if not set.
   std::string stageDPI;    ///< DPI stored as hxv, where h is horizontal DPI and v is vertical DPI
 };
 

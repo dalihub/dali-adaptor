@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_IMAGE_LOADER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/images/image-operations.h>
-#include <dali/integration-api/resource-types.h>
-#include <dali/integration-api/bitmap.h>
-#include <dali/public-api/images/pixel-data.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/bitmap.h>
+#include <dali/integration-api/resource-types.h>
+#include <dali/public-api/images/image-operations.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <string>
 
 namespace Dali
@@ -30,7 +30,7 @@ namespace Dali
 namespace Integration
 {
 typedef IntrusivePtr<Dali::RefObject> ResourcePointer;
-} // Integration
+} // namespace Integration
 
 namespace TizenPlatform
 {
@@ -44,7 +44,7 @@ namespace ImageLoader
  * @param[out] bitmap Pointer to write bitmap to
  * @return true on success, false on failure
  */
-bool ConvertStreamToBitmap( const Integration::BitmapResourceType& resource, std::string path, FILE * const fp, Dali::Devel::PixelBuffer& pixelBuffer );
+bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, std::string path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
 
 /**
  * Convert a bitmap and write to a file stream.
@@ -53,7 +53,7 @@ bool ConvertStreamToBitmap( const Integration::BitmapResourceType& resource, std
  * @param[out] pixelData Reference to PixelData object.
  * @return true on success, false on failure
  */
-bool ConvertBitmapToStream( std::string path, FILE * const fp, Dali::Devel::PixelBuffer& pixelBuffer );
+bool ConvertBitmapToStream(std::string path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
 
 /**
  * Loads an image synchronously
@@ -61,32 +61,32 @@ bool ConvertBitmapToStream( std::string path, FILE * const fp, Dali::Devel::Pixe
  * @param path to the image
  * @return bitmap
  */
-Integration::ResourcePointer LoadImageSynchronously( const Integration::BitmapResourceType& resource, const std::string& path );
+Integration::ResourcePointer LoadImageSynchronously(const Integration::BitmapResourceType& resource, const std::string& path);
 
 /**
  * @returns the closest image size
  */
-ImageDimensions  GetClosestImageSize( const std::string& filename,
-                          ImageDimensions size,
-                          FittingMode::Type fittingMode,
-                          SamplingMode::Type samplingMode,
-                          bool orientationCorrection );
+ImageDimensions GetClosestImageSize(const std::string& filename,
+                                    ImageDimensions    size,
+                                    FittingMode::Type  fittingMode,
+                                    SamplingMode::Type samplingMode,
+                                    bool               orientationCorrection);
 
 /**
  * @returns the closest image size
  */
-ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                          ImageDimensions size,
-                          FittingMode::Type fittingMode,
-                          SamplingMode::Type samplingMode,
-                          bool orientationCorrection );
+ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
+                                    ImageDimensions              size,
+                                    FittingMode::Type            fittingMode,
+                                    SamplingMode::Type           samplingMode,
+                                    bool                         orientationCorrection);
 
 /**
  * @brief Set the maximum texture size. Then size can be kwown by GL_MAX_TEXTURE_SIZE.
  *
  * @param [in] size The maximum texture size to set
  */
-void SetMaxTextureSize( unsigned int size );
+void SetMaxTextureSize(unsigned int size);
 
 /**
  * @brief Get the maximum texture size.
@@ -102,8 +102,8 @@ unsigned int GetMaxTextureSize();
  */
 bool MaxTextureSizeUpdated();
 
-} // ImageLoader
-} // TizenPlatform
-} // Dali
+} // namespace ImageLoader
+} // namespace TizenPlatform
+} // namespace Dali
 
 #endif // DALI_TIZEN_PLATFORM_IMAGE_LOADER_H

@@ -1,7 +1,7 @@
 #ifndef DALI_INTERNAL_ADAPTOR_SOCKET_FACTORY_H
 #define DALI_INTERNAL_ADAPTOR_SOCKET_FACTORY_H
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,25 +21,20 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief concrete implementation of the socket factory interface
  */
 class SocketFactory : public SocketFactoryInterface
 {
 public:
-
-
   /**
    * @brief Constructor
    */
-  SocketFactory( )
+  SocketFactory()
   {
   }
 
@@ -53,19 +48,18 @@ public:
   /**
    * @copydoc SocketFactoryInterface::NewSocket()
    */
-  SocketInterface* NewSocket( SocketInterface::Protocol protocol  ) override;
+  SocketInterface* NewSocket(SocketInterface::Protocol protocol) override;
 
   /**
    * @copydoc SocketFactoryInterface::DestroySocket()
    */
-  void DestroySocket( SocketInterface* socket  ) override;
-
+  void DestroySocket(SocketInterface* socket) override;
 };
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_INTERNAL_ADAPTOR_SOCKET_FACTORY_H

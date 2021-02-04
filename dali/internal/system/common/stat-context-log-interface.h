@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_STATISTICS_STAT_CONTEXT_LOG_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,23 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief  Abstract interface used to log statistics data
  */
 class StatContextLogInterface
 {
 public:
-
   /**
    * @brief Used to log statistics out
    * @param[in] text log the text
    */
-  virtual void LogContextStatistics( const char* const text) = 0;
-
+  virtual void LogContextStatistics(const char* const text) = 0;
 
 protected:
-
   /**
    * @brief  Constructor
    */
@@ -58,19 +52,16 @@ protected:
   }
 
 private:
-
   // Undefined copy constructor.
-  StatContextLogInterface( const StatContextLogInterface& );
+  StatContextLogInterface(const StatContextLogInterface&);
 
   // Undefined assignment operator.
-  StatContextLogInterface& operator=( const StatContextLogInterface& );
-
+  StatContextLogInterface& operator=(const StatContextLogInterface&);
 };
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
 

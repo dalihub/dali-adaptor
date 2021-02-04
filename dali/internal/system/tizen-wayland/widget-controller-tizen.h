@@ -2,7 +2,7 @@
 #define DALI_WIDGET_CONTROLLER_TIZEN_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,29 +23,25 @@
 #include <widget_base.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/internal/system/common/widget-controller.h>
+#include <dali/public-api/adaptor-framework/widget-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief Holds the Implementation for the internal WidgetImpl class
  */
 class WidgetImplTizen : public Widget::Impl
 {
 public:
-
   /**
    * Constructor
    */
-  WidgetImplTizen( widget_base_instance_h instanceHandle );
+  WidgetImplTizen(widget_base_instance_h instanceHandle);
 
   /**
    * Destructor
@@ -53,14 +49,12 @@ public:
   ~WidgetImplTizen() override;
 
 public:
-
   /**
    * Set content information to widget framework
    */
-  void SetContentInfo( const std::string& contentInfo ) override;
+  void SetContentInfo(const std::string& contentInfo) override;
 
 private:
-
   widget_base_instance_h mInstanceHandle;
 };
 
