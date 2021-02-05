@@ -311,6 +311,9 @@ public: // Signals
     return mLowMemorySignal;
   }
 
+  // Temporary to test GFXApi
+  Graphics::Controller& GetController();
+
 protected:
   /**
    * Private Constructor

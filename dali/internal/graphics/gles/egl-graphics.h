@@ -22,8 +22,8 @@
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-context-helper-implementation.h>
-#include <dali/internal/graphics/gles/egl-graphics-controller.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
