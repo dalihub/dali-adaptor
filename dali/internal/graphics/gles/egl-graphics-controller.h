@@ -143,7 +143,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateBuffer()
    */
-  std::unique_ptr<Buffer> CreateBuffer(const BufferCreateInfo& bufferCreateInfo, std::unique_ptr<Buffer>&& oldBuffer) override
+  Graphics::UniquePtr<Buffer> CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer) override
   {
     return nullptr;
   }
@@ -151,7 +151,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateCommandBuffer()
    */
-  std::unique_ptr<CommandBuffer> CreateCommandBuffer(const CommandBufferCreateInfo& commandBufferCreateInfo, std::unique_ptr<CommandBuffer>&& oldCommandBuffer) override
+  Graphics::UniquePtr<CommandBuffer> CreateCommandBuffer(const CommandBufferCreateInfo& commandBufferCreateInfo, Graphics::UniquePtr<CommandBuffer>&& oldCommandBuffer) override
   {
     return nullptr;
   }
@@ -159,7 +159,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderPass()
    */
-  std::unique_ptr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, std::unique_ptr<RenderPass>&& oldRenderPass) override
+  Graphics::UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass) override
   {
     return nullptr;
   }
@@ -167,7 +167,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateTexture()
    */
-  std::unique_ptr<Texture> CreateTexture(const TextureCreateInfo& textureCreateInfo, std::unique_ptr<Texture>&& oldTexture) override
+  Graphics::UniquePtr<Texture> CreateTexture(const TextureCreateInfo& textureCreateInfo, Graphics::UniquePtr<Texture>&& oldTexture) override
   {
     return nullptr;
   }
@@ -175,7 +175,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateFramebuffer()
    */
-  std::unique_ptr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, std::unique_ptr<Framebuffer>&& oldFramebuffer) override
+  Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override
   {
     return nullptr;
   }
@@ -183,7 +183,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreatePipeline()
    */
-  std::unique_ptr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, std::unique_ptr<Pipeline>&& oldPipeline) override
+  Graphics::UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline) override
   {
     return nullptr;
   }
@@ -191,7 +191,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateShader()
    */
-  std::unique_ptr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, std::unique_ptr<Shader>&& oldShader) override
+  Graphics::UniquePtr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader) override
   {
     return nullptr;
   }
@@ -199,7 +199,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateSampler()
    */
-  std::unique_ptr<Sampler> CreateSampler(const SamplerCreateInfo& samplerCreateInfo, std::unique_ptr<Sampler>&& oldSampler) override
+  Graphics::UniquePtr<Sampler> CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler) override
   {
     return nullptr;
   }
@@ -207,7 +207,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderTarget()
    */
-  std::unique_ptr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, std::unique_ptr<RenderTarget>&& oldRenderTarget) override
+  Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override
   {
     return nullptr;
   }
@@ -215,7 +215,7 @@ public:
   /**
    * @copydoc Dali::Graphics::MapBufferRange()
    */
-  std::unique_ptr<Memory> MapBufferRange(const MapBufferInfo& mapInfo) override
+  Graphics::UniquePtr<Memory> MapBufferRange(const MapBufferInfo& mapInfo) override
   {
     return nullptr;
   }
@@ -223,7 +223,7 @@ public:
   /**
    * @copydoc Dali::Graphics::MapTextureRange()
    */
-  std::unique_ptr<Memory> MapTextureRange(const MapTextureInfo& mapInfo) override
+  Graphics::UniquePtr<Memory> MapTextureRange(const MapTextureInfo& mapInfo) override
   {
     return nullptr;
   }
@@ -231,7 +231,7 @@ public:
   /**
    * @copydoc Dali::Graphics::UnmapMemory()
    */
-  void UnmapMemory(std::unique_ptr<Memory> memory) override
+  void UnmapMemory(Graphics::UniquePtr<Memory> memory) override
   {
   }
   /**
