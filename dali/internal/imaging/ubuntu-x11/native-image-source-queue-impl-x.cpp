@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,39 +23,36 @@
 #include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-#define TBM_SURFACE_QUEUE_SIZE  3
+#define TBM_SURFACE_QUEUE_SIZE 3
 
 const char* FRAGMENT_PREFIX = "\n";
-const char* SAMPLER_TYPE = "sampler2D";
+const char* SAMPLER_TYPE    = "sampler2D";
 
-}
+} // namespace
 
-NativeImageSourceQueueX* NativeImageSourceQueueX::New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueX* image = new NativeImageSourceQueueX( width, height, depth, nativeImageSourceQueue );
+  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, depth, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueX::NativeImageSourceQueueX( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
-: mWidth( width ),
-  mHeight( height )
+NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+: mWidth(width),
+  mHeight(height)
 {
-  DALI_LOG_ERROR( "NativeImageSourceQueueX::NativeImageSourceQueueX: Not supported\n" );
+  DALI_LOG_ERROR("NativeImageSourceQueueX::NativeImageSourceQueueX: Not supported\n");
 }
 
 NativeImageSourceQueueX::~NativeImageSourceQueueX()
@@ -67,9 +64,9 @@ Any NativeImageSourceQueueX::GetNativeImageSourceQueue() const
   return Any();
 }
 
-void NativeImageSourceQueueX::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueueX::SetSize(uint32_t width, uint32_t height)
 {
-  mWidth = width;
+  mWidth  = width;
   mHeight = height;
 }
 
@@ -122,6 +119,6 @@ bool NativeImageSourceQueueX::SourceChanged() const
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

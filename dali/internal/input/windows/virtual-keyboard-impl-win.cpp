@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace VirtualKeyboard
 {
 void Show()
@@ -35,7 +32,6 @@ void Show()
 
 void Hide()
 {
-
 }
 
 bool IsVisible()
@@ -43,14 +39,12 @@ bool IsVisible()
   return false;
 }
 
-void ApplySettings( const Property::Map& settingsMap )
+void ApplySettings(const Property::Map& settingsMap)
 {
-
 }
 
-void EnablePrediction( const bool enable )
+void EnablePrediction(const bool enable)
 {
-
 }
 
 bool IsPredictionEnabled()
@@ -91,7 +85,7 @@ void RotateTo(int angle)
 {
 }
 
-void SetReturnKeyType( const InputMethod::ButtonAction::Type type )
+void SetReturnKeyType(const InputMethod::ButtonAction::Type type)
 {
 }
 

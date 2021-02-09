@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_X_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,19 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class EglGraphics;
 class EglImageExtensions;
 
 /**
  * Dali internal NativeImageSourceQueue.
  */
-class NativeImageSourceQueueX: public Internal::Adaptor::NativeImageSourceQueue
+class NativeImageSourceQueueX : public Internal::Adaptor::NativeImageSourceQueue
 {
 public:
-
   /**
    * Create a new NativeImageSourceQueueX internally.
    * Depending on hardware the width and height may have to be a power of two.
@@ -51,7 +47,7 @@ public:
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueX* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueueX* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -61,7 +57,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  void SetSize( uint32_t width, uint32_t height ) override;
+  void SetSize(uint32_t width, uint32_t height) override;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::IgnoreSourceImage
@@ -151,7 +147,6 @@ public:
   }
 
 private:
-
   /**
    * Private constructor; @see NativeImageSourceQueue::New()
    * @param[in] width The width of the image.
@@ -159,13 +154,11 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueX( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
 
 private:
-
-  uint32_t    mWidth;                ///< image width
-  uint32_t    mHeight;               ///< image height
-
+  uint32_t mWidth;  ///< image width
+  uint32_t mHeight; ///< image height
 };
 
 } // namespace Adaptor

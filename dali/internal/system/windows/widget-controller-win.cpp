@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 WidgetImplWin::WidgetImplWin()
 {
 }
@@ -35,7 +32,7 @@ WidgetImplWin::~WidgetImplWin()
 {
 }
 
-void WidgetImplWin::SetContentInfo( const std::string& contentInfo )
+void WidgetImplWin::SetContentInfo(const std::string& contentInfo)
 {
 }
 

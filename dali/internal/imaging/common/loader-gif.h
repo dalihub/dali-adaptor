@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_LOADER_GIF_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-#include <cstdio>
 #include <dali/devel-api/adaptor-framework/image-loader-input.h>
+#include <cstdio>
 
 namespace Dali
 {
@@ -28,10 +28,8 @@ namespace Devel
 class PixelBuffer;
 }
 
-
 namespace TizenPlatform
 {
-
 class ResourceLoadingClient;
 
 namespace Gif
@@ -48,7 +46,7 @@ const unsigned char MAGIC_BYTE_2 = 0x49;
  * @param[out] bitmap The bitmap class where the decoded image will be stored
  * @return  true if file decoded successfully, false otherwise
  */
-bool LoadBitmapFromGif( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap );
+bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap);
 
 /**
  * Loads the header of a GIF file and fills in the width and height appropriately.
@@ -58,7 +56,7 @@ bool LoadBitmapFromGif( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
  * @param[in/out]  height  Is set with the height of the image
  * @return true if the file's header was read successully, false otherwise
  */
-bool LoadGifHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height );
+bool LoadGifHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height);
 
 } // namespace TizenPlatform
 

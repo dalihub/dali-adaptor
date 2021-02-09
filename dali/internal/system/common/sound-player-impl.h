@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_SOUND_PLAYER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/object/base-object.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/sound-player.h>
@@ -28,21 +28,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Plays haptic effects.
  */
 class SoundPlayer : public Dali::BaseObject
 {
-
 public:
-
   typedef Dali::SoundPlayer::SoundPlayFinishedSignalType SoundPlayFinishedSignalType;
 
   /**
@@ -81,10 +76,9 @@ public:
    * @return True if the signal was connected.
    * @post If a signal was connected, ownership of functor was passed to CallbackBase. Otherwise the caller is responsible for deleting the unused functor.
    */
-  static bool DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor );
+  static bool DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor);
 
 private:
-
   /**
    * Private Constructor; see also soundPlayer::New()
    * @param[in]  soundPlayer  The public sound player class
@@ -108,8 +102,7 @@ private:
   SoundPlayer& operator=(SoundPlayer&);
 
 private:
-
-  FeedbackPluginProxy mPlugin;
+  FeedbackPluginProxy         mPlugin;
   SoundPlayFinishedSignalType mSoundPlayFinishedSignal;
 };
 
@@ -117,12 +110,11 @@ private:
 
 } // namespace Internal
 
-
 // Helpers for public-api forwarding methods
 
 inline Internal::Adaptor::SoundPlayer& GetImplementation(Dali::SoundPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "SoundPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "SoundPlayer handle is empty");
 
   BaseObject& handle = player.GetBaseObject();
 
@@ -131,7 +123,7 @@ inline Internal::Adaptor::SoundPlayer& GetImplementation(Dali::SoundPlayer& play
 
 inline const Internal::Adaptor::SoundPlayer& GetImplementation(const Dali::SoundPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "SoundPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "SoundPlayer handle is empty");
 
   const BaseObject& handle = player.GetBaseObject();
 

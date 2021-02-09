@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,74 +32,74 @@ BridgeComponent::BridgeComponent()
 void BridgeComponent::RegisterInterfaces()
 {
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceComponent};
-  AddFunctionToInterface( desc, "Contains", &BridgeComponent::Contains );
-  AddFunctionToInterface( desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint );
-  AddFunctionToInterface( desc, "GetExtents", &BridgeComponent::GetExtents );
-  AddFunctionToInterface( desc, "GetPosition", &BridgeComponent::GetPosition );
-  AddFunctionToInterface( desc, "GetSize", &BridgeComponent::GetSize );
-  AddFunctionToInterface( desc, "GetLayer", &BridgeComponent::GetLayer );
-  AddFunctionToInterface( desc, "GetAlpha", &BridgeComponent::GetAlpha );
-  AddFunctionToInterface( desc, "GetMDIZOrder", &BridgeComponent::GetMdiZOrder );
-  AddFunctionToInterface( desc, "GrabHighlight", &BridgeComponent::GrabHighlight );
-  AddFunctionToInterface( desc, "GrabFocus", &BridgeComponent::GrabFocus );
-  AddFunctionToInterface( desc, "ClearHighlight", &BridgeComponent::ClearHighlight );
-  dbusServer.addInterface( "/", desc, true );
+  AddFunctionToInterface(desc, "Contains", &BridgeComponent::Contains);
+  AddFunctionToInterface(desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint);
+  AddFunctionToInterface(desc, "GetExtents", &BridgeComponent::GetExtents);
+  AddFunctionToInterface(desc, "GetPosition", &BridgeComponent::GetPosition);
+  AddFunctionToInterface(desc, "GetSize", &BridgeComponent::GetSize);
+  AddFunctionToInterface(desc, "GetLayer", &BridgeComponent::GetLayer);
+  AddFunctionToInterface(desc, "GetAlpha", &BridgeComponent::GetAlpha);
+  AddFunctionToInterface(desc, "GetMDIZOrder", &BridgeComponent::GetMdiZOrder);
+  AddFunctionToInterface(desc, "GrabHighlight", &BridgeComponent::GrabHighlight);
+  AddFunctionToInterface(desc, "GrabFocus", &BridgeComponent::GrabFocus);
+  AddFunctionToInterface(desc, "ClearHighlight", &BridgeComponent::ClearHighlight);
+  dbusServer.addInterface("/", desc, true);
 }
 
 Component* BridgeComponent::FindSelf() const
 {
   auto s = BridgeBase::FindSelf();
-  assert( s );
-  auto s2 = dynamic_cast< Component* >( s );
-  if( !s2 )
+  assert(s);
+  auto s2 = dynamic_cast<Component*>(s);
+  if(!s2)
     throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Component interface"};
   return s2;
 }
 
-DBus::ValueOrError< bool > BridgeComponent::Contains( int32_t x, int32_t y, uint32_t coordType )
+DBus::ValueOrError<bool> BridgeComponent::Contains(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->Contains( {x, y}, static_cast< CoordType >( coordType ) );
+  return FindSelf()->Contains({x, y}, static_cast<CoordType>(coordType));
 }
-DBus::ValueOrError< Accessible* > BridgeComponent::GetAccessibleAtPoint( int32_t x, int32_t y, uint32_t coordType )
+DBus::ValueOrError<Accessible*> BridgeComponent::GetAccessibleAtPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->GetAccessibleAtPoint( {x, y}, static_cast< CoordType >( coordType ) );
+  return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<CoordType>(coordType));
 }
-DBus::ValueOrError< std::tuple< int32_t, int32_t, int32_t, int32_t > > BridgeComponent::GetExtents( uint32_t coordType )
+DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeComponent::GetExtents(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents( static_cast< CoordType >( coordType ) );
-  return std::tuple< int32_t, int32_t, int32_t, int32_t >{p.x, p.y, p.width, p.height};
+  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  return std::tuple<int32_t, int32_t, int32_t, int32_t>{p.x, p.y, p.width, p.height};
 }
-DBus::ValueOrError< int32_t, int32_t > BridgeComponent::GetPosition( uint32_t coordType )
+DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents( static_cast< CoordType >( coordType ) );
-  return { static_cast<int32_t>(p.x), static_cast<int32_t>(p.y) };
+  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  return {static_cast<int32_t>(p.x), static_cast<int32_t>(p.y)};
 }
-DBus::ValueOrError< int32_t, int32_t > BridgeComponent::GetSize( uint32_t coordType )
+DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetSize(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents( static_cast< CoordType >( coordType ) );
-  return { static_cast<int32_t>(p.width), static_cast<int32_t>(p.height) };
+  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  return {static_cast<int32_t>(p.width), static_cast<int32_t>(p.height)};
 }
-DBus::ValueOrError< ComponentLayer > BridgeComponent::GetLayer()
+DBus::ValueOrError<ComponentLayer> BridgeComponent::GetLayer()
 {
   return FindSelf()->GetLayer();
 }
-DBus::ValueOrError< double > BridgeComponent::GetAlpha()
+DBus::ValueOrError<double> BridgeComponent::GetAlpha()
 {
   return FindSelf()->GetAlpha();
 }
-DBus::ValueOrError< bool > BridgeComponent::GrabFocus()
+DBus::ValueOrError<bool> BridgeComponent::GrabFocus()
 {
   return FindSelf()->GrabFocus();
 }
-DBus::ValueOrError< bool > BridgeComponent::GrabHighlight()
+DBus::ValueOrError<bool> BridgeComponent::GrabHighlight()
 {
   return FindSelf()->GrabHighlight();
 }
-DBus::ValueOrError< bool > BridgeComponent::ClearHighlight()
+DBus::ValueOrError<bool> BridgeComponent::ClearHighlight()
 {
   return FindSelf()->ClearHighlight();
 }
-DBus::ValueOrError< int16_t > BridgeComponent::GetMdiZOrder()
+DBus::ValueOrError<int16_t> BridgeComponent::GetMdiZOrder()
 {
   return FindSelf()->GetMdiZOrder();
 }

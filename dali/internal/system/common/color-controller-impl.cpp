@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,43 +19,40 @@
 #include <dali/internal/system/common/color-controller-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/type-registry.h>
-#include <dali/devel-api/common/singleton-service.h>
+#include <dlfcn.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-const char* COLOR_CONTROLLER_PLUGIN_SO( "libdali2-color-controller-plugin.so" );
+const char* COLOR_CONTROLLER_PLUGIN_SO("libdali2-color-controller-plugin.so");
 }
 
 Dali::ColorController ColorController::Get()
 {
   Dali::ColorController colorController;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::ColorController ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::ColorController));
     if(handle)
     {
       // If so, downcast the handle
-      colorController = Dali::ColorController( dynamic_cast< ColorController* >( handle.GetObjectPtr() ) );
+      colorController = Dali::ColorController(dynamic_cast<ColorController*>(handle.GetObjectPtr()));
     }
     else
     {
-      colorController = Dali::ColorController( new ColorController( ) );
-      service.Register( typeid( colorController ), colorController );
+      colorController = Dali::ColorController(new ColorController());
+      service.Register(typeid(colorController), colorController);
     }
   }
 
@@ -63,70 +60,70 @@ Dali::ColorController ColorController::Get()
 }
 
 ColorController::ColorController()
-: mLibHandle( NULL ),
-  mPlugin( NULL ),
-  mCreateColorControllerPtr( NULL )
+: mLibHandle(NULL),
+  mPlugin(NULL),
+  mCreateColorControllerPtr(NULL)
 {
   Initialize();
 }
 
 ColorController::~ColorController()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     delete mPlugin;
     mPlugin = NULL;
 
-    if( mLibHandle && dlclose( mLibHandle ) )
+    if(mLibHandle && dlclose(mLibHandle))
     {
-      DALI_LOG_ERROR( "Error closing color controller plugin library: %s\n", dlerror() );
+      DALI_LOG_ERROR("Error closing color controller plugin library: %s\n", dlerror());
     }
   }
 }
 
 void ColorController::Initialize()
 {
-  mLibHandle = dlopen( COLOR_CONTROLLER_PLUGIN_SO, RTLD_LAZY );
+  mLibHandle = dlopen(COLOR_CONTROLLER_PLUGIN_SO, RTLD_LAZY);
 
   char* error = dlerror();
-  if( mLibHandle == NULL || error != NULL )
+  if(mLibHandle == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "ColorController::Initialize: dlopen error [%s]\n", error );
+    DALI_LOG_ERROR("ColorController::Initialize: dlopen error [%s]\n", error);
     return;
   }
 
   // load plugin
-  mCreateColorControllerPtr = reinterpret_cast< CreateColorControllerFunction >( dlsym( mLibHandle, "CreateColorControllerPlugin" ) );
+  mCreateColorControllerPtr = reinterpret_cast<CreateColorControllerFunction>(dlsym(mLibHandle, "CreateColorControllerPlugin"));
 
   error = dlerror();
-  if( mCreateColorControllerPtr == NULL || error != NULL )
+  if(mCreateColorControllerPtr == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "ColorController::Initialize: Cannot load symbol CreateColorControllerPlugin(): %s\n", error );
+    DALI_LOG_ERROR("ColorController::Initialize: Cannot load symbol CreateColorControllerPlugin(): %s\n", error);
     return;
   }
 
   mPlugin = mCreateColorControllerPtr();
-  if( !mPlugin )
+  if(!mPlugin)
   {
     DALI_LOG_ERROR("ColorController::Initialize: Plugin creation failed\n");
     return;
   }
 }
 
-bool ColorController::RetrieveColor( const std::string& colorCode, Vector4& colorValue )
+bool ColorController::RetrieveColor(const std::string& colorCode, Vector4& colorValue)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    return mPlugin->RetrieveColor( colorCode, colorValue );
+    return mPlugin->RetrieveColor(colorCode, colorValue);
   }
   return false;
 }
 
-bool ColorController::RetrieveColor( const std::string& colorCode , Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
+bool ColorController::RetrieveColor(const std::string& colorCode, Vector4& textColor, Vector4& textOutlineColor, Vector4& textShadowColor)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    return mPlugin->RetrieveColor( colorCode, textColor, textOutlineColor, textShadowColor );
+    return mPlugin->RetrieveColor(colorCode, textColor, textOutlineColor, textShadowColor);
   }
   return false;
 }

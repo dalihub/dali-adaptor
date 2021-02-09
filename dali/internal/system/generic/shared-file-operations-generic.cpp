@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,22 @@
 #include <dali/internal/system/common/shared-file.h>
 
 // EXTERNAL INCLUDES
-#include <sys/types.h>
 #include <sys/mman.h>
+#include <sys/types.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-int SharedFile::Open( const char* filename, int size, int oflag, mode_t mode )
+int SharedFile::Open(const char* filename, int size, int oflag, mode_t mode)
 {
-  return shm_open( filename, oflag, mode );
+  return shm_open(filename, oflag, mode);
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class SceneHolder;
 using WindowContainer = std::vector<Internal::Adaptor::SceneHolder*>;
 
@@ -52,9 +49,7 @@ using WindowContainer = std::vector<Internal::Adaptor::SceneHolder*>;
  */
 class AdaptorInternalServices
 {
-
 public:
-
   /**
    * @return core
    */
@@ -113,34 +108,29 @@ public:
    * Used to access the list of windows from the Render thread
    * @param[out] windows The list of created windows
    */
-  virtual void GetWindowContainerInterface( WindowContainer& windows ) = 0;
+  virtual void GetWindowContainerInterface(WindowContainer& windows) = 0;
 
 protected:
-
   /**
    * constructor
    */
-  AdaptorInternalServices()
-  {
-  };
+  AdaptorInternalServices(){};
 
   /**
    * virtual destructor
    */
-  virtual ~AdaptorInternalServices()
-  {
-  };
+  virtual ~AdaptorInternalServices(){};
 
   // Undefined copy constructor.
-  AdaptorInternalServices( const AdaptorInternalServices& ) = delete;
+  AdaptorInternalServices(const AdaptorInternalServices&) = delete;
 
   // Undefined assignment operator.
-  AdaptorInternalServices& operator=( const AdaptorInternalServices& ) = delete;
+  AdaptorInternalServices& operator=(const AdaptorInternalServices&) = delete;
 };
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

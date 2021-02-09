@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  *
  */
 
-#include <memory>
 #include <dali/internal/input/common/input-method-context-factory.h>
 #include <dali/internal/input/windows/input-method-context-impl-win.h>
+#include <memory>
 
 namespace Dali
 {
@@ -29,18 +29,15 @@ class InputMethodContext;
 
 namespace InputMethodContextFactory
 {
-
 // InputMethodContext Factory to be implemented by the platform
-InputMethodContextPtr CreateInputMethodContext( Dali::Actor actor )
+InputMethodContextPtr CreateInputMethodContext(Dali::Actor actor)
 {
-  return Dali::Internal::Adaptor::InputMethodContextWin::New( actor );
+  return Dali::Internal::Adaptor::InputMethodContextWin::New(actor);
 }
 
-}
+} // namespace InputMethodContextFactory
 
-}
+} // namespace Adaptor
 
-
-
-}
-}
+} // namespace Internal
+} // namespace Dali

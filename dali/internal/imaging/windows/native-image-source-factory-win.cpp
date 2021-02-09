@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/imaging/windows/native-image-source-factory-win.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/imaging/windows/native-image-source-impl-win.h>
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
+#include <dali/internal/imaging/windows/native-image-source-impl-win.h>
 
 namespace Dali
 {
@@ -28,26 +28,23 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-std::unique_ptr< NativeImageSource > NativeImageSourceFactoryWin::CreateNativeImageSource( unsigned int width, unsigned int height,
-                                                                                         Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+std::unique_ptr<NativeImageSource> NativeImageSourceFactoryWin::CreateNativeImageSource(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  return std::unique_ptr< NativeImageSource >( NativeImageSourceWin::New( width, height, depth, nativeImageSource ) );
+  return std::unique_ptr<NativeImageSource>(NativeImageSourceWin::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr< NativeImageSourceQueue > NativeImageSourceFactoryWin::CreateNativeImageSourceQueue( unsigned int width, unsigned int height,
-                                                                                                   Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryWin::CreateNativeImageSourceQueue(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
 {
-  return std::unique_ptr< NativeImageSourceQueue >( nullptr );
+  return std::unique_ptr<NativeImageSourceQueue>(nullptr);
 }
 
 // this should be created from somewhere
-std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory()
+std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
 {
   // returns native image source factory
-  return std::unique_ptr< NativeImageSourceFactoryWin >( new NativeImageSourceFactoryWin() );
+  return std::unique_ptr<NativeImageSourceFactoryWin>(new NativeImageSourceFactoryWin());
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_COMMON_ADDON_MANAGER
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
 class AddOnManager;
@@ -30,11 +29,9 @@ class AddOnManager;
 
 namespace Adaptor
 {
-
 class AddOnManager : public Dali::Integration::AddOnManager
 {
 public:
-
   /**
    * @brief Constructor
    * @param impl Pointer to the platform specific implementation
@@ -52,7 +49,7 @@ public:
    * event callbacks.
    * @param[in] dispatchTable Valid pointer to the DispatchTable object
    */
-  void RegisterAddOnDispatchTable( const AddOnDispatchTable* dispatchTable ) override;
+  void RegisterAddOnDispatchTable(const AddOnDispatchTable* dispatchTable) override;
 
   /**
    * @brief Retrieves list of all the extensions available
@@ -66,7 +63,7 @@ public:
    * @param[out]] info Output reference
    * @return True on success, False if extension info cannot be retrieved
    */
-  bool GetAddOnInfo(const std::string& name, AddOnInfo& info ) override;
+  bool GetAddOnInfo(const std::string& name, AddOnInfo& info) override;
 
   /**
    * @brief Loads and initialises specified extensions
@@ -74,7 +71,7 @@ public:
    * @param[in] extensionNames Array of extension names
    * @return vector of initialised extension handles
    */
-  std::vector<AddOnLibrary> LoadAddOns( const std::vector<std::string>& addonNames ) override;
+  std::vector<AddOnLibrary> LoadAddOns(const std::vector<std::string>& addonNames) override;
 
   /**
    * @brief Returns addon global function pointer
@@ -82,7 +79,7 @@ public:
    * @param[in] procName Name of the function to retrieve
    * @return Pointer to the function or null if function doesn't exist
    */
-  void* GetGlobalProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) override;
+  void* GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName) override;
 
   /**
    * @brief Returns addon instance function pointer
@@ -90,7 +87,7 @@ public:
    * @param[in] procName Name of the function to retrieve
    * @return Pointer to the function or null if function doesn't exist
    */
-  void* GetInstanceProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) override;
+  void* GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName) override;
 
   /**
    * @brief Lifecycle pause function
@@ -113,11 +110,9 @@ public:
   void Stop() override;
 
 private:
-
   std::unique_ptr<Internal::AddOnManager> mImpl; /// Implementation of the AddOnManager
-
 };
-} // namespace Internal
+} // namespace Adaptor
 } // namespace Dali
 
 #endif // DALI_ADAPTOR_COMMON_ADDON_MANAGER

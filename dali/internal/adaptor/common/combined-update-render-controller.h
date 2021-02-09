@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
-#include <pthread.h>
-#include <semaphore.h>
-#include <atomic>
-#include <stdint.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/devel-api/threading/semaphore.h>
 #include <dali/integration-api/core.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <stdint.h>
+#include <atomic>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
@@ -37,16 +37,13 @@
 
 namespace Dali
 {
-
 class RenderSurfaceInterface;
 class TriggerEventInterface;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class AdaptorInternalServices;
 class EnvironmentOptions;
 
@@ -77,11 +74,10 @@ class CombinedUpdateRenderController : public ThreadControllerInterface,
                                        public ThreadSynchronizationInterface
 {
 public:
-
   /**
    * Constructor
    */
-  CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode );
+  CombinedUpdateRenderController(AdaptorInternalServices& adaptorInterfaces, const EnvironmentOptions& environmentOptions, ThreadMode threadMode);
 
   /**
    * Non virtual destructor. Not intended as base class.
@@ -121,17 +117,17 @@ public:
   /**
    * @copydoc ThreadControllerInterface::RequestUpdateOnce()
    */
-  void RequestUpdateOnce( UpdateMode updateMode ) override;
+  void RequestUpdateOnce(UpdateMode updateMode) override;
 
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
-  void ReplaceSurface( Dali::RenderSurfaceInterface* surface ) override;
+  void ReplaceSurface(Dali::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc ThreadControllerInterface::DeleteSurface()
    */
-  void DeleteSurface( Dali::RenderSurfaceInterface* surface ) override;
+  void DeleteSurface(Dali::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
@@ -146,25 +142,24 @@ public:
   /**
    * @copydoc ThreadControllerInterface::SetRenderRefreshRate()
    */
-  void SetRenderRefreshRate( unsigned int numberOfFramesPerRender ) override;
+  void SetRenderRefreshRate(unsigned int numberOfFramesPerRender) override;
 
   /**
    * @copydoc ThreadControllerInterface::SetPreRenderCallback
    */
-  void SetPreRenderCallback( CallbackBase* callback ) override;
+  void SetPreRenderCallback(CallbackBase* callback) override;
 
   /**
    * @copydoc ThreadControllerInterface::AddSurface()
    */
-  void AddSurface( Dali::RenderSurfaceInterface* surface ) override;
+  void AddSurface(Dali::RenderSurfaceInterface* surface) override;
 
 private:
-
   // Undefined copy constructor.
-  CombinedUpdateRenderController( const CombinedUpdateRenderController& );
+  CombinedUpdateRenderController(const CombinedUpdateRenderController&);
 
   // Undefined assignment operator.
-  CombinedUpdateRenderController& operator=( const CombinedUpdateRenderController& );
+  CombinedUpdateRenderController& operator=(const CombinedUpdateRenderController&);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // EventThread
@@ -172,8 +167,8 @@ private:
 
   enum AnimationProgression
   {
-    USE_ELAPSED_TIME,          ///< Animation progression using elapsed time
-    NONE                       ///< No animation progression
+    USE_ELAPSED_TIME, ///< Animation progression using elapsed time
+    NONE              ///< No animation progression
   };
 
   /**
@@ -184,7 +179,7 @@ private:
    * @param[in]  animationProgression     Whether to progress animation using time elapsed since the last frame.
    * @param[in]  updateMode               The update mode (i.e. either update & render or skip rendering)
    */
-  inline void RunUpdateRenderThread( int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode );
+  inline void RunUpdateRenderThread(int numberOfCycles, AnimationProgression animationProgression, UpdateMode updateMode);
 
   /**
    * Pauses the Update/Render Thread.
@@ -233,7 +228,7 @@ private:
    * @param[out] timeToSleepUntil  The time remaining in nanoseconds to keep the thread sleeping before resuming.
    * @return false, if the thread should stop.
    */
-  bool UpdateRenderReady( bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil );
+  bool UpdateRenderReady(bool& useElapsedTime, bool updateRequired, uint64_t& timeToSleepUntil);
 
   /**
    * Checks to see if the surface needs to be replaced.
@@ -276,9 +271,9 @@ private:
    * Helper for the thread calling the entry function
    * @param[in] This A pointer to the current object
    */
-  static void* InternalUpdateRenderThreadEntryFunc( void* This )
+  static void* InternalUpdateRenderThreadEntryFunc(void* This)
   {
-    ( static_cast<CombinedUpdateRenderController*>( This ) )->UpdateRenderThread();
+    (static_cast<CombinedUpdateRenderController*>(This))->UpdateRenderThread();
     return NULL;
   }
 
@@ -302,7 +297,7 @@ private:
    * Helper to add a performance marker to the performance server (if it's active)
    * @param[in]  type  performance marker type
    */
-  void AddPerformanceMarker( PerformanceInterface::MarkerType type );
+  void AddPerformanceMarker(PerformanceInterface::MarkerType type);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // POST RENDERING - ThreadSynchronizationInterface overrides
@@ -332,61 +327,60 @@ private:
   void PostRenderWaitForCompletion() override;
 
 private:
+  FpsTracker         mFpsTracker;         ///< Object that tracks the FPS
+  UpdateStatusLogger mUpdateStatusLogger; ///< Object that logs the update-status as required.
 
-  FpsTracker                        mFpsTracker;                       ///< Object that tracks the FPS
-  UpdateStatusLogger                mUpdateStatusLogger;               ///< Object that logs the update-status as required.
+  Semaphore<>     mEventThreadSemaphore;   ///< Used by the event thread to ensure all threads have been initialised, and when replacing the surface.
+  ConditionalWait mGraphicsInitializeWait; ///< Used by the render thread to ensure the graphics has been initialised.
+  Semaphore<>     mSurfaceSemaphore;       ///< Used by the event thread to ensure the surface has been deleted or replaced.
 
-  Semaphore<>                       mEventThreadSemaphore;             ///< Used by the event thread to ensure all threads have been initialised, and when replacing the surface.
-  ConditionalWait                   mGraphicsInitializeWait;           ///< Used by the render thread to ensure the graphics has been initialised.
-  Semaphore<>                       mSurfaceSemaphore;                 ///< Used by the event thread to ensure the surface has been deleted or replaced.
+  ConditionalWait mUpdateRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
 
-  ConditionalWait                   mUpdateRenderThreadWaitCondition;  ///< The wait condition for the update-render-thread.
+  AdaptorInternalServices&  mAdaptorInterfaces;    ///< The adaptor internal interface
+  PerformanceInterface*     mPerformanceInterface; ///< The performance logging interface
+  Integration::Core&        mCore;                 ///< Dali core reference
+  const EnvironmentOptions& mEnvironmentOptions;   ///< Environment options
+  TriggerEventInterface&    mNotificationTrigger;  ///< Reference to notification event trigger
+  TriggerEventInterface*    mSleepTrigger;         ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
+  CallbackBase*             mPreRenderCallback;    ///< Used by Update/Render thread when PreRender is about to be called on graphics.
 
-  AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
-  PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
-  Integration::Core&                mCore;                             ///< Dali core reference
-  const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
-  TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
-  TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
-  CallbackBase*                     mPreRenderCallback;                ///< Used by Update/Render thread when PreRender is about to be called on graphics.
+  pthread_t* mUpdateRenderThread; ///< The Update/Render thread.
 
-  pthread_t*                        mUpdateRenderThread;               ///< The Update/Render thread.
-
-  float                             mDefaultFrameDelta;                ///< Default time delta between each frame (used for animations). Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  float mDefaultFrameDelta; ///< Default time delta between each frame (used for animations). Not protected by lock, but written to rarely so not worth adding a lock when reading.
   // TODO: mDefaultFrameDurationMilliseconds is defined as uint64_t, the only place where it is used, it is converted to an unsigned int!!!
-  uint64_t                          mDefaultFrameDurationMilliseconds; ///< Default duration of a frame (used for predicting the time of the next frame). Not protected by lock, but written to rarely so not worth adding a lock when reading.
-  uint64_t                          mDefaultFrameDurationNanoseconds;  ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
-  uint64_t                          mDefaultHalfFrameNanoseconds;      ///< Is half of mDefaultFrameDurationNanoseconds. Using a member variable avoids having to do the calculation every frame. Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  uint64_t mDefaultFrameDurationMilliseconds; ///< Default duration of a frame (used for predicting the time of the next frame). Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  uint64_t mDefaultFrameDurationNanoseconds;  ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
+  uint64_t mDefaultHalfFrameNanoseconds;      ///< Is half of mDefaultFrameDurationNanoseconds. Using a member variable avoids having to do the calculation every frame. Not protected by lock, but written to rarely so not worth adding a lock when reading.
 
-  unsigned int                      mUpdateRequestCount;               ///< Count of update-requests we have received to ensure we do not go to sleep too early.
-  unsigned int                      mRunning;                          ///< Read and set on the event-thread only to state whether we are running.
+  unsigned int mUpdateRequestCount; ///< Count of update-requests we have received to ensure we do not go to sleep too early.
+  unsigned int mRunning;            ///< Read and set on the event-thread only to state whether we are running.
 
-  ThreadMode                        mThreadMode;                       ///< Whether the thread runs continuously or runs when it is requested.
+  ThreadMode mThreadMode; ///< Whether the thread runs continuously or runs when it is requested.
 
   //
   // NOTE: cannot use booleans as these are used from multiple threads, must use variable with machine word size for atomic read/write
   //
 
-  volatile int                      mUpdateRenderRunCount;             ///< The number of times Update/Render cycle should run. If -1, then will run continuously (set by the event-thread, read by v-sync-thread).
-  volatile unsigned int             mDestroyUpdateRenderThread;        ///< Whether the Update/Render thread be destroyed (set by the event-thread, read by the update-render-thread).
-  volatile unsigned int             mUpdateRenderThreadCanSleep;       ///< Whether the Update/Render thread can sleep (set by the event-thread, read by the update-render-thread).
-  volatile unsigned int             mPendingRequestUpdate;             ///< Is set as soon as an RequestUpdate is made and unset when the next update happens (set by the event-thread and update-render thread, read by the update-render-thread).
-                                                                       ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
+  volatile int          mUpdateRenderRunCount;       ///< The number of times Update/Render cycle should run. If -1, then will run continuously (set by the event-thread, read by v-sync-thread).
+  volatile unsigned int mDestroyUpdateRenderThread;  ///< Whether the Update/Render thread be destroyed (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int mUpdateRenderThreadCanSleep; ///< Whether the Update/Render thread can sleep (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int mPendingRequestUpdate;       ///< Is set as soon as an RequestUpdate is made and unset when the next update happens (set by the event-thread and update-render thread, read by the update-render-thread).
+                                                     ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
 
-  volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int mUseElapsedTimeAfterWait; ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
-  Dali::RenderSurfaceInterface* volatile mNewSurface;                  ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
-  Dali::RenderSurfaceInterface* volatile mDeletedSurface;              ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Dali::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Dali::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
-  volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
-  volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
-  volatile unsigned int             mForceClear;                       ///< Will be set to clear forcibly
+  volatile unsigned int mPostRendering;  ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
+  volatile unsigned int mSurfaceResized; ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
+  volatile unsigned int mForceClear;     ///< Will be set to clear forcibly
 
-  volatile unsigned int             mUploadWithoutRendering;           ///< Will be set to upload the resource only (with no rendering)
+  volatile unsigned int mUploadWithoutRendering; ///< Will be set to upload the resource only (with no rendering)
 
-  volatile unsigned int             mFirstFrameAfterResume;            ///< Will be set to check the first frame after resume (for log)
+  volatile unsigned int mFirstFrameAfterResume; ///< Will be set to check the first frame after resume (for log)
 
-  std::vector<Rect<int>>            mDamagedRects;                     ///< Keeps collected damaged render items rects for one render pass
+  std::vector<Rect<int>> mDamagedRects; ///< Keeps collected damaged render items rects for one render pass
 };
 
 } // namespace Adaptor

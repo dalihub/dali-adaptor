@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,36 +22,33 @@
 #include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 Dali::LifecycleController LifecycleController::Get()
 {
   Dali::LifecycleController lifecycleController;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::LifecycleController ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::LifecycleController));
     if(handle)
     {
       // If so, downcast the handle
-      lifecycleController = Dali::LifecycleController( dynamic_cast< LifecycleController* >( handle.GetObjectPtr() ) );
+      lifecycleController = Dali::LifecycleController(dynamic_cast<LifecycleController*>(handle.GetObjectPtr()));
     }
     else
     {
-      lifecycleController = Dali::LifecycleController( new LifecycleController() );
-      service.Register( typeid( lifecycleController ), lifecycleController );
+      lifecycleController = Dali::LifecycleController(new LifecycleController());
+      service.Register(typeid(lifecycleController), lifecycleController);
     }
   }
 
@@ -73,7 +70,7 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::InitSignal(
 
 void LifecycleController::EmitInitSignal()
 {
-  if( !mInitSignal.Empty() )
+  if(!mInitSignal.Empty())
   {
     mInitSignal.Emit();
   }
@@ -86,7 +83,7 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::TerminateSi
 
 void LifecycleController::EmitTerminateSignal()
 {
-  if( !mTerminateSignal.Empty() )
+  if(!mTerminateSignal.Empty())
   {
     mTerminateSignal.Emit();
   }
@@ -99,7 +96,7 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::PauseSignal
 
 void LifecycleController::EmitPauseSignal()
 {
-  if( !mPauseSignal.Empty() )
+  if(!mPauseSignal.Empty())
   {
     mPauseSignal.Emit();
   }
@@ -112,7 +109,7 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::ResumeSigna
 
 void LifecycleController::EmitResumeSignal()
 {
-  if( !mResumeSignal.Empty() )
+  if(!mResumeSignal.Empty())
   {
     mResumeSignal.Emit();
   }
@@ -125,7 +122,7 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::ResetSignal
 
 void LifecycleController::EmitResetSignal()
 {
-  if( !mResetSignal.Empty() )
+  if(!mResetSignal.Empty())
   {
     mResetSignal.Emit();
   }
@@ -138,38 +135,38 @@ Dali::LifecycleController::LifecycleSignalType& LifecycleController::LanguageCha
 
 void LifecycleController::EmitLanguageChangedSignal()
 {
-  if( !mLanguageChangedSignal.Empty() )
+  if(!mLanguageChangedSignal.Empty())
   {
     mLanguageChangedSignal.Emit();
   }
 }
 
-void LifecycleController::OnInit( Dali::Application& app )
+void LifecycleController::OnInit(Dali::Application& app)
 {
   EmitInitSignal();
 }
 
-void LifecycleController::OnTerminate( Dali::Application& app )
+void LifecycleController::OnTerminate(Dali::Application& app)
 {
   EmitTerminateSignal();
 }
 
-void LifecycleController::OnPause( Dali::Application& app )
+void LifecycleController::OnPause(Dali::Application& app)
 {
   EmitPauseSignal();
 }
 
-void LifecycleController::OnResume( Dali::Application& app )
+void LifecycleController::OnResume(Dali::Application& app)
 {
   EmitResumeSignal();
 }
 
-void LifecycleController::OnReset( Dali::Application& app )
+void LifecycleController::OnReset(Dali::Application& app)
 {
   EmitResetSignal();
 }
 
-void LifecycleController::OnLanguageChanged( Dali::Application& app )
+void LifecycleController::OnLanguageChanged(Dali::Application& app)
 {
   EmitLanguageChangedSignal();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/internal/system/common/performance-interface.h>
 #include "trace-manager-impl-generic.h"
+#include <dali/internal/system/common/performance-interface.h>
 
 // INTERNAL INCLUDES
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 TraceManagerGeneric* TraceManagerGeneric::traceManagerGeneric = nullptr;
 
-TraceManagerGeneric::TraceManagerGeneric( PerformanceInterface* performanceInterface )
-: TraceManager( performanceInterface )
+TraceManagerGeneric::TraceManagerGeneric(PerformanceInterface* performanceInterface)
+: TraceManager(performanceInterface)
 {
   TraceManagerGeneric::traceManagerGeneric = this;
 }
@@ -43,17 +40,17 @@ Dali::Integration::Trace::LogContextFunction TraceManagerGeneric::GetLogContextF
   return LogContext;
 }
 
-void TraceManagerGeneric::LogContext( bool start, const char* tag )
+void TraceManagerGeneric::LogContext(bool start, const char* tag)
 {
-  if( start )
+  if(start)
   {
-    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
-    traceManagerGeneric->mPerformanceInterface->AddMarker( PerformanceInterface::START, contextId );
+    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext(tag);
+    traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
   }
   else
   {
-    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
-    traceManagerGeneric->mPerformanceInterface->AddMarker( PerformanceInterface::END, contextId );
+    unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext(tag);
+    traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
   }
 }
 

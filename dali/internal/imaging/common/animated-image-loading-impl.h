@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ANIMATED_IMAGE_LOADING_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,14 @@
  */
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/uint-16-pair.h>
-#include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/adaptor-framework/animated-image-loading.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -35,10 +35,8 @@ typedef Dali::Uint16Pair ImageDimensions;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class AnimatedImageLoading;
 typedef IntrusivePtr<AnimatedImageLoading> AnimatedImageLoadingPtr;
 
@@ -49,19 +47,18 @@ typedef IntrusivePtr<AnimatedImageLoading> AnimatedImageLoadingPtr;
 class AnimatedImageLoading : public BaseObject
 {
 public:
-
   /**
    * @copydoc Dali::AnimatedImageLoading::New()
    */
-  static AnimatedImageLoadingPtr New( const std::string& url, bool isLocalResource );
+  static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
   AnimatedImageLoading() = default;
 
   // Moveable but not copyable
-  AnimatedImageLoading( const AnimatedImageLoading& );
-  AnimatedImageLoading& operator=( const AnimatedImageLoading& );
-  AnimatedImageLoading( AnimatedImageLoading&& ) = default;
-  AnimatedImageLoading& operator=( AnimatedImageLoading&& ) = default;
+  AnimatedImageLoading(const AnimatedImageLoading&);
+  AnimatedImageLoading& operator               =(const AnimatedImageLoading&);
+  AnimatedImageLoading(AnimatedImageLoading&&) = default;
+  AnimatedImageLoading& operator=(AnimatedImageLoading&&) = default;
 
   /**
    * @brief Destructor
@@ -71,12 +68,12 @@ public:
   /**
    * @copydoc Dali::AnimatedImageLoading::LoadNextNFrames()
    */
-  virtual bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData ) = 0;
+  virtual bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData) = 0;
 
   /**
    * @copydoc Dali::AnimatedImageLoading::LoadFrame()
    */
-  virtual Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex ) = 0;
+  virtual Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) = 0;
 
   /**
    * @copydoc Dali::AnimatedImageLoading::GetImageSize()
@@ -91,7 +88,7 @@ public:
   /**
    * @copydoc Dali::AnimatedImageLoading::LoadFrameDelays()
    */
-  virtual uint32_t GetFrameInterval( uint32_t frameIndex ) const = 0;
+  virtual uint32_t GetFrameInterval(uint32_t frameIndex) const = 0;
 
   /**
    * @copydoc Dali::AnimatedImageLoading::GetUrl()
@@ -105,22 +102,22 @@ public:
 
 // Helpers for api forwarding methods
 
-inline Internal::Adaptor::AnimatedImageLoading& GetImplementation( Dali::AnimatedImageLoading& handle)
+inline Internal::Adaptor::AnimatedImageLoading& GetImplementation(Dali::AnimatedImageLoading& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "AnimatedImageLoading handle is empty" );
+  DALI_ASSERT_ALWAYS(handle && "AnimatedImageLoading handle is empty");
 
   BaseObject& object = handle.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::AnimatedImageLoading& >( object );
+  return static_cast<Internal::Adaptor::AnimatedImageLoading&>(object);
 }
 
-inline const Internal::Adaptor::AnimatedImageLoading& GetImplementation( const Dali::AnimatedImageLoading& handle )
+inline const Internal::Adaptor::AnimatedImageLoading& GetImplementation(const Dali::AnimatedImageLoading& handle)
 {
-  DALI_ASSERT_ALWAYS( handle && "AnimatedImageLoading handle is empty" );
+  DALI_ASSERT_ALWAYS(handle && "AnimatedImageLoading handle is empty");
 
   const BaseObject& object = handle.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::AnimatedImageLoading& >( object );
+  return static_cast<const Internal::Adaptor::AnimatedImageLoading&>(object);
 }
 
 } // namespace Dali

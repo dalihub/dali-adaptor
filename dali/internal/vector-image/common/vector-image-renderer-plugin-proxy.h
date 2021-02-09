@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_IMAGE_RENDERER_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,25 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/vector-image-renderer-plugin.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/devel-api/adaptor-framework/vector-image-renderer-plugin.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Proxy class to dynamically load, use and unload vector image renderer plugin.
  */
 class VectorImageRendererPluginProxy
 {
 public:
-
   /**
    * @brief Constructor
    */
-  VectorImageRendererPluginProxy( std::string sharedObjectName );
+  VectorImageRendererPluginProxy(std::string sharedObjectName);
 
   /**
    * @brief Destructor
@@ -70,28 +66,25 @@ public:
   void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
   // Not copyable or movable
-  VectorImageRendererPluginProxy( const VectorImageRendererPluginProxy& ) = delete; ///< Deleted copy constructor
-  VectorImageRendererPluginProxy( VectorImageRendererPluginProxy&& ) = delete; ///< Deleted move constructor
-  VectorImageRendererPluginProxy& operator=( const VectorImageRendererPluginProxy& ) = delete; ///< Deleted copy assignment operator
-  VectorImageRendererPluginProxy& operator=( VectorImageRendererPluginProxy&& ) = delete; ///< Deleted move assignment operator
+  VectorImageRendererPluginProxy(const VectorImageRendererPluginProxy&) = delete;            ///< Deleted copy constructor
+  VectorImageRendererPluginProxy(VectorImageRendererPluginProxy&&)      = delete;            ///< Deleted move constructor
+  VectorImageRendererPluginProxy& operator=(const VectorImageRendererPluginProxy&) = delete; ///< Deleted copy assignment operator
+  VectorImageRendererPluginProxy& operator=(VectorImageRendererPluginProxy&&) = delete;      ///< Deleted move assignment operator
 
 private:
-
   /**
    * Dynamically loads the plugin.
    */
   void InitializePlugin();
 
 private:
-
   using CreateVectorImageRendererFunction = Dali::VectorImageRendererPlugin* (*)();
 
-  std::string                        mSharedObjectName;   ///< Shared object name
-  void*                              mLibHandle;          ///< Handle for the loaded library
-  Dali::VectorImageRendererPlugin*   mPlugin;             ///< Plugin handle
+  std::string                      mSharedObjectName; ///< Shared object name
+  void*                            mLibHandle;        ///< Handle for the loaded library
+  Dali::VectorImageRendererPlugin* mPlugin;           ///< Plugin handle
 
-  CreateVectorImageRendererFunction  mCreateVectorImageRendererPtr;   ///< Function pointer called in adaptor to create a plugin instance
-
+  CreateVectorImageRendererFunction mCreateVectorImageRendererPtr; ///< Function pointer called in adaptor to create a plugin instance
 };
 
 } // namespace Adaptor

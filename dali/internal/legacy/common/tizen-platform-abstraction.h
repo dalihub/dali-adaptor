@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_ABSTRACTION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,14 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-
 // EXTERNAL INCLUDES
-#include <cstdint>
-#include <string>
-#include <memory>
 #include <dali/integration-api/platform-abstraction.h>
+#include <cstdint>
+#include <memory>
+#include <string>
 
 namespace Dali
 {
-
 class CallbackBase;
 
 namespace TizenPlatform
@@ -43,9 +41,7 @@ class ResourceLoader;
  */
 class TizenPlatformAbstraction : public Integration::PlatformAbstraction
 {
-
 public: // Construction & Destruction
-
   /**
    * Constructor
    */
@@ -57,24 +53,23 @@ public: // Construction & Destruction
   ~TizenPlatformAbstraction() override;
 
 public: // PlatformAbstraction overrides
+  /**
+   * @copydoc PlatformAbstraction::GetClosestImageSize()
+   */
+  ImageDimensions GetClosestImageSize(const std::string& filename,
+                                      ImageDimensions    size,
+                                      FittingMode::Type  fittingMode,
+                                      SamplingMode::Type samplingMode,
+                                      bool               orientationCorrection) override;
 
   /**
    * @copydoc PlatformAbstraction::GetClosestImageSize()
    */
-  ImageDimensions GetClosestImageSize( const std::string& filename,
-                                       ImageDimensions size,
-                                       FittingMode::Type fittingMode,
-                                       SamplingMode::Type samplingMode,
-                                       bool orientationCorrection ) override;
-
-  /**
-   * @copydoc PlatformAbstraction::GetClosestImageSize()
-   */
-  ImageDimensions GetClosestImageSize( Integration::ResourcePointer resourceBuffer,
-                                       ImageDimensions size,
-                                       FittingMode::Type fittingMode,
-                                       SamplingMode::Type samplingMode,
-                                       bool orientationCorrection ) override;
+  ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
+                                      ImageDimensions              size,
+                                      FittingMode::Type            fittingMode,
+                                      SamplingMode::Type           samplingMode,
+                                      bool                         orientationCorrection) override;
 
   /**
    * @copydoc PlatformAbstraction::LoadImageSynchronously()
@@ -84,33 +79,33 @@ public: // PlatformAbstraction overrides
   /**
    * @copydoc PlatformAbstraction::DecodeBuffer()
    */
-  Integration::BitmapPtr DecodeBuffer( const Integration::BitmapResourceType& resource, uint8_t * buffer, size_t size ) override;
+  Integration::BitmapPtr DecodeBuffer(const Integration::BitmapResourceType& resource, uint8_t* buffer, size_t size) override;
 
   /**
    * @copydoc PlatformAbstraction::LoadShaderBinaryFile()
    */
-  bool LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const override;
+  bool LoadShaderBinaryFile(const std::string& filename, Dali::Vector<unsigned char>& buffer) const override;
 
   /**
    * @copydoc PlatformAbstraction::SaveShaderBinaryFile()
    */
-  bool SaveShaderBinaryFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes ) const override;
+  bool SaveShaderBinaryFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes) const override;
 
   /**
    * @copydoc PlatformAbstraction::StartTimer()
    */
-  uint32_t StartTimer( uint32_t milliseconds, CallbackBase* callback ) override;
+  uint32_t StartTimer(uint32_t milliseconds, CallbackBase* callback) override;
 
   /**
    * @copydoc PlatformAbstraction::CancelTimer()
    */
-  void CancelTimer ( uint32_t timerId ) override;
+  void CancelTimer(uint32_t timerId) override;
 
   /**
    * Sets path for data/resource storage.
    * @param[in] path data/resource storage path
    */
-  void SetDataStoragePath( const std::string& path );
+  void SetDataStoragePath(const std::string& path);
 
   /**
    * Clears the timers that have completed
@@ -118,7 +113,6 @@ public: // PlatformAbstraction overrides
   void CleanupTimers();
 
 private:
-
   struct TimerCallback;
 
   /*
@@ -126,13 +120,13 @@ private:
    */
   void RunTimerFunction(TimerCallback& timerPtr);
 
-  TizenPlatformAbstraction( const TizenPlatformAbstraction& ); ///< Undefined
-  TizenPlatformAbstraction& operator=( const TizenPlatformAbstraction& ); ///< Undefined
+  TizenPlatformAbstraction(const TizenPlatformAbstraction&);            ///< Undefined
+  TizenPlatformAbstraction& operator=(const TizenPlatformAbstraction&); ///< Undefined
 
   std::string mDataStoragePath;
 
-  std::vector< std::unique_ptr< TimerCallback > > mTimerPairsWaiting;
-  std::vector< std::unique_ptr< TimerCallback > > mTimerPairsSpent;
+  std::vector<std::unique_ptr<TimerCallback> > mTimerPairsWaiting;
+  std::vector<std::unique_ptr<TimerCallback> > mTimerPairsSpent;
 };
 
 /**
@@ -148,10 +142,10 @@ TizenPlatformAbstraction* CreatePlatformAbstraction();
  * @param numBytes to store
  * @return true if successful, false otherwise
  */
-bool SaveFile( const std::string& filename, const unsigned char * buffer, unsigned int numBytes );
+bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned int numBytes);
 
-}  // namespace TizenPlatform
+} // namespace TizenPlatform
 
-}  // namespace Dali
+} // namespace Dali
 
 #endif // DALI_TIZEN_PLATFORM_ABSTRACTION_H

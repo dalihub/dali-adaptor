@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,19 +15,18 @@
  *
  */
 
-
 // CLASS HEADER
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
 // EXTERNAL INCLUDES
-#include <sstream>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <sstream>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
 #include <dali/internal/graphics/gles/egl-debug.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 // EGL constants use C style casts
 #pragma GCC diagnostic push
@@ -35,63 +34,60 @@
 
 namespace
 {
-  const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
-  const uint32_t CHECK_EXTENSION_NUMBER = 4;
-  const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
-  const std::string EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
-  const std::string EGL_KHR_CREATE_CONTEXT = "EGL_KHR_create_context";
-  const std::string EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
-  const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage";
+const uint32_t    THRESHOLD_SWAPBUFFER_COUNT              = 5;
+const uint32_t    CHECK_EXTENSION_NUMBER                  = 4;
+const uint32_t    EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
+const std::string EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_context";
+const std::string EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_context";
+const std::string EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
+const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
 
-}
+} // namespace
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
+#define TEST_EGL_ERROR(lastCommand)                        \
+  {                                                        \
+    EGLint err = eglGetError();                            \
+    if(err != EGL_SUCCESS)                                 \
+    {                                                      \
+      DALI_LOG_ERROR("EGL error after %s\n", lastCommand); \
+      Egl::PrintError(err);                                \
+      DALI_ASSERT_ALWAYS(0 && "EGL error");                \
+    }                                                      \
+  }
 
-#define TEST_EGL_ERROR(lastCommand) \
-{ \
-  EGLint err = eglGetError(); \
-  if (err != EGL_SUCCESS) \
-  { \
-    DALI_LOG_ERROR("EGL error after %s\n", lastCommand); \
-    Egl::PrintError(err); \
-    DALI_ASSERT_ALWAYS(0 && "EGL error"); \
-  } \
-}
-
-EglImplementation::EglImplementation( int multiSamplingLevel,
-                                      Integration::DepthBufferAvailable depthBufferRequired,
-                                      Integration::StencilBufferAvailable stencilBufferRequired ,
-                                      Integration::PartialUpdateAvailable partialUpdateRequired )
+EglImplementation::EglImplementation(int                                 multiSamplingLevel,
+                                     Integration::DepthBufferAvailable   depthBufferRequired,
+                                     Integration::StencilBufferAvailable stencilBufferRequired,
+                                     Integration::PartialUpdateAvailable partialUpdateRequired)
 : mContextAttribs(),
-  mEglNativeDisplay( 0 ),
-  mEglNativeWindow( 0 ),
-  mCurrentEglNativePixmap( 0 ),
-  mEglDisplay( 0 ),
-  mEglConfig( 0 ),
-  mEglContext( 0 ),
-  mCurrentEglSurface( 0 ),
-  mCurrentEglContext( EGL_NO_CONTEXT ),
-  mMultiSamplingLevel( multiSamplingLevel ),
-  mGlesVersion( 30 ),
-  mColorDepth( COLOR_DEPTH_24 ),
-  mGlesInitialized( false ),
-  mIsOwnSurface( true ),
-  mIsWindow( true ),
-  mDepthBufferRequired( depthBufferRequired == Integration::DepthBufferAvailable::TRUE ),
-  mStencilBufferRequired( stencilBufferRequired == Integration::StencilBufferAvailable::TRUE ),
-  mPartialUpdateRequired( partialUpdateRequired == Integration::PartialUpdateAvailable::TRUE ),
-  mIsSurfacelessContextSupported( false ),
-  mIsKhrCreateContextSupported( false ),
-  mSwapBufferCountAfterResume( 0 ),
-  mEglSetDamageRegionKHR( 0 ),
-  mEglSwapBuffersWithDamageKHR( 0 )
+  mEglNativeDisplay(0),
+  mEglNativeWindow(0),
+  mCurrentEglNativePixmap(0),
+  mEglDisplay(0),
+  mEglConfig(0),
+  mEglContext(0),
+  mCurrentEglSurface(0),
+  mCurrentEglContext(EGL_NO_CONTEXT),
+  mMultiSamplingLevel(multiSamplingLevel),
+  mGlesVersion(30),
+  mColorDepth(COLOR_DEPTH_24),
+  mGlesInitialized(false),
+  mIsOwnSurface(true),
+  mIsWindow(true),
+  mDepthBufferRequired(depthBufferRequired == Integration::DepthBufferAvailable::TRUE),
+  mStencilBufferRequired(stencilBufferRequired == Integration::StencilBufferAvailable::TRUE),
+  mPartialUpdateRequired(partialUpdateRequired == Integration::PartialUpdateAvailable::TRUE),
+  mIsSurfacelessContextSupported(false),
+  mIsKhrCreateContextSupported(false),
+  mSwapBufferCountAfterResume(0),
+  mEglSetDamageRegionKHR(0),
+  mEglSwapBuffersWithDamageKHR(0)
 {
 }
 
@@ -100,30 +96,30 @@ EglImplementation::~EglImplementation()
   TerminateGles();
 }
 
-bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwnSurface )
+bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnSurface)
 {
-  if ( !mGlesInitialized )
+  if(!mGlesInitialized)
   {
     mEglNativeDisplay = display;
 
     // Try to get the display connection for the native display first
-    mEglDisplay = eglGetDisplay( mEglNativeDisplay );
+    mEglDisplay = eglGetDisplay(mEglNativeDisplay);
 
-    if( mEglDisplay == EGL_NO_DISPLAY )
+    if(mEglDisplay == EGL_NO_DISPLAY)
     {
       // If failed, try to get the default display connection
-      mEglDisplay = eglGetDisplay( EGL_DEFAULT_DISPLAY );
+      mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     }
 
-    if( mEglDisplay == EGL_NO_DISPLAY )
+    if(mEglDisplay == EGL_NO_DISPLAY)
     {
       // Still failed to get a display connection
-      throw Dali::DaliException( "", "OpenGL ES is not supported");
+      throw Dali::DaliException("", "OpenGL ES is not supported");
     }
 
     EGLint majorVersion = 0;
     EGLint minorVersion = 0;
-    if ( !eglInitialize( mEglDisplay, &majorVersion, &minorVersion ) )
+    if(!eglInitialize(mEglDisplay, &majorVersion, &minorVersion))
     {
       return false;
     }
@@ -132,26 +128,26 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
     mIsOwnSurface = isOwnSurface;
   }
 
-  const char* const versionStr = eglQueryString( mEglDisplay, EGL_VERSION );
-  const char* const extensionStr = eglQueryString( mEglDisplay, EGL_EXTENSIONS );
+  const char* const versionStr   = eglQueryString(mEglDisplay, EGL_VERSION);
+  const char* const extensionStr = eglQueryString(mEglDisplay, EGL_EXTENSIONS);
 
   // Query EGL extensions to check whether required extensions are supported
-  std::istringstream versionStream( versionStr );
-  std::string majorVersion, minorVersion;
-  std::getline( versionStream, majorVersion, '.' );
-  std::getline( versionStream, minorVersion );
+  std::istringstream versionStream(versionStr);
+  std::string        majorVersion, minorVersion;
+  std::getline(versionStream, majorVersion, '.');
+  std::getline(versionStream, minorVersion);
   uint32_t extensionCheckCount = 0;
-  if( stoul( majorVersion ) * 10 + stoul( minorVersion ) >= EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT )
+  if(stoul(majorVersion) * 10 + stoul(minorVersion) >= EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT)
   {
     mIsSurfacelessContextSupported = true;
-    mIsKhrCreateContextSupported = true;
+    mIsKhrCreateContextSupported   = true;
     extensionCheckCount += 2;
   }
 
   std::istringstream stream(extensionStr);
-  std::string currentExtension;
-  bool isKhrPartialUpdateSupported = false;
-  bool isKhrSwapBuffersWithDamageSupported = false;
+  std::string        currentExtension;
+  bool               isKhrPartialUpdateSupported         = false;
+  bool               isKhrSwapBuffersWithDamageSupported = false;
   while(std::getline(stream, currentExtension, ' ') && extensionCheckCount < CHECK_EXTENSION_NUMBER)
   {
     if(currentExtension == EGL_KHR_SURFACELESS_CONTEXT && !mIsSurfacelessContextSupported)
@@ -184,17 +180,18 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
   mGlesInitialized = true;
 
   // We want to display this information all the time, so use the LogMessage directly
-  Integration::Log::LogMessage(Integration::Log::DebugInfo, "EGL Information\n"
-      "            PartialUpdate  %d\n"
-      "            Vendor:        %s\n"
-      "            Version:       %s\n"
-      "            Client APIs:   %s\n"
-      "            Extensions:    %s\n",
-      mPartialUpdateRequired,
-      eglQueryString( mEglDisplay, EGL_VENDOR ),
-      versionStr,
-      eglQueryString( mEglDisplay, EGL_CLIENT_APIS ),
-      extensionStr);
+  Integration::Log::LogMessage(Integration::Log::DebugInfo,
+                               "EGL Information\n"
+                               "            PartialUpdate  %d\n"
+                               "            Vendor:        %s\n"
+                               "            Version:       %s\n"
+                               "            Client APIs:   %s\n"
+                               "            Extensions:    %s\n",
+                               mPartialUpdateRequired,
+                               eglQueryString(mEglDisplay, EGL_VENDOR),
+                               versionStr,
+                               eglQueryString(mEglDisplay, EGL_CLIENT_APIS),
+                               extensionStr);
 
   return mGlesInitialized;
 }
@@ -202,12 +199,12 @@ bool EglImplementation::InitializeGles( EGLNativeDisplayType display, bool isOwn
 bool EglImplementation::CreateContext()
 {
   // make sure a context isn't created twice
-  DALI_ASSERT_ALWAYS( (mEglContext == 0) && "EGL context recreated" );
+  DALI_ASSERT_ALWAYS((mEglContext == 0) && "EGL context recreated");
 
   mEglContext = eglCreateContext(mEglDisplay, mEglConfig, NULL, &(mContextAttribs[0]));
   TEST_EGL_ERROR("eglCreateContext render thread");
 
-  DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != mEglContext && "EGL context not created" );
+  DALI_ASSERT_ALWAYS(EGL_NO_CONTEXT != mEglContext && "EGL context not created");
 
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", glGetString(GL_VENDOR));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", glGetString(GL_RENDERER));
@@ -216,13 +213,13 @@ bool EglImplementation::CreateContext()
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
 
   mEglSetDamageRegionKHR = reinterpret_cast<PFNEGLSETDAMAGEREGIONKHRPROC>(eglGetProcAddress("eglSetDamageRegionKHR"));
-  if (!mEglSetDamageRegionKHR)
+  if(!mEglSetDamageRegionKHR)
   {
     DALI_LOG_ERROR("Coudn't find eglSetDamageRegionKHR!\n");
     mPartialUpdateRequired = false;
   }
   mEglSwapBuffersWithDamageKHR = reinterpret_cast<PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC>(eglGetProcAddress("eglSwapBuffersWithDamageKHR"));
-  if (!mEglSwapBuffersWithDamageKHR)
+  if(!mEglSwapBuffersWithDamageKHR)
   {
     DALI_LOG_ERROR("Coudn't find eglSwapBuffersWithDamageKHR!\n");
     mPartialUpdateRequired = false;
@@ -230,15 +227,15 @@ bool EglImplementation::CreateContext()
   return true;
 }
 
-bool EglImplementation::CreateWindowContext( EGLContext& eglContext )
+bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
 {
   // make sure a context isn't created twice
-  DALI_ASSERT_ALWAYS( (eglContext == 0) && "EGL context recreated" );
+  DALI_ASSERT_ALWAYS((eglContext == 0) && "EGL context recreated");
 
   eglContext = eglCreateContext(mEglDisplay, mEglConfig, mEglContext, &(mContextAttribs[0]));
   TEST_EGL_ERROR("eglCreateContext render thread");
 
-  DALI_ASSERT_ALWAYS( EGL_NO_CONTEXT != eglContext && "EGL context not created" );
+  DALI_ASSERT_ALWAYS(EGL_NO_CONTEXT != eglContext && "EGL context not created");
 
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_VENDOR : %s ***\n", glGetString(GL_VENDOR));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_RENDERER : %s ***\n", glGetString(GL_RENDERER));
@@ -246,16 +243,16 @@ bool EglImplementation::CreateWindowContext( EGLContext& eglContext )
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
 
-  mEglWindowContexts.push_back( eglContext );
+  mEglWindowContexts.push_back(eglContext);
 
   mEglSetDamageRegionKHR = reinterpret_cast<PFNEGLSETDAMAGEREGIONKHRPROC>(eglGetProcAddress("eglSetDamageRegionKHR"));
-  if (!mEglSetDamageRegionKHR)
+  if(!mEglSetDamageRegionKHR)
   {
     DALI_LOG_ERROR("Coudn't find eglSetDamageRegionKHR!\n");
     mPartialUpdateRequired = false;
   }
   mEglSwapBuffersWithDamageKHR = reinterpret_cast<PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC>(eglGetProcAddress("eglSwapBuffersWithDamageKHR"));
-  if (!mEglSwapBuffersWithDamageKHR)
+  if(!mEglSwapBuffersWithDamageKHR)
   {
     DALI_LOG_ERROR("Coudn't find eglSwapBuffersWithDamageKHR!\n");
     mPartialUpdateRequired = false;
@@ -263,29 +260,29 @@ bool EglImplementation::CreateWindowContext( EGLContext& eglContext )
   return true;
 }
 
-void EglImplementation::DestroyContext( EGLContext& eglContext )
+void EglImplementation::DestroyContext(EGLContext& eglContext)
 {
-  if( eglContext )
+  if(eglContext)
   {
-    eglDestroyContext( mEglDisplay, eglContext );
+    eglDestroyContext(mEglDisplay, eglContext);
     eglContext = 0;
   }
 }
 
-void EglImplementation::DestroySurface( EGLSurface& eglSurface )
+void EglImplementation::DestroySurface(EGLSurface& eglSurface)
 {
   if(mIsOwnSurface && eglSurface)
   {
     // Make context null to prevent crash in driver side
     MakeContextNull();
-    eglDestroySurface( mEglDisplay, eglSurface );
+    eglDestroySurface(mEglDisplay, eglSurface);
     eglSurface = 0;
   }
 }
 
-void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eglContext )
+void EglImplementation::MakeContextCurrent(EGLSurface eglSurface, EGLContext eglContext)
 {
-  if (mCurrentEglContext == eglContext)
+  if(mCurrentEglContext == eglContext)
   {
     return;
   }
@@ -294,14 +291,14 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
 
   if(mIsOwnSurface)
   {
-    eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, eglContext );
+    eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, eglContext);
 
     mCurrentEglContext = eglContext;
   }
 
   EGLint error = eglGetError();
 
-  if ( error != EGL_SUCCESS )
+  if(error != EGL_SUCCESS)
   {
     Egl::PrintError(error);
 
@@ -309,26 +306,26 @@ void EglImplementation::MakeContextCurrent( EGLSurface eglSurface, EGLContext eg
   }
 }
 
-void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglSurface )
+void EglImplementation::MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSurface)
 {
-  if (mCurrentEglContext == mEglContext)
+  if(mCurrentEglContext == mEglContext)
   {
     return;
   }
 
   mCurrentEglNativePixmap = pixmap;
-  mCurrentEglSurface = eglSurface;
+  mCurrentEglSurface      = eglSurface;
 
   if(mIsOwnSurface)
   {
-    eglMakeCurrent( mEglDisplay, eglSurface, eglSurface, mEglContext );
+    eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, mEglContext);
 
     mCurrentEglContext = mEglContext;
   }
 
   EGLint error = eglGetError();
 
-  if ( error != EGL_SUCCESS )
+  if(error != EGL_SUCCESS)
   {
     Egl::PrintError(error);
 
@@ -339,18 +336,18 @@ void EglImplementation::MakeCurrent( EGLNativePixmapType pixmap, EGLSurface eglS
 void EglImplementation::MakeContextNull()
 {
   // clear the current context
-  eglMakeCurrent( mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT );
+  eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   mCurrentEglContext = EGL_NO_CONTEXT;
 }
 
 void EglImplementation::TerminateGles()
 {
-  if ( mGlesInitialized )
+  if(mGlesInitialized)
   {
     // Make context null to prevent crash in driver side
     MakeContextNull();
 
-    for ( auto eglSurface : mEglWindowSurfaces )
+    for(auto eglSurface : mEglWindowSurfaces)
     {
       if(mIsOwnSurface && eglSurface)
       {
@@ -358,16 +355,16 @@ void EglImplementation::TerminateGles()
       }
     }
     eglDestroyContext(mEglDisplay, mEglContext);
-    for ( auto eglContext : mEglWindowContexts )
+    for(auto eglContext : mEglWindowContexts)
     {
       eglDestroyContext(mEglDisplay, eglContext);
     }
 
     eglTerminate(mEglDisplay);
 
-    mEglDisplay = NULL;
-    mEglConfig  = NULL;
-    mEglContext = NULL;
+    mEglDisplay        = NULL;
+    mEglConfig         = NULL;
+    mEglContext        = NULL;
     mCurrentEglSurface = NULL;
     mCurrentEglContext = EGL_NO_CONTEXT;
 
@@ -380,24 +377,24 @@ bool EglImplementation::IsGlesInitialized() const
   return mGlesInitialized;
 }
 
-void EglImplementation::SwapBuffers( EGLSurface& eglSurface )
+void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 {
-  if ( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
+  if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
 #ifndef DALI_PROFILE_UBUNTU
-    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers started.\n" );
+      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers started.\n");
     }
 #endif //DALI_PROFILE_UBUNTU
 
     // DALI_LOG_ERROR("EglImplementation::SwapBuffers()\n");
-    eglSwapBuffers( mEglDisplay, eglSurface );
+    eglSwapBuffers(mEglDisplay, eglSurface);
 
 #ifndef DALI_PROFILE_UBUNTU
-    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers finished.\n" );
+      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers finished.\n");
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
@@ -408,7 +405,7 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
   EGLint age = 0;
   eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
-  if (age < 0)
+  if(age < 0)
   {
     DALI_LOG_ERROR("eglQuerySurface(%d)\n", eglGetError());
     age = 0;
@@ -416,7 +413,7 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 
   // 0 - invalid buffer
   // 1, 2, 3
-  if (age > 3)
+  if(age > 3)
   {
     DALI_LOG_ERROR("EglImplementation::GetBufferAge() buffer age %d > 3\n", age);
     age = 0; // shoudn't be more than 3 back buffers, if there is just reset, I don't want to add extra history level
@@ -425,59 +422,59 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
   return age;
 }
 
-void EglImplementation::SetDamageRegion( EGLSurface& eglSurface, std::vector< Rect< int > >& damagedRects )
+void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects)
 {
-  if( !mPartialUpdateRequired )
+  if(!mPartialUpdateRequired)
   {
     return;
   }
 
-  if( eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
+  if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
-    EGLBoolean result = mEglSetDamageRegionKHR( mEglDisplay, eglSurface, reinterpret_cast< int* >( damagedRects.data() ), 1 );
-    if (result == EGL_FALSE)
+    EGLBoolean result = mEglSetDamageRegionKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(damagedRects.data()), 1);
+    if(result == EGL_FALSE)
     {
-      DALI_LOG_ERROR( "eglSetDamageRegionKHR(%d)\n", eglGetError() );
+      DALI_LOG_ERROR("eglSetDamageRegionKHR(%d)\n", eglGetError());
     }
   }
 }
 
 void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects)
 {
-  if (eglSurface != EGL_NO_SURFACE ) // skip if using surfaceless context
+  if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
-    if (!mPartialUpdateRequired )
+    if(!mPartialUpdateRequired)
     {
       SwapBuffers(eglSurface);
       return;
     }
 
 #ifndef DALI_PROFILE_UBUNTU
-    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers started.\n" );
+      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers started.\n");
     }
 #endif //DALI_PROFILE_UBUNTU
 
-    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast< std::vector< Rect< int > >& >( damagedRects ).data()), damagedRects.size());
-    if (result == EGL_FALSE)
+    EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<Rect<int>>&>(damagedRects).data()), damagedRects.size());
+    if(result == EGL_FALSE)
     {
       DALI_LOG_ERROR("eglSwapBuffersWithDamageKHR(%d)\n", eglGetError());
     }
 
 #ifndef DALI_PROFILE_UBUNTU
-    if( mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT )
+    if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO( "EglImplementation::SwapBuffers finished.\n" );
+      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers finished.\n");
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
   }
 }
 
-void EglImplementation::CopyBuffers( EGLSurface& eglSurface )
+void EglImplementation::CopyBuffers(EGLSurface& eglSurface)
 {
-  eglCopyBuffers( mEglDisplay, eglSurface, mCurrentEglNativePixmap );
+  eglCopyBuffers(mEglDisplay, eglSurface, mCurrentEglNativePixmap);
 }
 
 void EglImplementation::WaitGL()
@@ -485,7 +482,7 @@ void EglImplementation::WaitGL()
   eglWaitGL();
 }
 
-bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
+bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 {
   if(mEglConfig && isWindowType == mIsWindow && mColorDepth == depth)
   {
@@ -493,78 +490,78 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
   }
 
   mColorDepth = depth;
-  mIsWindow = isWindowType;
+  mIsWindow   = isWindowType;
 
-  EGLint numConfigs;
+  EGLint         numConfigs;
   Vector<EGLint> configAttribs;
   configAttribs.Reserve(31);
 
   if(isWindowType)
   {
-    configAttribs.PushBack( EGL_SURFACE_TYPE );
-    configAttribs.PushBack( EGL_WINDOW_BIT );
+    configAttribs.PushBack(EGL_SURFACE_TYPE);
+    configAttribs.PushBack(EGL_WINDOW_BIT);
   }
   else
   {
-    configAttribs.PushBack( EGL_SURFACE_TYPE );
-    configAttribs.PushBack( EGL_PIXMAP_BIT );
+    configAttribs.PushBack(EGL_SURFACE_TYPE);
+    configAttribs.PushBack(EGL_PIXMAP_BIT);
   }
 
-  configAttribs.PushBack( EGL_RENDERABLE_TYPE );
+  configAttribs.PushBack(EGL_RENDERABLE_TYPE);
 
-  if( mGlesVersion >= 30 )
+  if(mGlesVersion >= 30)
   {
-    configAttribs.PushBack( EGL_OPENGL_ES3_BIT_KHR );
+    configAttribs.PushBack(EGL_OPENGL_ES3_BIT_KHR);
   }
   else
   {
-    configAttribs.PushBack( EGL_OPENGL_ES2_BIT );
+    configAttribs.PushBack(EGL_OPENGL_ES2_BIT);
   }
 
-// TODO: enable this flag when it becomes supported
-//  configAttribs.PushBack( EGL_CONTEXT_FLAGS_KHR );
-//  configAttribs.PushBack( EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR );
+  // TODO: enable this flag when it becomes supported
+  //  configAttribs.PushBack( EGL_CONTEXT_FLAGS_KHR );
+  //  configAttribs.PushBack( EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR );
 
-  configAttribs.PushBack( EGL_RED_SIZE );
-  configAttribs.PushBack( 8 );
-  configAttribs.PushBack( EGL_GREEN_SIZE );
-  configAttribs.PushBack( 8 );
-  configAttribs.PushBack( EGL_BLUE_SIZE );
-  configAttribs.PushBack( 8 );
+  configAttribs.PushBack(EGL_RED_SIZE);
+  configAttribs.PushBack(8);
+  configAttribs.PushBack(EGL_GREEN_SIZE);
+  configAttribs.PushBack(8);
+  configAttribs.PushBack(EGL_BLUE_SIZE);
+  configAttribs.PushBack(8);
 
-//  For underlay video playback, we also need to set the alpha value of the 24/32bit window.
-  configAttribs.PushBack( EGL_ALPHA_SIZE );
-  configAttribs.PushBack( 8 );
+  //  For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+  configAttribs.PushBack(EGL_ALPHA_SIZE);
+  configAttribs.PushBack(8);
 
-  configAttribs.PushBack( EGL_DEPTH_SIZE );
-  configAttribs.PushBack( mDepthBufferRequired ? 24 : 0 );
-  configAttribs.PushBack( EGL_STENCIL_SIZE );
-  configAttribs.PushBack( mStencilBufferRequired ? 8 : 0 );
+  configAttribs.PushBack(EGL_DEPTH_SIZE);
+  configAttribs.PushBack(mDepthBufferRequired ? 24 : 0);
+  configAttribs.PushBack(EGL_STENCIL_SIZE);
+  configAttribs.PushBack(mStencilBufferRequired ? 8 : 0);
 
 #ifndef DALI_PROFILE_UBUNTU
-  if( mMultiSamplingLevel != EGL_DONT_CARE )
+  if(mMultiSamplingLevel != EGL_DONT_CARE)
   {
-    configAttribs.PushBack( EGL_SAMPLES );
-    configAttribs.PushBack( mMultiSamplingLevel );
-    configAttribs.PushBack( EGL_SAMPLE_BUFFERS );
-    configAttribs.PushBack( 1 );
+    configAttribs.PushBack(EGL_SAMPLES);
+    configAttribs.PushBack(mMultiSamplingLevel);
+    configAttribs.PushBack(EGL_SAMPLE_BUFFERS);
+    configAttribs.PushBack(1);
   }
 #endif // DALI_PROFILE_UBUNTU
-  configAttribs.PushBack( EGL_NONE );
+  configAttribs.PushBack(EGL_NONE);
 
   // Ensure number of configs is set to 1 as on some drivers,
   // eglChooseConfig succeeds but does not actually create a proper configuration.
-  if ( ( eglChooseConfig( mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs ) != EGL_TRUE ) ||
-       ( numConfigs != 1 ) )
+  if((eglChooseConfig(mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs) != EGL_TRUE) ||
+     (numConfigs != 1))
   {
-    if( mGlesVersion >= 30 )
+    if(mGlesVersion >= 30)
     {
       mEglConfig = NULL;
       DALI_LOG_ERROR("Fail to use OpenGL es 3.0. Retrying to use OpenGL es 2.0.");
       return false;
     }
 
-    if ( numConfigs != 1 )
+    if(numConfigs != 1)
     {
       DALI_LOG_ERROR("No configurations found.\n");
 
@@ -572,7 +569,7 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     }
 
     EGLint error = eglGetError();
-    switch (error)
+    switch(error)
     {
       case EGL_BAD_DISPLAY:
       {
@@ -602,63 +599,63 @@ bool EglImplementation::ChooseConfig( bool isWindowType, ColorDepth depth )
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
     return false;
   }
-  Integration::Log::LogMessage(Integration::Log::DebugInfo, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10 );
+  Integration::Log::LogMessage(Integration::Log::DebugInfo, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10);
 
   mContextAttribs.Clear();
-  if( mIsKhrCreateContextSupported )
+  if(mIsKhrCreateContextSupported)
   {
     mContextAttribs.Reserve(5);
-    mContextAttribs.PushBack( EGL_CONTEXT_MAJOR_VERSION_KHR );
-    mContextAttribs.PushBack( mGlesVersion / 10 );
-    mContextAttribs.PushBack( EGL_CONTEXT_MINOR_VERSION_KHR );
-    mContextAttribs.PushBack( mGlesVersion % 10 );
+    mContextAttribs.PushBack(EGL_CONTEXT_MAJOR_VERSION_KHR);
+    mContextAttribs.PushBack(mGlesVersion / 10);
+    mContextAttribs.PushBack(EGL_CONTEXT_MINOR_VERSION_KHR);
+    mContextAttribs.PushBack(mGlesVersion % 10);
   }
   else
   {
     mContextAttribs.Reserve(3);
-    mContextAttribs.PushBack( EGL_CONTEXT_CLIENT_VERSION );
-    mContextAttribs.PushBack( mGlesVersion / 10 );
+    mContextAttribs.PushBack(EGL_CONTEXT_CLIENT_VERSION);
+    mContextAttribs.PushBack(mGlesVersion / 10);
   }
-  mContextAttribs.PushBack( EGL_NONE );
+  mContextAttribs.PushBack(EGL_NONE);
 
   return true;
 }
 
-EGLSurface EglImplementation::CreateSurfaceWindow( EGLNativeWindowType window, ColorDepth depth )
+EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth)
 {
   mEglNativeWindow = window;
-  mColorDepth = depth;
-  mIsWindow = true;
+  mColorDepth      = depth;
+  mIsWindow        = true;
 
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  mCurrentEglSurface = eglCreateWindowSurface( mEglDisplay, mEglConfig, mEglNativeWindow, NULL );
+  mCurrentEglSurface = eglCreateWindowSurface(mEglDisplay, mEglConfig, mEglNativeWindow, NULL);
   TEST_EGL_ERROR("eglCreateWindowSurface");
 
-  DALI_ASSERT_ALWAYS( mCurrentEglSurface && "Create window surface failed" );
+  DALI_ASSERT_ALWAYS(mCurrentEglSurface && "Create window surface failed");
 
   return mCurrentEglSurface;
 }
 
-EGLSurface EglImplementation::CreateSurfacePixmap( EGLNativePixmapType pixmap, ColorDepth depth )
+EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, ColorDepth depth)
 {
   mCurrentEglNativePixmap = pixmap;
-  mColorDepth = depth;
-  mIsWindow = false;
+  mColorDepth             = depth;
+  mIsWindow               = false;
 
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
-  mCurrentEglSurface = eglCreatePixmapSurface( mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL );
+  mCurrentEglSurface = eglCreatePixmapSurface(mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL);
   TEST_EGL_ERROR("eglCreatePixmapSurface");
 
-  DALI_ASSERT_ALWAYS( mCurrentEglSurface && "Create pixmap surface failed" );
+  DALI_ASSERT_ALWAYS(mCurrentEglSurface && "Create pixmap surface failed");
 
   return mCurrentEglSurface;
 }
 
-bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext )
+bool EglImplementation::ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext)
 {
   bool contextLost = false;
 
@@ -666,36 +663,36 @@ bool EglImplementation::ReplaceSurfaceWindow( EGLNativeWindowType window, EGLSur
   //  the surface is bound to the context, so set the context to null
   MakeContextNull();
 
-  if( eglSurface )
+  if(eglSurface)
   {
     // destroy the surface
-    DestroySurface( eglSurface );
+    DestroySurface(eglSurface);
   }
 
   // create the EGL surface
-  EGLSurface newEglSurface = CreateSurfaceWindow( window, mColorDepth );
+  EGLSurface newEglSurface = CreateSurfaceWindow(window, mColorDepth);
 
   // set the context to be current with the new surface
-  MakeContextCurrent( newEglSurface, eglContext );
+  MakeContextCurrent(newEglSurface, eglContext);
 
   return contextLost;
 }
 
-bool EglImplementation::ReplaceSurfacePixmap( EGLNativePixmapType pixmap, EGLSurface& eglSurface )
+bool EglImplementation::ReplaceSurfacePixmap(EGLNativePixmapType pixmap, EGLSurface& eglSurface)
 {
   bool contextLost = false;
 
   // display connection has not changed, then we can just create a new surface
   // create the EGL surface
-  eglSurface = CreateSurfacePixmap( pixmap, mColorDepth );
+  eglSurface = CreateSurfacePixmap(pixmap, mColorDepth);
 
   // set the eglSurface to be current
-  MakeCurrent( pixmap, eglSurface );
+  MakeCurrent(pixmap, eglSurface);
 
   return contextLost;
 }
 
-void EglImplementation::SetGlesVersion( const int32_t glesVersion )
+void EglImplementation::SetGlesVersion(const int32_t glesVersion)
 {
   mGlesVersion = glesVersion;
 }
@@ -728,7 +725,7 @@ bool EglImplementation::IsSurfacelessContextSupported() const
 void EglImplementation::WaitClient()
 {
   // Wait for EGL to finish executing all rendering calls for the current context
-  if ( eglWaitClient() != EGL_TRUE )
+  if(eglWaitClient() != EGL_TRUE)
   {
     TEST_EGL_ERROR("eglWaitClient");
   }

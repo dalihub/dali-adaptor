@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,7 +205,7 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create the scene
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  int orientation = mSurface->GetOrientation();
+  int          orientation         = mSurface->GetOrientation();
   mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), orientation);
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);

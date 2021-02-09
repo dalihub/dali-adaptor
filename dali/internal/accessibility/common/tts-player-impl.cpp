@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,40 +15,33 @@
  *
  */
 
-#include <dali/internal/accessibility/common/tts-player-impl.h>
 #include <dali/internal/accessibility/common/tts-player-factory.h>
+#include <dali/internal/accessibility/common/tts-player-impl.h>
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 Dali::TtsPlayer TtsPlayer::New(Dali::TtsPlayer::Mode mode)
 {
   return Dali::TtsPlayer(TtsPlayerFactory::New(mode).release());
 }
 
-void TtsPlayer::Play(const std::string &text)
+void TtsPlayer::Play(const std::string& text)
 {
-
 }
 
 void TtsPlayer::Stop()
 {
-
 }
 
 void TtsPlayer::Pause()
 {
-
 }
 
 void TtsPlayer::Resume()
 {
-
 }
 
 Dali::TtsPlayer::State TtsPlayer::GetState()
@@ -62,6 +55,6 @@ Dali::TtsPlayer::StateChangedSignalType& TtsPlayer::StateChangedSignal()
   return signal;
 }
 
-}
-}
-}
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

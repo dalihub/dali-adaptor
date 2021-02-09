@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 
 namespace Dali
 {
-
 namespace Integration
 {
 class Core;
@@ -31,10 +30,8 @@ class Core;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief Monitors the given file descriptor and whenever anything is written to it, the provided
  * callback is called
@@ -42,7 +39,6 @@ namespace Adaptor
 class FileDescriptorMonitor
 {
 public:
-
   /**
    * @brief Bitmask of file descriptor event types
    */
@@ -87,7 +83,7 @@ public:
    * readable or writable even when it isn’t. The developer should check for handle EAGAIN or equivalent
    * when reading from or write to the fd.
    */
-  FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask );
+  FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask);
 
   /**
    * Destructor
@@ -95,12 +91,11 @@ public:
   ~FileDescriptorMonitor();
 
 private:
+  // Undefined
+  FileDescriptorMonitor(const FileDescriptorMonitor& fileDescriptorMonitor);
 
   // Undefined
-  FileDescriptorMonitor( const FileDescriptorMonitor& fileDescriptorMonitor );
-
-  // Undefined
-  FileDescriptorMonitor& operator=( const FileDescriptorMonitor& fileDescriptorMonitor );
+  FileDescriptorMonitor& operator=(const FileDescriptorMonitor& fileDescriptorMonitor);
 
 private:
   struct Impl;

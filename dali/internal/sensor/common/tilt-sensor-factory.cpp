@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  *
  */
 
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
 #include <dali/internal/sensor/common/tilt-sensor-impl.h>
-#include <dali/devel-api/common/singleton-service.h>
 
 namespace Dali
 {
@@ -25,7 +25,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 namespace TiltSensorFactory
 {
 __attribute__((weak)) Dali::Internal::Adaptor::TiltSensor* Create()
@@ -40,14 +39,14 @@ Dali::TiltSensor Get()
 
   Dali::SingletonService service(SingletonService::Get());
 
-  if (service)
+  if(service)
   {
     // Check whether the keyboard focus manager is already created
     Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TiltSensor));
-    if (handle)
+    if(handle)
     {
       // If so, downcast the handle of singleton to keyboard focus manager
-      sensor = Dali::TiltSensor(dynamic_cast< TiltSensor * >( handle.GetObjectPtr()));
+      sensor = Dali::TiltSensor(dynamic_cast<TiltSensor*>(handle.GetObjectPtr()));
     }
     else
     {
@@ -59,10 +58,10 @@ Dali::TiltSensor Get()
   }
   return sensor;
 }
-}
+} // namespace TiltSensorFactory
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

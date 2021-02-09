@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_PORTABLE_FILE_READER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,27 +28,26 @@ namespace Internal
 {
 namespace Platform
 {
-
 class FileReader : public FileStream
 {
 public:
-  FileReader( const std::string& filename )
-  : FileStream( filename, FileStream::READ | FileStream::BINARY )
+  FileReader(const std::string& filename)
+  : FileStream(filename, FileStream::READ | FileStream::BINARY)
   {
   }
 
-  FileReader( Dali::Vector<uint8_t>& vector )
-  : FileStream( &vector[0], vector.Size(), FileStream::READ | FileStream::BINARY )
+  FileReader(Dali::Vector<uint8_t>& vector)
+  : FileStream(&vector[0], vector.Size(), FileStream::READ | FileStream::BINARY)
   {
   }
 
-  FileReader( Dali::Vector<uint8_t>& vector, size_t dataSize )
-  : FileStream( &vector[0], dataSize, FileStream::READ | FileStream::BINARY )
+  FileReader(Dali::Vector<uint8_t>& vector, size_t dataSize)
+  : FileStream(&vector[0], dataSize, FileStream::READ | FileStream::BINARY)
   {
   }
 
-  FileReader( uint8_t* data, size_t dataSize )
-  : FileStream( data, dataSize, FileStream::READ | FileStream::BINARY )
+  FileReader(uint8_t* data, size_t dataSize)
+  : FileStream(data, dataSize, FileStream::READ | FileStream::BINARY)
   {
   }
 };

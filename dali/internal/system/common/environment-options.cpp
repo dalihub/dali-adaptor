@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,33 +19,30 @@
 #include <dali/internal/system/common/environment-options.h>
 
 // EXTERNAL INCLUDES
-#include <cstdlib>
-#include <functional>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/math/math-utils.h>
+#include <cstdlib>
+#include <functional>
 
 // INTERNAL INCLUDES
-#include <dali/internal/trace/common/trace-factory.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/trace/common/trace-factory.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY = 2;
-const int DEFAULT_MULTI_SAMPLING_LEVEL = -1;
-const bool DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING = true;
-const bool DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
-const bool DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;
+const unsigned int DEFAULT_STATISTICS_LOG_FREQUENCY        = 2;
+const int          DEFAULT_MULTI_SAMPLING_LEVEL            = -1;
+const bool         DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING   = true;
+const bool         DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
+const bool         DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;
 
-unsigned int GetEnvironmentVariable( const char* variable, unsigned int defaultValue )
+unsigned int GetEnvironmentVariable(const char* variable, unsigned int defaultValue)
 {
   const char* variableParameter = std::getenv(variable);
 
@@ -54,11 +51,11 @@ unsigned int GetEnvironmentVariable( const char* variable, unsigned int defaultV
   return intValue;
 }
 
-bool GetEnvironmentVariable( const char* variable, int& intValue )
+bool GetEnvironmentVariable(const char* variable, int& intValue)
 {
   const char* variableParameter = std::getenv(variable);
 
-  if( !variableParameter )
+  if(!variableParameter)
   {
     return false;
   }
@@ -67,11 +64,11 @@ bool GetEnvironmentVariable( const char* variable, int& intValue )
   return true;
 }
 
-bool GetEnvironmentVariable( const char* variable, float& floatValue )
+bool GetEnvironmentVariable(const char* variable, float& floatValue)
 {
   const char* variableParameter = std::getenv(variable);
 
-  if( !variableParameter )
+  if(!variableParameter)
   {
     return false;
   }
@@ -82,7 +79,7 @@ bool GetEnvironmentVariable( const char* variable, float& floatValue )
 
 void SetFromEnvironmentVariable(const char* variable, std::string& stringValue)
 {
-  const char * charValue = std::getenv( variable );
+  const char* charValue = std::getenv(variable);
   if(charValue)
   {
     stringValue = charValue;
@@ -136,7 +133,7 @@ struct ClampBetweenZeroAndOne
 
   void operator()(float value)
   {
-    value = Clamp(value, 0.0f, 1.0f);
+    value        = Clamp(value, 0.0f, 1.0f);
     mMemberValue = value;
   }
 
@@ -161,17 +158,20 @@ struct GreaterThan
   }
 
   unsigned int& mMemberValue;
-  const int mGreaterThanValue;
+  const int     mGreaterThanValue;
 };
 
 /// Provides a functor which sets the member to 1 if if the environment variable value is not zero
 struct EnableIfNonZero
 {
-  EnableIfNonZero(int& memberValue) : mMemberValue(memberValue) {}
+  EnableIfNonZero(int& memberValue)
+  : mMemberValue(memberValue)
+  {
+  }
 
   void operator()(int value)
   {
-    mMemberValue = ( value == 0 ) ? 0 : 1;
+    mMemberValue = (value == 0) ? 0 : 1;
   }
 
   int& mMemberValue;
@@ -180,11 +180,14 @@ struct EnableIfNonZero
 /// Provides a functor which sets the member to false if the environment variable value is not zero
 struct DisableIfNonZero
 {
-  DisableIfNonZero(bool& memberValue) : mMemberValue(memberValue) {}
+  DisableIfNonZero(bool& memberValue)
+  : mMemberValue(memberValue)
+  {
+  }
 
   void operator()(int value)
   {
-    if( value > 0 )
+    if(value > 0)
     {
       mMemberValue = false;
     }
@@ -193,56 +196,55 @@ struct DisableIfNonZero
   bool& mMemberValue;
 };
 
-
 } // unnamed namespace
 
 EnvironmentOptions::EnvironmentOptions()
-: mLogFunction( NULL ),
+: mLogFunction(NULL),
   mWindowName(),
   mWindowClassName(),
-  mNetworkControl( 0 ),
-  mFpsFrequency( 0 ),
-  mUpdateStatusFrequency( 0 ),
-  mObjectProfilerInterval( 0 ),
-  mPerformanceStatsLevel( 0 ),
-  mPerformanceStatsFrequency( DEFAULT_STATISTICS_LOG_FREQUENCY ),
-  mPerformanceTimeStampOutput( 0 ),
-  mPanGestureLoggingLevel( 0 ),
-  mWindowWidth( 0u ),
-  mWindowHeight( 0u ),
-  mRenderRefreshRate( 1u ),
-  mMaxTextureSize( 0 ),
-  mRenderToFboInterval( 0u ),
-  mPanGesturePredictionMode( -1 ),
-  mPanGesturePredictionAmount( -1 ), ///< only sets value in pan gesture if greater than 0
-  mPanGestureMaxPredictionAmount( -1 ),
-  mPanGestureMinPredictionAmount( -1 ),
-  mPanGesturePredictionAmountAdjustment( -1 ),
-  mPanGestureSmoothingMode( -1 ),
-  mPanGestureSmoothingAmount( -1.0f ),
-  mPanGestureUseActualTimes( -1 ),
-  mPanGestureInterpolationTimeRange( -1 ),
-  mPanGestureScalarOnlyPredictionEnabled( -1 ),
-  mPanGestureTwoPointPredictionEnabled( -1 ),
-  mPanGestureTwoPointInterpolatePastTime( -1 ),
-  mPanGestureTwoPointVelocityBias( -1.0f ),
-  mPanGestureTwoPointAccelerationBias( -1.0f ),
-  mPanGestureMultitapSmoothingRange( -1 ),
-  mPanMinimumDistance( -1 ),
-  mPanMinimumEvents( -1 ),
-  mPinchMinimumDistance( -1.0f ),
-  mPinchMinimumTouchEvents( -1 ),
-  mPinchMinimumTouchEventsAfterStart( -1 ),
-  mRotationMinimumTouchEvents( -1 ),
-  mRotationMinimumTouchEventsAfterStart( -1 ),
-  mLongPressMinimumHoldingTime( -1 ),
-  mGlesCallTime( 0 ),
-  mMultiSamplingLevel( DEFAULT_MULTI_SAMPLING_LEVEL ),
-  mThreadingMode( ThreadingMode::COMBINED_UPDATE_RENDER ),
-  mGlesCallAccumulate( false ),
-  mDepthBufferRequired( DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING ),
-  mStencilBufferRequired( DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING ),
-  mPartialUpdateRequired( DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING )
+  mNetworkControl(0),
+  mFpsFrequency(0),
+  mUpdateStatusFrequency(0),
+  mObjectProfilerInterval(0),
+  mPerformanceStatsLevel(0),
+  mPerformanceStatsFrequency(DEFAULT_STATISTICS_LOG_FREQUENCY),
+  mPerformanceTimeStampOutput(0),
+  mPanGestureLoggingLevel(0),
+  mWindowWidth(0u),
+  mWindowHeight(0u),
+  mRenderRefreshRate(1u),
+  mMaxTextureSize(0),
+  mRenderToFboInterval(0u),
+  mPanGesturePredictionMode(-1),
+  mPanGesturePredictionAmount(-1), ///< only sets value in pan gesture if greater than 0
+  mPanGestureMaxPredictionAmount(-1),
+  mPanGestureMinPredictionAmount(-1),
+  mPanGesturePredictionAmountAdjustment(-1),
+  mPanGestureSmoothingMode(-1),
+  mPanGestureSmoothingAmount(-1.0f),
+  mPanGestureUseActualTimes(-1),
+  mPanGestureInterpolationTimeRange(-1),
+  mPanGestureScalarOnlyPredictionEnabled(-1),
+  mPanGestureTwoPointPredictionEnabled(-1),
+  mPanGestureTwoPointInterpolatePastTime(-1),
+  mPanGestureTwoPointVelocityBias(-1.0f),
+  mPanGestureTwoPointAccelerationBias(-1.0f),
+  mPanGestureMultitapSmoothingRange(-1),
+  mPanMinimumDistance(-1),
+  mPanMinimumEvents(-1),
+  mPinchMinimumDistance(-1.0f),
+  mPinchMinimumTouchEvents(-1),
+  mPinchMinimumTouchEventsAfterStart(-1),
+  mRotationMinimumTouchEvents(-1),
+  mRotationMinimumTouchEventsAfterStart(-1),
+  mLongPressMinimumHoldingTime(-1),
+  mGlesCallTime(0),
+  mMultiSamplingLevel(DEFAULT_MULTI_SAMPLING_LEVEL),
+  mThreadingMode(ThreadingMode::COMBINED_UPDATE_RENDER),
+  mGlesCallAccumulate(false),
+  mDepthBufferRequired(DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING),
+  mStencilBufferRequired(DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING),
+  mPartialUpdateRequired(DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING)
 {
   ParseEnvironmentOptions();
 }
@@ -251,27 +253,27 @@ EnvironmentOptions::~EnvironmentOptions()
 {
 }
 
-void EnvironmentOptions::CreateTraceManager( PerformanceInterface* performanceInterface )
+void EnvironmentOptions::CreateTraceManager(PerformanceInterface* performanceInterface)
 {
-  mTraceManager = TraceManagerFactory::CreateTraceFactory( performanceInterface );
+  mTraceManager = TraceManagerFactory::CreateTraceFactory(performanceInterface);
 }
 
 void EnvironmentOptions::InstallTraceFunction() const
 {
-  if( mTraceManager )
+  if(mTraceManager)
   {
     mTraceManager->Initialise();
   }
 }
 
-void EnvironmentOptions::SetLogFunction( const Dali::Integration::Log::LogFunction& logFunction )
+void EnvironmentOptions::SetLogFunction(const Dali::Integration::Log::LogFunction& logFunction)
 {
   mLogFunction = logFunction;
 }
 
 void EnvironmentOptions::InstallLogFunction() const
 {
-  Dali::Integration::Log::InstallLogFunction( mLogFunction );
+  Dali::Integration::Log::InstallLogFunction(mLogFunction);
 }
 
 void EnvironmentOptions::UnInstallLogFunction() const
@@ -488,9 +490,9 @@ unsigned int EnvironmentOptions::GetRenderToFboInterval() const
 
 bool EnvironmentOptions::PerformanceServerRequired() const
 {
-  return ( ( GetPerformanceStatsLoggingOptions() > 0) ||
-           ( GetPerformanceTimeStampOutput() > 0 ) ||
-           ( GetNetworkControlMode() > 0) );
+  return ((GetPerformanceStatsLoggingOptions() > 0) ||
+          (GetPerformanceTimeStampOutput() > 0) ||
+          (GetNetworkControlMode() > 0));
 }
 
 bool EnvironmentOptions::DepthBufferRequired() const
@@ -511,22 +513,21 @@ bool EnvironmentOptions::PartialUpdateRequired() const
 void EnvironmentOptions::ParseEnvironmentOptions()
 {
   // get logging options
-  mFpsFrequency = GetEnvironmentVariable( DALI_ENV_FPS_TRACKING, 0 );
-  mUpdateStatusFrequency = GetEnvironmentVariable( DALI_ENV_UPDATE_STATUS_INTERVAL, 0 );
-  mObjectProfilerInterval = GetEnvironmentVariable( DALI_ENV_OBJECT_PROFILER_INTERVAL, 0 );
-  mPerformanceStatsLevel = GetEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS, 0 );
-  mPerformanceStatsFrequency = GetEnvironmentVariable( DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0 );
-  mPerformanceTimeStampOutput = GetEnvironmentVariable( DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0 );
-  mNetworkControl = GetEnvironmentVariable( DALI_ENV_NETWORK_CONTROL, 0 );
-  mPanGestureLoggingLevel = GetEnvironmentVariable( DALI_ENV_LOG_PAN_GESTURE, 0 );
+  mFpsFrequency               = GetEnvironmentVariable(DALI_ENV_FPS_TRACKING, 0);
+  mUpdateStatusFrequency      = GetEnvironmentVariable(DALI_ENV_UPDATE_STATUS_INTERVAL, 0);
+  mObjectProfilerInterval     = GetEnvironmentVariable(DALI_ENV_OBJECT_PROFILER_INTERVAL, 0);
+  mPerformanceStatsLevel      = GetEnvironmentVariable(DALI_ENV_LOG_PERFORMANCE_STATS, 0);
+  mPerformanceStatsFrequency  = GetEnvironmentVariable(DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0);
+  mPerformanceTimeStampOutput = GetEnvironmentVariable(DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0);
+  mNetworkControl             = GetEnvironmentVariable(DALI_ENV_NETWORK_CONTROL, 0);
+  mPanGestureLoggingLevel     = GetEnvironmentVariable(DALI_ENV_LOG_PAN_GESTURE, 0);
 
   SetFromEnvironmentVariable(DALI_ENV_PAN_PREDICTION_MODE, mPanGesturePredictionMode);
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_PREDICTION_AMOUNT, MinimumZero(mPanGesturePredictionAmount));
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MIN_PREDICTION_AMOUNT, MinimumZero(mPanGestureMinPredictionAmount));
   SetFromEnvironmentVariable<int>(DALI_ENV_PAN_MAX_PREDICTION_AMOUNT,
-                                  [&](int maxPredictionAmount)
-                                  {
-                                    if( mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount )
+                                  [&](int maxPredictionAmount) {
+                                    if(mPanGestureMinPredictionAmount > -1 && maxPredictionAmount < mPanGestureMinPredictionAmount)
                                     {
                                       // maximum amount should not be smaller than minimum amount
                                       maxPredictionAmount = mPanGestureMinPredictionAmount;
@@ -560,22 +561,21 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_GLES_CALL_ACCUMULATE, [&](int glesCallAccumulate) { mGlesCallAccumulate = glesCallAccumulate != 0; });
 
   int windowWidth(0), windowHeight(0);
-  if ( GetEnvironmentVariable( DALI_WINDOW_WIDTH, windowWidth ) && GetEnvironmentVariable( DALI_WINDOW_HEIGHT, windowHeight ) )
+  if(GetEnvironmentVariable(DALI_WINDOW_WIDTH, windowWidth) && GetEnvironmentVariable(DALI_WINDOW_HEIGHT, windowHeight))
   {
-    mWindowWidth = windowWidth;
+    mWindowWidth  = windowWidth;
     mWindowHeight = windowHeight;
   }
-  SetFromEnvironmentVariable(DALI_WINDOW_NAME, mWindowName );
+  SetFromEnvironmentVariable(DALI_WINDOW_NAME, mWindowName);
   SetFromEnvironmentVariable(DALI_WINDOW_CLASS_NAME, mWindowClassName);
 
   SetFromEnvironmentVariable<int>(DALI_THREADING_MODE,
-                                  [&](int threadingMode)
-                                  {
-                                    switch( threadingMode )
+                                  [&](int threadingMode) {
+                                    switch(threadingMode)
                                     {
                                       case ThreadingMode::COMBINED_UPDATE_RENDER:
                                       {
-                                        mThreadingMode = static_cast< ThreadingMode::Type >( threadingMode );
+                                        mThreadingMode = static_cast<ThreadingMode::Type>(threadingMode);
                                         break;
                                       }
                                     }
@@ -587,14 +587,13 @@ void EnvironmentOptions::ParseEnvironmentOptions()
 
   SetFromEnvironmentVariable<int>(DALI_ENV_MAX_TEXTURE_SIZE, GreaterThan(mMaxTextureSize, 0));
 
-  mRenderToFboInterval = GetEnvironmentVariable( DALI_RENDER_TO_FBO, 0u );
+  mRenderToFboInterval = GetEnvironmentVariable(DALI_RENDER_TO_FBO, 0u);
 
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_DEPTH_BUFFER,
-                                  [&](int depthBufferRequired)
-                                  {
-                                    if( depthBufferRequired > 0 )
+                                  [&](int depthBufferRequired) {
+                                    if(depthBufferRequired > 0)
                                     {
-                                      mDepthBufferRequired = false;
+                                      mDepthBufferRequired   = false;
                                       mStencilBufferRequired = false; // Disable stencil buffer as well
                                     }
                                   });
@@ -603,8 +602,8 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_PARTIAL_UPDATE, DisableIfNonZero(mPartialUpdateRequired));
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

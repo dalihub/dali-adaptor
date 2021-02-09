@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,17 @@
 #include <windows.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/windows/platform-implement-win.h>
 #include <dali/internal/system/common/callback-manager.h>
+#include <dali/internal/window-system/windows/platform-implement-win.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 /// Application Status Enum
 enum
 {
@@ -58,10 +54,10 @@ struct Framework::Impl
   // Constructor
 
   Impl(void* data)
-  : mAbortCallBack( NULL ),
-    mCallbackManager( CallbackManager::New() ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" )
+  : mAbortCallBack(NULL),
+    mCallbackManager(CallbackManager::New()),
+    mLanguage("NOT_SUPPORTED"),
+    mRegion("NOT_SUPPORTED")
   {
   }
 
@@ -90,7 +86,7 @@ struct Framework::Impl
   /**
    * Called by AppCore on application creation.
    */
-  static bool AppCreate(void *data)
+  static bool AppCreate(void* data)
   {
     return static_cast<Framework*>(data)->AppStatusHandler(APP_CREATE, NULL);
   }
@@ -98,7 +94,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application should terminate.
    */
-  static void AppTerminate(void *data)
+  static void AppTerminate(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_TERMINATE, NULL);
   }
@@ -106,7 +102,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application is paused.
    */
-  static void AppPause(void *data)
+  static void AppPause(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_PAUSE, NULL);
   }
@@ -114,7 +110,7 @@ struct Framework::Impl
   /**
    * Called by AppCore when the application is resumed.
    */
-  static void AppResume(void *data)
+  static void AppResume(void* data)
   {
     static_cast<Framework*>(data)->AppStatusHandler(APP_RESUME, NULL);
   }
@@ -129,13 +125,13 @@ struct Framework::Impl
 
   void Run()
   {
-    MSG nMsg = { 0 };
+    MSG nMsg = {0};
 
-    while (GetMessage(&nMsg, 0, NULL, NULL))
+    while(GetMessage(&nMsg, 0, NULL, NULL))
     {
-      if (WIN_CALLBACK_EVENT == nMsg.message)
+      if(WIN_CALLBACK_EVENT == nMsg.message)
       {
-        Dali::CallbackBase *callback = (Dali::CallbackBase*)nMsg.wParam;
+        Dali::CallbackBase* callback = (Dali::CallbackBase*)nMsg.wParam;
         Dali::CallbackBase::Execute(*callback);
       }
 
@@ -144,7 +140,7 @@ struct Framework::Impl
 
       mCallbackManager->ClearIdleCallbacks();
 
-      if (WM_CLOSE == nMsg.message)
+      if(WM_CLOSE == nMsg.message)
       {
         break;
       }
@@ -155,16 +151,16 @@ struct Framework::Impl
   {
   }
 
-  void SetCallbackBase( CallbackBase *base )
+  void SetCallbackBase(CallbackBase* base)
   {
     mAbortCallBack = base;
   }
 
   bool ExcuteCallback()
   {
-    if( NULL != mAbortCallBack )
+    if(NULL != mAbortCallBack)
     {
-      CallbackBase::Execute( *mAbortCallBack );
+      CallbackBase::Execute(*mAbortCallBack);
       return true;
     }
     else
@@ -175,20 +171,20 @@ struct Framework::Impl
 
 private:
   // Undefined
-  Impl( const Impl& impl ) = delete;
+  Impl(const Impl& impl) = delete;
 
   // Undefined
-  Impl& operator=( const Impl& impl ) = delete;
+  Impl& operator=(const Impl& impl) = delete;
 
 private:
   // Data
-  CallbackBase* mAbortCallBack;
-  CallbackManager *mCallbackManager;
-  std::string mLanguage;
-  std::string mRegion;
+  CallbackBase*    mAbortCallBack;
+  CallbackManager* mCallbackManager;
+  std::string      mLanguage;
+  std::string      mRegion;
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
+Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Type type)
 : mObserver(observer),
   mInitialised(false),
   mPaused(false),
@@ -197,16 +193,16 @@ Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Ty
   mArgv(argv),
   mBundleName(""),
   mBundleId(""),
-  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
+  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
   mImpl(NULL)
 {
-    InitThreads();
-    mImpl = new Impl(this);
+  InitThreads();
+  mImpl = new Impl(this);
 }
 
 Framework::~Framework()
 {
-  if (mRunning)
+  if(mRunning)
   {
     Quit();
   }
@@ -216,11 +212,11 @@ Framework::~Framework()
 
 void Framework::Run()
 {
-    mRunning = true;
+  mRunning = true;
 
-    Impl::AppCreate(this);
-    mImpl->Run();
-    mRunning = false;
+  Impl::AppCreate(this);
+  mImpl->Run();
+  mRunning = false;
 }
 
 void Framework::Quit()
@@ -233,9 +229,9 @@ bool Framework::IsMainLoopRunning()
   return mRunning;
 }
 
-void Framework::AddAbortCallback( CallbackBase* callback )
+void Framework::AddAbortCallback(CallbackBase* callback)
 {
-  mImpl->SetCallbackBase( callback );
+  mImpl->SetCallbackBase(callback);
 }
 
 std::string Framework::GetBundleName() const
@@ -257,17 +253,17 @@ std::string Framework::GetResourcePath()
 {
   // "DALI_APPLICATION_PACKAGE" is used by Windows specifically to get the already configured Application package path.
   const char* winEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
-  char* value = getenv( winEnvironmentVariable );
+  char*       value                  = getenv(winEnvironmentVariable);
 
   std::string resourcePath;
-  if ( value != NULL )
+  if(value != NULL)
   {
     resourcePath = value;
   }
 
-  if( resourcePath.back() != '/' )
+  if(resourcePath.back() != '/')
   {
-    resourcePath+="/";
+    resourcePath += "/";
   }
 
   return resourcePath;
@@ -284,18 +280,18 @@ void Framework::SetBundleId(const std::string& id)
   mBundleId = id;
 }
 
-void Framework::AbortCallback( )
+void Framework::AbortCallback()
 {
   // if an abort call back has been installed run it.
-  if( false == mImpl->ExcuteCallback() )
+  if(false == mImpl->ExcuteCallback())
   {
     Quit();
   }
 }
 
-bool Framework::AppStatusHandler(int type, void *bundleData)
+bool Framework::AppStatusHandler(int type, void* bundleData)
 {
-  switch (type)
+  switch(type)
   {
     case APP_CREATE:
     {

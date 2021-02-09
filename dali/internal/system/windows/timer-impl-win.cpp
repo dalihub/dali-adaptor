@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,30 +23,27 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 // LOCAL STUFF
 namespace
 {
-bool TimerSourceFunc (void *data)
+bool TimerSourceFunc(void* data)
 {
   Timer* timer = static_cast<Timer*>(data);
   return timer->Tick();
 }
-}
+} // namespace
 
 /**
  * Struct to hide away Windows implementation details
  */
 struct Timer::Impl
 {
-  Impl( unsigned int milliSec ) :
-    mId(-1),
+  Impl(unsigned int milliSec)
+  : mId(-1),
     mInterval(milliSec)
   {
   }
@@ -56,13 +53,13 @@ struct Timer::Impl
   unsigned int mInterval;
 };
 
-TimerPtr Timer::New( unsigned int milliSec )
+TimerPtr Timer::New(unsigned int milliSec)
 {
-  TimerPtr timer( new Timer( milliSec ) );
+  TimerPtr timer(new Timer(milliSec));
   return timer;
 }
 
-Timer::Timer( unsigned int milliSec )
+Timer::Timer(unsigned int milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
@@ -78,34 +75,32 @@ Timer::~Timer()
 
 void Timer::Start()
 {
-  if( 0 > mImpl->mId )
+  if(0 > mImpl->mId)
   {
-    mImpl->mId = WindowsPlatform::SetTimer( mImpl->mInterval, TimerSourceFunc, this );
+    mImpl->mId = WindowsPlatform::SetTimer(mImpl->mInterval, TimerSourceFunc, this);
   }
 }
 
 void Timer::Stop()
 {
-  if( 0 <= mImpl->mId )
+  if(0 <= mImpl->mId)
   {
-    WindowsPlatform::KillTimer( mImpl->mId );
+    WindowsPlatform::KillTimer(mImpl->mId);
     mImpl->mId = -1;
   }
 }
 
 void Timer::Pause()
 {
-
 }
 
 void Timer::Resume()
 {
-
 }
 
-void Timer::SetInterval( unsigned int interval, bool restart )
+void Timer::SetInterval(unsigned int interval, bool restart)
 {
-  if( true == restart )
+  if(true == restart)
   {
     // stop existing timer
     Stop();
@@ -127,23 +122,23 @@ unsigned int Timer::GetInterval() const
 bool Timer::Tick()
 {
   // Guard against destruction during signal emission
-  Dali::Timer handle( this );
+  Dali::Timer handle(this);
 
-  bool retVal( false );
+  bool retVal(false);
 
   // Override with new signal if used
-  if( !mTickSignal.Empty() )
+  if(!mTickSignal.Empty())
   {
     retVal = mTickSignal.Emit();
 
     // Timer stops if return value is false
-    if (retVal == false)
+    if(retVal == false)
     {
       Stop();
     }
     else
     {
-      retVal = true;   // continue emission
+      retVal = true; // continue emission
     }
   }
   else // no callbacks registered
@@ -170,4 +165,3 @@ bool Timer::IsRunning() const
 } // namespace Internal
 
 } // namespace Dali
-

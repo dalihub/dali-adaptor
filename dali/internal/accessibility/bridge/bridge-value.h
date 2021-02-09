@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_VALUE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ protected:
 
 public:
   double GetCurrentValue();
-  void SetCurrentValue( double new_value );
+  void   SetCurrentValue(double new_value);
   double GetMaximumValue();
   double GetMinimumIncrement();
   double GetMinimumValue();

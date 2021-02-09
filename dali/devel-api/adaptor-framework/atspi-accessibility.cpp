@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/atspi-accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/atspi-accessibility.h>
 
 void Dali::AtspiAccessibility::Pause()
 {
-  if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Pause();
   }
@@ -28,25 +28,25 @@ void Dali::AtspiAccessibility::Pause()
 
 void Dali::AtspiAccessibility::Resume()
 {
-  if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Resume();
   }
 }
 
-void Dali::AtspiAccessibility::Say( const std::string& text, bool discardable, std::function<void( std::string )> callback )
+void Dali::AtspiAccessibility::Say(const std::string& text, bool discardable, std::function<void(std::string)> callback)
 {
-  if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
     bridge->Say(text, discardable, callback);
   }
 }
 
-int Dali::AtspiAccessibility::SetForcefully( bool turnOn )
+int Dali::AtspiAccessibility::SetForcefully(bool turnOn)
 {
-  if( turnOn )
+  if(turnOn)
   {
-    if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
     {
       bridge->Initialize();
       auto ret = bridge->ForceUp();
@@ -55,7 +55,7 @@ int Dali::AtspiAccessibility::SetForcefully( bool turnOn )
   }
   else
   {
-    if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+    if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
     {
       bridge->ForceDown();
       return 0;
@@ -67,11 +67,11 @@ int Dali::AtspiAccessibility::SetForcefully( bool turnOn )
 int Dali::AtspiAccessibility::GetStatus()
 {
   //0(ATSPI OFF, ScreenReader OFF), 1(ATSPI ON, ScreenReader OFF), 2 (ATSPI OFF, ScreenReader ON), 3(ATSPI ON, ScreenReader ON)
-  if( auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge() )
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
-    if( bridge->GetScreenReaderEnabled() )
+    if(bridge->GetScreenReaderEnabled())
     {
-      if( bridge->GetIsEnabled() )
+      if(bridge->GetIsEnabled())
       {
         return 3;
       }
@@ -82,7 +82,7 @@ int Dali::AtspiAccessibility::GetStatus()
     }
     else
     {
-      if( bridge->GetIsEnabled() )
+      if(bridge->GetIsEnabled())
       {
         return 1;
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,45 +19,44 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/object-registry.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
-
-Adaptor& Adaptor::New( Window window )
+Adaptor& Adaptor::New(Window window)
 {
-  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), NULL );
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
+  Adaptor*                        adaptor     = Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(sceneHolder), NULL);
   return *adaptor;
 }
 
-Adaptor& Adaptor::New( Window window, const Dali::RenderSurfaceInterface& surface )
+Adaptor& Adaptor::New(Window window, const Dali::RenderSurfaceInterface& surface)
 {
-  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
-  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( Dali::Integration::SceneHolder( sceneHolder ), pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL );
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
+  Dali::RenderSurfaceInterface*   pSurface    = const_cast<Dali::RenderSurfaceInterface*>(&surface);
+  Adaptor*                        adaptor     = Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(sceneHolder), pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
 
-Adaptor& Adaptor::New( Dali::Integration::SceneHolder window )
+Adaptor& Adaptor::New(Dali::Integration::SceneHolder window)
 {
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, NULL );
+  Adaptor* adaptor = Internal::Adaptor::Adaptor::New(window, NULL);
   return *adaptor;
 }
 
-Adaptor& Adaptor::New( Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface )
+Adaptor& Adaptor::New(Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface)
 {
-  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface *>(&surface);
-  Adaptor* adaptor = Internal::Adaptor::Adaptor::New( window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL );
+  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface*>(&surface);
+  Adaptor*                      adaptor  = Internal::Adaptor::Adaptor::New(window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
 
@@ -86,39 +85,39 @@ void Adaptor::Stop()
   mImpl->Stop();
 }
 
-bool Adaptor::AddIdle( CallbackBase* callback, bool hasReturnValue )
+bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue)
 {
-  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
-  return mImpl->AddIdle( callback, hasReturnValue, false );
+  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
+  return mImpl->AddIdle(callback, hasReturnValue, false);
 }
 
-bool Adaptor::AddWindow( Dali::Integration::SceneHolder childWindow )
+bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)
 {
-  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
-  return mImpl->AddWindow( childWindow );
+  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
+  return mImpl->AddWindow(childWindow);
 }
 
-void Adaptor::RemoveIdle( CallbackBase* callback )
+void Adaptor::RemoveIdle(CallbackBase* callback)
 {
-  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
-  mImpl->RemoveIdle( callback );
+  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
+  mImpl->RemoveIdle(callback);
 }
 
 void Adaptor::ProcessIdle()
 {
-  DALI_ASSERT_ALWAYS( IsAvailable() && "Adaptor not instantiated" );
+  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
   mImpl->ProcessIdle();
 }
 
-void Adaptor::ReplaceSurface( Window window, Dali::RenderSurfaceInterface& surface )
+void Adaptor::ReplaceSurface(Window window, Dali::RenderSurfaceInterface& surface)
 {
-  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation( window );
-  mImpl->ReplaceSurface( Dali::Integration::SceneHolder( sceneHolder ), surface );
+  Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
+  mImpl->ReplaceSurface(Dali::Integration::SceneHolder(sceneHolder), surface);
 }
 
-void Adaptor::ReplaceSurface( Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface )
+void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface)
 {
-  mImpl->ReplaceSurface( window, surface );
+  mImpl->ReplaceSurface(window, surface);
 }
 
 Adaptor::AdaptorSignalType& Adaptor::ResizedSignal()
@@ -146,9 +145,9 @@ Any Adaptor::GetNativeWindowHandle()
   return mImpl->GetNativeWindowHandle();
 }
 
-Any Adaptor::GetNativeWindowHandle( Actor actor )
+Any Adaptor::GetNativeWindowHandle(Actor actor)
 {
-  return mImpl->GetNativeWindowHandle( actor );
+  return mImpl->GetNativeWindowHandle(actor);
 }
 
 Any Adaptor::GetGraphicsDisplay()
@@ -161,14 +160,14 @@ void Adaptor::ReleaseSurfaceLock()
   mImpl->ReleaseSurfaceLock();
 }
 
-void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
+void Adaptor::SetRenderRefreshRate(unsigned int numberOfVSyncsPerRender)
 {
-  mImpl->SetRenderRefreshRate( numberOfVSyncsPerRender );
+  mImpl->SetRenderRefreshRate(numberOfVSyncsPerRender);
 }
 
-void Adaptor::SetPreRenderCallback( CallbackBase* callback )
+void Adaptor::SetPreRenderCallback(CallbackBase* callback)
 {
-  mImpl->SetPreRenderCallback( callback );
+  mImpl->SetPreRenderCallback(callback);
 }
 
 Adaptor& Adaptor::Get()
@@ -191,17 +190,17 @@ void Adaptor::NotifyLanguageChanged()
   mImpl->NotifyLanguageChanged();
 }
 
-void Adaptor::FeedTouchPoint( TouchPoint& point, int timeStamp )
+void Adaptor::FeedTouchPoint(TouchPoint& point, int timeStamp)
 {
   mImpl->FeedTouchPoint(point, timeStamp);
 }
 
-void Adaptor::FeedWheelEvent( WheelEvent& wheelEvent )
+void Adaptor::FeedWheelEvent(WheelEvent& wheelEvent)
 {
   mImpl->FeedWheelEvent(wheelEvent);
 }
 
-void Adaptor::FeedKeyEvent( KeyEvent& keyEvent )
+void Adaptor::FeedKeyEvent(KeyEvent& keyEvent)
 {
   mImpl->FeedKeyEvent(keyEvent);
 }
@@ -211,14 +210,14 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
-void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
-  mImpl->SurfaceResizePrepare( surface, surfaceSize );
+  mImpl->SurfaceResizePrepare(surface, surfaceSize);
 }
 
-void Adaptor::SurfaceResizeComplete( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
+void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
-  mImpl->SurfaceResizeComplete( surface, surfaceSize );
+  mImpl->SurfaceResizeComplete(surface, surfaceSize);
 }
 
 void Adaptor::RenderOnce()
@@ -231,14 +230,14 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return mImpl->GetLogFactory();
 }
 
-void Adaptor::RegisterProcessor( Integration::Processor& processor )
+void Adaptor::RegisterProcessor(Integration::Processor& processor)
 {
-  mImpl->RegisterProcessor( processor );
+  mImpl->RegisterProcessor(processor);
 }
 
-void Adaptor::UnregisterProcessor( Integration::Processor& processor )
+void Adaptor::UnregisterProcessor(Integration::Processor& processor)
 {
-  mImpl->UnregisterProcessor( processor );
+  mImpl->UnregisterProcessor(processor);
 }
 
 Dali::WindowContainer Adaptor::GetWindows() const
@@ -267,7 +266,7 @@ void Adaptor::OnWindowHidden()
 }
 
 Adaptor::Adaptor()
-: mImpl( NULL )
+: mImpl(NULL)
 {
 }
 

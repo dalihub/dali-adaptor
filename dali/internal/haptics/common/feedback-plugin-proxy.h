@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_FEEDBACK_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,14 +26,11 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-typedef Dali::FeedbackPlugin::SoundStopCallBack SoundStopCallBack;
+typedef Dali::FeedbackPlugin::SoundStopCallBack    SoundStopCallBack;
 typedef Dali::FeedbackPlugin::CreateFeedbackPlugin CreateFeedbackPlugin;
 
 /**
@@ -42,18 +39,16 @@ typedef Dali::FeedbackPlugin::CreateFeedbackPlugin CreateFeedbackPlugin;
 class FeedbackPluginProxy
 {
 public:
-
   /**
    * The default feedback plugin proxy.
    */
-  static const char * const DEFAULT_OBJECT_NAME;
+  static const char* const DEFAULT_OBJECT_NAME;
 
 public:
-
   /**
    * Constructor.
    */
-  FeedbackPluginProxy( const std::string& sharedObjectName );
+  FeedbackPluginProxy(const std::string& sharedObjectName);
 
   /**
    * The destructor
@@ -63,12 +58,12 @@ public:
   /**
    * @copydoc Dali::Integration::FeedbackPlugin::PlayHaptic()
    */
-  void PlayHaptic( const std::string& filePath );
+  void PlayHaptic(const std::string& filePath);
 
   /**
    * @copydoc Dali::FeedbackPlugin::PlayHapticMonotone()
    */
-  void PlayHapticMonotone( unsigned int duration );
+  void PlayHapticMonotone(unsigned int duration);
 
   /**
    * @copydoc Dali::FeedbackPlugin::StopHaptic()
@@ -78,30 +73,28 @@ public:
   /**
    * @copydoc Dali::FeedbackPlugin::PlaySound()
    */
-  int PlaySound( const std::string& fileName );
+  int PlaySound(const std::string& fileName);
 
   /**
    * @copydoc Dali::FeedbackPlugin::StopSound()
    */
-  void StopSound( int handle );
+  void StopSound(int handle);
 
   /**
    * @copydoc Dali::FeedbackPlugin::PlayFeedbackPattern()
    */
-  void PlayFeedbackPattern( int type, int pattern );
+  void PlayFeedbackPattern(int type, int pattern);
 
 private:
-
   /**
    * Dynamically loads the feedback plugin.
    */
   void Initialize();
 
 private:
-
-  bool mInitializeAttempted;
-  void* mLibHandle;
-  std::string mSharedObjectName;
+  bool                  mInitializeAttempted;
+  void*                 mLibHandle;
+  std::string           mSharedObjectName;
   CreateFeedbackPlugin* mCreatePluginFunctionPtr;
   Dali::FeedbackPlugin* mFeedbackPlugin;
 };

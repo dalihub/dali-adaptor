@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_SYNC_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/gl-sync-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/integration-api/gl-sync-abstraction.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -40,7 +40,7 @@ public:
   /**
    * Constructor
    */
-  EglSyncObject( EglImplementation& eglSyncImpl );
+  EglSyncObject(EglImplementation& eglSyncImpl);
 
   /**
    * Destructor
@@ -60,7 +60,6 @@ private:
 #endif
   EglImplementation& mEglImplementation;
 };
-
 
 /**
  * GlSyncImplementation is a concrete implementation for GlSyncAbstraction.
@@ -87,7 +86,7 @@ public:
    * Initialize the sync object with the Egl implementation.
    * @param[in] impl The EGL implementation (to access display)
    */
-  void Initialize( EglImplementation* impl );
+  void Initialize(EglImplementation* impl);
 
   /**
    * @copydoc Dali::Integration::GlSyncAbstraction::CreateSyncObject()
@@ -106,12 +105,12 @@ private:
   void InitializeEglSync();
 
 private:
-  typedef Vector<EglSyncObject*>   SyncContainer;
-  typedef SyncContainer::Iterator  SyncIter;
+  typedef Vector<EglSyncObject*>  SyncContainer;
+  typedef SyncContainer::Iterator SyncIter;
 
-  EglImplementation* mEglImplementation; ///< Egl implementation (to get display)
-  bool mSyncInitialized;        ///< Flag to perform initialization on first use
-  bool mSyncInitializeFailed;   ///< Flag to avoid reloading functions if failed once
+  EglImplementation* mEglImplementation;    ///< Egl implementation (to get display)
+  bool               mSyncInitialized;      ///< Flag to perform initialization on first use
+  bool               mSyncInitializeFailed; ///< Flag to avoid reloading functions if failed once
 
   SyncContainer mSyncObjects;
 };

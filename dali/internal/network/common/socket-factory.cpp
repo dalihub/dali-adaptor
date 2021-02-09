@@ -22,26 +22,23 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-SocketInterface* SocketFactory::NewSocket( SocketInterface::Protocol protocol  )
+SocketInterface* SocketFactory::NewSocket(SocketInterface::Protocol protocol)
 {
-  return new Socket( protocol );
+  return new Socket(protocol);
 }
 
-void SocketFactory::DestroySocket( SocketInterface* socketInterface )
+void SocketFactory::DestroySocket(SocketInterface* socketInterface)
 {
-  Socket* socket( static_cast<Socket* >( socketInterface ));
+  Socket* socket(static_cast<Socket*>(socketInterface));
   delete socket;
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,24 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/windows/platform-implement-win.h>
-#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceWin* NativeImageSourceWin::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceWin* NativeImageSourceWin::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  NativeImageSourceWin* image = new NativeImageSourceWin( width, height, depth, nativeImageSource );
-  DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
+  NativeImageSourceWin* image = new NativeImageSourceWin(width, height, depth, nativeImageSource);
+  DALI_ASSERT_DEBUG(image && "NativeImageSource allocation failed.");
 
   // 2nd phase construction
   if(image) //< Defensive in case we ever compile without exceptions.
@@ -52,24 +50,24 @@ NativeImageSourceWin* NativeImageSourceWin::New(unsigned int width, unsigned int
   return image;
 }
 
-NativeImageSourceWin::NativeImageSourceWin( unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
-: mWidth( width ),
-  mHeight( height ),
-  mOwnPixmap( true ),
-  mPixmap( 0 ),
-  mBlendingRequired( false ),
-  mColorDepth( depth ),
-  mEglImageKHR( NULL ),
-  mEglImageExtensions( NULL )
+NativeImageSourceWin::NativeImageSourceWin(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+: mWidth(width),
+  mHeight(height),
+  mOwnPixmap(true),
+  mPixmap(0),
+  mBlendingRequired(false),
+  mColorDepth(depth),
+  mEglImageKHR(NULL),
+  mEglImageExtensions(NULL)
 {
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  auto eglGraphics = static_cast<EglGraphics *>(graphics);
+  GraphicsInterface* graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
 
   mEglImageExtensions = eglGraphics->GetImageExtensions();
 
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  DALI_ASSERT_DEBUG(mEglImageExtensions);
 
   // assign the pixmap
   mPixmap = GetPixmapFromAny(nativeImageSource);
@@ -78,7 +76,7 @@ NativeImageSourceWin::NativeImageSourceWin( unsigned int width, unsigned int hei
 void NativeImageSourceWin::Initialize()
 {
   // if pixmap has been created outside of Windows Image we can return
-  if (mPixmap)
+  if(mPixmap)
   {
     // we don't own the pixmap
     mOwnPixmap = false;
@@ -96,7 +94,7 @@ void NativeImageSourceWin::Initialize()
      If depth = 8, Pixel::A8;
      If depth = 16, Pixel::RGB565;
      If depth = 32, Pixel::RGBA8888 */
-  mBlendingRequired = ( depth == 32 || depth == 8 );
+  mBlendingRequired = (depth == 32 || depth == 8);
 }
 
 NativeImageSourceWin::~NativeImageSourceWin()
@@ -112,17 +110,17 @@ bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, unsigned& wid
 {
   DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
   bool success = false;
-  width  = mWidth;
-  height = mHeight;
+  width        = mWidth;
+  height       = mHeight;
 
   return success;
 }
 
-void NativeImageSourceWin::SetSource( Any source )
+void NativeImageSourceWin::SetSource(Any source)
 {
-  mPixmap = GetPixmapFromAny( source );
+  mPixmap = GetPixmapFromAny(source);
 
-  if (mPixmap)
+  if(mPixmap)
   {
     // we don't own the pixmap
     mOwnPixmap = false;
@@ -132,7 +130,7 @@ void NativeImageSourceWin::SetSource( Any source )
   }
 }
 
-bool NativeImageSourceWin::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
+bool NativeImageSourceWin::IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth)
 {
   return true;
 }
@@ -140,16 +138,16 @@ bool NativeImageSourceWin::IsColorDepthSupported( Dali::NativeImageSource::Color
 bool NativeImageSourceWin::CreateResource()
 {
   // if the image existed previously delete it.
-  if (mEglImageKHR != NULL)
+  if(mEglImageKHR != NULL)
   {
     DestroyResource();
   }
 
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast< EGLClientBuffer > (mPixmap);
+  EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mPixmap);
 
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
+  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
 
   return mEglImageKHR != NULL;
 }
@@ -174,7 +172,7 @@ void NativeImageSourceWin::PrepareTexture()
 
 int NativeImageSourceWin::GetPixelDepth(Dali::NativeImageSource::ColorDepth depth) const
 {
-  switch (depth)
+  switch(depth)
   {
     case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
     {
@@ -206,13 +204,13 @@ int NativeImageSourceWin::GetPixelDepth(Dali::NativeImageSource::ColorDepth dept
 
 unsigned int NativeImageSourceWin::GetPixmapFromAny(Any pixmap) const
 {
-  if (pixmap.Empty())
+  if(pixmap.Empty())
   {
     return 0;
   }
 
   // see if it is of type Windows pixmap
-  if (pixmap.GetType() == typeid ( unsigned int ))
+  if(pixmap.GetType() == typeid(unsigned int))
   {
     // get the Windows pixmap type
     unsigned int xpixmap = AnyCast<unsigned int>(pixmap);
@@ -255,11 +253,10 @@ bool NativeImageSourceWin::SourceChanged() const
   return false;
 }
 
-uint8_t* NativeImageSourceWin::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+uint8_t* NativeImageSourceWin::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
 {
   return NULL;
 }
-
 
 bool NativeImageSourceWin::ReleaseBuffer()
 {
@@ -268,6 +265,6 @@ bool NativeImageSourceWin::ReleaseBuffer()
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

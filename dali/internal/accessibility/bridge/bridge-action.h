@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACTION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,13 +35,13 @@ protected:
   Dali::Accessibility::Action* FindSelf() const;
 
 public:
-  DBus::ValueOrError< std::string > GetActionName( int32_t index );
-  DBus::ValueOrError< std::string > GetLocalizedActionName( int32_t index );
-  DBus::ValueOrError< std::string > GetActionDescription( int32_t index );
-  DBus::ValueOrError< std::string > GetActionKeyBinding( int32_t index );
-  DBus::ValueOrError< int32_t > GetActionCount();
-  DBus::ValueOrError< bool > DoAction( int32_t index );
-  DBus::ValueOrError< bool > DoActionName( std::string name );
+  DBus::ValueOrError<std::string> GetActionName(int32_t index);
+  DBus::ValueOrError<std::string> GetLocalizedActionName(int32_t index);
+  DBus::ValueOrError<std::string> GetActionDescription(int32_t index);
+  DBus::ValueOrError<std::string> GetActionKeyBinding(int32_t index);
+  DBus::ValueOrError<int32_t>     GetActionCount();
+  DBus::ValueOrError<bool>        DoAction(int32_t index);
+  DBus::ValueOrError<bool>        DoActionName(std::string name);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACTION_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,43 +27,40 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
 const unsigned int NANOSECONDS_PER_MICROSECOND = 1000u;
-const float        MICROSECONDS_TO_SECOND = 1e-6;
+const float        MICROSECONDS_TO_SECOND      = 1e-6;
 } // unnamed namespace
 
-PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
-                                      const EnvironmentOptions& environmentOptions)
-: mEnvironmentOptions( environmentOptions ),
-  mKernelTrace( adaptorServices.GetKernelTraceInterface() ),
-  mSystemTrace( adaptorServices.GetSystemTraceInterface() ),
+PerformanceServer::PerformanceServer(AdaptorInternalServices&  adaptorServices,
+                                     const EnvironmentOptions& environmentOptions)
+: mEnvironmentOptions(environmentOptions),
+  mKernelTrace(adaptorServices.GetKernelTraceInterface()),
+  mSystemTrace(adaptorServices.GetSystemTraceInterface()),
   mLogMutex(),
 #if defined(NETWORK_LOGGING_ENABLED)
-  mNetworkServer( adaptorServices, environmentOptions ),
-  mNetworkControlEnabled( mEnvironmentOptions.GetNetworkControlMode()),
+  mNetworkServer(adaptorServices, environmentOptions),
+  mNetworkControlEnabled(mEnvironmentOptions.GetNetworkControlMode()),
 #endif
-  mStatContextManager( *this ),
-  mStatisticsLogBitmask( 0 ),
-  mPerformanceOutputBitmask( 0 ),
-  mLoggingEnabled( false ),
-  mLogFunctionInstalled( false )
+  mStatContextManager(*this),
+  mStatisticsLogBitmask(0),
+  mPerformanceOutputBitmask(0),
+  mLoggingEnabled(false),
+  mLogFunctionInstalled(false)
 {
-  SetLogging( mEnvironmentOptions.GetPerformanceStatsLoggingOptions(),
-              mEnvironmentOptions.GetPerformanceTimeStampOutput(),
-              mEnvironmentOptions.GetPerformanceStatsLoggingFrequency());
+  SetLogging(mEnvironmentOptions.GetPerformanceStatsLoggingOptions(),
+             mEnvironmentOptions.GetPerformanceTimeStampOutput(),
+             mEnvironmentOptions.GetPerformanceStatsLoggingFrequency());
 
 #if defined(NETWORK_LOGGING_ENABLED)
-  if( mNetworkControlEnabled )
+  if(mNetworkControlEnabled)
   {
-    mLoggingEnabled  = true;
+    mLoggingEnabled = true;
     mNetworkServer.Start();
   }
 #endif
@@ -72,28 +69,28 @@ PerformanceServer::PerformanceServer( AdaptorInternalServices& adaptorServices,
 PerformanceServer::~PerformanceServer()
 {
 #if defined(NETWORK_LOGGING_ENABLED)
-  if( mNetworkControlEnabled )
+  if(mNetworkControlEnabled)
   {
     mNetworkServer.Stop();
   }
 #endif
 
-  if( mLogFunctionInstalled )
+  if(mLogFunctionInstalled)
   {
     mEnvironmentOptions.UnInstallLogFunction();
   }
 }
 
-void PerformanceServer::SetLogging( unsigned int statisticsLogOptions,
-                                    unsigned int timeStampOutput,
-                                    unsigned int logFrequency )
+void PerformanceServer::SetLogging(unsigned int statisticsLogOptions,
+                                   unsigned int timeStampOutput,
+                                   unsigned int logFrequency)
 {
-  mStatisticsLogBitmask = statisticsLogOptions;
+  mStatisticsLogBitmask     = statisticsLogOptions;
   mPerformanceOutputBitmask = timeStampOutput;
 
-  mStatContextManager.SetLoggingLevel( mStatisticsLogBitmask, logFrequency);
+  mStatContextManager.SetLoggingLevel(mStatisticsLogBitmask, logFrequency);
 
-  if( ( mStatisticsLogBitmask == 0) && ( mPerformanceOutputBitmask == 0 ))
+  if((mStatisticsLogBitmask == 0) && (mPerformanceOutputBitmask == 0))
   {
     mLoggingEnabled = false;
   }
@@ -103,68 +100,68 @@ void PerformanceServer::SetLogging( unsigned int statisticsLogOptions,
   }
 }
 
-void PerformanceServer::SetLoggingFrequency( unsigned int logFrequency, ContextId contextId )
+void PerformanceServer::SetLoggingFrequency(unsigned int logFrequency, ContextId contextId)
 {
-  mStatContextManager.SetLoggingFrequency( logFrequency, contextId );
+  mStatContextManager.SetLoggingFrequency(logFrequency, contextId);
 }
 
-void PerformanceServer::EnableLogging( bool enable, ContextId contextId )
+void PerformanceServer::EnableLogging(bool enable, ContextId contextId)
 {
-  mStatContextManager.EnableLogging( enable, contextId );
+  mStatContextManager.EnableLogging(enable, contextId);
 }
 
-PerformanceInterface::ContextId PerformanceServer::AddContext( const char* name )
+PerformanceInterface::ContextId PerformanceServer::AddContext(const char* name)
 {
   // for adding custom contexts
-  return mStatContextManager.AddContext( name, PerformanceMarker::CUSTOM_EVENTS );
+  return mStatContextManager.AddContext(name, PerformanceMarker::CUSTOM_EVENTS);
 }
 
-void PerformanceServer::RemoveContext( ContextId contextId )
+void PerformanceServer::RemoveContext(ContextId contextId)
 {
-  mStatContextManager.RemoveContext( contextId );
+  mStatContextManager.RemoveContext(contextId);
 }
 
-void PerformanceServer::AddMarker( MarkerType markerType, ContextId contextId )
+void PerformanceServer::AddMarker(MarkerType markerType, ContextId contextId)
 {
   // called only for custom markers
 
-  if( !mLoggingEnabled )
+  if(!mLoggingEnabled)
   {
     return;
   }
 
   // Get the time stamp
   uint64_t timeStamp = 0;
-  TimeService::GetNanoseconds( timeStamp );
+  TimeService::GetNanoseconds(timeStamp);
   timeStamp /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
   // Create a marker
-  PerformanceMarker marker( markerType, FrameTimeStamp( 0, timeStamp ) );
+  PerformanceMarker marker(markerType, FrameTimeStamp(0, timeStamp));
 
   // get the marker description for this context, e.g SIZE_NEGOTIATION_START
-  const char* const description = mStatContextManager.GetMarkerDescription( markerType, contextId );
+  const char* const description = mStatContextManager.GetMarkerDescription(markerType, contextId);
 
   // log it
-  LogMarker( marker, description );
+  LogMarker(marker, description);
 
   // Add custom marker to statistics context manager
-  mStatContextManager.AddCustomMarker( marker, contextId );
+  mStatContextManager.AddCustomMarker(marker, contextId);
 }
 
-void PerformanceServer::AddMarker( MarkerType markerType )
+void PerformanceServer::AddMarker(MarkerType markerType)
 {
   // called only for internal markers
 
-  if( !mLoggingEnabled )
+  if(!mLoggingEnabled)
   {
     return;
   }
 
-  if( markerType == VSYNC )
+  if(markerType == VSYNC)
   {
     // make sure log function is installed, note this will be called only from v-sync thread
     // if the v-sync thread has already installed one, it won't make any difference.
-    if( ! mLogFunctionInstalled )
+    if(!mLogFunctionInstalled)
     {
       mEnvironmentOptions.InstallLogFunction();
       mLogFunctionInstalled = true;
@@ -173,67 +170,64 @@ void PerformanceServer::AddMarker( MarkerType markerType )
 
   // Get the time
   uint64_t timeStamp = 0;
-  TimeService::GetNanoseconds( timeStamp );
+  TimeService::GetNanoseconds(timeStamp);
   timeStamp /= NANOSECONDS_PER_MICROSECOND; // Convert to microseconds
 
   // Create a marker
-  PerformanceMarker marker( markerType, FrameTimeStamp( 0, timeStamp ) );
+  PerformanceMarker marker(markerType, FrameTimeStamp(0, timeStamp));
 
   // log it
-  LogMarker(marker, marker.GetName() );
+  LogMarker(marker, marker.GetName());
 
   // Add internal marker to statistics context manager
-  mStatContextManager.AddInternalMarker( marker );
-
+  mStatContextManager.AddInternalMarker(marker);
 }
 
-void PerformanceServer::LogContextStatistics( const char* const text )
+void PerformanceServer::LogContextStatistics(const char* const text)
 {
-  Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo, text );
+  Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, text);
 }
 
-void PerformanceServer::LogMarker( const PerformanceMarker& marker, const char* const description )
+void PerformanceServer::LogMarker(const PerformanceMarker& marker, const char* const description)
 {
 #if defined(NETWORK_LOGGING_ENABLED)
   // log to the network ( this is thread safe )
-  if( mNetworkControlEnabled )
+  if(mNetworkControlEnabled)
   {
-    mNetworkServer.TransmitMarker( marker, description );
+    mNetworkServer.TransmitMarker(marker, description);
   }
 #endif
 
   // log to kernel trace
-  if( mPerformanceOutputBitmask & OUTPUT_KERNEL_TRACE )
+  if(mPerformanceOutputBitmask & OUTPUT_KERNEL_TRACE)
   {
     // Kernel tracing implementation may not be thread safe
-    Mutex::ScopedLock lock( mLogMutex );
+    Mutex::ScopedLock lock(mLogMutex);
     // description will be something like UPDATE_START or UPDATE_END
-    mKernelTrace.Trace( marker, description );
+    mKernelTrace.Trace(marker, description);
   }
 
   // log to system trace
-  if( mPerformanceOutputBitmask & OUTPUT_SYSTEM_TRACE )
+  if(mPerformanceOutputBitmask & OUTPUT_SYSTEM_TRACE)
   {
     // System  tracing implementation may not be thread safe
-    Mutex::ScopedLock lock( mLogMutex );
+    Mutex::ScopedLock lock(mLogMutex);
 
-    mSystemTrace.Trace( marker, description );
+    mSystemTrace.Trace(marker, description);
   }
 
   // log to Dali log ( this is thread safe )
-  if ( mPerformanceOutputBitmask & OUTPUT_DALI_LOG )
+  if(mPerformanceOutputBitmask & OUTPUT_DALI_LOG)
   {
-    Integration::Log::LogMessage( Dali::Integration::Log::DebugInfo,
-                                    "%.6f (seconds), %s\n",
-                                    float( marker.GetTimeStamp().microseconds ) * MICROSECONDS_TO_SECOND,
-                                    description );
-
+    Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo,
+                                 "%.6f (seconds), %s\n",
+                                 float(marker.GetTimeStamp().microseconds) * MICROSECONDS_TO_SECOND,
+                                 description);
   }
 }
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali

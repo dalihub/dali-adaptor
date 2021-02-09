@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/object/base-object.h>
 #include <dali/public-api/actors/layer.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
-#include <dali/public-api/object/property-array.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/object/base-object.h>
+#include <dali/public-api/object/property-array.h>
+#include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/window.h>
-#include <dali/public-api/adaptor-framework/key-grab.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/common/event-handler.h>
+#include <dali/public-api/adaptor-framework/key-grab.h>
+#include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
 {
@@ -49,9 +49,9 @@ class WindowRenderSurface;
 class WindowBase;
 
 class Window;
-using WindowPtr = IntrusivePtr< Window >;
-using OrientationPtr = IntrusivePtr< Orientation >;
-using EventHandlerPtr = IntrusivePtr< EventHandler >;
+using WindowPtr       = IntrusivePtr<Window>;
+using OrientationPtr  = IntrusivePtr<Orientation>;
+using EventHandlerPtr = IntrusivePtr<EventHandler>;
 
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
@@ -59,12 +59,12 @@ using EventHandlerPtr = IntrusivePtr< EventHandler >;
 class Window : public Dali::Internal::Adaptor::SceneHolder, public EventHandler::Observer, public ConnectionTracker
 {
 public:
-  typedef Dali::Window::FocusChangeSignalType FocusChangeSignalType;
-  typedef Dali::Window::ResizeSignalType ResizeSignalType;
-  typedef Dali::DevelWindow::VisibilityChangedSignalType VisibilityChangedSignalType;
-  typedef Dali::DevelWindow::TransitionEffectEventSignalType TransitionEffectEventSignalType;
+  typedef Dali::Window::FocusChangeSignalType                        FocusChangeSignalType;
+  typedef Dali::Window::ResizeSignalType                             ResizeSignalType;
+  typedef Dali::DevelWindow::VisibilityChangedSignalType             VisibilityChangedSignalType;
+  typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
   typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
-  typedef Signal< void () > SignalType;
+  typedef Signal<void()>                                             SignalType;
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
@@ -90,7 +90,7 @@ public:
   /**
    * @copydoc Dali::Window::SetClass()
    */
-  void SetClass( std::string name, std::string className );
+  void SetClass(std::string name, std::string className);
 
   /**
    * @brief Gets the window class name.
@@ -121,7 +121,7 @@ public:
   /**
    * @copydoc Dali::Window::GetLayer()
    */
-  Dali::Layer GetLayer( uint32_t depth ) const;
+  Dali::Layer GetLayer(uint32_t depth) const;
 
   /**
    * @copydoc Dali::DevelWindow::GetRenderTaskList()
@@ -151,7 +151,7 @@ public:
   /**
    * @copydoc Dali::Window::SetAcceptFocus()
    */
-  void SetAcceptFocus( bool accept );
+  void SetAcceptFocus(bool accept);
 
   /**
    * @copydoc Dali::Window::IsFocusAcceptable()
@@ -176,42 +176,42 @@ public:
   /**
    * @copydoc Dali::Window::GetSupportedAuxiliaryHint()
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const;
 
   /**
    * @copydoc Dali::Window::AddAuxiliaryHint()
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value );
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value);
 
   /**
    * @copydoc Dali::Window::RemoveAuxiliaryHint()
    */
-  bool RemoveAuxiliaryHint( unsigned int id );
+  bool RemoveAuxiliaryHint(unsigned int id);
 
   /**
    * @copydoc Dali::Window::SetAuxiliaryHintValue()
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value );
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value);
 
   /**
    * @copydoc Dali::Window::GetAuxiliaryHintValue()
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const;
+  std::string GetAuxiliaryHintValue(unsigned int id) const;
 
   /**
    * @copydoc Dali::Window::GetAuxiliaryHintId()
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const;
 
   /**
    * @copydoc Dali::Window::SetInputRegion()
    */
-  void SetInputRegion( const Rect< int >& inputRegion );
+  void SetInputRegion(const Rect<int>& inputRegion);
 
   /**
    * @copydoc Dali::Window::SetType()
    */
-  void SetType( WindowType type );
+  void SetType(WindowType type);
 
   /**
    * @copydoc Dali::Window::GetType() const
@@ -221,7 +221,7 @@ public:
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  bool SetNotificationLevel( WindowNotificationLevel level );
+  bool SetNotificationLevel(WindowNotificationLevel level);
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
@@ -231,7 +231,7 @@ public:
   /**
    * @copydoc Dali::Window::SetOpaqueState()
    */
-  void SetOpaqueState( bool opaque );
+  void SetOpaqueState(bool opaque);
 
   /**
    * @copydoc Dali::Window::IsOpaqueState()
@@ -251,7 +251,7 @@ public:
   /**
    * @copydoc Dali::Window::SetBrightness()
    */
-  bool SetBrightness( int brightness );
+  bool SetBrightness(int brightness);
 
   /**
    * @copydoc Dali::Window::GetBrightness()
@@ -261,7 +261,7 @@ public:
   /**
    * @copydoc Dali::Window::SetSize()
    */
-  void SetSize( Dali::Window::WindowSize size );
+  void SetSize(Dali::Window::WindowSize size);
 
   /**
    * @copydoc Dali::Window::GetSize()
@@ -271,7 +271,7 @@ public:
   /**
    * @copydoc Dali::Window::SetPosition()
    */
-  void SetPosition( Dali::Window::WindowPosition position );
+  void SetPosition(Dali::Window::WindowPosition position);
 
   /**
    * @copydoc Dali::Window::GetPosition()
@@ -281,7 +281,7 @@ public:
   /**
    * @copydoc Dali::DevelWindow::SetPositionSize()
    */
-  void SetPositionSize( PositionSize positionSize );
+  void SetPositionSize(PositionSize positionSize);
 
   /**
    * @copydoc Dali::Window::GetRootLayer()
@@ -291,37 +291,37 @@ public:
   /**
    * @copydoc Dali::Window::SetTransparency()
    */
-  void SetTransparency( bool transparent );
+  void SetTransparency(bool transparent);
 
   /**
    * @copydoc Dali::KeyGrab::GrabKey()
    */
-  bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode );
+  bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode);
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKey()
    */
-  bool UngrabKey( Dali::KEY key );
+  bool UngrabKey(Dali::KEY key);
 
   /**
    * @copydoc Dali::KeyGrab::GrabKeyList()
    */
-  bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result );
+  bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result);
 
   /**
    * @copydoc Dali::KeyGrab::UngrabKeyList()
    */
-  bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result );
+  bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result);
 
   /**
    * @copydoc Dali::DevelWindow::Get()
    */
-  static Dali::Window Get( Dali::Actor actor );
+  static Dali::Window Get(Dali::Actor actor);
 
   /**
    * @copydoc Dali::DevelWindow::SetParent()
    */
-  void SetParent( Dali::Window& parent );
+  void SetParent(Dali::Window& parent);
 
   /**
    * @copydoc Dali::DevelWindow::Unparent()
@@ -341,10 +341,9 @@ public:
   /**
    * @copydoc Dali::DevelWindow::SetAvailableOrientations()
    */
-  void SetAvailableOrientations( const Dali::Vector<WindowOrientation>& orientations );
+  void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
 public: // Dali::Internal::Adaptor::SceneHolder
-
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::GetNativeHandle
    */
@@ -361,7 +360,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
   int32_t GetNativeId() const;
 
 private:
-
   /**
    * @brief Enumeration for orietation mode.
    * The Orientation Mode is related to screen size.
@@ -393,12 +391,12 @@ private:
   /**
    * Called when the window becomes iconified or deiconified.
    */
-  void OnIconifyChanged( bool iconified );
+  void OnIconifyChanged(bool iconified);
 
   /**
    * Called when the window focus is changed.
    */
-  void OnFocusChanged( bool focusIn );
+  void OnFocusChanged(bool focusIn);
 
   /**
    * Called when the output is transformed.
@@ -413,7 +411,7 @@ private:
   /**
    * Called when the window receives a Transition effect-start/end event.
    */
-  void OnTransitionEffectEvent( WindowEffectState state, WindowEffectType type );
+  void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
 
   /**
    * @brief Called when window receives a keyboard repeat event.
@@ -428,34 +426,33 @@ private:
   /**
    * @brief Set available orientation to window base.
    */
-  void SetAvailableAnlges( const std::vector< int >& angles );
+  void SetAvailableAnlges(const std::vector<int>& angles);
 
   /**
    * @brief Convert from window orientation to angle using OrientationMode.
    */
-  int ConvertToAngle( WindowOrientation orientation );
+  int ConvertToAngle(WindowOrientation orientation);
 
   /**
    * @brief Convert from angle to window orientation using OrientationMode.
    */
-  WindowOrientation ConvertToOrientation( int angle ) const;
+  WindowOrientation ConvertToOrientation(int angle) const;
 
   /**
    * @brief Check available window orientation for Available orientation.
    */
-  bool IsOrientationAvailable( WindowOrientation orientation ) const;
+  bool IsOrientationAvailable(WindowOrientation orientation) const;
 
 private: // Dali::Internal::Adaptor::SceneHolder
-
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
    */
-  void OnAdaptorSet( Dali::Adaptor& adaptor ) override;
+  void OnAdaptorSet(Dali::Adaptor& adaptor) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnSurfaceSet
    */
-  void OnSurfaceSet( Dali::RenderSurfaceInterface* surface ) override;
+  void OnSurfaceSet(Dali::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnPause
@@ -470,94 +467,112 @@ private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::RecalculateTouchPosition
    */
-  void RecalculateTouchPosition( Integration::Point& point ) override;
+  void RecalculateTouchPosition(Integration::Point& point) override;
 
 private: // Dali::Internal::Adaptor::EventHandler::Observer
-
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnTouchPoint
    */
-  void OnTouchPoint( Dali::Integration::Point& point, int timeStamp ) override;
+  void OnTouchPoint(Dali::Integration::Point& point, int timeStamp) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnWheelEvent
    */
-  void OnWheelEvent( Dali::Integration::WheelEvent& wheelEvent ) override;
+  void OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnKeyEvent
    */
-  void OnKeyEvent( Dali::Integration::KeyEvent& keyEvent ) override;
+  void OnKeyEvent(Dali::Integration::KeyEvent& keyEvent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnRotation
    */
-  void OnRotation( const RotationEvent& rotation ) override;
+  void OnRotation(const RotationEvent& rotation) override;
 
 public: // Signals
-
   /**
    * @copydoc Dali::Window::FocusChangeSignal()
    */
-  FocusChangeSignalType& FocusChangeSignal() { return mFocusChangeSignal; }
+  FocusChangeSignalType& FocusChangeSignal()
+  {
+    return mFocusChangeSignal;
+  }
 
   /**
    * @copydoc Dali::Window::ResizedSignal()
    */
-  ResizeSignalType& ResizeSignal() { return mResizeSignal; }
+  ResizeSignalType& ResizeSignal()
+  {
+    return mResizeSignal;
+  }
 
   /**
    * This signal is emitted when the window is requesting to be deleted
    */
-  SignalType& DeleteRequestSignal() { return mDeleteRequestSignal; }
+  SignalType& DeleteRequestSignal()
+  {
+    return mDeleteRequestSignal;
+  }
 
   /**
    * @copydoc Dali::DevelWindow::VisibilityChangedSignal()
    */
-  VisibilityChangedSignalType& VisibilityChangedSignal() { return mVisibilityChangedSignal; }
+  VisibilityChangedSignalType& VisibilityChangedSignal()
+  {
+    return mVisibilityChangedSignal;
+  }
 
   /**
    * @copydoc Dali::Window::SignalEventProcessingFinished()
    */
-  Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal() { return mScene.EventProcessingFinishedSignal(); }
+  Dali::DevelWindow::EventProcessingFinishedSignalType& EventProcessingFinishedSignal()
+  {
+    return mScene.EventProcessingFinishedSignal();
+  }
 
   /**
    * @copydoc Dali::DevelWindow::TransitionEffectEventSignal()
    */
-  TransitionEffectEventSignalType& TransitionEffectEventSignal() { return mTransitionEffectEventSignal; }
+  TransitionEffectEventSignalType& TransitionEffectEventSignal()
+  {
+    return mTransitionEffectEventSignal;
+  }
 
   /**
    * @copydoc Dali::DevelWindow::KeyboardRepeatSettingsChangedSignal()
    */
-  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal() { return mKeyboardRepeatSettingsChangedSignal; }
+  KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal()
+  {
+    return mKeyboardRepeatSettingsChangedSignal;
+  }
 
 private:
+  WindowRenderSurface* mWindowSurface; ///< The window rendering surface
+  WindowBase*          mWindowBase;
+  std::string          mName;
+  std::string          mClassName;
+  bool                 mIsTransparent : 1;
+  bool                 mIsFocusAcceptable : 1;
+  bool                 mIconified : 1;
+  bool                 mOpaqueState : 1;
+  bool                 mResizeEnabled : 1;
+  WindowType           mType;
+  Dali::Window         mParentWindow;
 
-  WindowRenderSurface*                  mWindowSurface;      ///< The window rendering surface
-  WindowBase*                           mWindowBase;
-  std::string                           mName;
-  std::string                           mClassName;
-  bool                                  mIsTransparent:1;
-  bool                                  mIsFocusAcceptable:1;
-  bool                                  mIconified:1;
-  bool                                  mOpaqueState:1;
-  bool                                  mResizeEnabled:1;
-  WindowType                            mType;
-  Dali::Window                          mParentWindow;
+  OrientationPtr   mOrientation;
+  std::vector<int> mAvailableAngles;
+  int              mPreferredAngle;
 
-  OrientationPtr                        mOrientation;
-  std::vector< int >                    mAvailableAngles;
-  int                                   mPreferredAngle;
+  int mRotationAngle; ///< The angle of the rotation
+  int mWindowWidth;   ///< The width of the window
+  int mWindowHeight;  ///< The height of the window
 
-  int                                   mRotationAngle;     ///< The angle of the rotation
-  int                                   mWindowWidth;       ///< The width of the window
-  int                                   mWindowHeight;      ///< The height of the window
+  EventHandlerPtr mEventHandler; ///< The window events handler
 
-  EventHandlerPtr                       mEventHandler;      ///< The window events handler
+  OrientationMode mOrientationMode;
 
-  OrientationMode                       mOrientationMode;
-
-  int                                   mNativeWindowId;          ///< The Native Window Id
+  int mNativeWindowId; ///< The Native Window Id
 
   // Signals
   SignalType                              mDeleteRequestSignal;
@@ -569,20 +584,20 @@ private:
 };
 
 } // namespace Adaptor
-} // namepsace Internal
+} // namespace Internal
 
 // Helpers for public-api forwarding methods
 
 inline Internal::Adaptor::Window& GetImplementation(Dali::Window& window)
 {
-  DALI_ASSERT_ALWAYS( window && "Window handle is empty" );
+  DALI_ASSERT_ALWAYS(window && "Window handle is empty");
   BaseObject& object = window.GetBaseObject();
   return static_cast<Internal::Adaptor::Window&>(object);
 }
 
 inline const Internal::Adaptor::Window& GetImplementation(const Dali::Window& window)
 {
-  DALI_ASSERT_ALWAYS( window && "Window handle is empty" );
+  DALI_ASSERT_ALWAYS(window && "Window handle is empty");
   const BaseObject& object = window.GetBaseObject();
   return static_cast<const Internal::Adaptor::Window&>(object);
 }

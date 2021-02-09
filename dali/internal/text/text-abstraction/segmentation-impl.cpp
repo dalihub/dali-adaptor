@@ -25,33 +25,31 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 struct Segmentation::Plugin
 {
-  void GetLineBreakPositions( const Character* const text,
-                              Length numberOfCharacters,
-                              LineBreakInfo* breakInfo )
+  void GetLineBreakPositions(const Character* const text,
+                             Length                 numberOfCharacters,
+                             LineBreakInfo*         breakInfo)
   {
-    set_linebreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+    set_linebreaks_utf32(text, numberOfCharacters, NULL, breakInfo);
   }
 
-  void GetWordBreakPositions( const Character* const text,
-                              Length numberOfCharacters,
-                              WordBreakInfo* breakInfo )
+  void GetWordBreakPositions(const Character* const text,
+                             Length                 numberOfCharacters,
+                             WordBreakInfo*         breakInfo)
   {
-    set_wordbreaks_utf32( text, numberOfCharacters, NULL, breakInfo );
+    set_wordbreaks_utf32(text, numberOfCharacters, NULL, breakInfo);
   }
 };
 
 Segmentation::Segmentation()
-: mPlugin( NULL )
-{}
+: mPlugin(NULL)
+{
+}
 
 Segmentation::~Segmentation()
 {
@@ -62,48 +60,48 @@ TextAbstraction::Segmentation Segmentation::Get()
 {
   TextAbstraction::Segmentation segmentationHandle;
 
-  SingletonService service( SingletonService::Get() );
-  if( service )
+  SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( TextAbstraction::Segmentation ) );
-    if( handle )
+    Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::Segmentation));
+    if(handle)
     {
       // If so, downcast the handle
-      Segmentation* impl = dynamic_cast< Internal::Segmentation* >( handle.GetObjectPtr() );
-      segmentationHandle = TextAbstraction::Segmentation( impl );
+      Segmentation* impl = dynamic_cast<Internal::Segmentation*>(handle.GetObjectPtr());
+      segmentationHandle = TextAbstraction::Segmentation(impl);
     }
     else // create and register the object
     {
-      segmentationHandle = TextAbstraction::Segmentation( new Segmentation );
-      service.Register( typeid( segmentationHandle ), segmentationHandle );
+      segmentationHandle = TextAbstraction::Segmentation(new Segmentation);
+      service.Register(typeid(segmentationHandle), segmentationHandle);
     }
   }
 
   return segmentationHandle;
 }
 
-void Segmentation::GetLineBreakPositions( const Character* const text,
-                                          Length numberOfCharacters,
-                                          LineBreakInfo* breakInfo )
+void Segmentation::GetLineBreakPositions(const Character* const text,
+                                         Length                 numberOfCharacters,
+                                         LineBreakInfo*         breakInfo)
 {
   CreatePlugin();
 
-  mPlugin->GetLineBreakPositions( text, numberOfCharacters, breakInfo );
+  mPlugin->GetLineBreakPositions(text, numberOfCharacters, breakInfo);
 }
 
-void Segmentation::GetWordBreakPositions( const Character* const text,
-                                          Length numberOfCharacters,
-                                          WordBreakInfo* breakInfo )
+void Segmentation::GetWordBreakPositions(const Character* const text,
+                                         Length                 numberOfCharacters,
+                                         WordBreakInfo*         breakInfo)
 {
   CreatePlugin();
 
-  mPlugin->GetWordBreakPositions( text, numberOfCharacters, breakInfo );
+  mPlugin->GetWordBreakPositions(text, numberOfCharacters, breakInfo);
 }
 
 void Segmentation::CreatePlugin()
 {
-  if( !mPlugin )
+  if(!mPlugin)
   {
     mPlugin = new Plugin();
   }

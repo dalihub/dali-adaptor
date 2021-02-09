@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/signals/connection-tracker.h>
-#include <dali/public-api/signals/dali-signal.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/scene.h>
+#include <dali/public-api/signals/connection-tracker.h>
+#include <dali/public-api/signals/dali-signal.h>
 #include <unistd.h>
 
 // INTERNAL INCLUDES
@@ -33,14 +33,12 @@
 
 namespace Dali
 {
-
 class TriggerEventInterface;
 
 namespace Internal
 {
 namespace Adaptor
 {
-
 class WindowBase;
 class AdaptorInternalServices;
 
@@ -50,9 +48,8 @@ class AdaptorInternalServices;
 class WindowRenderSurface : public Dali::RenderSurfaceInterface, public ConnectionTracker
 {
 public:
-
-  using OutputSignalType = Signal< void ( ) >;
-  using DamagedRectsContainer = std::list< std::vector< Rect< int > > >;
+  using OutputSignalType      = Signal<void()>;
+  using DamagedRectsContainer = std::list<std::vector<Rect<int>>>;
 
   /**
     * Uses an window surface to render to.
@@ -60,7 +57,7 @@ public:
     * @param [in] surface can be a window or pixmap.
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
     */
-  WindowRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false );
+  WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent = false);
 
   /**
    * @brief Destructor
@@ -68,7 +65,6 @@ public:
   virtual ~WindowRenderSurface();
 
 public: // API
-
   /**
    * @brief Get the native window handle
    * @return The native window handle
@@ -90,13 +86,13 @@ public: // API
    * @brief Sets the render notification trigger to call when render thread is completed a frame
    * @param renderNotification to use
    */
-  void SetRenderNotification( TriggerEventInterface* renderNotification );
+  void SetRenderNotification(TriggerEventInterface* renderNotification);
 
   /**
    * @brief Sets whether the surface is transparent or not.
    * @param[in] transparent Whether the surface is transparent
    */
-  void SetTransparency( bool transparent );
+  void SetTransparency(bool transparent);
 
   /**
    * Request surface rotation
@@ -104,7 +100,7 @@ public: // API
    * @param[in] width A new width of the surface
    * @param[in] height A new height of the surface
    */
-  void RequestRotation( int angle, int width, int height );
+  void RequestRotation(int angle, int width, int height);
 
   /**
    * @brief Gets the window base object
@@ -118,7 +114,6 @@ public: // API
   OutputSignalType& OutputTransformedSignal();
 
 public: // from Dali::RenderSurfaceInterface
-
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
    */
@@ -126,7 +121,7 @@ public: // from Dali::RenderSurfaceInterface
 
   /**
    */
-  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetOrientation()
@@ -156,7 +151,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::MoveResize()
    */
-  void MoveResize( Dali::PositionSize positionSize) override;
+  void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StartRender()
@@ -166,12 +161,12 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PreRender()
    */
-  bool PreRender( bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect ) override;
+  bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects ) override;
+  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
@@ -181,7 +176,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
    */
-  void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+  void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
@@ -209,11 +204,10 @@ public: // from Dali::RenderSurfaceInterface
   Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
-
   /**
    * @brief Second stage construction
    */
-  void Initialize( Any surface );
+  void Initialize(Any surface);
 
   /**
    * Notify output is transformed.
@@ -235,23 +229,22 @@ private:
    * @param[in] eventBitMask bit mask of events that occured on the file descriptor
    * @param[in] fileDescriptor The file descriptor
    */
-  void OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor );
+  void OnFileDescriptorEventDispatched(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor);
 
   /**
    * @brief Set the buffer damage rects.
    * @param[in] damagedRects List of damaged rects
    * @param[in] clippingRect The rect to clip rendered scene
    */
-  void SetBufferDamagedRects( const std::vector< Rect< int > >& damagedRects, Rect< int >& clippingRect );
+  void SetBufferDamagedRects(const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect);
 
   /**
    * @brief Swap buffers.
    * @param[in] damagedRects List of damaged rects
    */
-  void SwapBuffers( const std::vector<Rect<int>>& damagedRects );
+  void SwapBuffers(const std::vector<Rect<int>>& damagedRects);
 
 protected:
-
   // Undefined
   WindowRenderSurface(const WindowRenderSurface&) = delete;
 
@@ -259,18 +252,17 @@ protected:
   WindowRenderSurface& operator=(const WindowRenderSurface& rhs) = delete;
 
 private:
-
   struct FrameCallbackInfo
   {
-    FrameCallbackInfo( Dali::Integration::Scene::FrameCallbackContainer& callbackList, int fd )
+    FrameCallbackInfo(Dali::Integration::Scene::FrameCallbackContainer& callbackList, int fd)
     : callbacks(),
       fileDescriptorMonitor(),
-      fileDescriptor( fd )
+      fileDescriptor(fd)
     {
       // Transfer owership of the CallbackBase
-      for( auto&& iter : callbackList )
+      for(auto&& iter : callbackList)
       {
-        callbacks.push_back( std::make_pair( std::move( iter.first ), iter.second ) );
+        callbacks.push_back(std::make_pair(std::move(iter.first), iter.second));
       }
     }
 
@@ -278,49 +270,48 @@ private:
     {
       // Delete FileDescriptorMonitor before close fd.
       fileDescriptorMonitor.release();
-      close( fileDescriptor );
+      close(fileDescriptor);
     }
 
     Dali::Integration::Scene::FrameCallbackContainer callbacks;
-    std::unique_ptr< FileDescriptorMonitor > fileDescriptorMonitor;
-    int fileDescriptor;
+    std::unique_ptr<FileDescriptorMonitor>           fileDescriptorMonitor;
+    int                                              fileDescriptor;
   };
 
-  using FrameCallbackInfoContainer = std::vector< std::unique_ptr< FrameCallbackInfo > >;
+  using FrameCallbackInfoContainer = std::vector<std::unique_ptr<FrameCallbackInfo>>;
 
 private: // Data
-
-  EglInterface*                   mEGL;
-  Dali::DisplayConnection*        mDisplayConnection;
-  PositionSize                    mPositionSize;       ///< Position
-  std::unique_ptr< WindowBase >   mWindowBase;
-  ThreadSynchronizationInterface* mThreadSynchronization;
-  TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
-  TriggerEventInterface*          mRotationTrigger;
-  std::unique_ptr< TriggerEventInterface > mFrameRenderedTrigger;
-  GraphicsInterface*              mGraphics;           ///< Graphics interface
-  EGLSurface                      mEGLSurface;
-  EGLContext                      mEGLContext;
-  ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
-  OutputSignalType                mOutputTransformedSignal;
-  FrameCallbackInfoContainer      mFrameCallbackInfoContainer;
-  DamagedRectsContainer           mBufferDamagedRects;
-  Dali::Mutex                     mMutex;
-  int                             mWindowRotationAngle;
-  int                             mScreenRotationAngle;
-  uint32_t                        mDpiHorizontal;
-  uint32_t                        mDpiVertical;
-  bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
-  bool                            mWindowRotationFinished;
-  bool                            mScreenRotationFinished;
-  bool                            mResizeFinished;
-  bool                            mDefaultScreenRotationAvailable;
+  EglInterface*                          mEGL;
+  Dali::DisplayConnection*               mDisplayConnection;
+  PositionSize                           mPositionSize; ///< Position
+  std::unique_ptr<WindowBase>            mWindowBase;
+  ThreadSynchronizationInterface*        mThreadSynchronization;
+  TriggerEventInterface*                 mRenderNotification; ///< Render notification trigger
+  TriggerEventInterface*                 mRotationTrigger;
+  std::unique_ptr<TriggerEventInterface> mFrameRenderedTrigger;
+  GraphicsInterface*                     mGraphics; ///< Graphics interface
+  EGLSurface                             mEGLSurface;
+  EGLContext                             mEGLContext;
+  ColorDepth                             mColorDepth; ///< Color depth of surface (32 bit or 24 bit)
+  OutputSignalType                       mOutputTransformedSignal;
+  FrameCallbackInfoContainer             mFrameCallbackInfoContainer;
+  DamagedRectsContainer                  mBufferDamagedRects;
+  Dali::Mutex                            mMutex;
+  int                                    mWindowRotationAngle;
+  int                                    mScreenRotationAngle;
+  uint32_t                               mDpiHorizontal;
+  uint32_t                               mDpiVertical;
+  bool                                   mOwnSurface; ///< Whether we own the surface (responsible for deleting it)
+  bool                                   mWindowRotationFinished;
+  bool                                   mScreenRotationFinished;
+  bool                                   mResizeFinished;
+  bool                                   mDefaultScreenRotationAvailable;
 
 }; // class WindowRenderSurface
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

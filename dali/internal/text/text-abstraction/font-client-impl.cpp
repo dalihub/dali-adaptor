@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,19 +31,16 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
-Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient( NULL );
+Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient(NULL);
 
 FontClient::FontClient()
-: mPlugin( nullptr ),
-  mDpiHorizontal( 0 ),
-  mDpiVertical( 0 )
+: mPlugin(nullptr),
+  mDpiHorizontal(0),
+  mDpiVertical(0)
 {
 }
 
@@ -56,30 +53,30 @@ Dali::TextAbstraction::FontClient FontClient::Get()
 {
   Dali::TextAbstraction::FontClient fontClientHandle;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::TextAbstraction::FontClient ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextAbstraction::FontClient));
     if(handle)
     {
       // If so, downcast the handle
-      FontClient* impl = dynamic_cast< Dali::TextAbstraction::Internal::FontClient* >( handle.GetObjectPtr() );
-      fontClientHandle = Dali::TextAbstraction::FontClient( impl );
+      FontClient* impl = dynamic_cast<Dali::TextAbstraction::Internal::FontClient*>(handle.GetObjectPtr());
+      fontClientHandle = Dali::TextAbstraction::FontClient(impl);
     }
     else // create and register the object
     {
-      if( gPreInitializedFontClient )
+      if(gPreInitializedFontClient)
       {
         fontClientHandle = gPreInitializedFontClient;
         gPreInitializedFontClient.Reset(); // No longer needed
       }
       else
       {
-        fontClientHandle = Dali::TextAbstraction::FontClient( new FontClient );
+        fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
       }
 
-      service.Register( typeid( fontClientHandle ), fontClientHandle );
+      service.Register(typeid(fontClientHandle), fontClientHandle);
     }
   }
 
@@ -88,48 +85,47 @@ Dali::TextAbstraction::FontClient FontClient::Get()
 
 Dali::TextAbstraction::FontClient FontClient::PreInitialize()
 {
-  gPreInitializedFontClient = Dali::TextAbstraction::FontClient( new FontClient );
+  gPreInitializedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
 
   // Make DefaultFontDescription cached
   Dali::TextAbstraction::FontDescription defaultFontDescription;
-  gPreInitializedFontClient.GetDefaultPlatformFontDescription( defaultFontDescription );
+  gPreInitializedFontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
 
   return gPreInitializedFontClient;
 }
 
 void FontClient::ClearCache()
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     mPlugin->ClearCache();
   }
 }
 
-
-void FontClient::SetDpi( unsigned int horizontalDpi, unsigned int verticalDpi  )
+void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
 {
   mDpiHorizontal = horizontalDpi;
-  mDpiVertical = verticalDpi;
+  mDpiVertical   = verticalDpi;
 
   // Allow DPI to be set without loading plugin
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->SetDpi( horizontalDpi, verticalDpi  );
+    mPlugin->SetDpi(horizontalDpi, verticalDpi);
   }
 }
 
-void FontClient::GetDpi( unsigned int& horizontalDpi, unsigned int& verticalDpi )
+void FontClient::GetDpi(unsigned int& horizontalDpi, unsigned int& verticalDpi)
 {
   horizontalDpi = mDpiHorizontal;
-  verticalDpi = mDpiVertical;
+  verticalDpi   = mDpiVertical;
 }
 
 int FontClient::GetDefaultFontSize()
 {
-  int fontSize( -1 );
+  int fontSize(-1);
 
 #if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
-  vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
+  vconf_get_int(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize);
 #endif
 
   return fontSize;
@@ -142,227 +138,227 @@ void FontClient::ResetSystemDefaults()
   mPlugin->ResetSystemDefaults();
 }
 
-void FontClient::GetDefaultFonts( FontList& defaultFonts )
+void FontClient::GetDefaultFonts(FontList& defaultFonts)
 {
   CreatePlugin();
 
-  mPlugin->GetDefaultFonts( defaultFonts );
+  mPlugin->GetDefaultFonts(defaultFonts);
 }
 
-void FontClient::GetDefaultPlatformFontDescription( FontDescription& fontDescription )
+void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescription)
 {
   CreatePlugin();
 
-  mPlugin->GetDefaultPlatformFontDescription( fontDescription );
+  mPlugin->GetDefaultPlatformFontDescription(fontDescription);
 }
 
-void FontClient::GetDescription( FontId id, FontDescription& fontDescription )
+void FontClient::GetDescription(FontId id, FontDescription& fontDescription)
 {
   CreatePlugin();
 
-  mPlugin->GetDescription( id, fontDescription );
+  mPlugin->GetDescription(id, fontDescription);
 }
 
-PointSize26Dot6 FontClient::GetPointSize( FontId id )
+PointSize26Dot6 FontClient::GetPointSize(FontId id)
 {
   CreatePlugin();
 
-  return mPlugin->GetPointSize( id );
+  return mPlugin->GetPointSize(id);
 }
 
-bool FontClient::IsCharacterSupportedByFont( FontId fontId, Character character )
+bool FontClient::IsCharacterSupportedByFont(FontId fontId, Character character)
 {
   CreatePlugin();
 
-  return mPlugin->IsCharacterSupportedByFont( fontId, character );
+  return mPlugin->IsCharacterSupportedByFont(fontId, character);
 }
 
-void FontClient::GetSystemFonts( FontList& systemFonts )
+void FontClient::GetSystemFonts(FontList& systemFonts)
 {
   CreatePlugin();
 
-  mPlugin->GetSystemFonts( systemFonts );
+  mPlugin->GetSystemFonts(systemFonts);
 }
 
-FontId FontClient::FindDefaultFont( Character charcode,
-                                    PointSize26Dot6 requestedPointSize,
-                                    bool preferColor )
+FontId FontClient::FindDefaultFont(Character       charcode,
+                                   PointSize26Dot6 requestedPointSize,
+                                   bool            preferColor)
 {
   CreatePlugin();
 
-  return mPlugin->FindDefaultFont( charcode,
+  return mPlugin->FindDefaultFont(charcode,
+                                  requestedPointSize,
+                                  preferColor);
+}
+
+FontId FontClient::FindFallbackFont(Character              charcode,
+                                    const FontDescription& preferredFontDescription,
+                                    PointSize26Dot6        requestedPointSize,
+                                    bool                   preferColor)
+{
+  CreatePlugin();
+
+  return mPlugin->FindFallbackFont(charcode,
+                                   preferredFontDescription,
                                    requestedPointSize,
-                                   preferColor );
+                                   preferColor);
 }
 
-FontId FontClient::FindFallbackFont( Character charcode,
-                                     const FontDescription& preferredFontDescription,
-                                     PointSize26Dot6 requestedPointSize,
-                                     bool preferColor )
+bool FontClient::IsScalable(const FontPath& path)
 {
   CreatePlugin();
 
-  return mPlugin->FindFallbackFont( charcode,
-                                    preferredFontDescription,
-                                    requestedPointSize,
-                                    preferColor );
+  return mPlugin->IsScalable(path);
 }
 
-bool FontClient::IsScalable( const FontPath& path )
+bool FontClient::IsScalable(const FontDescription& fontDescription)
 {
   CreatePlugin();
 
-  return mPlugin->IsScalable( path );
+  return mPlugin->IsScalable(fontDescription);
 }
 
-bool FontClient::IsScalable( const FontDescription& fontDescription )
+void FontClient::GetFixedSizes(const FontPath& path, Dali::Vector<PointSize26Dot6>& sizes)
 {
   CreatePlugin();
 
-  return mPlugin->IsScalable( fontDescription );
+  mPlugin->GetFixedSizes(path, sizes);
 }
 
-void FontClient::GetFixedSizes( const FontPath& path, Dali::Vector< PointSize26Dot6>& sizes )
+void FontClient::GetFixedSizes(const FontDescription&         fontDescription,
+                               Dali::Vector<PointSize26Dot6>& sizes)
 {
   CreatePlugin();
 
-  mPlugin->GetFixedSizes( path, sizes );
+  mPlugin->GetFixedSizes(fontDescription, sizes);
 }
 
-void FontClient::GetFixedSizes( const FontDescription& fontDescription,
-                                Dali::Vector< PointSize26Dot6 >& sizes )
+bool FontClient::HasItalicStyle(FontId fontId) const
 {
-  CreatePlugin();
-
-  mPlugin->GetFixedSizes( fontDescription, sizes );
-}
-
-bool FontClient::HasItalicStyle( FontId fontId ) const
-{
-  if( !mPlugin )
+  if(!mPlugin)
   {
     return false;
   }
-  return mPlugin->HasItalicStyle( fontId );
+  return mPlugin->HasItalicStyle(fontId);
 }
 
-FontId FontClient::GetFontId( const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex )
+FontId FontClient::GetFontId(const FontPath& path, PointSize26Dot6 requestedPointSize, FaceIndex faceIndex)
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( path,
-                             requestedPointSize,
-                             faceIndex,
-                             true );
+  return mPlugin->GetFontId(path,
+                            requestedPointSize,
+                            faceIndex,
+                            true);
 }
 
-FontId FontClient::GetFontId( const FontDescription& fontDescription,
-                              PointSize26Dot6 requestedPointSize,
-                              FaceIndex faceIndex )
+FontId FontClient::GetFontId(const FontDescription& fontDescription,
+                             PointSize26Dot6        requestedPointSize,
+                             FaceIndex              faceIndex)
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( fontDescription,
-                             requestedPointSize,
-                             faceIndex );
+  return mPlugin->GetFontId(fontDescription,
+                            requestedPointSize,
+                            faceIndex);
 }
 
-FontId FontClient::GetFontId( const BitmapFont& bitmapFont )
+FontId FontClient::GetFontId(const BitmapFont& bitmapFont)
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId( bitmapFont );
+  return mPlugin->GetFontId(bitmapFont);
 }
 
-void FontClient::GetFontMetrics( FontId fontId, FontMetrics& metrics )
+void FontClient::GetFontMetrics(FontId fontId, FontMetrics& metrics)
 {
   CreatePlugin();
 
-  mPlugin->GetFontMetrics( fontId, metrics );
+  mPlugin->GetFontMetrics(fontId, metrics);
 }
 
-GlyphIndex FontClient::GetGlyphIndex( FontId fontId, Character charcode )
+GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode)
 {
   CreatePlugin();
 
-  return mPlugin->GetGlyphIndex( fontId, charcode );
+  return mPlugin->GetGlyphIndex(fontId, charcode);
 }
 
-bool FontClient::GetGlyphMetrics( GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal )
+bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal)
 {
   CreatePlugin();
 
-  return mPlugin->GetGlyphMetrics( array, size, type, horizontal );
+  return mPlugin->GetGlyphMetrics(array, size, type, horizontal);
 }
 
-void FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth )
+void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth)
 {
   CreatePlugin();
 
-  mPlugin->CreateBitmap( fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth );
+  mPlugin->CreateBitmap(fontId, glyphIndex, isItalicRequired, isBoldRequired, data, outlineWidth);
 }
 
-PixelData FontClient::CreateBitmap( FontId fontId, GlyphIndex glyphIndex, int outlineWidth )
+PixelData FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, int outlineWidth)
 {
   CreatePlugin();
 
-  return mPlugin->CreateBitmap( fontId, glyphIndex, outlineWidth );
+  return mPlugin->CreateBitmap(fontId, glyphIndex, outlineWidth);
 }
 
-void FontClient::CreateVectorBlob( FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight )
+void FontClient::CreateVectorBlob(FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight)
 {
   CreatePlugin();
 
-  mPlugin->CreateVectorBlob( fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight );
+  mPlugin->CreateVectorBlob(fontId, glyphIndex, blob, blobLength, nominalWidth, nominalHeight);
 }
 
-const GlyphInfo& FontClient::GetEllipsisGlyph( PointSize26Dot6 requestedPointSize )
+const GlyphInfo& FontClient::GetEllipsisGlyph(PointSize26Dot6 requestedPointSize)
 {
   CreatePlugin();
 
-  return mPlugin->GetEllipsisGlyph( requestedPointSize );
+  return mPlugin->GetEllipsisGlyph(requestedPointSize);
 }
 
-bool FontClient::IsColorGlyph( FontId fontId, GlyphIndex glyphIndex )
+bool FontClient::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex)
 {
   CreatePlugin();
 
-  return mPlugin->IsColorGlyph( fontId, glyphIndex );
+  return mPlugin->IsColorGlyph(fontId, glyphIndex);
 }
 
 GlyphIndex FontClient::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   CreatePlugin();
 
-  return mPlugin->CreateEmbeddedItem( description, pixelFormat );
+  return mPlugin->CreateEmbeddedItem(description, pixelFormat);
 }
 
-FT_FaceRec_* FontClient::GetFreetypeFace( FontId fontId )
+FT_FaceRec_* FontClient::GetFreetypeFace(FontId fontId)
 {
   CreatePlugin();
 
-  return mPlugin->GetFreetypeFace( fontId );
+  return mPlugin->GetFreetypeFace(fontId);
 }
 
-FontDescription::Type FontClient::GetFontType( FontId fontId )
+FontDescription::Type FontClient::GetFontType(FontId fontId)
 {
   CreatePlugin();
 
-  return mPlugin->GetFontType( fontId );
+  return mPlugin->GetFontType(fontId);
 }
 
-bool FontClient::AddCustomFontDirectory( const FontPath& path )
+bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
   CreatePlugin();
 
-  return mPlugin->AddCustomFontDirectory( path );
+  return mPlugin->AddCustomFontDirectory(path);
 }
 
 void FontClient::CreatePlugin()
 {
-  if( !mPlugin )
+  if(!mPlugin)
   {
-    mPlugin = new Plugin( mDpiHorizontal, mDpiVertical );
+    mPlugin = new Plugin(mDpiHorizontal, mDpiVertical);
   }
 }
 

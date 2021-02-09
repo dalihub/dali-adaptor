@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,23 +22,20 @@
 
 namespace Dali::Internal::Adaptor
 {
-
 class NativeImageSourceFactoryCocoa : public NativeImageSourceFactory
 {
 public:
-  std::unique_ptr< NativeImageSource > CreateNativeImageSource(
-    unsigned int width,
-    unsigned int height,
+  std::unique_ptr<NativeImageSource> CreateNativeImageSource(
+    unsigned int                        width,
+    unsigned int                        height,
     Dali::NativeImageSource::ColorDepth depth,
-    Any nativeImageSource
-  ) override;
+    Any                                 nativeImageSource) override;
 
-  std::unique_ptr< NativeImageSourceQueue > CreateNativeImageSourceQueue(
-    unsigned int width,
-    unsigned int height,
+  std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(
+    unsigned int                             width,
+    unsigned int                             height,
     Dali::NativeImageSourceQueue::ColorDepth depth,
-    Any nativeImageSourceQueue
-  ) override;
+    Any                                      nativeImageSourceQueue) override;
 };
 
-} // Dali::Internal::Adaptor
+} // namespace Dali::Internal::Adaptor

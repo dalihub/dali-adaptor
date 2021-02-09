@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,17 +26,14 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 // LOCAL STUFF
 namespace
 {
-Eina_Bool TimerSourceFunc (void *data)
+Eina_Bool TimerSourceFunc(void* data)
 {
   Timer* timer = static_cast<Timer*>(data);
 
@@ -51,23 +48,23 @@ Eina_Bool TimerSourceFunc (void *data)
  */
 struct Timer::Impl
 {
-  Impl( unsigned int milliSec )
+  Impl(unsigned int milliSec)
   : mId(NULL),
     mInterval(milliSec)
   {
   }
 
-  Ecore_Timer * mId;
+  Ecore_Timer* mId;
   unsigned int mInterval;
 };
 
-TimerPtr Timer::New( unsigned int milliSec )
+TimerPtr Timer::New(unsigned int milliSec)
 {
-  TimerPtr timer( new Timer( milliSec ) );
+  TimerPtr timer(new Timer(milliSec));
   return timer;
 }
 
-Timer::Timer( unsigned int milliSec )
+Timer::Timer(unsigned int milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
@@ -81,20 +78,20 @@ Timer::~Timer()
 void Timer::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
   if(mImpl->mId != NULL)
   {
     Stop();
   }
-  double interval = static_cast<double> ( mImpl->mInterval ) / 1000.0f;
-  mImpl->mId = ecore_timer_add( interval, reinterpret_cast<Ecore_Task_Cb>( TimerSourceFunc ), this );
+  double interval = static_cast<double>(mImpl->mInterval) / 1000.0f;
+  mImpl->mId      = ecore_timer_add(interval, reinterpret_cast<Ecore_Task_Cb>(TimerSourceFunc), this);
 }
 
 void Timer::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
   ResetTimerData();
 }
@@ -102,32 +99,32 @@ void Timer::Stop()
 void Timer::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  if( mImpl->mId != NULL )
+  if(mImpl->mId != NULL)
   {
-    ecore_timer_freeze( mImpl->mId );
+    ecore_timer_freeze(mImpl->mId);
   }
 }
 
 void Timer::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  if( mImpl->mId != NULL )
+  if(mImpl->mId != NULL)
   {
-    ecore_timer_thaw( mImpl->mId );
+    ecore_timer_thaw(mImpl->mId);
   }
 }
 
-void Timer::SetInterval( unsigned int interval, bool restart )
+void Timer::SetInterval(unsigned int interval, bool restart)
 {
   // stop existing timer
   Stop();
   mImpl->mInterval = interval;
 
-  if( restart )
+  if(restart)
   {
     // start new tick
     Start();
@@ -142,23 +139,23 @@ unsigned int Timer::GetInterval() const
 bool Timer::Tick()
 {
   // Guard against destruction during signal emission
-  Dali::Timer handle( this );
+  Dali::Timer handle(this);
 
-  bool retVal( false );
+  bool retVal(false);
 
   // Override with new signal if used
-  if( !mTickSignal.Empty() )
+  if(!mTickSignal.Empty())
   {
     retVal = mTickSignal.Emit();
 
     // Timer stops if return value is false
-    if (retVal == false)
+    if(retVal == false)
     {
       Stop();
     }
     else
     {
-      retVal = true;   // continue emission
+      retVal = true; // continue emission
     }
   }
   else // no callbacks registered
@@ -177,7 +174,7 @@ Dali::Timer::TimerSignalType& Timer::TickSignal()
 
 void Timer::ResetTimerData()
 {
-  if (mImpl->mId != NULL)
+  if(mImpl->mId != NULL)
   {
     ecore_timer_del(mImpl->mId);
     mImpl->mId = NULL;

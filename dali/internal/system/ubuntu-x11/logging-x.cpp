@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,15 +23,13 @@
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message)
 {
   const char* DALI_TAG = "DALI";
 
-  const char *format = NULL;
+  const char* format = NULL;
   switch(level)
   {
     case Dali::Integration::Log::DebugInfo:
@@ -48,7 +46,6 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
       break;
   }
   printf(format, DALI_TAG, message.c_str());
-
 }
 
 } // namespace TizenPlatform

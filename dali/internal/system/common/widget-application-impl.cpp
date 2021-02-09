@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,15 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/widget-application-impl.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/widget-application-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 // factory function, must be implemented
 namespace WidgetApplicationFactory
 {
@@ -37,20 +34,20 @@ namespace WidgetApplicationFactory
  * @param[in]  argv         A pointer to the argument list
  * @param[in]  stylesheet   The path to user defined theme file
  */
-WidgetApplicationPtr Create( int* argc, char **argv[], const std::string& stylesheet );
+WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet);
 
-} // namespace Factory
+} // namespace WidgetApplicationFactory
 
 WidgetApplicationPtr WidgetApplication::New(
-  int* argc,
-  char **argv[],
+  int*               argc,
+  char**             argv[],
   const std::string& stylesheet)
 {
   //WidgetApplicationPtr //widgetApplication( new WidgetApplication (argc, argv, stylesheet ) );
-  return WidgetApplicationFactory::Create( argc, argv, stylesheet );
+  return WidgetApplicationFactory::Create(argc, argv, stylesheet);
 }
 
-WidgetApplication::WidgetApplication( int* argc, char** argv[], const std::string& stylesheet )
+WidgetApplication::WidgetApplication(int* argc, char** argv[], const std::string& stylesheet)
 : Application(argc, argv, stylesheet, Dali::WidgetApplication::OPAQUE, PositionSize(), Framework::WIDGET)
 {
   DALI_LOG_ERROR("WidgetApplication is not implemented in UBUNTU profile.\n");
@@ -60,7 +57,7 @@ WidgetApplication::~WidgetApplication()
 {
 }
 
-void WidgetApplication::RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction )
+void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction)
 {
 }
 

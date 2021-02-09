@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CLIPBOARD_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,17 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Implementation of the Clip Board
  */
 
-class Clipboard :  public Dali::BaseObject
+class Clipboard : public Dali::BaseObject
 {
 public:
-
   // Hide the specific windowing system
   struct Impl;
 
@@ -63,7 +59,7 @@ public:
   /**
    * @copydoc Dali::Clipboard::SetItem()
    */
-  bool SetItem(const std::string &itemData);
+  bool SetItem(const std::string& itemData);
 
   /**
    * @copydoc Dali::Clipboard::RequestItem()
@@ -97,20 +93,17 @@ public:
   * @param[in] event information pointer
   * @return The buffer pointer for send or receive data
   */
-  char* ExcuteBuffered( bool type, void *event );
+  char* ExcuteBuffered(bool type, void* event);
 
 private:
-
   // Undefined
-  Clipboard( const Clipboard& );
-  Clipboard& operator=( Clipboard& );
+  Clipboard(const Clipboard&);
+  Clipboard& operator=(Clipboard&);
 
 private:
-
   Impl* mImpl;
 
 public:
-
 }; // class clipboard
 
 } // namespace Adaptor
@@ -119,14 +112,14 @@ public:
 
 inline static Internal::Adaptor::Clipboard& GetImplementation(Dali::Clipboard& clipboard)
 {
-  DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
+  DALI_ASSERT_ALWAYS(clipboard && "Clipboard handle is empty");
   BaseObject& handle = clipboard.GetBaseObject();
   return static_cast<Internal::Adaptor::Clipboard&>(handle);
 }
 
-inline static const  Internal::Adaptor::Clipboard& GetImplementation(const Dali::Clipboard& clipboard)
+inline static const Internal::Adaptor::Clipboard& GetImplementation(const Dali::Clipboard& clipboard)
 {
-  DALI_ASSERT_ALWAYS( clipboard && "Clipboard handle is empty" );
+  DALI_ASSERT_ALWAYS(clipboard && "Clipboard handle is empty");
   const BaseObject& handle = clipboard.GetBaseObject();
   return static_cast<const Internal::Adaptor::Clipboard&>(handle);
 }

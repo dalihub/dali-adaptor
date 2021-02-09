@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,22 +23,18 @@
 
 namespace Dali
 {
-
 class DisplayConnection;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * DisplayConnection implementation
  */
 class DisplayConnectionEcoreWl : public Dali::Internal::Adaptor::DisplayConnection
 {
 public:
-
   /**
    * @brief Default constructor
    */
@@ -52,7 +48,6 @@ public:
   static DisplayConnection* New();
 
 public:
-
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
@@ -72,23 +67,21 @@ public:
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType( Dali::RenderSurfaceInterface::Type type );
+  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
 
   /**
    * @brief Sets the graphics interface
    * @param[in] graphics The graphics interface
    */
-  void SetGraphicsInterface( GraphicsInterface& graphics );
+  void SetGraphicsInterface(GraphicsInterface& graphics);
 
 public:
-
   /**
    * Destructor
    */
   virtual ~DisplayConnectionEcoreWl();
 
 protected:
-
   /**
    * @brief Gets display connection for native surface
    */
@@ -106,14 +99,14 @@ protected:
   DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs);
 
 private:
-  EGLNativeDisplayType mDisplay;        ///< Wayland-display for rendering
-  Dali::RenderSurfaceInterface::Type mSurfaceType;     ///< The surface type
-  GraphicsInterface* mGraphics;         ///< The graphics interface
+  EGLNativeDisplayType               mDisplay;     ///< Wayland-display for rendering
+  Dali::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
+  GraphicsInterface*                 mGraphics;    ///< The graphics interface
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

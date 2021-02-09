@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,29 +19,24 @@
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/debug.h>
+#include <dlfcn.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace ImageLoaderPluginProxy
 {
+static const char* DEFAULT_OBJECT_NAME("libdali2-image-loader-plugin.so");
 
-
-static const char * DEFAULT_OBJECT_NAME( "libdali2-image-loader-plugin.so" );
-
-static bool mInitializeAttempted = false;
-static void* mLibHandle = NULL;
-static CreateImageLoaderPlugin* mCreatePluginFunctionPtr = NULL;
+static bool                      mInitializeAttempted         = false;
+static void*                     mLibHandle                   = NULL;
+static CreateImageLoaderPlugin*  mCreatePluginFunctionPtr     = NULL;
 static DestroyImageLoaderPlugin* mDestroyImageLoaderPluginPtr = NULL;
-static Dali::ImageLoaderPlugin* mImageLoaderPlugin = NULL;
+static Dali::ImageLoaderPlugin*  mImageLoaderPlugin           = NULL;
 
 #if defined(DEBUG_ENABLED)
 /**
@@ -52,47 +47,46 @@ static Dali::ImageLoaderPlugin* mImageLoaderPlugin = NULL;
  * LOG_IMAGE_LOADER_PLUGIN=3 dali-demo #< on, verbose
  * </code>
  */
-Debug::Filter* gImageLoaderPluginLogFilter = Debug::Filter::New( Debug::NoLogging, false, "LOG_IMAGE_LOADER_PLUGIN" );
+Debug::Filter* gImageLoaderPluginLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_IMAGE_LOADER_PLUGIN");
 #endif
 
 void Initialize()
 {
   // Only attempt to load dll once
   char* error = NULL;
-  if ( !mInitializeAttempted )
+  if(!mInitializeAttempted)
   {
     mInitializeAttempted = true;
-    mLibHandle = dlopen( DEFAULT_OBJECT_NAME, RTLD_LAZY );
-    error = dlerror();
-    if( !mLibHandle )
+    mLibHandle           = dlopen(DEFAULT_OBJECT_NAME, RTLD_LAZY);
+    error                = dlerror();
+    if(!mLibHandle)
     {
-      DALI_LOG_INFO( gImageLoaderPluginLogFilter, Dali::Integration::Log::Verbose, "Cannot load dali image loading plugin library error: %s\n", error );
+      DALI_LOG_INFO(gImageLoaderPluginLogFilter, Dali::Integration::Log::Verbose, "Cannot load dali image loading plugin library error: %s\n", error);
       return;
     }
 
     // load plugin
-    mCreatePluginFunctionPtr = reinterpret_cast<CreateImageLoaderPlugin*>( dlsym( mLibHandle, "CreateImageLoaderPlugin" ) );
-    error = dlerror();
-    if( !mCreatePluginFunctionPtr )
+    mCreatePluginFunctionPtr = reinterpret_cast<CreateImageLoaderPlugin*>(dlsym(mLibHandle, "CreateImageLoaderPlugin"));
+    error                    = dlerror();
+    if(!mCreatePluginFunctionPtr)
     {
-      DALI_LOG_ERROR("Cannot load symbol CreateImageLoaderPlugin(): %s\n", error );
+      DALI_LOG_ERROR("Cannot load symbol CreateImageLoaderPlugin(): %s\n", error);
       return;
     }
 
-    mDestroyImageLoaderPluginPtr = reinterpret_cast<DestroyImageLoaderPlugin*>( dlsym( mLibHandle, "DestroyImageLoaderPlugin" ) );
-    error = dlerror();
-    if( !mDestroyImageLoaderPluginPtr )
+    mDestroyImageLoaderPluginPtr = reinterpret_cast<DestroyImageLoaderPlugin*>(dlsym(mLibHandle, "DestroyImageLoaderPlugin"));
+    error                        = dlerror();
+    if(!mDestroyImageLoaderPluginPtr)
     {
-      DALI_LOG_ERROR("Cannot load symbol DestroyImageLoaderPlugin(): %s\n", error );
+      DALI_LOG_ERROR("Cannot load symbol DestroyImageLoaderPlugin(): %s\n", error);
       return;
     }
-
 
     mImageLoaderPlugin = mCreatePluginFunctionPtr();
-    error = dlerror();
-    if( !mImageLoaderPlugin )
+    error              = dlerror();
+    if(!mImageLoaderPlugin)
     {
-      DALI_LOG_ERROR("Call to function CreateImageLoaderPlugin() failed : %s\n", error );
+      DALI_LOG_ERROR("Call to function CreateImageLoaderPlugin() failed : %s\n", error);
       return;
     }
   }
@@ -100,25 +94,24 @@ void Initialize()
 
 void Destroy()
 {
-  if( mImageLoaderPlugin && mDestroyImageLoaderPluginPtr )
+  if(mImageLoaderPlugin && mDestroyImageLoaderPluginPtr)
   {
-    mDestroyImageLoaderPluginPtr( mImageLoaderPlugin );
+    mDestroyImageLoaderPluginPtr(mImageLoaderPlugin);
     mImageLoaderPlugin = NULL;
   }
 }
 
-const ImageLoader::BitmapLoader* BitmapLoaderLookup( const std::string& filename )
+const ImageLoader::BitmapLoader* BitmapLoaderLookup(const std::string& filename)
 {
-  if( mImageLoaderPlugin )
+  if(mImageLoaderPlugin)
   {
-    const ImageLoader::BitmapLoader* data = mImageLoaderPlugin->BitmapLoaderLookup( filename );
+    const ImageLoader::BitmapLoader* data = mImageLoaderPlugin->BitmapLoaderLookup(filename);
     return data;
   }
   return NULL;
 }
 
 } // namespace ImageLoaderPluginProxy
-
 
 } // namespace Adaptor
 

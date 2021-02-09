@@ -23,23 +23,20 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-const float EPSILON = 0.9f; // rolling average = (average * epsilon) + (current * epsilon)
+const float EPSILON                          = 0.9f;            // rolling average = (average * epsilon) + (current * epsilon)
 const float ONE_OVER_MICROSECONDS_TO_SECONDS = 1.f / 1000000.f; ///< microseconds per second
-}
+} // namespace
 
 FrameTimeStats::FrameTimeStats()
-: mTotal( 0.f)
+: mTotal(0.f)
 {
-  mSamples.Reserve( 16 );   // Fill out a little to avoid early reallocations
+  mSamples.Reserve(16); // Fill out a little to avoid early reallocations
 
   Reset();
 }
@@ -48,21 +45,21 @@ FrameTimeStats::~FrameTimeStats()
 {
 }
 
-void FrameTimeStats::StartTime( const FrameTimeStamp& timeStamp )
+void FrameTimeStats::StartTime(const FrameTimeStamp& timeStamp)
 {
   // check to make sure we don't get 2 start times in a row
-  if( mTimeState != WAITING_FOR_START_TIME )
+  if(mTimeState != WAITING_FOR_START_TIME)
   {
     Reset();
   }
 
-  mStart = timeStamp;
+  mStart     = timeStamp;
   mTimeState = WAITING_FOR_END_TIME;
 }
 
-void FrameTimeStats::EndTime( const FrameTimeStamp& timeStamp )
+void FrameTimeStats::EndTime(const FrameTimeStamp& timeStamp)
 {
-  if( mTimeState != WAITING_FOR_END_TIME )
+  if(mTimeState != WAITING_FOR_END_TIME)
   {
     Reset();
     return;
@@ -72,24 +69,24 @@ void FrameTimeStats::EndTime( const FrameTimeStamp& timeStamp )
   mRunCount++;
 
   // frame time in seconds
-  unsigned int elapsedTime = FrameTimeStamp::MicrosecondDiff( mStart, timeStamp);
+  unsigned int elapsedTime = FrameTimeStamp::MicrosecondDiff(mStart, timeStamp);
 
-  mSamples.PushBack( elapsedTime );
+  mSamples.PushBack(elapsedTime);
 
   // if the min and max times haven't been set, do that now.
-  if( !mMinMaxTimeSet )
+  if(!mMinMaxTimeSet)
   {
-    mMin = elapsedTime;
-    mMax = elapsedTime;
+    mMin           = elapsedTime;
+    mMax           = elapsedTime;
     mMinMaxTimeSet = true;
   }
   else
   {
-    if (elapsedTime < mMin)
+    if(elapsedTime < mMin)
     {
-      mMin= elapsedTime;
+      mMin = elapsedTime;
     }
-    else if (elapsedTime > mMax)
+    else if(elapsedTime > mMax)
     {
       mMax = elapsedTime;
     }
@@ -100,12 +97,12 @@ void FrameTimeStats::EndTime( const FrameTimeStamp& timeStamp )
 
 void FrameTimeStats::Reset()
 {
-  mTimeState = WAITING_FOR_START_TIME;
+  mTimeState     = WAITING_FOR_START_TIME;
   mMinMaxTimeSet = false;
-  mMin = 0.f;
-  mMax = 0.f;
-  mRunCount = 0;
-  mStart = FrameTimeStamp();
+  mMin           = 0.f;
+  mMax           = 0.f;
+  mRunCount      = 0;
+  mStart         = FrameTimeStamp();
   mSamples.Clear();
 }
 
@@ -129,13 +126,13 @@ unsigned int FrameTimeStats::GetRunCount() const
   return mRunCount;
 }
 
-void FrameTimeStats::CalculateMean( float& meanOut, float& standardDeviationOut ) const
+void FrameTimeStats::CalculateMean(float& meanOut, float& standardDeviationOut) const
 {
-  if( mSamples.Size() > 0 )
+  if(mSamples.Size() > 0)
   {
     // Mean
     unsigned int sum = 0;
-    for( Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it )
+    for(Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it)
     {
       unsigned int value = *it;
 
@@ -146,7 +143,7 @@ void FrameTimeStats::CalculateMean( float& meanOut, float& standardDeviationOut 
 
     // Variance
     float variance = 0.0f;
-    for( Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it )
+    for(Samples::ConstIterator it = mSamples.Begin(), itEnd = mSamples.End(); it != itEnd; ++it)
     {
       unsigned int value = *it;
 
@@ -158,18 +155,17 @@ void FrameTimeStats::CalculateMean( float& meanOut, float& standardDeviationOut 
     variance /= mSamples.Size();
 
     // Standard deviation
-    standardDeviationOut = sqrtf( variance );
+    standardDeviationOut = sqrtf(variance);
 
     meanOut *= ONE_OVER_MICROSECONDS_TO_SECONDS;
     standardDeviationOut *= ONE_OVER_MICROSECONDS_TO_SECONDS;
   }
   else
   {
-    meanOut = 0.0f;
+    meanOut              = 0.0f;
     standardDeviationOut = 0.0f;
   }
 }
-
 
 } // namespace Adaptor
 

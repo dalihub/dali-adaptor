@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TIME_SERVICE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,12 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TimeService
 {
-
 /**
  * @brief Get the monotonic time since the clock's epoch.
  *
@@ -39,7 +35,7 @@ namespace TimeService
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
  */
-void GetNanoseconds( uint64_t& timeInNanoseconds );
+void GetNanoseconds(uint64_t& timeInNanoseconds);
 
 /**
  * @brief Get the monotonic time since the clock's epoch.
@@ -59,7 +55,7 @@ uint32_t GetMilliSeconds();
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
  */
-void SleepUntil( uint64_t timeInNanoseconds );
+void SleepUntil(uint64_t timeInNanoseconds);
 
 } // namespace TimeService
 

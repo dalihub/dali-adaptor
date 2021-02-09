@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 Samsung Electronics Co., Ltd.
+* Copyright (c) 2021 Samsung Electronics Co., Ltd.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/window-system/windows/platform-implement-win.h>
 
 // EXTERNAL INCLUDES
-#include <map>
 #include <windows.h>
+#include <map>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/event-system-win.h>
@@ -32,53 +32,48 @@ constexpr float INCH = 25.4;
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace WindowsPlatform
 {
-
-LRESULT CALLBACK WinProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CALLBACK WinProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  WindowImpl::ProcWinMessage( reinterpret_cast<uint64_t>( hWnd ), uMsg, wParam, lParam );
+  WindowImpl::ProcWinMessage(reinterpret_cast<uint64_t>(hWnd), uMsg, wParam, lParam);
 
-  LRESULT ret = DefWindowProc( hWnd, uMsg, wParam, lParam );
+  LRESULT ret = DefWindowProc(hWnd, uMsg, wParam, lParam);
   return ret;
 }
 
 namespace
 {
-
 const std::string DALI_WINDOW_CLASS_NAME = "DaliWindow";
 
 uint32_t sNumWindows = 0;
 
 void EnsureWindowClassRegistered()
 {
-  if (sNumWindows == 0)
+  if(sNumWindows == 0)
   {
-    WNDCLASS cs = { 0 };
-    cs.cbClsExtra = 0;
-    cs.cbWndExtra = 0;
+    WNDCLASS cs      = {0};
+    cs.cbClsExtra    = 0;
+    cs.cbWndExtra    = 0;
     cs.hbrBackground = (HBRUSH)(COLOR_WINDOW + 2);
-    cs.hCursor = NULL;
-    cs.hIcon = NULL;
-    cs.hInstance = GetModuleHandle(NULL);
-    cs.lpfnWndProc = (WNDPROC)WinProc;
+    cs.hCursor       = NULL;
+    cs.hIcon         = NULL;
+    cs.hInstance     = GetModuleHandle(NULL);
+    cs.lpfnWndProc   = (WNDPROC)WinProc;
     cs.lpszClassName = DALI_WINDOW_CLASS_NAME.c_str();
-    cs.lpszMenuName = NULL;
-    cs.style = CS_VREDRAW | CS_HREDRAW;
+    cs.lpszMenuName  = NULL;
+    cs.style         = CS_VREDRAW | CS_HREDRAW;
     RegisterClass(&cs);
   }
 }
 
 void EnsureWindowClassUnregistered()
 {
-  if (sNumWindows == 0)
+  if(sNumWindows == 0)
   {
     UnregisterClass(DALI_WINDOW_CLASS_NAME.c_str(), GetModuleHandle(NULL));
   }
@@ -89,24 +84,24 @@ std::map<uint64_t, WindowImpl*> sHWndToListener;
 void RemoveListener(uint64_t hWnd)
 {
   std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(hWnd);
-  if (sHWndToListener.end() != x)
+  if(sHWndToListener.end() != x)
   {
     sHWndToListener.erase(x);
   }
 }
 
-}
+} // namespace
 
-const uint32_t WindowImpl::STYLE = WS_OVERLAPPED;
-const int32_t WindowImpl::EDGE_WIDTH = 8;
-const int32_t WindowImpl::EDGE_HEIGHT = 18;
+const uint32_t WindowImpl::STYLE       = WS_OVERLAPPED;
+const int32_t  WindowImpl::EDGE_WIDTH  = 8;
+const int32_t  WindowImpl::EDGE_HEIGHT = 18;
 
 WindowImpl::WindowImpl()
 {
   colorDepth = -1;
-  mHWnd = 0;
-  mHdc = 0;
-  listener = NULL;
+  mHWnd      = 0;
+  mHdc       = 0;
+  listener   = NULL;
 }
 
 WindowImpl::~WindowImpl()
@@ -114,62 +109,61 @@ WindowImpl::~WindowImpl()
   RemoveListener(mHWnd);
 }
 
-void WindowImpl::ProcWinMessage( uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam )
+void WindowImpl::ProcWinMessage(uint64_t hWnd, uint32_t uMsg, uint64_t wParam, uint64_t lParam)
 {
-  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find( hWnd );
+  std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(hWnd);
 
-  if( sHWndToListener.end() != x )
+  if(sHWndToListener.end() != x)
   {
     CallbackBase* listener = x->second->listener;
 
-    if( NULL != listener )
+    if(NULL != listener)
     {
-      TWinEventInfo eventInfo( hWnd, uMsg, wParam, lParam );
-      CallbackBase::Execute( *listener, &eventInfo );
+      TWinEventInfo eventInfo(hWnd, uMsg, wParam, lParam);
+      CallbackBase::Execute(*listener, &eventInfo);
     }
   }
 }
 
-void WindowImpl::GetDPI( float &xDpi, float &yDpi )
+void WindowImpl::GetDPI(float& xDpi, float& yDpi)
 {
-  HDC hdcScreen = GetDC( reinterpret_cast<HWND>( mHWnd ) );
+  HDC hdcScreen = GetDC(reinterpret_cast<HWND>(mHWnd));
 
-  int32_t iX = GetDeviceCaps( hdcScreen, HORZRES );    // pixel
-  int32_t iY = GetDeviceCaps( hdcScreen, VERTRES );    // pixel
-  int32_t iPhsX = GetDeviceCaps( hdcScreen, HORZSIZE );    // mm
-  int32_t iPhsY = GetDeviceCaps( hdcScreen, VERTSIZE );    // mm
+  int32_t iX    = GetDeviceCaps(hdcScreen, HORZRES);  // pixel
+  int32_t iY    = GetDeviceCaps(hdcScreen, VERTRES);  // pixel
+  int32_t iPhsX = GetDeviceCaps(hdcScreen, HORZSIZE); // mm
+  int32_t iPhsY = GetDeviceCaps(hdcScreen, VERTSIZE); // mm
 
-  xDpi = static_cast<float>( iX ) / static_cast<float>( iPhsX ) * INCH;
-  yDpi = static_cast<float>( iY ) / static_cast<float>( iPhsY ) * INCH;
+  xDpi = static_cast<float>(iX) / static_cast<float>(iPhsX) * INCH;
+  yDpi = static_cast<float>(iY) / static_cast<float>(iPhsY) * INCH;
 }
 
 int WindowImpl::GetColorDepth()
 {
-  DALI_ASSERT_DEBUG( colorDepth >= 0 && "HWND hasn't been created, no color depth" );
+  DALI_ASSERT_DEBUG(colorDepth >= 0 && "HWND hasn't been created, no color depth");
   return colorDepth;
 }
 
 uint64_t WindowImpl::CreateHwnd(
-  _In_opt_ const char *lpWindowName,
-  _In_ int X,
-  _In_ int Y,
-  _In_ int nWidth,
-  _In_ int nHeight,
-  _In_opt_ uint64_t parent )
+  _In_opt_ const char* lpWindowName,
+  _In_ int             X,
+  _In_ int             Y,
+  _In_ int             nWidth,
+  _In_ int             nHeight,
+  _In_opt_ uint64_t    parent)
 {
   EnsureWindowClassRegistered();
   ++sNumWindows;
 
-  HWND hWnd = CreateWindow( DALI_WINDOW_CLASS_NAME.c_str(), lpWindowName, STYLE, X, Y,
-    nWidth + 2 * EDGE_WIDTH, nHeight + 2 * EDGE_HEIGHT, NULL, NULL, GetModuleHandle(NULL), NULL );
-  ::ShowWindow( hWnd, SW_SHOW );
+  HWND hWnd = CreateWindow(DALI_WINDOW_CLASS_NAME.c_str(), lpWindowName, STYLE, X, Y, nWidth + 2 * EDGE_WIDTH, nHeight + 2 * EDGE_HEIGHT, NULL, NULL, GetModuleHandle(NULL), NULL);
+  ::ShowWindow(hWnd, SW_SHOW);
 
   return reinterpret_cast<uint64_t>(hWnd);
 }
 
 void WindowImpl::DestroyHWnd(uint64_t hWnd)
 {
-  if (hWnd != 0)
+  if(hWnd != 0)
   {
     ::DestroyWindow(reinterpret_cast<HWND>(hWnd));
 
@@ -178,7 +172,7 @@ void WindowImpl::DestroyHWnd(uint64_t hWnd)
   }
 }
 
-void WindowImpl::SetListener( CallbackBase *callback )
+void WindowImpl::SetListener(CallbackBase* callback)
 {
   listener = callback;
 }
@@ -186,23 +180,23 @@ void WindowImpl::SetListener( CallbackBase *callback )
 bool WindowImpl::PostWinMessage(
   _In_ uint32_t Msg,
   _In_ uint64_t wParam,
-  _In_ uint64_t lParam )
+  _In_ uint64_t lParam)
 {
-  return (bool)PostMessage( reinterpret_cast<HWND>( mHWnd ), Msg, wParam, lParam );
+  return (bool)PostMessage(reinterpret_cast<HWND>(mHWnd), Msg, wParam, lParam);
 }
 
-void WindowImpl::SetHWND( uint64_t inHWnd )
+void WindowImpl::SetHWND(uint64_t inHWnd)
 {
-  if (mHWnd != inHWnd)
+  if(mHWnd != inHWnd)
   {
     RemoveListener(mHWnd);
 
-    mHWnd = inHWnd;
-    mHdc = reinterpret_cast<uint64_t>(GetDC(reinterpret_cast<HWND>(mHWnd)));
+    mHWnd      = inHWnd;
+    mHdc       = reinterpret_cast<uint64_t>(GetDC(reinterpret_cast<HWND>(mHWnd)));
     colorDepth = GetDeviceCaps(reinterpret_cast<HDC>(mHdc), BITSPIXEL) * GetDeviceCaps(reinterpret_cast<HDC>(mHdc), PLANES);
 
     std::map<uint64_t, WindowImpl*>::iterator x = sHWndToListener.find(mHWnd);
-    if (sHWndToListener.end() == x)
+    if(sHWndToListener.end() == x)
     {
       sHWndToListener.insert(std::make_pair(mHWnd, this));
     }
@@ -220,14 +214,14 @@ void WindowImpl::SetWinProc()
                                   GWLP_WNDPROC,
                                   reinterpret_cast<LONG_PTR>(&WinProc));
 
-  if (0 == ret)
+  if(0 == ret)
   {
     DWORD error = GetLastError();
     return;
   }
 
   HMODULE module = GetModuleHandle(nullptr);
-  ret = SetWindowLongPtr((HWND)mHWnd,
+  ret            = SetWindowLongPtr((HWND)mHWnd,
                          GWLP_HINSTANCE,
                          reinterpret_cast<LONG_PTR>(&module));
 }
@@ -236,63 +230,63 @@ bool PostWinThreadMessage(
   _In_ uint32_t Msg,
   _In_ uint64_t wParam,
   _In_ uint64_t lParam,
-  _In_ uint64_t threadID/* = -1*/ )
+  _In_ uint64_t threadID /* = -1*/)
 {
-  if( -1 == threadID )
+  if(-1 == threadID)
   {
     threadID = GetCurrentThreadId();
   }
 
-  return (bool)PostThreadMessage( threadID, Msg, wParam, lParam );
+  return (bool)PostThreadMessage(threadID, Msg, wParam, lParam);
 }
 
 struct TTimerCallbackInfo
 {
-  void *data;
+  void*         data;
   timerCallback callback;
-  HWND hWnd;
+  HWND          hWnd;
 };
 
 void CALLBACK TimerProc(HWND hWnd, UINT nMsg, UINT_PTR nTimerid, DWORD dwTime)
 {
-  TTimerCallbackInfo *info = (TTimerCallbackInfo*)nTimerid;
-  info->callback( info->data );
+  TTimerCallbackInfo* info = (TTimerCallbackInfo*)nTimerid;
+  info->callback(info->data);
 }
 
-intptr_t SetTimer(int interval, timerCallback callback, void *data)
+intptr_t SetTimer(int interval, timerCallback callback, void* data)
 {
   HWND hwnd = GetActiveWindow();
-  if (!hwnd)
+  if(!hwnd)
   {
     hwnd = FindWindow(DALI_WINDOW_CLASS_NAME.c_str(), nullptr);
   }
 
-  if (!hwnd)
+  if(!hwnd)
   {
     return -1;
   }
 
-  TTimerCallbackInfo *callbackInfo = new TTimerCallbackInfo;
-  callbackInfo->data = data;
-  callbackInfo->callback = callback;
-  callbackInfo->hWnd = hwnd;
+  TTimerCallbackInfo* callbackInfo = new TTimerCallbackInfo;
+  callbackInfo->data               = data;
+  callbackInfo->callback           = callback;
+  callbackInfo->hWnd               = hwnd;
 
   INT_PTR timerID = (INT_PTR)callbackInfo;
-  ::SetTimer( hwnd, timerID, interval, TimerProc );
+  ::SetTimer(hwnd, timerID, interval, TimerProc);
 
   return timerID;
 }
 
 void KillTimer(intptr_t id)
 {
-  TTimerCallbackInfo *info = (TTimerCallbackInfo*)id;
-  ::KillTimer( info->hWnd, id );
+  TTimerCallbackInfo* info = (TTimerCallbackInfo*)id;
+  ::KillTimer(info->hWnd, id);
   delete info;
 }
 
-std::string GetKeyName( int keyCode )
+std::string GetKeyName(int keyCode)
 {
-  switch( keyCode )
+  switch(keyCode)
   {
     case VK_BACK:
     {
@@ -372,7 +366,7 @@ std::string GetKeyName( int keyCode )
     }
     default:
     {
-      if (keyCode > 0 && keyCode < 128)
+      if(keyCode > 0 && keyCode < 128)
       {
         return std::string(1u, static_cast<char>(keyCode));
       }
@@ -383,46 +377,46 @@ std::string GetKeyName( int keyCode )
   return "";
 }
 
-static LARGE_INTEGER cpuFrequency;
-static LARGE_INTEGER *pCpuFrequency = NULL;
+static LARGE_INTEGER  cpuFrequency;
+static LARGE_INTEGER* pCpuFrequency = NULL;
 
 uint64_t GetCurrentThreadId()
 {
   return ::GetCurrentThreadId();
 }
 
-void GetNanoseconds( uint64_t& timeInNanoseconds )
+void GetNanoseconds(uint64_t& timeInNanoseconds)
 {
-  if( NULL == pCpuFrequency )
+  if(NULL == pCpuFrequency)
   {
     pCpuFrequency = &cpuFrequency;
-    QueryPerformanceFrequency( pCpuFrequency );
+    QueryPerformanceFrequency(pCpuFrequency);
   }
 
   LARGE_INTEGER curTime;
-  QueryPerformanceCounter( &curTime );
+  QueryPerformanceCounter(&curTime);
 
   timeInNanoseconds = static_cast<double>(curTime.QuadPart) / static_cast<double>(pCpuFrequency->QuadPart) * 1000000000;
 }
 
-unsigned int GetCurrentMilliSeconds( void )
+unsigned int GetCurrentMilliSeconds(void)
 {
-  if( NULL == pCpuFrequency )
+  if(NULL == pCpuFrequency)
   {
     pCpuFrequency = &cpuFrequency;
-    QueryPerformanceFrequency( pCpuFrequency );
+    QueryPerformanceFrequency(pCpuFrequency);
   }
 
   LARGE_INTEGER curTime;
-  QueryPerformanceCounter( &curTime );
+  QueryPerformanceCounter(&curTime);
 
   return curTime.QuadPart * 1000 / pCpuFrequency->QuadPart;
 }
 
-} // namespace WindowsPlatformImplement
+} // namespace WindowsPlatform
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

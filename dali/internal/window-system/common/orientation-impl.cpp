@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
 {
@@ -31,7 +31,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 Orientation* Orientation::New(Window* window)
 {
   Orientation* orientation = new Orientation(window);
@@ -68,17 +67,17 @@ Orientation::OrientationSignalType& Orientation::ChangedSignal()
   return mChangedSignal;
 }
 
-void Orientation::OnOrientationChange( const RotationEvent& rotation )
+void Orientation::OnOrientationChange(const RotationEvent& rotation)
 {
   mOrientation  = rotation.angle;
   mWindowWidth  = rotation.width;
   mWindowHeight = rotation.height;
 
   // Emit signal
-  if( !mChangedSignal.Empty() )
+  if(!mChangedSignal.Empty())
   {
-    Dali::Orientation handle( this );
-    mChangedSignal.Emit( handle );
+    Dali::Orientation handle(this);
+    mChangedSignal.Emit(handle);
   }
 }
 

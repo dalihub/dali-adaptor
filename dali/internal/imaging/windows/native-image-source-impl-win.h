@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 class EglImageExtensions;
@@ -39,7 +37,6 @@ class EglImageExtensions;
 class NativeImageSourceWin : public Internal::Adaptor::NativeImageSource
 {
 public:
-
   /**
    * Create a new NativeImageSource internally.
    * Depending on hardware the width and height may have to be a power of two.
@@ -49,10 +46,10 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceWin* New(unsigned int width,
-                          unsigned int height,
-                          Dali::NativeImageSource::ColorDepth depth,
-                          Any nativeImageSource);
+  static NativeImageSourceWin* New(unsigned int                        width,
+                                   unsigned int                        height,
+                                   Dali::NativeImageSource::ColorDepth depth,
+                                   Any                                 nativeImageSource);
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
@@ -61,17 +58,17 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char> &pixbuf, unsigned int &width, unsigned int &height, Pixel::Format& pixelFormat ) const override;
+  bool GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
-  void SetSource( Any source ) override;
+  void SetSource(Any source) override;
 
   /**
    * @copydoc Dali::NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
    */
-  bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth ) override;
+  bool IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth) override;
 
   /**
    * destructor
@@ -158,7 +155,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
    */
-  uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) override;
+  uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
@@ -166,7 +163,6 @@ public:
   bool ReleaseBuffer() override;
 
 private:
-
   /**
    * Private constructor; @see NativeImageSource::New()
    * @param[in] width The width of the image.
@@ -174,10 +170,10 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    */
-  NativeImageSourceWin(unsigned int width,
-              unsigned  int height,
-              Dali::NativeImageSource::ColorDepth depth,
-              Any nativeImageSource);
+  NativeImageSourceWin(unsigned int                        width,
+                       unsigned int                        height,
+                       Dali::NativeImageSource::ColorDepth depth,
+                       Any                                 nativeImageSource);
 
   /**
    * 2nd phase construction.
@@ -205,15 +201,14 @@ private:
   void GetPixmapDetails();
 
 private:
-
-  unsigned int mWidth;                        ///< image width
-  unsigned int mHeight;                       ///< image heights
-  bool mOwnPixmap;                            ///< Whether we created pixmap or not
-  unsigned int mPixmap;                       ///< From Windows
-  bool mBlendingRequired;                      ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
-  void* mEglImageKHR;                         ///< From EGL extension
-  EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
+  unsigned int                        mWidth;              ///< image width
+  unsigned int                        mHeight;             ///< image heights
+  bool                                mOwnPixmap;          ///< Whether we created pixmap or not
+  unsigned int                        mPixmap;             ///< From Windows
+  bool                                mBlendingRequired;   ///< Whether blending is required
+  Dali::NativeImageSource::ColorDepth mColorDepth;         ///< color depth of image
+  void*                               mEglImageKHR;        ///< From EGL extension
+  EglImageExtensions*                 mEglImageExtensions; ///< The EGL Image Extensions
 };
 
 } // namespace Adaptor

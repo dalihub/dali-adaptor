@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  *
  */
 
-
 // CLASS HEADER
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 
@@ -25,23 +24,18 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
-
-
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
 : mEglImplementation(eglImpl),
   mImageKHRInitialized(false),
   mImageKHRInitializeFailed(false)
 {
-  DALI_ASSERT_ALWAYS( eglImpl && "EGL Implementation not instantiated" );
+  DALI_ASSERT_ALWAYS(eglImpl && "EGL Implementation not instantiated");
 }
 
 EglImageExtensions::~EglImageExtensions()

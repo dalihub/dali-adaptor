@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,21 @@
 #include <dali/internal/vector-image/common/vector-image-renderer-plugin-proxy.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/debug.h>
+#include <dlfcn.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 // The default plugin name
-const char* DEFAULT_OBJECT_NAME( "libdali2-vector-image-renderer-plugin.so" );
+const char* DEFAULT_OBJECT_NAME("libdali2-vector-image-renderer-plugin.so");
 
-}
+} // namespace
 
 VectorImageRendererPluginProxy::VectorImageRendererPluginProxy(std::string sharedObjectName)
 : mSharedObjectName(std::move(sharedObjectName)),
@@ -79,17 +75,17 @@ void VectorImageRendererPluginProxy::InitializePlugin()
   }
 
   // load plugin
-  mCreateVectorImageRendererPtr = reinterpret_cast< CreateVectorImageRendererFunction >( dlsym( mLibHandle, "CreateVectorImageRendererPlugin" ) );
+  mCreateVectorImageRendererPtr = reinterpret_cast<CreateVectorImageRendererFunction>(dlsym(mLibHandle, "CreateVectorImageRendererPlugin"));
 
   error = dlerror();
-  if( mCreateVectorImageRendererPtr == nullptr || error != nullptr )
+  if(mCreateVectorImageRendererPtr == nullptr || error != nullptr)
   {
-    DALI_LOG_ERROR( "VectorImageRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error );
+    DALI_LOG_ERROR("VectorImageRendererPluginProxy::Initialize: Cannot load symbol: %s\n", error);
     return;
   }
 
   mPlugin = mCreateVectorImageRendererPtr();
-  if( !mPlugin )
+  if(!mPlugin)
   {
     DALI_LOG_ERROR("VectorImageRendererPluginProxy::Initialize: Plugin creation failed\n");
     return;
@@ -112,18 +108,18 @@ bool VectorImageRendererPluginProxy::Load(const Vector<uint8_t>& data)
 
 bool VectorImageRendererPluginProxy::Rasterize(Dali::Devel::PixelBuffer& buffer)
 {
-  if( mPlugin )
+  if(mPlugin)
   {
     return mPlugin->Rasterize(buffer);
   }
   return false;
 }
 
-void VectorImageRendererPluginProxy::GetDefaultSize( uint32_t& width, uint32_t& height ) const
+void VectorImageRendererPluginProxy::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  if( mPlugin )
+  if(mPlugin)
   {
-    mPlugin->GetDefaultSize( width, height );
+    mPlugin->GetDefaultSize(width, height);
   }
 }
 

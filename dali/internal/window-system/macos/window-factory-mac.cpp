@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,24 @@
 #include <dali/internal/window-system/macos/window-factory-mac.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/macos/window-base-mac.h>
 #include <dali/internal/window-system/common/display-utils.h>
+#include <dali/internal/window-system/macos/window-base-mac.h>
 
 namespace Dali::Internal::Adaptor
 {
-
 std::unique_ptr<WindowBase> WindowFactoryCocoa::CreateWindowBase(
   Dali::PositionSize positionSize,
-  Any surface,
-  bool isTransparent
-)
+  Any                surface,
+  bool               isTransparent)
 {
-  return Utils::MakeUnique< WindowBaseCocoa >( positionSize, surface, isTransparent );
+  return Utils::MakeUnique<WindowBaseCocoa>(positionSize, surface, isTransparent);
 }
 
 // this should be created from Window impl
-std::unique_ptr< WindowFactory > GetWindowFactory()
+std::unique_ptr<WindowFactory> GetWindowFactory()
 {
   // returns Window factory
-  return Utils::MakeUnique< WindowFactoryCocoa >();
+  return Utils::MakeUnique<WindowFactoryCocoa>();
 }
 
 } // namespace Dali::Internal::Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,34 +25,33 @@
 
 namespace Dali
 {
-
 FileStream::Impl::Impl(const std::string& filename, uint8_t mode)
-: mFileName( filename ),
-  mMode( mode ),
-  mBuffer( nullptr ),
-  mDataSize( 0 ),
-  mFile( nullptr )
+: mFileName(filename),
+  mMode(mode),
+  mBuffer(nullptr),
+  mDataSize(0),
+  mFile(nullptr)
 {
-  DALI_ASSERT_DEBUG( !filename.empty() && "Can't open a empty filename." );
-  DALI_ASSERT_DEBUG( mode != 0 && "No mode is undefined behaviour" );
+  DALI_ASSERT_DEBUG(!filename.empty() && "Can't open a empty filename.");
+  DALI_ASSERT_DEBUG(mode != 0 && "No mode is undefined behaviour");
 }
 
 FileStream::Impl::Impl(uint8_t* buffer, size_t dataSize, uint8_t mode)
-: mMode( mode ),
-  mBuffer( buffer ),
-  mDataSize( dataSize ),
-  mFile( nullptr )
+: mMode(mode),
+  mBuffer(buffer),
+  mDataSize(dataSize),
+  mFile(nullptr)
 {
-  DALI_ASSERT_DEBUG( buffer != 0 && "Can't open file on null buffer." );
-  DALI_ASSERT_DEBUG( dataSize > 0 && "Pointless to open file on empty buffer." );
-  DALI_ASSERT_DEBUG( mode != 0 && "No mode is undefined behaviour." );
+  DALI_ASSERT_DEBUG(buffer != 0 && "Can't open file on null buffer.");
+  DALI_ASSERT_DEBUG(dataSize > 0 && "Pointless to open file on empty buffer.");
+  DALI_ASSERT_DEBUG(mode != 0 && "No mode is undefined behaviour.");
 }
 
 FileStream::Impl::Impl(Dali::Vector<uint8_t>& vector, size_t dataSize, uint8_t mode)
-: mMode( mode ),
-  mBuffer( nullptr ),
-  mDataSize( dataSize ),
-  mFile( nullptr )
+: mMode(mode),
+  mBuffer(nullptr),
+  mDataSize(dataSize),
+  mFile(nullptr)
 {
   // Resize the buffer to ensure any null that gets written by
   // fmemopen is written past the end of any data that is written to the buffer.
@@ -61,28 +60,28 @@ FileStream::Impl::Impl(Dali::Vector<uint8_t>& vector, size_t dataSize, uint8_t m
   // null if binary mode is specified).
 
   ++mDataSize;
-  vector.Resize( mDataSize );
+  vector.Resize(mDataSize);
   mBuffer = &vector[0];
 
-  DALI_ASSERT_DEBUG( mBuffer != nullptr && "Can't open file on null buffer." );
-  DALI_ASSERT_DEBUG( dataSize > 0 && "Pointless to open file on empty buffer." );
-  DALI_ASSERT_DEBUG( mode != 0 && "No mode is undefined behaviour." );
+  DALI_ASSERT_DEBUG(mBuffer != nullptr && "Can't open file on null buffer.");
+  DALI_ASSERT_DEBUG(dataSize > 0 && "Pointless to open file on empty buffer.");
+  DALI_ASSERT_DEBUG(mode != 0 && "No mode is undefined behaviour.");
 }
 
 FileStream::Impl::~Impl()
 {
-  if( mFile )
+  if(mFile)
   {
-    const int closeFailed = fclose( mFile );
-    if( closeFailed )
+    const int closeFailed = fclose(mFile);
+    if(closeFailed)
     {
-      DALI_LOG_WARNING( "File close failed for FILE: \"%p\".\n", static_cast<void*>( mFile ) );
+      DALI_LOG_WARNING("File close failed for FILE: \"%p\".\n", static_cast<void*>(mFile));
     }
 
     mFile = nullptr;
   }
 
-  if( mFileStream.is_open() )
+  if(mFileStream.is_open())
   {
     mFileStream.close();
   }
@@ -90,59 +89,61 @@ FileStream::Impl::~Impl()
 
 std::iostream& FileStream::Impl::GetStream()
 {
-  if( mFile )
+  if(mFile)
   {
     // return empty stream if FILE stream is open to avoid simultaneous access to the same file
     return mFileStream;
   }
 
-  if( mFileStream.is_open() )
+  if(mFileStream.is_open())
   {
     return mFileStream;
   }
 
-  if( mBufferStream.rdbuf()->in_avail() )
+  if(mBufferStream.rdbuf()->in_avail())
   {
     return mBufferStream;
   }
 
   int openMode = 0;
 
-  if( mMode & Dali::FileStream::APPEND )
+  if(mMode & Dali::FileStream::APPEND)
   {
-    openMode |= ( std::ios::out | std::ios::app );
+    openMode |= (std::ios::out | std::ios::app);
   }
-  else if( mMode & Dali::FileStream::WRITE )
+  else if(mMode & Dali::FileStream::WRITE)
   {
-    openMode |= ( std::ios::out | std::ios::ate );
+    openMode |= (std::ios::out | std::ios::ate);
   }
 
-  if( mMode & Dali::FileStream::READ )
+  if(mMode & Dali::FileStream::READ)
   {
     openMode |= std::ios::in;
   }
 
-  if( mMode & Dali::FileStream::BINARY )
+  if(mMode & Dali::FileStream::BINARY)
   {
     openMode |= std::ios::binary;
   }
 
-  if( !mFileName.empty() )
+  if(!mFileName.empty())
   {
-    mFileStream.open( mFileName, static_cast<std::ios_base::openmode>( openMode ) );
-    if( !mFileStream.is_open() )
+    mFileStream.open(mFileName, static_cast<std::ios_base::openmode>(openMode));
+    if(!mFileStream.is_open())
     {
-      DALI_LOG_WARNING( "stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode );
+      DALI_LOG_WARNING("stream open failed for: \"%s\", in mode: \"%d\".\n", mFileName.c_str(), openMode);
     }
     return mFileStream;
   }
-  else if( mBuffer )
+  else if(mBuffer)
   {
-    mBufferStream.rdbuf()->pubsetbuf( reinterpret_cast<char*>( mBuffer ), mDataSize );
-    if( !mBufferStream.rdbuf()->in_avail() )
+    mBufferStream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(mBuffer), mDataSize);
+    if(!mBufferStream.rdbuf()->in_avail())
     {
-      DALI_LOG_WARNING( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
-          static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
+      DALI_LOG_WARNING("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
+                       static_cast<void*>(mBuffer),
+                       static_cast<unsigned>(mDataSize),
+                       openMode);
     }
   }
 
@@ -151,25 +152,25 @@ std::iostream& FileStream::Impl::GetStream()
 
 FILE* FileStream::Impl::GetFile()
 {
-  if( mFileStream.is_open() || mBufferStream.rdbuf()->in_avail() )
+  if(mFileStream.is_open() || mBufferStream.rdbuf()->in_avail())
   {
     // return empty FILE stream if the stream is open to avoid simultaneous access to the same file
     return nullptr;
   }
 
-  if( mFile )
+  if(mFile)
   {
     return mFile;
   }
 
-  char openMode[16] = { 0 };
-  int i = 0;
+  char openMode[16] = {0};
+  int  i            = 0;
 
-  if( mMode & Dali::FileStream::APPEND )
+  if(mMode & Dali::FileStream::APPEND)
   {
     openMode[i++] = 'a';
   }
-  else if( mMode & Dali::FileStream::WRITE )
+  else if(mMode & Dali::FileStream::WRITE)
   {
     openMode[i++] = 'w';
   }
@@ -178,36 +179,38 @@ FILE* FileStream::Impl::GetFile()
     openMode[i++] = 'r';
   }
 
-  if( mMode & Dali::FileStream::BINARY )
+  if(mMode & Dali::FileStream::BINARY)
   {
     openMode[i++] = 'b';
   }
 
   openMode[i++] = 0;
 
-  if( !mFileName.empty() )
+  if(!mFileName.empty())
   {
-    mFile = fopen( mFileName.c_str(), openMode );
-    if( !mFile )
+    mFile = fopen(mFileName.c_str(), openMode);
+    if(!mFile)
     {
       char buf[512];
-      DALI_LOG_ERROR( "file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode );
-      DALI_LOG_ERROR( "file open failed error : %s\n", strerror_r( errno, buf, 512 )  );
+      DALI_LOG_ERROR("file open failed for: \"%s\", in mode: \"%s\".\n", mFileName.c_str(), openMode);
+      DALI_LOG_ERROR("file open failed error : %s\n", strerror_r(errno, buf, 512));
     }
   }
-  else if( mBuffer )
+  else if(mBuffer)
   {
-    mFile = fmemopen( mBuffer, mDataSize, openMode );
-    if( !mFile )
+    mFile = fmemopen(mBuffer, mDataSize, openMode);
+    if(!mFile)
     {
       char buf[512];
-      DALI_LOG_ERROR( "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
-          static_cast<void*>( mBuffer ), static_cast<unsigned>( mDataSize ), openMode );
-      DALI_LOG_ERROR( "file open failed error : %s\n",  strerror_r( errno, buf, 512 )  );
+      DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%s\".\n",
+                     static_cast<void*>(mBuffer),
+                     static_cast<unsigned>(mDataSize),
+                     openMode);
+      DALI_LOG_ERROR("file open failed error : %s\n", strerror_r(errno, buf, 512));
     }
   }
 
   return mFile;
 }
 
-} // Dali
+} // namespace Dali

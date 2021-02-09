@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,34 +19,30 @@
 #include <dali/internal/video/common/video-player-impl.h>
 
 // EXTERNAL INCLUDES
-#include <dlfcn.h>
 #include <dali/integration-api/debug.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/object/type-registry.h>
+#include <dlfcn.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace // unnamed namespace
 {
-
-const char* VIDEO_PLUGIN_SO( "libdali2-video-player-plugin.so" );
+const char* VIDEO_PLUGIN_SO("libdali2-video-player-plugin.so");
 
 Dali::BaseHandle Create()
 {
   return Dali::VideoPlayer::New();
 }
 
-Dali::TypeRegistration type( typeid( Dali::VideoPlayer ), typeid( Dali::BaseHandle ), Create );
+Dali::TypeRegistration type(typeid(Dali::VideoPlayer), typeid(Dali::BaseHandle), Create);
 
 } // unnamed namespace
 
@@ -57,77 +53,77 @@ VideoPlayerPtr VideoPlayer::New()
 }
 
 VideoPlayer::VideoPlayer()
-: mPlugin( NULL ),
-  mHandle( NULL ),
-  mCreateVideoPlayerPtr( NULL ),
-  mDestroyVideoPlayerPtr( NULL )
+: mPlugin(NULL),
+  mHandle(NULL),
+  mCreateVideoPlayerPtr(NULL),
+  mDestroyVideoPlayerPtr(NULL)
 {
 }
 
 VideoPlayer::~VideoPlayer()
 {
-  if( mHandle != NULL )
+  if(mHandle != NULL)
   {
-    if( mDestroyVideoPlayerPtr != NULL )
+    if(mDestroyVideoPlayerPtr != NULL)
     {
-      mDestroyVideoPlayerPtr( mPlugin );
+      mDestroyVideoPlayerPtr(mPlugin);
     }
 
-    dlclose( mHandle );
+    dlclose(mHandle);
   }
 }
 
-void VideoPlayer::Initialize( Dali::Actor actor, VideoSyncMode syncMode )
+void VideoPlayer::Initialize(Dali::Actor actor, VideoSyncMode syncMode)
 {
   char* error = NULL;
 
-  mHandle = dlopen( VIDEO_PLUGIN_SO, RTLD_LAZY );
+  mHandle = dlopen(VIDEO_PLUGIN_SO, RTLD_LAZY);
 
   error = dlerror();
-  if( mHandle == NULL || error != NULL )
+  if(mHandle == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "VideoPlayer::Initialize(), dlopen error: %s\n", error );
+    DALI_LOG_ERROR("VideoPlayer::Initialize(), dlopen error: %s\n", error);
     return;
   }
 
-  mCreateVideoPlayerPtr = reinterpret_cast< CreateVideoPlayerFunction >( dlsym( mHandle, "CreateVideoPlayerPlugin" ) );
+  mCreateVideoPlayerPtr = reinterpret_cast<CreateVideoPlayerFunction>(dlsym(mHandle, "CreateVideoPlayerPlugin"));
 
   error = dlerror();
-  if( mCreateVideoPlayerPtr == NULL || error != NULL )
+  if(mCreateVideoPlayerPtr == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "Can't load symbol CreateVideoPlayerPlugin(), error: %s\n", error );
+    DALI_LOG_ERROR("Can't load symbol CreateVideoPlayerPlugin(), error: %s\n", error);
     return;
   }
 
-  mPlugin = mCreateVideoPlayerPtr( actor, syncMode );
+  mPlugin = mCreateVideoPlayerPtr(actor, syncMode);
 
-  if( mPlugin == NULL )
+  if(mPlugin == NULL)
   {
-    DALI_LOG_ERROR( "Can't create the VideoPlayerPlugin object\n" );
+    DALI_LOG_ERROR("Can't create the VideoPlayerPlugin object\n");
     return;
   }
 
-  mDestroyVideoPlayerPtr = reinterpret_cast< DestroyVideoPlayerFunction >( dlsym( mHandle, "DestroyVideoPlayerPlugin" ) );
+  mDestroyVideoPlayerPtr = reinterpret_cast<DestroyVideoPlayerFunction>(dlsym(mHandle, "DestroyVideoPlayerPlugin"));
 
   error = dlerror();
-  if( mDestroyVideoPlayerPtr == NULL || error != NULL )
+  if(mDestroyVideoPlayerPtr == NULL || error != NULL)
   {
-    DALI_LOG_ERROR( "Can't load symbol DestroyVideoPlayerPlugin(), error: %s\n", error );
+    DALI_LOG_ERROR("Can't load symbol DestroyVideoPlayerPlugin(), error: %s\n", error);
     return;
   }
 }
 
-void VideoPlayer::SetUrl( const std::string& url )
+void VideoPlayer::SetUrl(const std::string& url)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetUrl( url );
+    mPlugin->SetUrl(url);
   }
 }
 
 std::string VideoPlayer::GetUrl()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetUrl();
   }
@@ -137,15 +133,15 @@ std::string VideoPlayer::GetUrl()
 
 void VideoPlayer::SetLooping(bool looping)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetLooping( looping );
+    mPlugin->SetLooping(looping);
   }
 }
 
 bool VideoPlayer::IsLooping()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->IsLooping();
   }
@@ -155,7 +151,7 @@ bool VideoPlayer::IsLooping()
 
 void VideoPlayer::Play()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     mPlugin->Play();
   }
@@ -163,7 +159,7 @@ void VideoPlayer::Play()
 
 void VideoPlayer::Pause()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     mPlugin->Pause();
   }
@@ -171,23 +167,23 @@ void VideoPlayer::Pause()
 
 void VideoPlayer::Stop()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     mPlugin->Stop();
   }
 }
 
-void VideoPlayer::SetMute( bool mute )
+void VideoPlayer::SetMute(bool mute)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetMute( mute );
+    mPlugin->SetMute(mute);
   }
 }
 
 bool VideoPlayer::IsMuted()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->IsMuted();
   }
@@ -195,66 +191,66 @@ bool VideoPlayer::IsMuted()
   return false;
 }
 
-void VideoPlayer::SetVolume( float left, float right )
+void VideoPlayer::SetVolume(float left, float right)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetVolume( left, right );
+    mPlugin->SetVolume(left, right);
   }
 }
 
-void VideoPlayer::GetVolume( float& left, float& right )
+void VideoPlayer::GetVolume(float& left, float& right)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->GetVolume( left, right );
+    mPlugin->GetVolume(left, right);
   }
 }
 
-void VideoPlayer::SetRenderingTarget( Dali::Any target )
+void VideoPlayer::SetRenderingTarget(Dali::Any target)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetRenderingTarget( target );
+    mPlugin->SetRenderingTarget(target);
   }
 }
 
-void VideoPlayer::SetPlayPosition( int millisecond )
+void VideoPlayer::SetPlayPosition(int millisecond)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetPlayPosition( millisecond );
+    mPlugin->SetPlayPosition(millisecond);
   }
 }
 
 int VideoPlayer::GetPlayPosition()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetPlayPosition();
   }
   return 0;
 }
 
-void VideoPlayer::SetDisplayArea( DisplayArea area )
+void VideoPlayer::SetDisplayArea(DisplayArea area)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetDisplayArea( area );
+    mPlugin->SetDisplayArea(area);
   }
 }
 
-void VideoPlayer::SetDisplayRotation( Dali::VideoPlayerPlugin::DisplayRotation rotation )
+void VideoPlayer::SetDisplayRotation(Dali::VideoPlayerPlugin::DisplayRotation rotation)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetDisplayRotation( rotation );
+    mPlugin->SetDisplayRotation(rotation);
   }
 }
 
 Dali::VideoPlayerPlugin::DisplayRotation VideoPlayer::GetDisplayRotation()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetDisplayRotation();
   }
@@ -264,7 +260,7 @@ Dali::VideoPlayerPlugin::DisplayRotation VideoPlayer::GetDisplayRotation()
 
 Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->FinishedSignal();
   }
@@ -272,25 +268,25 @@ Dali::VideoPlayerPlugin::VideoPlayerSignalType& VideoPlayer::FinishedSignal()
   return mFinishedSignal;
 }
 
-void VideoPlayer::Forward( int millisecond )
+void VideoPlayer::Forward(int millisecond)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->Forward( millisecond );
+    mPlugin->Forward(millisecond);
   }
 }
 
-void VideoPlayer::Backward( int millisecond )
+void VideoPlayer::Backward(int millisecond)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->Backward( millisecond );
+    mPlugin->Backward(millisecond);
   }
 }
 
 bool VideoPlayer::IsVideoTextureSupported()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->IsVideoTextureSupported();
   }
@@ -298,17 +294,17 @@ bool VideoPlayer::IsVideoTextureSupported()
   return false;
 }
 
-void VideoPlayer::SetCodecType( Dali::VideoPlayerPlugin::CodecType type )
+void VideoPlayer::SetCodecType(Dali::VideoPlayerPlugin::CodecType type)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetCodecType( type );
+    mPlugin->SetCodecType(type);
   }
 }
 
 Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetCodecType();
   }
@@ -316,17 +312,17 @@ Dali::VideoPlayerPlugin::CodecType VideoPlayer::GetCodecType() const
   return Dali::VideoPlayerPlugin::CodecType::DEFAULT;
 }
 
-void VideoPlayer::SetDisplayMode( Dali::VideoPlayerPlugin::DisplayMode::Type mode )
+void VideoPlayer::SetDisplayMode(Dali::VideoPlayerPlugin::DisplayMode::Type mode)
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
-    mPlugin->SetDisplayMode( mode );
+    mPlugin->SetDisplayMode(mode);
   }
 }
 
 Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetDisplayMode();
   }
@@ -336,7 +332,7 @@ Dali::VideoPlayerPlugin::DisplayMode::Type VideoPlayer::GetDisplayMode() const
 
 Any VideoPlayer::GetMediaPlayer()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     return mPlugin->GetMediaPlayer();
   }
@@ -345,7 +341,7 @@ Any VideoPlayer::GetMediaPlayer()
 
 void VideoPlayer::StartSynchronization()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     mPlugin->StartSynchronization();
   }
@@ -353,13 +349,12 @@ void VideoPlayer::StartSynchronization()
 
 void VideoPlayer::FinishSynchronization()
 {
-  if( mPlugin != NULL )
+  if(mPlugin != NULL)
   {
     mPlugin->FinishSynchronization();
   }
 }
 
-} // namespace Adaptor;
-} // namespace Internal;
-} // namespace Dali;
-
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

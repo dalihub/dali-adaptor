@@ -19,47 +19,44 @@
 #include <dali/internal/system/common/fps-tracker.h>
 
 // EXTERNAL INCLUDES
-#include <cstdio>
-#include <cmath>
 #include <sys/stat.h>
+#include <cmath>
+#include <cstdio>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-const char* DALI_TEMP_UPDATE_FPS_FILE( "/tmp/dalifps.txt" );
+const char* DALI_TEMP_UPDATE_FPS_FILE("/tmp/dalifps.txt");
 } // unnamed namespace
 
-FpsTracker::FpsTracker( const EnvironmentOptions& environmentOptions )
-: mFpsTrackingSeconds( fabsf( environmentOptions.GetFrameRateLoggingFrequency() ) ),
-  mFrameCount( 0.0f ),
-  mElapsedTime( 0.0f )
+FpsTracker::FpsTracker(const EnvironmentOptions& environmentOptions)
+: mFpsTrackingSeconds(fabsf(environmentOptions.GetFrameRateLoggingFrequency())),
+  mFrameCount(0.0f),
+  mElapsedTime(0.0f)
 {
 }
 
 FpsTracker::~FpsTracker()
 {
-  if( mFpsTrackingSeconds > 0.f )
+  if(mFpsTrackingSeconds > 0.f)
   {
     OutputFPSRecord();
   }
 }
 
-void FpsTracker::Track( float secondsFromLastFrame )
+void FpsTracker::Track(float secondsFromLastFrame)
 {
-  if( mFpsTrackingSeconds > 0.f )
+  if(mFpsTrackingSeconds > 0.f)
   {
-    if ( mElapsedTime < mFpsTrackingSeconds )
+    if(mElapsedTime < mFpsTrackingSeconds)
     {
       mElapsedTime += secondsFromLastFrame;
       mFrameCount += 1.f;
@@ -67,7 +64,7 @@ void FpsTracker::Track( float secondsFromLastFrame )
     else
     {
       OutputFPSRecord();
-      mFrameCount = 0.f;
+      mFrameCount  = 0.f;
       mElapsedTime = 0.f;
     }
   }
@@ -81,29 +78,29 @@ bool FpsTracker::Enabled() const
 void FpsTracker::OutputFPSRecord()
 {
   float fps = mFrameCount / mElapsedTime;
-  DALI_LOG_FPS("Frame count %.0f, elapsed time %.1fs, FPS: %.2f\n", mFrameCount, mElapsedTime, fps );
+  DALI_LOG_FPS("Frame count %.0f, elapsed time %.1fs, FPS: %.2f\n", mFrameCount, mElapsedTime, fps);
 
   struct stat fileStat;
 
   // Check file path
-  if( lstat( DALI_TEMP_UPDATE_FPS_FILE, &fileStat ) != 0 )
+  if(lstat(DALI_TEMP_UPDATE_FPS_FILE, &fileStat) != 0)
   {
     return;
   }
 
-  if( !S_ISREG( fileStat.st_mode ) )
+  if(!S_ISREG(fileStat.st_mode))
   {
     return;
   }
 
   // Dumps out the frame rate.
-  FILE* outfile = fopen( DALI_TEMP_UPDATE_FPS_FILE, "w" );
-  if( outfile )
+  FILE* outfile = fopen(DALI_TEMP_UPDATE_FPS_FILE, "w");
+  if(outfile)
   {
     char fpsString[10];
-    snprintf(fpsString,sizeof(fpsString),"%.2f \n", fps );
-    fputs( fpsString, outfile ); // ignore the error on purpose
-    fclose( outfile );
+    snprintf(fpsString, sizeof(fpsString), "%.2f \n", fps);
+    fputs(fpsString, outfile); // ignore the error on purpose
+    fclose(outfile);
   }
 }
 

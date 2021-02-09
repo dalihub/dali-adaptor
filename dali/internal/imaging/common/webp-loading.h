@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WEBP_LOADING_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,16 @@
  *
  */
 // EXTERNAL INCLUDES
-#include <cstdint>
-#include <memory>
-#include <dali/public-api/math/rect.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
+#include <cstdint>
+#include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/internal/imaging/common/animated-image-loading-impl.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -36,10 +36,8 @@ typedef Dali::Uint16Pair ImageDimensions;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Class to manage loading frames of an animated webp in small chunks. Lazy initializes only when
  * data is actually needed.
@@ -47,17 +45,16 @@ namespace Adaptor
  * is released. (This is to speed up frame loads, which would otherwise have to re-acquire the
  * data from disk)
  */
-class WebPLoading: public Internal::Adaptor::AnimatedImageLoading
+class WebPLoading : public Internal::Adaptor::AnimatedImageLoading
 {
 public:
-
   /**
    * Create a WebPLoading with the given url and resourceType.
    * @param[in] url The url of the webp image to load
    * @param[in] isLocalResource The true or false whether this is a local resource.
    * @return A newly created WebPLoading.
    */
-  static AnimatedImageLoadingPtr New( const std::string& url, bool isLocalResource );
+  static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
   /**
    * @brief Constructor
@@ -66,8 +63,7 @@ public:
    * @param[in] url The url of the webp image to load
    * @param[in] isLocalResource The true or false whether this is a local resource.
    */
-  WebPLoading( const std::string& url, bool isLocalResource );
-
+  WebPLoading(const std::string& url, bool isLocalResource);
 
   /**
    * @brief Destructor
@@ -84,9 +80,9 @@ public:
    * @param[out] pixelData The vector in which to return the frame data
    * @return True if the frame data was successfully loaded
    */
-  bool LoadNextNFrames( uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData ) override;
+  bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData) override;
 
-   /**
+  /**
    * @brief Load the next Frame of the animated image.
    *
    * @note This function will load the entire animated image into memory if not already loaded.
@@ -94,7 +90,7 @@ public:
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
 
-  Dali::Devel::PixelBuffer LoadFrame( uint32_t frameIndex ) override;
+  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) override;
 
   /**
    * @brief Get the size of a webp image.
@@ -115,7 +111,7 @@ public:
    *
    * @return The time interval of the frame(microsecond).
    */
-  uint32_t GetFrameInterval( uint32_t frameIndex ) const override;
+  uint32_t GetFrameInterval(uint32_t frameIndex) const override;
 
   std::string GetUrl() const override;
 

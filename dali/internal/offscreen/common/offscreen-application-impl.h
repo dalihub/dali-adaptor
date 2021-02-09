@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <memory>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/base-object.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/offscreen-application.h>
@@ -34,14 +34,12 @@ class Adaptor;
 
 namespace Internal
 {
-
 /**
  * Implementation of the OffscreenApplication class.
  */
 class OffscreenApplication : public BaseObject
 {
 public:
-
   using OffscreenApplicationSignalType = Dali::OffscreenApplication::OffscreenApplicationSignalType;
 
   /**
@@ -52,10 +50,9 @@ public:
    * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
    * @param[in] renderMode The RenderMode of the OffscreenApplication
    */
-  static IntrusivePtr<OffscreenApplication> New( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
+  static IntrusivePtr<OffscreenApplication> New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
 
 public:
-
   /**
    * Destructor
    */
@@ -81,8 +78,7 @@ public:
    */
   void RenderOnce();
 
-public:  // Signals
-
+public: // Signals
   /**
    * @copydoc Dali::OffscreenApplication::InitSignal()
    */
@@ -108,38 +104,38 @@ private:
    * @param[in] isTranslucent Whether the OffscreenWindow is translucent or not
    * @param[in] renderMode The RenderMode of the OffscreenApplication
    */
-  OffscreenApplication( uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode );
+  OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
 
   // Undefined
-  OffscreenApplication( const OffscreenApplication& ) = delete;
-  OffscreenApplication& operator=( OffscreenApplication& ) = delete;
-  OffscreenApplication& operator=( const OffscreenApplication& ) = delete;
-  OffscreenApplication& operator=( OffscreenApplication&& ) = delete;
+  OffscreenApplication(const OffscreenApplication&) = delete;
+  OffscreenApplication& operator=(OffscreenApplication&) = delete;
+  OffscreenApplication& operator=(const OffscreenApplication&) = delete;
+  OffscreenApplication& operator=(OffscreenApplication&&) = delete;
 
 private:
-  std::unique_ptr< Dali::Adaptor >          mAdaptor;
-  Dali::OffscreenWindow                     mDefaultWindow;
+  std::unique_ptr<Dali::Adaptor> mAdaptor;
+  Dali::OffscreenWindow          mDefaultWindow;
 
-  OffscreenApplicationSignalType              mInitSignal;
-  OffscreenApplicationSignalType              mTerminateSignal;
+  OffscreenApplicationSignalType mInitSignal;
+  OffscreenApplicationSignalType mTerminateSignal;
 };
 
-inline OffscreenApplication& GetImplementation( Dali::OffscreenApplication& offscreenApplication )
+inline OffscreenApplication& GetImplementation(Dali::OffscreenApplication& offscreenApplication)
 {
-  DALI_ASSERT_ALWAYS( offscreenApplication && "OffscreenApplication handle is empty" );
+  DALI_ASSERT_ALWAYS(offscreenApplication && "OffscreenApplication handle is empty");
 
   BaseObject& handle = offscreenApplication.GetBaseObject();
 
-  return static_cast<OffscreenApplication&>( handle );
+  return static_cast<OffscreenApplication&>(handle);
 }
 
-inline const OffscreenApplication& GetImplementation( const Dali::OffscreenApplication& offscreenApplication )
+inline const OffscreenApplication& GetImplementation(const Dali::OffscreenApplication& offscreenApplication)
 {
-  DALI_ASSERT_ALWAYS( offscreenApplication && "OffscreenApplication handle is empty" );
+  DALI_ASSERT_ALWAYS(offscreenApplication && "OffscreenApplication handle is empty");
 
   const BaseObject& handle = offscreenApplication.GetBaseObject();
 
-  return static_cast<const OffscreenApplication&>( handle );
+  return static_cast<const OffscreenApplication&>(handle);
 }
 
 } // namespace Internal

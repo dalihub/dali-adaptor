@@ -25,22 +25,19 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 Dali::PhysicalKeyboard PhysicalKeyboard::New()
 {
   Dali::PhysicalKeyboard keyboardHandle;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
-    keyboardHandle = Dali::PhysicalKeyboard( new PhysicalKeyboard() );
-    service.Register( typeid( keyboardHandle ), keyboardHandle );
+    keyboardHandle = Dali::PhysicalKeyboard(new PhysicalKeyboard());
+    service.Register(typeid(keyboardHandle), keyboardHandle);
   }
 
   return keyboardHandle;
@@ -51,13 +48,13 @@ Dali::PhysicalKeyboard PhysicalKeyboard::Get()
   Dali::PhysicalKeyboard keyboardHandle;
 
   Dali::SingletonService service = SingletonService::Get();
-  if ( service )
+  if(service)
   {
-    BaseHandle handle = service.GetSingleton( typeid( Dali::PhysicalKeyboard ) );
-    if( handle )
+    BaseHandle handle = service.GetSingleton(typeid(Dali::PhysicalKeyboard));
+    if(handle)
     {
       // If so, downcast the handle of singleton to focus manager
-      keyboardHandle = Dali::PhysicalKeyboard( dynamic_cast< PhysicalKeyboard* >( handle.GetObjectPtr() ) );
+      keyboardHandle = Dali::PhysicalKeyboard(dynamic_cast<PhysicalKeyboard*>(handle.GetObjectPtr()));
     }
   }
 
@@ -69,14 +66,14 @@ bool PhysicalKeyboard::IsAttached() const
   return mAttached;
 }
 
-void PhysicalKeyboard::KeyReceived( bool fromPhysicalKeyboard )
+void PhysicalKeyboard::KeyReceived(bool fromPhysicalKeyboard)
 {
-  if ( mAttached != fromPhysicalKeyboard )
+  if(mAttached != fromPhysicalKeyboard)
   {
     mAttached = fromPhysicalKeyboard;
 
-    Dali::PhysicalKeyboard handle( this );
-    mStatusChangedSignal.Emit( handle );
+    Dali::PhysicalKeyboard handle(this);
+    mStatusChangedSignal.Emit(handle);
   }
 }
 
@@ -85,12 +82,12 @@ PhysicalKeyboard::~PhysicalKeyboard()
 }
 
 PhysicalKeyboard::PhysicalKeyboard()
-: mAttached( false )
+: mAttached(false)
 {
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

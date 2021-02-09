@@ -2,7 +2,7 @@
 #define DALI_SENSOR_COMMON_TILT_SENSOR_FACTORY_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ class TiltSensor;
 
 namespace TiltSensorFactory
 {
-
 /**
  * Creates new instance of tilt sensor implementation
  * @return pointer to tilt sensor implementation instance
@@ -43,7 +42,7 @@ Dali::Internal::Adaptor::TiltSensor* Create();
  */
 Dali::TiltSensor Get();
 
-} // TiltSensorFactory
+} // namespace TiltSensorFactory
 
 } // namespace Adaptor
 

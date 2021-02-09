@@ -70,18 +70,18 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
   if(stream.rdbuf()->in_avail())
   {
     std::string line;
-    while( std::getline( stream, line ) )
+    while(std::getline(stream, line))
     {
-      line.erase( line.find_last_not_of( " \t\r\n" ) + 1 );
-      line.erase( 0, line.find_first_not_of( " \t\r\n" ) );
-      if( '#' == *( line.cbegin() ) || line == "" )
+      line.erase(line.find_last_not_of(" \t\r\n") + 1);
+      line.erase(0, line.find_first_not_of(" \t\r\n"));
+      if('#' == *(line.cbegin()) || line == "")
       {
         continue;
       }
 
       std::istringstream subStream(line);
-      std::string name;
-      std::string value;
+      std::string        name;
+      std::string        value;
       std::getline(subStream, name, ' ');
       if(!mMaxTextureSizeCached && name == DALI_ENV_MAX_TEXTURE_SIZE)
       {
@@ -154,7 +154,7 @@ uint32_t ConfigurationManager::GetShadingLanguageVersion()
       }
 
       // Query from graphics and save the cache
-      mShaderLanguageVersion = mGraphics->GetShaderLanguageVersion();
+      mShaderLanguageVersion       = mGraphics->GetShaderLanguageVersion();
       mShaderLanguageVersionCached = true;
 
       Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);

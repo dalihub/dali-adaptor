@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_UTILs_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ namespace Adaptor
 {
 namespace Utils
 {
-
 template<typename T, typename... Args>
 std::unique_ptr<T> MakeUnique(Args&&... args)
 {

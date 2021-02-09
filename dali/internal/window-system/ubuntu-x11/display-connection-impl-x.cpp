@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,19 @@
 #include <dali/internal/window-system/ubuntu-x11/display-connection-impl-x.h>
 
 // EXTERNAL_HEADERS
-#include <dali/internal/system/linux/dali-ecore-x.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 DisplayConnection* DisplayConnectionX11::New()
 {
   //DisplayConnection* pDisplayConnection(new DisplayConnection());
@@ -44,8 +41,8 @@ DisplayConnection* DisplayConnectionX11::New()
 }
 
 DisplayConnectionX11::DisplayConnectionX11()
-: mGraphics( nullptr ),
-  mDisplay( nullptr )
+: mGraphics(nullptr),
+  mDisplay(nullptr)
 {
 }
 
@@ -72,23 +69,22 @@ void DisplayConnectionX11::ConsumeEvents()
     // Check if there are any events in the queue
     events = XEventsQueued(mDisplay, QueuedAfterFlush);
 
-    if (events > 0)
+    if(events > 0)
     {
       // Just flush event to prevent memory leak from event queue as the events get built up in
       // memory but are only deleted when we retrieve them
       XEvent ev;
       XNextEvent(mDisplay, &ev);
     }
-  }
-  while (events > 0);
+  } while(events > 0);
 }
 
 bool DisplayConnectionX11::InitializeGraphics()
 {
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
-  if (!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
+  if(!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
   {
     DALI_LOG_ERROR("Failed to initialize GLES.\n");
     return false;
@@ -97,16 +93,16 @@ bool DisplayConnectionX11::InitializeGraphics()
   return true;
 }
 
-void DisplayConnectionX11::SetSurfaceType( Dali::RenderSurfaceInterface::Type type )
+void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
-  if( type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE )
+  if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
   {
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);
   }
 }
 
-void DisplayConnectionX11::SetGraphicsInterface( GraphicsInterface& graphics )
+void DisplayConnectionX11::SetGraphicsInterface(GraphicsInterface& graphics)
 {
   mGraphics = &graphics;
 }

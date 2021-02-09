@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,25 +19,21 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Dali internal NativeImageSource.
  */
 class NativeImageSource
 {
 public:
-
   static constexpr uint32_t DEFAULT_QUALITY = 100;
 
   /**
@@ -49,10 +45,10 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type X11 Pixmap , a Ecore_X_Pixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSource* New(uint32_t width,
-                                uint32_t height,
+  static NativeImageSource* New(uint32_t                            width,
+                                uint32_t                            height,
                                 Dali::NativeImageSource::ColorDepth depth,
-                                Any nativeImageSource);
+                                Any                                 nativeImageSource);
   /**
    * @copydoc Dali::NativeImageSource::GetNativeImageSource()
    */
@@ -61,17 +57,17 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  virtual bool GetPixels(std::vector<unsigned char> &pixbuf, uint32_t &width, uint32_t &height, Pixel::Format& pixelFormat ) const = 0;
+  virtual bool GetPixels(std::vector<unsigned char>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
    */
-  virtual void SetSource( Any source ) = 0;
+  virtual void SetSource(Any source) = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::IsColorDepthSupported( ColorDepth colorDepth )
    */
-  virtual bool IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth ) = 0;
+  virtual bool IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth) = 0;
 
   /**
    * destructor
@@ -146,7 +142,7 @@ public:
   /**
    * @brief Dali::DevelNativeImageSource::AcquireBuffer()
    */
-  virtual uint8_t* AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride ) = 0;
+  virtual uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) = 0;
 
   /**
    * @brief Dali::DevelNativeImageSource::ReleaseBuffer()
@@ -156,9 +152,9 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )
    */
-  inline bool EncodeToFile( const std::string& filename ) const
+  inline bool EncodeToFile(const std::string& filename) const
   {
-    return EncodeToFile( filename, DEFAULT_QUALITY );
+    return EncodeToFile(filename, DEFAULT_QUALITY);
   }
 
   /**
@@ -171,21 +167,24 @@ public:
    * @param[in] quality The quality of encoded jpeg image
    * @return    @c true if the pixels were written, and @c false otherwise
    */
-  inline bool EncodeToFile( const std::string& filename, const uint32_t quality ) const
+  inline bool EncodeToFile(const std::string& filename, const uint32_t quality) const
   {
-    std::vector< uint8_t > pixbuf;
-    uint32_t width( 0 ), height( 0 );
-    Pixel::Format pixelFormat;
+    std::vector<uint8_t> pixbuf;
+    uint32_t             width(0), height(0);
+    Pixel::Format        pixelFormat;
 
-    if( GetPixels( pixbuf, width, height, pixelFormat ) )
+    if(GetPixels(pixbuf, width, height, pixelFormat))
     {
-      return Dali::EncodeToFile( &pixbuf[0], filename, pixelFormat, width, height, quality );
+      return Dali::EncodeToFile(&pixbuf[0], filename, pixelFormat, width, height, quality);
     }
     return false;
   }
 
 public:
-  inline static Internal::Adaptor::NativeImageSource& GetImplementation( Dali::NativeImageSource& image ) { return *image.mImpl; }
+  inline static Internal::Adaptor::NativeImageSource& GetImplementation(Dali::NativeImageSource& image)
+  {
+    return *image.mImpl;
+  }
 };
 
 } // namespace Adaptor

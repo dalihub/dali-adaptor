@@ -23,21 +23,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 PerformanceInterface* PerformanceInterfaceFactory::CreateInterface(
-                                 AdaptorInternalServices& adaptorServices,
-                                 const EnvironmentOptions& environmentOptions  )
+  AdaptorInternalServices&  adaptorServices,
+  const EnvironmentOptions& environmentOptions)
 {
-  return new PerformanceServer( adaptorServices, environmentOptions );
+  return new PerformanceServer(adaptorServices, environmentOptions);
 }
-
-
 
 } // namespace Adaptor
 

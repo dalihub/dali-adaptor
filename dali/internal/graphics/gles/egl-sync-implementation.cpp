@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@
 
 #ifdef _ARCH_ARM_
 
+#include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
-#include <EGL/eglext.h>
 
 #endif
 
@@ -36,9 +36,9 @@
 #ifdef _ARCH_ARM_
 
 // function pointers
-static PFNEGLCREATESYNCKHRPROC     eglCreateSyncKHR = NULL;
+static PFNEGLCREATESYNCKHRPROC     eglCreateSyncKHR     = NULL;
 static PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = NULL;
-static PFNEGLDESTROYSYNCKHRPROC    eglDestroySyncKHR = NULL;
+static PFNEGLDESTROYSYNCKHRPROC    eglDestroySyncKHR    = NULL;
 
 #endif
 
@@ -48,16 +48,15 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 #ifdef _ARCH_ARM_
 
-EglSyncObject::EglSyncObject( EglImplementation& eglSyncImpl )
+EglSyncObject::EglSyncObject(EglImplementation& eglSyncImpl)
 : mEglSync(NULL),
   mEglImplementation(eglSyncImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
-  mEglSync = eglCreateSyncKHR( display, EGL_SYNC_FENCE_KHR, NULL );
-  if (mEglSync == EGL_NO_SYNC_KHR)
+  mEglSync           = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
+  if(mEglSync == EGL_NO_SYNC_KHR)
   {
     DALI_LOG_ERROR("eglCreateSyncKHR failed %#0.4x\n", eglGetError());
     mEglSync = NULL;
@@ -66,11 +65,11 @@ EglSyncObject::EglSyncObject( EglImplementation& eglSyncImpl )
 
 EglSyncObject::~EglSyncObject()
 {
-  if( mEglSync != NULL )
+  if(mEglSync != NULL)
   {
-    eglDestroySyncKHR( mEglImplementation.GetDisplay(), mEglSync );
+    eglDestroySyncKHR(mEglImplementation.GetDisplay(), mEglSync);
     EGLint error = eglGetError();
-    if( EGL_SUCCESS != error )
+    if(EGL_SUCCESS != error)
     {
       DALI_LOG_ERROR("eglDestroySyncKHR failed %#0.4x\n", error);
     }
@@ -81,15 +80,15 @@ bool EglSyncObject::IsSynced()
 {
   bool synced = false;
 
-  if( mEglSync != NULL )
+  if(mEglSync != NULL)
   {
-    EGLint result = eglClientWaitSyncKHR( mEglImplementation.GetDisplay(), mEglSync, 0, 0ull );
-    EGLint error = eglGetError();
-    if( EGL_SUCCESS != error )
+    EGLint result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0, 0ull);
+    EGLint error  = eglGetError();
+    if(EGL_SUCCESS != error)
     {
       DALI_LOG_ERROR("eglClientWaitSyncKHR failed %#0.4x\n", error);
     }
-    else if( result == EGL_CONDITION_SATISFIED_KHR )
+    else if(result == EGL_CONDITION_SATISFIED_KHR)
     {
       synced = true;
     }
@@ -99,9 +98,9 @@ bool EglSyncObject::IsSynced()
 }
 
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation( NULL ),
-  mSyncInitialized( false ),
-  mSyncInitializeFailed( false )
+: mEglImplementation(NULL),
+  mSyncInitialized(false),
+  mSyncInitializeFailed(false)
 {
 }
 
@@ -109,36 +108,36 @@ EglSyncImplementation::~EglSyncImplementation()
 {
 }
 
-void EglSyncImplementation::Initialize( EglImplementation* eglImpl )
+void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
 {
   mEglImplementation = eglImpl;
 }
 
 Integration::GlSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
 {
-  DALI_ASSERT_ALWAYS( mEglImplementation && "Sync Implementation not initialized" );
-  if( mSyncInitialized == false )
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
+  if(mSyncInitialized == false)
   {
     InitializeEglSync();
   }
 
   EglSyncObject* syncObject = new EglSyncObject(*mEglImplementation);
-  mSyncObjects.PushBack( syncObject );
+  mSyncObjects.PushBack(syncObject);
   return syncObject;
 }
 
-void EglSyncImplementation::DestroySyncObject( Integration::GlSyncAbstraction::SyncObject* syncObject )
+void EglSyncImplementation::DestroySyncObject(Integration::GlSyncAbstraction::SyncObject* syncObject)
 {
-  DALI_ASSERT_ALWAYS( mEglImplementation && "Sync Implementation not initialized" );
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
 
-  if( mSyncInitialized == false )
+  if(mSyncInitialized == false)
   {
     InitializeEglSync();
   }
 
-  for( SyncIter iter=mSyncObjects.Begin(), end=mSyncObjects.End(); iter != end; ++iter )
+  for(SyncIter iter = mSyncObjects.Begin(), end = mSyncObjects.End(); iter != end; ++iter)
   {
-    if( *iter == syncObject )
+    if(*iter == syncObject)
     {
       mSyncObjects.Erase(iter);
       break;
@@ -150,14 +149,14 @@ void EglSyncImplementation::DestroySyncObject( Integration::GlSyncAbstraction::S
 
 void EglSyncImplementation::InitializeEglSync()
 {
-  if( ! mSyncInitializeFailed )
+  if(!mSyncInitializeFailed)
   {
-    eglCreateSyncKHR = reinterpret_cast< PFNEGLCREATESYNCKHRPROC >( eglGetProcAddress("eglCreateSyncKHR") );
-    eglClientWaitSyncKHR = reinterpret_cast< PFNEGLCLIENTWAITSYNCKHRPROC >( eglGetProcAddress("eglClientWaitSyncKHR") );
-    eglDestroySyncKHR = reinterpret_cast< PFNEGLDESTROYSYNCKHRPROC >( eglGetProcAddress("eglDestroySyncKHR") );
+    eglCreateSyncKHR     = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
+    eglClientWaitSyncKHR = reinterpret_cast<PFNEGLCLIENTWAITSYNCKHRPROC>(eglGetProcAddress("eglClientWaitSyncKHR"));
+    eglDestroySyncKHR    = reinterpret_cast<PFNEGLDESTROYSYNCKHRPROC>(eglGetProcAddress("eglDestroySyncKHR"));
   }
 
-  if( eglCreateSyncKHR && eglClientWaitSyncKHR && eglDestroySyncKHR )
+  if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglDestroySyncKHR)
   {
     mSyncInitialized = true;
   }
@@ -169,7 +168,7 @@ void EglSyncImplementation::InitializeEglSync()
 
 #else
 
-EglSyncObject::EglSyncObject( EglImplementation& eglImpl )
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
 : mPollCounter(3),
   mEglImplementation(eglImpl)
 {
@@ -190,9 +189,9 @@ bool EglSyncObject::IsSynced()
 }
 
 EglSyncImplementation::EglSyncImplementation()
-: mEglImplementation( NULL ),
-  mSyncInitialized( false ),
-  mSyncInitializeFailed( false )
+: mEglImplementation(NULL),
+  mSyncInitialized(false),
+  mSyncInitializeFailed(false)
 {
 }
 
@@ -200,20 +199,20 @@ EglSyncImplementation::~EglSyncImplementation()
 {
 }
 
-void EglSyncImplementation::Initialize( EglImplementation* eglImpl )
+void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
 {
   mEglImplementation = eglImpl;
 }
 
 Integration::GlSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
 {
-  DALI_ASSERT_ALWAYS( mEglImplementation && "Sync Implementation not initialized" );
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
   return new EglSyncObject(*mEglImplementation);
 }
 
 void EglSyncImplementation::DestroySyncObject(Integration::GlSyncAbstraction::SyncObject* syncObject)
 {
-  DALI_ASSERT_ALWAYS( mEglImplementation && "Sync Implementation not initialized" );
+  DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
 
   // The abstraction's virtual destructor is protected, so that Core can't delete the sync objects
   // directly (This object also needs removing from the mSyncObject container in the ARM
@@ -228,6 +227,6 @@ void EglSyncImplementation::InitializeEglSync()
 
 #endif
 
-} // namespace Dali
-} // namespace Internal
 } // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMAGE_EXTENSIONS_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,9 +48,7 @@ public:
    */
   ~EglImageExtensions();
 
-
-public:   // EGLImageKHR extension support
-
+public: // EGLImageKHR extension support
   /**
    * If the EGL Image extension is available this function returns a
    * EGLImageKHR
@@ -80,9 +78,9 @@ public:   // EGLImageKHR extension support
 private:
   EglImplementation* mEglImplementation;
 
-  bool mImageKHRInitialized;             ///< Flag for whether extended KHR functions loaded
-  bool mImageKHRInitializeFailed;        ///< Flag to avoid trying to reload extended KHR functions, if
-                                         /// it fails the first time
+  bool mImageKHRInitialized;      ///< Flag for whether extended KHR functions loaded
+  bool mImageKHRInitializeFailed; ///< Flag to avoid trying to reload extended KHR functions, if
+                                  /// it fails the first time
 };
 
 } // namespace Adaptor

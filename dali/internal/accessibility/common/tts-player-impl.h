@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_COMMON_TTS_PLAYER_IMPL_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,21 +27,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Text-to-speech player
  */
 class TtsPlayer : public Dali::BaseObject
 {
-
 public:
-
   /**
    * Create a TtsPlayer with the given mode.
    * This should only be called once by the Adaptor class for each given mode.
@@ -89,7 +84,7 @@ public:
 
 inline Internal::Adaptor::TtsPlayer& GetImplementation(Dali::TtsPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "TtsPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "TtsPlayer handle is empty");
 
   BaseObject& handle = player.GetBaseObject();
 
@@ -98,7 +93,7 @@ inline Internal::Adaptor::TtsPlayer& GetImplementation(Dali::TtsPlayer& player)
 
 inline const Internal::Adaptor::TtsPlayer& GetImplementation(const Dali::TtsPlayer& player)
 {
-  DALI_ASSERT_ALWAYS( player && "TtsPlayer handle is empty" );
+  DALI_ASSERT_ALWAYS(player && "TtsPlayer handle is empty");
 
   const BaseObject& handle = player.GetBaseObject();
 

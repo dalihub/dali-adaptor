@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,21 +19,19 @@
 
 #include <cstring>
 
-#include <zlib.h>
 #include <png.h>
+#include <zlib.h>
 
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/legacy/tizen/platform-capabilities.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
 namespace TizenPlatform
 {
-
 namespace
 {
-
 // simple class to enforce clean-up of PNG structures
 struct auto_png
 {
@@ -52,12 +50,12 @@ struct auto_png
   }
 
   png_structp& png;
-  png_infop& info;
+  png_infop&   info;
 }; // struct auto_png;
 
-bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_structp &png, png_infop &info)
+bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_structp& png, png_infop& info)
 {
-  png_byte header[8] = { 0 };
+  png_byte header[8] = {0};
 
   // Check header to see if it is a PNG file
   size_t size = fread(header, 1, 8, fp);
@@ -101,40 +99,40 @@ bool LoadPngHeader(FILE *fp, unsigned int &width, unsigned int &height, png_stru
   png_read_info(png, info);
 
   // dimensions
-  width = png_get_image_width(png, info);
+  width  = png_get_image_width(png, info);
   height = png_get_image_height(png, info);
 
   return true;
 }
 
-} // namespace - anonymous
+} // namespace
 
-bool LoadPngHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadPngHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
-  png_structp png = NULL;
-  png_infop info = NULL;
-  auto_png autoPng(png, info);
+  png_structp png  = NULL;
+  png_infop   info = NULL;
+  auto_png    autoPng(png, info);
 
-  bool success = LoadPngHeader( input.file, width, height, png, info );
+  bool success = LoadPngHeader(input.file, width, height, png, info);
 
   return success;
 }
 
-bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
-  png_structp png = NULL;
-  png_infop info = NULL;
-  auto_png autoPng(png, info);
+  png_structp png  = NULL;
+  png_infop   info = NULL;
+  auto_png    autoPng(png, info);
 
   /// @todo: consider parameters
   unsigned int y;
   unsigned int width, height;
-  png_bytep *rows;
-  unsigned int bpp = 0; // bytes per pixel
-  bool valid = false;
+  png_bytep*   rows;
+  unsigned int bpp   = 0; // bytes per pixel
+  bool         valid = false;
 
   // Load info from the header
-  if( !LoadPngHeader( input.file, width, height, png, info ) )
+  if(!LoadPngHeader(input.file, width, height, png, info))
   {
     return false;
   }
@@ -145,7 +143,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   unsigned int colordepth = png_get_bit_depth(png, info);
 
   // Ask PNGLib to convert high precision images into something we can use:
-  if (colordepth == 16)
+  if(colordepth == 16)
   {
     png_set_strip_16(png);
     colordepth = 8;
@@ -153,13 +151,13 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   png_byte colortype = png_get_color_type(png, info);
 
-  if( colortype == PNG_COLOR_TYPE_GRAY ||
-      colortype == PNG_COLOR_TYPE_GRAY_ALPHA )
+  if(colortype == PNG_COLOR_TYPE_GRAY ||
+     colortype == PNG_COLOR_TYPE_GRAY_ALPHA)
   {
-    if( colortype == PNG_COLOR_TYPE_GRAY )
+    if(colortype == PNG_COLOR_TYPE_GRAY)
     {
       pixelFormat = Pixel::L8;
-      if( png_get_valid(png, info, PNG_INFO_tRNS) )
+      if(png_get_valid(png, info, PNG_INFO_tRNS))
       {
         colortype = PNG_COLOR_TYPE_GRAY_ALPHA;
         /* expand transparency entry -> alpha channel if present */
@@ -172,7 +170,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       pixelFormat = Pixel::LA88;
     }
 
-    if( colordepth < 8 )
+    if(colordepth < 8)
     {
       /* expand gray (w/reduced bits) -> 8-bit RGB if necessary */
       png_set_expand_gray_1_2_4_to_8(png);
@@ -181,20 +179,20 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     }
     valid = true;
   }
-  else if(colortype == PNG_COLOR_TYPE_RGB )
+  else if(colortype == PNG_COLOR_TYPE_RGB)
   {
     switch(colordepth)
     {
       case 8:
       {
         pixelFormat = Pixel::RGB888;
-        valid = true;
+        valid       = true;
         break;
       }
-      case 5:      /// @todo is this correct for RGB16 5-6-5 ?
+      case 5: /// @todo is this correct for RGB16 5-6-5 ?
       {
         pixelFormat = Pixel::RGB565;
-        valid = true;
+        valid       = true;
         break;
       }
       default:
@@ -210,7 +208,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       case 8:
       {
         pixelFormat = Pixel::RGBA8888;
-        valid = true;
+        valid       = true;
         break;
       }
       default:
@@ -226,7 +224,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       case 1:
       {
         pixelFormat = Pixel::LA88;
-        valid = true;
+        valid       = true;
         break;
       }
 
@@ -240,7 +238,7 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
         if(png_get_valid(png, info, PNG_INFO_tRNS) == 0x10)
         {
           pixelFormat = Pixel::RGBA8888;
-          valid = true;
+          valid       = true;
         }
         else
         {
@@ -259,9 +257,9 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     }
   }
 
-  if( !valid )
+  if(!valid)
   {
-    DALI_LOG_WARNING( "Unsupported png format\n" );
+    DALI_LOG_WARNING("Unsupported png format\n");
     return false;
   }
 
@@ -278,12 +276,12 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   unsigned int rowBytes = png_get_rowbytes(png, info);
 
-  unsigned int bufferWidth   = GetTextureDimension(width);
-  unsigned int bufferHeight  = GetTextureDimension(height);
-  unsigned int stride        = bufferWidth*bpp;
+  unsigned int bufferWidth  = GetTextureDimension(width);
+  unsigned int bufferHeight = GetTextureDimension(height);
+  unsigned int stride       = bufferWidth * bpp;
 
   // not sure if this ever happens
-  if( rowBytes > stride )
+  if(rowBytes > stride)
   {
     stride = GetTextureDimension(rowBytes);
 
@@ -299,15 +297,20 @@ bool LoadBitmapFromPng( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       default:
         break;
     }
-
   }
 
   // decode the whole image into bitmap buffer
   auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
 
   DALI_ASSERT_DEBUG(pixels);
-  rows = reinterpret_cast< png_bytep* >( malloc(sizeof(png_bytep) * height) );
-  for(y=0; y<height; y++)
+  rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
+  if(!rows)
+  {
+    DALI_LOG_ERROR("malloc is failed\n");
+    return false;
+  }
+
+  for(y = 0; y < height; y++)
   {
     rows[y] = pixels + y * stride;
   }
@@ -338,57 +341,57 @@ struct AutoPngWrite
   }
 
   png_structp& png;
-  png_infop& info;
+  png_infop&   info;
 }; // struct AutoPngWrite;
 
 namespace
 {
-  // Custom libpng write callbacks that buffer to a vector instead of a file:
+// Custom libpng write callbacks that buffer to a vector instead of a file:
 
-  /**
+/**
    * extern "C" linkage is used because this is a callback that we pass to a C
    * library which is part of the underlying platform and so potentially compiled
    * as C rather than C++.
    * @see http://stackoverflow.com/a/2594222
    * */
-  extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length)
+extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length)
+{
+  DALI_ASSERT_DEBUG(png_ptr && data);
+  if(!png_ptr || !data)
   {
-    DALI_ASSERT_DEBUG(png_ptr && data);
-    if(!png_ptr || !data)
+    return;
+  }
+  // Make sure we don't try to propagate a C++ exception up the call stack of a pure C library:
+  try
+  {
+    // Recover our buffer for writing into:
+    Vector<unsigned char>* const encoded_img = static_cast<Vector<unsigned char>*>(png_get_io_ptr(png_ptr));
+    if(encoded_img)
     {
-      return;
+      const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
+      encoded_img->Resize(bufferSize + length); //< Can throw OOM.
+      unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
+      memcpy(bufferBack, data, length);
     }
-    // Make sure we don't try to propagate a C++ exception up the call stack of a pure C library:
-    try
+    else
     {
-      // Recover our buffer for writing into:
-      Vector<unsigned char>* const encoded_img = static_cast< Vector<unsigned char>* >( png_get_io_ptr(png_ptr) );
-      if(encoded_img)
-      {
-        const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
-        encoded_img->Resize( bufferSize + length ); //< Can throw OOM.
-        unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
-        memcpy(bufferBack, data, length);
-      }
-      else
-      {
-        DALI_LOG_ERROR("PNG buffer for write to memory was passed from libpng as null.\n");
-      }
-    }
-    catch(...)
-    {
-      DALI_LOG_ERROR("C++ Exception caught\n");
+      DALI_LOG_ERROR("PNG buffer for write to memory was passed from libpng as null.\n");
     }
   }
-
-  /** Override the flush with a NOP to prevent libpng trying cstdlib file io. */
-  extern "C" void FlushData(png_structp png_ptr)
+  catch(...)
   {
-#ifdef DEBUG_ENABLED
-    Debug::LogMessage(Debug::DebugInfo, "PNG Flush");
-#endif // DEBUG_ENABLED
+    DALI_LOG_ERROR("C++ Exception caught\n");
   }
 }
+
+/** Override the flush with a NOP to prevent libpng trying cstdlib file io. */
+extern "C" void FlushData(png_structp png_ptr)
+{
+#ifdef DEBUG_ENABLED
+  Debug::LogMessage(Debug::DebugInfo, "PNG Flush");
+#endif // DEBUG_ENABLED
+}
+} // namespace
 
 /**
  * Potential improvements:
@@ -402,20 +405,20 @@ namespace
  * 7. If caller asks for no compression, bypass libpng and blat raw data to
  *    disk, topped and tailed with header/tail blocks.
  */
-bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat )
+bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& encodedPixels, std::size_t width, std::size_t height, Pixel::Format pixelFormat)
 {
   // Translate pixel format enum:
-  int pngPixelFormat = -1;
-  unsigned pixelBytes = 0;
-  bool rgbaOrder = true;
+  int      pngPixelFormat = -1;
+  unsigned pixelBytes     = 0;
+  bool     rgbaOrder      = true;
 
   // Account for RGB versus BGR and presence of alpha in input pixels:
-  switch( pixelFormat )
+  switch(pixelFormat)
   {
     case Pixel::RGB888:
     {
       pngPixelFormat = PNG_COLOR_TYPE_RGB;
-      pixelBytes = 3;
+      pixelBytes     = 3;
       break;
     }
     case Pixel::BGRA8888:
@@ -426,12 +429,12 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>&
     case Pixel::RGBA8888:
     {
       pngPixelFormat = PNG_COLOR_TYPE_RGB_ALPHA;
-      pixelBytes = 4;
+      pixelBytes     = 4;
       break;
     }
     default:
     {
-      DALI_LOG_ERROR( "Unsupported pixel format for encoding to PNG.\n" );
+      DALI_LOG_ERROR("Unsupported pixel format for encoding to PNG.\n");
       return false;
     }
   }
@@ -444,7 +447,7 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>&
     return false;
   }
   /* Allocate/initialize the image information data.  REQUIRED */
-  png_infop info_ptr = png_create_info_struct( png_ptr );
+  png_infop info_ptr = png_create_info_struct(png_ptr);
   if(!info_ptr)
   {
     png_destroy_write_struct(&png_ptr, NULL);
@@ -471,37 +474,35 @@ bool EncodeToPng( const unsigned char* const pixelBuffer, Vector<unsigned char>&
 
   // Explicitly limit the number of filters used per scanline to speed us up:
   // png_set_filter(png_ptr, 0, PNG_FILTER_NONE); ///!ToDo: Try this once baseline profile is in place.
-       // PNG_FILTER_SUB   |
-       // PNG_FILTER_UP    |
-       // PNG_FILTER_AVE   |
-       // PNG_FILTER_PAETH |
-       // PNG_ALL_FILTERS);
+  // PNG_FILTER_SUB   |
+  // PNG_FILTER_UP    |
+  // PNG_FILTER_AVE   |
+  // PNG_FILTER_PAETH |
+  // PNG_ALL_FILTERS);
   // Play with Zlib parameters in optimisation phase:
-    // png_set_compression_mem_level(png_ptr, 8);
-    // png_set_compression_strategy(png_ptr,
-        // Z_DEFAULT_STRATEGY);
-    // png_set_compression_window_bits(png_ptr, 15);
-    // png_set_compression_method(png_ptr, 8);
-    // png_set_compression_buffer_size(png_ptr, 8192)
+  // png_set_compression_mem_level(png_ptr, 8);
+  // png_set_compression_strategy(png_ptr,
+  // Z_DEFAULT_STRATEGY);
+  // png_set_compression_window_bits(png_ptr, 15);
+  // png_set_compression_method(png_ptr, 8);
+  // png_set_compression_buffer_size(png_ptr, 8192)
 
   // Let lib_png know if the pixel bytes are in BGR(A) order:
   if(!rgbaOrder)
   {
-    png_set_bgr( png_ptr );
+    png_set_bgr(png_ptr);
   }
 
   // Set the image information:
-  png_set_IHDR(png_ptr, info_ptr, width, height, 8,
-     pngPixelFormat, interlace,
-     PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  png_set_IHDR(png_ptr, info_ptr, width, height, 8, pngPixelFormat, interlace, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
   // Start to output the PNG data to our buffer:
   png_write_info(png_ptr, info_ptr);
 
   // Walk the rows:
-  const unsigned row_step = width * pixelBytes;
-  png_bytep row_ptr = const_cast<png_bytep>(pixelBuffer);
-  const png_bytep row_end = row_ptr + height * row_step;
+  const unsigned  row_step = width * pixelBytes;
+  png_bytep       row_ptr  = const_cast<png_bytep>(pixelBuffer);
+  const png_bytep row_end  = row_ptr + height * row_step;
   for(; row_ptr < row_end; row_ptr += row_step)
   {
     png_write_row(png_ptr, row_ptr);

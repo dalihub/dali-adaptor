@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,24 +23,20 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Dali internal NativeImageSourceQueue.
  */
 class NativeImageSourceQueue
 {
 public:
-
   /**
    * @copydoc Dali::NativeImageSourceQueue::New()
    */
-  static NativeImageSourceQueue* New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue );
+  static NativeImageSourceQueue* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -50,7 +46,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::SetSize
    */
-  virtual void SetSize( uint32_t width, uint32_t height ) = 0;
+  virtual void SetSize(uint32_t width, uint32_t height) = 0;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::IgnoreSourceImage

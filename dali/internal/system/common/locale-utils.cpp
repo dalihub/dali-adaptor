@@ -20,26 +20,22 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace Locale
 {
-
 namespace
 {
-
 struct LocaleDirectionInfo
 {
-  const char * locale;
-  const char * name;
+  const char*       locale;
+  const char*       name;
   Locale::Direction direction;
 };
 
+// clang-format off
 const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
 {
   { "af", "Afrikaans",          Locale::LEFT_TO_RIGHT },
@@ -142,18 +138,19 @@ const LocaleDirectionInfo LOCALE_DIRECTION_LOOKUP_TABLE[] =
 
   { NULL, NULL, Locale::LEFT_TO_RIGHT }
 };
+// clang-format on
 
 } // unnamed namespace
 
-Locale::Direction GetDirection( const std::string& locale )
+Locale::Direction GetDirection(const std::string& locale)
 {
-  Locale::Direction direction( Locale::LEFT_TO_RIGHT );
+  Locale::Direction direction(Locale::LEFT_TO_RIGHT);
 
-  if ( !locale.empty() && locale.size() > 2 )
+  if(!locale.empty() && locale.size() > 2)
   {
-    for ( const LocaleDirectionInfo* iter = &LOCALE_DIRECTION_LOOKUP_TABLE[0]; iter->locale; ++iter )
+    for(const LocaleDirectionInfo* iter = &LOCALE_DIRECTION_LOOKUP_TABLE[0]; iter->locale; ++iter)
     {
-      if ( !locale.compare( 0, 2, iter->locale ) )
+      if(!locale.compare(0, 2, iter->locale))
       {
         direction = iter->direction;
         break;

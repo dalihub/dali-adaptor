@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
@@ -29,10 +29,10 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
-#include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
 {
@@ -40,25 +40,23 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 namespace
 {
-
-const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
-const float FULL_UPDATE_RATIO( 0.8f );   ///< Force full update when the dirty area is larget than this ratio
+const int   MINIMUM_DIMENSION_CHANGE(1); ///< Minimum change for window to be considered to have moved
+const float FULL_UPDATE_RATIO(0.8f);     ///< Force full update when the dirty area is larget than this ratio
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
 #endif
 
-void MergeRects( Rect< int >& mergingRect, const std::vector< Rect< int > >& rects )
+void MergeRects(Rect<int>& mergingRect, const std::vector<Rect<int>>& rects)
 {
   uint32_t i = 0;
-  if( mergingRect.IsEmpty() )
+  if(mergingRect.IsEmpty())
   {
-    for( ; i < rects.size(); i++ )
+    for(; i < rects.size(); i++)
     {
-      if( !rects[i].IsEmpty() )
+      if(!rects[i].IsEmpty())
       {
         mergingRect = rects[i];
         break;
@@ -66,16 +64,16 @@ void MergeRects( Rect< int >& mergingRect, const std::vector< Rect< int > >& rec
     }
   }
 
-  for( ; i < rects.size(); i++ )
+  for(; i < rects.size(); i++)
   {
-    mergingRect.Merge( rects[i] );
+    mergingRect.Merge(rects[i]);
   }
 }
 
-void InsertRects( WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const std::vector< Rect< int > >& damagedRects )
+void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const std::vector<Rect<int>>& damagedRects)
 {
-  damagedRectsList.push_front( damagedRects );
-  if( damagedRectsList.size() > 4 ) // past triple buffers + current
+  damagedRectsList.push_front(damagedRects);
+  if(damagedRectsList.size() > 4) // past triple buffers + current
   {
     damagedRectsList.pop_back();
   }
@@ -110,44 +108,44 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mResizeFinished(true),
   mDefaultScreenRotationAvailable(false)
 {
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
-  Initialize( surface );
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
+  Initialize(surface);
 }
 
 WindowRenderSurface::~WindowRenderSurface()
 {
-  if( mRotationTrigger )
+  if(mRotationTrigger)
   {
     delete mRotationTrigger;
   }
 }
 
-void WindowRenderSurface::Initialize( Any surface )
+void WindowRenderSurface::Initialize(Any surface)
 {
   // If width or height are zero, go full screen.
-  if ( (mPositionSize.width == 0) || (mPositionSize.height == 0) )
+  if((mPositionSize.width == 0) || (mPositionSize.height == 0))
   {
     // Default window size == screen size
     mPositionSize.x = 0;
     mPositionSize.y = 0;
-    WindowSystem::GetScreenSize( mPositionSize.width, mPositionSize.height );
+    WindowSystem::GetScreenSize(mPositionSize.width, mPositionSize.height);
   }
 
   // Create a window base
   auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
-  mWindowBase = windowFactory->CreateWindowBase( mPositionSize, surface, ( mColorDepth == COLOR_DEPTH_32 ? true : false ) );
+  mWindowBase        = windowFactory->CreateWindowBase(mPositionSize, surface, (mColorDepth == COLOR_DEPTH_32 ? true : false));
 
   // Connect signals
-  mWindowBase->OutputTransformedSignal().Connect( this, &WindowRenderSurface::OutputTransformed );
+  mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
 
   // Check screen rotation
   mScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
-  if( mScreenRotationAngle != 0 )
+  if(mScreenRotationAngle != 0)
   {
-    mScreenRotationFinished = false;
-    mResizeFinished = false;
+    mScreenRotationFinished         = false;
+    mResizeFinished                 = false;
     mDefaultScreenRotationAvailable = true;
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", mScreenRotationAngle );
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", mScreenRotationAngle);
   }
 }
 
@@ -166,14 +164,14 @@ void WindowRenderSurface::Map()
   mWindowBase->Show();
 }
 
-void WindowRenderSurface::SetRenderNotification( TriggerEventInterface* renderNotification )
+void WindowRenderSurface::SetRenderNotification(TriggerEventInterface* renderNotification)
 {
   mRenderNotification = renderNotification;
 }
 
-void WindowRenderSurface::SetTransparency( bool transparent )
+void WindowRenderSurface::SetTransparency(bool transparent)
 {
-  mWindowBase->SetTransparency( transparent );
+  mWindowBase->SetTransparency(transparent);
 }
 
 void WindowRenderSurface::RequestRotation(int angle, int width, int height)
@@ -209,24 +207,24 @@ PositionSize WindowRenderSurface::GetPositionSize() const
   return mPositionSize;
 }
 
-void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical )
+void WindowRenderSurface::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
 {
-  if( mDpiHorizontal == 0 || mDpiVertical == 0 )
+  if(mDpiHorizontal == 0 || mDpiVertical == 0)
   {
-    const char* environmentDpiHorizontal = std::getenv( DALI_ENV_DPI_HORIZONTAL );
-    mDpiHorizontal = environmentDpiHorizontal ? std::atoi( environmentDpiHorizontal ) : 0;
+    const char* environmentDpiHorizontal = std::getenv(DALI_ENV_DPI_HORIZONTAL);
+    mDpiHorizontal                       = environmentDpiHorizontal ? std::atoi(environmentDpiHorizontal) : 0;
 
-    const char* environmentDpiVertical = std::getenv( DALI_ENV_DPI_VERTICAL );
-    mDpiVertical = environmentDpiVertical ? std::atoi( environmentDpiVertical ) : 0;
+    const char* environmentDpiVertical = std::getenv(DALI_ENV_DPI_VERTICAL);
+    mDpiVertical                       = environmentDpiVertical ? std::atoi(environmentDpiVertical) : 0;
 
-    if( mDpiHorizontal == 0 || mDpiVertical == 0 )
+    if(mDpiHorizontal == 0 || mDpiVertical == 0)
     {
-      mWindowBase->GetDpi( mDpiHorizontal, mDpiVertical );
+      mWindowBase->GetDpi(mDpiHorizontal, mDpiVertical);
     }
   }
 
   dpiHorizontal = mDpiHorizontal;
-  dpiVertical = mDpiVertical;
+  dpiVertical   = mDpiVertical;
 }
 
 int WindowRenderSurface::GetOrientation() const
@@ -238,17 +236,17 @@ void WindowRenderSurface::InitializeGraphics()
 {
   mGraphics = &mAdaptor->GetGraphicsInterface();
 
-  DALI_ASSERT_ALWAYS( mGraphics && "Graphics interface is not created" );
+  DALI_ASSERT_ALWAYS(mGraphics && "Graphics interface is not created");
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  mEGL = &eglGraphics->GetEglInterface();
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  mEGL             = &eglGraphics->GetEglInterface();
 
-  if ( mEGLContext == NULL )
+  if(mEGLContext == NULL)
   {
     // Create the OpenGL context for this window
     Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
     eglImpl.ChooseConfig(true, mColorDepth);
-    eglImpl.CreateWindowContext( mEGLContext );
+    eglImpl.CreateWindowContext(mEGLContext);
 
     // Create the OpenGL surface
     CreateSurface();
@@ -289,20 +287,20 @@ void WindowRenderSurface::CreateSurface()
 
 void WindowRenderSurface::DestroySurface()
 {
-  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
-  if( eglGraphics )
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  if(eglGraphics)
   {
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId() );
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId());
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    eglImpl.DestroySurface( mEGLSurface );
+    eglImpl.DestroySurface(mEGLSurface);
     mEGLSurface = nullptr;
 
     // Destroy context also
-    eglImpl.DestroyContext( mEGLContext );
+    eglImpl.DestroyContext(mEGLContext);
     mEGLContext = nullptr;
 
     mWindowBase->DestroyEglWindow();
@@ -311,79 +309,79 @@ void WindowRenderSurface::DestroySurface()
 
 bool WindowRenderSurface::ReplaceGraphicsSurface()
 {
-  DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
+  DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
   // Destroy the old one
   mWindowBase->DestroyEglWindow();
 
   int width, height;
-  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  if(mScreenRotationAngle == 0 || mScreenRotationAngle == 180)
   {
-    width = mPositionSize.width;
+    width  = mPositionSize.width;
     height = mPositionSize.height;
   }
   else
   {
-    width = mPositionSize.height;
+    width  = mPositionSize.height;
     height = mPositionSize.width;
   }
 
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow( width, height );
+  EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
 
   // Set screen rotation
   mScreenRotationFinished = false;
 
-  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  return eglImpl.ReplaceSurfaceWindow( window, mEGLSurface, mEGLContext );
+  return eglImpl.ReplaceSurfaceWindow(window, mEGLSurface, mEGLContext);
 }
 
-void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
+void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
 {
-  bool needToMove = false;
+  bool needToMove   = false;
   bool needToResize = false;
 
   // Check moving
-  if( (fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
-      (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE) )
+  if((fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE))
   {
     needToMove = true;
   }
 
   // Check resizing
-  if( (fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
-      (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE) )
+  if((fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE))
   {
     needToResize = true;
   }
 
-  if( needToResize )
+  if(needToResize)
   {
-    if( needToMove )
+    if(needToMove)
     {
-      mWindowBase->MoveResize( positionSize );
+      mWindowBase->MoveResize(positionSize);
     }
     else
     {
-      mWindowBase->Resize( positionSize );
+      mWindowBase->Resize(positionSize);
     }
 
     mResizeFinished = false;
-    mPositionSize = positionSize;
+    mPositionSize   = positionSize;
   }
   else
   {
-    if( needToMove )
+    if(needToMove)
     {
-      mWindowBase->Move( positionSize );
+      mWindowBase->Move(positionSize);
 
       mPositionSize = positionSize;
     }
   }
 
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height );
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
 }
 
 void WindowRenderSurface::StartRender()
@@ -407,7 +405,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
       {
         Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync );
+        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: CreateFrameRenderedSyncFence [%d]\n", frameRenderedSync);
 
         mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, frameRenderedSync)));
 
@@ -430,7 +428,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
       {
         Dali::Mutex::ScopedLock lock(mMutex);
 
-        DALI_LOG_RELEASE_INFO( "WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync );
+        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: CreateFramePresentedSyncFence [%d]\n", framePresentedSync);
 
         mFrameCallbackInfoContainer.push_back(std::unique_ptr<FrameCallbackInfo>(new FrameCallbackInfo(callbacks, framePresentedSync)));
 
@@ -571,9 +569,9 @@ void WindowRenderSurface::StopRender()
 {
 }
 
-void WindowRenderSurface::SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization )
+void WindowRenderSurface::SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization)
 {
-  DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::SetThreadSynchronization: called\n" );
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::SetThreadSynchronization: called\n");
 
   mThreadSynchronization = &threadSynchronization;
 }
@@ -590,9 +588,9 @@ Dali::RenderSurfaceInterface::Type WindowRenderSurface::GetSurfaceType()
 
 void WindowRenderSurface::MakeContextCurrent()
 {
-  if ( mEGL != nullptr )
+  if(mEGL != nullptr)
   {
-    mEGL->MakeContextCurrent( mEGLSurface, mEGLContext );
+    mEGL->MakeContextCurrent(mEGLSurface, mEGLContext);
   }
 }
 
@@ -642,185 +640,184 @@ void WindowRenderSurface::ProcessRotationRequest()
 
 void WindowRenderSurface::ProcessFrameCallback()
 {
-  Dali::Mutex::ScopedLock lock( mMutex );
+  Dali::Mutex::ScopedLock lock(mMutex);
 
-  for( auto&& iter : mFrameCallbackInfoContainer )
+  for(auto&& iter : mFrameCallbackInfoContainer)
   {
-    if( !iter->fileDescriptorMonitor )
+    if(!iter->fileDescriptorMonitor)
     {
-      iter->fileDescriptorMonitor = std::unique_ptr< FileDescriptorMonitor >( new FileDescriptorMonitor( iter->fileDescriptor,
-                                                                             MakeCallback( this, &WindowRenderSurface::OnFileDescriptorEventDispatched ), FileDescriptorMonitor::FD_READABLE ) );
+      iter->fileDescriptorMonitor = std::unique_ptr<FileDescriptorMonitor>(new FileDescriptorMonitor(iter->fileDescriptor,
+                                                                                                     MakeCallback(this, &WindowRenderSurface::OnFileDescriptorEventDispatched),
+                                                                                                     FileDescriptorMonitor::FD_READABLE));
 
-      DALI_LOG_RELEASE_INFO( "WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor );
+      DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor);
     }
   }
 }
 
-void WindowRenderSurface::OnFileDescriptorEventDispatched( FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor )
+void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  if( !( eventBitMask & FileDescriptorMonitor::FD_READABLE ) )
+  if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
-    DALI_LOG_ERROR( "WindowRenderSurface::OnFileDescriptorEventDispatched: file descriptor error [%d]\n", eventBitMask );
-    close( fileDescriptor );
+    DALI_LOG_ERROR("WindowRenderSurface::OnFileDescriptorEventDispatched: file descriptor error [%d]\n", eventBitMask);
+    close(fileDescriptor);
     return;
   }
 
-  DALI_LOG_RELEASE_INFO( "WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor );
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor);
 
-  std::unique_ptr< FrameCallbackInfo > callbackInfo;
+  std::unique_ptr<FrameCallbackInfo> callbackInfo;
   {
-    Dali::Mutex::ScopedLock lock( mMutex );
-    auto frameCallbackInfo = std::find_if( mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(),
-                                      [fileDescriptor]( std::unique_ptr< FrameCallbackInfo >& callbackInfo )
-                                      {
-                                        return callbackInfo->fileDescriptor == fileDescriptor;
-                                      } );
-    if( frameCallbackInfo != mFrameCallbackInfoContainer.end() )
+    Dali::Mutex::ScopedLock lock(mMutex);
+    auto                    frameCallbackInfo = std::find_if(mFrameCallbackInfoContainer.begin(), mFrameCallbackInfoContainer.end(), [fileDescriptor](std::unique_ptr<FrameCallbackInfo>& callbackInfo) {
+      return callbackInfo->fileDescriptor == fileDescriptor;
+    });
+    if(frameCallbackInfo != mFrameCallbackInfoContainer.end())
     {
-      callbackInfo = std::move( *frameCallbackInfo );
+      callbackInfo = std::move(*frameCallbackInfo);
 
-      mFrameCallbackInfoContainer.erase( frameCallbackInfo );
+      mFrameCallbackInfoContainer.erase(frameCallbackInfo);
     }
   }
 
   // Call the connected callback
-  if( callbackInfo )
+  if(callbackInfo)
   {
-    for( auto&& iter : ( callbackInfo )->callbacks )
+    for(auto&& iter : (callbackInfo)->callbacks)
     {
-      CallbackBase::Execute( *( iter.first ), iter.second );
+      CallbackBase::Execute(*(iter.first), iter.second);
     }
   }
 }
 
-void WindowRenderSurface::SetBufferDamagedRects( const std::vector< Rect< int > >& damagedRects, Rect< int >& clippingRect )
+void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
-  auto eglGraphics = static_cast< EglGraphics* >( mGraphics );
-  if ( eglGraphics )
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  if(eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    if( !eglImpl.IsPartialUpdateRequired() )
+    if(!eglImpl.IsPartialUpdateRequired())
     {
       return;
     }
 
-    Rect< int > surfaceRect( 0, 0, mPositionSize.width, mPositionSize.height );
+    Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
 
-    if( mFullSwapNextFrame )
+    if(mFullSwapNextFrame)
     {
-      InsertRects( mBufferDamagedRects, std::vector< Rect< int > >( 1, surfaceRect ) );
-      clippingRect = Rect< int >();
+      InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
+      clippingRect = Rect<int>();
       return;
     }
 
-    EGLint bufferAge = eglImpl.GetBufferAge( mEGLSurface );
+    EGLint bufferAge = eglImpl.GetBufferAge(mEGLSurface);
 
     // Buffer age 0 means the back buffer in invalid and requires full swap
-    if( !damagedRects.size() || bufferAge == 0 )
+    if(!damagedRects.size() || bufferAge == 0)
     {
-      InsertRects( mBufferDamagedRects, std::vector< Rect< int > >( 1, surfaceRect ) );
-      clippingRect = Rect< int >();
+      InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
+      clippingRect = Rect<int>();
       return;
     }
 
     // We push current frame damaged rects here, zero index for current frame
-    InsertRects( mBufferDamagedRects, damagedRects );
+    InsertRects(mBufferDamagedRects, damagedRects);
 
     // Merge damaged rects into clipping rect
     auto bufferDamagedRects = mBufferDamagedRects.begin();
-    while( bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end() )
+    while(bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
     {
-      const std::vector< Rect< int > >& rects = *bufferDamagedRects++;
-      MergeRects( clippingRect, rects );
+      const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
+      MergeRects(clippingRect, rects);
     }
 
-    if( !clippingRect.Intersect( surfaceRect ) || clippingRect.Area() > surfaceRect.Area() * FULL_UPDATE_RATIO )
+    if(!clippingRect.Intersect(surfaceRect) || clippingRect.Area() > surfaceRect.Area() * FULL_UPDATE_RATIO)
     {
       // clipping area too big or doesn't intersect surface rect
-      clippingRect = Rect< int >();
+      clippingRect = Rect<int>();
       return;
     }
 
-    std::vector< Rect< int > > damagedRegion;
-    damagedRegion.push_back( clippingRect );
+    std::vector<Rect<int>> damagedRegion;
+    damagedRegion.push_back(clippingRect);
 
-    eglImpl.SetDamageRegion( mEGLSurface, damagedRegion );
+    eglImpl.SetDamageRegion(mEGLSurface, damagedRegion);
   }
 }
 
-void WindowRenderSurface::SwapBuffers( const std::vector<Rect<int>>& damagedRects )
+void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
-  auto eglGraphics = static_cast< EglGraphics* >( mGraphics );
-  if( eglGraphics )
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  if(eglGraphics)
   {
-    Rect< int > surfaceRect( 0, 0, mPositionSize.width, mPositionSize.height );
+    Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    if( !eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO) )
+    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
     {
       mFullSwapNextFrame = false;
-      eglImpl.SwapBuffers( mEGLSurface );
+      eglImpl.SwapBuffers(mEGLSurface);
       return;
     }
 
     mFullSwapNextFrame = false;
 
-    std::vector< Rect< int > > mergedRects = damagedRects;
+    std::vector<Rect<int>> mergedRects = damagedRects;
 
     // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
     // Could be optional and can be removed, needs to be checked with and without on platform
     const int n = mergedRects.size();
-    for( int i = 0; i < n - 1; i++ )
+    for(int i = 0; i < n - 1; i++)
     {
-      if( mergedRects[i].IsEmpty() )
+      if(mergedRects[i].IsEmpty())
       {
         continue;
       }
 
-      for( int j = i + 1; j < n; j++ )
+      for(int j = i + 1; j < n; j++)
       {
-        if( mergedRects[j].IsEmpty() )
+        if(mergedRects[j].IsEmpty())
         {
           continue;
         }
 
-        if( mergedRects[i].Intersects( mergedRects[j] ) )
+        if(mergedRects[i].Intersects(mergedRects[j]))
         {
-          mergedRects[i].Merge( mergedRects[j] );
-          mergedRects[j].width = 0;
+          mergedRects[i].Merge(mergedRects[j]);
+          mergedRects[j].width  = 0;
           mergedRects[j].height = 0;
         }
       }
     }
 
     int j = 0;
-    for( int i = 0; i < n; i++ )
+    for(int i = 0; i < n; i++)
     {
-      if( !mergedRects[i].IsEmpty() )
+      if(!mergedRects[i].IsEmpty())
       {
         mergedRects[j++] = mergedRects[i];
       }
     }
 
-    if( j != 0 )
+    if(j != 0)
     {
-      mergedRects.resize( j );
+      mergedRects.resize(j);
     }
 
-    if( !mergedRects.size() || ( mergedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO ) )
+    if(!mergedRects.size() || (mergedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
     {
-      eglImpl.SwapBuffers( mEGLSurface );
+      eglImpl.SwapBuffers(mEGLSurface);
     }
     else
     {
-      eglImpl.SwapBuffers( mEGLSurface, mergedRects );
+      eglImpl.SwapBuffers(mEGLSurface, mergedRects);
     }
   }
 }
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

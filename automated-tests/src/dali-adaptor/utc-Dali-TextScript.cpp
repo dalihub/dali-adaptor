@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,9 @@ void utc_dali_text_script_cleanup(void)
 
 namespace
 {
-void GetCharacterScriptCheckRange(Character start, Character end, Script expectedScript, const char * location)
+void GetCharacterScriptCheckRange(Character start, Character end, Script expectedScript, const char* location)
 {
-  for( auto character = start; character <= end; ++character )
+  for(auto character = start; character <= end; ++character)
   {
     if(!IsCommonScript(character)) // Some characters are part of the common script and can be in the range
     {
@@ -194,7 +194,6 @@ int UtcDaliGetCharacterScript(void)
   GetCharacterScriptCheckRange(0xA788, 0xA78A, NON_LATIN_LED, TEST_LOCATION);
   GetCharacterScriptCheckRange(0xA78B, 0xa7ff, LATIN, TEST_LOCATION);
 
-
   GetCharacterScriptCheckRange(0xa960, 0xa97f, HANGUL, TEST_LOCATION);
   GetCharacterScriptCheckRange(0xa980, 0xa9fd, JAVANESE, TEST_LOCATION);
   GetCharacterScriptCheckRange(0xab00, 0xab2f, GEEZ, TEST_LOCATION);
@@ -230,4 +229,3 @@ int UtcDaliGetCharacterScript(void)
 
   END_TEST;
 }
-

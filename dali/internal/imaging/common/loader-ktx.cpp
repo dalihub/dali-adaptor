@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,17 @@
 #include <dali/internal/imaging/common/loader-ktx.h>
 
 // EXTERNAL INCLUDES
-#include <cstring>
-#include <dali/integration-api/debug.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <cstring>
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 namespace
 {
-
 /** Max width or height of an image. */
 const unsigned MAX_TEXTURE_DIMENSION = 4096;
 /** Max bytes of image data allowed. Not a precise number, just a sanity check. */
@@ -44,9 +41,7 @@ const unsigned MAX_BYTES_OF_KEYVALUE_DATA = 65536U;
 typedef uint8_t Byte;
 
 const Byte FileIdentifier[] = {
-   0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A
-};
-
+  0xAB, 0x4B, 0x54, 0x58, 0x20, 0x31, 0x31, 0xBB, 0x0D, 0x0A, 0x1A, 0x0A};
 
 /** The formats we support inside a KTX file container.
  *  Currently only compressed formats are allowed as we'd rather
@@ -57,114 +52,113 @@ enum KtxInternalFormat
   KTX_NOTEXIST = 0,
 
   // GLES 2 Extension formats:
-  KTX_ETC1_RGB8_OES                               = 0x8D64,
-  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG             = 0x8C00,
+  KTX_ETC1_RGB8_OES                   = 0x8D64,
+  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG = 0x8C00,
 
   // GLES 3 Standard compressed formats (values same as in gl3.h):
-  KTX_COMPRESSED_R11_EAC                          = 0x9270,
-  KTX_COMPRESSED_SIGNED_R11_EAC                   = 0x9271,
-  KTX_COMPRESSED_RG11_EAC                         = 0x9272,
-  KTX_COMPRESSED_SIGNED_RG11_EAC                  = 0x9273,
-  KTX_COMPRESSED_RGB8_ETC2                        = 0x9274,
-  KTX_COMPRESSED_SRGB8_ETC2                       = 0x9275,
-  KTX_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2    = 0x9276,
-  KTX_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2   = 0x9277,
-  KTX_COMPRESSED_RGBA8_ETC2_EAC                   = 0x9278,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC            = 0x9279,
+  KTX_COMPRESSED_R11_EAC                        = 0x9270,
+  KTX_COMPRESSED_SIGNED_R11_EAC                 = 0x9271,
+  KTX_COMPRESSED_RG11_EAC                       = 0x9272,
+  KTX_COMPRESSED_SIGNED_RG11_EAC                = 0x9273,
+  KTX_COMPRESSED_RGB8_ETC2                      = 0x9274,
+  KTX_COMPRESSED_SRGB8_ETC2                     = 0x9275,
+  KTX_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2  = 0x9276,
+  KTX_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2 = 0x9277,
+  KTX_COMPRESSED_RGBA8_ETC2_EAC                 = 0x9278,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC          = 0x9279,
 
   // GLES 3.1 compressed formats:
-  KTX_COMPRESSED_RGBA_ASTC_4x4_KHR                = 0x93B0,
-  KTX_COMPRESSED_RGBA_ASTC_5x4_KHR                = 0x93B1,
-  KTX_COMPRESSED_RGBA_ASTC_5x5_KHR                = 0x93B2,
-  KTX_COMPRESSED_RGBA_ASTC_6x5_KHR                = 0x93B3,
-  KTX_COMPRESSED_RGBA_ASTC_6x6_KHR                = 0x93B4,
-  KTX_COMPRESSED_RGBA_ASTC_8x5_KHR                = 0x93B5,
-  KTX_COMPRESSED_RGBA_ASTC_8x6_KHR                = 0x93B6,
-  KTX_COMPRESSED_RGBA_ASTC_8x8_KHR                = 0x93B7,
-  KTX_COMPRESSED_RGBA_ASTC_10x5_KHR               = 0x93B8,
-  KTX_COMPRESSED_RGBA_ASTC_10x6_KHR               = 0x93B9,
-  KTX_COMPRESSED_RGBA_ASTC_10x8_KHR               = 0x93BA,
-  KTX_COMPRESSED_RGBA_ASTC_10x10_KHR              = 0x93BB,
-  KTX_COMPRESSED_RGBA_ASTC_12x10_KHR              = 0x93BC,
-  KTX_COMPRESSED_RGBA_ASTC_12x12_KHR              = 0x93BD,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR        = 0x93D0,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR        = 0x93D1,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR        = 0x93D2,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR        = 0x93D3,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR        = 0x93D4,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR        = 0x93D5,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR        = 0x93D6,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR        = 0x93D7,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR       = 0x93D8,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR       = 0x93D9,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR       = 0x93DA,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR      = 0x93DB,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR      = 0x93DC,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR      = 0x93DD,
+  KTX_COMPRESSED_RGBA_ASTC_4x4_KHR           = 0x93B0,
+  KTX_COMPRESSED_RGBA_ASTC_5x4_KHR           = 0x93B1,
+  KTX_COMPRESSED_RGBA_ASTC_5x5_KHR           = 0x93B2,
+  KTX_COMPRESSED_RGBA_ASTC_6x5_KHR           = 0x93B3,
+  KTX_COMPRESSED_RGBA_ASTC_6x6_KHR           = 0x93B4,
+  KTX_COMPRESSED_RGBA_ASTC_8x5_KHR           = 0x93B5,
+  KTX_COMPRESSED_RGBA_ASTC_8x6_KHR           = 0x93B6,
+  KTX_COMPRESSED_RGBA_ASTC_8x8_KHR           = 0x93B7,
+  KTX_COMPRESSED_RGBA_ASTC_10x5_KHR          = 0x93B8,
+  KTX_COMPRESSED_RGBA_ASTC_10x6_KHR          = 0x93B9,
+  KTX_COMPRESSED_RGBA_ASTC_10x8_KHR          = 0x93BA,
+  KTX_COMPRESSED_RGBA_ASTC_10x10_KHR         = 0x93BB,
+  KTX_COMPRESSED_RGBA_ASTC_12x10_KHR         = 0x93BC,
+  KTX_COMPRESSED_RGBA_ASTC_12x12_KHR         = 0x93BD,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR   = 0x93D0,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR   = 0x93D1,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR   = 0x93D2,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR   = 0x93D3,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR   = 0x93D4,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR   = 0x93D5,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR   = 0x93D6,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR   = 0x93D7,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR  = 0x93D8,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR  = 0x93D9,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR  = 0x93DA,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR = 0x93DB,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR = 0x93DC,
+  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR = 0x93DD,
 
   // Uncompressed Alpha format
-  KTX_UNCOMPRESSED_ALPHA8                         = 0x1906,
+  KTX_UNCOMPRESSED_ALPHA8 = 0x1906,
 
   KTX_SENTINEL = ~0u
 };
 
 const unsigned KtxInternalFormats[] =
-{
-  // GLES 2 Extension formats:
-  KTX_ETC1_RGB8_OES,
-  KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG,
+  {
+    // GLES 2 Extension formats:
+    KTX_ETC1_RGB8_OES,
+    KTX_COMPRESSED_RGB_PVRTC_4BPPV1_IMG,
 
-  // GLES 3 Standard compressed formats:
-  KTX_COMPRESSED_R11_EAC,
-  KTX_COMPRESSED_SIGNED_R11_EAC,
-  KTX_COMPRESSED_RG11_EAC,
-  KTX_COMPRESSED_SIGNED_RG11_EAC,
-  KTX_COMPRESSED_RGB8_ETC2,
-  KTX_COMPRESSED_SRGB8_ETC2,
-  KTX_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2,
-  KTX_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2,
-  KTX_COMPRESSED_RGBA8_ETC2_EAC,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,
+    // GLES 3 Standard compressed formats:
+    KTX_COMPRESSED_R11_EAC,
+    KTX_COMPRESSED_SIGNED_R11_EAC,
+    KTX_COMPRESSED_RG11_EAC,
+    KTX_COMPRESSED_SIGNED_RG11_EAC,
+    KTX_COMPRESSED_RGB8_ETC2,
+    KTX_COMPRESSED_SRGB8_ETC2,
+    KTX_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2,
+    KTX_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2,
+    KTX_COMPRESSED_RGBA8_ETC2_EAC,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC,
 
-  // GLES 3.1 Compressed formats:
-  KTX_COMPRESSED_RGBA_ASTC_4x4_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_5x4_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_5x5_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_6x5_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_6x6_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_8x5_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_8x6_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_8x8_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_10x5_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_10x6_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_10x8_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_10x10_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_12x10_KHR,
-  KTX_COMPRESSED_RGBA_ASTC_12x12_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
-  KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
+    // GLES 3.1 Compressed formats:
+    KTX_COMPRESSED_RGBA_ASTC_4x4_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_5x4_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_5x5_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_6x5_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_6x6_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_8x5_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_8x6_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_8x8_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_10x5_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_10x6_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_10x8_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_10x10_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_12x10_KHR,
+    KTX_COMPRESSED_RGBA_ASTC_12x12_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR,
+    KTX_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR,
 
-  // Uncompressed Alpha format
-  KTX_UNCOMPRESSED_ALPHA8,
+    // Uncompressed Alpha format
+    KTX_UNCOMPRESSED_ALPHA8,
 
-  KTX_SENTINEL
-};
+    KTX_SENTINEL};
 
 struct KtxFileHeader
 {
-  Byte   identifier[12];
+  Byte     identifier[12];
   uint32_t endianness;
   uint32_t glType;
   uint32_t glTypeSize;
@@ -178,7 +172,7 @@ struct KtxFileHeader
   uint32_t numberOfFaces;
   uint32_t numberOfMipmapLevels;
   uint32_t bytesOfKeyValueData;
-} __attribute__ ( (__packed__));
+} __attribute__((__packed__));
 // Packed attribute stops the structure from being aligned to compiler defaults
 // so we can be sure of reading the whole thing from file in one call to fread.
 
@@ -188,12 +182,12 @@ struct KtxFileHeader
  * @param[out] header The structure we want to store our information in
  * @return true, if read successful, false otherwise
  */
-inline bool ReadHeader( FILE* filePointer, KtxFileHeader& header )
+inline bool ReadHeader(FILE* filePointer, KtxFileHeader& header)
 {
-  const unsigned int readLength = sizeof( KtxFileHeader );
+  const unsigned int readLength = sizeof(KtxFileHeader);
 
   // Load the information directly into our structure
-  if( fread( &header, 1, readLength, filePointer ) != readLength )
+  if(fread(&header, 1, readLength, filePointer) != readLength)
   {
     return false;
   }
@@ -204,12 +198,12 @@ inline bool ReadHeader( FILE* filePointer, KtxFileHeader& header )
 /** Check whether the array passed in is the right size and matches the magic
  *  values defined to be at the start of a KTX file by the specification.*/
 template<int BYTES_IN_SIGNATURE>
-bool CheckFileIdentifier(const Byte * const signature)
+bool CheckFileIdentifier(const Byte* const signature)
 {
-  const unsigned signatureSize = BYTES_IN_SIGNATURE;
+  const unsigned signatureSize  = BYTES_IN_SIGNATURE;
   const unsigned identifierSize = sizeof(FileIdentifier);
   static_assert(signatureSize == identifierSize);
-  const bool signatureGood = 0 == memcmp( signature, FileIdentifier, std::min( signatureSize, identifierSize ) );
+  const bool signatureGood = 0 == memcmp(signature, FileIdentifier, std::min(signatureSize, identifierSize));
   return signatureGood;
 }
 
@@ -454,23 +448,23 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
 
     default:
     {
-       return false;
+      return false;
     }
   }
   return true;
 }
 
-bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, KtxFileHeader& fileHeader )
+bool LoadKtxHeader(FILE* const fp, unsigned int& width, unsigned int& height, KtxFileHeader& fileHeader)
 {
   // Pull the bytes of the file header in as a block:
-  if ( !ReadHeader( fp, fileHeader ) )
+  if(!ReadHeader(fp, fileHeader))
   {
     return false;
   }
-  width = fileHeader.pixelWidth;
+  width  = fileHeader.pixelWidth;
   height = fileHeader.pixelHeight;
 
-  if ( width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION )
+  if(width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION)
   {
     return false;
   }
@@ -483,34 +477,34 @@ bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, 
   const bool glFormatCompatibleWithCompressedTex      = fileHeader.glFormat == 0;
   const bool glInternalFormatIsSupportedCompressedTex = ValidInternalFormat(fileHeader.glInternalFormat);
   // Ignore glBaseInternalFormat
-  const bool textureIsNot3D                           = fileHeader.pixelDepth == 0 || fileHeader.pixelDepth == 1;
-  const bool textureIsNotAnArray                      = fileHeader.numberOfArrayElements == 0 || fileHeader.numberOfArrayElements == 1;
-  const bool textureIsNotACubemap                     = fileHeader.numberOfFaces == 0 || fileHeader.numberOfFaces == 1;
-  const bool textureHasNoMipmapLevels                 = fileHeader.numberOfMipmapLevels == 0 || fileHeader.numberOfMipmapLevels == 1;
-  const bool keyValueDataNotTooLarge                  = fileHeader.bytesOfKeyValueData <= MAX_BYTES_OF_KEYVALUE_DATA;
+  const bool textureIsNot3D           = fileHeader.pixelDepth == 0 || fileHeader.pixelDepth == 1;
+  const bool textureIsNotAnArray      = fileHeader.numberOfArrayElements == 0 || fileHeader.numberOfArrayElements == 1;
+  const bool textureIsNotACubemap     = fileHeader.numberOfFaces == 0 || fileHeader.numberOfFaces == 1;
+  const bool textureHasNoMipmapLevels = fileHeader.numberOfMipmapLevels == 0 || fileHeader.numberOfMipmapLevels == 1;
+  const bool keyValueDataNotTooLarge  = fileHeader.bytesOfKeyValueData <= MAX_BYTES_OF_KEYVALUE_DATA;
 
   bool headerIsValid = signatureGood && fileEndiannessMatchesSystemEndianness &&
-                     glTypeSizeCompatibleWithCompressedTex && textureIsNot3D && textureIsNotAnArray &&
-                     textureIsNotACubemap && textureHasNoMipmapLevels && keyValueDataNotTooLarge;
+                       glTypeSizeCompatibleWithCompressedTex && textureIsNot3D && textureIsNotAnArray &&
+                       textureIsNotACubemap && textureHasNoMipmapLevels && keyValueDataNotTooLarge;
 
-  if( !glTypeIsCompressed )  // check for uncompressed Alpha
+  if(!glTypeIsCompressed) // check for uncompressed Alpha
   {
-    const bool isAlpha = ( ( fileHeader.glBaseInternalFormat == KTX_UNCOMPRESSED_ALPHA8 ) && ( fileHeader.glFormat == KTX_UNCOMPRESSED_ALPHA8 ) &&
-                         ( fileHeader.glInternalFormat == KTX_UNCOMPRESSED_ALPHA8 ) );
-    headerIsValid = headerIsValid && isAlpha;
+    const bool isAlpha = ((fileHeader.glBaseInternalFormat == KTX_UNCOMPRESSED_ALPHA8) && (fileHeader.glFormat == KTX_UNCOMPRESSED_ALPHA8) &&
+                          (fileHeader.glInternalFormat == KTX_UNCOMPRESSED_ALPHA8));
+    headerIsValid      = headerIsValid && isAlpha;
   }
   else
   {
     headerIsValid = headerIsValid && glFormatCompatibleWithCompressedTex && glInternalFormatIsSupportedCompressedTex;
   }
 
-  if( !headerIsValid )
+  if(!headerIsValid)
   {
-     DALI_LOG_ERROR( "KTX file invalid or using unsupported features. Header tests: sig: %d, endian: %d, gl_type: %d, gl_type_size: %d, gl_format: %d, internal_format: %d, depth: %d, array: %d, faces: %d, mipmap: %d, vey-vals: %d.\n", 0+signatureGood, 0+fileEndiannessMatchesSystemEndianness, 0+glTypeIsCompressed, 0+glTypeSizeCompatibleWithCompressedTex, 0+glFormatCompatibleWithCompressedTex, 0+glInternalFormatIsSupportedCompressedTex, 0+textureIsNot3D, 0+textureIsNotAnArray, 0+textureIsNotACubemap, 0+textureHasNoMipmapLevels, 0+keyValueDataNotTooLarge);
+    DALI_LOG_ERROR("KTX file invalid or using unsupported features. Header tests: sig: %d, endian: %d, gl_type: %d, gl_type_size: %d, gl_format: %d, internal_format: %d, depth: %d, array: %d, faces: %d, mipmap: %d, vey-vals: %d.\n", 0 + signatureGood, 0 + fileEndiannessMatchesSystemEndianness, 0 + glTypeIsCompressed, 0 + glTypeSizeCompatibleWithCompressedTex, 0 + glFormatCompatibleWithCompressedTex, 0 + glInternalFormatIsSupportedCompressedTex, 0 + textureIsNot3D, 0 + textureIsNotAnArray, 0 + textureIsNotACubemap, 0 + textureHasNoMipmapLevels, 0 + keyValueDataNotTooLarge);
   }
 
   // Warn if there is space wasted in the file:
-  if( fileHeader.bytesOfKeyValueData > 0U )
+  if(fileHeader.bytesOfKeyValueData > 0U)
   {
     DALI_LOG_WARNING("Loading of KTX file with key/value header data requested. This should be stripped in application asset/resource build.\n");
   }
@@ -518,29 +512,28 @@ bool LoadKtxHeader( FILE * const fp, unsigned int& width, unsigned int& height, 
   return headerIsValid;
 }
 
-
 } // unnamed namespace
 
 // File loading API entry-point:
-bool LoadKtxHeader( const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height )
+bool LoadKtxHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
   KtxFileHeader fileHeader;
-  FILE* const fp = input.file;
+  FILE* const   fp = input.file;
 
   bool ret = LoadKtxHeader(fp, width, height, fileHeader);
   return ret;
 }
 
 // File loading API entry-point:
-bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap )
+bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
   static_assert(sizeof(Byte) == 1);
   static_assert(sizeof(uint32_t) == 4);
 
   FILE* const fp = input.file;
-  if( fp == NULL )
+  if(fp == NULL)
   {
-    DALI_LOG_ERROR( "Null file handle passed to KTX compressed bitmap file loader.\n" );
+    DALI_LOG_ERROR("Null file handle passed to KTX compressed bitmap file loader.\n");
     return false;
   }
   KtxFileHeader fileHeader;
@@ -548,40 +541,40 @@ bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   // Load the header info
   unsigned int width, height;
 
-  if (!LoadKtxHeader(fp, width, height, fileHeader))
+  if(!LoadKtxHeader(fp, width, height, fileHeader))
   {
-      return false;
+    return false;
   }
 
   // Skip the key-values:
   const long int imageSizeOffset = sizeof(KtxFileHeader) + fileHeader.bytesOfKeyValueData;
   if(fseek(fp, imageSizeOffset, SEEK_SET))
   {
-    DALI_LOG_ERROR( "Seek past key/vals in KTX compressed bitmap file failed.\n" );
+    DALI_LOG_ERROR("Seek past key/vals in KTX compressed bitmap file failed.\n");
     return false;
   }
 
   // Load the size of the image data:
   uint32_t imageByteCount = 0;
-  if ( fread( &imageByteCount, 1, 4, fp ) != 4 )
+  if(fread(&imageByteCount, 1, 4, fp) != 4)
   {
-    DALI_LOG_ERROR( "Read of image size failed.\n" );
+    DALI_LOG_ERROR("Read of image size failed.\n");
     return false;
   }
   // Sanity-check the image size:
-  if( imageByteCount > MAX_IMAGE_DATA_SIZE ||
-      // A compressed texture should certainly be less than 2 bytes per texel:
-      imageByteCount > width * height * 2)
+  if(imageByteCount > MAX_IMAGE_DATA_SIZE ||
+     // A compressed texture should certainly be less than 2 bytes per texel:
+     imageByteCount > width * height * 2)
   {
-    DALI_LOG_ERROR( "KTX file with too-large image-data field.\n" );
+    DALI_LOG_ERROR("KTX file with too-large image-data field.\n");
     return false;
   }
 
   Pixel::Format pixelFormat;
-  const bool pixelFormatKnown = ConvertPixelFormat(fileHeader.glInternalFormat, pixelFormat);
+  const bool    pixelFormatKnown = ConvertPixelFormat(fileHeader.glInternalFormat, pixelFormat);
   if(!pixelFormatKnown)
   {
-    DALI_LOG_ERROR( "No internal pixel format supported for KTX file pixel format.\n" );
+    DALI_LOG_ERROR("No internal pixel format supported for KTX file pixel format.\n");
     return false;
   }
 
@@ -590,24 +583,24 @@ bool LoadBitmapFromKtx( const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   // Compressed format won't allocate the buffer
   auto pixels = bitmap.GetBuffer();
-  if( !pixels )
+  if(!pixels)
   {
     // allocate buffer manually
-    auto &impl = GetImplementation(bitmap);
+    auto& impl = GetImplementation(bitmap);
     impl.AllocateFixedSize(imageByteCount);
     pixels = bitmap.GetBuffer();
   }
 
   if(!pixels)
   {
-    DALI_LOG_ERROR( "Unable to reserve a pixel buffer to load the requested bitmap into.\n" );
+    DALI_LOG_ERROR("Unable to reserve a pixel buffer to load the requested bitmap into.\n");
     return false;
   }
 
   const size_t bytesRead = fread(pixels, 1, imageByteCount, fp);
   if(bytesRead != imageByteCount)
   {
-    DALI_LOG_ERROR( "Read of image pixel data failed.\n" );
+    DALI_LOG_ERROR("Read of image pixel data failed.\n");
     return false;
   }
 

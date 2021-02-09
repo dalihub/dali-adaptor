@@ -2,7 +2,7 @@
 #define DALI_VECTOR_IMAGE_RENDERER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/dali-adaptor-common.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -32,13 +32,10 @@ namespace Dali
  * @{
  */
 
-namespace Internal DALI_INTERNAL
-{
-namespace Adaptor
+namespace Internal::Adaptor
 {
 class VectorImageRenderer;
-}
-}
+} // namespace Internal::Adaptor
 
 /**
  * @brief Used for rendering a vector image file (SVG)
@@ -46,7 +43,6 @@ class VectorImageRenderer;
 class DALI_ADAPTOR_API VectorImageRenderer : public BaseHandle
 {
 public:
-
   /**
    * @brief Creates an initialized handle to a new VectorImageRenderer.
    *
@@ -70,7 +66,7 @@ public:
    *
    * @param[in] handle A reference to the copied handle
    */
-  VectorImageRenderer( const VectorImageRenderer& handle ) = default;
+  VectorImageRenderer(const VectorImageRenderer& handle) = default;
 
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
@@ -78,7 +74,7 @@ public:
    * @param[in] rhs A reference to the copied handle
    * @return A reference to this
    */
-  VectorImageRenderer& operator=( const VectorImageRenderer& rhs ) = default;
+  VectorImageRenderer& operator=(const VectorImageRenderer& rhs) = default;
 
   /**
    * @brief Load vector image data directly.
@@ -107,7 +103,6 @@ public:
   void GetDefaultSize(uint32_t& width, uint32_t& height) const;
 
 public: // Not intended for application developers
-
   /// @cond internal
   /**
    * @brief The constructor.
@@ -115,9 +110,8 @@ public: // Not intended for application developers
    *
    * @param[in] pointer A pointer to a newly allocated VectorImageRenderer
    */
-  explicit DALI_INTERNAL VectorImageRenderer( Internal::Adaptor::VectorImageRenderer* internal );
+  explicit DALI_INTERNAL VectorImageRenderer(Internal::Adaptor::VectorImageRenderer* internal);
   /// @endcond
-
 };
 
 /**

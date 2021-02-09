@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,24 +26,21 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Using Impl to hide away EFL specific members
  */
 struct FileDescriptorMonitor::Impl
 {
   // Construction
-  Impl( int fileDescriptor, CallbackBase* callback, int eventsToMonitor)
-  : mFileDescriptor( fileDescriptor ),
-    mEventsToMonitor( eventsToMonitor ),
-    mCallback( callback ),
-    mHandler( NULL )
+  Impl(int fileDescriptor, CallbackBase* callback, int eventsToMonitor)
+  : mFileDescriptor(fileDescriptor),
+    mEventsToMonitor(eventsToMonitor),
+    mCallback(callback),
+    mHandler(NULL)
   {
   }
 
@@ -53,9 +50,9 @@ struct FileDescriptorMonitor::Impl
   }
 
   // Data
-  int mFileDescriptor;
-  int mEventsToMonitor;              ///< what file descriptor events to monitor
-  CallbackBase* mCallback;
+  int               mFileDescriptor;
+  int               mEventsToMonitor; ///< what file descriptor events to monitor
+  CallbackBase*     mCallback;
   Ecore_Fd_Handler* mHandler;
 
   // Static Methods
@@ -63,74 +60,73 @@ struct FileDescriptorMonitor::Impl
   /**
    * Called when the file descriptor receives an event.
    */
-  static Eina_Bool EventDispatch(void* data, Ecore_Fd_Handler *handler)
+  static Eina_Bool EventDispatch(void* data, Ecore_Fd_Handler* handler)
   {
     Impl* impl = reinterpret_cast<Impl*>(data);
 
     // if we want read events, check to see if a read event is available
     int type = FileDescriptorMonitor::FD_NO_EVENT;
 
-    if( ecore_main_fd_handler_active_get( handler, ECORE_FD_ERROR) )
+    if(ecore_main_fd_handler_active_get(handler, ECORE_FD_ERROR))
     {
-      CallbackBase::Execute( *impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor );
+      CallbackBase::Execute(*impl->mCallback, FileDescriptorMonitor::FD_ERROR, impl->mFileDescriptor);
       DALI_LOG_ERROR("ECORE_FD_ERROR occurred on %d\n", impl->mFileDescriptor);
 
       return ECORE_CALLBACK_CANCEL;
     }
 
-    if( impl->mEventsToMonitor & ECORE_FD_READ )
+    if(impl->mEventsToMonitor & ECORE_FD_READ)
     {
-      if (ecore_main_fd_handler_active_get( handler, ECORE_FD_READ))
+      if(ecore_main_fd_handler_active_get(handler, ECORE_FD_READ))
       {
         type = FileDescriptorMonitor::FD_READABLE;
       }
     }
     // check if we want write events
-    if( impl->mEventsToMonitor & ECORE_FD_WRITE )
+    if(impl->mEventsToMonitor & ECORE_FD_WRITE)
     {
-      if (ecore_main_fd_handler_active_get( handler, ECORE_FD_WRITE))
+      if(ecore_main_fd_handler_active_get(handler, ECORE_FD_WRITE))
       {
         type |= FileDescriptorMonitor::FD_WRITABLE;
       }
     }
 
     // if there is an event, execute the callback
-    if( type != FileDescriptorMonitor::FD_NO_EVENT )
+    if(type != FileDescriptorMonitor::FD_NO_EVENT)
     {
-      CallbackBase::Execute( *impl->mCallback, static_cast< FileDescriptorMonitor::EventType >(type ), impl->mFileDescriptor );
+      CallbackBase::Execute(*impl->mCallback, static_cast<FileDescriptorMonitor::EventType>(type), impl->mFileDescriptor);
     }
 
     return ECORE_CALLBACK_RENEW;
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
   mImpl = new Impl(fileDescriptor, callback, eventBitmask);
 
-  if (fileDescriptor < 1)
+  if(fileDescriptor < 1)
   {
-    DALI_ASSERT_ALWAYS( 0 && "Invalid File descriptor");
+    DALI_ASSERT_ALWAYS(0 && "Invalid File descriptor");
     return;
   }
 
   int events = 0;
-  if( eventBitmask & FD_READABLE)
+  if(eventBitmask & FD_READABLE)
   {
     events = ECORE_FD_READ;
   }
-  if( eventBitmask & FD_WRITABLE)
+  if(eventBitmask & FD_WRITABLE)
   {
     events |= ECORE_FD_WRITE;
   }
   mImpl->mEventsToMonitor = events;
-  mImpl->mHandler = ecore_main_fd_handler_add( fileDescriptor, static_cast<Ecore_Fd_Handler_Flags >( events ), &Impl::EventDispatch, mImpl, NULL, NULL );
-
+  mImpl->mHandler         = ecore_main_fd_handler_add(fileDescriptor, static_cast<Ecore_Fd_Handler_Flags>(events), &Impl::EventDispatch, mImpl, NULL, NULL);
 }
 
 FileDescriptorMonitor::~FileDescriptorMonitor()
 {
-  if (mImpl->mHandler)
+  if(mImpl->mHandler)
   {
     ecore_main_fd_handler_del(mImpl->mHandler);
   }

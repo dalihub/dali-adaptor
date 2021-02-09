@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,44 +19,40 @@
 #include <dali/internal/imaging/macos/native-image-source-factory-mac.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/imaging/macos/native-image-source-impl-mac.h>
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
+#include <dali/internal/imaging/macos/native-image-source-impl-mac.h>
 
 namespace Dali::Internal::Adaptor
 {
-
-std::unique_ptr< NativeImageSource >
+std::unique_ptr<NativeImageSource>
 NativeImageSourceFactoryCocoa::CreateNativeImageSource(
-  unsigned int width,
-  unsigned int height,
+  unsigned int                        width,
+  unsigned int                        height,
   Dali::NativeImageSource::ColorDepth depth,
-  Any nativeImageSource
-)
+  Any                                 nativeImageSource)
 {
-  return std::unique_ptr< NativeImageSource >( NativeImageSourceCocoa::New(
+  return std::unique_ptr<NativeImageSource>(NativeImageSourceCocoa::New(
     width,
     height,
     depth,
-    nativeImageSource
-  ));
+    nativeImageSource));
 }
 
-std::unique_ptr< NativeImageSourceQueue >
+std::unique_ptr<NativeImageSourceQueue>
 NativeImageSourceFactoryCocoa::CreateNativeImageSourceQueue(
-  unsigned int width,
-  unsigned int height,
+  unsigned int                             width,
+  unsigned int                             height,
   Dali::NativeImageSourceQueue::ColorDepth depth,
-  Any nativeImageSourceQueue
-)
+  Any                                      nativeImageSourceQueue)
 {
-  return std::unique_ptr< NativeImageSourceQueue >( nullptr );
+  return std::unique_ptr<NativeImageSourceQueue>(nullptr);
 }
 
 // this should be created from somewhere
-std::unique_ptr< NativeImageSourceFactory > GetNativeImageSourceFactory()
+std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory()
 {
   // returns native image source factory
-  return std::unique_ptr< NativeImageSourceFactoryCocoa >( new NativeImageSourceFactoryCocoa() );
+  return std::unique_ptr<NativeImageSourceFactoryCocoa>(new NativeImageSourceFactoryCocoa());
 }
 
-} // Dali::Internal::Adaptor
+} // namespace Dali::Internal::Adaptor

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_WINDOW_BASE_ECORE_X_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #include <dali/internal/window-system/common/window-base.h>
 
 // EXTERNAL HEADERS
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 namespace Dali
 {
@@ -31,18 +31,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * WindowBaseEcoreX class provides an WindowBase EcoreX implementation.
  */
 class WindowBaseEcoreX : public WindowBase
 {
 public:
-
   /**
    * @brief Constructor
    */
-  WindowBaseEcoreX( PositionSize positionSize, Any surface, bool isTransparent );
+  WindowBaseEcoreX(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
    * @brief Destructor
@@ -50,11 +48,10 @@ public:
   virtual ~WindowBaseEcoreX();
 
 public:
-
   /**
    * @brief Called when the window property is changed.
    */
-  Eina_Bool OnWindowPropertyChanged( void* data, int type, void* event );
+  Eina_Bool OnWindowPropertyChanged(void* data, int type, void* event);
 
   /**
    * @brief Called when the window receives a delete request
@@ -64,60 +61,59 @@ public:
   /**
    * @brief Called when the window gains focus.
    */
-  void OnFocusIn( void* data, int type, void* event );
+  void OnFocusIn(void* data, int type, void* event);
 
   /**
    * @brief Called when the window loses focus.
    */
-  void OnFocusOut( void* data, int type, void* event );
+  void OnFocusOut(void* data, int type, void* event);
 
   /**
    * @brief Called when the window is damaged.
    */
-  void OnWindowDamaged( void* data, int type, void* event );
+  void OnWindowDamaged(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch down is received.
    */
-  void OnMouseButtonDown( void* data, int type, void* event );
+  void OnMouseButtonDown(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch up is received.
    */
-  void OnMouseButtonUp( void* data, int type, void* event );
+  void OnMouseButtonUp(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch motion is received.
    */
-  void OnMouseButtonMove( void* data, int type, void* event );
+  void OnMouseButtonMove(void* data, int type, void* event);
 
   /**
    * @brief Called when a mouse wheel is received.
    */
-  void OnMouseWheel( void* data, int type, void* event );
+  void OnMouseWheel(void* data, int type, void* event);
 
   /**
    * @brief Called when a key down is received.
    */
-  void OnKeyDown( void* data, int type, void* event );
+  void OnKeyDown(void* data, int type, void* event);
 
   /**
    * @brief Called when a key up is received.
    */
-  void OnKeyUp( void* data, int type, void* event );
+  void OnKeyUp(void* data, int type, void* event);
 
   /**
    * @brief Called when the source window notifies us the content in clipboard is selected.
    */
-  void OnSelectionClear( void* data, int type, void* event );
+  void OnSelectionClear(void* data, int type, void* event);
 
   /**
    * @brief Called when the source window sends us about the selected content.
    */
-  void OnSelectionNotify( void* data, int type, void* event );
+  void OnSelectionNotify(void* data, int type, void* event);
 
 public:
-
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindow()
    */
@@ -131,7 +127,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
    */
-  EGLNativeWindowType CreateEglWindow( int width, int height ) override;
+  EGLNativeWindowType CreateEglWindow(int width, int height) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
@@ -141,22 +137,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
    */
-  void SetEglWindowRotation( int angle ) override;
+  void SetEglWindowRotation(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
    */
-  void SetEglWindowBufferTransform( int angle ) override;
+  void SetEglWindowBufferTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
    */
-  void SetEglWindowTransform( int angle ) override;
+  void SetEglWindowTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
    */
-  void ResizeEglWindow( PositionSize positionSize ) override;
+  void ResizeEglWindow(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
@@ -166,22 +162,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
    */
-  void Move( PositionSize positionSize ) override;
+  void Move(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Resize()
    */
-  void Resize( PositionSize positionSize ) override;
+  void Resize(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::MoveResize()
    */
-  void MoveResize( PositionSize positionSize ) override;
+  void MoveResize(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
-  void SetClass( const std::string& name, const std::string& className ) override;
+  void SetClass(const std::string& name, const std::string& className) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Raise()
@@ -201,17 +197,17 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
-  void SetAvailableAnlges( const std::vector< int >& angles ) override;
+  void SetAvailableAnlges(const std::vector<int>& angles) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetPreferredAngle()
    */
-  void SetPreferredAngle( int angle ) override;
+  void SetPreferredAngle(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAcceptFocus()
    */
-  void SetAcceptFocus( bool accept ) override;
+  void SetAcceptFocus(bool accept) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Show()
@@ -231,47 +227,47 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetSupportedAuxiliaryHint()
    */
-  std::string GetSupportedAuxiliaryHint( unsigned int index ) const override;
+  std::string GetSupportedAuxiliaryHint(unsigned int index) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::AddAuxiliaryHint()
    */
-  unsigned int AddAuxiliaryHint( const std::string& hint, const std::string& value ) override;
+  unsigned int AddAuxiliaryHint(const std::string& hint, const std::string& value) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::RemoveAuxiliaryHint()
    */
-  bool RemoveAuxiliaryHint( unsigned int id ) override;
+  bool RemoveAuxiliaryHint(unsigned int id) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAuxiliaryHintValue()
    */
-  bool SetAuxiliaryHintValue( unsigned int id, const std::string& value ) override;
+  bool SetAuxiliaryHintValue(unsigned int id, const std::string& value) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintValue()
    */
-  std::string GetAuxiliaryHintValue( unsigned int id ) const override;
+  std::string GetAuxiliaryHintValue(unsigned int id) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetAuxiliaryHintId()
    */
-  unsigned int GetAuxiliaryHintId( const std::string& hint ) const override;
+  unsigned int GetAuxiliaryHintId(const std::string& hint) const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetInputRegion()
    */
-  void SetInputRegion( const Rect< int >& inputRegion ) override;
+  void SetInputRegion(const Rect<int>& inputRegion) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetType()
    */
-  void SetType( Dali::WindowType type ) override;
+  void SetType(Dali::WindowType type) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
-  bool SetNotificationLevel( Dali::WindowNotificationLevel level ) override;
+  bool SetNotificationLevel(Dali::WindowNotificationLevel level) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNotificationLevel()
@@ -281,7 +277,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetOpaqueState()
    */
-  void SetOpaqueState( bool opaque ) override;
+  void SetOpaqueState(bool opaque) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreenOffMode()
@@ -296,7 +292,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBrightness()
    */
-  bool SetBrightness( int brightness ) override;
+  bool SetBrightness(int brightness) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBrightness()
@@ -306,27 +302,27 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKey()
    */
-  bool GrabKey( Dali::KEY key, KeyGrab::KeyGrabMode grabMode ) override;
+  bool GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKey()
    */
-  bool UngrabKey( Dali::KEY key ) override;
+  bool UngrabKey(Dali::KEY key) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GrabKeyList()
    */
-  bool GrabKeyList( const Dali::Vector< Dali::KEY >& key, const Dali::Vector< KeyGrab::KeyGrabMode >& grabMode, Dali::Vector< bool >& result ) override;
+  bool GrabKeyList(const Dali::Vector<Dali::KEY>& key, const Dali::Vector<KeyGrab::KeyGrabMode>& grabMode, Dali::Vector<bool>& result) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::UngrabKeyList()
    */
-  bool UngrabKeyList( const Dali::Vector< Dali::KEY >& key, Dali::Vector< bool >& result ) override;
+  bool UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool>& result) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetDpi()
    */
-  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
@@ -341,22 +337,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotationAngle()
    */
-  void SetWindowRotationAngle( int degree ) override;
+  void SetWindowRotationAngle(int degree) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::WindowRotationCompleted()
    */
-  void WindowRotationCompleted( int degree, int width, int height ) override;
+  void WindowRotationCompleted(int degree, int width, int height) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetTransparency()
    */
-  void SetTransparency( bool transparent ) override;
+  void SetTransparency(bool transparent) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
    */
-  void SetParent( WindowBase* parentWinBase ) override;
+  void SetParent(WindowBase* parentWinBase) override;
 
   /**
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFrameRenderedSyncFence()
@@ -369,26 +365,24 @@ public:
   int CreateFramePresentedSyncFence() override;
 
 private:
-
   /**
    * Second stage initialization
    */
-  void Initialize( PositionSize positionSize, Any surface, bool isTransparent );
+  void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
    * @brief Get the surface id if the surface parameter is not empty
    * @param surface Any containing a surface id, or can be empty
    * @return surface id, or zero if surface is empty
    */
-  unsigned int GetSurfaceId( Any surface ) const;
+  unsigned int GetSurfaceId(Any surface) const;
 
   /**
    * @brief Create window
    */
-  void CreateWindow( PositionSize positionSize, bool isTransparent );
+  void CreateWindow(PositionSize positionSize, bool isTransparent);
 
 protected:
-
   // Undefined
   WindowBaseEcoreX(const WindowBaseEcoreX&) = delete;
 
@@ -396,18 +390,17 @@ protected:
   WindowBaseEcoreX& operator=(const WindowBaseEcoreX& rhs) = delete;
 
 private:
-
-  Dali::Vector< Ecore_Event_Handler* > mEcoreEventHandler;
-  Ecore_X_Window                       mEcoreWindow;        ///< Native window handle
-  bool                                 mOwnSurface:1;       ///< Whether we own the surface (responsible for deleting it)
-  bool                                 mIsTransparent;      ///< Whether the window is transparent (32 bit or 24 bit)
-  bool                                 mRotationAppSet:1;
-  int                                  mWindowRotationAngle;
+  Dali::Vector<Ecore_Event_Handler*> mEcoreEventHandler;
+  Ecore_X_Window                     mEcoreWindow;    ///< Native window handle
+  bool                               mOwnSurface : 1; ///< Whether we own the surface (responsible for deleting it)
+  bool                               mIsTransparent;  ///< Whether the window is transparent (32 bit or 24 bit)
+  bool                               mRotationAppSet : 1;
+  int                                mWindowRotationAngle;
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

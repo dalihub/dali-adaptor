@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADDON_MANAGER_IMPL
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,9 @@
 
 #include <dali/integration-api/addon-manager.h>
 
+#include <memory>
 #include <string>
 #include <vector>
-#include <memory>
 
 namespace Dali
 {
@@ -34,7 +34,6 @@ namespace Internal
 class AddOnManager
 {
 protected:
-
   /**
    * @brief Constructor
    */
@@ -50,7 +49,7 @@ public:
    * @brief Registers the dispatch table with AddOnManager.
    * @param[in] dispatchTable Pointer to the valid dispatch table
    */
-  virtual void RegisterAddOnDispatchTable( const AddOnDispatchTable* dispatchTable ) = 0;
+  virtual void RegisterAddOnDispatchTable(const AddOnDispatchTable* dispatchTable) = 0;
 
   /**
    * @brief Retrieves list of the available AddOns
@@ -64,14 +63,14 @@ public:
    * @param[out]] info Output reference
    * @return True on success, False if extension info cannot be retrieved
    */
-  virtual bool GetAddOnInfo(const std::string& name, AddOnInfo& info ) = 0;
+  virtual bool GetAddOnInfo(const std::string& name, AddOnInfo& info) = 0;
 
   /**
    * @brief Loads and initialises specified AddOns
    * @param[in] extensionNames Array of extension names
    * @return vector of initialised AddOnLibrary handles
    */
-  virtual std::vector<Dali::AddOnLibrary> LoadAddOns( const std::vector<std::string>& addonNames ) = 0;
+  virtual std::vector<Dali::AddOnLibrary> LoadAddOns(const std::vector<std::string>& addonNames) = 0;
 
   /**
    * @brief Returns AddOn global function pointer
@@ -79,7 +78,7 @@ public:
    * @param[in] procName Name of the function to retrieve
    * @return Pointer to the function or null if function doesn't exist
    */
-  virtual void* GetGlobalProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) = 0;
+  virtual void* GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName) = 0;
 
   /**
    * @brief Returns addon instance function pointer
@@ -87,35 +86,43 @@ public:
    * @param[in] procName Name of the function to retrieve
    * @return Pointer to the function or null if function doesn't exist
    */
-  virtual void* GetInstanceProc( const Dali::AddOnLibrary& addonHandle, const char* procName ) = 0;
+  virtual void* GetInstanceProc(const Dali::AddOnLibrary& addonHandle, const char* procName) = 0;
 
   /**
    * @brief Pause lifecycle event
    * Implementation is optional and depends whether AddOn needs to handle lifecycle event.
    */
-  virtual void Pause() {}
+  virtual void Pause()
+  {
+  }
 
   /**
    * @brief Resume lifecycle event
    * Implementation is optional and depends whether AddOn needs to handle lifecycle event.
    */
-  virtual void Resume() {}
+  virtual void Resume()
+  {
+  }
 
   /**
    * @brief Start lifecycle event
    * Implementation is optional and depends whether AddOn needs to handle lifecycle event.
    */
-  virtual void Start() {}
+  virtual void Start()
+  {
+  }
 
   /**
    * @brief Stop lifecycle event
    * Implementation is optional and depends whether AddOn needs to handle lifecycle event.
    */
-  virtual void Stop() {}
+  virtual void Stop()
+  {
+  }
 };
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_CMAKE_EXTENSION_MANAGER_IMPL

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CLIPBOARD_EVENT_NOTIFIER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
-#include <dali/public-api/object/base-object.h>
 #include <dali/public-api/math/vector2.h>
+#include <dali/public-api/object/base-object.h>
+#include <string>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/clipboard-event-notifier.h>
@@ -29,20 +29,16 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * This class listens to Clipboard events.
  */
 class ClipboardEventNotifier : public Dali::BaseObject
 {
 public:
-
   typedef Dali::ClipboardEventNotifier::ClipboardEventSignalType ClipboardEventSignalType;
 
   // Creation
@@ -69,7 +65,7 @@ public:
    * Sets the selected content.
    * @param[in] content  A string that represents the content that has been selected.
    */
-  void SetContent( const std::string& content );
+  void SetContent(const std::string& content);
 
   /**
    * Clears the stored content.
@@ -82,7 +78,6 @@ public:
   void EmitContentSelectedSignal();
 
 public: // Signals
-
   /**
    * @copydoc Dali::ClipboardEventNotifier::ContentSelectedSignal
    */
@@ -92,7 +87,6 @@ public: // Signals
   }
 
 private:
-
   // Construction & Destruction
 
   /**
@@ -106,22 +100,20 @@ private:
   ~ClipboardEventNotifier() override;
 
   // Undefined
-  ClipboardEventNotifier( const ClipboardEventNotifier& );
-  ClipboardEventNotifier& operator=( ClipboardEventNotifier& );
+  ClipboardEventNotifier(const ClipboardEventNotifier&);
+  ClipboardEventNotifier& operator=(ClipboardEventNotifier&);
 
 private:
-
-  std::string mContent;    ///< The current selected content.
+  std::string mContent; ///< The current selected content.
 
   ClipboardEventSignalType mContentSelectedSignal;
 
 public:
-
   // Helpers for public-api forwarding methods
 
   inline static Internal::Adaptor::ClipboardEventNotifier& GetImplementation(Dali::ClipboardEventNotifier& detector)
   {
-    DALI_ASSERT_ALWAYS( detector && "ClipboardEventNotifier handle is empty" );
+    DALI_ASSERT_ALWAYS(detector && "ClipboardEventNotifier handle is empty");
 
     BaseObject& handle = detector.GetBaseObject();
 
@@ -130,13 +122,12 @@ public:
 
   inline static const Internal::Adaptor::ClipboardEventNotifier& GetImplementation(const Dali::ClipboardEventNotifier& detector)
   {
-    DALI_ASSERT_ALWAYS( detector && "ClipboardEventNotifier handle is empty" );
+    DALI_ASSERT_ALWAYS(detector && "ClipboardEventNotifier handle is empty");
 
     const BaseObject& handle = detector.GetBaseObject();
 
     return static_cast<const Internal::Adaptor::ClipboardEventNotifier&>(handle);
   }
-
 };
 
 } // namespace Adaptor

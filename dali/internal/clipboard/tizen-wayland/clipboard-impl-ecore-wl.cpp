@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/devel-api/adaptor-framework/clipboard-event-notifier.h>
+#include <dali/internal/clipboard/common/clipboard-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore.h>
@@ -28,10 +28,10 @@
 #include <dali/internal/adaptor/tizen-wayland/dali-ecore-wayland.h>
 #endif
 
-#include <dali/public-api/object/any.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/any.h>
+#include <dali/public-api/object/type-registry.h>
 #include <unistd.h>
 
 #ifdef DALI_ELDBUS_AVAILABLE
@@ -41,8 +41,8 @@
 #define CBHM_DBUS_OBJPATH "/org/tizen/cbhm/dbus"
 #ifndef CBHM_DBUS_INTERFACE
 #define CBHM_DBUS_INTERFACE "org.tizen.cbhm.dbus"
-#endif /* CBHM_DBUS_INTERFACE */
-#define CBHM_COUNT_ALL 0    // ATOM_INDEX_CBHM_COUNT_ALL
+#endif                   /* CBHM_DBUS_INTERFACE */
+#define CBHM_COUNT_ALL 0 // ATOM_INDEX_CBHM_COUNT_ALL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Clipboard
@@ -50,31 +50,28 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 struct Clipboard::Impl
 {
   Impl()
   {
-    Eldbus_Object *eldbus_obj;
+    Eldbus_Object* eldbus_obj;
     eldbus_init();
-    cbhm_conn = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SESSION);
-    eldbus_obj = eldbus_object_get(cbhm_conn, CBHM_DBUS_INTERFACE, CBHM_DBUS_OBJPATH);
+    cbhm_conn    = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SESSION);
+    eldbus_obj   = eldbus_object_get(cbhm_conn, CBHM_DBUS_INTERFACE, CBHM_DBUS_OBJPATH);
     eldbus_proxy = eldbus_proxy_get(eldbus_obj, CBHM_DBUS_INTERFACE);
     eldbus_name_owner_changed_callback_add(cbhm_conn, CBHM_DBUS_INTERFACE, NULL, cbhm_conn, EINA_TRUE);
     eldbus_proxy_signal_handler_add(eldbus_proxy, "ItemClicked", _on_item_clicked, this);
-    mVisible = false;
+    mVisible           = false;
     mIsFirstTimeHidden = true;
   }
 
   ~Impl()
   {
-    if (cbhm_conn)
+    if(cbhm_conn)
       eldbus_connection_unref(cbhm_conn);
     eldbus_shutdown();
   }
@@ -89,12 +86,14 @@ struct Clipboard::Impl
     return cbhm_conn;
   }
 
-  void SetItem( const std::string &itemData )
+  void SetItem(const std::string& itemData)
   {
-    const char *types[10] = {0, };
+    const char* types[10] = {
+      0,
+    };
     int i = -1;
 
-    if (itemData.length() == 0)
+    if(itemData.length() == 0)
     {
       return;
     }
@@ -109,20 +108,22 @@ struct Clipboard::Impl
     types[++i] = "CLIPBOARD_END";
 
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get( ecore_wl2_connected_display_get( NULL ) );
-    ecore_wl2_dnd_selection_set( input, types );
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    ecore_wl2_dnd_selection_set(input, types);
 #else
-    ecore_wl_dnd_selection_set( ecore_wl_input_get(), types );
+    ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
 #endif
   }
 
   void RequestItem()
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get( ecore_wl2_connected_display_get( NULL ) );
-    ecore_wl2_dnd_selection_get( input );
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    ecore_wl2_dnd_selection_get(input);
 #else
-    const char *types[10] = {0, };
+    const char* types[10] = {
+      0,
+    };
     int i = -1;
 
     types[++i] = "text/plain;charset=utf-8";
@@ -130,77 +131,78 @@ struct Clipboard::Impl
 #endif
 
     Dali::ClipboardEventNotifier clipboardEventNotifier(Dali::ClipboardEventNotifier::Get());
-    if ( clipboardEventNotifier )
+    if(clipboardEventNotifier)
     {
-      clipboardEventNotifier.SetContent( mSendBuffer );
+      clipboardEventNotifier.SetContent(mSendBuffer);
       clipboardEventNotifier.EmitContentSelectedSignal();
     }
   }
 
-  char *ExcuteSend( void *event )
+  char* ExcuteSend(void* event)
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Event_Data_Source_Send *ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send *>( event );
+    Ecore_Wl2_Event_Data_Source_Send* ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send*>(event);
 #else
-    Ecore_Wl_Event_Data_Source_Send *ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send *>( event );
+    Ecore_Wl_Event_Data_Source_Send*     ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send*>(event);
 #endif
 
-    int len_buf = mSendBuffer.length();
-    int len_remained = len_buf;
-    int len_written = 0, ret;
-    const char *buf = mSendBuffer.c_str();
+    int         len_buf      = mSendBuffer.length();
+    int         len_remained = len_buf;
+    int         len_written  = 0, ret;
+    const char* buf          = mSendBuffer.c_str();
 
-    while (len_written < len_buf)
+    while(len_written < len_buf)
     {
-       ret = write(ev->fd, buf, len_remained);
-       if (ret == -1) break;
-       buf += ret;
-       len_written += ret;
-       len_remained -= ret;
+      ret = write(ev->fd, buf, len_remained);
+      if(ret == -1) break;
+      buf += ret;
+      len_written += ret;
+      len_remained -= ret;
     }
     close(ev->fd);
     return NULL;
   }
 
-  char *ExcuteReceive( void *event )
+  char* ExcuteReceive(void* event)
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Event_Selection_Data_Ready *ev = reinterpret_cast<Ecore_Wl2_Event_Selection_Data_Ready *>( event );
+    Ecore_Wl2_Event_Selection_Data_Ready* ev = reinterpret_cast<Ecore_Wl2_Event_Selection_Data_Ready*>(event);
 #else
-    Ecore_Wl_Event_Selection_Data_Ready *ev = reinterpret_cast<Ecore_Wl_Event_Selection_Data_Ready *>( event );
+    Ecore_Wl_Event_Selection_Data_Ready* ev = reinterpret_cast<Ecore_Wl_Event_Selection_Data_Ready*>(event);
 #endif
 
-    return reinterpret_cast<char *>( ev->data );
+    return reinterpret_cast<char*>(ev->data);
   }
 
   int GetCount()
   {
     Eldbus_Message *reply, *req;
-    const char *errname = NULL, *errmsg = NULL;
-    int count = -1;
+    const char *    errname = NULL, *errmsg = NULL;
+    int             count = -1;
 
-    if (!(req = eldbus_proxy_method_call_new(eldbus_proxy, "CbhmGetCount")))
+    if(!(req = eldbus_proxy_method_call_new(eldbus_proxy, "CbhmGetCount")))
     {
       DALI_LOG_ERROR("Failed to create method call on org.freedesktop.DBus.Properties.Get");
       return -1;
     }
 
     eldbus_message_ref(req);
-    eldbus_message_arguments_append(req, "i", CBHM_COUNT_ALL) ;
+    eldbus_message_arguments_append(req, "i", CBHM_COUNT_ALL);
     reply = eldbus_proxy_send_and_block(eldbus_proxy, req, 100);
-    if (!reply || eldbus_message_error_get(reply, &errname, &errmsg))
+    if(!reply || eldbus_message_error_get(reply, &errname, &errmsg))
     {
       DALI_LOG_ERROR("Unable to call method org.freedesktop.DBus.Properties.Get: %s %s",
-      errname, errmsg);
+                     errname,
+                     errmsg);
       eldbus_message_unref(req);
-      if( reply )
+      if(reply)
       {
         eldbus_message_unref(reply);
       }
       return -1;
     }
 
-    if (!eldbus_message_arguments_get(reply, "i", &count))
+    if(!eldbus_message_arguments_get(reply, "i", &count))
     {
       DALI_LOG_ERROR("Cannot get arguments from eldbus");
       eldbus_message_unref(req);
@@ -218,19 +220,19 @@ struct Clipboard::Impl
   {
     eldbus_proxy_call(cbhm_proxy_get(), "CbhmShow", NULL, NULL, -1, "s", "0");
     mIsFirstTimeHidden = true;
-    mVisible = true;
+    mVisible           = true;
   }
 
-  void HideClipboard( bool skipFirstHide )
+  void HideClipboard(bool skipFirstHide)
   {
-    if ( skipFirstHide && mIsFirstTimeHidden )
+    if(skipFirstHide && mIsFirstTimeHidden)
     {
       mIsFirstTimeHidden = false;
       return;
     }
     eldbus_proxy_call(cbhm_proxy_get(), "CbhmHide", NULL, NULL, -1, "");
     mIsFirstTimeHidden = false;
-    mVisible = false;
+    mVisible           = false;
   }
 
   bool IsVisible() const
@@ -238,17 +240,17 @@ struct Clipboard::Impl
     return mVisible;
   }
 
-  static void _on_item_clicked(void *data, const Eldbus_Message *msg EINA_UNUSED)
+  static void _on_item_clicked(void* data, const Eldbus_Message* msg EINA_UNUSED)
   {
     static_cast<Clipboard::Impl*>(data)->RequestItem();
   }
 
-  Eldbus_Proxy *eldbus_proxy;
-  Eldbus_Connection *cbhm_conn;
+  Eldbus_Proxy*      eldbus_proxy;
+  Eldbus_Connection* cbhm_conn;
 
   std::string mSendBuffer;
-  bool mVisible;
-  bool mIsFirstTimeHidden;
+  bool        mVisible;
+  bool        mIsFirstTimeHidden;
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -265,30 +267,30 @@ Dali::Clipboard Clipboard::Get()
 {
   Dali::Clipboard clipboard;
 
-  Dali::SingletonService service( SingletonService::Get() );
-  if ( service )
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton( typeid( Dali::Clipboard ) );
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard( dynamic_cast< Clipboard* >( handle.GetObjectPtr() ) );
+      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
     }
     else
     {
-      Clipboard::Impl* impl( new Clipboard::Impl() );
-      clipboard = Dali::Clipboard( new Clipboard(impl) );
-      service.Register( typeid(Dali::Clipboard), clipboard );
+      Clipboard::Impl* impl(new Clipboard::Impl());
+      clipboard = Dali::Clipboard(new Clipboard(impl));
+      service.Register(typeid(Dali::Clipboard), clipboard);
     }
   }
 
   return clipboard;
 }
 
-bool Clipboard::SetItem(const std::string &itemData )
+bool Clipboard::SetItem(const std::string& itemData)
 {
-  mImpl->SetItem( itemData );
+  mImpl->SetItem(itemData);
   return true;
 }
 
@@ -323,9 +325,9 @@ bool Clipboard::IsVisible() const
   return mImpl->IsVisible();
 }
 
-char* Clipboard::ExcuteBuffered( bool type, void *event )
+char* Clipboard::ExcuteBuffered(bool type, void* event)
 {
-  return (type ?  mImpl->ExcuteSend( event ) : mImpl->ExcuteReceive( event ));
+  return (type ? mImpl->ExcuteSend(event) : mImpl->ExcuteReceive(event));
 }
 
 } // namespace Adaptor

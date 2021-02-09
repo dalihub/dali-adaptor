@@ -23,22 +23,18 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace ThreadSettings
 {
-
 void SetThreadName(const std::string& threadName)
 {
   int err = prctl(PR_SET_NAME, threadName.c_str());
-  if ( err )
+  if(err)
   {
-    DALI_LOG_ERROR( "prctl(PR_SET_NAME, %s) failed\n", threadName.c_str() );
+    DALI_LOG_ERROR("prctl(PR_SET_NAME, %s) failed\n", threadName.c_str());
   }
 }
 

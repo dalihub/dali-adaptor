@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,10 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 /**
  * @brief Retrieves a table index for a given value.
  *
@@ -36,12 +33,12 @@ namespace Internal
  *
  * @return The index to the closest available value
  */
-int ValueToIndex( int value, const int* const table, unsigned int maxIndex );
+int ValueToIndex(int value, const int* const table, unsigned int maxIndex);
 
-} // Internal
+} // namespace Internal
 
-} // TextAbstraction
+} // namespace TextAbstraction
 
-} // Dali
+} // namespace Dali
 
 #endif // DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_HELPER_H

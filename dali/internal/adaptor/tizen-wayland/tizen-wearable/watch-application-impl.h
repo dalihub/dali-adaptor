@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WATCH_APPLICATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/public-api/watch/watch-application.h>
 #include <dali/internal/adaptor/common/application-impl.h>
+#include <dali/public-api/watch/watch-application.h>
 
 namespace Dali
 {
@@ -28,10 +28,8 @@ class Adaptor;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class WatchApplication;
 typedef IntrusivePtr<WatchApplication> WatchApplicationPtr;
 
@@ -60,7 +58,7 @@ public:
    * @param[in]  stylesheet  The path to user defined theme file
    * @param[in]  windowMode  A member of Dali::Watch::WINDOW_MODE
    */
-  static WatchApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  static WatchApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * Private Constructor
@@ -69,7 +67,7 @@ public:
    * @param[in]  stylesheet  The path to user defined theme file
    * @param[in]  windowMode  A member of Dali::Watch::WINDOW_MODE
    */
-  WatchApplication( int* argc, char **argv[], const std::string& stylesheet, WINDOW_MODE windowMode );
+  WatchApplication(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * Destructor
@@ -112,22 +110,20 @@ public:
   void OnAmbientChanged(bool ambient);
 
 private:
-
   // @brief Undefined copy constructor.
-  WatchApplication( const WatchApplication& );
+  WatchApplication(const WatchApplication&);
 
   // @brief Undefined assignment operator.
-  WatchApplication& operator=( const WatchApplication& );
+  WatchApplication& operator=(const WatchApplication&);
 
 public:
-
   // Signals
-  WatchTimeSignal                        mTickSignal;
-  WatchTimeSignal                        mAmbientTickSignal;
-  WatchBoolSignal                        mAmbientChangeSignal;
+  WatchTimeSignal mTickSignal;
+  WatchTimeSignal mAmbientTickSignal;
+  WatchBoolSignal mAmbientChangeSignal;
 
 private:
-  WatchApplicationState                  mState;
+  WatchApplicationState mState;
 };
 
 inline WatchApplication& GetImplementation(Dali::WatchApplication& watch)
@@ -147,7 +143,6 @@ inline const WatchApplication& GetImplementation(const Dali::WatchApplication& w
 
   return static_cast<const Internal::Adaptor::WatchApplication&>(handle);
 }
-
 
 } // namespace Adaptor
 

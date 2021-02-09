@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,22 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
 #include <dali/internal/sensor/common/tilt-sensor-factory.h>
+#include <dali/internal/sensor/tizen/tilt-sensor-impl-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <cmath>
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/object/type-registry.h>
+#include <cmath>
 
 namespace // unnamed namespace
 {
 const char* const SIGNAL_TILTED = "tilted";
 
-const float MAX_ORIENTATION_ROLL_VALUE = 90.f;
+const float MAX_ORIENTATION_ROLL_VALUE  = 90.f;
 const float MAX_ORIENTATION_PITCH_VALUE = 180.f;
-const float MAX_ACCELEROMETER_VALUE = 9.8f;
+const float MAX_ACCELEROMETER_VALUE     = 9.8f;
 
 // Type Registration
 Dali::BaseHandle Create()
@@ -39,25 +39,22 @@ Dali::BaseHandle Create()
   return Dali::Internal::Adaptor::TiltSensorFactory::Get();
 }
 
-Dali::TypeRegistration typeRegistration( typeid(Dali::TiltSensor), typeid(Dali::BaseHandle), Create );
+Dali::TypeRegistration typeRegistration(typeid(Dali::TiltSensor), typeid(Dali::BaseHandle), Create);
 
-Dali::SignalConnectorType signalConnector1( typeRegistration, SIGNAL_TILTED, Dali::Internal::Adaptor::TiltSensor::DoConnectSignal );
+Dali::SignalConnectorType signalConnector1(typeRegistration, SIGNAL_TILTED, Dali::Internal::Adaptor::TiltSensor::DoConnectSignal);
 
 } // unnamed namespace
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 #ifdef SENSOR_ENABLED
-static void sensor_changed_cb (sensor_h sensor, sensor_event_s *event, void *user_data)
+static void sensor_changed_cb(sensor_h sensor, sensor_event_s* event, void* user_data)
 {
-  TiltSensorTizen* tiltSensor = reinterpret_cast< TiltSensorTizen* >( user_data );
+  TiltSensorTizen* tiltSensor = reinterpret_cast<TiltSensorTizen*>(user_data);
 
   if(tiltSensor)
   {
@@ -119,9 +116,9 @@ bool TiltSensorTizen::Connect()
     Disconnect();
   }
 
-  const int interval = 1000/mFrequencyHertz;
+  const int interval = 1000 / mFrequencyHertz;
 
-  int ret = 0;
+  int  ret         = 0;
   bool isSupported = false;
 
   // try to use Orientation sensor at first for less power consumption.
@@ -203,20 +200,20 @@ void TiltSensorTizen::Disconnect()
       sensor_listener_stop(mSensorListener);
       sensor_destroy_listener(mSensorListener);
 #endif
-      mSensor = NULL;
+      mSensor         = NULL;
       mSensorListener = NULL;
-      mState = DISCONNECTED;
+      mState          = DISCONNECTED;
     }
   }
 }
 
 bool TiltSensorTizen::Start()
 {
-  if( mSensorListener && ( mState == CONNECTED || mState == STOPPED ) )
+  if(mSensorListener && (mState == CONNECTED || mState == STOPPED))
   {
 #ifdef SENSOR_ENABLED
     int ret = 0;
-    ret = sensor_listener_start(mSensorListener);
+    ret     = sensor_listener_start(mSensorListener);
     if(ret != SENSOR_ERROR_NONE)
     {
       DALI_LOG_ERROR("sensor_listener_start() failed : %s\n", get_sensor_error_string(ret).c_str());
@@ -230,7 +227,7 @@ bool TiltSensorTizen::Start()
   }
   else
   {
-    if( mState == STARTED )
+    if(mState == STARTED)
     {
       DALI_LOG_ERROR("TiltSensor is already started. Current state [%d]\n", mState);
     }
@@ -249,7 +246,7 @@ void TiltSensorTizen::Stop()
 #ifdef SENSOR_ENABLED
   if(mSensorListener && mState == STARTED)
   {
-    sensor_listener_stop( mSensorListener );
+    sensor_listener_stop(mSensorListener);
     mState = STOPPED;
   }
 #endif
@@ -257,7 +254,7 @@ void TiltSensorTizen::Stop()
 
 bool TiltSensorTizen::IsStarted() const
 {
-  return ( mSensorListener && mState == STARTED );
+  return (mSensorListener && mState == STARTED);
 }
 
 float TiltSensorTizen::GetRoll() const
@@ -280,18 +277,18 @@ TiltSensor::TiltedSignalType& TiltSensorTizen::TiltedSignal()
   return mTiltedSignal;
 }
 
-void TiltSensorTizen::SetUpdateFrequency( float frequencyHertz )
+void TiltSensorTizen::SetUpdateFrequency(float frequencyHertz)
 {
-  DALI_ASSERT_ALWAYS( frequencyHertz > 0.0f && "Frequency must have a positive value" );
+  DALI_ASSERT_ALWAYS(frequencyHertz > 0.0f && "Frequency must have a positive value");
 
-  if ( fabsf(mFrequencyHertz - frequencyHertz) >= GetRangedEpsilon(mFrequencyHertz, frequencyHertz) )
+  if(fabsf(mFrequencyHertz - frequencyHertz) >= GetRangedEpsilon(mFrequencyHertz, frequencyHertz))
   {
     mFrequencyHertz = frequencyHertz;
 
 #ifdef SENSOR_ENABLED
     if(mSensorListener)
     {
-      const int interval = 1000/mFrequencyHertz;
+      const int interval = 1000 / mFrequencyHertz;
       sensor_listener_set_interval(mSensorListener, interval);
     }
 #endif
@@ -313,14 +310,14 @@ Radian TiltSensorTizen::GetRotationThreshold() const
   return mRotationThreshold;
 }
 
-bool TiltSensorTizen::DoConnectSignal( BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor )
+bool TiltSensorTizen::DoConnectSignal(BaseObject* object, ConnectionTrackerInterface* tracker, const std::string& signalName, FunctorDelegate* functor)
 {
-  bool connected( true );
-  TiltSensor* sensor = dynamic_cast<TiltSensor*>( object );
+  bool        connected(true);
+  TiltSensor* sensor = dynamic_cast<TiltSensor*>(object);
 
-  if( sensor && SIGNAL_TILTED == signalName )
+  if(sensor && SIGNAL_TILTED == signalName)
   {
-    sensor->TiltedSignal().Connect( tracker, functor );
+    sensor->TiltedSignal().Connect(tracker, functor);
   }
   else
   {
@@ -333,34 +330,34 @@ bool TiltSensorTizen::DoConnectSignal( BaseObject* object, ConnectionTrackerInte
 
 TiltSensorTizen::TiltSensorTizen()
 : mState(DISCONNECTED),
-  mFrequencyHertz( Dali::TiltSensor::DEFAULT_UPDATE_FREQUENCY ),
-  mSensor( NULL ),
-  mSensorListener( NULL ),
-  mRoll( 0.0f ),
-  mPitch( 0.0f ),
-  mRotation( Radian(0.0f), Vector3::YAXIS ),
-  mRotationThreshold( 0.0f )
+  mFrequencyHertz(Dali::TiltSensor::DEFAULT_UPDATE_FREQUENCY),
+  mSensor(NULL),
+  mSensorListener(NULL),
+  mRoll(0.0f),
+  mPitch(0.0f),
+  mRotation(Radian(0.0f), Vector3::YAXIS),
+  mRotationThreshold(0.0f)
 {
   // connect sensor
   Connect();
 }
 
 #ifdef SENSOR_ENABLED
-void TiltSensorTizen::Update(sensor_event_s *event)
+void TiltSensorTizen::Update(sensor_event_s* event)
 {
-  Radian newRoll( 0.0f );
-  Radian newPitch( 0.0f );
+  Radian     newRoll(0.0f);
+  Radian     newPitch(0.0f);
   Quaternion newRotation;
 
   if(mSensorType == SENSOR_ORIENTATION)
   {
-    newRoll  = Clamp( float(event->values[2]  / MAX_ORIENTATION_ROLL_VALUE)  /* -90 < roll < 90 */, -1.0f/*min*/, 1.0f/*max*/ );
-    newPitch = Clamp( float(event->values[1] / MAX_ORIENTATION_PITCH_VALUE) /* -180 < pitch < 180 */, -1.0f/*min*/, 1.0f/*max*/ );
+    newRoll  = Clamp(float(event->values[2] / MAX_ORIENTATION_ROLL_VALUE) /* -90 < roll < 90 */, -1.0f /*min*/, 1.0f /*max*/);
+    newPitch = Clamp(float(event->values[1] / MAX_ORIENTATION_PITCH_VALUE) /* -180 < pitch < 180 */, -1.0f /*min*/, 1.0f /*max*/);
   }
   else if(mSensorType == SENSOR_ACCELEROMETER)
   {
-    newRoll  = Clamp( float(event->values[0] / MAX_ACCELEROMETER_VALUE), -1.0f/*min*/, 1.0f/*max*/ );
-    newPitch = Clamp( float(event->values[1] / MAX_ACCELEROMETER_VALUE), -1.0f/*min*/, 1.0f/*max*/ );
+    newRoll  = Clamp(float(event->values[0] / MAX_ACCELEROMETER_VALUE), -1.0f /*min*/, 1.0f /*max*/);
+    newPitch = Clamp(float(event->values[1] / MAX_ACCELEROMETER_VALUE), -1.0f /*min*/, 1.0f /*max*/);
   }
   else
   {
@@ -368,23 +365,23 @@ void TiltSensorTizen::Update(sensor_event_s *event)
     return;
   }
 
-  newRotation = Quaternion( Radian( newRoll * Math::PI * -0.5f ), Vector3::YAXIS ) *
-              Quaternion( Radian( newPitch * Math::PI * -0.5f ), Vector3::XAXIS );
+  newRotation = Quaternion(Radian(newRoll * Math::PI * -0.5f), Vector3::YAXIS) *
+                Quaternion(Radian(newPitch * Math::PI * -0.5f), Vector3::XAXIS);
 
   Radian angle(Quaternion::AngleBetween(newRotation, mRotation));
 
   // If the change in value is more than the threshold then emit tilted signal.
-  if( angle >= mRotationThreshold )
+  if(angle >= mRotationThreshold)
   {
-    mRoll = newRoll;
-    mPitch = newPitch;
+    mRoll     = newRoll;
+    mPitch    = newPitch;
     mRotation = newRotation;
 
     // emit signal
-    if ( !mTiltedSignal.Empty() )
+    if(!mTiltedSignal.Empty())
     {
-      Dali::TiltSensor handle( this );
-      mTiltedSignal.Emit( handle );
+      Dali::TiltSensor handle(this);
+      mTiltedSignal.Emit(handle);
     }
   }
 }

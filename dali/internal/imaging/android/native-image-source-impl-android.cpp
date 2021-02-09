@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,40 +25,36 @@
 
 // EXTERNAL INCLUDES
 #include <EGL/egl.h>
-#include <include/EGL/eglext.h>
 #include <dali/integration-api/debug.h>
+#include <include/EGL/eglext.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
-
 
 namespace
 {
 const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
-const char* SAMPLER_TYPE = "samplerExternalOES";
-}
-
+const char* SAMPLER_TYPE    = "samplerExternalOES";
+} // namespace
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceAndroid* NativeImageSourceAndroid::New( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceAndroid* NativeImageSourceAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
-  NativeImageSourceAndroid* image = new NativeImageSourceAndroid( width, height, depth, nativeImageSource );
-  DALI_ASSERT_DEBUG( image && "NativeImageSource allocation failed." );
+  NativeImageSourceAndroid* image = new NativeImageSourceAndroid(width, height, depth, nativeImageSource);
+  DALI_ASSERT_DEBUG(image && "NativeImageSource allocation failed.");
 
   // 2nd phase construction
-  if( image ) //< Defensive in case we ever compile without exceptions.
+  if(image) //< Defensive in case we ever compile without exceptions.
   {
     image->Initialize();
   }
@@ -66,36 +62,36 @@ NativeImageSourceAndroid* NativeImageSourceAndroid::New( uint32_t width, uint32_
   return image;
 }
 
-NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
-: mWidth( width ),
-  mHeight( height ),
-  mOwnPixmap( true ),
-  mPixmap( NULL ),
-  mBlendingRequired( false ),
-  mColorDepth( depth ),
-  mEglImageKHR( NULL ),
-  mEglImageExtensions( NULL )
+NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+: mWidth(width),
+  mHeight(height),
+  mOwnPixmap(true),
+  mPixmap(NULL),
+  mBlendingRequired(false),
+  mColorDepth(depth),
+  mEglImageKHR(NULL),
+  mEglImageExtensions(NULL)
 {
-  DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  GraphicsInterface* graphics = &( Adaptor::GetImplementation( Adaptor::Get() ).GetGraphicsInterface() );
-  auto eglGraphics = static_cast<EglGraphics*>( graphics );
+  GraphicsInterface* graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
 
   mEglImageExtensions = eglGraphics->GetImageExtensions();
 
-  DALI_ASSERT_DEBUG( mEglImageExtensions );
+  DALI_ASSERT_DEBUG(mEglImageExtensions);
 
   // assign the pixmap
-  mPixmap = static_cast<AHardwareBuffer*>( GetPixmapFromAny( nativeImageSource ) );
-  if( !mPixmap )
+  mPixmap = static_cast<AHardwareBuffer*>(GetPixmapFromAny(nativeImageSource));
+  if(!mPixmap)
   {
     AHardwareBuffer_Desc bufferDescription;
-    memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
-    bufferDescription.width = width;
+    memset(&bufferDescription, 0, sizeof(AHardwareBuffer_Desc));
+    bufferDescription.width  = width;
     bufferDescription.height = height;
     bufferDescription.layers = 1;
-    bufferDescription.usage = AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN | AHARDWAREBUFFER_USAGE_CPU_READ_RARELY | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
-    switch( mColorDepth )
+    bufferDescription.usage  = AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN | AHARDWAREBUFFER_USAGE_CPU_READ_RARELY | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
+    switch(mColorDepth)
     {
       case Dali::NativeImageSource::COLOR_DEPTH_32:
       case Dali::NativeImageSource::COLOR_DEPTH_DEFAULT:
@@ -112,8 +108,8 @@ NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t hei
         break;
     }
 
-    int ret = AHardwareBuffer_allocate( &bufferDescription, &mPixmap );
-    if( ret )
+    int ret = AHardwareBuffer_allocate(&bufferDescription, &mPixmap);
+    if(ret)
     {
       DALI_LOG_ERROR("Failed to allocate AHardwareBuffer %d", ret);
     }
@@ -124,9 +120,9 @@ NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t hei
 
 void NativeImageSourceAndroid::Initialize()
 {
-  if( mPixmap && !mOwnPixmap )
+  if(mPixmap && !mOwnPixmap)
   {
-    AHardwareBuffer_acquire( mPixmap ) ;
+    AHardwareBuffer_acquire(mPixmap);
 
     // find out the pixmap width / height and color depth
     GetPixmapDetails();
@@ -135,27 +131,27 @@ void NativeImageSourceAndroid::Initialize()
 
 NativeImageSourceAndroid::~NativeImageSourceAndroid()
 {
-  AHardwareBuffer_release( mPixmap );
+  AHardwareBuffer_release(mPixmap);
   mPixmap = NULL;
 }
 
 Any NativeImageSourceAndroid::GetNativeImageSource() const
 {
-  return Any( mPixmap );
+  return Any(mPixmap);
 }
 
 bool NativeImageSourceAndroid::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
-  DALI_ASSERT_DEBUG( sizeof(unsigned) == 4 );
+  DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
   bool success = false;
 
   width  = mWidth;
   height = mHeight;
 
   AHardwareBuffer_Desc bufferDescription;
-  memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
-  AHardwareBuffer_describe( mPixmap, &bufferDescription );
-  switch( bufferDescription.format )
+  memset(&bufferDescription, 0, sizeof(AHardwareBuffer_Desc));
+  AHardwareBuffer_describe(mPixmap, &bufferDescription);
+  switch(bufferDescription.format)
   {
     case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
       pixelFormat = Pixel::Format::RGBA8888;
@@ -176,40 +172,40 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<unsigned char>& pixbuf, uns
   }
 
   void* buffer = NULL;
-  int ret = AHardwareBuffer_lock( mPixmap, AHARDWAREBUFFER_USAGE_CPU_READ_RARELY, -1, NULL, &buffer );
-  if( ret != 0 )
+  int   ret    = AHardwareBuffer_lock(mPixmap, AHARDWAREBUFFER_USAGE_CPU_READ_RARELY, -1, NULL, &buffer);
+  if(ret != 0)
   {
     DALI_LOG_ERROR("Failed to AHardwareBuffer_lock %d", ret);
     return success;
   }
 
   uint32_t pixelBytes = GetBytesPerPixel(pixelFormat);
-  if ( bufferDescription.stride < (pixelBytes * bufferDescription.width) )
+  if(bufferDescription.stride < (pixelBytes * bufferDescription.width))
   {
     //On Android device, bufferDescription.stride doesn't seem to mean (width * pixelbytes)
     //in an actual case, (AHardwareBuffer_Desc) bufferDescription = (width = 1080, height = 1060, layers = 1, format = 1, usage = 306, stride = 1088, rfu0 = 0, rfu1 = 0)
     //deal with situation
     uint32_t dstStride = pixelBytes * bufferDescription.width;
     uint32_t srcStride = pixelBytes * bufferDescription.stride;
-    uint32_t size = dstStride * bufferDescription.height;
-    pixbuf.resize( size );
+    uint32_t size      = dstStride * bufferDescription.height;
+    pixbuf.resize(size);
     //copy each row over
     const unsigned char* ptrSrc = reinterpret_cast<const unsigned char*>(buffer);
-    unsigned char* ptrDst = pixbuf.data();
-    for (int y=0; y < bufferDescription.height; y++, ptrSrc += srcStride, ptrDst += dstStride )
+    unsigned char*       ptrDst = pixbuf.data();
+    for(int y = 0; y < bufferDescription.height; y++, ptrSrc += srcStride, ptrDst += dstStride)
     {
-      memcpy( ptrDst, ptrSrc, dstStride );
+      memcpy(ptrDst, ptrSrc, dstStride);
     }
   }
   else
   {
     uint32_t size = bufferDescription.stride * bufferDescription.height;
-    pixbuf.resize( size );
-    memcpy( pixbuf.data(), buffer, size );
+    pixbuf.resize(size);
+    memcpy(pixbuf.data(), buffer, size);
   }
 
-  ret = AHardwareBuffer_unlock( mPixmap, NULL );
-  if( ret != 0 )
+  ret = AHardwareBuffer_unlock(mPixmap, NULL);
+  if(ret != 0)
   {
     DALI_LOG_ERROR("failed to AHardwareBuffer_unlock %d", ret);
     return success;
@@ -219,19 +215,19 @@ bool NativeImageSourceAndroid::GetPixels(std::vector<unsigned char>& pixbuf, uns
   return success;
 }
 
-void NativeImageSourceAndroid::SetSource( Any source )
+void NativeImageSourceAndroid::SetSource(Any source)
 {
-  if( mPixmap )
+  if(mPixmap)
   {
     mOwnPixmap = false;
 
-    AHardwareBuffer_release( mPixmap );
+    AHardwareBuffer_release(mPixmap);
     mPixmap = NULL;
   }
 
-  mPixmap = static_cast<AHardwareBuffer*>( GetPixmapFromAny( source ) );
+  mPixmap = static_cast<AHardwareBuffer*>(GetPixmapFromAny(source));
 
-  if( mPixmap )
+  if(mPixmap)
   {
     // we don't own the pixmap
     mOwnPixmap = false;
@@ -241,7 +237,7 @@ void NativeImageSourceAndroid::SetSource( Any source )
   }
 }
 
-bool NativeImageSourceAndroid::IsColorDepthSupported( Dali::NativeImageSource::ColorDepth colorDepth )
+bool NativeImageSourceAndroid::IsColorDepthSupported(Dali::NativeImageSource::ColorDepth colorDepth)
 {
   return true;
 }
@@ -249,57 +245,57 @@ bool NativeImageSourceAndroid::IsColorDepthSupported( Dali::NativeImageSource::C
 bool NativeImageSourceAndroid::CreateResource()
 {
   // if the image existed previously delete it.
-  if( mEglImageKHR != NULL )
+  if(mEglImageKHR != NULL)
   {
     DestroyResource();
   }
 
-  DALI_ASSERT_ALWAYS( mPixmap );
-  EGLClientBuffer eglBuffer = eglGetNativeClientBufferANDROID( mPixmap );
-  switch( eglGetError() )
+  DALI_ASSERT_ALWAYS(mPixmap);
+  EGLClientBuffer eglBuffer = eglGetNativeClientBufferANDROID(mPixmap);
+  switch(eglGetError())
   {
-    case EGL_SUCCESS :
+    case EGL_SUCCESS:
     {
       break;
     }
     case EGL_BAD_PARAMETER:
     {
-      DALI_LOG_ERROR( "EGL_BAD_PARAMETER: bad pixmap parameter\n" );
+      DALI_LOG_ERROR("EGL_BAD_PARAMETER: bad pixmap parameter\n");
       break;
     }
     case EGL_BAD_ACCESS:
     {
-      DALI_LOG_ERROR( "EGL_BAD_ACCESS: bad access to pixmap\n" );
+      DALI_LOG_ERROR("EGL_BAD_ACCESS: bad access to pixmap\n");
       break;
     }
     case EGL_BAD_ALLOC:
     {
-      DALI_LOG_ERROR( "EGL_BAD_ALLOC: Insufficient memory is available\n" );
+      DALI_LOG_ERROR("EGL_BAD_ALLOC: Insufficient memory is available\n");
       break;
     }
     default:
     {
-      DALI_LOG_ERROR( "eglGetNativeClientBufferANDROID error\n" );
+      DALI_LOG_ERROR("eglGetNativeClientBufferANDROID error\n");
       break;
     }
   }
 
-  DALI_ASSERT_ALWAYS( eglBuffer );
-  mEglImageKHR = mEglImageExtensions->CreateImageKHR( eglBuffer );
+  DALI_ASSERT_ALWAYS(eglBuffer);
+  mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
 
   return mEglImageKHR != NULL;
 }
 
 void NativeImageSourceAndroid::DestroyResource()
 {
-  mEglImageExtensions->DestroyImageKHR( mEglImageKHR );
+  mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
 }
 
 uint32_t NativeImageSourceAndroid::TargetTexture()
 {
-  mEglImageExtensions->TargetTextureKHR( mEglImageKHR );
+  mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 
   return 0;
 }
@@ -323,15 +319,14 @@ const char* NativeImageSourceAndroid::GetCustomSamplerTypename() const
   return nullptr;
 }
 
-
 void* NativeImageSourceAndroid::GetPixmapFromAny(Any pixmap) const
 {
-  if( pixmap.Empty() )
+  if(pixmap.Empty())
   {
     return 0;
   }
 
-  return AnyCast<void*>( pixmap );
+  return AnyCast<void*>(pixmap);
 }
 
 void NativeImageSourceAndroid::GetPixmapDetails()
@@ -340,40 +335,40 @@ void NativeImageSourceAndroid::GetPixmapDetails()
   mBlendingRequired = false;
 
   AHardwareBuffer_Desc bufferDescription;
-  memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
-  AHardwareBuffer_describe( mPixmap, &bufferDescription );
+  memset(&bufferDescription, 0, sizeof(AHardwareBuffer_Desc));
+  AHardwareBuffer_describe(mPixmap, &bufferDescription);
 
-  mWidth = bufferDescription.width;
+  mWidth  = bufferDescription.width;
   mHeight = bufferDescription.height;
-  switch (bufferDescription.format)
+  switch(bufferDescription.format)
   {
-  case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
-    mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_32;
-    break;
-  case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
-    mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_24;
-    break;
-  case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
-    mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_16;
-    break;
-  case AHARDWAREBUFFER_FORMAT_BLOB:
-  default:
-    mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_8;
+    case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+      mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_32;
+      break;
+    case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
+      mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_24;
+      break;
+    case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
+      mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_16;
+      break;
+    case AHARDWAREBUFFER_FORMAT_BLOB:
+    default:
+      mColorDepth = Dali::NativeImageSource::COLOR_DEPTH_8;
   }
 }
 
-uint8_t* NativeImageSourceAndroid::AcquireBuffer( uint16_t& width, uint16_t& height, uint16_t& stride )
+uint8_t* NativeImageSourceAndroid::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
 {
-  if( mPixmap )
+  if(mPixmap)
   {
     AHardwareBuffer_Desc bufferDescription;
-    memset( &bufferDescription, 0, sizeof( AHardwareBuffer_Desc ) );
-    AHardwareBuffer_describe( mPixmap, &bufferDescription );
+    memset(&bufferDescription, 0, sizeof(AHardwareBuffer_Desc));
+    AHardwareBuffer_describe(mPixmap, &bufferDescription);
 
     void* buffer = NULL;
-    if( AHardwareBuffer_lock( mPixmap, AHARDWAREBUFFER_USAGE_CPU_READ_RARELY, -1, NULL, &buffer ) != 0 )
+    if(AHardwareBuffer_lock(mPixmap, AHARDWAREBUFFER_USAGE_CPU_READ_RARELY, -1, NULL, &buffer) != 0)
     {
-      DALI_LOG_ERROR( "Failed to AHardwareBuffer_lock\n" );
+      DALI_LOG_ERROR("Failed to AHardwareBuffer_lock\n");
       return NULL;
     }
 
@@ -381,20 +376,19 @@ uint8_t* NativeImageSourceAndroid::AcquireBuffer( uint16_t& width, uint16_t& hei
     width  = bufferDescription.width;
     height = bufferDescription.height;
 
-    return static_cast< uint8_t* >( buffer );
+    return static_cast<uint8_t*>(buffer);
   }
 
   return NULL;
 }
 
-
 bool NativeImageSourceAndroid::ReleaseBuffer()
 {
-  if( mPixmap )
+  if(mPixmap)
   {
-    if( AHardwareBuffer_unlock( mPixmap, NULL ) != 0 )
+    if(AHardwareBuffer_unlock(mPixmap, NULL) != 0)
     {
-      DALI_LOG_ERROR( "failed to AHardwareBuffer_unlock\n" );
+      DALI_LOG_ERROR("failed to AHardwareBuffer_unlock\n");
       return false;
     }
     return true;
@@ -404,6 +398,6 @@ bool NativeImageSourceAndroid::ReleaseBuffer()
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

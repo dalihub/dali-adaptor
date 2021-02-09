@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,31 +25,26 @@
 
 // INTERNAL INCLUDES
 
-
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Structure contains the callback function and control options
  */
 struct CallbackData
 {
-
   /**
    * Constructor
    */
-  CallbackData( CallbackBase* callback, bool hasReturnValue )
-  :  mCallback( callback ),
-     mRemoveFromContainerFunction( NULL ),
-     mIdler( NULL ),
-     mIdleEnterer( NULL ),
-     mHasReturnValue( hasReturnValue )
+  CallbackData(CallbackBase* callback, bool hasReturnValue)
+  : mCallback(callback),
+    mRemoveFromContainerFunction(NULL),
+    mIdler(NULL),
+    mIdleEnterer(NULL),
+    mHasReturnValue(hasReturnValue)
   {
   }
   /**
@@ -61,29 +56,28 @@ struct CallbackData
     delete mRemoveFromContainerFunction;
   }
 
-  CallbackBase*                   mCallback;       ///< call back
-  CallbackBase*                   mRemoveFromContainerFunction; ///< Called to remove the callbackdata from the callback container
-  Ecore_Idler*                    mIdler;          ///< ecore idler
-  Ecore_Idle_Enterer*             mIdleEnterer;    ///< ecore idle enterer
-  bool                            mHasReturnValue; ///< true if the callback function has a return value.
+  CallbackBase*       mCallback;                    ///< call back
+  CallbackBase*       mRemoveFromContainerFunction; ///< Called to remove the callbackdata from the callback container
+  Ecore_Idler*        mIdler;                       ///< ecore idler
+  Ecore_Idle_Enterer* mIdleEnterer;                 ///< ecore idle enterer
+  bool                mHasReturnValue;              ///< true if the callback function has a return value.
 };
 
 namespace
 {
-
 /**
  * Called from the main thread while idle.
  */
-Eina_Bool IdleCallback(void *data)
+Eina_Bool IdleCallback(void* data)
 {
-  Eina_Bool ret = ECORE_CALLBACK_CANCEL;    // CALLBACK Cancel will delete the idler so we don't need to call ecore_idler_del
-  CallbackData *callbackData = static_cast< CallbackData * >( data );
+  Eina_Bool     ret          = ECORE_CALLBACK_CANCEL; // CALLBACK Cancel will delete the idler so we don't need to call ecore_idler_del
+  CallbackData* callbackData = static_cast<CallbackData*>(data);
 
-  if( callbackData->mHasReturnValue )
+  if(callbackData->mHasReturnValue)
   {
     // run the function
-    bool retValue = CallbackBase::ExecuteReturn< bool >( *callbackData->mCallback );
-    if( retValue )
+    bool retValue = CallbackBase::ExecuteReturn<bool>(*callbackData->mCallback);
+    if(retValue)
     {
       // keep the callback
       ret = ECORE_CALLBACK_RENEW;
@@ -91,7 +85,7 @@ Eina_Bool IdleCallback(void *data)
     else
     {
       // remove callback data from the container
-      CallbackBase::Execute( *callbackData->mRemoveFromContainerFunction, callbackData );
+      CallbackBase::Execute(*callbackData->mRemoveFromContainerFunction, callbackData);
 
       // delete our data
       delete callbackData;
@@ -100,10 +94,10 @@ Eina_Bool IdleCallback(void *data)
   else
   {
     // remove callback data from the container
-    CallbackBase::Execute( *callbackData->mRemoveFromContainerFunction, callbackData );
+    CallbackBase::Execute(*callbackData->mRemoveFromContainerFunction, callbackData);
 
     // run the function
-    CallbackBase::Execute( *callbackData->mCallback );
+    CallbackBase::Execute(*callbackData->mCallback);
 
     // delete our data
     delete callbackData;
@@ -115,14 +109,13 @@ Eina_Bool IdleCallback(void *data)
 } // unnamed namespace
 
 EcoreCallbackManager::EcoreCallbackManager()
-:mRunning(false)
+: mRunning(false)
 {
 }
 
-
 void EcoreCallbackManager::Start()
 {
-  DALI_ASSERT_DEBUG( mRunning == false );
+  DALI_ASSERT_DEBUG(mRunning == false);
 
   mRunning = true;
 }
@@ -130,51 +123,50 @@ void EcoreCallbackManager::Start()
 void EcoreCallbackManager::Stop()
 {
   // make sure we're not called twice
-  DALI_ASSERT_DEBUG( mRunning == true );
+  DALI_ASSERT_DEBUG(mRunning == true);
 
   RemoveAllCallbacks();
 
   mRunning = false;
-
 }
 
-bool EcoreCallbackManager::AddIdleCallback( CallbackBase* callback, bool hasReturnValue )
+bool EcoreCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasReturnValue)
 {
-  if( !mRunning )
+  if(!mRunning)
   {
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData( callback, hasReturnValue );
+  CallbackData* callbackData = new CallbackData(callback, hasReturnValue);
 
-  callbackData->mRemoveFromContainerFunction =  MakeCallback( this, &EcoreCallbackManager::RemoveCallbackFromContainer );
+  callbackData->mRemoveFromContainerFunction = MakeCallback(this, &EcoreCallbackManager::RemoveCallbackFromContainer);
 
   // add the call back to the container
   mCallbackContainer.push_front(callbackData);
 
   // add the idler
-  callbackData->mIdler = ecore_idler_add( IdleCallback, callbackData);
+  callbackData->mIdler = ecore_idler_add(IdleCallback, callbackData);
 
-  DALI_ASSERT_ALWAYS( ( callbackData->mIdler != NULL ) && "Idle method not created" );
+  DALI_ASSERT_ALWAYS((callbackData->mIdler != NULL) && "Idle method not created");
 
   return true;
 }
 
-void EcoreCallbackManager::RemoveIdleCallback( CallbackBase* callback )
+void EcoreCallbackManager::RemoveIdleCallback(CallbackBase* callback)
 {
-  for( CallbackList::iterator it = mCallbackContainer.begin(),
-         endIt = mCallbackContainer.end();
-       it != endIt;
-       ++it )
+  for(CallbackList::iterator it    = mCallbackContainer.begin(),
+                             endIt = mCallbackContainer.end();
+      it != endIt;
+      ++it)
   {
     CallbackData* data = *it;
 
-    if( data->mCallback == callback )
+    if(data->mCallback == callback)
     {
       // remove callback data from the container.
-      CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
+      CallbackBase::Execute(*data->mRemoveFromContainerFunction, data);
 
-      ecore_idler_del( data->mIdler );
+      ecore_idler_del(data->mIdler);
 
       // delete our data
       delete data;
@@ -195,43 +187,43 @@ void EcoreCallbackManager::ClearIdleCallbacks()
   // @todo To be implemented.
 }
 
-bool EcoreCallbackManager::AddIdleEntererCallback( CallbackBase* callback )
+bool EcoreCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
 {
-  if( !mRunning )
+  if(!mRunning)
   {
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData( callback, true );
+  CallbackData* callbackData = new CallbackData(callback, true);
 
-  callbackData->mRemoveFromContainerFunction = MakeCallback( this, &EcoreCallbackManager::RemoveCallbackFromContainer );
+  callbackData->mRemoveFromContainerFunction = MakeCallback(this, &EcoreCallbackManager::RemoveCallbackFromContainer);
 
   // add the call back to the container
-  mCallbackContainer.push_front( callbackData );
+  mCallbackContainer.push_front(callbackData);
 
   // add the idler
-  callbackData->mIdleEnterer = ecore_idle_enterer_add( IdleCallback, callbackData );
+  callbackData->mIdleEnterer = ecore_idle_enterer_add(IdleCallback, callbackData);
 
-  DALI_ASSERT_ALWAYS( ( callbackData->mIdleEnterer != NULL ) && "Idle method not created" );
+  DALI_ASSERT_ALWAYS((callbackData->mIdleEnterer != NULL) && "Idle method not created");
 
   return true;
 }
 
-void EcoreCallbackManager::RemoveIdleEntererCallback( CallbackBase* callback )
+void EcoreCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
 {
-  for( CallbackList::iterator it = mCallbackContainer.begin(),
-         endIt = mCallbackContainer.end();
-       it != endIt;
-       ++it )
+  for(CallbackList::iterator it    = mCallbackContainer.begin(),
+                             endIt = mCallbackContainer.end();
+      it != endIt;
+      ++it)
   {
     CallbackData* data = *it;
 
-    if( data->mCallback == callback )
+    if(data->mCallback == callback)
     {
       // remove callback data from the container.
-      CallbackBase::Execute( *data->mRemoveFromContainerFunction, data );
+      CallbackBase::Execute(*data->mRemoveFromContainerFunction, data);
 
-      ecore_idle_enterer_del( data->mIdleEnterer );
+      ecore_idle_enterer_del(data->mIdleEnterer);
 
       // delete our data
       delete data;
@@ -241,7 +233,7 @@ void EcoreCallbackManager::RemoveIdleEntererCallback( CallbackBase* callback )
   }
 }
 
-void EcoreCallbackManager::RemoveCallbackFromContainer(CallbackData *callbackData)
+void EcoreCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData)
 {
   mCallbackContainer.remove(callbackData);
 }
@@ -249,17 +241,17 @@ void EcoreCallbackManager::RemoveCallbackFromContainer(CallbackData *callbackDat
 void EcoreCallbackManager::RemoveAllCallbacks()
 {
   // always called from main thread
-  for( CallbackList::iterator  iter =  mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter)
+  for(CallbackList::iterator iter = mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter)
   {
     CallbackData* data = (*iter);
 
-    if( data->mIdler )
+    if(data->mIdler)
     {
-      ecore_idler_del( data->mIdler );
+      ecore_idler_del(data->mIdler);
     }
-    else if( data->mIdleEnterer )
+    else if(data->mIdleEnterer)
     {
-      ecore_idle_enterer_del( data->mIdleEnterer );
+      ecore_idle_enterer_del(data->mIdleEnterer);
     }
 
     delete data;

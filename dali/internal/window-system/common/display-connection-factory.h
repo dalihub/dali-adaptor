@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_FACTORY_H
 
 /*
- * Copyright (c) 2017 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,17 +26,14 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 class DisplayConnection;
 class DisplayConnectionFactory
 {
 public:
-
-  DisplayConnectionFactory() = default;
+  DisplayConnectionFactory()          = default;
   virtual ~DisplayConnectionFactory() = default;
 
   virtual std::unique_ptr<Dali::Internal::Adaptor::DisplayConnection> CreateDisplayConnection() = 0;
-
 };
 
 extern std::unique_ptr<DisplayConnectionFactory> GetDisplayConnectionFactory();

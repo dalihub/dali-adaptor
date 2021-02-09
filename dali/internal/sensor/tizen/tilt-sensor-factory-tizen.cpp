@@ -19,25 +19,21 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TiltSensorFactory
 {
-
 Dali::Internal::Adaptor::TiltSensor* Create()
 {
   return Dali::Internal::Adaptor::TiltSensorTizen::New();
 }
 
-} // TiltSensorFactory
+} // namespace TiltSensorFactory
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,25 +15,21 @@
  *
  */
 
-#include <dali/internal/trace/common/trace-factory.h>
 #include <dali/internal/trace/android/trace-manager-impl-android.h>
+#include <dali/internal/trace/common/trace-factory.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TraceManagerFactory
 {
-
 // TraceManager Factory to be implemented by the platform
-TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface )
+TraceManagerUPtr CreateTraceFactory(PerformanceInterface* performanceInterface)
 {
-  return TraceManagerUPtr( new Dali::Internal::Adaptor::TraceManagerAndroid( performanceInterface ) );
+  return TraceManagerUPtr(new Dali::Internal::Adaptor::TraceManagerAndroid(performanceInterface));
 }
 
 } // namespace TraceManagerFactory
@@ -42,4 +38,4 @@ TraceManagerUPtr CreateTraceFactory( PerformanceInterface* performanceInterface 
 
 } // namespace Internal
 
-} // namespace Dali // namespace Dali
+} // namespace Dali

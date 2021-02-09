@@ -2,7 +2,7 @@
 #define DALI_FILE_LOADER_IMPL_GENERIC_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 int ReadFile(const std::string& filename, Dali::Vector<char>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
 
 int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, Dali::FileLoader::FileType fileType = Dali::FileLoader::BINARY);
@@ -40,9 +37,9 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
 
 std::streampos GetFileSize(const std::string& filename);
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali
 #endif // DALI_FILE_LOADER_IMPL_GENERIC_H

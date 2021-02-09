@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,14 @@
  */
 
 // EXTERNAL INCLUDES
-#include <iostream>
-#include <dali/public-api/dali-core.h>
 #include <dali/devel-api/adaptor-framework/orientation.h>
+#include <dali/public-api/dali-core.h>
+#include <iostream>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/adaptor-framework/application.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 
 using namespace Dali;
 
@@ -34,13 +34,12 @@ using namespace Dali;
 class LinkerApp : public ConnectionTracker
 {
 public:
-  LinkerApp(Application &app)
+  LinkerApp(Application& app)
   {
     app.InitSignal().Connect(this, &LinkerApp::Create);
   }
 
 public:
-
   void Create(Application& app)
   {
   }
@@ -48,14 +47,13 @@ public:
 
 /*****************************************************************************/
 
-int
-main(int argc, char **argv)
+int main(int argc, char** argv)
 {
   try
   {
     Application app = Application::New(&argc, &argv);
 
-    LinkerApp linkerApp (app);
+    LinkerApp linkerApp(app);
     app.MainLoop();
   }
   catch(...)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,12 @@
 #include <dali/internal/input/ubuntu-x11/input-method-context-impl-x.h>
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/events/key-event.h>
-#include <dali/public-api/object/type-registry.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/events/key-event.h>
+#include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/key.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/input/common/key-impl.h>
@@ -35,16 +34,14 @@
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/public-api/adaptor-framework/key.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
 #if defined(DEBUG_ENABLED)
@@ -56,27 +53,27 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 {
   size_t length = 0;
 
-  if( ( leadByte & 0x80 ) == 0 )         //ASCII character (lead bit zero)
+  if((leadByte & 0x80) == 0) //ASCII character (lead bit zero)
   {
     length = 1;
   }
-  else if( ( leadByte & 0xe0 ) == 0xc0 ) //110x xxxx
+  else if((leadByte & 0xe0) == 0xc0) //110x xxxx
   {
     length = 2;
   }
-  else if( ( leadByte & 0xf0 ) == 0xe0 ) //1110 xxxx
+  else if((leadByte & 0xf0) == 0xe0) //1110 xxxx
   {
     length = 3;
   }
-  else if( ( leadByte & 0xf8 ) == 0xf0 ) //1111 0xxx
+  else if((leadByte & 0xf8) == 0xf0) //1111 0xxx
   {
     length = 4;
   }
-  else if( ( leadByte & 0xfc ) == 0xf8 ) //1111 10xx
+  else if((leadByte & 0xfc) == 0xf8) //1111 10xx
   {
     length = 5;
   }
-  else if( ( leadByte & 0xfe ) == 0xfc ) //1111 110x
+  else if((leadByte & 0xfe) == 0xfc) //1111 110x
   {
     length = 6;
   }
@@ -85,30 +82,30 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
 }
 
 // Static function calls used by ecore 'c' style callback registration
-void Commit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
+void Commit(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
 {
-  if ( data )
+  if(data)
   {
-    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
-    inputMethodContext->CommitReceived( data, imfContext, eventInfo );
+    InputMethodContextX* inputMethodContext = static_cast<InputMethodContextX*>(data);
+    inputMethodContext->CommitReceived(data, imfContext, eventInfo);
   }
 }
 
-void PreEdit( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
+void PreEdit(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
 {
-  if ( data )
+  if(data)
   {
-    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
-    inputMethodContext->PreEditChanged( data, imfContext, eventInfo );
+    InputMethodContextX* inputMethodContext = static_cast<InputMethodContextX*>(data);
+    inputMethodContext->PreEditChanged(data, imfContext, eventInfo);
   }
 }
 
-Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char** text, int* cursorPosition )
+Eina_Bool ImfRetrieveSurrounding(void* data, Ecore_IMF_Context* imfContext, char** text, int* cursorPosition)
 {
-  if ( data )
+  if(data)
   {
-    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
-    return inputMethodContext->RetrieveSurrounding( data, imfContext, text, cursorPosition );
+    InputMethodContextX* inputMethodContext = static_cast<InputMethodContextX*>(data);
+    return inputMethodContext->RetrieveSurrounding(data, imfContext, text, cursorPosition);
   }
   else
   {
@@ -120,24 +117,24 @@ Eina_Bool ImfRetrieveSurrounding(void *data, Ecore_IMF_Context *imfContext, char
  * Called when an InputMethodContext delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void ImfDeleteSurrounding( void *data, Ecore_IMF_Context *imfContext, void *eventInfo )
+void ImfDeleteSurrounding(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
 {
-  if ( data )
+  if(data)
   {
-    InputMethodContextX* inputMethodContext = static_cast< InputMethodContextX* >( data );
-    inputMethodContext->DeleteSurrounding( data, imfContext, eventInfo );
+    InputMethodContextX* inputMethodContext = static_cast<InputMethodContextX*>(data);
+    inputMethodContext->DeleteSurrounding(data, imfContext, eventInfo);
   }
 }
 
 } // unnamed namespace
 
-InputMethodContextPtr InputMethodContextX::New( Dali::Actor actor )
+InputMethodContextPtr InputMethodContextX::New(Dali::Actor actor)
 {
   InputMethodContextPtr manager;
 
-  if( actor && Dali::Adaptor::IsAvailable() )
+  if(actor && Dali::Adaptor::IsAvailable())
   {
-    manager = new InputMethodContextX( actor );
+    manager = new InputMethodContextX(actor);
   }
 
   return manager;
@@ -145,23 +142,23 @@ InputMethodContextPtr InputMethodContextX::New( Dali::Actor actor )
 
 void InputMethodContextX::Finalize()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::Finalize\n" );
-  VirtualKeyboard::DisconnectCallbacks( mIMFContext );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::Finalize\n");
+  VirtualKeyboard::DisconnectCallbacks(mIMFContext);
   DisconnectCallbacks();
   DeleteContext();
 }
 
-InputMethodContextX::InputMethodContextX( Dali::Actor actor )
+InputMethodContextX::InputMethodContextX(Dali::Actor actor)
 : mIMFContext(),
-  mEcoreXwin( 0 ),
-  mIMFCursorPosition( 0 ),
+  mEcoreXwin(0),
+  mIMFCursorPosition(0),
   mSurroundingText(),
-  mRestoreAfterFocusLost( false ),
-  mIdleCallbackConnected( false )
+  mRestoreAfterFocusLost(false),
+  mIdleCallbackConnected(false)
 {
   ecore_imf_init();
 
-  actor.OnSceneSignal().Connect( this, &InputMethodContextX::OnStaged );
+  actor.OnSceneSignal().Connect(this, &InputMethodContextX::OnStaged);
 }
 
 InputMethodContextX::~InputMethodContextX()
@@ -174,45 +171,45 @@ void InputMethodContextX::Initialize()
 {
   CreateContext();
   ConnectCallbacks();
-  VirtualKeyboard::ConnectCallbacks( mIMFContext );
+  VirtualKeyboard::ConnectCallbacks(mIMFContext);
 }
 
 void InputMethodContextX::CreateContext()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::CreateContext\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::CreateContext\n");
 
-  if( !mEcoreXwin )
+  if(!mEcoreXwin)
   {
     return;
   }
 
-  const char *contextId = ecore_imf_context_default_id_get();
-  if( contextId )
+  const char* contextId = ecore_imf_context_default_id_get();
+  if(contextId)
   {
-    mIMFContext = ecore_imf_context_add( contextId );
+    mIMFContext = ecore_imf_context_add(contextId);
 
-    if( mIMFContext )
+    if(mIMFContext)
     {
-      ecore_imf_context_client_window_set( mIMFContext, reinterpret_cast<void*>( mEcoreXwin ) );
+      ecore_imf_context_client_window_set(mIMFContext, reinterpret_cast<void*>(mEcoreXwin));
     }
     else
     {
-      DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContext Unable to get IMFContext\n");
+      DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContext Unable to get IMFContext\n");
     }
   }
   else
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContext Unable to get IMFContext\n");
+    DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContext Unable to get IMFContext\n");
   }
 }
 
 void InputMethodContextX::DeleteContext()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::DeleteContext\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::DeleteContext\n");
 
-  if ( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_del( mIMFContext );
+    ecore_imf_context_del(mIMFContext);
     mIMFContext = NULL;
   }
 }
@@ -220,27 +217,27 @@ void InputMethodContextX::DeleteContext()
 // Callbacks for predicitive text support.
 void InputMethodContextX::ConnectCallbacks()
 {
-  if ( mIMFContext )
+  if(mIMFContext)
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::ConnectCallbacks\n" );
+    DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::ConnectCallbacks\n");
 
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,    PreEdit,    this );
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit,     this );
-    ecore_imf_context_event_callback_add( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this );
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit, this);
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_COMMIT, Commit, this);
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
 
-    ecore_imf_context_retrieve_surrounding_callback_set( mIMFContext, ImfRetrieveSurrounding, this);
+    ecore_imf_context_retrieve_surrounding_callback_set(mIMFContext, ImfRetrieveSurrounding, this);
   }
 }
 
 void InputMethodContextX::DisconnectCallbacks()
 {
-  if ( mIMFContext )
+  if(mIMFContext)
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::DisconnectCallbacks\n" );
+    DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::DisconnectCallbacks\n");
 
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED,    PreEdit );
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_COMMIT,             Commit );
-    ecore_imf_context_event_callback_del( mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding );
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_PREEDIT_CHANGED, PreEdit);
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_COMMIT, Commit);
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding);
 
     // We do not need to unset the retrieve surrounding callback.
   }
@@ -251,26 +248,26 @@ void InputMethodContextX::Activate()
   // Reset mIdleCallbackConnected
   mIdleCallbackConnected = false;
 
-  if ( mIMFContext )
+  if(mIMFContext)
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::Activate\n" );
+    DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::Activate\n");
 
-    ecore_imf_context_focus_in( mIMFContext );
+    ecore_imf_context_focus_in(mIMFContext);
 
     // emit keyboard activated signal
-    Dali::InputMethodContext handle( this );
-    mActivatedSignal.Emit( handle );
+    Dali::InputMethodContext handle(this);
+    mActivatedSignal.Emit(handle);
   }
 }
 
 void InputMethodContextX::Deactivate()
 {
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::Deactivate\n" );
+    DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::Deactivate\n");
 
     Reset();
-    ecore_imf_context_focus_out( mIMFContext );
+    ecore_imf_context_focus_out(mIMFContext);
   }
 
   // Reset mIdleCallbackConnected
@@ -279,17 +276,17 @@ void InputMethodContextX::Deactivate()
 
 void InputMethodContextX::Reset()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::Reset\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::Reset\n");
 
-  if ( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_reset( mIMFContext );
+    ecore_imf_context_reset(mIMFContext);
   }
 }
 
 ImfContext* InputMethodContextX::GetContext()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetContext\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetContext\n");
 
   return mIMFContext;
 }
@@ -299,7 +296,7 @@ bool InputMethodContextX::RestoreAfterFocusLost() const
   return mRestoreAfterFocusLost;
 }
 
-void InputMethodContextX::SetRestoreAfterFocusLost( bool toggle )
+void InputMethodContextX::SetRestoreAfterFocusLost(bool toggle)
 {
   mRestoreAfterFocusLost = toggle;
 }
@@ -309,15 +306,15 @@ void InputMethodContextX::SetRestoreAfterFocusLost( bool toggle )
  * We are still predicting what the user is typing.  The latest string is what the InputMethodContext module thinks
  * the user wants to type.
  */
-void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* eventInfo )
+void InputMethodContextX::PreEditChanged(void*, ImfContext* imfContext, void* eventInfo)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::PreEditChanged\n" );
-  auto context = static_cast<Ecore_IMF_Context*>( imfContext );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::PreEditChanged\n");
+  auto context = static_cast<Ecore_IMF_Context*>(imfContext);
 
-  char* preEditString( NULL );
-  int cursorPosition( 0 );
+  char*      preEditString(NULL);
+  int        cursorPosition(0);
   Eina_List* attrs = NULL;
-  Eina_List* l = NULL;
+  Eina_List* l     = NULL;
 
   Ecore_IMF_Preedit_Attr* attr;
 
@@ -325,34 +322,34 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
 
   // Retrieves attributes as well as the string the cursor position offset from start of pre-edit string.
   // the attributes (attrs) is used in languages that use the soft arrows keys to insert characters into a current pre-edit string.
-  ecore_imf_context_preedit_string_with_attributes_get( context, &preEditString, &attrs, &cursorPosition );
+  ecore_imf_context_preedit_string_with_attributes_get(context, &preEditString, &attrs, &cursorPosition);
 
-  if ( attrs )
+  if(attrs)
   {
     // iterate through the list of attributes getting the type, start and end position.
-    for ( l = attrs, (attr =  static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ); l; l = eina_list_next(l), ( attr = static_cast<Ecore_IMF_Preedit_Attr*>( eina_list_data_get(l) ) ))
+    for(l = attrs, (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))); l; l = eina_list_next(l), (attr = static_cast<Ecore_IMF_Preedit_Attr*>(eina_list_data_get(l))))
     {
       Dali::InputMethodContext::PreeditAttributeData data;
       data.startIndex = 0;
-      data.endIndex = 0;
+      data.endIndex   = 0;
 
       size_t visualCharacterIndex = 0;
-      size_t byteIndex = 0;
+      size_t byteIndex            = 0;
 
       // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
       char leadByte = preEditString[byteIndex];
 
-      while( leadByte != '\0' )
+      while(leadByte != '\0')
       {
         leadByte = preEditString[byteIndex]; // Update the character to get the number of its byte
 
         // attr->end_index is provided as a byte position not character and we need to know the character position.
-        const size_t currentSequenceLength = Utf8SequenceLength( leadByte ); // returns number of bytes used to represent character.
-        if( byteIndex <= attr->start_index )
+        const size_t currentSequenceLength = Utf8SequenceLength(leadByte); // returns number of bytes used to represent character.
+        if(byteIndex <= attr->start_index)
         {
-           data.startIndex = visualCharacterIndex;
+          data.startIndex = visualCharacterIndex;
         }
-        if( byteIndex >= attr->end_index )
+        if(byteIndex >= attr->end_index)
         {
           data.endIndex = visualCharacterIndex;
           break;
@@ -361,11 +358,11 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
         else
         {
           byteIndex += currentSequenceLength; // jump to next character
-          visualCharacterIndex++;  // increment character count so we know our position for when we get a match
+          visualCharacterIndex++;             // increment character count so we know our position for when we get a match
         }
       }
 
-      switch( attr->preedit_type )
+      switch(attr->preedit_type)
       {
         case ECORE_IMF_PREEDIT_TYPE_NONE:
         {
@@ -413,46 +410,46 @@ void InputMethodContextX::PreEditChanged( void*, ImfContext* imfContext, void* e
           break;
         }
       }
-      mPreeditAttrs.PushBack( data );
+      mPreeditAttrs.PushBack(data);
     }
   }
 
-  if ( Dali::Adaptor::IsAvailable() )
+  if(Dali::Adaptor::IsAvailable())
   {
-    Dali::InputMethodContext handle( this );
-    Dali::InputMethodContext::EventData eventData( Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0 );
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit( handle, eventData );
+    Dali::InputMethodContext               handle(this);
+    Dali::InputMethodContext::EventData    eventData(Dali::InputMethodContext::PRE_EDIT, preEditString, cursorPosition, 0);
+    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, eventData);
 
-    if( callbackData.update )
+    if(callbackData.update)
     {
-      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
 
       NotifyCursorPosition();
     }
 
-    if( callbackData.preeditResetRequired )
+    if(callbackData.preeditResetRequired)
     {
       Reset();
     }
   }
-  free( preEditString );
+  free(preEditString);
 }
 
-void InputMethodContextX::CommitReceived( void*, ImfContext* imfContext, void* eventInfo )
+void InputMethodContextX::CommitReceived(void*, ImfContext* imfContext, void* eventInfo)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::CommitReceived\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::CommitReceived\n");
 
-  if ( Dali::Adaptor::IsAvailable() )
+  if(Dali::Adaptor::IsAvailable())
   {
-    const std::string keyString( static_cast<char*>( eventInfo ) );
+    const std::string keyString(static_cast<char*>(eventInfo));
 
-    Dali::InputMethodContext handle( this );
-    Dali::InputMethodContext::EventData eventData( Dali::InputMethodContext::COMMIT, keyString, 0, 0 );
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit( handle, eventData );
+    Dali::InputMethodContext               handle(this);
+    Dali::InputMethodContext::EventData    eventData(Dali::InputMethodContext::COMMIT, keyString, 0, 0);
+    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, eventData);
 
-    if( callbackData.update )
+    if(callbackData.update)
     {
-      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
 
       NotifyCursorPosition();
     }
@@ -464,25 +461,25 @@ void InputMethodContextX::CommitReceived( void*, ImfContext* imfContext, void* e
  * Here the InputMethodContext module wishes to know the string we are working with and where within the string the cursor is
  * We need to signal the application to tell us this information.
  */
-bool InputMethodContextX::RetrieveSurrounding( void* data, ImfContext* imfContext, char** text, int* cursorPosition )
+bool InputMethodContextX::RetrieveSurrounding(void* data, ImfContext* imfContext, char** text, int* cursorPosition)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::RetrieveSurrounding\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::RetrieveSurrounding\n");
 
-  Dali::InputMethodContext::EventData imfData( Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0 );
-  Dali::InputMethodContext handle( this );
-  Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit( handle, imfData );
+  Dali::InputMethodContext::EventData    imfData(Dali::InputMethodContext::GET_SURROUNDING, std::string(), 0, 0);
+  Dali::InputMethodContext               handle(this);
+  Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, imfData);
 
-  if( callbackData.update )
+  if(callbackData.update)
   {
-    if( text )
+    if(text)
     {
-      *text = strdup( callbackData.currentText.c_str() );
+      *text = strdup(callbackData.currentText.c_str());
     }
 
-    if( cursorPosition )
+    if(cursorPosition)
     {
-      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
-      *cursorPosition = mIMFCursorPosition;
+      mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
+      *cursorPosition    = mIMFCursorPosition;
     }
   }
 
@@ -493,21 +490,21 @@ bool InputMethodContextX::RetrieveSurrounding( void* data, ImfContext* imfContex
  * Called when an InputMethodContext delete surrounding event is received.
  * Here we tell the application that it should delete a certain range.
  */
-void InputMethodContextX::DeleteSurrounding( void* data, ImfContext* imfContext, void* eventInfo )
+void InputMethodContextX::DeleteSurrounding(void* data, ImfContext* imfContext, void* eventInfo)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::DeleteSurrounding\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::DeleteSurrounding\n");
 
-  if( Dali::Adaptor::IsAvailable() )
+  if(Dali::Adaptor::IsAvailable())
   {
-    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>( eventInfo );
+    Ecore_IMF_Event_Delete_Surrounding* deleteSurroundingEvent = static_cast<Ecore_IMF_Event_Delete_Surrounding*>(eventInfo);
 
-    Dali::InputMethodContext::EventData imfData( Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars );
-    Dali::InputMethodContext handle( this );
-    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit( handle, imfData );
+    Dali::InputMethodContext::EventData    imfData(Dali::InputMethodContext::DELETE_SURROUNDING, std::string(), deleteSurroundingEvent->offset, deleteSurroundingEvent->n_chars);
+    Dali::InputMethodContext               handle(this);
+    Dali::InputMethodContext::CallbackData callbackData = mEventSignal.Emit(handle, imfData);
 
-    if( callbackData.update )
+    if(callbackData.update)
     {
-      mIMFCursorPosition = static_cast<int>( callbackData.cursorPosition );
+      mIMFCursorPosition = static_cast<int>(callbackData.cursorPosition);
 
       NotifyCursorPosition();
     }
@@ -516,61 +513,61 @@ void InputMethodContextX::DeleteSurrounding( void* data, ImfContext* imfContext,
 
 void InputMethodContextX::NotifyCursorPosition()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::NotifyCursorPosition\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::NotifyCursorPosition\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_cursor_position_set( mIMFContext, mIMFCursorPosition );
+    ecore_imf_context_cursor_position_set(mIMFContext, mIMFCursorPosition);
   }
 }
 
-void InputMethodContextX::SetCursorPosition( unsigned int cursorPosition )
+void InputMethodContextX::SetCursorPosition(unsigned int cursorPosition)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetCursorPosition\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetCursorPosition\n");
 
-  mIMFCursorPosition = static_cast<int>( cursorPosition );
+  mIMFCursorPosition = static_cast<int>(cursorPosition);
 }
 
 unsigned int InputMethodContextX::GetCursorPosition() const
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetCursorPosition\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetCursorPosition\n");
 
-  return static_cast<unsigned int>( mIMFCursorPosition );
+  return static_cast<unsigned int>(mIMFCursorPosition);
 }
 
-void InputMethodContextX::SetSurroundingText( const std::string& text )
+void InputMethodContextX::SetSurroundingText(const std::string& text)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetSurroundingText\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetSurroundingText\n");
 
   mSurroundingText = text;
 }
 
 const std::string& InputMethodContextX::GetSurroundingText() const
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetSurroundingText\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetSurroundingText\n");
 
   return mSurroundingText;
 }
 
-void InputMethodContextX::NotifyTextInputMultiLine( bool multiLine )
+void InputMethodContextX::NotifyTextInputMultiLine(bool multiLine)
 {
 }
 
 Dali::InputMethodContext::TextDirection InputMethodContextX::GetTextDirection()
 {
-  Dali::InputMethodContext::TextDirection direction ( Dali::InputMethodContext::LEFT_TO_RIGHT );
+  Dali::InputMethodContext::TextDirection direction(Dali::InputMethodContext::LEFT_TO_RIGHT);
 
-    if ( mIMFContext )
+  if(mIMFContext)
+  {
+    char* locale(NULL);
+    ecore_imf_context_input_panel_language_locale_get(mIMFContext, &locale);
+
+    if(locale)
     {
-      char* locale( NULL );
-      ecore_imf_context_input_panel_language_locale_get( mIMFContext, &locale );
-
-      if ( locale )
-      {
-        direction = static_cast< Dali::InputMethodContext::TextDirection >( Locale::GetDirection( std::string( locale ) ) );
-        free( locale );
-      }
+      direction = static_cast<Dali::InputMethodContext::TextDirection>(Locale::GetDirection(std::string(locale)));
+      free(locale);
     }
+  }
 
   return direction;
 }
@@ -581,79 +578,79 @@ Rect<int> InputMethodContextX::GetInputMethodArea()
 
   width = height = xPos = yPos = 0;
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_input_panel_geometry_get( mIMFContext, &xPos, &yPos, &width, &height );
+    ecore_imf_context_input_panel_geometry_get(mIMFContext, &xPos, &yPos, &width, &height);
   }
   else
   {
     DALI_LOG_WARNING("VKB Unable to get InputMethodContext Context so GetSize unavailable\n");
   }
 
-  return Rect<int>(xPos,yPos,width,height);
+  return Rect<int>(xPos, yPos, width, height);
 }
 
-void InputMethodContextX::ApplyOptions( const InputMethodOptions& options )
+void InputMethodContextX::ApplyOptions(const InputMethodOptions& options)
 {
   using namespace Dali::InputMethod::Category;
 
   int index;
 
-  if (mIMFContext == NULL)
+  if(mIMFContext == NULL)
   {
     DALI_LOG_WARNING("VKB Unable to excute ApplyOptions with Null ImfContext\n");
     return;
   }
 
-  if ( mOptions.CompareAndSet(PANEL_LAYOUT, options, index) )
+  if(mOptions.CompareAndSet(PANEL_LAYOUT, options, index))
   {
   }
-  if ( mOptions.CompareAndSet(BUTTON_ACTION, options, index) )
+  if(mOptions.CompareAndSet(BUTTON_ACTION, options, index))
   {
   }
-  if ( mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index) )
+  if(mOptions.CompareAndSet(AUTO_CAPITALIZE, options, index))
   {
   }
-  if ( mOptions.CompareAndSet(VARIATION, options, index) )
+  if(mOptions.CompareAndSet(VARIATION, options, index))
   {
   }
 }
 
-void InputMethodContextX::SetInputPanelData( const std::string& data )
+void InputMethodContextX::SetInputPanelData(const std::string& data)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelData\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelData\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
     int length = data.length();
-    ecore_imf_context_input_panel_imdata_set( mIMFContext, data.c_str(), length );
+    ecore_imf_context_input_panel_imdata_set(mIMFContext, data.c_str(), length);
   }
 }
 
-void InputMethodContextX::GetInputPanelData( std::string& data )
+void InputMethodContextX::GetInputPanelData(std::string& data)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelData\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelData\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    int length = 4096; // The max length is 4096 bytes
-    Dali::Vector< char > buffer;
-    buffer.Resize( length );
-    ecore_imf_context_input_panel_imdata_get( mIMFContext, &buffer[0], &length );
-    data = std::string( buffer.Begin(), buffer.End() );
+    int                length = 4096; // The max length is 4096 bytes
+    Dali::Vector<char> buffer;
+    buffer.Resize(length);
+    ecore_imf_context_input_panel_imdata_get(mIMFContext, &buffer[0], &length);
+    data = std::string(buffer.Begin(), buffer.End());
   }
 }
 
 Dali::InputMethodContext::State InputMethodContextX::GetInputPanelState()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelState\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelState\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
     int value;
-    value = ecore_imf_context_input_panel_state_get( mIMFContext );
+    value = ecore_imf_context_input_panel_state_get(mIMFContext);
 
-    switch (value)
+    switch(value)
     {
       case ECORE_IMF_INPUT_PANEL_STATE_SHOW:
       {
@@ -682,43 +679,43 @@ Dali::InputMethodContext::State InputMethodContextX::GetInputPanelState()
   return Dali::InputMethodContext::DEFAULT;
 }
 
-void InputMethodContextX::SetReturnKeyState( bool visible )
+void InputMethodContextX::SetReturnKeyState(bool visible)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetReturnKeyState\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetReturnKeyState\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_input_panel_return_key_disabled_set( mIMFContext, !visible );
+    ecore_imf_context_input_panel_return_key_disabled_set(mIMFContext, !visible);
   }
 }
 
-void InputMethodContextX::AutoEnableInputPanel( bool enabled )
+void InputMethodContextX::AutoEnableInputPanel(bool enabled)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::AutoEnableInputPanel\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::AutoEnableInputPanel\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_input_panel_enabled_set( mIMFContext, enabled );
+    ecore_imf_context_input_panel_enabled_set(mIMFContext, enabled);
   }
 }
 
 void InputMethodContextX::ShowInputPanel()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::ShowInputPanel\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::ShowInputPanel\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_input_panel_show( mIMFContext );
+    ecore_imf_context_input_panel_show(mIMFContext);
   }
 }
 
 void InputMethodContextX::HideInputPanel()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::HideInputPanel\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::HideInputPanel\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_input_panel_hide( mIMFContext );
+    ecore_imf_context_input_panel_hide(mIMFContext);
   }
 }
 
@@ -729,90 +726,90 @@ Dali::InputMethodContext::KeyboardType InputMethodContextX::GetKeyboardType()
 
 std::string InputMethodContextX::GetInputPanelLocale()
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLocale\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLocale\n");
 
   std::string locale = "";
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
     char* value = NULL;
-    ecore_imf_context_input_panel_language_locale_get( mIMFContext, &value );
+    ecore_imf_context_input_panel_language_locale_get(mIMFContext, &value);
 
-    if( value )
+    if(value)
     {
-      std::string valueCopy( value );
+      std::string valueCopy(value);
       locale = valueCopy;
 
       // The locale string retrieved must be freed with free().
-      free( value );
+      free(value);
     }
   }
   return locale;
 }
 
-void InputMethodContextX::SetContentMIMETypes( const std::string& mimeTypes )
+void InputMethodContextX::SetContentMIMETypes(const std::string& mimeTypes)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetContentMIMETypes\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetContentMIMETypes\n");
   // ecore_imf_context_mime_type_accept_set() is supported from ecore-imf 1.20.0 version.
 }
 
-bool InputMethodContextX::FilterEventKey( const Dali::KeyEvent& keyEvent )
+bool InputMethodContextX::FilterEventKey(const Dali::KeyEvent& keyEvent)
 {
-  bool eventHandled( false );
+  bool eventHandled(false);
 
   // If a device key then skip ecore_imf_context_filter_event.
-  if ( ! KeyLookup::IsDeviceButton( keyEvent.GetKeyName().c_str() ))
+  if(!KeyLookup::IsDeviceButton(keyEvent.GetKeyName().c_str()))
   {
     //check whether it's key down or key up event
-    if ( keyEvent.GetState() == Dali::KeyEvent::DOWN )
+    if(keyEvent.GetState() == Dali::KeyEvent::DOWN)
     {
-      eventHandled = ProcessEventKeyDown( keyEvent );
+      eventHandled = ProcessEventKeyDown(keyEvent);
     }
-    else if ( keyEvent.GetState() == Dali::KeyEvent::UP )
+    else if(keyEvent.GetState() == Dali::KeyEvent::UP)
     {
-      eventHandled = ProcessEventKeyUp( keyEvent );
+      eventHandled = ProcessEventKeyUp(keyEvent);
     }
   }
 
   return eventHandled;
 }
 
-void InputMethodContextX::AllowTextPrediction( bool prediction )
+void InputMethodContextX::AllowTextPrediction(bool prediction)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::AllowTextPrediction\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::AllowTextPrediction\n");
 
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    ecore_imf_context_prediction_allow_set( mIMFContext, prediction );
+    ecore_imf_context_prediction_allow_set(mIMFContext, prediction);
   }
 }
 
 bool InputMethodContextX::IsTextPredictionAllowed() const
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::IsTextPredictionAllowed\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::IsTextPredictionAllowed\n");
   bool prediction = false;
-  if( mIMFContext )
+  if(mIMFContext)
   {
-    prediction = ecore_imf_context_prediction_allow_get( mIMFContext );
+    prediction = ecore_imf_context_prediction_allow_get(mIMFContext);
   }
   return prediction;
 }
 
-void InputMethodContextX::SetInputPanelLanguage( Dali::InputMethodContext::InputPanelLanguage language )
+void InputMethodContextX::SetInputPanelLanguage(Dali::InputMethodContext::InputPanelLanguage language)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelLanguage\n" );
-  if( mIMFContext )
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelLanguage\n");
+  if(mIMFContext)
   {
-    switch (language)
+    switch(language)
     {
       case Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC:
       {
-        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC );
+        ecore_imf_context_input_panel_language_set(mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC);
         break;
       }
       case Dali::InputMethodContext::InputPanelLanguage::ALPHABET:
       {
-        ecore_imf_context_input_panel_language_set( mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET );
+        ecore_imf_context_input_panel_language_set(mIMFContext, ECORE_IMF_INPUT_PANEL_LANG_ALPHABET);
         break;
       }
     }
@@ -821,13 +818,13 @@ void InputMethodContextX::SetInputPanelLanguage( Dali::InputMethodContext::Input
 
 Dali::InputMethodContext::InputPanelLanguage InputMethodContextX::GetInputPanelLanguage() const
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLanguage\n" );
-  if( mIMFContext )
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLanguage\n");
+  if(mIMFContext)
   {
     int value;
-    value =  ecore_imf_context_input_panel_language_get( mIMFContext );
+    value = ecore_imf_context_input_panel_language_get(mIMFContext);
 
-    switch (value)
+    switch(value)
     {
       case ECORE_IMF_INPUT_PANEL_LANG_AUTOMATIC:
       {
@@ -844,55 +841,55 @@ Dali::InputMethodContext::InputPanelLanguage InputMethodContextX::GetInputPanelL
   return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
-void InputMethodContextX::SetInputPanelPosition( unsigned int x, unsigned int y )
+void InputMethodContextX::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPosition\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPosition\n");
 
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
 }
 
-void InputMethodContextX::GetPreeditStyle( Dali::InputMethodContext::PreEditAttributeDataContainer& attrs ) const
+void InputMethodContextX::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
-  DALI_LOG_INFO( gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n" );
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n");
   attrs = mPreeditAttrs;
 }
 
-bool InputMethodContextX::ProcessEventKeyDown( const Dali::KeyEvent& keyEvent )
+bool InputMethodContextX::ProcessEventKeyDown(const Dali::KeyEvent& keyEvent)
 {
-  bool eventHandled( false );
-  if ( mIMFContext )
+  bool eventHandled(false);
+  if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
-    std::string key = integKeyEvent.logicalKey;
+    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+    std::string           key = integKeyEvent.logicalKey;
 
     std::string compose = integKeyEvent.compose;
 
     // We're consuming key down event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Down ecoreKeyDownEvent;
-    ecoreKeyDownEvent.keyname = integKeyEvent.keyName.c_str();
-    ecoreKeyDownEvent.key = key.c_str();
-    ecoreKeyDownEvent.string = integKeyEvent.keyString.c_str();
-    ecoreKeyDownEvent.compose = compose.c_str();
+    ecoreKeyDownEvent.keyname   = integKeyEvent.keyName.c_str();
+    ecoreKeyDownEvent.key       = key.c_str();
+    ecoreKeyDownEvent.string    = integKeyEvent.keyString.c_str();
+    ecoreKeyDownEvent.compose   = compose.c_str();
     ecoreKeyDownEvent.timestamp = integKeyEvent.time;
-    ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( integKeyEvent.keyModifier );
-    ecoreKeyDownEvent.locks = EcoreInputModifierToEcoreIMFLock( integKeyEvent.keyModifier );
+    ecoreKeyDownEvent.modifiers = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
+    ecoreKeyDownEvent.locks     = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
 
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#if (ECORE_VERSION_MINOR >= 14)
-    ecoreKeyDownEvent.dev_name  = "";
-    ecoreKeyDownEvent.dev_class = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
+#if(ECORE_VERSION_MINOR >= 14)
+    ecoreKeyDownEvent.dev_name     = "";
+    ecoreKeyDownEvent.dev_class    = ECORE_IMF_DEVICE_CLASS_KEYBOARD;
     ecoreKeyDownEvent.dev_subclass = ECORE_IMF_DEVICE_SUBCLASS_NONE;
 #endif // Since ecore_imf 1.14 version
-#if (ECORE_VERSION_MINOR >= 22)
+#if(ECORE_VERSION_MINOR >= 22)
     ecoreKeyDownEvent.keycode = integKeyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
 
     // If the device is IME and the focused key is the direction keys, then we should send a key event to move a key cursor.
-    if ((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.c_str(), "Left", 4)) ||
-                                   (!strncmp(integKeyEvent.keyName.c_str(), "Right", 5)) ||
-                                   (!strncmp(integKeyEvent.keyName.c_str(), "Up", 2)) ||
-                                   (!strncmp(integKeyEvent.keyName.c_str(), "Down", 4))))
+    if((integKeyEvent.deviceName == "ime") && ((!strncmp(integKeyEvent.keyName.c_str(), "Left", 4)) ||
+                                               (!strncmp(integKeyEvent.keyName.c_str(), "Right", 5)) ||
+                                               (!strncmp(integKeyEvent.keyName.c_str(), "Up", 2)) ||
+                                               (!strncmp(integKeyEvent.keyName.c_str(), "Down", 4))))
     {
       eventHandled = 0;
     }
@@ -900,15 +897,15 @@ bool InputMethodContextX::ProcessEventKeyDown( const Dali::KeyEvent& keyEvent )
     {
       eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                     ECORE_IMF_EVENT_KEY_DOWN,
-                                                    reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyDownEvent ));
+                                                    reinterpret_cast<Ecore_IMF_Event*>(&ecoreKeyDownEvent));
     }
 
     // If the event has not been handled by InputMethodContext then check if we should reset our IMFcontext
-    if (!eventHandled)
+    if(!eventHandled)
     {
-      if (!strcmp(integKeyEvent.keyName.c_str(), "Escape") ||
-          !strcmp(integKeyEvent.keyName.c_str(), "Return") ||
-          !strcmp(integKeyEvent.keyName.c_str(), "KP_Enter"))
+      if(!strcmp(integKeyEvent.keyName.c_str(), "Escape") ||
+         !strcmp(integKeyEvent.keyName.c_str(), "Return") ||
+         !strcmp(integKeyEvent.keyName.c_str(), "KP_Enter"))
       {
         ecore_imf_context_reset(mIMFContext);
       }
@@ -917,12 +914,12 @@ bool InputMethodContextX::ProcessEventKeyDown( const Dali::KeyEvent& keyEvent )
   return eventHandled;
 }
 
-bool InputMethodContextX::ProcessEventKeyUp( const Dali::KeyEvent& keyEvent )
+bool InputMethodContextX::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent)
 {
-  bool eventHandled( false );
-  if( mIMFContext )
+  bool eventHandled(false);
+  if(mIMFContext)
   {
-    Integration::KeyEvent integKeyEvent( keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast< Integration::KeyEvent::State >( keyEvent.GetState() ), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass() );
+    Integration::KeyEvent integKeyEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
 
     std::string key = integKeyEvent.logicalKey;
 
@@ -930,88 +927,88 @@ bool InputMethodContextX::ProcessEventKeyUp( const Dali::KeyEvent& keyEvent )
 
     // We're consuming key up event so we have to pass to InputMethodContext so that it can parse it as well.
     Ecore_IMF_Event_Key_Up ecoreKeyUpEvent;
-    ecoreKeyUpEvent.keyname = integKeyEvent.keyName.c_str();
-    ecoreKeyUpEvent.key = key.c_str();
-    ecoreKeyUpEvent.string = integKeyEvent.keyString.c_str();
-    ecoreKeyUpEvent.compose = compose.c_str();
+    ecoreKeyUpEvent.keyname   = integKeyEvent.keyName.c_str();
+    ecoreKeyUpEvent.key       = key.c_str();
+    ecoreKeyUpEvent.string    = integKeyEvent.keyString.c_str();
+    ecoreKeyUpEvent.compose   = compose.c_str();
     ecoreKeyUpEvent.timestamp = integKeyEvent.time;
-    ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier( integKeyEvent.keyModifier );
-    ecoreKeyUpEvent.locks = EcoreInputModifierToEcoreIMFLock( integKeyEvent.keyModifier );
+    ecoreKeyUpEvent.modifiers = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
+    ecoreKeyUpEvent.locks     = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR)
-#if (ECORE_VERSION_MINOR >= 14)
-    ecoreKeyUpEvent.dev_name  = "";
+#if(ECORE_VERSION_MINOR >= 14)
+    ecoreKeyUpEvent.dev_name = "";
 #endif // Since ecore_imf 1.14 version
-#if (ECORE_VERSION_MINOR >= 22)
+#if(ECORE_VERSION_MINOR >= 22)
     ecoreKeyUpEvent.keycode = integKeyEvent.keyCode;
 #endif // Since ecore_imf 1.22 version
 #endif // Since ecore_imf Version 1
 
     eventHandled = ecore_imf_context_filter_event(mIMFContext,
                                                   ECORE_IMF_EVENT_KEY_UP,
-                                                  reinterpret_cast<Ecore_IMF_Event *>( &ecoreKeyUpEvent ));
+                                                  reinterpret_cast<Ecore_IMF_Event*>(&ecoreKeyUpEvent));
   }
   return eventHandled;
 }
 
-Ecore_IMF_Keyboard_Modifiers InputMethodContextX::EcoreInputModifierToEcoreIMFModifier( unsigned int ecoreModifier )
+Ecore_IMF_Keyboard_Modifiers InputMethodContextX::EcoreInputModifierToEcoreIMFModifier(unsigned int ecoreModifier)
 {
-  unsigned int modifier( ECORE_IMF_KEYBOARD_MODIFIER_NONE );  // If no other matches returns NONE.
+  unsigned int modifier(ECORE_IMF_KEYBOARD_MODIFIER_NONE); // If no other matches returns NONE.
 
-  if ( ecoreModifier & ECORE_EVENT_MODIFIER_SHIFT )  // enums from ecore_input/Ecore_Input.h
+  if(ecoreModifier & ECORE_EVENT_MODIFIER_SHIFT) // enums from ecore_input/Ecore_Input.h
   {
-    modifier |= ECORE_IMF_KEYBOARD_MODIFIER_SHIFT;  // enums from ecore_imf/ecore_imf.h
+    modifier |= ECORE_IMF_KEYBOARD_MODIFIER_SHIFT; // enums from ecore_imf/ecore_imf.h
   }
 
-  if ( ecoreModifier & ECORE_EVENT_MODIFIER_ALT )
+  if(ecoreModifier & ECORE_EVENT_MODIFIER_ALT)
   {
     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_ALT;
   }
 
-  if ( ecoreModifier & ECORE_EVENT_MODIFIER_CTRL )
+  if(ecoreModifier & ECORE_EVENT_MODIFIER_CTRL)
   {
     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_CTRL;
   }
 
-  if ( ecoreModifier & ECORE_EVENT_MODIFIER_WIN )
+  if(ecoreModifier & ECORE_EVENT_MODIFIER_WIN)
   {
     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_WIN;
   }
 
-  if ( ecoreModifier & ECORE_EVENT_MODIFIER_ALTGR )
+  if(ecoreModifier & ECORE_EVENT_MODIFIER_ALTGR)
   {
     modifier |= ECORE_IMF_KEYBOARD_MODIFIER_ALTGR;
   }
 
-  return static_cast<Ecore_IMF_Keyboard_Modifiers>( modifier );
+  return static_cast<Ecore_IMF_Keyboard_Modifiers>(modifier);
 }
 
-Ecore_IMF_Keyboard_Locks InputMethodContextX::EcoreInputModifierToEcoreIMFLock( unsigned int modifier )
+Ecore_IMF_Keyboard_Locks InputMethodContextX::EcoreInputModifierToEcoreIMFLock(unsigned int modifier)
 {
-    unsigned int lock( ECORE_IMF_KEYBOARD_LOCK_NONE ); // If no other matches, returns NONE.
+  unsigned int lock(ECORE_IMF_KEYBOARD_LOCK_NONE); // If no other matches, returns NONE.
 
-    if( modifier & ECORE_EVENT_LOCK_NUM )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_NUM; // Num lock is active.
-    }
+  if(modifier & ECORE_EVENT_LOCK_NUM)
+  {
+    lock |= ECORE_IMF_KEYBOARD_LOCK_NUM; // Num lock is active.
+  }
 
-    if( modifier & ECORE_EVENT_LOCK_CAPS )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_CAPS; // Caps lock is active.
-    }
+  if(modifier & ECORE_EVENT_LOCK_CAPS)
+  {
+    lock |= ECORE_IMF_KEYBOARD_LOCK_CAPS; // Caps lock is active.
+  }
 
-    if( modifier & ECORE_EVENT_LOCK_SCROLL )
-    {
-      lock |= ECORE_IMF_KEYBOARD_LOCK_SCROLL; // Scroll lock is active.
-    }
+  if(modifier & ECORE_EVENT_LOCK_SCROLL)
+  {
+    lock |= ECORE_IMF_KEYBOARD_LOCK_SCROLL; // Scroll lock is active.
+  }
 
-    return static_cast<Ecore_IMF_Keyboard_Locks>( lock );
+  return static_cast<Ecore_IMF_Keyboard_Locks>(lock);
 }
 
-void InputMethodContextX::OnStaged( Dali::Actor actor )
+void InputMethodContextX::OnStaged(Dali::Actor actor)
 {
-  Ecore_X_Window ecoreXwin( AnyCast< Ecore_X_Window >( Dali::Integration::SceneHolder::Get( actor ).GetNativeHandle() ) );
+  Ecore_X_Window ecoreXwin(AnyCast<Ecore_X_Window>(Dali::Integration::SceneHolder::Get(actor).GetNativeHandle()));
 
-  if( mEcoreXwin != ecoreXwin )
+  if(mEcoreXwin != ecoreXwin)
   {
     mEcoreXwin = ecoreXwin;
 
@@ -1021,8 +1018,8 @@ void InputMethodContextX::OnStaged( Dali::Actor actor )
   }
 }
 
-} // Adaptor
+} // namespace Adaptor
 
-} // Internal
+} // namespace Internal
 
-} // Dali
+} // namespace Dali

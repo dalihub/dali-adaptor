@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,23 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-TraceManager::TraceManager( PerformanceInterface* performanceInterface )
-: mPerformanceInterface( performanceInterface )
+TraceManager::TraceManager(PerformanceInterface* performanceInterface)
+: mPerformanceInterface(performanceInterface)
 {
 }
 
 bool TraceManager::Initialise()
 {
   auto logFunction = GetLogContextFunction();
-  if( !logFunction )
+  if(!logFunction)
   {
-      return false;
+    return false;
   }
-  Dali::Integration::Trace::InstallLogContextFunction( logFunction );
+  Dali::Integration::Trace::InstallLogContextFunction(logFunction);
   return true;
 }
 

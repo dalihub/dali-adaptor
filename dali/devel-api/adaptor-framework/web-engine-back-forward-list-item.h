@@ -23,15 +23,12 @@
 
 namespace Dali
 {
-
 /**
  * @brief A class WebBackForwardListItem for back forward list item of web engine.
  */
 class WebEngineBackForwardListItem
 {
-
 public:
-
   /**
    * @brief Constructor.
    */
@@ -61,10 +58,8 @@ public:
    * @return The original URL of the item, otherwise "" in case of an error
    */
   virtual std::string GetOriginalUrl() const = 0;
-
 };
 
 } // namespace Dali
 
 #endif // DALI_WEB_ENGINE_BACK_FORWARD_LIST_ITEM_H
-

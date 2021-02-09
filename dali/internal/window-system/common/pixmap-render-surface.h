@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +24,18 @@
 
 namespace Dali
 {
-
 class TriggerEventInterface;
 
 namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Pixmap interface of render surface.
  */
 class PixmapRenderSurface : public Dali::RenderSurfaceInterface
 {
 public:
-
   /**
    * @brief Default constructor
    */
@@ -50,7 +47,6 @@ public:
   virtual ~PixmapRenderSurface() = default;
 
 public: // API
-
   /**
    * @brief Get the render surface the adaptor is using to render to.
    * @return reference to current render surface
@@ -61,7 +57,7 @@ public: // API
    * @brief Sets the render notification trigger to call when render thread is completed a frame
    * @param renderNotification to use
    */
-  virtual void SetRenderNotification( TriggerEventInterface* renderNotification ) = 0;
+  virtual void SetRenderNotification(TriggerEventInterface* renderNotification) = 0;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
@@ -80,11 +76,10 @@ public: // API
   }
 
 private:
-
   /**
    * Second stage construction
    */
-  virtual void Initialize( Any surface ) = 0;
+  virtual void Initialize(Any surface) = 0;
 
   /**
    * @brief Create a renderable
@@ -95,21 +90,19 @@ private:
    * @brief Use an existing render surface
    * @param surfaceId the id of the surface
    */
-  virtual void UseExistingRenderable( unsigned int surfaceId ) = 0;
+  virtual void UseExistingRenderable(unsigned int surfaceId) = 0;
 
 protected:
-
   // Undefined
   PixmapRenderSurface(const PixmapRenderSurface&) = delete;
 
   // Undefined
   PixmapRenderSurface& operator=(const PixmapRenderSurface& rhs) = delete;
-
 };
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali
 

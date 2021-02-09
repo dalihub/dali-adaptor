@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  * limitations under the License.
  *
  */
-
 
 // CLASS HEADER
 #include <dali/internal/graphics/common/egl-image-extensions.h>
@@ -39,27 +38,23 @@
 namespace
 {
 // function pointers assigned in InitializeEglImageKHR
-PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHRProc = 0;
-PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHRProc = 0;
+PFNEGLCREATEIMAGEKHRPROC            eglCreateImageKHRProc            = 0;
+PFNEGLDESTROYIMAGEKHRPROC           eglDestroyImageKHRProc           = 0;
 PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 } // unnamed namespace
 
-
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
 : mEglImplementation(eglImpl),
   mImageKHRInitialized(false),
   mImageKHRInitializeFailed(false)
 {
-  DALI_ASSERT_ALWAYS( eglImpl && "EGL Implementation not instantiated" );
+  DALI_ASSERT_ALWAYS(eglImpl && "EGL Implementation not instantiated");
 }
 
 EglImageExtensions::~EglImageExtensions()
@@ -68,65 +63,63 @@ EglImageExtensions::~EglImageExtensions()
 
 void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
 {
-  if (mImageKHRInitialized == false)
+  if(mImageKHRInitialized == false)
   {
     InitializeEglImageKHR();
   }
 
-  if (mImageKHRInitialized == false)
+  if(mImageKHRInitialized == false)
   {
     return NULL;
   }
 
   // Use the EGL image extension
   const EGLint attribs[] =
-  {
-    EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
-    EGL_NONE
-  };
-
-  EGLImageKHR eglImage  = eglCreateImageKHRProc( mEglImplementation->GetDisplay(),
-                                             EGL_NO_CONTEXT,
-                                             EGL_NATIVE_SURFACE_TIZEN,
-                                             clientBuffer,
-                                             attribs );
-
-  if( EGL_NO_IMAGE_KHR == eglImage )
-  {
-    switch( eglGetError() )
     {
-      case EGL_SUCCESS :
+      EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+
+  EGLImageKHR eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
+                                               EGL_NO_CONTEXT,
+                                               EGL_NATIVE_SURFACE_TIZEN,
+                                               clientBuffer,
+                                               attribs);
+
+  if(EGL_NO_IMAGE_KHR == eglImage)
+  {
+    switch(eglGetError())
+    {
+      case EGL_SUCCESS:
       {
         break;
       }
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object\n" );
+        DALI_LOG_ERROR("EGL_BAD_DISPLAY: Invalid EGLDisplay object\n");
         break;
       }
       case EGL_BAD_CONTEXT:
       {
-        DALI_LOG_ERROR( "EGL_BAD_CONTEXT: Invalid EGLContext object\n" );
+        DALI_LOG_ERROR("EGL_BAD_CONTEXT: Invalid EGLContext object\n");
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: Invalid target parameter or attribute in attrib_list\n" );
+        DALI_LOG_ERROR("EGL_BAD_PARAMETER: Invalid target parameter or attribute in attrib_list\n");
         break;
       }
       case EGL_BAD_MATCH:
       {
-        DALI_LOG_ERROR( "EGL_BAD_MATCH: attrib_list does not match target\n" );
+        DALI_LOG_ERROR("EGL_BAD_MATCH: attrib_list does not match target\n");
         break;
       }
       case EGL_BAD_ACCESS:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ACCESS: Previously bound off-screen, or EGLImage sibling error\n" );
+        DALI_LOG_ERROR("EGL_BAD_ACCESS: Previously bound off-screen, or EGLImage sibling error\n");
         break;
       }
       case EGL_BAD_ALLOC:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ALLOC: Insufficient memory is available\n" );
+        DALI_LOG_ERROR("EGL_BAD_ALLOC: Insufficient memory is available\n");
         break;
       }
       default:
@@ -135,21 +128,21 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
     }
   }
-  DALI_ASSERT_DEBUG( EGL_NO_IMAGE_KHR != eglImage && "EglImageExtensions::CreateImageKHR: eglCreateImageKHR failed!\n");
+  DALI_ASSERT_DEBUG(EGL_NO_IMAGE_KHR != eglImage && "EglImageExtensions::CreateImageKHR: eglCreateImageKHR failed!\n");
 
   return eglImage;
 }
 
 void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 {
-  DALI_ASSERT_DEBUG( mImageKHRInitialized );
+  DALI_ASSERT_DEBUG(mImageKHRInitialized);
 
-  if( ! mImageKHRInitialized )
+  if(!mImageKHRInitialized)
   {
     return;
   }
 
-  if( eglImageKHR == NULL )
+  if(eglImageKHR == NULL)
   {
     return;
   }
@@ -158,23 +151,23 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
   EGLBoolean result = eglDestroyImageKHRProc(mEglImplementation->GetDisplay(), eglImage);
 
-  if( EGL_FALSE == result )
+  if(EGL_FALSE == result)
   {
-    switch( eglGetError() )
+    switch(eglGetError())
     {
       case EGL_BAD_DISPLAY:
       {
-        DALI_LOG_ERROR( "EGL_BAD_DISPLAY: Invalid EGLDisplay object\n" );
+        DALI_LOG_ERROR("EGL_BAD_DISPLAY: Invalid EGLDisplay object\n");
         break;
       }
       case EGL_BAD_PARAMETER:
       {
-        DALI_LOG_ERROR( "EGL_BAD_PARAMETER: eglImage is not a valid EGLImageKHR object created with respect to EGLDisplay\n" );
+        DALI_LOG_ERROR("EGL_BAD_PARAMETER: eglImage is not a valid EGLImageKHR object created with respect to EGLDisplay\n");
         break;
       }
       case EGL_BAD_ACCESS:
       {
-        DALI_LOG_ERROR( "EGL_BAD_ACCESS: EGLImage sibling error\n" );
+        DALI_LOG_ERROR("EGL_BAD_ACCESS: EGLImage sibling error\n");
         break;
       }
       default:
@@ -187,9 +180,9 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
 void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
 {
-  DALI_ASSERT_DEBUG( mImageKHRInitialized );
+  DALI_ASSERT_DEBUG(mImageKHRInitialized);
 
-  if( eglImageKHR != NULL )
+  if(eglImageKHR != NULL)
   {
     EGLImageKHR eglImage = static_cast<EGLImageKHR>(eglImageKHR);
 
@@ -197,13 +190,13 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     GLint glError = glGetError();
 #endif
 
-    glEGLImageTargetTexture2DOESProc(GL_TEXTURE_EXTERNAL_OES, reinterpret_cast< GLeglImageOES >( eglImage ) );
+    glEGLImageTargetTexture2DOESProc(GL_TEXTURE_EXTERNAL_OES, reinterpret_cast<GLeglImageOES>(eglImage));
 
 #ifdef EGL_ERROR_CHECKING
     glError = glGetError();
-    if( GL_NO_ERROR != glError )
+    if(GL_NO_ERROR != glError)
     {
-      DALI_LOG_ERROR(" glEGLImageTargetTexture2DOES returned error %0x04x\n", glError );
+      DALI_LOG_ERROR(" glEGLImageTargetTexture2DOES returned error %0x04x\n", glError);
     }
 #endif
   }
@@ -212,14 +205,14 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
 void EglImageExtensions::InitializeEglImageKHR()
 {
   // avoid trying to reload extended KHR functions, if it fails the first time
-  if( ! mImageKHRInitializeFailed )
+  if(!mImageKHRInitializeFailed)
   {
-    eglCreateImageKHRProc  = reinterpret_cast< PFNEGLCREATEIMAGEKHRPROC >( eglGetProcAddress("eglCreateImageKHR") );
-    eglDestroyImageKHRProc = reinterpret_cast< PFNEGLDESTROYIMAGEKHRPROC >( eglGetProcAddress("eglDestroyImageKHR") );
-    glEGLImageTargetTexture2DOESProc = reinterpret_cast< PFNGLEGLIMAGETARGETTEXTURE2DOESPROC >( eglGetProcAddress("glEGLImageTargetTexture2DOES") );
+    eglCreateImageKHRProc            = reinterpret_cast<PFNEGLCREATEIMAGEKHRPROC>(eglGetProcAddress("eglCreateImageKHR"));
+    eglDestroyImageKHRProc           = reinterpret_cast<PFNEGLDESTROYIMAGEKHRPROC>(eglGetProcAddress("eglDestroyImageKHR"));
+    glEGLImageTargetTexture2DOESProc = reinterpret_cast<PFNGLEGLIMAGETARGETTEXTURE2DOESPROC>(eglGetProcAddress("glEGLImageTargetTexture2DOES"));
   }
 
-  if (eglCreateImageKHRProc && eglDestroyImageKHRProc && glEGLImageTargetTexture2DOESProc)
+  if(eglCreateImageKHRProc && eglDestroyImageKHRProc && glEGLImageTargetTexture2DOESProc)
   {
     mImageKHRInitialized = true;
   }

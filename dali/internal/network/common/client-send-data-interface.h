@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_CLIENT_SEND_DATA_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,31 +20,25 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief  Abstract interface used to transmit data to a client
  */
 class ClientSendDataInterface
 {
 public:
-
   /**
    * @brief Sends data to the client
    * @param[in] data pointer to some data
    * @param[in] bufferSizeInBytes how big the buffer is in bytes
    * @param[in] clientId unique client id to send the data to
    */
-  virtual void SendData( const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId ) = 0;
-
+  virtual void SendData(const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId) = 0;
 
 protected:
-
   /**
    * @brief  Constructor
    */
@@ -60,19 +54,16 @@ protected:
   }
 
 private:
-
   // Undefined copy constructor.
-  ClientSendDataInterface( const ClientSendDataInterface& );
+  ClientSendDataInterface(const ClientSendDataInterface&);
 
   // Undefined assignment operator.
-  ClientSendDataInterface& operator=( const ClientSendDataInterface& );
-
+  ClientSendDataInterface& operator=(const ClientSendDataInterface&);
 };
 
+} // namespace Adaptor
 
 } // namespace Internal
-
-} // namespace Adaptor
 
 } // namespace Dali
 

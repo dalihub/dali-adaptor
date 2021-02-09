@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_AUTOMATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
  *
  */
 
-
 // EXTERNAL INCLUDES
 #include <string>
 
@@ -27,13 +26,10 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief The automation functions allow a way to control Dali via a network socket.
  *
@@ -49,28 +45,25 @@ namespace Adaptor
  */
 namespace Automation
 {
-
 /**
  * @brief Sets properties on an Actor.
  * No ClientSendDataInterface required, as no response is sent back
  * @param[in] message set property message
  */
-void SetProperty( const std::string& message );
-
+void SetProperty(const std::string& message);
 
 /**
  * @brief Dumps the actor tree to the client
  * @param[in] clientId unique network client id
  * @param[in] sendData interface to transmit data to the client
  */
-void DumpScene( unsigned int clientId, ClientSendDataInterface* sendData );
-
+void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData);
 
 } // namespace Automation
 
-} // namespace Internal
-
 } // namespace Adaptor
+
+} // namespace Internal
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_TEXT_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,20 +26,16 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 /**
  * Implementation of the TextRenderer
  */
 class TextRenderer : public BaseObject
 {
 public:
-
   /**
    * Constructor
    */
@@ -61,7 +57,6 @@ public:
   Devel::PixelBuffer Render(const TextAbstraction::TextRenderer::Parameters& parameters);
 
 private:
-
   // Undefined copy constructor.
   TextRenderer(const TextRenderer&);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,38 +23,34 @@
 #include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 const char* FRAGMENT_PREFIX = "\n";
-const char* SAMPLER_TYPE = "sampler2D";
+const char* SAMPLER_TYPE    = "sampler2D";
 
-}
+} // namespace
 
-NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
+NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid( width, height, depth, nativeImageSourceQueue );
+  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid(width, height, depth, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid( uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue )
-: mWidth( width ),
-  mHeight( height )
+NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+: mWidth(width),
+  mHeight(height)
 {
-  DALI_LOG_ERROR( "NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid: Not supported\n" );
+  DALI_LOG_ERROR("NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid: Not supported\n");
 }
 
 NativeImageSourceQueueAndroid::~NativeImageSourceQueueAndroid()
@@ -66,9 +62,9 @@ Any NativeImageSourceQueueAndroid::GetNativeImageSourceQueue() const
   return Any();
 }
 
-void NativeImageSourceQueueAndroid::SetSize( uint32_t width, uint32_t height )
+void NativeImageSourceQueueAndroid::SetSize(uint32_t width, uint32_t height)
 {
-  mWidth = width;
+  mWidth  = width;
   mHeight = height;
 }
 
@@ -121,6 +117,6 @@ bool NativeImageSourceQueueAndroid::SourceChanged() const
 
 } // namespace Adaptor
 
-} // namespace internal
+} // namespace Internal
 
 } // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_WINDOW_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
@@ -26,7 +27,6 @@
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -79,7 +79,6 @@ public:
   using TouchEventSignalType  = Signal<void(const TouchEvent&)>;  ///< Touch signal type @SINCE_1_9.28
 
 public:
-
   // Methods
 
   /**

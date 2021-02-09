@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_CAPABILITIES_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,8 @@
 
 namespace Dali
 {
-
 namespace TizenPlatform
 {
-
 /**
  * Returns true if non power of two textures are supported.
  */
@@ -42,13 +40,13 @@ inline bool SupportsNonPowerOfTwoTextures()
 /**
  * Returns the size that a textures dimension should have for a specific image size.
  */
-inline unsigned int GetTextureDimension( unsigned int size )
+inline unsigned int GetTextureDimension(unsigned int size)
 {
 #ifdef NON_POWER_OF_TWO_TEXTURES
   return size;
 #else
 #error "NPOT are standard in GLES 2.0 if mipmaps are not used, they are standard with mipmaps and no restrictions in GLES 3.0, requiring them simplifies image handling code."
-  return NextPowerOfTwo( size );
+  return NextPowerOfTwo(size);
 #endif
 }
 

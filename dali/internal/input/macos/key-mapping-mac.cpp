@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@
 
 namespace Dali::Internal::Adaptor::KeyLookup
 {
-
 // matches a DALI_KEY enum, to key name
+// clang-format off
 KeyLookup KeyLookupTable[]=
 {
   { "Escape",                DALI_KEY_ESCAPE,                                            false },
@@ -36,7 +36,8 @@ KeyLookup KeyLookupTable[]=
   { "Delete",                static_cast<Dali::KEY>( DevelKey::DALI_KEY_DELETE ),        false },
   { "Control",               static_cast<Dali::KEY>( DevelKey::DALI_KEY_CONTROL_LEFT ),  false },
 };
+// clang-format on
 
-const std::size_t KEY_LOOKUP_COUNT = (sizeof( KeyLookupTable ))/ (sizeof( KeyLookup ));
+const std::size_t KEY_LOOKUP_COUNT = (sizeof(KeyLookupTable)) / (sizeof(KeyLookup));
 
-}
+} // namespace Dali::Internal::Adaptor::KeyLookup

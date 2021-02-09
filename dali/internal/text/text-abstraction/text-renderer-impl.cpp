@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,10 @@
 
 namespace Dali
 {
-
 namespace TextAbstraction
 {
-
 namespace Internal
 {
-
 TextRenderer::TextRenderer()
 {
 }
@@ -46,15 +43,15 @@ TextAbstraction::TextRenderer TextRenderer::Get()
   TextAbstraction::TextRenderer shapingHandle;
 
   SingletonService service(SingletonService::Get());
-  if (service)
+  if(service)
   {
     // Check whether the singleton is already created
     Dali::BaseHandle handle = service.GetSingleton(typeid(TextAbstraction::TextRenderer));
-    if (handle)
+    if(handle)
     {
       // If so, downcast the handle
-      TextRenderer* impl = dynamic_cast< Internal::TextRenderer* >(handle.GetObjectPtr());
-      shapingHandle = TextAbstraction::TextRenderer(impl);
+      TextRenderer* impl = dynamic_cast<Internal::TextRenderer*>(handle.GetObjectPtr());
+      shapingHandle      = TextAbstraction::TextRenderer(impl);
     }
     else // create and register the object
     {

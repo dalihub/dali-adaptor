@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ABORT_HANDLER_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <signal.h>
 #include <dali/public-api/signals/callback.h>
+#include <signal.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
@@ -35,7 +35,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Class to listen to system signals and trigger an abort callback
  * when they occur.
@@ -53,7 +52,7 @@ public:
    * @param[in] callback The function to call when abort signals occur
    * @note The ownership of callback is passed onto this class.
    */
-  AbortHandler( CallbackBase* callback );
+  AbortHandler(CallbackBase* callback);
 
   /**
    * Destructor
@@ -65,14 +64,14 @@ public:
    * @param[in] signum The signal number (from signum.h)
    * @return true if the signal handler was installed ok
    */
-  bool AbortOnSignal( int signum );
+  bool AbortOnSignal(int signum);
 
 private:
   /**
    * Signal handler - Called when signal is received.
    * Stops the application.
    */
-  static void SignalHandler( int signum );
+  static void SignalHandler(int signum);
 
   /**
    * Default constructor - undefined
@@ -90,15 +89,15 @@ private:
   AbortHandler& operator=(const AbortHandler& rhs);
 
 private:
-  using SignalHandlerFuncPtr = void( * )( int );
+  using SignalHandlerFuncPtr = void (*)(int);
 
   // _NSIG comes from the signal.h linux system header, defining the number of signals.
-  SignalHandlerFuncPtr        mSignalOldHandlers[_NSIG-1];
-  unsigned long long          mSignalMask;
+  SignalHandlerFuncPtr mSignalOldHandlers[_NSIG - 1];
+  unsigned long long   mSignalMask;
 
-  CallbackBase*               mCallback;
+  CallbackBase* mCallback;
 
-  static AbortHandler*        gInstance;
+  static AbortHandler* gInstance;
 };
 
 } // Namespace Adaptor

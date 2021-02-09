@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,38 +24,34 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace
 {
-
 unsigned int GetEnvWatchRenderRefreshRate()
 {
-  const char* envVariable = std::getenv( DALI_WATCH_REFRESH_RATE );
+  const char* envVariable = std::getenv(DALI_WATCH_REFRESH_RATE);
 
-  return envVariable ? std::atoi( envVariable ) : 2u; // Default 30 fps
+  return envVariable ? std::atoi(envVariable) : 2u; // Default 30 fps
 }
 
 } // unnamed namespace
 
 WatchApplicationPtr WatchApplication::New(
-  int* argc,
-  char **argv[],
-  const std::string& stylesheet,
+  int*                                argc,
+  char**                              argv[],
+  const std::string&                  stylesheet,
   Dali::WatchApplication::WINDOW_MODE windowMode)
 {
-  WatchApplicationPtr watch ( new WatchApplication (argc, argv, stylesheet, windowMode ) );
+  WatchApplicationPtr watch(new WatchApplication(argc, argv, stylesheet, windowMode));
   return watch;
 }
 
-WatchApplication::WatchApplication( int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode )
+WatchApplication::WatchApplication(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode)
 : Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH),
-  mState( UNINITIALIZED )
+  mState(UNINITIALIZED)
 {
 }
 
@@ -67,7 +63,7 @@ void WatchApplication::OnInit()
 {
   Application::OnInit();
 
-  Dali::Adaptor::Get().SetRenderRefreshRate( GetEnvWatchRenderRefreshRate() );
+  Dali::Adaptor::Get().SetRenderRefreshRate(GetEnvWatchRenderRefreshRate());
 
   mState = INITIALIZED;
 }
@@ -96,35 +92,35 @@ void WatchApplication::OnPause()
 void WatchApplication::OnTimeTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
-  mTickSignal.Emit( watch, time );
+  mTickSignal.Emit(watch, time);
 
   if(mState == PAUSED)
   {
     // This is a pre-resume scenario. All rendering engine of tizen SHOULD forcely update once at this time.
-    Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() ).RequestUpdateOnce();
+    Internal::Adaptor::Adaptor::GetImplementation(GetAdaptor()).RequestUpdateOnce();
   }
 
   // A watch application will queue messages to update the UI in the signal emitted above
   // Process these immediately to avoid a blinking issue where the old time is briefly visible
-  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation(GetAdaptor());
   eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientTick(WatchTime& time)
 {
   Dali::WatchApplication watch(this);
-  mAmbientTickSignal.Emit( watch, time );
+  mAmbientTickSignal.Emit(watch, time);
 
   // A watch application will queue messages to update the UI in the signal emitted above
   // Process these immediately to avoid a blinking issue where the old time is briefly visible
-  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation( GetAdaptor() );
+  CoreEventInterface& eventInterface = Internal::Adaptor::Adaptor::GetImplementation(GetAdaptor());
   eventInterface.ProcessCoreEvents();
 }
 
 void WatchApplication::OnAmbientChanged(bool ambient)
 {
   Dali::WatchApplication watch(this);
-  mAmbientChangeSignal.Emit( watch, ambient );
+  mAmbientChangeSignal.Emit(watch, ambient);
 }
 
 } // namespace Adaptor
