@@ -37,10 +37,7 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : ShaderResource(createInfo, controller)
-  {
-  }
+  Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
    * @brief Destructor

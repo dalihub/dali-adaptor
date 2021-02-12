@@ -22,6 +22,7 @@
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
 #include <dali/public-api/common/dali-common.h>
@@ -149,6 +150,11 @@ Graphics::UniquePtr<Buffer>
 EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer)
 {
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
+}
+
+Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader)
+{
+  return NewObject<GLES::Shader>(shaderCreateInfo, *this, std::move(oldShader));
 }
 
 Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)

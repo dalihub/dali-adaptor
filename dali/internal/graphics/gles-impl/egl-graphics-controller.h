@@ -25,7 +25,9 @@
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-memory.h"
+#include "gles-graphics-pipeline.h"
 #include "gles-graphics-pipeline-cache.h"
+#include "gles-graphics-reflection.h"
 #include "gles-graphics-texture.h"
 
 namespace Dali
@@ -196,10 +198,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateShader()
    */
-  Graphics::UniquePtr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader) override;
 
   /**
    * @copydoc Dali::Graphics::CreateSampler()
@@ -259,6 +258,15 @@ public:
   {
     // for compiler not to moan
     static TextureProperties dummy{};
+    return dummy;
+  }
+
+  /**
+   * @copydoc Dali::Graphics::Controller::GetPipelineReflection()
+   */
+  const Reflection& GetPipelineReflection(const Pipeline& pipeline) override
+  {
+    static GLES::Reflection dummy(*this);
     return dummy;
   }
 

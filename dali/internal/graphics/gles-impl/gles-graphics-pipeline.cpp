@@ -27,6 +27,14 @@
 #include "egl-graphics-controller.h"
 #include "gles-graphics-shader.h"
 
+namespace
+{
+struct LegacyProgram : Dali::Graphics::ExtensionCreateInfo
+{
+  uint32_t programId;
+};
+} // namespace
+
 namespace Dali::Graphics::GLES
 {
 /**
@@ -47,7 +55,8 @@ struct PipelineImpl::PipelineState
 };
 
 PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-: mController(controller)
+: mController(controller),
+  mReflection(controller)
 {
   // the creation is deferred so it's needed to copy certain parts of the CreateInfo structure
   mPipelineState = std::make_unique<PipelineImpl::PipelineState>();
@@ -62,6 +71,26 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graph
   CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
   CopyStateIfSet(createInfo.shaderState, mPipelineState->shaderState, &mCreateInfo.shaderState);
   CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
+
+  if(createInfo.nextExtension)
+  {
+    LegacyProgram* legacyProgram = static_cast<LegacyProgram*>(createInfo.nextExtension);
+    mGlProgram                   = legacyProgram->programId;
+    mReflection.SetGlProgram(mGlProgram);
+    printf("GLES::Pipeline: mProgramId: %u\n", mGlProgram);
+  }
+
+  const std::vector<Graphics::ShaderState>* shaderStates = mCreateInfo.shaderState;
+  if(shaderStates)
+  {
+    printf("GLES::Pipeline: shaderStates %p, shaderStates size: %lu\n", shaderStates, shaderStates->size());
+
+    std::for_each(shaderStates->begin(), shaderStates->end(), [](Graphics::ShaderState shaderState) {
+      const Graphics::Shader* shader        = shaderState.shader;
+      Graphics::PipelineStage pipelineStage = shaderState.pipelineStage;
+      printf("GLES::Pipeline: shader: %p, pipelineStage: %d\n", shader, static_cast<int>(pipelineStage));
+    });
+  }
 }
 
 const PipelineCreateInfo& PipelineImpl::GetCreateInfo() const
@@ -76,8 +105,8 @@ auto& PipelineImpl::GetController() const
 
 bool PipelineImpl::InitializeResource()
 {
-  auto& gl   = *GetController().GetGL();
-  mGlProgram = gl.CreateProgram();
+  auto& gl = *GetController().GetGL();
+  //  mGlProgram = gl.CreateProgram();
 
   for(auto& shader : mPipelineState->shaderState)
   {

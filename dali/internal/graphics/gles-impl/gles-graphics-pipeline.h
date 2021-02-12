@@ -24,6 +24,7 @@
 #include <string.h>
 
 // INTERNAL INCLUDES
+#include "gles-graphics-reflection.h"
 #include "gles-graphics-resource.h"
 
 namespace Dali::Graphics::GLES
@@ -114,6 +115,8 @@ public:
 
   [[nodiscard]] auto& GetController() const;
 
+  Graphics::GLES::Reflection& GetReflection();
+
 private:
   /**
    * @brief Helper function. Copies state if pointer is set
@@ -150,6 +153,8 @@ private:
 
   EglGraphicsController& mController;
   PipelineCreateInfo     mCreateInfo;
+
+  Graphics::GLES::Reflection mReflection;
 
   uint32_t mGlProgram{0u};
 

@@ -15,5 +15,28 @@
  *
  */
 
-// CLASS HEADER
 #include "gles-graphics-shader.h"
+#include <dali/integration-api/gl-abstraction.h>
+#include <vector>
+#include "egl-graphics-controller.h"
+
+#include <GLES3/gl3.h>
+
+namespace Dali
+{
+namespace Graphics
+{
+namespace GLES
+{
+Shader::Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: ShaderResource(createInfo, controller)
+{
+  if(mCreateInfo.sourceData && mCreateInfo.sourceSize)
+  {
+    printf("GLES::Shader: stage: %d, sourceMode: %d, size: %u, source:\n\n%s\n", (int)mCreateInfo.pipelineStage, (int)mCreateInfo.sourceMode, mCreateInfo.sourceSize, static_cast<const char*>(mCreateInfo.sourceData));
+  }
+}
+
+} // namespace GLES
+} // namespace Graphics
+} // namespace Dali
