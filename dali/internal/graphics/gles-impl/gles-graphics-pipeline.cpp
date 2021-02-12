@@ -15,10 +15,15 @@
  *
  */
 
+// CLASS HEADER
 #include "gles-graphics-pipeline.h"
+
+// EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <memory>
+
+// INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 #include "gles-graphics-shader.h"
 
@@ -27,10 +32,10 @@ namespace Dali::Graphics::GLES
 /**
  * Copy of pipeline state, can be also used for internal caching
  */
-struct Pipeline::PipelineState
+struct PipelineImpl::PipelineState
 {
-  PipelineState() = default;
-
+  PipelineState()  = default;
+  ~PipelineState() = default;
   ColorBlendState          colorBlendState;
   DepthStencilState        depthStencilState;
   std::vector<ShaderState> shaderState;
@@ -41,11 +46,11 @@ struct Pipeline::PipelineState
   InputAssemblyState       inputAssemblyState;
 };
 
-Pipeline::Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-: PipelineResource(createInfo, controller)
+PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: mController(controller)
 {
   // the creation is deferred so it's needed to copy certain parts of the CreateInfo structure
-  mPipelineState = std::make_unique<Pipeline::PipelineState>();
+  mPipelineState = std::make_unique<PipelineImpl::PipelineState>();
 
   // Make copies of structured pass by pointers and replace
   // stored create info structure fields
@@ -59,7 +64,17 @@ Pipeline::Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::Egl
   CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
 }
 
-bool Pipeline::InitializeResource()
+const PipelineCreateInfo& PipelineImpl::GetCreateInfo() const
+{
+  return mCreateInfo;
+}
+
+auto& PipelineImpl::GetController() const
+{
+  return mController;
+}
+
+bool PipelineImpl::InitializeResource()
 {
   auto& gl   = *GetController().GetGL();
   mGlProgram = gl.CreateProgram();
@@ -90,7 +105,7 @@ bool Pipeline::InitializeResource()
   return true;
 }
 
-void Pipeline::DestroyResource()
+void PipelineImpl::DestroyResource()
 {
   if(mGlProgram)
   {
@@ -99,18 +114,18 @@ void Pipeline::DestroyResource()
   }
 }
 
-void Pipeline::DiscardResource()
+void PipelineImpl::DiscardResource()
 {
   // Pass program to discard queue
 }
 
-uint32_t Pipeline::GetGLProgram() const
+uint32_t PipelineImpl::GetGLProgram() const
 {
   return mGlProgram;
 }
 
 // FIXME: THIS FUNCTION IS NOT IN USE YET, REQUIRES PROPER PIPELINE
-void Pipeline::Bind(GLES::Pipeline* prevPipeline)
+void PipelineImpl::Bind(GLES::PipelineImpl* prevPipeline)
 {
   // Same pipeline to bind, nothing to do
   if(prevPipeline == this)
@@ -145,6 +160,35 @@ void Pipeline::Bind(GLES::Pipeline* prevPipeline)
   auto program = mGlProgram;
 
   gl.UseProgram(program);
+}
+
+void PipelineImpl::Retain()
+{
+  ++mRefCount;
+}
+
+void PipelineImpl::Release()
+{
+  --mRefCount;
+}
+
+uint32_t PipelineImpl::GetRefCount() const
+{
+  return mRefCount;
+}
+
+PipelineImpl::~PipelineImpl() = default;
+
+// PIPELINE WRAPPER
+
+const PipelineCreateInfo& Pipeline::GetCreateInfo() const
+{
+  return mPipeline.GetCreateInfo();
+}
+
+EglGraphicsController& Pipeline::GetController() const
+{
+  return mPipeline.GetController();
 }
 
 } // namespace Dali::Graphics::GLES

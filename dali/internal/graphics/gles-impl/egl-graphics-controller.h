@@ -25,6 +25,7 @@
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-memory.h"
+#include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-texture.h"
 
 namespace Dali
@@ -41,7 +42,8 @@ namespace Graphics
 namespace GLES
 {
 class CommandBuffer;
-}
+class PipelineCache;
+} // namespace GLES
 
 /**
  * EGL Implementation of the graphics controller.
@@ -416,6 +418,8 @@ private:
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
 
   std::unique_ptr<GLES::Context> mContext{nullptr}; ///< Context object handling command buffers execution
+
+  std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
 };
 
 } // namespace Graphics

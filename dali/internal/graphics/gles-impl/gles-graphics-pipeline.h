@@ -30,7 +30,11 @@ namespace Dali::Graphics::GLES
 {
 using PipelineResource = Resource<Graphics::Pipeline, Graphics::PipelineCreateInfo>;
 
-class Pipeline : public PipelineResource
+/**
+ * @brief PipelineWrapper is the object
+ * returned to the client-side
+ */
+class PipelineImpl
 {
 public:
   /**
@@ -38,24 +42,29 @@ public:
    * @param[in] createInfo valid TextureCreateInfo structure
    * @param[in] controller Reference to the Controller
    */
-  Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+  PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+
+  /**
+   * @brief Destructor
+   */
+  ~PipelineImpl();
 
   /**
    * @brief Destroys all the low-level resources used by the class
    */
-  void DestroyResource() override;
+  void DestroyResource();
 
   /**
    * @brief Initializes low-level resources
    *
    * @return Tron success
    */
-  bool InitializeResource() override;
+  bool InitializeResource();
 
   /**
    * @brief Discards object
    */
-  void DiscardResource() override;
+  void DiscardResource();
 
   /**
    * @brief returns GL program id
@@ -73,7 +82,7 @@ public:
    *
    * @param[in] prevPipeline previous pipeline
    */
-  void Bind(GLES::Pipeline* prevPipeline);
+  void Bind(GLES::PipelineImpl* prevPipeline);
 
   /**
    * Executes state change function if condition met
@@ -94,6 +103,16 @@ public:
       }
     }
   }
+
+  void Retain();
+
+  void Release();
+
+  [[nodiscard]] uint32_t GetRefCount() const;
+
+  [[nodiscard]] const PipelineCreateInfo& GetCreateInfo() const;
+
+  [[nodiscard]] auto& GetController() const;
 
 private:
   /**
@@ -127,9 +146,49 @@ private:
   // Pipeline state is stored as a copy of create info
   // data.
   struct PipelineState;
-  std::unique_ptr<PipelineState> mPipelineState{};
+  std::unique_ptr<PipelineState> mPipelineState;
+
+  EglGraphicsController& mController;
+  PipelineCreateInfo     mCreateInfo;
 
   uint32_t mGlProgram{0u};
+
+  uint32_t mRefCount{0u};
+};
+
+/**
+ * @brief Pipeline class wraps a unique pipeline object
+ *
+ */
+class Pipeline : public Graphics::Pipeline
+{
+public:
+  Pipeline() = delete;
+
+  explicit Pipeline(GLES::PipelineImpl& pipeline)
+  : mPipeline(pipeline)
+  {
+    // increase refcount
+    mPipeline.Retain();
+  }
+
+  ~Pipeline() override
+  {
+    // decrease refcount
+    mPipeline.Release();
+  }
+
+  [[nodiscard]] auto& GetPipeline() const
+  {
+    return mPipeline;
+  }
+
+  [[nodiscard]] const PipelineCreateInfo& GetCreateInfo() const;
+
+  [[nodiscard]] EglGraphicsController& GetController() const;
+
+private:
+  GLES::PipelineImpl& mPipeline;
 };
 
 } // namespace Dali::Graphics::GLES

@@ -151,9 +151,15 @@ EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Gr
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
-Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline)
+Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
-  return NewObject<GLES::Pipeline>(pipelineCreateInfo, *this, std::move(oldPipeline));
+  // Create pipeline cache if needed
+  if(!mPipelineCache)
+  {
+    mPipelineCache = std::make_unique<GLES::PipelineCache>(*this);
+  }
+
+  return mPipelineCache->GetPipeline(pipelineCreateInfo, std::move(oldPipeline));
 }
 
 void EglGraphicsController::AddTexture(GLES::Texture& texture)

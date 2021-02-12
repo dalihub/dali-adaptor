@@ -13,6 +13,7 @@ SET( adaptor_graphics_gles_src_files ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-sampler.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-shader.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-texture.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-pipeline-cache.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-context.cpp
 )
 
