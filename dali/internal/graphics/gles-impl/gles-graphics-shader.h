@@ -67,12 +67,30 @@ public:
   }
 
   /**
+   * @brief Compiles shader
+   * @return
+   */
+  bool Compile() const
+  {
+    mGlShader = 0;
+    return true;
+  }
+
+  /**
    * @brief Called when UniquePtr<> on client-side dies
    */
   void DiscardResource() override
   {
     // TODO: Implement moving to the discard queue
   }
+
+  uint32_t GetGLShader() const
+  {
+    return mGlShader;
+  }
+
+private:
+  mutable uint32_t mGlShader;
 };
 
 } // namespace Dali::Graphics::GLES

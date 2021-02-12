@@ -15,5 +15,136 @@
  *
  */
 
-// CLASS HEADER
 #include "gles-graphics-pipeline.h"
+#include <dali/integration-api/gl-abstraction.h>
+#include <dali/integration-api/gl-defines.h>
+#include <memory>
+#include "egl-graphics-controller.h"
+#include "gles-graphics-shader.h"
+
+namespace Dali::Graphics::GLES
+{
+/**
+ * Copy of pipeline state, can be also used for internal caching
+ */
+struct Pipeline::PipelineState
+{
+  PipelineState() = default;
+
+  ColorBlendState          colorBlendState;
+  DepthStencilState        depthStencilState;
+  std::vector<ShaderState> shaderState;
+  ViewportState            viewportState;
+  FramebufferState         framebufferState;
+  RasterizationState       rasterizationState;
+  VertexInputState         vertexInputState;
+  InputAssemblyState       inputAssemblyState;
+};
+
+Pipeline::Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: PipelineResource(createInfo, controller)
+{
+  // the creation is deferred so it's needed to copy certain parts of the CreateInfo structure
+  mPipelineState = std::make_unique<Pipeline::PipelineState>();
+
+  // Make copies of structured pass by pointers and replace
+  // stored create info structure fields
+  CopyStateIfSet(createInfo.inputAssemblyState, mPipelineState->inputAssemblyState, &mCreateInfo.inputAssemblyState);
+  CopyStateIfSet(createInfo.vertexInputState, mPipelineState->vertexInputState, &mCreateInfo.vertexInputState);
+  CopyStateIfSet(createInfo.rasterizationState, mPipelineState->rasterizationState, &mCreateInfo.rasterizationState);
+  CopyStateIfSet(createInfo.framebufferState, mPipelineState->framebufferState, &mCreateInfo.framebufferState);
+  CopyStateIfSet(createInfo.colorBlendState, mPipelineState->colorBlendState, &mCreateInfo.colorBlendState);
+  CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
+  CopyStateIfSet(createInfo.shaderState, mPipelineState->shaderState, &mCreateInfo.shaderState);
+  CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
+}
+
+bool Pipeline::InitializeResource()
+{
+  auto& gl   = *GetController().GetGL();
+  mGlProgram = gl.CreateProgram();
+
+  for(auto& shader : mPipelineState->shaderState)
+  {
+    // TODO: Compile shader (shouldn't compile if already did so)
+    const auto glesShader = static_cast<const GLES::Shader*>(shader.shader);
+    if(glesShader->Compile())
+    {
+      // Attach shader
+      gl.AttachShader(mGlProgram, glesShader->GetGLShader());
+    }
+    else
+    {
+      // failure
+      gl.DeleteProgram(mGlProgram);
+      return false;
+    }
+  }
+
+  // Link program
+  gl.LinkProgram(mGlProgram);
+
+  // Check for errors
+  // TODO:
+
+  return true;
+}
+
+void Pipeline::DestroyResource()
+{
+  if(mGlProgram)
+  {
+    auto& gl = *GetController().GetGL();
+    gl.DeleteProgram(mGlProgram);
+  }
+}
+
+void Pipeline::DiscardResource()
+{
+  // Pass program to discard queue
+}
+
+uint32_t Pipeline::GetGLProgram() const
+{
+  return mGlProgram;
+}
+
+// FIXME: THIS FUNCTION IS NOT IN USE YET, REQUIRES PROPER PIPELINE
+void Pipeline::Bind(GLES::Pipeline* prevPipeline)
+{
+  // Same pipeline to bind, nothing to do
+  if(prevPipeline == this)
+  {
+    return;
+  }
+
+  auto& gl = *GetController().GetGL();
+
+  // ------------------ VIEWPORT
+
+  const auto& viewportState    = mPipelineState->viewportState;
+  auto        setViewportState = [this, &gl, viewportState]() {
+    if(viewportState.scissorTestEnable)
+    {
+      gl.Enable(GL_SCISSOR_TEST);
+      const auto& scissor = mPipelineState->viewportState.scissor;
+      gl.Scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+    }
+    else
+    {
+      gl.Disable(GL_SCISSOR_TEST);
+      const auto& scissor = mPipelineState->viewportState.scissor;
+      gl.Scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+    }
+  };
+
+  // Resolve viewport/scissor state change
+  ExecuteStateChange(setViewportState, prevPipeline->GetCreateInfo().viewportState, &mPipelineState->viewportState);
+
+  // ---------------------- PROGRAM
+  auto program = mGlProgram;
+
+  gl.UseProgram(program);
+}
+
+} // namespace Dali::Graphics::GLES

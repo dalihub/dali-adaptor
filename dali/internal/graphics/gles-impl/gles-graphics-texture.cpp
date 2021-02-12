@@ -58,7 +58,8 @@ bool Texture::InitializeResource()
     {
       Graphics::GLES::GLTextureFormatType format(mCreateInfo.format);
 
-      if(format.format && format.type)
+      // TODO: find better condition, with this test the L8 doesn't work
+      if(1) //format.format && format.type)
       {
         // Bind texture
         gl->GenTextures(1, &texture);

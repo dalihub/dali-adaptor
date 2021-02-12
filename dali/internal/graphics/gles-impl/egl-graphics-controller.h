@@ -22,6 +22,7 @@
 #include <queue>
 
 // INTERNAL INCLUDES
+#include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-memory.h"
 #include "gles-graphics-texture.h"
@@ -188,10 +189,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreatePipeline()
    */
-  Graphics::UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline) override;
 
   /**
    * @copydoc Dali::Graphics::CreateShader()
@@ -416,6 +414,8 @@ private:
 
   using TextureUpdateRequest = std::pair<TextureUpdateInfo, TextureUpdateSourceInfo>;
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
+
+  std::unique_ptr<GLES::Context> mContext{nullptr}; ///< Context object handling command buffers execution
 };
 
 } // namespace Graphics

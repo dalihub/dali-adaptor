@@ -8,6 +8,7 @@
 
 namespace Dali::Graphics::GLES
 {
+class Buffer;
 // Conversion functions
 /**
  * Stucture delivers format and type that can be used
@@ -33,7 +34,7 @@ struct GLTextureFormatType
       // Luminance formats
       case Graphics::Format::L8:
       {
-        Assign(0, 0);
+        Assign(GL_RED, GL_UNSIGNED_BYTE);
         break;
       }
       case Graphics::Format::L8A8:
@@ -338,6 +339,7 @@ struct GLTextureFormatType
         Assign(0, 0);
         break;
       }
+
       // TBD which of the formats are supported
       case Graphics::Format::A2R10G10B10_UNORM_PACK32:
       {
@@ -1091,6 +1093,246 @@ struct GLSamplerFilterAndMipMapMode
   }
 
   uint32_t glFilter{0};
+};
+
+/** Converts vertex format to GL */
+struct GLVertexFormat
+{
+  constexpr explicit GLVertexFormat(Graphics::VertexInputFormat gfxFormat)
+  {
+    switch(gfxFormat)
+    {
+      case VertexInputFormat::FVECTOR2:
+      {
+        format = GL_FLOAT;
+        size   = 2;
+        break;
+      }
+      case VertexInputFormat::FVECTOR3:
+      {
+        format = GL_FLOAT;
+        size   = 3;
+        break;
+      }
+      case VertexInputFormat::FVECTOR4:
+      {
+        format = GL_FLOAT;
+        size   = 4;
+        break;
+      }
+      case VertexInputFormat::FLOAT:
+      {
+        format = GL_FLOAT;
+        size   = 1;
+        break;
+      }
+      case VertexInputFormat::INTEGER:
+      {
+        format = GL_INT;
+        size   = 1;
+        break;
+      }
+      case VertexInputFormat::IVECTOR2:
+      {
+        format = GL_INT;
+        size   = 2;
+        break;
+      }
+      case VertexInputFormat::IVECTOR3:
+      {
+        format = GL_INT;
+        size   = 3;
+        break;
+      }
+      case VertexInputFormat::IVECTOR4:
+      {
+        format = GL_INT;
+        size   = 4;
+        break;
+      }
+      case VertexInputFormat::UNDEFINED:
+      {
+        format = 0;
+        size   = 0;
+        break;
+      }
+    }
+  }
+
+  GLenum   format{0u};
+  uint32_t size{0u};
+};
+
+/**
+ * @brief Descriptor of single buffer binding within
+ * command buffer.
+ */
+struct VertexBufferBindingDescriptor
+{
+  const GLES::Buffer* buffer{nullptr};
+  uint32_t            offset{0u};
+};
+
+/**
+ * @brief Descriptor of ix buffer binding within
+ * command buffer.
+ */
+struct IndexBufferBindingDescriptor
+{
+  const GLES::Buffer* buffer{nullptr};
+  uint32_t            offset{};
+  Graphics::Format    format{};
+};
+
+/**
+ * @brief The descriptor of draw call
+ */
+struct DrawCallDescriptor
+{
+  /**
+   * @brief Enum specifying type of the draw call
+   */
+  enum class Type
+  {
+    DRAW,
+    DRAW_INDEXED,
+    DRAW_INDEXED_INDIRECT
+  };
+
+  Type type{}; ///< Type of the draw call
+
+  /**
+   * Union contains data for all types of draw calls.
+   */
+  union
+  {
+    /**
+     * @brief Vertex array draw
+     */
+    struct
+    {
+      uint32_t vertexCount;
+      uint32_t instanceCount;
+      uint32_t firstVertex;
+      uint32_t firstInstance;
+    } draw;
+
+    /**
+     * @brief Indexed draw
+     */
+    struct
+    {
+      uint32_t indexCount;
+      uint32_t instanceCount;
+      uint32_t firstIndex;
+      int32_t  vertexOffset;
+      uint32_t firstInstance;
+    } drawIndexed;
+
+    /**
+     * @brief Indexed draw indirect
+     */
+    struct
+    {
+      const GLES::Buffer* buffer;
+      uint32_t            offset;
+      uint32_t            drawCount;
+      uint32_t            stride;
+    } drawIndexedIndirect;
+  };
+};
+
+/**
+ * @brief Topologu conversion from Graphics to GLES
+ */
+struct GLESTopology
+{
+  explicit constexpr GLESTopology(PrimitiveTopology topology)
+  {
+    switch(topology)
+    {
+      case PrimitiveTopology::POINT_LIST:
+      {
+        primitiveTopology = GL_POINTS;
+        break;
+      }
+      case PrimitiveTopology::LINE_LIST:
+      {
+        primitiveTopology = GL_LINES;
+        break;
+      }
+      case PrimitiveTopology::LINE_LOOP:
+      {
+        primitiveTopology = GL_LINE_LOOP;
+        break;
+      }
+      case PrimitiveTopology::LINE_STRIP:
+      {
+        primitiveTopology = GL_LINE_STRIP;
+        break;
+      }
+      case PrimitiveTopology::TRIANGLE_LIST:
+      {
+        primitiveTopology = GL_TRIANGLES;
+        break;
+      }
+      case PrimitiveTopology::TRIANGLE_STRIP:
+      {
+        primitiveTopology = GL_TRIANGLE_STRIP;
+        break;
+      }
+      case PrimitiveTopology::TRIANGLE_FAN:
+      {
+        primitiveTopology = GL_TRIANGLE_FAN;
+        break;
+      }
+    }
+  }
+
+  /**
+   * @brief Explicit type conversion operator
+   * @return converted value
+   */
+  constexpr inline operator GLenum() const
+  {
+    return primitiveTopology;
+  }
+
+  GLenum primitiveTopology{0}; ///< Topology
+};
+
+/**
+ * @brief Index format conversion structure
+ */
+struct GLIndexFormat
+{
+  explicit constexpr GLIndexFormat(Format _format)
+  {
+    switch(_format)
+    {
+      // TODO: add more formats
+      case Format::R16_UINT:
+      {
+        format = GL_UNSIGNED_SHORT;
+        break;
+      }
+      default:
+      {
+        format = 0;
+      }
+    }
+  }
+
+  /**
+   * @brief Explicit type conversion operator
+   * @return converted value
+   */
+  constexpr inline operator GLenum() const
+  {
+    return format;
+  }
+
+  GLenum format{0}; ///< Converted format
 };
 
 } // namespace Dali::Graphics::GLES

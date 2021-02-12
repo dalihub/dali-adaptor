@@ -27,8 +27,8 @@ namespace GLES
 /**
  * @brief Base class for the Graphics resource.
  */
-template<class T, class CreateInfo>
-class Resource : public T
+template<class BASE, class CreateInfo>
+class Resource : public BASE
 {
 public:
   /**
@@ -87,6 +87,15 @@ public:
    * @brief Discards resource by adding it to the discard queue
    */
   virtual void DiscardResource() = 0;
+
+  /**
+   * @brief returns pointer to base
+   * @return
+   */
+  BASE* GetBase()
+  {
+    return this;
+  }
 
 protected:
   CreateInfo                       mCreateInfo; ///< CreateInfo structure

@@ -23,17 +23,15 @@
 
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
+#include "gles-graphics-pipeline.h"
+#include "gles-graphics-types.h"
 
-namespace Dali
+namespace Dali::Graphics::GLES
 {
-namespace Graphics
-{
-namespace GLES
-{
-class EglController;
 class Texture;
 class Buffer;
 class Sampler;
+class Pipeline;
 
 enum class CommandType
 {
@@ -41,7 +39,11 @@ enum class CommandType
   BIND_TEXTURES,
   BIND_SAMPLERS,
   BIND_VERTEX_BUFFERS,
-  BIND_INDEX_BUFFER
+  BIND_INDEX_BUFFER,
+  BIND_PIPELINE,
+  DRAW,
+  DRAW_INDEXED,
+  DRAW_INDEXED_INDIRECT
 };
 
 /**
@@ -85,6 +87,29 @@ struct Command
         bindTextures = rhs.bindTextures;
         break;
       }
+      case CommandType::BIND_PIPELINE:
+      {
+        bindPipeline = rhs.bindPipeline;
+        break;
+      }
+      case CommandType::DRAW:
+      {
+        draw.type = rhs.draw.type;
+        draw.draw = rhs.draw.draw;
+        break;
+      }
+      case CommandType::DRAW_INDEXED:
+      {
+        draw.type        = rhs.draw.type;
+        draw.drawIndexed = rhs.draw.drawIndexed;
+        break;
+      }
+      case CommandType::DRAW_INDEXED_INDIRECT:
+      {
+        draw.type                = rhs.draw.type;
+        draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
+        break;
+      }
       case CommandType::FLUSH:
       {
         // Nothing to do
@@ -122,6 +147,29 @@ struct Command
         bindTextures = std::move(rhs.bindTextures);
         break;
       }
+      case CommandType::BIND_PIPELINE:
+      {
+        bindPipeline = rhs.bindPipeline;
+        break;
+      }
+      case CommandType::DRAW:
+      {
+        draw.type = rhs.draw.type;
+        draw.draw = rhs.draw.draw;
+        break;
+      }
+      case CommandType::DRAW_INDEXED:
+      {
+        draw.type        = rhs.draw.type;
+        draw.drawIndexed = rhs.draw.drawIndexed;
+        break;
+      }
+      case CommandType::DRAW_INDEXED_INDIRECT:
+      {
+        draw.type                = rhs.draw.type;
+        draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
+        break;
+      }
       case CommandType::FLUSH:
       {
         // Nothing to do
@@ -131,7 +179,7 @@ struct Command
     type = rhs.type;
   }
 
-  CommandType type{CommandType::FLUSH};
+  CommandType type{CommandType::FLUSH}; ///< Type of command
 
   union
   {
@@ -148,20 +196,22 @@ struct Command
 
     struct
     {
-      struct Binding
-      {
-        const Graphics::Buffer* buffer{nullptr};
-        uint32_t                offset{0u};
-      };
+      using Binding = GLES::VertexBufferBindingDescriptor;
       std::vector<Binding> vertexBufferBindings;
     } bindVertexBuffers;
 
+    struct : public IndexBufferBindingDescriptor
+    {
+    } bindIndexBuffer;
+
     struct
     {
-      const Graphics::Buffer* buffer{nullptr};
-      uint32_t                offset{};
-      Graphics::Format        format{};
-    } bindIndexBuffer;
+      const GLES::Pipeline* pipeline{nullptr};
+    } bindPipeline;
+
+    struct : public DrawCallDescriptor
+    {
+    } draw;
   };
 };
 
@@ -174,6 +224,8 @@ public:
   : CommandBufferResource(createInfo, controller)
   {
   }
+
+  ~CommandBuffer() override = default;
 
   void BindVertexBuffers(uint32_t                             firstBinding,
                          std::vector<const Graphics::Buffer*> buffers,
@@ -188,7 +240,7 @@ public:
       auto index = firstBinding;
       for(auto& buf : buffers)
       {
-        bindings[index].buffer = buf;
+        bindings[index].buffer = static_cast<const GLES::Buffer*>(buf);
         bindings[index].offset = offsets[index - firstBinding];
         index++;
       }
@@ -201,6 +253,9 @@ public:
 
   void BindPipeline(const Graphics::Pipeline& pipeline) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type                  = CommandType::BIND_PIPELINE;
+    mCommands.back().bindPipeline.pipeline = static_cast<const GLES::Pipeline*>(&pipeline);
   }
 
   void BindTextures(std::vector<TextureBinding>& textureBindings) override
@@ -228,7 +283,7 @@ public:
   {
     mCommands.emplace_back();
     mCommands.back().type                   = CommandType::BIND_INDEX_BUFFER;
-    mCommands.back().bindIndexBuffer.buffer = &buffer;
+    mCommands.back().bindIndexBuffer.buffer = static_cast<const GLES::Buffer*>(&buffer);
     mCommands.back().bindIndexBuffer.offset = offset;
     mCommands.back().bindIndexBuffer.format = format;
   }
@@ -260,6 +315,14 @@ public:
     uint32_t firstVertex,
     uint32_t firstInstance) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type  = CommandType::DRAW;
+    auto& cmd              = mCommands.back().draw;
+    cmd.type               = DrawCallDescriptor::Type::DRAW;
+    cmd.draw.vertexCount   = vertexCount;
+    cmd.draw.instanceCount = instanceCount;
+    cmd.draw.firstInstance = firstInstance;
+    cmd.draw.firstVertex   = firstVertex;
   }
 
   void DrawIndexed(
@@ -269,6 +332,15 @@ public:
     int32_t  vertexOffset,
     uint32_t firstInstance) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type         = CommandType::DRAW_INDEXED;
+    auto& cmd                     = mCommands.back().draw;
+    cmd.type                      = DrawCallDescriptor::Type::DRAW_INDEXED;
+    cmd.drawIndexed.firstIndex    = firstIndex;
+    cmd.drawIndexed.firstInstance = firstInstance;
+    cmd.drawIndexed.indexCount    = indexCount;
+    cmd.drawIndexed.vertexOffset  = vertexOffset;
+    cmd.drawIndexed.instanceCount = instanceCount;
   }
 
   void DrawIndexedIndirect(
@@ -277,6 +349,14 @@ public:
     uint32_t          drawCount,
     uint32_t          stride) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type             = CommandType::DRAW_INDEXED_INDIRECT;
+    auto& cmd                         = mCommands.back().draw;
+    cmd.type                          = DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT;
+    cmd.drawIndexedIndirect.buffer    = static_cast<const GLES::Buffer*>(&buffer);
+    cmd.drawIndexedIndirect.offset    = offset;
+    cmd.drawIndexedIndirect.drawCount = drawCount;
+    cmd.drawIndexedIndirect.stride    = stride;
   }
 
   void Reset(Graphics::CommandBuffer& commandBuffer) override
@@ -324,8 +404,6 @@ public:
 private:
   std::vector<Command> mCommands;
 };
-} // Namespace GLES
-} // Namespace Graphics
-} // Namespace Dali
+} // namespace Dali::Graphics::GLES
 
 #endif

@@ -21,9 +21,9 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
-
 #include <dali/public-api/common/dali-common.h>
 
 namespace Dali::Graphics
@@ -89,6 +89,7 @@ T0* CastObject(T1* apiObject)
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   mGlAbstraction = &glAbstraction;
+  mContext       = std::make_unique<GLES::Context>(*this);
 }
 
 void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
@@ -150,6 +151,11 @@ EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Gr
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
+Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline)
+{
+  return NewObject<GLES::Pipeline>(pipelineCreateInfo, *this, std::move(oldPipeline));
+}
+
 void EglGraphicsController::AddTexture(GLES::Texture& texture)
 {
   // Assuming we are on the correct context
@@ -182,6 +188,9 @@ void EglGraphicsController::ProcessCreateQueues()
 
 void EglGraphicsController::ProcessCommandQueues()
 {
+  // TODO: command queue per context, sync between queues should be
+  // done externally
+
   while(!mCommandQueue.empty())
   {
     auto cmdBuf = mCommandQueue.front();
@@ -194,43 +203,47 @@ void EglGraphicsController::ProcessCommandQueues()
       {
         case GLES::CommandType::FLUSH:
         {
+          // Nothing to do here
           break;
         }
-
-          // Bind textures
         case GLES::CommandType::BIND_TEXTURES:
         {
-          for(auto& binding : cmd.bindTextures.textureBindings)
-          {
-            static_cast<const GLES::Texture*>(binding.texture)->Bind(binding);
-          }
+          mContext->BindTextures(cmd.bindTextures.textureBindings);
           break;
         }
-
         case GLES::CommandType::BIND_VERTEX_BUFFERS:
         {
           auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
-          auto  index    = 0u;
-          for(auto& binding : bindings)
-          {
-            // TODO: this is all wrong, just hack to work with current DALi
-            if(binding.buffer)
-            {
-              CastObject<const GLES::Buffer>(binding.buffer)->Bind(BufferUsage::VERTEX_BUFFER);
-              index++;
-            }
-          }
-
+          mContext->BindVertexBuffers(bindings);
           break;
         }
         case GLES::CommandType::BIND_INDEX_BUFFER:
         {
-          auto buffer = static_cast<const GLES::Buffer*>(cmd.bindIndexBuffer.buffer);
-          buffer->Bind(BufferUsage::INDEX_BUFFER);
+          mContext->BindIndexBuffer(cmd.bindIndexBuffer);
           break;
         }
         case GLES::CommandType::BIND_SAMPLERS:
         {
+          break;
+        }
+        case GLES::CommandType::BIND_PIPELINE:
+        {
+          mContext->BindPipeline(cmd.bindPipeline.pipeline);
+          break;
+        }
+        case GLES::CommandType::DRAW:
+        {
+          mContext->Flush(false, cmd.draw);
+          break;
+        }
+        case GLES::CommandType::DRAW_INDEXED:
+        {
+          mContext->Flush(false, cmd.draw);
+          break;
+        }
+        case GLES::CommandType::DRAW_INDEXED_INDIRECT:
+        {
+          mContext->Flush(false, cmd.draw);
           break;
         }
       }
@@ -302,8 +315,6 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
 
         // store staging buffer
         source.memorySource.memory = stagingBuffer;
-
-        printf("Update ptr: %p\n", source.memorySource.memory);
         break;
       }
       case Graphics::TextureUpdateSourceInfo::Type::BUFFER:

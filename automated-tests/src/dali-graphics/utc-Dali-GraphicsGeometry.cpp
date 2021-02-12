@@ -1,7 +1,7 @@
 #include <dali-test-suite-utils.h>
 
 #include <dali/graphics-api/graphics-controller.h>
-#include <dali/internal/graphics/gles/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <test-graphics-application.h>
 //#include <dali/graphics-api/graphics-api-buffer.h>
 

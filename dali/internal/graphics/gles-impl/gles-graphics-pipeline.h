@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-pipeline-create-info.h>
 #include <dali/graphics-api/graphics-pipeline.h>
+#include <string.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -34,47 +35,102 @@ class Pipeline : public PipelineResource
 public:
   /**
    * @brief Constructor
-   * @param[in] createInfo Valid createInfo structure
-   * @param[in] controller Reference to the controller
+   * @param[in] createInfo valid TextureCreateInfo structure
+   * @param[in] controller Reference to the Controller
    */
-  Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : PipelineResource(createInfo, controller)
-  {
-  }
+  Pipeline(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
-   * @brief Destructor
+   * @brief Destroys all the low-level resources used by the class
    */
-  ~Pipeline() override = default;
+  void DestroyResource() override;
 
   /**
-   * @brief Called when GL resources are destroyed
-   */
-  void DestroyResource() override
-  {
-    // TODO: Implement destroying the resource
-  }
-
-  /**
-   * @brief Called when initializing the resource
+   * @brief Initializes low-level resources
    *
-   * @return True on success
+   * @return Tron success
    */
-  bool InitializeResource() override
+  bool InitializeResource() override;
+
+  /**
+   * @brief Discards object
+   */
+  void DiscardResource() override;
+
+  /**
+   * @brief returns GL program id
+   * @return GL program id
+   */
+  [[nodiscard]] uint32_t GetGLProgram() const;
+
+  /**
+   * @brief Binds pipeline
+   *
+   * Binds Pipeline by binding GL program and flushing state.
+   *
+   * If previous pipeline specified, it will be used in order to
+   * avoid redundant state swiches.
+   *
+   * @param[in] prevPipeline previous pipeline
+   */
+  void Bind(GLES::Pipeline* prevPipeline);
+
+  /**
+   * Executes state change function if condition met
+   */
+  template<typename FUNC, typename STATE>
+  void ExecuteStateChange(FUNC& func, const STATE* prevPipelineState, const STATE* thisPipelineState)
   {
-    // TODO: Implement initializing resource
-    return {};
+    if(!prevPipelineState)
+    {
+      func();
+    }
+    else
+    {
+      // binary test and execute when different
+      if(memcmp(prevPipelineState, thisPipelineState, sizeof(STATE)) != 0)
+      {
+        func();
+      }
+    }
+  }
+
+private:
+  /**
+   * @brief Helper function. Copies state if pointer is set
+   */
+  template<class T>
+  void CopyStateIfSet(const T* sourceState, T& copyState, T** destState)
+  {
+    *destState = nullptr;
+    if(sourceState)
+    {
+      copyState  = *sourceState;
+      *destState = &copyState;
+    }
   }
 
   /**
-   * @brief Called when UniquePtr<> on client-side dies
+   * @brief Helper function. Copies const state if pointer is set
    */
-  void DiscardResource() override
+  template<class T>
+  void CopyStateIfSet(const T* sourceState, T& copyState, const T** destState)
   {
-    // TODO: Implement moving to the discard queue
+    *destState = nullptr;
+    if(sourceState)
+    {
+      copyState  = *sourceState;
+      *destState = &copyState;
+    }
   }
+
+  // Pipeline state is stored as a copy of create info
+  // data.
+  struct PipelineState;
+  std::unique_ptr<PipelineState> mPipelineState{};
+
+  uint32_t mGlProgram{0u};
 };
 
 } // namespace Dali::Graphics::GLES
-
 #endif
