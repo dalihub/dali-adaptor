@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,9 @@
 
 namespace Dali
 {
-VectorAnimationRenderer VectorAnimationRenderer::New(const std::string& url)
+VectorAnimationRenderer VectorAnimationRenderer::New()
 {
   Internal::Adaptor::VectorAnimationRendererPtr animationRenderer = Internal::Adaptor::VectorAnimationRenderer::New();
-  if(animationRenderer)
-  {
-    animationRenderer->Initialize(url);
-  }
-
   return VectorAnimationRenderer(animationRenderer.Get());
 }
 
@@ -61,6 +56,11 @@ VectorAnimationRenderer& VectorAnimationRenderer::operator=(const VectorAnimatio
 void VectorAnimationRenderer::Finalize()
 {
   GetImplementation(*this).Finalize();
+}
+
+bool VectorAnimationRenderer::Load(const std::string& url)
+{
+  return GetImplementation(*this).Load(url);
 }
 
 void VectorAnimationRenderer::SetRenderer(Renderer renderer)
