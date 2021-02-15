@@ -93,6 +93,16 @@ public:
    */
   void BindPipeline(const GLES::Pipeline* newPipeline);
 
+  /**
+   * @brief Resolves blend state on the currently attached pipeline
+   */
+  void ResolveBlendState();
+
+  /**
+   * @brief Resolves rasterization state on the currently attached pipeline
+   */
+  void ResolveRasterizationState();
+
 private:
   struct Impl;
   std::unique_ptr<Impl> mImpl;

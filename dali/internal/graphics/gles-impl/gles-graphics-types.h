@@ -1335,6 +1335,219 @@ struct GLIndexFormat
   GLenum format{0}; ///< Converted format
 };
 
+/**
+ * @brief Conversion of blending function factor
+ */
+struct GLBlendFunc
+{
+  constexpr explicit GLBlendFunc(Graphics::BlendFactor factor)
+  {
+    switch(factor)
+    {
+      case Graphics::BlendFactor::ZERO:
+      {
+        glFactor = GL_ZERO;
+        break;
+      }
+      case Graphics::BlendFactor::ONE:
+      {
+        glFactor = GL_ONE;
+        break;
+      }
+      case Graphics::BlendFactor::SRC_COLOR:
+      {
+        glFactor = GL_SRC_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_SRC_COLOR:
+      {
+        glFactor = GL_ONE_MINUS_SRC_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::DST_COLOR:
+      {
+        glFactor = GL_DST_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_DST_COLOR:
+      {
+        glFactor = GL_ONE_MINUS_DST_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::SRC_ALPHA:
+      {
+        glFactor = GL_SRC_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_SRC_ALPHA:
+      {
+        glFactor = GL_ONE_MINUS_SRC_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::DST_ALPHA:
+      {
+        glFactor = GL_DST_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_DST_ALPHA:
+      {
+        glFactor = GL_ONE_MINUS_DST_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::CONSTANT_COLOR:
+      {
+        glFactor = GL_CONSTANT_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_CONSTANT_COLOR:
+      {
+        glFactor = GL_ONE_MINUS_CONSTANT_COLOR;
+        break;
+      }
+      case Graphics::BlendFactor::CONSTANT_ALPHA:
+      {
+        glFactor = GL_CONSTANT_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_CONSTANT_ALPHA:
+      {
+        glFactor = GL_ONE_MINUS_CONSTANT_ALPHA;
+        break;
+      }
+      case Graphics::BlendFactor::SRC_ALPHA_SATURATE:
+      {
+        glFactor = GL_SRC_ALPHA_SATURATE;
+        break;
+      }
+      // Below may be unsupported without extension
+      case Graphics::BlendFactor::SRC1_COLOR:
+      {
+        glFactor = 0u;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_SRC1_COLOR:
+      {
+        glFactor = 0u;
+        break;
+      }
+      case Graphics::BlendFactor::SRC1_ALPHA:
+      {
+        glFactor = 0u;
+        break;
+      }
+      case Graphics::BlendFactor::ONE_MINUS_SRC1_ALPHA:
+      {
+        glFactor = 0u;
+        break;
+      }
+    }
+  }
+
+  /**
+   * @brief Explicit type conversion operator
+   * @return converted value
+   */
+  constexpr inline operator GLenum() const
+  {
+    return glFactor;
+  }
+
+  GLenum glFactor{0u};
+};
+
+/**
+ * @brief Converts Blend Op to GL
+ */
+struct GLBlendOp
+{
+  constexpr explicit GLBlendOp(Graphics::BlendOp blendOp)
+  {
+    switch(blendOp)
+    {
+      case Graphics::BlendOp::ADD:
+      {
+        glBlendOp = GL_FUNC_ADD;
+        break;
+      }
+      case Graphics::BlendOp::SUBTRACT:
+      {
+        glBlendOp = GL_FUNC_SUBTRACT;
+        break;
+      }
+      case Graphics::BlendOp::REVERSE_SUBTRACT:
+      {
+        glBlendOp = GL_FUNC_REVERSE_SUBTRACT;
+        break;
+      }
+      case Graphics::BlendOp::MIN:
+      {
+        glBlendOp = GL_MIN;
+        break;
+      }
+      case Graphics::BlendOp::MAX:
+      {
+        glBlendOp = GL_MAX;
+        break;
+      }
+    }
+  }
+
+  /**
+   * @brief Explicit type conversion operator
+   * @return converted value
+   */
+  constexpr inline operator GLenum() const
+  {
+    return glBlendOp;
+  }
+
+  GLenum glBlendOp{0u};
+};
+
+/**
+ * @brief Converts GL cull mode
+ */
+struct GLCullMode
+{
+  constexpr explicit GLCullMode(Graphics::CullMode cullMode)
+  {
+    switch(cullMode)
+    {
+      case Graphics::CullMode::NONE: // this isn't really accepted by GL!
+      {
+        glCullMode = GL_NONE;
+        break;
+      }
+      case Graphics::CullMode::FRONT:
+      {
+        glCullMode = GL_FRONT;
+        break;
+      }
+      case Graphics::CullMode::BACK:
+      {
+        glCullMode = GL_BACK;
+        break;
+      }
+      case Graphics::CullMode::FRONT_AND_BACK:
+      {
+        glCullMode = GL_FRONT_AND_BACK;
+        break;
+      }
+    }
+  }
+
+  /**
+   * @brief Explicit type conversion operator
+   * @return converted value
+   */
+  constexpr inline operator GLenum() const
+  {
+    return glCullMode;
+  }
+
+  GLenum glCullMode{0u};
+};
+
 } // namespace Dali::Graphics::GLES
 
 #endif //DALI_GRAPHICS_API_TYPES_H

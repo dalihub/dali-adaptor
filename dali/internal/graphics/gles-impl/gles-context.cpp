@@ -71,6 +71,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
     mImpl->mNewPipeline     = nullptr;
   }
 
+  // Blend state
+  ResolveBlendState();
+
+  // Resolve rasterization state
+  ResolveRasterizationState();
+
   // Bind textures
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
@@ -104,8 +110,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
   // Resolve topology
   const auto& ia = mImpl->mCurrentPipeline->GetCreateInfo().inputAssemblyState;
-  // Resolve drawcall
 
+  // Resolve draw call
   switch(drawCall.type)
   {
     case DrawCallDescriptor::Type::DRAW:
@@ -169,6 +175,74 @@ void Context::BindIndexBuffer(const IndexBufferBindingDescriptor& indexBufferBin
 void Context::BindPipeline(const GLES::Pipeline* newPipeline)
 {
   mImpl->mNewPipeline = newPipeline;
+}
+
+void Context::ResolveBlendState()
+{
+  const auto& state = mImpl->mCurrentPipeline->GetCreateInfo();
+  const auto& bs    = state.colorBlendState;
+  auto&       gl    = *mImpl->mController.GetGL();
+
+  // TODO: prevent leaking the state
+  if(!bs)
+  {
+    return;
+  }
+
+  bs->blendEnable ? gl.Enable(GL_BLEND) : gl.Disable(GL_BLEND);
+  if(!bs->blendEnable)
+  {
+    return;
+  }
+
+  gl.BlendFunc(GLBlendFunc(bs->srcColorBlendFactor), GLBlendFunc(bs->dstColorBlendFactor));
+
+  if((GLBlendFunc(bs->srcColorBlendFactor) == GLBlendFunc(bs->srcAlphaBlendFactor)) &&
+     (GLBlendFunc(bs->dstColorBlendFactor) == GLBlendFunc(bs->dstAlphaBlendFactor)))
+  {
+    gl.BlendFunc(GLBlendFunc(bs->srcColorBlendFactor), GLBlendFunc(bs->dstColorBlendFactor));
+  }
+  else
+  {
+    gl.BlendFuncSeparate(GLBlendFunc(bs->srcColorBlendFactor),
+                         GLBlendFunc(bs->dstColorBlendFactor),
+                         GLBlendFunc(bs->srcAlphaBlendFactor),
+                         GLBlendFunc(bs->dstAlphaBlendFactor));
+  }
+  if(GLBlendOp(bs->colorBlendOp) == GLBlendOp(bs->alphaBlendOp))
+  {
+    gl.BlendEquation(GLBlendOp(bs->colorBlendOp));
+  }
+  else
+  {
+    gl.BlendEquationSeparate(GLBlendOp(bs->colorBlendOp), GLBlendOp(bs->alphaBlendOp));
+  }
+}
+
+void Context::ResolveRasterizationState()
+{
+  const auto& state = mImpl->mCurrentPipeline->GetCreateInfo();
+  const auto& rs    = state.rasterizationState;
+  auto&       gl    = *mImpl->mController.GetGL();
+
+  // TODO: prevent leaking the state
+  if(!rs)
+  {
+    return;
+  }
+
+  if(rs->cullMode == CullMode::NONE)
+  {
+    gl.Disable(GL_CULL_FACE);
+  }
+  else
+  {
+    gl.Enable(GL_CULL_FACE);
+    gl.CullFace(GLCullMode(rs->cullMode));
+  }
+
+  // TODO: implement polygon mode (fill, line, points)
+  //       seems like we don't support it (no glPolygonMode())
 }
 
 } // namespace Dali::Graphics::GLES
