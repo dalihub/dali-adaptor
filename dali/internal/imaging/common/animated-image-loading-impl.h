@@ -94,6 +94,11 @@ public:
    * @copydoc Dali::AnimatedImageLoading::GetUrl()
    */
   virtual std::string GetUrl() const = 0;
+
+  /**
+   * @copydoc Dali::AnimatedImageLoading::HasLoadingSucceeded()
+   */
+  virtual bool HasLoadingSucceeded() const = 0;
 };
 
 } // namespace Adaptor
