@@ -48,14 +48,14 @@ public:
   static VectorAnimationRendererPtr New();
 
   /**
-   * @brief Initializes member data.
-   */
-  void Initialize(const std::string& url);
-
-  /**
    * @copydoc Dali::VectorAnimationRenderer::Finalize()
    */
   void Finalize();
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::Load()
+   */
+  bool Load(const std::string& url);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::SetRenderer()
