@@ -34,12 +34,12 @@ struct GLTextureFormatType
       // Luminance formats
       case Graphics::Format::L8:
       {
-        Assign(GL_RED, GL_UNSIGNED_BYTE);
+        Assign(GL_LUMINANCE, GL_UNSIGNED_BYTE);
         break;
       }
       case Graphics::Format::L8A8:
       {
-        Assign(0, 0);
+        Assign(GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE);
         break;
       }
 

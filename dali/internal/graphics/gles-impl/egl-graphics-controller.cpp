@@ -266,6 +266,8 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       auto*       texture    = static_cast<GLES::Texture*>(info.dstTexture);
       const auto& createInfo = texture->GetCreateInfo();
 
+      mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
       mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
       mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
                                     info.level,
