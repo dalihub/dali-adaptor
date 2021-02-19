@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,13 +70,14 @@ DALI_ADAPTOR_API ImageDimensions GetClosestImageSize(
   bool               orientationCorrection = true);
 
 /**
- * @brief Get the size of an original image
+ * @brief Get the size of an original image. this method will respect any rotation of image.
  * @param[in] filename name of the image.
+ * @param[in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
  *
  * @return dimensions to original image
  */
 DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
-  const std::string& filename);
+  const std::string& filename, bool orientationCorrection = true);
 
 /**
  * @brief Load an image synchronously from a remote resource.
