@@ -671,6 +671,13 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
 
+  /**
+   * @brief Connects to this signal to be notified when console message will be logged.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

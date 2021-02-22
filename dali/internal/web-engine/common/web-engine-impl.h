@@ -489,6 +489,11 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
 
+  /**
+   @copydoc Dali::WebEngine::ConsoleMessageSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
+
 private:
   /**
    * @brief Constructor.

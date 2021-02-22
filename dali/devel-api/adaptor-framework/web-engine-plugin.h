@@ -32,10 +32,12 @@ class KeyEvent;
 class PixelData;
 class TouchEvent;
 class WebEngineBackForwardList;
+class WebEngineConsoleMessage;
 class WebEngineContext;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
 class WebEngineRequestInterceptor;
+class WebEngineLoadError;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
@@ -55,7 +57,7 @@ public:
   /**
    * @brief WebView signal type related with page loading error.
    */
-  using WebEnginePageLoadErrorSignalType = Signal<void(const std::string&, int)>;
+  using WebEnginePageLoadErrorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineLoadError>)>;
 
   // forward declaration.
   enum class ScrollEdge;
@@ -92,6 +94,11 @@ public:
    * @brief WebView signal type related with http request interceptor.
    */
   using WebEngineRequestInterceptorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineRequestInterceptor>)>;
+
+  /**
+   * @brief WebView signal type related with console message will be logged.
+   */
+  using WebEngineConsoleMessageSignalType = Signal<void(std::shared_ptr<Dali::WebEngineConsoleMessage>)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -160,7 +167,7 @@ public:
   virtual ~WebEnginePlugin() = default;
 
   /**
-   * @brief Creates WebEngine instance.
+   * @brief Create WebEngine instance.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
@@ -170,7 +177,7 @@ public:
   virtual void Create(int width, int height, const std::string& locale, const std::string& timezoneId) = 0;
 
   /**
-   * @brief Creates WebEngine instance.
+   * @brief Create WebEngine instance.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
@@ -180,7 +187,7 @@ public:
   virtual void Create(int width, int height, int argc, char** argv) = 0;
 
   /**
-   * @brief Destroys WebEngine instance.
+   * @brief Destroy WebEngine instance.
    */
   virtual void Destroy() = 0;
 
@@ -205,28 +212,28 @@ public:
   virtual WebEngineBackForwardList& GetBackForwardList() const = 0;
 
   /**
-   * @brief Loads a web page based on a given URL.
+   * @brief Load a web page based on a given URL.
    *
    * @param [in] url The URL of the resource to load
    */
   virtual void LoadUrl(const std::string& url) = 0;
 
   /**
-   * @brief Returns the title of the Web.
+   * @brief Return the title of the Web.
    *
    * @return The title of web page
    */
   virtual std::string GetTitle() const = 0;
 
   /**
-   * @brief Returns the Favicon of the Web.
+   * @brief Return the Favicon of the Web.
    *
    * @return Favicon of Dali::PixelData& type
    */
   virtual Dali::PixelData GetFavicon() const = 0;
 
   /**
-   * @brief Gets image to render.
+   * @brief Get image to render.
    */
   virtual NativeImageInterfacePtr GetNativeImageSource() = 0;
 
@@ -238,7 +245,7 @@ public:
   virtual const std::string& GetUrl() = 0;
 
   /**
-   * @brief Loads a given string as web contents.
+   * @brief Load a given string as web contents.
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
@@ -256,7 +263,7 @@ public:
   virtual bool LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl) = 0;
 
   /**
-   * @brief Requests loading the given contents by MIME type into the view object
+   * @brief Request loading the given contents by MIME type into the view object
    *
    * @param[in] contents The content to load
    * @param[in] contentSize The size of contents (in bytes)
@@ -269,27 +276,27 @@ public:
   virtual bool LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri) = 0;
 
   /**
-   * @brief Reloads the Web.
+   * @brief Reload the Web.
    */
   virtual void Reload() = 0;
 
   /**
-   * @brief Reloads the current page's document without cache
+   * @brief Reload the current page's document without cache
    */
   virtual bool ReloadWithoutCache() = 0;
 
   /**
-   * @brief Stops loading web contents on the current page.
+   * @brief Stop loading web contents on the current page.
    */
   virtual void StopLoading() = 0;
 
   /**
-   * @brief Suspends the operation associated with the view.
+   * @brief Suspend the operation associated with the view.
    */
   virtual void Suspend() = 0;
 
   /**
-   * @brief Resumes the operation associated with the view object after calling Suspend().
+   * @brief Resume the operation associated with the view object after calling Suspend().
    */
   virtual void Resume() = 0;
 
@@ -339,7 +346,7 @@ public:
   virtual bool StopInspectorServer() = 0;
 
   /**
-   * @brief Scrolls web page of view by deltaX and deltaY.
+   * @brief Scroll web page of view by deltaX and deltaY.
    *
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
@@ -347,7 +354,7 @@ public:
   virtual void ScrollBy(int deltaX, int deltaY) = 0;
 
   /**
-   * @brief Scrolls edge of view by deltaX and deltaY.
+   * @brief Scroll edge of view by deltaX and deltaY.
    *
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
@@ -362,41 +369,41 @@ public:
   virtual void SetScrollPosition(int x, int y) = 0;
 
   /**
-   * @brief Gets the current scroll position of the given view.
+   * @brief Get the current scroll position of the given view.
    */
   virtual Dali::Vector2 GetScrollPosition() const = 0;
 
   /**
-   * @brief Gets the possible scroll size of the given view.
+   * @brief Get the possible scroll size of the given view.
    */
   virtual Dali::Vector2 GetScrollSize() const = 0;
 
   /**
-   * @brief Gets the last known content's size.
+   * @brief Get the last known content's size.
    */
   virtual Dali::Vector2 GetContentSize() const = 0;
 
   /**
-   * @brief Returns whether forward is possible.
+   * @brief Return whether forward is possible.
    *
    * @return True if forward is possible, false otherwise
    */
   virtual bool CanGoForward() = 0;
 
   /**
-   * @brief Goes to forward.
+   * @brief Go to forward.
    */
   virtual void GoForward() = 0;
 
   /**
-   * @brief Returns whether backward is possible.
+   * @brief Return whether backward is possible.
    *
    * @return True if backward is possible, false otherwise
    */
   virtual bool CanGoBack() = 0;
 
   /**
-   * @brief Goes to back.
+   * @brief Go to back.
    */
   virtual void GoBack() = 0;
 
@@ -453,12 +460,12 @@ public:
   virtual void JavaScriptPromptReply(const std::string& result) = 0;
 
   /**
-   * @brief Clears the history of Web.
+   * @brief Clear the history of Web.
    */
   virtual void ClearHistory() = 0;
 
   /**
-   * @brief Clears all tiles resources of Web.
+   * @brief Clear all tiles resources of Web.
    */
   virtual void ClearAllTilesResources() = 0;
 
@@ -482,47 +489,47 @@ public:
   virtual void SetSize(int width, int height) = 0;
 
   /**
-   * @brief Sets background color of web page.
+   * @brief Set background color of web page.
    *
    * @param[in] color Background color
    */
   virtual void SetDocumentBackgroundColor(Dali::Vector4 color) = 0;
 
   /**
-   * @brief Clears tiles when hidden.
+   * @brief Clear tiles when hidden.
    *
    * @param[in] cleared Whether tiles are cleared or not
    */
   virtual void ClearTilesWhenHidden(bool cleared) = 0;
 
   /**
-   * @brief Sets multiplier of cover area of tile.
+   * @brief Set multiplier of cover area of tile.
    *
    * @param[in] multiplier The multiplier of cover area
    */
   virtual void SetTileCoverAreaMultiplier(float multiplier) = 0;
 
   /**
-   * @brief Enables cursor by client.
+   * @brief Enable cursor by client.
    *
    * @param[in] enabled Whether cursor is enabled or not
    */
   virtual void EnableCursorByClient(bool enabled) = 0;
 
   /**
-   * @brief Gets the selected text.
+   * @brief Get the selected text.
    *
    * @return the selected text
    */
   virtual std::string GetSelectedText() const = 0;
 
   /**
-   * @brief Sends Touch Events.
+   * @brief Send Touch Events.
    */
   virtual bool SendTouchEvent(const TouchEvent& touch) = 0;
 
   /**
-   * @brief Sends Key Events.
+   * @brief Send Key Events.
    */
   virtual bool SendKeyEvent(const KeyEvent& event) = 0;
 
@@ -539,50 +546,50 @@ public:
   virtual void EnableKeyEvents(bool enabled) = 0;
 
   /**
-   * @brief Sets focus.
+   * @brief Set focus.
    * @param[in] focused True if focus is gained, false lost.
    */
   virtual void SetFocus(bool focused) = 0;
 
   /**
-   * @brief Sets zoom factor of the current page.
+   * @brief Set zoom factor of the current page.
    * @param[in] zoomFactor a new factor to be set.
    */
   virtual void SetPageZoomFactor(float zoomFactor) = 0;
 
   /**
-   * @brief Queries the current zoom factor of the page。
+   * @brief Query the current zoom factor of the page。
    * @return The current page zoom factor.
    */
   virtual float GetPageZoomFactor() const = 0;
 
   /**
-   * @brief Sets the current text zoom level。.
+   * @brief Set the current text zoom level。.
    * @param[in] zoomFactor a new factor to be set.
    */
   virtual void SetTextZoomFactor(float zoomFactor) = 0;
 
   /**
-   * @brief Gets the current text zoom level.
+   * @brief Get the current text zoom level.
    * @return The current text zoom factor.
    */
   virtual float GetTextZoomFactor() const = 0;
 
   /**
-   * @brief Gets the current load progress of the page.
+   * @brief Get the current load progress of the page.
    * @return The load progress of the page.
    */
   virtual float GetLoadProgressPercentage() const = 0;
 
   /**
-   * @brief Scales the current page, centered at the given point.
+   * @brief Scale the current page, centered at the given point.
    * @param[in] scaleFactor a new factor to be scaled.
    * @param[in] point a center coordinate.
    */
   virtual void SetScaleFactor(float scaleFactor, Dali::Vector2 point) = 0;
 
   /**
-   * @brief Gets the current scale factor of the page.
+   * @brief Get the current scale factor of the page.
    * @return The current scale factor.
    */
   virtual float GetScaleFactor() const = 0;
@@ -602,7 +609,7 @@ public:
   virtual bool SetVisibility(bool visible) = 0;
 
   /**
-   * @brief Searches and highlights the given string in the document.
+   * @brief Search and highlight the given string in the document.
    * @param[in] text The text to find
    * @param[in] options The options to find
    * @param[in] maxMatchCount The maximum match count to find
@@ -649,7 +656,7 @@ public:
   virtual bool CheckVideoPlayingAsynchronously(VideoPlayingCallback callback) = 0;
 
   /**
-   * @brief Sets callback which will be called upon geolocation permission request.
+   * @brief Set callback which will be called upon geolocation permission request.
    *
    * @param[in] callback The callback for requesting geolocation permission
    */
@@ -668,68 +675,68 @@ public:
   virtual void EnableVideoHole(bool enabled) = 0;
 
   /**
-   * @brief Sends Hover Events.
+   * @brief Send Hover Events.
    * @param[in] event The hover event would be sent.
    */
   virtual bool SendHoverEvent(const HoverEvent& event) = 0;
 
   /**
-   * @brief Sends Wheel Events.
+   * @brief Send Wheel Events.
    * @param[in] event The wheel event would be sent.
    */
   virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
-   * @brief Connects to this signal to be notified when page loading is started.
+   * @brief Connect to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadSignalType& PageLoadStartedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when page loading is in progress.
+   * @brief Connect to this signal to be notified when page loading is in progress.
    *
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadSignalType& PageLoadInProgressSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when page loading is finished.
+   * @brief Connect to this signal to be notified when page loading is finished.
    *
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadSignalType& PageLoadFinishedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when an error occurs in page loading.
+   * @brief Connect to this signal to be notified when an error occurs in page loading.
    *
    * @return A signal object to connect with.
    */
   virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when scroll edge is reached.
+   * @brief Connect to this signal to be notified when scroll edge is reached.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when url is changed.
+   * @brief Connect to this signal to be notified when url is changed.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when form repost decision is requested.
+   * @brief Connect to this signal to be notified when form repost decision is requested.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when frame is rendered.
+   * @brief Connect to this signal to be notified when frame is rendered.
    *
    * @return A signal object to connect with.
    */
@@ -741,6 +748,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineRequestInterceptorSignalType& RequestInterceptorSignal() = 0;
+
+  /**
+   * @brief Connect to this signal to be notified when console message will be logged.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineConsoleMessageSignalType& ConsoleMessageSignal() = 0;
 };
 
 // specialization has to be done in the same namespace

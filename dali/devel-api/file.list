@@ -91,9 +91,11 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list-item.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-console-message.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-cookie-manager.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-form-repost-decision.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-load-error.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-request-interceptor.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-settings.h
