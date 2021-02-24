@@ -19,6 +19,7 @@
 #include "gles-graphics-texture.h"
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <vector>
@@ -26,6 +27,18 @@
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 #include "gles-graphics-types.h"
+
+namespace
+{
+// These match the GL specification
+//const int32_t GL_MINIFY_DEFAULT  = GL_NEAREST_MIPMAP_LINEAR;
+//const int32_t GL_MAGNIFY_DEFAULT = GL_LINEAR;
+const int32_t GL_WRAP_DEFAULT = GL_CLAMP_TO_EDGE;
+
+// These are the Dali defaults
+const int32_t DALI_MINIFY_DEFAULT  = GL_LINEAR;
+const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
+} // namespace
 
 namespace Dali::Graphics::GLES
 {
@@ -47,9 +60,64 @@ Texture::Texture(const Graphics::TextureCreateInfo& createInfo, Graphics::EglGra
 
 bool Texture::InitializeResource()
 {
+  if(mCreateInfo.nativeImagePtr)
+  {
+    return InitializeNativeImage();
+  }
+  return InitializeTexture();
+}
+
+bool Texture::InitializeNativeImage()
+{
+  auto   gl = mController.GetGL();
+  GLuint texture{0};
+
+  NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
+  bool                    created     = nativeImage->CreateResource();
+  mGlTarget                           = nativeImage->GetTextureTarget();
+  if(created)
+  {
+    DALI_LOG_RELEASE_INFO("Native Image: InitializeNativeImage, CreateResource() successful\n");
+
+    gl->GenTextures(1, &texture);
+    gl->BindTexture(mGlTarget, texture);
+
+    gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
+
+    // Apply default sampling parameters
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, DALI_MINIFY_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, DALI_MAGNIFY_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
+
+    // platform specific implementation decides on what GL extension to use
+    if(nativeImage->TargetTexture() != 0u)
+    {
+      gl->DeleteTextures(1, &texture);
+      nativeImage->DestroyResource();
+      texture = 0u;
+      created = false;
+    }
+    else
+    {
+      mTextureId = texture;
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("Native Image: InitializeNativeImage, CreateResource() failed\n");
+  }
+
+  return created; // WARNING! May be false! Needs handling! (Well, initialized on bind)
+}
+
+bool Texture::InitializeTexture()
+{
   auto gl = mController.GetGL();
 
   GLuint texture{0};
+
+  mGlTarget = GLTextureTarget(mCreateInfo.textureType).target;
 
   switch(mCreateInfo.textureType)
   {
@@ -103,6 +171,10 @@ void Texture::DestroyResource()
     auto gl = mController.GetGL();
     gl->DeleteTextures(1, &mTextureId);
   }
+  if(mCreateInfo.nativeImagePtr)
+  {
+    mCreateInfo.nativeImagePtr->DestroyResource();
+  }
 }
 
 void Texture::DiscardResource()
@@ -114,15 +186,32 @@ void Texture::Bind(const TextureBinding& binding) const
 {
   auto gl = mController.GetGL();
 
-  // Bind texture to shader slot
-  gl->BindTexture(GL_TEXTURE_2D, mTextureId);
   gl->ActiveTexture(GL_TEXTURE0 + binding.binding);
+  gl->BindTexture(mGlTarget, mTextureId);
 
   // For GLES2 if there is a sampler set in the binding
   //if(binding.sampler)
   //{
 
   //}
+}
+
+void Texture::Prepare()
+{
+  NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
+  if(nativeImage)
+  {
+    DALI_LOG_RELEASE_INFO("Native Image: PrepareTexture\n");
+    if(nativeImage->SourceChanged())
+    {
+      // Update size
+      uint32_t width  = mCreateInfo.nativeImagePtr->GetWidth();
+      uint32_t height = mCreateInfo.nativeImagePtr->GetHeight();
+      mCreateInfo.SetSize({width, height}); // Size may change
+    }
+
+    nativeImage->PrepareTexture();
+  }
 }
 
 } // namespace Dali::Graphics::GLES

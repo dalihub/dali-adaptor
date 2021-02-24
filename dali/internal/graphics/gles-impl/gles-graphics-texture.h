@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-command-buffer.h>
 #include <dali/graphics-api/graphics-texture-create-info.h>
 #include <dali/graphics-api/graphics-texture.h>
+#include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -77,11 +78,24 @@ public:
 
   void Bind(const TextureBinding& binding) const;
 
+  /**
+   * @brief used to prepare native texture before drawing.
+   *
+   * Checks if native texture has changed size (e.g. if rotated)
+   * and updates as appropriate.
+   *
+   * Gives the callback a chance to draw to the backing texture.
+   */
+  void Prepare();
+
 protected:
 private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
+  GLenum            mGlTarget;
   void*             mGLOwnerContext{nullptr};
+  bool              InitializeNativeImage();
+  bool              InitializeTexture();
 };
 } // namespace Dali::Graphics::GLES
 

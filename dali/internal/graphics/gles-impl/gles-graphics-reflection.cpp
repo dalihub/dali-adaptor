@@ -210,10 +210,16 @@ void Reflection::BuildUniformReflection()
       mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + previousUniform->second;
     }
   }
-
-  uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
-  auto     lastUniform         = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&lastUniformLocation](const UniformLocationSizePair& iter) { return iter.first == lastUniformLocation; });
-  mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + lastUniform->second;
+  if(mDefaultUniformBlock.members.size() > 0)
+  {
+    uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
+    auto     lastUniform         = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&lastUniformLocation](const UniformLocationSizePair& iter) { return iter.first == lastUniformLocation; });
+    mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + lastUniform->second;
+  }
+  else
+  {
+    mDefaultUniformBlock.size = 0;
+  }
 
   mUniformBlocks.push_back(mDefaultUniformBlock);
 

@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
@@ -90,6 +91,7 @@ T0* CastObject(T1* apiObject)
 
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
+  DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #1\n");
   mGlAbstraction = &glAbstraction;
   mContext       = std::make_unique<GLES::Context>(*this);
 }
@@ -97,6 +99,7 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
 void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
                                        Integration::GlContextHelperAbstraction& glContextHelperAbstraction)
 {
+  DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #2\n");
   mGlSyncAbstraction          = &glSyncAbstraction;
   mGlContextHelperAbstraction = &glContextHelperAbstraction;
 }

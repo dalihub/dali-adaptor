@@ -50,6 +50,12 @@ void TestGraphicsApplication::Initialize()
 
 void TestGraphicsApplication::CreateCore()
 {
+  Dali::Integration::Log::LogFunction logFunction(&TestGraphicsApplication::LogMessage);
+  Dali::Integration::Log::InstallLogFunction(logFunction);
+
+  Dali::Integration::Trace::LogContextFunction logContextFunction(&TestGraphicsApplication::LogContext);
+  Dali::Integration::Trace::InstallLogContextFunction(logContextFunction);
+
   // We always need the first update!
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
 
@@ -65,12 +71,6 @@ void TestGraphicsApplication::CreateCore()
                                        mPartialUpdateEnabled ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
 
   mCore->ContextCreated();
-
-  Dali::Integration::Log::LogFunction logFunction(&TestGraphicsApplication::LogMessage);
-  Dali::Integration::Log::InstallLogFunction(logFunction);
-
-  Dali::Integration::Trace::LogContextFunction logContextFunction(&TestGraphicsApplication::LogContext);
-  Dali::Integration::Trace::InstallLogContextFunction(logContextFunction);
 
   Dali::Integration::Trace::LogContext(true, "Test");
 }

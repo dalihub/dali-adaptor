@@ -1163,6 +1163,32 @@ struct GLVertexFormat
   uint32_t size{0u};
 };
 
+struct GLTextureTarget
+{
+  constexpr explicit GLTextureTarget(Graphics::TextureType graphicsTextureType)
+  {
+    switch(graphicsTextureType)
+    {
+      case Graphics::TextureType::TEXTURE_2D:
+      {
+        target = GL_TEXTURE_2D;
+        break;
+      }
+      case Graphics::TextureType::TEXTURE_3D:
+      {
+        target = GL_TEXTURE_3D;
+        break;
+      }
+      case Graphics::TextureType::TEXTURE_CUBEMAP:
+      {
+        target = GL_TEXTURE_CUBE_MAP;
+        break;
+      }
+    }
+  }
+  GLenum target{GL_TEXTURE_2D};
+};
+
 /**
  * @brief Descriptor of single buffer binding within
  * command buffer.

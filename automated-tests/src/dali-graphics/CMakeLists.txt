@@ -6,11 +6,14 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
     utc-Dali-GraphicsGeometry.cpp
+    utc-Dali-GraphicsNativeImage.cpp
 )
 
 LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
+  ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
   ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-application.cpp
   ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
   ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp

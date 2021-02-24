@@ -81,10 +81,19 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   // Bind textures
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
-    gl.ActiveTexture(GL_TEXTURE0 + binding.binding);
-    gl.BindTexture(GL_TEXTURE_2D,
-                   static_cast<const GLES::Texture*>(binding.texture)
-                     ->GetGLTexture());
+    auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
+
+    // Texture may not have been initialized yet...(tbm_surface timing issue?)
+    if(!texture->GetGLTexture())
+    {
+      // Attempt to reinitialize
+      // @todo need to put this somewhere else where it isn't const.
+      // Maybe post it back on end of initialize queue if initialization fails?
+      texture->InitializeResource();
+    }
+
+    texture->Bind(binding);
+    texture->Prepare(); // @todo also non-const.
   }
 
   // for each attribute bind vertices
