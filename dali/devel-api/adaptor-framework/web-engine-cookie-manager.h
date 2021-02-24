@@ -24,7 +24,7 @@
 namespace Dali
 {
 /**
- * @brief A class WebEngineCookieManager to wrap ewk cookie manager.
+ * @brief A class WebEngineCookieManager for cookie manager of web engine.
  */
 class WebEngineCookieManager
 {

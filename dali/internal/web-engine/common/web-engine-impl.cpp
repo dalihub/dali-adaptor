@@ -459,6 +459,16 @@ Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSigna
   return mPlugin->UrlChangedSignal();
 }
 
+Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRepostDecisionSignal()
+{
+  return mPlugin->FormRepostDecisionSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+{
+  return mPlugin->FrameRenderedSignal();
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali

@@ -23,6 +23,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <functional>
+#include <memory>
 
 namespace Dali
 {
@@ -32,6 +33,7 @@ class TouchEvent;
 class WebEngineBackForwardList;
 class WebEngineContext;
 class WebEngineCookieManager;
+class WebEngineFormRepostDecision;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
@@ -84,6 +86,16 @@ public:
    *  It returns true if a pop-up is created successfully, false otherwise.
    */
   using JavaScriptPromptCallback = std::function<bool(const std::string&, const std::string&)>;
+
+  /**
+   * @brief WebView signal type related with form repost decision.
+   */
+  using WebEngineFormRepostDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEngineFormRepostDecision>)>;
+
+  /**
+   * @brief WebView signal type related with frame rendered.
+   */
+  using WebEngineFrameRenderedSignalType = Signal<void(void)>;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -469,6 +481,20 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when form repost decision is requested.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when frame is rendered.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
 };
 
 } // namespace Dali

@@ -349,6 +349,16 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
 
+  /**
+   * @copydoc Dali::WebEngine::FormRepostDecisionSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::FrameRenderedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
+
 private:
   /**
    * @brief Constructor.

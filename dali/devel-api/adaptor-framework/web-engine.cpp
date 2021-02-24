@@ -241,7 +241,7 @@ void WebEngine::JavaScriptPromptReply(const std::string& result)
 
 void WebEngine::ClearHistory()
 {
-  return GetImplementation(*this).ClearHistory();
+  GetImplementation(*this).ClearHistory();
 }
 
 void WebEngine::ClearAllTilesResources()
@@ -362,6 +362,16 @@ Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEd
 Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSignal()
 {
   return GetImplementation(*this).UrlChangedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRepostDecisionSignal()
+{
+  return GetImplementation(*this).FormRepostDecisionSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+{
+  return GetImplementation(*this).FrameRenderedSignal();
 }
 
 } // namespace Dali

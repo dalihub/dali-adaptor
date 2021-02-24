@@ -275,6 +275,7 @@ public:
 
   /**
    * @brief Reply for JavaScript confirm.
+   * @param[in] confirmed True if confirmed, false otherwise.
    */
   void JavaScriptConfirmReply(bool confirmed);
 
@@ -287,6 +288,7 @@ public:
 
   /**
    * @brief Reply for JavaScript prompt.
+   * @param[in] result The result returned from input-field in prompt popup.
    */
   void JavaScriptPromptReply(const std::string& result);
 
@@ -449,6 +451,20 @@ public:
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when form repost decision is requested.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when frame is rendered.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
 private: // Not intended for application developers
   /**
