@@ -175,6 +175,36 @@ public:
   Dali::Vector2 GetContentSize() const;
 
   /**
+	* @copydoc Dali::WebEngine::RegisterJavaScriptAlertCallback()
+	*/
+  void RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback );
+
+  /**
+   * @copydoc Dali::WebEngine::JavaScriptAlertReply()
+   */
+  void JavaScriptAlertReply();
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterJavaScriptConfirmCallback()
+   */
+  void RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback );
+
+  /**
+   * @copydoc Dali::WebEngine::JavaScriptConfirmReply()
+   */
+  void JavaScriptConfirmReply( bool confirmed );
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterJavaScriptPromptCallback()
+   */
+  void RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback );
+
+  /**
+   * @copydoc Dali::WebEngine::JavaScriptPromptReply()
+   */
+  void JavaScriptPromptReply( const std::string& result );
+
+  /**
    * @copydoc Dali::WebEngine::CanGoForward()
    */
   bool CanGoForward();
@@ -250,6 +280,11 @@ public:
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
 
   /**
+   * @copydoc Dali::WebEngine::PageLoadProgressSignal()
+   */
+  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
+
+  /**
    * @copydoc Dali::WebEngine::PageLoadFinishedSignal()
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
@@ -263,6 +298,11 @@ public:
    * @copydoc Dali::WebEngine::ScrollEdgeReachedSignal()
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::UrlChangedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
 
 private:
   /**

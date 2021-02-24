@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,9 +65,9 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
   return dimension;
 }
 
-ImageDimensions GetOriginalImageSize(const std::string& filename)
+ImageDimensions GetOriginalImageSize(const std::string& filename, bool orientationCorrection)
 {
-  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, true);
+  return TizenPlatform::ImageLoader::GetClosestImageSize(filename, ImageDimensions(0, 0), FittingMode::DEFAULT, SamplingMode::BOX_THEN_LINEAR, orientationCorrection);
 }
 
 Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)

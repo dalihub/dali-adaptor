@@ -209,14 +209,44 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
-void WebEngine::ClearAllTilesResources()
+void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
 {
-  GetImplementation(*this).ClearAllTilesResources();
+  GetImplementation( *this ).RegisterJavaScriptAlertCallback( callback );
+}
+
+void WebEngine::JavaScriptAlertReply()
+{
+  GetImplementation( *this ).JavaScriptAlertReply();
+}
+
+void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+{
+  GetImplementation( *this ).RegisterJavaScriptConfirmCallback( callback );
+}
+
+void WebEngine::JavaScriptConfirmReply( bool confirmed )
+{
+  GetImplementation( *this ).JavaScriptConfirmReply( confirmed );
+}
+
+void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+{
+  GetImplementation( *this ).RegisterJavaScriptPromptCallback( callback );
+}
+
+void WebEngine::JavaScriptPromptReply( const std::string& result )
+{
+  GetImplementation( *this ).JavaScriptPromptReply( result );
 }
 
 void WebEngine::ClearHistory()
 {
   return GetImplementation(*this).ClearHistory();
+}
+
+void WebEngine::ClearAllTilesResources()
+{
+  GetImplementation( *this ).ClearAllTilesResources();
 }
 
 const std::string& WebEngine::GetUserAgent() const
@@ -264,6 +294,11 @@ Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSi
   return GetImplementation(*this).PageLoadStartedSignal();
 }
 
+Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadInProgressSignal()
+{
+  return GetImplementation(*this).PageLoadInProgressSignal();
+}
+
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedSignal()
 {
   return GetImplementation(*this).PageLoadFinishedSignal();
@@ -277,6 +312,11 @@ Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErro
 Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
 {
   return GetImplementation(*this).ScrollEdgeReachedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSignal()
+{
+  return GetImplementation(*this).UrlChangedSignal();
 }
 
 } // namespace Dali

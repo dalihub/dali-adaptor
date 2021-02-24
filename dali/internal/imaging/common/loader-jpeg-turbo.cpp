@@ -56,11 +56,11 @@ enum class JpegTransform
 {
   NONE,            //< no transformation 0th-Row = top & 0th-Column = left
   FLIP_HORIZONTAL, //< horizontal flip 0th-Row = top & 0th-Column = right
-  FLIP_VERTICAL,   //< vertical flip   0th-Row = bottom & 0th-Column = right
-  TRANSPOSE,       //< transpose across UL-to-LR axis  0th-Row = bottom & 0th-Column = left
-  TRANSVERSE,      //< transpose across UR-to-LL axis  0th-Row = left   & 0th-Column = top
+  ROTATE_180,      //< 180-degree rotation   0th-Row = bottom & 0th-Column = right
+  FLIP_VERTICAL,   //< vertical flip  0th-Row = bottom & 0th-Column = left
+  TRANSPOSE,       //< transpose across UL-to-LR axis  0th-Row = left   & 0th-Column = top
   ROTATE_90,       //< 90-degree clockwise rotation  0th-Row = right  & 0th-Column = top
-  ROTATE_180,      //< 180-degree rotation  0th-Row = right  & 0th-Column = bottom
+  TRANSVERSE,      //< transpose across UR-to-LL axis  0th-Row = right  & 0th-Column = bottom
   ROTATE_270,      //< 270-degree clockwise (or 90 ccw) 0th-Row = left  & 0th-Column = bottom
 };
 
@@ -324,7 +324,7 @@ struct PixelType
 };
 
 template<size_t N>
-void FlipVertical(PixelArray buffer, int width, int height)
+void Rotate180(PixelArray buffer, int width, int height)
 {
   // Destination pixel, set as the first pixel of screen
   auto to = reinterpret_cast<PixelType<N>*>(buffer);
@@ -356,7 +356,7 @@ void FlipHorizontal(PixelArray buffer, int width, int height)
 }
 
 template<size_t N>
-void Transpose(PixelArray buffer, int width, int height)
+void FlipVertical(PixelArray buffer, int width, int height)
 {
   //Transform vertically only
   for(auto iy = 0; iy < height / 2; ++iy)
@@ -371,7 +371,7 @@ void Transpose(PixelArray buffer, int width, int height)
 }
 
 template<size_t N>
-void Transverse(PixelArray buffer, int width, int height)
+void Transpose(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -422,7 +422,7 @@ void Rotate90(PixelArray buffer, int width, int height)
 }
 
 template<size_t N>
-void Rotate180(PixelArray buffer, int width, int height)
+void Transverse(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
@@ -920,17 +920,17 @@ JpegTransform ConvertExifOrientation(ExifData* exifData)
       }
       case 3:
       {
-        transform = JpegTransform::FLIP_VERTICAL;
+        transform = JpegTransform::ROTATE_180;
         break;
       }
       case 4:
       {
-        transform = JpegTransform::TRANSPOSE;
+        transform = JpegTransform::FLIP_VERTICAL;
         break;
       }
       case 5:
       {
-        transform = JpegTransform::TRANSVERSE;
+        transform = JpegTransform::TRANSPOSE;
         break;
       }
       case 6:
@@ -940,7 +940,7 @@ JpegTransform ConvertExifOrientation(ExifData* exifData)
       }
       case 7:
       {
-        transform = JpegTransform::ROTATE_180;
+        transform = JpegTransform::TRANSVERSE;
         break;
       }
       case 8:
@@ -962,8 +962,7 @@ JpegTransform ConvertExifOrientation(ExifData* exifData)
 bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight)
 {
   bool success = true;
-
-  if(transform == JpegTransform::ROTATE_90 || transform == JpegTransform::ROTATE_270 || transform == JpegTransform::ROTATE_180 || transform == JpegTransform::TRANSVERSE)
+  if(transform == JpegTransform::TRANSPOSE || transform == JpegTransform::ROTATE_90 || transform == JpegTransform::TRANSVERSE || transform == JpegTransform::ROTATE_270)
   {
     std::swap(requiredWidth, requiredHeight);
     std::swap(postXformImageWidth, postXformImageHeight);
@@ -1110,47 +1109,49 @@ bool LoadJpegHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   FILE* const  fp             = input.file;
 
   bool success = false;
-  if(requiredWidth == 0 && requiredHeight == 0)
+
+  unsigned int headerWidth;
+  unsigned int headerHeight;
+
+  success = LoadJpegHeader(fp, headerWidth, headerHeight);
+  if(success)
   {
-    success = LoadJpegHeader(fp, width, height);
-  }
-  else
-  {
-    // Double check we get the same width/height from the header
-    unsigned int headerWidth;
-    unsigned int headerHeight;
-    if(LoadJpegHeader(fp, headerWidth, headerHeight))
+    auto transform = JpegTransform::NONE;
+
+    if(input.reorientationRequested)
     {
-      auto transform = JpegTransform::NONE;
-
-      if(input.reorientationRequested)
+      auto exifData = LoadExifData(fp);
+      if(exifData)
       {
-        auto exifData = LoadExifData(fp);
-        if(exifData)
-        {
-          transform = ConvertExifOrientation(exifData.get());
-        }
-
-        int preXformImageWidth   = headerWidth;
-        int preXformImageHeight  = headerHeight;
-        int postXformImageWidth  = headerWidth;
-        int postXformImageHeight = headerHeight;
-
-        success = TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
-        if(success)
-        {
-          width  = postXformImageWidth;
-          height = postXformImageHeight;
-        }
-      }
-      else
-      {
-        success = true;
-        width   = headerWidth;
-        height  = headerHeight;
+        transform = ConvertExifOrientation(exifData.get());
       }
     }
+
+    if(requiredWidth == 0 && requiredHeight == 0)
+    {
+      if(transform == JpegTransform::TRANSPOSE || transform == JpegTransform::ROTATE_90 || transform == JpegTransform::TRANSVERSE || transform == JpegTransform::ROTATE_270)
+      {
+        std::swap(headerWidth, headerHeight);
+      }
+    }
+    else
+    {
+      int preXformImageWidth   = headerWidth;
+      int preXformImageHeight  = headerHeight;
+      int postXformImageWidth  = headerWidth;
+      int postXformImageHeight = headerHeight;
+
+      success = TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
+      if(success)
+      {
+        headerWidth  = postXformImageWidth;
+        headerHeight = postXformImageHeight;
+      }
+    }
+    width  = headerWidth;
+    height = headerHeight;
   }
+
   return success;
 }
 
