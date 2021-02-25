@@ -499,6 +499,21 @@ public:
    */
   Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
 
+  /**
+   * @copydoc Dali::WebEngine::CertificateConfirmSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineCertificateSignalType& CertificateConfirmSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::SslCertificateChangedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineCertificateSignalType& SslCertificateChangedSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::HttpAuthHandlerSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
+
 private:
   /**
    * @brief Constructor.

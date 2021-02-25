@@ -685,6 +685,27 @@ public:
    */
   Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
 
+  /**
+   * @brief Connects to this signal to be notified when certificate need be confirmed.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineCertificateSignalType& CertificateConfirmSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when ssl certificate is changed.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineCertificateSignalType& SslCertificateChangedSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when http authentication need be confirmed.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

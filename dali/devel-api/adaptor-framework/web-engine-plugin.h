@@ -32,10 +32,12 @@ class KeyEvent;
 class PixelData;
 class TouchEvent;
 class WebEngineBackForwardList;
+class WebEngineCertificate;
 class WebEngineConsoleMessage;
 class WebEngineContext;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
+class WebEngineHttpAuthHandler;
 class WebEngineLoadError;
 class WebEnginePolicyDecision;
 class WebEngineRequestInterceptor;
@@ -100,6 +102,16 @@ public:
    * @brief WebView signal type related with console message will be logged.
    */
   using WebEngineConsoleMessageSignalType = Signal<void(std::shared_ptr<Dali::WebEngineConsoleMessage>)>;
+
+  /**
+   * @brief WebView signal type related with certificate changed.
+   */
+  using WebEngineCertificateSignalType = Signal<void(std::shared_ptr<Dali::WebEngineCertificate>)>;
+
+  /**
+   * @brief WebView signal type related with http authentication.
+   */
+  using WebEngineHttpAuthHandlerSignalType = Signal<void(std::shared_ptr<Dali::WebEngineHttpAuthHandler>)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -768,6 +780,27 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEnginePolicyDecisionSignalType& PolicyDecisionSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when certificate need be confirmed.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineCertificateSignalType& CertificateConfirmSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when ssl certificate is changed.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineCertificateSignalType& SslCertificateChangedSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when http authentication need be confirmed.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal() = 0;
 };
 
 // specialization has to be done in the same namespace
