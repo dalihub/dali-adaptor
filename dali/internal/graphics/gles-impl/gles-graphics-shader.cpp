@@ -15,28 +15,115 @@
  *
  */
 
+// CLASS HEADER
 #include "gles-graphics-shader.h"
-#include <dali/integration-api/gl-abstraction.h>
-#include <vector>
+
+// INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 
-#include <GLES3/gl3.h>
+namespace Dali::Graphics::GLES
+{
+struct Shader::Impl
+{
+  Impl()  = default;
+  ~Impl() = default;
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace GLES
-{
+  std::vector<char> source{};
+  uint32_t          glShader{};
+};
+
 Shader::Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : ShaderResource(createInfo, controller)
 {
-  if(mCreateInfo.sourceData && mCreateInfo.sourceSize)
-  {
-    printf("GLES::Shader: stage: %d, sourceMode: %d, size: %u, source:\n\n%s\n", (int)mCreateInfo.pipelineStage, (int)mCreateInfo.sourceMode, mCreateInfo.sourceSize, static_cast<const char*>(mCreateInfo.sourceData));
-  }
+  // push shader to the create queue
+  mImpl = std::make_unique<Impl>();
+
+  // Make a copy of source code
+  mImpl->source.resize(createInfo.sourceSize);
+  std::copy(reinterpret_cast<const char*>(mCreateInfo.sourceData),
+            reinterpret_cast<const char*>(mCreateInfo.sourceData) + mCreateInfo.sourceSize,
+            mImpl->source.begin());
+
+  // Substitute pointer
+  mCreateInfo.sourceData = mImpl->source.data();
 }
 
-} // namespace GLES
-} // namespace Graphics
-} // namespace Dali
+bool Shader::Compile() const
+{
+  auto& gl = *GetController().GetGL();
+  if(!mImpl->glShader)
+  {
+    GLenum pipelineStage{0u};
+    switch(GetCreateInfo().pipelineStage)
+    {
+      case Graphics::PipelineStage::TOP_OF_PIPELINE:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::VERTEX_SHADER:
+      {
+        pipelineStage = GL_VERTEX_SHADER;
+        break;
+      }
+      case Graphics::PipelineStage::GEOMETRY_SHADER:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::FRAGMENT_SHADER:
+      {
+        pipelineStage = GL_FRAGMENT_SHADER;
+        break;
+      }
+      case Graphics::PipelineStage::COMPUTE_SHADER:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::TESSELATION_CONTROL:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::TESSELATION_EVALUATION:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::BOTTOM_OF_PIPELINE:
+      {
+        break;
+      }
+    }
+
+    if(pipelineStage)
+    {
+      auto       shader = gl.CreateShader(pipelineStage);
+      const auto src    = reinterpret_cast<const char*>(GetCreateInfo().sourceData);
+      GLint      size   = GetCreateInfo().sourceSize;
+      gl.ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
+      gl.CompileShader(shader);
+
+      GLint status{0};
+      gl.GetShaderiv(shader, GL_COMPILE_STATUS, &status);
+      if(status != GL_TRUE)
+      {
+        char    output[4096];
+        GLsizei size{0u};
+        gl.GetShaderInfoLog(shader, 4096, &size, output);
+        printf("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
+        printf("Log: %s\n", output);
+        gl.DeleteShader(shader);
+        return false;
+      }
+
+      // TODO: check error
+      mImpl->glShader = shader;
+    }
+    return true;
+  }
+  return true;
+}
+
+uint32_t Shader::GetGLShader() const
+{
+  return mImpl->glShader;
+}
+
+} // namespace Dali::Graphics::GLES

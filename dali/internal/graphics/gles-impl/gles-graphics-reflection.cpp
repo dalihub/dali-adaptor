@@ -25,6 +25,8 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl31.h>
 
+#include "gles-graphics-program.h"
+
 #include <iostream>
 
 namespace
@@ -48,7 +50,7 @@ Dali::Graphics::VertexInputAttributeFormat GetVertexAttributeTypeFormat(GLenum t
   }
 }
 
-int GetGLDataTypeSize(GLenum type)
+uint32_t GetGLDataTypeSize(GLenum type)
 {
   // There are many more types than what are covered here, but
   // they are not supported in dali.
@@ -87,33 +89,29 @@ bool SortByLocation(Dali::Graphics::UniformInfo a, Dali::Graphics::UniformInfo b
 
 } // namespace
 
-namespace Dali
+namespace Dali::Graphics::GLES
 {
-namespace Graphics
-{
-namespace GLES
-{
-Reflection::Reflection(Graphics::EglGraphicsController& controller)
+Reflection::Reflection(GLES::ProgramImpl& program, Graphics::EglGraphicsController& controller)
 : Graphics::Reflection(),
   mController(controller),
-  mGlProgram(0u)
+  mProgram(program)
 {
 }
 
-Reflection::~Reflection()
-{
-}
+Reflection::~Reflection() = default;
 
 void Reflection::BuildVertexAttributeReflection()
 {
+  auto glProgram = mProgram.GetGlProgram();
+
   int    written, size, location, maxLength, nAttribs;
   GLenum type;
   char*  name;
 
   auto gl = mController.GetGL();
 
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 
   mVertexInputAttributes.clear();
   mVertexInputAttributes.resize(nAttribs);
@@ -121,8 +119,8 @@ void Reflection::BuildVertexAttributeReflection()
   name = new GLchar[maxLength];
   for(int i = 0; i < nAttribs; i++)
   {
-    gl->GetActiveAttrib(mGlProgram, i, maxLength, &written, &size, &type, name);
-    location = gl->GetAttribLocation(mGlProgram, name);
+    gl->GetActiveAttrib(glProgram, i, maxLength, &written, &size, &type, name);
+    location = gl->GetAttribLocation(glProgram, name);
 
     AttributeInfo attributeInfo;
     attributeInfo.location = location;
@@ -136,6 +134,8 @@ void Reflection::BuildVertexAttributeReflection()
 
 void Reflection::BuildUniformReflection()
 {
+  auto glProgram = mProgram.GetGlProgram();
+
   int   maxLen;
   char* name;
 
@@ -143,8 +143,8 @@ void Reflection::BuildUniformReflection()
 
   auto gl = mController.GetGL();
 
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
   mUniformBlocks.clear();
   mDefaultUniformBlock.members.clear();
@@ -152,20 +152,19 @@ void Reflection::BuildUniformReflection()
 
   name = new char[maxLen];
 
-  int maxUniformLocations;
-  gl->GetProgramiv(mGlProgram, GL_MAX_UNIFORM_LOCATIONS, &maxUniformLocations);
+  using UniformLocationSizePair = std::pair<uint32_t, uint32_t>;
+  std::vector<UniformLocationSizePair> uniformSizes;
 
-  std::vector<int> uniformSize;
-  uniformSize.reserve(maxUniformLocations);
+  uniformSizes.reserve(numUniforms);
 
   for(int i = 0; i < numUniforms; ++i)
   {
     int    size;
     GLenum type;
     int    written;
-    gl->GetActiveUniform(mGlProgram, i, maxLen, &written, &size, &type, name);
-    int location          = gl->GetUniformLocation(mGlProgram, name);
-    uniformSize[location] = GetGLDataTypeSize(type);
+    gl->GetActiveUniform(glProgram, i, maxLen, &written, &size, &type, name);
+    int location = gl->GetUniformLocation(glProgram, name);
+    uniformSizes.push_back(std::make_pair(location, GetGLDataTypeSize(type)));
 
     Dali::Graphics::UniformInfo uniformInfo;
     uniformInfo.name         = name;
@@ -198,10 +197,21 @@ void Reflection::BuildUniformReflection()
   // Calculate the uniform offset
   for(unsigned int i = 0; i < mDefaultUniformBlock.members.size(); ++i)
   {
-    mDefaultUniformBlock.members[i].offset = i == 0 ? 0 : mDefaultUniformBlock.members[i - 1].offset + uniformSize[mDefaultUniformBlock.members[i - 1].location];
+    if(i == 0)
+    {
+      mDefaultUniformBlock.members[i].offset = 0;
+    }
+    else
+    {
+      uint32_t previousUniformLocation       = mDefaultUniformBlock.members[i - 1].location;
+      auto     previousUniform               = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&previousUniformLocation](const UniformLocationSizePair& iter) { return iter.first == previousUniformLocation; });
+      mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + previousUniform->second;
+    }
   }
 
-  mDefaultUniformBlock.size = mDefaultUniformBlock.members.back().offset + uniformSize[mDefaultUniformBlock.members.back().location];
+  uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
+  auto     lastUniform         = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&lastUniformLocation](const UniformLocationSizePair& iter) { return iter.first == lastUniformLocation; });
+  mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + lastUniform->second;
 
   mUniformBlocks.push_back(mDefaultUniformBlock);
 
@@ -211,16 +221,16 @@ void Reflection::BuildUniformReflection()
 // TODO: Maybe this is not needed if uniform block is not support by dali shaders?
 void Reflection::BuildUniformBlockReflection()
 {
-  auto gl = mController.GetGL();
-
-  int numUniformBlocks = 0;
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
+  auto gl               = mController.GetGL();
+  auto glProgram        = mProgram.GetGlProgram();
+  int  numUniformBlocks = 0;
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 
   mUniformBlocks.clear();
   mUniformBlocks.resize(numUniformBlocks);
 
   int uniformBlockMaxLength = 0;
-  gl->GetProgramiv(mGlProgram, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &uniformBlockMaxLength);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &uniformBlockMaxLength);
 
   char* uniformBlockName = new char[uniformBlockMaxLength];
   for(int i = 0; i < numUniformBlocks; i++)
@@ -228,9 +238,9 @@ void Reflection::BuildUniformBlockReflection()
     int length;
     int blockBinding;
     int blockDataSize;
-    gl->GetActiveUniformBlockName(mGlProgram, i, uniformBlockMaxLength, &length, uniformBlockName);
-    gl->GetActiveUniformBlockiv(mGlProgram, i, GL_UNIFORM_BLOCK_BINDING, &blockBinding);
-    gl->GetActiveUniformBlockiv(mGlProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &blockDataSize);
+    gl->GetActiveUniformBlockName(glProgram, i, uniformBlockMaxLength, &length, uniformBlockName);
+    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_BINDING, &blockBinding);
+    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &blockDataSize);
 
     Dali::Graphics::UniformBlockInfo uniformBlockInfo;
     uniformBlockInfo.name    = uniformBlockName;
@@ -238,12 +248,12 @@ void Reflection::BuildUniformBlockReflection()
     uniformBlockInfo.binding = blockBinding;
 
     int nUnis;
-    gl->GetActiveUniformBlockiv(mGlProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &nUnis);
+    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &nUnis);
     int* unifIndexes = new GLint[nUnis];
-    gl->GetActiveUniformBlockiv(mGlProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, unifIndexes);
+    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, unifIndexes);
     char* uniformName{};
     int   maxUniLen;
-    gl->GetProgramiv(mGlProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniLen);
+    gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniLen);
 
     for(int unif = 0; unif < nUnis; ++unif)
     {
@@ -251,8 +261,8 @@ void Reflection::BuildUniformBlockReflection()
       int    size;
       GLenum type;
 
-      gl->GetActiveUniform(mGlProgram, uniIndex, maxUniLen, &length, &size, &type, uniformName);
-      int location = gl->GetUniformLocation(mGlProgram, uniformName);
+      gl->GetActiveUniform(glProgram, uniIndex, maxUniLen, &length, &size, &type, uniformName);
+      int location = gl->GetUniformLocation(glProgram, uniformName);
 
       Dali::Graphics::UniformInfo uniform;
       uniform.name     = uniformName;
@@ -472,14 +482,4 @@ Graphics::ShaderLanguage Reflection::GetLanguage() const
   return Graphics::ShaderLanguage::GLSL_3_2;
 }
 
-void Reflection::SetGlProgram(uint32_t glProgram)
-{
-  mGlProgram = glProgram;
-
-  BuildVertexAttributeReflection();
-  BuildUniformReflection();
-}
-
-} // namespace GLES
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::GLES

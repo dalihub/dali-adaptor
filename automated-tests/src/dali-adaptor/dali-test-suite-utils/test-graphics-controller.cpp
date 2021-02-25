@@ -18,6 +18,7 @@
 
 #include "test-graphics-buffer.h"
 #include "test-graphics-command-buffer.h"
+#include "test-graphics-program.h"
 #include "test-graphics-reflection.h"
 #include "test-graphics-sampler.h"
 #include "test-graphics-texture.h"
@@ -705,6 +706,12 @@ Graphics::UniquePtr<Graphics::Pipeline> TestGraphicsController::CreatePipeline(c
   return std::make_unique<TestGraphicsPipeline>(mGl, pipelineCreateInfo);
 }
 
+Graphics::UniquePtr<Graphics::Program> TestGraphicsController::CreateProgram(const Graphics::ProgramCreateInfo& programCreateInfo, Graphics::UniquePtr<Graphics::Program>&& oldProgram)
+{
+  mCallStack.PushCall("CreateProgram", "");
+  return Graphics::MakeUnique<TestGraphicsProgram>(mGl, programCreateInfo, mVertexFormats);
+}
+
 Graphics::UniquePtr<Graphics::Shader> TestGraphicsController::CreateShader(const Graphics::ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Graphics::Shader>&& oldShader)
 {
   mCallStack.PushCall("Controller::CreateShader", "");
@@ -767,17 +774,22 @@ const Graphics::TextureProperties& TestGraphicsController::GetTextureProperties(
   return textureProperties;
 }
 
-const Graphics::Reflection& TestGraphicsController::GetPipelineReflection(const Graphics::Pipeline& pipeline)
+const Graphics::Reflection& TestGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
-  static TestGraphicsReflection reflection(mGl);
-  mCallStack.PushCall("Controller::GetPipelineReflection", "");
+  mCallStack.PushCall("Controller::GetProgramReflection", "");
 
-  return reflection;
+  return static_cast<const TestGraphicsProgram*>(&program)->GetReflection();
 }
 
 bool TestGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
 {
   mCallStack.PushCall("Controller::PipelineEquals", "");
+  return false;
+}
+
+bool TestGraphicsController::GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData)
+{
+  mCallStack.PushCall("Controller::GetProgramParameter", "");
   return false;
 }
 

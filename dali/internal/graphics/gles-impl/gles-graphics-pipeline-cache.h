@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-pipeline-create-info.h>
 #include <dali/graphics-api/graphics-pipeline.h>
+#include <dali/graphics-api/graphics-program-create-info.h>
+#include <dali/graphics-api/graphics-program.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -32,7 +34,8 @@ namespace GLES
 {
 class Pipeline;
 class PipelineImpl;
-
+class Program;
+class ProgramImpl;
 /**
  * @brief PipelineCache manages pipeline and program
  * objects so there are no duplicates created.
@@ -62,6 +65,26 @@ public:
    */
   Graphics::UniquePtr<Graphics::Pipeline> GetPipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline);
 
+  /**
+   * @brief Retrieves program matching the spec
+   *
+   * Function returns either existing program if one is found
+   * in the cache or creates new one.
+   *
+   * @param[in] programCreateInfo Valid ProgramCreateInfo structure
+   * @param[in] oldProgram previous program object
+   * @return Program object
+   */
+  Graphics::UniquePtr<Graphics::Program> GetProgram(const ProgramCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Program>&& oldProgram);
+
+  /**
+   * @brief Flushes pipeline and program cache
+   *
+   * Removes cached items when they are no longer needed. This function
+   * should be called at the very end of Controller render loop iteration.
+   */
+  void FlushCache();
+
 private:
   /**
    * @brief Finds pipeline implementation based on the spec
@@ -69,6 +92,13 @@ private:
    * @return Returns pointer to pipeline or nullptr
    */
   PipelineImpl* FindPipelineImpl(const PipelineCreateInfo& info);
+
+  /**
+ * @brief Finds program implementation based on the spec
+ * @param[in] info Valid create info structure
+ * @return Returns pointer to program or nullptr
+ */
+  ProgramImpl* FindProgramImpl(const ProgramCreateInfo& info);
 
 private:
   struct Impl;

@@ -25,8 +25,8 @@
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-memory.h"
-#include "gles-graphics-pipeline.h"
 #include "gles-graphics-pipeline-cache.h"
+#include "gles-graphics-pipeline.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-texture.h"
 
@@ -196,6 +196,11 @@ public:
   Graphics::UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Pipeline>&& oldPipeline) override;
 
   /**
+   * @copydoc Dali::Graphics::CreateProgram()
+   */
+  Graphics::UniquePtr<Program> CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram) override;
+
+  /**
    * @copydoc Dali::Graphics::CreateShader()
    */
   Graphics::UniquePtr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader) override;
@@ -264,11 +269,8 @@ public:
   /**
    * @copydoc Dali::Graphics::Controller::GetPipelineReflection()
    */
-  const Reflection& GetPipelineReflection(const Pipeline& pipeline) override
-  {
-    static GLES::Reflection dummy(*this);
-    return dummy;
-  }
+
+  [[nodiscard]] const Reflection& GetProgramReflection(const Graphics::Program& program) override;
 
   /**
    * @copydoc Dali::Graphics::PipelineEquals()
@@ -317,6 +319,30 @@ public:
   }
 
   /**
+   * @brief Pushes Program to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] program Pointer to the program
+   */
+  void DiscardResource(GLES::Program* program)
+  {
+    mDiscardProgramQueue.push(program);
+  }
+
+  /**
+   * @brief Pushes Pipeline to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] program Pointer to the pipeline
+   */
+  void DiscardResource(GLES::Pipeline* pipeline)
+  {
+    mDiscardPipelineQueue.push(pipeline);
+  }
+
+  /**
    * @brief Flushes all pending updates
    *
    * Function flushes all pending resource constructions,
@@ -330,11 +356,14 @@ public:
     // Process updates
     ProcessTextureUpdateQueue();
 
+    // Process main command queue
+    ProcessCommandQueues();
+
     // Process discards
     ProcessDiscardQueues();
 
-    // Process main command queue
-    ProcessCommandQueues();
+    // Flush pipeline cache to remove unused pipelines
+    GetPipelineCache().FlushCache();
   }
 
   // Test update to tick controller, usually it will run own thread
@@ -409,6 +438,26 @@ public:
    */
   void ProcessTextureUpdateQueue();
 
+  /**
+   * @brief Returns program custom parameter
+   *
+   * This function can be used as a backdoor in order to retrieve
+   * certain data out of implementation
+   *
+   * @param[in] program Valid Program object
+   * @param parameterId Integer id of parameter
+   * @param outData Output data
+   * @return True if parameter retrieved
+   */
+  bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
+
+  /**
+   * @brief Returns pipeline cache object
+   *
+   * @return Valid pipeline cache object
+   */
+  [[nodiscard]] GLES::PipelineCache& GetPipelineCache() const;
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
@@ -419,6 +468,10 @@ private:
 
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource
+
+  std::queue<GLES::Program*> mDiscardProgramQueue; ///< Discard queue for program resource
+
+  std::queue<GLES::Pipeline*> mDiscardPipelineQueue; ///< Discard queue of pipelines
 
   std::queue<GLES::CommandBuffer*> mCommandQueue; ///< we may have more in the future
 

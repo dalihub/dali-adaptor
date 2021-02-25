@@ -67,11 +67,7 @@ public:
    * @brief Compiles shader
    * @return
    */
-  bool Compile() const
-  {
-    mGlShader = 0;
-    return true;
-  }
+  bool Compile() const;
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
@@ -81,13 +77,11 @@ public:
     // TODO: Implement moving to the discard queue
   }
 
-  uint32_t GetGLShader() const
-  {
-    return mGlShader;
-  }
+  uint32_t GetGLShader() const;
 
 private:
-  mutable uint32_t mGlShader;
+  struct Impl;
+  std::unique_ptr<Impl> mImpl;
 };
 
 } // namespace Dali::Graphics::GLES

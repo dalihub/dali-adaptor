@@ -22,14 +22,13 @@
 #include <dali/graphics-api/graphics-types.h>
 #include <dali/integration-api/gl-abstraction.h>
 
-namespace Dali
-{
-namespace Graphics
+namespace Dali::Graphics
 {
 class EglGraphicsController;
 
 namespace GLES
 {
+class ProgramImpl;
 constexpr uint32_t ERROR_ATTRIBUTE_NOT_FOUND(-1u);
 
 /**
@@ -46,8 +45,9 @@ constexpr uint32_t ERROR_ATTRIBUTE_NOT_FOUND(-1u);
 class Reflection : public Dali::Graphics::Reflection
 {
 public:
-  Reflection(Graphics::EglGraphicsController& controller);
-  virtual ~Reflection();
+  explicit Reflection(GLES::ProgramImpl& program, Graphics::EglGraphicsController& controller);
+
+  ~Reflection() override;
 
   // not copyable
   Reflection(const Reflection&) = delete;
@@ -59,7 +59,7 @@ public:
    * @param [in] name The name of vertex attribute
    * @return The index of the vertex attribute in the shader
    */
-  uint32_t GetVertexAttributeLocation(const std::string& name) const;
+  [[nodiscard]] uint32_t GetVertexAttributeLocation(const std::string& name) const override;
 
   /**
    * @brief Gets the format of a vertex attribute.
@@ -67,7 +67,7 @@ public:
    * @param [in] location The location of vertex attribute
    * @return The format of a vertex attribute
    */
-  Dali::Graphics::VertexInputAttributeFormat GetVertexAttributeFormat(uint32_t location) const;
+  [[nodiscard]] Dali::Graphics::VertexInputAttributeFormat GetVertexAttributeFormat(uint32_t location) const override;
 
   /**
    * @brief Gets the name of a vertex attribute.
@@ -75,14 +75,14 @@ public:
    * @param [in] location The location of vertex attribute
    * @return The name of the vertex attribute
    */
-  std::string GetVertexAttributeName(uint32_t location) const;
+  [[nodiscard]] std::string GetVertexAttributeName(uint32_t location) const override;
 
   /**
    * @brief Gets the locations of all the vertex attribute in the shader.
    *
    * @return A vector of the locations of all the vertex attributes in the shader
    */
-  std::vector<uint32_t> GetVertexAttributeLocations() const;
+  [[nodiscard]] std::vector<uint32_t> GetVertexAttributeLocations() const override;
 
   // Uniform blocks
 
@@ -91,7 +91,7 @@ public:
    *
    * @return The number of uniform blocks
    */
-  uint32_t GetUniformBlockCount() const;
+  [[nodiscard]] uint32_t GetUniformBlockCount() const override;
 
   /**
    * @brief Gets the binding point to which the uniform block with the given index is binded.
@@ -99,7 +99,7 @@ public:
    * @param [in] index The index of the uniform block
    * @return The binding point
    */
-  uint32_t GetUniformBlockBinding(uint32_t index) const;
+  [[nodiscard]] uint32_t GetUniformBlockBinding(uint32_t index) const override;
 
   /**
    * @brief Gets the size of the uniform block with the given index.
@@ -107,7 +107,7 @@ public:
    * @param [in] index The index of the uniform block
    * @return The size of the uniform block
    */
-  uint32_t GetUniformBlockSize(uint32_t index) const;
+  [[nodiscard]] uint32_t GetUniformBlockSize(uint32_t index) const override;
 
   /**
    * @brief Retrieves the information of the uniform block with the given index.
@@ -118,14 +118,14 @@ public:
    * @param [out] out A structure that contains the information of the uniform block
    * @return Whether the uniform block exists or not
    */
-  bool GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInfo& out) const;
+  bool GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInfo& out) const override;
 
   /**
    * @brief Gets the binding points of all the uniform blocks in the shader.
    *
    * @return A vector of binding points
    */
-  std::vector<uint32_t> GetUniformBlockLocations() const;
+  [[nodiscard]] std::vector<uint32_t> GetUniformBlockLocations() const override;
 
   /**
    * @brief Gets the name of uniform block with the given index.
@@ -133,7 +133,7 @@ public:
    * @param [in] blockIndex The index of the uniform block
    * @return The name of the uniform block
    */
-  std::string GetUniformBlockName(uint32_t blockIndex) const;
+  [[nodiscard]] std::string GetUniformBlockName(uint32_t blockIndex) const override;
 
   /**
    * @brief Gets the number of uniforms in the uniform block with the given index.
@@ -141,7 +141,7 @@ public:
    * @param [in] blockIndex The index of the uniform block
    * @return The number of uniforms in the uniform block
    */
-  uint32_t GetUniformBlockMemberCount(uint32_t blockIndex) const;
+  [[nodiscard]] uint32_t GetUniformBlockMemberCount(uint32_t blockIndex) const override;
 
   /**
    * @brief Gets the name of the uniform in the given location within the uniform block.
@@ -150,7 +150,7 @@ public:
    * @param [in] memberLocation The location of the uniform within the uniform block
    * @return The name of the uniform
    */
-  std::string GetUniformBlockMemberName(uint32_t blockIndex, uint32_t memberLocation) const;
+  [[nodiscard]] std::string GetUniformBlockMemberName(uint32_t blockIndex, uint32_t memberLocation) const override;
 
   /**
    * @brief Gets the byte offset of the uniform in the given location within the uniform block.
@@ -159,7 +159,7 @@ public:
    * @param [in] memberLocation The location of the uniform within the uniform block
    * @return The byte offset of the uniform
    */
-  uint32_t GetUniformBlockMemberOffset(uint32_t blockIndex, uint32_t memberLocation) const;
+  [[nodiscard]] uint32_t GetUniformBlockMemberOffset(uint32_t blockIndex, uint32_t memberLocation) const override;
 
   // Named uniforms
 
@@ -170,7 +170,7 @@ public:
    * @param [out] out The information of the uniform
    * @return Whether the uniform exists or not
    */
-  bool GetNamedUniform(const std::string& name, Dali::Graphics::UniformInfo& out) const;
+  [[nodiscard]] bool GetNamedUniform(const std::string& name, Dali::Graphics::UniformInfo& out) const override;
 
   // Sampler
 
@@ -179,7 +179,7 @@ public:
    *
    * @return A vector of the sampler uniforms
    */
-  std::vector<Dali::Graphics::UniformInfo> GetSamplers() const;
+  [[nodiscard]] std::vector<Dali::Graphics::UniformInfo> GetSamplers() const override;
 
   // Language
 
@@ -188,18 +188,9 @@ public:
    *
    * @return The language of the shader
    */
-  Graphics::ShaderLanguage GetLanguage() const;
+  [[nodiscard]] Graphics::ShaderLanguage GetLanguage() const override;
 
-  // Other
-
-  /**
-   * @brief Set the program object whose reflection to be built
-   *
-   * @param [in] glProgram The program object
-   */
-  void SetGlProgram(uint32_t glProgram);
-
-private:
+public:
   /**
    * @brief Build the reflection of vertex attributes
    */
@@ -221,7 +212,7 @@ protected:
 
 private:
   Graphics::EglGraphicsController& mController; ///< The Graphics controller
-  uint32_t                         mGlProgram;  ///< The GL program object
+  GLES::ProgramImpl&               mProgram;    ///< The Program object
 
   struct AttributeInfo
   {
@@ -237,7 +228,6 @@ private:
 };
 
 } // namespace GLES
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics
 
 #endif // DALI_GRAPHICS_GLES_REFLECTION_H

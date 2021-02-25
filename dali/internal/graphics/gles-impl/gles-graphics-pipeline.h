@@ -29,11 +29,15 @@
 
 namespace Dali::Graphics::GLES
 {
-using PipelineResource = Resource<Graphics::Pipeline, Graphics::PipelineCreateInfo>;
+class PipelineCache;
 
 /**
- * @brief PipelineWrapper is the object
- * returned to the client-side
+ * @brief PipelineImpl is the implementation of Pipeline
+ *
+ * PipelineImpl is owned by the pipeline cache. The client-side
+ * will receive Graphics::Pipeline objects which are only
+ * wrappers for this implementation. The lifecycle of
+ * PipelineImpl is managed by the PipelineCache.
  */
 class PipelineImpl
 {
@@ -42,36 +46,14 @@ public:
    * @brief Constructor
    * @param[in] createInfo valid TextureCreateInfo structure
    * @param[in] controller Reference to the Controller
+   * @param[in] pipelineCache Reference to valid pipeline cache
    */
-  PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+  PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller, PipelineCache& pipelineCache);
 
   /**
    * @brief Destructor
    */
   ~PipelineImpl();
-
-  /**
-   * @brief Destroys all the low-level resources used by the class
-   */
-  void DestroyResource();
-
-  /**
-   * @brief Initializes low-level resources
-   *
-   * @return Tron success
-   */
-  bool InitializeResource();
-
-  /**
-   * @brief Discards object
-   */
-  void DiscardResource();
-
-  /**
-   * @brief returns GL program id
-   * @return GL program id
-   */
-  [[nodiscard]] uint32_t GetGLProgram() const;
 
   /**
    * @brief Binds pipeline
@@ -86,36 +68,34 @@ public:
   void Bind(GLES::PipelineImpl* prevPipeline);
 
   /**
-   * Executes state change function if condition met
+   * @brief Increases ref count
    */
-  template<typename FUNC, typename STATE>
-  void ExecuteStateChange(FUNC& func, const STATE* prevPipelineState, const STATE* thisPipelineState)
-  {
-    if(!prevPipelineState)
-    {
-      func();
-    }
-    else
-    {
-      // binary test and execute when different
-      if(memcmp(prevPipelineState, thisPipelineState, sizeof(STATE)) != 0)
-      {
-        func();
-      }
-    }
-  }
-
   void Retain();
 
+  /**
+   * @brief Decreases ref count
+   */
   void Release();
 
+  /**
+   * @brief Retrieves ref count
+   * @return Refcount value
+   */
   [[nodiscard]] uint32_t GetRefCount() const;
 
+  /**
+   * @brief Returns PipelineCreateInfo structure
+   *
+   * @return PipelineCreateInfo structure
+   */
   [[nodiscard]] const PipelineCreateInfo& GetCreateInfo() const;
 
+  /**
+   * @brief Returns controller
+   *
+   * @return Reference to the Controller
+   */
   [[nodiscard]] auto& GetController() const;
-
-  Graphics::GLES::Reflection& GetReflection();
 
 private:
   /**
@@ -146,30 +126,29 @@ private:
     }
   }
 
-  // Pipeline state is stored as a copy of create info
-  // data.
+  // Pipeline state is store locally so any assigned pointers on a
+  // client-side may go safely out of scope.
   struct PipelineState;
   std::unique_ptr<PipelineState> mPipelineState;
 
   EglGraphicsController& mController;
   PipelineCreateInfo     mCreateInfo;
 
-  Graphics::GLES::Reflection mReflection;
-
-  uint32_t mGlProgram{0u};
-
   uint32_t mRefCount{0u};
 };
 
 /**
- * @brief Pipeline class wraps a unique pipeline object
- *
+ * @brief Pipeline class wraps the PipelineImpl
  */
 class Pipeline : public Graphics::Pipeline
 {
 public:
   Pipeline() = delete;
 
+  /**
+   * @brief Constructor
+   * @param pipeline Pipeline implementation
+   */
   explicit Pipeline(GLES::PipelineImpl& pipeline)
   : mPipeline(pipeline)
   {
@@ -177,20 +156,56 @@ public:
     mPipeline.Retain();
   }
 
-  ~Pipeline() override
-  {
-    // decrease refcount
-    mPipeline.Release();
-  }
+  /**
+   * @brief Destructor
+   */
+  ~Pipeline() override;
 
+  /**
+   * @brief Returns pipeline implementation
+   *
+   * @return Valid pipeline implementation
+   */
   [[nodiscard]] auto& GetPipeline() const
   {
     return mPipeline;
   }
 
+  /**
+   * @brief Returns create info structure
+   *
+   * @return Valid create info structure
+   */
   [[nodiscard]] const PipelineCreateInfo& GetCreateInfo() const;
 
+  /**
+   * @brief Returns controller
+   *
+   * @return reference to Controller
+   */
   [[nodiscard]] EglGraphicsController& GetController() const;
+
+  bool operator==(const PipelineImpl* impl) const
+  {
+    return &mPipeline == impl;
+  }
+
+  /**
+   * @brief Run by UniquePtr to discard resource
+   */
+  void DiscardResource();
+
+  /**
+   * @brief Destroy resource
+   *
+   * Despite this class doesn't inherit Resource it must provide
+   * (so it won't duplicate same data) same set of functions
+   * so it can work with resource management functions of Controller.
+   */
+  void DestroyResource()
+  {
+    // Nothing to do here
+  }
 
 private:
   GLES::PipelineImpl& mPipeline;

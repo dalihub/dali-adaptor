@@ -26,6 +26,7 @@
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
 #include <dali/public-api/common/dali-common.h>
+#include "gles-graphics-program.h"
 
 namespace Dali::Graphics
 {
@@ -152,11 +153,6 @@ EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Gr
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
-Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader)
-{
-  return NewObject<GLES::Shader>(shaderCreateInfo, *this, std::move(oldShader));
-}
-
 Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
   // Create pipeline cache if needed
@@ -166,6 +162,27 @@ Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const Pipeli
   }
 
   return mPipelineCache->GetPipeline(pipelineCreateInfo, std::move(oldPipeline));
+}
+
+Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
+{
+  // Create program cache if needed
+  if(!mPipelineCache)
+  {
+    mPipelineCache = std::make_unique<GLES::PipelineCache>(*this);
+  }
+
+  return mPipelineCache->GetProgram(programCreateInfo, std::move(oldProgram));
+}
+
+Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader)
+{
+  return NewObject<GLES::Shader>(shaderCreateInfo, *this, std::move(oldShader));
+}
+
+const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
+{
+  return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();
 }
 
 void EglGraphicsController::AddTexture(GLES::Texture& texture)
@@ -187,6 +204,12 @@ void EglGraphicsController::ProcessDiscardQueues()
 
   // Process buffers
   ProcessDiscardQueue<GLES::Buffer>(mDiscardBufferQueue);
+
+  // Process pipelines
+  ProcessDiscardQueue<GLES::Pipeline>(mDiscardPipelineQueue);
+
+  // Process programs
+  ProcessDiscardQueue<GLES::Program>(mDiscardProgramQueue);
 }
 
 void EglGraphicsController::ProcessCreateQueues()
@@ -353,6 +376,16 @@ Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBuffe
   ProcessCreateQueues();
 
   return Graphics::UniquePtr<Memory>(new GLES::Memory(mapInfo, *this));
+}
+
+bool EglGraphicsController::GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData)
+{
+  return static_cast<GLES::Program*>(&program)->GetImplementation()->GetParameter(parameterId, outData);
+}
+
+GLES::PipelineCache& EglGraphicsController::GetPipelineCache() const
+{
+  return *mPipelineCache;
 }
 
 } // namespace Dali::Graphics

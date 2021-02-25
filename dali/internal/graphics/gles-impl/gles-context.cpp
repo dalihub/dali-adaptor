@@ -70,6 +70,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
     mImpl->mCurrentPipeline = mImpl->mNewPipeline;
     mImpl->mNewPipeline     = nullptr;
   }
+  mImpl->mCurrentPipeline->GetPipeline().Bind(nullptr);
 
   // Blend state
   ResolveBlendState();

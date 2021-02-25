@@ -19,21 +19,13 @@
 #include "gles-graphics-pipeline.h"
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <memory>
 
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
-#include "gles-graphics-shader.h"
-
-namespace
-{
-struct LegacyProgram : Dali::Graphics::ExtensionCreateInfo
-{
-  uint32_t programId;
-};
-} // namespace
+#include "gles-graphics-pipeline-cache.h"
+#include "gles-graphics-program.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -44,19 +36,25 @@ struct PipelineImpl::PipelineState
 {
   PipelineState()  = default;
   ~PipelineState() = default;
-  ColorBlendState          colorBlendState;
-  DepthStencilState        depthStencilState;
-  std::vector<ShaderState> shaderState;
-  ViewportState            viewportState;
-  FramebufferState         framebufferState;
-  RasterizationState       rasterizationState;
-  VertexInputState         vertexInputState;
-  InputAssemblyState       inputAssemblyState;
+
+  // for maintaining correct lifecycle, the owned program
+  // wrapper must be created
+  UniquePtr<Program> program;
+
+  ColorBlendState    colorBlendState;
+  DepthStencilState  depthStencilState;
+  ProgramState       programState;
+  ViewportState      viewportState;
+  FramebufferState   framebufferState;
+  RasterizationState rasterizationState;
+  VertexInputState   vertexInputState;
+  InputAssemblyState inputAssemblyState;
+
+  PipelineCache* pipelineCache{};
 };
 
-PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-: mController(controller),
-  mReflection(controller)
+PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graphics::EglGraphicsController& controller, PipelineCache& pipelineCache)
+: mController(controller)
 {
   // the creation is deferred so it's needed to copy certain parts of the CreateInfo structure
   mPipelineState = std::make_unique<PipelineImpl::PipelineState>();
@@ -66,31 +64,22 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graph
   CopyStateIfSet(createInfo.inputAssemblyState, mPipelineState->inputAssemblyState, &mCreateInfo.inputAssemblyState);
   CopyStateIfSet(createInfo.vertexInputState, mPipelineState->vertexInputState, &mCreateInfo.vertexInputState);
   CopyStateIfSet(createInfo.rasterizationState, mPipelineState->rasterizationState, &mCreateInfo.rasterizationState);
+  CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);
   CopyStateIfSet(createInfo.framebufferState, mPipelineState->framebufferState, &mCreateInfo.framebufferState);
   CopyStateIfSet(createInfo.colorBlendState, mPipelineState->colorBlendState, &mCreateInfo.colorBlendState);
   CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
-  CopyStateIfSet(createInfo.shaderState, mPipelineState->shaderState, &mCreateInfo.shaderState);
+  CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);
   CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
 
-  if(createInfo.nextExtension)
-  {
-    LegacyProgram* legacyProgram = static_cast<LegacyProgram*>(createInfo.nextExtension);
-    mGlProgram                   = legacyProgram->programId;
-    mReflection.SetGlProgram(mGlProgram);
-    printf("GLES::Pipeline: mProgramId: %u\n", mGlProgram);
-  }
+  // This program doesn't need custom deleter
+  auto programImpl        = static_cast<const GLES::Program*>(createInfo.programState->program)->GetImplementation();
+  mPipelineState->program = MakeUnique<GLES::Program>(programImpl);
 
-  const std::vector<Graphics::ShaderState>* shaderStates = mCreateInfo.shaderState;
-  if(shaderStates)
-  {
-    printf("GLES::Pipeline: shaderStates %p, shaderStates size: %lu\n", shaderStates, shaderStates->size());
+  // To make sure the program is alive as long as the pipeline is!
+  mCreateInfo.programState->program = mPipelineState->program.get();
 
-    std::for_each(shaderStates->begin(), shaderStates->end(), [](Graphics::ShaderState shaderState) {
-      const Graphics::Shader* shader        = shaderState.shader;
-      Graphics::PipelineStage pipelineStage = shaderState.pipelineStage;
-      printf("GLES::Pipeline: shader: %p, pipelineStage: %d\n", shader, static_cast<int>(pipelineStage));
-    });
-  }
+  // Set pipeline cache
+  mPipelineState->pipelineCache = &pipelineCache;
 }
 
 const PipelineCreateInfo& PipelineImpl::GetCreateInfo() const
@@ -103,92 +92,11 @@ auto& PipelineImpl::GetController() const
   return mController;
 }
 
-bool PipelineImpl::InitializeResource()
-{
-  auto& gl = *GetController().GetGL();
-  //  mGlProgram = gl.CreateProgram();
-
-  for(auto& shader : mPipelineState->shaderState)
-  {
-    // TODO: Compile shader (shouldn't compile if already did so)
-    const auto glesShader = static_cast<const GLES::Shader*>(shader.shader);
-    if(glesShader->Compile())
-    {
-      // Attach shader
-      gl.AttachShader(mGlProgram, glesShader->GetGLShader());
-    }
-    else
-    {
-      // failure
-      gl.DeleteProgram(mGlProgram);
-      return false;
-    }
-  }
-
-  // Link program
-  gl.LinkProgram(mGlProgram);
-
-  // Check for errors
-  // TODO:
-
-  return true;
-}
-
-void PipelineImpl::DestroyResource()
-{
-  if(mGlProgram)
-  {
-    auto& gl = *GetController().GetGL();
-    gl.DeleteProgram(mGlProgram);
-  }
-}
-
-void PipelineImpl::DiscardResource()
-{
-  // Pass program to discard queue
-}
-
-uint32_t PipelineImpl::GetGLProgram() const
-{
-  return mGlProgram;
-}
-
-// FIXME: THIS FUNCTION IS NOT IN USE YET, REQUIRES PROPER PIPELINE
 void PipelineImpl::Bind(GLES::PipelineImpl* prevPipeline)
 {
-  // Same pipeline to bind, nothing to do
-  if(prevPipeline == this)
-  {
-    return;
-  }
-
-  auto& gl = *GetController().GetGL();
-
-  // ------------------ VIEWPORT
-
-  const auto& viewportState    = mPipelineState->viewportState;
-  auto        setViewportState = [this, &gl, viewportState]() {
-    if(viewportState.scissorTestEnable)
-    {
-      gl.Enable(GL_SCISSOR_TEST);
-      const auto& scissor = mPipelineState->viewportState.scissor;
-      gl.Scissor(scissor.x, scissor.y, scissor.width, scissor.height);
-    }
-    else
-    {
-      gl.Disable(GL_SCISSOR_TEST);
-      const auto& scissor = mPipelineState->viewportState.scissor;
-      gl.Scissor(scissor.x, scissor.y, scissor.width, scissor.height);
-    }
-  };
-
-  // Resolve viewport/scissor state change
-  ExecuteStateChange(setViewportState, prevPipeline->GetCreateInfo().viewportState, &mPipelineState->viewportState);
-
-  // ---------------------- PROGRAM
-  auto program = mGlProgram;
-
-  gl.UseProgram(program);
+  auto& gl        = *GetController().GetGL();
+  auto  glProgram = static_cast<const GLES::Program*>(GetCreateInfo().programState->program)->GetImplementation()->GetGlProgram();
+  gl.UseProgram(glProgram);
 }
 
 void PipelineImpl::Retain()
@@ -218,6 +126,21 @@ const PipelineCreateInfo& Pipeline::GetCreateInfo() const
 EglGraphicsController& Pipeline::GetController() const
 {
   return mPipeline.GetController();
+}
+
+Pipeline::~Pipeline()
+{
+  // decrease refcount
+  if(mPipeline.GetRefCount())
+  {
+    mPipeline.Release();
+  }
+}
+
+void Pipeline::DiscardResource()
+{
+  // Send pipeline to discard queue if refcount is 0
+  GetController().DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::GLES

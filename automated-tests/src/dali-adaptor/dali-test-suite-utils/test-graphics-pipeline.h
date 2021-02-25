@@ -31,7 +31,7 @@ public:
   TestGlAbstraction& mGl;
 
   Graphics::ColorBlendState          colorBlendState;
-  std::vector<Graphics::ShaderState> shaderState;
+  Graphics::ProgramState             programState;
   Graphics::ViewportState            viewportState;
   Graphics::FramebufferState         framebufferState;
   Graphics::Pipeline                 basePipeline;
