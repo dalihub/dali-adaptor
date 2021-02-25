@@ -26,5 +26,6 @@
 #include <dali/devel-api/text-abstraction/script.h>
 #include <dali/devel-api/text-abstraction/segmentation.h>
 #include <dali/devel-api/text-abstraction/shaping.h>
+#include <dali/devel-api/text-abstraction/hyphenation.h>
 
 #endif // DALI_TEXT_ABSTRACTION_H
