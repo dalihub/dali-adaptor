@@ -29,6 +29,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
@@ -592,6 +593,11 @@ Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRep
 Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
 {
   return mPlugin->FrameRenderedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& WebEngine::RequestInterceptorSignal()
+{
+  return mPlugin->RequestInterceptorSignal();
 }
 
 } // namespace Adaptor

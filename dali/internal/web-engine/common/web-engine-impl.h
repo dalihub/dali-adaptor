@@ -484,6 +484,11 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
+  /**
+   * @copydoc Dali::WebEngine::RequestInterceptorSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
+
 private:
   /**
    * @brief Constructor.

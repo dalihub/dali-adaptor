@@ -35,6 +35,7 @@ class WebEngineBackForwardList;
 class WebEngineContext;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
+class WebEngineRequestInterceptor;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
@@ -86,6 +87,11 @@ public:
    * @brief WebView signal type related with video playing.
    */
   using VideoPlayingCallback = std::function<void(bool)>;
+
+  /**
+   * @brief WebView signal type related with http request interceptor.
+   */
+  using WebEngineRequestInterceptorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineRequestInterceptor>)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -524,13 +530,13 @@ public:
    * @brief Support mouse events or not.
    * @param[in] enabled True if enabled, false othewise.
    */
-  virtual void EnableMouseEvents( bool enabled ) = 0;
+  virtual void EnableMouseEvents(bool enabled) = 0;
 
   /**
    * @brief Support key events or not.
    * @param[in] enabled True if enabled, false othewise.
    */
-  virtual void EnableKeyEvents( bool enabled ) = 0;
+  virtual void EnableKeyEvents(bool enabled) = 0;
 
   /**
    * @brief Sets focus.
@@ -665,13 +671,13 @@ public:
    * @brief Sends Hover Events.
    * @param[in] event The hover event would be sent.
    */
-  virtual bool SendHoverEvent( const HoverEvent& event ) = 0;
+  virtual bool SendHoverEvent(const HoverEvent& event) = 0;
 
   /**
    * @brief Sends Wheel Events.
    * @param[in] event The wheel event would be sent.
    */
-  virtual bool SendWheelEvent( const WheelEvent& event ) = 0;
+  virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
@@ -728,6 +734,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when http request need be intercepted.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineRequestInterceptorSignalType& RequestInterceptorSignal() = 0;
 };
 
 // specialization has to be done in the same namespace
