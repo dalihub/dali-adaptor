@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-#include "test-graphics-program.h"
+#include "test-graphics-shader.h"
 
 namespace Dali
 {
-TestGraphicsProgram::TestGraphicsProgram(TestGlAbstraction& gl, const Graphics::ProgramCreateInfo& createInfo, Property::Array& vertexFormats)
+TestGraphicsShader::TestGraphicsShader(TestGlAbstraction& gl, const Graphics::ShaderCreateInfo& createInfo)
 : mGl(gl),
-  mCreateInfo(createInfo),
-  mReflection(gl, vertexFormats)
+  mCreateInfo(createInfo)
 {
-  mId = 0;//mGl.CreateProgram();
 }
-
-bool TestGraphicsProgram::GetParameter(uint32_t parameterId, void* outData )
-{
-  reinterpret_cast<uint32_t*>(outData)[0] = mId;
-  return true;
-}
-
-
 
 } // namespace Dali

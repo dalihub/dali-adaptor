@@ -1,3 +1,6 @@
+#ifndef DALI_TEST_GRAPHICS_SHADER_H
+#define DALI_TEST_GRAPHICS_SHADER_H
+
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
@@ -14,24 +17,22 @@
  * limitations under the License.
  */
 
-#include "test-graphics-program.h"
+#include <dali/graphics-api/graphics-shader-create-info.h>
+#include <dali/graphics-api/graphics-shader.h>
+#include "test-gl-abstraction.h"
 
 namespace Dali
 {
-TestGraphicsProgram::TestGraphicsProgram(TestGlAbstraction& gl, const Graphics::ProgramCreateInfo& createInfo, Property::Array& vertexFormats)
-: mGl(gl),
-  mCreateInfo(createInfo),
-  mReflection(gl, vertexFormats)
+class TestGraphicsShader : public Graphics::Shader
 {
-  mId = 0;//mGl.CreateProgram();
-}
+public:
+  TestGraphicsShader(TestGlAbstraction& gl, const Graphics::ShaderCreateInfo& createInfo);
 
-bool TestGraphicsProgram::GetParameter(uint32_t parameterId, void* outData )
-{
-  reinterpret_cast<uint32_t*>(outData)[0] = mId;
-  return true;
-}
-
-
+public:
+  TestGlAbstraction&         mGl;
+  Graphics::ShaderCreateInfo mCreateInfo;
+};
 
 } // namespace Dali
+
+#endif //DALI_TEST_GRAPHICS_SHADER_H

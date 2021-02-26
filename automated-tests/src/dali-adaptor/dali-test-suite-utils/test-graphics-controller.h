@@ -313,7 +313,7 @@ public: // Test Functions
    * @param[out] outData Pointer to output memory
    * @return True on success
    */
-  bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
+  bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData ) override;
 
 public:
   mutable TraceCallStack                    mCallStack;
