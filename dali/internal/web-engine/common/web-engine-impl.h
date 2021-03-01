@@ -48,7 +48,7 @@ class WebEngine : public Dali::BaseObject
 {
 public:
   /**
-   * @brief Creates a new WebEngine handle
+   * @brief Create a new WebEngine handle
    *
    * @return WebEngine pointer
    */
@@ -57,12 +57,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::Create()
    */
-  void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
+  void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
 
   /**
    * @copydoc Dali::WebEngine::Create()
    */
-  void Create(int width, int height, int argc, char** argv);
+  void Create(uint32_t width, uint32_t height, uint32_t argc, char** argv);
 
   /**
    * @copydoc Dali::WebEngine::Destroy()
@@ -197,17 +197,17 @@ public:
   /**
    * @copydoc Dali::WebEngine::ScrollBy()
    */
-  void ScrollBy(int deltaX, int deltaY);
+  void ScrollBy(int32_t deltaX, int32_t deltaY);
 
   /**
    * @copydoc Dali::WebEngine::ScrollEdgeBy()
    */
-  bool ScrollEdgeBy(int deltaX, int deltaY);
+  bool ScrollEdgeBy(int32_t deltaX, int32_t deltaY);
 
   /**
    * @copydoc Dali::WebEngine::SetScrollPosition()
    */
-  void SetScrollPosition(int x, int y);
+  void SetScrollPosition(int32_t x, int32_t y);
 
   /**
    * @copydoc Dali::WebEngine::GetScrollPosition()
@@ -255,6 +255,16 @@ public:
   void JavaScriptPromptReply(const std::string& result);
 
   /**
+   * @copydoc Dali::WebEngine::CreateHitTest()
+   */
+  std::unique_ptr<Dali::WebEngineHitTest> CreateHitTest(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode);
+
+  /**
+   * @copydoc Dali::WebEngine::CreateHitTestAsynchronously()
+   */
+  bool CreateHitTestAsynchronously(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode, Dali::WebEnginePlugin::WebEngineHitTestCreatedCallback callback);
+
+  /**
    * @copydoc Dali::WebEngine::CanGoForward()
    */
   bool CanGoForward();
@@ -297,7 +307,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::SetSize()
    */
-  void SetSize(int width, int height);
+  void SetSize(uint32_t width, uint32_t height);
 
   /**
    * @copydoc Dali::WebEngine::EnableMouseEvents()
@@ -407,12 +417,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetScreenshot()
    */
-  Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor);
+  Dali::PixelData GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor);
 
   /**
    * @copydoc Dali::WebEngine::GetScreenshotAsync()
    */
-  bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
+  bool GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::IsVideoPlaying()
@@ -427,7 +437,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::UpdateDisplayArea()
    */
-  void UpdateDisplayArea(Dali::Rect<int> displayArea);
+  void UpdateDisplayArea(Dali::Rect<int32_t> displayArea);
 
   /**
    * @copydoc Dali::WebEngine::EnableVideoHole()
@@ -542,14 +552,14 @@ private:
   WebEngine& operator=(const WebEngine& WebEngine);
 
   /**
-   * @brief Initializes member data.
+   * @brief Initialize member data.
    *
    * @return Whether the initialization succeed or not.
    */
   bool Initialize();
 
   /**
-   * @brief Initializes library handle by loading web engine plugin.
+   * @brief Initialize library handle by loading web engine plugin.
    *
    * @return Whether the initialization succeed or not.
    */
