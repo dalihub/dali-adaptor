@@ -241,6 +241,7 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
   //TODO: Need to support partial update
+  MakeContextCurrent();
   return true;
 }
 
