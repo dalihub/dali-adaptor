@@ -40,6 +40,7 @@ enum class CommandType
   BIND_SAMPLERS,
   BIND_VERTEX_BUFFERS,
   BIND_INDEX_BUFFER,
+  BIND_UNIFORM_BUFFER,
   BIND_PIPELINE,
   DRAW,
   DRAW_INDEXED,
@@ -137,6 +138,11 @@ struct Command
         bindIndexBuffer = rhs.bindIndexBuffer;
         break;
       }
+      case CommandType::BIND_UNIFORM_BUFFER:
+      {
+        bindUniformBuffers = std::move(rhs.bindUniformBuffers);
+        break;
+      }
       case CommandType::BIND_SAMPLERS:
       {
         bindSamplers = std::move(rhs.bindSamplers);
@@ -206,6 +212,12 @@ struct Command
 
     struct
     {
+      using Binding = GLES::UniformBufferBindingDescriptor;
+      std::vector<Binding> uniformBufferBindings;
+    } bindUniformBuffers;
+
+    struct
+    {
       const GLES::Pipeline* pipeline{nullptr};
     } bindPipeline;
 
@@ -249,6 +261,17 @@ public:
 
   void BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings) override
   {
+    printf("BindUniformBuffers: bindings.size(): %lu\n", bindings.size());
+
+    mCommands.emplace_back();
+    mCommands.back().type       = CommandType::BIND_UNIFORM_BUFFER;
+    auto& uniformBufferBindings = mCommands.back().bindUniformBuffers.uniformBufferBindings;
+
+    for(auto i = 0u; i < bindings.size(); ++i)
+    {
+      const auto& binding = bindings[i];
+      printf("bindings[%u]->buffer: %p, dataSize: %u, offset: %u, binding: %u\n", i, binding.buffer, binding.dataSize, binding.offset, binding.binding);
+    }
   }
 
   void BindPipeline(const Graphics::Pipeline& pipeline) override

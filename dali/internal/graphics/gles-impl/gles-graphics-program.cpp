@@ -113,7 +113,6 @@ bool ProgramImpl::Create()
   // Initialize reflection
   mImpl->reflection->BuildUniformReflection();
   mImpl->reflection->BuildVertexAttributeReflection();
-  mImpl->reflection->BuildUniformBlockReflection();
 
   return true;
 }

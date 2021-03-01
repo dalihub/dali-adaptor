@@ -1270,6 +1270,16 @@ struct IndexBufferBindingDescriptor
 };
 
 /**
+ * @brief Descriptor of uniform buffer binding within
+ * command buffer.
+ */
+struct UniformBufferBindingDescriptor
+{
+  const GLES::Buffer* buffer{nullptr};
+  uint32_t            offset{0u};
+};
+
+/**
  * @brief The descriptor of draw call
  */
 struct DrawCallDescriptor
