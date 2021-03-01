@@ -238,7 +238,14 @@ struct PipelineCache::Impl
   /**
    * @brief destructor
    */
-  ~Impl() = default;
+  ~Impl()
+  {
+    // First destroy pipelines
+    entries.clear();
+
+    // Now programs
+    programEntries.clear();
+  }
 
   /**
    * @brief Structure describes a single cache entry
