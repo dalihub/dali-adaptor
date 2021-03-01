@@ -122,12 +122,14 @@ void Reflection::BuildVertexAttributeReflection()
     gl->GetActiveAttrib(glProgram, i, maxLength, &written, &size, &type, name);
     location = gl->GetAttribLocation(glProgram, name);
 
-    AttributeInfo attributeInfo;
-    attributeInfo.location = location;
-    attributeInfo.name     = name;
-    attributeInfo.format   = GetVertexAttributeTypeFormat(type);
-
-    mVertexInputAttributes.insert(mVertexInputAttributes.begin() + location, attributeInfo);
+    if(location >= 0)
+    {
+      AttributeInfo attributeInfo;
+      attributeInfo.location = location;
+      attributeInfo.name     = name;
+      attributeInfo.format   = GetVertexAttributeTypeFormat(type);
+      mVertexInputAttributes.insert(mVertexInputAttributes.begin() + location, attributeInfo);
+    }
   }
   delete[] name;
 }
