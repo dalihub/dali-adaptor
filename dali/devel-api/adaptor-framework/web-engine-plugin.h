@@ -35,6 +35,8 @@ class WebEngineBackForwardList;
 class WebEngineCertificate;
 class WebEngineConsoleMessage;
 class WebEngineContext;
+class WebEngineContextMenu;
+class WebEngineContextMenuItem;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
 class WebEngineHttpAuthHandler;
@@ -112,6 +114,16 @@ public:
    * @brief WebView signal type related with http authentication.
    */
   using WebEngineHttpAuthHandlerSignalType = Signal<void(std::shared_ptr<Dali::WebEngineHttpAuthHandler>)>;
+
+  /**
+   * @brief WebView signal type related with context menu customized.
+   */
+  using WebEngineContextMenuCustomizedSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
+
+  /**
+   * @brief WebView signal type related with context menu item selected.
+   */
+  using WebEngineContextMenuItemSelectedSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenuItem>)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -256,7 +268,7 @@ public:
   virtual NativeImageInterfacePtr GetNativeImageSource() = 0;
 
   /**
-   * @brief Returns the URL of the Web.
+   * @brief Return the URL of the Web.
    *
    * @return Url of string type
    */
@@ -426,7 +438,7 @@ public:
   virtual void GoBack() = 0;
 
   /**
-   * @brief Evaluates JavaScript code represented as a string.
+   * @brief Evaluate JavaScript code represented as a string.
    *
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
@@ -502,7 +514,7 @@ public:
   virtual void SetUserAgent(const std::string& userAgent) = 0;
 
   /**
-   * @brief Sets size of Web Page.
+   * @brief Set size of Web Page.
    */
   virtual void SetSize(int width, int height) = 0;
 
@@ -761,7 +773,7 @@ public:
   virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when http request need be intercepted.
+   * @brief Connect to this signal to be notified when http request need be intercepted.
    *
    * @return A signal object to connect with.
    */
@@ -775,32 +787,46 @@ public:
   virtual WebEngineConsoleMessageSignalType& ConsoleMessageSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when new policy would be decided.
+   * @brief Connect to this signal to be notified when new policy would be decided.
    *
    * @return A signal object to connect with.
    */
   virtual WebEnginePolicyDecisionSignalType& PolicyDecisionSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when certificate need be confirmed.
+   * @brief Connect to this signal to be notified when certificate need be confirmed.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineCertificateSignalType& CertificateConfirmSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when ssl certificate is changed.
+   * @brief Connect to this signal to be notified when ssl certificate is changed.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineCertificateSignalType& SslCertificateChangedSignal() = 0;
 
   /**
-   * @brief Connects to this signal to be notified when http authentication need be confirmed.
+   * @brief Connect to this signal to be notified when http authentication need be confirmed.
    *
    * @return A signal object to connect with.
    */
   virtual WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal() = 0;
+
+  /**
+   * @brief Connect to this signal to be notified when context menu would be customized.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal() = 0;
+
+  /**
+   * @brief Connect to this signal to be notified when context menu item is selected.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal() = 0;
 };
 
 // specialization has to be done in the same namespace

@@ -514,6 +514,16 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
 
+  /**
+   * @copydoc Dali::WebEngine::ContextMenuCustomizedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal();
+
+  /**
+   * @copydoc Dali::WebEngine::ContextMenuItemSelectedSignal()
+   */
+  Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal();
+
 private:
   /**
    * @brief Constructor.

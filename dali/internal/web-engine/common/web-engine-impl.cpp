@@ -29,6 +29,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine-certificate.h>
 #include <dali/devel-api/adaptor-framework/web-engine-console-message.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context-menu.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
 #include <dali/devel-api/adaptor-framework/web-engine-http-auth-handler.h>
@@ -550,14 +551,14 @@ void WebEngine::EnableVideoHole(bool enabled)
   mPlugin->EnableVideoHole(enabled);
 }
 
-bool WebEngine::SendHoverEvent( const Dali::HoverEvent& event )
+bool WebEngine::SendHoverEvent(const Dali::HoverEvent& event)
 {
-  return mPlugin->SendHoverEvent( event );
+  return mPlugin->SendHoverEvent(event);
 }
 
-bool WebEngine::SendWheelEvent( const Dali::WheelEvent& event )
+bool WebEngine::SendWheelEvent(const Dali::WheelEvent& event)
 {
-  return mPlugin->SendWheelEvent( event );
+  return mPlugin->SendWheelEvent(event);
 }
 
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
@@ -628,6 +629,16 @@ Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::SslCertificate
 Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHandlerSignal()
 {
   return mPlugin->HttpAuthHandlerSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+{
+  return mPlugin->ContextMenuCustomizedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+{
+  return mPlugin->ContextMenuItemSelectedSignal();
 }
 
 } // namespace Adaptor

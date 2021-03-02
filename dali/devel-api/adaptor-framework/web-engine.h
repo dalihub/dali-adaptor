@@ -87,7 +87,7 @@ public:
   static WebEngine DownCast(BaseHandle handle);
 
   /**
-   * @brief Creates WebEngine instance.
+   * @brief Create WebEngine instance.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
@@ -97,7 +97,7 @@ public:
   void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
 
   /**
-   * @brief Creates WebEngine instance.
+   * @brief Create WebEngine instance.
    *
    * @param [in] width The width of Web
    * @param [in] height The height of Web
@@ -107,12 +107,12 @@ public:
   void Create(int width, int height, int argc, char** argv);
 
   /**
-   * @brief Destroys WebEngine instance.
+   * @brief Destroy WebEngine instance.
    */
   void Destroy();
 
   /**
-   * @brief Gets native image source to render.
+   * @brief Get native image source to render.
    */
   NativeImageInterfacePtr GetNativeImageSource();
 
@@ -137,33 +137,33 @@ public:
   Dali::WebEngineBackForwardList& GetBackForwardList() const;
 
   /**
-   * @brief Loads a web page based on a given URL.
+   * @brief Load a web page based on a given URL.
    *
    * @param [in] url The URL of the resource to load
    */
   void LoadUrl(const std::string& url);
 
   /**
-   * @brief Returns the title of the Web.
+   * @brief Return the title of the Web.
    *
    * @return The title of web page
    */
   std::string GetTitle() const;
 
   /**
-   * @brief Returns the Favicon of the Web.
+   * @brief Return the Favicon of the Web.
    *
    * @return FavIcon of Dali::PixelData& type
    */
   Dali::PixelData GetFavicon() const;
 
   /**
-   * @brief Gets the url.
+   * @brief Get the url.
    */
   const std::string& GetUrl();
 
   /**
-   * @brief Loads a given string as web contents.
+   * @brief Load a given string as web contents.
    *
    * @param [in] htmlString The string to use as the contents of the web page
    */
@@ -181,7 +181,7 @@ public:
   bool LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl);
 
   /**
-   * @brief Requests loading the given contents by MIME type into the view object
+   * @brief Request loading the given contents by MIME type into the view object
    *
    * @param[in] contents The content to load
    * @param[in] contentSize The size of contents (in bytes)
@@ -194,27 +194,27 @@ public:
   bool LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri);
 
   /**
-   * @brief Reloads the Web.
+   * @brief Reload the Web.
    */
   void Reload();
 
   /**
-   * @brief Reloads the current page's document without cache
+   * @brief Reload the current page's document without cache
    */
   bool ReloadWithoutCache();
 
   /**
-   * @brief Stops loading web contents on the current page.
+   * @brief Stop loading web contents on the current page.
    */
   void StopLoading();
 
   /**
-   * @brief Suspends the operation associated with the view.
+   * @brief Suspend the operation associated with the view.
    */
   void Suspend();
 
   /**
-   * @brief Resumes the operation associated with the view object after calling Suspend().
+   * @brief Resume the operation associated with the view object after calling Suspend().
    */
   void Resume();
 
@@ -264,7 +264,7 @@ public:
   bool StopInspectorServer();
 
   /**
-   * @brief Scrolls web page of view by deltaX and deltaY.
+   * @brief Scroll web page of view by deltaX and deltaY.
    *
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
@@ -272,7 +272,7 @@ public:
   void ScrollBy(int deltaX, int deltaY);
 
   /**
-   * @brief Scrolls edge of view by deltaX and deltaY.
+   * @brief Scroll edge of view by deltaX and deltaY.
    *
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
@@ -282,51 +282,51 @@ public:
   bool ScrollEdgeBy(int deltaX, int deltaY);
 
   /**
-   * @brief Sets an absolute scroll of the given view.
+   * @brief Set an absolute scroll of the given view.
    */
   void SetScrollPosition(int x, int y);
 
   /**
-   * @brief Gets the current scroll position of the given view.
+   * @brief Get the current scroll position of the given view.
    */
   Dali::Vector2 GetScrollPosition() const;
 
   /**
-   * @brief Gets the possible scroll size of the given view.
+   * @brief Get the possible scroll size of the given view.
    */
   Dali::Vector2 GetScrollSize() const;
 
   /**
-   * @brief Gets the last known content's size.
+   * @brief Get the last known content's size.
    */
   Dali::Vector2 GetContentSize() const;
 
   /**
-   * @brief Returns whether forward is possible.
+   * @brief Return whether forward is possible.
    *
    * @return True if forward is possible, false otherwise
    */
   bool CanGoForward();
 
   /**
-   * @brief Goes to forward.
+   * @brief Go to forward.
    */
   void GoForward();
 
   /**
-   * @brief Returns whether backward is possible.
+   * @brief Return whether backward is possible.
    *
    * @return True if backward is possible, false otherwise
    */
   bool CanGoBack();
 
   /**
-   * @brief Goes to back.
+   * @brief Go to back.
    */
   void GoBack();
 
   /**
-   * @brief Evaluates JavaScript code represented as a string.
+   * @brief Evaluate JavaScript code represented as a string.
    *
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
@@ -380,12 +380,12 @@ public:
   void JavaScriptPromptReply(const std::string& result);
 
   /**
-   * @brief Clears the history of Web.
+   * @brief Clear the history of Web.
    */
   void ClearHistory();
 
   /**
-   * @brief Clears all tiles resources of Web.
+   * @brief Clear all tiles resources of Web.
    */
   void ClearAllTilesResources();
 
@@ -404,52 +404,52 @@ public:
   void SetUserAgent(const std::string& userAgent);
 
   /**
-   * @brief Sets the size of Web Pages.
+   * @brief Set the size of Web Pages.
    */
   void SetSize(int width, int height);
 
   /**
-   * @brief Sets background color of web page.
+   * @brief Set background color of web page.
    *
    * @param[in] color Background color
    */
   void SetDocumentBackgroundColor(Dali::Vector4 color);
 
   /**
-   * @brief Clears tiles when hidden.
+   * @brief Clear tiles when hidden.
    *
    * @param[in] cleared Whether tiles are cleared or not
    */
   void ClearTilesWhenHidden(bool cleared);
 
   /**
-   * @brief Sets multiplier of cover area of tile.
+   * @brief Set multiplier of cover area of tile.
    *
    * @param[in] multiplier The multiplier of cover area
    */
   void SetTileCoverAreaMultiplier(float multiplier);
 
   /**
-   * @brief Enables cursor by client.
+   * @brief Enable cursor by client.
    *
    * @param[in] enabled Whether cursor is enabled or not
    */
   void EnableCursorByClient(bool enabled);
 
   /**
-   * @brief Gets the selected text.
+   * @brief Get the selected text.
    *
    * @return the selected text
    */
   std::string GetSelectedText() const;
 
   /**
-   * @brief Sends Touch Events.
+   * @brief Send Touch Events.
    */
   bool SendTouchEvent(const TouchEvent& touch);
 
   /**
-   * @brief Sends key Events.
+   * @brief Send key Events.
    */
   bool SendKeyEvent(const KeyEvent& event);
 
@@ -460,58 +460,58 @@ public:
   void SetFocus(bool focused);
 
   /**
-   * @brief Enables/disables mouse events. The default is enabled.
+   * @brief Enable/disable mouse events. The default is enabled.
    *
    * @param[in] enabled True if mouse events are enabled, false otherwise
    */
-  void EnableMouseEvents( bool enabled );
+  void EnableMouseEvents(bool enabled);
 
   /**
-   * @brief Enables/disables key events. The default is enabled.
+   * @brief Enable/disable key events. The default is enabled.
    *
    * @param[in] enabled True if key events are enabled, false otherwise
    */
-  void EnableKeyEvents( bool enabled );
+  void EnableKeyEvents(bool enabled);
 
   /**
-   * @brief Sets zoom factor of the current page.
+   * @brief Set zoom factor of the current page.
    * @param[in] zoomFactor a new factor to be set.
    */
   void SetPageZoomFactor(float zoomFactor);
 
   /**
-   * @brief Queries the current zoom factor of the page。
+   * @brief Query the current zoom factor of the page。
    * @return The current page zoom factor.
    */
   float GetPageZoomFactor() const;
 
   /**
-   * @brief Sets the current text zoom level。.
+   * @brief Set the current text zoom level。.
    * @param[in] zoomFactor a new factor to be set.
    */
   void SetTextZoomFactor(float zoomFactor);
 
   /**
-   * @brief Gets the current text zoom level.
+   * @brief Get the current text zoom level.
    * @return The current text zoom factor.
    */
   float GetTextZoomFactor() const;
 
   /**
-   * @brief Gets the current load progress of the page.
+   * @brief Get the current load progress of the page.
    * @return The load progress of the page.
    */
   float GetLoadProgressPercentage() const;
 
   /**
-   * @brief Scales the current page, centered at the given point.
+   * @brief Scale the current page, centered at the given point.
    * @param[in] scaleFactor a new factor to be scaled.
    * @param[in] point a center coordinate.
    */
   void SetScaleFactor(float scaleFactor, Dali::Vector2 point);
 
   /**
-   * @brief Gets the current scale factor of the page.
+   * @brief Get the current scale factor of the page.
    * @return The current scale factor.
    */
   float GetScaleFactor() const;
@@ -531,7 +531,7 @@ public:
   bool SetVisibility(bool visible);
 
   /**
-   * @brief Searches and highlights the given string in the document.
+   * @brief Search and highlights the given string in the document.
    * @param[in] text The text to find
    * @param[in] options The options to find
    * @param[in] maxMatchCount The maximum match count to find
@@ -578,7 +578,7 @@ public:
   bool CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback);
 
   /**
-   * @brief Sets callback which alled upon geolocation permission request.
+   * @brief Set callback which alled upon geolocation permission request.
    *
    * @param[in] callback The callback for requesting geolocation permission
    */
@@ -597,114 +597,128 @@ public:
   void EnableVideoHole(bool enabled);
 
   /**
-   * @brief Sends hover events.
+   * @brief Send hover events.
    * @param[in] event The hover event would be sent.
    */
-  bool SendHoverEvent( const HoverEvent& event );
+  bool SendHoverEvent(const HoverEvent& event);
 
   /**
-   * @brief Sends wheel events.
+   * @brief Send wheel events.
    * @param[in] event The wheel event would be sent.
    */
-  bool SendWheelEvent( const WheelEvent& event );
+  bool SendWheelEvent(const WheelEvent& event);
 
   /**
-   * @brief Connects to this signal to be notified when page loading is started.
+   * @brief Connect to this signal to be notified when page loading is started.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when page loading is in progress.
+   * @brief Connect to this signal to be notified when page loading is in progress.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
 
   /**
-   * @brief Connects to this signal to be notified when page loading is finished.
+   * @brief Connect to this signal to be notified when page loading is finished.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when an error occurs in page loading.
+   * @brief Connect to this signal to be notified when an error occurs in page loading.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
 
   /**
-   * @brief Connects to this signal to be notified when scroll edge is reached.
+   * @brief Connect to this signal to be notified when scroll edge is reached.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when url is changed.
+   * @brief Connect to this signal to be notified when url is changed.
    *
    * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when form repost decision is requested.
+   * @brief Connect to this signal to be notified when form repost decision is requested.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
 
   /**
-   * @brief Connects to this signal to be notified when frame is rendered.
+   * @brief Connect to this signal to be notified when frame is rendered.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when http request need be intercepted.
+   * @brief Connect to this signal to be notified when http request need be intercepted.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
 
   /**
-   * @brief Connects to this signal to be notified when console message will be logged.
+   * @brief Connect to this signal to be notified when console message will be logged.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
 
   /**
-   * @brief Connects to this signal to be notified when new policy would be decided.
+   * @brief Connect to this signal to be notified when new policy would be decided.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
 
   /**
-   * @brief Connects to this signal to be notified when certificate need be confirmed.
+   * @brief Connect to this signal to be notified when certificate need be confirmed.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineCertificateSignalType& CertificateConfirmSignal();
 
   /**
-   * @brief Connects to this signal to be notified when ssl certificate is changed.
+   * @brief Connect to this signal to be notified when ssl certificate is changed.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineCertificateSignalType& SslCertificateChangedSignal();
 
   /**
-   * @brief Connects to this signal to be notified when http authentication need be confirmed.
+   * @brief Connect to this signal to be notified when http authentication need be confirmed.
    *
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when context menu would be customized.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal();
+
+  /**
+   * @brief Connect to this signal to be notified when context menu item is selected.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal();
 
 private: // Not intended for application developers
   /**

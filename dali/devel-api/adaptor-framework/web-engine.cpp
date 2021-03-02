@@ -22,6 +22,8 @@
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine-certificate.h>
 #include <dali/devel-api/adaptor-framework/web-engine-console-message.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context-menu-item.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context-menu.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
 #include <dali/devel-api/adaptor-framework/web-engine-http-auth-handler.h>
@@ -355,14 +357,14 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
-bool WebEngine::SendHoverEvent( const HoverEvent& event )
+bool WebEngine::SendHoverEvent(const HoverEvent& event)
 {
-  return GetImplementation( *this ).SendHoverEvent( event );
+  return GetImplementation(*this).SendHoverEvent(event);
 }
 
-bool WebEngine::SendWheelEvent( const WheelEvent& event )
+bool WebEngine::SendWheelEvent(const WheelEvent& event)
 {
-  return GetImplementation( *this ).SendWheelEvent( event );
+  return GetImplementation(*this).SendWheelEvent(event);
 }
 
 void WebEngine::SetFocus(bool focused)
@@ -533,6 +535,16 @@ Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::SslCertificate
 Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHandlerSignal()
 {
   return GetImplementation(*this).HttpAuthHandlerSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+{
+  return GetImplementation(*this).ContextMenuCustomizedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+{
+  return GetImplementation(*this).ContextMenuItemSelectedSignal();
 }
 
 } // namespace Dali
