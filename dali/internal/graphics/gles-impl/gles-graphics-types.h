@@ -1029,11 +1029,31 @@ struct GLTextureFormatType
   uint32_t type{0};
 };
 
+struct GLSamplerFilter
+{
+  constexpr explicit GLSamplerFilter(Graphics::SamplerFilter filter)
+  {
+    switch(filter)
+    {
+      case Graphics::SamplerFilter::NEAREST:
+      {
+        glFilter = GL_NEAREST;
+        break;
+      }
+      case Graphics::SamplerFilter::LINEAR:
+      {
+        glFilter = GL_LINEAR;
+        break;
+      }
+    }
+  }
+  uint32_t glFilter{0};
+};
+
 struct GLSamplerFilterAndMipMapMode
 {
-  GLSamplerFilterAndMipMapMode() = default;
-  GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter     filter,
-                               Graphics::SamplerMipmapMode mipMapMode)
+  constexpr explicit GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter     filter,
+                                                  Graphics::SamplerMipmapMode mipMapMode)
   {
     switch(filter)
     {
@@ -1057,7 +1077,9 @@ struct GLSamplerFilterAndMipMapMode
             break;
           }
         }
+        break;
       }
+
       case Graphics::SamplerFilter::LINEAR:
       {
         switch(mipMapMode)
@@ -1187,6 +1209,42 @@ struct GLTextureTarget
     }
   }
   GLenum target{GL_TEXTURE_2D};
+};
+
+struct GLAddressMode
+{
+  constexpr explicit GLAddressMode(Graphics::SamplerAddressMode graphicsAddressMode)
+  {
+    switch(graphicsAddressMode)
+    {
+      case Graphics::SamplerAddressMode::REPEAT:
+      {
+        texParameter = GL_REPEAT;
+        break;
+      }
+      case Graphics::SamplerAddressMode::MIRRORED_REPEAT:
+      {
+        texParameter = GL_MIRRORED_REPEAT;
+        break;
+      }
+      case Graphics::SamplerAddressMode::CLAMP_TO_EDGE:
+      {
+        texParameter = GL_CLAMP_TO_EDGE;
+        break;
+      }
+      case Graphics::SamplerAddressMode::CLAMP_TO_BORDER:
+      {
+        texParameter = GL_CLAMP_TO_EDGE;
+        break;
+      }
+      case Graphics::SamplerAddressMode::MIRROR_CLAMP_TO_EDGE:
+      {
+        texParameter = GL_CLAMP_TO_EDGE;
+        break;
+      }
+    }
+  }
+  GLenum texParameter{GL_CLAMP_TO_EDGE};
 };
 
 /**

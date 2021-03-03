@@ -183,6 +183,11 @@ Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCrea
   return NewObject<GLES::Shader>(shaderCreateInfo, *this, std::move(oldShader));
 }
 
+Graphics::UniquePtr<Sampler> EglGraphicsController::CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler)
+{
+  return NewObject<GLES::Sampler>(samplerCreateInfo, *this, std::move(oldSampler));
+}
+
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
   return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();

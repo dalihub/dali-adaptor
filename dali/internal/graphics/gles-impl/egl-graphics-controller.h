@@ -28,6 +28,7 @@
 #include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-reflection.h"
+#include "gles-graphics-sampler.h"
 #include "gles-graphics-texture.h"
 
 namespace Dali
@@ -208,10 +209,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateSampler()
    */
-  Graphics::UniquePtr<Sampler> CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<Sampler> CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler) override;
 
   /**
    * @copydoc Dali::Graphics::CreateRenderTarget()

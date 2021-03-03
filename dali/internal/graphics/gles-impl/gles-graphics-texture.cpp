@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
+#include "gles-graphics-sampler.h"
 #include "gles-graphics-types.h"
 
 namespace
@@ -190,10 +191,32 @@ void Texture::Bind(const TextureBinding& binding) const
   gl->BindTexture(mGlTarget, mTextureId);
 
   // For GLES2 if there is a sampler set in the binding
-  //if(binding.sampler)
-  //{
+  if(binding.sampler)
+  {
+    // Non-default.
+    auto*       sampler           = static_cast<const GLES::Sampler*>(binding.sampler);
+    const auto& samplerCreateInfo = sampler->GetCreateInfo();
 
-  //}
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, samplerCreateInfo.mipMapMode).glFilter);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(samplerCreateInfo.magFilter).glFilter);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_S, GLAddressMode(samplerCreateInfo.addressModeU).texParameter);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_T, GLAddressMode(samplerCreateInfo.addressModeV).texParameter);
+    if(mGlTarget == GL_TEXTURE_CUBE_MAP)
+    {
+      gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_R, GLAddressMode(samplerCreateInfo.addressModeW).texParameter);
+    }
+  }
+  else
+  {
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, DALI_MINIFY_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, DALI_MAGNIFY_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
+    if(mGlTarget == GL_TEXTURE_CUBE_MAP)
+    {
+      gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_R, GL_WRAP_DEFAULT);
+    }
+  }
 }
 
 void Texture::Prepare()
