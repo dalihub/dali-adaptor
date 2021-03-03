@@ -209,34 +209,34 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
-void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
+void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptAlertCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptAlertCallback(callback);
 }
 
 void WebEngine::JavaScriptAlertReply()
 {
-  GetImplementation( *this ).JavaScriptAlertReply();
+  GetImplementation(*this).JavaScriptAlertReply();
 }
 
-void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+void WebEngine::RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptConfirmCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptConfirmCallback(callback);
 }
 
-void WebEngine::JavaScriptConfirmReply( bool confirmed )
+void WebEngine::JavaScriptConfirmReply(bool confirmed)
 {
-  GetImplementation( *this ).JavaScriptConfirmReply( confirmed );
+  GetImplementation(*this).JavaScriptConfirmReply(confirmed);
 }
 
-void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+void WebEngine::RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptPromptCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptPromptCallback(callback);
 }
 
-void WebEngine::JavaScriptPromptReply( const std::string& result )
+void WebEngine::JavaScriptPromptReply(const std::string& result)
 {
-  GetImplementation( *this ).JavaScriptPromptReply( result );
+  GetImplementation(*this).JavaScriptPromptReply(result);
 }
 
 void WebEngine::ClearHistory()
@@ -246,7 +246,7 @@ void WebEngine::ClearHistory()
 
 void WebEngine::ClearAllTilesResources()
 {
-  GetImplementation( *this ).ClearAllTilesResources();
+  GetImplementation(*this).ClearAllTilesResources();
 }
 
 const std::string& WebEngine::GetUserAgent() const
@@ -261,7 +261,32 @@ void WebEngine::SetUserAgent(const std::string& userAgent)
 
 void WebEngine::SetSize(int width, int height)
 {
-  return GetImplementation(*this).SetSize(width, height);
+  GetImplementation(*this).SetSize(width, height);
+}
+
+void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
+{
+  GetImplementation(*this).SetDocumentBackgroundColor(color);
+}
+
+void WebEngine::ClearTilesWhenHidden(bool cleared)
+{
+  GetImplementation(*this).ClearTilesWhenHidden(cleared);
+}
+
+void WebEngine::SetTileCoverAreaMultiplier(float multiplier)
+{
+  GetImplementation(*this).SetTileCoverAreaMultiplier(multiplier);
+}
+
+void WebEngine::EnableCursorByClient(bool enabled)
+{
+  GetImplementation(*this).EnableCursorByClient(enabled);
+}
+
+std::string WebEngine::GetSelectedText() const
+{
+  return GetImplementation(*this).GetSelectedText();
 }
 
 bool WebEngine::SendTouchEvent(const TouchEvent& touch)
