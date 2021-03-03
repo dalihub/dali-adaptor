@@ -79,10 +79,15 @@ uint32_t GetGLDataTypeSize(GLenum type)
 
 bool IsSampler(GLenum type)
 {
-  return type == GL_SAMPLER_2D || type == GL_SAMPLER_3D;
+  return type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_EXTERNAL_OES;
 }
 
-bool SortByLocation(Dali::Graphics::UniformInfo a, Dali::Graphics::UniformInfo b)
+bool SortUniformInfoByLocation(Dali::Graphics::UniformInfo a, Dali::Graphics::UniformInfo b)
+{
+  return a.location < b.location;
+}
+
+bool SortUniformExtraInfoByLocation(Dali::Graphics::GLES::Reflection::UniformExtraInfo a, Dali::Graphics::GLES::Reflection::UniformExtraInfo b)
 {
   return a.location < b.location;
 }
@@ -154,10 +159,7 @@ void Reflection::BuildUniformReflection()
 
   name = new char[maxLen];
 
-  using UniformLocationSizePair = std::pair<uint32_t, uint32_t>;
-  std::vector<UniformLocationSizePair> uniformSizes;
-
-  uniformSizes.reserve(numUniforms);
+  mStandaloneUniformExtraInfos.clear();
 
   for(int i = 0; i < numUniforms; ++i)
   {
@@ -166,7 +168,6 @@ void Reflection::BuildUniformReflection()
     int    written;
     gl->GetActiveUniform(glProgram, i, maxLen, &written, &size, &type, name);
     int location = gl->GetUniformLocation(glProgram, name);
-    uniformSizes.push_back(std::make_pair(location, GetGLDataTypeSize(type)));
 
     Dali::Graphics::UniformInfo uniformInfo;
     uniformInfo.name         = name;
@@ -182,18 +183,19 @@ void Reflection::BuildUniformReflection()
     else
     {
       mDefaultUniformBlock.members.push_back(uniformInfo);
+      mStandaloneUniformExtraInfos.push_back(UniformExtraInfo(location, GetGLDataTypeSize(type), type));
     }
   }
 
   // Re-order according to uniform locations.
   if(mDefaultUniformBlock.members.size() > 1)
   {
-    std::sort(mDefaultUniformBlock.members.begin(), mDefaultUniformBlock.members.end(), SortByLocation);
+    std::sort(mDefaultUniformBlock.members.begin(), mDefaultUniformBlock.members.end(), SortUniformInfoByLocation);
   }
 
   if(mUniformOpaques.size() > 1)
   {
-    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), SortByLocation);
+    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), SortUniformInfoByLocation);
   }
 
   // Calculate the uniform offset
@@ -206,22 +208,29 @@ void Reflection::BuildUniformReflection()
     else
     {
       uint32_t previousUniformLocation       = mDefaultUniformBlock.members[i - 1].location;
-      auto     previousUniform               = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&previousUniformLocation](const UniformLocationSizePair& iter) { return iter.first == previousUniformLocation; });
-      mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + previousUniform->second;
+      auto     previousUniform               = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&previousUniformLocation](const UniformExtraInfo& iter) { return iter.location == previousUniformLocation; });
+      mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + previousUniform->size;
     }
   }
+
   if(mDefaultUniformBlock.members.size() > 0)
   {
-    uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
-    auto     lastUniform         = std::find_if(uniformSizes.begin(), uniformSizes.end(), [&lastUniformLocation](const UniformLocationSizePair& iter) { return iter.first == lastUniformLocation; });
-    mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + lastUniform->second;
+  uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
+  auto     lastUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&lastUniformLocation](const UniformExtraInfo& iter) { return iter.location == lastUniformLocation; });
+  mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + lastUniform->size;
+
+  mUniformBlocks.push_back(mDefaultUniformBlock);
   }
   else
   {
     mDefaultUniformBlock.size = 0;
   }
 
-  mUniformBlocks.push_back(mDefaultUniformBlock);
+  // Re-order according to uniform locations.
+  if(mStandaloneUniformExtraInfos.size() > 1)
+  {
+    std::sort(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), SortUniformExtraInfoByLocation);
+  }
 
   delete[] name;
 }
@@ -468,6 +477,16 @@ bool Reflection::GetNamedUniform(const std::string& name, Dali::Graphics::Unifor
   }
 
   return false;
+}
+
+std::vector<GLenum> Reflection::GetStandaloneUniformTypes() const
+{
+  std::vector<GLenum> retval{};
+  for(auto&& uniform : mStandaloneUniformExtraInfos)
+  {
+    retval.emplace_back(uniform.type);
+  }
+  return retval;
 }
 
 std::vector<Dali::Graphics::UniformInfo> Reflection::GetSamplers() const

@@ -172,6 +172,13 @@ public:
    */
   [[nodiscard]] bool GetNamedUniform(const std::string& name, Dali::Graphics::UniformInfo& out) const override;
 
+  /**
+   * @brief Gets the types of all the standalone uniforms within the default uniform block.
+   *
+   * @return A vector of uniform types sorted in the same order as the uniforms in the default uniform block.
+   */
+  [[nodiscard]] std::vector<GLenum> GetStandaloneUniformTypes() const;
+
   // Sampler
 
   /**
@@ -191,6 +198,21 @@ public:
   [[nodiscard]] Graphics::ShaderLanguage GetLanguage() const override;
 
 public:
+  /**
+   * @brief Extra information of uniform
+   */
+  struct UniformExtraInfo
+  {
+    UniformExtraInfo(uint32_t location, uint32_t size, GLenum type)
+    : location(location),
+      size(size),
+      type(type){};
+
+    uint32_t location; ///< Location of uniform
+    uint32_t size;     ///< size of uniform
+    GLenum   type;     ///< type of uniform
+  };
+
   /**
    * @brief Build the reflection of vertex attributes
    */
@@ -221,10 +243,11 @@ private:
     Dali::Graphics::VertexInputAttributeFormat format{};
   };
 
-  std::vector<AttributeInfo>              mVertexInputAttributes; ///< List of vertex attributes
-  Graphics::UniformBlockInfo              mDefaultUniformBlock{}; ///< The emulated UBO containing all the standalone uniforms
-  std::vector<Graphics::UniformInfo>      mUniformOpaques{};      ///< List of opaque uniforms (i.e. samplers)
-  std::vector<Graphics::UniformBlockInfo> mUniformBlocks{};       ///< List of uniform blocks
+  std::vector<AttributeInfo>              mVertexInputAttributes;       ///< List of vertex attributes
+  Graphics::UniformBlockInfo              mDefaultUniformBlock{};       ///< The emulated UBO containing all the standalone uniforms
+  std::vector<Graphics::UniformInfo>      mUniformOpaques{};            ///< List of opaque uniforms (i.e. samplers)
+  std::vector<Graphics::UniformBlockInfo> mUniformBlocks{};             ///< List of uniform blocks
+  std::vector<UniformExtraInfo>           mStandaloneUniformExtraInfos; ///< List of extra information for standalone uniforms
 };
 
 } // namespace GLES
