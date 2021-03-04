@@ -130,9 +130,24 @@ public:
   void LoadHtmlString(const std::string& htmlString);
 
   /**
+   * @copydoc Dali::WebEngine::LoadHtmlStringOverrideCurrentEntry()
+   */
+  bool LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl);
+
+  /**
+   * @copydoc Dali::WebEngine::LoadContents()
+   */
+  bool LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri);
+
+  /**
    * @copydoc Dali::WebEngine::Reload()
    */
   void Reload();
+
+  /**
+   * @copydoc Dali::WebEngine::ReloadWithoutCache()
+   */
+  bool ReloadWithoutCache();
 
   /**
    * @copydoc Dali::WebEngine::StopLoading()
@@ -150,9 +165,44 @@ public:
   void Resume();
 
   /**
+   * @copydoc Dali::WebEngine::SuspendNetworkLoading()
+   */
+  void SuspendNetworkLoading();
+
+  /**
+   * @copydoc Dali::WebEngine::ResumeNetworkLoading()
+   */
+  void ResumeNetworkLoading();
+
+  /**
+   * @copydoc Dali::WebEngine::AddCustomHeader()
+   */
+  bool AddCustomHeader(const std::string& name, const std::string& value);
+
+  /**
+   * @copydoc Dali::WebEngine::RemoveCustomHeader()
+   */
+  bool RemoveCustomHeader(const std::string& name);
+
+  /**
+   * @copydoc Dali::WebEngine::StartInspectorServer()
+   */
+  uint32_t StartInspectorServer(uint32_t port);
+
+  /**
+   * @copydoc Dali::WebEngine::StopInspectorServer()
+   */
+  bool StopInspectorServer();
+
+  /**
    * @copydoc Dali::WebEngine::ScrollBy()
    */
   void ScrollBy(int deltaX, int deltaY);
+
+  /**
+   * @copydoc Dali::WebEngine::ScrollEdgeBy()
+   */
+  bool ScrollEdgeBy(int deltaX, int deltaY);
 
   /**
    * @copydoc Dali::WebEngine::SetScrollPosition()
@@ -175,8 +225,8 @@ public:
   Dali::Vector2 GetContentSize() const;
 
   /**
-	* @copydoc Dali::WebEngine::RegisterJavaScriptAlertCallback()
-	*/
+   * @copydoc Dali::WebEngine::RegisterJavaScriptAlertCallback()
+   */
   void RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
 
   /**
@@ -298,6 +348,81 @@ public:
    * @copydoc Dali::WebEngine::SetFocus()
    */
   void SetFocus(bool focused);
+
+  /**
+   * @copydoc Dali::WebEngine::SetPageZoomFactor()
+   */
+  void SetPageZoomFactor(float zoomFactor);
+
+  /**
+   * @copydoc Dali::WebEngine::GetPageZoomFactor()
+   */
+  float GetPageZoomFactor() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetTextZoomFactor()
+   */
+  void SetTextZoomFactor(float zoomFactor);
+
+  /**
+   * @copydoc Dali::WebEngine::GetTextZoomFactor()
+   */
+  float GetTextZoomFactor() const;
+
+  /**
+   * @copydoc Dali::WebEngine::GetLoadProgressPercentage()
+   */
+  float GetLoadProgressPercentage() const;
+
+  /**
+   * @copydoc Dali::WebEngine::SetScaleFactor()
+   */
+  void SetScaleFactor(float scaleFactor, Dali::Vector2 point);
+
+  /**
+   * @copydoc Dali::WebEngine::GetScaleFactor()
+   */
+  float GetScaleFactor() const;
+
+  /**
+   * @copydoc Dali::WebEngine::ActivateAccessibility()
+   */
+  void ActivateAccessibility(bool activated);
+
+  /**
+   * @copydoc Dali::WebEngine::SetVisibility()
+   */
+  bool SetVisibility(bool visible);
+
+  /**
+   * @copydoc Dali::WebEngine::HighlightText()
+   */
+  bool HighlightText(const std::string& text, Dali::WebEnginePlugin::FindOption options, uint32_t maxMatchCount);
+
+  /**
+   * @copydoc Dali::WebEngine::AddDynamicCertificatePath()
+   */
+  void AddDynamicCertificatePath(const std::string& host, const std::string& certPath);
+
+  /**
+   * @copydoc Dali::WebEngine::GetScreenshot()
+   */
+  Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor);
+
+  /**
+   * @copydoc Dali::WebEngine::GetScreenshotAsync()
+   */
+  bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::IsVideoPlaying()
+   */
+  bool CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterGeolocationPermissionCallback()
+   */
+  void RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::GeolocationPermissionCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::UpdateDisplayArea()
