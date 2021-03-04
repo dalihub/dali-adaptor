@@ -341,7 +341,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     describedByObject};
 }
 
-DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t xEnd, int32_t yBeg, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime)
+DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t yBeg, int32_t xEnd, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime)
 {
   return FindSelf()->DoGesture(Dali::Accessibility::GestureInfo{type, xBeg, xEnd, yBeg, yEnd, state, eventTime});
 }
