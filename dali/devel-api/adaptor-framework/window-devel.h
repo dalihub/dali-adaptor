@@ -191,6 +191,20 @@ DALI_ADAPTOR_API Window DownCast(BaseHandle handle);
 DALI_ADAPTOR_API WindowOrientation GetCurrentOrientation(Window window);
 
 /**
+ * @brief Gets current physical orientation of the window.
+ *
+ * It means current physical rotation angle of the window.
+ * If the height of the display device's area is greater than the width,
+ * default current orientation is PORTRAIT and current physical orientation angle is 0.
+ * If the width of the display device's area is greater than the height,
+ * default current orientation is LANDSCAPE and current physical orientation angle is 0.
+ *
+ * @param[in] window The window instance
+ * @return The current physical orientation degree of the window. It is one of them as 0, 90, 180 and 270.
+ */
+DALI_ADAPTOR_API int GetPhysicalOrientation(Window window);
+
+/**
  * @brief Sets available orientations of the window.
  *
  * This API is for setting several orientations one time.
