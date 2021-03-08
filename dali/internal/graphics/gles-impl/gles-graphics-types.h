@@ -1073,7 +1073,7 @@ struct GLSamplerFilterAndMipMapMode
           }
           case Graphics::SamplerMipmapMode::LINEAR:
           {
-            glFilter = GL_NEAREST_MIPMAP_NEAREST;
+            glFilter = GL_NEAREST_MIPMAP_LINEAR;
             break;
           }
         }
@@ -1096,10 +1096,11 @@ struct GLSamplerFilterAndMipMapMode
           }
           case Graphics::SamplerMipmapMode::LINEAR:
           {
-            glFilter = GL_LINEAR_MIPMAP_NEAREST;
+            glFilter = GL_LINEAR_MIPMAP_LINEAR;
             break;
           }
         }
+        break;
       }
     }
   }

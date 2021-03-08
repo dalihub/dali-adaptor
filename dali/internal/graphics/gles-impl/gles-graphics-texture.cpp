@@ -197,7 +197,10 @@ void Texture::Bind(const TextureBinding& binding) const
     auto*       sampler           = static_cast<const GLES::Sampler*>(binding.sampler);
     const auto& samplerCreateInfo = sampler->GetCreateInfo();
 
-    gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, samplerCreateInfo.mipMapMode).glFilter);
+    auto mipMapMode = samplerCreateInfo.mipMapMode;
+    mipMapMode      = Graphics::SamplerMipmapMode::NONE; // @todo Remove when mip-map generation is supported
+
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, mipMapMode).glFilter);
     gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(samplerCreateInfo.magFilter).glFilter);
     gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_S, GLAddressMode(samplerCreateInfo.addressModeU).texParameter);
     gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_T, GLAddressMode(samplerCreateInfo.addressModeV).texParameter);
