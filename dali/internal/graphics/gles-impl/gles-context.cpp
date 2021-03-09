@@ -21,6 +21,7 @@
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-command-buffer.h"
 #include "gles-graphics-pipeline.h"
+#include "gles-graphics-program.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -50,6 +51,10 @@ struct Context::Impl
 
   // Currently bound buffers
   std::vector<VertexBufferBindingDescriptor> mCurrentVertexBufferBindings{};
+
+  // Currently bound UBOs (check if it's needed per program!)
+  std::vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
+  UniformBufferBindingDescriptor              mCurrentStandaloneUBOBinding{};
 };
 
 Context::Context(EglGraphicsController& controller)
@@ -77,6 +82,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
   // Resolve rasterization state
   ResolveRasterizationState();
+
+  // Resolve uniform buffers
+  ResolveUniformBuffers();
 
   // Bind textures
   for(const auto& binding : mImpl->mCurrentTextureBindings)
@@ -120,6 +128,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
   // Resolve topology
   const auto& ia = mImpl->mCurrentPipeline->GetCreateInfo().inputAssemblyState;
+
+  // Bind uniforms
 
   // Resolve draw call
   switch(drawCall.type)
@@ -185,6 +195,29 @@ void Context::BindIndexBuffer(const IndexBufferBindingDescriptor& indexBufferBin
 void Context::BindPipeline(const GLES::Pipeline* newPipeline)
 {
   mImpl->mNewPipeline = newPipeline;
+}
+
+void Context::BindUniformBuffers(const std::vector<UniformBufferBindingDescriptor>& uboBindings,
+                                 const UniformBufferBindingDescriptor&              standaloneBindings)
+{
+  if(standaloneBindings.buffer)
+  {
+    mImpl->mCurrentStandaloneUBOBinding = standaloneBindings;
+  }
+
+  if(uboBindings.size() >= mImpl->mCurrentUBOBindings.size())
+  {
+    mImpl->mCurrentUBOBindings.resize(uboBindings.size() + 1);
+  }
+
+  auto it = uboBindings.begin();
+  for(auto i = 0u; i < uboBindings.size(); ++i)
+  {
+    if(it->buffer)
+    {
+      mImpl->mCurrentUBOBindings[i] = *it;
+    }
+  }
 }
 
 void Context::ResolveBlendState()
@@ -253,6 +286,119 @@ void Context::ResolveRasterizationState()
 
   // TODO: implement polygon mode (fill, line, points)
   //       seems like we don't support it (no glPolygonMode())
+}
+
+void Context::ResolveUniformBuffers()
+{
+  // Resolve standalone uniforms if we have binding
+  if(mImpl->mCurrentStandaloneUBOBinding.buffer)
+  {
+    ResolveStandaloneUniforms();
+  }
+}
+
+void Context::ResolveStandaloneUniforms()
+{
+  auto& gl = *mImpl->mController.GetGL();
+
+  // Find reflection for program
+  const auto program = static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program);
+
+  const auto& reflection = program->GetReflection();
+
+  auto extraInfos = reflection.GetStandaloneUniformExtraInfo();
+
+  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress());
+
+  for(const auto& info : extraInfos)
+  {
+    auto type   = GLTypeConversion(info.type).type;
+    auto offset = info.offset;
+    switch(type)
+    {
+      case GLType::FLOAT_VEC2:
+      {
+        gl.Uniform2fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::FLOAT_VEC3:
+      {
+        gl.Uniform3fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::FLOAT_VEC4:
+      {
+        gl.Uniform4fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::INT_VEC2:
+      {
+        gl.Uniform2iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
+        break;
+      }
+      case GLType::INT_VEC3:
+      {
+        gl.Uniform3iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
+        break;
+      }
+      case GLType::INT_VEC4:
+      {
+        gl.Uniform4iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
+        break;
+      }
+      case GLType::BOOL:
+      {
+        // not supported by DALi
+        break;
+      }
+      case GLType::BOOL_VEC2:
+      {
+        // not supported by DALi
+        break;
+      }
+      case GLType::BOOL_VEC3:
+      {
+        // not supported by DALi
+        break;
+      }
+      case GLType::BOOL_VEC4:
+      {
+        // not supported by DALi
+        break;
+      }
+      case GLType::FLOAT:
+      {
+        gl.Uniform1fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::FLOAT_MAT2:
+      {
+        gl.UniformMatrix2fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::FLOAT_MAT3:
+      {
+        gl.UniformMatrix3fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::FLOAT_MAT4:
+      {
+        gl.UniformMatrix4fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
+        break;
+      }
+      case GLType::SAMPLER_2D:
+      {
+        break;
+      }
+      case GLType::SAMPLER_CUBE:
+      {
+        break;
+      }
+      default:
+      {
+      }
+    }
+  }
 }
 
 } // namespace Dali::Graphics::GLES

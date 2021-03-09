@@ -24,11 +24,10 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 
-namespace Dali::Graphics
+namespace Dali::Graphics::GLES
 {
 class Reflection;
-namespace GLES
-{
+
 /**
  * @brief Program implementation
  *
@@ -92,7 +91,7 @@ public:
    *
    * @return Valid reflection associated with the Program
    */
-  [[nodiscard]] const Graphics::Reflection& GetReflection() const;
+  [[nodiscard]] const GLES::Reflection& GetReflection() const;
 
   /**
    * @brief Returns controller
@@ -159,7 +158,7 @@ public:
 
    * @return Reflection
    */
-  [[nodiscard]] const Graphics::Reflection& GetReflection() const;
+  [[nodiscard]] const GLES::Reflection& GetReflection() const;
 
   /**
    * @brief Retrieves internal program implementation
@@ -219,7 +218,6 @@ public:
 private:
   ProgramImpl* mProgram{nullptr};
 };
-} // namespace GLES
-} // namespace Dali::Graphics
+} // namespace Dali::Graphics::GLES
 
-#endif //DALI_GRAPHICS_PROGRAM_H
+#endif //DALI_GRAPHICS_GLES_PROGRAM_H

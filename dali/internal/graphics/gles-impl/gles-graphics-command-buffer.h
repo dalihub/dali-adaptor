@@ -23,14 +23,13 @@
 
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
+#include "gles-graphics-buffer.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-types.h"
 
 namespace Dali::Graphics::GLES
 {
 class Texture;
-class Buffer;
-class Sampler;
 class Pipeline;
 
 enum class CommandType
@@ -91,6 +90,11 @@ struct Command
       case CommandType::BIND_PIPELINE:
       {
         bindPipeline = rhs.bindPipeline;
+        break;
+      }
+      case CommandType::BIND_UNIFORM_BUFFER:
+      {
+        bindUniformBuffers = rhs.bindUniformBuffers;
         break;
       }
       case CommandType::DRAW:
@@ -212,8 +216,8 @@ struct Command
 
     struct
     {
-      using Binding = GLES::UniformBufferBindingDescriptor;
-      std::vector<Binding> uniformBufferBindings;
+      std::vector<UniformBufferBindingDescriptor> uniformBufferBindings{};
+      UniformBufferBindingDescriptor              standaloneUniformsBufferBinding{};
     } bindUniformBuffers;
 
     struct
@@ -261,16 +265,36 @@ public:
 
   void BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings) override
   {
-    printf("BindUniformBuffers: bindings.size(): %lu\n", bindings.size());
-
     mCommands.emplace_back();
-    mCommands.back().type       = CommandType::BIND_UNIFORM_BUFFER;
-    auto& uniformBufferBindings = mCommands.back().bindUniformBuffers.uniformBufferBindings;
-
-    for(auto i = 0u; i < bindings.size(); ++i)
+    auto& cmd     = mCommands.back();
+    cmd.type      = CommandType::BIND_UNIFORM_BUFFER;
+    auto& bindCmd = cmd.bindUniformBuffers;
+    for(const auto& binding : bindings)
     {
-      const auto& binding = bindings[i];
-      printf("bindings[%u]->buffer: %p, dataSize: %u, offset: %u, binding: %u\n", i, binding.buffer, binding.dataSize, binding.offset, binding.binding);
+      if(binding.buffer)
+      {
+        auto glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
+        if(glesBuffer->IsCPUAllocated()) // standalone uniforms
+        {
+          bindCmd.standaloneUniformsBufferBinding.buffer   = glesBuffer;
+          bindCmd.standaloneUniformsBufferBinding.offset   = binding.offset;
+          bindCmd.standaloneUniformsBufferBinding.binding  = binding.binding;
+          bindCmd.standaloneUniformsBufferBinding.emulated = true;
+        }
+        else // Bind regular UBO
+        {
+          // resize binding slots
+          if(binding.binding >= bindCmd.uniformBufferBindings.size())
+          {
+            bindCmd.uniformBufferBindings.resize(binding.binding + 1);
+          }
+          auto& slot    = bindCmd.uniformBufferBindings[binding.binding];
+          slot.buffer   = glesBuffer;
+          slot.offset   = binding.offset;
+          slot.binding  = binding.binding;
+          slot.emulated = false;
+        }
+      }
     }
   }
 
@@ -382,7 +406,7 @@ public:
     cmd.drawIndexedIndirect.stride    = stride;
   }
 
-  void Reset(Graphics::CommandBuffer& commandBuffer) override
+  void Reset() override
   {
     mCommands.clear();
   }

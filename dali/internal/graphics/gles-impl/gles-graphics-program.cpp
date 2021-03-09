@@ -132,7 +132,7 @@ uint32_t ProgramImpl::Release()
   return --mImpl->refCount;
 }
 
-const Graphics::Reflection& ProgramImpl::GetReflection() const
+const GLES::Reflection& ProgramImpl::GetReflection() const
 {
   return *mImpl->reflection;
 }
@@ -168,7 +168,7 @@ Program::~Program()
   }
 }
 
-const Graphics::Reflection& Program::GetReflection() const
+const GLES::Reflection& Program::GetReflection() const
 {
   return mProgram->GetReflection();
 }

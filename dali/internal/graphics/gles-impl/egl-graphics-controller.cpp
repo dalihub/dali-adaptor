@@ -260,6 +260,12 @@ void EglGraphicsController::ProcessCommandQueues()
           mContext->BindVertexBuffers(bindings);
           break;
         }
+        case GLES::CommandType::BIND_UNIFORM_BUFFER:
+        {
+          auto& bindings = cmd.bindUniformBuffers;
+          mContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
+          break;
+        }
         case GLES::CommandType::BIND_INDEX_BUFFER:
         {
           mContext->BindIndexBuffer(cmd.bindIndexBuffer);

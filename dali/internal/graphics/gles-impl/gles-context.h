@@ -94,6 +94,14 @@ public:
   void BindPipeline(const GLES::Pipeline* newPipeline);
 
   /**
+   * @brief Binds uniform buffers to the context
+   *
+   * @param[in] uboBindings real UBO binfins
+   * @param[in] standaloneBindings emulated (legacy) UBO object
+   */
+  void BindUniformBuffers(const std::vector<UniformBufferBindingDescriptor>& uboBindings, const UniformBufferBindingDescriptor& standaloneBindings);
+
+  /**
    * @brief Resolves blend state on the currently attached pipeline
    */
   void ResolveBlendState();
@@ -102,6 +110,16 @@ public:
    * @brief Resolves rasterization state on the currently attached pipeline
    */
   void ResolveRasterizationState();
+
+  /**
+   * @brief Resolves uniform buffers and binds data to the pipeline
+   */
+  void ResolveUniformBuffers();
+
+  /**
+   * @brief Special usecase for legacy shaders, called by ResolveUniformBuffers()
+   */
+  void ResolveStandaloneUniforms();
 
 private:
   struct Impl;

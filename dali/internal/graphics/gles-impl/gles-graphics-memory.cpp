@@ -53,14 +53,21 @@ void* Memory::LockRegion(uint32_t offset, uint32_t size)
   if(mMapObjectType == MapObjectType::BUFFER)
   {
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-    buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
 
-    void* ptr = nullptr;
-    ptr       = gl->MapBufferRange(GL_ARRAY_BUFFER, mMapBufferInfo.offset, mMapBufferInfo.size, GL_MAP_WRITE_BIT);
-
-    mMappedPointer = ptr;
-
-    return ptr;
+    if(buffer->IsCPUAllocated())
+    {
+      using Ptr = char*;
+      return Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+    }
+    else
+    {
+      // @TODO: trashing vertex binding, better find target that is rarely used
+      buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
+      void* ptr      = nullptr;
+      ptr            = gl->MapBufferRange(GL_ARRAY_BUFFER, mMapBufferInfo.offset, mMapBufferInfo.size, GL_MAP_WRITE_BIT);
+      mMappedPointer = ptr;
+    }
+    return mMappedPointer;
   }
 
   return nullptr;

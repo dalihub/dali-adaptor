@@ -61,8 +61,31 @@ public:
     return mBufferId;
   }
 
+  [[nodiscard]] void* GetCPUAllocatedAddress() const
+  {
+    return mBufferPtr;
+  }
+
+  [[nodiscard]] bool IsTransient() const
+  {
+    return mTransient;
+  }
+
+  [[nodiscard]] bool IsCPUAllocated() const
+  {
+    return mCpuAllocated;
+  }
+
 private:
+
+  void InitializeCPUBuffer();
+
+  void InitializeGPUBuffer();
+
   uint32_t mBufferId{};
+  void*    mBufferPtr{nullptr}; // CPU allocated memory
+  bool     mCpuAllocated{false};
+  bool     mTransient{false};
 };
 } // namespace GLES
 } // namespace Dali::Graphics

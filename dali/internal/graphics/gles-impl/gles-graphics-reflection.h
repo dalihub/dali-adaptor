@@ -203,15 +203,26 @@ public:
    */
   struct UniformExtraInfo
   {
-    UniformExtraInfo(uint32_t location, uint32_t size, GLenum type)
+    UniformExtraInfo(uint32_t location, uint32_t size, uint32_t offset, uint32_t arraySize, GLenum type)
     : location(location),
       size(size),
+      offset(offset),
+      arraySize(arraySize),
       type(type){};
 
     uint32_t location; ///< Location of uniform
     uint32_t size;     ///< size of uniform
+    uint32_t offset;   ///< offset of uniform within UBO
+    uint32_t arraySize; ///< number of array elements (1 for non-arrays)
     GLenum   type;     ///< type of uniform
   };
+
+  /**
+   * @brief Returns array of additional info about standalone uniforms
+   *
+   * @return Array of internal uniform data
+   */
+  [[nodiscard]] const std::vector<UniformExtraInfo>& GetStandaloneUniformExtraInfo() const;
 
   /**
    * @brief Build the reflection of vertex attributes

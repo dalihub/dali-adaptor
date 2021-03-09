@@ -1276,7 +1276,9 @@ struct IndexBufferBindingDescriptor
 struct UniformBufferBindingDescriptor
 {
   const GLES::Buffer* buffer{nullptr};
+  uint32_t            binding{0u};
   uint32_t            offset{0u};
+  bool                emulated; ///<true if UBO is emulated for old gfx API
 };
 
 /**
@@ -1641,6 +1643,136 @@ struct GLCullMode
   }
 
   GLenum glCullMode{0u};
+};
+
+/**
+ * @brief enum with GL types
+ */
+enum class GLType
+{
+  UNDEFINED      = 0x0,
+  FLOAT_VEC2     = 0x8B50,
+  FLOAT_VEC3     = 0x8B51,
+  FLOAT_VEC4     = 0x8B52,
+  INT_VEC2       = 0x8B53,
+  INT_VEC3       = 0x8B54,
+  INT_VEC4       = 0x8B55,
+  BOOL           = 0x8B56,
+  BOOL_VEC2      = 0x8B57,
+  BOOL_VEC3      = 0x8B58,
+  BOOL_VEC4      = 0x8B59,
+  FLOAT_MAT2     = 0x8B5A,
+  FLOAT_MAT3     = 0x8B5B,
+  FLOAT_MAT4     = 0x8B5C,
+  SAMPLER_2D     = 0x8B5E,
+  SAMPLER_CUBE   = 0x8B60,
+  BYTE           = 0x1400,
+  UNSIGNED_BYTE  = 0x1401,
+  SHORT          = 0x1402,
+  UNSIGNED_SHORT = 0x1403,
+  INT            = 0x1404,
+  UNSIGNED_INT   = 0x1405,
+  FLOAT          = 0x1406,
+  FIXED          = 0x140C,
+};
+
+/**
+ * @brief GL type conversion (used with reflection)
+ */
+struct GLTypeConversion
+{
+  constexpr explicit GLTypeConversion(GLenum value)
+  {
+    switch(value)
+    {
+      case GL_FLOAT_VEC2:
+      {
+        type = GLType::FLOAT_VEC2;
+        break;
+      }
+      case GL_FLOAT_VEC3:
+      {
+        type = GLType::FLOAT_VEC3;
+        break;
+      }
+      case GL_FLOAT_VEC4:
+      {
+        type = GLType::FLOAT_VEC4;
+        break;
+      }
+      case GL_INT_VEC2:
+      {
+        type = GLType::INT_VEC2;
+        break;
+      }
+      case GL_INT_VEC3:
+      {
+        type = GLType::INT_VEC3;
+        break;
+      }
+      case GL_INT_VEC4:
+      {
+        type = GLType::INT_VEC4;
+        break;
+      }
+      case GL_BOOL:
+      {
+        type = GLType::BOOL;
+        break;
+      }
+      case GL_BOOL_VEC2:
+      {
+        type = GLType::BOOL_VEC2;
+        break;
+      }
+      case GL_BOOL_VEC3:
+      {
+        type = GLType::BOOL_VEC3;
+        break;
+      }
+      case GL_BOOL_VEC4:
+      {
+        type = GLType::BOOL_VEC4;
+        break;
+      }
+      case GL_FLOAT_MAT2:
+      {
+        type = GLType::FLOAT_MAT2;
+        break;
+      }
+      case GL_FLOAT_MAT3:
+      {
+        type = GLType::FLOAT_MAT3;
+        break;
+      }
+      case GL_FLOAT_MAT4:
+      {
+        type = GLType::FLOAT_MAT4;
+        break;
+      }
+      case GL_SAMPLER_2D:
+      {
+        type = GLType::SAMPLER_2D;
+        break;
+      }
+      case GL_SAMPLER_CUBE:
+      {
+        type = GLType::SAMPLER_CUBE;
+        break;
+      }
+      case GL_FLOAT:
+      {
+        type = GLType::FLOAT;
+        break;
+      }
+      default:
+      {
+        type = GLType::UNDEFINED;
+      }
+    }
+  }
+
+  GLType type{GLType::UNDEFINED};
 };
 
 } // namespace Dali::Graphics::GLES
