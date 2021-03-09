@@ -87,7 +87,7 @@ public:
 
   ReadingMaterialType GetReadingMaterial();
 
-  DBus::ValueOrError<bool> DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t xEnd, int32_t yBeg, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime);
+  DBus::ValueOrError<bool> DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t yBeg, int32_t xEnd, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime);
 
   using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Address>>;
   DBus::ValueOrError<std::vector<Relation>> GetRelationSet();

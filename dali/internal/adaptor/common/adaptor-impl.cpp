@@ -99,7 +99,7 @@ Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderS
   Adaptor*       impl    = new Adaptor(window, *adaptor, surface, environmentOptions, threadMode);
   adaptor->mImpl         = impl;
 
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder(*environmentOptions);
+  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder(*(impl->mEnvironmentOptions));
   auto                                     graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
   impl->Initialize(graphicsFactory);
