@@ -39,6 +39,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/camera-player.cpp
 )
 
 
@@ -99,6 +100,8 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.h
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.h
+  ${adaptor_devel_api_dir}/adaptor-framework/camera-player.h
+  ${adaptor_devel_api_dir}/adaptor-framework/camera-player-plugin.h
 )
 
 

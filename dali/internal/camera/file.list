@@ -1,0 +1,6 @@
+
+# module: camera, backend: common
+SET( adaptor_camera_common_src_files
+    ${adaptor_camera_dir}/common/camera-player-impl.cpp
+)
+
