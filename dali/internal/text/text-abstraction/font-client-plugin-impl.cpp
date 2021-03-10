@@ -154,6 +154,126 @@ void DestroyCharacterSets(CharacterSetList& characterSets)
   }
 }
 
+/**
+ * @brief Check if @p ftFace and @p requestedPointSize produces block that fit into atlas block
+ *
+ * @param[in/out] ftFace Face type object.
+ * @param[in] horizontalDpi The horizontal dpi.
+ * @param[in] verticalDpi The vertical dpi.
+ * @param[in] maxSizeFitInAtlas The maximum size of block to fit into atlas
+ * @param[in] requestedPointSize The requested point-size.
+ * @return whether the  ftFace's block can fit into atlas
+ */
+bool IsFitIntoAtlas(FT_Face& ftFace, int& error, const unsigned int& horizontalDpi, const unsigned int& verticalDpi, const Size& maxSizeFitInAtlas, const uint32_t& requestedPointSize)
+{
+  bool isFit = false;
+
+  error = FT_Set_Char_Size(ftFace,
+                      0,
+                      requestedPointSize,
+                      horizontalDpi,
+                      verticalDpi);
+
+  if( error == FT_Err_Ok)
+  {
+    //Check width and height of block for requestedPointSize
+    //If the width or height is greater than the maximum-size then decrement by one unit of point-size.
+    if( static_cast<float>(ftFace->size->metrics.height) * FROM_266 <= maxSizeFitInAtlas.height
+      && (static_cast<float>(ftFace->size->metrics.ascender)-static_cast<float>(ftFace->size->metrics.descender))* FROM_266 <= maxSizeFitInAtlas.width)
+    {
+      isFit = true;
+    }
+  }
+
+  return isFit;
+}
+
+/**
+ * @brief Search on proper @p requestedPointSize that produces block that fit into atlas block considering on @p ftFace, @p horizontalDpi, and @p verticalDpi
+ *
+ * @param[in/out] ftFace Face type object.
+ * @param[in] horizontalDpi The horizontal dpi.
+ * @param[in] verticalDpi The vertical dpi.
+ * @param[in] maxSizeFitInAtlas The maximum size of block to fit into atlas
+ * @param[in/out] requestedPointSize The requested point-size.
+ * @return FreeType error code. 0 means success when requesting the nominal size (in points).
+ */
+int SearchOnProperPointSize(FT_Face& ftFace, const unsigned int& horizontalDpi, const unsigned int& verticalDpi, const Size& maxSizeFitInAtlas, uint32_t& requestedPointSize)
+{
+  //To improve performance of sequential search. This code is applying Exponential search then followed by Binary search.
+  const uint32_t& pointSizePerOneUnit = TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  bool canFitInAtlas;
+  int error; // FreeType error code.
+
+  canFitInAtlas = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+  if(FT_Err_Ok != error)
+  {
+    return error;
+  }
+
+  if(!canFitInAtlas)
+  {
+    //Exponential search
+    uint32_t exponentialDecrement = 1;
+
+    while(!canFitInAtlas && requestedPointSize > pointSizePerOneUnit*exponentialDecrement)
+    {
+      requestedPointSize-=(pointSizePerOneUnit*exponentialDecrement);
+      canFitInAtlas = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+      if(FT_Err_Ok != error)
+      {
+        return error;
+      }
+
+      exponentialDecrement*=2;
+    }
+
+    //Binary search
+    uint32_t minPointSize;
+    uint32_t maxPointSize;
+
+    if(canFitInAtlas)
+    {
+      exponentialDecrement/=2;
+      minPointSize = requestedPointSize;
+      maxPointSize = requestedPointSize + (pointSizePerOneUnit*exponentialDecrement);
+    }
+    else
+    {
+      minPointSize = 0;
+      maxPointSize = requestedPointSize;
+    }
+
+    while(minPointSize < maxPointSize)
+    {
+      requestedPointSize = ((maxPointSize/pointSizePerOneUnit - minPointSize/pointSizePerOneUnit)/2) * pointSizePerOneUnit + minPointSize;
+      canFitInAtlas = IsFitIntoAtlas(ftFace, error, horizontalDpi, verticalDpi, maxSizeFitInAtlas, requestedPointSize);
+      if(FT_Err_Ok != error)
+      {
+        return error;
+      }
+
+      if(canFitInAtlas)
+      {
+        if(minPointSize == requestedPointSize)
+        {
+          //Found targeted point-size
+          return error;
+        }
+
+        minPointSize = requestedPointSize;
+      }
+      else
+      {
+        maxPointSize = requestedPointSize;
+      }
+    }
+  }
+
+  return error;
+}
+
+
 FontClient::Plugin::FallbackCacheItem::FallbackCacheItem(FontDescription&& font, FontList* fallbackFonts, CharacterSetList* characterSets)
 : fontDescription{std::move(font)},
   fallbackFonts{fallbackFonts},
@@ -247,7 +367,10 @@ FontClient::Plugin::Plugin(unsigned int horizontalDpi,
   mVectorFontCache(nullptr),
   mEllipsisCache(),
   mEmbeddedItemCache(),
-  mDefaultFontDescriptionCached(false)
+  mDefaultFontDescriptionCached(false),
+  mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
+  mCurrentMaximumBlockSizeFitInAtlas(TextAbstraction::FontClient::MAX_SIZE_FIT_IN_ATLAS)
+
 {
   int error = FT_Init_FreeType(&mFreeTypeLibrary);
   if(FT_Err_Ok != error)
@@ -1882,6 +2005,54 @@ GlyphIndex FontClient::Plugin::CreateEmbeddedItem(const TextAbstraction::FontCli
 
   return mEmbeddedItemCache.Count();
 }
+//SHS
+
+void FontClient::Plugin::EnableAtlasLimitation(bool enabled)
+{
+  mIsAtlasLimitationEnabled = enabled;
+}
+
+bool FontClient::Plugin::IsAtlasLimitationEnabled() const
+{
+  return mIsAtlasLimitationEnabled;
+}
+
+Size FontClient::Plugin::GetMaximumTextAtlasSize() const
+{
+  return TextAbstraction::FontClient::MAX_TEXT_ATLAS_SIZE;
+}
+
+Size FontClient::Plugin::GetDefaultTextAtlasSize() const
+{
+  return TextAbstraction::FontClient::DEFAULT_TEXT_ATLAS_SIZE;
+}
+
+Size FontClient::Plugin::GetCurrentMaximumBlockSizeFitInAtlas() const
+{
+  return mCurrentMaximumBlockSizeFitInAtlas;
+}
+
+bool FontClient::Plugin::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)
+{
+  bool            isChanged        = false;
+  const Size&     maxTextAtlasSize = TextAbstraction::FontClient::MAX_TEXT_ATLAS_SIZE;
+  const uint16_t& padding          = TextAbstraction::FontClient::PADDING_TEXT_ATLAS_BLOCK;
+
+  if(currentMaximumBlockSizeFitInAtlas.width <= maxTextAtlasSize.width - padding
+      && currentMaximumBlockSizeFitInAtlas.height <= maxTextAtlasSize.height - padding)
+  {
+    mCurrentMaximumBlockSizeFitInAtlas = currentMaximumBlockSizeFitInAtlas;
+    isChanged = true;
+  }
+
+  return isChanged;
+}
+
+uint32_t FontClient::Plugin::GetNumberOfPointsPerOneUnitOfPointSize() const
+{
+  return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;;
+}
+
 
 void FontClient::Plugin::InitSystemFonts()
 {
@@ -2198,11 +2369,29 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
     }
     else
     {
-      error = FT_Set_Char_Size(ftFace,
+      if(mIsAtlasLimitationEnabled)
+      {
+        //There is limitation on block size to fit in predefined atlas size.
+        //If the block size cannot fit into atlas size, then the system cannot draw block.
+        //This is workaround to avoid issue in advance
+        //Decrementing point-size until arriving to maximum allowed block size.
+        auto requestedPointSizeBackup= requestedPointSize;
+        const Size& maxSizeFitInAtlas = GetCurrentMaximumBlockSizeFitInAtlas();
+        error = SearchOnProperPointSize(ftFace, mDpiHorizontal, mDpiVertical, maxSizeFitInAtlas, requestedPointSize);
+
+        if(requestedPointSize != requestedPointSizeBackup)
+        {
+          DALI_LOG_WARNING(" The requested-point-size : %d, is reduced to point-size : %d\n", requestedPointSizeBackup, requestedPointSize);
+        }
+      }
+      else
+      {
+         error = FT_Set_Char_Size(ftFace,
                                0,
                                requestedPointSize,
                                mDpiHorizontal,
                                mDpiVertical);
+      }
 
       if(FT_Err_Ok == error)
       {
