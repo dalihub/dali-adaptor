@@ -133,8 +133,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   SetClass( name, className );
 
-  mWindowSurface->Map();
-
   mOrientation = Orientation::New( this );
 
   // Get OrientationMode
@@ -156,6 +154,10 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
   mEventHandler = EventHandlerPtr(new EventHandler( mWindowSurface->GetWindowBase(), *mAdaptor ) );
   mEventHandler->AddObserver( *this );
+
+  // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
+  // The show must be called after the adaptor is initialized.
+  Show();
 }
 
 void Window::OnSurfaceSet( Dali::RenderSurfaceInterface* surface )
