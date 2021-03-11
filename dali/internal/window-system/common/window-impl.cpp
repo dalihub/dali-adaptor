@@ -143,6 +143,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   SetClass(name, className);
 
+  mWindowSurface->Map();
+
   mOrientation = Orientation::New(this);
 
   // Get OrientationMode
@@ -170,8 +172,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   auto accessible = Accessibility::Accessible::Get(v, true);
   bridge->AddTopLevelWindow(accessible);
 
-  // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
-  // The show must be called after the adaptor is initialized.
+  //FIXME: line below is temporary solution for missing "activate" signal and should be removed
   Show();
 }
 
