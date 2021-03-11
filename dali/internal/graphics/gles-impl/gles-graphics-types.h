@@ -51,32 +51,44 @@ struct GLTextureFormatType
       }
       case Graphics::Format::R4G4B4A4_UNORM_PACK16:
       {
-        Assign(0, 0);
+        Assign(GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4);
         break;
       }
       case Graphics::Format::B4G4R4A4_UNORM_PACK16:
       {
-        Assign(0, 0);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_SHORT_4_4_4_4);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4);
+#endif
         break;
       }
       case Graphics::Format::R5G6B5_UNORM_PACK16:
       {
-        Assign(0, 0);
+        Assign(GL_RGB, GL_UNSIGNED_SHORT_5_6_5);
         break;
       }
       case Graphics::Format::B5G6R5_UNORM_PACK16:
       {
-        Assign(0, 0);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_SHORT_5_6_5);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_SHORT_5_6_5);
+#endif
         break;
       }
       case Graphics::Format::R5G5B5A1_UNORM_PACK16:
       {
-        Assign(0, 0);
+        Assign(GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1);
         break;
       }
       case Graphics::Format::B5G5R5A1_UNORM_PACK16:
       {
-        Assign(0, 0);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_SHORT_5_5_5_1);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1);
+#endif
         break;
       }
       case Graphics::Format::A1R5G5B5_UNORM_PACK16:
@@ -266,40 +278,68 @@ struct GLTextureFormatType
         break;
       }
 
-      // BGRA (seems to be not supported)
+      // BGRA when only support GL_BGRA_EXT. otherwise, use RGBA
       case Graphics::Format::B8G8R8A8_UNORM:
       {
-        Assign(0, GL_UNSIGNED_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_BYTE);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_SNORM:
       {
-        Assign(0, GL_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_BYTE);
+#else
+        Assign(GL_RGBA, GL_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_USCALED:
       {
-        Assign(0, GL_UNSIGNED_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_BYTE);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_SSCALED:
       {
-        Assign(0, GL_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_BYTE);
+#else
+        Assign(GL_RGBA, GL_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_UINT:
       {
-        Assign(0, GL_UNSIGNED_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_UNSIGNED_BYTE);
+#else
+        Assign(GL_RGBA, GL_UNSIGNED_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_SINT:
       {
-        Assign(0, GL_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_BYTE);
+#else
+        Assign(GL_RGBA, GL_BYTE);
+#endif
         break;
       }
       case Graphics::Format::B8G8R8A8_SRGB:
       {
-        Assign(0, GL_BYTE);
+#ifdef GL_BGRA_EXT
+        Assign(GL_BGRA_EXT, GL_BYTE);
+#else
+        Assign(GL_RGBA, GL_BYTE);
+#endif
         break;
       }
 
@@ -503,7 +543,8 @@ struct GLTextureFormatType
       }
       case Graphics::Format::R16G16B16_SFLOAT:
       {
-        Assign(0, 0);
+        // GLES 3.0 floating point formats.
+        Assign(GL_RGB, GL_HALF_FLOAT);
         break;
       }
       case Graphics::Format::R16G16B16A16_UNORM:
@@ -583,7 +624,8 @@ struct GLTextureFormatType
       }
       case Graphics::Format::R32G32B32_SFLOAT:
       {
-        Assign(0, 0);
+        // GLES 3.0 floating point formats.
+        Assign(GL_RGB, GL_FLOAT);
         break;
       }
       case Graphics::Format::R32G32B32A32_UINT:
@@ -673,7 +715,8 @@ struct GLTextureFormatType
       }
       case Graphics::Format::D16_UNORM:
       {
-        Assign(0, 0);
+        // GLES 3.0 depth and stencil formats
+        Assign(GL_DEPTH_COMPONENT, GL_UNSIGNED_INT);
         break;
       }
       case Graphics::Format::X8_D24_UNORM_PACK32:
@@ -683,7 +726,8 @@ struct GLTextureFormatType
       }
       case Graphics::Format::D32_SFLOAT:
       {
-        Assign(0, 0);
+        // GLES 3.0 depth and stencil formats
+        Assign(GL_DEPTH_COMPONENT, GL_FLOAT);
         break;
       }
       case Graphics::Format::S8_UINT:
@@ -698,7 +742,8 @@ struct GLTextureFormatType
       }
       case Graphics::Format::D24_UNORM_S8_UINT:
       {
-        Assign(0, 0);
+        // GLES 3.0 depth and stencil formats
+        Assign(GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
         break;
       }
       case Graphics::Format::D32_SFLOAT_S8_UINT:
@@ -788,22 +833,26 @@ struct GLTextureFormatType
       }
       case Graphics::Format::ETC2_R8G8B8_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_RGB8_ETC2.
+        Assign(GL_COMPRESSED_RGB8_ETC2, 0);
         break;
       }
       case Graphics::Format::ETC2_R8G8B8_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_SRGB8_ETC2.
+        Assign(GL_COMPRESSED_SRGB8_ETC2, 0);
         break;
       }
       case Graphics::Format::ETC2_R8G8B8A1_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2.
+        Assign(GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, 0);
         break;
       }
       case Graphics::Format::ETC2_R8G8B8A1_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2.
+        Assign(GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2, 0);
         break;
       }
       case Graphics::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
@@ -818,162 +867,194 @@ struct GLTextureFormatType
       }
       case Graphics::Format::EAC_R11_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_R11_EAC.
+        Assign(GL_COMPRESSED_R11_EAC, 0);
         break;
       }
       case Graphics::Format::EAC_R11_SNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_SIGNED_R11_EAC.
+        Assign(GL_COMPRESSED_SIGNED_R11_EAC, 0);
         break;
       }
       case Graphics::Format::EAC_R11G11_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_RG11_EAC.
+        Assign(GL_COMPRESSED_RG11_EAC, 0);
         break;
       }
       case Graphics::Format::EAC_R11G11_SNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.0 standard compressed pixel format COMPRESSED_SIGNED_RG11_EAC.
+        Assign(GL_COMPRESSED_SIGNED_RG11_EAC, 0);
         break;
       }
       case Graphics::Format::ASTC_4x4_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_4x4_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_4x4_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_4x4_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_5x4_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_5x4_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_5x4_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_5x4_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_5x5_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_5x5_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_5x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_5x5_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_6x5_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_6x5_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_6x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_6x5_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_6x6_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_6x6_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_6x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_6x6_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x5_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x5_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_8x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x5_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x6_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x6_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_8x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x6_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x8_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_8x8_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_8x8_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_8x8_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x5_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x5_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_10x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x5_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x6_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x6_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_10x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x6_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x8_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x8_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_10x8_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x8_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x10_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_10x10_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_10x10_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_10x10_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_12x10_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_12x10_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_12x10_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_12x10_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_12x12_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_RGBA_ASTC_12x12_KHR.
+        Assign(GL_COMPRESSED_RGBA_ASTC_12x12_KHR, 0);
         break;
       }
       case Graphics::Format::ASTC_12x12_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        ///! Using GLES 3.1 standard compressed pixel format COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR.
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR, 0);
         break;
       }
       case Graphics::Format::PVRTC1_2BPP_UNORM_BLOCK_IMG:
@@ -983,7 +1064,9 @@ struct GLTextureFormatType
       }
       case Graphics::Format::PVRTC1_4BPP_UNORM_BLOCK_IMG:
       {
-        Assign(0, 0);
+        ///! Using non-standard GLES 2.0 extension compressed pixel format COMPRESSED_RGB_PVRTC_4BPPV1.
+        Assign(0x8C00, 0); ///! < Hardcoded so we can test before we move to GLES 3.0 or greater.
+
         break;
       }
       case Graphics::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
