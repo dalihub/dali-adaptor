@@ -158,6 +158,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
       break;
     }
   }
+
+  ClearState();
 }
 
 void Context::BindTextures(const std::vector<Graphics::TextureBinding>& bindings)
@@ -399,6 +401,11 @@ void Context::ResolveStandaloneUniforms()
       }
     }
   }
+}
+
+void Context::ClearState()
+{
+  mImpl->mCurrentTextureBindings.clear();
 }
 
 } // namespace Dali::Graphics::GLES
