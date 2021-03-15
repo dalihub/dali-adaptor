@@ -295,6 +295,28 @@ void EglGraphicsController::ProcessCommandQueues()
           mContext->Flush(false, cmd.draw);
           break;
         }
+        case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
+        {
+          mGlAbstraction->Scissor(cmd.scissor.region.x, cmd.scissor.region.y, cmd.scissor.region.width, cmd.scissor.region.height);
+          break;
+        }
+        case GLES::CommandType::SET_SCISSOR_TEST:
+        {
+          if(cmd.scissorTest.enable)
+          {
+            mGlAbstraction->Enable(GL_SCISSOR_TEST);
+          }
+          else
+          {
+            mGlAbstraction->Disable(GL_SCISSOR_TEST);
+          }
+          break;
+        }
+        case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
+        {
+          mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
+          break;
+        }
       }
     }
   }

@@ -27,7 +27,7 @@ TestGraphicsBuffer::TestGraphicsBuffer(TraceCallStack& callStack, TestGlAbstract
   mGl(glAbstraction),
   mUsage(usage)
 {
-  memory.reserve(size);
+  memory.resize(size);
   mGl.GetBufferTrace().EnableLogging(true);
 }
 
@@ -139,6 +139,7 @@ void TestGraphicsBuffer::BindAsUniformBuffer(const TestGraphicsProgram* program)
       }
       default:
       {
+        fprintf(stderr, "\n%s type not found\n", member.name.c_str());
       }
     }
   }

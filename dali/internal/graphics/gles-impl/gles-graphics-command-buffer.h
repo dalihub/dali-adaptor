@@ -43,7 +43,10 @@ enum class CommandType
   BIND_PIPELINE,
   DRAW,
   DRAW_INDEXED,
-  DRAW_INDEXED_INDIRECT
+  DRAW_INDEXED_INDIRECT,
+  SET_SCISSOR,
+  SET_SCISSOR_TEST,
+  SET_VIEWPORT
 };
 
 /**
@@ -120,6 +123,21 @@ struct Command
         // Nothing to do
         break;
       }
+      case CommandType::SET_SCISSOR:
+      {
+        scissor.region = rhs.scissor.region;
+        break;
+      }
+      case CommandType::SET_SCISSOR_TEST:
+      {
+        scissorTest.enable = rhs.scissorTest.enable;
+        break;
+      }
+      case CommandType::SET_VIEWPORT:
+      {
+        viewport.region = rhs.viewport.region;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -185,6 +203,21 @@ struct Command
         // Nothing to do
         break;
       }
+      case CommandType::SET_SCISSOR:
+      {
+        scissor.region = rhs.scissor.region;
+        break;
+      }
+      case CommandType::SET_SCISSOR_TEST:
+      {
+        scissorTest.enable = rhs.scissorTest.enable;
+        break;
+      }
+      case CommandType::SET_VIEWPORT:
+      {
+        viewport.region = rhs.viewport.region;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -228,6 +261,21 @@ struct Command
     struct : public DrawCallDescriptor
     {
     } draw;
+
+    struct
+    {
+      Graphics::Rect2D region;
+    } scissor;
+
+    struct
+    {
+      bool enable;
+    } scissorTest;
+
+    struct
+    {
+      Graphics::Viewport region;
+    } viewport;
   };
 };
 
@@ -411,20 +459,30 @@ public:
     mCommands.clear();
   }
 
-  void SetScissor(Extent2D value) override
+  void SetScissor(Graphics::Rect2D value) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type           = CommandType::SET_SCISSOR;
+    mCommands.back().scissor.region = value;
   }
 
   void SetScissorTestEnable(bool value) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type               = CommandType::SET_SCISSOR_TEST;
+    mCommands.back().scissorTest.enable = value;
   }
 
   void SetViewport(Viewport value) override
   {
+    mCommands.emplace_back();
+    mCommands.back().type            = CommandType::SET_VIEWPORT;
+    mCommands.back().viewport.region = value;
   }
 
   void SetViewportEnable(bool value) override
   {
+    // There is no GL equivalent
   }
 
   [[nodiscard]] const std::vector<Command>& GetCommands() const

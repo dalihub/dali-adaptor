@@ -46,7 +46,11 @@ enum class CommandType
   BIND_PIPELINE         = 1 << 6,
   DRAW                  = 1 << 7,
   DRAW_INDEXED          = 1 << 8,
-  DRAW_INDEXED_INDIRECT = 1 << 9
+  DRAW_INDEXED_INDIRECT = 1 << 9,
+  SET_SCISSOR           = 1 << 10,
+  SET_SCISSOR_TEST      = 1 << 11,
+  SET_VIEWPORT          = 1 << 12,
+  SET_VIEWPORT_TEST     = 1 << 13
 };
 
 using CommandTypeMask = uint32_t;
@@ -221,12 +225,32 @@ struct Command
         // Nothing to do
         break;
       }
+      case CommandType::SET_SCISSOR:
+      {
+        scissor.region = rhs.scissor.region;
+        break;
+      }
+      case CommandType::SET_SCISSOR_TEST:
+      {
+        scissorTest.enable = rhs.scissorTest.enable;
+        break;
+      }
+      case CommandType::SET_VIEWPORT:
+      {
+        viewport.region = rhs.viewport.region;
+        break;
+      }
+      case CommandType::SET_VIEWPORT_TEST:
+      {
+        viewportTest.enable = rhs.viewportTest.enable;
+        break;
+      }
     }
     type = rhs.type;
   }
 
   /**
-   * @brief Copy constructor
+   * @brief move constructor
    * @param[in] rhs Command
    */
   Command(Command&& rhs) noexcept
@@ -286,6 +310,26 @@ struct Command
         // Nothing to do
         break;
       }
+      case CommandType::SET_SCISSOR:
+      {
+        scissor.region = rhs.scissor.region;
+        break;
+      }
+      case CommandType::SET_SCISSOR_TEST:
+      {
+        scissorTest.enable = rhs.scissorTest.enable;
+        break;
+      }
+      case CommandType::SET_VIEWPORT:
+      {
+        viewport.region = rhs.viewport.region;
+        break;
+      }
+      case CommandType::SET_VIEWPORT_TEST:
+      {
+        viewportTest.enable = rhs.viewportTest.enable;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -329,6 +373,23 @@ struct Command
     struct : public DrawCallDescriptor
     {
     } draw;
+
+    struct
+    {
+      Graphics::Rect2D region;
+    } scissor;
+    struct
+    {
+      bool enable;
+    } scissorTest;
+    struct
+    {
+      Graphics::Viewport region;
+    } viewport;
+    struct
+    {
+      bool enable;
+    } viewportTest;
   };
 };
 
@@ -521,24 +582,56 @@ public:
     mCallStack.PushCall("Reset", "");
   }
 
-  void SetScissor(Graphics::Extent2D value) override
+  void SetScissor(Graphics::Rect2D value) override
   {
-    mCallStack.PushCall("SetScissor", "");
+    TraceCallStack::NamedParams params;
+    params["x"] << value.x;
+    params["y"] << value.y;
+    params["width"] << value.width;
+    params["height"] << value.height;
+    mCallStack.PushCall("SetScissor", params.str(), params);
+
+    mCommands.emplace_back();
+    mCommands.back().type           = CommandType::SET_SCISSOR;
+    mCommands.back().scissor.region = value;
   }
 
   void SetScissorTestEnable(bool value) override
   {
-    mCallStack.PushCall("SetScissorTestEnable", "");
+    TraceCallStack::NamedParams params;
+    params["value"] << (value ? "T" : "F");
+    mCallStack.PushCall("SetScissorTestEnable", params.str(), params);
+
+    mCommands.emplace_back();
+    mCommands.back().type               = CommandType::SET_SCISSOR_TEST;
+    mCommands.back().scissorTest.enable = value;
   }
 
   void SetViewport(Graphics::Viewport value) override
   {
-    mCallStack.PushCall("SetViewport", "");
+    TraceCallStack::NamedParams params;
+    params["x"] << value.x;
+    params["y"] << value.y;
+    params["width"] << value.width;
+    params["height"] << value.height;
+    params["minDepth"] << value.minDepth;
+    params["maxDepth"] << value.maxDepth;
+    mCallStack.PushCall("SetViewport", params.str(), params);
+
+    mCommands.emplace_back();
+    mCommands.back().type            = CommandType::SET_VIEWPORT;
+    mCommands.back().viewport.region = value;
   }
 
   void SetViewportEnable(bool value) override
   {
-    mCallStack.PushCall("SetViewportEnable", "");
+    TraceCallStack::NamedParams params;
+    params["value"] << (value ? "T" : "F");
+    mCallStack.PushCall("SetViewportEnable", params.str(), params);
+
+    mCommands.emplace_back();
+    mCommands.back().type                = CommandType::SET_VIEWPORT_TEST;
+    mCommands.back().viewportTest.enable = value;
   }
 
   [[nodiscard]] const std::vector<Command>& GetCommands() const
@@ -564,8 +657,9 @@ public:
   std::vector<Command*> GetCommandsByType(CommandTypeMask mask);
 
 private:
-  TraceCallStack&      mCallStack;
-  TestGlAbstraction&   mGlAbstraction;
+  TraceCallStack&    mCallStack;
+  TestGlAbstraction& mGlAbstraction;
+
   std::vector<Command> mCommands;
 };
 

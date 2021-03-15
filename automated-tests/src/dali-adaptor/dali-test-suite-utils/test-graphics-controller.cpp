@@ -508,6 +508,38 @@ void TestGraphicsController::SubmitCommandBuffers(const Graphics::SubmitInfo& su
         vertexBuffer->Bind();
       }
     }
+
+    bool scissorEnabled = false;
+
+    auto scissorTestList = commandBuffer->GetCommandsByType(0 | CommandType::SET_SCISSOR_TEST);
+    if(!scissorTestList.empty())
+    {
+      if(scissorTestList[0]->scissorTest.enable)
+      {
+        mGl.Enable(GL_SCISSOR_TEST);
+        scissorEnabled = true;
+      }
+      else
+      {
+        mGl.Disable(GL_SCISSOR_TEST);
+      }
+    }
+
+    auto scissorList = commandBuffer->GetCommandsByType(0 | CommandType::SET_SCISSOR);
+    if(!scissorList.empty() && scissorEnabled)
+    {
+      auto& rect = scissorList[0]->scissor.region;
+      mGl.Scissor(rect.x, rect.y, rect.width, rect.height);
+    }
+
+    auto viewportList = commandBuffer->GetCommandsByType(0 | CommandType::SET_VIEWPORT);
+    if(!viewportList.empty())
+    {
+      mGl.Viewport(viewportList[0]->viewport.region.x, viewportList[0]->viewport.region.y, viewportList[0]->viewport.region.width, viewportList[0]->viewport.region.height);
+    }
+
+    // ignore viewport enable
+
     // Pipeline attribute setup
     auto bindPipelineCmds = commandBuffer->GetCommandsByType(0 | CommandType::BIND_PIPELINE);
     if(!bindPipelineCmds.empty())
@@ -527,6 +559,7 @@ void TestGraphicsController::SubmitCommandBuffers(const Graphics::SubmitInfo& su
                                 stride,
                                 reinterpret_cast<void*>(attributeOffset));
       }
+
       // Cull face setup
       auto& rasterizationState = pipeline->rasterizationState;
       if(rasterizationState.cullMode == Graphics::CullMode::NONE)
@@ -758,8 +791,12 @@ Graphics::UniquePtr<Graphics::Program> TestGraphicsController::CreateProgram(con
     bool found = true;
     for(auto& shader : *(programCreateInfo.shaderState))
     {
-      auto graphicsShader = Uncast<TestGraphicsShader>(shader.shader);
-      if(memcmp(cacheEntry.shaders[shader.pipelineStage], graphicsShader->mCreateInfo.sourceData, graphicsShader->mCreateInfo.sourceSize))
+      auto                 graphicsShader = Uncast<TestGraphicsShader>(shader.shader);
+      std::vector<uint8_t> source;
+      source.resize(graphicsShader->mCreateInfo.sourceSize);
+      memcpy(&source[0], graphicsShader->mCreateInfo.sourceData, graphicsShader->mCreateInfo.sourceSize);
+
+      if(!std::equal(source.begin(), source.end(), cacheEntry.shaders[shader.pipelineStage].begin()))
       {
         found = false;
         break;
@@ -775,8 +812,9 @@ Graphics::UniquePtr<Graphics::Program> TestGraphicsController::CreateProgram(con
   mProgramCache.back().programImpl = new TestGraphicsProgramImpl(mGl, programCreateInfo, mVertexFormats, mCustomUniforms);
   for(auto& shader : *(programCreateInfo.shaderState))
   {
-    auto graphicsShader                                = Uncast<TestGraphicsShader>(shader.shader);
-    mProgramCache.back().shaders[shader.pipelineStage] = graphicsShader->mCreateInfo.sourceData;
+    auto graphicsShader = Uncast<TestGraphicsShader>(shader.shader);
+    mProgramCache.back().shaders[shader.pipelineStage].resize(graphicsShader->mCreateInfo.sourceSize);
+    memcpy(&mProgramCache.back().shaders[shader.pipelineStage][0], graphicsShader->mCreateInfo.sourceData, graphicsShader->mCreateInfo.sourceSize);
   }
   return Graphics::MakeUnique<TestGraphicsProgram>(mProgramCache.back().programImpl);
 }

@@ -361,7 +361,10 @@ public:
     ProcessDiscardQueues();
 
     // Flush pipeline cache to remove unused pipelines
-    GetPipelineCache().FlushCache();
+    if(mPipelineCache)
+    {
+      mPipelineCache->FlushCache();
+    }
   }
 
   // Test update to tick controller, usually it will run own thread
