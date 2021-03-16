@@ -33,9 +33,9 @@ OffscreenApplication OffscreenApplication::New(uint16_t width, uint16_t height, 
   return offscreenApplication;
 }
 
-OffscreenApplication OffscreenApplication::New(Dali::Any surface, bool isTranslucent, OffscreenApplication::RenderMode renderMode)
+OffscreenApplication OffscreenApplication::New(Dali::Any surface, OffscreenApplication::RenderMode renderMode)
 {
-  IntrusivePtr<Internal::OffscreenApplication> impl = Internal::OffscreenApplication::New(0, 0, surface, isTranslucent, renderMode);
+  IntrusivePtr<Internal::OffscreenApplication> impl = Internal::OffscreenApplication::New(0, 0, surface, false, renderMode);
 
   OffscreenApplication offscreenApplication = OffscreenApplication(impl.Get());
 
