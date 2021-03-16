@@ -320,7 +320,8 @@ uint32_t WebPLoading::GetImageCount() const
 
 uint32_t WebPLoading::GetFrameInterval(uint32_t frameIndex) const
 {
-  if(frameIndex >= GetImageCount())
+  // If frameIndex is above the value of ImageCount or current frame is not loading yet, return 0u.
+  if(frameIndex >= GetImageCount() || (frameIndex > 0 && mImpl->mTimeStamp[frameIndex - 1] > mImpl->mTimeStamp[frameIndex]))
   {
     return 0u;
   }

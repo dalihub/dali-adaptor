@@ -77,6 +77,30 @@ public:
   virtual void EnableWebSecurity(bool enabled) = 0;
 
   /**
+   * @brief Enable/Disable cache builder
+   *
+   * @param[in] enabled if true, to enable cache builder
+   *        otherwise to disable
+   */
+  virtual void EnableCacheBuilder( bool enabled ) = 0;
+
+  /**
+   * @brief Used/Unused scrollbar thumb focus notifications
+   *
+   * @param[in] used if true, to use scrollbar thumb focus notifications
+   *          otherwise to unused
+   */
+  virtual void UseScrollbarThumbFocusNotifications( bool used ) = 0;
+
+  /**
+   * @brief Enable/Disable do not track
+   *
+   * @param[in] enabled if true, to enable do not track
+   *        otherwise to disable
+   */
+  virtual void EnableDoNotTrack( bool enabled ) = 0;
+
+  /**
    * @brief Allow/Disallow file access from external url
    *
    * @param[in] allowed if true, to allow file access from external url
@@ -98,6 +122,186 @@ public:
    *       otherwise to disable
    */
   virtual void EnableJavaScript(bool enabled) = 0;
+
+  /**
+   * @brief Check if auto fitting is enabled or not.
+   *
+   * @return true if enabled, false if disabled.
+   */
+  virtual bool IsAutoFittingEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable auto fitting
+   *
+   * @param[in] enabled if true, to enable auto fitting
+   *       otherwise to disable
+   */
+  virtual void EnableAutoFitting( bool enabled ) = 0;
+
+  /**
+   * @brief Check if plugins are enabled or not.
+   *
+   * @return true if enabled, false if disabled.
+   */
+  virtual bool ArePluginsEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable plugins
+   *
+   * @param[in] enabled if true, to enable plugins
+   *       otherwise to disable
+   */
+  virtual void EnablePlugins( bool enabled ) = 0;
+
+  /**
+   * @brief Check if private browsing is enabled or not.
+   *
+   * @return true if enabled, false if disabled.
+   */
+  virtual bool IsPrivateBrowsingEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable private browsing
+   *
+   * @param[in] enabled if true, to enable private browsing
+   *       otherwise to disable
+   */
+  virtual void EnablePrivateBrowsing( bool enabled ) = 0;
+
+  /**
+   * @brief Check if link magnifier is enabled or not.
+   *
+   * @return true if enabled, false if disabled.
+   */
+  virtual bool IsLinkMagnifierEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable link magnifier
+   *
+   * @param[in] enabled if true, to enable link magnifier
+   *        otherwise to disable
+   */
+  virtual void EnableLinkMagnifier( bool enabled ) = 0;
+
+  /**
+   * @brief Check if uses keypad without user action is used or not.
+   *
+   * @return true if used, false if unused.
+   */
+  virtual bool IsKeypadWithoutUserActionUsed() const = 0;
+
+  /**
+   * @brief Uses/Unused keypad without user action
+   *
+   * @param[in] used if true, to use keypad without user action
+   *       otherwise to unused
+   */
+  virtual void UseKeypadWithoutUserAction( bool used ) = 0;
+
+  /**
+   * @brief Check if autofill password form is enabled or not.
+   *
+   * @return true if enabled, false if disabled.
+   */
+  virtual bool IsAutofillPasswordFormEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable autofill password form
+   *
+   * @param[in] enabled if true, to enable autofill_password_form
+   *       otherwise to disable
+   */
+  virtual void EnableAutofillPasswordForm( bool enabled ) = 0;
+
+  /**
+   * @brief check if form candidate data is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+  virtual bool IsFormCandidateDataEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable form candidate data
+   *
+   * @param[in] enabled if true, to enable form candidate data
+   *        otherwise to disable
+   */
+  virtual void EnableFormCandidateData( bool enabled ) = 0;
+
+  /**
+   * @brief check if text selection is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+  virtual bool IsTextSelectionEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable text selection
+   *
+   * @param[in] enabled if true, to enable text selection
+   *        otherwise to disable
+   */
+  virtual void EnableTextSelection( bool enabled ) = 0;
+
+  /**
+   * @brief check if text autosizing is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+  virtual bool IsTextAutosizingEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable text autosizing
+   *
+   * @param[in] enabled if true, to enable text autosizing
+   *        otherwise to disable
+   */
+  virtual void EnableTextAutosizing( bool enabled ) = 0;
+
+  /**
+   * @brief check if arrow scroll is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+   virtual bool IsArrowScrollEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable arrow scroll
+   *
+   * @param[in] enable if true, to enable arrow scroll
+   *        otherwise to disable
+   */
+  virtual void EnableArrowScroll( bool enable ) = 0;
+
+  /**
+   * @brief check if clipboard is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+  virtual bool IsClipboardEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable clipboard
+   *
+   * @param[in] enabled if true, to enable clipboard
+   *          otherwise to disable
+   */
+  virtual void EnableClipboard( bool enabled ) = 0;
+
+  /**
+   * @brief check if ime panel is enabled or not.
+   *
+   * @return true if enabled, false is disabled.
+   */
+  virtual bool IsImePanelEnabled() const = 0;
+
+  /**
+   * @brief Enable/Disable ime panel
+   *
+   * @param[in] enabled if true, to enable ime panel
+   *          otherwise to disable
+   */
+  virtual void EnableImePanel( bool enabled ) = 0;
 
   /**
    * @brief Allow if the scripts can open new windows.
