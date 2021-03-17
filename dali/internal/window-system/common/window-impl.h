@@ -284,6 +284,11 @@ public:
   void SetPositionSize(PositionSize positionSize);
 
   /**
+   * @copydoc Dali::DevelWindow::GetPositionSize()
+   */
+  PositionSize GetPositionSize() const;
+
+  /**
    * @copydoc Dali::Window::GetRootLayer()
    */
   Dali::Layer GetRootLayer() const;
