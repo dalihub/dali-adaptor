@@ -88,6 +88,15 @@ public:
    */
   void Prepare();
 
+  /**
+   * @brief Returns the GL Target
+   * @return the Gl target
+   */
+  [[nodiscard]] GLenum GetGlTarget() const
+  {
+    return mGlTarget;
+  }
+
 protected:
 private:
   std::vector<char> mStagingBuffer;

@@ -25,6 +25,7 @@
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-command-buffer.h"
+#include "gles-graphics-framebuffer.h"
 #include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-reflection.h"
@@ -206,10 +207,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateFramebuffer()
    */
-  Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override;
 
   /**
    * @copydoc Dali::Graphics::CreatePipeline()
@@ -317,6 +315,12 @@ public:
   void AddBuffer(GLES::Buffer& buffer);
 
   /**
+   * @brief Adds framebuffer to the creation queue
+   * @param buffer
+   */
+  void AddFramebuffer(GLES::Framebuffer& framebuffer);
+
+  /**
    * @brief Pushes Bufer to the discard queue
    *
    * Function is called from the UniquePtr custom deleter.
@@ -333,11 +337,23 @@ public:
    *
    * Function is called from the UniquePtr custom deleter.
    *
-   * @param[in] texture Pointer to the texture
+   * @param[in] buffer Pointer to the buffer object
    */
   void DiscardResource(GLES::Buffer* buffer)
   {
     mDiscardBufferQueue.push(buffer);
+  }
+
+  /**
+   * @brief Pushes framebuffer to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] framebuffer Pointer to the framebuffer object
+   */
+  void DiscardResource(GLES::Framebuffer* framebuffer)
+  {
+    mDiscardFramebufferQueue.push(framebuffer);
   }
 
   /**
@@ -552,6 +568,8 @@ private:
   std::queue<GLES::Shader*>        mDiscardShaderQueue;        ///< Discard queue of shaders
   std::queue<GLES::Sampler*>       mDiscardSamplerQueue;       ///< Discard queue of samplers
   std::queue<GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
+  std::queue<GLES::Framebuffer*>   mCreateFramebufferQueue;    ///< Create queue for framebuffer resource
+  std::queue<GLES::Framebuffer*>   mDiscardFramebufferQueue;   ///< Discard queue for framebuffer resource
 
   std::queue<GLES::CommandBuffer*> mCommandQueue; ///< we may have more in the future
 

@@ -143,26 +143,33 @@ Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelp
   return *mGlContextHelperAbstraction;
 }
 
-Graphics::UniquePtr<CommandBuffer>
-EglGraphicsController::CreateCommandBuffer(const CommandBufferCreateInfo&       commandBufferCreateInfo,
-                                           Graphics::UniquePtr<CommandBuffer>&& oldCommandBuffer)
+Graphics::UniquePtr<CommandBuffer> EglGraphicsController::CreateCommandBuffer(
+  const CommandBufferCreateInfo&       commandBufferCreateInfo,
+  Graphics::UniquePtr<CommandBuffer>&& oldCommandBuffer)
 {
   return NewObject<GLES::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
 }
 
-Graphics::UniquePtr<Texture>
-EglGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, Graphics::UniquePtr<Texture>&& oldTexture)
+Graphics::UniquePtr<Texture> EglGraphicsController::CreateTexture(
+  const TextureCreateInfo& textureCreateInfo, Graphics::UniquePtr<Texture>&& oldTexture)
 {
   return NewObject<GLES::Texture>(textureCreateInfo, *this, std::move(oldTexture));
 }
 
-Graphics::UniquePtr<Buffer>
-EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer)
+Graphics::UniquePtr<Buffer> EglGraphicsController::CreateBuffer(
+  const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer)
 {
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
-Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
+Graphics::UniquePtr<Framebuffer> EglGraphicsController::CreateFramebuffer(
+  const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer)
+{
+  return NewObject<GLES::Framebuffer>(framebufferCreateInfo, *this, std::move(oldFramebuffer));
+}
+
+Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(
+  const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
   // Create pipeline cache if needed
   if(!mPipelineCache)
@@ -173,7 +180,8 @@ Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const Pipeli
   return mPipelineCache->GetPipeline(pipelineCreateInfo, std::move(oldPipeline));
 }
 
-Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
+Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(
+  const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
 {
   // Create program cache if needed
   if(!mPipelineCache)
@@ -211,6 +219,12 @@ void EglGraphicsController::AddBuffer(GLES::Buffer& buffer)
   mCreateBufferQueue.push(&buffer);
 }
 
+void EglGraphicsController::AddFramebuffer(GLES::Framebuffer& framebuffer)
+{
+  // Assuming we are on the correct context
+  mCreateFramebufferQueue.push(&framebuffer);
+}
+
 void EglGraphicsController::ProcessDiscardQueues()
 {
   // Process textures
@@ -218,6 +232,9 @@ void EglGraphicsController::ProcessDiscardQueues()
 
   // Process buffers
   ProcessDiscardQueue<GLES::Buffer>(mDiscardBufferQueue);
+
+  // Process Framebuffers
+  ProcessDiscardQueue<GLES::Framebuffer>(mDiscardFramebufferQueue);
 
   // Process pipelines
   ProcessDiscardQueue<GLES::Pipeline>(mDiscardPipelineQueue);
@@ -242,12 +259,16 @@ void EglGraphicsController::ProcessCreateQueues()
 
   // Process buffers
   ProcessCreateQueue(mCreateBufferQueue);
+
+  // Process framebuffers
+  ProcessCreateQueue(mCreateFramebufferQueue);
 }
 
 void EglGraphicsController::ProcessCommandQueues()
 {
   // TODO: command queue per context, sync between queues should be
   // done externally
+  const Graphics::Framebuffer* currentFramebuffer{nullptr};
 
   while(!mCommandQueue.empty())
   {
@@ -292,7 +313,17 @@ void EglGraphicsController::ProcessCommandQueues()
         }
         case GLES::CommandType::BIND_PIPELINE:
         {
-          mContext->BindPipeline(cmd.bindPipeline.pipeline);
+          auto pipeline = static_cast<const GLES::Pipeline*>(cmd.bindPipeline.pipeline);
+
+          // Bind framebuffer if different. @todo Move to RenderPass
+          auto fbState = pipeline->GetCreateInfo().framebufferState;
+          if(fbState && fbState->framebuffer != currentFramebuffer)
+          {
+            currentFramebuffer = fbState->framebuffer;
+            static_cast<const GLES::Framebuffer*>(currentFramebuffer)->Bind();
+          }
+
+          mContext->BindPipeline(pipeline);
           break;
         }
         case GLES::CommandType::DRAW:
