@@ -16,8 +16,11 @@
  */
 
 #include "gles-context.h"
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-pipeline.h"
@@ -422,11 +425,13 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   const auto& passInfo   = renderPass.GetCreateInfo();
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
-  auto& gl = *mImpl->mController.GetGL();
+  auto& gl       = *mImpl->mController.GetGL();
+  auto& graphics = *mImpl->mController.GetGraphicsInterface();
 
   if(targetInfo.surface)
   {
     // switch context to surface bound
+    graphics.ActivateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(targetInfo.surface));
 
     // Bind surface FB
     gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -434,7 +439,10 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
   if(targetInfo.framebuffer)
   {
-    // bind framebuffer and swap (if needed to shared context)
+    // if needed, switch to shared context.
+    graphics.ActivateResourceContext();
+
+    // bind framebuffer and swap.
     renderTarget.GetFramebuffer()->Bind();
   }
 
@@ -486,6 +494,20 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
 void Context::EndRenderPass()
 {
+  if(mImpl->mCurrentRenderTarget)
+  {
+    if(mImpl->mCurrentRenderTarget->GetFramebuffer())
+    {
+      auto& gl = *mImpl->mController.GetGL();
+      gl.Flush();
+    }
+
+    Dali::RenderSurfaceInterface* surface = static_cast<Dali::RenderSurfaceInterface*>(mImpl->mCurrentRenderTarget->GetSurface());
+    if(surface)
+    {
+      surface->PostRender();
+    }
+  }
 }
 
 void Context::ClearState()

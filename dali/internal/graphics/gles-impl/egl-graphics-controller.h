@@ -22,6 +22,7 @@
 #include <queue>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-command-buffer.h"
@@ -81,7 +82,8 @@ public:
    * Note, this is now executed in the render thread, after core initialization
    */
   void Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
-                  Integration::GlContextHelperAbstraction& glContextHelperAbstraction);
+                  Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
+                  Internal::Adaptor::GraphicsInterface&    graphicsInterface);
 
   Integration::GlAbstraction&              GetGlAbstraction() override;
   Integration::GlSyncAbstraction&          GetGlSyncAbstraction() override;
@@ -299,6 +301,11 @@ public:
     return mGlAbstraction;
   }
 
+  [[nodiscard]] Internal::Adaptor::GraphicsInterface* GetGraphicsInterface() const
+  {
+    return mGraphics;
+  }
+
   // Internal
   void AddTexture(GLES::Texture& texture);
 
@@ -418,6 +425,8 @@ public:
    */
   void Flush()
   {
+    mGraphics->ActivateResourceContext();
+
     // Process creations
     ProcessCreateQueues();
 
@@ -552,6 +561,8 @@ private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
+
+  Internal::Adaptor::GraphicsInterface* mGraphics{nullptr};
 
   std::queue<GLES::Texture*> mCreateTextureQueue;  ///< Create queue for texture resource
   std::queue<GLES::Texture*> mDiscardTextureQueue; ///< Discard queue for texture resource

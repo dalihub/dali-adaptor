@@ -78,6 +78,15 @@ void EglGraphics::ActivateResourceContext()
   }
 }
 
+void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  if(surface)
+  {
+    surface->InitializeGraphics();
+    surface->MakeContextCurrent();
+  }
+}
+
 void EglGraphics::SetFirstFrameAfterResume()
 {
   if(mEglImplementation)
@@ -91,7 +100,7 @@ void EglGraphics::Initialize()
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
-  mGraphicsController.Initialize(*mEglSync.get(), *mEglContextHelper.get());
+  mGraphicsController.Initialize(*mEglSync.get(), *mEglContextHelper.get(), *this);
 }
 
 void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, int msaa)

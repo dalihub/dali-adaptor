@@ -172,6 +172,9 @@ void SceneHolder::SurfaceResized()
   mScene.SurfaceResized(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height));
 
   mSurface->SetFullSwapNextFrame();
+
+  // Recreate the render target
+  CreateRenderTarget();
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const

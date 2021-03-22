@@ -429,6 +429,8 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
+  mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
+
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
   Dali::Integration::Scene scene = mScene.GetHandle();
@@ -493,8 +495,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
   }
 
-  MakeContextCurrent();
-
   /**
     * wl_egl_window_tizen_set_rotation(SetEglWindowRotation)                -> PreRotation
     * wl_egl_window_tizen_set_buffer_transform(SetEglWindowBufferTransform) -> Screen Rotation
@@ -504,7 +504,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     *          because output transform event should be occured before egl window is not created.
     */
 
-  if(resizingSurface || mDefaultScreenRotationAvailable)
+  if(mIsResizing || mDefaultScreenRotationAvailable)
   {
     int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
 
@@ -551,12 +551,20 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     mDefaultScreenRotationAvailable = false;
   }
 
-  SetBufferDamagedRects(damagedRects, clippingRect);
+  SetBufferDamagedRects(mDamagedRects, clippingRect);
+
+  if(clippingRect.IsEmpty())
+  {
+    mDamagedRects.clear();
+  }
+
+  // This is now done when the render pass for the render surface begins
+  //  MakeContextCurrent();
 
   return true;
 }
 
-void WindowRenderSurface::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
+void WindowRenderSurface::PostRender()
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
@@ -565,37 +573,29 @@ void WindowRenderSurface::PostRender(bool renderToFbo, bool replacingSurface, bo
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if(renderToFbo)
+    if(mIsResizing)
     {
-      mGLES.Flush();
-      mGLES.Finish();
-    }
-    else
-    {
-      if(resizingSurface)
+      if(!mWindowRotationFinished)
       {
-        if(!mWindowRotationFinished)
+        if(mThreadSynchronization)
         {
-          if(mThreadSynchronization)
-          {
-            // Enable PostRender flag
-            mThreadSynchronization->PostRenderStarted();
-          }
+          // Enable PostRender flag
+          mThreadSynchronization->PostRenderStarted();
+        }
 
-          DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
+        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
 
-          mRotationTrigger->Trigger();
+        mRotationTrigger->Trigger();
 
-          if(mThreadSynchronization)
-          {
-            // Wait until the event-thread complete the rotation event processing
-            mThreadSynchronization->PostRenderWaitForCompletion();
-          }
+        if(mThreadSynchronization)
+        {
+          // Wait until the event-thread complete the rotation event processing
+          mThreadSynchronization->PostRenderWaitForCompletion();
         }
       }
     }
 
-    SwapBuffers(damagedRects);
+    SwapBuffers(mDamagedRects);
 
     if(mRenderNotification)
     {

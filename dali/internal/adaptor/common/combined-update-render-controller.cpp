@@ -574,8 +574,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // Then create a new pixmap/window and new surface
       // If the new surface has a different display connection, then the context will be lost
       mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
-      newSurface->InitializeGraphics();
-      newSurface->MakeContextCurrent();
+      graphics.ActivateSurfaceContext(newSurface);
       // TODO: ReplaceGraphicsSurface doesn't work, InitializeGraphics()
       // already creates new surface window, the surface and the context.
       // We probably don't need ReplaceGraphicsSurface at all.
@@ -689,6 +688,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           // Get Surface Resized flag
           sceneSurfaceResized = scene.IsSurfaceRectChanged();
+          windowSurface->SetIsResizing(sceneSurfaceResized);
 
           windowSurface->InitializeGraphics();
 
@@ -706,18 +706,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Switch to the context of the surface, merge damaged areas for previous frames
           windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
 
-          if(clippingRect.IsEmpty())
-          {
-            mDamagedRects.clear();
-          }
-
           // Render the surface
           mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
 
-          if(windowRenderStatus.NeedsPostRender())
-          {
-            windowSurface->PostRender(false, false, sceneSurfaceResized, mDamagedRects); // Swap Buffer with damage
-          }
+          // Buffer swapping now happens when the surface render target is presented.
 
           // If surface is resized, the surface resized count is decreased.
           if(DALI_UNLIKELY(sceneSurfaceResized))
@@ -726,6 +718,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           }
         }
       }
+    }
+
+    if(!mUploadWithoutRendering)
+    {
+      graphics.ActivateResourceContext();
     }
 
     mCore.PostRender(mUploadWithoutRendering);
