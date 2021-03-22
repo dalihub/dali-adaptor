@@ -102,11 +102,13 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
 }
 
 void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
-                                       Integration::GlContextHelperAbstraction& glContextHelperAbstraction)
+                                       Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
+                                       Internal::Adaptor::GraphicsInterface&    graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #2\n");
   mGlSyncAbstraction          = &glSyncAbstraction;
   mGlContextHelperAbstraction = &glContextHelperAbstraction;
+  mGraphics                   = &graphicsInterface;
 }
 
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
@@ -359,6 +361,11 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
         mContext->BeginRenderPass(cmd.beginRenderPass);
         break;
       }
+      case GLES::CommandType::END_RENDERPASS:
+      {
+        mContext->EndRenderPass();
+        break;
+      }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
       {
         // Process secondary command buffers
@@ -473,6 +480,8 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
 
 Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
 {
+  mGraphics->ActivateResourceContext();
+
   // Mapping buffer requires the object to be created NOW
   // Workaround - flush now, otherwise there will be given a staging buffer
   // in case when the buffer is not there yet

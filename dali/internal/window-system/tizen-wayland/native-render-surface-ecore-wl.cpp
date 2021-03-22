@@ -228,18 +228,31 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 
 bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
+  if(!clippingRect.IsEmpty())
+  {
+    mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
+  }
+  else
+  {
+    mDamagedRects.clear();
+  }
+
   //TODO: Need to support partial update
-  MakeContextCurrent();
+  // This is now done when the render pass for the render surface begins
+  //  MakeContextCurrent();
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
+void NativeRenderSurfaceEcoreWl::PostRender()
 {
+  // @todo: Check why did we always pass false into here previously?
+  bool replacingSurface = false;
+
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers(mEGLSurface, damagedRects);
+    eglImpl.SwapBuffers(mEGLSurface, mDamagedRects);
   }
 
   //TODO: Move calling tbm_surface_queue_acruie to OffscreenWindow and Scene in EvasPlugin

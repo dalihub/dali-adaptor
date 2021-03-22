@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include "egl-graphics-controller.h"
 
 namespace Dali::Graphics::GLES
@@ -61,6 +62,10 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
     }
     else
     {
+      // switch to the shared context if necessary
+      auto graphics = mController.GetGraphicsInterface();
+      graphics->ActivateResourceContext();
+
       // @TODO: trashing vertex binding, better find target that is rarely used
       buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
       void* ptr      = nullptr;
@@ -82,6 +87,10 @@ void Memory3::Unlock(bool flush)
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(!buffer->IsCPUAllocated())
     {
+      // switch to the shared context if necessary
+      auto graphics = mController.GetGraphicsInterface();
+      graphics->ActivateResourceContext();
+
       buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
       gl->UnmapBuffer(GL_ARRAY_BUFFER);
     }
