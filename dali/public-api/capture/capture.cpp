@@ -88,6 +88,11 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
   return GetImpl(*this).GetNativeImageSource();
 }
 
+Dali::Texture Capture::GetTexture()
+{
+  return GetImpl(*this).GetTexture();
+}
+
 Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 {
   return GetImpl(*this).FinishedSignal();

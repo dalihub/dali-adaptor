@@ -24,7 +24,6 @@
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/render-tasks/render-task.h>
-#include <dali/public-api/rendering/texture.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 
 // INTERNAL INCLUDES
@@ -89,6 +88,11 @@ public:
   Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
+   * @copydoc Dali::Capture::GetTexture
+   */
+  Dali::Texture GetTexture();
+
+  /**
    * @copydoc Dali::Capture::FinishedSignal
    */
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
@@ -104,19 +108,12 @@ private:
   /**
    * @brief Create native image source.
    */
-  void CreateNativeImageSource( const Dali::Vector2& size );
+  void CreateTexture( const Dali::Vector2& size );
 
   /**
    * @brief Delete native image source.
    */
   void DeleteNativeImageSource();
-
-  /**
-   * @brief Query whether native image source is created or not.
-   *
-   * @return True is native image source is created.
-   */
-  bool IsNativeImageSourceCreated();
 
   /**
    * @brief Create frame buffer.
@@ -205,16 +202,17 @@ private:
 
 private:
   uint32_t                                    mQuality;
-  Dali::Texture                               mNativeTexture;
+  Dali::Texture                               mTexture;
   Dali::FrameBuffer                           mFrameBuffer;
   Dali::RenderTask                            mRenderTask;
   Dali::Actor                                 mSource;
   Dali::CameraActor                           mCameraActor;
-  Dali::Timer                                 mTimer;           ///< For timeout.
+  Dali::Timer                                 mTimer; ///< For timeout.
   Dali::Capture::CaptureFinishedSignalType    mFinishedSignal;
   std::string                                 mPath;
-  Dali::NativeImageSourcePtr                  mNativeImageSourcePtr;  ///< pointer to surface image
+  Dali::NativeImageSourcePtr                  mNativeImageSourcePtr; ///< pointer to surface image
   bool                                        mFileSave;
+  bool                                        mIsNativeImageSourcePossible;
 };
 
 }  // End of namespace Adaptor
