@@ -287,6 +287,39 @@ public:
    * This function is called, the synchronization is finished between UI(transparent hole) and video player.
    */
   virtual void FinishSynchronization() = 0;
+
+  /**
+   * @brief Raise the video player above the target video plaer.
+   *
+   * @param[in] target The target video player
+   */
+  virtual void RaiseAbove(Any target) = 0;
+
+  /**
+   * @brief Lower the video player to below the target video player.
+   *
+   * @param[in] target The target video player
+   */
+  virtual void LowerBelow(Any target) = 0;
+
+  /**
+   * @brief Raise video player above all other sibling video players.
+   *
+   */
+  virtual void RaiseToTop() = 0;
+
+  /**
+   * @brief Lower video player to the bottom of all other sibling video players.
+   *
+   */
+  virtual void LowerToBottom() = 0;
+
+  /**
+   * @brief Gets Video Player's native surface.
+   *
+   * @return The return of native surface pointer of video player
+   */
+  virtual Any GetVideoPlayerSurface() = 0;
 };
 
 } // namespace Dali

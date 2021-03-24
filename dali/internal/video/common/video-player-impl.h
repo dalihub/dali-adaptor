@@ -197,6 +197,33 @@ public:
    */
   void FinishSynchronization();
 
+  /**
+   * @copydoc Dali::VideoPlayer::RaiseAbove()
+   */
+  void RaiseAbove(Dali::VideoPlayer target);
+
+  /**
+   * @copydoc Dali::VideoPlayer::LowerBelow()
+   */
+  void LowerBelow(Dali::VideoPlayer target);
+
+  /**
+   * @copydoc Dali::VideoPlayer::RaiseToTop()
+   */
+  void RaiseToTop();
+
+  /**
+   * @copydoc Dali::VideoPlayer::LowerToBottom()
+   */
+  void LowerToBottom();
+
+  /**
+   * @brief Gets Video Player plugin
+   * @SINCE_2_0.14
+   * @return VideoPlayerPlugin pointer
+   */
+  VideoPlayerPlugin* GetVideoPlayerPlugin();
+
 private:
   /**
    * @brief Constructor.
