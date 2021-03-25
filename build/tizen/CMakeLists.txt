@@ -342,7 +342,7 @@ IF( ENABLE_COVERAGE )
     ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}rename_cov_data ./rename-cov-data )
 
     ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}cov_data ${LCOV_BIN} ${LCOV_OPTS} --base-directory . --directory . -c -o dali.info
-      COMMAND ${LCOV_BIN} ${LCOV_OPTS} --remove dali.info \"*/dali-env/*\" \"/usr/include/*\" -o dali.info )
+      COMMAND ${LCOV_BIN} ${LCOV_OPTS} --remove dali.info \"*/dali-env/*\" \"/usr/include/*\" \"*/third-party/*\" \"/usr/local/include/*\" -o dali.info )
 
     ADD_CUSTOM_TARGET( ${DALI_ADAPTOR_PREFIX}coverage genhtml ${LCOV_OPTS} -o ${COVERAGE_OUTPUT_DIR} dali.info
       DEPENDS cov_data )
