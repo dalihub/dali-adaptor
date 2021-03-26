@@ -126,6 +126,11 @@ WindowOrientation GetCurrentOrientation(Window window)
   return GetImplementation(window).GetCurrentOrientation();
 }
 
+int GetPhysicalOrientation(Window window)
+{
+  return GetImplementation(window).GetPhysicalOrientation();
+}
+
 void SetAvailableOrientations(Window window, const Dali::Vector<WindowOrientation>& orientations)
 {
   GetImplementation(window).SetAvailableOrientations(orientations);

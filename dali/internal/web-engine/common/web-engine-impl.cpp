@@ -359,6 +359,16 @@ void WebEngine::SetSize(int width, int height)
   mPlugin->SetSize(width, height);
 }
 
+void WebEngine::EnableMouseEvents(bool enabled)
+{
+  mPlugin->EnableMouseEvents(enabled);
+}
+
+void WebEngine::EnableKeyEvents(bool enabled)
+{
+  mPlugin->EnableKeyEvents(enabled);
+}
+
 bool WebEngine::SendTouchEvent(const Dali::TouchEvent& touch)
 {
   return mPlugin->SendTouchEvent(touch);
@@ -382,6 +392,16 @@ void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 void WebEngine::EnableVideoHole(bool enabled)
 {
   mPlugin->EnableVideoHole(enabled);
+}
+
+bool WebEngine::SendHoverEvent( const Dali::HoverEvent& event )
+{
+  return mPlugin->SendHoverEvent( event );
+}
+
+bool WebEngine::SendWheelEvent( const Dali::WheelEvent& event )
+{
+  return mPlugin->SendWheelEvent( event );
 }
 
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()

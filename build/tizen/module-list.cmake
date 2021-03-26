@@ -46,6 +46,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/text/file.list )
 SET( adaptor_video_dir ${ADAPTOR_ROOT}/dali/internal/video )
 include( ${ADAPTOR_ROOT}/dali/internal/video/file.list )
 
+SET( adaptor_camera_dir ${ADAPTOR_ROOT}/dali/internal/camera )
+include( ${ADAPTOR_ROOT}/dali/internal/camera/file.list )
+
 SET( adaptor_web_engine_dir ${ADAPTOR_ROOT}/dali/internal/web-engine )
 include( ${ADAPTOR_ROOT}/dali/internal/web-engine/file.list )
 
@@ -122,6 +125,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/text/file.list )
 
 SET( adaptor_video_dir ${ADAPTOR_ROOT}/dali/internal/video )
 include( ${ADAPTOR_ROOT}/dali/internal/video/file.list )
+
+SET( adaptor_camera_dir ${ADAPTOR_ROOT}/dali/internal/camera )
+include( ${ADAPTOR_ROOT}/dali/internal/camera/file.list )
 
 SET( adaptor_web_engine_dir ${ADAPTOR_ROOT}/dali/internal/web-engine )
 include( ${ADAPTOR_ROOT}/dali/internal/web-engine/file.list )

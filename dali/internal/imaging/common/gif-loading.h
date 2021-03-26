@@ -117,6 +117,13 @@ public:
    */
   std::string GetUrl() const override;
 
+  /**
+   * @brief Return whether the animated image loading is succeeded or not.
+   *
+   * @return True when the animated image loading is succeeded.
+   */
+  bool HasLoadingSucceeded() const override;
+
 private:
   struct Impl;
   Impl* mImpl;

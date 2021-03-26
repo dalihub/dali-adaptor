@@ -38,6 +38,7 @@ SET( SOURCES
     ${adaptor_vector_animation_common_src_files}
     ${adaptor_vector_image_common_src_files}
     ${adaptor_video_common_src_files}
+    ${adaptor_camera_common_src_files}
     ${adaptor_web_engine_common_src_files}
     ${adaptor_window_system_common_src_files}
     ${adaptor_window_system_tizen_src_files}

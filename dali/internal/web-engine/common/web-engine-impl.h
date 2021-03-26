@@ -250,6 +250,16 @@ public:
   void SetSize(int width, int height);
 
   /**
+   * @copydoc Dali::WebEngine::EnableMouseEvents()
+   */
+  void EnableMouseEvents( bool enabled );
+
+  /**
+   * @copydoc Dali::WebEngine::EnableKeyEvents()
+   */
+  void EnableKeyEvents( bool enabled );
+
+  /**
    * @copydoc Dali::WebEngine::SendTouchEvent()
    */
   bool SendTouchEvent(const Dali::TouchEvent& touch);
@@ -273,6 +283,16 @@ public:
    * @copydoc Dali::WebEngine::EnableVideoHole()
    */
   void EnableVideoHole(bool enabled);
+
+  /**
+   * @copydoc Dali::WebEngine::SendHoverEvent()
+   */
+  bool SendHoverEvent( const Dali::HoverEvent& event );
+
+  /**
+   * @copydoc Dali::WebEngine::SendWheelEvent()
+   */
+  bool SendWheelEvent( const Dali::WheelEvent& event );
 
   /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()
