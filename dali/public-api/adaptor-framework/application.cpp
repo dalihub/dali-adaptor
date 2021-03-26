@@ -236,6 +236,11 @@ Application::LowMemorySignalType& Application::LowMemorySignal()
   return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
 }
 
+Graphics::Controller& Application::GetController()
+{
+  return Internal::Adaptor::GetImplementation(*this).GetController();
+}
+
 Application::Application(Internal::Adaptor::Application* application)
 : BaseHandle(application)
 {

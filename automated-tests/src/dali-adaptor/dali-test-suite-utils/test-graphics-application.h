@@ -24,7 +24,7 @@
 #include <dali/integration-api/scene.h>
 #include <dali/integration-api/trace.h>
 
-#include <dali/internal/graphics/gles/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/public-api/common/dali-common.h>
 
 #include <test-gl-abstraction.h>

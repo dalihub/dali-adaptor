@@ -407,6 +407,12 @@ ApplicationPtr Application::GetPreInitializedApplication()
   return gPreInitializedApplication;
 }
 
+Graphics::Controller& Application::GetController()
+{
+  auto& adaptor = Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor);
+  return adaptor.GetGraphicsInterface().GetController();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

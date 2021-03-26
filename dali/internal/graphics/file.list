@@ -9,8 +9,9 @@ SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
-    ${adaptor_graphics_dir}/gles/egl-graphics-controller.cpp
 )
+
+INCLUDE( ${adaptor_graphics_dir}/gles-impl/file.list )
 
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
@@ -36,3 +37,6 @@ SET( adaptor_graphics_windows_src_files
 SET( adaptor_graphics_macos_src_files
     ${adaptor_graphics_dir}/macos/egl-image-extensions.cpp
 )
+
+# include GLES implementation
+# TODO: the implementaion should probably be dependent on the build flags
