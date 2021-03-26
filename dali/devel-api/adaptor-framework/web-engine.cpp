@@ -274,6 +274,16 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
+bool WebEngine::SendHoverEvent( const HoverEvent& event )
+{
+  return GetImplementation( *this ).SendHoverEvent( event );
+}
+
+bool WebEngine::SendWheelEvent( const WheelEvent& event )
+{
+  return GetImplementation( *this ).SendWheelEvent( event );
+}
+
 void WebEngine::SetFocus(bool focused)
 {
   GetImplementation(*this).SetFocus(focused);
@@ -282,6 +292,16 @@ void WebEngine::SetFocus(bool focused)
 void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
   GetImplementation(*this).UpdateDisplayArea(displayArea);
+}
+
+void WebEngine::EnableMouseEvents(bool enabled)
+{
+  GetImplementation(*this).EnableMouseEvents(enabled);
+}
+
+void WebEngine::EnableKeyEvents(bool enabled)
+{
+  GetImplementation(*this).EnableKeyEvents(enabled);
 }
 
 void WebEngine::EnableVideoHole(bool enabled)

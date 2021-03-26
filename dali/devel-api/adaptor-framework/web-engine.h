@@ -336,6 +336,20 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @brief Enables/disables mouse events. The default is enabled.
+   *
+   * @param[in] enabled True if mouse events are enabled, false otherwise
+   */
+  void EnableMouseEvents( bool enabled );
+
+  /**
+   * @brief Enables/disables key events. The default is enabled.
+   *
+   * @param[in] enabled True if key events are enabled, false otherwise
+   */
+  void EnableKeyEvents( bool enabled );
+
+  /**
    * @brief Update display area.
    * @param[in] displayArea The area to display web page.
    */
@@ -346,6 +360,18 @@ public:
    * @param[in] enabled True if video hole is enabled, false otherwise
    */
   void EnableVideoHole(bool enabled);
+
+  /**
+   * @brief Sends hover events.
+   * @param[in] event The hover event would be sent.
+   */
+  bool SendHoverEvent( const HoverEvent& event );
+
+  /**
+   * @brief Sends wheel events.
+   * @param[in] event The wheel event would be sent.
+   */
+  bool SendWheelEvent( const WheelEvent& event );
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.

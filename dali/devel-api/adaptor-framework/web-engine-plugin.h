@@ -33,6 +33,8 @@ class WebEngineBackForwardList;
 class WebEngineContext;
 class WebEngineCookieManager;
 class WebEngineSettings;
+class HoverEvent;
+class WheelEvent;
 
 /**
  * @brief WebEnginePlugin is an abstract interface, used by dali-adaptor to access WebEngine plugin.
@@ -350,7 +352,20 @@ public:
   virtual bool SendKeyEvent(const KeyEvent& event) = 0;
 
   /**
+   * @brief Support mouse events or not.
+   * @param[in] enabled True if enabled, false othewise.
+   */
+  virtual void EnableMouseEvents( bool enabled ) = 0;
+
+  /**
+   * @brief Support key events or not.
+   * @param[in] enabled True if enabled, false othewise.
+   */
+  virtual void EnableKeyEvents( bool enabled ) = 0;
+
+  /**
    * @brief Sets focus.
+   * @param[in] focused True if focus is gained, false lost.
    */
   virtual void SetFocus(bool focused) = 0;
 
@@ -365,6 +380,18 @@ public:
    * @param[in] enabled True if enabled, false othewise.
    */
   virtual void EnableVideoHole(bool enabled) = 0;
+
+  /**
+   * @brief Sends Hover Events.
+   * @param[in] event The hover event would be sent.
+   */
+  virtual bool SendHoverEvent( const HoverEvent& event ) = 0;
+
+  /**
+   * @brief Sends Wheel Events.
+   * @param[in] event The wheel event would be sent.
+   */
+  virtual bool SendWheelEvent( const WheelEvent& event ) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
