@@ -24,12 +24,13 @@
 // INTERNAL INCLUDES
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
-#include "gles-graphics-memory.h"
 #include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-sampler.h"
 #include "gles-graphics-texture.h"
+#include "gles-graphics-types.h"
+#include "gles2-graphics-memory.h"
 
 namespace Dali
 {
@@ -458,6 +459,18 @@ public:
    * @return Valid pipeline cache object
    */
   [[nodiscard]] GLES::PipelineCache& GetPipelineCache() const;
+
+  /**
+   * @brief Returns runtime supported GLES version
+   *
+   * @return GLES version enum
+   */
+  GLES::GLESVersion GetGLESVersion() const
+  {
+    // TODO: return proper version but for now we can
+    // test fallbacks
+    return GLES::GLESVersion::GLES_20;
+  }
 
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};

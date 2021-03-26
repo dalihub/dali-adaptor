@@ -1858,6 +1858,14 @@ struct GLTypeConversion
   GLType type{GLType::UNDEFINED};
 };
 
+enum class GLESVersion
+{
+  GLES_20 = 20,
+  GLES_30 = 30,
+  GLES_31 = 31,
+  GLES_32 = 32
+};
+
 } // namespace Dali::Graphics::GLES
 
 #endif //DALI_GRAPHICS_API_TYPES_H

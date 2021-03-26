@@ -6,7 +6,8 @@ SET( adaptor_graphics_gles_src_files ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-command-buffer.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-debug.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-framebuffer.cpp
-    ${adaptor_graphics_dir}/gles-impl/gles-graphics-memory.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles2-graphics-memory.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles3-graphics-memory.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-pipeline.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-program.cpp
     ${adaptor_graphics_dir}/gles-impl/gles-graphics-reflection.cpp

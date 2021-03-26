@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "gles-graphics-memory.h"
+#include "gles3-graphics-memory.h"
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/gl-abstraction.h>
@@ -27,26 +27,26 @@
 
 namespace Dali::Graphics::GLES
 {
-Memory::Memory(const Graphics::MapBufferInfo& mapInfo, EglGraphicsController& controller)
+Memory3::Memory3(const Graphics::MapBufferInfo& mapInfo, EglGraphicsController& controller)
 : mController(controller)
 {
   mMapBufferInfo = mapInfo;
   mMapObjectType = MapObjectType::BUFFER;
 }
 
-Memory::Memory(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController& controller)
+Memory3::Memory3(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController& controller)
 : mController(controller)
 {
   mMapTextureInfo = mapInfo;
   mMapObjectType  = MapObjectType::TEXTURE;
 }
 
-Memory::~Memory()
+Memory3::~Memory3()
 {
   Unlock(true);
 }
 
-void* Memory::LockRegion(uint32_t offset, uint32_t size)
+void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 {
   auto gl = mController.GetGL();
 
@@ -73,15 +73,18 @@ void* Memory::LockRegion(uint32_t offset, uint32_t size)
   return nullptr;
 }
 
-void Memory::Unlock(bool flush)
+void Memory3::Unlock(bool flush)
 {
   auto gl = mController.GetGL();
 
   if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
   {
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-    buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
-    gl->UnmapBuffer(GL_ARRAY_BUFFER);
+    if(!buffer->IsCPUAllocated())
+    {
+      buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
+      gl->UnmapBuffer(GL_ARRAY_BUFFER);
+    }
   }
 
   if(flush)
@@ -90,7 +93,7 @@ void Memory::Unlock(bool flush)
   }
 }
 
-void Memory::Flush()
+void Memory3::Flush()
 {
   // TODO:
 }

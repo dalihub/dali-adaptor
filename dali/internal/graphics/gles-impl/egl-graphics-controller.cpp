@@ -26,6 +26,7 @@
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
 #include <dali/public-api/common/dali-common.h>
 #include "gles-graphics-program.h"
 
@@ -411,7 +412,14 @@ Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBuffe
   // in case when the buffer is not there yet
   ProcessCreateQueues();
 
-  return Graphics::UniquePtr<Memory>(new GLES::Memory(mapInfo, *this));
+  if(GetGLESVersion() < GLES::GLESVersion::GLES_30)
+  {
+    return Graphics::UniquePtr<Memory>(new GLES::Memory2(mapInfo, *this));
+  }
+  else
+  {
+    return Graphics::UniquePtr<Memory>(new GLES::Memory3(mapInfo, *this));
+  }
 }
 
 bool EglGraphicsController::GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData)

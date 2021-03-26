@@ -31,14 +31,14 @@ namespace Dali::Graphics
 class EglGraphicsController;
 namespace GLES
 {
-class Memory : public Dali::Graphics::Memory
+class Memory2 : public Dali::Graphics::Memory
 {
 public:
-  Memory(const Graphics::MapBufferInfo& mapInfo, EglGraphicsController& controller);
+  Memory2(const Graphics::MapBufferInfo& mapInfo, EglGraphicsController& controller);
 
-  Memory(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController& controller);
+  Memory2(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController& controller);
 
-  ~Memory() override;
+  ~Memory2() override;
 
   void* LockRegion(uint32_t offset, uint32_t size) override;
 
@@ -64,6 +64,7 @@ public:
   };
 
   void* mMappedPointer{nullptr};
+  bool mIsAllocatedLocally{false};
 };
 } // namespace GLES
 } // namespace Dali::Graphics
