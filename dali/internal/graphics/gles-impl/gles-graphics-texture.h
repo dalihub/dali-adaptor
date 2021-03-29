@@ -92,7 +92,7 @@ protected:
 private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
-  GLenum            mGlTarget;
+  GLenum            mGlTarget{0u};
   void*             mGLOwnerContext{nullptr};
   bool              InitializeNativeImage();
   bool              InitializeTexture();
