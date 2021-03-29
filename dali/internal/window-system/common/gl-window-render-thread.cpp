@@ -130,6 +130,7 @@ void GlWindowRenderThread::SetOnDemandRenderMode(bool onDemand)
 
 void GlWindowRenderThread::RenderOnce()
 {
+  // Most of all, this function is called in event thread
   ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
   mRequestRenderOnce = 1;
   mRenderThreadWaitCondition.Notify(lock);
@@ -188,11 +189,6 @@ void GlWindowRenderThread::Run()
     }
 
     TimeService::SleepUntil(timeToSleepUntil);
-
-    if(mRequestRenderOnce)
-    {
-      mRequestRenderOnce = 0;
-    }
   }
 
   if(mGLTerminateCallback)
@@ -263,6 +259,7 @@ bool GlWindowRenderThread::RenderReady(uint64_t& timeToSleepUntil)
     mRenderThreadWaitCondition.Wait(updateLock);
   }
 
+  mRequestRenderOnce = 0;
   // Keep the update-render thread alive if this thread is NOT to be destroyed
   return !mDestroyRenderThread;
 }
