@@ -259,7 +259,7 @@ public:
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
+  void RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
 
   /**
    * @brief Reply for JavaScript alert.
@@ -271,24 +271,24 @@ public:
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
+  void RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
 
   /**
    * @brief Reply for JavaScript confirm.
    */
-  void JavaScriptConfirmReply( bool confirmed );
+  void JavaScriptConfirmReply(bool confirmed);
 
   /**
    * @brief Register a callback for JavaScript prompt.
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback );
+  void RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback);
 
   /**
    * @brief Reply for JavaScript prompt.
    */
-  void JavaScriptPromptReply( const std::string& result );
+  void JavaScriptPromptReply(const std::string& result);
 
   /**
    * @brief Clears the history of Web.
@@ -318,6 +318,41 @@ public:
    * @brief Sets the size of Web Pages.
    */
   void SetSize(int width, int height);
+
+  /**
+   * @brief Sets background color of web page.
+   *
+   * @param[in] color Background color
+   */
+  void SetDocumentBackgroundColor(Dali::Vector4 color);
+
+  /**
+   * @brief Clears tiles when hidden.
+   *
+   * @param[in] cleared Whether tiles are cleared or not
+   */
+  void ClearTilesWhenHidden(bool cleared);
+
+  /**
+   * @brief Sets multiplier of cover area of tile.
+   *
+   * @param[in] multiplier The multiplier of cover area
+   */
+  void SetTileCoverAreaMultiplier(float multiplier);
+
+  /**
+   * @brief Enables cursor by client.
+   *
+   * @param[in] enabled Whether cursor is enabled or not
+   */
+  void EnableCursorByClient(bool enabled);
+
+  /**
+   * @brief Gets the selected text.
+   *
+   * @return the selected text
+   */
+  std::string GetSelectedText() const;
 
   /**
    * @brief Sends Touch Events.

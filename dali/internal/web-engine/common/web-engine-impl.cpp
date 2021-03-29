@@ -204,7 +204,7 @@ Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
   return mPlugin->GetBackForwardList();
 }
 
-void WebEngine::LoadUrl( const std::string& url )
+void WebEngine::LoadUrl(const std::string& url)
 {
   mPlugin->LoadUrl(url);
 }
@@ -284,9 +284,9 @@ Dali::Vector2 WebEngine::GetContentSize() const
   return mPlugin->GetContentSize();
 }
 
-void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
+void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
-  mPlugin->RegisterJavaScriptAlertCallback( callback );
+  mPlugin->RegisterJavaScriptAlertCallback(callback);
 }
 
 void WebEngine::JavaScriptAlertReply()
@@ -294,24 +294,24 @@ void WebEngine::JavaScriptAlertReply()
   mPlugin->JavaScriptAlertReply();
 }
 
-void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+void WebEngine::RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback)
 {
-  mPlugin->RegisterJavaScriptAlertCallback( callback );
+  mPlugin->RegisterJavaScriptAlertCallback(callback);
 }
 
-void WebEngine::JavaScriptConfirmReply( bool confirmed )
+void WebEngine::JavaScriptConfirmReply(bool confirmed)
 {
-  mPlugin->JavaScriptConfirmReply( confirmed );
+  mPlugin->JavaScriptConfirmReply(confirmed);
 }
 
-void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+void WebEngine::RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback)
 {
-  mPlugin->RegisterJavaScriptPromptCallback( callback );
+  mPlugin->RegisterJavaScriptPromptCallback(callback);
 }
 
-void WebEngine::JavaScriptPromptReply( const std::string& result )
+void WebEngine::JavaScriptPromptReply(const std::string& result)
 {
-  mPlugin->JavaScriptPromptReply( result );
+  mPlugin->JavaScriptPromptReply(result);
 }
 
 bool WebEngine::CanGoForward()
@@ -384,6 +384,31 @@ void WebEngine::SetFocus(bool focused)
   mPlugin->SetFocus(focused);
 }
 
+void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
+{
+  mPlugin->SetDocumentBackgroundColor(color);
+}
+
+void WebEngine::ClearTilesWhenHidden(bool cleared)
+{
+  mPlugin->ClearTilesWhenHidden(cleared);
+}
+
+void WebEngine::SetTileCoverAreaMultiplier(float multiplier)
+{
+  mPlugin->SetTileCoverAreaMultiplier(multiplier);
+}
+
+void WebEngine::EnableCursorByClient(bool enabled)
+{
+  mPlugin->EnableCursorByClient(enabled);
+}
+
+std::string WebEngine::GetSelectedText() const
+{
+  return mPlugin->GetSelectedText();
+}
+
 void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
   mPlugin->UpdateDisplayArea(displayArea);
@@ -434,7 +459,6 @@ Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSigna
   return mPlugin->UrlChangedSignal();
 }
 
-} // namespace Adaptor;
-} // namespace Internal;
-} // namespace Dali;
-
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

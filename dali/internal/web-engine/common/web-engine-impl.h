@@ -177,7 +177,7 @@ public:
   /**
 	* @copydoc Dali::WebEngine::RegisterJavaScriptAlertCallback()
 	*/
-  void RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback );
+  void RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::JavaScriptAlertReply()
@@ -187,22 +187,22 @@ public:
   /**
    * @copydoc Dali::WebEngine::RegisterJavaScriptConfirmCallback()
    */
-  void RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback );
+  void RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::JavaScriptConfirmReply()
    */
-  void JavaScriptConfirmReply( bool confirmed );
+  void JavaScriptConfirmReply(bool confirmed);
 
   /**
    * @copydoc Dali::WebEngine::RegisterJavaScriptPromptCallback()
    */
-  void RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback );
+  void RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::JavaScriptPromptReply()
    */
-  void JavaScriptPromptReply( const std::string& result );
+  void JavaScriptPromptReply(const std::string& result);
 
   /**
    * @copydoc Dali::WebEngine::CanGoForward()
@@ -252,12 +252,37 @@ public:
   /**
    * @copydoc Dali::WebEngine::EnableMouseEvents()
    */
-  void EnableMouseEvents( bool enabled );
+  void EnableMouseEvents(bool enabled);
 
   /**
    * @copydoc Dali::WebEngine::EnableKeyEvents()
    */
-  void EnableKeyEvents( bool enabled );
+  void EnableKeyEvents(bool enabled);
+
+  /**
+   * @copydoc Dali::WebEngine::SetDocumentBackgroundColor()
+   */
+  void SetDocumentBackgroundColor(Dali::Vector4 color);
+
+  /**
+   * @copydoc Dali::WebEngine::ClearTilesWhenHidden()
+   */
+  void ClearTilesWhenHidden(bool cleared);
+
+  /**
+   * @copydoc Dali::WebEngine::SetTileCoverAreaMultiplier()
+   */
+  void SetTileCoverAreaMultiplier(float multiplier);
+
+  /**
+   * @copydoc Dali::WebEngine::EnableCursorByClient()
+   */
+  void EnableCursorByClient(bool enabled);
+
+  /**
+   * @copydoc Dali::WebEngine::GetSelectedText()
+   */
+  std::string GetSelectedText() const;
 
   /**
    * @copydoc Dali::WebEngine::SendTouchEvent()
@@ -287,12 +312,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::SendHoverEvent()
    */
-  bool SendHoverEvent( const Dali::HoverEvent& event );
+  bool SendHoverEvent(const Dali::HoverEvent& event);
 
   /**
    * @copydoc Dali::WebEngine::SendWheelEvent()
    */
-  bool SendWheelEvent( const Dali::WheelEvent& event );
+  bool SendWheelEvent(const Dali::WheelEvent& event);
 
   /**
    * @copydoc Dali::WebEngine::PageLoadStartedSignal()

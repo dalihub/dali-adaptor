@@ -298,19 +298,19 @@ public:
   /**
    * @brief Reply for JavaScript confirm.
    */
-  virtual void JavaScriptConfirmReply( bool confirmed ) = 0;
+  virtual void JavaScriptConfirmReply(bool confirmed) = 0;
 
   /**
    * @brief Register a callback for JavaScript prompt.
    *
    * @param[in] callback The callback function
    */
-  virtual void RegisterJavaScriptPromptCallback( JavaScriptPromptCallback callback ) = 0;
+  virtual void RegisterJavaScriptPromptCallback(JavaScriptPromptCallback callback) = 0;
 
   /**
    * @brief Reply for JavaScript prompt.
    */
-  virtual void JavaScriptPromptReply( const std::string& result ) = 0;
+  virtual void JavaScriptPromptReply(const std::string& result) = 0;
 
   /**
    * @brief Clears the history of Web.
@@ -340,6 +340,41 @@ public:
    * @brief Sets size of Web Page.
    */
   virtual void SetSize(int width, int height) = 0;
+
+  /**
+   * @brief Sets background color of web page.
+   *
+   * @param[in] color Background color
+   */
+  virtual void SetDocumentBackgroundColor(Dali::Vector4 color) = 0;
+
+  /**
+   * @brief Clears tiles when hidden.
+   *
+   * @param[in] cleared Whether tiles are cleared or not
+   */
+  virtual void ClearTilesWhenHidden(bool cleared) = 0;
+
+  /**
+   * @brief Sets multiplier of cover area of tile.
+   *
+   * @param[in] multiplier The multiplier of cover area
+   */
+  virtual void SetTileCoverAreaMultiplier(float multiplier) = 0;
+
+  /**
+   * @brief Enables cursor by client.
+   *
+   * @param[in] enabled Whether cursor is enabled or not
+   */
+  virtual void EnableCursorByClient(bool enabled) = 0;
+
+  /**
+   * @brief Gets the selected text.
+   *
+   * @return the selected text
+   */
+  virtual std::string GetSelectedText() const = 0;
 
   /**
    * @brief Sends Touch Events.
@@ -434,7 +469,6 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
-
 };
 
 } // namespace Dali
