@@ -31,6 +31,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/images/pixel-data.h>
 
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/internal/imaging/common/file-download.h>
 #include <dali/internal/system/common/file-reader.h>
 #include <fcntl.h>
@@ -62,7 +63,8 @@ struct WebPLoading::Impl
 public:
   Impl(const std::string& url, bool isLocalResource)
   : mUrl(url),
-    mLoadSucceeded(true)
+    mLoadSucceeded(true),
+    mMutex()
   {
 #ifdef DALI_WEBP_ENABLED
     if(ReadWebPInformation(isLocalResource))
@@ -182,6 +184,7 @@ public:
   std::vector<uint32_t> mTimeStamp;
   uint32_t              mLoadingFrame{0};
   bool                  mLoadSucceeded;
+  Mutex                 mMutex;
 
 #ifdef DALI_WEBP_ENABLED
   WebPData         mWebPData{0};
@@ -211,6 +214,7 @@ WebPLoading::~WebPLoading()
 bool WebPLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
 {
 #ifdef DALI_WEBP_ENABLED
+  Mutex::ScopedLock lock(mImpl->mMutex);
   if(frameStartIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded)
   {
     return false;
@@ -267,6 +271,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
   Dali::Devel::PixelBuffer pixelBuffer;
 
 #ifdef DALI_WEBP_ENABLED
+  Mutex::ScopedLock lock(mImpl->mMutex);
   if(frameIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded)
   {
     return pixelBuffer;
