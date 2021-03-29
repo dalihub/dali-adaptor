@@ -78,8 +78,6 @@ bool Texture::InitializeNativeImage()
   mGlTarget                           = nativeImage->GetTextureTarget();
   if(created)
   {
-    DALI_LOG_RELEASE_INFO("Native Image: InitializeNativeImage, CreateResource() successful\n");
-
     gl->GenTextures(1, &texture);
     gl->BindTexture(mGlTarget, texture);
 
@@ -227,7 +225,6 @@ void Texture::Prepare()
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
   if(nativeImage)
   {
-    DALI_LOG_RELEASE_INFO("Native Image: PrepareTexture\n");
     if(nativeImage->SourceChanged())
     {
       // Update size
