@@ -5,7 +5,6 @@ SET( SOURCES
         ${adaptor_accessibility_common_src_files}
         ${adaptor_accessibility_macos_src_files}
         ${adaptor_adaptor_common_src_files}
-        ${adaptor_canvas_renderer_generic_src_files}
         ${adaptor_adaptor_macos_src_files}
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_macos_src_files}
