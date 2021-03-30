@@ -136,6 +136,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void StopReading(bool alsoNonDiscardable) override
+  {
+  }
+
   bool GetScreenReaderEnabled() override
   {
     return false;

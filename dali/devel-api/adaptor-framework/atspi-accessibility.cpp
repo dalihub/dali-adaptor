@@ -34,6 +34,14 @@ void Dali::AtspiAccessibility::Resume()
   }
 }
 
+void Dali::AtspiAccessibility::StopReading(bool alsoNonDiscardable)
+{
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  {
+    bridge->StopReading(alsoNonDiscardable);
+  }
+}
+
 void Dali::AtspiAccessibility::Say(const std::string& text, bool discardable, std::function<void(std::string)> callback)
 {
   if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())

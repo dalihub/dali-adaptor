@@ -152,6 +152,22 @@ public:
                                                                                         false);
   }
 
+  void StopReading(bool alsoNonDiscardable) override
+  {
+    if(!IsUp())
+    {
+      return;
+    }
+
+    directReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
+      if(!msg)
+      {
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+      }
+    },
+                                                                                        alsoNonDiscardable);
+  }
+
   void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
   {
     if(!IsUp())
