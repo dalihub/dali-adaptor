@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/graphics-api/graphics-controller.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
@@ -216,6 +217,11 @@ public:
   void AddFramePresentedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
   /**
+   * @brief Creates the render target for the surface when the surface is created/resized/replaced.
+   */
+  void CreateRenderTarget();
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::Get()
    */
   static Dali::Integration::SceneHolder Get(Dali::Actor actor);
@@ -264,6 +270,9 @@ public: // The following methods must be overridden
    * @copydoc Dali::Integration::SceneHolder::GetNativeHandle
    */
   virtual Dali::Any GetNativeHandle() const = 0;
+
+private:
+  Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
 
 protected:
   // Constructor
