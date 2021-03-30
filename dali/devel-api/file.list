@@ -9,6 +9,9 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-item.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-manager.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
@@ -56,6 +59,9 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-item.h
   ${adaptor_devel_api_dir}/adaptor-framework/autofill-manager.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
