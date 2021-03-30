@@ -218,7 +218,7 @@ struct GifAccessor
 
     if(!gif)
     {
-      DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+      DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
     }
   }
 
@@ -635,7 +635,6 @@ bool DecodeImage(GifFileType* gif, uint32_t* data, int rowpix, int xin, int yin,
 
   if((gifW < w) || (gifH < h))
   {
-    DALI_LOG_ERROR("gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
     DALI_ASSERT_DEBUG(false && "Dimensions are bigger than the Gif image size");
     goto on_error;
   }
@@ -785,7 +784,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
   if(!success || !fileData.globalMap)
   {
     success = false;
-    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
   }
   else
   {
@@ -831,7 +830,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
             else
             {
               success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
             }
             break;
           }
@@ -846,14 +845,14 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
             if(DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR)
             {
               success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
               break;
             }
             // skip decoding and just walk image to next
             if(DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR)
             {
               success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
               break;
             }
             // skip till next...
@@ -1000,7 +999,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
   frame = FindFrame(animated, index);
   if(!frame)
   {
-    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+    DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
     return false;
   }
   else if(!(frame->loaded) || !(frame->data))
@@ -1025,13 +1024,13 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
       loaderInfo.fileInfo.position = 0;
       if(!loaderInfo.fileInfo.map)
       {
-        DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+        DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
         return false;
       }
       std::unique_ptr<GifAccessor> gifAccessor = std::make_unique<GifAccessor>(loaderInfo.fileInfo);
       if(!gifAccessor->gif)
       {
-        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
         return false;
       }
       loaderInfo.gifAccessor = std::move(gifAccessor);
@@ -1046,7 +1045,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
     {
       if(DGifGetRecordType(loaderInfo.gifAccessor->gif, &rec) == GIF_ERROR)
       {
-        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
         return false;
       }
 
@@ -1074,7 +1073,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
         // get image desc
         if(DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR)
         {
-          DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+          DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
           return false;
         }
 
@@ -1148,7 +1147,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
           if(!DecodeImage(loaderInfo.gifAccessor->gif, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first))
           {
-            DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+            DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
             return false;
           }
 
@@ -1174,7 +1173,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             // and decode the gif with overwriting
             if(!DecodeImage(loaderInfo.gifAccessor->gif, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true))
             {
-              DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+              DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE");
               return false;
             }
 
@@ -1188,7 +1187,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           // skip decoding and just walk image to next
           if(DGifGetCode(loaderInfo.gifAccessor->gif, &img_code, &img) == GIF_ERROR)
           {
-            DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+            DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT");
             return false;
           }
 
@@ -1237,15 +1236,14 @@ struct GifLoading::Impl
 {
 public:
   Impl(const std::string& url, bool isLocalResource)
-  : mUrl(url),
-    mLoadSucceeded(true)
+  : mUrl(url)
   {
     loaderInfo.gifAccessor = nullptr;
     int error;
     loaderInfo.fileData.fileName        = mUrl.c_str();
     loaderInfo.fileData.isLocalResource = isLocalResource;
 
-    mLoadSucceeded = ReadHeader(loaderInfo, imageProperties, &error);
+    ReadHeader(loaderInfo, imageProperties, &error);
   }
 
   // Moveable but not copyable
@@ -1257,7 +1255,6 @@ public:
   std::string     mUrl;
   LoaderInfo      loaderInfo;
   ImageProperties imageProperties;
-  bool            mLoadSucceeded;
 };
 
 AnimatedImageLoadingPtr GifLoading::New(const std::string& url, bool isLocalResource)
@@ -1279,10 +1276,6 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
 {
   int  error;
   bool ret = false;
-  if(!mImpl->mLoadSucceeded)
-  {
-    return false;
-  }
 
   const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof(uint32_t);
 
@@ -1311,10 +1304,6 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 {
   int                      error;
   Dali::Devel::PixelBuffer pixelBuffer;
-  if(!mImpl->mLoadSucceeded)
-  {
-    return pixelBuffer;
-  }
 
   DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
 
@@ -1348,11 +1337,6 @@ uint32_t GifLoading::GetFrameInterval(uint32_t frameIndex) const
 std::string GifLoading::GetUrl() const
 {
   return mImpl->mUrl;
-}
-
-bool GifLoading::HasLoadingSucceeded() const
-{
-  return mImpl->mLoadSucceeded;
 }
 
 } // namespace Adaptor

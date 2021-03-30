@@ -510,7 +510,7 @@ ImageDimensions CalculateDesiredDimensions(unsigned int bitmapWidth, unsigned in
  * @param[out] widthOut The width of the output buffer.
  * @param[out] heightOut The height of the output buffer.
  *
- * @return Whether the rotation succeeded.
+ * @return Whether the rotation succeded.
  */
 bool Rotate90(const uint8_t* const pixelsIn,
               unsigned int         widthIn,
@@ -569,7 +569,7 @@ bool Rotate90(const uint8_t* const pixelsIn,
  * @param[in] pixelSize The size of the pixel.
  * @param[out] pixelsOut The rotated output buffer.
  *
- * @return Whether the rotation succeeded.
+ * @return Whether the rotation succeded.
  */
 bool Rotate180(const uint8_t* const pixelsIn,
                unsigned int         widthIn,
@@ -621,7 +621,7 @@ bool Rotate180(const uint8_t* const pixelsIn,
  * @param[out] widthOut The width of the output buffer.
  * @param[out] heightOut The height of the output buffer.
  *
- * @return Whether the rotation succeeded.
+ * @return Whether the rotation succeded.
  */
 bool Rotate270(const uint8_t* const pixelsIn,
                unsigned int         widthIn,

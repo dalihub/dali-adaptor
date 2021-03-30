@@ -61,8 +61,7 @@ struct WebPLoading::Impl
 {
 public:
   Impl(const std::string& url, bool isLocalResource)
-  : mUrl(url),
-    mLoadSucceeded(true)
+  : mUrl(url)
   {
 #ifdef DALI_WEBP_ENABLED
     if(ReadWebPInformation(isLocalResource))
@@ -73,10 +72,6 @@ public:
       mWebPAnimDecoder                  = WebPAnimDecoderNew(&mWebPData, &webPAnimDecoderOptions);
       WebPAnimDecoderGetInfo(mWebPAnimDecoder, &mWebPAnimInfo);
       mTimeStamp.assign(mWebPAnimInfo.frame_count, 0);
-    }
-    else
-    {
-      mLoadSucceeded = false;
     }
 #endif
   }
@@ -181,7 +176,6 @@ public:
   std::string           mUrl;
   std::vector<uint32_t> mTimeStamp;
   uint32_t              mLoadingFrame{0};
-  bool                  mLoadSucceeded;
 
 #ifdef DALI_WEBP_ENABLED
   WebPData         mWebPData{0};
@@ -211,7 +205,7 @@ WebPLoading::~WebPLoading()
 bool WebPLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
 {
 #ifdef DALI_WEBP_ENABLED
-  if(frameStartIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded)
+  if(frameStartIndex >= mImpl->mWebPAnimInfo.frame_count)
   {
     return false;
   }
@@ -265,14 +259,13 @@ bool WebPLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vect
 Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
 {
   Dali::Devel::PixelBuffer pixelBuffer;
-
 #ifdef DALI_WEBP_ENABLED
-  if(frameIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded)
+  if(frameIndex >= mImpl->mWebPAnimInfo.frame_count)
   {
     return pixelBuffer;
   }
 
-  DALI_LOG_INFO(gWebPLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
+  DALI_LOG_INFO(gWebPLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameIndex:%d )\n", frameIndex);
 
   if(mImpl->mLoadingFrame > frameIndex)
   {
@@ -345,11 +338,6 @@ uint32_t WebPLoading::GetFrameInterval(uint32_t frameIndex) const
 std::string WebPLoading::GetUrl() const
 {
   return mImpl->mUrl;
-}
-
-bool WebPLoading::HasLoadingSucceeded() const
-{
-  return mImpl->mLoadSucceeded;
 }
 
 } // namespace Adaptor
