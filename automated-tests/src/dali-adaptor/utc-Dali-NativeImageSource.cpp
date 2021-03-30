@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,11 @@ void utc_dali_native_image_source_cleanup(void)
 int UtcDaliNativeImageSourceNewN(void)
 {
   unsigned int width  = 256u;
-  unsigned int heigth = 256u;
+  unsigned int height = 256u;
 
   try
   {
-    NativeImageSourcePtr nativeImageSource = NativeImageSource::New(width, heigth, NativeImageSource::COLOR_DEPTH_DEFAULT);
+    NativeImageSourcePtr nativeImageSource = NativeImageSource::New(width, height, NativeImageSource::COLOR_DEPTH_DEFAULT);
   }
   catch(Dali::DaliException& e)
   {

@@ -5,15 +5,28 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 
 SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
+    utc-Dali-GraphicsSampler.cpp
     utc-Dali-GraphicsGeometry.cpp
+    utc-Dali-GraphicsNativeImage.cpp
 )
 
 LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
+  ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
   ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-actor-utils.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-application.cpp
   ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
   ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-buffer.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-command-buffer.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-controller.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-texture.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-sampler.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-pipeline.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-reflection.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-shader.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-program.cpp
   ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
   ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
   ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp

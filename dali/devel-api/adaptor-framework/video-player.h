@@ -299,6 +299,30 @@ public:
    */
   void FinishSynchronization();
 
+  /**
+   * @brief Raise the video player above the target video plaer.
+   *
+   * @param[in] target The target video player
+   */
+  void RaiseAbove(Dali::VideoPlayer target);
+
+  /**
+   * @brief Lower the video player to below the target video player.
+   *
+   * @param[in] target The target video player
+   */
+  void LowerBelow(Dali::VideoPlayer target);
+
+  /**
+   * @brief Raise video player above all other sibling video players.
+   */
+  void RaiseToTop();
+
+  /**
+   * @brief Lower video player to the bottom of all other sibling video players.
+   */
+  void LowerToBottom();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

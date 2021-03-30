@@ -339,6 +339,11 @@ public:
   WindowOrientation GetCurrentOrientation() const;
 
   /**
+   * @copydoc Dali::DevelWindow::GetPhysicalOrientation()
+   */
+  int GetPhysicalOrientation() const;
+
+  /**
    * @copydoc Dali::DevelWindow::SetAvailableOrientations()
    */
   void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);

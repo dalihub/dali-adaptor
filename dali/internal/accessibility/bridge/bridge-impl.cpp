@@ -31,6 +31,7 @@
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
+#include <dali/internal/accessibility/bridge/dummy-atspi.h>
 
 using namespace Dali::Accessibility;
 
@@ -316,8 +317,21 @@ public:
   }
 };
 
+static Bridge* CreateBridge()
+{
+  try
+  {
+    return new BridgeImpl;
+  }
+  catch (const std::exception&)
+  {
+    DALI_LOG_ERROR("Failed to initialize AT-SPI bridge");
+    return Dali::Accessibility::DummyBridge::GetInstance();
+  }
+}
+
 Bridge* Bridge::GetCurrentBridge()
 {
-  static BridgeImpl* bridge = new BridgeImpl;
+  static Bridge* bridge = CreateBridge();
   return bridge;
 }

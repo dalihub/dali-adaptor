@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/graphics-api/graphics-controller.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 
@@ -395,6 +396,9 @@ public: // Signals
    * @return The signal to connect to
    */
   LowMemorySignalType& LowMemorySignal();
+
+  // TEMPORARY TO TEST GFXAPI
+  Graphics::Controller& GetController();
 
 public: // Not intended for application developers
   /// @cond internal

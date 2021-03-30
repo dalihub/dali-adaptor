@@ -95,7 +95,7 @@ public:
   enum class InputPanelLanguage
   {
     AUTOMATIC, ///< IME Language automatically set depending on the system display
-    ALPHABET   ///< Latin alphabet at all times
+    ALPHABET   ///< Latin alphabet(default). It can be changed according to OSD(On Screen Display) language.
   };
 
   /**

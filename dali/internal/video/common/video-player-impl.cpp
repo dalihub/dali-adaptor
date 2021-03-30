@@ -355,6 +355,44 @@ void VideoPlayer::FinishSynchronization()
   }
 }
 
+void VideoPlayer::RaiseAbove(Dali::VideoPlayer target)
+{
+  VideoPlayerPlugin* targetPlugin = GetImplementation(target).GetVideoPlayerPlugin();
+  if(mPlugin != nullptr && targetPlugin != nullptr)
+  {
+    mPlugin->RaiseAbove(targetPlugin->GetVideoPlayerSurface());
+  }
+}
+
+void VideoPlayer::LowerBelow(Dali::VideoPlayer target)
+{
+  VideoPlayerPlugin* targetPlugin = GetImplementation(target).GetVideoPlayerPlugin();
+  if(mPlugin != nullptr && targetPlugin != nullptr)
+  {
+    mPlugin->LowerBelow(targetPlugin->GetVideoPlayerSurface());
+  }
+}
+
+void VideoPlayer::RaiseToTop()
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->RaiseToTop();
+  }
+}
+
+void VideoPlayer::LowerToBottom()
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->LowerToBottom();
+  }
+}
+VideoPlayerPlugin* VideoPlayer::GetVideoPlayerPlugin()
+{
+  return mPlugin;
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali

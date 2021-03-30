@@ -209,44 +209,44 @@ void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
-void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
+void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptAlertCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptAlertCallback(callback);
 }
 
 void WebEngine::JavaScriptAlertReply()
 {
-  GetImplementation( *this ).JavaScriptAlertReply();
+  GetImplementation(*this).JavaScriptAlertReply();
 }
 
-void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+void WebEngine::RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptConfirmCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptConfirmCallback(callback);
 }
 
-void WebEngine::JavaScriptConfirmReply( bool confirmed )
+void WebEngine::JavaScriptConfirmReply(bool confirmed)
 {
-  GetImplementation( *this ).JavaScriptConfirmReply( confirmed );
+  GetImplementation(*this).JavaScriptConfirmReply(confirmed);
 }
 
-void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+void WebEngine::RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback)
 {
-  GetImplementation( *this ).RegisterJavaScriptPromptCallback( callback );
+  GetImplementation(*this).RegisterJavaScriptPromptCallback(callback);
 }
 
-void WebEngine::JavaScriptPromptReply( const std::string& result )
+void WebEngine::JavaScriptPromptReply(const std::string& result)
 {
-  GetImplementation( *this ).JavaScriptPromptReply( result );
+  GetImplementation(*this).JavaScriptPromptReply(result);
 }
 
 void WebEngine::ClearHistory()
 {
-  return GetImplementation(*this).ClearHistory();
+  GetImplementation(*this).ClearHistory();
 }
 
 void WebEngine::ClearAllTilesResources()
 {
-  GetImplementation( *this ).ClearAllTilesResources();
+  GetImplementation(*this).ClearAllTilesResources();
 }
 
 const std::string& WebEngine::GetUserAgent() const
@@ -261,7 +261,32 @@ void WebEngine::SetUserAgent(const std::string& userAgent)
 
 void WebEngine::SetSize(int width, int height)
 {
-  return GetImplementation(*this).SetSize(width, height);
+  GetImplementation(*this).SetSize(width, height);
+}
+
+void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
+{
+  GetImplementation(*this).SetDocumentBackgroundColor(color);
+}
+
+void WebEngine::ClearTilesWhenHidden(bool cleared)
+{
+  GetImplementation(*this).ClearTilesWhenHidden(cleared);
+}
+
+void WebEngine::SetTileCoverAreaMultiplier(float multiplier)
+{
+  GetImplementation(*this).SetTileCoverAreaMultiplier(multiplier);
+}
+
+void WebEngine::EnableCursorByClient(bool enabled)
+{
+  GetImplementation(*this).EnableCursorByClient(enabled);
+}
+
+std::string WebEngine::GetSelectedText() const
+{
+  return GetImplementation(*this).GetSelectedText();
 }
 
 bool WebEngine::SendTouchEvent(const TouchEvent& touch)
@@ -274,6 +299,16 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
+bool WebEngine::SendHoverEvent( const HoverEvent& event )
+{
+  return GetImplementation( *this ).SendHoverEvent( event );
+}
+
+bool WebEngine::SendWheelEvent( const WheelEvent& event )
+{
+  return GetImplementation( *this ).SendWheelEvent( event );
+}
+
 void WebEngine::SetFocus(bool focused)
 {
   GetImplementation(*this).SetFocus(focused);
@@ -282,6 +317,16 @@ void WebEngine::SetFocus(bool focused)
 void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
   GetImplementation(*this).UpdateDisplayArea(displayArea);
+}
+
+void WebEngine::EnableMouseEvents(bool enabled)
+{
+  GetImplementation(*this).EnableMouseEvents(enabled);
+}
+
+void WebEngine::EnableKeyEvents(bool enabled)
+{
+  GetImplementation(*this).EnableKeyEvents(enabled);
 }
 
 void WebEngine::EnableVideoHole(bool enabled)
@@ -317,6 +362,16 @@ Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEd
 Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSignal()
 {
   return GetImplementation(*this).UrlChangedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRepostDecisionSignal()
+{
+  return GetImplementation(*this).FormRepostDecisionSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+{
+  return GetImplementation(*this).FrameRenderedSignal();
 }
 
 } // namespace Dali

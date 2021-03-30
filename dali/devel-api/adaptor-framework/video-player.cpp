@@ -223,4 +223,24 @@ void VideoPlayer::FinishSynchronization()
   GetImplementation(*this).FinishSynchronization();
 }
 
+void VideoPlayer::RaiseAbove(Dali::VideoPlayer target)
+{
+  GetImplementation(*this).RaiseAbove(target);
+}
+
+void VideoPlayer::LowerBelow(Dali::VideoPlayer target)
+{
+  GetImplementation(*this).LowerBelow(target);
+}
+
+void VideoPlayer::RaiseToTop()
+{
+  GetImplementation(*this).RaiseToTop();
+}
+
+void VideoPlayer::LowerToBottom()
+{
+  GetImplementation(*this).LowerToBottom();
+}
+
 } // namespace Dali

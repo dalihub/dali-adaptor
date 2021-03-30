@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,11 @@ uint32_t AnimatedImageLoading::GetFrameInterval(uint32_t frameIndex) const
 std::string AnimatedImageLoading::GetUrl() const
 {
   return GetImplementation(*this).GetUrl();
+}
+
+bool AnimatedImageLoading::HasLoadingSucceeded() const
+{
+  return GetImplementation(*this).HasLoadingSucceeded();
 }
 
 AnimatedImageLoading::AnimatedImageLoading(Internal::Adaptor::AnimatedImageLoading* internal)

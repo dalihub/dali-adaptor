@@ -933,6 +933,11 @@ WindowOrientation Window::GetCurrentOrientation() const
   return ConvertToOrientation(mRotationAngle);
 }
 
+int Window::GetPhysicalOrientation() const
+{
+  return (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
+}
+
 void Window::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations)
 {
   Dali::Vector<float>::SizeType count = orientations.Count();

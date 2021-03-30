@@ -259,7 +259,7 @@ public:
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
+  void RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback);
 
   /**
    * @brief Reply for JavaScript alert.
@@ -271,24 +271,26 @@ public:
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
+  void RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback);
 
   /**
    * @brief Reply for JavaScript confirm.
+   * @param[in] confirmed True if confirmed, false otherwise.
    */
-  void JavaScriptConfirmReply( bool confirmed );
+  void JavaScriptConfirmReply(bool confirmed);
 
   /**
    * @brief Register a callback for JavaScript prompt.
    *
    * @param[in] callback The callback function
    */
-  void RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback );
+  void RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback);
 
   /**
    * @brief Reply for JavaScript prompt.
+   * @param[in] result The result returned from input-field in prompt popup.
    */
-  void JavaScriptPromptReply( const std::string& result );
+  void JavaScriptPromptReply(const std::string& result);
 
   /**
    * @brief Clears the history of Web.
@@ -320,6 +322,41 @@ public:
   void SetSize(int width, int height);
 
   /**
+   * @brief Sets background color of web page.
+   *
+   * @param[in] color Background color
+   */
+  void SetDocumentBackgroundColor(Dali::Vector4 color);
+
+  /**
+   * @brief Clears tiles when hidden.
+   *
+   * @param[in] cleared Whether tiles are cleared or not
+   */
+  void ClearTilesWhenHidden(bool cleared);
+
+  /**
+   * @brief Sets multiplier of cover area of tile.
+   *
+   * @param[in] multiplier The multiplier of cover area
+   */
+  void SetTileCoverAreaMultiplier(float multiplier);
+
+  /**
+   * @brief Enables cursor by client.
+   *
+   * @param[in] enabled Whether cursor is enabled or not
+   */
+  void EnableCursorByClient(bool enabled);
+
+  /**
+   * @brief Gets the selected text.
+   *
+   * @return the selected text
+   */
+  std::string GetSelectedText() const;
+
+  /**
    * @brief Sends Touch Events.
    */
   bool SendTouchEvent(const TouchEvent& touch);
@@ -336,6 +373,20 @@ public:
   void SetFocus(bool focused);
 
   /**
+   * @brief Enables/disables mouse events. The default is enabled.
+   *
+   * @param[in] enabled True if mouse events are enabled, false otherwise
+   */
+  void EnableMouseEvents( bool enabled );
+
+  /**
+   * @brief Enables/disables key events. The default is enabled.
+   *
+   * @param[in] enabled True if key events are enabled, false otherwise
+   */
+  void EnableKeyEvents( bool enabled );
+
+  /**
    * @brief Update display area.
    * @param[in] displayArea The area to display web page.
    */
@@ -346,6 +397,18 @@ public:
    * @param[in] enabled True if video hole is enabled, false otherwise
    */
   void EnableVideoHole(bool enabled);
+
+  /**
+   * @brief Sends hover events.
+   * @param[in] event The hover event would be sent.
+   */
+  bool SendHoverEvent( const HoverEvent& event );
+
+  /**
+   * @brief Sends wheel events.
+   * @param[in] event The wheel event would be sent.
+   */
+  bool SendWheelEvent( const WheelEvent& event );
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
@@ -388,6 +451,20 @@ public:
    * @return A signal object to connect with.
    */
   Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when form repost decision is requested.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
+
+  /**
+   * @brief Connects to this signal to be notified when frame is rendered.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
 private: // Not intended for application developers
   /**

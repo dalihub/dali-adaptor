@@ -17,6 +17,15 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-application.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-buffer.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-command-buffer.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-controller.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-texture.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-sampler.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-pipeline.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-reflection.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-shader.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-program.cpp
     ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp

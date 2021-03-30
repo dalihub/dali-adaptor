@@ -23,6 +23,7 @@
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <functional>
+#include <memory>
 
 namespace Dali
 {
@@ -32,7 +33,10 @@ class TouchEvent;
 class WebEngineBackForwardList;
 class WebEngineContext;
 class WebEngineCookieManager;
+class WebEngineFormRepostDecision;
 class WebEngineSettings;
+class HoverEvent;
+class WheelEvent;
 
 /**
  * @brief WebEnginePlugin is an abstract interface, used by dali-adaptor to access WebEngine plugin.
@@ -82,6 +86,16 @@ public:
    *  It returns true if a pop-up is created successfully, false otherwise.
    */
   using JavaScriptPromptCallback = std::function<bool(const std::string&, const std::string&)>;
+
+  /**
+   * @brief WebView signal type related with form repost decision.
+   */
+  using WebEngineFormRepostDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEngineFormRepostDecision>)>;
+
+  /**
+   * @brief WebView signal type related with frame rendered.
+   */
+  using WebEngineFrameRenderedSignalType = Signal<void(void)>;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -296,19 +310,19 @@ public:
   /**
    * @brief Reply for JavaScript confirm.
    */
-  virtual void JavaScriptConfirmReply( bool confirmed ) = 0;
+  virtual void JavaScriptConfirmReply(bool confirmed) = 0;
 
   /**
    * @brief Register a callback for JavaScript prompt.
    *
    * @param[in] callback The callback function
    */
-  virtual void RegisterJavaScriptPromptCallback( JavaScriptPromptCallback callback ) = 0;
+  virtual void RegisterJavaScriptPromptCallback(JavaScriptPromptCallback callback) = 0;
 
   /**
    * @brief Reply for JavaScript prompt.
    */
-  virtual void JavaScriptPromptReply( const std::string& result ) = 0;
+  virtual void JavaScriptPromptReply(const std::string& result) = 0;
 
   /**
    * @brief Clears the history of Web.
@@ -340,6 +354,41 @@ public:
   virtual void SetSize(int width, int height) = 0;
 
   /**
+   * @brief Sets background color of web page.
+   *
+   * @param[in] color Background color
+   */
+  virtual void SetDocumentBackgroundColor(Dali::Vector4 color) = 0;
+
+  /**
+   * @brief Clears tiles when hidden.
+   *
+   * @param[in] cleared Whether tiles are cleared or not
+   */
+  virtual void ClearTilesWhenHidden(bool cleared) = 0;
+
+  /**
+   * @brief Sets multiplier of cover area of tile.
+   *
+   * @param[in] multiplier The multiplier of cover area
+   */
+  virtual void SetTileCoverAreaMultiplier(float multiplier) = 0;
+
+  /**
+   * @brief Enables cursor by client.
+   *
+   * @param[in] enabled Whether cursor is enabled or not
+   */
+  virtual void EnableCursorByClient(bool enabled) = 0;
+
+  /**
+   * @brief Gets the selected text.
+   *
+   * @return the selected text
+   */
+  virtual std::string GetSelectedText() const = 0;
+
+  /**
    * @brief Sends Touch Events.
    */
   virtual bool SendTouchEvent(const TouchEvent& touch) = 0;
@@ -350,7 +399,20 @@ public:
   virtual bool SendKeyEvent(const KeyEvent& event) = 0;
 
   /**
+   * @brief Support mouse events or not.
+   * @param[in] enabled True if enabled, false othewise.
+   */
+  virtual void EnableMouseEvents( bool enabled ) = 0;
+
+  /**
+   * @brief Support key events or not.
+   * @param[in] enabled True if enabled, false othewise.
+   */
+  virtual void EnableKeyEvents( bool enabled ) = 0;
+
+  /**
    * @brief Sets focus.
+   * @param[in] focused True if focus is gained, false lost.
    */
   virtual void SetFocus(bool focused) = 0;
 
@@ -365,6 +427,18 @@ public:
    * @param[in] enabled True if enabled, false othewise.
    */
   virtual void EnableVideoHole(bool enabled) = 0;
+
+  /**
+   * @brief Sends Hover Events.
+   * @param[in] event The hover event would be sent.
+   */
+  virtual bool SendHoverEvent( const HoverEvent& event ) = 0;
+
+  /**
+   * @brief Sends Wheel Events.
+   * @param[in] event The wheel event would be sent.
+   */
+  virtual bool SendWheelEvent( const WheelEvent& event ) = 0;
 
   /**
    * @brief Connects to this signal to be notified when page loading is started.
@@ -408,6 +482,19 @@ public:
    */
   virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
 
+  /**
+   * @brief Connects to this signal to be notified when form repost decision is requested.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal() = 0;
+
+  /**
+   * @brief Connects to this signal to be notified when frame is rendered.
+   *
+   * @return A signal object to connect with.
+   */
+  virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
 };
 
 } // namespace Dali
