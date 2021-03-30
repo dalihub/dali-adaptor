@@ -134,9 +134,24 @@ void WebEngine::LoadHtmlString(const std::string& htmlString)
   GetImplementation(*this).LoadHtmlString(htmlString);
 }
 
+bool WebEngine::LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl)
+{
+  return GetImplementation(*this).LoadHtmlStringOverrideCurrentEntry(html, basicUri, unreachableUrl);
+}
+
+bool WebEngine::LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri)
+{
+  return GetImplementation(*this).LoadContents(contents, contentSize, mimeType, encoding, baseUri);
+}
+
 void WebEngine::Reload()
 {
   GetImplementation(*this).Reload();
+}
+
+bool WebEngine::ReloadWithoutCache()
+{
+  return GetImplementation(*this).ReloadWithoutCache();
 }
 
 void WebEngine::StopLoading()
@@ -154,9 +169,44 @@ void WebEngine::Resume()
   GetImplementation(*this).Resume();
 }
 
+void WebEngine::SuspendNetworkLoading()
+{
+  GetImplementation(*this).SuspendNetworkLoading();
+}
+
+void WebEngine::ResumeNetworkLoading()
+{
+  GetImplementation(*this).ResumeNetworkLoading();
+}
+
+bool WebEngine::AddCustomHeader(const std::string& name, const std::string& value)
+{
+  return GetImplementation(*this).AddCustomHeader(name, value);
+}
+
+bool WebEngine::RemoveCustomHeader(const std::string& name)
+{
+  return GetImplementation(*this).RemoveCustomHeader(name);
+}
+
+uint32_t WebEngine::StartInspectorServer(uint32_t port)
+{
+  return GetImplementation(*this).StartInspectorServer(port);
+}
+
+bool WebEngine::StopInspectorServer()
+{
+  return GetImplementation(*this).StopInspectorServer();
+}
+
 void WebEngine::ScrollBy(int deltaX, int deltaY)
 {
   GetImplementation(*this).ScrollBy(deltaX, deltaY);
+}
+
+bool WebEngine::ScrollEdgeBy(int deltaX, int deltaY)
+{
+  return GetImplementation(*this).ScrollEdgeBy(deltaX, deltaY);
 }
 
 void WebEngine::SetScrollPosition(int x, int y)
@@ -312,6 +362,81 @@ bool WebEngine::SendWheelEvent( const WheelEvent& event )
 void WebEngine::SetFocus(bool focused)
 {
   GetImplementation(*this).SetFocus(focused);
+}
+
+void WebEngine::SetPageZoomFactor(float zoomFactor)
+{
+  GetImplementation(*this).SetPageZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetPageZoomFactor() const
+{
+  return GetImplementation(*this).GetPageZoomFactor();
+}
+
+void WebEngine::SetTextZoomFactor(float zoomFactor)
+{
+  GetImplementation(*this).SetTextZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetTextZoomFactor() const
+{
+  return GetImplementation(*this).GetTextZoomFactor();
+}
+
+float WebEngine::GetLoadProgressPercentage() const
+{
+  return GetImplementation(*this).GetLoadProgressPercentage();
+}
+
+void WebEngine::SetScaleFactor(float scaleFactor, Dali::Vector2 point)
+{
+  GetImplementation(*this).SetScaleFactor(scaleFactor, point);
+}
+
+float WebEngine::GetScaleFactor() const
+{
+  return GetImplementation(*this).GetScaleFactor();
+}
+
+void WebEngine::ActivateAccessibility(bool activated)
+{
+  GetImplementation(*this).ActivateAccessibility(activated);
+}
+
+bool WebEngine::SetVisibility(bool visible)
+{
+  return GetImplementation(*this).SetVisibility(visible);
+}
+
+bool WebEngine::HighlightText(const std::string& text, Dali::WebEnginePlugin::FindOption options, uint32_t maxMatchCount)
+{
+  return GetImplementation(*this).HighlightText(text, options, maxMatchCount);
+}
+
+void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::string& certPath)
+{
+  GetImplementation(*this).AddDynamicCertificatePath(host, certPath);
+}
+
+Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor)
+{
+  return GetImplementation(*this).GetScreenshot(viewArea, scaleFactor);
+}
+
+bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+{
+  return GetImplementation(*this).GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
+}
+
+bool WebEngine::CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback)
+{
+  return GetImplementation(*this).CheckVideoPlayingAsynchronously(callback);
+}
+
+void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::GeolocationPermissionCallback callback)
+{
+  GetImplementation(*this).RegisterGeolocationPermissionCallback(callback);
 }
 
 void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)

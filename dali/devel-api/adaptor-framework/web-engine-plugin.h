@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
@@ -69,6 +70,24 @@ public:
   using WebEngineUrlChangedSignalType = Signal<void(const std::string&)>;
 
   /**
+   * @brief WebView signal type related with screen captured.
+   */
+  using ScreenshotCapturedCallback = std::function<void(Dali::PixelData)>;
+
+  /**
+   * @brief WebView signal type related with geolocation permission.
+   *  Host and protocol of security origin will be provided when requesting
+   *  geolocation permission.
+   *  It returns true if a pop-up is created successfully, false otherwise.
+   */
+  using GeolocationPermissionCallback = std::function<bool(const std::string&, const std::string&)>;
+
+  /**
+   * @brief WebView signal type related with video playing.
+   */
+  using VideoPlayingCallback = std::function<void(bool)>;
+
+  /**
    * @brief Alert callback when JavaScript alert is called with a message.
    *  It returns true if a pop-up is created successfully, false otherwise.
    */
@@ -106,6 +125,22 @@ public:
     RIGHT,  ///< Right edge reached.
     TOP,    ///< Top edge reached.
     BOTTOM, ///< Bottom edge reached.
+  };
+
+  /**
+   * @brief Enumeration that provides the option to find text.
+   */
+  enum class FindOption
+  {
+    NONE                               = 0,      ///<  No search flags, this means a case sensitive, no wrap, forward only search
+    CASE_INSENSITIVE                   = 1 << 0, ///<  Case insensitive search
+    AT_WORD_STARTS                     = 1 << 1, ///<  Search text only at the beginning of the words
+    TREAT_MEDIAL_CAPITAL_AS_WORD_START = 1 << 2, ///<  Treat capital letters in the middle of words as word start
+    BACKWARDS                          = 1 << 3, ///<  Search backwards
+    WRAP_AROUND                        = 1 << 4, ///<  If not present the search stops at the end of the document
+    SHOW_OVERLAY                       = 1 << 5, ///<  Show overlay
+    SHOW_FIND_INDICATOR                = 1 << 6, ///<  Show indicator
+    SHOW_HIGHLIGHT                     = 1 << 7, ///<  Show highlight
   };
 
   /**
@@ -204,9 +239,38 @@ public:
   virtual void LoadHtmlString(const std::string& htmlString) = 0;
 
   /**
+   * @brief Load the specified html string as the content of the view overriding current history entry
+   *
+   * @param[in] html HTML data to load
+   * @param[in] basicUri Base URL used for relative paths to external objects
+   * @param[in] unreachableUrl URL that could not be reached
+   *
+   * @return true if successfully loaded, false otherwise
+   */
+  virtual bool LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl) = 0;
+
+  /**
+   * @brief Requests loading the given contents by MIME type into the view object
+   *
+   * @param[in] contents The content to load
+   * @param[in] contentSize The size of contents (in bytes)
+   * @param[in] mimeType The type of contents, if 0 is given "text/html" is assumed
+   * @param[in] encoding The encoding for contents, if 0 is given "UTF-8" is assumed
+   * @param[in] baseUri The base URI to use for relative resources
+   *
+   * @return true if successfully request, false otherwise
+   */
+  virtual bool LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri) = 0;
+
+  /**
    * @brief Reloads the Web.
    */
   virtual void Reload() = 0;
+
+  /**
+   * @brief Reloads the current page's document without cache
+   */
+  virtual bool ReloadWithoutCache() = 0;
 
   /**
    * @brief Stops loading web contents on the current page.
@@ -224,9 +288,67 @@ public:
   virtual void Resume() = 0;
 
   /**
-   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   * @brief To suspend all url loading
+   */
+  virtual void SuspendNetworkLoading() = 0;
+
+  /**
+   * @brief To resume new url network loading
+   */
+  virtual void ResumeNetworkLoading() = 0;
+
+  /**
+   * @brief Add custom header
+   *
+   * @param[in] name custom header name to add the custom header
+   * @param[in] value custom header value to add the custom header
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool AddCustomHeader(const std::string& name, const std::string& value) = 0;
+
+  /**
+   * @brief Remove custom header
+   *
+   * @param[in] name custom header name to remove the custom header
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool RemoveCustomHeader(const std::string& name) = 0;
+
+  /**
+   * @brief Start the inspector server
+   *
+   * @param[in] port port number
+   *
+   * @return the port number
+   */
+  virtual uint32_t StartInspectorServer(uint32_t port) = 0;
+
+  /**
+   * @brief Stop the inspector server
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool StopInspectorServer() = 0;
+
+  /**
+   * @brief Scrolls web page of view by deltaX and deltaY.
+   *
+   * @param[in] deltaX horizontal offset to scroll
+   * @param[in] deltaY vertical offset to scroll
    */
   virtual void ScrollBy(int deltaX, int deltaY) = 0;
+
+  /**
+   * @brief Scrolls edge of view by deltaX and deltaY.
+   *
+   * @param[in] deltaX horizontal offset to scroll
+   * @param[in] deltaY vertical offset to scroll
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool ScrollEdgeBy(int deltaX, int deltaY) = 0;
 
   /**
    * @brief Scroll to the specified position of the given view.
@@ -417,6 +539,117 @@ public:
   virtual void SetFocus(bool focused) = 0;
 
   /**
+   * @brief Sets zoom factor of the current page.
+   * @param[in] zoomFactor a new factor to be set.
+   */
+  virtual void SetPageZoomFactor(float zoomFactor) = 0;
+
+  /**
+   * @brief Queries the current zoom factor of the page。
+   * @return The current page zoom factor.
+   */
+  virtual float GetPageZoomFactor() const = 0;
+
+  /**
+   * @brief Sets the current text zoom level。.
+   * @param[in] zoomFactor a new factor to be set.
+   */
+  virtual void SetTextZoomFactor(float zoomFactor) = 0;
+
+  /**
+   * @brief Gets the current text zoom level.
+   * @return The current text zoom factor.
+   */
+  virtual float GetTextZoomFactor() const = 0;
+
+  /**
+   * @brief Gets the current load progress of the page.
+   * @return The load progress of the page.
+   */
+  virtual float GetLoadProgressPercentage() const = 0;
+
+  /**
+   * @brief Scales the current page, centered at the given point.
+   * @param[in] scaleFactor a new factor to be scaled.
+   * @param[in] point a center coordinate.
+   */
+  virtual void SetScaleFactor(float scaleFactor, Dali::Vector2 point) = 0;
+
+  /**
+   * @brief Gets the current scale factor of the page.
+   * @return The current scale factor.
+   */
+  virtual float GetScaleFactor() const = 0;
+
+  /**
+   * @brief Request to activate/deactivate the accessibility usage set by web app.
+   * @param[in] activated Activate accessibility or not.
+   */
+  virtual void ActivateAccessibility(bool activated) = 0;
+
+  /**
+   * @brief Request to set the current page's visibility.
+   * @param[in] visible Visible or not.
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool SetVisibility(bool visible) = 0;
+
+  /**
+   * @brief Searches and highlights the given string in the document.
+   * @param[in] text The text to find
+   * @param[in] options The options to find
+   * @param[in] maxMatchCount The maximum match count to find
+   *
+   * @return true if found & highlighted, false otherwise
+   */
+  virtual bool HighlightText(const std::string& text, FindOption options, uint32_t maxMatchCount) = 0;
+
+  /**
+   * @brief Add dynamic certificate path.
+   * @param[in] host host that required client authentication
+   * @param[in] certPath the file path stored certificate
+   */
+  virtual void AddDynamicCertificatePath(const std::string& host, const std::string& certPath) = 0;
+
+  /**
+   * @brief Get snapshot of the specified viewArea of page.
+   *
+   * @param[in] viewArea The rectangle of screen shot
+   * @param[in] scaleFactor The scale factor
+   *
+   * @return pixel data of screen shot
+   */
+  virtual Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor) = 0;
+
+  /**
+   * @brief Request to get snapshot of the specified viewArea of page asynchronously.
+   *
+   * @param[in] viewArea The rectangle of screen shot
+   * @param[in] scaleFactor The scale factor
+   * @param[in] callback The callback for screen shot
+   *
+   * @return true if requested successfully, false otherwise
+   */
+  virtual bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, ScreenshotCapturedCallback callback) = 0;
+
+  /**
+   * @brief Asynchronously request to check if there is a video playing in the given view.
+   *
+   * @param[in] callback The callback called after checking if video is playing or not
+   *
+   * @return true if requested successfully, false otherwise
+   */
+  virtual bool CheckVideoPlayingAsynchronously(VideoPlayingCallback callback) = 0;
+
+  /**
+   * @brief Sets callback which will be called upon geolocation permission request.
+   *
+   * @param[in] callback The callback for requesting geolocation permission
+   */
+  virtual void RegisterGeolocationPermissionCallback(GeolocationPermissionCallback callback) = 0;
+
+  /**
    * @brief Update display area.
    * @param[in] displayArea The display area need be updated.
    */
@@ -495,6 +728,13 @@ public:
    * @return A signal object to connect with.
    */
   virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
+};
+
+// specialization has to be done in the same namespace
+template<>
+struct EnableBitMaskOperators<WebEnginePlugin::FindOption>
+{
+  static const bool ENABLE = true;
 };
 
 } // namespace Dali

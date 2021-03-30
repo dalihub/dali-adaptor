@@ -170,9 +170,38 @@ public:
   void LoadHtmlString(const std::string& htmlString);
 
   /**
+   * @brief Load the specified html string as the content of the view overriding current history entry
+   *
+   * @param[in] html HTML data to load
+   * @param[in] basicUri Base URL used for relative paths to external objects
+   * @param[in] unreachableUrl URL that could not be reached
+   *
+   * @return true if successfully loaded, false otherwise
+   */
+  bool LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl);
+
+  /**
+   * @brief Requests loading the given contents by MIME type into the view object
+   *
+   * @param[in] contents The content to load
+   * @param[in] contentSize The size of contents (in bytes)
+   * @param[in] mimeType The type of contents, if 0 is given "text/html" is assumed
+   * @param[in] encoding The encoding for contents, if 0 is given "UTF-8" is assumed
+   * @param[in] baseUri The base URI to use for relative resources
+   *
+   * @return true if successfully request, false otherwise
+   */
+  bool LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri);
+
+  /**
    * @brief Reloads the Web.
    */
   void Reload();
+
+  /**
+   * @brief Reloads the current page's document without cache
+   */
+  bool ReloadWithoutCache();
 
   /**
    * @brief Stops loading web contents on the current page.
@@ -190,9 +219,67 @@ public:
   void Resume();
 
   /**
-   * @brief Scrolls the webpage of view by deltaX and deltaY.
+   * @brief To suspend all url loading
+   */
+  void SuspendNetworkLoading();
+
+  /**
+   * @brief To resume new url network loading
+   */
+  void ResumeNetworkLoading();
+
+  /**
+   * @brief Add custom header
+   *
+   * @param[in] name custom header name to add the custom header
+   * @param[in] value custom header value to add the custom header
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool AddCustomHeader(const std::string& name, const std::string& value);
+
+  /**
+   * @brief Remove custom header
+   *
+   * @param[in] name custom header name to remove the custom header
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool RemoveCustomHeader(const std::string& name);
+
+  /**
+   * @brief Start the inspector server
+   *
+   * @param[in] port port number
+   *
+   * @return the port number
+   */
+  uint32_t StartInspectorServer(uint32_t port);
+
+  /**
+   * @brief Stop the inspector server
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool StopInspectorServer();
+
+  /**
+   * @brief Scrolls web page of view by deltaX and deltaY.
+   *
+   * @param[in] deltaX horizontal offset to scroll
+   * @param[in] deltaY vertical offset to scroll
    */
   void ScrollBy(int deltaX, int deltaY);
+
+  /**
+   * @brief Scrolls edge of view by deltaX and deltaY.
+   *
+   * @param[in] deltaX horizontal offset to scroll
+   * @param[in] deltaY vertical offset to scroll
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool ScrollEdgeBy(int deltaX, int deltaY);
 
   /**
    * @brief Sets an absolute scroll of the given view.
@@ -387,8 +474,119 @@ public:
   void EnableKeyEvents( bool enabled );
 
   /**
+   * @brief Sets zoom factor of the current page.
+   * @param[in] zoomFactor a new factor to be set.
+   */
+  void SetPageZoomFactor(float zoomFactor);
+
+  /**
+   * @brief Queries the current zoom factor of the page。
+   * @return The current page zoom factor.
+   */
+  float GetPageZoomFactor() const;
+
+  /**
+   * @brief Sets the current text zoom level。.
+   * @param[in] zoomFactor a new factor to be set.
+   */
+  void SetTextZoomFactor(float zoomFactor);
+
+  /**
+   * @brief Gets the current text zoom level.
+   * @return The current text zoom factor.
+   */
+  float GetTextZoomFactor() const;
+
+  /**
+   * @brief Gets the current load progress of the page.
+   * @return The load progress of the page.
+   */
+  float GetLoadProgressPercentage() const;
+
+  /**
+   * @brief Scales the current page, centered at the given point.
+   * @param[in] scaleFactor a new factor to be scaled.
+   * @param[in] point a center coordinate.
+   */
+  void SetScaleFactor(float scaleFactor, Dali::Vector2 point);
+
+  /**
+   * @brief Gets the current scale factor of the page.
+   * @return The current scale factor.
+   */
+  float GetScaleFactor() const;
+
+  /**
+   * @brief Request to activate/deactivate the accessibility usage set by web app.
+   * @param[in] activated Activate accessibility or not.
+   */
+  void ActivateAccessibility(bool activated);
+
+  /**
+   * @brief Request to set the current page's visibility.
+   * @param[in] visible Visible or not.
+   *
+   * @return true if changed successfully, false otherwise
+   */
+  bool SetVisibility(bool visible);
+
+  /**
+   * @brief Searches and highlights the given string in the document.
+   * @param[in] text The text to find
+   * @param[in] options The options to find
+   * @param[in] maxMatchCount The maximum match count to find
+   *
+   * @return true if found & highlighted, false otherwise
+   */
+  bool HighlightText(const std::string& text, Dali::WebEnginePlugin::FindOption options, uint32_t maxMatchCount);
+
+  /**
+   * @brief Add dynamic certificate path.
+   * @param[in] host host that required client authentication
+   * @param[in] certPath the file path stored certificate
+   */
+  void AddDynamicCertificatePath(const std::string& host, const std::string& certPath);
+
+  /**
+   * @brief Get snapshot of the specified viewArea of page.
+   *
+   * @param[in] viewArea The rectangle of screen shot
+   * @param[in] scaleFactor The scale factor
+   *
+   * @return pixel data of screen shot
+   */
+  Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor);
+
+  /**
+   * @brief Request to get snapshot of the specified viewArea of page asynchronously.
+   *
+   * @param[in] viewArea The rectangle of screen shot
+   * @param[in] scaleFactor The scale factor
+   * @param[in] callback The callback for screen shot
+   *
+   * @return true if requested successfully, false otherwise
+   */
+  bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
+
+  /**
+   * @brief Asynchronous request to check if there is a video playing in the given view.
+   *
+   * @param[in] callback The callback called after checking if video is playing or not
+   *
+   * @return true if requested successfully, false otherwise
+   */
+  bool CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback);
+
+  /**
+   * @brief Sets callback which alled upon geolocation permission request.
+   *
+   * @param[in] callback The callback for requesting geolocation permission
+   */
+  void RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::GeolocationPermissionCallback callback);
+
+  /**
    * @brief Update display area.
-   * @param[in] displayArea The area to display web page.
+   * @param[in] displayArea The area to display web page
    */
   void UpdateDisplayArea(Dali::Rect<int> displayArea);
 
@@ -413,42 +611,42 @@ public:
   /**
    * @brief Connects to this signal to be notified when page loading is started.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
 
   /**
    * @brief Connects to this signal to be notified when page loading is in progress.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
 
   /**
    * @brief Connects to this signal to be notified when page loading is finished.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
 
   /**
    * @brief Connects to this signal to be notified when an error occurs in page loading.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
 
   /**
    * @brief Connects to this signal to be notified when scroll edge is reached.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
   /**
    * @brief Connects to this signal to be notified when url is changed.
    *
-   * @return A signal object to connect with.
+   * @return A signal object to connect with
    */
   Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
 
