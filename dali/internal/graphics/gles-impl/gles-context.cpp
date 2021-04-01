@@ -22,6 +22,8 @@
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
+#include "gles-graphics-render-pass.h"
+#include "gles-graphics-render-target.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -55,6 +57,10 @@ struct Context::Impl
   // Currently bound UBOs (check if it's needed per program!)
   std::vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
   UniformBufferBindingDescriptor              mCurrentStandaloneUBOBinding{};
+
+  // Current render pass and render target
+  const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
+  const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 };
 
 Context::Context(EglGraphicsController& controller)
@@ -401,6 +407,85 @@ void Context::ResolveStandaloneUniforms()
       }
     }
   }
+}
+
+void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
+{
+  auto& renderPass   = *renderPassBegin.renderPass;
+  auto& renderTarget = *renderPassBegin.renderTarget;
+
+  if(mImpl->mCurrentRenderPass == &renderPass &&
+     mImpl->mCurrentRenderTarget == &renderTarget)
+  {
+    return;
+  }
+  const auto& passInfo   = renderPass.GetCreateInfo();
+  const auto& targetInfo = renderTarget.GetCreateInfo();
+
+  auto& gl = *mImpl->mController.GetGL();
+
+  if(targetInfo.surface)
+  {
+    // switch context to surface bound
+
+    // Bind surface FB
+    gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
+
+  if(targetInfo.framebuffer)
+  {
+    // bind framebuffer and swap (if needed to shared context)
+    renderTarget.GetFramebuffer()->Bind();
+  }
+
+  // clear (ideally cache the setup)
+
+  // In GL we assume that the last attachment is depth/stencil (we may need
+  // to cache extra information inside GLES RenderTarget if we want to be
+  // more specific in case of MRT)
+
+  // For GLES2.0 we clear only a single color attachment
+  if(mImpl->mController.GetGLESVersion() == GLESVersion::GLES_20)
+  {
+    const auto& attachments = *renderPass.GetCreateInfo().attachments;
+    const auto& color0      = attachments[0];
+    GLuint      mask        = 0;
+    if(color0.loadOp == AttachmentLoadOp::CLEAR)
+    {
+      mask |= GL_COLOR_BUFFER_BIT;
+
+      // Set clear color (todo: cache it!)
+      // Something goes wrong here if Alpha mask is GL_TRUE
+      gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+      gl.ClearColor(renderPassBegin.clearValues[0].color.r,
+                    renderPassBegin.clearValues[0].color.g,
+                    renderPassBegin.clearValues[0].color.b,
+                    renderPassBegin.clearValues[0].color.a);
+    }
+
+    // check for depth stencil
+    if(attachments.size() > 1)
+    {
+      const auto& depthStencil = attachments.back();
+      if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
+      {
+        mask |= GL_DEPTH_BUFFER_BIT;
+      }
+      if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
+      {
+        mask |= GL_STENCIL_BUFFER_BIT;
+      }
+    }
+
+    gl.Clear(mask);
+  }
+
+  mImpl->mCurrentRenderPass   = &renderPass;
+  mImpl->mCurrentRenderTarget = &renderTarget;
+}
+
+void Context::EndRenderPass()
+{
 }
 
 void Context::ClearState()

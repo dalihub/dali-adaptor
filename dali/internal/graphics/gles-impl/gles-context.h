@@ -27,8 +27,8 @@ class EglGraphicsController;
 namespace GLES
 {
 class Pipeline;
-class Texture;
-
+class RenderPass;
+class RenderTarget;
 /**
  * @brief Context represents single GLES context
  */
@@ -120,6 +120,22 @@ public:
    * @brief Special usecase for legacy shaders, called by ResolveUniformBuffers()
    */
   void ResolveStandaloneUniforms();
+
+  /**
+   * @brief Begins render pass for sepcified render target
+   *
+   * @param[in] renderPass render pass object to begin
+   * @param[in] renderTarget render target to be drawn onto
+   */
+  void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin);
+
+  /**
+   * @brief Ends render pass
+   *
+   * Ending render pass is necessary in order to ensure
+   * proper implicit synchronization is in place
+   */
+  void EndRenderPass();
 
 private:
   /**

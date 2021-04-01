@@ -23,6 +23,8 @@
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-render-pass.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-render-target.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
@@ -147,8 +149,13 @@ Graphics::UniquePtr<CommandBuffer> EglGraphicsController::CreateCommandBuffer(
   return NewObject<GLES::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
 }
 
-Graphics::UniquePtr<Texture> EglGraphicsController::CreateTexture(
-  const TextureCreateInfo& textureCreateInfo, Graphics::UniquePtr<Texture>&& oldTexture)
+Graphics::UniquePtr<RenderPass> EglGraphicsController::CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass)
+{
+  return NewObject<GLES::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
+}
+
+Graphics::UniquePtr<Texture>
+EglGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, Graphics::UniquePtr<Texture>&& oldTexture)
 {
   return NewObject<GLES::Texture>(textureCreateInfo, *this, std::move(oldTexture));
 }
@@ -197,6 +204,11 @@ Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCrea
 Graphics::UniquePtr<Sampler> EglGraphicsController::CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler)
 {
   return NewObject<GLES::Sampler>(samplerCreateInfo, *this, std::move(oldSampler));
+}
+
+Graphics::UniquePtr<RenderTarget> EglGraphicsController::CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget)
+{
+  return NewObject<GLES::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
 }
 
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
@@ -261,107 +273,119 @@ void EglGraphicsController::ProcessCreateQueues()
   ProcessCreateQueue(mCreateFramebufferQueue);
 }
 
+void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuffer)
+{
+  for(auto& cmd : commandBuffer.GetCommands())
+  {
+    // process command
+    switch(cmd.type)
+    {
+      case GLES::CommandType::FLUSH:
+      {
+        // Nothing to do here
+        break;
+      }
+      case GLES::CommandType::BIND_TEXTURES:
+      {
+        mContext->BindTextures(cmd.bindTextures.textureBindings);
+        break;
+      }
+      case GLES::CommandType::BIND_VERTEX_BUFFERS:
+      {
+        auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
+        mContext->BindVertexBuffers(bindings);
+        break;
+      }
+      case GLES::CommandType::BIND_UNIFORM_BUFFER:
+      {
+        auto& bindings = cmd.bindUniformBuffers;
+        mContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
+        break;
+      }
+      case GLES::CommandType::BIND_INDEX_BUFFER:
+      {
+        mContext->BindIndexBuffer(cmd.bindIndexBuffer);
+        break;
+      }
+      case GLES::CommandType::BIND_SAMPLERS:
+      {
+        break;
+      }
+      case GLES::CommandType::BIND_PIPELINE:
+      {
+        auto pipeline = static_cast<const GLES::Pipeline*>(cmd.bindPipeline.pipeline);
+        mContext->BindPipeline(pipeline);
+        break;
+      }
+      case GLES::CommandType::DRAW:
+      {
+        mContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::DRAW_INDEXED:
+      {
+        mContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::DRAW_INDEXED_INDIRECT:
+      {
+        mContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
+      {
+        mGlAbstraction->Scissor(cmd.scissor.region.x, cmd.scissor.region.y, cmd.scissor.region.width, cmd.scissor.region.height);
+        break;
+      }
+      case GLES::CommandType::SET_SCISSOR_TEST:
+      {
+        if(cmd.scissorTest.enable)
+        {
+          mGlAbstraction->Enable(GL_SCISSOR_TEST);
+        }
+        else
+        {
+          mGlAbstraction->Disable(GL_SCISSOR_TEST);
+        }
+        break;
+      }
+      case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
+      {
+        mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
+        break;
+      }
+      case GLES::CommandType::BEGIN_RENDERPASS:
+      {
+        mContext->BeginRenderPass(cmd.beginRenderPass);
+        break;
+      }
+      case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
+      {
+        // Process secondary command buffers
+        // todo: check validity of the secondaries
+        //       there are operations which are illigal to be done
+        //       within secondaries.
+        for(auto& buf : cmd.executeCommandBuffers.buffers)
+        {
+          ProcessCommandBuffer(*static_cast<GLES::CommandBuffer*>(buf));
+        }
+        break;
+      }
+    }
+  }
+}
+
 void EglGraphicsController::ProcessCommandQueues()
 {
   // TODO: command queue per context, sync between queues should be
   // done externally
-  const Graphics::Framebuffer* currentFramebuffer{nullptr};
+  currentFramebuffer = nullptr;
 
   while(!mCommandQueue.empty())
   {
     auto cmdBuf = mCommandQueue.front();
     mCommandQueue.pop();
-
-    for(auto& cmd : cmdBuf->GetCommands())
-    {
-      // process command
-      switch(cmd.type)
-      {
-        case GLES::CommandType::FLUSH:
-        {
-          // Nothing to do here
-          break;
-        }
-        case GLES::CommandType::BIND_TEXTURES:
-        {
-          mContext->BindTextures(cmd.bindTextures.textureBindings);
-          break;
-        }
-        case GLES::CommandType::BIND_VERTEX_BUFFERS:
-        {
-          auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
-          mContext->BindVertexBuffers(bindings);
-          break;
-        }
-        case GLES::CommandType::BIND_UNIFORM_BUFFER:
-        {
-          auto& bindings = cmd.bindUniformBuffers;
-          mContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
-          break;
-        }
-        case GLES::CommandType::BIND_INDEX_BUFFER:
-        {
-          mContext->BindIndexBuffer(cmd.bindIndexBuffer);
-          break;
-        }
-        case GLES::CommandType::BIND_SAMPLERS:
-        {
-          break;
-        }
-        case GLES::CommandType::BIND_PIPELINE:
-        {
-          auto pipeline = static_cast<const GLES::Pipeline*>(cmd.bindPipeline.pipeline);
-
-          // Bind framebuffer if different. @todo Move to RenderPass
-          auto fbState = pipeline->GetCreateInfo().framebufferState;
-          if(fbState && fbState->framebuffer != currentFramebuffer)
-          {
-            currentFramebuffer = fbState->framebuffer;
-            static_cast<const GLES::Framebuffer*>(currentFramebuffer)->Bind();
-          }
-
-          mContext->BindPipeline(pipeline);
-          break;
-        }
-        case GLES::CommandType::DRAW:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::DRAW_INDEXED:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::DRAW_INDEXED_INDIRECT:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
-        {
-          mGlAbstraction->Scissor(cmd.scissor.region.x, cmd.scissor.region.y, cmd.scissor.region.width, cmd.scissor.region.height);
-          break;
-        }
-        case GLES::CommandType::SET_SCISSOR_TEST:
-        {
-          if(cmd.scissorTest.enable)
-          {
-            mGlAbstraction->Enable(GL_SCISSOR_TEST);
-          }
-          else
-          {
-            mGlAbstraction->Disable(GL_SCISSOR_TEST);
-          }
-          break;
-        }
-        case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
-        {
-          mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
-          break;
-        }
-      }
-    }
+    ProcessCommandBuffer(*cmdBuf);
   }
 }
 

@@ -17,3 +17,23 @@
 
 // CLASS HEADER
 #include "gles-graphics-render-target.h"
+#include "gles-graphics-framebuffer.h"
+
+namespace Dali::Graphics::GLES
+{
+RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: RenderTargetResource(createInfo, controller)
+{
+}
+
+GLES::Framebuffer* RenderTarget::GetFramebuffer() const
+{
+  return static_cast<GLES::Framebuffer*>(mCreateInfo.framebuffer);
+}
+
+Surface* RenderTarget::GetSurface() const
+{
+  return mCreateInfo.surface;
+}
+
+} // namespace Dali::Graphics::GLES

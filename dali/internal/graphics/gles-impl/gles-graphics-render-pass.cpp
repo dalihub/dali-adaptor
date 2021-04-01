@@ -17,3 +17,28 @@
 
 // CLASS HEADER
 #include "gles-graphics-render-pass.h"
+
+namespace Dali::Graphics::GLES
+{
+struct RenderPass::Impl
+{
+  Impl()  = default;
+  ~Impl() = default;
+
+  std::vector<AttachmentDescription> attachments;
+};
+
+RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: RenderPassResource(createInfo, controller)
+{
+  mImpl = std::make_unique<Impl>();
+
+  // copy attachment description
+  if(createInfo.attachments)
+  {
+    mCreateInfo.attachments = &mImpl->attachments;
+    mImpl->attachments.insert(mImpl->attachments.end(), createInfo.attachments->begin(), createInfo.attachments->end());
+  }
+}
+
+} // namespace Dali::Graphics::GLES

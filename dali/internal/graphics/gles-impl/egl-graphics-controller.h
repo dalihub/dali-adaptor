@@ -194,10 +194,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderPass()
    */
-  Graphics::UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass) override;
 
   /**
    * @copydoc Dali::Graphics::CreateTexture()
@@ -232,10 +229,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderTarget()
    */
-  Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override;
 
   /**
    * @copydoc Dali::Graphics::MapBufferRange()
@@ -552,6 +546,8 @@ public:
     return mIsShuttingDown;
   }
 
+  void ProcessCommandBuffer(GLES::CommandBuffer& commandBuffer);
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
@@ -581,6 +577,9 @@ private:
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
 
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
+
+  // todo: to be removed after renderpass
+  const Graphics::Framebuffer* currentFramebuffer{nullptr};
 };
 
 } // namespace Graphics

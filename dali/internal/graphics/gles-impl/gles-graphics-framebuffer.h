@@ -42,7 +42,7 @@ public:
   /**
    * @brief Destructor
    */
-  ~Framebuffer() override = default;
+  ~Framebuffer() override;
 
   /**
    * @brief Called when GL resources are destroyed
@@ -65,6 +65,12 @@ public:
    * Used to bind the framebuffer, e.g. when offscreen changes
    */
   void Bind() const;
+
+  [[nodiscard]] uint32_t GetGlFramebufferId() const;
+
+  [[nodiscard]] uint32_t GetGlDepthBufferId() const;
+
+  [[nodiscard]] uint32_t GetGlStencilBufferId() const;
 
 private:
   /**
