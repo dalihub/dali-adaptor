@@ -9,6 +9,12 @@
 namespace Dali::Graphics::GLES
 {
 class Buffer;
+class RenderPass;
+class RenderTarget;
+class Framebuffer;
+
+using Surface = void*;
+
 // Conversion functions
 /**
  * Stucture delivers format and type that can be used
@@ -1864,6 +1870,18 @@ enum class GLESVersion
   GLES_30 = 30,
   GLES_31 = 31,
   GLES_32 = 32
+};
+
+/**
+ * The descriptor of BeginRenderPass command
+ */
+struct BeginRenderPassDescriptor
+{
+  const GLES::RenderPass*   renderPass;
+  const GLES::Framebuffer*  framebuffer;
+  const GLES::RenderTarget* renderTarget;
+  Extent2D                  renderArea;
+  std::vector<ClearValue>   clearValues;
 };
 
 } // namespace Dali::Graphics::GLES

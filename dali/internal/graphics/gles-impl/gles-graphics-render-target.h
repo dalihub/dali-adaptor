@@ -27,6 +27,7 @@
 
 namespace Dali::Graphics::GLES
 {
+class Framebuffer;
 using RenderTargetResource = Resource<Graphics::RenderTarget, Graphics::RenderTargetCreateInfo>;
 
 class RenderTarget : public RenderTargetResource
@@ -37,10 +38,7 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : RenderTargetResource(createInfo, controller)
-  {
-  }
+  RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
    * @brief Destructor
@@ -73,6 +71,16 @@ public:
   {
     // TODO: Implement moving to the discard queue
   }
+
+  /**
+   * @brief Returns framebuffer associated with the render target
+   */
+  GLES::Framebuffer* GetFramebuffer() const;
+
+  /**
+   * @brief Returns surface associated with the render target
+   */
+  Surface* GetSurface() const;
 };
 
 } // namespace Dali::Graphics::GLES

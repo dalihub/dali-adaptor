@@ -21,7 +21,10 @@
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
+#include "gles-graphics-framebuffer.h"
 #include "gles-graphics-pipeline.h"
+#include "gles-graphics-render-pass.h"
+#include "gles-graphics-render-target.h"
 #include "gles-graphics-texture.h"
 
 namespace Dali::Graphics::GLES
@@ -121,24 +124,33 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
 }
 
 void CommandBuffer::BeginRenderPass(
-  Graphics::RenderPass&   renderPass,
-  Graphics::RenderTarget& renderTarget,
+  Graphics::RenderPass*   renderPass,
+  Graphics::RenderTarget* renderTarget,
   Extent2D                renderArea,
   std::vector<ClearValue> clearValues)
 {
+  mCommands.emplace_back(CommandType::BEGIN_RENDERPASS);
+  auto& cmd                        = mCommands.back();
+  cmd.beginRenderPass.renderPass   = static_cast<GLES::RenderPass*>(renderPass);
+  cmd.beginRenderPass.renderTarget = static_cast<GLES::RenderTarget*>(renderTarget);
+  cmd.beginRenderPass.renderArea   = renderArea;
+  cmd.beginRenderPass.clearValues  = clearValues;
 }
 
-/**
- * @brief Ends current render pass
- *
- * This command must be issued in order to finalize the render pass.
- * It's up to the implementation whether anything has to be done but
- * the Controller may use end RP marker in order to resolve resource
- * dependencies (for example, to know when target texture is ready
- * before passing it to another render pass).
- */
 void CommandBuffer::EndRenderPass()
 {
+  mCommands.emplace_back(CommandType::END_RENDERPASS);
+}
+
+void CommandBuffer::ExecuteCommandBuffers(std::vector<Graphics::CommandBuffer*>&& commandBuffers)
+{
+  mCommands.emplace_back(CommandType::EXECUTE_COMMAND_BUFFERS);
+  auto& cmd = mCommands.back();
+  cmd.executeCommandBuffers.buffers.reserve(commandBuffers.size());
+  for(auto&& item : commandBuffers)
+  {
+    cmd.executeCommandBuffers.buffers.emplace_back(static_cast<GLES::CommandBuffer*>(item));
+  }
 }
 
 void CommandBuffer::Draw(

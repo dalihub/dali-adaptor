@@ -88,6 +88,8 @@ Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Grap
   mController.AddFramebuffer(*this);
 }
 
+Framebuffer::~Framebuffer() = default;
+
 bool Framebuffer::InitializeResource()
 {
   if(!mInitialized)
@@ -182,6 +184,21 @@ void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attac
   {
     gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId, graphicsTexture->GetGLTexture(), levelId);
   }
+}
+
+uint32_t Framebuffer::GetGlFramebufferId() const
+{
+  return mFramebufferId;
+}
+
+uint32_t Framebuffer::GetGlDepthBufferId() const
+{
+  return mDepthBufferId;
+}
+
+uint32_t Framebuffer::GetGlStencilBufferId() const
+{
+  return mStencilBufferId;
 }
 
 } //namespace Dali::Graphics::GLES

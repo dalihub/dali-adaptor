@@ -29,9 +29,10 @@
 
 namespace Dali::Graphics::GLES
 {
-class Texture;
 class Pipeline;
-
+class RenderPass;
+class Framebuffer;
+class CommandBuffer;
 enum class CommandType
 {
   FLUSH,
@@ -46,7 +47,10 @@ enum class CommandType
   DRAW_INDEXED_INDIRECT,
   SET_SCISSOR,
   SET_SCISSOR_TEST,
-  SET_VIEWPORT
+  SET_VIEWPORT,
+  BEGIN_RENDERPASS,
+  END_RENDERPASS,
+  EXECUTE_COMMAND_BUFFERS,
 };
 
 /**
@@ -80,6 +84,12 @@ struct Command
         new(&bindTextures) decltype(bindTextures);
         break;
       }
+      case CommandType::BEGIN_RENDERPASS:
+      {
+        // run destructor
+        new(&beginRenderPass) decltype(beginRenderPass);
+        break;
+      }
       default:
       {
       }
@@ -98,6 +108,12 @@ struct Command
       case CommandType::BIND_TEXTURES:
       {
         InvokeDestructor(bindTextures);
+        break;
+      }
+      case CommandType::BEGIN_RENDERPASS:
+      {
+        // run destructor
+        InvokeDestructor(beginRenderPass);
         break;
       }
       default:
@@ -162,6 +178,20 @@ struct Command
       {
         draw.type                = rhs.draw.type;
         draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
+        break;
+      }
+      case CommandType::BEGIN_RENDERPASS:
+      {
+        new(&beginRenderPass) BeginRenderPassDescriptor(rhs.beginRenderPass);
+        break;
+      }
+      case CommandType::END_RENDERPASS:
+      {
+        break;
+      }
+      case CommandType::EXECUTE_COMMAND_BUFFERS:
+      {
+        executeCommandBuffers = rhs.executeCommandBuffers;
         break;
       }
       case CommandType::FLUSH:
@@ -246,6 +276,20 @@ struct Command
         draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
         break;
       }
+      case CommandType::BEGIN_RENDERPASS:
+      {
+        new(&beginRenderPass) BeginRenderPassDescriptor(std::move(rhs.beginRenderPass));
+        break;
+      }
+      case CommandType::END_RENDERPASS:
+      {
+        break;
+      }
+      case CommandType::EXECUTE_COMMAND_BUFFERS:
+      {
+        executeCommandBuffers = std::move(rhs.executeCommandBuffers);
+        break;
+      }
       case CommandType::FLUSH:
       {
         // Nothing to do
@@ -324,6 +368,18 @@ struct Command
     {
       Graphics::Viewport region;
     } viewport;
+
+    struct BeginRenderPassDescriptor
+      beginRenderPass;
+
+    struct
+    {
+    } endRenderPass;
+
+    struct
+    {
+      std::vector<GLES::CommandBuffer*> buffers;
+    } executeCommandBuffers;
   };
 };
 
@@ -357,8 +413,8 @@ public:
                        Format                  format) override;
 
   void BeginRenderPass(
-    Graphics::RenderPass&   renderPass,
-    Graphics::RenderTarget& renderTarget,
+    Graphics::RenderPass*   renderPass,
+    Graphics::RenderTarget* renderTarget,
     Extent2D                renderArea,
     std::vector<ClearValue> clearValues) override;
 
@@ -372,6 +428,8 @@ public:
    * before passing it to another render pass).
    */
   void EndRenderPass() override;
+
+  void ExecuteCommandBuffers(std::vector<Graphics::CommandBuffer*>&& commandBuffers) override;
 
   void Draw(
     uint32_t vertexCount,
