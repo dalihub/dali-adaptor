@@ -110,6 +110,11 @@ BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 BuildRequires:  pkgconfig(component-based-core-base)
 
+
+%if ( 0%{?tizen_version_major} == 6 && 0%{?tizen_version_minor} >= 5 ) || 0%{?tizen_version_major} >= 7
+BuildRequires:  pkgconfig(thorvg)
+%endif
+
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
 Recommends: %{name}-profile_common = %{version}-%{release}

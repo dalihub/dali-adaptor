@@ -6,6 +6,7 @@ SET( SOURCES
         ${adaptor_accessibility_ubuntu_src_files}
         ${adaptor_adaptor_common_src_files}
         ${adaptor_adaptor_ubuntu_src_files}
+        ${adaptor_canvas_renderer_ubuntu_src_files}
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_ubuntu_x11_src_files}
         ${adaptor_framework_generic_src_files}
