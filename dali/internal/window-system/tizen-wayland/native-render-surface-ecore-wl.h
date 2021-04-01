@@ -65,11 +65,6 @@ public: // from WindowRenderSurface
   void SetRenderNotification(TriggerEventInterface* renderNotification) override;
 
   /**
-   * @copydoc Dali::NativeRenderSurface::WaitUntilSurfaceReplaced()
-   */
-  void WaitUntilSurfaceReplaced() override;
-
-  /**
    * @copydoc Dali::NativeRenderSurface::GetNativeRenderable()
    */
   virtual Any GetNativeRenderable() override;
@@ -186,12 +181,10 @@ private: // Data
   ColorDepth                            mColorDepth;
   tbm_format                            mTbmFormat;
   bool                                  mOwnSurface;
-  bool                                  mDrawableCompleted;
 
   tbm_surface_queue_h             mTbmQueue;
   tbm_surface_h                   mConsumeSurface;
   ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
-  ConditionalWait                 mTbmSurfaceCondition;
 };
 
 } // namespace Dali
