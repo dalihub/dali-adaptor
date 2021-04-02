@@ -664,6 +664,13 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
+  /**
+   * @brief Connects to this signal to be notified when http request need be intercepted.
+   *
+   * @return A signal object to connect with.
+   */
+  Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor
