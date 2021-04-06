@@ -127,7 +127,6 @@ bool CanvasRendererUbuntu::Commit()
     {
       changed = true;
       drawableImpl.SetChanged(false);
-      break;
     }
   }
 
