@@ -120,7 +120,6 @@ bool CanvasRendererTizen::Commit()
     {
       changed = true;
       drawableImpl.SetChanged(false);
-      break;
     }
   }
 
