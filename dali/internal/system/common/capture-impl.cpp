@@ -87,13 +87,11 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
 
 void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string& path, const Dali::Vector4& clearColor)
 {
-  DALI_ASSERT_ALWAYS(path.size() > 4 && "Path is invalid.");
-
   // Increase the reference count focely to avoid application mistake.
   Reference();
 
   mPath = path;
-  if(mPath.size() > 0)
+  if(!mPath.empty())
   {
     mFileSave = true;
   }
