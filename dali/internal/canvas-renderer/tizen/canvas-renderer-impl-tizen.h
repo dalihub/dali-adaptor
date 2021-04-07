@@ -19,8 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/weak-handle.h>
+#ifdef THORVG_SUPPORT
 #include <thorvg.h>
+#endif
+#include <dali/public-api/object/weak-handle.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
@@ -104,8 +106,10 @@ private:
 private:
   Devel::PixelBuffer mPixelBuffer;
 
-  std::unique_ptr<tvg::SwCanvas>                                   mTvgCanvas;
-  tvg::Scene*                                                      mTvgRoot;
+#ifdef THORVG_SUPPORT
+  std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
+  tvg::Scene*                    mTvgRoot;
+#endif
   typedef std::vector<WeakHandle<Dali::CanvasRenderer::Drawable> > DrawableVector;
   typedef DrawableVector::iterator                                 DrawableVectorIterator;
   DrawableVector                                                   mDrawables;

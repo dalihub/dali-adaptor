@@ -48,21 +48,27 @@ DrawableTizen* DrawableTizen::New()
 
 DrawableTizen::DrawableTizen()
 : mAdded(false),
-  mChanged(false),
+  mChanged(false)
+#ifdef THORVG_SUPPORT
+  ,
   mTvgPaint(nullptr)
+#endif
 {
 }
 
 DrawableTizen::~DrawableTizen()
 {
+#ifdef THORVG_SUPPORT
   if(mTvgPaint && !mAdded)
   {
     delete mTvgPaint;
   }
+#endif
 }
 
 bool DrawableTizen::SetOpacity(float opacity)
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null [%p]\n", this);
@@ -75,20 +81,28 @@ bool DrawableTizen::SetOpacity(float opacity)
   }
   SetChanged(true);
   return true;
+#else
+  return false;
+#endif
 }
 
 float DrawableTizen::GetOpacity() const
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null [%p]\n", this);
     return 0;
   }
   return (float)mTvgPaint->opacity() / 255.f;
+#else
+  return 0;
+#endif
 }
 
 bool DrawableTizen::Rotate(Degree degree)
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null\n");
@@ -102,10 +116,14 @@ bool DrawableTizen::Rotate(Degree degree)
   }
   SetChanged(true);
   return true;
+#else
+  return false;
+#endif
 }
 
 bool DrawableTizen::Scale(float factor)
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null\n");
@@ -119,10 +137,14 @@ bool DrawableTizen::Scale(float factor)
   }
   SetChanged(true);
   return true;
+#else
+  return false;
+#endif
 }
 
 bool DrawableTizen::Translate(Vector2 translate)
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null\n");
@@ -136,10 +158,14 @@ bool DrawableTizen::Translate(Vector2 translate)
   }
   SetChanged(true);
   return true;
+#else
+  return false;
+#endif
 }
 
 bool DrawableTizen::Transform(const Dali::Matrix3& matrix)
 {
+#ifdef THORVG_SUPPORT
   if(!mTvgPaint)
   {
     DALI_LOG_ERROR("Drawable is null\n");
@@ -155,6 +181,9 @@ bool DrawableTizen::Transform(const Dali::Matrix3& matrix)
   }
   SetChanged(true);
   return true;
+#else
+  return false;
+#endif
 }
 
 void DrawableTizen::SetDrawableAdded(bool added)
@@ -164,11 +193,16 @@ void DrawableTizen::SetDrawableAdded(bool added)
 
 void* DrawableTizen::GetObject() const
 {
+#ifdef THORVG_SUPPORT
   return static_cast<void*>(mTvgPaint);
+#else
+  return nullptr;
+#endif
 }
 
 void DrawableTizen::SetObject(const void* object)
 {
+#ifdef THORVG_SUPPORT
   if(object)
   {
     mTvgPaint = static_cast<tvg::Paint*>((void*)object);
@@ -184,6 +218,7 @@ void DrawableTizen::SetObject(const void* object)
       delete mTvgPaint;
     }
   }
+#endif
 }
 
 void DrawableTizen::SetChanged(bool changed)

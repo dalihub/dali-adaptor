@@ -19,8 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-object.h>
+#ifdef THORVG_SUPPORT
 #include <thorvg.h>
+#endif
+#include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
@@ -121,7 +123,9 @@ private:
   bool mAdded;
   bool mChanged;
 
+#ifdef THORVG_SUPPORT
   tvg::Paint* mTvgPaint;
+#endif
 };
 
 } // namespace Adaptor

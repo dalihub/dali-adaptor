@@ -19,9 +19,11 @@
  */
 
 // EXTERNAL INCLUDES
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/signals/connection-tracker.h>
-#include <thorvg.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-shape.h>
@@ -169,8 +171,10 @@ private:
 private:
   void Initialize();
 
+#ifdef THORVG_SUPPORT
 private:
   tvg::Shape* mTvgShape;
+#endif
 };
 
 } // namespace Adaptor

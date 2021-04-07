@@ -52,8 +52,10 @@ CanvasRendererTizen* CanvasRendererTizen::New(const Vector2& viewBox)
 
 CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
 : mPixelBuffer(nullptr),
+#ifdef THORVG_SUPPORT
   mTvgCanvas(nullptr),
   mTvgRoot(nullptr),
+#endif
   mSize(0, 0),
   mViewBox(0, 0),
   mChanged(false)
@@ -63,6 +65,7 @@ CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
 
 CanvasRendererTizen::~CanvasRendererTizen()
 {
+#ifdef THORVG_SUPPORT
   for(DrawableVectorIterator it    = mDrawables.begin(),
                              endIt = mDrawables.end();
       it != endIt;
@@ -78,10 +81,12 @@ CanvasRendererTizen::~CanvasRendererTizen()
   }
   //Terminate ThorVG Engine
   tvg::Initializer::term(tvg::CanvasEngine::Sw);
+#endif
 }
 
 void CanvasRendererTizen::Initialize(const Vector2& viewBox)
 {
+#ifdef THORVG_SUPPORT
   if(tvg::Initializer::init(tvg::CanvasEngine::Sw, 0 /*threads*/) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("ThorVG engine initialize failed\n");
@@ -99,10 +104,12 @@ void CanvasRendererTizen::Initialize(const Vector2& viewBox)
   auto scene = tvg::Scene::gen();
   mTvgRoot   = scene.get();
   mTvgCanvas->push(move(scene));
+#endif
 }
 
 bool CanvasRendererTizen::Commit()
 {
+#ifdef THORVG_SUPPORT
   bool changed = false;
 
   for(DrawableVectorIterator it    = mDrawables.begin(),
@@ -157,6 +164,9 @@ bool CanvasRendererTizen::Commit()
     return false;
   }
   return true;
+#else
+  return false;
+#endif
 }
 
 Devel::PixelBuffer CanvasRendererTizen::GetPixelBuffer()
@@ -166,6 +176,7 @@ Devel::PixelBuffer CanvasRendererTizen::GetPixelBuffer()
 
 bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 {
+#ifdef THORVG_SUPPORT
   bool exist = false;
   for(DrawableVectorIterator it    = mDrawables.begin(),
                              endIt = mDrawables.end();
@@ -208,6 +219,9 @@ bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   mChanged = true;
 
   return true;
+#else
+  return false;
+#endif
 }
 
 bool CanvasRendererTizen::SetSize(const Vector2& size)
@@ -235,6 +249,7 @@ const Vector2& CanvasRendererTizen::GetSize()
 
 void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
 {
+#ifdef THORVG_SUPPORT
   mPixelBuffer = Devel::PixelBuffer::New(size.width, size.height, Dali::Pixel::RGBA8888);
 
   unsigned char* pBuffer;
@@ -249,6 +264,7 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
   mTvgCanvas->sync();
 
   mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ABGR8888);
+#endif
 }
 
 } // namespace Adaptor

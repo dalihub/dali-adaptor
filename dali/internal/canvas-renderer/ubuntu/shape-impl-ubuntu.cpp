@@ -68,7 +68,6 @@ void ShapeUbuntu::Initialize()
 
   Drawable::Create();
   Drawable::SetObject(static_cast<void*>(mTvgShape));
-
 #endif
 }
 
@@ -255,7 +254,7 @@ Vector4 ShapeUbuntu::GetFillColor() const
   }
   return Vector4(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 #else
-  return Vector4(0, 0, 0, 0);
+  return Vector4::ZERO;
 #endif
 }
 
