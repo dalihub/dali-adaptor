@@ -417,11 +417,6 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   auto& renderPass   = *renderPassBegin.renderPass;
   auto& renderTarget = *renderPassBegin.renderTarget;
 
-  if(mImpl->mCurrentRenderPass == &renderPass &&
-     mImpl->mCurrentRenderTarget == &renderTarget)
-  {
-    return;
-  }
   const auto& passInfo   = renderPass.GetCreateInfo();
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
@@ -436,8 +431,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
     // Bind surface FB
     gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
   }
-
-  if(targetInfo.framebuffer)
+  else if(targetInfo.framebuffer)
   {
     // if needed, switch to shared context.
     graphics.ActivateResourceContext();
@@ -464,7 +458,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
       // Set clear color (todo: cache it!)
       // Something goes wrong here if Alpha mask is GL_TRUE
-      gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE);
+      gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
       gl.ClearColor(renderPassBegin.clearValues[0].color.r,
                     renderPassBegin.clearValues[0].color.g,
                     renderPassBegin.clearValues[0].color.b,
@@ -485,7 +479,10 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
       }
     }
 
+    gl.Enable(GL_SCISSOR_TEST);
+    gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
     gl.Clear(mask);
+    gl.Disable(GL_SCISSOR_TEST);
   }
 
   mImpl->mCurrentRenderPass   = &renderPass;
@@ -500,12 +497,6 @@ void Context::EndRenderPass()
     {
       auto& gl = *mImpl->mController.GetGL();
       gl.Flush();
-    }
-
-    Dali::RenderSurfaceInterface* surface = static_cast<Dali::RenderSurfaceInterface*>(mImpl->mCurrentRenderTarget->GetSurface());
-    if(surface)
-    {
-      surface->PostRender();
     }
   }
 }
