@@ -255,20 +255,58 @@ DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, std::unique_ptr<Ca
  */
 DALI_ADAPTOR_API void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
-  /**
-   * @brief Sets window position and size for specific orientation.
-   * This api reserves the position and size per orientation to display server.
-   * When the device is rotated, the window is moved/resized with the reserved position/size by display server.
-   *
-   * @param[in] window The window instance
-   * @param[in] positionSize The reserved position and size for the orientation
-   * @param[in] orientation The orientation
-   *
-   * @note Currently, it only works when the window's type is WindowType::IME.
-   * @note To set WindowType::IME, use Application New(... WindowType type), not Window::SetType().
-   * @note This function is only useful in Tizen world.
-   */
+/**
+ * @brief Sets window position and size for specific orientation.
+ * This api reserves the position and size per orientation to display server.
+ * When the device is rotated, the window is moved/resized with the reserved position/size by display server.
+ *
+ * @param[in] window The window instance
+ * @param[in] positionSize The reserved position and size for the orientation
+ * @param[in] orientation The orientation
+ *
+ * @note Currently, it only works when the window's type is WindowType::IME.
+ * @note To set WindowType::IME, use Application New(... WindowType type), not Window::SetType().
+ * @note This function is only useful in Tizen world.
+ */
 DALI_ADAPTOR_API void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation);
+
+/**
+ * @brief Requests to display server for the window is moved by display server.
+ *
+ * This function should be called in mouse down event callback function.
+ * After this function is called in mouse down event callback function, the window is moved with mouse move event.
+ * When mouse up event happens, the window moved work is finished.
+ *
+ * @param[in] window The window instance
+ */
+DALI_ADAPTOR_API void RequestMoveToServer(Window window);
+
+/**
+ * @brief Requests to display server for the window is resized by display server.
+ *
+ * This function should be called in mouse down event callback function.
+ * After this function is called in mouse down event callback function, the window is resized with mouse move event.
+ * The direction is selected one of eight ways.
+ * When mouse up event happens, the window resized work is finished.
+ *
+ * @param[in] window The window instance
+ * @param[in] direction it is indicated the window's side or edge for starting point.
+ */
+DALI_ADAPTOR_API void RequestResizeToServer(Window window, WindowResizeDirection direction);
+
+/**
+ * @brief Enables the floating mode of window.
+ *
+ * The floating mode is to support making partial size window easliy.
+ * It is useful to make popup style window and this window is always upper than the other normal window.
+ * In addition, it is easy to change between popup style and normal style window.
+ *
+ * A special display server(as a Tizen display server) supports this mode.
+ *
+ * @param[in] window The window instance.
+ * @param[in] enable Enable floating mode or not.
+ */
+DALI_ADAPTOR_API void EnableFloatingMode(Window window, bool enable);
 
 } // namespace DevelWindow
 

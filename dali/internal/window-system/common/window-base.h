@@ -338,6 +338,36 @@ public:
   virtual void WindowRotationCompleted(int degree, int width, int height) = 0;
 
   /**
+   * @brief starts the window is moved by display server
+   */
+  virtual void RequestMoveToServer() = 0;
+
+  /**
+   * @brief starts the window is resized by display server
+   *
+   * @param[in] direction It is direction of the started edge/side.
+   */
+  virtual void RequestResizeToServer(WindowResizeDirection direction) = 0;
+
+  /**
+   * @brief Enables the floating mode of window.
+   *
+   * The floating mode is to support making partial size window easliy.
+   * It is useful to make popup style window
+   * and this window is always upper than the other normal window.
+   *
+   * A special display server(as a Tizen display server) supports this mode.
+   *
+   * @param[in] enable Enable floating mode or not.
+   */
+  virtual void EnableFloatingMode(bool enable) = 0;
+
+  /**
+   * @brief Gets whether floating mode is enabled or not.
+   */
+  virtual bool IsFloatingModeEnabled() const = 0;
+
+  /**
    * @copydoc Dali::Window::SetTransparency()
    */
   virtual void SetTransparency(bool transparent) = 0;

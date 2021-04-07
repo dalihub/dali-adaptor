@@ -594,6 +594,23 @@ void WindowBaseWin::ImeWindowReadyToRender()
 {
 }
 
+void WindowBaseWin::RequestMoveToServer()
+{
+}
+
+void WindowBaseWin::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseWin::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseWin::IsFloatingModeEnabled() const
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -663,6 +663,23 @@ void WindowBaseCocoa::ImeWindowReadyToRender()
 {
 }
 
+void WindowBaseCocoa::RequestMoveToServer()
+{
+}
+
+void WindowBaseCocoa::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseCocoa::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseCocoa::IsFloatingModeEnabled() const
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

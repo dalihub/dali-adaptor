@@ -847,7 +847,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   InitializeEcoreElDBus();
 
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-  mDisplay = ecore_wl2_display_get(display);
+  mDisplay                   = ecore_wl2_display_get(display);
 
   if(mDisplay)
   {
@@ -985,7 +985,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
     rotationEvent.angle     = ev->angle;
     rotationEvent.winResize = 0;
 
-    if(ev->w == 0 || ev->h ==0)
+    if(ev->w == 0 || ev->h == 0)
     {
       // Use previous client side window's size.
       if(mWindowRotationAngle == 90 || mWindowRotationAngle == 270)
@@ -1000,7 +1000,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
       }
     }
 
-    mWindowRotationAngle    = ev->angle;
+    mWindowRotationAngle = ev->angle;
 
     if(ev->angle == 0 || ev->angle == 180)
     {
@@ -2610,6 +2610,114 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
   }
 
   wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
+}
+
+void WindowBaseEcoreWl2::RequestMoveToServer()
+{
+  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+  if(!display)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestMoveToServer, Fail to get ecore_wl2_display\n");
+    return;
+  }
+
+  Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
+  if(!input)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestMoveToServer, Fail to get default Ecore_Wl2_Input\n");
+    return;
+  }
+
+  ecore_wl2_window_move(mEcoreWindow, input);
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestMoveToServer, starts the window[%p] is moved by server\n", mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
+{
+  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+  if(!display)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestResizeToServer, Fail to get ecore_wl2_display\n");
+    return;
+  }
+
+  Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
+  if(!input)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::RequestResizeToServer, Fail to get default Ecore_Wl2_Input\n");
+    return;
+  }
+
+  int location = 0;
+  switch(direction)
+  {
+    case WindowResizeDirection::TOP_LEFT:
+    {
+      location = 5;
+      break;
+    }
+    case WindowResizeDirection::TOP:
+    {
+      location = 1;
+      break;
+    }
+    case WindowResizeDirection::TOP_RIGHT:
+    {
+      location = 9;
+      break;
+    }
+    case WindowResizeDirection::LEFT:
+    {
+      location = 4;
+      break;
+    }
+    case WindowResizeDirection::RIGHT:
+    {
+      location = 8;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM_LEFT:
+    {
+      location = 6;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM:
+    {
+      location = 2;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM_RIGHT:
+    {
+      location = 10;
+      break;
+    }
+    default:
+    {
+      location = 0;
+      break;
+    }
+  }
+
+  ecore_wl2_window_resize(mEcoreWindow, input, location);
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, mode:%d\n", mEcoreWindow, location);
+}
+
+void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
+{
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::EnableFloatingMode, floating mode flag: [%p], enable [%d]\n", mEcoreWindow, enable);
+  if(enable == true)
+  {
+    ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_TRUE);
+  }
+  else
+  {
+    ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_FALSE);
+  }
+}
+
+bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
+{
+  return ecore_wl2_window_floating_mode_get(mEcoreWindow);
 }
 
 } // namespace Adaptor

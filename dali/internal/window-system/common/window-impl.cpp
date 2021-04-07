@@ -640,6 +640,11 @@ Dali::Window::WindowPosition Window::GetPosition() const
   return Dali::Window::WindowPosition(positionSize.x, positionSize.y);
 }
 
+PositionSize Window::GetPositionSize() const
+{
+  return mSurface->GetPositionSize();
+}
+
 void Window::SetPositionSize(PositionSize positionSize)
 {
   PositionSize oldRect = mSurface->GetPositionSize();
@@ -666,11 +671,6 @@ void Window::SetPositionSize(PositionSize positionSize)
   mSurface->SetFullSwapNextFrame();
 
   Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
-}
-
-PositionSize Window::GetPositionSize() const
-{
-  return mSurface->GetPositionSize();
 }
 
 Dali::Layer Window::GetRootLayer() const
@@ -978,6 +978,21 @@ void Window::SetAvailableOrientations(const Dali::Vector<WindowOrientation>& ori
 int32_t Window::GetNativeId() const
 {
   return mWindowBase->GetNativeWindowId();
+}
+
+void Window::RequestMoveToServer()
+{
+  mWindowBase->RequestMoveToServer();
+}
+
+void Window::RequestResizeToServer(WindowResizeDirection direction)
+{
+  mWindowBase->RequestResizeToServer(direction);
+}
+
+void Window::EnableFloatingMode(bool enable)
+{
+  mWindowBase->EnableFloatingMode(enable);
 }
 
 } // namespace Adaptor

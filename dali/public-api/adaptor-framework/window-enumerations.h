@@ -113,6 +113,21 @@ enum class WindowOperationResult
   INVALID_OPERATION, ///< The operation is invalid. (e.g. Try to operate to the wrong window)
 };
 
+/**
+ * @brief Enumeration of direction for window resized by display server.
+ */
+enum class WindowResizeDirection
+{
+  TOP_LEFT      = 1, ///< Start resizing window to the top-left edge.
+  TOP           = 2, ///< Start resizing window to the top side.
+  TOP_RIGHT     = 3, ///< Start resizing window to the top-right edge.
+  LEFT          = 4, ///< Start resizing window to the left side.
+  RIGHT         = 5, ///< Start resizing window to the right side.
+  BOTTOM_LEFT   = 6, ///< Start resizing window to the bottom-left edge.
+  BOTTOM        = 7, ///< Start resizing window to the bottom side.
+  BOTTOM_RIGHT  = 8  ///< Start resizing window to the bottom-right edge.
+};
+
 } // namespace Dali
 
 #endif // DALI_WINDOW_ENUMERATIONS_H

@@ -938,6 +938,23 @@ void WindowBaseEcoreX::ImeWindowReadyToRender()
 {
 }
 
+void WindowBaseEcoreX::RequestMoveToServer()
+{
+}
+
+void WindowBaseEcoreX::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseEcoreX::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseEcoreX::IsFloatingModeEnabled() const
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

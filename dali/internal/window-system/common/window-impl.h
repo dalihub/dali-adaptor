@@ -376,6 +376,21 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   int32_t GetNativeId() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::RequestMoveToServer()
+   */
+  void RequestMoveToServer();
+
+  /**
+   * @copydoc Dali::DevelWindow::RequestResizeToServer()
+   */
+  void RequestResizeToServer(WindowResizeDirection direction);
+
+  /**
+   * @copydoc Dali::DevelWindow::EnableFloatingMode()
+   */
+  void EnableFloatingMode(bool enable);
+
 private:
   /**
    * @brief Enumeration for orietation mode.

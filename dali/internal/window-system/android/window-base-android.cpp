@@ -372,6 +372,23 @@ void WindowBaseAndroid::ImeWindowReadyToRender()
 {
 }
 
+void WindowBaseAndroid::RequestMoveToServer()
+{
+}
+
+void WindowBaseAndroid::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseAndroid::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseAndroid::IsFloatingModeEnabled() const
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

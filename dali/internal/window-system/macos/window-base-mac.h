@@ -317,6 +317,26 @@ public:
    */
   void ImeWindowReadyToRender() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RequestMoveToServer()
+   */
+  void RequestMoveToServer() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RequestResizeToServer()
+   */
+  void RequestResizeToServer(WindowResizeDirection direction) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::EnableFloatingMode()
+   */
+  void EnableFloatingMode(bool enable) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsFloatingModeEnabled()
+   */
+  bool IsFloatingModeEnabled() const override;
+
 private:
   // Undefined
   WindowBaseCocoa(const WindowBaseCocoa&) = delete;

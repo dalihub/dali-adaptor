@@ -156,6 +156,21 @@ void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, Wi
   GetImplementation(window).SetPositionSizeWithOrientation(positionSize, orientation);
 }
 
+void RequestMoveToServer(Window window)
+{
+  GetImplementation(window).RequestMoveToServer();
+}
+
+void RequestResizeToServer(Window window, WindowResizeDirection direction)
+{
+  GetImplementation(window).RequestResizeToServer(direction);
+}
+
+void EnableFloatingMode(Window window, bool enable)
+{
+  GetImplementation(window).EnableFloatingMode(enable);
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

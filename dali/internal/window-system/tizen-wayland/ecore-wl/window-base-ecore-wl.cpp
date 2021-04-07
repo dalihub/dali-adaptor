@@ -2192,6 +2192,23 @@ void WindowBaseEcoreWl::ImeWindowReadyToRender()
 {
 }
 
+void WindowBaseEcoreWl::RequestMoveToServer()
+{
+}
+
+void WindowBaseEcoreWl::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseEcoreWl::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseEcoreWl::IsFloatingModeEnabled() const
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
