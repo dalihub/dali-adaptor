@@ -29,6 +29,7 @@
 namespace Dali
 {
 class Adaptor;
+class TriggerEventInterface;
 
 namespace Internal
 {
@@ -60,6 +61,19 @@ class GlWindow;
 class GlWindowRenderThread : public Dali::Thread
 {
 public:
+  /**
+   * @brief Enumeration for GlWindow Surface status type
+   * It has the status as resized, window is rotated and screen is rotated.
+   *
+   */
+  enum class SurfaceStatus
+  {
+    NO_CHANGED     = 0x00, ///< no changed,
+    RESIZED        = 0x01, ///< When surface is resized,
+    WINDOW_ROTATED = 0x02, ///< When window is rotated,
+    SCREEN_ROTATED = 0x04  ///< When screen is rotated,
+  };
+
   /**
    * Constructor
    *
@@ -141,6 +155,28 @@ public:
    */
   void RenderOnce();
 
+  /**
+   * Requests the window resize to GlWindow's render thread.
+   *
+   * @param[in] width new width.
+   * @param[in] height new height.
+   */
+  void RequestWindowResize(int width, int height);
+
+  /**
+   * Requests the window rotation to GlWindow's render thread.
+   *
+   * @param[in] windowAngle the window rotation's angle as 0, 90, 180 and 270.
+   */
+  void RequestWindowRotate(int windowAngle);
+
+  /**
+   * Requests the screen rotation to GlWindow's render thread.
+   *
+   * @param[in] screenAngle the screen rotation's angle as 0, 90, 180 and 270.
+   */
+  void RequestScreenRotate(int screenAngle);
+
 protected:
   /**
    * The Render thread loop. This thread will be destroyed on exit from this function.
@@ -161,9 +197,53 @@ private:
    */
   bool RenderReady(uint64_t& timeToSleepUntil);
 
+  /**
+   * In the Tizen world, when GlWindow rotation is finished in client side,
+   * the completed message should be sent to display server.
+   * This function should be called in the event thread after buffer is committed.
+   */
+  void WindowRotationCompleted();
+
+  /**
+   * Gets window's current surface status
+   *
+   * @brief This function return window's current surface status.
+   * The status has the  the information of window resized, window rotated and screen rotated.
+   * After called, the status value is reset
+   *
+   * @[output] windowRotationAngle return current window rotation angle.
+   * @[output] screenRotationAngle return current screen rotation angle.
+   * @return the window's current surface status.
+   */
+  unsigned int GetSurfaceStatus(int& windowRotationAngle, int& screenRotationAngle);
+
+  /**
+   * Starts post rendering process
+   *
+   * @brief Starts post rendering process for window rotation
+   * It is to pause the render thread until maint thread finishes the window rotation work.
+   */
+  void PostRenderStart();
+
+  /**
+   * Finishs post rendering process
+   *
+   * @brief Finishes post rendering process for window rotation
+   * It set the resume flag for resume the render thread.
+   */
+  void PostRenderFinish();
+
+  /**
+   * Pauses the render thread unitil post rendering process
+   *
+   * @brief Pauses the render thread until main thread works window rotation.
+   */
+  void PostRenderWaitForFinished();
+
 private:
-  GraphicsInterface* mGraphics; ///< Graphics interface
-  WindowBase*        mWindowBase;
+  GraphicsInterface*                     mGraphics; ///< Graphics interface
+  WindowBase*                            mWindowBase;
+  std::unique_ptr<TriggerEventInterface> mWindowRotationTrigger;
 
   const Dali::LogFactoryInterface& mLogFactory;
 
@@ -181,13 +261,17 @@ private:
   bool                          mIsEGLInitialize : 1;
   int                           mGLESVersion;
   int                           mMSAA;
+  int                           mWindowRotationAngle; ///< The angle of window rotation angle
+  int                           mScreenRotationAngle; ///< The angle of screen rotation angle
 
   // To manage the render/main thread
-  ConditionalWait       mRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
-  volatile unsigned int mDestroyRenderThread;       ///< Stop render thread. It means this rendter thread will be destoried.
-  volatile unsigned int mPauseRenderThread;         ///< Sleep render thread by pause.
-  volatile unsigned int mRenderingMode;             ///< Rendering Mode, 0: continuous, 1:OnDemad
-  volatile unsigned int mRequestRenderOnce;         ///< Request rendering once
+  ConditionalWait                 mRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
+  volatile unsigned int           mDestroyRenderThread;       ///< Stop render thread. It means this rendter thread will be destoried.
+  volatile unsigned int           mPauseRenderThread;         ///< Sleep render thread by pause.
+  volatile unsigned int           mRenderingMode;             ///< Rendering Mode, 0: continuous, 1:OnDemad
+  volatile unsigned int           mRequestRenderOnce;         ///< Request rendering once
+  volatile unsigned int           mSurfaceStatus;             ///< When surface is changed as resized or rotated, this flag is set. 0: No changed, 1:resized, 2:window rotation, 4:screen rotation
+  volatile unsigned int           mPostRendering;             ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
 
   uint64_t mDefaultFrameDurationNanoseconds; ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
 

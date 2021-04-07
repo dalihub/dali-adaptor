@@ -332,6 +332,13 @@ private: // From Dali::Internal::Adaptor::DamageObserver
    */
   void OnDamaged(const DamageArea& area);
 
+  /**
+   * @brief Updates screen rotation value and screen rotation works.
+   *
+   * @param[in] newAngle new screen rotation angle
+   */
+  void UpdateScreenRotation(int newAngle);
+
 public: // Signals
   /**
    * @copydoc Dali::GlWindow::FocusChangeSignal()
@@ -388,7 +395,6 @@ private:
   bool                                     mOpaqueState : 1;
   bool                                     mResizeEnabled : 1;
   bool                                     mVisible : 1;
-  bool                                     mIsRotated : 1;
   bool                                     mIsWindowRotated : 1;
   bool                                     mIsTouched : 1;
   bool                                     mIsEGLInitialized : 1;
