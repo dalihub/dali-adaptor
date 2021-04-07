@@ -1877,11 +1877,10 @@ enum class GLESVersion
  */
 struct BeginRenderPassDescriptor
 {
-  const GLES::RenderPass*   renderPass;
-  const GLES::Framebuffer*  framebuffer;
-  const GLES::RenderTarget* renderTarget;
-  Extent2D                  renderArea;
-  std::vector<ClearValue>   clearValues;
+  const GLES::RenderPass*   renderPass{};
+  const GLES::RenderTarget* renderTarget{};
+  Rect2D                    renderArea{};
+  std::vector<ClearValue>   clearValues{};
 };
 
 } // namespace Dali::Graphics::GLES

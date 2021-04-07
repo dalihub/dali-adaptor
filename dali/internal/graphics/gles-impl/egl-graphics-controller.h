@@ -97,9 +97,7 @@ public:
   /**
    * @copydoc Dali::Graphics::PresentRenderTarget()
    */
-  void PresentRenderTarget(RenderTarget* renderTarget) override
-  {
-  }
+  void PresentRenderTarget(RenderTarget* renderTarget) override;
 
   /**
    * @copydoc Dali::Graphics::WaitIdle()
@@ -556,6 +554,9 @@ public:
   }
 
   void ProcessCommandBuffer(GLES::CommandBuffer& commandBuffer);
+
+  // Resolves presentation
+  void ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget);
 
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};

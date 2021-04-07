@@ -126,7 +126,7 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
 void CommandBuffer::BeginRenderPass(
   Graphics::RenderPass*   renderPass,
   Graphics::RenderTarget* renderTarget,
-  Extent2D                renderArea,
+  Rect2D                  renderArea,
   std::vector<ClearValue> clearValues)
 {
   mCommands.emplace_back(CommandType::BEGIN_RENDERPASS);
@@ -226,6 +226,12 @@ void CommandBuffer::SetViewport(Viewport value)
 void CommandBuffer::SetViewportEnable(bool value)
 {
   // There is no GL equivalent
+}
+
+void CommandBuffer::PresentRenderTarget(GLES::RenderTarget* renderTarget)
+{
+  mCommands.emplace_back(CommandType::PRESENT_RENDER_TARGET);
+  mCommands.back().presentRenderTarget.targetToPresent = renderTarget;
 }
 
 [[nodiscard]] const std::vector<Command>& CommandBuffer::GetCommands() const

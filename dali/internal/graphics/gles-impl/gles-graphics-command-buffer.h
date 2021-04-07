@@ -51,6 +51,7 @@ enum class CommandType
   BEGIN_RENDERPASS,
   END_RENDERPASS,
   EXECUTE_COMMAND_BUFFERS,
+  PRESENT_RENDER_TARGET,
 };
 
 /**
@@ -214,6 +215,11 @@ struct Command
         viewport.region = rhs.viewport.region;
         break;
       }
+      case CommandType::PRESENT_RENDER_TARGET:
+      {
+        presentRenderTarget = rhs.presentRenderTarget;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -310,6 +316,11 @@ struct Command
         viewport.region = rhs.viewport.region;
         break;
       }
+      case CommandType::PRESENT_RENDER_TARGET:
+      {
+        presentRenderTarget = rhs.presentRenderTarget;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -380,6 +391,11 @@ struct Command
     {
       std::vector<GLES::CommandBuffer*> buffers;
     } executeCommandBuffers;
+
+    struct
+    {
+      GLES::RenderTarget* targetToPresent;
+    } presentRenderTarget;
   };
 };
 
@@ -415,7 +431,7 @@ public:
   void BeginRenderPass(
     Graphics::RenderPass*   renderPass,
     Graphics::RenderTarget* renderTarget,
-    Extent2D                renderArea,
+    Rect2D                  renderArea,
     std::vector<ClearValue> clearValues) override;
 
   /**
@@ -459,6 +475,16 @@ public:
   void SetViewport(Viewport value) override;
 
   void SetViewportEnable(bool value) override;
+
+  /**
+   * @brief Presents specified render target
+   *
+   * @param[in] renderTarget Valid pointer to a RenderTarget
+   *
+   * It's internal command that schedules presentation of
+   * specified render target.
+   */
+  void PresentRenderTarget(GLES::RenderTarget* renderTarget);
 
   [[nodiscard]] const std::vector<Command>& GetCommands() const;
 

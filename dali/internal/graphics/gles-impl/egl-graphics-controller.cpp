@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
@@ -123,6 +124,31 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
   if(submitInfo.flags & (0 | SubmitFlagBits::FLUSH))
   {
     Flush();
+  }
+}
+
+void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
+{
+  // Use command buffer to execute presentation (we should pool it)
+  CommandBufferCreateInfo info;
+  info.SetLevel(CommandBufferLevel::PRIMARY);
+  info.fixedCapacity        = 1; // only one command
+  auto presentCommandBuffer = new GLES::CommandBuffer(info, *this);
+  presentCommandBuffer->PresentRenderTarget(static_cast<GLES::RenderTarget*>(renderTarget));
+  SubmitInfo submitInfo;
+  submitInfo.cmdBuffer = {presentCommandBuffer};
+  submitInfo.flags     = 0 | SubmitFlagBits::FLUSH;
+  SubmitCommandBuffers(submitInfo);
+}
+
+void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget)
+{
+  auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
+  if(rt->GetCreateInfo().surface)
+  {
+    auto* surfaceInterface = reinterpret_cast<Dali::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
+    surfaceInterface->MakeContextCurrent();
+    surfaceInterface->PostRender();
   }
 }
 
@@ -364,6 +390,11 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
       case GLES::CommandType::END_RENDERPASS:
       {
         mContext->EndRenderPass();
+        break;
+      }
+      case GLES::CommandType::PRESENT_RENDER_TARGET:
+      {
+        ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);
         break;
       }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
