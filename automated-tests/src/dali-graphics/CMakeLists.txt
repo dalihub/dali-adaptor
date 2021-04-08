@@ -21,6 +21,7 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/test-graphics-buffer.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-command-buffer.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-controller.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-graphics-framebuffer.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-texture.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-sampler.cpp
   ../dali-adaptor/dali-test-suite-utils/test-graphics-pipeline.cpp
