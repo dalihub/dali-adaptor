@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.0.19
+Version:    2.0.20
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -109,6 +109,11 @@ BuildRequires:  pkgconfig(eldbus)
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
 BuildRequires:  pkgconfig(component-based-core-base)
+
+
+%if ( 0%{?tizen_version_major} == 6 && 0%{?tizen_version_minor} >= 5 ) || 0%{?tizen_version_major} >= 7
+BuildRequires:  pkgconfig(thorvg)
+%endif
 
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}

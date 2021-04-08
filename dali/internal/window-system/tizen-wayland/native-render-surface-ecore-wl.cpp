@@ -58,7 +58,6 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, 
   mEGLSurface(nullptr),
   mEGLContext(nullptr),
   mOwnSurface(false),
-  mDrawableCompleted(false),
   mTbmQueue(NULL),
   mConsumeSurface(NULL),
   mThreadSynchronization(NULL)
@@ -117,17 +116,6 @@ Any NativeRenderSurfaceEcoreWl::GetDrawable()
 void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* renderNotification)
 {
   mRenderNotification = renderNotification;
-}
-
-void NativeRenderSurfaceEcoreWl::WaitUntilSurfaceReplaced()
-{
-  ConditionalWait::ScopedLock lock(mTbmSurfaceCondition);
-  while(!mDrawableCompleted)
-  {
-    mTbmSurfaceCondition.Wait(lock);
-  }
-
-  mDrawableCompleted = false;
 }
 
 Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
@@ -276,15 +264,8 @@ void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurf
       tbm_surface_internal_ref(mConsumeSurface);
     }
 
-    if(replacingSurface)
-    {
-      ConditionalWait::ScopedLock lock(mTbmSurfaceCondition);
-      mDrawableCompleted = true;
-      mTbmSurfaceCondition.Notify(lock);
-    }
-
     // create damage for client applications which wish to know the update timing
-    if(!replacingSurface && mRenderNotification)
+    if(mRenderNotification)
     {
       // use notification trigger
       // Tell the event-thread to render the tbm_surface
@@ -303,7 +284,7 @@ void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurf
   else
   {
     // create damage for client applications which wish to know the update timing
-    if(!replacingSurface && mRenderNotification)
+    if(mRenderNotification)
     {
       // use notification trigger
       // Tell the event-thread to render the tbm_surface

@@ -27,8 +27,15 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
+#include <dali/devel-api/adaptor-framework/web-engine-certificate.h>
+#include <dali/devel-api/adaptor-framework/web-engine-console-message.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context-menu.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-http-auth-handler.h>
+#include <dali/devel-api/adaptor-framework/web-engine-load-error.h>
+#include <dali/devel-api/adaptor-framework/web-engine-policy-decision.h>
+#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
@@ -204,7 +211,7 @@ Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
   return mPlugin->GetBackForwardList();
 }
 
-void WebEngine::LoadUrl( const std::string& url )
+void WebEngine::LoadUrl(const std::string& url)
 {
   mPlugin->LoadUrl(url);
 }
@@ -239,9 +246,24 @@ void WebEngine::LoadHtmlString(const std::string& htmlString)
   mPlugin->LoadHtmlString(htmlString);
 }
 
+bool WebEngine::LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl)
+{
+  return mPlugin->LoadHtmlStringOverrideCurrentEntry(html, basicUri, unreachableUrl);
+}
+
+bool WebEngine::LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri)
+{
+  return mPlugin->LoadContents(contents, contentSize, mimeType, encoding, baseUri);
+}
+
 void WebEngine::Reload()
 {
   mPlugin->Reload();
+}
+
+bool WebEngine::ReloadWithoutCache()
+{
+  return mPlugin->ReloadWithoutCache();
 }
 
 void WebEngine::StopLoading()
@@ -259,9 +281,44 @@ void WebEngine::Resume()
   mPlugin->Resume();
 }
 
+void WebEngine::SuspendNetworkLoading()
+{
+  mPlugin->SuspendNetworkLoading();
+}
+
+void WebEngine::ResumeNetworkLoading()
+{
+  mPlugin->ResumeNetworkLoading();
+}
+
+bool WebEngine::AddCustomHeader(const std::string& name, const std::string& value)
+{
+  return mPlugin->AddCustomHeader(name, value);
+}
+
+bool WebEngine::RemoveCustomHeader(const std::string& name)
+{
+  return mPlugin->RemoveCustomHeader(name);
+}
+
+uint32_t WebEngine::StartInspectorServer(uint32_t port)
+{
+  return mPlugin->StartInspectorServer(port);
+}
+
+bool WebEngine::StopInspectorServer()
+{
+  return mPlugin->StopInspectorServer();
+}
+
 void WebEngine::ScrollBy(int deltaX, int deltaY)
 {
   mPlugin->ScrollBy(deltaX, deltaY);
+}
+
+bool WebEngine::ScrollEdgeBy(int deltaX, int deltaY)
+{
+  return mPlugin->ScrollEdgeBy(deltaX, deltaY);
 }
 
 void WebEngine::SetScrollPosition(int x, int y)
@@ -284,9 +341,9 @@ Dali::Vector2 WebEngine::GetContentSize() const
   return mPlugin->GetContentSize();
 }
 
-void WebEngine::RegisterJavaScriptAlertCallback( Dali::WebEnginePlugin::JavaScriptAlertCallback callback )
+void WebEngine::RegisterJavaScriptAlertCallback(Dali::WebEnginePlugin::JavaScriptAlertCallback callback)
 {
-  mPlugin->RegisterJavaScriptAlertCallback( callback );
+  mPlugin->RegisterJavaScriptAlertCallback(callback);
 }
 
 void WebEngine::JavaScriptAlertReply()
@@ -294,24 +351,24 @@ void WebEngine::JavaScriptAlertReply()
   mPlugin->JavaScriptAlertReply();
 }
 
-void WebEngine::RegisterJavaScriptConfirmCallback( Dali::WebEnginePlugin::JavaScriptConfirmCallback callback )
+void WebEngine::RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback)
 {
-  mPlugin->RegisterJavaScriptAlertCallback( callback );
+  mPlugin->RegisterJavaScriptConfirmCallback(callback);
 }
 
-void WebEngine::JavaScriptConfirmReply( bool confirmed )
+void WebEngine::JavaScriptConfirmReply(bool confirmed)
 {
-  mPlugin->JavaScriptConfirmReply( confirmed );
+  mPlugin->JavaScriptConfirmReply(confirmed);
 }
 
-void WebEngine::RegisterJavaScriptPromptCallback( Dali::WebEnginePlugin::JavaScriptPromptCallback callback )
+void WebEngine::RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScriptPromptCallback callback)
 {
-  mPlugin->RegisterJavaScriptPromptCallback( callback );
+  mPlugin->RegisterJavaScriptPromptCallback(callback);
 }
 
-void WebEngine::JavaScriptPromptReply( const std::string& result )
+void WebEngine::JavaScriptPromptReply(const std::string& result)
 {
-  mPlugin->JavaScriptPromptReply( result );
+  mPlugin->JavaScriptPromptReply(result);
 }
 
 bool WebEngine::CanGoForward()
@@ -384,6 +441,106 @@ void WebEngine::SetFocus(bool focused)
   mPlugin->SetFocus(focused);
 }
 
+void WebEngine::SetDocumentBackgroundColor(Dali::Vector4 color)
+{
+  mPlugin->SetDocumentBackgroundColor(color);
+}
+
+void WebEngine::ClearTilesWhenHidden(bool cleared)
+{
+  mPlugin->ClearTilesWhenHidden(cleared);
+}
+
+void WebEngine::SetTileCoverAreaMultiplier(float multiplier)
+{
+  mPlugin->SetTileCoverAreaMultiplier(multiplier);
+}
+
+void WebEngine::EnableCursorByClient(bool enabled)
+{
+  mPlugin->EnableCursorByClient(enabled);
+}
+
+std::string WebEngine::GetSelectedText() const
+{
+  return mPlugin->GetSelectedText();
+}
+
+void WebEngine::SetPageZoomFactor(float zoomFactor)
+{
+  mPlugin->SetPageZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetPageZoomFactor() const
+{
+  return mPlugin->GetPageZoomFactor();
+}
+
+void WebEngine::SetTextZoomFactor(float zoomFactor)
+{
+  mPlugin->SetTextZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetTextZoomFactor() const
+{
+  return mPlugin->GetTextZoomFactor();
+}
+
+float WebEngine::GetLoadProgressPercentage() const
+{
+  return mPlugin->GetLoadProgressPercentage();
+}
+
+void WebEngine::SetScaleFactor(float scaleFactor, Dali::Vector2 point)
+{
+  mPlugin->SetScaleFactor(scaleFactor, point);
+}
+
+float WebEngine::GetScaleFactor() const
+{
+  return mPlugin->GetScaleFactor();
+}
+
+void WebEngine::ActivateAccessibility(bool activated)
+{
+  mPlugin->ActivateAccessibility(activated);
+}
+
+bool WebEngine::SetVisibility(bool visible)
+{
+  return mPlugin->SetVisibility(visible);
+}
+
+bool WebEngine::HighlightText(const std::string& text, Dali::WebEnginePlugin::FindOption options, uint32_t maxMatchCount)
+{
+  return mPlugin->HighlightText(text, options, maxMatchCount);
+}
+
+void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::string& certPath)
+{
+  mPlugin->AddDynamicCertificatePath(host, certPath);
+}
+
+Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor)
+{
+  return mPlugin->GetScreenshot(viewArea, scaleFactor);
+}
+
+bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+{
+  return mPlugin->GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
+}
+
+bool WebEngine::CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback)
+{
+  return mPlugin->CheckVideoPlayingAsynchronously(callback);
+}
+
+void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::GeolocationPermissionCallback callback)
+{
+  mPlugin->RegisterGeolocationPermissionCallback(callback);
+}
+
 void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
   mPlugin->UpdateDisplayArea(displayArea);
@@ -394,14 +551,14 @@ void WebEngine::EnableVideoHole(bool enabled)
   mPlugin->EnableVideoHole(enabled);
 }
 
-bool WebEngine::SendHoverEvent( const Dali::HoverEvent& event )
+bool WebEngine::SendHoverEvent(const Dali::HoverEvent& event)
 {
-  return mPlugin->SendHoverEvent( event );
+  return mPlugin->SendHoverEvent(event);
 }
 
-bool WebEngine::SendWheelEvent( const Dali::WheelEvent& event )
+bool WebEngine::SendWheelEvent(const Dali::WheelEvent& event)
 {
-  return mPlugin->SendWheelEvent( event );
+  return mPlugin->SendWheelEvent(event);
 }
 
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
@@ -434,7 +591,56 @@ Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& WebEngine::UrlChangedSigna
   return mPlugin->UrlChangedSignal();
 }
 
-} // namespace Adaptor;
-} // namespace Internal;
-} // namespace Dali;
+Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRepostDecisionSignal()
+{
+  return mPlugin->FormRepostDecisionSignal();
+}
 
+Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+{
+  return mPlugin->FrameRenderedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& WebEngine::RequestInterceptorSignal()
+{
+  return mPlugin->RequestInterceptorSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& WebEngine::ConsoleMessageSignal()
+{
+  return mPlugin->ConsoleMessageSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& WebEngine::PolicyDecisionSignal()
+{
+  return mPlugin->PolicyDecisionSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::CertificateConfirmSignal()
+{
+  return mPlugin->CertificateConfirmSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::SslCertificateChangedSignal()
+{
+  return mPlugin->SslCertificateChangedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHandlerSignal()
+{
+  return mPlugin->HttpAuthHandlerSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+{
+  return mPlugin->ContextMenuCustomizedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+{
+  return mPlugin->ContextMenuItemSelectedSignal();
+}
+
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

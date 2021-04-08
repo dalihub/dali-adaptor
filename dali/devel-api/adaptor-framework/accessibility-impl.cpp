@@ -24,6 +24,7 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
+#include <dali/public-api/object/weak-handle.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
@@ -593,18 +594,31 @@ namespace
 {
 class NonControlAccessible : public virtual Accessible, public virtual Collection, public virtual Component
 {
-public:
-  Dali::Actor actor;
+protected:
+  Dali::WeakHandle<Dali::Actor> self;
   bool        root = false;
 
+  Dali::Actor Self()
+  {
+    auto handle = self.GetHandle();
+
+    // NonControlAccessible is deleted on ObjectDestroyedSignal
+    // for the respective actor (see `nonControlAccessibles`).
+    DALI_ASSERT_ALWAYS(handle);
+
+    return handle;
+  }
+
+public:
   NonControlAccessible(Dali::Actor actor, bool root)
-  : actor(actor),
+  : self(actor),
     root(root)
   {
   }
 
   Dali::Rect<> GetExtents(Dali::Accessibility::CoordType ctype) override
   {
+    Dali::Actor actor = Self();
     Vector2 screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
     Vector3 size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
     bool    positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
@@ -643,7 +657,7 @@ public:
   }
   std::string GetName() override
   {
-    return actor.GetProperty<std::string>(Dali::Actor::Property::NAME);
+    return Self().GetProperty<std::string>(Dali::Actor::Property::NAME);
   }
   std::string GetDescription() override
   {
@@ -656,24 +670,24 @@ public:
       auto b = GetBridgeData();
       return b->bridge->GetApplication();
     }
-    return Get(actor.GetParent());
+    return Get(Self().GetParent());
   }
   size_t GetChildCount() override
   {
-    return static_cast<size_t>(actor.GetChildCount());
+    return static_cast<size_t>(Self().GetChildCount());
   }
   Accessible* GetChildAtIndex(size_t index) override
   {
-    auto s = static_cast<size_t>(actor.GetChildCount());
+    auto s = static_cast<size_t>(Self().GetChildCount());
     if(index >= s)
     {
       throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(s) + " children"};
     }
-    return Get(actor.GetChildAt(static_cast<unsigned int>(index)));
+    return Get(Self().GetChildAt(static_cast<unsigned int>(index)));
   }
   size_t GetIndexInParent() override
   {
-    auto parent = actor.GetParent();
+    auto parent = Self().GetParent();
     if(!parent)
     {
       return 0;
@@ -681,7 +695,7 @@ public:
     auto size = static_cast<size_t>(parent.GetChildCount());
     for(auto i = 0u; i < size; ++i)
     {
-      if(parent.GetChildAt(i) == actor)
+      if(parent.GetChildAt(i) == Self())
       {
         return i;
       }
@@ -714,7 +728,7 @@ public:
   Attributes GetAttributes() override
   {
     Dali::TypeInfo type;
-    actor.GetTypeInfo(type);
+    Self().GetTypeInfo(type);
     return {
       {"t", type.GetName()},
     };
