@@ -24,6 +24,7 @@
 #include <dali/integration-api/scene.h>
 #include <dali/integration-api/trace.h>
 
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 #include <dali/public-api/common/dali-common.h>
 
@@ -33,8 +34,163 @@
 #include <test-platform-abstraction.h>
 #include <test-render-controller.h>
 
+
 namespace Dali
 {
+
+
+namespace Internal::Adaptor
+{
+class ConfigurationManager;
+}
+
+class TestGraphicsImpl : public Internal::Adaptor::GraphicsInterface
+{
+public:
+  TestGraphicsImpl()
+  : GraphicsInterface()
+  {
+  }
+  virtual ~TestGraphicsImpl() = default;
+
+  Dali::Graphics::Controller& GetController() override
+  {
+    Dali::Graphics::Controller* controller{nullptr};
+    return *controller;
+  }
+
+  /**
+   * Initialize the graphics subsystem, configured from environment
+   */
+  void Initialize() override
+  {
+    mCallstack.PushCall("Initialize()", "");
+  }
+
+  /**
+   * Initialize the graphics subsystem, providing explicit parameters.
+   *
+   * @param[in] depth True if depth buffer is required
+   * @param[in] stencil True if stencil buffer is required
+   * @param[in] partialRendering True if partial rendering is required
+   * @param[in] msaa level of anti-aliasing required (-1 = off)
+   */
+  void Initialize(bool depth, bool stencil, bool partialRendering, int msaa) override
+  {
+    TraceCallStack::NamedParams namedParams;
+    namedParams["depth"] << depth;
+    namedParams["stencil"] << stencil;
+    namedParams["partialRendering"] << partialRendering;
+    namedParams["msaa"] << msaa;
+    mCallstack.PushCall("Initialize()", "");
+  }
+
+  /**
+   * Configure the graphics surface
+   *
+   * @param[in] surface The surface to configure, or NULL if not present
+   */
+  void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override
+  {
+  }
+
+  /**
+   * Activate the resource context
+   */
+  void ActivateResourceContext() override
+  {
+    mCallstack.PushCall("ActivateResourceContext()", "");
+  }
+
+  /**
+   * Activate the resource context
+   *
+   * @param[in] surface The surface whose context to be switched to.
+   */
+  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override
+  {
+    TraceCallStack::NamedParams namedParams;
+    namedParams["surface"] << std::hex << surface;
+    mCallstack.PushCall("ActivateResourceContext()", namedParams.str(), namedParams);
+  }
+
+  /**
+   * Inform graphics interface that this is the first frame after a resume.
+   */
+  void SetFirstFrameAfterResume() override
+  {
+  }
+
+  /**
+   * Shut down the graphics implementation
+   */
+  void Shutdown() override
+  {
+    mCallstack.PushCall("Shutdown()", "");
+  }
+
+  /**
+   * Destroy the Graphics implementation
+   */
+  void Destroy() override
+  {
+    mCallstack.PushCall("Destroy()", "");
+  }
+
+  /**
+   * @return true if advanced blending options are supported
+   */
+  bool IsAdvancedBlendEquationSupported() override
+  {
+    return true;
+  }
+
+  /**
+   * @return true if graphics subsystem is initialized
+   */
+  bool IsInitialized() override
+  {
+    return true;
+  }
+
+  /**
+   * @return true if a separate resource context is supported
+   */
+  bool IsResourceContextSupported() override
+  {
+    return true;
+  }
+
+  /**
+   * @return the maximum texture size
+   */
+  uint32_t GetMaxTextureSize() override
+  {
+    return 32768u;
+  }
+
+  /**
+   * @return the version number of the shader language
+   */
+  uint32_t GetShaderLanguageVersion() override
+  {
+    return 320;
+  }
+
+  /**
+   * Store cached configurations
+   */
+  void CacheConfigurations(Internal::Adaptor::ConfigurationManager& configurationManager) override
+  {
+  }
+
+public:
+  TraceCallStack mCallstack{true, "GraphicsImpl"};
+};
+
+
+
+
 class DALI_CORE_API TestGraphicsApplication : public ConnectionTracker
 {
 public:
@@ -104,6 +260,7 @@ protected:
   TestGlAbstraction               mGlAbstraction;
   TestGlSyncAbstraction           mGlSyncAbstraction;
   TestGlContextHelperAbstraction  mGlContextHelperAbstraction;
+  TestGraphicsImpl                mGraphics;
 
   Integration::UpdateStatus mStatus;
   Integration::RenderStatus mRenderStatus;

@@ -21,6 +21,7 @@ namespace Dali
 {
 bool TestGraphicsApplication::mLoggingEnabled = true;
 
+
 TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
                                                  uint32_t surfaceHeight,
                                                  uint32_t horizontalDpi,
@@ -59,8 +60,9 @@ void TestGraphicsApplication::CreateCore()
   // We always need the first update!
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
 
+  mGraphics.Initialize();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
+  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction, mGraphics);
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -269,7 +271,7 @@ void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
+  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction, mGraphics);
   mCore->ContextCreated();
 }
 
