@@ -17,6 +17,7 @@
 
 #include "gles-graphics-pipeline-cache.h"
 #include <algorithm>
+#include "egl-graphics-controller.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
 
@@ -34,6 +35,26 @@ struct CachedObjectDeleter
   {
     // Discard resource (add it to discard queue)
     object->DiscardResource();
+  }
+};
+
+template<>
+struct CachedObjectDeleter<GLES::Program>
+{
+  CachedObjectDeleter() = default;
+
+  void operator()(GLES::Program* object)
+  {
+    // Program deleter should skip discard queue if controller shutting down
+    if(!object->GetController().IsShuttingDown())
+    {
+      object->DiscardResource();
+    }
+    else
+    {
+      // delete object otherwise
+      delete object;
+    }
   }
 };
 
@@ -278,8 +299,8 @@ struct PipelineCache::Impl
   struct ProgramCacheEntry
   {
     // sorted array of shaders
-    std::vector<const Shader*> shaders;
-    UniquePtr<ProgramImpl>     program{nullptr};
+    std::vector<const Graphics::Shader*> shaders;
+    UniquePtr<ProgramImpl>               program{nullptr};
   };
 
   std::vector<ProgramCacheEntry> programEntries;
@@ -354,7 +375,7 @@ ProgramImpl* PipelineCache::FindProgramImpl(const ProgramCreateInfo& info)
   }
 
   // assert if no shaders given
-  std::vector<const Shader*> shaders;
+  std::vector<const Graphics::Shader*> shaders;
   shaders.reserve(info.shaderState->size());
 
   for(auto& state : *info.shaderState)

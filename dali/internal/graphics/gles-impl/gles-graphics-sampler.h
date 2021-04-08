@@ -37,42 +37,29 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  Sampler(const Graphics::SamplerCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : SamplerResource(createInfo, controller)
-  {
-  }
+  Sampler(const Graphics::SamplerCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
    * @brief Destructor
    */
-  ~Sampler() override = default;
+  ~Sampler() override;
 
   /**
    * @brief Called when GL resources are destroyed
    */
-  void DestroyResource() override
-  {
-    // TODO: Implement destroying the resource
-  }
+  void DestroyResource();
 
   /**
    * @brief Called when initializing the resource
    *
    * @return True on success
    */
-  bool InitializeResource() override
-  {
-    // TODO: Implement initializing resource
-    return {};
-  }
+  bool InitializeResource() override;
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
    */
-  void DiscardResource() override
-  {
-    // TODO: Implement moving to the discard queue
-  }
+  void DiscardResource() override;
 };
 
 } // namespace Dali::Graphics::GLES

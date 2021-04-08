@@ -68,8 +68,12 @@ bool ProgramImpl::Destroy()
 {
   if(mImpl->glProgram)
   {
-    auto& gl = *mImpl->controller.GetGL();
-    gl.DeleteProgram(mImpl->glProgram);
+    auto gl = mImpl->controller.GetGL();
+    if(!gl)
+    {
+      return false;
+    }
+    gl->DeleteProgram(mImpl->glProgram);
     return true;
   }
   return false;
@@ -87,9 +91,10 @@ bool ProgramImpl::Create()
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);
 
     // Compile shader first (ignored when compiled)
-    shader->Compile();
-
-    gl.AttachShader(program, shader->GetGLShader());
+    if(shader->Compile())
+    {
+      gl.AttachShader(program, shader->GetGLShader());
+    }
   }
   gl.LinkProgram(program);
 
