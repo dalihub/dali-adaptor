@@ -77,12 +77,12 @@ WebEngine WebEngine::DownCast(BaseHandle handle)
   return WebEngine(dynamic_cast<Internal::Adaptor::WebEngine*>(handle.GetObjectPtr()));
 }
 
-void WebEngine::Create(int width, int height, const std::string& locale, const std::string& timezoneId)
+void WebEngine::Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
 {
   GetImplementation(*this).Create(width, height, locale, timezoneId);
 }
 
-void WebEngine::Create(int width, int height, int argc, char** argv)
+void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** argv)
 {
   GetImplementation(*this).Create(width, height, argc, argv);
 }
@@ -207,17 +207,17 @@ bool WebEngine::StopInspectorServer()
   return GetImplementation(*this).StopInspectorServer();
 }
 
-void WebEngine::ScrollBy(int deltaX, int deltaY)
+void WebEngine::ScrollBy(int32_t deltaX, int32_t deltaY)
 {
   GetImplementation(*this).ScrollBy(deltaX, deltaY);
 }
 
-bool WebEngine::ScrollEdgeBy(int deltaX, int deltaY)
+bool WebEngine::ScrollEdgeBy(int32_t deltaX, int32_t deltaY)
 {
   return GetImplementation(*this).ScrollEdgeBy(deltaX, deltaY);
 }
 
-void WebEngine::SetScrollPosition(int x, int y)
+void WebEngine::SetScrollPosition(int32_t x, int32_t y)
 {
   GetImplementation(*this).SetScrollPosition(x, y);
 }
@@ -297,6 +297,16 @@ void WebEngine::JavaScriptPromptReply(const std::string& result)
   GetImplementation(*this).JavaScriptPromptReply(result);
 }
 
+std::unique_ptr<Dali::WebEngineHitTest> WebEngine::CreateHitTest(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode)
+{
+  return GetImplementation(*this).CreateHitTest(x, y, mode);
+}
+
+bool WebEngine::CreateHitTestAsynchronously(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode, Dali::WebEnginePlugin::WebEngineHitTestCreatedCallback callback)
+{
+  return GetImplementation(*this).CreateHitTestAsynchronously(x, y, mode, callback);
+}
+
 void WebEngine::ClearHistory()
 {
   GetImplementation(*this).ClearHistory();
@@ -317,7 +327,7 @@ void WebEngine::SetUserAgent(const std::string& userAgent)
   GetImplementation(*this).SetUserAgent(userAgent);
 }
 
-void WebEngine::SetSize(int width, int height)
+void WebEngine::SetSize(uint32_t width, uint32_t height)
 {
   GetImplementation(*this).SetSize(width, height);
 }
@@ -427,12 +437,12 @@ void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::st
   GetImplementation(*this).AddDynamicCertificatePath(host, certPath);
 }
 
-Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor)
+Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor)
 {
   return GetImplementation(*this).GetScreenshot(viewArea, scaleFactor);
 }
 
-bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
 {
   return GetImplementation(*this).GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
 }
@@ -447,7 +457,7 @@ void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::Geo
   GetImplementation(*this).RegisterGeolocationPermissionCallback(callback);
 }
 
-void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
+void WebEngine::UpdateDisplayArea(Dali::Rect<int32_t> displayArea)
 {
   GetImplementation(*this).UpdateDisplayArea(displayArea);
 }

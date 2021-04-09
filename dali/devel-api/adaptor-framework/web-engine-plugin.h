@@ -19,12 +19,15 @@
  */
 
 // EXTERNAL INCLUDES
+#include <functional>
+#include <memory>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
-#include <functional>
-#include <memory>
 
 namespace Dali
 {
@@ -39,6 +42,7 @@ class WebEngineContextMenu;
 class WebEngineContextMenuItem;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
+class WebEngineHitTest;
 class WebEngineHttpAuthHandler;
 class WebEngineLoadError;
 class WebEnginePolicyDecision;
@@ -160,6 +164,11 @@ public:
   using WebEnginePolicyDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
+   * @brief Hit test callback called after hit test is created asynchronously.
+   */
+  using WebEngineHitTestCreatedCallback = std::function<bool(std::unique_ptr<Dali::WebEngineHitTest>)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -204,7 +213,7 @@ public:
    * @param [in] locale The locale of Web
    * @param [in] timezoneId The timezoneID of Web
    */
-  virtual void Create(int width, int height, const std::string& locale, const std::string& timezoneId) = 0;
+  virtual void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId) = 0;
 
   /**
    * @brief Create WebEngine instance.
@@ -214,7 +223,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  virtual void Create(int width, int height, int argc, char** argv) = 0;
+  virtual void Create(uint32_t width, uint32_t height, uint32_t argc, char** argv) = 0;
 
   /**
    * @brief Destroy WebEngine instance.
@@ -381,7 +390,7 @@ public:
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
    */
-  virtual void ScrollBy(int deltaX, int deltaY) = 0;
+  virtual void ScrollBy(int32_t deltaX, int32_t deltaY) = 0;
 
   /**
    * @brief Scroll edge of view by deltaX and deltaY.
@@ -391,12 +400,12 @@ public:
    *
    * @return true if succeeded, false otherwise
    */
-  virtual bool ScrollEdgeBy(int deltaX, int deltaY) = 0;
+  virtual bool ScrollEdgeBy(int32_t deltaX, int32_t deltaY) = 0;
 
   /**
    * @brief Scroll to the specified position of the given view.
    */
-  virtual void SetScrollPosition(int x, int y) = 0;
+  virtual void SetScrollPosition(int32_t x, int32_t y) = 0;
 
   /**
    * @brief Get the current scroll position of the given view.
@@ -490,6 +499,29 @@ public:
   virtual void JavaScriptPromptReply(const std::string& result) = 0;
 
   /**
+   * @brief Create a new hit test.
+   *
+   * @param[in] x the horizontal position to query
+   * @param[in] y the vertical position to query
+   * @param[in] mode the mode of hit test
+   *
+   * @return a new hit test object.
+   */
+  virtual std::unique_ptr<Dali::WebEngineHitTest> CreateHitTest(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode) = 0;
+
+  /**
+   * @brief create a hit test asynchronously.
+   *
+   * @param[in] x the horizontal position to query
+   * @param[in] y the vertical position to query
+   * @param[in] mode the mode of hit test
+   * @param[in] callback The callback function
+   *
+   * @return true if succeeded, false otherwise
+   */
+  virtual bool CreateHitTestAsynchronously(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode, WebEngineHitTestCreatedCallback callback) = 0;
+
+  /**
    * @brief Clear the history of Web.
    */
   virtual void ClearHistory() = 0;
@@ -516,7 +548,7 @@ public:
   /**
    * @brief Set size of Web Page.
    */
-  virtual void SetSize(int width, int height) = 0;
+  virtual void SetSize(uint32_t width, uint32_t height) = 0;
 
   /**
    * @brief Set background color of web page.
@@ -663,7 +695,7 @@ public:
    *
    * @return pixel data of screen shot
    */
-  virtual Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor) = 0;
+  virtual Dali::PixelData GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor) = 0;
 
   /**
    * @brief Request to get snapshot of the specified viewArea of page asynchronously.
@@ -674,7 +706,7 @@ public:
    *
    * @return true if requested successfully, false otherwise
    */
-  virtual bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, ScreenshotCapturedCallback callback) = 0;
+  virtual bool GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, ScreenshotCapturedCallback callback) = 0;
 
   /**
    * @brief Asynchronously request to check if there is a video playing in the given view.
@@ -696,7 +728,7 @@ public:
    * @brief Update display area.
    * @param[in] displayArea The display area need be updated.
    */
-  virtual void UpdateDisplayArea(Dali::Rect<int> displayArea) = 0;
+  virtual void UpdateDisplayArea(Dali::Rect<int32_t> displayArea) = 0;
 
   /**
    * @brief Enable video hole.

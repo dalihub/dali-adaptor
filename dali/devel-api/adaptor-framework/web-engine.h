@@ -56,7 +56,7 @@ public:
   ~WebEngine();
 
   /**
-   * @brief Creates a new instance of a WebEngine.
+   * @brief Create a new instance of a WebEngine.
    */
   static WebEngine New();
 
@@ -94,7 +94,7 @@ public:
    * @param [in] locale The locale of Web
    * @param [in] timezoneId The timezoneID of Web
    */
-  void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
+  void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
 
   /**
    * @brief Create WebEngine instance.
@@ -104,7 +104,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  void Create(int width, int height, int argc, char** argv);
+  void Create(uint32_t width, uint32_t height, uint32_t argc, char** argv);
 
   /**
    * @brief Destroy WebEngine instance.
@@ -269,7 +269,7 @@ public:
    * @param[in] deltaX horizontal offset to scroll
    * @param[in] deltaY vertical offset to scroll
    */
-  void ScrollBy(int deltaX, int deltaY);
+  void ScrollBy(int32_t deltaX, int32_t deltaY);
 
   /**
    * @brief Scroll edge of view by deltaX and deltaY.
@@ -279,12 +279,12 @@ public:
    *
    * @return true if succeeded, false otherwise
    */
-  bool ScrollEdgeBy(int deltaX, int deltaY);
+  bool ScrollEdgeBy(int32_t deltaX, int32_t deltaY);
 
   /**
    * @brief Set an absolute scroll of the given view.
    */
-  void SetScrollPosition(int x, int y);
+  void SetScrollPosition(int32_t x, int32_t y);
 
   /**
    * @brief Get the current scroll position of the given view.
@@ -380,6 +380,29 @@ public:
   void JavaScriptPromptReply(const std::string& result);
 
   /**
+   * @brief Create a new hit test.
+   *
+   * @param[in] x the horizontal position to query
+   * @param[in] y the vertical position to query
+   * @param[in] mode the mode of hit test
+   *
+   * @return a new hit test object
+   */
+  std::unique_ptr<Dali::WebEngineHitTest> CreateHitTest(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode);
+
+  /**
+   * @brief create a hit test asynchronously.
+   *
+   * @param[in] x the horizontal position to query
+   * @param[in] y the vertical position to query
+   * @param[in] mode the mode of hit test
+   * @param[in] callback the callback function
+   *
+   * @return true if succeeded, false otherwise
+   */
+  bool CreateHitTestAsynchronously(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode, Dali::WebEnginePlugin::WebEngineHitTestCreatedCallback callback);
+
+  /**
    * @brief Clear the history of Web.
    */
   void ClearHistory();
@@ -406,7 +429,7 @@ public:
   /**
    * @brief Set the size of Web Pages.
    */
-  void SetSize(int width, int height);
+  void SetSize(uint32_t width, uint32_t height);
 
   /**
    * @brief Set background color of web page.
@@ -555,7 +578,7 @@ public:
    *
    * @return pixel data of screen shot
    */
-  Dali::PixelData GetScreenshot(Dali::Rect<int> viewArea, float scaleFactor);
+  Dali::PixelData GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor);
 
   /**
    * @brief Request to get snapshot of the specified viewArea of page asynchronously.
@@ -566,7 +589,7 @@ public:
    *
    * @return true if requested successfully, false otherwise
    */
-  bool GetScreenshotAsynchronously(Dali::Rect<int> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
+  bool GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback);
 
   /**
    * @brief Asynchronous request to check if there is a video playing in the given view.
@@ -588,7 +611,7 @@ public:
    * @brief Update display area.
    * @param[in] displayArea The area to display web page
    */
-  void UpdateDisplayArea(Dali::Rect<int> displayArea);
+  void UpdateDisplayArea(Dali::Rect<int32_t> displayArea);
 
   /**
    * @brief Enable video hole.
