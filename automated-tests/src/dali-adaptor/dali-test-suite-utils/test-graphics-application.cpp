@@ -21,7 +21,6 @@ namespace Dali
 {
 bool TestGraphicsApplication::mLoggingEnabled = true;
 
-
 TestGraphicsApplication::TestGraphicsApplication(uint32_t surfaceWidth,
                                                  uint32_t surfaceHeight,
                                                  uint32_t horizontalDpi,
@@ -81,6 +80,13 @@ void TestGraphicsApplication::CreateScene()
 {
   mScene = Dali::Integration::Scene::New(Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)));
   mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
+
+  Graphics::RenderTargetCreateInfo createInfo{};
+  createInfo.SetSurface({nullptr})
+    .SetExtent({mSurfaceWidth, mSurfaceHeight})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+  mRenderTarget = mGraphicsController.CreateRenderTarget(createInfo, nullptr);
+  mScene.SetSurfaceRenderTarget(mRenderTarget.get());
 }
 
 void TestGraphicsApplication::InitializeCore()

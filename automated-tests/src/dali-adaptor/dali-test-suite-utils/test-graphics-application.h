@@ -34,11 +34,8 @@
 #include <test-platform-abstraction.h>
 #include <test-render-controller.h>
 
-
 namespace Dali
 {
-
-
 namespace Internal::Adaptor
 {
 class ConfigurationManager;
@@ -188,9 +185,6 @@ public:
   TraceCallStack mCallstack{true, "GraphicsImpl"};
 };
 
-
-
-
 class DALI_CORE_API TestGraphicsApplication : public ConnectionTracker
 {
 public:
@@ -254,13 +248,14 @@ private:
   void DoUpdate(uint32_t intervalMilliseconds, const char* location = NULL);
 
 protected:
-  TestPlatformAbstraction         mPlatformAbstraction;
-  TestRenderController            mRenderController;
-  Graphics::EglGraphicsController mGraphicsController; // Use real controller in Adaptor
-  TestGlAbstraction               mGlAbstraction;
-  TestGlSyncAbstraction           mGlSyncAbstraction;
-  TestGlContextHelperAbstraction  mGlContextHelperAbstraction;
-  TestGraphicsImpl                mGraphics;
+  TestPlatformAbstraction                     mPlatformAbstraction;
+  TestRenderController                        mRenderController;
+  Graphics::EglGraphicsController             mGraphicsController; // Use real controller in Adaptor
+  TestGlAbstraction                           mGlAbstraction;
+  TestGlSyncAbstraction                       mGlSyncAbstraction;
+  TestGlContextHelperAbstraction              mGlContextHelperAbstraction;
+  TestGraphicsImpl                            mGraphics;
+  Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
 
   Integration::UpdateStatus mStatus;
   Integration::RenderStatus mRenderStatus;
