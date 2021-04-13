@@ -417,7 +417,6 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   auto& renderPass   = *renderPassBegin.renderPass;
   auto& renderTarget = *renderPassBegin.renderTarget;
 
-  const auto& passInfo   = renderPass.GetCreateInfo();
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
   auto& gl       = *mImpl->mController.GetGL();
@@ -425,17 +424,11 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
   if(targetInfo.surface)
   {
-    // switch context to surface bound
-    graphics.ActivateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(targetInfo.surface));
-
     // Bind surface FB
     gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
   }
   else if(targetInfo.framebuffer)
   {
-    // if needed, switch to shared context.
-    graphics.ActivateResourceContext();
-
     // bind framebuffer and swap.
     renderTarget.GetFramebuffer()->Bind();
   }

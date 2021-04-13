@@ -84,7 +84,7 @@ public:
   void ActivateResourceContext() override;
 
   /**
-   * Activate the resource context
+   * Activate the surface context
    *
    * @param[in] surface The surface whose context to be switched to.
    */
