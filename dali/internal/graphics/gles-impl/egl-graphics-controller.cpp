@@ -98,8 +98,9 @@ EglGraphicsController::~EglGraphicsController() = default;
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #1\n");
-  mGlAbstraction = &glAbstraction;
-  mContext       = std::make_unique<GLES::Context>(*this);
+  mGlAbstraction  = &glAbstraction;
+  mContext        = std::make_unique<GLES::Context>(*this);
+  mCurrentContext = mContext.get();
 }
 
 void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
@@ -244,6 +245,39 @@ const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Gr
   return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();
 }
 
+void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this);
+  mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
+}
+
+void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  mSurfaceContexts.erase(std::remove_if(
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
+                         mSurfaceContexts.end());
+}
+
+void EglGraphicsController::ActivateResourceContext()
+{
+  mCurrentContext = mContext.get();
+}
+
+void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  if(surface && mGraphics->IsResourceContextSupported())
+  {
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) {
+      return (iter.first == surface);
+    });
+
+    if(iter != mSurfaceContexts.end())
+    {
+      mCurrentContext = iter->second.get();
+    }
+  }
+}
+
 void EglGraphicsController::AddTexture(GLES::Texture& texture)
 {
   // Assuming we are on the correct context
@@ -315,24 +349,24 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
       }
       case GLES::CommandType::BIND_TEXTURES:
       {
-        mContext->BindTextures(cmd.bindTextures.textureBindings);
+        mCurrentContext->BindTextures(cmd.bindTextures.textureBindings);
         break;
       }
       case GLES::CommandType::BIND_VERTEX_BUFFERS:
       {
         auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
-        mContext->BindVertexBuffers(bindings);
+        mCurrentContext->BindVertexBuffers(bindings);
         break;
       }
       case GLES::CommandType::BIND_UNIFORM_BUFFER:
       {
         auto& bindings = cmd.bindUniformBuffers;
-        mContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
+        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
         break;
       }
       case GLES::CommandType::BIND_INDEX_BUFFER:
       {
-        mContext->BindIndexBuffer(cmd.bindIndexBuffer);
+        mCurrentContext->BindIndexBuffer(cmd.bindIndexBuffer);
         break;
       }
       case GLES::CommandType::BIND_SAMPLERS:
@@ -342,22 +376,22 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
       case GLES::CommandType::BIND_PIPELINE:
       {
         auto pipeline = static_cast<const GLES::Pipeline*>(cmd.bindPipeline.pipeline);
-        mContext->BindPipeline(pipeline);
+        mCurrentContext->BindPipeline(pipeline);
         break;
       }
       case GLES::CommandType::DRAW:
       {
-        mContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED:
       {
-        mContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED_INDIRECT:
       {
-        mContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw);
         break;
       }
       case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
@@ -384,12 +418,26 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
       }
       case GLES::CommandType::BEGIN_RENDERPASS:
       {
-        mContext->BeginRenderPass(cmd.beginRenderPass);
+        auto&       renderTarget = *cmd.beginRenderPass.renderTarget;
+        const auto& targetInfo   = renderTarget.GetCreateInfo();
+
+        if(targetInfo.surface)
+        {
+          // switch to surface context
+          mGraphics->ActivateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(targetInfo.surface));
+        }
+        else if(targetInfo.framebuffer)
+        {
+          // switch to resource context
+          mGraphics->ActivateResourceContext();
+        }
+
+        mCurrentContext->BeginRenderPass(cmd.beginRenderPass);
         break;
       }
       case GLES::CommandType::END_RENDERPASS:
       {
-        mContext->EndRenderPass();
+        mCurrentContext->EndRenderPass();
         break;
       }
       case GLES::CommandType::PRESENT_RENDER_TARGET:

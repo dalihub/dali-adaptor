@@ -558,6 +558,32 @@ public:
   // Resolves presentation
   void ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget);
 
+  /**
+   * Creates a GLES context for the given render surface
+   *
+   * @param[in] surface The surface whose GLES context to be created.
+   */
+  void CreateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * Deletes a GLES context
+   *
+   * @param[in] surface The surface whose GLES context to be deleted.
+   */
+  void DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * Activate the resource context (shared surfaceless context)
+   */
+  void ActivateResourceContext();
+
+  /**
+   * Activate the surface context
+   *
+   * @param[in] surface The surface whose context to be switched to.
+   */
+  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
@@ -584,7 +610,10 @@ private:
   using TextureUpdateRequest = std::pair<TextureUpdateInfo, TextureUpdateSourceInfo>;
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
 
-  std::unique_ptr<GLES::Context> mContext{nullptr}; ///< Context object handling command buffers execution
+  GLES::Context*                 mCurrentContext{nullptr}; ///< The current context
+  std::unique_ptr<GLES::Context> mContext{nullptr};        ///< Context object handling command buffers execution
+  using SurfaceContextPair = std::pair<Dali::RenderSurfaceInterface*, std::unique_ptr<GLES::Context>>;
+  std::vector<SurfaceContextPair> mSurfaceContexts; ///< Vector of surface context objects handling command buffers execution
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
 

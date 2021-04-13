@@ -245,9 +245,6 @@ bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vect
 
 void NativeRenderSurfaceEcoreWl::PostRender()
 {
-  // @todo: Check why did we always pass false into here previously?
-  bool replacingSurface = false;
-
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if(eglGraphics)
   {

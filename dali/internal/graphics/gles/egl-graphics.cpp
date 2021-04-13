@@ -71,6 +71,8 @@ void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 
 void EglGraphics::ActivateResourceContext()
 {
+  mGraphicsController.ActivateResourceContext();
+
   if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
     // Make the shared surfaceless context as current before rendering
@@ -80,6 +82,8 @@ void EglGraphics::ActivateResourceContext()
 
 void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
+  mGraphicsController.ActivateSurfaceContext(surface);
+
   if(surface)
   {
     surface->InitializeGraphics();
