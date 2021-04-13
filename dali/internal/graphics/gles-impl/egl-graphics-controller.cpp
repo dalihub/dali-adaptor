@@ -90,6 +90,8 @@ T0* CastObject(T1* apiObject)
 
 } // namespace
 
+EglGraphicsController::~EglGraphicsController() = default;
+
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #1\n");
@@ -219,6 +221,15 @@ void EglGraphicsController::ProcessDiscardQueues()
 
   // Process programs
   ProcessDiscardQueue<GLES::Program>(mDiscardProgramQueue);
+
+  // Process shaders
+  ProcessDiscardQueue<GLES::Shader>(mDiscardShaderQueue);
+
+  // Process samplers
+  ProcessDiscardQueue<GLES::Sampler>(mDiscardSamplerQueue);
+
+  // Process command buffers
+  ProcessDiscardQueue<GLES::CommandBuffer>(mDiscardCommandBufferQueue);
 }
 
 void EglGraphicsController::ProcessCreateQueues()

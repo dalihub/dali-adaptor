@@ -19,12 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/graphics-api/graphics-command-buffer-create-info.h>
 #include <dali/graphics-api/graphics-command-buffer.h>
+#include <dali/graphics-api/graphics-types.h>
 
 // INTERNAL INCLUDES
-#include "egl-graphics-controller.h"
-#include "gles-graphics-buffer.h"
-#include "gles-graphics-pipeline.h"
+#include "gles-graphics-resource.h"
 #include "gles-graphics-types.h"
 
 namespace Dali::Graphics::GLES
@@ -50,16 +50,60 @@ enum class CommandType
 };
 
 /**
+ * @brief Helper function to invoke destructor on anonymous struct
+ */
+template<class T>
+static void InvokeDestructor(T& object)
+{
+  object.~T();
+}
+
+/**
  * Command structure allocates memory to store a single command
  */
 struct Command
 {
-  Command()
+  Command() = delete;
+
+  Command(CommandType commandType)
   {
+    type = commandType;
+    switch(type)
+    {
+      case CommandType::BIND_VERTEX_BUFFERS:
+      {
+        new(&bindVertexBuffers) decltype(bindVertexBuffers);
+        break;
+      }
+      case CommandType::BIND_TEXTURES:
+      {
+        new(&bindTextures) decltype(bindTextures);
+        break;
+      }
+      default:
+      {
+      }
+    }
   }
 
   ~Command()
   {
+    switch(type)
+    {
+      case CommandType::BIND_VERTEX_BUFFERS:
+      {
+        InvokeDestructor(bindVertexBuffers);
+        break;
+      }
+      case CommandType::BIND_TEXTURES:
+      {
+        InvokeDestructor(bindTextures);
+        break;
+      }
+      default:
+      {
+      }
+    }
   }
 
   /**
@@ -72,6 +116,7 @@ struct Command
     {
       case CommandType::BIND_VERTEX_BUFFERS:
       {
+        new(&bindVertexBuffers) decltype(bindVertexBuffers);
         bindVertexBuffers = rhs.bindVertexBuffers;
         break;
       }
@@ -87,6 +132,7 @@ struct Command
       }
       case CommandType::BIND_TEXTURES:
       {
+        new(&bindTextures) decltype(bindTextures);
         bindTextures = rhs.bindTextures;
         break;
       }
@@ -152,6 +198,7 @@ struct Command
     {
       case CommandType::BIND_VERTEX_BUFFERS:
       {
+        new(&bindVertexBuffers) decltype(bindVertexBuffers);
         bindVertexBuffers = std::move(rhs.bindVertexBuffers);
         break;
       }
@@ -172,6 +219,7 @@ struct Command
       }
       case CommandType::BIND_TEXTURES:
       {
+        new(&bindTextures) decltype(bindTextures);
         bindTextures = std::move(rhs.bindTextures);
         break;
       }
@@ -284,112 +332,35 @@ using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::Comman
 class CommandBuffer : public CommandBufferResource
 {
 public:
-  CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller)
-  : CommandBufferResource(createInfo, controller)
-  {
-  }
+  CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller);
 
-  ~CommandBuffer() override = default;
+  ~CommandBuffer() override;
 
   void BindVertexBuffers(uint32_t                             firstBinding,
                          std::vector<const Graphics::Buffer*> buffers,
-                         std::vector<uint32_t>                offsets) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type = CommandType::BIND_VERTEX_BUFFERS;
-    auto& bindings        = mCommands.back().bindVertexBuffers.vertexBufferBindings;
-    if(bindings.size() < firstBinding + buffers.size())
-    {
-      bindings.resize(firstBinding + buffers.size());
-      auto index = firstBinding;
-      for(auto& buf : buffers)
-      {
-        bindings[index].buffer = static_cast<const GLES::Buffer*>(buf);
-        bindings[index].offset = offsets[index - firstBinding];
-        index++;
-      }
-    }
-  }
+                         std::vector<uint32_t>                offsets) override;
 
-  void BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings) override
-  {
-    mCommands.emplace_back();
-    auto& cmd     = mCommands.back();
-    cmd.type      = CommandType::BIND_UNIFORM_BUFFER;
-    auto& bindCmd = cmd.bindUniformBuffers;
-    for(const auto& binding : bindings)
-    {
-      if(binding.buffer)
-      {
-        auto glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
-        if(glesBuffer->IsCPUAllocated()) // standalone uniforms
-        {
-          bindCmd.standaloneUniformsBufferBinding.buffer   = glesBuffer;
-          bindCmd.standaloneUniformsBufferBinding.offset   = binding.offset;
-          bindCmd.standaloneUniformsBufferBinding.binding  = binding.binding;
-          bindCmd.standaloneUniformsBufferBinding.emulated = true;
-        }
-        else // Bind regular UBO
-        {
-          // resize binding slots
-          if(binding.binding >= bindCmd.uniformBufferBindings.size())
-          {
-            bindCmd.uniformBufferBindings.resize(binding.binding + 1);
-          }
-          auto& slot    = bindCmd.uniformBufferBindings[binding.binding];
-          slot.buffer   = glesBuffer;
-          slot.offset   = binding.offset;
-          slot.binding  = binding.binding;
-          slot.emulated = false;
-        }
-      }
-    }
-  }
+  void BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings) override;
 
-  void BindPipeline(const Graphics::Pipeline& pipeline) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type                  = CommandType::BIND_PIPELINE;
-    mCommands.back().bindPipeline.pipeline = static_cast<const GLES::Pipeline*>(&pipeline);
-  }
+  void BindPipeline(const Graphics::Pipeline& pipeline) override;
 
-  void BindTextures(std::vector<TextureBinding>& textureBindings) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type                         = CommandType::BIND_TEXTURES;
-    mCommands.back().bindTextures.textureBindings = std::move(textureBindings);
-  }
+  void BindTextures(std::vector<TextureBinding>& textureBindings) override;
 
-  void BindSamplers(std::vector<SamplerBinding>& samplerBindings) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().bindSamplers.samplerBindings = std::move(samplerBindings);
-  }
+  void BindSamplers(std::vector<SamplerBinding>& samplerBindings) override;
 
   void BindPushConstants(void*    data,
                          uint32_t size,
-                         uint32_t binding) override
-  {
-  }
+                         uint32_t binding) override;
 
   void BindIndexBuffer(const Graphics::Buffer& buffer,
                        uint32_t                offset,
-                       Format                  format) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type                   = CommandType::BIND_INDEX_BUFFER;
-    mCommands.back().bindIndexBuffer.buffer = static_cast<const GLES::Buffer*>(&buffer);
-    mCommands.back().bindIndexBuffer.offset = offset;
-    mCommands.back().bindIndexBuffer.format = format;
-  }
+                       Format                  format) override;
 
   void BeginRenderPass(
     Graphics::RenderPass&   renderPass,
     Graphics::RenderTarget& renderTarget,
     Extent2D                renderArea,
-    std::vector<ClearValue> clearValues) override
-  {
-  }
+    std::vector<ClearValue> clearValues) override;
 
   /**
    * @brief Ends current render pass
@@ -400,111 +371,43 @@ public:
    * dependencies (for example, to know when target texture is ready
    * before passing it to another render pass).
    */
-  void EndRenderPass() override
-  {
-  }
+  void EndRenderPass() override;
 
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
     uint32_t firstVertex,
-    uint32_t firstInstance) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type  = CommandType::DRAW;
-    auto& cmd              = mCommands.back().draw;
-    cmd.type               = DrawCallDescriptor::Type::DRAW;
-    cmd.draw.vertexCount   = vertexCount;
-    cmd.draw.instanceCount = instanceCount;
-    cmd.draw.firstInstance = firstInstance;
-    cmd.draw.firstVertex   = firstVertex;
-  }
+    uint32_t firstInstance) override;
 
   void DrawIndexed(
     uint32_t indexCount,
     uint32_t instanceCount,
     uint32_t firstIndex,
     int32_t  vertexOffset,
-    uint32_t firstInstance) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type         = CommandType::DRAW_INDEXED;
-    auto& cmd                     = mCommands.back().draw;
-    cmd.type                      = DrawCallDescriptor::Type::DRAW_INDEXED;
-    cmd.drawIndexed.firstIndex    = firstIndex;
-    cmd.drawIndexed.firstInstance = firstInstance;
-    cmd.drawIndexed.indexCount    = indexCount;
-    cmd.drawIndexed.vertexOffset  = vertexOffset;
-    cmd.drawIndexed.instanceCount = instanceCount;
-  }
+    uint32_t firstInstance) override;
 
   void DrawIndexedIndirect(
     Graphics::Buffer& buffer,
     uint32_t          offset,
     uint32_t          drawCount,
-    uint32_t          stride) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type             = CommandType::DRAW_INDEXED_INDIRECT;
-    auto& cmd                         = mCommands.back().draw;
-    cmd.type                          = DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT;
-    cmd.drawIndexedIndirect.buffer    = static_cast<const GLES::Buffer*>(&buffer);
-    cmd.drawIndexedIndirect.offset    = offset;
-    cmd.drawIndexedIndirect.drawCount = drawCount;
-    cmd.drawIndexedIndirect.stride    = stride;
-  }
+    uint32_t          stride) override;
 
-  void Reset() override
-  {
-    mCommands.clear();
-  }
+  void Reset() override;
 
-  void SetScissor(Graphics::Rect2D value) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type           = CommandType::SET_SCISSOR;
-    mCommands.back().scissor.region = value;
-  }
+  void SetScissor(Graphics::Rect2D value) override;
 
-  void SetScissorTestEnable(bool value) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type               = CommandType::SET_SCISSOR_TEST;
-    mCommands.back().scissorTest.enable = value;
-  }
+  void SetScissorTestEnable(bool value) override;
 
-  void SetViewport(Viewport value) override
-  {
-    mCommands.emplace_back();
-    mCommands.back().type            = CommandType::SET_VIEWPORT;
-    mCommands.back().viewport.region = value;
-  }
+  void SetViewport(Viewport value) override;
 
-  void SetViewportEnable(bool value) override
-  {
-    // There is no GL equivalent
-  }
+  void SetViewportEnable(bool value) override;
 
-  [[nodiscard]] const std::vector<Command>& GetCommands() const
-  {
-    return mCommands;
-  }
+  [[nodiscard]] const std::vector<Command>& GetCommands() const;
 
-  void DestroyResource() override
-  {
-    // Nothing to do
-  }
+  void DestroyResource() override;
+  bool InitializeResource() override;
 
-  bool InitializeResource() override
-  {
-    // Nothing to do
-    return true;
-  }
-
-  void DiscardResource() override
-  {
-    // Nothing to do
-  }
+  void DiscardResource() override;
 
 private:
   std::vector<Command> mCommands;

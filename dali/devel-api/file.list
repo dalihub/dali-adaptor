@@ -101,6 +101,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-frame.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-http-auth-handler.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-load-error.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-hit-test.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-policy-decision.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-request-interceptor.h
