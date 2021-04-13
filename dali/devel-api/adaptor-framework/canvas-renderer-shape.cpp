@@ -78,6 +78,11 @@ bool CanvasRenderer::Shape::Close()
   return GetImplementation(*this).Close();
 }
 
+bool CanvasRenderer::Shape::ResetPath()
+{
+  return GetImplementation(*this).ResetPath();
+}
+
 bool CanvasRenderer::Shape::SetFillColor(Vector4 color)
 {
   return GetImplementation(*this).SetFillColor(color);
