@@ -184,6 +184,27 @@ bool ShapeTizen::Close()
   return true;
 }
 
+bool ShapeTizen::ResetPath()
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null\n");
+    return false;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->reset() != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("reset() fail.\n");
+    return false;
+  }
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool ShapeTizen::SetFillColor(Vector4 color)
 {
   if(!mTvgShape)

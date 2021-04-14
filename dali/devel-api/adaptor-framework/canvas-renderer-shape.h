@@ -180,6 +180,13 @@ public:
   bool Close();
 
   /**
+   * @brief Reset the added path(rect, circle, path, etc...) information.
+   * Color and Stroke information are keeped.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool ResetPath();
+
+  /**
    * @brief Set the color to use for filling the path.
    * @param[in] color The color value.
    * @return Returns True when it's successful. False otherwise.

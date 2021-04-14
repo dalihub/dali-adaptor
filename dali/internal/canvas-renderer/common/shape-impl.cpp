@@ -63,6 +63,11 @@ bool Shape::Close()
   return false;
 }
 
+bool Shape::ResetPath()
+{
+  return false;
+}
+
 bool Shape::SetFillColor(Vector4 color)
 {
   return false;
