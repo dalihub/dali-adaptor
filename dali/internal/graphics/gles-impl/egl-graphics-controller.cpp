@@ -395,6 +395,9 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
       case GLES::CommandType::PRESENT_RENDER_TARGET:
       {
         ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);
+
+        // push this command buffer to the discard queue
+        mDiscardCommandBufferQueue.push(&commandBuffer);
         break;
       }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
