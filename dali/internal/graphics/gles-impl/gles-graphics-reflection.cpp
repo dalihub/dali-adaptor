@@ -16,6 +16,8 @@
  */
 
 #include "gles-graphics-reflection.h"
+
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 
@@ -114,6 +116,11 @@ void Reflection::BuildVertexAttributeReflection()
   char*  name;
 
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
@@ -149,6 +156,11 @@ void Reflection::BuildUniformReflection()
   int numUniforms = 0;
 
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
@@ -253,6 +265,13 @@ void Reflection::BuildUniformBlockReflection()
   auto gl               = mController.GetGL();
   auto glProgram        = mProgram.GetGlProgram();
   int  numUniformBlocks = 0;
+
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 
   mUniformBlocks.clear();
@@ -514,17 +533,24 @@ std::vector<Dali::Graphics::UniformInfo> Reflection::GetSamplers() const
 
 Graphics::ShaderLanguage Reflection::GetLanguage() const
 {
+  auto version = Graphics::ShaderLanguage::GLSL_3_2;
+
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return version;
+  }
 
   int majorVersion, minorVersion;
   gl->GetIntegerv(GL_MAJOR_VERSION, &majorVersion);
   gl->GetIntegerv(GL_MINOR_VERSION, &minorVersion);
-  printf("GL Version (integer) : %d.%d\n", majorVersion, minorVersion);
-  printf("GLSL Version : %s\n", gl->GetString(GL_SHADING_LANGUAGE_VERSION));
+  DALI_LOG_RELEASE_INFO("GL Version (integer) : %d.%d\n", majorVersion, minorVersion);
+  DALI_LOG_RELEASE_INFO("GLSL Version : %s\n", gl->GetString(GL_SHADING_LANGUAGE_VERSION));
 
   // TODO: the language version is hardcoded for now, but we may use what we get
   // from GL_SHADING_LANGUAGE_VERSION?
-  return Graphics::ShaderLanguage::GLSL_3_2;
+  return version;
 }
 
 } // namespace Dali::Graphics::GLES
