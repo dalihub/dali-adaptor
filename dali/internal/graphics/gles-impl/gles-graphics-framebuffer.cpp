@@ -92,10 +92,10 @@ Framebuffer::~Framebuffer() = default;
 
 bool Framebuffer::InitializeResource()
 {
-  if(!mInitialized)
+  auto gl = mController.GetGL();
+  if(gl && !mInitialized)
   {
     mInitialized = true;
-    auto gl      = mController.GetGL();
 
     gl->GenFramebuffers(1, &mFramebufferId);
     gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
@@ -144,7 +144,7 @@ bool Framebuffer::InitializeResource()
 void Framebuffer::DestroyResource()
 {
   auto gl = mController.GetGL();
-  if(mInitialized)
+  if(gl && mInitialized)
   {
     if(mDepthBufferId)
     {
@@ -174,15 +174,18 @@ void Framebuffer::Bind() const
 
 void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId)
 {
-  auto gl              = mController.GetGL();
-  auto graphicsTexture = static_cast<const GLES::Texture*>(texture);
-  if(graphicsTexture->GetCreateInfo().textureType == Graphics::TextureType::TEXTURE_2D)
+  auto gl = mController.GetGL();
+  if(gl)
   {
-    gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, graphicsTexture->GetGlTarget(), graphicsTexture->GetGLTexture(), levelId);
-  }
-  else
-  {
-    gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId, graphicsTexture->GetGLTexture(), levelId);
+    auto graphicsTexture = static_cast<const GLES::Texture*>(texture);
+    if(graphicsTexture->GetCreateInfo().textureType == Graphics::TextureType::TEXTURE_2D)
+    {
+      gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, graphicsTexture->GetGlTarget(), graphicsTexture->GetGLTexture(), levelId);
+    }
+    else
+    {
+      gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId, graphicsTexture->GetGLTexture(), levelId);
+    }
   }
 }
 
