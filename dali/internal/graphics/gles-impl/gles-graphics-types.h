@@ -13,8 +13,6 @@ class RenderPass;
 class RenderTarget;
 class Framebuffer;
 
-using Surface = void*;
-
 // Conversion functions
 /**
  * Stucture delivers format and type that can be used
