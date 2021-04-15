@@ -75,6 +75,14 @@ Accessibility::Bridge* Accessibility::Bridge::GetCurrentBridge()
   return Accessibility::DummyBridge::GetInstance();
 }
 
+void Accessibility::Bridge::DisableAutoInit()
+{
+}
+
+void Accessibility::Bridge::EnableAutoInit(Accessible*, const std::string&)
+{
+}
+
 void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue1, int newValue2)
 {
 }
