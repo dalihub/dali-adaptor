@@ -57,6 +57,14 @@ DALI_ADAPTOR_API void Resume();
 DALI_ADAPTOR_API void StopReading(bool alsoNonDiscardable = false);
 
 /**
+ * @brief Suppresses reading of screen-reader
+ *
+ * @param suppress whether to suppress reading of screen-reader
+ * @return true on success, false otherwise
+ */
+DALI_ADAPTOR_API bool SuppressScreenReader(bool suppress);
+
+/**
  * @brief Set ATSPI to be turned On or Off forcibly.
  *
  * @param[in] turnOn true to turn on, false to turn off.
