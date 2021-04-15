@@ -33,7 +33,10 @@ protected:
 public:
   DBus::ValueOrError<bool> CopyText(int32_t startPos, int32_t endPos);
   DBus::ValueOrError<bool> CutText(int32_t startPos, int32_t endPos);
+  DBus::ValueOrError<bool> DeleteText(int32_t startPos, int32_t endPos);
+  DBus::ValueOrError<bool> InsertText(int32_t startPos, std::string text, int32_t length);
   DBus::ValueOrError<bool> PasteText(int32_t pos);
+  DBus::ValueOrError<bool> SetTextContents(std::string newContents);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_EDITABLE_TEXT_H
