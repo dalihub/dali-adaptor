@@ -7,6 +7,7 @@ SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
     utc-Dali-GraphicsSampler.cpp
     utc-Dali-GraphicsGeometry.cpp
+    utc-Dali-GraphicsProgram.cpp
     utc-Dali-GraphicsNativeImage.cpp
 )
 

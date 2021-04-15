@@ -780,6 +780,9 @@ void TestGraphicsController::BindPipeline(TestGraphicsPipeline* pipeline)
   {
     mGl.Disable(GL_BLEND);
   }
+
+  auto* program = static_cast<const TestGraphicsProgram*>(pipeline->programState.program);
+  mGl.UseProgram(program->mImpl->mId);
 }
 
 /**
