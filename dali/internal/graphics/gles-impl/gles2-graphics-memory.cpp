@@ -82,9 +82,6 @@ void Memory2::Unlock(bool flush)
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(!buffer->IsCPUAllocated())
     {
-      // switch to the shared context if necessary
-      auto graphics = mController.GetGraphicsInterface();
-      graphics->ActivateResourceContext();
 
       buffer->Bind(BufferUsage::VERTEX_BUFFER);
       gl->BufferSubData(GL_ARRAY_BUFFER, mMapBufferInfo.offset, mMapBufferInfo.size, mMappedPointer);

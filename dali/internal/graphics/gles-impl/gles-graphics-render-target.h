@@ -43,7 +43,7 @@ public:
   /**
    * @brief Destructor
    */
-  ~RenderTarget() override = default;
+  ~RenderTarget() override;
 
   /**
    * @brief Called when GL resources are destroyed
@@ -81,6 +81,10 @@ public:
    * @brief Returns surface associated with the render target
    */
   Surface* GetSurface() const;
+
+private:
+  struct Impl;
+  std::unique_ptr<Impl> mImpl{nullptr};
 };
 
 } // namespace Dali::Graphics::GLES
