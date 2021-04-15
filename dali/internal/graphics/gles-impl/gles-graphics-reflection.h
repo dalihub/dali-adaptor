@@ -210,11 +210,11 @@ public:
       arraySize(arraySize),
       type(type){};
 
-    uint32_t location; ///< Location of uniform
-    uint32_t size;     ///< size of uniform
-    uint32_t offset;   ///< offset of uniform within UBO
+    uint32_t location;  ///< Location of uniform
+    uint32_t size;      ///< size of uniform
+    uint32_t offset;    ///< offset of uniform within UBO
     uint32_t arraySize; ///< number of array elements (1 for non-arrays)
-    GLenum   type;     ///< type of uniform
+    GLenum   type;      ///< type of uniform
   };
 
   /**
@@ -238,6 +238,11 @@ public:
    * @brief Build the reflection of uniform blocks
    */
   void BuildUniformBlockReflection();
+
+  /**
+   * Sort the samplers by their lexical location in the frag shader source code.
+   */
+  void SortOpaques();
 
 protected:
   Reflection(Reflection&&) = default;

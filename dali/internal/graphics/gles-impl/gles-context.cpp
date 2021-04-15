@@ -96,6 +96,11 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   ResolveUniformBuffers();
 
   // Bind textures
+  // Map binding# to sampler location
+  const auto program = static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program);
+
+  const auto& reflection = program->GetReflection();
+  const auto& samplers   = reflection.GetSamplers();
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
@@ -111,6 +116,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
     texture->Bind(binding);
     texture->Prepare(); // @todo also non-const.
+
+    if(binding.binding < samplers.size()) // binding maps to texture unit. (texture bindings should also be in binding order)
+    {
+      // Offset is set to the lexical offset within the frag shader, map it to the texture unit
+      // @todo Explicitly set the texture unit through the graphics interface
+      gl.Uniform1i(samplers[binding.binding].location, samplers[binding.binding].offset);
+    }
   }
 
   // for each attribute bind vertices
