@@ -335,8 +335,12 @@ public:
   }
 };
 
+static bool bridgeInitialized;
+
 static Bridge* CreateBridge()
 {
+  bridgeInitialized = true;
+
   try
   {
     /* check environment variable first */
@@ -357,6 +361,42 @@ static Bridge* CreateBridge()
 
 Bridge* Bridge::GetCurrentBridge()
 {
-  static Bridge* bridge = CreateBridge();
-  return bridge;
+  static Bridge* bridge;
+
+  if (bridge)
+  {
+    return bridge;
+  }
+  else if (autoInitState == AutoInitState::ENABLED)
+  {
+    bridge = CreateBridge();
+    return bridge;
+  }
+
+  return Dali::Accessibility::DummyBridge::GetInstance();
+}
+
+void Bridge::DisableAutoInit()
+{
+  if (bridgeInitialized)
+  {
+    DALI_LOG_ERROR("Bridge::DisableAutoInit() called after bridge auto-initialization");
+  }
+
+  autoInitState = AutoInitState::DISABLED;
+}
+
+void Bridge::EnableAutoInit(Accessible* topLevelWindow, const std::string& applicationName)
+{
+  autoInitState = AutoInitState::ENABLED;
+
+  if (bridgeInitialized)
+  {
+    return;
+  }
+
+  auto* bridge = Bridge::GetCurrentBridge();
+  bridge->AddTopLevelWindow(topLevelWindow);
+  bridge->SetApplicationName(applicationName);
+  bridge->Initialize();
 }
