@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ADAPTOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -406,17 +406,15 @@ public:
   /**
    * @brief Register a processor implementing the Integration::Processor interface with dali-core.
    * @param[in] processor the Processor to register
-   * @param[in] postProcessor set this processor required to be called after size negotiation. Default is false.
    * @note using this api does not maintain the processor's lifecycle, must be done elsewhere.
    */
-  void RegisterProcessor(Integration::Processor& processor, bool postProcessor = false);
+  void RegisterProcessor(Integration::Processor& processor);
 
   /**
    * @brief Unregister a previously registered processor from dali-core.
    * @param[in] processor the Processor to unregister
-   * @param[in] postProcessor True if the processor to be unregister is for post processor.
    */
-  void UnregisterProcessor(Integration::Processor& processor, bool postProcessor = false);
+  void UnregisterProcessor(Integration::Processor& processor);
 
   /**
    * @brief Get the list of windows created.

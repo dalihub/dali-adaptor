@@ -442,12 +442,12 @@ public:
   /**
    * @copydoc Dali::Adaptor::RegisterProcessor
    */
-  void RegisterProcessor(Integration::Processor& processor, bool postProcessor);
+  void RegisterProcessor(Integration::Processor& processor);
 
   /**
    * @coydoc Dali::Adaptor::UnregisterProcessor
    */
-  void UnregisterProcessor(Integration::Processor& processor, bool postProcessor);
+  void UnregisterProcessor(Integration::Processor& processor);
 
   /**
    * Check MultipleWindow is supported
