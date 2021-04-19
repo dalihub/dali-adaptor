@@ -172,6 +172,10 @@ void DrawableTizen::SetObject(const void* object)
   if(object)
   {
     mTvgPaint = static_cast<tvg::Paint*>((void*)object);
+    if(!mTvgPaint)
+    {
+      DALI_LOG_ERROR("Drawable is invalid [%p]\n", this);
+    }
   }
   else
   {
