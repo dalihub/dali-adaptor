@@ -254,6 +254,13 @@ struct DALI_ADAPTOR_API Bridge
   virtual void StopReading(bool alsoNonDiscardable) = 0;
 
   /**
+   * @brief Suppresses reading of screen-reader
+   *
+   * @param suppress whether to suppress reading of screen-reader
+   */
+  virtual void SuppressScreenReader(bool suppress) = 0;
+
+  /**
    * @brief Get screen reader status.
    */
   virtual bool GetScreenReaderEnabled() = 0;
