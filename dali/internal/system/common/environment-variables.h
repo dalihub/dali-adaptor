@@ -137,8 +137,6 @@ namespace Adaptor
 
 #define DALI_ENV_ADDONS_LIBS "DALI_ADDONS_LIBS"
 
-#define DALI_ENV_DISABLE_ATSPI "DALI_DISABLE_ATSPI"
-
 } // namespace Adaptor
 
 } // namespace Internal
