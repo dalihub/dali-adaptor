@@ -1661,17 +1661,7 @@ void WindowBaseEcoreWl2::Show()
 {
   if(!mVisible)
   {
-    // Ecore-wl2 has the original window size
-    // and he always sends the window rotation event with the swapped size.
-    // So, to restore, dali should set the reswapped size(original window size) to ecore-wl2 for restoring.
-    if(mWindowRotationAngle == 0 || mWindowRotationAngle == 180)
-    {
-      ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
-    }
-    else
-    {
-      ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.height, mWindowPositionSize.width);
-    }
+    ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
   }
   mVisible = true;
 
