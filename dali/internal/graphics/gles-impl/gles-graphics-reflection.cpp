@@ -219,25 +219,19 @@ void Reflection::BuildUniformReflection()
     }
     else
     {
-      uint32_t previousUniformLocation = mDefaultUniformBlock.members[i - 1].location;
-      auto     previousUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&previousUniformLocation](const UniformExtraInfo& iter) { return iter.location == previousUniformLocation; });
-      if(previousUniform != mStandaloneUniformExtraInfos.end())
-      {
-        mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + (previousUniform->size * previousUniform->arraySize);
-        mStandaloneUniformExtraInfos[i].offset = mDefaultUniformBlock.members[i].offset;
-      }
+      uint32_t previousUniformLocation       = mDefaultUniformBlock.members[i - 1].location;
+      auto     previousUniform               = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&previousUniformLocation](const UniformExtraInfo& iter) { return iter.location == previousUniformLocation; });
+      mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + (previousUniform->size * previousUniform->arraySize);
+      mStandaloneUniformExtraInfos[i].offset = mDefaultUniformBlock.members[i].offset;
     }
   }
 
   if(mDefaultUniformBlock.members.size() > 0)
   {
-    uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
-    auto     lastUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&lastUniformLocation](const UniformExtraInfo& iter) { return iter.location == lastUniformLocation; });
-    if(lastUniform != mStandaloneUniformExtraInfos.end())
-    {
-      mDefaultUniformBlock.size = mDefaultUniformBlock.members.back().offset + (lastUniform->size * lastUniform->arraySize);
-      mUniformBlocks.push_back(mDefaultUniformBlock);
-    }
+  uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
+  auto     lastUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&lastUniformLocation](const UniformExtraInfo& iter) { return iter.location == lastUniformLocation; });
+  mDefaultUniformBlock.size    = mDefaultUniformBlock.members.back().offset + (lastUniform->size * lastUniform->arraySize);
+  mUniformBlocks.push_back(mDefaultUniformBlock);
   }
   else
   {
@@ -291,12 +285,6 @@ void Reflection::BuildUniformBlockReflection()
       GLenum type;
 
       gl->GetActiveUniform(glProgram, uniIndex, maxUniLen, &length, &size, &type, uniformName);
-
-      if(!uniformName)
-      {
-        continue;
-      }
-
       int location = gl->GetUniformLocation(glProgram, uniformName);
 
       Dali::Graphics::UniformInfo uniform;
