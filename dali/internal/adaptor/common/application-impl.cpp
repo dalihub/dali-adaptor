@@ -34,6 +34,7 @@
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 // To disable a macro with the same name from one of OpenGL headers
 #undef Status
@@ -132,6 +133,43 @@ Application::~Application()
   delete mFramework;
 }
 
+void Application::StoreWindowPositionSize(PositionSize positionSize)
+{
+  mWindowPositionSize = positionSize;
+}
+
+void Application::ChangePreInitializedWindowSize()
+{
+  int screenWidth, screenHeight;
+  Dali::Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
+
+  if(mWindowPositionSize != PositionSize(0, 0, 0, 0))
+  {
+    Dali::DevelWindow::SetPositionSize(mMainWindow, mWindowPositionSize);
+  }
+  else if(mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0)
+  {
+    // Command line options override environment options and full screen
+    mWindowPositionSize.width  = mCommandLineOptions->stageWidth;
+    mWindowPositionSize.height = mCommandLineOptions->stageHeight;
+    mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
+  }
+  else if(mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight())
+  {
+    // Environment options override full screen functionality if command line arguments not provided
+    mWindowPositionSize.width  = mEnvironmentOptions.GetWindowWidth();
+    mWindowPositionSize.height = mEnvironmentOptions.GetWindowHeight();
+    mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
+  }
+  else if(screenWidth != mWindowPositionSize.width || screenHeight != mWindowPositionSize.height)
+  {
+    //Some apps can receive screen size differently after launching by specifying size in manifest.
+    mWindowPositionSize.width = screenWidth;
+    mWindowPositionSize.height = screenHeight;
+    mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
+  }
+}
+
 void Application::CreateWindow()
 {
   if(mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0)
@@ -218,6 +256,11 @@ void Application::OnInit()
   }
 
   CreateAdaptor();
+
+  if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
+  {
+    ChangePreInitializedWindowSize();
+  }
 
   // Run the adaptor
   mAdaptor->Start();

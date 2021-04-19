@@ -24,10 +24,12 @@
 // INTERNAL INCLUDES
 #include "gles-context.h"
 #include "gles-graphics-buffer.h"
+#include "gles-graphics-command-buffer.h"
 #include "gles-graphics-pipeline-cache.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-sampler.h"
+#include "gles-graphics-shader.h"
 #include "gles-graphics-texture.h"
 #include "gles-graphics-types.h"
 #include "gles2-graphics-memory.h"
@@ -65,7 +67,7 @@ public:
   /**
    * @brief Destructor
    */
-  ~EglGraphicsController() override = default;
+  ~EglGraphicsController() override;
 
   /**
    * Initialize the GLES abstraction. This can be called from the main thread.
@@ -115,6 +117,23 @@ public:
    */
   void Resume() override
   {
+  }
+
+  /**
+   * @copydoc Dali::Graphics::Shutdown()
+   */
+  void Shutdown() override
+  {
+    mIsShuttingDown = true;
+  }
+
+  /**
+   * @copydoc Dali::Graphics::Destroy()
+   */
+  void Destroy() override
+  {
+    // Final flush
+    Flush();
   }
 
   /**
@@ -281,6 +300,10 @@ public:
 
   [[nodiscard]] Integration::GlAbstraction* GetGL() const
   {
+    if(mIsShuttingDown)
+    {
+      return nullptr;
+    }
     return mGlAbstraction;
   }
 
@@ -312,9 +335,9 @@ public:
    *
    * @param[in] texture Pointer to the texture
    */
-  void DiscardResource(GLES::Buffer* texture)
+  void DiscardResource(GLES::Buffer* buffer)
   {
-    mDiscardBufferQueue.push(texture);
+    mDiscardBufferQueue.push(buffer);
   }
 
   /**
@@ -327,6 +350,42 @@ public:
   void DiscardResource(GLES::Program* program)
   {
     mDiscardProgramQueue.push(program);
+  }
+
+  /**
+   * @brief Pushes Shader to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] program Pointer to the Shader
+   */
+  void DiscardResource(GLES::Shader* shader)
+  {
+    mDiscardShaderQueue.push(shader);
+  }
+
+  /**
+   * @brief Pushes CommandBuffer to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] program Pointer to the CommandBuffer
+   */
+  void DiscardResource(GLES::CommandBuffer* commandBuffer)
+  {
+    mDiscardCommandBufferQueue.push(commandBuffer);
+  }
+
+  /**
+   * @brief Pushes Sampler to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] program Pointer to the Sampler
+   */
+  void DiscardResource(GLES::Sampler* sampler)
+  {
+    mDiscardSamplerQueue.push(sampler);
   }
 
   /**
@@ -472,6 +531,11 @@ public:
     return GLES::GLESVersion::GLES_20;
   }
 
+  bool IsShuttingDown() const
+  {
+    return mIsShuttingDown;
+  }
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
@@ -483,9 +547,11 @@ private:
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource
 
-  std::queue<GLES::Program*> mDiscardProgramQueue; ///< Discard queue for program resource
-
-  std::queue<GLES::Pipeline*> mDiscardPipelineQueue; ///< Discard queue of pipelines
+  std::queue<GLES::Program*>       mDiscardProgramQueue;       ///< Discard queue for program resource
+  std::queue<GLES::Pipeline*>      mDiscardPipelineQueue;      ///< Discard queue of pipelines
+  std::queue<GLES::Shader*>        mDiscardShaderQueue;        ///< Discard queue of shaders
+  std::queue<GLES::Sampler*>       mDiscardSamplerQueue;       ///< Discard queue of samplers
+  std::queue<GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
 
   std::queue<GLES::CommandBuffer*> mCommandQueue; ///< we may have more in the future
 
@@ -495,6 +561,8 @@ private:
   std::unique_ptr<GLES::Context> mContext{nullptr}; ///< Context object handling command buffers execution
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
+
+  bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 };
 
 } // namespace Graphics

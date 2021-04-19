@@ -18,8 +18,8 @@
 #include "gles-context.h"
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
-#include "gles-graphics-command-buffer.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
 

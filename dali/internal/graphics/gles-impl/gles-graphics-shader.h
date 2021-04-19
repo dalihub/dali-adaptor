@@ -42,15 +42,12 @@ public:
   /**
    * @brief Destructor
    */
-  ~Shader() override = default;
+  ~Shader() override;
 
   /**
    * @brief Called when GL resources are destroyed
    */
-  void DestroyResource() override
-  {
-    // TODO: Implement destroying the resource
-  }
+  void DestroyResource() override;
 
   /**
    * @brief Called when initializing the resource
@@ -59,23 +56,22 @@ public:
    */
   bool InitializeResource() override
   {
-    // TODO: Implement initializing resource
-    return {};
+    // The Shader has instant initialization, hence no need to initialize GL resource
+    // here
+    return true;
   }
 
   /**
    * @brief Compiles shader
-   * @return
+   *
+   * @return True on success
    */
-  bool Compile() const;
+  [[nodiscard]] bool Compile() const;
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
    */
-  void DiscardResource() override
-  {
-    // TODO: Implement moving to the discard queue
-  }
+  void DiscardResource() override;
 
   uint32_t GetGLShader() const;
 

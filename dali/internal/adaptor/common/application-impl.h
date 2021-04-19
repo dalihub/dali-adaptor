@@ -152,6 +152,11 @@ public:
    */
   static ApplicationPtr GetPreInitializedApplication();
 
+  /**
+   * Stores PositionSize of window
+   */
+  void StoreWindowPositionSize(PositionSize positionSize);
+
 public: // From Framework::Observer
   /**
    * Called when the framework is initialised.
@@ -354,6 +359,11 @@ protected:
    * Quits from the main loop
    */
   void QuitFromMainLoop();
+
+  /**
+   * Changes size of preInitialized window
+   */
+  void ChangePreInitializedWindowSize();
 
 private:
   AppSignalType        mInitSignal;

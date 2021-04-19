@@ -109,7 +109,10 @@ void Buffer::DestroyResource()
   else
   {
     auto gl = mController.GetGL();
-    gl->DeleteBuffers(1, &mBufferId);
+    if(gl)
+    {
+      gl->DeleteBuffers(1, &mBufferId);
+    }
   }
 }
 

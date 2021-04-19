@@ -247,6 +247,13 @@ struct DALI_ADAPTOR_API Bridge
   virtual void Resume() = 0;
 
   /**
+   * @brief Cancels anything screen-reader is reading / has queued to read
+   *
+   * @param alsoNonDiscardable whether to cancel non-discardable readings as well
+   */
+  virtual void StopReading(bool alsoNonDiscardable) = 0;
+
+  /**
    * @brief Get screen reader status.
    */
   virtual bool GetScreenReaderEnabled() = 0;

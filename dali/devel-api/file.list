@@ -6,6 +6,9 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
@@ -50,6 +53,9 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
@@ -83,12 +89,23 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list-item.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list-item.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-certificate.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-console-message.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context-menu.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context-menu-item.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-cookie-manager.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-form-repost-decision.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-frame.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-http-auth-handler.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-load-error.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-hit-test.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-policy-decision.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-request-interceptor.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-security-origin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-settings.h
   ${adaptor_devel_api_dir}/adaptor-framework/key-extension-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.h

@@ -158,12 +158,17 @@ void EglGraphics::Shutdown()
 {
   if(mEglImplementation)
   {
+    // Shutdown controller
+    mGraphicsController.Shutdown();
+
+    // Terminate GLES
     mEglImplementation->TerminateGles();
   }
 }
 
 void EglGraphics::Destroy()
 {
+  mGraphicsController.Destroy();
 }
 
 GlImplementation& EglGraphics::GetGlesInterface()

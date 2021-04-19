@@ -113,8 +113,9 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetStyleSheet(stylesheet);
 
     internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
-    internal->GetWindow().SetSize(Window::WindowSize(positionSize.width, positionSize.height));
-    internal->GetWindow().SetPosition(Window::WindowPosition(positionSize.x, positionSize.y));
+
+    //Store only the value before adaptor is created
+    internal->StoreWindowPositionSize(positionSize);
 
     return Application(internal.Get());
   }

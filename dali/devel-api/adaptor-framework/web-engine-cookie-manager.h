@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <functional>
 
 namespace Dali
 {
@@ -47,6 +48,11 @@ public:
     TEXT,   ///< Cookies are stored in a text file in the Mozilla "cookies.txt" format.
     SQLITE, ///< Cookies are stored in a SQLite file in the current Mozilla format.
   };
+
+  /**
+   * @brief Callback for changing watch.
+   */
+  using WebEngineCookieManagerChangesWatchCallback = std::function<void()>;
 
   /**
    * @brief Constructor.
@@ -91,6 +97,13 @@ public:
    * @param[in] storage The type of storage
    */
   virtual void SetPersistentStorage(const std::string& path, CookiePersistentStorage storage) = 0;
+
+  /**
+   * @brief Watch for cookies' changes in @a manager.
+   *
+   * @param[in] callback function that will be called every time cookies are added, removed or modified.
+   */
+  virtual void ChangesWatch(WebEngineCookieManagerChangesWatchCallback callback) = 0;
 };
 
 } // namespace Dali

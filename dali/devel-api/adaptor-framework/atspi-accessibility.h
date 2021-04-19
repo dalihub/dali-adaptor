@@ -50,6 +50,13 @@ DALI_ADAPTOR_API void Pause();
 DALI_ADAPTOR_API void Resume();
 
 /**
+ * @brief Cancels anything screen-reader is reading / has queued to read
+ *
+ * @param alsoNonDiscardable whether to cancel non-discardable readings as well
+ */
+DALI_ADAPTOR_API void StopReading(bool alsoNonDiscardable = false);
+
+/**
  * @brief Set ATSPI to be turned On or Off forcibly.
  *
  * @param[in] turnOn true to turn on, false to turn off.

@@ -48,6 +48,8 @@ Shader::Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphi
   mCreateInfo.sourceData = mImpl->source.data();
 }
 
+Shader::~Shader() = default;
+
 bool Shader::Compile() const
 {
   auto& gl = *GetController().GetGL();
@@ -124,6 +126,24 @@ bool Shader::Compile() const
 uint32_t Shader::GetGLShader() const
 {
   return mImpl->glShader;
+}
+
+void Shader::DestroyResource()
+{
+  if(mImpl->glShader)
+  {
+    auto gl = GetController().GetGL();
+    if(!gl)
+    {
+      return;
+    }
+    gl->DeleteShader(mImpl->glShader);
+  }
+}
+
+void Shader::DiscardResource()
+{
+  GetController().DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::GLES

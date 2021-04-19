@@ -17,3 +17,224 @@
 
 // CLASS HEADER
 #include "gles-graphics-command-buffer.h"
+
+// INTERNAL INCLUDES
+#include "egl-graphics-controller.h"
+#include "gles-graphics-buffer.h"
+#include "gles-graphics-pipeline.h"
+#include "gles-graphics-texture.h"
+
+namespace Dali::Graphics::GLES
+{
+CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller)
+: CommandBufferResource(createInfo, controller)
+{
+}
+
+CommandBuffer::~CommandBuffer() = default;
+
+void CommandBuffer::BindVertexBuffers(uint32_t                             firstBinding,
+                                      std::vector<const Graphics::Buffer*> buffers,
+                                      std::vector<uint32_t>                offsets)
+{
+  mCommands.emplace_back(CommandType::BIND_VERTEX_BUFFERS);
+  auto& bindings = mCommands.back().bindVertexBuffers.vertexBufferBindings;
+  if(bindings.size() < firstBinding + buffers.size())
+  {
+    bindings.resize(firstBinding + buffers.size());
+    auto index = firstBinding;
+    for(auto& buf : buffers)
+    {
+      bindings[index].buffer = static_cast<const GLES::Buffer*>(buf);
+      bindings[index].offset = offsets[index - firstBinding];
+      index++;
+    }
+  }
+}
+
+void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings)
+{
+  mCommands.emplace_back(CommandType::BIND_UNIFORM_BUFFER);
+  auto& cmd     = mCommands.back();
+  auto& bindCmd = cmd.bindUniformBuffers;
+  for(const auto& binding : bindings)
+  {
+    if(binding.buffer)
+    {
+      auto glesBuffer = static_cast<const GLES::Buffer*>(binding.buffer);
+      if(glesBuffer->IsCPUAllocated()) // standalone uniforms
+      {
+        bindCmd.standaloneUniformsBufferBinding.buffer   = glesBuffer;
+        bindCmd.standaloneUniformsBufferBinding.offset   = binding.offset;
+        bindCmd.standaloneUniformsBufferBinding.binding  = binding.binding;
+        bindCmd.standaloneUniformsBufferBinding.emulated = true;
+      }
+      else // Bind regular UBO
+      {
+        // resize binding slots
+        if(binding.binding >= bindCmd.uniformBufferBindings.size())
+        {
+          bindCmd.uniformBufferBindings.resize(binding.binding + 1);
+        }
+        auto& slot    = bindCmd.uniformBufferBindings[binding.binding];
+        slot.buffer   = glesBuffer;
+        slot.offset   = binding.offset;
+        slot.binding  = binding.binding;
+        slot.emulated = false;
+      }
+    }
+  }
+}
+
+void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
+{
+  mCommands.emplace_back(CommandType::BIND_PIPELINE);
+  mCommands.back().bindPipeline.pipeline = static_cast<const GLES::Pipeline*>(&pipeline);
+}
+
+void CommandBuffer::BindTextures(std::vector<TextureBinding>& textureBindings)
+{
+  mCommands.emplace_back(CommandType::BIND_TEXTURES);
+  mCommands.back().bindTextures.textureBindings = std::move(textureBindings);
+}
+
+void CommandBuffer::BindSamplers(std::vector<SamplerBinding>& samplerBindings)
+{
+  mCommands.emplace_back(CommandType::BIND_SAMPLERS);
+  mCommands.back().bindSamplers.samplerBindings = std::move(samplerBindings);
+}
+
+void CommandBuffer::BindPushConstants(void*    data,
+                                      uint32_t size,
+                                      uint32_t binding)
+{
+}
+
+void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
+                                    uint32_t                offset,
+                                    Format                  format)
+{
+  mCommands.emplace_back(CommandType::BIND_INDEX_BUFFER);
+  mCommands.back().bindIndexBuffer.buffer = static_cast<const GLES::Buffer*>(&buffer);
+  mCommands.back().bindIndexBuffer.offset = offset;
+  mCommands.back().bindIndexBuffer.format = format;
+}
+
+void CommandBuffer::BeginRenderPass(
+  Graphics::RenderPass&   renderPass,
+  Graphics::RenderTarget& renderTarget,
+  Extent2D                renderArea,
+  std::vector<ClearValue> clearValues)
+{
+}
+
+/**
+ * @brief Ends current render pass
+ *
+ * This command must be issued in order to finalize the render pass.
+ * It's up to the implementation whether anything has to be done but
+ * the Controller may use end RP marker in order to resolve resource
+ * dependencies (for example, to know when target texture is ready
+ * before passing it to another render pass).
+ */
+void CommandBuffer::EndRenderPass()
+{
+}
+
+void CommandBuffer::Draw(
+  uint32_t vertexCount,
+  uint32_t instanceCount,
+  uint32_t firstVertex,
+  uint32_t firstInstance)
+{
+  mCommands.emplace_back(CommandType::DRAW);
+  auto& cmd              = mCommands.back().draw;
+  cmd.type               = DrawCallDescriptor::Type::DRAW;
+  cmd.draw.vertexCount   = vertexCount;
+  cmd.draw.instanceCount = instanceCount;
+  cmd.draw.firstInstance = firstInstance;
+  cmd.draw.firstVertex   = firstVertex;
+}
+
+void CommandBuffer::DrawIndexed(
+  uint32_t indexCount,
+  uint32_t instanceCount,
+  uint32_t firstIndex,
+  int32_t  vertexOffset,
+  uint32_t firstInstance)
+{
+  mCommands.emplace_back(CommandType::DRAW_INDEXED);
+  auto& cmd                     = mCommands.back().draw;
+  cmd.type                      = DrawCallDescriptor::Type::DRAW_INDEXED;
+  cmd.drawIndexed.firstIndex    = firstIndex;
+  cmd.drawIndexed.firstInstance = firstInstance;
+  cmd.drawIndexed.indexCount    = indexCount;
+  cmd.drawIndexed.vertexOffset  = vertexOffset;
+  cmd.drawIndexed.instanceCount = instanceCount;
+}
+
+void CommandBuffer::DrawIndexedIndirect(
+  Graphics::Buffer& buffer,
+  uint32_t          offset,
+  uint32_t          drawCount,
+  uint32_t          stride)
+{
+  mCommands.emplace_back(CommandType::DRAW_INDEXED_INDIRECT);
+  auto& cmd                         = mCommands.back().draw;
+  cmd.type                          = DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT;
+  cmd.drawIndexedIndirect.buffer    = static_cast<const GLES::Buffer*>(&buffer);
+  cmd.drawIndexedIndirect.offset    = offset;
+  cmd.drawIndexedIndirect.drawCount = drawCount;
+  cmd.drawIndexedIndirect.stride    = stride;
+}
+
+void CommandBuffer::Reset()
+{
+  mCommands.clear();
+}
+
+void CommandBuffer::SetScissor(Graphics::Rect2D value)
+{
+  mCommands.emplace_back(CommandType::SET_SCISSOR);
+  mCommands.back().scissor.region = value;
+}
+
+void CommandBuffer::SetScissorTestEnable(bool value)
+{
+  mCommands.emplace_back(CommandType::SET_SCISSOR_TEST);
+  mCommands.back().scissorTest.enable = value;
+}
+
+void CommandBuffer::SetViewport(Viewport value)
+{
+  mCommands.emplace_back(CommandType::SET_VIEWPORT);
+  mCommands.back().viewport.region = value;
+}
+
+void CommandBuffer::SetViewportEnable(bool value)
+{
+  // There is no GL equivalent
+}
+
+[[nodiscard]] const std::vector<Command>& CommandBuffer::GetCommands() const
+{
+  return mCommands;
+}
+
+void CommandBuffer::DestroyResource()
+{
+  // Nothing to do
+}
+
+bool CommandBuffer::InitializeResource()
+{
+  // Nothing to do
+  return true;
+}
+
+void CommandBuffer::DiscardResource()
+{
+  GetController().DiscardResource(this);
+}
+
+} // namespace Dali::Graphics::GLES

@@ -17,3 +17,32 @@
 
 // CLASS HEADER
 #include "gles-graphics-sampler.h"
+
+// INTERNAL INCLUDES
+#include "egl-graphics-controller.h"
+
+namespace Dali::Graphics::GLES
+{
+Sampler::Sampler(const Graphics::SamplerCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: SamplerResource(createInfo, controller)
+{
+}
+
+Sampler::~Sampler() = default;
+
+void Sampler::DestroyResource()
+{
+  // For now, no GL resources are initialized so nothing to destroy
+}
+
+bool Sampler::InitializeResource()
+{
+  // For now, there is no support for the modern GL Sampler type (yet)
+  return true;
+}
+
+void Sampler::DiscardResource()
+{
+  GetController().DiscardResource(this);
+}
+} // namespace Dali::Graphics::GLES

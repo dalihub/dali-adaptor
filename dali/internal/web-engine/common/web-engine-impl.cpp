@@ -27,8 +27,15 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
+#include <dali/devel-api/adaptor-framework/web-engine-certificate.h>
+#include <dali/devel-api/adaptor-framework/web-engine-console-message.h>
+#include <dali/devel-api/adaptor-framework/web-engine-context-menu.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-http-auth-handler.h>
+#include <dali/devel-api/adaptor-framework/web-engine-load-error.h>
+#include <dali/devel-api/adaptor-framework/web-engine-policy-decision.h>
+#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
@@ -164,12 +171,12 @@ bool WebEngine::Initialize()
   return true;
 }
 
-void WebEngine::Create(int width, int height, const std::string& locale, const std::string& timezoneId)
+void WebEngine::Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId)
 {
   mPlugin->Create(width, height, locale, timezoneId);
 }
 
-void WebEngine::Create(int width, int height, int argc, char** argv)
+void WebEngine::Create(uint32_t width, uint32_t height, uint32_t argc, char** argv)
 {
   mPlugin->Create(width, height, argc, argv);
 }
@@ -239,9 +246,24 @@ void WebEngine::LoadHtmlString(const std::string& htmlString)
   mPlugin->LoadHtmlString(htmlString);
 }
 
+bool WebEngine::LoadHtmlStringOverrideCurrentEntry(const std::string& html, const std::string& basicUri, const std::string& unreachableUrl)
+{
+  return mPlugin->LoadHtmlStringOverrideCurrentEntry(html, basicUri, unreachableUrl);
+}
+
+bool WebEngine::LoadContents(const std::string& contents, uint32_t contentSize, const std::string& mimeType, const std::string& encoding, const std::string& baseUri)
+{
+  return mPlugin->LoadContents(contents, contentSize, mimeType, encoding, baseUri);
+}
+
 void WebEngine::Reload()
 {
   mPlugin->Reload();
+}
+
+bool WebEngine::ReloadWithoutCache()
+{
+  return mPlugin->ReloadWithoutCache();
 }
 
 void WebEngine::StopLoading()
@@ -259,12 +281,47 @@ void WebEngine::Resume()
   mPlugin->Resume();
 }
 
-void WebEngine::ScrollBy(int deltaX, int deltaY)
+void WebEngine::SuspendNetworkLoading()
+{
+  mPlugin->SuspendNetworkLoading();
+}
+
+void WebEngine::ResumeNetworkLoading()
+{
+  mPlugin->ResumeNetworkLoading();
+}
+
+bool WebEngine::AddCustomHeader(const std::string& name, const std::string& value)
+{
+  return mPlugin->AddCustomHeader(name, value);
+}
+
+bool WebEngine::RemoveCustomHeader(const std::string& name)
+{
+  return mPlugin->RemoveCustomHeader(name);
+}
+
+uint32_t WebEngine::StartInspectorServer(uint32_t port)
+{
+  return mPlugin->StartInspectorServer(port);
+}
+
+bool WebEngine::StopInspectorServer()
+{
+  return mPlugin->StopInspectorServer();
+}
+
+void WebEngine::ScrollBy(int32_t deltaX, int32_t deltaY)
 {
   mPlugin->ScrollBy(deltaX, deltaY);
 }
 
-void WebEngine::SetScrollPosition(int x, int y)
+bool WebEngine::ScrollEdgeBy(int32_t deltaX, int32_t deltaY)
+{
+  return mPlugin->ScrollEdgeBy(deltaX, deltaY);
+}
+
+void WebEngine::SetScrollPosition(int32_t x, int32_t y)
 {
   mPlugin->SetScrollPosition(x, y);
 }
@@ -296,7 +353,7 @@ void WebEngine::JavaScriptAlertReply()
 
 void WebEngine::RegisterJavaScriptConfirmCallback(Dali::WebEnginePlugin::JavaScriptConfirmCallback callback)
 {
-  mPlugin->RegisterJavaScriptAlertCallback(callback);
+  mPlugin->RegisterJavaScriptConfirmCallback(callback);
 }
 
 void WebEngine::JavaScriptConfirmReply(bool confirmed)
@@ -312,6 +369,16 @@ void WebEngine::RegisterJavaScriptPromptCallback(Dali::WebEnginePlugin::JavaScri
 void WebEngine::JavaScriptPromptReply(const std::string& result)
 {
   mPlugin->JavaScriptPromptReply(result);
+}
+
+std::unique_ptr<Dali::WebEngineHitTest> WebEngine::CreateHitTest(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode)
+{
+  return mPlugin->CreateHitTest(x, y, mode);
+}
+
+bool WebEngine::CreateHitTestAsynchronously(int32_t x, int32_t y, Dali::WebEngineHitTest::HitTestMode mode, Dali::WebEnginePlugin::WebEngineHitTestCreatedCallback callback)
+{
+  return mPlugin->CreateHitTestAsynchronously(x, y, mode, callback);
 }
 
 bool WebEngine::CanGoForward()
@@ -354,7 +421,7 @@ void WebEngine::ClearHistory()
   mPlugin->ClearHistory();
 }
 
-void WebEngine::SetSize(int width, int height)
+void WebEngine::SetSize(uint32_t width, uint32_t height)
 {
   mPlugin->SetSize(width, height);
 }
@@ -409,7 +476,82 @@ std::string WebEngine::GetSelectedText() const
   return mPlugin->GetSelectedText();
 }
 
-void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
+void WebEngine::SetPageZoomFactor(float zoomFactor)
+{
+  mPlugin->SetPageZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetPageZoomFactor() const
+{
+  return mPlugin->GetPageZoomFactor();
+}
+
+void WebEngine::SetTextZoomFactor(float zoomFactor)
+{
+  mPlugin->SetTextZoomFactor(zoomFactor);
+}
+
+float WebEngine::GetTextZoomFactor() const
+{
+  return mPlugin->GetTextZoomFactor();
+}
+
+float WebEngine::GetLoadProgressPercentage() const
+{
+  return mPlugin->GetLoadProgressPercentage();
+}
+
+void WebEngine::SetScaleFactor(float scaleFactor, Dali::Vector2 point)
+{
+  mPlugin->SetScaleFactor(scaleFactor, point);
+}
+
+float WebEngine::GetScaleFactor() const
+{
+  return mPlugin->GetScaleFactor();
+}
+
+void WebEngine::ActivateAccessibility(bool activated)
+{
+  mPlugin->ActivateAccessibility(activated);
+}
+
+bool WebEngine::SetVisibility(bool visible)
+{
+  return mPlugin->SetVisibility(visible);
+}
+
+bool WebEngine::HighlightText(const std::string& text, Dali::WebEnginePlugin::FindOption options, uint32_t maxMatchCount)
+{
+  return mPlugin->HighlightText(text, options, maxMatchCount);
+}
+
+void WebEngine::AddDynamicCertificatePath(const std::string& host, const std::string& certPath)
+{
+  mPlugin->AddDynamicCertificatePath(host, certPath);
+}
+
+Dali::PixelData WebEngine::GetScreenshot(Dali::Rect<int32_t> viewArea, float scaleFactor)
+{
+  return mPlugin->GetScreenshot(viewArea, scaleFactor);
+}
+
+bool WebEngine::GetScreenshotAsynchronously(Dali::Rect<int32_t> viewArea, float scaleFactor, Dali::WebEnginePlugin::ScreenshotCapturedCallback callback)
+{
+  return mPlugin->GetScreenshotAsynchronously(viewArea, scaleFactor, callback);
+}
+
+bool WebEngine::CheckVideoPlayingAsynchronously(Dali::WebEnginePlugin::VideoPlayingCallback callback)
+{
+  return mPlugin->CheckVideoPlayingAsynchronously(callback);
+}
+
+void WebEngine::RegisterGeolocationPermissionCallback(Dali::WebEnginePlugin::GeolocationPermissionCallback callback)
+{
+  mPlugin->RegisterGeolocationPermissionCallback(callback);
+}
+
+void WebEngine::UpdateDisplayArea(Dali::Rect<int32_t> displayArea)
 {
   mPlugin->UpdateDisplayArea(displayArea);
 }
@@ -419,14 +561,14 @@ void WebEngine::EnableVideoHole(bool enabled)
   mPlugin->EnableVideoHole(enabled);
 }
 
-bool WebEngine::SendHoverEvent( const Dali::HoverEvent& event )
+bool WebEngine::SendHoverEvent(const Dali::HoverEvent& event)
 {
-  return mPlugin->SendHoverEvent( event );
+  return mPlugin->SendHoverEvent(event);
 }
 
-bool WebEngine::SendWheelEvent( const Dali::WheelEvent& event )
+bool WebEngine::SendWheelEvent(const Dali::WheelEvent& event)
 {
-  return mPlugin->SendWheelEvent( event );
+  return mPlugin->SendWheelEvent(event);
 }
 
 Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
@@ -467,6 +609,46 @@ Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& WebEngine::FormRep
 Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
 {
   return mPlugin->FrameRenderedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& WebEngine::RequestInterceptorSignal()
+{
+  return mPlugin->RequestInterceptorSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& WebEngine::ConsoleMessageSignal()
+{
+  return mPlugin->ConsoleMessageSignal();
+}
+
+Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& WebEngine::PolicyDecisionSignal()
+{
+  return mPlugin->PolicyDecisionSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::CertificateConfirmSignal()
+{
+  return mPlugin->CertificateConfirmSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::SslCertificateChangedSignal()
+{
+  return mPlugin->SslCertificateChangedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHandlerSignal()
+{
+  return mPlugin->HttpAuthHandlerSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+{
+  return mPlugin->ContextMenuCustomizedSignal();
+}
+
+Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+{
+  return mPlugin->ContextMenuItemSelectedSignal();
 }
 
 } // namespace Adaptor

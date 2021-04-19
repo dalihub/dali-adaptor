@@ -164,10 +164,15 @@ bool Texture::InitializeTexture()
 
 void Texture::DestroyResource()
 {
+  auto gl = mController.GetGL();
+  if(!gl)
+  {
+    return;
+  }
+
   // This is a proper destructor
   if(mTextureId)
   {
-    auto gl = mController.GetGL();
     gl->DeleteTextures(1, &mTextureId);
   }
   if(mCreateInfo.nativeImagePtr)
