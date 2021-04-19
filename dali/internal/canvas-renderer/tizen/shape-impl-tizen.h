@@ -81,11 +81,6 @@ public:
   bool Close() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::ResetPath
-   */
-  bool ResetPath() override;
-
-  /**
    * @copydoc Dali::CanvasRenderer::Shape::SetFillColor
    */
   bool SetFillColor(Vector4 color) override;
