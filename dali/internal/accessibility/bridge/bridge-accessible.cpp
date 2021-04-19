@@ -341,6 +341,11 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     describedByObject};
 }
 
+void BridgeAccessible::SuppressScreenReader(bool suppress)
+{
+   suppressScreenReader = suppress;
+}
+
 DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t yBeg, int32_t xEnd, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime)
 {
   return FindSelf()->DoGesture(Dali::Accessibility::GestureInfo{type, xBeg, xEnd, yBeg, yEnd, state, eventTime});
@@ -719,7 +724,13 @@ DBus::ValueOrError<std::array<uint32_t, 2>> BridgeAccessible::GetStates()
 }
 DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessible::GetAttributes()
 {
-  return FindSelf()->GetAttributes();
+  std::unordered_map<std::string, std::string> attributes = FindSelf()->GetAttributes();
+  if(suppressScreenReader)
+  {
+    attributes.insert({"suppress-screen-reader", "true"});
+  }
+
+  return attributes;
 }
 DBus::ValueOrError<std::vector<std::string>> BridgeAccessible::GetInterfaces()
 {
