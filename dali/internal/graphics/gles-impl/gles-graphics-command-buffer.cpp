@@ -142,14 +142,14 @@ void CommandBuffer::EndRenderPass()
   mCommands.emplace_back(CommandType::END_RENDERPASS);
 }
 
-void CommandBuffer::ExecuteCommandBuffers(std::vector<Graphics::CommandBuffer*>&& commandBuffers)
+void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
 {
   mCommands.emplace_back(CommandType::EXECUTE_COMMAND_BUFFERS);
   auto& cmd = mCommands.back();
   cmd.executeCommandBuffers.buffers.reserve(commandBuffers.size());
   for(auto&& item : commandBuffers)
   {
-    cmd.executeCommandBuffers.buffers.emplace_back(static_cast<GLES::CommandBuffer*>(item));
+    cmd.executeCommandBuffers.buffers.emplace_back(static_cast<const GLES::CommandBuffer*>(item));
   }
 }
 

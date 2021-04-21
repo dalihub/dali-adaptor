@@ -478,7 +478,7 @@ public:
   {
     while(!queue.empty())
     {
-      auto* object = queue.front();
+      auto* object = const_cast<U*>(queue.front());
 
       // Destroy
       object->DestroyResource();
@@ -553,7 +553,7 @@ public:
     return mIsShuttingDown;
   }
 
-  void ProcessCommandBuffer(GLES::CommandBuffer& commandBuffer);
+  void ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer);
 
   // Resolves presentation
   void ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget);
@@ -597,13 +597,13 @@ private:
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource
 
-  std::queue<GLES::Program*>       mDiscardProgramQueue;       ///< Discard queue for program resource
-  std::queue<GLES::Pipeline*>      mDiscardPipelineQueue;      ///< Discard queue of pipelines
-  std::queue<GLES::Shader*>        mDiscardShaderQueue;        ///< Discard queue of shaders
-  std::queue<GLES::Sampler*>       mDiscardSamplerQueue;       ///< Discard queue of samplers
-  std::queue<GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
-  std::queue<GLES::Framebuffer*>   mCreateFramebufferQueue;    ///< Create queue for framebuffer resource
-  std::queue<GLES::Framebuffer*>   mDiscardFramebufferQueue;   ///< Discard queue for framebuffer resource
+  std::queue<GLES::Program*>             mDiscardProgramQueue;       ///< Discard queue for program resource
+  std::queue<GLES::Pipeline*>            mDiscardPipelineQueue;      ///< Discard queue of pipelines
+  std::queue<GLES::Shader*>              mDiscardShaderQueue;        ///< Discard queue of shaders
+  std::queue<GLES::Sampler*>             mDiscardSamplerQueue;       ///< Discard queue of samplers
+  std::queue<const GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
+  std::queue<GLES::Framebuffer*>         mCreateFramebufferQueue;    ///< Create queue for framebuffer resource
+  std::queue<GLES::Framebuffer*>         mDiscardFramebufferQueue;   ///< Discard queue for framebuffer resource
 
   std::queue<GLES::CommandBuffer*> mCommandQueue; ///< we may have more in the future
 

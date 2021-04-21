@@ -389,7 +389,7 @@ struct Command
 
     struct
     {
-      std::vector<GLES::CommandBuffer*> buffers;
+      std::vector<const GLES::CommandBuffer*> buffers;
     } executeCommandBuffers;
 
     struct
@@ -445,7 +445,7 @@ public:
    */
   void EndRenderPass() override;
 
-  void ExecuteCommandBuffers(std::vector<Graphics::CommandBuffer*>&& commandBuffers) override;
+  void ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers) override;
 
   void Draw(
     uint32_t vertexCount,
