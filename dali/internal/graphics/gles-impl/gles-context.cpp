@@ -451,44 +451,40 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   // to cache extra information inside GLES RenderTarget if we want to be
   // more specific in case of MRT)
 
-  // For GLES2.0 we clear only a single color attachment
-  if(mImpl->mController.GetGLESVersion() == GLESVersion::GLES_20)
+  const auto& attachments = *renderPass.GetCreateInfo().attachments;
+  const auto& color0      = attachments[0];
+  GLuint      mask        = 0;
+  if(color0.loadOp == AttachmentLoadOp::CLEAR)
   {
-    const auto& attachments = *renderPass.GetCreateInfo().attachments;
-    const auto& color0      = attachments[0];
-    GLuint      mask        = 0;
-    if(color0.loadOp == AttachmentLoadOp::CLEAR)
-    {
-      mask |= GL_COLOR_BUFFER_BIT;
+    mask |= GL_COLOR_BUFFER_BIT;
 
-      // Set clear color (todo: cache it!)
-      // Something goes wrong here if Alpha mask is GL_TRUE
-      gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-      gl.ClearColor(renderPassBegin.clearValues[0].color.r,
-                    renderPassBegin.clearValues[0].color.g,
-                    renderPassBegin.clearValues[0].color.b,
-                    renderPassBegin.clearValues[0].color.a);
-    }
-
-    // check for depth stencil
-    if(attachments.size() > 1)
-    {
-      const auto& depthStencil = attachments.back();
-      if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
-      {
-        mask |= GL_DEPTH_BUFFER_BIT;
-      }
-      if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
-      {
-        mask |= GL_STENCIL_BUFFER_BIT;
-      }
-    }
-
-    gl.Enable(GL_SCISSOR_TEST);
-    gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
-    gl.Clear(mask);
-    gl.Disable(GL_SCISSOR_TEST);
+    // Set clear color (todo: cache it!)
+    // Something goes wrong here if Alpha mask is GL_TRUE
+    gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    gl.ClearColor(renderPassBegin.clearValues[0].color.r,
+                  renderPassBegin.clearValues[0].color.g,
+                  renderPassBegin.clearValues[0].color.b,
+                  renderPassBegin.clearValues[0].color.a);
   }
+
+  // check for depth stencil
+  if(attachments.size() > 1)
+  {
+    const auto& depthStencil = attachments.back();
+    if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
+    {
+      mask |= GL_DEPTH_BUFFER_BIT;
+    }
+    if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
+    {
+      mask |= GL_STENCIL_BUFFER_BIT;
+    }
+  }
+
+  gl.Enable(GL_SCISSOR_TEST);
+  gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
+  gl.Clear(mask);
+  gl.Disable(GL_SCISSOR_TEST);
 
   mImpl->mCurrentRenderPass   = &renderPass;
   mImpl->mCurrentRenderTarget = &renderTarget;

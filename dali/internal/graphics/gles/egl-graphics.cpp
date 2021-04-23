@@ -62,6 +62,8 @@ void EglGraphics::SetGlesVersion(const int32_t glesVersion)
   }
 
   mGLES->SetGlesVersion(glesVersion);
+
+  mGraphicsController.SetGLESVersion(static_cast<Graphics::GLES::GLESVersion>(glesVersion));
 }
 
 void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
