@@ -335,7 +335,7 @@ void EglGraphicsController::ProcessCreateQueues()
   ProcessCreateQueue(mCreateFramebufferQueue);
 }
 
-void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuffer)
+void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer)
 {
   for(auto& cmd : commandBuffer.GetCommands())
   {
@@ -445,7 +445,7 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
         ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);
 
         // push this command buffer to the discard queue
-        mDiscardCommandBufferQueue.push(&commandBuffer);
+        mDiscardCommandBufferQueue.push(const_cast<GLES::CommandBuffer*>(&commandBuffer));
         break;
       }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
@@ -456,7 +456,7 @@ void EglGraphicsController::ProcessCommandBuffer(GLES::CommandBuffer& commandBuf
         //       within secondaries.
         for(auto& buf : cmd.executeCommandBuffers.buffers)
         {
-          ProcessCommandBuffer(*static_cast<GLES::CommandBuffer*>(buf));
+          ProcessCommandBuffer(*static_cast<const GLES::CommandBuffer*>(buf));
         }
         break;
       }
