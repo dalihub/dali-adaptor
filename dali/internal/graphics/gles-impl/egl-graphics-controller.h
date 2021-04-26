@@ -543,9 +543,17 @@ public:
    */
   GLES::GLESVersion GetGLESVersion() const
   {
-    // TODO: return proper version but for now we can
-    // test fallbacks
-    return GLES::GLESVersion::GLES_20;
+    return mGLESVersion;
+  }
+
+  /**
+   * @brief Sets runtime supported GLES version
+   *
+   * @param[in] glesVersion The runtime supported GLES version
+   */
+  void SetGLESVersion(GLES::GLESVersion glesVersion)
+  {
+    mGLESVersion = glesVersion;
   }
 
   bool IsShuttingDown() const
@@ -616,6 +624,8 @@ private:
   std::vector<SurfaceContextPair> mSurfaceContexts; ///< Vector of surface context objects handling command buffers execution
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
+
+  GLES::GLESVersion mGLESVersion{GLES::GLESVersion::GLES_20}; ///< Runtime supported GLES version
 
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 
