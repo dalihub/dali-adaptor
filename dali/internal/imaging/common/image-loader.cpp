@@ -280,7 +280,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
 
       if(!result)
       {
-        DALI_LOG_WARNING("Unable to convert %s\n", path.c_str());
+        DALI_LOG_ERROR("Unable to convert %s\n", path.c_str());
         pixelBuffer.Reset();
       }
 
@@ -288,7 +288,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
+      DALI_LOG_ERROR("Image Decoder for %s unavailable\n", path.c_str());
     }
   }
 
@@ -360,12 +360,12 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
       const bool read_res = headerFunction(input, width, height);
       if(!read_res)
       {
-        DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", filename.c_str());
+        DALI_LOG_ERROR("Image Decoder failed to read header for %s\n", filename.c_str());
       }
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", filename.c_str());
+      DALI_LOG_ERROR("Image Decoder for %s unavailable\n", filename.c_str());
     }
   }
   return ImageDimensions(width, height);
@@ -408,7 +408,7 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
           const bool                     read_res = headerFunction(input, width, height);
           if(!read_res)
           {
-            DALI_LOG_WARNING("Image Decoder failed to read header for resourceBuffer\n");
+            DALI_LOG_ERROR("Image Decoder failed to read header for resourceBuffer\n");
           }
         }
       }
