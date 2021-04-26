@@ -105,11 +105,6 @@ BuildRequires:  pkgconfig(capi-system-system-settings)
 # for ATSPI (Accessibility) support
 BuildRequires:  pkgconfig(eldbus)
 
-# for autofill
-%if 0%{?tizen_version_major} >= 5 && 0%{?tizen_version_minor} >= 5
-BuildRequires:  pkgconfig(capi-ui-autofill)
-%endif
-
 # for feedback plugin
 BuildRequires:  pkgconfig(mm-sound)
 BuildRequires:  pkgconfig(feedback)
@@ -310,7 +305,6 @@ cmake_flags+=" -DCMAKE_INSTALL_PREFIX=$PREFIX"
 cmake_flags+=" -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
 cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
 cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
-cmake_flags+=" -DENABLE_TIZEN_MINOR_VERSION=%{tizen_version_minor}"
 cmake_flags+=" -DENABLE_FEEDBACK=YES"
 cmake_flags+=" -DENABLE_APPFW=YES"
 cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
