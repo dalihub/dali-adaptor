@@ -5,6 +5,9 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-group.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-item.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-manager.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
@@ -52,6 +55,9 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-group.h
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-item.h
+  ${adaptor_devel_api_dir}/adaptor-framework/autofill-manager.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
