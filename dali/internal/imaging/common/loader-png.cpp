@@ -61,11 +61,13 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
   size_t size = fread(header, 1, 8, fp);
   if(size != 8)
   {
+    DALI_LOG_ERROR("fread failed\n");
     return false;
   }
 
   if(png_sig_cmp(header, 0, 8))
   {
+    DALI_LOG_ERROR("png_sig_cmp failed\n");
     return false;
   }
 
@@ -73,14 +75,14 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
 
   if(!png)
   {
-    DALI_LOG_WARNING("Can't create PNG read structure\n");
+    DALI_LOG_ERROR("Can't create PNG read structure\n");
     return false;
   }
 
   info = png_create_info_struct(png);
   if(!info)
   {
-    DALI_LOG_WARNING("png_create_info_struct failed\n");
+    DALI_LOG_ERROR("png_create_info_struct failed\n");
     return false;
   }
 
@@ -88,7 +90,7 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
 
   if(setjmp(png_jmpbuf(png)))
   {
-    DALI_LOG_WARNING("error during png_init_io\n");
+    DALI_LOG_ERROR("error during png_init_io\n");
     return false;
   }
 
@@ -259,7 +261,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   if(!valid)
   {
-    DALI_LOG_WARNING("Unsupported png format\n");
+    DALI_LOG_ERROR("Unsupported png format\n");
     return false;
   }
 
@@ -270,7 +272,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   if(setjmp(png_jmpbuf(png)))
   {
-    DALI_LOG_WARNING("error during png_read_image\n");
+    DALI_LOG_ERROR("error during png_read_image\n");
     return false;
   }
 
