@@ -230,14 +230,14 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return mImpl->GetLogFactory();
 }
 
-void Adaptor::RegisterProcessor(Integration::Processor& processor, bool postProcessor)
+void Adaptor::RegisterProcessor(Integration::Processor& processor)
 {
-  mImpl->RegisterProcessor(processor, postProcessor);
+  mImpl->RegisterProcessor(processor);
 }
 
-void Adaptor::UnregisterProcessor(Integration::Processor& processor, bool postProcessor)
+void Adaptor::UnregisterProcessor(Integration::Processor& processor)
 {
-  mImpl->UnregisterProcessor(processor, postProcessor);
+  mImpl->UnregisterProcessor(processor);
 }
 
 Dali::WindowContainer Adaptor::GetWindows() const

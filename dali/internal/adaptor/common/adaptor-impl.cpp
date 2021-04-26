@@ -1106,14 +1106,14 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return *mEnvironmentOptions;
 }
 
-void Adaptor::RegisterProcessor(Integration::Processor& processor, bool postProcessor)
+void Adaptor::RegisterProcessor(Integration::Processor& processor)
 {
-  GetCore().RegisterProcessor(processor, postProcessor);
+  GetCore().RegisterProcessor(processor);
 }
 
-void Adaptor::UnregisterProcessor(Integration::Processor& processor, bool postProcessor)
+void Adaptor::UnregisterProcessor(Integration::Processor& processor)
 {
-  GetCore().UnregisterProcessor(processor, postProcessor);
+  GetCore().UnregisterProcessor(processor);
 }
 
 bool Adaptor::IsMultipleWindowSupported() const
