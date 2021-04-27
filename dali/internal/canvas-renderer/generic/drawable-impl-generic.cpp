@@ -87,6 +87,11 @@ void DrawableGeneric::SetDrawableAdded(bool added)
 {
 }
 
+bool DrawableGeneric::IsDrawableAdded()
+{
+  return false;
+}
+
 void DrawableGeneric::SetObject(const void* object)
 {
 }

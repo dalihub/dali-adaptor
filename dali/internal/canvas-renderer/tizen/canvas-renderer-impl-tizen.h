@@ -110,9 +110,9 @@ private:
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
   tvg::Scene*                    mTvgRoot;
 #endif
-  typedef std::vector<WeakHandle<Dali::CanvasRenderer::Drawable> > DrawableVector;
-  typedef DrawableVector::iterator                                 DrawableVectorIterator;
-  DrawableVector                                                   mDrawables;
+  using DrawableVector         = std::vector<WeakHandle<Dali::CanvasRenderer::Drawable>>;
+  using DrawableVectorIterator = DrawableVector::iterator;
+  DrawableVector mDrawables;
 
   Vector2 mSize;
   Vector2 mViewBox;
