@@ -36,8 +36,8 @@ RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphic
   // copy attachment description
   if(createInfo.attachments)
   {
-    mCreateInfo.attachments = &mImpl->attachments;
     mImpl->attachments.insert(mImpl->attachments.end(), createInfo.attachments->begin(), createInfo.attachments->end());
+    mCreateInfo.attachments = &mImpl->attachments;
   }
 }
 

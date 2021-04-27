@@ -52,6 +52,16 @@ enum class CommandType
   END_RENDERPASS,
   EXECUTE_COMMAND_BUFFERS,
   PRESENT_RENDER_TARGET,
+  SET_COLOR_MASK,
+  CLEAR_STENCIL_BUFFER,
+  CLEAR_DEPTH_BUFFER,
+  SET_STENCIL_TEST_ENABLE,
+  SET_STENCIL_WRITE_MASK,
+  SET_STENCIL_OP,
+  SET_STENCIL_FUNC,
+  SET_DEPTH_COMPARE_OP,
+  SET_DEPTH_TEST_ENABLE,
+  SET_DEPTH_WRITE_ENABLE,
 };
 
 /**
@@ -220,12 +230,65 @@ struct Command
         presentRenderTarget = rhs.presentRenderTarget;
         break;
       }
+      case CommandType::SET_COLOR_MASK:
+      {
+        colorMask.enabled = rhs.colorMask.enabled;
+        break;
+      }
+      case CommandType::CLEAR_STENCIL_BUFFER:
+      {
+        break;
+      }
+      case CommandType::CLEAR_DEPTH_BUFFER:
+      {
+        break;
+      }
+      case CommandType::SET_STENCIL_TEST_ENABLE:
+      {
+        stencilTest.enabled = rhs.stencilTest.enabled;
+        break;
+      }
+      case CommandType::SET_STENCIL_FUNC:
+      {
+        stencilFunc.compareMask = rhs.stencilFunc.compareMask;
+        stencilFunc.compareOp   = rhs.stencilFunc.compareOp;
+        stencilFunc.reference   = rhs.stencilFunc.reference;
+        break;
+      }
+      case CommandType::SET_STENCIL_WRITE_MASK:
+      {
+        stencilWriteMask.mask = rhs.stencilWriteMask.mask;
+        break;
+      }
+      case CommandType::SET_STENCIL_OP:
+      {
+        stencilOp.failOp      = rhs.stencilOp.failOp;
+        stencilOp.depthFailOp = rhs.stencilOp.depthFailOp;
+        stencilOp.passOp      = rhs.stencilOp.passOp;
+        break;
+      }
+
+      case CommandType::SET_DEPTH_COMPARE_OP:
+      {
+        depth.compareOp = rhs.depth.compareOp;
+        break;
+      }
+      case CommandType::SET_DEPTH_TEST_ENABLE:
+      {
+        depth.testEnabled = rhs.depth.testEnabled;
+        break;
+      }
+      case CommandType::SET_DEPTH_WRITE_ENABLE:
+      {
+        depth.writeEnabled = rhs.depth.writeEnabled;
+        break;
+      }
     }
     type = rhs.type;
   }
 
   /**
-   * @brief Copy constructor
+   * @brief Move constructor
    * @param[in] rhs Command
    */
   Command(Command&& rhs) noexcept
@@ -321,6 +384,59 @@ struct Command
         presentRenderTarget = rhs.presentRenderTarget;
         break;
       }
+      case CommandType::SET_COLOR_MASK:
+      {
+        colorMask.enabled = rhs.colorMask.enabled;
+        break;
+      }
+      case CommandType::CLEAR_STENCIL_BUFFER:
+      {
+        break;
+      }
+      case CommandType::CLEAR_DEPTH_BUFFER:
+      {
+        break;
+      }
+      case CommandType::SET_STENCIL_TEST_ENABLE:
+      {
+        stencilTest.enabled = rhs.stencilTest.enabled;
+        break;
+      }
+      case CommandType::SET_STENCIL_FUNC:
+      {
+        stencilFunc.compareMask = rhs.stencilFunc.compareMask;
+        stencilFunc.compareOp   = rhs.stencilFunc.compareOp;
+        stencilFunc.reference   = rhs.stencilFunc.reference;
+        break;
+      }
+      case CommandType::SET_STENCIL_WRITE_MASK:
+      {
+        stencilWriteMask.mask = rhs.stencilWriteMask.mask;
+        break;
+      }
+      case CommandType::SET_STENCIL_OP:
+      {
+        stencilOp.failOp      = rhs.stencilOp.failOp;
+        stencilOp.depthFailOp = rhs.stencilOp.depthFailOp;
+        stencilOp.passOp      = rhs.stencilOp.passOp;
+        break;
+      }
+
+      case CommandType::SET_DEPTH_COMPARE_OP:
+      {
+        depth.compareOp = rhs.depth.compareOp;
+        break;
+      }
+      case CommandType::SET_DEPTH_TEST_ENABLE:
+      {
+        depth.testEnabled = rhs.depth.testEnabled;
+        break;
+      }
+      case CommandType::SET_DEPTH_WRITE_ENABLE:
+      {
+        depth.writeEnabled = rhs.depth.writeEnabled;
+        break;
+      }
     }
     type = rhs.type;
   }
@@ -396,6 +512,42 @@ struct Command
     {
       GLES::RenderTarget* targetToPresent;
     } presentRenderTarget;
+
+    struct
+    {
+      Graphics::CompareOp compareOp;
+      bool                testEnabled;
+      bool                writeEnabled;
+    } depth;
+
+    struct
+    {
+      Graphics::StencilOp failOp;
+      Graphics::StencilOp passOp;
+      Graphics::StencilOp depthFailOp;
+    } stencilOp;
+
+    struct
+    {
+      uint32_t mask;
+    } stencilWriteMask;
+
+    struct
+    {
+      uint32_t            compareMask;
+      Graphics::CompareOp compareOp;
+      uint32_t            reference;
+    } stencilFunc;
+
+    struct
+    {
+      bool enabled;
+    } stencilTest;
+
+    struct
+    {
+      bool enabled;
+    } colorMask;
   };
 };
 
@@ -475,6 +627,30 @@ public:
   void SetViewport(Viewport value) override;
 
   void SetViewportEnable(bool value) override;
+
+  void SetColorMask(bool enabled) override;
+
+  void ClearStencilBuffer() override;
+
+  void SetStencilTestEnable(bool stencilEnable) override;
+
+  void SetStencilWriteMask(uint32_t writeMask) override;
+
+  void SetStencilOp(Graphics::StencilOp failOp,
+                    Graphics::StencilOp passOp,
+                    Graphics::StencilOp depthFailOp) override;
+
+  void SetStencilFunc(Graphics::CompareOp compareOp,
+                      uint32_t            reference,
+                      uint32_t            compareMask) override;
+
+  void SetDepthCompareOp(Graphics::CompareOp compareOp) override;
+
+  void SetDepthTestEnable(bool depthTestEnable) override;
+
+  void SetDepthWriteEnable(bool depthWriteEnable) override;
+
+  void ClearDepthBuffer() override;
 
   /**
    * @brief Presents specified render target
