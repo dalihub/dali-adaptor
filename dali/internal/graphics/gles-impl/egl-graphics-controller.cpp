@@ -33,6 +33,11 @@
 #include <dali/public-api/common/dali-common.h>
 #include "gles-graphics-program.h"
 
+// Uncomment the following define to turn on frame dumping
+//#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
+DUMP_FRAME_INIT();
+
 namespace Dali::Graphics
 {
 namespace
@@ -534,12 +539,17 @@ void EglGraphicsController::ProcessCommandQueues()
   // done externally
   currentFramebuffer = nullptr;
 
+  DUMP_FRAME_START();
+
   while(!mCommandQueue.empty())
   {
     auto cmdBuf = mCommandQueue.front();
     mCommandQueue.pop();
+    DUMP_FRAME_COMMAND_BUFFER(cmdBuf);
     ProcessCommandBuffer(*cmdBuf);
   }
+
+  DUMP_FRAME_END();
 }
 
 void EglGraphicsController::ProcessTextureUpdateQueue()
