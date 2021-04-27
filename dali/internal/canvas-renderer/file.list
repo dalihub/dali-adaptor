@@ -1,17 +1,14 @@
 
 # module: canvas-renderer, backend: generic (android, macos, window)
 SET( adaptor_canvas_renderer_generic_src_files
-    ${adaptor_canvas_renderer_dir}/common/canvas-renderer-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
     ${adaptor_canvas_renderer_dir}/generic/canvas-renderer-factory-generic.cpp
     ${adaptor_canvas_renderer_dir}/generic/canvas-renderer-impl-generic.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/drawable-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
     ${adaptor_canvas_renderer_dir}/generic/drawable-factory-generic.cpp
     ${adaptor_canvas_renderer_dir}/generic/drawable-impl-generic.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/shape-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/generic/shape-factory-generic.cpp
     ${adaptor_canvas_renderer_dir}/generic/shape-impl-generic.cpp
@@ -19,17 +16,14 @@ SET( adaptor_canvas_renderer_generic_src_files
 
 # module: canvas-renderer, backend: ubuntu
 SET( adaptor_canvas_renderer_ubuntu_src_files
-    ${adaptor_canvas_renderer_dir}/common/canvas-renderer-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/canvas-renderer-factory-ubuntu.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/canvas-renderer-impl-ubuntu.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/drawable-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/drawable-factory-ubuntu.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/drawable-impl-ubuntu.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/shape-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/shape-factory-ubuntu.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/shape-impl-ubuntu.cpp
@@ -37,17 +31,14 @@ SET( adaptor_canvas_renderer_ubuntu_src_files
 
 # module: canvas-renderer, backend: tizen (generic, ivi, mobile, tizen-post, tv, wearable)
 SET( adaptor_canvas_renderer_tizen_src_files
-    ${adaptor_canvas_renderer_dir}/common/canvas-renderer-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/canvas-renderer-impl.cpp
     ${adaptor_canvas_renderer_dir}/tizen/canvas-renderer-factory-tizen.cpp
     ${adaptor_canvas_renderer_dir}/tizen/canvas-renderer-impl-tizen.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/drawable-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/drawable-impl.cpp
     ${adaptor_canvas_renderer_dir}/tizen/drawable-factory-tizen.cpp
     ${adaptor_canvas_renderer_dir}/tizen/drawable-impl-tizen.cpp
 
-    ${adaptor_canvas_renderer_dir}/common/shape-factory.cpp
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/tizen/shape-factory-tizen.cpp
     ${adaptor_canvas_renderer_dir}/tizen/shape-impl-tizen.cpp

@@ -56,7 +56,7 @@ class PipelineCache;
  *
  * Temporarily holds the old GL abstractions whilst dali-core is migrated to the new API.
  */
-DALI_IMPORT_API class EglGraphicsController : public Graphics::Controller
+class EglGraphicsController : public Graphics::Controller
 {
 public:
   /**
