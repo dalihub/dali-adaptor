@@ -191,6 +191,11 @@ void DrawableTizen::SetDrawableAdded(bool added)
   mAdded = !!added;
 }
 
+bool DrawableTizen::IsDrawableAdded()
+{
+  return mAdded;
+}
+
 void* DrawableTizen::GetObject() const
 {
 #ifdef THORVG_SUPPORT
