@@ -106,13 +106,22 @@ Rect<float> Drawable::GetBoundingBox() const
   return pImpl->GetBoundingBox();
 }
 
-void Drawable::SetDrawableAdded(bool added)
+void Drawable::SetAdded(bool added)
 {
   if(!pImpl)
   {
     return;
   }
-  pImpl->SetDrawableAdded(added);
+  pImpl->SetAdded(added);
+}
+
+bool Drawable::IsAdded() const
+{
+  if(!pImpl)
+  {
+    return false;
+  }
+  return pImpl->IsAdded();
 }
 
 void* Drawable::GetObject() const

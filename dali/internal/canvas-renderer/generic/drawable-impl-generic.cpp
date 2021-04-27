@@ -88,8 +88,13 @@ Rect<float> DrawableGeneric::GetBoundingBox() const
   return Rect<float>(0, 0, 0, 0);
 }
 
-void DrawableGeneric::SetDrawableAdded(bool added)
+void DrawableGeneric::SetAdded(bool added)
 {
+}
+
+bool DrawableGeneric::IsAdded() const
+{
+  return false;
 }
 
 void DrawableGeneric::SetObject(const void* object)

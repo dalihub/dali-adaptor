@@ -91,10 +91,16 @@ public:
   virtual Rect<float> GetBoundingBox() const;
 
   /**
-   * @brief Set whether drawable added to the other object(canvas or drawable) or not.
+   * @brief Set whether this drawable object was added to other object(CanvasRenderer or DrawableGroup) or not.
    * @param[in] added Ture if added, false otherwise.
    */
-  virtual void SetDrawableAdded(bool added);
+  virtual void SetAdded(bool added);
+
+  /**
+   * @brief Returns whether this drawable object was added to another object(CanvasRenderer or DrawableGroup).
+   * @return Returns Ture if added, false otherwise.
+   */
+  virtual bool IsAdded() const;
 
   /**
    * @brief Returns a drawable object pointer.

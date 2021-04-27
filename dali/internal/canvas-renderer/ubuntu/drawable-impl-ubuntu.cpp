@@ -209,9 +209,14 @@ Rect<float> DrawableUbuntu::GetBoundingBox() const
 #endif
 }
 
-void DrawableUbuntu::SetDrawableAdded(bool added)
+void DrawableUbuntu::SetAdded(bool added)
 {
   mAdded = !!added;
+}
+
+bool DrawableUbuntu::IsAdded() const
+{
+  return mAdded;
 }
 
 void* DrawableUbuntu::GetObject() const

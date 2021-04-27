@@ -84,9 +84,14 @@ public:
   Rect<float> GetBoundingBox() const override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetDrawableAdded
+   * @copydoc Internal::Adaptor::Drawable::SetAdded
    */
-  void SetDrawableAdded(bool added) override;
+  void SetAdded(bool added) override;
+
+  /**
+   * @copydoc Internal::Adaptor::Drawable::IsAdded
+   */
+  bool IsAdded() const override;
 
   /**
    * @copydoc Internal::Adaptor::Drawable::SetObject

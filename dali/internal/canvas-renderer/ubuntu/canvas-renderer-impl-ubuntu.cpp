@@ -201,7 +201,7 @@ bool CanvasRendererUbuntu::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
     return false;
   }
 
-  drawableImpl.SetDrawableAdded(true);
+  drawableImpl.SetAdded(true);
   mDrawables.push_back(drawable);
   mChanged = true;
 
