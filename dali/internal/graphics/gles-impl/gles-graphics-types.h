@@ -1335,6 +1335,76 @@ struct GLAddressMode
   GLenum texParameter{GL_CLAMP_TO_EDGE};
 };
 
+struct GLCompareOp
+{
+  constexpr explicit GLCompareOp(Graphics::CompareOp compareOp)
+  {
+    switch(compareOp)
+    {
+      case Graphics::CompareOp::NEVER:
+        op = GL_NEVER;
+        break;
+      case Graphics::CompareOp::LESS:
+        op = GL_LESS;
+        break;
+      case Graphics::CompareOp::EQUAL:
+        op = GL_EQUAL;
+        break;
+      case Graphics::CompareOp::LESS_OR_EQUAL:
+        op = GL_LEQUAL;
+        break;
+      case Graphics::CompareOp::GREATER:
+        op = GL_GREATER;
+        break;
+      case Graphics::CompareOp::NOT_EQUAL:
+        op = GL_NOTEQUAL;
+        break;
+      case Graphics::CompareOp::GREATER_OR_EQUAL:
+        op = GL_GEQUAL;
+        break;
+      case Graphics::CompareOp::ALWAYS:
+        op = GL_ALWAYS;
+        break;
+    }
+  }
+  GLenum op{GL_LESS};
+};
+
+struct GLStencilOp
+{
+  constexpr explicit GLStencilOp(Graphics::StencilOp stencilOp)
+  {
+    switch(stencilOp)
+    {
+      case Graphics::StencilOp::KEEP:
+        op = GL_KEEP;
+        break;
+      case Graphics::StencilOp::ZERO:
+        op = GL_ZERO;
+        break;
+      case Graphics::StencilOp::REPLACE:
+        op = GL_REPLACE;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_CLAMP:
+        op = GL_INCR;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_CLAMP:
+        op = GL_DECR;
+        break;
+      case Graphics::StencilOp::INVERT:
+        op = GL_INVERT;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_WRAP:
+        op = GL_INCR_WRAP;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_WRAP:
+        op = GL_DECR_WRAP;
+        break;
+    }
+  }
+  GLenum op{GL_KEEP};
+};
+
 /**
  * @brief Descriptor of single buffer binding within
  * command buffer.

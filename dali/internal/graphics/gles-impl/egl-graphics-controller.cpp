@@ -416,6 +416,67 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
         break;
       }
+
+      case GLES::CommandType::SET_COLOR_MASK:
+      {
+        mCurrentContext->ColorMask(cmd.colorMask.enabled);
+        break;
+      }
+      case GLES::CommandType::CLEAR_STENCIL_BUFFER:
+      {
+        mCurrentContext->ClearStencilBuffer();
+        break;
+      }
+      case GLES::CommandType::CLEAR_DEPTH_BUFFER:
+      {
+        mCurrentContext->ClearDepthBuffer();
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_TEST_ENABLE:
+      {
+        mCurrentContext->SetStencilTestEnable(cmd.stencilTest.enabled);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_FUNC:
+      {
+        mCurrentContext->StencilFunc(cmd.stencilFunc.compareOp,
+                                     cmd.stencilFunc.reference,
+                                     cmd.stencilFunc.compareMask);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_WRITE_MASK:
+      {
+        mCurrentContext->StencilMask(cmd.stencilWriteMask.mask);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_OP:
+      {
+        mCurrentContext->StencilOp(cmd.stencilOp.failOp,
+                                   cmd.stencilOp.depthFailOp,
+                                   cmd.stencilOp.passOp);
+        break;
+      }
+
+      case GLES::CommandType::SET_DEPTH_COMPARE_OP:
+      {
+        mCurrentContext->SetDepthCompareOp(cmd.depth.compareOp);
+        break;
+      }
+      case GLES::CommandType::SET_DEPTH_TEST_ENABLE:
+      {
+        mCurrentContext->SetDepthTestEnable(cmd.depth.testEnabled);
+        break;
+      }
+      case GLES::CommandType::SET_DEPTH_WRITE_ENABLE:
+      {
+        mCurrentContext->SetDepthWriteEnable(cmd.depth.writeEnabled);
+        break;
+      }
+
       case GLES::CommandType::BEGIN_RENDERPASS:
       {
         auto&       renderTarget = *cmd.beginRenderPass.renderTarget;

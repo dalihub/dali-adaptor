@@ -137,6 +137,21 @@ public:
    */
   void EndRenderPass();
 
+  void ColorMask(bool enabled);
+  void ClearStencilBuffer();
+  void ClearDepthBuffer();
+  void SetStencilTestEnable(bool stencilEnable);
+  void StencilMask(uint32_t writeMask);
+  void StencilFunc(Graphics::CompareOp compareOp,
+                   uint32_t            reference,
+                   uint32_t            compareMask);
+  void StencilOp(Graphics::StencilOp failOp,
+                 Graphics::StencilOp depthFailOp,
+                 Graphics::StencilOp passOp);
+  void SetDepthCompareOp(Graphics::CompareOp compareOp);
+  void SetDepthTestEnable(bool depthTestEnable);
+  void SetDepthWriteEnable(bool depthWriteEnable);
+
 private:
   /**
    * @brief Clear current state

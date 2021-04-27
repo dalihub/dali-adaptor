@@ -431,8 +431,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
-  auto& gl       = *mImpl->mController.GetGL();
-  auto& graphics = *mImpl->mController.GetGraphicsInterface();
+  auto& gl = *mImpl->mController.GetGL();
 
   if(targetInfo.surface)
   {
@@ -473,10 +472,12 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
     const auto& depthStencil = attachments.back();
     if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
     {
+      gl.DepthMask(true);
       mask |= GL_DEPTH_BUFFER_BIT;
     }
     if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
     {
+      gl.StencilMask(0xFF);
       mask |= GL_STENCIL_BUFFER_BIT;
     }
   }
@@ -505,6 +506,84 @@ void Context::EndRenderPass()
 void Context::ClearState()
 {
   mImpl->mCurrentTextureBindings.clear();
+}
+
+void Context::ColorMask(bool enabled)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.ColorMask(enabled, enabled, enabled, enabled);
+}
+
+void Context::ClearStencilBuffer()
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.Clear(GL_STENCIL_BUFFER_BIT);
+}
+
+void Context::ClearDepthBuffer()
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.Clear(GL_DEPTH_BUFFER_BIT);
+}
+
+void Context::SetStencilTestEnable(bool stencilEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  if(stencilEnable)
+  {
+    gl.Enable(GL_STENCIL_TEST);
+  }
+  else
+  {
+    gl.Disable(GL_STENCIL_TEST);
+  }
+}
+
+void Context::StencilMask(uint32_t writeMask)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilMask(writeMask);
+}
+
+void Context::StencilFunc(Graphics::CompareOp compareOp,
+                          uint32_t            reference,
+                          uint32_t            compareMask)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilFunc(GLCompareOp(compareOp).op, reference, compareMask);
+}
+
+void Context::StencilOp(Graphics::StencilOp failOp,
+                        Graphics::StencilOp depthFailOp,
+                        Graphics::StencilOp passOp)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilOp(GLStencilOp(failOp).op, GLStencilOp(depthFailOp).op, GLStencilOp(passOp).op);
+}
+
+void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DepthFunc(GLCompareOp(compareOp).op);
+}
+
+void Context::SetDepthTestEnable(bool depthTestEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  if(depthTestEnable)
+  {
+    gl.Enable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    gl.Disable(GL_DEPTH_TEST);
+  }
+}
+
+void Context::SetDepthWriteEnable(bool depthWriteEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DepthMask(depthWriteEnable);
 }
 
 } // namespace Dali::Graphics::GLES
