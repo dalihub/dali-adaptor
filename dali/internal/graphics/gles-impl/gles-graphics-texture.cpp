@@ -207,6 +207,46 @@ bool Texture::InitializeTexture()
       }
       break;
     }
+    // Texture Cubemap
+    case Graphics::TextureType::TEXTURE_CUBEMAP:
+    {
+      Graphics::GLES::GLTextureFormatType format(mCreateInfo.format);
+
+      if(format.format && format.type)
+      {
+        // Bind texture
+        gl->GenTextures(1, &texture);
+        gl->BindTexture(GL_TEXTURE_CUBE_MAP, texture);
+        gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
+
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
+
+        // Allocate memory for the texture
+        for(uint32_t i = 0; i < 6; ++i)
+        {
+          gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0,
+                         format.format,
+                         mCreateInfo.size.width,
+                         mCreateInfo.size.height,
+                         0,
+                         format.format,
+                         format.type,
+                         (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        }
+
+        // Clear staging buffer if there was any
+        mStagingBuffer.clear();
+
+        mTextureId = texture;
+
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_WRAP_DEFAULT);
+      }
+      break;
+    }
     default:
     {
       // nothing?
