@@ -586,19 +586,52 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
         sourceBuffer = &tempBuffer[0];
       }
 
-      mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      switch(createInfo.textureType)
+      {
+        // Texture 2D
+        case Graphics::TextureType::TEXTURE_2D:
+        {
 
-      mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
+          mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-      mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
-                                    info.level,
-                                    info.dstOffset2D.x,
-                                    info.dstOffset2D.y,
-                                    info.srcExtent2D.width,
-                                    info.srcExtent2D.height,
-                                    destFormat,
-                                    destType,
-                                    sourceBuffer);
+          mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
+
+          mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
+                                        info.level,
+                                        info.dstOffset2D.x,
+                                        info.dstOffset2D.y,
+                                        info.srcExtent2D.width,
+                                        info.srcExtent2D.height,
+                                        destFormat,
+                                        destType,
+                                        sourceBuffer);
+          break;
+        }
+        // Texture Cubemap
+        case Graphics::TextureType::TEXTURE_CUBEMAP:
+        {
+          mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+          mGlAbstraction->BindTexture(GL_TEXTURE_CUBE_MAP, texture->GetGLTexture());
+
+          mGlAbstraction->TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer,
+                                        info.level,
+                                        info.dstOffset2D.x,
+                                        info.dstOffset2D.y,
+                                        info.srcExtent2D.width,
+                                        info.srcExtent2D.height,
+                                        destFormat,
+                                        destType,
+                                        sourceBuffer);
+
+
+          break;
+        }
+        default:
+        {
+          // nothing?
+        }
+      }
 
       // free staging memory
       free(source.memorySource.memory);
