@@ -560,26 +560,50 @@ public:
 
   ~CommandBuffer() override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindVertexBuffers
+   */
   void BindVertexBuffers(uint32_t                             firstBinding,
                          std::vector<const Graphics::Buffer*> buffers,
                          std::vector<uint32_t>                offsets) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindUniformBuffers
+   */
   void BindUniformBuffers(const std::vector<Graphics::UniformBufferBinding>& bindings) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindPipeline
+   */
   void BindPipeline(const Graphics::Pipeline& pipeline) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindTextures
+   */
   void BindTextures(std::vector<TextureBinding>& textureBindings) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindSamplers
+   */
   void BindSamplers(std::vector<SamplerBinding>& samplerBindings) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindPushConstants
+   */
   void BindPushConstants(void*    data,
                          uint32_t size,
                          uint32_t binding) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BindIndexBuffer
+   */
   void BindIndexBuffer(const Graphics::Buffer& buffer,
                        uint32_t                offset,
                        Format                  format) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::BeginRenderPass
+   */
   void BeginRenderPass(
     Graphics::RenderPass*   renderPass,
     Graphics::RenderTarget* renderTarget,
@@ -587,24 +611,27 @@ public:
     std::vector<ClearValue> clearValues) override;
 
   /**
-   * @brief Ends current render pass
-   *
-   * This command must be issued in order to finalize the render pass.
-   * It's up to the implementation whether anything has to be done but
-   * the Controller may use end RP marker in order to resolve resource
-   * dependencies (for example, to know when target texture is ready
-   * before passing it to another render pass).
+   * @copydoc Dali::Graphics::CommandBuffer::EndRenderPass
    */
   void EndRenderPass() override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::ExecuteCommandBuffers
+   */
   void ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::Draw
+   */
   void Draw(
     uint32_t vertexCount,
     uint32_t instanceCount,
     uint32_t firstVertex,
     uint32_t firstInstance) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::DrawIndexed
+   */
   void DrawIndexed(
     uint32_t indexCount,
     uint32_t instanceCount,
@@ -612,44 +639,92 @@ public:
     int32_t  vertexOffset,
     uint32_t firstInstance) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::DrawIndexedIndirect
+   */
   void DrawIndexedIndirect(
     Graphics::Buffer& buffer,
     uint32_t          offset,
     uint32_t          drawCount,
     uint32_t          stride) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::Reset
+   */
   void Reset() override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetScissor
+   */
   void SetScissor(Graphics::Rect2D value) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetScissorTestEnable
+   */
   void SetScissorTestEnable(bool value) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetViewport
+   */
   void SetViewport(Viewport value) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetViewportEnable
+   */
   void SetViewportEnable(bool value) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetColorMask
+   */
   void SetColorMask(bool enabled) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::ClearStencilBuffer
+   */
   void ClearStencilBuffer() override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetStencilTestEnable
+   */
   void SetStencilTestEnable(bool stencilEnable) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetStencilWriteMask
+   */
   void SetStencilWriteMask(uint32_t writeMask) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetStencilOp
+   */
   void SetStencilOp(Graphics::StencilOp failOp,
                     Graphics::StencilOp passOp,
                     Graphics::StencilOp depthFailOp) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetStencilFunc
+   */
   void SetStencilFunc(Graphics::CompareOp compareOp,
                       uint32_t            reference,
                       uint32_t            compareMask) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetDepthCompareOp
+   */
   void SetDepthCompareOp(Graphics::CompareOp compareOp) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetDepthTestEnable
+   */
   void SetDepthTestEnable(bool depthTestEnable) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::SetDepthWriteEnable
+   */
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::ClearDepthBuffer
+   */
   void ClearDepthBuffer() override;
 
   /**
@@ -664,13 +739,23 @@ public:
 
   [[nodiscard]] const std::vector<Command>& GetCommands() const;
 
+  /**
+   * @brief Destroy the associated resources
+   */
   void DestroyResource() override;
+
+  /**
+   * @brief Initialize associated resources
+   */
   bool InitializeResource() override;
 
+  /**
+   * @brief Add this resource to the discard queue
+   */
   void DiscardResource() override;
 
 private:
-  std::vector<Command> mCommands;
+  std::vector<Command> mCommands; ///< List of commands in this command buffer
 };
 } // namespace Dali::Graphics::GLES
 
