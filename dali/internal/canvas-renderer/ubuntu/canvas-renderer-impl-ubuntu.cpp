@@ -162,6 +162,9 @@ bool CanvasRendererUbuntu::Commit()
     DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
     return false;
   }
+
+  mTvgCanvas->sync();
+
   return true;
 #else
   return false;
@@ -259,8 +262,6 @@ void CanvasRendererUbuntu::MakeTargetBuffer(const Vector2& size)
     DALI_LOG_ERROR("Pixel buffer create to fail [%p]\n", this);
     return;
   }
-
-  mTvgCanvas->sync();
 
   mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ABGR8888);
 #endif
