@@ -180,6 +180,11 @@ public:
     return mGLES->GetShadingLanguageVersion();
   }
 
+  const char* GetEglImageExtensionString()
+  {
+    return mGLES->GetEglImageExtensionString();
+  }
+
   void CacheConfigurations(ConfigurationManager& configurationManager) override;
 
 private:
