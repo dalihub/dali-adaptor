@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/application-impl.h>
-#include <dali/internal/system/common //widget-application-impl.h>
+#include <dali/internal/system/common/widget-application-impl.h>
 #include <dali/public-api/adaptor-framework/widget-application.h>
 
 namespace Dali
