@@ -43,14 +43,12 @@ Application Application::New(int* argc, char** argv[])
     {
       internal->GetWindow().SetClass((*argv)[0], "");
     }
-
-    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL);
-    return Application(internal.Get());
+    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
   }
+  return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet)
@@ -65,14 +63,12 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
       internal->GetWindow().SetClass((*argv)[0], "");
     }
     internal->SetStyleSheet(stylesheet);
-
-    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL);
-    return Application(internal.Get());
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
   }
+  return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode)
@@ -89,14 +85,12 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetStyleSheet(stylesheet);
 
     internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
-
-    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL);
-    return Application(internal.Get());
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
   }
+  return Application(internal.Get());
 }
 
 Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize)
@@ -116,14 +110,12 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
 
     //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
-
-    return Application(internal.Get());
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL);
-    return Application(internal.Get());
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
   }
+  return Application(internal.Get());
 }
 
 Application::~Application()

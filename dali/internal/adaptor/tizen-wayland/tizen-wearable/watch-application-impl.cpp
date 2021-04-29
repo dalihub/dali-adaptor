@@ -50,7 +50,7 @@ WatchApplicationPtr WatchApplication::New(
 }
 
 WatchApplication::WatchApplication(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode)
-: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH),
+: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH, WindowType::NORMAL),
   mState(UNINITIALIZED)
 {
 }

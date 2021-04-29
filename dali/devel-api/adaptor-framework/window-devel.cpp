@@ -48,7 +48,7 @@ Window New(Any surface, PositionSize windowPosition, const std::string& name, co
 
   if(isNewWindowAllowed)
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, windowPosition, name, className, isTransparent);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, windowPosition, name, className, WindowType::NORMAL, isTransparent);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
     if(isAdaptorAvailable)
@@ -149,6 +149,11 @@ void AddFrameRenderedCallback(Window window, std::unique_ptr<CallbackBase> callb
 void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
   GetImplementation(window).AddFramePresentedCallback(std::move(callback), frameId);
+}
+
+void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation)
+{
+  GetImplementation(window).SetPositionSizeWithOrientation(positionSize, orientation);
 }
 
 } // namespace DevelWindow

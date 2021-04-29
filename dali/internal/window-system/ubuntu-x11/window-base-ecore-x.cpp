@@ -768,6 +768,11 @@ void WindowBaseEcoreX::SetType(Dali::WindowType type)
 {
 }
 
+Dali::WindowType WindowBaseEcoreX::GetType() const
+{
+  return Dali::WindowType::NORMAL;
+}
+
 Dali::WindowOperationResult WindowBaseEcoreX::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   return Dali::WindowOperationResult::NOT_SUPPORTED;
@@ -919,6 +924,18 @@ int WindowBaseEcoreX::CreateFrameRenderedSyncFence()
 int WindowBaseEcoreX::CreateFramePresentedSyncFence()
 {
   return -1;
+}
+
+void WindowBaseEcoreX::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+}
+
+void WindowBaseEcoreX::InitializeIme()
+{
+}
+
+void WindowBaseEcoreX::ImeWindowReadyToRender()
+{
 }
 
 } // namespace Adaptor

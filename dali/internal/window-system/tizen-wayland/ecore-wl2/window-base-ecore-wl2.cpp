@@ -698,6 +698,9 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
 : mEcoreEventHandler(),
   mEcoreWindow(nullptr),
   mWlSurface(nullptr),
+  mWlInputPanel(nullptr),
+  mWlOutput(nullptr),
+  mWlInputPanelSurface(nullptr),
   mEglWindow(nullptr),
   mDisplay(nullptr),
   mEventQueue(nullptr),
@@ -705,24 +708,25 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mTizenDisplayPolicy(nullptr),
   mKeyMap(nullptr),
   mSupportedAuxiliaryHints(),
-  mAuxiliaryHints(),
-  mNotificationLevel(-1),
-  mNotificationChangeState(0),
-  mNotificationLevelChangeDone(true),
-  mScreenOffMode(0),
-  mScreenOffModeChangeState(0),
-  mScreenOffModeChangeDone(true),
-  mBrightness(0),
-  mBrightnessChangeState(0),
-  mBrightnessChangeDone(true),
-  mVisible(true),
   mWindowPositionSize(positionSize),
-  mOwnSurface(false),
-  mMoveResizeSerial(0),
-  mLastSubmittedMoveResizeSerial(0),
+  mAuxiliaryHints(),
+  mType(WindowType::NORMAL),
+  mNotificationLevel(-1),
+  mScreenOffMode(0),
+  mBrightness(0),
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
-  mSupportedPreProtation(0)
+  mSupportedPreProtation(0),
+  mNotificationChangeState(0),
+  mScreenOffModeChangeState(0),
+  mBrightnessChangeState(0),
+  mLastSubmittedMoveResizeSerial(0),
+  mMoveResizeSerial(0),
+  mNotificationLevelChangeDone(true),
+  mScreenOffModeChangeDone(true),
+  mVisible(true),
+  mOwnSurface(false),
+  mBrightnessChangeDone(true)
 #ifdef DALI_ELDBUS_AVAILABLE
   ,
   mSystemConnection(NULL)
@@ -843,7 +847,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   InitializeEcoreElDBus();
 
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-  mDisplay                   = ecore_wl2_display_get(display);
+  mDisplay = ecore_wl2_display_get(display);
 
   if(mDisplay)
   {
@@ -1861,38 +1865,51 @@ void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
 {
-  Ecore_Wl2_Window_Type windowType;
-
-  switch(type)
+  if(mType != type)
   {
-    case Dali::WindowType::NORMAL:
-    {
-      windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
-      break;
-    }
-    case Dali::WindowType::NOTIFICATION:
-    {
-      windowType = ECORE_WL2_WINDOW_TYPE_NOTIFICATION;
-      break;
-    }
-    case Dali::WindowType::UTILITY:
-    {
-      windowType = ECORE_WL2_WINDOW_TYPE_UTILITY;
-      break;
-    }
-    case Dali::WindowType::DIALOG:
-    {
-      windowType = ECORE_WL2_WINDOW_TYPE_DIALOG;
-      break;
-    }
-    default:
-    {
-      windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
-      break;
-    }
-  }
+    mType = type;
+    Ecore_Wl2_Window_Type windowType;
 
-  ecore_wl2_window_type_set(mEcoreWindow, windowType);
+    switch(type)
+    {
+      case Dali::WindowType::NORMAL:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
+        break;
+      }
+      case Dali::WindowType::NOTIFICATION:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_NOTIFICATION;
+        break;
+      }
+      case Dali::WindowType::UTILITY:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_UTILITY;
+        break;
+      }
+      case Dali::WindowType::DIALOG:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_DIALOG;
+        break;
+      }
+      case Dali::WindowType::IME:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_NONE;
+        break;
+      }
+      default:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
+        break;
+      }
+    }
+    ecore_wl2_window_type_set(mEcoreWindow, windowType);
+  }
+}
+
+Dali::WindowType WindowBaseEcoreWl2::GetType() const
+{
+  return mType;
 }
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
@@ -2515,6 +2532,84 @@ int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
 int WindowBaseEcoreWl2::CreateFramePresentedSyncFence()
 {
   return wl_egl_window_tizen_create_presentation_sync_fd(mEglWindow);
+}
+
+void WindowBaseEcoreWl2::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPositionSizeWithAngle, angle: %d, x: %d, y: %d, w: %d, h: %d\n", angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  ecore_wl2_window_rotation_geometry_set(mEcoreWindow, angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+}
+
+void WindowBaseEcoreWl2::InitializeIme()
+{
+  Eina_Iterator*      globals;
+  struct wl_registry* registry;
+  Ecore_Wl2_Global*   global;
+  Ecore_Wl2_Display*  ecoreWl2Display;
+
+  if(!(ecoreWl2Display = ecore_wl2_connected_display_get(NULL)))
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 connected display\n");
+    return;
+  }
+
+  DALI_LOG_RELEASE_INFO("InitializeIme:  Ecore_Wl2_Display: %p, ecore wl window: %p\n", ecoreWl2Display, mEcoreWindow);
+
+  if(!(registry = ecore_wl2_display_registry_get(ecoreWl2Display)))
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 display registry\n");
+    return;
+  }
+
+  if(!(globals = ecore_wl2_display_globals_get(ecoreWl2Display)))
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 globals\n");
+    return;
+  }
+
+  EINA_ITERATOR_FOREACH(globals, global)
+  {
+    if(strcmp(global->interface, "wl_input_panel") == 0)
+    {
+      mWlInputPanel = (wl_input_panel*)wl_registry_bind(registry, global->id, &wl_input_panel_interface, 1);
+    }
+    else if(strcmp(global->interface, "wl_output") == 0)
+    {
+      mWlOutput = (wl_output*)wl_registry_bind(registry, global->id, &wl_output_interface, 1);
+    }
+  }
+
+  if(!mWlInputPanel)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel interface\n");
+    return;
+  }
+
+  if(!mWlOutput)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland output panel interface\n");
+    return;
+  }
+
+  mWlInputPanelSurface = wl_input_panel_get_input_panel_surface(mWlInputPanel, mWlSurface);
+  if(!mWlInputPanelSurface)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
+    return;
+  }
+
+  wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
+}
+
+void WindowBaseEcoreWl2::ImeWindowReadyToRender()
+{
+  if(!mWlInputPanelSurface)
+  {
+    DALI_LOG_ERROR("WindowBaseEcoreWl2::ImeWindowReadyToRender(), wayland input panel surface is null\n");
+    return;
+  }
+
+  wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
 }
 
 } // namespace Adaptor

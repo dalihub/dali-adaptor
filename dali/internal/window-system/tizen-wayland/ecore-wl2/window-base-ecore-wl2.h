@@ -24,6 +24,7 @@
 // EXTERNAL HEADERS
 #include <Ecore.h>
 #include <Ecore_Wl2.h>
+#include <input-method-client-protocol.h>
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
 #include <xkbcommon/xkbcommon.h>
@@ -362,6 +363,11 @@ public:
   void SetType(Dali::WindowType type) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetType()
+   */
+  Dali::WindowType GetType() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
   Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) override;
@@ -461,6 +467,21 @@ public:
    */
   int CreateFramePresentedSyncFence() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetPositionSizeWithAngle()
+   */
+  void SetPositionSizeWithAngle(PositionSize positionSize, int angle) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::InitializeIme()
+   */
+  void InitializeIme() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ImeWindowReadyToRender()
+   */
+  void ImeWindowReadyToRender() override;
+
 private:
   /**
    * Second stage initialization
@@ -486,11 +507,14 @@ protected:
 
 private:
   typedef std::vector<std::pair<std::string, std::string> > AuxiliaryHints;
+  Dali::Vector<Ecore_Event_Handler*>                        mEcoreEventHandler;
+  Ecore_Wl2_Window*                                         mEcoreWindow;
 
-  Dali::Vector<Ecore_Event_Handler*> mEcoreEventHandler;
+  wl_surface*             mWlSurface;
+  wl_input_panel*         mWlInputPanel;
+  wl_output*              mWlOutput;
+  wl_input_panel_surface* mWlInputPanelSurface;
 
-  Ecore_Wl2_Window*     mEcoreWindow;
-  wl_surface*           mWlSurface;
   wl_egl_window*        mEglWindow;
   wl_display*           mDisplay;
   wl_event_queue*       mEventQueue;
@@ -499,31 +523,30 @@ private:
   xkb_keymap*           mKeyMap;
 
   std::vector<std::string> mSupportedAuxiliaryHints;
-  AuxiliaryHints           mAuxiliaryHints;
 
-  int      mNotificationLevel;
-  uint32_t mNotificationChangeState;
-  bool     mNotificationLevelChangeDone;
-
-  int      mScreenOffMode;
-  uint32_t mScreenOffModeChangeState;
-  bool     mScreenOffModeChangeDone;
-
-  int      mBrightness;
-  uint32_t mBrightnessChangeState;
-  bool     mBrightnessChangeDone;
-
-  bool               mVisible : 1;
   Dali::PositionSize mWindowPositionSize;
+  AuxiliaryHints     mAuxiliaryHints;
 
-  bool mOwnSurface;
+  WindowType mType;
+  int        mNotificationLevel;
+  int        mScreenOffMode;
+  int        mBrightness;
+  int        mWindowRotationAngle;
+  int        mScreenRotationAngle;
+  int        mSupportedPreProtation;
 
-  volatile uint32_t mMoveResizeSerial;
+  uint32_t          mNotificationChangeState;
+  uint32_t          mScreenOffModeChangeState;
+  uint32_t          mBrightnessChangeState;
   uint32_t          mLastSubmittedMoveResizeSerial;
+  volatile uint32_t mMoveResizeSerial;
 
-  int mWindowRotationAngle;
-  int mScreenRotationAngle;
-  int mSupportedPreProtation;
+  bool mNotificationLevelChangeDone;
+  bool mScreenOffModeChangeDone;
+  bool mVisible : 1;
+  bool mOwnSurface;
+  bool mBrightnessChangeDone;
+
 #ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Connection* mSystemConnection;
 #endif // DALI_ELDBUS_AVAILABLE

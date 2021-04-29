@@ -331,6 +331,11 @@ public:
   void SetType(Dali::WindowType type) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetType()
+   */
+  Dali::WindowType GetType() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
   Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) override;
@@ -429,6 +434,21 @@ public:
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFramePresentedSyncFence()
    */
   int CreateFramePresentedSyncFence() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetPositionSizeWithAngle()
+   */
+  void SetPositionSizeWithAngle(PositionSize positionSize, int angle) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::InitializeIme()
+   */
+  void InitializeIme() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ImeWindowReadyToRender()
+   */
+  void ImeWindowReadyToRender() override;
 
 private:
   /**

@@ -71,6 +71,7 @@ BuildRequires:  pkgconfig(cairo)
 
 BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-client)
+BuildRequires:  pkgconfig(input-method-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
 

@@ -58,17 +58,17 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 
 } // unnamed namespace
 
-Window* Window::New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New(const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent)
 {
   Any surface;
-  return Window::New(surface, positionSize, name, className, isTransparent);
+  return Window::New(surface, positionSize, name, className, type, isTransparent);
 }
 
-Window* Window::New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent)
+Window* Window::New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent)
 {
   Window* window         = new Window();
   window->mIsTransparent = isTransparent;
-  window->Initialize(surface, positionSize, name, className);
+  window->Initialize(surface, positionSize, name, className, type);
   return window;
 }
 
@@ -79,7 +79,6 @@ Window::Window()
   mIsFocusAcceptable(true),
   mIconified(false),
   mOpaqueState(false),
-  mType(WindowType::NORMAL),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
@@ -114,7 +113,7 @@ Window::~Window()
   }
 }
 
-void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className)
+void Window::Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type)
 {
   // Create a window render surface
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
@@ -123,6 +122,16 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // Get a window base
   mWindowBase = mWindowSurface->GetWindowBase();
+
+  // Set Window Type
+  mWindowBase->SetType(type);
+
+  // Initialize for Ime window type
+  if(type == WindowType::IME)
+  {
+    mWindowBase->InitializeIme();
+    mWindowSurface->InitializeImeSurface();
+  }
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect(this, &Window::OnIconifyChanged);
@@ -296,6 +305,12 @@ WindowOrientation Window::GetPreferredOrientation()
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), GetPreferredOrientation: %d\n", this, mNativeWindowId, mPreferredAngle);
   WindowOrientation preferredOrientation = ConvertToOrientation(mPreferredAngle);
   return preferredOrientation;
+}
+
+void Window::SetPositionSizeWithOrientation(PositionSize positionSize, WindowOrientation orientation)
+{
+  int angle = ConvertToAngle(orientation);
+  mWindowBase->SetPositionSizeWithAngle(positionSize, angle);
 }
 
 void Window::SetAvailableAnlges(const std::vector<int>& angles)
@@ -498,24 +513,20 @@ void Window::SetInputRegion(const Rect<int>& inputRegion)
 
 void Window::SetType(WindowType type)
 {
-  if(type != mType)
-  {
-    mWindowBase->SetType(type);
-
-    mType = type;
-  }
+  mWindowBase->SetType(type);
 }
 
 WindowType Window::GetType() const
 {
-  return mType;
+  return mWindowBase->GetType();
 }
 
 WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level)
 {
-  if(mType != WindowType::NOTIFICATION)
+  WindowType type = mWindowBase->GetType();
+  if(type != WindowType::NOTIFICATION)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType);
+    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", type);
     return WindowOperationResult::INVALID_OPERATION;
   }
 
@@ -524,9 +535,10 @@ WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level
 
 WindowNotificationLevel Window::GetNotificationLevel() const
 {
-  if(mType != WindowType::NOTIFICATION)
+  WindowType type = mWindowBase->GetType();
+  if(type != WindowType::NOTIFICATION)
   {
-    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", mType);
+    DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::GetNotificationLevel: Not supported window type [%d]\n", type);
     return WindowNotificationLevel::NONE;
   }
 

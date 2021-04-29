@@ -71,10 +71,11 @@ public:
    * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
+   * @param[in] type Window type.
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
+  static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent = false);
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
@@ -82,10 +83,11 @@ public:
    * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
+   * @param[in] type Window type.
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
+  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className,  Dali::WindowType type, bool isTransparent = false);
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -353,6 +355,11 @@ public:
    */
   void SetAvailableOrientations(const Dali::Vector<WindowOrientation>& orientations);
 
+  /**
+   * @copydoc Dali::DevelWindow::SetPositionSizeWithOrientation()
+   */
+  void SetPositionSizeWithOrientation(PositionSize positionSize, WindowOrientation orientation);
+
 public: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::GetNativeHandle
@@ -396,7 +403,7 @@ private:
   /**
    * Second stage initialization
    */
-  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className);
+  void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type);
 
   /**
    * Called when the window becomes iconified or deiconified.
@@ -573,22 +580,21 @@ private:
   bool                 mIsFocusAcceptable : 1;
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
-  WindowType           mType;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle; ///< The angle of the rotation
-  int mWindowWidth;   ///< The width of the window
-  int mWindowHeight;  ///< The height of the window
+  int mRotationAngle;                    ///< The angle of the rotation
+  int mWindowWidth;                      ///< The width of the window
+  int mWindowHeight;                     ///< The height of the window
 
-  EventHandlerPtr mEventHandler; ///< The window events handler
+  EventHandlerPtr mEventHandler;         ///< The window events handler
 
-  OrientationMode mOrientationMode;
+  OrientationMode mOrientationMode;      ///< The physical screen mode is portrait or landscape
 
-  int mNativeWindowId; ///< The Native Window Id
+  int mNativeWindowId;                   ///< The Native Window Id
 
   // Signals
   SignalType                              mDeleteRequestSignal;

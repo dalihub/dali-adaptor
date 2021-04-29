@@ -250,6 +250,11 @@ public:
   virtual void SetType(Dali::WindowType type) = 0;
 
   /**
+   * @copydoc Dali::Window::GetType()
+   */
+  virtual Dali::WindowType GetType() const = 0;
+
+  /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
   virtual Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) = 0;
@@ -353,6 +358,23 @@ public:
    * @return The file descriptor that tells when it is presented.
    */
   virtual int CreateFramePresentedSyncFence() = 0;
+
+  /**
+   * @copydoc Dali::Window::SetPositionSizeWithAngle()
+   */
+  virtual void SetPositionSizeWithAngle(PositionSize positionSize, int angle) = 0;
+
+  /**
+   * @brief Initialize for Ime window.
+   * It should be called when the window is only used for Ime keyboard window.
+   */
+  virtual void InitializeIme() = 0;
+
+  /**
+   * @brief Send the signal to display server for Ime Window is ready to render.
+   * It is used for compositing by display server.
+   */
+  virtual void ImeWindowReadyToRender() = 0;
 
   // Signals
 

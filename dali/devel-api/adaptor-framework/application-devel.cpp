@@ -24,6 +24,34 @@ namespace Dali
 {
 namespace DevelApplication
 {
+Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type)
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if(internal)
+  {
+    // Set Defaut Window type
+    internal->SetDefaultWindowType(type);
+
+    // pre-initialized application
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
+    {
+      internal->GetWindow().SetClass((*argv)[0], "");
+    }
+    internal->SetStyleSheet(stylesheet);
+
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
+
+    //Store only the value before adaptor is created
+    internal->StoreWindowPositionSize(positionSize);
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type);
+  }
+  return Application(internal.Get());
+}
+
 bool AddIdleWithReturnValue(Application application, CallbackBase* callback)
 {
   return Internal::Adaptor::GetImplementation(application).AddIdle(callback, true);

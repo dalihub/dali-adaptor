@@ -109,6 +109,16 @@ public: // API
   WindowBase* GetWindowBase();
 
   /**
+   * @brief Intiailize Ime Surface for Ime window rendering.
+   *
+   * It sets one flag and callback function for Ime window rendering
+   * This callback function calls one special native window function for ready to commit buffer.
+   * The special function notify to display server.
+   * It is only used for Ime window.
+   */
+  void InitializeImeSurface();
+
+  /**
    * @brief This signal is emitted when the output is transformed.
    */
   OutputSignalType& OutputTransformedSignal();
@@ -215,9 +225,10 @@ private:
   void OutputTransformed();
 
   /**
-   * @brief Used as the callback for the rotation-trigger.
+   * @brief Used as the callback for the post render.
+   * It is used both window rotation and supporting Ime window
    */
-  void ProcessRotationRequest();
+  void ProcessPostRender();
 
   /**
    * @brief Used as the callback for the frame rendered / presented.
@@ -287,7 +298,7 @@ private: // Data
   std::unique_ptr<WindowBase>            mWindowBase;
   ThreadSynchronizationInterface*        mThreadSynchronization;
   TriggerEventInterface*                 mRenderNotification; ///< Render notification trigger
-  TriggerEventInterface*                 mRotationTrigger;
+  std::unique_ptr<TriggerEventInterface> mPostRenderTrigger;  ///< Post render callback function
   std::unique_ptr<TriggerEventInterface> mFrameRenderedTrigger;
   GraphicsInterface*                     mGraphics; ///< Graphics interface
   EGLSurface                             mEGLSurface;
@@ -307,6 +318,7 @@ private: // Data
   bool                                   mScreenRotationFinished;
   bool                                   mResizeFinished;
   bool                                   mDefaultScreenRotationAvailable;
+  bool                                   mIsImeWindowSurface;
 
 }; // class WindowRenderSurface
 

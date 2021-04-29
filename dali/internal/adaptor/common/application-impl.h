@@ -75,14 +75,15 @@ public:
 
   /**
    * Create a new application
-   * @param[in]  argc         A pointer to the number of arguments
-   * @param[in]  argv         A pointer to the argument list
-   * @param[in]  stylesheet   The path to user defined theme file
-   * @param[in]  windowMode   A member of Dali::Application::WINDOW_MODE
-   * @param[in]  positionSize A position and a size of the window
-   * @param[in]  applicationType  A member of Dali::Framework::Type
+   * @param[in]  argc              A pointer to the number of arguments
+   * @param[in]  argv              A pointer to the argument list
+   * @param[in]  stylesheet        The path to user defined theme file
+   * @param[in]  windowMode        A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize      A position and a size of the window
+   * @param[in]  applicationType   A member of Dali::Framework::Type
+   * @param[in]  type              It is window type for default window.
    */
-  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType);
+  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type);
 
   /**
    * @copydoc Dali::DevelApplication::PreInitialize()
@@ -235,6 +236,13 @@ public:
    */
   void SetCommandLineOptions(int* argc, char** argv[]);
 
+  /**
+   * Sets default window type.
+   * This is used in case of the preinitialized application.
+   * @param[in] type the window type for default window
+   */
+  void SetDefaultWindowType(WindowType type);
+
 public: // Signals
   /**
    * @copydoc Dali::Application::InitSignal()
@@ -322,14 +330,15 @@ public: // Signals
 protected:
   /**
    * Private Constructor
-   * @param[in]  argc         A pointer to the number of arguments
-   * @param[in]  argv         A pointer to the argument list
-   * @param[in]  stylesheet   The path to user defined theme file
-   * @param[in]  windowMode   A member of Dali::Application::WINDOW_MODE
-   * @param[in]  positionSize A position and a size of the window
-   * @param[in]  applicationType  A member of Dali::Framework::Type
+   * @param[in]  argc               A pointer to the number of arguments
+   * @param[in]  argv               A pointer to the argument list
+   * @param[in]  stylesheet         The path to user defined theme file
+   * @param[in]  windowMode         A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize       A position and a size of the window
+   * @param[in]  applicationType    A member of Dali::Framework::Type
+   * @param[in]  type               The default window's type.
    */
-  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType);
+  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type);
 
   /**
    * Destructor
@@ -341,7 +350,7 @@ protected:
   Application& operator=(Application&);
 
   /**
-   * Creates the window
+   * Creates the default window
    */
   void CreateWindow();
 
@@ -391,11 +400,12 @@ private:
   Dali::Application::WINDOW_MODE mMainWindowMode; ///< Window mode of the main window
   std::string                    mMainWindowName; ///< Name of the main window as obtained from environment options
 
-  std::string        mStylesheet;
-  EnvironmentOptions mEnvironmentOptions;
-  PositionSize       mWindowPositionSize;
-  Launchpad::State   mLaunchpadState;
-  bool               mUseRemoteSurface;
+  std::string          mStylesheet;
+  EnvironmentOptions   mEnvironmentOptions;
+  PositionSize         mWindowPositionSize;
+  Launchpad::State     mLaunchpadState;
+  bool                 mUseRemoteSurface;
+  WindowType           mDefaultWindowType;         ///< Default window's type. It is used when Application is created.
 
   SlotDelegate<Application> mSlotDelegate;
 

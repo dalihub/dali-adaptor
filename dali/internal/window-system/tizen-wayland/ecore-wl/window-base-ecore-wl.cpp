@@ -1565,6 +1565,11 @@ void WindowBaseEcoreWl::SetType(Dali::WindowType type)
   ecore_wl_window_type_set(mEcoreWindow, windowType);
 }
 
+Dali::WindowType WindowBaseEcoreWl::GetType() const
+{
+  return Dali::WindowType::NORMAL;
+}
+
 Dali::WindowOperationResult WindowBaseEcoreWl::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   while(!mTizenPolicy)
@@ -2173,6 +2178,18 @@ int WindowBaseEcoreWl::CreateFrameRenderedSyncFence()
 int WindowBaseEcoreWl::CreateFramePresentedSyncFence()
 {
   return -1;
+}
+
+void WindowBaseEcoreWl::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+}
+
+void WindowBaseEcoreWl::InitializeIme()
+{
+}
+
+void WindowBaseEcoreWl::ImeWindowReadyToRender()
+{
 }
 
 } // namespace Adaptor

@@ -262,6 +262,22 @@ int UtcDaliWindowGetPreferredOrientationN(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetPositionSizeWithOrientationN(void)
+{
+  Dali::Window window;
+  try
+  {
+    DevelWindow::SetPositionSizeWithOrientation(window, PositionSize(0, 0, 200, 100), Dali::WindowOrientation::PORTRAIT);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowGetNativeHandleN(void)
 {
   Dali::Window window;

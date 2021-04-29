@@ -255,6 +255,21 @@ DALI_ADAPTOR_API void AddFrameRenderedCallback(Window window, std::unique_ptr<Ca
  */
 DALI_ADAPTOR_API void AddFramePresentedCallback(Window window, std::unique_ptr<CallbackBase> callback, int32_t frameId);
 
+  /**
+   * @brief Sets window position and size for specific orientation.
+   * This api reserves the position and size per orientation to display server.
+   * When the device is rotated, the window is moved/resized with the reserved position/size by display server.
+   *
+   * @param[in] window The window instance
+   * @param[in] positionSize The reserved position and size for the orientation
+   * @param[in] orientation The orientation
+   *
+   * @note Currently, it only works when the window's type is WindowType::IME.
+   * @note To set WindowType::IME, use Application New(... WindowType type), not Window::SetType().
+   * @note This function is only useful in Tizen world.
+   */
+DALI_ADAPTOR_API void SetPositionSizeWithOrientation(Window window, PositionSize positionSize, WindowOrientation orientation);
+
 } // namespace DevelWindow
 
 } // namespace Dali
