@@ -563,22 +563,42 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
 
     if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
     {
-      // GPU memory must be already allocated (glTexImage2D())
+      // GPU memory must be already allocated.
+
+      // Check if it needs conversion
       auto*       texture    = static_cast<GLES::Texture*>(info.dstTexture);
       const auto& createInfo = texture->GetCreateInfo();
+      auto        srcFormat  = GLES::GLTextureFormatType(info.srcFormat).format;
+      auto        destFormat = GLES::GLTextureFormatType(createInfo.format).format;
+      auto        destType   = GLES::GLTextureFormatType(createInfo.format).type;
+
+      // From render-texture.cpp
+      const bool isSubImage(info.dstOffset2D.x != 0 || info.dstOffset2D.y != 0 ||
+                            info.srcExtent2D.width != (createInfo.size.width / (1 << info.level)) ||
+                            info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
+
+      auto*                sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
+      std::vector<uint8_t> tempBuffer;
+      if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
+      {
+        // Convert RGB to RGBA if necessary.
+        texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer);
+        sourceBuffer = &tempBuffer[0];
+      }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
       mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
+
       mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
                                     info.level,
                                     info.dstOffset2D.x,
                                     info.dstOffset2D.y,
                                     info.srcExtent2D.width,
                                     info.srcExtent2D.height,
-                                    GLES::GLTextureFormatType(createInfo.format).format,
-                                    GLES::GLTextureFormatType(createInfo.format).type,
-                                    source.memorySource.memory);
+                                    destFormat,
+                                    destType,
+                                    sourceBuffer);
 
       // free staging memory
       free(source.memorySource.memory);
