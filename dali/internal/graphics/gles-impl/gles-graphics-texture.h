@@ -97,15 +97,29 @@ public:
     return mGlTarget;
   }
 
-protected:
+  /**
+   * @param pData  Input data
+   * @param sizeInBytes Size of the input data in bytes
+   * @param width  Width of the output buffer
+   * @param height height of the output buffer
+   * @param outputBuffer The buffer to write to
+   * @return true if converted, or false otherwise
+   */
+  bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer);
+
+  bool InitializeNativeImage();
+
+  bool InitializeTexture();
+
+  Format ValidateFormat(Format sourceFormat);
+
 private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
   void*             mGLOwnerContext{nullptr};
-  bool              InitializeNativeImage();
-  bool              InitializeTexture();
 };
+
 } // namespace Dali::Graphics::GLES
 
 #endif

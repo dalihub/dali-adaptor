@@ -43,6 +43,49 @@ const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
 
 namespace Dali::Graphics::GLES
 {
+struct ColorConversion
+{
+  Format srcFormat;
+  Format destFormat;
+  std::vector<uint8_t> (*pConversionFunc)(const void*, uint32_t, uint32_t, uint32_t, uint32_t);
+  void (*pConversionWriteFunc)(const void*, uint32_t, uint32_t, uint32_t, uint32_t, void*);
+};
+
+inline void WriteRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint8_t*>(pData);
+  auto outData = reinterpret_cast<uint8_t*>(pOutput);
+  auto outIdx  = 0u;
+  for(auto i = 0u; i < sizeInBytes; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = 0xff;
+    outIdx += 4;
+  }
+}
+
+/**
+ * Converts RGB to RGBA
+ */
+inline std::vector<uint8_t> ConvertRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  std::vector<uint8_t> rgbaBuffer{};
+  rgbaBuffer.resize(width * height * 4);
+  WriteRGB32ToRGBA32(pData, sizeInBytes, width, height, rowStride, &rgbaBuffer[0]);
+  return rgbaBuffer;
+}
+
+/**
+ * Format conversion table
+ */
+static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE = {
+  {Format::R8G8B8_UNORM, Format::R8G8B8A8_UNORM, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+
+/**
+ * Constructor
+ */
 Texture::Texture(const Graphics::TextureCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : TextureResource(createInfo, controller)
 {
@@ -156,7 +199,6 @@ bool Texture::InitializeTexture()
 
         // Clear staging buffer if there was any
         mStagingBuffer.clear();
-
         mTextureId = texture;
 
         // Default texture filtering (to be set later via command buffer binding)
@@ -256,6 +298,33 @@ void Texture::Prepare()
 
     nativeImage->PrepareTexture();
   }
+}
+
+/**
+ * This function tests whether format is supported by the driver. If possible it applies
+ * format conversion to suitable supported pixel format.
+ */
+bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer)
+{
+  // No need to convert
+  if(srcFormat == destFormat)
+  {
+    return false;
+  }
+
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) {
+    return item.srcFormat == srcFormat && item.destFormat == destFormat;
+  });
+
+  // No suitable format, return empty array
+  if(it == COLOR_CONVERSION_TABLE.end())
+  {
+    return false;
+  }
+  auto begin = reinterpret_cast<const uint8_t*>(pData);
+
+  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, 0u));
+  return !outputBuffer.empty();
 }
 
 } // namespace Dali::Graphics::GLES
