@@ -66,12 +66,9 @@ CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
 CanvasRendererTizen::~CanvasRendererTizen()
 {
 #ifdef THORVG_SUPPORT
-  for(DrawableVectorIterator it    = mDrawables.begin(),
-                             endIt = mDrawables.end();
-      it != endIt;
-      ++it)
+  for(auto& it : mDrawables)
   {
-    Dali::CanvasRenderer::Drawable drawable = (*it).GetHandle();
+    Dali::CanvasRenderer::Drawable drawable = it.GetHandle();
     if(DALI_UNLIKELY(!drawable))
     {
       continue;
@@ -112,12 +109,9 @@ bool CanvasRendererTizen::Commit()
 #ifdef THORVG_SUPPORT
   bool changed = false;
 
-  for(DrawableVectorIterator it    = mDrawables.begin(),
-                             endIt = mDrawables.end();
-      it != endIt;
-      ++it)
+  for(auto& it : mDrawables)
   {
-    Dali::CanvasRenderer::Drawable drawable = (*it).GetHandle();
+    Dali::CanvasRenderer::Drawable drawable = it.GetHandle();
     if(DALI_UNLIKELY(!drawable))
     {
       continue;
@@ -179,22 +173,13 @@ Devel::PixelBuffer CanvasRendererTizen::GetPixelBuffer()
 bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 {
 #ifdef THORVG_SUPPORT
-  bool exist = false;
-  for(DrawableVectorIterator it    = mDrawables.begin(),
-                             endIt = mDrawables.end();
-      it != endIt;
-      ++it)
+  for(auto& it : mDrawables)
   {
-    if((*it) == drawable)
+    if(it.GetHandle() == drawable)
     {
-      exist = true;
-      break;
+      DALI_LOG_ERROR("Already added [%p]\n", this);
+      return false;
     }
-  }
-  if(exist)
-  {
-    DALI_LOG_ERROR("Already added [%p]\n", this);
-    return false;
   }
 
   Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
