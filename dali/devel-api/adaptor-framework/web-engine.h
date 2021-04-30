@@ -702,11 +702,11 @@ public:
   Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
 
   /**
-   * @brief Connect to this signal to be notified when new policy would be decided.
+   * @brief Connect to this signal to be notified when response policy would be decided.
    *
    * @return A signal object to connect with.
    */
-  Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
+  Dali::WebEnginePlugin::WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal();
 
   /**
    * @brief Connect to this signal to be notified when certificate need be confirmed.
