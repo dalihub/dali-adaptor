@@ -96,10 +96,14 @@ public:
   {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
 
-    GLint majorVersion, minorVersion;
-    glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
-    glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-    mGlesVersion = majorVersion * 10 + minorVersion;
+    // Only change gles version for the device that support above gles 3.0.
+    if(mGlesVersion >= INITIAL_GLES_VERSION)
+    {
+      GLint majorVersion, minorVersion;
+      glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+      glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
+      mGlesVersion = majorVersion * 10 + minorVersion;
+    }
 
     if(mGlesVersion >= GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED)
     {
