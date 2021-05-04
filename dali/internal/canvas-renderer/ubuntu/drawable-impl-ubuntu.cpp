@@ -186,6 +186,29 @@ bool DrawableUbuntu::Transform(const Dali::Matrix3& matrix)
 #endif
 }
 
+Rect<float> DrawableUbuntu::GetBoundingBox() const
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgPaint)
+  {
+    DALI_LOG_ERROR("Drawable is null\n");
+    return Rect<float>(0, 0, 0, 0);
+  }
+
+  float x, y, width, height;
+  x = y = width = height = 0;
+
+  if(mTvgPaint->bounds(&x, &y, &width, &height) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("Get bounds fail.\n");
+    return Rect<float>(0, 0, 0, 0);
+  }
+  return Rect<float>(x, y, width, height);
+#else
+  return Rect<float>(0, 0, 0, 0);
+#endif
+}
+
 void DrawableUbuntu::SetDrawableAdded(bool added)
 {
   mAdded = !!added;

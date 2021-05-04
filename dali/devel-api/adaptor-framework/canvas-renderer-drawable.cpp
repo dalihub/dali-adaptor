@@ -69,6 +69,11 @@ bool CanvasRenderer::Drawable::Transform(const Dali::Matrix3& matrix)
   return GetImplementation(*this).Transform(matrix);
 }
 
+Rect<float> CanvasRenderer::Drawable::GetBoundingBox() const
+{
+  return GetImplementation(*this).GetBoundingBox();
+}
+
 CanvasRenderer::Drawable CanvasRenderer::Drawable::DownCast(BaseHandle handle)
 {
   return CanvasRenderer::Drawable(dynamic_cast<Internal::Adaptor::Drawable*>(handle.GetObjectPtr()));
