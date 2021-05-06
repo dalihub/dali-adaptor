@@ -144,6 +144,11 @@ public:
                       const std::vector<TextureUpdateSourceInfo>& sourceList) override;
 
   /**
+   * @copydoc Dali::Graphics::GenerateTextureMipmaps()
+   */
+  void GenerateTextureMipmaps(const Texture& texture) override;
+
+  /**
    * @copydoc Dali::Graphics::EnableDepthStencilBuffer()
    */
   bool EnableDepthStencilBuffer(bool enableDepth, bool enableStencil) override
@@ -431,6 +436,9 @@ public:
     // Process updates
     ProcessTextureUpdateQueue();
 
+    // Process texture mipmap generation requests
+    ProcessTextureMipmapGenerationQueue();
+
     // Process main command queue
     ProcessCommandQueues();
 
@@ -515,6 +523,11 @@ public:
    * @brief Executes all pending texture updates
    */
   void ProcessTextureUpdateQueue();
+
+  /**
+   * @brief Executes all pending texture mipmap generation
+   */
+  void ProcessTextureMipmapGenerationQueue();
 
   /**
    * @brief Returns program custom parameter
@@ -617,6 +630,8 @@ private:
 
   using TextureUpdateRequest = std::pair<TextureUpdateInfo, TextureUpdateSourceInfo>;
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
+
+  std::queue<const GLES::Texture*> mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
 
   GLES::Context*                 mCurrentContext{nullptr}; ///< The current context
   std::unique_ptr<GLES::Context> mContext{nullptr};        ///< Context object handling command buffers execution
