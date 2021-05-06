@@ -505,9 +505,9 @@ public:
   Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
 
   /**
-   @copydoc Dali::WebEngine::PolicyDecisionSignal()
+   @copydoc Dali::WebEngine::ResponsePolicyDecisionSignal()
    */
-  Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& PolicyDecisionSignal();
+  Dali::WebEnginePlugin::WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal();
 
   /**
    * @copydoc Dali::WebEngine::CertificateConfirmSignal()
