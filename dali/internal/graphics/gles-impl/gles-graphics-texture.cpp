@@ -204,6 +204,8 @@ bool Texture::InitializeTexture()
         // Default texture filtering (to be set later via command buffer binding)
         gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
         gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
       }
       break;
     }
@@ -299,7 +301,6 @@ void Texture::Bind(const TextureBinding& binding) const
     const auto& samplerCreateInfo = sampler->GetCreateInfo();
 
     auto mipMapMode = samplerCreateInfo.mipMapMode;
-    mipMapMode      = Graphics::SamplerMipmapMode::NONE; // @todo Remove when mip-map generation is supported
 
     gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, mipMapMode).glFilter);
     gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(samplerCreateInfo.magFilter).glFilter);
@@ -320,6 +321,11 @@ void Texture::Bind(const TextureBinding& binding) const
     {
       gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_R, GL_WRAP_DEFAULT);
     }
+  }
+
+  if(mMaxMipMapLevel)
+  {
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MAX_LEVEL, mMaxMipMapLevel);
   }
 }
 

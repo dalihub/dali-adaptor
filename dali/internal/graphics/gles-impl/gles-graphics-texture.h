@@ -98,6 +98,24 @@ public:
   }
 
   /**
+   * @brief Sets the maximum mipmap level
+   * @param[in] maxMipMapLevel The maximum mipmap level
+   */
+  void SetMaxMipMapLevel(const uint32_t maxMipMapLevel)
+  {
+    mMaxMipMapLevel = maxMipMapLevel;
+  }
+
+  /**
+   * @brief Returns the maximum mipmap level
+   * @return The maximum mipmap level
+   */
+  [[nodiscard]] uint32_t GetMaxMipMapLevel() const
+  {
+    return mMaxMipMapLevel;
+  }
+
+  /**
    * @param pData  Input data
    * @param sizeInBytes Size of the input data in bytes
    * @param width  Width of the output buffer
@@ -117,6 +135,7 @@ private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
+  uint32_t          mMaxMipMapLevel{0u};
   void*             mGLOwnerContext{nullptr};
 };
 

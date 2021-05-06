@@ -586,12 +586,14 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
         sourceBuffer = &tempBuffer[0];
       }
 
+      // Calculate the maximum mipmap level for the texture
+      texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
+
       switch(createInfo.textureType)
       {
         // Texture 2D
         case Graphics::TextureType::TEXTURE_2D:
         {
-
           mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
           mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
@@ -623,7 +625,6 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                         destFormat,
                                         destType,
                                         sourceBuffer);
-
 
           break;
         }
@@ -694,6 +695,24 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
     Flush();
     mTextureUploadTotalCPUMemoryUsed = 0;
   }
+}
+
+void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
+{
+  while(!mTextureMipmapGenerationRequests.empty())
+  {
+    auto* texture = mTextureMipmapGenerationRequests.front();
+
+    mGlAbstraction->BindTexture(texture->GetGlTarget(), texture->GetGLTexture());
+    mGlAbstraction->GenerateMipmap(texture->GetGlTarget());
+
+    mTextureMipmapGenerationRequests.pop();
+  }
+}
+
+void EglGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& texture)
+{
+  mTextureMipmapGenerationRequests.push(static_cast<const GLES::Texture*>(&texture));
 }
 
 Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)

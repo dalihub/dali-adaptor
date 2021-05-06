@@ -117,9 +117,7 @@ int UtcDaliGraphicsSamplerAllSet(void)
   DALI_TEST_CHECK(params != nullptr);
   auto iter = params->find("param");
 
-  //@todo Change back when mip-map generation is implemented
-  //DALI_TEST_CHECK(*iter == GL_LINEAR_MIPMAP_NEAREST);
-  DALI_TEST_CHECK(*iter == GL_LINEAR);
+  DALI_TEST_CHECK(*iter == GL_LINEAR_MIPMAP_NEAREST);
 
   TraceCallStack::NamedParams magFilter;
   magFilter["pname"] << std::hex << GL_TEXTURE_MAG_FILTER;
@@ -152,9 +150,7 @@ int UtcDaliGraphicsSamplerAllSet(void)
   params = glParamTrace.FindLastMatch("TexParameteri", minFilter);
   DALI_TEST_CHECK(params != nullptr);
   iter = params->find("param");
-  //@todo Change back when mip-map generation is implemented
-  //DALI_TEST_CHECK(*iter == GL_NEAREST_MIPMAP_LINEAR);
-  DALI_TEST_CHECK(*iter == GL_NEAREST);
+  DALI_TEST_CHECK(*iter == GL_NEAREST_MIPMAP_LINEAR);
 
   END_TEST;
 }
