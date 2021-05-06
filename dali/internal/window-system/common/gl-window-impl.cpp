@@ -74,8 +74,6 @@ GlWindow::GlWindow()
   mOpaqueState(false),
   mResizeEnabled(false),
   mVisible(false),
-  mIsRotated(false),
-  mIsWindowRotated(false),
   mIsTouched(false),
   mIsEGLInitialized(false),
   mDepth(false),
@@ -149,6 +147,7 @@ void GlWindow::Initialize(const PositionSize& positionSize, const std::string& n
   mWindowBase = windowFactory->CreateWindowBase(mPositionSize, surface, (mIsTransparent ? true : false));
   mWindowBase->IconifyChangedSignal().Connect(this, &GlWindow::OnIconifyChanged);
   mWindowBase->FocusChangedSignal().Connect(this, &GlWindow::OnFocusChanged);
+  mWindowBase->OutputTransformedSignal().Connect(this, &GlWindow::OnOutputTransformed);
 
   if(Dali::Adaptor::IsAvailable())
   {
@@ -385,11 +384,16 @@ void GlWindow::SetPositionSize(PositionSize positionSize)
   }
 
   // If window's size or position is changed, the signal will be emitted to user.
-  if((needToMove) || (needToResize))
+  if(needToMove || needToResize)
   {
     Uint16Pair     newSize(mPositionSize.width, mPositionSize.height);
     Dali::GlWindow handle(this);
     mResizeSignal.Emit(newSize);
+
+    if(mGlWindowRenderThread)
+    {
+      mGlWindowRenderThread->RequestWindowResize(mPositionSize.width, mPositionSize.height);
+    }
   }
 }
 
@@ -461,26 +465,12 @@ void GlWindow::OnFocusChanged(bool focusIn)
 
 void GlWindow::OnOutputTransformed()
 {
-  int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
-  if(screenRotationAngle != mScreenRotationAngle)
+  int newScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  DALI_LOG_RELEASE_INFO("GlWindow::OnOutputTransformed(), screen rotation occurs, old[%d], new[%d\n", mScreenRotationAngle, newScreenRotationAngle);
+
+  if(newScreenRotationAngle != mScreenRotationAngle)
   {
-    mScreenRotationAngle = screenRotationAngle;
-    mTotalRotationAngle  = (mWindowRotationAngle + mScreenRotationAngle) % 360;
-
-    if(mTotalRotationAngle == 90 || mTotalRotationAngle == 270)
-    {
-      mWindowWidth  = mPositionSize.height;
-      mWindowHeight = mPositionSize.width;
-    }
-    else
-    {
-      mWindowWidth  = mPositionSize.width;
-      mWindowHeight = mPositionSize.height;
-    }
-
-    // Emit Resize signal
-    Dali::GlWindow handle(this);
-    mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+    UpdateScreenRotation(newScreenRotationAngle);
   }
 }
 
@@ -537,13 +527,16 @@ void GlWindow::OnRotation(const RotationEvent& rotation)
     mWindowHeight = mPositionSize.height;
   }
 
-  mIsRotated       = true;
-  mIsWindowRotated = true;
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): resize signal emit [%d x %d]\n", this, mNativeWindowId, mWindowWidth, mWindowHeight);
 
   // Emit Resize signal
   Dali::GlWindow handle(this);
   mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+
+  if(mGlWindowRenderThread)
+  {
+    mGlWindowRenderThread->RequestWindowRotate(mWindowRotationAngle);
+  }
 }
 
 void GlWindow::RecalculateTouchPosition(Integration::Point& point)
@@ -823,11 +816,46 @@ void GlWindow::InitializeGraphics()
     mGlWindowRenderThread->SetOnDemandRenderMode(onDemand);
 
     mIsEGLInitialized = true;
+
+    // Check screen rotation
+    int newScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
+    DALI_LOG_RELEASE_INFO("GlWindow::InitializeGraphics(), GetScreenRotationAngle(): %d\n", mScreenRotationAngle);
+    if(newScreenRotationAngle != 0)
+    {
+      UpdateScreenRotation(newScreenRotationAngle);
+    }
   }
 }
 
 void GlWindow::OnDamaged(const DamageArea& area)
 {
+}
+
+void GlWindow::UpdateScreenRotation(int newAngle)
+{
+  mScreenRotationAngle = newAngle;
+  mTotalRotationAngle  = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+
+  if(mTotalRotationAngle == 90 || mTotalRotationAngle == 270)
+  {
+    mWindowWidth  = mPositionSize.height;
+    mWindowHeight = mPositionSize.width;
+  }
+  else
+  {
+    mWindowWidth  = mPositionSize.width;
+    mWindowHeight = mPositionSize.height;
+  }
+
+  // Emit Resize signal
+  Dali::GlWindow handle(this);
+  mResizeSignal.Emit(Dali::Uint16Pair(mWindowWidth, mWindowHeight));
+
+  if(mGlWindowRenderThread)
+  {
+    DALI_LOG_RELEASE_INFO("GlWindow::UpdateScreenRotation(), RequestScreenRotatem(), mScreenRotationAngle: %d\n", mScreenRotationAngle);
+    mGlWindowRenderThread->RequestScreenRotate(mScreenRotationAngle);
+  }
 }
 
 } // namespace Adaptor
