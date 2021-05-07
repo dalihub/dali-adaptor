@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,14 @@ namespace Adaptor
 {
 namespace
 {
-const unsigned int NANOSECONDS_PER_SECOND(1e+9);
+constexpr unsigned int NANOSECONDS_PER_SECOND(1e+9);
 
 // The following values will get calculated at compile time
-const float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
-const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
+constexpr float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
+constexpr uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
+constexpr uint64_t REFRESH_RATE(1u);
 
-const int MINIMUM_DIMENSION_CHANGE(1);
+constexpr int MINIMUM_DIMENSION_CHANGE(1);
 } // namespace
 
 GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth colorDepth)
@@ -64,10 +65,10 @@ GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth
   mPauseRenderThread(0),
   mRenderingMode(0),
   mRequestRenderOnce(0),
-  mSurfaceStatus(0)
+  mSurfaceStatus(0),
+  mPostRendering(0),
+  mDefaultFrameDurationNanoseconds(REFRESH_RATE * DEFAULT_FRAME_DURATION_IN_NANOSECONDS)
 {
-  unsigned int refrashRate         = 1u;
-  mDefaultFrameDurationNanoseconds = uint64_t(refrashRate) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
 }
 
 GlWindowRenderThread::~GlWindowRenderThread()
@@ -202,7 +203,7 @@ unsigned int GlWindowRenderThread::GetSurfaceStatus(int& windowRotationAngle, in
 
   // Get the surface status and reset that.
   unsigned int status = mSurfaceStatus;
-  mSurfaceStatus       = static_cast<unsigned int>(SurfaceStatus::NO_CHANGED);
+  mSurfaceStatus      = static_cast<unsigned int>(SurfaceStatus::NO_CHANGED);
 
   windowRotationAngle = mWindowRotationAngle;
   screenRotationAngle = mScreenRotationAngle;
@@ -215,11 +216,11 @@ void GlWindowRenderThread::Run()
   Dali::SetThreadName("GlWindowRenderThread");
   mLogFactory.InstallLogFunction();
 
-  int           renderFrameResult = 0;
-  unsigned int  isSurfaceChanged  = 0;
-  bool          isWindowResized = false, isWindowRotated = false, isScreenRotated = false;
-  int           windowRotationAngle = 0, screenRotationAngle = 0, totalAngle = 0;
-  EglGraphics*  eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  int          renderFrameResult = 0;
+  unsigned int isSurfaceChanged  = 0;
+  bool         isWindowResized = false, isWindowRotated = false, isScreenRotated = false;
+  int          windowRotationAngle = 0, screenRotationAngle = 0, totalAngle = 0;
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
