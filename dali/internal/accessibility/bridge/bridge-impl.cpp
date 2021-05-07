@@ -370,6 +370,14 @@ Bridge* Bridge::GetCurrentBridge()
   else if (autoInitState == AutoInitState::ENABLED)
   {
     bridge = CreateBridge();
+
+    /* check environment variable for suppressing screen-reader */
+    const char *envSuppressScreenReader = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SUPPRESS_SCREEN_READER);
+    if (envSuppressScreenReader && std::atoi(envSuppressScreenReader) != 0)
+    {
+      bridge->SuppressScreenReader(true);
+    }
+
     return bridge;
   }
 
