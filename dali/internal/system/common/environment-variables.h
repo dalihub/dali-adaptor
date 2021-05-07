@@ -139,6 +139,8 @@ namespace Adaptor
 
 #define DALI_ENV_DISABLE_ATSPI "DALI_DISABLE_ATSPI"
 
+#define DALI_ENV_SUPPRESS_SCREEN_READER "DALI_SUPPRESS_SCREEN_READER"
+
 } // namespace Adaptor
 
 } // namespace Internal
