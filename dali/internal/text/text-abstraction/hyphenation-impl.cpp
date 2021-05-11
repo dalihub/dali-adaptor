@@ -165,17 +165,19 @@ struct Hyphenation::Plugin
     }
 
     hyphens = (char*)malloc(wordLength + 5);
-
-    hnj_hyphen_hyphenate2(dict, (char*)(word), wordLength, hyphens, NULL, &rep, &pos, &cut);
-
-    hyphensList.PushBack(false);
-
-    for(Length i = 0; i < wordLength - 1; i++)
+    if(hyphens)
     {
-      hyphensList.PushBack((bool)(hyphens[i + 1] & 1));
-    }
+      hnj_hyphen_hyphenate2(dict, (char*)(word), wordLength, hyphens, NULL, &rep, &pos, &cut);
 
-    free(hyphens);
+      hyphensList.PushBack(false);
+
+      for(Length i = 0; i < wordLength - 1; i++)
+      {
+        hyphensList.PushBack((bool)(hyphens[i + 1] & 1));
+      }
+
+      free(hyphens);
+    }
 #endif
 
     return hyphensList;
