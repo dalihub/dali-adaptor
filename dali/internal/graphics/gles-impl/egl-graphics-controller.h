@@ -562,6 +562,8 @@ private:
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
 
+  uint32_t mTextureUploadTotalCPUMemoryUsed {0u};
+
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 };
 
