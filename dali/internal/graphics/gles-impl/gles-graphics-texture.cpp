@@ -73,6 +73,12 @@ bool Texture::InitializeNativeImage()
   auto   gl = mController.GetGL();
   GLuint texture{0};
 
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return false;
+  }
+
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
   bool                    created     = nativeImage->CreateResource();
   mGlTarget                           = nativeImage->GetTextureTarget();
@@ -113,6 +119,11 @@ bool Texture::InitializeNativeImage()
 bool Texture::InitializeTexture()
 {
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return false;
+  }
 
   GLuint texture{0};
 
@@ -189,6 +200,11 @@ void Texture::DiscardResource()
 void Texture::Bind(const TextureBinding& binding) const
 {
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
   gl->ActiveTexture(GL_TEXTURE0 + binding.binding);
   gl->BindTexture(mGlTarget, mTextureId);

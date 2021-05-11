@@ -19,6 +19,7 @@
 #include "gles-graphics-shader.h"
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include "egl-graphics-controller.h"
 
 namespace Dali::Graphics::GLES
@@ -52,7 +53,13 @@ Shader::~Shader() = default;
 
 bool Shader::Compile() const
 {
-  auto& gl = *GetController().GetGL();
+  auto gl = GetController().GetGL();
+
+  if(!gl)
+  {
+    return false;
+  }
+
   if(!mImpl->glShader)
   {
     GLenum pipelineStage{0u};
@@ -96,22 +103,22 @@ bool Shader::Compile() const
 
     if(pipelineStage)
     {
-      auto       shader = gl.CreateShader(pipelineStage);
+      auto       shader = gl->CreateShader(pipelineStage);
       const auto src    = reinterpret_cast<const char*>(GetCreateInfo().sourceData);
       GLint      size   = GetCreateInfo().sourceSize;
-      gl.ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
-      gl.CompileShader(shader);
+      gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
+      gl->CompileShader(shader);
 
       GLint status{0};
-      gl.GetShaderiv(shader, GL_COMPILE_STATUS, &status);
+      gl->GetShaderiv(shader, GL_COMPILE_STATUS, &status);
       if(status != GL_TRUE)
       {
         char    output[4096];
         GLsizei size{0u};
-        gl.GetShaderInfoLog(shader, 4096, &size, output);
-        printf("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
-        printf("Log: %s\n", output);
-        gl.DeleteShader(shader);
+        gl->GetShaderInfoLog(shader, 4096, &size, output);
+        DALI_LOG_RELEASE_INFO("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
+        DALI_LOG_RELEASE_INFO("Log: %s\n", output);
+        gl->DeleteShader(shader);
         return false;
       }
 
