@@ -254,7 +254,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
    */
-  bool SetNotificationLevel(Dali::WindowNotificationLevel level) override;
+  Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNotificationLevel()
@@ -269,7 +269,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetScreenOffMode()
    */
-  bool SetScreenOffMode(WindowScreenOffMode screenOffMode) override;
+  Dali::WindowOperationResult SetScreenOffMode(WindowScreenOffMode screenOffMode) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenOffMode()
@@ -279,7 +279,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetBrightness()
    */
-  bool SetBrightness(int brightness) override;
+  Dali::WindowOperationResult SetBrightness(int brightness) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetBrightness()

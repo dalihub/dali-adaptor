@@ -93,6 +93,18 @@ enum class WindowEffectType
   HIDE,     ///< Window hide effect. @SINCE_2_0.0
 };
 
+/**
+ * @brief An enum of window operation result.
+ */
+enum class WindowOperationResult
+{
+  UNKNOWN_ERROR = 0, ///< Failed for unknown reason.
+  SUCCEED,           ///< Succeed.
+  PERMISSION_DENIED, ///< Permission denied.
+  NOT_SUPPORTED,     ///< The operation is not supported.
+  INVALID_OPERATION, ///< The operation is invalid. (e.g. Try to operate to the wrong window)
+};
+
 } // namespace Dali
 
 #endif // DALI_WINDOW_ENUMERATIONS_H
