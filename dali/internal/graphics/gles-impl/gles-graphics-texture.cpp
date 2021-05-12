@@ -189,7 +189,7 @@ bool Texture::InitializeTexture()
         // Allocate memory for the texture
         gl->TexImage2D(GL_TEXTURE_2D,
                        0,
-                       format.format,
+                       format.internalFormat,
                        mCreateInfo.size.width,
                        mCreateInfo.size.height,
                        0,
@@ -231,7 +231,7 @@ bool Texture::InitializeTexture()
         {
           gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
-                         format.format,
+                         format.internalFormat,
                          mCreateInfo.size.width,
                          mCreateInfo.size.height,
                          0,
