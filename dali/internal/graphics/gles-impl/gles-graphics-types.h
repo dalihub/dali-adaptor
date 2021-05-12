@@ -548,7 +548,7 @@ struct GLTextureFormatType
       case Graphics::Format::R16G16B16_SFLOAT:
       {
         // GLES 3.0 floating point formats.
-        Assign(GL_RGB, GL_HALF_FLOAT);
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_HALF_FLOAT); // DALi uses compact internal format
         break;
       }
       case Graphics::Format::R16G16B16A16_UNORM:
@@ -628,8 +628,7 @@ struct GLTextureFormatType
       }
       case Graphics::Format::R32G32B32_SFLOAT:
       {
-        // GLES 3.0 floating point formats.
-        Assign(GL_RGB, GL_FLOAT);
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_FLOAT); // DALi uses compact internal format
         break;
       }
       case Graphics::Format::R32G32B32A32_UINT:
@@ -707,6 +706,11 @@ struct GLTextureFormatType
         Assign(0, 0);
         break;
       }
+      case Graphics::Format::R11G11B10_UFLOAT_PACK32:
+      {
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_FLOAT);
+        break;
+      }
       case Graphics::Format::B10G11R11_UFLOAT_PACK32:
       {
         Assign(0, 0);
@@ -731,7 +735,7 @@ struct GLTextureFormatType
       case Graphics::Format::D32_SFLOAT:
       {
         // GLES 3.0 depth and stencil formats
-        Assign(GL_DEPTH_COMPONENT, GL_FLOAT);
+        AssignInternal(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F, GL_FLOAT);
         break;
       }
       case Graphics::Format::S8_UINT:
@@ -747,7 +751,7 @@ struct GLTextureFormatType
       case Graphics::Format::D24_UNORM_S8_UINT:
       {
         // GLES 3.0 depth and stencil formats
-        Assign(GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+        AssignInternal(GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8);
         break;
       }
       case Graphics::Format::D32_SFLOAT_S8_UINT:
@@ -1108,11 +1112,19 @@ struct GLTextureFormatType
 
   constexpr inline void Assign(uint32_t f, uint32_t t)
   {
-    format = f;
-    type   = t;
+    format         = f;
+    internalFormat = f;
+    type           = t;
+  }
+  constexpr inline void AssignInternal(uint32_t f, uint32_t i, uint32_t t)
+  {
+    format         = f;
+    internalFormat = i;
+    type           = t;
   }
 
   uint32_t format{0};
+  uint32_t internalFormat{0};
   uint32_t type{0};
 };
 
