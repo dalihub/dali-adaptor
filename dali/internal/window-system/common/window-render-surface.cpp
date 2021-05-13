@@ -344,15 +344,15 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   bool needToResize = false;
 
   // Check moving
-  if((fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE))
+  if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
   {
     needToMove = true;
   }
 
   // Check resizing
-  if((fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE))
+  if((fabs(positionSize.width - mPositionSize.width) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.height - mPositionSize.height) >= MINIMUM_DIMENSION_CHANGE))
   {
     needToResize = true;
   }

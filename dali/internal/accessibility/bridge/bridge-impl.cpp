@@ -23,6 +23,7 @@
 #include <unordered_map>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
@@ -33,7 +34,6 @@
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
 
 using namespace Dali::Accessibility;
 
@@ -335,20 +335,24 @@ public:
   }
 };
 
+static bool bridgeInitialized;
+
 static Bridge* CreateBridge()
 {
+  bridgeInitialized = true;
+
   try
   {
     /* check environment variable first */
-    const char *envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
-    if (envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
+    const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
+    if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
     {
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
     return new BridgeImpl;
   }
-  catch (const std::exception&)
+  catch(const std::exception&)
   {
     DALI_LOG_ERROR("Failed to initialize AT-SPI bridge");
     return Dali::Accessibility::DummyBridge::GetInstance();
@@ -357,6 +361,50 @@ static Bridge* CreateBridge()
 
 Bridge* Bridge::GetCurrentBridge()
 {
-  static Bridge* bridge = CreateBridge();
-  return bridge;
+  static Bridge* bridge;
+
+  if(bridge)
+  {
+    return bridge;
+  }
+  else if(autoInitState == AutoInitState::ENABLED)
+  {
+    bridge = CreateBridge();
+
+    /* check environment variable for suppressing screen-reader */
+    const char* envSuppressScreenReader = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SUPPRESS_SCREEN_READER);
+    if(envSuppressScreenReader && std::atoi(envSuppressScreenReader) != 0)
+    {
+      bridge->SuppressScreenReader(true);
+    }
+
+    return bridge;
+  }
+
+  return Dali::Accessibility::DummyBridge::GetInstance();
+}
+
+void Bridge::DisableAutoInit()
+{
+  if(bridgeInitialized)
+  {
+    DALI_LOG_ERROR("Bridge::DisableAutoInit() called after bridge auto-initialization");
+  }
+
+  autoInitState = AutoInitState::DISABLED;
+}
+
+void Bridge::EnableAutoInit(Accessible* topLevelWindow, const std::string& applicationName)
+{
+  autoInitState = AutoInitState::ENABLED;
+
+  if(bridgeInitialized)
+  {
+    return;
+  }
+
+  auto* bridge = Bridge::GetCurrentBridge();
+  bridge->AddTopLevelWindow(topLevelWindow);
+  bridge->SetApplicationName(applicationName);
+  bridge->Initialize();
 }

@@ -74,6 +74,7 @@ CHECK_MODULE_AND_SET( LIBEXIF libexif [] )
 CHECK_MODULE_AND_SET( LIBDRM libdrm [] )
 CHECK_MODULE_AND_SET( LIBCURL libcurl [] )
 CHECK_MODULE_AND_SET( HARFBUZZ harfbuzz [] )
+CHECK_MODULE_AND_SET( HYPHEN libhyphen [] )
 CHECK_MODULE_AND_SET( FRIBIDI fribidi [] )
 CHECK_MODULE_AND_SET( CAIRO cairo [] )
 CHECK_MODULE_AND_SET( EVAS evas [] )
@@ -299,6 +300,13 @@ IF (NOT APPLE)
     -lturbojpeg
     -ljpeg
   )
+
+if( NOT ANDROID_PROFILE )
+  SET( DALI_LDFLAGS ${DALI_LDFLAGS}
+    -lhyphen
+  )
+ENDIF()
+
 ENDIF()
 
 # Android includes pthread with android lib

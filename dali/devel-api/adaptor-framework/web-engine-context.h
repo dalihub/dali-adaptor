@@ -78,6 +78,17 @@ public:
   };
 
   /**
+   * @brief Enumeration for application type.
+   */
+  enum class ApplicationType
+  {
+    WEB_BROWSER = 0,
+    HBB_TV      = 1,
+    WEB_RUNTIME = 2,
+    OTHER       = 3
+  };
+
+  /**
    * @brief Struct for password data
    */
   struct PasswordData
@@ -185,26 +196,18 @@ public:
   virtual void DeleteAllWebStorage() = 0;
 
   /**
-   * @brief Delete origin that is stored in web storage database.
+   * @brief Delete web storage database.
    *
    * @param[in] origin origin of database
    *
    * @return true if succeeded, false otherwise
    */
-  virtual bool DeleteWebStorageOrigin(WebEngineSecurityOrigin& origin) = 0;
+  virtual bool DeleteWebStorage(WebEngineSecurityOrigin& origin) = 0;
 
   /**
    * @brief Request for deleting all local file systems.
    */
   virtual void DeleteLocalFileSystem() = 0;
-
-  /**
-   * @brief Toggle the cache to be enabled or disabled
-   * Function works asynchronously.
-   *
-   * @param[in] cacheDisabled enable or disable cache
-   */
-  virtual void DisableCache(bool cacheDisabled) = 0;
 
   /**
    * @brief Request to clear cache
@@ -240,6 +243,165 @@ public:
    * @param[in] callback callback for mime overridden
    */
   virtual void RegisterMimeOverriddenCallback(WebEngineMimeOverriddenCallback callback) = 0;
+
+  /**
+   * @brief Toggle the cache to be enabled or disabled
+   * Function works asynchronously.
+   *
+   * @param[in] cacheEnabled enable or disable cache
+   */
+  virtual void EnableCache(bool cacheEnabled) = 0;
+
+  /**
+   * @brief Query if the cache is enabled
+   *
+   * @return @c true is cache is enabled or @c false otherwise
+   */
+  virtual bool IsCacheEnabled() const = 0;
+
+  /**
+   * @brief Get CA certifcate file path
+   *
+   * It returns an internal string and should not be modified.
+   *
+   * @return @c certificate_file is path which is set during ewk_context_certificate_file_set or @c null string otherwise
+   */
+  virtual std::string GetContextCertificateFile() const = 0;
+
+  /**
+   * @brief Set application id for @a context.
+   *
+   * @param[in] appID application id
+   */
+  virtual void SetContextAppId(const std::string& appID) = 0;
+
+  /**
+   * @brief Set application version for @a context.
+   *
+   * @param[in] appVersion application version
+   *
+   * @return @c true if successful, @c false otherwise
+   */
+  virtual bool SetContextAppVersion(const std::string& appVersion) = 0;
+
+  /**
+   * @brief To declare application type
+   *
+   * @param[in] applicationType The Application_Type enum
+   *
+   */
+  virtual void SetContextApplicationType(const ApplicationType applicationType) = 0;
+
+  /**
+   * @brief Set time offset
+   *
+   * @param[in] timeOffset The value will be added to system time as offset
+   */
+  virtual void SetContextTimeOffset(float timeOffset) = 0;
+
+  /**
+   * @brief Set timezone offset
+   *
+   * @param[in] timeZoneOffset offset for time zone.
+   * @param[in] daylightSavingTime The value is for daylight saving time use.
+   */
+  virtual void SetContextTimeZoneOffset(float timeZoneOffset, float daylightSavingTime) = 0;
+
+  /**
+   * @brief Register url schemes as CORS enabled
+   *
+   * @param[in] schemes The URL schemes list which will be added to web security policy
+   *
+   */
+  virtual void RegisterUrlSchemesAsCorsEnabled(const std::vector<std::string>& schemes) = 0;
+
+  /**
+   * @brief Register JS plugin mime types. It is applied
+   *        for all the pages opened within the context.
+   *        The API is intended to be used by web applications to
+   *        override default behaviour of the object tag.
+   *
+   * @param[in] mimeTypes The MIME types will be checked by the renderer frame loader
+   *                   to skip creating default frame for the object tags
+   *                   with the registered MIME type.
+   */
+  virtual void RegisterJsPluginMimeTypes(const std::vector<std::string>& mimeTypes) = 0;
+
+  /**
+   * @brief Set default zoom factor
+   *
+   * @param[in] zoomFactor default zoom factor
+   */
+  virtual void SetDefaultZoomFactor(float zoomFactor) = 0;
+
+  /**
+   * @brief Get default zoom factor
+   *
+   * Gets default zoom factor for all pages opened with this context.
+   *
+   * @return @c default zoom factor or negative value on error
+   */
+  virtual float GetContextDefaultZoomFactor() const = 0;
+
+  /**
+   * @brief Request for deleting all web application caches.
+   *
+   * @return @c true on success, otherwise @c false
+   */
+  virtual bool DeleteAllApplicationCache() = 0;
+
+  /**
+   * @brief Request for deleting all web indexed databases.
+   *
+   * @return @c true on success, otherwise @c false
+   */
+  virtual bool DeleteAllWebIndexedDatabase() = 0;
+
+  /**
+   * @brief Delete a given password data list
+   *
+   * @param[in] list List with Ewk_Password_Data
+   */
+  virtual void DeleteFormPasswordDataList(const std::vector<std::string>& list) = 0;
+
+  /**
+   * @brief Delete whole password data from DB
+   */
+  virtual void DeleteAllFormPasswordData() = 0;
+
+  /**
+   * @brief Delete all candidate form data from DB
+   */
+  virtual void DeleteAllFormCandidateData() = 0;
+
+  /**
+   * @brief Get the proxy URI from the network backend of specific context.
+   *
+   * @return current proxy URI or @c null string if it's not set
+   */
+  virtual std::string GetContextProxy() const = 0;
+
+  /**
+   * @brief Set the given proxy to network backend of specific context.
+   *
+   * @param[in] proxy URI to set
+   * @param[in] bypass rule to set
+   */
+  virtual void SetContextProxy(const std::string& proxy, const std::string& bypass) = 0;
+
+  /**
+   * @brief Get the proxy bypass rule from the network backend of specific context.
+   *
+   * @return current proxy bypass rule or @c null string if it's not set
+   */
+  virtual std::string GetProxyBypassRule() const = 0;
+
+  /**
+   * @brief Notify low memory to free unused memory.
+   *
+   * @return @c true on success or @c false otherwise.
+   */
+  virtual bool FreeUnusedMemory() = 0;
 };
 
 } // namespace Dali

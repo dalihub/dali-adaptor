@@ -79,7 +79,6 @@ Window::Window()
   mIsFocusAcceptable(true),
   mIconified(false),
   mOpaqueState(false),
-  mResizeEnabled(false),
   mType(WindowType::NORMAL),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
@@ -132,18 +131,13 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->TransitionEffectEventSignal().Connect(this, &Window::OnTransitionEffectEvent);
   mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect(this, &Window::OnKeyboardRepeatSettingsChanged);
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
+  mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
 
-  if(!positionSize.IsEmpty())
-  {
-    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
-    mResizeEnabled = true;
-  }
+  AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
 
   SetClass(name, className);
-
-  mWindowSurface->Map();
 
   mOrientation = Orientation::New(this);
 
@@ -172,7 +166,8 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   auto accessible = Accessibility::Accessible::Get(v, true);
   bridge->AddTopLevelWindow(accessible);
 
-  //FIXME: line below is temporary solution for missing "activate" signal and should be removed
+  // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
+  // The show must be called after the adaptor is initialized.
   Show();
 }
 
@@ -516,12 +511,12 @@ WindowType Window::GetType() const
   return mType;
 }
 
-bool Window::SetNotificationLevel(WindowNotificationLevel level)
+WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level)
 {
   if(mType != WindowType::NOTIFICATION)
   {
     DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType);
-    return false;
+    return WindowOperationResult::INVALID_OPERATION;
   }
 
   return mWindowBase->SetNotificationLevel(level);
@@ -552,7 +547,7 @@ bool Window::IsOpaqueState() const
   return mOpaqueState;
 }
 
-bool Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+WindowOperationResult Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return mWindowBase->SetScreenOffMode(screenOffMode);
 }
@@ -562,12 +557,12 @@ WindowScreenOffMode Window::GetScreenOffMode() const
   return mWindowBase->GetScreenOffMode();
 }
 
-bool Window::SetBrightness(int brightness)
+WindowOperationResult Window::SetBrightness(int brightness)
 {
   if(brightness < 0 || brightness > 100)
   {
     DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Invalid brightness value [%d]\n", brightness);
-    return false;
+    return WindowOperationResult::INVALID_OPERATION;
   }
 
   return mWindowBase->SetBrightness(brightness);
@@ -580,12 +575,6 @@ int Window::GetBrightness() const
 
 void Window::SetSize(Dali::Window::WindowSize size)
 {
-  if(!mResizeEnabled)
-  {
-    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
-    mResizeEnabled = true;
-  }
-
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
@@ -621,12 +610,6 @@ Dali::Window::WindowSize Window::GetSize() const
 
 void Window::SetPosition(Dali::Window::WindowPosition position)
 {
-  if(!mResizeEnabled)
-  {
-    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
-    mResizeEnabled = true;
-  }
-
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(PositionSize(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
@@ -643,12 +626,6 @@ Dali::Window::WindowPosition Window::GetPosition() const
 
 void Window::SetPositionSize(PositionSize positionSize)
 {
-  if(!mResizeEnabled)
-  {
-    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
-    mResizeEnabled = true;
-  }
-
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(positionSize);
@@ -671,6 +648,11 @@ void Window::SetPositionSize(PositionSize positionSize)
   }
 
   mSurface->SetFullSwapNextFrame();
+}
+
+PositionSize Window::GetPositionSize() const
+{
+  return mSurface->GetPositionSize();
 }
 
 Dali::Layer Window::GetRootLayer() const
@@ -790,6 +772,11 @@ void Window::OnKeyboardRepeatSettingsChanged()
 void Window::OnWindowRedrawRequest()
 {
   mAdaptor->RenderOnce();
+}
+
+void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
+{
+  SetPositionSize(positionSize);
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)

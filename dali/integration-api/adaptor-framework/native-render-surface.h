@@ -44,12 +44,6 @@ public:
 
 public: // API
   /**
-   * @brief Get the render surface the adaptor is using to render to.
-   * @return reference to current render surface
-   */
-  virtual Any GetDrawable() = 0;
-
-  /**
    * @brief Sets the render notification trigger to call when render thread is completed a frame
    * @param renderNotification to use
    */
@@ -66,11 +60,6 @@ private: // from NativeRenderSurface
    * @brief Create a renderable
    */
   virtual void CreateNativeRenderable() = 0;
-
-  /**
-   * @brief Release a drawable
-   */
-  virtual void ReleaseDrawable() = 0;
 
 protected:
   // Undefined

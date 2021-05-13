@@ -768,9 +768,9 @@ void WindowBaseEcoreX::SetType(Dali::WindowType type)
 {
 }
 
-bool WindowBaseEcoreX::SetNotificationLevel(Dali::WindowNotificationLevel level)
+Dali::WindowOperationResult WindowBaseEcoreX::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
-  return false;
+  return Dali::WindowOperationResult::NOT_SUPPORTED;
 }
 
 Dali::WindowNotificationLevel WindowBaseEcoreX::GetNotificationLevel() const
@@ -782,9 +782,9 @@ void WindowBaseEcoreX::SetOpaqueState(bool opaque)
 {
 }
 
-bool WindowBaseEcoreX::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+Dali::WindowOperationResult WindowBaseEcoreX::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
-  return false;
+  return Dali::WindowOperationResult::NOT_SUPPORTED;
 }
 
 WindowScreenOffMode WindowBaseEcoreX::GetScreenOffMode() const
@@ -792,9 +792,9 @@ WindowScreenOffMode WindowBaseEcoreX::GetScreenOffMode() const
   return WindowScreenOffMode::TIMEOUT;
 }
 
-bool WindowBaseEcoreX::SetBrightness(int brightness)
+Dali::WindowOperationResult WindowBaseEcoreX::SetBrightness(int brightness)
 {
-  return false;
+  return Dali::WindowOperationResult::NOT_SUPPORTED;
 }
 
 int WindowBaseEcoreX::GetBrightness() const

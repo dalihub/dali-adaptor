@@ -45,7 +45,7 @@ class Shape;
 /**
  * @brief Drawable is a object class for drawing a vector primitive.
  */
-class CanvasRenderer::Drawable : public BaseHandle
+class DALI_ADAPTOR_API CanvasRenderer::Drawable : public BaseHandle
 {
 public:
   /**

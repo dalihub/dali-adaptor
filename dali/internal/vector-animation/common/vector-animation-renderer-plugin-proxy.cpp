@@ -32,6 +32,8 @@ namespace
 {
 // The default plugin name
 const char* DEFAULT_OBJECT_NAME("libdali2-vector-animation-renderer-plugin.so");
+// The rive animation plugin name
+const char* RIVE_OBJECT_NAME("libdali2-rive-animation-renderer-plugin.so");
 
 } // namespace
 
@@ -50,8 +52,6 @@ VectorAnimationRendererPluginProxy::VectorAnimationRendererPluginProxy(const std
   {
     mSharedObjectName = DEFAULT_OBJECT_NAME;
   }
-
-  Initialize();
 }
 
 VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
@@ -68,8 +68,25 @@ VectorAnimationRendererPluginProxy::~VectorAnimationRendererPluginProxy()
   }
 }
 
-void VectorAnimationRendererPluginProxy::Initialize()
+void VectorAnimationRendererPluginProxy::Initialize(AnimationFormat format)
 {
+  // initialization should be once
+  if(mPlugin)
+  {
+    return;
+  }
+
+  if(format == AnimationFormat::RIVE)
+  {
+    // for Rive
+    mSharedObjectName = RIVE_OBJECT_NAME;
+  }
+  else
+  {
+    // for Json
+    mSharedObjectName = DEFAULT_OBJECT_NAME;
+  }
+
   mLibHandle = dlopen(mSharedObjectName.c_str(), RTLD_LAZY);
 
   char* error = dlerror();
@@ -107,6 +124,19 @@ void VectorAnimationRendererPluginProxy::Finalize()
 
 bool VectorAnimationRendererPluginProxy::Load(const std::string& url)
 {
+  AnimationFormat format;
+  std::string     extensionName = url.substr(url.find_last_of(".") + 1);
+  if(extensionName == "riv")
+  {
+    format = AnimationFormat::RIVE;
+  }
+  else
+  {
+    format = AnimationFormat::JSON;
+  }
+
+  Initialize(format);
+
   if(mPlugin)
   {
     return mPlugin->Load(url);

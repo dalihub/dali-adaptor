@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  *
  */
 
+// EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
 
+// INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/gl-window-render-thread.h>
@@ -29,17 +31,20 @@ namespace Adaptor
 {
 namespace
 {
-const unsigned int NANOSECONDS_PER_SECOND(1e+9);
+constexpr unsigned int NANOSECONDS_PER_SECOND(1e+9);
 
 // The following values will get calculated at compile time
-const float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
-const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
+constexpr float    DEFAULT_FRAME_DURATION_IN_SECONDS(1.0f / 60.0f);
+constexpr uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_SECONDS* NANOSECONDS_PER_SECOND);
+constexpr uint64_t REFRESH_RATE(1u);
 
+constexpr int MINIMUM_DIMENSION_CHANGE(1);
 } // namespace
 
 GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth colorDepth)
 : mGraphics(nullptr),
   mWindowBase(nullptr),
+  mWindowRotationTrigger(),
   mLogFactory(Dali::Adaptor::Get().GetLogFactory()),
   mPositionSize(positionSize),
   mColorDepth(colorDepth),
@@ -53,14 +58,17 @@ GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth
   mIsEGLInitialize(false),
   mGLESVersion(30), //Default GLES version 30
   mMSAA(0),
+  mWindowRotationAngle(0),
+  mScreenRotationAngle(0),
   mRenderThreadWaitCondition(),
   mDestroyRenderThread(0),
   mPauseRenderThread(0),
   mRenderingMode(0),
-  mRequestRenderOnce(0)
+  mRequestRenderOnce(0),
+  mSurfaceStatus(0),
+  mPostRendering(0),
+  mDefaultFrameDurationNanoseconds(REFRESH_RATE * DEFAULT_FRAME_DURATION_IN_NANOSECONDS)
 {
-  unsigned int refrashRate         = 1u;
-  mDefaultFrameDurationNanoseconds = uint64_t(refrashRate) * DEFAULT_FRAME_DURATION_IN_NANOSECONDS;
 }
 
 GlWindowRenderThread::~GlWindowRenderThread()
@@ -136,13 +144,83 @@ void GlWindowRenderThread::RenderOnce()
   mRenderThreadWaitCondition.Notify(lock);
 }
 
+void GlWindowRenderThread::RequestWindowResize(int width, int height)
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  // Check resizing
+  if((fabs(width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE))
+  {
+    mSurfaceStatus |= static_cast<unsigned int>(SurfaceStatus::RESIZED); // Set bit for window resized
+    mPositionSize.width  = width;
+    mPositionSize.height = height;
+
+    DALI_LOG_RELEASE_INFO("GlWindowRenderThread::RequestWindowResize(), width:%d, height:%d\n", width, height);
+    mRenderThreadWaitCondition.Notify(lock);
+  }
+}
+
+void GlWindowRenderThread::RequestWindowRotate(int windowAngle)
+{
+  if(!mWindowRotationTrigger)
+  {
+    mWindowRotationTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &GlWindowRenderThread::WindowRotationCompleted),
+                                                                                                            TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+  }
+
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  if(mWindowRotationAngle != windowAngle)
+  {
+    mSurfaceStatus |= static_cast<unsigned int>(SurfaceStatus::WINDOW_ROTATED); // Set bit for window rotation
+    mWindowRotationAngle = windowAngle;
+    DALI_LOG_RELEASE_INFO("GlWindowRenderThread::RequestWindowRotate(): %d\n", windowAngle);
+    mRenderThreadWaitCondition.Notify(lock);
+  }
+}
+
+void GlWindowRenderThread::RequestScreenRotate(int screenAngle)
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  if(mScreenRotationAngle != screenAngle)
+  {
+    mSurfaceStatus |= static_cast<unsigned int>(SurfaceStatus::SCREEN_ROTATED); // Set bit for screen rotation
+    mScreenRotationAngle = screenAngle;
+    DALI_LOG_RELEASE_INFO("GlWindowRenderThread::RequestScreenRotate(): %d\n", screenAngle);
+    mRenderThreadWaitCondition.Notify(lock);
+  }
+}
+
+void GlWindowRenderThread::WindowRotationCompleted()
+{
+  mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
+
+  PostRenderFinish();
+}
+
+unsigned int GlWindowRenderThread::GetSurfaceStatus(int& windowRotationAngle, int& screenRotationAngle)
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+
+  // Get the surface status and reset that.
+  unsigned int status = mSurfaceStatus;
+  mSurfaceStatus      = static_cast<unsigned int>(SurfaceStatus::NO_CHANGED);
+
+  windowRotationAngle = mWindowRotationAngle;
+  screenRotationAngle = mScreenRotationAngle;
+
+  return status;
+}
+
 void GlWindowRenderThread::Run()
 {
   Dali::SetThreadName("GlWindowRenderThread");
   mLogFactory.InstallLogFunction();
 
   int          renderFrameResult = 0;
-  EglGraphics* eglGraphics       = static_cast<EglGraphics*>(mGraphics);
+  unsigned int isSurfaceChanged  = 0;
+  bool         isWindowResized = false, isWindowRotated = false, isScreenRotated = false;
+  int          windowRotationAngle = 0, screenRotationAngle = 0, totalAngle = 0;
+  EglGraphics* eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
@@ -164,8 +242,58 @@ void GlWindowRenderThread::Run()
 
     if(mGLRenderFrameCallback)
     {
+      // PreRender
+      isSurfaceChanged = GetSurfaceStatus(windowRotationAngle, screenRotationAngle);
+      if(DALI_UNLIKELY(isSurfaceChanged))
+      {
+        isWindowResized = (isSurfaceChanged & static_cast<unsigned int>(SurfaceStatus::RESIZED)) ? true : false;
+        isWindowRotated = (isSurfaceChanged & static_cast<unsigned int>(SurfaceStatus::WINDOW_ROTATED)) ? true : false;
+        isScreenRotated = (isSurfaceChanged & static_cast<unsigned int>(SurfaceStatus::SCREEN_ROTATED)) ? true : false;
+        totalAngle      = (windowRotationAngle + screenRotationAngle) % 360;
+
+        if(isWindowRotated || isScreenRotated)
+        {
+          mWindowBase->SetEglWindowBufferTransform(totalAngle);
+          if(isWindowRotated)
+          {
+            mWindowBase->SetEglWindowTransform(windowRotationAngle);
+          }
+        }
+
+        if(isWindowResized)
+        {
+          Dali::PositionSize positionSize;
+          positionSize.x = mPositionSize.x;
+          positionSize.y = mPositionSize.y;
+          if(totalAngle == 0 || totalAngle == 180)
+          {
+            positionSize.width  = mPositionSize.width;
+            positionSize.height = mPositionSize.height;
+          }
+          else
+          {
+            positionSize.width  = mPositionSize.height;
+            positionSize.height = mPositionSize.width;
+          }
+          mWindowBase->ResizeEglWindow(positionSize);
+        }
+      }
+
+      // Render
       renderFrameResult = CallbackBase::ExecuteReturn<int>(*mGLRenderFrameCallback);
 
+      // PostRender
+      if(DALI_UNLIKELY(isWindowRotated))
+      {
+        PostRenderStart();
+
+        mWindowRotationTrigger->Trigger();
+
+        PostRenderWaitForFinished();
+        isWindowRotated = false;
+      }
+
+      // buffer commit
       if(renderFrameResult)
       {
         eglImpl.SwapBuffers(mEGLSurface);
@@ -253,7 +381,7 @@ void GlWindowRenderThread::InitializeGraphics(EglGraphics* eglGraphics)
 bool GlWindowRenderThread::RenderReady(uint64_t& timeToSleepUntil)
 {
   ConditionalWait::ScopedLock updateLock(mRenderThreadWaitCondition);
-  while((!mDestroyRenderThread && mRenderingMode && !mRequestRenderOnce) || mPauseRenderThread)
+  while((!mDestroyRenderThread && mRenderingMode && !mRequestRenderOnce && !mSurfaceStatus) || mPauseRenderThread)
   {
     timeToSleepUntil = 0;
     mRenderThreadWaitCondition.Wait(updateLock);
@@ -262,6 +390,28 @@ bool GlWindowRenderThread::RenderReady(uint64_t& timeToSleepUntil)
   mRequestRenderOnce = 0;
   // Keep the update-render thread alive if this thread is NOT to be destroyed
   return !mDestroyRenderThread;
+}
+
+void GlWindowRenderThread::PostRenderStart()
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  mPostRendering = false;
+}
+
+void GlWindowRenderThread::PostRenderFinish()
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  mPostRendering = true;
+  mRenderThreadWaitCondition.Notify(lock);
+}
+
+void GlWindowRenderThread::PostRenderWaitForFinished()
+{
+  ConditionalWait::ScopedLock lock(mRenderThreadWaitCondition);
+  while(!mPostRendering && !mDestroyRenderThread)
+  {
+    mRenderThreadWaitCondition.Wait(lock);
+  }
 }
 
 } // namespace Adaptor

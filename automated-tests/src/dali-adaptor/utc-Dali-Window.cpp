@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -323,5 +323,1014 @@ int UtcDaliWindowFocusChangeSignalN(void)
     DALI_TEST_CHECK(true);
   }
 
+  END_TEST;
+}
+
+int UtcDaliWindowSetPositionNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Uint16Pair arg1;
+    instance.SetPosition(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowResizeSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.ResizeSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetBrightnessNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    int arg1(0);
+    instance.SetBrightness(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowTouchedSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.TouchedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowKeyEventSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.KeyEventSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetAcceptFocusNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    bool arg1(false);
+    instance.SetAcceptFocus(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetInputRegionNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Rect<int> arg1;
+    instance.SetInputRegion(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetOpaqueStateNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    bool arg1(false);
+    instance.SetOpaqueState(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetTransparencyNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    bool arg1(false);
+    instance.SetTransparency(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddAuxiliaryHintNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    std::string arg1;
+    std::string arg2;
+    instance.AddAuxiliaryHint(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetScreenOffModeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowScreenOffMode arg1(Dali::WindowScreenOffMode::NEVER);
+    instance.SetScreenOffMode(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowFocusChangeSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.FocusChangeSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetRenderTaskListNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetRenderTaskList();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetBackgroundColorNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Vector4 arg1;
+    instance.SetBackgroundColor(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowRemoveAuxiliaryHintNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0u);
+    instance.RemoveAuxiliaryHint(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetNotificationLevelNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowNotificationLevel arg1(Dali::WindowNotificationLevel::NONE);
+    instance.SetNotificationLevel(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetAuxiliaryHintValueNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0u);
+    std::string  arg2;
+    instance.SetAuxiliaryHintValue(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddAvailableOrientationNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowOrientation arg1(Dali::WindowOrientation::PORTRAIT);
+    instance.AddAvailableOrientation(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetPreferredOrientationNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetPreferredOrientation();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetPreferredOrientationNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowOrientation arg1(Dali::WindowOrientation::PORTRAIT);
+    instance.SetPreferredOrientation(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowRemoveAvailableOrientationNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowOrientation arg1(Dali::WindowOrientation::PORTRAIT);
+    instance.RemoveAvailableOrientation(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Actor arg1;
+    instance.Add(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowHideNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.Hide();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowShowNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.Show();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowLowerNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.Lower();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowRaiseNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.Raise();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowRemoveNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Actor arg1;
+    instance.Remove(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetSizeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::Uint16Pair arg1;
+    instance.SetSize(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetTypeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Dali::WindowType arg1(Dali::WindowType::NORMAL);
+    instance.SetType(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowActivateNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.Activate();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetClassNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    std::string arg1;
+    std::string arg2;
+    instance.SetClass(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetPositionNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetPosition();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetRootLayerNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetRootLayer();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetBrightnessNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetBrightness();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetLayerCountNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetLayerCount();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowIsOpaqueStateNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.IsOpaqueState();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetNativeHandleNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetNativeHandle();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetScreenOffModeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetScreenOffMode();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowIsFocusAcceptableNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.IsFocusAcceptable();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetAuxiliaryHintIdNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    std::string arg1;
+    instance.GetAuxiliaryHintId(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetBackgroundColorNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetBackgroundColor();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetNotificationLevelNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetNotificationLevel();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetAuxiliaryHintValueNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0u);
+    instance.GetAuxiliaryHintValue(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetSupportedAuxiliaryHintNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0u);
+    instance.GetSupportedAuxiliaryHint(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetSupportedAuxiliaryHintCountNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetSupportedAuxiliaryHintCount();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetDpiNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetDpi();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetSizeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetSize();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetTypeNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.GetType();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetLayerNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0u);
+    instance.GetLayer(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowIsVisibleNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    instance.IsVisible();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetNativeIdNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::GetNativeId(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetPositionSizeNegative(void)
+{
+  try
+  {
+    Dali::Window    arg1;
+    Dali::Rect<int> arg2;
+    DevelWindow::SetPositionSize(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowWheelEventSignalNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::WheelEventSignal(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetCurrentOrientationNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::GetCurrentOrientation(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetPhysicalOrientationNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::GetPhysicalOrientation(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowVisibilityChangedSignalNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::VisibilityChangedSignal(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
+{
+  try
+  {
+    Dali::Window                        arg1;
+    std::unique_ptr<Dali::CallbackBase> arg2;
+    int                                 arg3(0);
+    DevelWindow::AddFrameRenderedCallback(arg1, std::move(arg2), arg3);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetAvailableOrientationsNegative(void)
+{
+  try
+  {
+    Dali::Window                          arg1;
+    Dali::Vector<Dali::WindowOrientation> arg2;
+    DevelWindow::SetAvailableOrientations(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowAddFramePresentedCallbackNegative(void)
+{
+  try
+  {
+    Dali::Window                        arg1;
+    std::unique_ptr<Dali::CallbackBase> arg2;
+    int                                 arg3(0);
+    DevelWindow::AddFramePresentedCallback(arg1, std::move(arg2), arg3);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowTransitionEffectEventSignalNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::TransitionEffectEventSignal(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowEventProcessingFinishedSignalNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::EventProcessingFinishedSignal(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowKeyboardRepeatSettingsChangedSignalNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::KeyboardRepeatSettingsChangedSignal(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowUnparentNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::Unparent(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowGetParentNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::GetParent(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSetParentNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    Dali::Window arg2;
+    DevelWindow::SetParent(arg1, arg2);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
   END_TEST;
 }

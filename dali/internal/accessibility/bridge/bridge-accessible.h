@@ -33,6 +33,7 @@ protected:
   BridgeAccessible();
 
   void RegisterInterfaces();
+  bool suppressScreenReader = false;
 
 public:
   enum class GetNeighborSearchMode
@@ -86,6 +87,7 @@ public:
     >;
 
   ReadingMaterialType GetReadingMaterial();
+  void                SuppressScreenReader(bool) override;
 
   DBus::ValueOrError<bool> DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t yBeg, int32_t xEnd, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime);
 

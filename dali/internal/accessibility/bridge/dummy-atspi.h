@@ -20,10 +20,9 @@
 
 namespace Dali::Accessibility
 {
-
 struct DummyBridge : Dali::Accessibility::Bridge
 {
-  static DummyBridge *GetInstance()
+  static DummyBridge* GetInstance()
   {
     static DummyBridge instance;
 
@@ -137,6 +136,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   }
 
   void StopReading(bool alsoNonDiscardable) override
+  {
+  }
+
+  void SuppressScreenReader(bool suppress) override
   {
   }
 

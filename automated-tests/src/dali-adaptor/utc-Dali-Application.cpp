@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/devel-api/adaptor-framework/application-devel.h>
+#include <stdlib.h>
 
 using namespace Dali;
 
@@ -553,5 +555,54 @@ int UtcDaliApplicationGetObjectRegistryN(void)
 {
   Application application = Application::New();
   DALI_TEST_CHECK(!application.GetObjectRegistry());
+  END_TEST;
+}
+
+int UtcDaliApplicationGetControllerN(void)
+{
+  Application application;
+
+  try
+  {
+    application.GetController();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationAddIdleWithReturnValueN(void)
+{
+  Application application;
+
+  try
+  {
+    DevelApplication::AddIdleWithReturnValue(application, nullptr);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationGetDataPathP(void)
+{
+  setenv("DALI_APPLICATION_DATA_DIR", "MyDataPath", 1);
+  std::string dataPath = DevelApplication::GetDataPath();
+  DALI_TEST_EQUALS(dataPath, "MyDataPath", TEST_LOCATION);
+  END_TEST;
+}
+
+int UtcDaliApplicationDownCastN(void)
+{
+  Application application = DevelApplication::DownCast(nullptr);
+  DALI_TEST_CHECK(!application);
   END_TEST;
 }

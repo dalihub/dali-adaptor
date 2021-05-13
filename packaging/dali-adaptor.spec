@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.0.21
+Version:    2.0.25
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -61,6 +61,7 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
+BuildRequires:  hyphen-devel
 BuildRequires:  fribidi-devel
 
 BuildRequires:  pkgconfig(capi-system-info)
