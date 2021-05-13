@@ -88,6 +88,9 @@ T0* CastObject(T1* apiObject)
   return static_cast<T0*>(apiObject);
 }
 
+// Maximum size of texture upload buffer.
+const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
+
 } // namespace
 
 EglGraphicsController::~EglGraphicsController() = default;
@@ -398,6 +401,8 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
                   reinterpret_cast<char*>(source.memorySource.memory) + info.srcSize,
                   stagingBuffer);
 
+        mTextureUploadTotalCPUMemoryUsed += info.srcSize;
+
         // store staging buffer
         source.memorySource.memory = stagingBuffer;
         break;
@@ -413,6 +418,13 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
         break;
       }
     }
+  }
+
+  // If upload buffer exceeds maximum size, flush.
+  if( mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB*1024 )
+  {
+    Flush();
+    mTextureUploadTotalCPUMemoryUsed = 0;
   }
 }
 
