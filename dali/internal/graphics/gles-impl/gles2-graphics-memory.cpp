@@ -45,7 +45,7 @@ Memory2::Memory2(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController&
 
 Memory2::~Memory2()
 {
-  //Unlock(true);
+  Unlock(true);
 }
 
 void* Memory2::LockRegion(uint32_t offset, uint32_t size)
@@ -82,7 +82,6 @@ void Memory2::Unlock(bool flush)
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(!buffer->IsCPUAllocated())
     {
-
       buffer->Bind(BufferUsage::VERTEX_BUFFER);
       gl->BufferSubData(GL_ARRAY_BUFFER, mMapBufferInfo.offset, mMapBufferInfo.size, mMappedPointer);
     }
