@@ -2463,6 +2463,9 @@ void WindowBaseEcoreWl2::InitializeEcoreElDBus()
     return;
   }
 
+  // Save dbus proxy on init.
+  mAccessibilityInfo.proxy = manager;
+
   if( !eldbus_proxy_signal_handler_add( manager, "GestureDetected", EcoreElDBusAccessibilityNotification, this ) )
   {
     DALI_LOG_ERROR( "No signal handler returned\n" );

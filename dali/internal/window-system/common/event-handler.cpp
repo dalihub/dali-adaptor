@@ -283,6 +283,15 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     return;
   }
 
+  // When gesture is ONE_FINGER_SINGLE_TAP, the gesture value is 15.
+  // When the state is aborted, the state of accessibility info is 3.
+  if( info.gestureValue == 15 && info.state == 3 )
+  {
+    Vector2 localPosition = accessibilityAdaptor->GetFocusedActorPosition();
+
+    eldbus_proxy_call( info.proxy, "HighlightedObjectInfo", NULL, NULL, -1, "ii", static_cast<int>( localPosition.x ), static_cast<int>( localPosition.y ) );
+  }
+
   // Create a touch point object.
   PointState::Type touchPointState( PointState::DOWN );
   if( info.state == 0 )

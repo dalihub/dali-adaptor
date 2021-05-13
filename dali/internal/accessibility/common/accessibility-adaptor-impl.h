@@ -104,6 +104,17 @@ public:
   void SetGestureHandler(AccessibilityGestureHandler& handler);
 
   /**
+   * @copydoc Dali::AccessibilityAdaptor::SetFocusedActorPosition()
+   */
+  void SetFocusedActorPosition(Vector2 currentPosition);
+
+  /**
+   * @brief Returns the current position of the focused actor.
+   * @return The current position of the focused actor
+   */
+  Vector2 GetFocusedActorPosition() const;
+
+  /**
    * @copydoc Dali::AccessibilityAdaptor::HandleActionNextEvent()
    */
   virtual bool HandleActionNextEvent( bool allowEndFeedback = true);
@@ -259,6 +270,7 @@ protected:
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.
 
   Vector2 mReadPosition; ///< ActionRead position
+  Vector2 mFocusedActorPosition; ///< Focused actor position
 
   AccessibilityActionHandler* mActionHandler; ///< The pointer of accessibility action handler
 

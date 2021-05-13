@@ -50,6 +50,7 @@ Debug::Filter* gAccessibilityAdaptorLogFilter = Debug::Filter::New(Debug::NoLogg
 
 AccessibilityAdaptor::AccessibilityAdaptor()
 : mReadPosition(),
+  mFocusedActorPosition(),
   mActionHandler( NULL ),
   mIsEnabled( false ),
   mIsForced( false )
@@ -130,6 +131,16 @@ void AccessibilityAdaptor::SetGestureHandler(AccessibilityGestureHandler& handle
   {
     mAccessibilityGestureDetector->SetGestureHandler(handler);
   }
+}
+
+void AccessibilityAdaptor::SetFocusedActorPosition(Vector2 currentPosition)
+{
+  mFocusedActorPosition = currentPosition;
+}
+
+Vector2 AccessibilityAdaptor::GetFocusedActorPosition() const
+{
+  return mFocusedActorPosition;
 }
 
 bool AccessibilityAdaptor::HandleActionNextEvent(bool allowEndFeedback)

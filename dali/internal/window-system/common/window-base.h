@@ -35,6 +35,10 @@
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
+#ifdef DALI_ELDBUS_AVAILABLE
+#include <Eldbus.h>
+#endif
+
 namespace Dali
 {
 namespace Internal
@@ -62,6 +66,9 @@ public:
     int state;
     int eventTime;
     unsigned char quickpanelInfo; // to retrieve quick panel information for Accessibility
+    #ifdef DALI_ELDBUS_AVAILABLE
+    Eldbus_Proxy* proxy;
+    #endif // DALI_ELDBUS_AVAILABLE
   };
 
   // Window

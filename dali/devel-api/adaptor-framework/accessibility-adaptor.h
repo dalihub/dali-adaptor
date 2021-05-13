@@ -108,6 +108,12 @@ public:
   void SetGestureHandler(AccessibilityGestureHandler& handler);
 
   /**
+   * @brief Sets the position of the focused actor.
+   * @param currentPosition The position of the focused actor
+   */
+  void SetFocusedActorPosition(Vector2 currentPosition);
+
+  /**
    * @brief Handle the accessibility action to move focus to the next focusable actor
    * (by one finger flick down).
    *

@@ -74,6 +74,11 @@ void AccessibilityAdaptor::SetGestureHandler(AccessibilityGestureHandler& handle
   Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).SetGestureHandler(handler);
 }
 
+void AccessibilityAdaptor::SetFocusedActorPosition(Vector2 currentPosition)
+{
+  Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).SetFocusedActorPosition(currentPosition);
+}
+
 bool AccessibilityAdaptor::HandleActionNextEvent(bool allowEndFeedback)
 {
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionNextEvent(allowEndFeedback);
