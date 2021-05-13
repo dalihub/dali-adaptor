@@ -331,7 +331,7 @@ void Context::ResolveStandaloneUniforms()
 
   auto extraInfos = reflection.GetStandaloneUniformExtraInfo();
 
-  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress());
+  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
 
   for(const auto& info : extraInfos)
   {
