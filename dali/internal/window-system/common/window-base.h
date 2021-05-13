@@ -72,6 +72,7 @@ public:
   typedef Signal<void(WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType;
   typedef Signal<void()>                                    KeyboardRepeatSettingsChangedSignalType;
   typedef Signal<void()>                                    WindowRedrawRequestSignalType;
+  typedef Signal<void(Dali::PositionSize&)>                 UpdatePositionSizeType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -435,6 +436,11 @@ public:
    */
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
 
+  /**
+   * @brief This signal is emitted when the window is resized or moved by display server.
+   */
+  UpdatePositionSizeType& UpdatePositionSizeSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -459,6 +465,8 @@ protected:
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
+  UpdatePositionSizeType                  mUpdatePositionSizeSignal;
+
 };
 
 } // namespace Adaptor
