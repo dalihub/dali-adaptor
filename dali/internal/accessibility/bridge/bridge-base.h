@@ -301,7 +301,7 @@ protected:
   DBusWrapper::ConnectionPtr con;
   int                        id = 0;
   DBus::DBusClient           registry;
-  bool                       allowObjectBoundsChangedEvent;
+  bool                       allowObjectBoundsChangedEvent{false};
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H
