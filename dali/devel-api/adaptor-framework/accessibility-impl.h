@@ -294,9 +294,6 @@ struct DALI_ADAPTOR_API Bridge
   /**
    * @brief Re-enables auto-initialization of AT-SPI bridge
    *
-   * @param topLevelWindow Accessible object for Scene::GetRootLayer()
-   * @param applicationName Application name
-   *
    * Normal applications do not have to call this function. GetCurrentBridge() tries to
    * initialize the AT-SPI bridge when it is called for the first time.
    *
@@ -304,7 +301,7 @@ struct DALI_ADAPTOR_API Bridge
    * @see Dali::Accessibility::Bridge::AddTopLevelWindow
    * @see Dali::Accessibility::Bridge::SetApplicationName
    */
-  static void EnableAutoInit(Accessible* topLevelWindow, const std::string& applicationName);
+  static void EnableAutoInit();
 
 protected:
   struct Data
