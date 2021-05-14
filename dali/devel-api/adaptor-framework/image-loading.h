@@ -81,7 +81,7 @@ DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(
 /**
  * @brief Get the size of an original image. this method will respect any rotation of image.
  * @param[in] filename name of the image.
- *
+ * @param[in] orientationCorrection Whether to use image metadata to rotate or
  * @return dimensions to original image
  */
 DALI_ADAPTOR_API ImageDimensions GetOriginalImageSize(

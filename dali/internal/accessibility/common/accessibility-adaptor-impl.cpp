@@ -19,7 +19,9 @@
 #include <dali/internal/accessibility/common/accessibility-adaptor-impl.h>
 
 // EXTERNAL INCLUDES
+#ifndef DALI_PROFILE_UBUNTU
 #include <system_settings.h>
+#endif
 #include <dali/public-api/object/type-registry.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/events/touch-event-integ.h>
@@ -61,7 +63,9 @@ AccessibilityAdaptor::AccessibilityAdaptor()
 void AccessibilityAdaptor::EnableAccessibility()
 {
   bool accessibilityState = false;
+#ifndef DALI_PROFILE_UBUNTU
   system_settings_get_value_bool( SYSTEM_SETTINGS_KEY_ACCESSIBILITY_TTS, &accessibilityState );
+#endif
   if(accessibilityState == false)
   {
     DALI_LOG_ERROR("The Current Accessibility system cannot run. \n");
