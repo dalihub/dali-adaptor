@@ -730,7 +730,7 @@ public:
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
     return {
-      {"t", type.GetName()},
+      {"class", type.GetName()},
     };
   }
 
