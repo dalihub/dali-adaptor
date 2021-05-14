@@ -566,11 +566,12 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       // GPU memory must be already allocated.
 
       // Check if it needs conversion
-      auto*       texture    = static_cast<GLES::Texture*>(info.dstTexture);
-      const auto& createInfo = texture->GetCreateInfo();
-      auto        srcFormat  = GLES::GLTextureFormatType(info.srcFormat).format;
-      auto        destFormat = GLES::GLTextureFormatType(createInfo.format).format;
-      auto        destType   = GLES::GLTextureFormatType(createInfo.format).type;
+      auto*       texture            = static_cast<GLES::Texture*>(info.dstTexture);
+      const auto& createInfo         = texture->GetCreateInfo();
+      auto        srcFormat          = GLES::GLTextureFormatType(info.srcFormat).format;
+      auto        srcType            = GLES::GLTextureFormatType(info.srcFormat).type;
+      auto        destInternalFormat = GLES::GLTextureFormatType(createInfo.format).internalFormat;
+      auto        destFormat         = GLES::GLTextureFormatType(createInfo.format).format;
 
       // From render-texture.cpp
       const bool isSubImage(info.dstOffset2D.x != 0 || info.dstOffset2D.y != 0 ||
@@ -584,56 +585,49 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
         // Convert RGB to RGBA if necessary.
         texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer);
         sourceBuffer = &tempBuffer[0];
+        srcFormat    = destFormat;
+        srcType      = GLES::GLTextureFormatType(createInfo.format).type;
       }
 
       // Calculate the maximum mipmap level for the texture
       texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
 
-      switch(createInfo.textureType)
+      GLenum bindTarget{GL_TEXTURE_2D};
+      GLenum target{GL_TEXTURE_2D};
+
+      if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
       {
-        // Texture 2D
-        case Graphics::TextureType::TEXTURE_2D:
-        {
-          mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-          mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
-
-          mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
-                                        info.level,
-                                        info.dstOffset2D.x,
-                                        info.dstOffset2D.y,
-                                        info.srcExtent2D.width,
-                                        info.srcExtent2D.height,
-                                        destFormat,
-                                        destType,
-                                        sourceBuffer);
-          break;
-        }
-        // Texture Cubemap
-        case Graphics::TextureType::TEXTURE_CUBEMAP:
-        {
-          mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-          mGlAbstraction->BindTexture(GL_TEXTURE_CUBE_MAP, texture->GetGLTexture());
-
-          mGlAbstraction->TexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer,
-                                        info.level,
-                                        info.dstOffset2D.x,
-                                        info.dstOffset2D.y,
-                                        info.srcExtent2D.width,
-                                        info.srcExtent2D.height,
-                                        destFormat,
-                                        destType,
-                                        sourceBuffer);
-
-          break;
-        }
-        default:
-        {
-          // nothing?
-        }
+        bindTarget = GL_TEXTURE_CUBE_MAP;
+        target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
       }
 
+      mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      mGlAbstraction->BindTexture(bindTarget, texture->GetGLTexture());
+
+      if(!isSubImage)
+      {
+        mGlAbstraction->TexImage2D(target,
+                                   info.level,
+                                   destInternalFormat,
+                                   info.srcExtent2D.width,
+                                   info.srcExtent2D.height,
+                                   0,
+                                   srcFormat,
+                                   srcType,
+                                   sourceBuffer);
+      }
+      else
+      {
+        mGlAbstraction->TexSubImage2D(target,
+                                      info.level,
+                                      info.dstOffset2D.x,
+                                      info.dstOffset2D.y,
+                                      info.srcExtent2D.width,
+                                      info.srcExtent2D.height,
+                                      srcFormat,
+                                      srcType,
+                                      sourceBuffer);
+      }
       // free staging memory
       free(source.memorySource.memory);
     }
