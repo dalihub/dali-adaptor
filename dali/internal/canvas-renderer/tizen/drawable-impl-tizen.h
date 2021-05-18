@@ -108,6 +108,16 @@ public:
    */
   bool GetChanged() const override;
 
+  /**
+   * @copydoc Internal::Adaptor::Drawable::SetDrawableType
+   */
+  void SetDrawableType(DrawableTypes type);
+
+  /**
+   * @copydoc Internal::Adaptor::Drawable::GetDrawableType
+   */
+  DrawableTypes GetDrawableType() const;
+
   DrawableTizen(const Drawable&) = delete;
   DrawableTizen& operator=(Drawable&) = delete;
   DrawableTizen(Drawable&&)           = delete;
@@ -125,8 +135,9 @@ protected:
   virtual ~DrawableTizen() override;
 
 private:
-  bool mAdded;
-  bool mChanged;
+  bool                    mAdded;
+  bool                    mChanged;
+  Drawable::DrawableTypes mType;
 
 #ifdef THORVG_SUPPORT
   tvg::Paint* mTvgPaint;
