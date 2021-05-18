@@ -22,26 +22,26 @@
 #include <queue>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/graphics-sync-abstraction.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include "gles-context.h"
-#include "gles-graphics-buffer.h"
-#include "gles-graphics-command-buffer.h"
-#include "gles-graphics-framebuffer.h"
-#include "gles-graphics-pipeline-cache.h"
-#include "gles-graphics-pipeline.h"
-#include "gles-graphics-reflection.h"
-#include "gles-graphics-sampler.h"
-#include "gles-graphics-shader.h"
-#include "gles-graphics-texture.h"
-#include "gles-graphics-types.h"
-#include "gles2-graphics-memory.h"
+#include <dali/internal/graphics/gles-impl/gles-context.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-buffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-framebuffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-pipeline-cache.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-reflection.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-sampler.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles2-graphics-memory.h>
 
 namespace Dali
 {
 namespace Integration
 {
 class GlAbstraction;
-class GlSyncAbstraction;
 class GlContextHelperAbstraction;
 } // namespace Integration
 
@@ -81,13 +81,13 @@ public:
    *
    * Note, this is now executed in the render thread, after core initialization
    */
-  void Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
+  void Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
                   Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
                   Internal::Adaptor::GraphicsInterface&    graphicsInterface);
 
-  Integration::GlAbstraction&              GetGlAbstraction() override;
-  Integration::GlSyncAbstraction&          GetGlSyncAbstraction() override;
-  Integration::GlContextHelperAbstraction& GetGlContextHelperAbstraction() override;
+  Integration::GlAbstraction&               GetGlAbstraction() override;
+  Integration::GlContextHelperAbstraction&  GetGlContextHelperAbstraction() override;
+  Internal::Adaptor::EglSyncImplementation& GetEglSyncImplementation();
 
   /**
    * @copydoc Dali::Graphics::SubmitCommandBuffers()
@@ -235,6 +235,12 @@ public:
    * @copydoc Dali::Graphics::CreateRenderTarget()
    */
   Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override;
+
+  /**
+   * @copydoc Dali::Graphics::CreateSyncObject()
+   */
+  Graphics::UniquePtr<SyncObject> CreateSyncObject(const SyncObjectCreateInfo&       syncObjectCreateInfo,
+                                                   Graphics::UniquePtr<SyncObject>&& oldSyncObject) override;
 
   /**
    * @copydoc Dali::Graphics::MapBufferRange()
@@ -607,10 +613,10 @@ public:
 
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
-  Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
 
-  Internal::Adaptor::GraphicsInterface* mGraphics{nullptr};
+  Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation;
+  Internal::Adaptor::GraphicsInterface*     mGraphics{nullptr}; // Pointer to owning structure via interface.
 
   std::queue<GLES::Texture*> mCreateTextureQueue;  ///< Create queue for texture resource
   std::queue<GLES::Texture*> mDiscardTextureQueue; ///< Discard queue for texture resource

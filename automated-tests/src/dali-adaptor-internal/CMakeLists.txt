@@ -28,7 +28,8 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-harness.cpp
     ../dali-adaptor/dali-test-suite-utils/test-application.cpp
     ../dali-adaptor/dali-test-suite-utils/test-gl-abstraction.cpp
-    ../dali-adaptor/dali-test-suite-utils/test-gl-sync-abstraction.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-sync-impl.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-graphics-sync-object.cpp
     ../dali-adaptor/dali-test-suite-utils/test-graphics-buffer.cpp
     ../dali-adaptor/dali-test-suite-utils/test-graphics-command-buffer.cpp
     ../dali-adaptor/dali-test-suite-utils/test-graphics-controller.cpp
