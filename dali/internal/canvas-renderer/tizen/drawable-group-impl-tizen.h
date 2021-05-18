@@ -48,7 +48,7 @@ public:
   static DrawableGroupTizen* New();
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable
    */
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
@@ -56,6 +56,11 @@ public:
    * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear
    */
   bool Clear() override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::GetDrawables
+   */
+  std::vector<Dali::CanvasRenderer::Drawable> GetDrawables() override;
 
 private:
   DrawableGroupTizen(const DrawableGroupTizen&) = delete;
@@ -83,8 +88,7 @@ private:
 #ifdef THORVG_SUPPORT
   tvg::Scene* mTvgScene;
 #endif
-  using DrawableVector         = std::vector<WeakHandle<Dali::CanvasRenderer::Drawable>>;
-  using DrawableVectorIterator = DrawableVector::iterator;
+  using DrawableVector = std::vector<Dali::CanvasRenderer::Drawable>;
   DrawableVector mDrawables;
 };
 
