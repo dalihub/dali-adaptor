@@ -41,6 +41,17 @@ class Drawable : public Dali::BaseObject
 {
 public:
   /**
+   * @brief Enumeration for type of drawable.
+   */
+  enum class Types
+  {
+    NONE = 0,      ///< Means that type is not defined.
+    SHAPE,         ///< Meaning of Shape class that inherits Drawable.
+    DRAWABLE_GROUP ///< Meaning of DrawableGorup class that inherits Drawable.
+  };
+
+public:
+  /**
    * @brief Constructor
    */
   Drawable();
@@ -127,6 +138,18 @@ public:
   virtual bool GetChanged() const;
 
   /**
+   * @brief Set drawable's type.
+   * @param[in] type Type of drawable.
+   */
+  virtual void SetType(Types type);
+
+  /**
+   * @brief Get drawable's type.
+   * @return Returns type of drawable.
+   */
+  virtual Types GetType() const;
+
+  /**
    * @brief Returns a drawable's implements object pointer.
    * @return Returns a drawable's implements object pointer.
    */
@@ -138,7 +161,7 @@ public:
   Drawable& operator=(Drawable&&) = delete;
 
 private:
-  Dali::Internal::Adaptor::Drawable* pImpl = nullptr;
+  Dali::Internal::Adaptor::Drawable* mImpl = nullptr;
 };
 
 } // namespace Adaptor

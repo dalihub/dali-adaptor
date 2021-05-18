@@ -38,6 +38,11 @@ bool DrawableGroup::Clear()
   return false;
 }
 
+DrawableGroup::DrawableVector DrawableGroup::GetDrawables() const
+{
+  return DrawableVector();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

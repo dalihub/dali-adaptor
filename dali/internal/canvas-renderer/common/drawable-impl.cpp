@@ -29,140 +29,158 @@ Drawable::Drawable() = default;
 
 Drawable::~Drawable()
 {
-  if(pImpl)
+  if(mImpl)
   {
-    delete pImpl;
+    delete mImpl;
   }
 }
 
 void Drawable::Create()
 {
-  if(!pImpl)
+  if(!mImpl)
   {
-    pImpl = Internal::Adaptor::DrawableFactory::New();
+    mImpl = Internal::Adaptor::DrawableFactory::New();
   }
 }
 
 bool Drawable::SetOpacity(float opacity)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->SetOpacity(opacity);
+  return mImpl->SetOpacity(opacity);
 }
 
 float Drawable::GetOpacity() const
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return 0.0f;
   }
-  return pImpl->GetOpacity();
+  return mImpl->GetOpacity();
 }
 
 bool Drawable::Rotate(Degree degree)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->Rotate(degree);
+  return mImpl->Rotate(degree);
 }
 
 bool Drawable::Scale(float factor)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->Scale(factor);
+  return mImpl->Scale(factor);
 }
 
 bool Drawable::Translate(Vector2 translate)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->Translate(translate);
+  return mImpl->Translate(translate);
 }
 
 bool Drawable::Transform(const Dali::Matrix3& matrix)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->Transform(matrix);
+  return mImpl->Transform(matrix);
 }
 
 Rect<float> Drawable::GetBoundingBox() const
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return Rect<float>(0, 0, 0, 0);
   }
-  return pImpl->GetBoundingBox();
+  return mImpl->GetBoundingBox();
 }
 
 void Drawable::SetAdded(bool added)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return;
   }
-  pImpl->SetAdded(added);
+  mImpl->SetAdded(added);
 }
 
 bool Drawable::IsAdded() const
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->IsAdded();
+  return mImpl->IsAdded();
 }
 
 void* Drawable::GetObject() const
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return nullptr;
   }
-  return pImpl->GetObject();
+  return mImpl->GetObject();
 }
 
 void Drawable::SetObject(const void* object)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return;
   }
-  pImpl->SetObject(object);
+  mImpl->SetObject(object);
 }
 
 void Drawable::SetChanged(bool changed)
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return;
   }
-  pImpl->SetChanged(changed);
+  mImpl->SetChanged(changed);
 }
 
 bool Drawable::GetChanged() const
 {
-  if(!pImpl)
+  if(!mImpl)
   {
     return false;
   }
-  return pImpl->GetChanged();
+  return mImpl->GetChanged();
+}
+
+void Drawable::SetType(Drawable::Types type)
+{
+  if(!mImpl)
+  {
+    return;
+  }
+  mImpl->SetType(type);
+}
+
+Drawable::Types Drawable::GetType() const
+{
+  if(!mImpl)
+  {
+    return Drawable::Types::NONE;
+  }
+  return mImpl->GetType();
 }
 
 Dali::Internal::Adaptor::Drawable* Drawable::GetImplementation()
 {
-  return pImpl;
+  return mImpl;
 }
 
 } // namespace Adaptor
