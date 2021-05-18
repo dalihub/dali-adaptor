@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
 #include "gles-graphics-types.h"
+#include "gles-sync-object.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -198,6 +199,7 @@ struct Command
       }
       case CommandType::END_RENDERPASS:
       {
+        endRenderPass.syncObject = rhs.endRenderPass.syncObject;
         break;
       }
       case CommandType::EXECUTE_COMMAND_BUFFERS:
@@ -352,6 +354,7 @@ struct Command
       }
       case CommandType::END_RENDERPASS:
       {
+        endRenderPass.syncObject = rhs.endRenderPass.syncObject;
         break;
       }
       case CommandType::EXECUTE_COMMAND_BUFFERS:
@@ -501,6 +504,7 @@ struct Command
 
     struct
     {
+      Graphics::SyncObject* syncObject;
     } endRenderPass;
 
     struct
@@ -613,7 +617,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CommandBuffer::EndRenderPass
    */
-  void EndRenderPass() override;
+  void EndRenderPass(Graphics::SyncObject* syncObject) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::ExecuteCommandBuffers

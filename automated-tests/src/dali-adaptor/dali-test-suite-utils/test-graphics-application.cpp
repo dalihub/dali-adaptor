@@ -16,6 +16,7 @@
  */
 
 #include "test-graphics-application.h"
+#include <test-graphics-sync-impl.h>
 
 namespace Dali
 {
@@ -61,7 +62,7 @@ void TestGraphicsApplication::CreateCore()
 
   mGraphics.Initialize();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -158,11 +159,6 @@ Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
 TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
 {
   return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
-}
-
-TestGlSyncAbstraction& TestGraphicsApplication::GetGlSyncAbstraction()
-{
-  return static_cast<TestGlSyncAbstraction&>(mGraphicsController.GetGlSyncAbstraction());
 }
 
 TestGlContextHelperAbstraction& TestGraphicsApplication::GetGlContextHelperAbstraction()
@@ -277,7 +273,7 @@ void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
   mCore->ContextCreated();
 }
 

@@ -137,9 +137,12 @@ void CommandBuffer::BeginRenderPass(
   cmd.beginRenderPass.clearValues  = clearValues;
 }
 
-void CommandBuffer::EndRenderPass()
+void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
   mCommands.emplace_back(CommandType::END_RENDERPASS);
+  auto& cmd = mCommands.back();
+
+  cmd.endRenderPass.syncObject = static_cast<GLES::SyncObject*>(syncObject);
 }
 
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)

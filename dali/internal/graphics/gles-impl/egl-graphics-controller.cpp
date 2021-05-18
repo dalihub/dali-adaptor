@@ -22,16 +22,19 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/integration-api/graphics-sync-abstraction.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-program.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-render-pass.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-render-target.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/public-api/common/dali-common.h>
-#include "gles-graphics-program.h"
 
 // Uncomment the following define to turn on frame dumping
 //#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
@@ -111,12 +114,14 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
   mCurrentContext = mContext.get();
 }
 
-void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
+void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
                                        Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
                                        Internal::Adaptor::GraphicsInterface&    graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #2\n");
-  mGlSyncAbstraction          = &glSyncAbstraction;
+  auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
+
+  mEglSyncImplementation      = syncImplPtr;
   mGlContextHelperAbstraction = &glContextHelperAbstraction;
   mGraphics                   = &graphicsInterface;
 }
@@ -167,16 +172,16 @@ Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
   return *mGlAbstraction;
 }
 
-Integration::GlSyncAbstraction& EglGraphicsController::GetGlSyncAbstraction()
-{
-  DALI_ASSERT_DEBUG(mGlSyncAbstraction && "Graphics controller not initialized");
-  return *mGlSyncAbstraction;
-}
-
 Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelperAbstraction()
 {
   DALI_ASSERT_DEBUG(mGlContextHelperAbstraction && "Graphics controller not initialized");
   return *mGlContextHelperAbstraction;
+}
+
+Internal::Adaptor::EglSyncImplementation& EglGraphicsController::GetEglSyncImplementation()
+{
+  DALI_ASSERT_DEBUG(mEglSyncImplementation && "Sync implementation not initialized");
+  return *mEglSyncImplementation;
 }
 
 Graphics::UniquePtr<CommandBuffer> EglGraphicsController::CreateCommandBuffer(
@@ -246,6 +251,12 @@ Graphics::UniquePtr<Sampler> EglGraphicsController::CreateSampler(const SamplerC
 Graphics::UniquePtr<RenderTarget> EglGraphicsController::CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget)
 {
   return NewObject<GLES::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+}
+
+Graphics::UniquePtr<SyncObject> EglGraphicsController::CreateSyncObject(const SyncObjectCreateInfo& syncObjectCreateInfo,
+                                                                        UniquePtr<SyncObject>&&     oldSyncObject)
+{
+  return NewObject<GLES::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
 }
 
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
@@ -507,6 +518,12 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       case GLES::CommandType::END_RENDERPASS:
       {
         mCurrentContext->EndRenderPass();
+
+        auto syncObject = const_cast<GLES::SyncObject*>(static_cast<const GLES::SyncObject*>(cmd.endRenderPass.syncObject));
+        if(syncObject)
+        {
+          syncObject->InitializeResource();
+        }
         break;
       }
       case GLES::CommandType::PRESENT_RENDER_TARGET:

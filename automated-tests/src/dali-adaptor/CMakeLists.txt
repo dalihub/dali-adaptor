@@ -27,7 +27,8 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-application.cpp
     dali-test-suite-utils/test-gesture-generator.cpp
     dali-test-suite-utils/test-gl-abstraction.cpp
-    dali-test-suite-utils/test-gl-sync-abstraction.cpp
+    dali-test-suite-utils/test-graphics-sync-impl.cpp
+    dali-test-suite-utils/test-graphics-sync-object.cpp
     dali-test-suite-utils/test-graphics-buffer.cpp
     dali-test-suite-utils/test-graphics-command-buffer.cpp
     dali-test-suite-utils/test-graphics-controller.cpp
