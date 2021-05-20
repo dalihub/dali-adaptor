@@ -48,112 +48,112 @@ public:
   static ShapeTizen* New();
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddRect()
+   * @copydoc Dali::CanvasRenderer::Shape::AddRect
    */
   bool AddRect(Rect<float> rect, Vector2 roundedCorner) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCircle()
+   * @copydoc Dali::CanvasRenderer::Shape::AddCircle
    */
   bool AddCircle(Vector2 center, Vector2 radius) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddArc()
+   * @copydoc Dali::CanvasRenderer::Shape::AddArc
    */
   bool AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo
    */
   bool AddMoveTo(Vector2 point) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo
    */
   bool AddLineTo(Vector2 line) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo
    */
   bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::Close()
+   * @copydoc Dali::CanvasRenderer::Shape::Close
    */
   bool Close() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::ResetPath()
+   * @copydoc Dali::CanvasRenderer::Shape::ResetPath
    */
   bool ResetPath() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor()
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor
    */
   bool SetFillColor(Vector4 color) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor
    */
   Vector4 GetFillColor() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule
    */
   bool SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule()
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule
    */
   Dali::CanvasRenderer::Shape::FillRule GetFillRule() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth
    */
   bool SetStrokeWidth(float width) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth
    */
   float GetStrokeWidth() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor
    */
   bool SetStrokeColor(Vector4 color) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor
    */
   Vector4 GetStrokeColor() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash
    */
   bool SetStrokeDash(const Dali::Vector<float> dashPattern) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash
    */
   Dali::Vector<float> GetStrokeDash() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap
    */
   bool SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap
    */
   Dali::CanvasRenderer::Shape::StrokeCap GetStrokeCap() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin
    */
   bool SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin
    */
   Dali::CanvasRenderer::Shape::StrokeJoin GetStrokeJoin() const override;
 

@@ -52,112 +52,112 @@ public:
   ~Shape() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddRect()
+   * @copydoc Dali::CanvasRenderer::Shape::AddRect
    */
   virtual bool AddRect(Rect<float> rect, Vector2 roundedCorner);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCircle()
+   * @copydoc Dali::CanvasRenderer::Shape::AddCircle
    */
   virtual bool AddCircle(Vector2 center, Vector2 radius);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddArc()
+   * @copydoc Dali::CanvasRenderer::Shape::AddArc
    */
   virtual bool AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddMoveTo
    */
   virtual bool AddMoveTo(Vector2 point);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddLineTo
    */
   virtual bool AddLineTo(Vector2 line);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo()
+   * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo
    */
   virtual bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::Close()
+   * @copydoc Dali::CanvasRenderer::Shape::Close
    */
   virtual bool Close();
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::ResetPath()
+   * @copydoc Dali::CanvasRenderer::Shape::ResetPath
    */
   virtual bool ResetPath();
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor()
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillColor
    */
   virtual bool SetFillColor(Vector4 color);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillColor
    */
   virtual Vector4 GetFillColor() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillRule
    */
   virtual bool SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule()
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillRule
    */
   virtual Dali::CanvasRenderer::Shape::FillRule GetFillRule() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeWidth
    */
   virtual bool SetStrokeWidth(float width);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeWidth
    */
   virtual float GetStrokeWidth() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeColor
    */
   virtual bool SetStrokeColor(Vector4 color);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor
    */
   virtual Vector4 GetStrokeColor() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash
    */
   virtual bool SetStrokeDash(const Dali::Vector<float> dashPattern);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeDash
    */
   virtual Dali::Vector<float> GetStrokeDash() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeCap
    */
   virtual bool SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeCap
    */
   virtual Dali::CanvasRenderer::Shape::StrokeCap GetStrokeCap() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin()
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeJoin
    */
   virtual bool SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin()
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeJoin
    */
   virtual Dali::CanvasRenderer::Shape::StrokeJoin GetStrokeJoin() const;
 
