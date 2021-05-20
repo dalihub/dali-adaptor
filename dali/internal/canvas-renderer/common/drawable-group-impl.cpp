@@ -38,11 +38,6 @@ bool DrawableGroup::Clear()
   return false;
 }
 
-std::vector<Dali::CanvasRenderer::Drawable> DrawableGroup::GetDrawables()
-{
-  return std::vector<Dali::CanvasRenderer::Drawable>();
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

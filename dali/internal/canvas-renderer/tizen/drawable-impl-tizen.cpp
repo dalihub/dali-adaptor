@@ -48,8 +48,7 @@ DrawableTizen* DrawableTizen::New()
 
 DrawableTizen::DrawableTizen()
 : mAdded(false),
-  mChanged(false),
-  mType(Drawable::DrawableTypes::NONE)
+  mChanged(false)
 #ifdef THORVG_SUPPORT
   ,
   mTvgPaint(nullptr)
@@ -60,7 +59,7 @@ DrawableTizen::DrawableTizen()
 DrawableTizen::~DrawableTizen()
 {
 #ifdef THORVG_SUPPORT
-  if(mTvgPaint)
+  if(mTvgPaint && !mAdded)
   {
     delete mTvgPaint;
   }
@@ -213,6 +212,17 @@ void DrawableTizen::SetObject(const void* object)
   {
     mTvgPaint = static_cast<tvg::Paint*>((void*)object);
   }
+  else
+  {
+    if(mAdded)
+    {
+      mTvgPaint = nullptr;
+    }
+    if(mTvgPaint)
+    {
+      delete mTvgPaint;
+    }
+  }
 #endif
 }
 
@@ -225,16 +235,6 @@ void DrawableTizen::SetChanged(bool changed)
 bool DrawableTizen::GetChanged() const
 {
   return mChanged;
-}
-
-void DrawableTizen::SetDrawableType(Drawable::DrawableTypes type)
-{
-  mType = type;
-}
-
-Drawable::DrawableTypes DrawableTizen::GetDrawableType() const
-{
-  return mType;
 }
 } // namespace Adaptor
 

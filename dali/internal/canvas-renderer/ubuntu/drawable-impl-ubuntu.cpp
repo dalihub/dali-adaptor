@@ -48,8 +48,7 @@ DrawableUbuntu* DrawableUbuntu::New()
 
 DrawableUbuntu::DrawableUbuntu()
 : mAdded(false),
-  mChanged(false),
-  mType(Drawable::DrawableTypes::NONE)
+  mChanged(false)
 #ifdef THORVG_SUPPORT
   ,
   mTvgPaint(nullptr)
@@ -60,7 +59,7 @@ DrawableUbuntu::DrawableUbuntu()
 DrawableUbuntu::~DrawableUbuntu()
 {
 #ifdef THORVG_SUPPORT
-  if(mTvgPaint)
+  if(mTvgPaint && !mAdded)
   {
     delete mTvgPaint;
   }
@@ -213,6 +212,17 @@ void DrawableUbuntu::SetObject(const void* object)
   {
     mTvgPaint = static_cast<tvg::Paint*>((void*)object);
   }
+  else
+  {
+    if(mAdded)
+    {
+      mTvgPaint = nullptr;
+    }
+    if(mTvgPaint)
+    {
+      delete mTvgPaint;
+    }
+  }
 #endif
 }
 
@@ -225,16 +235,6 @@ void DrawableUbuntu::SetChanged(bool changed)
 bool DrawableUbuntu::GetChanged() const
 {
   return mChanged;
-}
-
-void DrawableUbuntu::SetDrawableType(Drawable::DrawableTypes type)
-{
-  mType = type;
-}
-
-Drawable::DrawableTypes DrawableUbuntu::GetDrawableType() const
-{
-  return mType;
 }
 } // namespace Adaptor
 

@@ -24,7 +24,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
@@ -67,14 +66,16 @@ CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
 CanvasRendererTizen::~CanvasRendererTizen()
 {
 #ifdef THORVG_SUPPORT
-  //This clear function will do free all tvg::Paint object that added.
-  if(mTvgCanvas->clear() != tvg::Result::Success)
+  for(auto& it : mDrawables)
   {
-    DALI_LOG_ERROR("ThorVG canvas clear fail [%p]\n", this);
+    Dali::CanvasRenderer::Drawable drawable = it.GetHandle();
+    if(DALI_UNLIKELY(!drawable))
+    {
+      continue;
+    }
+    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
+    drawableImpl.SetObject(nullptr);
   }
-
-  mDrawables.clear();
-
   //Terminate ThorVG Engine
   tvg::Initializer::term(tvg::CanvasEngine::Sw);
 #endif
@@ -96,6 +97,10 @@ void CanvasRendererTizen::Initialize(const Vector2& viewBox)
   }
 
   MakeTargetBuffer(mSize);
+
+  auto scene = tvg::Scene::gen();
+  mTvgRoot   = scene.get();
+  mTvgCanvas->push(move(scene));
 #endif
 }
 
@@ -106,7 +111,12 @@ bool CanvasRendererTizen::Commit()
 
   for(auto& it : mDrawables)
   {
-    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(it);
+    Dali::CanvasRenderer::Drawable drawable = it.GetHandle();
+    if(DALI_UNLIKELY(!drawable))
+    {
+      continue;
+    }
+    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
     if(drawableImpl.GetChanged())
     {
       changed = true;
@@ -131,25 +141,6 @@ bool CanvasRendererTizen::Commit()
   {
     DALI_LOG_ERROR("Size is zero [%p]\n", this);
     return false;
-  }
-
-  if(mTvgCanvas->clear() != tvg::Result::Success)
-  {
-    DALI_LOG_ERROR("ThorVG canvas clear fail [%p]\n", this);
-    return false;
-  }
-
-  auto scene = tvg::Scene::gen();
-  mTvgRoot   = scene.get();
-  if(mTvgCanvas->push(move(scene)) != tvg::Result::Success)
-  {
-    DALI_LOG_ERROR("ThorVG canvas push fail [%p]\n", this);
-    return false;
-  }
-
-  for(auto& it : mDrawables)
-  {
-    PushDrawableToParent(it, mTvgRoot);
   }
 
   if(mViewBox != mSize)
@@ -184,7 +175,7 @@ bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 #ifdef THORVG_SUPPORT
   for(auto& it : mDrawables)
   {
-    if(it == drawable)
+    if(it.GetHandle() == drawable)
     {
       DALI_LOG_ERROR("Already added [%p]\n", this);
       return false;
@@ -192,9 +183,21 @@ bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   }
 
   Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
+  tvg::Paint*                  pDrawable    = static_cast<tvg::Paint*>(drawableImpl.GetObject());
+  if(!pDrawable)
+  {
+    DALI_LOG_ERROR("Invalid drawable object [%p]\n", this);
+    return false;
+  }
   if(mSize.width < 1.0f || mSize.height < 1.0f)
   {
     DALI_LOG_ERROR("Size is zero [%p]\n", this);
+    return false;
+  }
+
+  if(mTvgRoot->push(std::unique_ptr<tvg::Paint>(pDrawable)) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
     return false;
   }
 
@@ -248,37 +251,6 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
   mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ABGR8888);
 #endif
 }
-
-#ifdef THORVG_SUPPORT
-void CanvasRendererTizen::PushDrawableToParent(Dali::CanvasRenderer::Drawable& drawable, tvg::Scene* parent)
-{
-  Internal::Adaptor::Drawable& drawableImpl        = Dali::GetImplementation(drawable);
-  tvg::Paint*                  tvgDuplicatedObject = static_cast<tvg::Paint*>(drawableImpl.GetObject())->duplicate();
-  if(!tvgDuplicatedObject)
-  {
-    DALI_LOG_ERROR("Invalid drawable object [%p]\n", this);
-    return;
-  }
-  Drawable::DrawableTypes type = drawableImpl.GetDrawableType();
-
-  if(type == Drawable::DrawableTypes::DRAWABLE_GROUP)
-  {
-    Dali::CanvasRenderer::DrawableGroup&        group             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(drawable);
-    Internal::Adaptor::DrawableGroup&           drawableGroupImpl = Dali::GetImplementation(group);
-    std::vector<Dali::CanvasRenderer::Drawable> drawables         = drawableGroupImpl.GetDrawables();
-    for(auto& it : drawables)
-    {
-      PushDrawableToParent(it, static_cast<tvg::Scene*>(tvgDuplicatedObject));
-    }
-  }
-
-  if(parent->push(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject))) != tvg::Result::Success)
-  {
-    DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
-    return;
-  }
-}
-#endif
 
 } // namespace Adaptor
 
