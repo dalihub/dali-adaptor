@@ -67,32 +67,32 @@ public:
   void Create();
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity()
+   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity
    */
   virtual bool SetOpacity(float opacity);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity()
+   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity
    */
   virtual float GetOpacity() const;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Rotate()
+   * @copydoc Dali::CanvasRenderer::Drawable::Rotate
    */
   virtual bool Rotate(Degree degree);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Scale()
+   * @copydoc Dali::CanvasRenderer::Drawable::Scale
    */
   virtual bool Scale(float factor);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Translate()
+   * @copydoc Dali::CanvasRenderer::Drawable::Translate
    */
   virtual bool Translate(Vector2 translate);
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Transform()
+   * @copydoc Dali::CanvasRenderer::Drawable::Transform
    */
   virtual bool Transform(const Dali::Matrix3& matrix);
 

@@ -49,72 +49,72 @@ public:
   static DrawableUbuntu* New();
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity()
+   * @copydoc Dali::CanvasRenderer::Drawable::SetOpacity
    */
   bool SetOpacity(float opacity) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity()
+   * @copydoc Dali::CanvasRenderer::Drawable::GetOpacity
    */
   float GetOpacity() const override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Rotate()
+   * @copydoc Dali::CanvasRenderer::Drawable::Rotate
    */
   bool Rotate(Degree degree) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Scale()
+   * @copydoc Dali::CanvasRenderer::Drawable::Scale
    */
   bool Scale(float factor) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Translate()
+   * @copydoc Dali::CanvasRenderer::Drawable::Translate
    */
   bool Translate(Vector2 translate) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::Drawable::Transform()
+   * @copydoc Dali::CanvasRenderer::Drawable::Transform
    */
   bool Transform(const Dali::Matrix3& matrix) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetDrawableAdded()
+   * @copydoc Internal::Adaptor::Drawable::SetDrawableAdded
    */
   void SetDrawableAdded(bool added) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::IsDrawableAdded()
+   * @copydoc Internal::Adaptor::Drawable::IsDrawableAdded
    */
   bool IsDrawableAdded() override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetObject()
+   * @copydoc Internal::Adaptor::Drawable::SetObject
    */
   void* GetObject() const override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::GetObject()
+   * @copydoc Internal::Adaptor::Drawable::GetObject
    */
   void SetObject(const void* object) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetChanged()
+   * @copydoc Internal::Adaptor::Drawable::SetChanged
    */
   void SetChanged(bool changed) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::GetChanged()
+   * @copydoc Internal::Adaptor::Drawable::GetChanged
    */
   bool GetChanged() const override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetDrawableType()
+   * @copydoc Internal::Adaptor::Drawable::SetDrawableType
    */
   void SetDrawableType(DrawableTypes type);
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::GetDrawableType()
+   * @copydoc Internal::Adaptor::Drawable::GetDrawableType
    */
   DrawableTypes GetDrawableType() const;
 
