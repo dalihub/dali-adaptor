@@ -92,12 +92,6 @@ public:
   virtual void SetDrawableAdded(bool added);
 
   /**
-   * @brief Returns whether this object was added to another object(canvas or drawable).
-   * @return Returns Ture if added, false otherwise.
-   */
-  virtual bool IsDrawableAdded();
-
-  /**
    * @brief Returns a drawable object pointer.
    * @return Returns a drawable object pointer.
    */

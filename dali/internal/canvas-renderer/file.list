@@ -12,11 +12,6 @@ SET( adaptor_canvas_renderer_generic_src_files
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/generic/shape-factory-generic.cpp
     ${adaptor_canvas_renderer_dir}/generic/shape-impl-generic.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-factory.cpp
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-group-factory-generic.cpp
-    ${adaptor_canvas_renderer_dir}/generic/drawable-group-impl-generic.cpp
 )
 
 # module: canvas-renderer, backend: ubuntu
@@ -32,11 +27,6 @@ SET( adaptor_canvas_renderer_ubuntu_src_files
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/shape-factory-ubuntu.cpp
     ${adaptor_canvas_renderer_dir}/ubuntu/shape-impl-ubuntu.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-factory.cpp
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-group-factory-ubuntu.cpp
-    ${adaptor_canvas_renderer_dir}/ubuntu/drawable-group-impl-ubuntu.cpp
 )
 
 # module: canvas-renderer, backend: tizen (generic, ivi, mobile, tizen-post, tv, wearable)
@@ -52,9 +42,4 @@ SET( adaptor_canvas_renderer_tizen_src_files
     ${adaptor_canvas_renderer_dir}/common/shape-impl.cpp
     ${adaptor_canvas_renderer_dir}/tizen/shape-factory-tizen.cpp
     ${adaptor_canvas_renderer_dir}/tizen/shape-impl-tizen.cpp
-
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-factory.cpp
-    ${adaptor_canvas_renderer_dir}/common/drawable-group-impl.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-group-factory-tizen.cpp
-    ${adaptor_canvas_renderer_dir}/tizen/drawable-group-impl-tizen.cpp
 )

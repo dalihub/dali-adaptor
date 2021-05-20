@@ -83,11 +83,6 @@ public:
   void SetDrawableAdded(bool added) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::IsDrawableAdded
-   */
-  bool IsDrawableAdded() override;
-
-  /**
    * @copydoc Internal::Adaptor::Drawable::SetObject
    */
   void SetObject(const void* object) override;
