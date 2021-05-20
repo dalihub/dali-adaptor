@@ -108,16 +108,6 @@ public:
    */
   bool GetChanged() const override;
 
-  /**
-   * @copydoc Internal::Adaptor::Drawable::SetDrawableType
-   */
-  void SetDrawableType(DrawableTypes type);
-
-  /**
-   * @copydoc Internal::Adaptor::Drawable::GetDrawableType
-   */
-  DrawableTypes GetDrawableType() const;
-
   DrawableUbuntu(const Drawable&) = delete;
   DrawableUbuntu& operator=(Drawable&) = delete;
   DrawableUbuntu(Drawable&&)           = delete;
@@ -135,9 +125,8 @@ protected:
   virtual ~DrawableUbuntu() override;
 
 private:
-  bool                    mAdded;
-  bool                    mChanged;
-  Drawable::DrawableTypes mType;
+  bool mAdded;
+  bool mChanged;
 
 #ifdef THORVG_SUPPORT
   tvg::Paint* mTvgPaint;

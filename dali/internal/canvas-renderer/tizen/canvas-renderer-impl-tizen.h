@@ -103,16 +103,6 @@ private:
    */
   void MakeTargetBuffer(const Vector2& size);
 
-#ifdef THORVG_SUPPORT
-  /**
-   * @brief Push drawable object to parent.
-   * If drawable is a type that can have child drawables, it is called recursively.
-   * @param[in] drawable The drawable object.
-   * @param[in] parent The scene object of tvg that can be parent.
-   */
-  void PushDrawableToParent(Dali::CanvasRenderer::Drawable& drawable, tvg::Scene* parent);
-#endif
-
 private:
   Devel::PixelBuffer mPixelBuffer;
 
@@ -120,7 +110,8 @@ private:
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
   tvg::Scene*                    mTvgRoot;
 #endif
-  using DrawableVector = std::vector<Dali::CanvasRenderer::Drawable>;
+  using DrawableVector         = std::vector<WeakHandle<Dali::CanvasRenderer::Drawable>>;
+  using DrawableVectorIterator = DrawableVector::iterator;
   DrawableVector mDrawables;
 
   Vector2 mSize;

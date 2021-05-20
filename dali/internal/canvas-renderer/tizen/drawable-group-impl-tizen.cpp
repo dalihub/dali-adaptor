@@ -71,22 +71,15 @@ void DrawableGroupTizen::Initialize()
 
   Drawable::Create();
   Drawable::SetObject(static_cast<void*>(mTvgScene));
-  Drawable::SetDrawableType(Drawable::DrawableTypes::DRAWABLE_GROUP);
 #endif
 }
 
 bool DrawableGroupTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgScene)
-  {
-    DALI_LOG_ERROR("DrawableGroup is null\n");
-    return false;
-  }
-
   for(auto& it : mDrawables)
   {
-    if(it == drawable)
+    if(it.GetHandle() == drawable)
     {
       DALI_LOG_ERROR("Already added [%p][%p]\n", this, &drawable);
       return false;
@@ -94,9 +87,22 @@ bool DrawableGroupTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   }
 
   Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(drawable);
+  tvg::Paint*                  pDrawable    = static_cast<tvg::Paint*>(drawableImpl.GetObject());
+  if(!pDrawable)
+  {
+    DALI_LOG_ERROR("Invalid drawable object [%p]\n", this);
+    return false;
+  }
+
   if(drawableImpl.IsDrawableAdded())
   {
     DALI_LOG_ERROR("Already added somewhere [%p][%p]\n", this, &drawable);
+    return false;
+  }
+
+  if(mTvgScene->push(std::unique_ptr<tvg::Paint>(pDrawable)) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
     return false;
   }
 
@@ -113,7 +119,7 @@ bool DrawableGroupTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 bool DrawableGroupTizen::Clear()
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgScene)
+  if(!mTvgScene)
   {
     DALI_LOG_ERROR("DrawableGroup is null\n");
     return false;
@@ -121,7 +127,12 @@ bool DrawableGroupTizen::Clear()
 
   for(auto& it : mDrawables)
   {
-    Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(it);
+    Dali::CanvasRenderer::Drawable drawable = it.GetHandle();
+    if(DALI_UNLIKELY(!drawable))
+    {
+      continue;
+    }
+    Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(drawable);
     drawableImpl.SetDrawableAdded(false);
   }
 
@@ -139,11 +150,6 @@ bool DrawableGroupTizen::Clear()
 #else
   return false;
 #endif
-}
-
-std::vector<Dali::CanvasRenderer::Drawable> DrawableGroupTizen::GetDrawables()
-{
-  return mDrawables;
 }
 
 } // namespace Adaptor

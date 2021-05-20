@@ -151,24 +151,6 @@ bool Drawable::GetChanged() const
   return pImpl->GetChanged();
 }
 
-void Drawable::SetDrawableType(Drawable::DrawableTypes type)
-{
-  if(!pImpl)
-  {
-    return;
-  }
-  pImpl->SetDrawableType(type);
-}
-
-Drawable::DrawableTypes Drawable::GetDrawableType() const
-{
-  if(!pImpl)
-  {
-    return Drawable::DrawableTypes::NONE;
-  }
-  return pImpl->GetDrawableType();
-}
-
 Dali::Internal::Adaptor::Drawable* Drawable::GetImplementation()
 {
   return pImpl;

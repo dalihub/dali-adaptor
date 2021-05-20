@@ -68,14 +68,13 @@ void ShapeTizen::Initialize()
 
   Drawable::Create();
   Drawable::SetObject(static_cast<void*>(mTvgShape));
-  Drawable::SetDrawableType(Drawable::DrawableTypes::SHAPE);
 #endif
 }
 
 bool ShapeTizen::AddRect(Rect<float> rect, Vector2 roundedCorner)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null [%p]\n", this);
     return false;
@@ -95,7 +94,7 @@ bool ShapeTizen::AddRect(Rect<float> rect, Vector2 roundedCorner)
 bool ShapeTizen::AddCircle(Vector2 center, Vector2 radius)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null [%p]\n", this);
     return false;
@@ -115,7 +114,7 @@ bool ShapeTizen::AddCircle(Vector2 center, Vector2 radius)
 bool ShapeTizen::AddArc(Vector2 center, float radius, float startAngle, float sweep, bool pie)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -136,7 +135,7 @@ bool ShapeTizen::AddArc(Vector2 center, float radius, float startAngle, float sw
 bool ShapeTizen::AddMoveTo(Vector2 point)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -157,7 +156,7 @@ bool ShapeTizen::AddMoveTo(Vector2 point)
 bool ShapeTizen::AddLineTo(Vector2 line)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -178,7 +177,7 @@ bool ShapeTizen::AddLineTo(Vector2 line)
 bool ShapeTizen::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -199,7 +198,7 @@ bool ShapeTizen::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector
 bool ShapeTizen::Close()
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -220,7 +219,7 @@ bool ShapeTizen::Close()
 bool ShapeTizen::ResetPath()
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -241,7 +240,7 @@ bool ShapeTizen::ResetPath()
 bool ShapeTizen::SetFillColor(Vector4 color)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null [%p]\n", this);
     return false;
@@ -262,7 +261,7 @@ bool ShapeTizen::SetFillColor(Vector4 color)
 Vector4 ShapeTizen::GetFillColor() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null [%p]\n", this);
     return Vector4(0, 0, 0, 0);
@@ -283,7 +282,7 @@ Vector4 ShapeTizen::GetFillColor() const
 bool ShapeTizen::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -303,7 +302,7 @@ bool ShapeTizen::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
 Dali::CanvasRenderer::Shape::FillRule ShapeTizen::GetFillRule() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return Dali::CanvasRenderer::Shape::FillRule::WINDING;
@@ -319,7 +318,7 @@ Dali::CanvasRenderer::Shape::FillRule ShapeTizen::GetFillRule() const
 bool ShapeTizen::SetStrokeWidth(float width)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -340,7 +339,7 @@ bool ShapeTizen::SetStrokeWidth(float width)
 float ShapeTizen::GetStrokeWidth() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -354,7 +353,7 @@ float ShapeTizen::GetStrokeWidth() const
 bool ShapeTizen::SetStrokeColor(Vector4 color)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -375,7 +374,7 @@ bool ShapeTizen::SetStrokeColor(Vector4 color)
 Vector4 ShapeTizen::GetStrokeColor() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return Vector4(0, 0, 0, 0);
@@ -397,7 +396,7 @@ Vector4 ShapeTizen::GetStrokeColor() const
 bool ShapeTizen::SetStrokeDash(const Dali::Vector<float> dashPattern)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -425,7 +424,7 @@ bool ShapeTizen::SetStrokeDash(const Dali::Vector<float> dashPattern)
 Dali::Vector<float> ShapeTizen::GetStrokeDash() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return Vector<float>();
@@ -457,11 +456,12 @@ Dali::Vector<float> ShapeTizen::GetStrokeDash() const
 bool ShapeTizen::SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
   }
+
   if(static_cast<tvg::Shape*>(mTvgShape)->stroke(static_cast<tvg::StrokeCap>(cap)) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("SetStrokeCap fail.\n");
@@ -477,7 +477,7 @@ bool ShapeTizen::SetStrokeCap(Dali::CanvasRenderer::Shape::StrokeCap cap)
 Dali::CanvasRenderer::Shape::StrokeCap ShapeTizen::GetStrokeCap() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return Dali::CanvasRenderer::Shape::StrokeCap::SQUARE;
@@ -493,7 +493,7 @@ Dali::CanvasRenderer::Shape::StrokeCap ShapeTizen::GetStrokeCap() const
 bool ShapeTizen::SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join)
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return false;
@@ -514,7 +514,7 @@ bool ShapeTizen::SetStrokeJoin(Dali::CanvasRenderer::Shape::StrokeJoin join)
 Dali::CanvasRenderer::Shape::StrokeJoin ShapeTizen::GetStrokeJoin() const
 {
 #ifdef THORVG_SUPPORT
-  if(!Drawable::GetObject() || !mTvgShape)
+  if(!mTvgShape)
   {
     DALI_LOG_ERROR("Shape is null\n");
     return Dali::CanvasRenderer::Shape::StrokeJoin::BEVEL;
