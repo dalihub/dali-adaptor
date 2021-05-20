@@ -191,11 +191,6 @@ void DrawableUbuntu::SetDrawableAdded(bool added)
   mAdded = !!added;
 }
 
-bool DrawableUbuntu::IsDrawableAdded()
-{
-  return mAdded;
-}
-
 void* DrawableUbuntu::GetObject() const
 {
 #ifdef THORVG_SUPPORT

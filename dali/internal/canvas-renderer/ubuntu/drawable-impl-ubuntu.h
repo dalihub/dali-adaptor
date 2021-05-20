@@ -79,14 +79,9 @@ public:
   bool Transform(const Dali::Matrix3& matrix) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetDrawableAdded
+   * @copydoc Internal::Adaptor::Drawable::SetdrawableAdded
    */
   void SetDrawableAdded(bool added) override;
-
-  /**
-   * @copydoc Internal::Adaptor::Drawable::IsDrawableAdded
-   */
-  bool IsDrawableAdded() override;
 
   /**
    * @copydoc Internal::Adaptor::Drawable::SetObject

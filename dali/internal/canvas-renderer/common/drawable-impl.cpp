@@ -106,15 +106,6 @@ void Drawable::SetDrawableAdded(bool added)
   pImpl->SetDrawableAdded(added);
 }
 
-bool Drawable::IsDrawableAdded()
-{
-  if(!pImpl)
-  {
-    return false;
-  }
-  return pImpl->IsDrawableAdded();
-}
-
 void* Drawable::GetObject() const
 {
   if(!pImpl)

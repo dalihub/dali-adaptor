@@ -174,9 +174,6 @@ private:
   virtual ~ShapeTizen() override;
 
 private:
-  /**
-   * @brief Initializes member data.
-   */
   void Initialize();
 
 #ifdef THORVG_SUPPORT
