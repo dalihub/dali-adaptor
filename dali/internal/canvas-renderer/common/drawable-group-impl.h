@@ -48,12 +48,12 @@ public:
   ~DrawableGroup() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
    */
   virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear()
    */
   virtual bool Clear();
 
