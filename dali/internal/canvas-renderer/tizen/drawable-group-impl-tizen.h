@@ -48,17 +48,17 @@ public:
   static DrawableGroupTizen* New();
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
    */
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear()
    */
   bool Clear() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::GetDrawables
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::GetDrawables()
    */
   std::vector<Dali::CanvasRenderer::Drawable> GetDrawables() override;
 
