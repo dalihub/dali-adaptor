@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_GLES_SYNC_OBJECT_H
-#define DALI_GRAPHICS_GLES_SYNC_OBJECT_H
+#ifndef DALI_GRAPHICS_EGL_SYNC_OBJECT_H
+#define DALI_GRAPHICS_EGL_SYNC_OBJECT_H
 
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
@@ -22,7 +22,6 @@
 #include <dali/graphics-api/graphics-sync-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-resource.h>
 
 namespace Dali::Internal::Adaptor
@@ -31,9 +30,9 @@ class EglSyncImplementation;
 class EglSyncObject;
 } // namespace Dali::Internal::Adaptor
 
-namespace Dali::Graphics::GLES
+namespace Dali::Graphics::EGL
 {
-using SyncObjectResource = Resource<Graphics::SyncObject, Graphics::SyncObjectCreateInfo>;
+using SyncObjectResource = GLES::Resource<Graphics::SyncObject, Graphics::SyncObjectCreateInfo>;
 
 class SyncObject : public SyncObjectResource
 {
@@ -76,9 +75,10 @@ public:
   bool IsSynced() override;
 
 private:
-  GLsync mGlSyncObject;
+  Internal::Adaptor::EglSyncImplementation& mEglSyncImplementation;
+  Internal::Adaptor::EglSyncObject*         mEglSyncObject;
 };
 
-} // namespace Dali::Graphics::GLES
+} // namespace Dali::Graphics::EGL
 
-#endif //DALI_GRAPHICS_GLES_SYNC_OBJECT_H
+#endif //DALI_GRAPHICS_EGL_SYNC_OBJECT_H
