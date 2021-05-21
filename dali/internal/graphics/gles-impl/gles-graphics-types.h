@@ -1128,6 +1128,71 @@ struct GLTextureFormatType
   uint32_t type{0};
 };
 
+struct FormatCompression
+{
+  /**
+   * Constuctor from Graphics::Format
+   * @param value
+   */
+  constexpr explicit FormatCompression(Graphics::Format value)
+  {
+    switch(value)
+    {
+      case Graphics::Format::ETC2_R8G8B8_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8_SRGB_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A1_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A1_SRGB_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A8_SRGB_BLOCK:
+      case Graphics::Format::EAC_R11_UNORM_BLOCK:
+      case Graphics::Format::EAC_R11_SNORM_BLOCK:
+      case Graphics::Format::EAC_R11G11_UNORM_BLOCK:
+      case Graphics::Format::EAC_R11G11_SNORM_BLOCK:
+      case Graphics::Format::ASTC_4x4_UNORM_BLOCK:
+      case Graphics::Format::ASTC_4x4_SRGB_BLOCK:
+      case Graphics::Format::ASTC_5x4_UNORM_BLOCK:
+      case Graphics::Format::ASTC_5x4_SRGB_BLOCK:
+      case Graphics::Format::ASTC_5x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_5x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_6x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_6x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_6x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_6x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x8_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x8_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x8_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x8_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x10_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x10_SRGB_BLOCK:
+      case Graphics::Format::ASTC_12x10_UNORM_BLOCK:
+      case Graphics::Format::ASTC_12x10_SRGB_BLOCK:
+      case Graphics::Format::ASTC_12x12_UNORM_BLOCK:
+      case Graphics::Format::ASTC_12x12_SRGB_BLOCK:
+      case Graphics::Format::PVRTC1_2BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_4BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_4BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_2BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_4BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_2BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_4BPP_SRGB_BLOCK_IMG:
+        compressed = true;
+        break;
+      default:
+        break;
+    }
+  }
+  bool compressed{false};
+};
+
 struct GLSamplerFilter
 {
   constexpr explicit GLSamplerFilter(Graphics::SamplerFilter filter)

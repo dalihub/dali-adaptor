@@ -170,7 +170,8 @@ bool Texture::InitializeTexture()
 
   GLuint texture{0};
 
-  mGlTarget = GLTextureTarget(mCreateInfo.textureType).target;
+  mGlTarget     = GLTextureTarget(mCreateInfo.textureType).target;
+  mIsCompressed = Graphics::GLES::FormatCompression(mCreateInfo.format).compressed;
 
   switch(mCreateInfo.textureType)
   {
@@ -187,15 +188,29 @@ bool Texture::InitializeTexture()
         gl->BindTexture(GL_TEXTURE_2D, texture);
 
         // Allocate memory for the texture
-        gl->TexImage2D(GL_TEXTURE_2D,
-                       0,
-                       format.internalFormat,
-                       mCreateInfo.size.width,
-                       mCreateInfo.size.height,
-                       0,
-                       format.format,
-                       format.type,
-                       (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        if(!mIsCompressed)
+        {
+          gl->TexImage2D(GL_TEXTURE_2D,
+                         0,
+                         format.internalFormat,
+                         mCreateInfo.size.width,
+                         mCreateInfo.size.height,
+                         0,
+                         format.format,
+                         format.type,
+                         (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        }
+        else
+        {
+          gl->CompressedTexImage2D(GL_TEXTURE_2D,
+                                   0,
+                                   format.internalFormat,
+                                   mCreateInfo.size.width,
+                                   mCreateInfo.size.height,
+                                   0,
+                                   mCreateInfo.dataSize,
+                                   (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        }
 
         // Clear staging buffer if there was any
         mStagingBuffer.clear();
@@ -229,15 +244,29 @@ bool Texture::InitializeTexture()
         // Allocate memory for the texture
         for(uint32_t i = 0; i < 6; ++i)
         {
-          gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0,
-                         format.internalFormat,
-                         mCreateInfo.size.width,
-                         mCreateInfo.size.height,
-                         0,
-                         format.format,
-                         format.type,
-                         (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          if(!mIsCompressed)
+          {
+            gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                           0,
+                           format.internalFormat,
+                           mCreateInfo.size.width,
+                           mCreateInfo.size.height,
+                           0,
+                           format.format,
+                           format.type,
+                           (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
+          else
+          {
+            gl->CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                                     0,
+                                     format.internalFormat,
+                                     mCreateInfo.size.width,
+                                     mCreateInfo.size.height,
+                                     0,
+                                     mCreateInfo.dataSize,
+                                     (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
         }
 
         // Clear staging buffer if there was any

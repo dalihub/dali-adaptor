@@ -131,12 +131,18 @@ public:
 
   Format ValidateFormat(Format sourceFormat);
 
+  bool IsCompressed()
+  {
+    return mIsCompressed;
+  }
+
 private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
   uint32_t          mMaxMipMapLevel{0u};
   void*             mGLOwnerContext{nullptr};
+  bool              mIsCompressed{false};
 };
 
 } // namespace Dali::Graphics::GLES
