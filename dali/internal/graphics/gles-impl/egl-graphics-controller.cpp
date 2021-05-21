@@ -606,27 +606,56 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
 
       if(!isSubImage)
       {
-        mGlAbstraction->TexImage2D(target,
-                                   info.level,
-                                   destInternalFormat,
-                                   info.srcExtent2D.width,
-                                   info.srcExtent2D.height,
-                                   0,
-                                   srcFormat,
-                                   srcType,
-                                   sourceBuffer);
+        if(!texture->IsCompressed())
+        {
+          mGlAbstraction->TexImage2D(target,
+                                     info.level,
+                                     destInternalFormat,
+                                     info.srcExtent2D.width,
+                                     info.srcExtent2D.height,
+                                     0,
+                                     srcFormat,
+                                     srcType,
+                                     sourceBuffer);
+        }
+        else
+        {
+          mGlAbstraction->CompressedTexImage2D(target,
+                                               info.level,
+                                               destInternalFormat,
+                                               info.srcExtent2D.width,
+                                               info.srcExtent2D.height,
+                                               0,
+                                               info.srcSize,
+                                               sourceBuffer);
+        }
       }
       else
       {
-        mGlAbstraction->TexSubImage2D(target,
-                                      info.level,
-                                      info.dstOffset2D.x,
-                                      info.dstOffset2D.y,
-                                      info.srcExtent2D.width,
-                                      info.srcExtent2D.height,
-                                      srcFormat,
-                                      srcType,
-                                      sourceBuffer);
+        if(!texture->IsCompressed())
+        {
+          mGlAbstraction->TexSubImage2D(target,
+                                        info.level,
+                                        info.dstOffset2D.x,
+                                        info.dstOffset2D.y,
+                                        info.srcExtent2D.width,
+                                        info.srcExtent2D.height,
+                                        srcFormat,
+                                        srcType,
+                                        sourceBuffer);
+        }
+        else
+        {
+          mGlAbstraction->CompressedTexSubImage2D(target,
+                                                  info.level,
+                                                  info.dstOffset2D.x,
+                                                  info.dstOffset2D.y,
+                                                  info.srcExtent2D.width,
+                                                  info.srcExtent2D.height,
+                                                  srcFormat,
+                                                  info.srcSize,
+                                                  sourceBuffer);
+        }
       }
       // free staging memory
       free(source.memorySource.memory);
