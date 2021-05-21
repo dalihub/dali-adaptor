@@ -27,14 +27,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-class s;
-
 namespace DrawableFactory
 {
 /**
-   * @brief Creates new instance of Drawable implementation
-   * @return pointer to Drawable implementation instance
-   */
+ * @brief Creates new instance of Drawable implementation
+ * @return pointer to Drawable implementation instance
+ */
 Dali::Internal::Adaptor::Drawable* New();
 
 } // namespace DrawableFactory

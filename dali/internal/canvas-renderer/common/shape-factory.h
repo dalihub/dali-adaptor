@@ -27,14 +27,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-class s;
-
 namespace ShapeFactory
 {
 /**
-   * @brief Creates new instance of Shape implementation
-   * @return pointer to Shape implementation instance
-   */
+ * @brief Creates new instance of Shape implementation
+ * @return pointer to Shape implementation instance
+ */
 Dali::Internal::Adaptor::Shape* New();
 
 } // namespace ShapeFactory
