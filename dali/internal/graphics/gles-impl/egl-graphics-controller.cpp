@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-program.h>
@@ -256,7 +257,14 @@ Graphics::UniquePtr<RenderTarget> EglGraphicsController::CreateRenderTarget(cons
 Graphics::UniquePtr<SyncObject> EglGraphicsController::CreateSyncObject(const SyncObjectCreateInfo& syncObjectCreateInfo,
                                                                         UniquePtr<SyncObject>&&     oldSyncObject)
 {
-  return NewObject<GLES::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
+  if(GetGLESVersion() < GLES::GLESVersion::GLES_30)
+  {
+    return NewObject<EGL::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
+  }
+  else
+  {
+    return NewObject<GLES::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
+  }
 }
 
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
