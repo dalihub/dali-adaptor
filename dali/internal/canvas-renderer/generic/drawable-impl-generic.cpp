@@ -83,6 +83,11 @@ bool DrawableGeneric::Transform(const Dali::Matrix3& matrix)
   return false;
 }
 
+Rect<float> DrawableGeneric::GetBoundingBox() const
+{
+  return Rect<float>(0, 0, 0, 0);
+}
+
 void DrawableGeneric::SetDrawableAdded(bool added)
 {
 }
