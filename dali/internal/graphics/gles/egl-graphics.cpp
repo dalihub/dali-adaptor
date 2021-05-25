@@ -73,24 +73,24 @@ void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 
 void EglGraphics::ActivateResourceContext()
 {
-  mGraphicsController.ActivateResourceContext();
-
   if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
     // Make the shared surfaceless context as current before rendering
     mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
   }
+
+  mGraphicsController.ActivateResourceContext();
 }
 
 void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
-  mGraphicsController.ActivateSurfaceContext(surface);
-
   if(surface)
   {
     surface->InitializeGraphics();
     surface->MakeContextCurrent();
   }
+
+  mGraphicsController.ActivateSurfaceContext(surface);
 }
 
 void EglGraphics::SetFirstFrameAfterResume()
@@ -153,15 +153,14 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
   {
     // Create a surfaceless OpenGL context for shared resources
     mEglImplementation->CreateContext();
-    mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
+    ActivateResourceContext();
   }
   else
   {
     currentSurface = surface;
     if(currentSurface)
     {
-      currentSurface->InitializeGraphics();
-      currentSurface->MakeContextCurrent();
+      ActivateSurfaceContext(currentSurface);
     }
   }
 

@@ -19,6 +19,7 @@
  */
 
 #include <dali/graphics-api/graphics-command-buffer.h>
+#include "gles-context-state-cache.h"
 #include "gles-graphics-types.h"
 
 namespace Dali::Graphics
@@ -29,6 +30,8 @@ namespace GLES
 class Pipeline;
 class RenderPass;
 class RenderTarget;
+class Texture;
+
 /**
  * @brief Context represents single GLES context
  */
@@ -137,9 +140,43 @@ public:
    */
   void EndRenderPass();
 
+  /**
+   * @brief Returns the cache of GL state in the context
+   * @return the reference of GL state cache (which can be modified)
+   */
+  GLStateCache& GetGLStateCache();
+
+  /**
+   * @brief Called when the GL context has been created.
+   */
+  void GlContextCreated();
+
+  /**
+   * @brief Called when the GL context has been destroyed.
+   */
+  void GlContextDestroyed();
+
+  /**
+   * @brief Invalidates the cached pipeline object in the context if it matches
+   * This is called before the pipeline is deleted
+   *
+   * @param[in] pipeline The pipeline
+   */
+  void InvalidateCachedPipeline(GLES::Pipeline* pipeline);
+
+  void ActiveTexture(uint32_t textureBindingIndex);
+  void BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId);
+  void GenerateMipmap(GLenum target);
+  void BindBuffer(GLenum target, uint32_t bufferId);
+  void DrawBuffers(uint32_t count, const GLenum* buffers);
+  void BindFrameBuffer(GLenum target, uint32_t bufferId);
+  void GenFramebuffers(uint32_t count, uint32_t* framebuffers);
+  void DeleteFramebuffers(uint32_t count, uint32_t* framebuffers);
   void ColorMask(bool enabled);
   void ClearStencilBuffer();
   void ClearDepthBuffer();
+  void ClearBuffer(uint32_t mask, bool forceClear);
+  void SetScissorTestEnabled(bool scissorEnabled);
   void SetStencilTestEnable(bool stencilEnable);
   void StencilMask(uint32_t writeMask);
   void StencilFunc(Graphics::CompareOp compareOp,

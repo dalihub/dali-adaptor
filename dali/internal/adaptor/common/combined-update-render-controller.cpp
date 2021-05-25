@@ -690,13 +690,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           sceneSurfaceResized = scene.IsSurfaceRectChanged();
           windowSurface->SetIsResizing(sceneSurfaceResized);
 
-          windowSurface->InitializeGraphics();
-
           // clear previous frame damaged render items rects, buffer history is tracked on surface level
           mDamagedRects.clear();
 
           // Collect damage rects
           mCore.PreRender(scene, mDamagedRects);
+
+          graphics.ActivateSurfaceContext(windowSurface);
 
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);

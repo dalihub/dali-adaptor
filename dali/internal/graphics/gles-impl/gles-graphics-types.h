@@ -2018,6 +2018,17 @@ enum class GLESVersion
 };
 
 /**
+ * @brief Types of bond texture cached in the context
+ */
+enum class BoundTextureType
+{
+  TEXTURE_2D,
+  TEXTURE_3D,
+  TEXTURE_CUBEMAP,
+  TEXTURE_EXTERNAL_OES
+};
+
+/**
  * The descriptor of BeginRenderPass command
  */
 struct BeginRenderPassDescriptor

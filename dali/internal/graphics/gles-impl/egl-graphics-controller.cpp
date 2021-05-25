@@ -288,6 +288,7 @@ void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* s
 void EglGraphicsController::ActivateResourceContext()
 {
   mCurrentContext = mContext.get();
+  mCurrentContext->GlContextCreated();
 }
 
 void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
@@ -301,6 +302,7 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface*
     if(iter != mSurfaceContexts.end())
     {
       mCurrentContext = iter->second.get();
+      mCurrentContext->GlContextCreated();
     }
   }
 }
@@ -335,7 +337,7 @@ void EglGraphicsController::ProcessDiscardQueues()
   ProcessDiscardQueue<GLES::Framebuffer>(mDiscardFramebufferQueue);
 
   // Process pipelines
-  ProcessDiscardQueue<GLES::Pipeline>(mDiscardPipelineQueue);
+  ProcessDiscardQueue(mDiscardPipelineQueue);
 
   // Process programs
   ProcessDiscardQueue<GLES::Program>(mDiscardProgramQueue);
@@ -428,14 +430,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
       case GLES::CommandType::SET_SCISSOR_TEST:
       {
-        if(cmd.scissorTest.enable)
-        {
-          mGlAbstraction->Enable(GL_SCISSOR_TEST);
-        }
-        else
-        {
-          mGlAbstraction->Disable(GL_SCISSOR_TEST);
-        }
+        mCurrentContext->SetScissorTestEnabled(cmd.scissorTest.enable);
         break;
       }
       case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
@@ -627,7 +622,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      mGlAbstraction->BindTexture(bindTarget, texture->GetGLTexture());
+      mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
 
       if(!isSubImage)
       {
@@ -751,8 +746,8 @@ void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
   {
     auto* texture = mTextureMipmapGenerationRequests.front();
 
-    mGlAbstraction->BindTexture(texture->GetGlTarget(), texture->GetGLTexture());
-    mGlAbstraction->GenerateMipmap(texture->GetGlTarget());
+    mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
+    mCurrentContext->GenerateMipmap(texture->GetGlTarget());
 
     mTextureMipmapGenerationRequests.pop();
   }

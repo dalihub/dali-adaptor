@@ -90,10 +90,9 @@ auto& PipelineImpl::GetController() const
   return mController;
 }
 
-void PipelineImpl::Bind(GLES::PipelineImpl* prevPipeline)
+void PipelineImpl::Bind(const uint32_t glProgram) const
 {
-  auto& gl        = *GetController().GetGL();
-  auto  glProgram = static_cast<const GLES::Program*>(GetCreateInfo().programState->program)->GetImplementation()->GetGlProgram();
+  auto& gl = *GetController().GetGL();
   gl.UseProgram(glProgram);
 }
 

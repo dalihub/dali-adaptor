@@ -92,13 +92,14 @@ Framebuffer::~Framebuffer() = default;
 
 bool Framebuffer::InitializeResource()
 {
-  auto gl = mController.GetGL();
-  if(gl && !mInitialized)
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(gl && context && !mInitialized)
   {
     mInitialized = true;
 
-    gl->GenFramebuffers(1, &mFramebufferId);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
+    context->GenFramebuffers(1, &mFramebufferId);
+    context->BindFrameBuffer(GL_FRAMEBUFFER, mFramebufferId);
 
     for(Graphics::ColorAttachment& attachment : mCreateInfo.colorAttachments)
     {
@@ -106,7 +107,7 @@ bool Framebuffer::InitializeResource()
     }
 
     // @todo is this per framebuffer, or more immediate state that needs setting when framebuffer changed?
-    gl->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
+    context->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
 
     if(mCreateInfo.depthStencilAttachment.depthTexture)
     {
@@ -135,7 +136,8 @@ bool Framebuffer::InitializeResource()
 
       AttachTexture(stencilTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.stencilLevel);
     }
-    gl->BindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    context->BindFrameBuffer(GL_FRAMEBUFFER, 0);
   }
 
   return mInitialized;
@@ -143,8 +145,9 @@ bool Framebuffer::InitializeResource()
 
 void Framebuffer::DestroyResource()
 {
-  auto gl = mController.GetGL();
-  if(gl && mInitialized)
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(gl && context && mInitialized)
   {
     if(mDepthBufferId)
     {
@@ -155,7 +158,8 @@ void Framebuffer::DestroyResource()
       gl->DeleteRenderbuffers(1, &mStencilBufferId);
     }
 
-    gl->DeleteFramebuffers(1, &mFramebufferId);
+    context->DeleteFramebuffers(1, &mFramebufferId);
+
     mFramebufferId = 0u;
     mInitialized   = false;
   }
@@ -168,8 +172,13 @@ void Framebuffer::DiscardResource()
 
 void Framebuffer::Bind() const
 {
-  auto gl = mController.GetGL();
-  gl->BindFramebuffer(GL_FRAMEBUFFER, mFramebufferId);
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+
+  if(gl && context)
+  {
+    context->BindFrameBuffer(GL_FRAMEBUFFER, mFramebufferId);
+  }
 }
 
 void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId)

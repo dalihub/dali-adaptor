@@ -113,10 +113,11 @@ bool Texture::InitializeResource()
 
 bool Texture::InitializeNativeImage()
 {
-  auto   gl = mController.GetGL();
+  auto   context = mController.GetCurrentContext();
+  auto   gl      = mController.GetGL();
   GLuint texture{0};
 
-  if(!gl)
+  if(!gl || !context)
   {
     // Do nothing during shutdown
     return false;
@@ -128,7 +129,7 @@ bool Texture::InitializeNativeImage()
   if(created)
   {
     gl->GenTextures(1, &texture);
-    gl->BindTexture(mGlTarget, texture);
+    context->BindTexture(mGlTarget, GetTextureTypeId(), texture);
 
     gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
 
@@ -161,8 +162,9 @@ bool Texture::InitializeNativeImage()
 
 bool Texture::InitializeTexture()
 {
-  auto gl = mController.GetGL();
-  if(!gl)
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
   {
     // Do nothing during shutdown
     return false;
@@ -185,7 +187,7 @@ bool Texture::InitializeTexture()
       {
         // Bind texture
         gl->GenTextures(1, &texture);
-        gl->BindTexture(GL_TEXTURE_2D, texture);
+        context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), texture);
 
         // Allocate memory for the texture
         if(!mIsCompressed)
@@ -233,7 +235,7 @@ bool Texture::InitializeTexture()
       {
         // Bind texture
         gl->GenTextures(1, &texture);
-        gl->BindTexture(GL_TEXTURE_CUBE_MAP, texture);
+        context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), texture);
         gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
 
         gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
@@ -312,22 +314,21 @@ void Texture::DiscardResource()
 
 void Texture::Bind(const TextureBinding& binding) const
 {
-  auto gl = mController.GetGL();
-  if(!gl)
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
   {
     // Do nothing during shutdown
     return;
   }
 
-  gl->ActiveTexture(GL_TEXTURE0 + binding.binding);
-  gl->BindTexture(mGlTarget, mTextureId);
+  context->ActiveTexture(binding.binding);
+  context->BindTexture(mGlTarget, GetTextureTypeId(), mTextureId);
 
   // For GLES2 if there is a sampler set in the binding
   if(binding.sampler)
   {
-    // Non-default.
-    auto*       sampler           = static_cast<const GLES::Sampler*>(binding.sampler);
-    const auto& samplerCreateInfo = sampler->GetCreateInfo();
+    const auto& samplerCreateInfo = static_cast<const GLES::Sampler*>(binding.sampler)->GetCreateInfo();
 
     auto mipMapMode = samplerCreateInfo.mipMapMode;
 

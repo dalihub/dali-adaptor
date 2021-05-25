@@ -135,6 +135,19 @@ public:
   {
     // Final flush
     Flush();
+
+    if(mContext)
+    {
+      mContext->GlContextDestroyed();
+    }
+
+    for(auto&& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GlContextDestroyed();
+      }
+    }
   }
 
   /**
@@ -448,6 +461,12 @@ public:
     // Process main command queue
     ProcessCommandQueues();
 
+    // Reset texture cache in the contexts while destroying textures
+    ResetTextureCache();
+
+    // Reset buffer cache in the contexts while destroying buffers
+    ResetBufferCache();
+
     // Process discards
     ProcessDiscardQueues();
 
@@ -483,9 +502,9 @@ public:
   }
 
   /**
-   * @brief Processes a create queue for type specified
+   * @brief Processes a discard queue for type specified
    *
-   * @param[in,out] queue Reference to the create queue
+   * @param[in,out] queue Reference to the discard queue
    */
   template<class U, class T>
   void ProcessDiscardQueue(T& queue)
@@ -503,6 +522,53 @@ public:
       {
         // Call destructor
         object->~U();
+
+        // Free memory
+        clbk->freeCallback(object, clbk->userData);
+      }
+      else
+      {
+        delete object;
+      }
+      queue.pop();
+    }
+  }
+
+  /**
+   * @brief Processes a discard queue for pipeline
+   *
+   * @param[in,out] queue Reference to the create queue
+   */
+  void ProcessDiscardQueue(std::queue<GLES::Pipeline*>& queue)
+  {
+    while(!queue.empty())
+    {
+      auto* object = const_cast<GLES::Pipeline*>(queue.front());
+
+      // Inform the contexts to invalidate the pipeline if cached
+      if(mContext)
+      {
+        mContext->InvalidateCachedPipeline(object);
+      }
+
+      for(auto&& context : mSurfaceContexts)
+      {
+        if(context.second)
+        {
+          context.second->InvalidateCachedPipeline(object);
+        }
+      }
+
+      // Destroy
+      object->DestroyResource();
+
+      // Free
+      auto* clbk = object->GetCreateInfo().allocationCallbacks;
+      if(clbk)
+      {
+        // Call destructor
+        using GLESPipeline = GLES::Pipeline;
+        object->~GLESPipeline();
 
         // Free memory
         clbk->freeCallback(object, clbk->userData);
@@ -580,6 +646,44 @@ public:
     return mIsShuttingDown;
   }
 
+  /**
+   * @brief Reset texture cache in the contexts
+   */
+  void ResetTextureCache()
+  {
+    if(mContext)
+    {
+      mContext->GetGLStateCache().ResetTextureCache();
+    }
+
+    for(auto& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GetGLStateCache().ResetTextureCache();
+      }
+    }
+  }
+
+  /**
+   * @brief Reset buffer cache in the contexts
+   */
+  void ResetBufferCache()
+  {
+    if(mContext)
+    {
+      mContext->GetGLStateCache().ResetBufferCache();
+    }
+
+    for(auto& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GetGLStateCache().ResetBufferCache();
+      }
+    }
+  }
+
   void ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer);
 
   // Resolves presentation
@@ -610,6 +714,16 @@ public:
    * @param[in] surface The surface whose context to be switched to.
    */
   void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * @brief Returns the current context
+   *
+   * @return the current context
+   */
+  GLES::Context* GetCurrentContext() const
+  {
+    return mCurrentContext;
+  }
 
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};

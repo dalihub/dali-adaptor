@@ -26,10 +26,12 @@
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
+#include "gles-graphics-types.h"
 
 namespace Dali::Graphics::GLES
 {
 using TextureResource = Resource<Graphics::Texture, Graphics::TextureCreateInfo>;
+class Sampler;
 
 /**
  * The Texture class represents a GPU texture object. It's slightly
@@ -62,6 +64,15 @@ public:
   [[nodiscard]] uint32_t GetGLTexture() const
   {
     return mTextureId;
+  }
+
+  /**
+   * @brief Returns the type of the bound Gl texture
+   * @return The type of the bound Gl texture
+   */
+  [[nodiscard]] BoundTextureType GetTextureTypeId() const
+  {
+    return mCreateInfo.nativeImagePtr ? BoundTextureType::TEXTURE_EXTERNAL_OES : static_cast<BoundTextureType>(mCreateInfo.textureType);
   }
 
   /**
