@@ -599,6 +599,8 @@ void Window::SetSize(Dali::Window::WindowSize size)
   }
 
   mSurface->SetFullSwapNextFrame();
+
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -615,6 +617,8 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
   mWindowSurface->MoveResize(PositionSize(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 
   mSurface->SetFullSwapNextFrame();
+
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -648,6 +652,8 @@ void Window::SetPositionSize(PositionSize positionSize)
   }
 
   mSurface->SetFullSwapNextFrame();
+
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 PositionSize Window::GetPositionSize() const
