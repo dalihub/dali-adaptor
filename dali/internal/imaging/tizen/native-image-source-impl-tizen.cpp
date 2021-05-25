@@ -508,7 +508,7 @@ uint8_t* NativeImageSourceTizen::AcquireBuffer(uint16_t& width, uint16_t& height
   {
     tbm_surface_info_s info;
 
-    if(tbm_surface_map(mTbmSurface, TBM_SURF_OPTION_READ, &info) != TBM_SURFACE_ERROR_NONE)
+    if(tbm_surface_map(mTbmSurface, TBM_SURF_OPTION_READ | TBM_SURF_OPTION_WRITE, &info) != TBM_SURFACE_ERROR_NONE)
     {
       DALI_LOG_ERROR("Fail to map tbm_surface\n");
 
