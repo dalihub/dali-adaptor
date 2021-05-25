@@ -78,7 +78,7 @@ void Accessibility::Bridge::DisableAutoInit()
 {
 }
 
-void Accessibility::Bridge::EnableAutoInit(Accessible*, const std::string&)
+void Accessibility::Bridge::EnableAutoInit()
 {
 }
 

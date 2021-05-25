@@ -18,12 +18,15 @@
 // CLASS HEADER
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/actors/layer.h>
 #include <iostream>
 #include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
@@ -33,6 +36,7 @@
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 
 using namespace Dali::Accessibility;
@@ -394,7 +398,7 @@ void Bridge::DisableAutoInit()
   autoInitState = AutoInitState::DISABLED;
 }
 
-void Bridge::EnableAutoInit(Accessible* topLevelWindow, const std::string& applicationName)
+void Bridge::EnableAutoInit()
 {
   autoInitState = AutoInitState::ENABLED;
 
@@ -403,8 +407,17 @@ void Bridge::EnableAutoInit(Accessible* topLevelWindow, const std::string& appli
     return;
   }
 
+  auto rootLayer       = Dali::Stage::GetCurrent().GetRootLayer();
+  auto window          = Dali::DevelWindow::Get(rootLayer);
+  auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
+
   auto* bridge = Bridge::GetCurrentBridge();
-  bridge->AddTopLevelWindow(topLevelWindow);
+  bridge->AddTopLevelWindow(Dali::Accessibility::Accessible::Get(rootLayer, true));
   bridge->SetApplicationName(applicationName);
   bridge->Initialize();
+
+  if(window && window.IsVisible())
+  {
+    bridge->ApplicationShown();
+  }
 }

@@ -108,6 +108,13 @@ public:
   bool Transform(const Dali::Matrix3& matrix);
 
   /**
+   * @brief Gets the bounding box of the drawable object before any transformation.
+   * @note The bounding box doesn't indicate the rendering region in the result but primitive region of the object.
+   * @return Returns the bounding box information.
+   */
+  Rect<float> GetBoundingBox() const;
+
+  /**
    * @brief Downcast a handle to Drawable handle.
    *
    * If handle points to an InputMethodContext the downcast produces valid
