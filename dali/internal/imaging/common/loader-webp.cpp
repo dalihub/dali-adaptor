@@ -117,7 +117,7 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   // If the image is animated webp
 #ifdef DALI_ANIMATED_WEBP_ENABLED
   WebPData         webPData;
-  WebPAnimDecoder* webPAnimDecoder;
+  WebPAnimDecoder* webPAnimDecoder = nullptr;
   WebPAnimInfo     webPAnimInfo;
   if(ReadWebPInformation(fp, webPData))
   {
@@ -206,7 +206,7 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   // If the image is animated webp
 #ifdef DALI_ANIMATED_WEBP_ENABLED
   WebPData         webPData;
-  WebPAnimDecoder* webPAnimDecoder;
+  WebPAnimDecoder* webPAnimDecoder = nullptr;
   WebPAnimInfo     webPAnimInfo;
   if(ReadWebPInformation(fp, webPData))
   {
