@@ -26,14 +26,12 @@
 #include <fstream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/bitmap-saver.h>
 #include <dali/devel-api/adaptor-framework/native-image-source-devel.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
-
-namespace
-{
-unsigned int TIME_OUT_DURATION = 1000;
-}
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali
 {
@@ -41,6 +39,12 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+constexpr int32_t  GL_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 30;
+constexpr uint32_t TIME_OUT_DURATION                        = 1000;
+} // namespace
+
 Capture::Capture()
 : mQuality(DEFAULT_QUALITY),
   mTimer(),
@@ -63,6 +67,7 @@ Capture::Capture(Dali::CameraActor cameraActor)
 Capture::~Capture()
 {
   DeleteNativeImageSource();
+  mTexture.Reset();
 }
 
 CapturePtr Capture::New()
@@ -87,6 +92,11 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
 
 void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dali::Vector2& size, const std::string& path, const Dali::Vector4& clearColor)
 {
+  if(!source)
+  {
+    return;
+  }
+
   // Increase the reference count focely to avoid application mistake.
   Reference();
 
@@ -95,8 +105,6 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
   {
     mFileSave = true;
   }
-
-  DALI_ASSERT_ALWAYS(source && "Source is NULL.");
 
   UnsetResources();
   SetupResources(position, size, clearColor, source);
@@ -112,53 +120,62 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
   return mNativeImageSourcePtr;
 }
 
+Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
+{
+  if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
+  {
+    std::vector<uint8_t> buffer;
+    uint32_t             width, height;
+    Dali::Pixel::Format  pixelFormat;
+    if(!mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+    {
+      return Dali::Devel::PixelBuffer();
+    }
+    mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+    memcpy(mPixelBuffer.GetBuffer(), &buffer[0], width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
+  }
+  return mPixelBuffer;
+}
+
 Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 {
   return mFinishedSignal;
 }
 
-void Capture::CreateNativeImageSource(const Vector2& size)
+void Capture::CreateTexture(const Vector2& size)
 {
-  Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-
-  DALI_ASSERT_ALWAYS(adaptor.IsAvailable() && "Dali::Adaptor is not available.");
-
-  DALI_ASSERT_ALWAYS(!mNativeImageSourcePtr && "NativeImageSource is already created.");
-
-  // create the NativeImageSource object with our surface
-  mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
+  if(!mNativeImageSourcePtr)
+  {
+    mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
+    mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
+  }
 }
 
 void Capture::DeleteNativeImageSource()
 {
-  mNativeImageSourcePtr.Reset();
-}
-
-bool Capture::IsNativeImageSourceCreated()
-{
-  return mNativeImageSourcePtr;
+  if(mNativeImageSourcePtr)
+  {
+    mNativeImageSourcePtr.Reset();
+  }
 }
 
 void Capture::CreateFrameBuffer()
 {
-  DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "NativeImageSource is NULL.");
-
-  DALI_ASSERT_ALWAYS(!mFrameBuffer && "FrameBuffer is already created.");
-
-  mNativeTexture = Dali::Texture::New(*mNativeImageSourcePtr);
-
-  // Create a FrameBuffer object with depth attachments.
-  mFrameBuffer = Dali::FrameBuffer::New(mNativeTexture.GetWidth(), mNativeTexture.GetHeight(), Dali::FrameBuffer::Attachment::DEPTH);
-  // Add a color attachment to the FrameBuffer object.
-  mFrameBuffer.AttachColorTexture(mNativeTexture);
+  if(!mFrameBuffer)
+  {
+    // Create a FrameBuffer object with depth attachments.
+    mFrameBuffer = Dali::FrameBuffer::New(mTexture.GetWidth(), mTexture.GetHeight(), Dali::FrameBuffer::Attachment::DEPTH);
+    // Add a color attachment to the FrameBuffer object.
+    mFrameBuffer.AttachColorTexture(mTexture);
+  }
 }
 
 void Capture::DeleteFrameBuffer()
 {
-  DALI_ASSERT_ALWAYS(mFrameBuffer && "FrameBuffer is NULL.");
-
-  mFrameBuffer.Reset();
-  mNativeTexture.Reset();
+  if(mFrameBuffer)
+  {
+    mFrameBuffer.Reset();
+  }
 }
 
 bool Capture::IsFrameBufferCreated()
@@ -168,12 +185,16 @@ bool Capture::IsFrameBufferCreated()
 
 void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2& size, Dali::Actor source, const Dali::Vector4& clearColor)
 {
-  DALI_ASSERT_ALWAYS(source && "Source is empty.");
+  if(!source)
+  {
+    DALI_LOG_ERROR("Source is empty\n");
+    return;
+  }
 
   Dali::Window window = DevelWindow::Get(source);
   if(!window)
   {
-    DALI_LOG_ERROR("The source is not added on the window\n");
+    DALI_LOG_ERROR("The source is not added on the scene\n");
     return;
   }
 
@@ -193,9 +214,11 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
 
   window.Add(mCameraActor);
 
-  DALI_ASSERT_ALWAYS(mFrameBuffer && "Framebuffer is NULL.");
-
-  DALI_ASSERT_ALWAYS(!mRenderTask && "RenderTask is already created.");
+  if(!mFrameBuffer)
+  {
+    DALI_LOG_ERROR("Frame buffer is not created.\n");
+    return;
+  }
 
   Dali::RenderTaskList taskList = window.GetRenderTaskList();
   mRenderTask                   = taskList.CreateTask();
@@ -217,19 +240,21 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
 
 void Capture::UnsetRenderTask()
 {
-  DALI_ASSERT_ALWAYS(mCameraActor && "CameraActor is NULL.");
-
   mTimer.Reset();
 
-  mCameraActor.Unparent();
-  mCameraActor.Reset();
+  if(mCameraActor)
+  {
+    mCameraActor.Unparent();
+    mCameraActor.Reset();
+  }
 
-  DALI_ASSERT_ALWAYS(mRenderTask && "RenderTask is NULL.");
-
-  Dali::Window         window   = DevelWindow::Get(mSource);
-  Dali::RenderTaskList taskList = window.GetRenderTaskList();
-  taskList.RemoveTask(mRenderTask);
-  mRenderTask.Reset();
+  if(mRenderTask)
+  {
+    Dali::Window         window   = DevelWindow::Get(mSource);
+    Dali::RenderTaskList taskList = window.GetRenderTaskList();
+    taskList.RemoveTask(mRenderTask);
+    mRenderTask.Reset();
+  }
   mSource.Reset();
 }
 
@@ -240,7 +265,7 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
 {
-  CreateNativeImageSource(size);
+  CreateTexture(size);
 
   CreateFrameBuffer();
 
@@ -270,8 +295,8 @@ void Capture::OnRenderFinished(Dali::RenderTask& task)
   {
     if(!SaveFile())
     {
+      DALI_LOG_ERROR("Fail to Capture Path[%s]\n", mPath.c_str());
       state = Dali::Capture::FinishState::FAILED;
-      DALI_LOG_ERROR("Fail to Capture Path[%s]", mPath.c_str());
     }
   }
 
@@ -301,9 +326,11 @@ bool Capture::OnTimeOut()
 
 bool Capture::SaveFile()
 {
-  DALI_ASSERT_ALWAYS(mNativeImageSourcePtr && "mNativeImageSourcePtr is NULL");
-
-  return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
+  if(mNativeImageSourcePtr)
+  {
+    return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
+  }
+  return false;
 }
 
 } // End of namespace Adaptor
