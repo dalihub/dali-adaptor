@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,21 +64,19 @@ public:
   static const PointSize26Dot6 DEFAULT_POINT_SIZE;   ///< The default point size.
   static const float           DEFAULT_ITALIC_ANGLE; ///< The default software italic angle in radians.
 
-  static const bool            DEFAULT_ATLAS_LIMITATION_ENABLED;  ///< The default behavior of whether atlas limitation is enabled in dali.
-  static const uint32_t        DEFAULT_TEXT_ATLAS_WIDTH;          ///< The default width of text-atlas-block.
-  static const uint32_t        DEFAULT_TEXT_ATLAS_HEIGHT;         ///< The default height of text-atlas-block.
-  static const Size            DEFAULT_TEXT_ATLAS_SIZE;           ///< The default size(width, height) of text-atlas-block.
+  static const bool     DEFAULT_ATLAS_LIMITATION_ENABLED; ///< The default behavior of whether atlas limitation is enabled in dali.
+  static const uint32_t DEFAULT_TEXT_ATLAS_WIDTH;         ///< The default width of text-atlas-block.
+  static const uint32_t DEFAULT_TEXT_ATLAS_HEIGHT;        ///< The default height of text-atlas-block.
+  static const Size     DEFAULT_TEXT_ATLAS_SIZE;          ///< The default size(width, height) of text-atlas-block.
 
-  static const uint32_t        MAX_TEXT_ATLAS_WIDTH;             ///< The maximum width of text-atlas-block.
-  static const uint32_t        MAX_TEXT_ATLAS_HEIGHT;            ///< The maximum height of text-atlas-block.
-  static const Size            MAX_TEXT_ATLAS_SIZE;              ///< The maximum height of text-atlas-block.
+  static const uint32_t MAX_TEXT_ATLAS_WIDTH;  ///< The maximum width of text-atlas-block.
+  static const uint32_t MAX_TEXT_ATLAS_HEIGHT; ///< The maximum height of text-atlas-block.
+  static const Size     MAX_TEXT_ATLAS_SIZE;   ///< The maximum height of text-atlas-block.
 
-  static const uint16_t        PADDING_TEXT_ATLAS_BLOCK ;        ///< Padding per edge. How much the block size (width, height) less than the text-atlas-block size (width, height).
-  static const Size            MAX_SIZE_FIT_IN_ATLAS;            ///< The maximum block's size fit into text-atlas-block.
+  static const uint16_t PADDING_TEXT_ATLAS_BLOCK; ///< Padding per edge. How much the block size (width, height) less than the text-atlas-block size (width, height).
+  static const Size     MAX_SIZE_FIT_IN_ATLAS;    ///< The maximum block's size fit into text-atlas-block.
 
-  static const uint32_t        NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE; ///< Factor multiply point-size in toolkit.
-
-
+  static const uint32_t NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE; ///< Factor multiply point-size in toolkit.
 
   /**
    * @brief Struct used to retrieve the glyph's bitmap.
@@ -500,7 +498,7 @@ public:
    */
   bool IsAtlasLimitationEnabled() const;
 
-   /**
+  /**
    * @brief retrieve the maximum allowed width and height for text-atlas-block.
    *
    * @note Used default configuration.
@@ -508,7 +506,7 @@ public:
    */
   Size GetMaximumTextAtlasSize() const;
 
-   /**
+  /**
    * @brief retrieve the default width and height for text-atlas-block.
    *
    * @note Used default configuration.
@@ -524,7 +522,7 @@ public:
    */
   Size GetCurrentMaximumBlockSizeFitInAtlas() const;
 
-   /**
+  /**
    * @brief set the achieved size (width and height) for text-atlas-block.
    * If @p currentMaximumBlockSizeFitInAtlas larger than the current maximum text atlas then store, otherwise ignore.
    *

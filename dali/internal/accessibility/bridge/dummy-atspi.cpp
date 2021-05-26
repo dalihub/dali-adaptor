@@ -21,7 +21,6 @@
 
 namespace Dali
 {
-
 Accessibility::Accessible::Accessible()
 {
 }

@@ -115,9 +115,9 @@ private:
    */
   enum class AnimationFormat
   {
-     NONE = 0,
-     JSON,
-     RIVE
+    NONE = 0,
+    JSON,
+    RIVE
   };
 
   /**

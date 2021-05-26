@@ -62,6 +62,8 @@ void EglGraphics::SetGlesVersion(const int32_t glesVersion)
   }
 
   mGLES->SetGlesVersion(glesVersion);
+
+  mGraphicsController.SetGLESVersion(static_cast<Graphics::GLES::GLESVersion>(glesVersion));
 }
 
 void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
@@ -71,10 +73,23 @@ void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 
 void EglGraphics::ActivateResourceContext()
 {
+  mGraphicsController.ActivateResourceContext();
+
   if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
     // Make the shared surfaceless context as current before rendering
     mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
+  }
+}
+
+void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  mGraphicsController.ActivateSurfaceContext(surface);
+
+  if(surface)
+  {
+    surface->InitializeGraphics();
+    surface->MakeContextCurrent();
   }
 }
 
@@ -91,7 +106,7 @@ void EglGraphics::Initialize()
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
-  mGraphicsController.Initialize(*mEglSync.get(), *mEglContextHelper.get());
+  mGraphicsController.Initialize(*mEglSync.get(), *mEglContextHelper.get(), *this);
 }
 
 void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, int msaa)

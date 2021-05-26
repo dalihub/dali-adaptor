@@ -91,7 +91,7 @@ bool BridgeBase::tickFilteredEvents()
 void BridgeBase::RegisteredEventsUpdate()
 {
   using ReturnType = std::vector<std::tuple<std::string, std::string>>;
-  registry.method<DBus::ValueOrError<ReturnType>()>( "GetRegisteredEvents" ).asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
+  registry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
     if(!msg)
     {
       LOG() << "Get registered events failed";
@@ -103,7 +103,7 @@ void BridgeBase::RegisteredEventsUpdate()
     ReturnType values = std::get<ReturnType>(msg.getValues());
     for(long unsigned int i = 0; i < values.size(); i++)
     {
-      if (!std::get<1>(values[i]).compare("Object:BoundsChanged"))
+      if(!std::get<1>(values[i]).compare("Object:BoundsChanged"))
       {
         allowObjectBoundsChangedEvent = true;
       }
@@ -295,7 +295,7 @@ int BridgeBase::IdGet()
   return this->id;
 }
 
-auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType> >
+auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType>>
 {
   auto root = &application;
 

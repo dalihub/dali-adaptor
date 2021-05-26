@@ -84,6 +84,13 @@ public:
   void ActivateResourceContext() override;
 
   /**
+   * Activate the surface context
+   *
+   * @param[in] surface The surface whose context to be switched to.
+   */
+  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override;
+
+  /**
    * Inform graphics interface that this is the first frame after a resume.
    * (For debug only)
    */

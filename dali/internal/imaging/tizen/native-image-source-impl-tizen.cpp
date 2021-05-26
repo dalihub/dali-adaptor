@@ -38,7 +38,7 @@ namespace Adaptor
 {
 namespace
 {
-const char* SAMPLER_TYPE    = "samplerExternalOES";
+const char* SAMPLER_TYPE = "samplerExternalOES";
 
 // clang-format off
 tbm_format FORMATS_BLENDING_REQUIRED[] = {

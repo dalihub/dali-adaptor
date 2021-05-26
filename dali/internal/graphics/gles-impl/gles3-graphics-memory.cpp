@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include "egl-graphics-controller.h"
 
 namespace Dali::Graphics::GLES
@@ -56,8 +57,8 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 
     if(buffer->IsCPUAllocated())
     {
-      using Ptr = char*;
-      return Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+      using Ptr      = char*;
+      mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
     }
     else
     {
@@ -91,6 +92,8 @@ void Memory3::Unlock(bool flush)
   {
     Flush();
   }
+
+  mMappedPointer = nullptr;
 }
 
 void Memory3::Flush()

@@ -143,17 +143,18 @@ public:
     DBus::DBusInterfaceDescription& desc, const std::string& funcName, DBus::ValueOrError<RET...> (SELF::*funcPtr)(ARGS...))
   {
     if(auto self = dynamic_cast<SELF*>(this))
-      desc.addMethod<DBus::ValueOrError<RET...>(ARGS...)>(funcName,
-                                                          [=](ARGS... args) -> DBus::ValueOrError<RET...> {
-                                                            try
-                                                            {
-                                                              return (self->*funcPtr)(std::move(args)...);
-                                                            }
-                                                            catch(std::domain_error& e)
-                                                            {
-                                                              return DBus::Error{e.what()};
-                                                            }
-                                                          });
+      desc.addMethod<DBus::ValueOrError<RET...>(ARGS...)>(
+        funcName,
+        [=](ARGS... args) -> DBus::ValueOrError<RET...> {
+          try
+          {
+            return (self->*funcPtr)(std::move(args)...);
+          }
+          catch(std::domain_error& e)
+          {
+            return DBus::Error{e.what()};
+          }
+        });
   }
 
   template<typename T, typename SELF>

@@ -220,18 +220,28 @@ void NativeRenderSurfaceEcoreWl::StartRender()
 
 bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
+  if(!clippingRect.IsEmpty())
+  {
+    mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
+  }
+  else
+  {
+    mDamagedRects.clear();
+  }
+
   //TODO: Need to support partial update
-  MakeContextCurrent();
+  // This is now done when the render pass for the render surface begins
+  //  MakeContextCurrent();
   return true;
 }
 
-void NativeRenderSurfaceEcoreWl::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
+void NativeRenderSurfaceEcoreWl::PostRender()
 {
   auto eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    eglImpl.SwapBuffers(mEGLSurface, damagedRects);
+    eglImpl.SwapBuffers(mEGLSurface, mDamagedRects);
   }
 
   if(mRenderNotification)

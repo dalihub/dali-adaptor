@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_RENDER_THREAD_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -265,13 +265,13 @@ private:
   int                           mScreenRotationAngle; ///< The angle of screen rotation angle
 
   // To manage the render/main thread
-  ConditionalWait                 mRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
-  volatile unsigned int           mDestroyRenderThread;       ///< Stop render thread. It means this rendter thread will be destoried.
-  volatile unsigned int           mPauseRenderThread;         ///< Sleep render thread by pause.
-  volatile unsigned int           mRenderingMode;             ///< Rendering Mode, 0: continuous, 1:OnDemad
-  volatile unsigned int           mRequestRenderOnce;         ///< Request rendering once
-  volatile unsigned int           mSurfaceStatus;             ///< When surface is changed as resized or rotated, this flag is set. 0: No changed, 1:resized, 2:window rotation, 4:screen rotation
-  volatile unsigned int           mPostRendering;             ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
+  ConditionalWait       mRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
+  volatile unsigned int mDestroyRenderThread;       ///< Stop render thread. It means this rendter thread will be destoried.
+  volatile unsigned int mPauseRenderThread;         ///< Sleep render thread by pause.
+  volatile unsigned int mRenderingMode;             ///< Rendering Mode, 0: continuous, 1:OnDemad
+  volatile unsigned int mRequestRenderOnce;         ///< Request rendering once
+  volatile unsigned int mSurfaceStatus;             ///< When surface is changed as resized or rotated, this flag is set. 0: No changed, 1:resized, 2:window rotation, 4:screen rotation
+  volatile unsigned int mPostRendering;             ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
 
   uint64_t mDefaultFrameDurationNanoseconds; ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
 

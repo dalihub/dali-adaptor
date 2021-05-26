@@ -113,7 +113,7 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GlSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
   if(mSyncInitialized == false)
@@ -121,12 +121,12 @@ Integration::GlSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObj
     InitializeEglSync();
   }
 
-  EglSyncObject* syncObject = new EglSyncObject(*mEglImplementation);
+  auto* syncObject = new EglSyncObject(*mEglImplementation);
   mSyncObjects.PushBack(syncObject);
   return syncObject;
 }
 
-void EglSyncImplementation::DestroySyncObject(Integration::GlSyncAbstraction::SyncObject* syncObject)
+void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
 
@@ -143,8 +143,7 @@ void EglSyncImplementation::DestroySyncObject(Integration::GlSyncAbstraction::Sy
       break;
     }
   }
-  EglSyncObject* eglSyncObject = static_cast<EglSyncObject*>(syncObject);
-  delete eglSyncObject;
+  delete static_cast<EglSyncObject*>(syncObject);
 }
 
 void EglSyncImplementation::InitializeEglSync()
@@ -204,21 +203,16 @@ void EglSyncImplementation::Initialize(EglImplementation* eglImpl)
   mEglImplementation = eglImpl;
 }
 
-Integration::GlSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
+Integration::GraphicsSyncAbstraction::SyncObject* EglSyncImplementation::CreateSyncObject()
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
   return new EglSyncObject(*mEglImplementation);
 }
 
-void EglSyncImplementation::DestroySyncObject(Integration::GlSyncAbstraction::SyncObject* syncObject)
+void EglSyncImplementation::DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "Sync Implementation not initialized");
-
-  // The abstraction's virtual destructor is protected, so that Core can't delete the sync objects
-  // directly (This object also needs removing from the mSyncObject container in the ARM
-  // implementation above). We therefore need to cast to the actual implementation object first.
-  EglSyncObject* eglSyncObject = static_cast<EglSyncObject*>(syncObject);
-  delete eglSyncObject;
+  delete static_cast<EglSyncObject*>(syncObject);
 }
 
 void EglSyncImplementation::InitializeEglSync()

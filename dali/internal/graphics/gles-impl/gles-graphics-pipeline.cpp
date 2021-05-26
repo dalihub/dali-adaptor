@@ -45,7 +45,6 @@ struct PipelineImpl::PipelineState
   DepthStencilState  depthStencilState;
   ProgramState       programState;
   ViewportState      viewportState;
-  FramebufferState   framebufferState;
   RasterizationState rasterizationState;
   VertexInputState   vertexInputState;
   InputAssemblyState inputAssemblyState;
@@ -65,7 +64,6 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graph
   CopyStateIfSet(createInfo.vertexInputState, mPipelineState->vertexInputState, &mCreateInfo.vertexInputState);
   CopyStateIfSet(createInfo.rasterizationState, mPipelineState->rasterizationState, &mCreateInfo.rasterizationState);
   CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);
-  CopyStateIfSet(createInfo.framebufferState, mPipelineState->framebufferState, &mCreateInfo.framebufferState);
   CopyStateIfSet(createInfo.colorBlendState, mPipelineState->colorBlendState, &mCreateInfo.colorBlendState);
   CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
   CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);

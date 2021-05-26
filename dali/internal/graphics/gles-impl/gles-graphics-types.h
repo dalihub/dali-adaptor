@@ -9,6 +9,10 @@
 namespace Dali::Graphics::GLES
 {
 class Buffer;
+class RenderPass;
+class RenderTarget;
+class Framebuffer;
+
 // Conversion functions
 /**
  * Stucture delivers format and type that can be used
@@ -544,7 +548,7 @@ struct GLTextureFormatType
       case Graphics::Format::R16G16B16_SFLOAT:
       {
         // GLES 3.0 floating point formats.
-        Assign(GL_RGB, GL_HALF_FLOAT);
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_HALF_FLOAT); // DALi uses compact internal format
         break;
       }
       case Graphics::Format::R16G16B16A16_UNORM:
@@ -624,8 +628,7 @@ struct GLTextureFormatType
       }
       case Graphics::Format::R32G32B32_SFLOAT:
       {
-        // GLES 3.0 floating point formats.
-        Assign(GL_RGB, GL_FLOAT);
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_FLOAT); // DALi uses compact internal format
         break;
       }
       case Graphics::Format::R32G32B32A32_UINT:
@@ -703,6 +706,11 @@ struct GLTextureFormatType
         Assign(0, 0);
         break;
       }
+      case Graphics::Format::R11G11B10_UFLOAT_PACK32:
+      {
+        AssignInternal(GL_RGB, GL_R11F_G11F_B10F, GL_FLOAT);
+        break;
+      }
       case Graphics::Format::B10G11R11_UFLOAT_PACK32:
       {
         Assign(0, 0);
@@ -727,7 +735,7 @@ struct GLTextureFormatType
       case Graphics::Format::D32_SFLOAT:
       {
         // GLES 3.0 depth and stencil formats
-        Assign(GL_DEPTH_COMPONENT, GL_FLOAT);
+        AssignInternal(GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F, GL_FLOAT);
         break;
       }
       case Graphics::Format::S8_UINT:
@@ -743,7 +751,7 @@ struct GLTextureFormatType
       case Graphics::Format::D24_UNORM_S8_UINT:
       {
         // GLES 3.0 depth and stencil formats
-        Assign(GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8);
+        AssignInternal(GL_DEPTH_STENCIL, GL_DEPTH24_STENCIL8, GL_UNSIGNED_INT_24_8);
         break;
       }
       case Graphics::Format::D32_SFLOAT_S8_UINT:
@@ -1104,12 +1112,85 @@ struct GLTextureFormatType
 
   constexpr inline void Assign(uint32_t f, uint32_t t)
   {
-    format = f;
-    type   = t;
+    format         = f;
+    internalFormat = f;
+    type           = t;
+  }
+  constexpr inline void AssignInternal(uint32_t f, uint32_t i, uint32_t t)
+  {
+    format         = f;
+    internalFormat = i;
+    type           = t;
   }
 
   uint32_t format{0};
+  uint32_t internalFormat{0};
   uint32_t type{0};
+};
+
+struct FormatCompression
+{
+  /**
+   * Constuctor from Graphics::Format
+   * @param value
+   */
+  constexpr explicit FormatCompression(Graphics::Format value)
+  {
+    switch(value)
+    {
+      case Graphics::Format::ETC2_R8G8B8_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8_SRGB_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A1_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A1_SRGB_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
+      case Graphics::Format::ETC2_R8G8B8A8_SRGB_BLOCK:
+      case Graphics::Format::EAC_R11_UNORM_BLOCK:
+      case Graphics::Format::EAC_R11_SNORM_BLOCK:
+      case Graphics::Format::EAC_R11G11_UNORM_BLOCK:
+      case Graphics::Format::EAC_R11G11_SNORM_BLOCK:
+      case Graphics::Format::ASTC_4x4_UNORM_BLOCK:
+      case Graphics::Format::ASTC_4x4_SRGB_BLOCK:
+      case Graphics::Format::ASTC_5x4_UNORM_BLOCK:
+      case Graphics::Format::ASTC_5x4_SRGB_BLOCK:
+      case Graphics::Format::ASTC_5x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_5x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_6x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_6x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_6x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_6x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_8x8_UNORM_BLOCK:
+      case Graphics::Format::ASTC_8x8_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x5_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x5_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x6_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x6_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x8_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x8_SRGB_BLOCK:
+      case Graphics::Format::ASTC_10x10_UNORM_BLOCK:
+      case Graphics::Format::ASTC_10x10_SRGB_BLOCK:
+      case Graphics::Format::ASTC_12x10_UNORM_BLOCK:
+      case Graphics::Format::ASTC_12x10_SRGB_BLOCK:
+      case Graphics::Format::ASTC_12x12_UNORM_BLOCK:
+      case Graphics::Format::ASTC_12x12_SRGB_BLOCK:
+      case Graphics::Format::PVRTC1_2BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_4BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_4BPP_UNORM_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_2BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC1_4BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_2BPP_SRGB_BLOCK_IMG:
+      case Graphics::Format::PVRTC2_4BPP_SRGB_BLOCK_IMG:
+        compressed = true;
+        break;
+      default:
+        break;
+    }
+  }
+  bool compressed{false};
 };
 
 struct GLSamplerFilter
@@ -1329,6 +1410,76 @@ struct GLAddressMode
     }
   }
   GLenum texParameter{GL_CLAMP_TO_EDGE};
+};
+
+struct GLCompareOp
+{
+  constexpr explicit GLCompareOp(Graphics::CompareOp compareOp)
+  {
+    switch(compareOp)
+    {
+      case Graphics::CompareOp::NEVER:
+        op = GL_NEVER;
+        break;
+      case Graphics::CompareOp::LESS:
+        op = GL_LESS;
+        break;
+      case Graphics::CompareOp::EQUAL:
+        op = GL_EQUAL;
+        break;
+      case Graphics::CompareOp::LESS_OR_EQUAL:
+        op = GL_LEQUAL;
+        break;
+      case Graphics::CompareOp::GREATER:
+        op = GL_GREATER;
+        break;
+      case Graphics::CompareOp::NOT_EQUAL:
+        op = GL_NOTEQUAL;
+        break;
+      case Graphics::CompareOp::GREATER_OR_EQUAL:
+        op = GL_GEQUAL;
+        break;
+      case Graphics::CompareOp::ALWAYS:
+        op = GL_ALWAYS;
+        break;
+    }
+  }
+  GLenum op{GL_LESS};
+};
+
+struct GLStencilOp
+{
+  constexpr explicit GLStencilOp(Graphics::StencilOp stencilOp)
+  {
+    switch(stencilOp)
+    {
+      case Graphics::StencilOp::KEEP:
+        op = GL_KEEP;
+        break;
+      case Graphics::StencilOp::ZERO:
+        op = GL_ZERO;
+        break;
+      case Graphics::StencilOp::REPLACE:
+        op = GL_REPLACE;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_CLAMP:
+        op = GL_INCR;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_CLAMP:
+        op = GL_DECR;
+        break;
+      case Graphics::StencilOp::INVERT:
+        op = GL_INVERT;
+        break;
+      case Graphics::StencilOp::INCREMENT_AND_WRAP:
+        op = GL_INCR_WRAP;
+        break;
+      case Graphics::StencilOp::DECREMENT_AND_WRAP:
+        op = GL_DECR_WRAP;
+        break;
+    }
+  }
+  GLenum op{GL_KEEP};
 };
 
 /**
@@ -1864,6 +2015,17 @@ enum class GLESVersion
   GLES_30 = 30,
   GLES_31 = 31,
   GLES_32 = 32
+};
+
+/**
+ * The descriptor of BeginRenderPass command
+ */
+struct BeginRenderPassDescriptor
+{
+  const GLES::RenderPass*   renderPass{};
+  const GLES::RenderTarget* renderTarget{};
+  Rect2D                    renderArea{};
+  std::vector<ClearValue>   clearValues{};
 };
 
 } // namespace Dali::Graphics::GLES

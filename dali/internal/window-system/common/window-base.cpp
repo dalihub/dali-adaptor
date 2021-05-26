@@ -133,7 +133,6 @@ WindowBase::UpdatePositionSizeType& WindowBase::UpdatePositionSizeSignal()
   return mUpdatePositionSizeSignal;
 }
 
-
 } // namespace Adaptor
 
 } // namespace Internal

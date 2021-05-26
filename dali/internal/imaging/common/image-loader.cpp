@@ -25,12 +25,12 @@
 #include <dali/internal/imaging/common/loader-astc.h>
 #include <dali/internal/imaging/common/loader-bmp.h>
 #include <dali/internal/imaging/common/loader-gif.h>
-#include <dali/internal/imaging/common/loader-webp.h>
 #include <dali/internal/imaging/common/loader-ico.h>
 #include <dali/internal/imaging/common/loader-jpeg.h>
 #include <dali/internal/imaging/common/loader-ktx.h>
 #include <dali/internal/imaging/common/loader-png.h>
 #include <dali/internal/imaging/common/loader-wbmp.h>
+#include <dali/internal/imaging/common/loader-webp.h>
 #include <dali/internal/system/common/file-reader.h>
 
 using namespace Dali::Integration;

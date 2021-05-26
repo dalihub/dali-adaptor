@@ -160,6 +160,9 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   mSurface->SetAdaptor(*mAdaptor);
   mSurface->SetScene(mScene);
 
+  // Recreate the render target
+  CreateRenderTarget();
+
   OnSurfaceSet(surface);
 }
 
@@ -169,6 +172,9 @@ void SceneHolder::SurfaceResized()
   mScene.SurfaceResized(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height));
 
   mSurface->SetFullSwapNextFrame();
+
+  // Recreate the render target
+  CreateRenderTarget();
 }
 
 Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
@@ -219,7 +225,22 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   mSurface->SetAdaptor(*mAdaptor);
   mSurface->SetScene(mScene);
 
+  // Create the render target
+  CreateRenderTarget();
+
   OnAdaptorSet(adaptor);
+}
+
+void SceneHolder::CreateRenderTarget()
+{
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(mSurface.get())
+    .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+  mRenderTarget = mAdaptor->GetGraphicsInterface().GetController().CreateRenderTarget(rtInfo, std::move(mRenderTarget));
+
+  mScene.SetSurfaceRenderTarget(mRenderTarget.get());
 }
 
 void SceneHolder::Pause()

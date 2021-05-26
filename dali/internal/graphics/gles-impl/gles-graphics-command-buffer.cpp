@@ -21,7 +21,10 @@
 // INTERNAL INCLUDES
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
+#include "gles-graphics-framebuffer.h"
 #include "gles-graphics-pipeline.h"
+#include "gles-graphics-render-pass.h"
+#include "gles-graphics-render-target.h"
 #include "gles-graphics-texture.h"
 
 namespace Dali::Graphics::GLES
@@ -121,24 +124,36 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
 }
 
 void CommandBuffer::BeginRenderPass(
-  Graphics::RenderPass&   renderPass,
-  Graphics::RenderTarget& renderTarget,
-  Extent2D                renderArea,
+  Graphics::RenderPass*   renderPass,
+  Graphics::RenderTarget* renderTarget,
+  Rect2D                  renderArea,
   std::vector<ClearValue> clearValues)
 {
+  mCommands.emplace_back(CommandType::BEGIN_RENDERPASS);
+  auto& cmd                        = mCommands.back();
+  cmd.beginRenderPass.renderPass   = static_cast<GLES::RenderPass*>(renderPass);
+  cmd.beginRenderPass.renderTarget = static_cast<GLES::RenderTarget*>(renderTarget);
+  cmd.beginRenderPass.renderArea   = renderArea;
+  cmd.beginRenderPass.clearValues  = clearValues;
 }
 
-/**
- * @brief Ends current render pass
- *
- * This command must be issued in order to finalize the render pass.
- * It's up to the implementation whether anything has to be done but
- * the Controller may use end RP marker in order to resolve resource
- * dependencies (for example, to know when target texture is ready
- * before passing it to another render pass).
- */
-void CommandBuffer::EndRenderPass()
+void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
+  mCommands.emplace_back(CommandType::END_RENDERPASS);
+  auto& cmd = mCommands.back();
+
+  cmd.endRenderPass.syncObject = static_cast<GLES::SyncObject*>(syncObject);
+}
+
+void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
+{
+  mCommands.emplace_back(CommandType::EXECUTE_COMMAND_BUFFERS);
+  auto& cmd = mCommands.back();
+  cmd.executeCommandBuffers.buffers.reserve(commandBuffers.size());
+  for(auto&& item : commandBuffers)
+  {
+    cmd.executeCommandBuffers.buffers.emplace_back(static_cast<const GLES::CommandBuffer*>(item));
+  }
 }
 
 void CommandBuffer::Draw(
@@ -214,6 +229,80 @@ void CommandBuffer::SetViewport(Viewport value)
 void CommandBuffer::SetViewportEnable(bool value)
 {
   // There is no GL equivalent
+}
+
+void CommandBuffer::SetColorMask(bool enabled)
+{
+  mCommands.emplace_back(CommandType::SET_COLOR_MASK);
+  auto& cmd = mCommands.back().colorMask;
+  ;
+  cmd.enabled = enabled;
+}
+
+void CommandBuffer::ClearStencilBuffer()
+{
+  mCommands.emplace_back(CommandType::CLEAR_STENCIL_BUFFER);
+}
+
+void CommandBuffer::SetStencilTestEnable(bool stencilEnable)
+{
+  mCommands.emplace_back(CommandType::SET_STENCIL_TEST_ENABLE);
+  mCommands.back().stencilTest.enabled = stencilEnable;
+}
+
+void CommandBuffer::SetStencilWriteMask(uint32_t writeMask)
+{
+  mCommands.emplace_back(CommandType::SET_STENCIL_WRITE_MASK);
+  mCommands.back().stencilWriteMask.mask = writeMask;
+}
+
+void CommandBuffer::SetStencilOp(Graphics::StencilOp failOp,
+                                 Graphics::StencilOp passOp,
+                                 Graphics::StencilOp depthFailOp)
+{
+  mCommands.emplace_back(CommandType::SET_STENCIL_OP);
+  auto& cmd       = mCommands.back().stencilOp;
+  cmd.failOp      = failOp;
+  cmd.passOp      = passOp;
+  cmd.depthFailOp = depthFailOp;
+}
+
+void CommandBuffer::SetStencilFunc(Graphics::CompareOp compareOp,
+                                   uint32_t            reference,
+                                   uint32_t            compareMask)
+{
+  mCommands.emplace_back(CommandType::SET_STENCIL_FUNC);
+  auto& cmd       = mCommands.back().stencilFunc;
+  cmd.compareOp   = compareOp;
+  cmd.compareMask = compareMask;
+  cmd.reference   = reference;
+}
+
+void CommandBuffer::SetDepthCompareOp(Graphics::CompareOp compareOp)
+{
+  mCommands.emplace_back(CommandType::SET_DEPTH_COMPARE_OP);
+  mCommands.back().depth.compareOp = compareOp;
+}
+
+void CommandBuffer::SetDepthTestEnable(bool depthTestEnable)
+{
+  mCommands.emplace_back(CommandType::SET_DEPTH_TEST_ENABLE);
+  mCommands.back().depth.testEnabled = depthTestEnable;
+}
+void CommandBuffer::SetDepthWriteEnable(bool depthWriteEnable)
+{
+  mCommands.emplace_back(CommandType::SET_DEPTH_WRITE_ENABLE);
+  mCommands.back().depth.writeEnabled = depthWriteEnable;
+}
+void CommandBuffer::ClearDepthBuffer()
+{
+  mCommands.emplace_back(CommandType::CLEAR_DEPTH_BUFFER);
+}
+
+void CommandBuffer::PresentRenderTarget(GLES::RenderTarget* renderTarget)
+{
+  mCommands.emplace_back(CommandType::PRESENT_RENDER_TARGET);
+  mCommands.back().presentRenderTarget.targetToPresent = renderTarget;
 }
 
 [[nodiscard]] const std::vector<Command>& CommandBuffer::GetCommands() const

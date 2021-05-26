@@ -20,10 +20,9 @@
 
 namespace Dali::Accessibility
 {
-
 struct DummyBridge : Dali::Accessibility::Bridge
 {
-  static DummyBridge *GetInstance()
+  static DummyBridge* GetInstance()
   {
     static DummyBridge instance;
 

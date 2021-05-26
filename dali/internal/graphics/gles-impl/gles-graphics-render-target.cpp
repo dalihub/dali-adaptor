@@ -17,3 +17,51 @@
 
 // CLASS HEADER
 #include "gles-graphics-render-target.h"
+
+// INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include "egl-graphics-controller.h"
+#include "gles-graphics-framebuffer.h"
+
+namespace Dali::Graphics::GLES
+{
+struct RenderTarget::Impl
+{
+  Impl(EglGraphicsController& controller)
+  : controller(controller){};
+
+  ~Impl() = default;
+
+  EglGraphicsController& controller;
+};
+
+RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: RenderTargetResource(createInfo, controller)
+{
+  mImpl = std::make_unique<Impl>(controller);
+
+  if(createInfo.surface)
+  {
+    controller.CreateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(createInfo.surface));
+  }
+}
+
+RenderTarget::~RenderTarget()
+{
+  if(mCreateInfo.surface)
+  {
+    mImpl->controller.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
+  }
+}
+
+GLES::Framebuffer* RenderTarget::GetFramebuffer() const
+{
+  return static_cast<GLES::Framebuffer*>(mCreateInfo.framebuffer);
+}
+
+Surface* RenderTarget::GetSurface() const
+{
+  return mCreateInfo.surface;
+}
+
+} // namespace Dali::Graphics::GLES

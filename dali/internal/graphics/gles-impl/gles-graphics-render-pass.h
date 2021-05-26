@@ -37,10 +37,7 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : RenderPassResource(createInfo, controller)
-  {
-  }
+  RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
    * @brief Destructor
@@ -73,6 +70,10 @@ public:
   {
     // TODO: Implement moving to the discard queue
   }
+
+private:
+  struct Impl;
+  std::unique_ptr<Impl> mImpl{nullptr};
 };
 
 } // namespace Dali::Graphics::GLES

@@ -16,12 +16,17 @@
  */
 
 #include "gles-context.h"
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
+#include "gles-graphics-render-pass.h"
+#include "gles-graphics-render-target.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -55,6 +60,10 @@ struct Context::Impl
   // Currently bound UBOs (check if it's needed per program!)
   std::vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
   UniformBufferBindingDescriptor              mCurrentStandaloneUBOBinding{};
+
+  // Current render pass and render target
+  const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
+  const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 };
 
 Context::Context(EglGraphicsController& controller)
@@ -87,6 +96,11 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   ResolveUniformBuffers();
 
   // Bind textures
+  // Map binding# to sampler location
+  const auto program = static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program);
+
+  const auto& reflection = program->GetReflection();
+  const auto& samplers   = reflection.GetSamplers();
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
@@ -102,6 +116,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
     texture->Bind(binding);
     texture->Prepare(); // @todo also non-const.
+
+    if(binding.binding < samplers.size()) // binding maps to texture unit. (texture bindings should also be in binding order)
+    {
+      // Offset is set to the lexical offset within the frag shader, map it to the texture unit
+      // @todo Explicitly set the texture unit through the graphics interface
+      gl.Uniform1i(samplers[binding.binding].location, samplers[binding.binding].offset);
+    }
   }
 
   // for each attribute bind vertices
@@ -310,7 +331,7 @@ void Context::ResolveStandaloneUniforms()
 
   auto extraInfos = reflection.GetStandaloneUniformExtraInfo();
 
-  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress());
+  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
 
   for(const auto& info : extraInfos)
   {
@@ -403,9 +424,166 @@ void Context::ResolveStandaloneUniforms()
   }
 }
 
+void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
+{
+  auto& renderPass   = *renderPassBegin.renderPass;
+  auto& renderTarget = *renderPassBegin.renderTarget;
+
+  const auto& targetInfo = renderTarget.GetCreateInfo();
+
+  auto& gl = *mImpl->mController.GetGL();
+
+  if(targetInfo.surface)
+  {
+    // Bind surface FB
+    gl.BindFramebuffer(GL_FRAMEBUFFER, 0);
+  }
+  else if(targetInfo.framebuffer)
+  {
+    // bind framebuffer and swap.
+    renderTarget.GetFramebuffer()->Bind();
+  }
+
+  // clear (ideally cache the setup)
+
+  // In GL we assume that the last attachment is depth/stencil (we may need
+  // to cache extra information inside GLES RenderTarget if we want to be
+  // more specific in case of MRT)
+
+  const auto& attachments = *renderPass.GetCreateInfo().attachments;
+  const auto& color0      = attachments[0];
+  GLuint      mask        = 0;
+  if(color0.loadOp == AttachmentLoadOp::CLEAR)
+  {
+    mask |= GL_COLOR_BUFFER_BIT;
+
+    // Set clear color (todo: cache it!)
+    // Something goes wrong here if Alpha mask is GL_TRUE
+    gl.ColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    gl.ClearColor(renderPassBegin.clearValues[0].color.r,
+                  renderPassBegin.clearValues[0].color.g,
+                  renderPassBegin.clearValues[0].color.b,
+                  renderPassBegin.clearValues[0].color.a);
+  }
+
+  // check for depth stencil
+  if(attachments.size() > 1)
+  {
+    const auto& depthStencil = attachments.back();
+    if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
+    {
+      gl.DepthMask(true);
+      mask |= GL_DEPTH_BUFFER_BIT;
+    }
+    if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
+    {
+      gl.StencilMask(0xFF);
+      mask |= GL_STENCIL_BUFFER_BIT;
+    }
+  }
+
+  gl.Enable(GL_SCISSOR_TEST);
+  gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
+  gl.Clear(mask);
+  gl.Disable(GL_SCISSOR_TEST);
+
+  mImpl->mCurrentRenderPass   = &renderPass;
+  mImpl->mCurrentRenderTarget = &renderTarget;
+}
+
+void Context::EndRenderPass()
+{
+  if(mImpl->mCurrentRenderTarget)
+  {
+    if(mImpl->mCurrentRenderTarget->GetFramebuffer())
+    {
+      auto& gl = *mImpl->mController.GetGL();
+      gl.Flush();
+    }
+  }
+}
+
 void Context::ClearState()
 {
   mImpl->mCurrentTextureBindings.clear();
+}
+
+void Context::ColorMask(bool enabled)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.ColorMask(enabled, enabled, enabled, enabled);
+}
+
+void Context::ClearStencilBuffer()
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.Clear(GL_STENCIL_BUFFER_BIT);
+}
+
+void Context::ClearDepthBuffer()
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.Clear(GL_DEPTH_BUFFER_BIT);
+}
+
+void Context::SetStencilTestEnable(bool stencilEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  if(stencilEnable)
+  {
+    gl.Enable(GL_STENCIL_TEST);
+  }
+  else
+  {
+    gl.Disable(GL_STENCIL_TEST);
+  }
+}
+
+void Context::StencilMask(uint32_t writeMask)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilMask(writeMask);
+}
+
+void Context::StencilFunc(Graphics::CompareOp compareOp,
+                          uint32_t            reference,
+                          uint32_t            compareMask)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilFunc(GLCompareOp(compareOp).op, reference, compareMask);
+}
+
+void Context::StencilOp(Graphics::StencilOp failOp,
+                        Graphics::StencilOp depthFailOp,
+                        Graphics::StencilOp passOp)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.StencilOp(GLStencilOp(failOp).op, GLStencilOp(depthFailOp).op, GLStencilOp(passOp).op);
+}
+
+void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DepthFunc(GLCompareOp(compareOp).op);
+}
+
+void Context::SetDepthTestEnable(bool depthTestEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  if(depthTestEnable)
+  {
+    gl.Enable(GL_DEPTH_TEST);
+  }
+  else
+  {
+    gl.Disable(GL_DEPTH_TEST);
+  }
+}
+
+void Context::SetDepthWriteEnable(bool depthWriteEnable)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DepthMask(depthWriteEnable);
 }
 
 } // namespace Dali::Graphics::GLES

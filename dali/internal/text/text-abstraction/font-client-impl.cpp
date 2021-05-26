@@ -387,7 +387,8 @@ uint32_t FontClient::GetNumberOfPointsPerOneUnitOfPointSize() const
   {
     return mPlugin->GetNumberOfPointsPerOneUnitOfPointSize();
   }
-  return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;;
+  return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  ;
 }
 
 FT_FaceRec_* FontClient::GetFreetypeFace(FontId fontId)

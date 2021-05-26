@@ -88,15 +88,63 @@ public:
    */
   void Prepare();
 
-protected:
+  /**
+   * @brief Returns the GL Target
+   * @return the Gl target
+   */
+  [[nodiscard]] GLenum GetGlTarget() const
+  {
+    return mGlTarget;
+  }
+
+  /**
+   * @brief Sets the maximum mipmap level
+   * @param[in] maxMipMapLevel The maximum mipmap level
+   */
+  void SetMaxMipMapLevel(const uint32_t maxMipMapLevel)
+  {
+    mMaxMipMapLevel = maxMipMapLevel;
+  }
+
+  /**
+   * @brief Returns the maximum mipmap level
+   * @return The maximum mipmap level
+   */
+  [[nodiscard]] uint32_t GetMaxMipMapLevel() const
+  {
+    return mMaxMipMapLevel;
+  }
+
+  /**
+   * @param pData  Input data
+   * @param sizeInBytes Size of the input data in bytes
+   * @param width  Width of the output buffer
+   * @param height height of the output buffer
+   * @param outputBuffer The buffer to write to
+   * @return true if converted, or false otherwise
+   */
+  bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer);
+
+  bool InitializeNativeImage();
+
+  bool InitializeTexture();
+
+  Format ValidateFormat(Format sourceFormat);
+
+  bool IsCompressed()
+  {
+    return mIsCompressed;
+  }
+
 private:
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
+  uint32_t          mMaxMipMapLevel{0u};
   void*             mGLOwnerContext{nullptr};
-  bool              InitializeNativeImage();
-  bool              InitializeTexture();
+  bool              mIsCompressed{false};
 };
+
 } // namespace Dali::Graphics::GLES
 
 #endif

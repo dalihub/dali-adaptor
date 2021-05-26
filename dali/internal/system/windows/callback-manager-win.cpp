@@ -23,7 +23,7 @@
 
 // Need to undef the following constants as they are defined in one of the headers in Windows.h but used in DALi (via debug.h)
 #undef TRANSPARENT // Used in constants.h
-#undef CopyMemory // Used in dali-vector.h
+#undef CopyMemory  // Used in dali-vector.h
 
 #include <dali/integration-api/debug.h>
 

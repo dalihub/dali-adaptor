@@ -122,7 +122,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
+  void PostRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()

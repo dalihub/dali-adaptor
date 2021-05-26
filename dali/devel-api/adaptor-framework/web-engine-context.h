@@ -83,9 +83,9 @@ public:
   enum class ApplicationType
   {
     WEB_BROWSER = 0,
-    HBB_TV = 1,
+    HBB_TV      = 1,
     WEB_RUNTIME = 2,
-    OTHER = 3
+    OTHER       = 3
   };
 
   /**

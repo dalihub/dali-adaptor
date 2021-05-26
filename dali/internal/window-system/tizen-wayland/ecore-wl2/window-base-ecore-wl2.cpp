@@ -1016,8 +1016,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
     // When window is just moved or window is resized by client application,
     // The configure notification event's size will be 0.
     // If new size is 0, the resized work should be skip.
-    int newWidth = mWindowPositionSize.width;
-    int newHeight = mWindowPositionSize.height;
+    int  newWidth    = mWindowPositionSize.width;
+    int  newHeight   = mWindowPositionSize.height;
     bool windowMoved = false, windowResized = false;
 
     if(ev->x != mWindowPositionSize.x || ev->y != mWindowPositionSize.y)
@@ -1028,8 +1028,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
     if(tempWidth != 0 && tempHeight != 0 && (tempWidth != mWindowPositionSize.width || tempHeight != mWindowPositionSize.height))
     {
       windowResized = true;
-      newWidth = tempWidth;
-      newHeight = tempHeight;
+      newWidth      = tempWidth;
+      newHeight     = tempHeight;
     }
 
     if(windowMoved || windowResized)

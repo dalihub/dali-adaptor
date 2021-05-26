@@ -164,7 +164,7 @@ void Application::ChangePreInitializedWindowSize()
   else if(screenWidth != mWindowPositionSize.width || screenHeight != mWindowPositionSize.height)
   {
     //Some apps can receive screen size differently after launching by specifying size in manifest.
-    mWindowPositionSize.width = screenWidth;
+    mWindowPositionSize.width  = screenWidth;
     mWindowPositionSize.height = screenHeight;
     mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
   }

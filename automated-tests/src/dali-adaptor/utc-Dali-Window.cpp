@@ -474,7 +474,7 @@ int UtcDaliWindowAddAuxiliaryHintNegative(void)
   {
     std::string arg1;
     std::string arg2;
-    instance.AddAuxiliaryHint(arg1,arg2);
+    instance.AddAuxiliaryHint(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -584,8 +584,8 @@ int UtcDaliWindowSetAuxiliaryHintValueNegative(void)
   try
   {
     unsigned int arg1(0u);
-    std::string arg2;
-    instance.SetAuxiliaryHintValue(arg1,arg2);
+    std::string  arg2;
+    instance.SetAuxiliaryHintValue(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -804,7 +804,7 @@ int UtcDaliWindowSetClassNegative(void)
   {
     std::string arg1;
     std::string arg2;
-    instance.SetClass(arg1,arg2);
+    instance.SetClass(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1122,9 +1122,9 @@ int UtcDaliWindowSetPositionSizeNegative(void)
 {
   try
   {
-    Dali::Window arg1;
+    Dali::Window    arg1;
     Dali::Rect<int> arg2;
-    DevelWindow::SetPositionSize(arg1,arg2);
+    DevelWindow::SetPositionSize(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1198,10 +1198,10 @@ int UtcDaliWindowAddFrameRenderedCallbackNegative(void)
 {
   try
   {
-    Dali::Window arg1;
+    Dali::Window                        arg1;
     std::unique_ptr<Dali::CallbackBase> arg2;
-    int arg3(0);
-    DevelWindow::AddFrameRenderedCallback(arg1,std::move(arg2),arg3);
+    int                                 arg3(0);
+    DevelWindow::AddFrameRenderedCallback(arg1, std::move(arg2), arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1215,9 +1215,9 @@ int UtcDaliWindowSetAvailableOrientationsNegative(void)
 {
   try
   {
-    Dali::Window arg1;
+    Dali::Window                          arg1;
     Dali::Vector<Dali::WindowOrientation> arg2;
-    DevelWindow::SetAvailableOrientations(arg1,arg2);
+    DevelWindow::SetAvailableOrientations(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1231,10 +1231,10 @@ int UtcDaliWindowAddFramePresentedCallbackNegative(void)
 {
   try
   {
-    Dali::Window arg1;
+    Dali::Window                        arg1;
     std::unique_ptr<Dali::CallbackBase> arg2;
-    int arg3(0);
-    DevelWindow::AddFramePresentedCallback(arg1,std::move(arg2),arg3);
+    int                                 arg3(0);
+    DevelWindow::AddFramePresentedCallback(arg1, std::move(arg2), arg3);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
@@ -1325,7 +1325,7 @@ int UtcDaliWindowSetParentNegative(void)
   {
     Dali::Window arg1;
     Dali::Window arg2;
-    DevelWindow::SetParent(arg1,arg2);
+    DevelWindow::SetParent(arg1, arg2);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

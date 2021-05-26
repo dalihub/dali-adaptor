@@ -466,7 +466,6 @@ protected:
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
   UpdatePositionSizeType                  mUpdatePositionSizeSignal;
-
 };
 
 } // namespace Adaptor

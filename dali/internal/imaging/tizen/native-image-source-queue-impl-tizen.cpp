@@ -38,7 +38,7 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE 3
 
-const char* SAMPLER_TYPE    = "samplerExternalOES";
+const char* SAMPLER_TYPE = "samplerExternalOES";
 
 // clang-format off
 int FORMATS_BLENDING_REQUIRED[] = {

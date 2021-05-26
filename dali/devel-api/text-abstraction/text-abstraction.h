@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/devel-api/text-abstraction/hyphenation.h>
 #include <dali/devel-api/text-abstraction/script.h>
 #include <dali/devel-api/text-abstraction/segmentation.h>
 #include <dali/devel-api/text-abstraction/shaping.h>
-#include <dali/devel-api/text-abstraction/hyphenation.h>
 
 #endif // DALI_TEXT_ABSTRACTION_H

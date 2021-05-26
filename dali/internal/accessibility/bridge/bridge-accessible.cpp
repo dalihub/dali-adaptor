@@ -343,7 +343,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
 void BridgeAccessible::SuppressScreenReader(bool suppress)
 {
-   suppressScreenReader = suppress;
+  suppressScreenReader = suppress;
 }
 
 DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t xBeg, int32_t yBeg, int32_t xEnd, int32_t yEnd, Dali::Accessibility::GestureState state, uint32_t eventTime)

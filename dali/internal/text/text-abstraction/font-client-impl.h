@@ -233,7 +233,7 @@ public:
    */
   Size GetMaximumTextAtlasSize() const;
 
-   /**
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDefaultTextAtlasSize()
    */
   Size GetDefaultTextAtlasSize() const;

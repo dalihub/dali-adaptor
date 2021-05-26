@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE   = 768u;                  
 const float           FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
 
 //Default atlas block
-const bool     FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED  = true;
-const uint32_t FontClient::DEFAULT_TEXT_ATLAS_WIDTH          = 512u;
-const uint32_t FontClient::DEFAULT_TEXT_ATLAS_HEIGHT         = 512u;
+const bool     FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED = true;
+const uint32_t FontClient::DEFAULT_TEXT_ATLAS_WIDTH         = 512u;
+const uint32_t FontClient::DEFAULT_TEXT_ATLAS_HEIGHT        = 512u;
 const Size     FontClient::DEFAULT_TEXT_ATLAS_SIZE(DEFAULT_TEXT_ATLAS_WIDTH, DEFAULT_TEXT_ATLAS_HEIGHT);
 
 //Maximum atlas block
@@ -44,9 +44,9 @@ const Size     FontClient::MAX_TEXT_ATLAS_SIZE(MAX_TEXT_ATLAS_WIDTH, MAX_TEXT_AT
 const uint16_t FontClient::PADDING_TEXT_ATLAS_BLOCK = 5u; // 2 * DOUBLE_PIXEL_PADDING + 1u
 
 //Maximum block size to fit into atlas block
-const Size  FontClient::MAX_SIZE_FIT_IN_ATLAS(MAX_TEXT_ATLAS_WIDTH - PADDING_TEXT_ATLAS_BLOCK, MAX_TEXT_ATLAS_HEIGHT - PADDING_TEXT_ATLAS_BLOCK );
+const Size FontClient::MAX_SIZE_FIT_IN_ATLAS(MAX_TEXT_ATLAS_WIDTH - PADDING_TEXT_ATLAS_BLOCK, MAX_TEXT_ATLAS_HEIGHT - PADDING_TEXT_ATLAS_BLOCK);
 
-const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u;//Found this value from toolkit
+const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u; //Found this value from toolkit
 
 FontClient::GlyphBufferData::GlyphBufferData()
 : buffer{nullptr},
@@ -262,22 +262,22 @@ void FontClient::EnableAtlasLimitation(bool enabled)
 
 bool FontClient::IsAtlasLimitationEnabled() const
 {
-  return GetImplementation(*this).IsAtlasLimitationEnabled( );
+  return GetImplementation(*this).IsAtlasLimitationEnabled();
 }
 
 Size FontClient::GetMaximumTextAtlasSize() const
 {
-  return GetImplementation(*this).GetMaximumTextAtlasSize( );
+  return GetImplementation(*this).GetMaximumTextAtlasSize();
 }
 
 Size FontClient::GetDefaultTextAtlasSize() const
 {
-  return GetImplementation(*this).GetDefaultTextAtlasSize( );
+  return GetImplementation(*this).GetDefaultTextAtlasSize();
 }
 
 Size FontClient::GetCurrentMaximumBlockSizeFitInAtlas() const
 {
-  return GetImplementation(*this).GetCurrentMaximumBlockSizeFitInAtlas( );
+  return GetImplementation(*this).GetCurrentMaximumBlockSizeFitInAtlas();
 }
 
 bool FontClient::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)

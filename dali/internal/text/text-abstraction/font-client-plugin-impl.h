@@ -405,7 +405,7 @@ struct FontClient::Plugin
    */
   Size GetMaximumTextAtlasSize() const;
 
-   /**
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDefaultTextAtlasSize()
    */
   Size GetDefaultTextAtlasSize() const;
@@ -685,7 +685,7 @@ private:
 
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 
-  bool mIsAtlasLimitationEnabled : 1; ///< Whether the validation on maximum atlas block size, then reduce block size to fit into it is enabled or not.
+  bool    mIsAtlasLimitationEnabled : 1;      ///< Whether the validation on maximum atlas block size, then reduce block size to fit into it is enabled or not.
   Vector2 mCurrentMaximumBlockSizeFitInAtlas; ///< The current maximum size (width, height) of text-atlas-block.
 };
 

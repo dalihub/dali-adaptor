@@ -18,13 +18,15 @@
 // CLASS HEADER
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/actors/layer.h>
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/actors/layer.h>
 #include <iostream>
 #include <unordered_map>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
@@ -36,8 +38,6 @@
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/devel-api/adaptor-framework/window-devel.h>
 
 using namespace Dali::Accessibility;
 
@@ -348,15 +348,15 @@ static Bridge* CreateBridge()
   try
   {
     /* check environment variable first */
-    const char *envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
-    if (envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
+    const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
+    if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
     {
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
     return new BridgeImpl;
   }
-  catch (const std::exception&)
+  catch(const std::exception&)
   {
     DALI_LOG_ERROR("Failed to initialize AT-SPI bridge");
     return Dali::Accessibility::DummyBridge::GetInstance();
@@ -367,17 +367,17 @@ Bridge* Bridge::GetCurrentBridge()
 {
   static Bridge* bridge;
 
-  if (bridge)
+  if(bridge)
   {
     return bridge;
   }
-  else if (autoInitState == AutoInitState::ENABLED)
+  else if(autoInitState == AutoInitState::ENABLED)
   {
     bridge = CreateBridge();
 
     /* check environment variable for suppressing screen-reader */
-    const char *envSuppressScreenReader = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SUPPRESS_SCREEN_READER);
-    if (envSuppressScreenReader && std::atoi(envSuppressScreenReader) != 0)
+    const char* envSuppressScreenReader = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_SUPPRESS_SCREEN_READER);
+    if(envSuppressScreenReader && std::atoi(envSuppressScreenReader) != 0)
     {
       bridge->SuppressScreenReader(true);
     }
@@ -390,7 +390,7 @@ Bridge* Bridge::GetCurrentBridge()
 
 void Bridge::DisableAutoInit()
 {
-  if (bridgeInitialized)
+  if(bridgeInitialized)
   {
     DALI_LOG_ERROR("Bridge::DisableAutoInit() called after bridge auto-initialization");
   }
@@ -402,13 +402,13 @@ void Bridge::EnableAutoInit()
 {
   autoInitState = AutoInitState::ENABLED;
 
-  if (bridgeInitialized)
+  if(bridgeInitialized)
   {
     return;
   }
 
-  auto rootLayer = Dali::Stage::GetCurrent().GetRootLayer();
-  auto window = Dali::DevelWindow::Get(rootLayer);
+  auto rootLayer       = Dali::Stage::GetCurrent().GetRootLayer();
+  auto window          = Dali::DevelWindow::Get(rootLayer);
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
   auto* bridge = Bridge::GetCurrentBridge();

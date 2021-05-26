@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <functional>
+#include <string>
 
 namespace Dali
 {
