@@ -615,7 +615,7 @@ private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
 
-  Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation;
+  Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
   Internal::Adaptor::GraphicsInterface*     mGraphics{nullptr}; // Pointer to owning structure via interface.
 
   std::queue<GLES::Texture*> mCreateTextureQueue;  ///< Create queue for texture resource
