@@ -401,6 +401,12 @@ bool NativeImageSourceTizen::IsColorDepthSupported(Dali::NativeImageSource::Colo
 
 bool NativeImageSourceTizen::CreateResource()
 {
+  // If an EGL image exists, use it as it is without creating it.
+  if(mEglImageKHR != NULL)
+  {
+    return true;
+  }
+
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
   EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mTbmSurface);
@@ -440,14 +446,15 @@ void NativeImageSourceTizen::PrepareTexture()
   Dali::Mutex::ScopedLock lock(mMutex);
   if(mSetSource)
   {
-    void* eglImage = mEglImageKHR;
+    // Destroy previous eglImage because use for new one.
+    // if mEglImageKHR is not to be NULL here, it will not be updated with a new eglImage.
+    mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
+    mEglImageKHR = NULL;
 
     if(CreateResource())
     {
       TargetTexture();
     }
-
-    mEglImageExtensions->DestroyImageKHR(eglImage);
 
     mSetSource = false;
   }
