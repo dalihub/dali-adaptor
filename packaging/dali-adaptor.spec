@@ -61,7 +61,6 @@ BuildRequires:  pkgconfig(libpng)
 BuildRequires:  pkgconfig(egl)
 BuildRequires:  libcurl-devel
 BuildRequires:  pkgconfig(harfbuzz)
-BuildRequires:  hyphen-devel
 BuildRequires:  fribidi-devel
 
 BuildRequires:  pkgconfig(capi-system-info)

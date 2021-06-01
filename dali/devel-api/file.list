@@ -141,7 +141,6 @@ SET( devel_api_text_abstraction_src_files
    ${adaptor_devel_api_dir}/text-abstraction/shaping.cpp
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.cpp
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.cpp
-   ${adaptor_devel_api_dir}/text-abstraction/hyphenation.cpp
 )
 
 
@@ -159,5 +158,4 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/text-abstraction-definitions.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.h
-   ${adaptor_devel_api_dir}/text-abstraction/hyphenation.h
 )
