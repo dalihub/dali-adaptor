@@ -1019,6 +1019,35 @@ public:
    * @return true on success, false otherwise
    */
   virtual bool CutText(size_t startPosition, size_t endPosition) = 0;
+
+  /**
+   * @brief Delete text in range
+   *
+   * @param[in] startPosition index of first character
+   * @param[in] endPosition index of first character after the last one expected
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool DeleteText(size_t startPosition, size_t endPosition) = 0;
+
+  /**
+   * @brief Insert text at startPosition
+   *
+   * @param[in] startPosition index of first character
+   * @param[in] text text content
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool InsertText(size_t startPosition, std::string text) = 0;
+
+  /**
+   * @brief Replace text with content
+   *
+   * @param[in] newContents text content
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool SetTextContents(std::string newContents) = 0;
 };
 
 /**

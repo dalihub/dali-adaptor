@@ -28,7 +28,10 @@ void BridgeEditableText::RegisterInterfaces()
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceEditableText};
   AddFunctionToInterface(desc, "CopyText", &BridgeEditableText::CopyText);
   AddFunctionToInterface(desc, "CutText", &BridgeEditableText::CutText);
+  AddFunctionToInterface(desc, "DeleteText", &BridgeEditableText::DeleteText);
+  AddFunctionToInterface(desc, "InsertText", &BridgeEditableText::InsertText);
   AddFunctionToInterface(desc, "PasteText", &BridgeEditableText::PasteText);
+  AddFunctionToInterface(desc, "SetTextContents", &BridgeEditableText::SetTextContents);
   dbusServer.addInterface("/", desc, true);
 }
 
@@ -52,6 +55,16 @@ DBus::ValueOrError<bool> BridgeEditableText::CutText(int32_t startPos, int32_t e
   return FindSelf()->CutText(startPos, endPos);
 }
 
+DBus::ValueOrError<bool> BridgeEditableText::DeleteText(int32_t startPos, int32_t endPos)
+{
+  return FindSelf()->DeleteText(startPos, endPos);
+}
+
+DBus::ValueOrError<bool> BridgeEditableText::InsertText(int32_t startPos, std::string text, [[maybe_unused]] int32_t length)
+{
+  return FindSelf()->InsertText(startPos, std::move(text));
+}
+
 DBus::ValueOrError<bool> BridgeEditableText::PasteText(int32_t pos)
 {
   // auto imfManager = Dali::Internal::Adaptor::ImfManager::Get();
@@ -60,4 +73,9 @@ DBus::ValueOrError<bool> BridgeEditableText::PasteText(int32_t pos)
   // clipboard.RequestItem();
   // return true;
   return false;
+}
+
+DBus::ValueOrError<bool> BridgeEditableText::SetTextContents(std::string newContents)
+{
+  return FindSelf()->SetTextContents(std::move(newContents));
 }
