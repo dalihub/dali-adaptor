@@ -219,41 +219,6 @@ public:
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::EnableAtlasLimitation(bool enabled)
-   */
-  void EnableAtlasLimitation(bool enabled);
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::IsAtlasLimitationEnabled()
-   */
-  bool IsAtlasLimitationEnabled() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetMaximumTextAtlasSize()
-   */
-  Size GetMaximumTextAtlasSize() const;
-
-   /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultTextAtlasSize()
-   */
-  Size GetDefaultTextAtlasSize() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetCurrentMaximumBlockSizeFitInAtlas()
-   */
-  Size GetCurrentMaximumBlockSizeFitInAtlas() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)
-   */
-  bool SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas);
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetNumberOfPointsPerOneUnitOfPointSize()
-   */
-  uint32_t GetNumberOfPointsPerOneUnitOfPointSize() const;
-
-  /**
    * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
    *
    * @param[in] fontId The font id.

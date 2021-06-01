@@ -64,22 +64,6 @@ public:
   static const PointSize26Dot6 DEFAULT_POINT_SIZE;   ///< The default point size.
   static const float           DEFAULT_ITALIC_ANGLE; ///< The default software italic angle in radians.
 
-  static const bool            DEFAULT_ATLAS_LIMITATION_ENABLED;  ///< The default behavior of whether atlas limitation is enabled in dali.
-  static const uint32_t        DEFAULT_TEXT_ATLAS_WIDTH;          ///< The default width of text-atlas-block.
-  static const uint32_t        DEFAULT_TEXT_ATLAS_HEIGHT;         ///< The default height of text-atlas-block.
-  static const Size            DEFAULT_TEXT_ATLAS_SIZE;           ///< The default size(width, height) of text-atlas-block.
-
-  static const uint32_t        MAX_TEXT_ATLAS_WIDTH;             ///< The maximum width of text-atlas-block.
-  static const uint32_t        MAX_TEXT_ATLAS_HEIGHT;            ///< The maximum height of text-atlas-block.
-  static const Size            MAX_TEXT_ATLAS_SIZE;              ///< The maximum height of text-atlas-block.
-
-  static const uint16_t        PADDING_TEXT_ATLAS_BLOCK ;        ///< Padding per edge. How much the block size (width, height) less than the text-atlas-block size (width, height).
-  static const Size            MAX_SIZE_FIT_IN_ATLAS;            ///< The maximum block's size fit into text-atlas-block.
-
-  static const uint32_t        NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE; ///< Factor multiply point-size in toolkit.
-
-
-
   /**
    * @brief Struct used to retrieve the glyph's bitmap.
    */
@@ -483,63 +467,6 @@ public:
    * return The index within the vector of embedded items.
    */
   GlyphIndex CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
-
-  /**
-   * @brief true to enable Atlas-Limitation.
-   *
-   * @note Used default configuration.
-   * @param[in] enabled The on/off value to enable/disable Atlas-Limitation.
-   */
-  void EnableAtlasLimitation(bool enabled);
-
-  /**
-   * @brief Check Atlas-Limitation is enabled or disabled.
-   *
-   * @note Used default configuration.
-   * return true if Atlas-Limitation is enabled, otherwise false.
-   */
-  bool IsAtlasLimitationEnabled() const;
-
-   /**
-   * @brief retrieve the maximum allowed width and height for text-atlas-block.
-   *
-   * @note Used default configuration.
-   * return the maximum width and height of text-atlas-block.
-   */
-  Size GetMaximumTextAtlasSize() const;
-
-   /**
-   * @brief retrieve the default width and height for text-atlas-block.
-   *
-   * @note Used default configuration.
-   * return the default width and height of text-atlas-block.
-   */
-  Size GetDefaultTextAtlasSize() const;
-
-  /**
-   * @brief retrieve the current maximum width and height for text-atlas-block.
-   *
-   * @note Used default configuration.
-   * return the current maximum width and height of text-atlas-block.
-   */
-  Size GetCurrentMaximumBlockSizeFitInAtlas() const;
-
-   /**
-   * @brief set the achieved size (width and height) for text-atlas-block.
-   * If @p currentMaximumBlockSizeFitInAtlas larger than the current maximum text atlas then store, otherwise ignore.
-   *
-   * @note Used default configuration.
-   * return true if the current maximum text atlas size is changed, otherwise false.
-   */
-  bool SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas);
-
-  /**
-   * @brief retrieve the number of points to scale-up one unit of point-size.
-   *
-   * @note Used default configuration.
-   * return the number of points per one unit of point-size
-   */
-  uint32_t GetNumberOfPointsPerOneUnitOfPointSize() const;
 
 public: // Not intended for application developers
   /**

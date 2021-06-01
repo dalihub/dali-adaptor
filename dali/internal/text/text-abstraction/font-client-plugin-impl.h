@@ -391,41 +391,6 @@ struct FontClient::Plugin
   GlyphIndex CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::EnableAtlasLimitation(bool enabled)
-   */
-  void EnableAtlasLimitation(bool enabled);
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::IsAtlasLimitationEnabled()
-   */
-  bool IsAtlasLimitationEnabled() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetMaximumTextAtlasSize()
-   */
-  Size GetMaximumTextAtlasSize() const;
-
-   /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetDefaultTextAtlasSize()
-   */
-  Size GetDefaultTextAtlasSize() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetCurrentMaximumBlockSizeFitInAtlas()
-   */
-  Size GetCurrentMaximumBlockSizeFitInAtlas() const;
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)
-   */
-  bool SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas);
-
-  /**
-   * @copydoc Dali::TextAbstraction::FontClient::GetNumberOfPointsPerOneUnitOfPointSize()
-   */
-  uint32_t GetNumberOfPointsPerOneUnitOfPointSize() const;
-
-  /**
    * @copydoc Dali::TextAbstraction::Internal::FontClient::GetFreetypeFace()
    */
   FT_FaceRec_* GetFreetypeFace(FontId fontId);
@@ -684,9 +649,6 @@ private:
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.
 
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
-
-  bool mIsAtlasLimitationEnabled : 1; ///< Whether the validation on maximum atlas block size, then reduce block size to fit into it is enabled or not.
-  Vector2 mCurrentMaximumBlockSizeFitInAtlas; ///< The current maximum size (width, height) of text-atlas-block.
 };
 
 } // namespace Internal

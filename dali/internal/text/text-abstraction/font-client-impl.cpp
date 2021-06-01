@@ -333,63 +333,6 @@ GlyphIndex FontClient::CreateEmbeddedItem(const TextAbstraction::FontClient::Emb
   return mPlugin->CreateEmbeddedItem(description, pixelFormat);
 }
 
-void FontClient::EnableAtlasLimitation(bool enabled)
-{
-  CreatePlugin();
-  return mPlugin->EnableAtlasLimitation(enabled);
-}
-
-bool FontClient::IsAtlasLimitationEnabled() const
-{
-  if(mPlugin)
-  {
-    return mPlugin->IsAtlasLimitationEnabled();
-  }
-  return TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED;
-}
-
-Size FontClient::GetMaximumTextAtlasSize() const
-{
-  if(mPlugin)
-  {
-    return mPlugin->GetMaximumTextAtlasSize();
-  }
-  return TextAbstraction::FontClient::MAX_TEXT_ATLAS_SIZE;
-}
-
-Size FontClient::GetDefaultTextAtlasSize() const
-{
-  if(mPlugin)
-  {
-    return mPlugin->GetDefaultTextAtlasSize();
-  }
-  return TextAbstraction::FontClient::DEFAULT_TEXT_ATLAS_SIZE;
-}
-
-Size FontClient::GetCurrentMaximumBlockSizeFitInAtlas() const
-{
-  if(mPlugin)
-  {
-    return mPlugin->GetCurrentMaximumBlockSizeFitInAtlas();
-  }
-  return TextAbstraction::FontClient::DEFAULT_TEXT_ATLAS_SIZE;
-}
-
-bool FontClient::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)
-{
-  CreatePlugin();
-  return mPlugin->SetCurrentMaximumBlockSizeFitInAtlas(currentMaximumBlockSizeFitInAtlas);
-}
-
-uint32_t FontClient::GetNumberOfPointsPerOneUnitOfPointSize() const
-{
-  if(mPlugin)
-  {
-    return mPlugin->GetNumberOfPointsPerOneUnitOfPointSize();
-  }
-  return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;;
-}
-
 FT_FaceRec_* FontClient::GetFreetypeFace(FontId fontId)
 {
   CreatePlugin();
