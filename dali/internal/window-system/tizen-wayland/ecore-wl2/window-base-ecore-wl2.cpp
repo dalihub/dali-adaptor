@@ -1004,40 +1004,10 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Window_Configure* ev(static_cast<Ecore_Wl2_Event_Window_Configure*>(event));
 
-  if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
     // Note: To comply with the wayland protocol, Dali should make an ack_configure
     // by calling ecore_wl2_window_commit
-
-    int tempWidth  = static_cast<int>(ev->w);
-    int tempHeight = static_cast<int>(ev->h);
-
-    // Initialize with previous size for skip resize when new size is 0.
-    // When window is just moved or window is resized by client application,
-    // The configure notification event's size will be 0.
-    // If new size is 0, the resized work should be skip.
-    int newWidth = mWindowPositionSize.width;
-    int newHeight = mWindowPositionSize.height;
-    bool windowMoved = false, windowResized = false;
-
-    if(ev->x != mWindowPositionSize.x || ev->y != mWindowPositionSize.y)
-    {
-      windowMoved = true;
-    }
-
-    if(tempWidth != 0 && tempHeight != 0 && (tempWidth != mWindowPositionSize.width || tempHeight != mWindowPositionSize.height))
-    {
-      windowResized = true;
-      newWidth = tempWidth;
-      newHeight = tempHeight;
-    }
-
-    if(windowMoved || windowResized)
-    {
-      Dali::PositionSize newPositionSize(ev->x, ev->y, newWidth, newHeight);
-      mUpdatePositionSizeSignal.Emit(newPositionSize);
-    }
-
     ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
   }
 }

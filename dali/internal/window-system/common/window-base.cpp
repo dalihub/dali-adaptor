@@ -39,8 +39,7 @@ WindowBase::WindowBase()
   mStyleChangedSignal(),
   mAccessibilitySignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal(),
-  mUpdatePositionSizeSignal()
+  mKeyboardRepeatSettingsChangedSignal()
 {
 }
 
@@ -127,12 +126,6 @@ WindowBase::WindowRedrawRequestSignalType& WindowBase::WindowRedrawRequestSignal
 {
   return mWindowRedrawRequestSignal;
 }
-
-WindowBase::UpdatePositionSizeType& WindowBase::UpdatePositionSizeSignal()
-{
-  return mUpdatePositionSizeSignal;
-}
-
 
 } // namespace Adaptor
 

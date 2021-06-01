@@ -79,6 +79,7 @@ Window::Window()
   mIsFocusAcceptable(true),
   mIconified(false),
   mOpaqueState(false),
+  mResizeEnabled(false),
   mType(WindowType::NORMAL),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
@@ -131,11 +132,14 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->TransitionEffectEventSignal().Connect(this, &Window::OnTransitionEffectEvent);
   mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect(this, &Window::OnKeyboardRepeatSettingsChanged);
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
-  mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
 
-  AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+  if(!positionSize.IsEmpty())
+  {
+    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+    mResizeEnabled = true;
+  }
 
   SetClass(name, className);
 
@@ -575,6 +579,12 @@ int Window::GetBrightness() const
 
 void Window::SetSize(Dali::Window::WindowSize size)
 {
+  if(!mResizeEnabled)
+  {
+    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+    mResizeEnabled = true;
+  }
+
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
@@ -610,6 +620,12 @@ Dali::Window::WindowSize Window::GetSize() const
 
 void Window::SetPosition(Dali::Window::WindowPosition position)
 {
+  if(!mResizeEnabled)
+  {
+    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+    mResizeEnabled = true;
+  }
+
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(PositionSize(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
@@ -626,6 +642,12 @@ Dali::Window::WindowPosition Window::GetPosition() const
 
 void Window::SetPositionSize(PositionSize positionSize)
 {
+  if(!mResizeEnabled)
+  {
+    AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+    mResizeEnabled = true;
+  }
+
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->MoveResize(positionSize);
@@ -772,11 +794,6 @@ void Window::OnKeyboardRepeatSettingsChanged()
 void Window::OnWindowRedrawRequest()
 {
   mAdaptor->RenderOnce();
-}
-
-void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
-{
-  SetPositionSize(positionSize);
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
