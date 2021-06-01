@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_WINDOW_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/any.h>
+#include <dali/public-api/signals/dali-signal.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -43,7 +44,8 @@ class OffscreenWindow;
 class DALI_ADAPTOR_API OffscreenWindow : public Dali::BaseHandle
 {
 public:
-  using WindowSize = Uint16Pair;
+  using WindowSize           = Uint16Pair;
+  using PostRenderSignalType = Signal<void(OffscreenWindow, Any)>;
 
 public:
   /**
@@ -174,18 +176,13 @@ public:
    */
   Uint16Pair GetDpi() const;
 
+public: // Signals
   /**
-   * @brief Sets the PostRenderCallback of the OffscreenWindow.
+   * @brief This signal is emitted when the OffscreenWindow is rendered.
    *
-   * @param[in] callback The PostRenderCallback function
-   * @code
-   *   void MyFunction( OffscreenWindow window, Any nativeSurface );
-   * @endcode
-   *
-   * @note Ownership of the callback is passed onto this class.
-   *
+   * @return The signal
    */
-  void SetPostRenderCallback(CallbackBase* callback);
+  PostRenderSignalType& PostRenderSignal();
 
 public: // Not intended for application developers
   /**

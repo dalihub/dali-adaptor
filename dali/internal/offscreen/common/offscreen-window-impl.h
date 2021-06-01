@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/signals/connection-tracker.h>
 #include <memory>
 
 // INTERNAL INCLUDES
@@ -38,10 +39,12 @@ namespace Internal
 /**
  * Implementation of the OffscreenWindow class.
  */
-class OffscreenWindow : public Dali::Internal::Adaptor::SceneHolder
+class OffscreenWindow : public Dali::Internal::Adaptor::SceneHolder,
+                        public ConnectionTracker
 {
 public:
-  using WindowSize = Dali::OffscreenWindow::WindowSize;
+  using WindowSize           = Dali::OffscreenWindow::WindowSize;
+  using PostRenderSignalType = Dali::OffscreenWindow::PostRenderSignalType;
 
   /**
    * @brief Create a new OffscreenWindow
@@ -81,16 +84,17 @@ public:
    */
   Any GetNativeHandle() const override;
 
-  /**
-   * @copydoc Dali::OffscreenWindow::SetPostRenderCallback
-   */
-  void SetPostRenderCallback(CallbackBase* callback);
-
   /*
    * @brief Initialize the OffscreenWindow
    * @param[in] isDefaultWindow Whether the OffscreenWindow is a default one or not
    */
   void Initialize(bool isDefaultWindow);
+
+public: // Signals
+  /**
+   * @copydoc Dali::OffscreenWindow::PostRenderSignal
+   */
+  PostRenderSignalType& PostRenderSignal();
 
 private:
   /**
@@ -119,9 +123,14 @@ private:
   OffscreenWindow(const OffscreenWindow&);
   OffscreenWindow& operator=(OffscreenWindow&);
 
+  /*
+   * @brief Initialize the OffscreenWindow (for internal use)
+   */
+  void Initialize();
+
 private:
   std::unique_ptr<TriggerEventInterface> mRenderNotification;
-  std::unique_ptr<CallbackBase>          mPostRenderCallback;
+  PostRenderSignalType                   mPostRenderSignal;
 };
 
 inline OffscreenWindow& GetImplementation(Dali::OffscreenWindow& offscreenWindow)
