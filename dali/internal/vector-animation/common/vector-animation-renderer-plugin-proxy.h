@@ -111,19 +111,9 @@ public:
 
 private:
   /**
-   * Vector Animation formats.
-   */
-  enum class AnimationFormat
-  {
-     NONE = 0,
-     JSON,
-     RIVE
-  };
-
-  /**
    * Dynamically loads the plugin.
    */
-  void Initialize(AnimationFormat format);
+  void Initialize();
 
 private:
   using CreateVectorAnimationRendererFunction = Dali::VectorAnimationRendererPlugin* (*)();
