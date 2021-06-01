@@ -621,9 +621,9 @@ Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& WebEngine::ConsoleMess
   return mPlugin->ConsoleMessageSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineResponsePolicyDecisionSignalType& WebEngine::ResponsePolicyDecisionSignal()
+Dali::WebEnginePlugin::WebEnginePolicyDecisionSignalType& WebEngine::PolicyDecisionSignal()
 {
-  return mPlugin->ResponsePolicyDecisionSignal();
+  return mPlugin->PolicyDecisionSignal();
 }
 
 Dali::WebEnginePlugin::WebEngineCertificateSignalType& WebEngine::CertificateConfirmSignal()
