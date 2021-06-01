@@ -254,13 +254,6 @@ struct DALI_ADAPTOR_API Bridge
   virtual void StopReading(bool alsoNonDiscardable) = 0;
 
   /**
-   * @brief Suppresses reading of screen-reader
-   *
-   * @param suppress whether to suppress reading of screen-reader
-   */
-  virtual void SuppressScreenReader(bool suppress) = 0;
-
-  /**
    * @brief Get screen reader status.
    */
   virtual bool GetScreenReaderEnabled() = 0;
@@ -275,34 +268,6 @@ struct DALI_ADAPTOR_API Bridge
    **/
   static Bridge* GetCurrentBridge();
 
-  /**
-   * @brief Blocks auto-initialization of AT-SPI bridge
-   *
-   * Use this only if your application starts before DBus does, and call it early in main()
-   * (before GetCurrentBridge() is called by anyone). GetCurrentBridge() will then return an
-   * instance of DummyBridge.
-   *
-   * When DBus is ready, call EnableAutoInit(). Please note that GetCurrentBridge() may still
-   * return an instance of DummyBridge if AT-SPI was disabled at compile time or using an
-   * environment variable, or if creating the real bridge failed.
-   *
-   * @see Dali::Accessibility::DummyBridge
-   * @see Dali::Accessibility::Bridge::EnableAutoInit
-   */
-  static void DisableAutoInit();
-
-  /**
-   * @brief Re-enables auto-initialization of AT-SPI bridge
-   *
-   * Normal applications do not have to call this function. GetCurrentBridge() tries to
-   * initialize the AT-SPI bridge when it is called for the first time.
-   *
-   * @see Dali::Accessibility::Bridge::DisableAutoInit
-   * @see Dali::Accessibility::Bridge::AddTopLevelWindow
-   * @see Dali::Accessibility::Bridge::SetApplicationName
-   */
-  static void EnableAutoInit();
-
 protected:
   struct Data
   {
@@ -313,13 +278,6 @@ protected:
   };
   std::shared_ptr<Data> data;
   friend class Accessible;
-
-  enum class AutoInitState
-  {
-    DISABLED,
-    ENABLED
-  };
-  inline static AutoInitState autoInitState = AutoInitState::ENABLED;
 
   /**
    * @brief Registers accessible object to be known in bridge object

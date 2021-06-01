@@ -88,29 +88,6 @@ bool BridgeBase::tickFilteredEvents()
   return !filteredEvents.empty();
 }
 
-void BridgeBase::RegisteredEventsUpdate()
-{
-  using ReturnType = std::vector<std::tuple<std::string, std::string>>;
-  registry.method<DBus::ValueOrError<ReturnType>()>( "GetRegisteredEvents" ).asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
-    if(!msg)
-    {
-      LOG() << "Get registered events failed";
-      return;
-    }
-
-    allowObjectBoundsChangedEvent = false;
-
-    ReturnType values = std::get<ReturnType>(msg.getValues());
-    for(long unsigned int i = 0; i < values.size(); i++)
-    {
-      if (!std::get<1>(values[i]).compare("Object:BoundsChanged"))
-      {
-        allowObjectBoundsChangedEvent = true;
-      }
-    }
-  });
-}
-
 BridgeBase::ForceUpResult BridgeBase::ForceUp()
 {
   if(Bridge::ForceUp() == ForceUpResult::ALREADY_UP)
@@ -140,25 +117,12 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
     dbusServer.addInterface(AtspiPath, desc);
   }
 
-  registry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, AtspiDbusInterfaceRegistry, con};
-
-  RegisteredEventsUpdate();
-
-  registry.addSignal<void(void)>("EventListenerRegistered", [this](void) {
-    RegisteredEventsUpdate();
-  });
-
-  registry.addSignal<void(void)>("EventListenerDeregistered", [this](void) {
-    RegisteredEventsUpdate();
-  });
-
   return ForceUpResult::JUST_STARTED;
 }
 
 void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
-  registry   = {};
   dbusServer = {};
   con        = {};
 }

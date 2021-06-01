@@ -275,7 +275,6 @@ protected:
 private:
   void IdSet(int id);
   int  IdGet();
-  void RegisteredEventsUpdate();
 
   using CacheElementType = std::tuple<
     Dali::Accessibility::Address,
@@ -300,8 +299,6 @@ protected:
   DBus::DBusServer           dbusServer;
   DBusWrapper::ConnectionPtr con;
   int                        id = 0;
-  DBus::DBusClient           registry;
-  bool                       allowObjectBoundsChangedEvent;
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H

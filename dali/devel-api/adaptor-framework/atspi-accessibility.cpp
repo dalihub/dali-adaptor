@@ -42,17 +42,6 @@ void Dali::AtspiAccessibility::StopReading(bool alsoNonDiscardable)
   }
 }
 
-bool Dali::AtspiAccessibility::SuppressScreenReader(bool suppress)
-{
-  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
-  {
-    bridge->SuppressScreenReader(suppress);
-    return true;
-  }
-
-  return false;
-}
-
 void Dali::AtspiAccessibility::Say(const std::string& text, bool discardable, std::function<void(std::string)> callback)
 {
   if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())

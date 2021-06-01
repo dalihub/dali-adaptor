@@ -496,8 +496,6 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue1,
 
 void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 {
-  if(!allowObjectBoundsChangedEvent) return;
-
   auto        addr       = obj->GetAddress();
   const auto  prefixPath = "/org/a11y/atspi/accessible/";
   const auto  nullPath   = "/org/a11y/atspi/null";

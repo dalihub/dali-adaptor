@@ -34,8 +34,6 @@
 #define A11yDbusPath "/org/a11y/bus"
 #define A11yDbusStatusInterface "org.a11y.Status"
 #define AtspiDbusNameRegistry "org.a11y.atspi.Registry"
-#define AtspiDbusPathRegistry "/org/a11y/atspi/registry"
-#define AtspiDbusInterfaceRegistry "org.a11y.atspi.Registry"
 #define AtspiDbusPathRoot "/org/a11y/atspi/accessible/root"
 #define AtspiDbusInterfaceSocket "org.a11y.atspi.Socket"
 #define AtspiPath "/org/a11y/atspi/accessible"
