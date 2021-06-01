@@ -82,14 +82,8 @@ bool ProgramImpl::Destroy()
 bool ProgramImpl::Create()
 {
   // Create and link new program
-  auto gl = mImpl->controller.GetGL();
-  if(!gl)
-  {
-    // Do nothing during shutdown
-    return false;
-  }
-
-  auto program = gl->CreateProgram();
+  auto& gl      = *mImpl->controller.GetGL();
+  auto  program = gl.CreateProgram();
 
   const auto& info = mImpl->createInfo;
   for(const auto& state : *info.shaderState)
@@ -99,23 +93,23 @@ bool ProgramImpl::Create()
     // Compile shader first (ignored when compiled)
     if(shader->Compile())
     {
-      gl->AttachShader(program, shader->GetGLShader());
+      gl.AttachShader(program, shader->GetGLShader());
     }
   }
-  gl->LinkProgram(program);
+  gl.LinkProgram(program);
 
   GLint status{0};
-  gl->GetProgramiv(program, GL_LINK_STATUS, &status);
+  gl.GetProgramiv(program, GL_LINK_STATUS, &status);
   if(status != GL_TRUE)
   {
     char    output[4096];
     GLsizei size{0u};
-    gl->GetProgramInfoLog(program, 4096, &size, output);
+    gl.GetProgramInfoLog(program, 4096, &size, output);
 
     // log on error
     // TODO: un-printf-it
     printf("Log: %s\n", output);
-    gl->DeleteProgram(program);
+    gl.DeleteProgram(program);
     return false;
   }
 
