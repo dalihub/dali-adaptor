@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,7 +248,7 @@ WindowType Window::GetType() const
   return GetImplementation(*this).GetType();
 }
 
-WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level)
+bool Window::SetNotificationLevel(WindowNotificationLevel level)
 {
   return GetImplementation(*this).SetNotificationLevel(level);
 }
@@ -268,7 +268,7 @@ bool Window::IsOpaqueState() const
   return GetImplementation(*this).IsOpaqueState();
 }
 
-WindowOperationResult Window::SetScreenOffMode(WindowScreenOffMode screenMode)
+bool Window::SetScreenOffMode(WindowScreenOffMode screenMode)
 {
   return GetImplementation(*this).SetScreenOffMode(screenMode);
 }
@@ -278,7 +278,7 @@ WindowScreenOffMode Window::GetScreenOffMode() const
   return GetImplementation(*this).GetScreenOffMode();
 }
 
-WindowOperationResult Window::SetBrightness(int brightness)
+bool Window::SetBrightness(int brightness)
 {
   return GetImplementation(*this).SetBrightness(brightness);
 }

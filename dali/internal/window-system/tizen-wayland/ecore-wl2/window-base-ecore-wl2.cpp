@@ -1879,7 +1879,7 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
   ecore_wl2_window_type_set(mEcoreWindow, windowType);
 }
 
-Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
+bool WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   while(!mTizenPolicy)
   {
@@ -1940,17 +1940,17 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
   if(!mNotificationLevelChangeDone)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetNotificationLevel: Level change is failed [%d, %d]\n", level, mNotificationChangeState);
-    Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return false;
   }
   else if(mNotificationChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetNotificationLevel: Permission denied! [%d]\n", level);
-    return Dali::WindowOperationResult::PERMISSION_DENIED;
+    return false;
   }
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetNotificationLevel: Level is changed [%d]\n", mNotificationLevel);
 
-  return Dali::WindowOperationResult::SUCCEED;
+  return true;
 }
 
 Dali::WindowNotificationLevel WindowBaseEcoreWl2::GetNotificationLevel() const
@@ -2027,7 +2027,7 @@ void WindowBaseEcoreWl2::SetOpaqueState(bool opaque)
   tizen_policy_set_opaque_state(mTizenPolicy, ecore_wl2_window_surface_get(mEcoreWindow), (opaque ? 1 : 0));
 }
 
-Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+bool WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   while(!mTizenPolicy)
   {
@@ -2067,17 +2067,17 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetScreenOffMode(WindowScreenOff
   if(!mScreenOffModeChangeDone)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetScreenOffMode: Screen mode change is failed [%d, %d]\n", screenOffMode, mScreenOffModeChangeState);
-    return Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return false;
   }
   else if(mScreenOffModeChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetScreenOffMode: Permission denied! [%d]\n", screenOffMode);
-    return Dali::WindowOperationResult::PERMISSION_DENIED;
+    return false;
   }
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetScreenOffMode: Screen mode is changed [%d]\n", mScreenOffMode);
 
-  return Dali::WindowOperationResult::SUCCEED;
+  return true;
 }
 
 WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
@@ -2123,7 +2123,7 @@ WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
   return screenMode;
 }
 
-Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
+bool WindowBaseEcoreWl2::SetBrightness(int brightness)
 {
   while(!mTizenDisplayPolicy)
   {
@@ -2147,17 +2147,17 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
   if(!mBrightnessChangeDone)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetBrightness: Brightness change is failed [%d, %d]\n", brightness, mBrightnessChangeState);
-    return Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return false;
   }
   else if(mBrightnessChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetBrightness: Permission denied! [%d]\n", brightness);
-    return Dali::WindowOperationResult::PERMISSION_DENIED;
+    return false;
   }
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetBrightness: Brightness is changed [%d]\n", mBrightness);
 
-  return Dali::WindowOperationResult::SUCCEED;
+  return true;
 }
 
 int WindowBaseEcoreWl2::GetBrightness() const

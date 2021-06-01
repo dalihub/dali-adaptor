@@ -372,9 +372,9 @@ void WindowBaseWin::SetType(Dali::WindowType type)
 {
 }
 
-Dali::WindowOperationResult WindowBaseWin::SetNotificationLevel(Dali::WindowNotificationLevel level)
+bool WindowBaseWin::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 Dali::WindowNotificationLevel WindowBaseWin::GetNotificationLevel() const
@@ -386,9 +386,9 @@ void WindowBaseWin::SetOpaqueState(bool opaque)
 {
 }
 
-Dali::WindowOperationResult WindowBaseWin::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+bool WindowBaseWin::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 WindowScreenOffMode WindowBaseWin::GetScreenOffMode() const
@@ -396,9 +396,9 @@ WindowScreenOffMode WindowBaseWin::GetScreenOffMode() const
   return WindowScreenOffMode::TIMEOUT;
 }
 
-Dali::WindowOperationResult WindowBaseWin::SetBrightness(int brightness)
+bool WindowBaseWin::SetBrightness(int brightness)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 int WindowBaseWin::GetBrightness() const

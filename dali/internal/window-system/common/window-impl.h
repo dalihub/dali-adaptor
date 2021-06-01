@@ -221,7 +221,7 @@ public:
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  WindowOperationResult SetNotificationLevel(WindowNotificationLevel level);
+  bool SetNotificationLevel(WindowNotificationLevel level);
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
@@ -241,7 +241,7 @@ public:
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
    */
-  WindowOperationResult SetScreenOffMode(WindowScreenOffMode screenOffMode);
+  bool SetScreenOffMode(WindowScreenOffMode screenOffMode);
 
   /**
    * @copydoc Dali::Window::GetScreenOffMode()
@@ -251,7 +251,7 @@ public:
   /**
    * @copydoc Dali::Window::SetBrightness()
    */
-  WindowOperationResult SetBrightness(int brightness);
+  bool SetBrightness(int brightness);
 
   /**
    * @copydoc Dali::Window::GetBrightness()

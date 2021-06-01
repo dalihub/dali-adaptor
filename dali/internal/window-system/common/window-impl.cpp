@@ -511,12 +511,12 @@ WindowType Window::GetType() const
   return mType;
 }
 
-WindowOperationResult Window::SetNotificationLevel(WindowNotificationLevel level)
+bool Window::SetNotificationLevel(WindowNotificationLevel level)
 {
   if(mType != WindowType::NOTIFICATION)
   {
     DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetNotificationLevel: Not supported window type [%d]\n", mType);
-    return WindowOperationResult::INVALID_OPERATION;
+    return false;
   }
 
   return mWindowBase->SetNotificationLevel(level);
@@ -547,7 +547,7 @@ bool Window::IsOpaqueState() const
   return mOpaqueState;
 }
 
-WindowOperationResult Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+bool Window::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
   return mWindowBase->SetScreenOffMode(screenOffMode);
 }
@@ -557,12 +557,12 @@ WindowScreenOffMode Window::GetScreenOffMode() const
   return mWindowBase->GetScreenOffMode();
 }
 
-WindowOperationResult Window::SetBrightness(int brightness)
+bool Window::SetBrightness(int brightness)
 {
   if(brightness < 0 || brightness > 100)
   {
     DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetBrightness: Invalid brightness value [%d]\n", brightness);
-    return WindowOperationResult::INVALID_OPERATION;
+    return false;
   }
 
   return mWindowBase->SetBrightness(brightness);

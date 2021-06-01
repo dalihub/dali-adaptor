@@ -420,12 +420,12 @@ public:
    * @brief Sets a priority level for the specified notification window.
    * @@SINCE_2_0.0
    * @param[in] level The notification window level.
-   * @return The result of the window operation.
+   * @return True if no error occurred, false otherwise.
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_WINDOW_PRIORITY
    * @remarks This can be used for a notification type window only. The default level is NotificationLevel::NONE.
    */
-  WindowOperationResult SetNotificationLevel(WindowNotificationLevel level);
+  bool SetNotificationLevel(WindowNotificationLevel level);
 
   /**
    * @brief Gets a priority level for the specified notification window.
@@ -462,11 +462,11 @@ public:
    * If the window is no longer shown, then the window manager requests the display system to go back to normal operation.
    * @@SINCE_2_0.0
    * @param[in] screenOffMode The screen mode.
-   * @return The result of the window operation.
+   * @return True if no error occurred, false otherwise.
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    */
-  WindowOperationResult SetScreenOffMode(WindowScreenOffMode screenOffMode);
+  bool SetScreenOffMode(WindowScreenOffMode screenOffMode);
 
   /**
    * @brief Gets a screen off mode of the window.
@@ -483,11 +483,11 @@ public:
    * A value less than 0 results in default brightness and a value greater than 100 results in maximum brightness.
    * @SINCE_1_2.60
    * @param[in] brightness The preferred brightness (0 to 100).
-   * @return The result of the window operation.
+   * @return True if no error occurred, false otherwise.
    * @PRIVLEVEL_PUBLIC
    * @PRIVILEGE_DISPLAY
    */
-  WindowOperationResult SetBrightness(int brightness);
+  bool SetBrightness(int brightness);
 
   /**
    * @brief Gets preferred brightness of the window.

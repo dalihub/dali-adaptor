@@ -250,9 +250,9 @@ void WindowBaseAndroid::SetType(Dali::WindowType type)
 {
 }
 
-Dali::WindowOperationResult WindowBaseAndroid::SetNotificationLevel(Dali::WindowNotificationLevel level)
+bool WindowBaseAndroid::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 Dali::WindowNotificationLevel WindowBaseAndroid::GetNotificationLevel() const
@@ -264,9 +264,9 @@ void WindowBaseAndroid::SetOpaqueState(bool opaque)
 {
 }
 
-Dali::WindowOperationResult WindowBaseAndroid::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+bool WindowBaseAndroid::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 WindowScreenOffMode WindowBaseAndroid::GetScreenOffMode() const
@@ -274,9 +274,9 @@ WindowScreenOffMode WindowBaseAndroid::GetScreenOffMode() const
   return WindowScreenOffMode::TIMEOUT;
 }
 
-Dali::WindowOperationResult WindowBaseAndroid::SetBrightness(int brightness)
+bool WindowBaseAndroid::SetBrightness(int brightness)
 {
-  return Dali::WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 int WindowBaseAndroid::GetBrightness() const

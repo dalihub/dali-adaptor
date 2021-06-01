@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -535,9 +535,9 @@ void WindowBaseCocoa::SetType( Dali::WindowType type )
 {
 }
 
-WindowOperationResult WindowBaseCocoa::SetNotificationLevel( WindowNotificationLevel level )
+bool WindowBaseCocoa::SetNotificationLevel( WindowNotificationLevel level )
 {
-  return WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 WindowNotificationLevel WindowBaseCocoa::GetNotificationLevel() const
@@ -549,9 +549,9 @@ void WindowBaseCocoa::SetOpaqueState( bool opaque )
 {
 }
 
-WindowOperationResult WindowBaseCocoa::SetScreenOffMode(WindowScreenOffMode screenOffMode)
+bool WindowBaseCocoa::SetScreenOffMode(WindowScreenOffMode screenOffMode)
 {
-  return WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 WindowScreenOffMode WindowBaseCocoa::GetScreenOffMode() const
@@ -559,9 +559,9 @@ WindowScreenOffMode WindowBaseCocoa::GetScreenOffMode() const
   return WindowScreenOffMode::TIMEOUT;
 }
 
-WindowOperationResult WindowBaseCocoa::SetBrightness( int brightness )
+bool WindowBaseCocoa::SetBrightness( int brightness )
 {
-  return WindowOperationResult::NOT_SUPPORTED;
+  return false;
 }
 
 int WindowBaseCocoa::GetBrightness() const
