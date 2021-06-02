@@ -36,14 +36,18 @@ public:
   {
   }
 
-  FileReader(Dali::Vector<uint8_t>& vector)
-  : FileStream(&vector[0], vector.Size(), FileStream::READ | FileStream::BINARY)
+  FileReader(const Dali::Vector<uint8_t>& vector)
+  : FileStream(vector.Begin(), vector.Size(), FileStream::READ | FileStream::BINARY)
   {
   }
 
-  FileReader(Dali::Vector<uint8_t>& vector, size_t dataSize)
-  : FileStream(&vector[0], dataSize, FileStream::READ | FileStream::BINARY)
+  FileReader(const Dali::Vector<uint8_t>& vector, size_t dataSize)
+  : FileStream(vector.Begin(), dataSize, FileStream::READ | FileStream::BINARY)
   {
+    if(dataSize > vector.Size())
+    {
+      DALI_LOG_ERROR("dataSize(%u) is bigger than vector.Size(%u)!\n", static_cast<uint32_t>(dataSize), static_cast<uint32_t>(vector.Size()));
+    }
   }
 
   FileReader(uint8_t* data, size_t dataSize)
