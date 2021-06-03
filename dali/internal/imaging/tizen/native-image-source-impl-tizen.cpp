@@ -418,9 +418,6 @@ bool NativeImageSourceTizen::CreateResource()
   mEglImageExtensions = mEglGraphics->GetImageExtensions();
   DALI_ASSERT_DEBUG(mEglImageExtensions);
 
-  // if resource of egl was not destroyed, destroy it first
-  DestroyResource();
-
   mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
 
   return mEglImageKHR != NULL;
