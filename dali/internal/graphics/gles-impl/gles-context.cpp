@@ -181,11 +181,25 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 {
   auto& gl = *mImpl->mController.GetGL();
 
-  // Execute states if pipeline is changed
-  const auto& currentProgram = mImpl->mCurrentPipeline ? static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program) : nullptr;
-  const auto& newProgram     = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+  // early out if neither current nor new pipelines are set
+  // this behaviour may be valid so no assert
+  if(!mImpl->mCurrentPipeline && !mImpl->mNewPipeline)
+  {
+    return;
+  }
 
-  if(mImpl->mCurrentPipeline != mImpl->mNewPipeline)
+  // Execute states if pipeline is changed
+  const auto currentProgram = mImpl->mCurrentPipeline ? static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program) : nullptr;
+
+  // case when new pipeline has been set
+  const GLES::Program* newProgram = nullptr;
+
+  if(mImpl->mNewPipeline)
+  {
+    newProgram = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+  }
+
+  if(mImpl->mNewPipeline && mImpl->mCurrentPipeline != mImpl->mNewPipeline)
   {
     if(!currentProgram || currentProgram->GetImplementation()->GetGlProgram() != newProgram->GetImplementation()->GetGlProgram())
     {
@@ -204,7 +218,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 
   // Bind textures
   // Map binding# to sampler location
-  const auto& reflection = newProgram->GetReflection();
+  const auto& reflection = !newProgram ? currentProgram->GetReflection() : newProgram->GetReflection();
   const auto& samplers   = reflection.GetSamplers();
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
