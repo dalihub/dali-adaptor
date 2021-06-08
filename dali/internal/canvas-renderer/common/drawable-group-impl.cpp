@@ -40,7 +40,7 @@ bool DrawableGroup::Clear()
 
 DrawableGroup::DrawableVector DrawableGroup::GetDrawables() const
 {
-  return DrawableVector();
+  return DrawableGroup::DrawableVector();
 }
 
 } // namespace Adaptor
