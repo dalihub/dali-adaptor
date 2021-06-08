@@ -9,6 +9,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable-group.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
@@ -57,6 +58,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable-group.h
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h

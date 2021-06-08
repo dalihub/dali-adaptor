@@ -209,9 +209,14 @@ Rect<float> DrawableTizen::GetBoundingBox() const
 #endif
 }
 
-void DrawableTizen::SetDrawableAdded(bool added)
+void DrawableTizen::SetAdded(bool added)
 {
   mAdded = !!added;
+}
+
+bool DrawableTizen::IsAdded() const
+{
+  return mAdded;
 }
 
 void* DrawableTizen::GetObject() const

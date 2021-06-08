@@ -1,3 +1,6 @@
+#ifndef DALI_INTERNAL_DRAWABLE_GROUP_FACTORY_H
+#define DALI_INTERNAL_DRAWABLE_GROUP_FACTORY_H
+
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
@@ -15,7 +18,8 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/generic/canvas-renderer-impl-generic.h>
+// EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/canvas-renderer-drawable-group.h>
 
 namespace Dali
 {
@@ -23,17 +27,20 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace CanvasRendererFactory
+namespace DrawableGroupFactory
 {
-Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox)
-{
-  return Dali::Internal::Adaptor::CanvasRendererGeneric::New(viewBox);
-}
+/**
+ * @brief Creates new instance of DrawableGroup implementation
+ * @return pointer to DrawableGroup implementation instance
+ */
+Dali::Internal::Adaptor::DrawableGroup* New();
 
-} // namespace CanvasRendererFactory
+} // namespace DrawableGroupFactory
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
+
+#endif // DALI_INTERNAL_DRAWABLE_GROUP_FACTORY_H
