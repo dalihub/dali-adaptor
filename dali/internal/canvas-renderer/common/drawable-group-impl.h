@@ -38,6 +38,11 @@ class DrawableGroup : public Internal::Adaptor::Drawable
 {
 public:
   /**
+   * @brief List of drawables.
+   */
+  using DrawableVector = std::vector<Dali::CanvasRenderer::Drawable>;
+
+  /**
    * @brief Constructor
    */
   DrawableGroup();
@@ -48,7 +53,7 @@ public:
   ~DrawableGroup() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable()
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::AddDrawable
    */
   virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
@@ -56,6 +61,12 @@ public:
    * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear
    */
   virtual bool Clear();
+
+  /**
+   * @brief Get list of drawables that added this group.
+   * @return Returns list of drawables.
+   */
+  virtual DrawableVector GetDrawables() const;
 
   DrawableGroup(const DrawableGroup&) = delete;
   DrawableGroup& operator=(DrawableGroup&) = delete;
