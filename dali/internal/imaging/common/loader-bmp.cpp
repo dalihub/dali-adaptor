@@ -94,11 +94,13 @@ bool LoadBmpHeader(FILE* fp, unsigned int& width, unsigned int& height, BmpFileH
 {
   if(!ReadHeader(fp, fileHeader))
   {
+    DALI_LOG_ERROR("File header read failed\n");
     return false;
   }
 
   if(!ReadHeader(fp, infoHeader))
   {
+    DALI_LOG_ERROR("Info header read failed\n");
     return false;
   }
 
@@ -107,6 +109,7 @@ bool LoadBmpHeader(FILE* fp, unsigned int& width, unsigned int& height, BmpFileH
 
   if(infoHeader.width == 0)
   {
+    DALI_LOG_ERROR("Invalid header size\n");
     return false;
   }
 
@@ -1106,7 +1109,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
           customizedFormat = BMP_RGB1;
           break;
         default:
-          DALI_LOG_WARNING("%d bits per pixel not supported for BMP files\n", infoHeader.bitsPerPixel);
+          DALI_LOG_ERROR("%d bits per pixel not supported for BMP files\n", infoHeader.bitsPerPixel);
           return false;
       }
       break;
@@ -1168,7 +1171,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       break;
     }
     default:
-      DALI_LOG_WARNING("Compression not supported for BMP files\n");
+      DALI_LOG_ERROR("Compression not supported for BMP files\n");
       return false;
   }
 
@@ -1359,6 +1362,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   if(!decodeResult)
   {
+    DALI_LOG_ERROR("Decoding failed\n");
     return false;
   }
 

@@ -16,6 +16,7 @@
  */
 
 #include "test-graphics-application.h"
+#include <test-graphics-sync-impl.h>
 
 namespace Dali
 {
@@ -59,8 +60,9 @@ void TestGraphicsApplication::CreateCore()
   // We always need the first update!
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
 
+  mGraphics.Initialize();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -79,6 +81,13 @@ void TestGraphicsApplication::CreateScene()
 {
   mScene = Dali::Integration::Scene::New(Size(static_cast<float>(mSurfaceWidth), static_cast<float>(mSurfaceHeight)));
   mScene.SetDpi(Vector2(static_cast<float>(mDpi.x), static_cast<float>(mDpi.y)));
+
+  Graphics::RenderTargetCreateInfo createInfo{};
+  createInfo.SetSurface({nullptr})
+    .SetExtent({mSurfaceWidth, mSurfaceHeight})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+  mRenderTarget = mGraphicsController.CreateRenderTarget(createInfo, nullptr);
+  mScene.SetSurfaceRenderTarget(mRenderTarget.get());
 }
 
 void TestGraphicsApplication::InitializeCore()
@@ -150,11 +159,6 @@ Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
 TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
 {
   return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
-}
-
-TestGlSyncAbstraction& TestGraphicsApplication::GetGlSyncAbstraction()
-{
-  return static_cast<TestGlSyncAbstraction&>(mGraphicsController.GetGlSyncAbstraction());
 }
 
 TestGlContextHelperAbstraction& TestGraphicsApplication::GetGlContextHelperAbstraction()
@@ -269,7 +273,7 @@ void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGlSyncAbstraction, mGlContextHelperAbstraction);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
   mCore->ContextCreated();
 }
 

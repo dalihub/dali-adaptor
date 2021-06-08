@@ -229,7 +229,7 @@ bool PixmapRenderSurfaceEcoreX::PreRender(bool, const std::vector<Rect<int>>&, R
   return true;
 }
 
-void PixmapRenderSurfaceEcoreX::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
+void PixmapRenderSurfaceEcoreX::PostRender()
 {
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 

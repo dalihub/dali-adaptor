@@ -16,6 +16,8 @@
  */
 
 #include "gles-graphics-reflection.h"
+
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 
@@ -92,7 +94,36 @@ bool SortUniformExtraInfoByLocation(Dali::Graphics::GLES::Reflection::UniformExt
   return a.location < b.location;
 }
 
-} // namespace
+struct StringSize
+{
+  const char* const mString;
+  const uint32_t    mLength;
+
+  template<uint32_t kLength>
+  constexpr StringSize(const char (&string)[kLength])
+  : mString(string),
+    mLength(kLength - 1) // remove terminating null; N.B. there should be no other null.
+  {
+  }
+
+  operator const char*() const
+  {
+    return mString;
+  }
+};
+
+bool operator==(const StringSize& lhs, const char* rhs)
+{
+  return strncmp(lhs.mString, rhs, lhs.mLength) == 0;
+}
+
+const char* const    DELIMITERS = " \t\n";
+constexpr StringSize UNIFORM{"uniform"};
+constexpr StringSize SAMPLER_PREFIX{"sampler"};
+constexpr StringSize SAMPLER_TYPES[]   = {"2D", "Cube", "ExternalOES"};
+constexpr auto       END_SAMPLER_TYPES = SAMPLER_TYPES + std::extent<decltype(SAMPLER_TYPES)>::value;
+
+} // anonymous namespace
 
 namespace Dali::Graphics::GLES
 {
@@ -114,6 +145,11 @@ void Reflection::BuildVertexAttributeReflection()
   char*  name;
 
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
@@ -149,6 +185,11 @@ void Reflection::BuildUniformReflection()
   int numUniforms = 0;
 
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
@@ -182,9 +223,10 @@ void Reflection::BuildUniformReflection()
     }
 
     uniformInfo.uniformClass = IsSampler(type) ? Dali::Graphics::UniformClass::COMBINED_IMAGE_SAMPLER : Dali::Graphics::UniformClass::UNIFORM;
-    uniformInfo.location     = IsSampler(type) ? 0 : location;
-    uniformInfo.binding      = IsSampler(type) ? location : 0;
+    uniformInfo.location     = location; //IsSampler(type) ? 0 : location;
+    uniformInfo.binding      = 0;        // IsSampler(type) ? location : 0;
     uniformInfo.bufferIndex  = 0;
+    uniformInfo.offset       = 0;
 
     if(IsSampler(type))
     {
@@ -207,7 +249,7 @@ void Reflection::BuildUniformReflection()
 
   if(mUniformOpaques.size() > 1)
   {
-    std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), SortUniformInfoByLocation);
+    SortOpaques();
   }
 
   // Calculate the uniform offset
@@ -253,6 +295,13 @@ void Reflection::BuildUniformBlockReflection()
   auto gl               = mController.GetGL();
   auto glProgram        = mProgram.GetGlProgram();
   int  numUniformBlocks = 0;
+
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return;
+  }
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 
   mUniformBlocks.clear();
@@ -471,21 +520,23 @@ bool Reflection::GetNamedUniform(const std::string& name, Dali::Graphics::Unifor
         return true;
       }
     }
-    index++;
+    ++index;
   }
 
   // check samplers
+  index = 0u;
   for(auto&& uniform : mUniformOpaques)
   {
     if(uniform.name == name)
     {
       out.uniformClass = Graphics::UniformClass::COMBINED_IMAGE_SAMPLER;
-      out.binding      = uniform.binding;
+      out.binding      = 0;
       out.name         = name;
-      out.offset       = 0;
-      out.location     = uniform.location;
+      out.offset       = index;            // lexical location in shader
+      out.location     = uniform.location; // uniform location mapping
       return true;
     }
+    ++index;
   }
 
   return false;
@@ -514,17 +565,98 @@ std::vector<Dali::Graphics::UniformInfo> Reflection::GetSamplers() const
 
 Graphics::ShaderLanguage Reflection::GetLanguage() const
 {
+  auto version = Graphics::ShaderLanguage::GLSL_3_2;
+
   auto gl = mController.GetGL();
+  if(!gl)
+  {
+    // Do nothing during shutdown
+    return version;
+  }
 
   int majorVersion, minorVersion;
   gl->GetIntegerv(GL_MAJOR_VERSION, &majorVersion);
   gl->GetIntegerv(GL_MINOR_VERSION, &minorVersion);
-  printf("GL Version (integer) : %d.%d\n", majorVersion, minorVersion);
-  printf("GLSL Version : %s\n", gl->GetString(GL_SHADING_LANGUAGE_VERSION));
+  DALI_LOG_RELEASE_INFO("GL Version (integer) : %d.%d\n", majorVersion, minorVersion);
+  DALI_LOG_RELEASE_INFO("GLSL Version : %s\n", gl->GetString(GL_SHADING_LANGUAGE_VERSION));
 
   // TODO: the language version is hardcoded for now, but we may use what we get
   // from GL_SHADING_LANGUAGE_VERSION?
-  return Graphics::ShaderLanguage::GLSL_3_2;
+  return version;
+}
+
+void Reflection::SortOpaques()
+{
+  //Determine declaration order of each sampler
+  auto& programCreateInfo = mProgram.GetCreateInfo();
+
+  std::vector<uint8_t> data;
+  std::string          fragShader;
+
+  for(auto& shaderState : *programCreateInfo.shaderState)
+  {
+    if(shaderState.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    {
+      auto* shader           = static_cast<const GLES::Shader*>(shaderState.shader);
+      auto& shaderCreateInfo = shader->GetCreateInfo();
+      data.resize(shaderCreateInfo.sourceSize + 1);
+      std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
+      data[shaderCreateInfo.sourceSize] = 0;
+      fragShader                        = std::string(reinterpret_cast<char*>(&data[0]));
+      break;
+    }
+  }
+
+  if(!fragShader.empty())
+  {
+    char*            shaderStr       = strdup(fragShader.c_str());
+    char*            uniform         = strstr(shaderStr, UNIFORM);
+    int              samplerPosition = 0;
+    std::vector<int> samplerPositions(mUniformOpaques.size(), -1);
+
+    while(uniform)
+    {
+      char* outerToken = strtok_r(uniform + UNIFORM.mLength, ";", &uniform);
+
+      char* nextPtr = nullptr;
+      char* token   = strtok_r(outerToken, DELIMITERS, &nextPtr);
+      while(token)
+      {
+        if(SAMPLER_PREFIX == token)
+        {
+          token += SAMPLER_PREFIX.mLength;
+          if(std::find(SAMPLER_TYPES, END_SAMPLER_TYPES, token) != END_SAMPLER_TYPES)
+          {
+            bool found(false);
+            token = strtok_r(nullptr, DELIMITERS, &nextPtr);
+
+            for(uint32_t i = 0; i < static_cast<uint32_t>(mUniformOpaques.size()); ++i)
+            {
+              if(samplerPositions[i] == -1 &&
+                 strncmp(token, mUniformOpaques[i].name.c_str(), mUniformOpaques[i].name.size()) == 0)
+              {
+                samplerPositions[i] = mUniformOpaques[i].offset = samplerPosition++;
+                found                                           = true;
+                break;
+              }
+            }
+
+            if(!found)
+            {
+              DALI_LOG_ERROR("Sampler uniform %s declared but not used in the shader\n", token);
+            }
+            break;
+          }
+        }
+
+        token = strtok_r(nullptr, DELIMITERS, &nextPtr);
+      }
+
+      uniform = strstr(uniform, UNIFORM);
+    }
+    free(shaderStr);
+  }
+  std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b) { return a.offset < b.offset; });
 }
 
 } // namespace Dali::Graphics::GLES

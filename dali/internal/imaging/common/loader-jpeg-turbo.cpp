@@ -499,6 +499,7 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
   // into this branch body for cleanup and error return:
   if(setjmp(jerr.jumpBuffer))
   {
+    DALI_LOG_ERROR("setjmp failed\n");
     jpeg_destroy_decompress(&cinfo);
     return false;
   }
@@ -514,6 +515,7 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
   // Check header to see if it is  JPEG file
   if(jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK)
   {
+    DALI_LOG_ERROR("jpeg_read_header failed\n");
     width = height = 0;
     jpeg_destroy_decompress(&cinfo);
     return false;
@@ -546,6 +548,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   if(0u == jpegBufferSize)
   {
+    DALI_LOG_ERROR("Jpeg buffer size error\n");
     return false;
   }
 
@@ -570,7 +573,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize)
   {
-    DALI_LOG_WARNING("Error on image file read.\n");
+    DALI_LOG_ERROR("Error on image file read.\n");
     return false;
   }
 
@@ -637,7 +640,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   if(preXformImageWidth == 0 || preXformImageHeight == 0)
   {
-    DALI_LOG_WARNING("Invalid Image!\n");
+    DALI_LOG_ERROR("Invalid Image!\n");
     return false;
   }
 

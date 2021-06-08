@@ -1,3 +1,6 @@
+#ifndef DALI_CAPTURE_DEVEL_H
+#define DALI_CAPTURE_DEVEL_H
+
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
@@ -15,26 +18,25 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/common/drawable-factory.h>
-#include <dali/internal/canvas-renderer/common/drawable-impl.h>
+// INTERNAL INCLUDES
+#include <dali/public-api/capture/capture.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
-namespace Internal
-{
-namespace Adaptor
-{
-namespace DrawableFactory
-{
-__attribute__((weak)) Dali::Internal::Adaptor::Drawable* New()
-{
-  return new Internal::Adaptor::Drawable();
-}
 
-} // namespace DrawableFactory
+namespace DevelCapture
+{
 
-} // namespace Adaptor
+/**
+ * @brief Get PixelBuffer of captured image.
+ *
+ * @return PixelBuffer Captured result
+ */
+DALI_ADAPTOR_API Dali::Devel::PixelBuffer GetCapturedBuffer(Dali::Capture capture);
 
-} // namespace Internal
+} // namespace DevelCapture
 
 } // namespace Dali
+
+#endif // DALI_CAPTURE_DEVEL_H

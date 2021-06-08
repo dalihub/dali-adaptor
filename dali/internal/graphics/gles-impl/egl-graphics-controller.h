@@ -22,24 +22,26 @@
 #include <queue>
 
 // INTERNAL INCLUDES
-#include "gles-context.h"
-#include "gles-graphics-buffer.h"
-#include "gles-graphics-command-buffer.h"
-#include "gles-graphics-pipeline-cache.h"
-#include "gles-graphics-pipeline.h"
-#include "gles-graphics-reflection.h"
-#include "gles-graphics-sampler.h"
-#include "gles-graphics-shader.h"
-#include "gles-graphics-texture.h"
-#include "gles-graphics-types.h"
-#include "gles2-graphics-memory.h"
+#include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/gles-impl/gles-context.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-buffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-framebuffer.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-pipeline-cache.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-reflection.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-sampler.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles2-graphics-memory.h>
 
 namespace Dali
 {
 namespace Integration
 {
 class GlAbstraction;
-class GlSyncAbstraction;
 class GlContextHelperAbstraction;
 } // namespace Integration
 
@@ -56,7 +58,7 @@ class PipelineCache;
  *
  * Temporarily holds the old GL abstractions whilst dali-core is migrated to the new API.
  */
-DALI_IMPORT_API class EglGraphicsController : public Graphics::Controller
+class EglGraphicsController : public Graphics::Controller
 {
 public:
   /**
@@ -79,12 +81,13 @@ public:
    *
    * Note, this is now executed in the render thread, after core initialization
    */
-  void Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
-                  Integration::GlContextHelperAbstraction& glContextHelperAbstraction);
+  void Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
+                  Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
+                  Internal::Adaptor::GraphicsInterface&    graphicsInterface);
 
-  Integration::GlAbstraction&              GetGlAbstraction() override;
-  Integration::GlSyncAbstraction&          GetGlSyncAbstraction() override;
-  Integration::GlContextHelperAbstraction& GetGlContextHelperAbstraction() override;
+  Integration::GlAbstraction&               GetGlAbstraction() override;
+  Integration::GlContextHelperAbstraction&  GetGlContextHelperAbstraction() override;
+  Internal::Adaptor::EglSyncImplementation& GetEglSyncImplementation();
 
   /**
    * @copydoc Dali::Graphics::SubmitCommandBuffers()
@@ -94,9 +97,7 @@ public:
   /**
    * @copydoc Dali::Graphics::PresentRenderTarget()
    */
-  void PresentRenderTarget(RenderTarget* renderTarget) override
-  {
-  }
+  void PresentRenderTarget(RenderTarget* renderTarget) override;
 
   /**
    * @copydoc Dali::Graphics::WaitIdle()
@@ -134,6 +135,19 @@ public:
   {
     // Final flush
     Flush();
+
+    if(mContext)
+    {
+      mContext->GlContextDestroyed();
+    }
+
+    for(auto&& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GlContextDestroyed();
+      }
+    }
   }
 
   /**
@@ -141,6 +155,11 @@ public:
    */
   void UpdateTextures(const std::vector<TextureUpdateInfo>&       updateInfoList,
                       const std::vector<TextureUpdateSourceInfo>& sourceList) override;
+
+  /**
+   * @copydoc Dali::Graphics::GenerateTextureMipmaps()
+   */
+  void GenerateTextureMipmaps(const Texture& texture) override;
 
   /**
    * @copydoc Dali::Graphics::EnableDepthStencilBuffer()
@@ -193,10 +212,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderPass()
    */
-  Graphics::UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass) override;
 
   /**
    * @copydoc Dali::Graphics::CreateTexture()
@@ -206,10 +222,7 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateFramebuffer()
    */
-  Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer) override;
 
   /**
    * @copydoc Dali::Graphics::CreatePipeline()
@@ -234,10 +247,13 @@ public:
   /**
    * @copydoc Dali::Graphics::CreateRenderTarget()
    */
-  Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override
-  {
-    return nullptr;
-  }
+  Graphics::UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget) override;
+
+  /**
+   * @copydoc Dali::Graphics::CreateSyncObject()
+   */
+  Graphics::UniquePtr<SyncObject> CreateSyncObject(const SyncObjectCreateInfo&       syncObjectCreateInfo,
+                                                   Graphics::UniquePtr<SyncObject>&& oldSyncObject) override;
 
   /**
    * @copydoc Dali::Graphics::MapBufferRange()
@@ -307,6 +323,11 @@ public:
     return mGlAbstraction;
   }
 
+  [[nodiscard]] Internal::Adaptor::GraphicsInterface* GetGraphicsInterface() const
+  {
+    return mGraphics;
+  }
+
   // Internal
   void AddTexture(GLES::Texture& texture);
 
@@ -315,6 +336,12 @@ public:
    * @param buffer
    */
   void AddBuffer(GLES::Buffer& buffer);
+
+  /**
+   * @brief Adds framebuffer to the creation queue
+   * @param buffer
+   */
+  void AddFramebuffer(GLES::Framebuffer& framebuffer);
 
   /**
    * @brief Pushes Bufer to the discard queue
@@ -333,11 +360,23 @@ public:
    *
    * Function is called from the UniquePtr custom deleter.
    *
-   * @param[in] texture Pointer to the texture
+   * @param[in] buffer Pointer to the buffer object
    */
   void DiscardResource(GLES::Buffer* buffer)
   {
     mDiscardBufferQueue.push(buffer);
+  }
+
+  /**
+   * @brief Pushes framebuffer to the discard queue
+   *
+   * Function is called from the UniquePtr custom deleter.
+   *
+   * @param[in] framebuffer Pointer to the framebuffer object
+   */
+  void DiscardResource(GLES::Framebuffer* framebuffer)
+  {
+    mDiscardFramebufferQueue.push(framebuffer);
   }
 
   /**
@@ -408,14 +447,25 @@ public:
    */
   void Flush()
   {
+    mGraphics->ActivateResourceContext();
+
     // Process creations
     ProcessCreateQueues();
 
     // Process updates
     ProcessTextureUpdateQueue();
 
+    // Process texture mipmap generation requests
+    ProcessTextureMipmapGenerationQueue();
+
     // Process main command queue
     ProcessCommandQueues();
+
+    // Reset texture cache in the contexts while destroying textures
+    ResetTextureCache();
+
+    // Reset buffer cache in the contexts while destroying buffers
+    ResetBufferCache();
 
     // Process discards
     ProcessDiscardQueues();
@@ -452,16 +502,16 @@ public:
   }
 
   /**
-   * @brief Processes a create queue for type specified
+   * @brief Processes a discard queue for type specified
    *
-   * @param[in,out] queue Reference to the create queue
+   * @param[in,out] queue Reference to the discard queue
    */
   template<class U, class T>
   void ProcessDiscardQueue(T& queue)
   {
     while(!queue.empty())
     {
-      auto* object = queue.front();
+      auto* object = const_cast<U*>(queue.front());
 
       // Destroy
       object->DestroyResource();
@@ -472,6 +522,53 @@ public:
       {
         // Call destructor
         object->~U();
+
+        // Free memory
+        clbk->freeCallback(object, clbk->userData);
+      }
+      else
+      {
+        delete object;
+      }
+      queue.pop();
+    }
+  }
+
+  /**
+   * @brief Processes a discard queue for pipeline
+   *
+   * @param[in,out] queue Reference to the create queue
+   */
+  void ProcessDiscardQueue(std::queue<GLES::Pipeline*>& queue)
+  {
+    while(!queue.empty())
+    {
+      auto* object = const_cast<GLES::Pipeline*>(queue.front());
+
+      // Inform the contexts to invalidate the pipeline if cached
+      if(mContext)
+      {
+        mContext->InvalidateCachedPipeline(object);
+      }
+
+      for(auto&& context : mSurfaceContexts)
+      {
+        if(context.second)
+        {
+          context.second->InvalidateCachedPipeline(object);
+        }
+      }
+
+      // Destroy
+      object->DestroyResource();
+
+      // Free
+      auto* clbk = object->GetCreateInfo().allocationCallbacks;
+      if(clbk)
+      {
+        // Call destructor
+        using GLESPipeline = GLES::Pipeline;
+        object->~GLESPipeline();
 
         // Free memory
         clbk->freeCallback(object, clbk->userData);
@@ -500,6 +597,11 @@ public:
   void ProcessTextureUpdateQueue();
 
   /**
+   * @brief Executes all pending texture mipmap generation
+   */
+  void ProcessTextureMipmapGenerationQueue();
+
+  /**
    * @brief Returns program custom parameter
    *
    * This function can be used as a backdoor in order to retrieve
@@ -526,9 +628,17 @@ public:
    */
   GLES::GLESVersion GetGLESVersion() const
   {
-    // TODO: return proper version but for now we can
-    // test fallbacks
-    return GLES::GLESVersion::GLES_20;
+    return mGLESVersion;
+  }
+
+  /**
+   * @brief Sets runtime supported GLES version
+   *
+   * @param[in] glesVersion The runtime supported GLES version
+   */
+  void SetGLESVersion(GLES::GLESVersion glesVersion)
+  {
+    mGLESVersion = glesVersion;
   }
 
   bool IsShuttingDown() const
@@ -536,10 +646,91 @@ public:
     return mIsShuttingDown;
   }
 
+  /**
+   * @brief Reset texture cache in the contexts
+   */
+  void ResetTextureCache()
+  {
+    if(mContext)
+    {
+      mContext->GetGLStateCache().ResetTextureCache();
+    }
+
+    for(auto& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GetGLStateCache().ResetTextureCache();
+      }
+    }
+  }
+
+  /**
+   * @brief Reset buffer cache in the contexts
+   */
+  void ResetBufferCache()
+  {
+    if(mContext)
+    {
+      mContext->GetGLStateCache().ResetBufferCache();
+    }
+
+    for(auto& context : mSurfaceContexts)
+    {
+      if(context.second)
+      {
+        context.second->GetGLStateCache().ResetBufferCache();
+      }
+    }
+  }
+
+  void ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer);
+
+  // Resolves presentation
+  void ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget);
+
+  /**
+   * Creates a GLES context for the given render surface
+   *
+   * @param[in] surface The surface whose GLES context to be created.
+   */
+  void CreateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * Deletes a GLES context
+   *
+   * @param[in] surface The surface whose GLES context to be deleted.
+   */
+  void DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * Activate the resource context (shared surfaceless context)
+   */
+  void ActivateResourceContext();
+
+  /**
+   * Activate the surface context
+   *
+   * @param[in] surface The surface whose context to be switched to.
+   */
+  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * @brief Returns the current context
+   *
+   * @return the current context
+   */
+  GLES::Context* GetCurrentContext() const
+  {
+    return mCurrentContext;
+  }
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
-  Integration::GlSyncAbstraction*          mGlSyncAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
+
+  Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
+  Internal::Adaptor::GraphicsInterface*     mGraphics{nullptr}; // Pointer to owning structure via interface.
 
   std::queue<GLES::Texture*> mCreateTextureQueue;  ///< Create queue for texture resource
   std::queue<GLES::Texture*> mDiscardTextureQueue; ///< Discard queue for texture resource
@@ -547,22 +738,35 @@ private:
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource
 
-  std::queue<GLES::Program*>       mDiscardProgramQueue;       ///< Discard queue for program resource
-  std::queue<GLES::Pipeline*>      mDiscardPipelineQueue;      ///< Discard queue of pipelines
-  std::queue<GLES::Shader*>        mDiscardShaderQueue;        ///< Discard queue of shaders
-  std::queue<GLES::Sampler*>       mDiscardSamplerQueue;       ///< Discard queue of samplers
-  std::queue<GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
+  std::queue<GLES::Program*>             mDiscardProgramQueue;       ///< Discard queue for program resource
+  std::queue<GLES::Pipeline*>            mDiscardPipelineQueue;      ///< Discard queue of pipelines
+  std::queue<GLES::Shader*>              mDiscardShaderQueue;        ///< Discard queue of shaders
+  std::queue<GLES::Sampler*>             mDiscardSamplerQueue;       ///< Discard queue of samplers
+  std::queue<const GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers
+  std::queue<GLES::Framebuffer*>         mCreateFramebufferQueue;    ///< Create queue for framebuffer resource
+  std::queue<GLES::Framebuffer*>         mDiscardFramebufferQueue;   ///< Discard queue for framebuffer resource
 
   std::queue<GLES::CommandBuffer*> mCommandQueue; ///< we may have more in the future
 
   using TextureUpdateRequest = std::pair<TextureUpdateInfo, TextureUpdateSourceInfo>;
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
 
-  std::unique_ptr<GLES::Context> mContext{nullptr}; ///< Context object handling command buffers execution
+  std::queue<const GLES::Texture*> mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
+
+  GLES::Context*                 mCurrentContext{nullptr}; ///< The current context
+  std::unique_ptr<GLES::Context> mContext{nullptr};        ///< Context object handling command buffers execution
+  using SurfaceContextPair = std::pair<Dali::RenderSurfaceInterface*, std::unique_ptr<GLES::Context>>;
+  std::vector<SurfaceContextPair> mSurfaceContexts; ///< Vector of surface context objects handling command buffers execution
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
 
+  GLES::GLESVersion mGLESVersion{GLES::GLESVersion::GLES_20}; ///< Runtime supported GLES version
+  uint32_t          mTextureUploadTotalCPUMemoryUsed{0u};
+
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
+
+  // todo: to be removed after renderpass
+  const Graphics::Framebuffer* currentFramebuffer{nullptr};
 };
 
 } // namespace Graphics

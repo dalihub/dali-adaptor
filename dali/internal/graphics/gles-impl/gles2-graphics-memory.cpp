@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
 
@@ -44,7 +45,7 @@ Memory2::Memory2(const Graphics::MapTextureInfo& mapInfo, EglGraphicsController&
 
 Memory2::~Memory2()
 {
-  //Unlock(true);
+  Unlock(true);
 }
 
 void* Memory2::LockRegion(uint32_t offset, uint32_t size)
@@ -56,14 +57,14 @@ void* Memory2::LockRegion(uint32_t offset, uint32_t size)
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(buffer->IsCPUAllocated())
     {
-      using Ptr = char*;
-      mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+      using Ptr           = char*;
+      mMappedPointer      = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
       mIsAllocatedLocally = false;
     }
     else
     {
-      auto retval    = malloc(size);
-      mMappedPointer = retval;
+      auto retval         = malloc(size);
+      mMappedPointer      = retval;
       mIsAllocatedLocally = true;
     }
   }
@@ -76,7 +77,7 @@ void Memory2::Unlock(bool flush)
   auto gl = mController.GetGL();
 
   // for buffer...
-  if(mMapObjectType == MapObjectType::BUFFER&& mMappedPointer)
+  if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
   {
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(!buffer->IsCPUAllocated())

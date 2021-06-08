@@ -37,42 +37,56 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-  : FramebufferResource(createInfo, controller)
-  {
-  }
+  Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
 
   /**
    * @brief Destructor
    */
-  ~Framebuffer() override = default;
+  ~Framebuffer() override;
 
   /**
    * @brief Called when GL resources are destroyed
    */
-  void DestroyResource() override
-  {
-    // TODO: Implement destroying the resource
-  }
+  void DestroyResource() override;
 
   /**
    * @brief Called when initializing the resource
    *
    * @return True on success
    */
-  bool InitializeResource() override
-  {
-    // TODO: Implement initializing resource
-    return {};
-  }
+  bool InitializeResource() override;
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
    */
-  void DiscardResource() override
-  {
-    // TODO: Implement moving to the discard queue
-  }
+  void DiscardResource() override;
+
+  /**
+   * Used to bind the framebuffer, e.g. when offscreen changes
+   */
+  void Bind() const;
+
+  [[nodiscard]] uint32_t GetGlFramebufferId() const;
+
+  [[nodiscard]] uint32_t GetGlDepthBufferId() const;
+
+  [[nodiscard]] uint32_t GetGlStencilBufferId() const;
+
+private:
+  /**
+   * Attach a texture to the specified attachment point
+   * @param[in] texture The texture to bind
+   * @param[in] attachmentId The attachment point to bind it to
+   * @param[in] layerId The texture layer (e.g. for cubemap)
+   * @param[in] levelId The texture mipmap level
+   */
+  void AttachTexture(const Graphics::Texture* texture, uint32_t attachmentId, uint32_t layerId, uint32_t levelId);
+
+private:
+  uint32_t mFramebufferId{0u};
+  uint32_t mDepthBufferId{0u};
+  uint32_t mStencilBufferId{0u};
+  bool     mInitialized{false};
 };
 
 } // namespace Dali::Graphics::GLES

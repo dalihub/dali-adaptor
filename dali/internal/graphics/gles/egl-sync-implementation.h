@@ -19,12 +19,13 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/integration-api/gl-sync-abstraction.h>
-#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
+
+#include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali
 {
@@ -34,7 +35,7 @@ namespace Adaptor
 {
 class EglImplementation;
 
-class EglSyncObject : public Integration::GlSyncAbstraction::SyncObject
+class EglSyncObject : public Integration::GraphicsSyncAbstraction::SyncObject
 {
 public:
   /**
@@ -47,9 +48,6 @@ public:
    */
   virtual ~EglSyncObject();
 
-  /**
-   * @copydoc Dali::Integration::GlSyncAbstraction::SyncObject::IsSynced()
-   */
   bool IsSynced() override;
 
 private:
@@ -62,14 +60,13 @@ private:
 };
 
 /**
- * GlSyncImplementation is a concrete implementation for GlSyncAbstraction.
  * It provides fence syncing for resources such as FrameBuffers using EGL extensions
  *
  * Sync objects are created in the render thread after a render instruction
  * has been processed (i.e. GL draw calls have completed for a given FB), and
- * tested in the update
+ * tested in the update thread.
  */
-class EglSyncImplementation : public Integration::GlSyncAbstraction
+class EglSyncImplementation : public Integration::GraphicsSyncAbstraction
 {
 public:
   /**
@@ -80,7 +77,7 @@ public:
   /**
    * Destructor
    */
-  virtual ~EglSyncImplementation();
+  ~EglSyncImplementation();
 
   /**
    * Initialize the sync object with the Egl implementation.
@@ -89,14 +86,14 @@ public:
   void Initialize(EglImplementation* impl);
 
   /**
-   * @copydoc Dali::Integration::GlSyncAbstraction::CreateSyncObject()
+   * Create a sync object that can be polled
    */
-  SyncObject* CreateSyncObject() override;
+  Integration::GraphicsSyncAbstraction::SyncObject* CreateSyncObject() override;
 
   /**
-   * @copydoc Dali::Integration::GlSyncAbstraction::DestroySyncObject()
+   * Destroy a sync object
    */
-  void DestroySyncObject(SyncObject* syncObject) override;
+  void DestroySyncObject(Integration::GraphicsSyncAbstraction::SyncObject* syncObject) override;
 
 private:
   /**

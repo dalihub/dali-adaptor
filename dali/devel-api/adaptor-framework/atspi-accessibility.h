@@ -1,7 +1,7 @@
 #ifndef DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 #define DALI_DEVEL_ATSPI_ACCESSIBILITY_H
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,14 @@ DALI_ADAPTOR_API void Resume();
  * @param alsoNonDiscardable whether to cancel non-discardable readings as well
  */
 DALI_ADAPTOR_API void StopReading(bool alsoNonDiscardable = false);
+
+/**
+ * @brief Suppresses reading of screen-reader
+ *
+ * @param suppress whether to suppress reading of screen-reader
+ * @return true on success, false otherwise
+ */
+DALI_ADAPTOR_API bool SuppressScreenReader(bool suppress);
 
 /**
  * @brief Set ATSPI to be turned On or Off forcibly.

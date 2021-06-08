@@ -32,6 +32,7 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/capture/capture.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -85,6 +86,11 @@ public:
   Dali::NativeImageSourcePtr GetNativeImageSource() const;
 
   /**
+   * @copydoc Dali::Capture::GetCapturedBuffer
+   */
+  Dali::Devel::PixelBuffer GetCapturedBuffer();
+
+  /**
    * @copydoc Dali::Capture::FinishedSignal
    */
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
@@ -97,21 +103,14 @@ protected:
 
 private:
   /**
-   * @brief Create native image source.
+   * @brief Create texture.
    */
-  void CreateNativeImageSource(const Dali::Vector2& size);
+  void CreateTexture(const Dali::Vector2& size);
 
   /**
    * @brief Delete native image source.
    */
   void DeleteNativeImageSource();
-
-  /**
-   * @brief Query whether native image source is created or not.
-   *
-   * @return True is native image source is created.
-   */
-  bool IsNativeImageSourceCreated();
 
   /**
    * @brief Create frame buffer.
@@ -199,7 +198,7 @@ private:
 
 private:
   uint32_t                                 mQuality;
-  Dali::Texture                            mNativeTexture;
+  Dali::Texture                            mTexture;
   Dali::FrameBuffer                        mFrameBuffer;
   Dali::RenderTask                         mRenderTask;
   Dali::Actor                              mSource;
@@ -208,6 +207,7 @@ private:
   Dali::Capture::CaptureFinishedSignalType mFinishedSignal;
   std::string                              mPath;
   Dali::NativeImageSourcePtr               mNativeImageSourcePtr; ///< pointer to surface image
+  Dali::Devel::PixelBuffer                 mPixelBuffer;
   bool                                     mFileSave;
 };
 

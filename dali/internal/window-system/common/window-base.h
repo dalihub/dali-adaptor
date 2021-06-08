@@ -72,6 +72,7 @@ public:
   typedef Signal<void(WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType;
   typedef Signal<void()>                                    KeyboardRepeatSettingsChangedSignalType;
   typedef Signal<void()>                                    WindowRedrawRequestSignalType;
+  typedef Signal<void(Dali::PositionSize&)>                 UpdatePositionSizeType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -251,7 +252,7 @@ public:
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  virtual bool SetNotificationLevel(Dali::WindowNotificationLevel level) = 0;
+  virtual Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) = 0;
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
@@ -266,7 +267,7 @@ public:
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
    */
-  virtual bool SetScreenOffMode(WindowScreenOffMode screenOffMode) = 0;
+  virtual Dali::WindowOperationResult SetScreenOffMode(WindowScreenOffMode screenOffMode) = 0;
 
   /**
    * @copydoc Dali::Window::GetScreenOffMode()
@@ -276,7 +277,7 @@ public:
   /**
    * @copydoc Dali::Window::SetBrightness()
    */
-  virtual bool SetBrightness(int brightness) = 0;
+  virtual Dali::WindowOperationResult SetBrightness(int brightness) = 0;
 
   /**
    * @copydoc Dali::Window::GetBrightness()
@@ -435,6 +436,11 @@ public:
    */
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
 
+  /**
+   * @brief This signal is emitted when the window is resized or moved by display server.
+   */
+  UpdatePositionSizeType& UpdatePositionSizeSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -459,6 +465,7 @@ protected:
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
+  UpdatePositionSizeType                  mUpdatePositionSizeSignal;
 };
 
 } // namespace Adaptor

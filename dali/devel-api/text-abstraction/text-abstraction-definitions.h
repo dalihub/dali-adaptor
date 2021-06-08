@@ -2,7 +2,7 @@
 #define DALI_TEXT_ABSTRACTION_DEFINITIONS_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,12 @@ typedef uint32_t ColorIndex;         ///< An index into an array of colors.
  */
 enum
 {
-  LINE_MUST_BREAK  = 0u, ///< Text must be broken into a new line.
-  LINE_ALLOW_BREAK = 1u, ///< Is possible to break the text into a new line.
-  LINE_NO_BREAK    = 2u  ///< Text can't be broken into a new line.
+  LINE_MUST_BREAK        = 0u, ///< Text must be broken into a new line.
+  LINE_ALLOW_BREAK       = 1u, ///< Is possible to break the text into a new line.
+  LINE_NO_BREAK          = 2u, ///< Text can't be broken into a new line.
+  LINE_INSIDEACHAR       = 3u, ///< A UTF-8/16 sequence is unfinished.
+  LINE_INDETERMINATE     = 4u, ///< End of input on a non-EOL char.
+  LINE_HYPHENATION_BREAK = 5u  ///< Text can be broken with adding hyphen.
 };
 
 /**

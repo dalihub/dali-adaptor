@@ -16,12 +16,17 @@
  */
 
 #include "gles-context.h"
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
+#include "gles-graphics-render-pass.h"
+#include "gles-graphics-render-target.h"
 
 namespace Dali::Graphics::GLES
 {
@@ -34,10 +39,110 @@ struct Context::Impl
 
   ~Impl() = default;
 
+  /**
+   * Sets the initial GL state.
+   */
+  void InitializeGlState()
+  {
+    auto& gl = *mController.GetGL();
+
+    mGlStateCache.mClearColorSet        = false;
+    mGlStateCache.mColorMask            = true;
+    mGlStateCache.mStencilMask          = 0xFF;
+    mGlStateCache.mBlendEnabled         = false;
+    mGlStateCache.mDepthBufferEnabled   = false;
+    mGlStateCache.mDepthMaskEnabled     = false;
+    mGlStateCache.mScissorTestEnabled   = false;
+    mGlStateCache.mStencilBufferEnabled = false;
+
+    gl.Disable(GL_DITHER);
+
+    mGlStateCache.mBoundArrayBufferId        = 0;
+    mGlStateCache.mBoundElementArrayBufferId = 0;
+    mGlStateCache.mActiveTextureUnit         = 0;
+
+    mGlStateCache.mBlendFuncSeparateSrcRGB   = BlendFactor::ONE;
+    mGlStateCache.mBlendFuncSeparateDstRGB   = BlendFactor::ZERO;
+    mGlStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
+    mGlStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
+
+    // initial state is GL_FUNC_ADD for both RGB and Alpha blend modes
+    mGlStateCache.mBlendEquationSeparateModeRGB   = BlendOp::ADD;
+    mGlStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
+
+    mGlStateCache.mCullFaceMode = CullMode::NONE; //By default cullface is disabled, front face is set to CCW and cull face is set to back
+
+    //Initialze vertex attribute cache
+    memset(&mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mGlStateCache.mVertexAttributeCachedState));
+    memset(&mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mGlStateCache.mVertexAttributeCurrentState));
+
+    //Initialize bound 2d texture cache
+    memset(&mGlStateCache.mBoundTextureId, 0, sizeof(mGlStateCache.mBoundTextureId));
+
+    mGlStateCache.mFrameBufferStateCache.Reset();
+  }
+
+  /**
+   * Flushes vertex attribute location changes to the driver
+   */
+  void FlushVertexAttributeLocations()
+  {
+    auto& gl = *mController.GetGL();
+
+    for(unsigned int i = 0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i)
+    {
+      // see if the cached state is different to the actual state
+      if(mGlStateCache.mVertexAttributeCurrentState[i] != mGlStateCache.mVertexAttributeCachedState[i])
+      {
+        // it's different so make the change to the driver and update the cached state
+        mGlStateCache.mVertexAttributeCurrentState[i] = mGlStateCache.mVertexAttributeCachedState[i];
+
+        if(mGlStateCache.mVertexAttributeCurrentState[i])
+        {
+          gl.EnableVertexAttribArray(i);
+        }
+        else
+        {
+          gl.DisableVertexAttribArray(i);
+        }
+      }
+    }
+  }
+
+  /**
+   * Either enables or disables a vertex attribute location in the cache
+   * The cahnges won't take affect until FlushVertexAttributeLocations is called
+   * @param location attribute location
+   * @param state attribute state
+   */
+  void SetVertexAttributeLocation(unsigned int location, bool state)
+  {
+    auto& gl = *mController.GetGL();
+
+    if(location >= MAX_ATTRIBUTE_CACHE_SIZE)
+    {
+      // not cached, make the gl call through context
+      if(state)
+      {
+        gl.EnableVertexAttribArray(location);
+      }
+      else
+      {
+        gl.DisableVertexAttribArray(location);
+      }
+    }
+    else
+    {
+      // set the cached state, it will be set at the next draw call
+      // if it's different from the current driver state
+      mGlStateCache.mVertexAttributeCachedState[location] = state;
+    }
+  }
+
   EglGraphicsController& mController;
 
-  const GLES::Pipeline* mCurrentPipeline{nullptr}; ///< Currently bound pipeline
-  const GLES::Pipeline* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
+  const GLES::PipelineImpl* mCurrentPipeline{nullptr}; ///< Currently bound pipeline
+  const GLES::PipelineImpl* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
 
   std::vector<Graphics::TextureBinding> mCurrentTextureBindings{};
   std::vector<Graphics::SamplerBinding> mCurrentSamplerBindings{};
@@ -55,6 +160,14 @@ struct Context::Impl
   // Currently bound UBOs (check if it's needed per program!)
   std::vector<UniformBufferBindingDescriptor> mCurrentUBOBindings{};
   UniformBufferBindingDescriptor              mCurrentStandaloneUBOBinding{};
+
+  // Current render pass and render target
+  const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
+  const GLES::RenderPass*   mCurrentRenderPass{nullptr};
+
+  GLStateCache mGlStateCache{}; ///< GL status cache
+
+  bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
 };
 
 Context::Context(EglGraphicsController& controller)
@@ -68,25 +181,31 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 {
   auto& gl = *mImpl->mController.GetGL();
 
-  // Change pipeline
-  if(mImpl->mNewPipeline)
+  // Execute states if pipeline is changed
+  const auto& currentProgram = mImpl->mCurrentPipeline ? static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program) : nullptr;
+  const auto& newProgram     = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+
+  if(mImpl->mCurrentPipeline != mImpl->mNewPipeline)
   {
-    // Execute states if different
-    mImpl->mCurrentPipeline = mImpl->mNewPipeline;
-    mImpl->mNewPipeline     = nullptr;
+    if(!currentProgram || currentProgram->GetImplementation()->GetGlProgram() != newProgram->GetImplementation()->GetGlProgram())
+    {
+      mImpl->mNewPipeline->Bind(newProgram->GetImplementation()->GetGlProgram());
+    }
+
+    // Blend state
+    ResolveBlendState();
+
+    // Resolve rasterization state
+    ResolveRasterizationState();
   }
-  mImpl->mCurrentPipeline->GetPipeline().Bind(nullptr);
-
-  // Blend state
-  ResolveBlendState();
-
-  // Resolve rasterization state
-  ResolveRasterizationState();
 
   // Resolve uniform buffers
   ResolveUniformBuffers();
 
   // Bind textures
+  // Map binding# to sampler location
+  const auto& reflection = newProgram->GetReflection();
+  const auto& samplers   = reflection.GetSamplers();
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
@@ -101,23 +220,33 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
     }
 
     texture->Bind(binding);
+
     texture->Prepare(); // @todo also non-const.
+
+    if(binding.binding < samplers.size()) // binding maps to texture unit. (texture bindings should also be in binding order)
+    {
+      // Offset is set to the lexical offset within the frag shader, map it to the texture unit
+      // @todo Explicitly set the texture unit through the graphics interface
+      gl.Uniform1i(samplers[binding.binding].location, samplers[binding.binding].offset);
+    }
   }
 
   // for each attribute bind vertices
-  const auto& pipelineState = mImpl->mCurrentPipeline->GetCreateInfo();
+  const auto& pipelineState = mImpl->mNewPipeline->GetCreateInfo();
   const auto& vi            = pipelineState.vertexInputState;
   for(const auto& attr : vi->attributes)
   {
     // Enable location
-    gl.EnableVertexAttribArray(attr.location);
+    mImpl->SetVertexAttributeLocation(attr.location, true);
+
     const auto& bufferSlot    = mImpl->mCurrentVertexBufferBindings[attr.binding];
     const auto& bufferBinding = vi->bufferBindings[attr.binding];
 
     auto glesBuffer = bufferSlot.buffer->GetGLBuffer();
 
     // Bind buffer
-    gl.BindBuffer(GL_ARRAY_BUFFER, glesBuffer);
+    BindBuffer(GL_ARRAY_BUFFER, glesBuffer);
+
     gl.VertexAttribPointer(attr.location,
                            GLVertexFormat(attr.format).size,
                            GLVertexFormat(attr.format).format,
@@ -127,7 +256,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 
   // Resolve topology
-  const auto& ia = mImpl->mCurrentPipeline->GetCreateInfo().inputAssemblyState;
+  const auto& ia = mImpl->mNewPipeline->GetCreateInfo().inputAssemblyState;
 
   // Bind uniforms
 
@@ -136,6 +265,11 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   {
     case DrawCallDescriptor::Type::DRAW:
     {
+      mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                                mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                                mImpl->mGlStateCache.StencilBufferWriteEnabled());
+      mImpl->FlushVertexAttributeLocations();
+
       gl.DrawArrays(GLESTopology(ia->topology),
                     drawCall.draw.firstVertex,
                     drawCall.draw.vertexCount);
@@ -143,9 +277,14 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
     }
     case DrawCallDescriptor::Type::DRAW_INDEXED:
     {
-      const auto& binding    = mImpl->mCurrentIndexBufferBinding;
-      const auto* glesBuffer = binding.buffer;
-      gl.BindBuffer(GL_ELEMENT_ARRAY_BUFFER, glesBuffer->GetGLBuffer());
+      const auto& binding = mImpl->mCurrentIndexBufferBinding;
+      BindBuffer(GL_ELEMENT_ARRAY_BUFFER, binding.buffer->GetGLBuffer());
+
+      mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                                mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                                mImpl->mGlStateCache.StencilBufferWriteEnabled());
+      mImpl->FlushVertexAttributeLocations();
+
       auto indexBufferFormat = GLIndexFormat(binding.format).format;
       gl.DrawElements(GLESTopology(ia->topology),
                       drawCall.drawIndexed.indexCount,
@@ -160,6 +299,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 
   ClearState();
+
+  // Change pipeline
+  if(mImpl->mNewPipeline)
+  {
+    mImpl->mCurrentPipeline = mImpl->mNewPipeline;
+    mImpl->mNewPipeline     = nullptr;
+  }
 }
 
 void Context::BindTextures(const std::vector<Graphics::TextureBinding>& bindings)
@@ -196,7 +342,8 @@ void Context::BindIndexBuffer(const IndexBufferBindingDescriptor& indexBufferBin
 
 void Context::BindPipeline(const GLES::Pipeline* newPipeline)
 {
-  mImpl->mNewPipeline = newPipeline;
+  DALI_ASSERT_ALWAYS(newPipeline && "Invalid pipeline");
+  mImpl->mNewPipeline = &newPipeline->GetPipeline();
 }
 
 void Context::BindUniformBuffers(const std::vector<UniformBufferBindingDescriptor>& uboBindings,
@@ -224,68 +371,115 @@ void Context::BindUniformBuffers(const std::vector<UniformBufferBindingDescripto
 
 void Context::ResolveBlendState()
 {
-  const auto& state = mImpl->mCurrentPipeline->GetCreateInfo();
-  const auto& bs    = state.colorBlendState;
-  auto&       gl    = *mImpl->mController.GetGL();
+  const auto& currentBlendState = mImpl->mCurrentPipeline ? mImpl->mCurrentPipeline->GetCreateInfo().colorBlendState : nullptr;
+  const auto& newBlendState     = mImpl->mNewPipeline->GetCreateInfo().colorBlendState;
 
   // TODO: prevent leaking the state
-  if(!bs)
+  if(!newBlendState)
   {
     return;
   }
 
-  bs->blendEnable ? gl.Enable(GL_BLEND) : gl.Disable(GL_BLEND);
-  if(!bs->blendEnable)
+  auto& gl = *mImpl->mController.GetGL();
+
+  if(!currentBlendState || currentBlendState->blendEnable != newBlendState->blendEnable)
+  {
+    if(newBlendState->blendEnable != mImpl->mGlStateCache.mBlendEnabled)
+    {
+      mImpl->mGlStateCache.mBlendEnabled = newBlendState->blendEnable;
+      newBlendState->blendEnable ? gl.Enable(GL_BLEND) : gl.Disable(GL_BLEND);
+    }
+  }
+
+  if(!newBlendState->blendEnable)
   {
     return;
   }
 
-  gl.BlendFunc(GLBlendFunc(bs->srcColorBlendFactor), GLBlendFunc(bs->dstColorBlendFactor));
+  BlendFactor newSrcRGB(newBlendState->srcColorBlendFactor);
+  BlendFactor newDstRGB(newBlendState->dstColorBlendFactor);
+  BlendFactor newSrcAlpha(newBlendState->srcAlphaBlendFactor);
+  BlendFactor newDstAlpha(newBlendState->dstAlphaBlendFactor);
 
-  if((GLBlendFunc(bs->srcColorBlendFactor) == GLBlendFunc(bs->srcAlphaBlendFactor)) &&
-     (GLBlendFunc(bs->dstColorBlendFactor) == GLBlendFunc(bs->dstAlphaBlendFactor)))
+  if(!currentBlendState ||
+     currentBlendState->srcColorBlendFactor != newSrcRGB ||
+     currentBlendState->dstColorBlendFactor != newDstRGB ||
+     currentBlendState->srcAlphaBlendFactor != newSrcAlpha ||
+     currentBlendState->dstAlphaBlendFactor != newDstAlpha)
   {
-    gl.BlendFunc(GLBlendFunc(bs->srcColorBlendFactor), GLBlendFunc(bs->dstColorBlendFactor));
+    if((mImpl->mGlStateCache.mBlendFuncSeparateSrcRGB != newSrcRGB) ||
+       (mImpl->mGlStateCache.mBlendFuncSeparateDstRGB != newDstRGB) ||
+       (mImpl->mGlStateCache.mBlendFuncSeparateSrcAlpha != newSrcAlpha) ||
+       (mImpl->mGlStateCache.mBlendFuncSeparateDstAlpha != newDstAlpha))
+    {
+      mImpl->mGlStateCache.mBlendFuncSeparateSrcRGB   = newSrcRGB;
+      mImpl->mGlStateCache.mBlendFuncSeparateDstRGB   = newDstRGB;
+      mImpl->mGlStateCache.mBlendFuncSeparateSrcAlpha = newSrcAlpha;
+      mImpl->mGlStateCache.mBlendFuncSeparateDstAlpha = newDstAlpha;
+
+      if(newSrcRGB == newSrcAlpha && newDstRGB == newDstAlpha)
+      {
+        gl.BlendFunc(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB));
+      }
+      else
+      {
+        gl.BlendFuncSeparate(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB), GLBlendFunc(newSrcAlpha), GLBlendFunc(newDstAlpha));
+      }
+    }
   }
-  else
+
+  if(!currentBlendState ||
+     currentBlendState->colorBlendOp != newBlendState->colorBlendOp ||
+     currentBlendState->alphaBlendOp != newBlendState->alphaBlendOp)
   {
-    gl.BlendFuncSeparate(GLBlendFunc(bs->srcColorBlendFactor),
-                         GLBlendFunc(bs->dstColorBlendFactor),
-                         GLBlendFunc(bs->srcAlphaBlendFactor),
-                         GLBlendFunc(bs->dstAlphaBlendFactor));
-  }
-  if(GLBlendOp(bs->colorBlendOp) == GLBlendOp(bs->alphaBlendOp))
-  {
-    gl.BlendEquation(GLBlendOp(bs->colorBlendOp));
-  }
-  else
-  {
-    gl.BlendEquationSeparate(GLBlendOp(bs->colorBlendOp), GLBlendOp(bs->alphaBlendOp));
+    if(mImpl->mGlStateCache.mBlendEquationSeparateModeRGB != newBlendState->colorBlendOp ||
+       mImpl->mGlStateCache.mBlendEquationSeparateModeAlpha != newBlendState->alphaBlendOp)
+    {
+      mImpl->mGlStateCache.mBlendEquationSeparateModeRGB   = newBlendState->colorBlendOp;
+      mImpl->mGlStateCache.mBlendEquationSeparateModeAlpha = newBlendState->alphaBlendOp;
+
+      if(newBlendState->colorBlendOp == newBlendState->alphaBlendOp)
+      {
+        gl.BlendEquation(GLBlendOp(newBlendState->colorBlendOp));
+      }
+      else
+      {
+        gl.BlendEquationSeparate(GLBlendOp(newBlendState->colorBlendOp), GLBlendOp(newBlendState->alphaBlendOp));
+      }
+    }
   }
 }
 
 void Context::ResolveRasterizationState()
 {
-  const auto& state = mImpl->mCurrentPipeline->GetCreateInfo();
-  const auto& rs    = state.rasterizationState;
-  auto&       gl    = *mImpl->mController.GetGL();
+  const auto& currentRasterizationState = mImpl->mCurrentPipeline ? mImpl->mCurrentPipeline->GetCreateInfo().rasterizationState : nullptr;
+  const auto& newRasterizationState     = mImpl->mNewPipeline->GetCreateInfo().rasterizationState;
 
   // TODO: prevent leaking the state
-  if(!rs)
+  if(!newRasterizationState)
   {
     return;
   }
 
-  if(rs->cullMode == CullMode::NONE)
-  {
-    gl.Disable(GL_CULL_FACE);
-  }
-  else
-  {
-    gl.Enable(GL_CULL_FACE);
-    gl.CullFace(GLCullMode(rs->cullMode));
-  }
+  auto& gl = *mImpl->mController.GetGL();
 
+  if(!currentRasterizationState ||
+     currentRasterizationState->cullMode != newRasterizationState->cullMode)
+  {
+    if(mImpl->mGlStateCache.mCullFaceMode != newRasterizationState->cullMode)
+    {
+      mImpl->mGlStateCache.mCullFaceMode = newRasterizationState->cullMode;
+      if(newRasterizationState->cullMode == CullMode::NONE)
+      {
+        gl.Disable(GL_CULL_FACE);
+      }
+      else
+      {
+        gl.Enable(GL_CULL_FACE);
+        gl.CullFace(GLCullMode(newRasterizationState->cullMode));
+      }
+    }
+  }
   // TODO: implement polygon mode (fill, line, points)
   //       seems like we don't support it (no glPolygonMode())
 }
@@ -304,13 +498,13 @@ void Context::ResolveStandaloneUniforms()
   auto& gl = *mImpl->mController.GetGL();
 
   // Find reflection for program
-  const auto program = static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program);
+  const auto program = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
 
   const auto& reflection = program->GetReflection();
 
   auto extraInfos = reflection.GetStandaloneUniformExtraInfo();
 
-  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress());
+  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
 
   for(const auto& info : extraInfos)
   {
@@ -403,9 +597,365 @@ void Context::ResolveStandaloneUniforms()
   }
 }
 
+void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
+{
+  auto& renderPass   = *renderPassBegin.renderPass;
+  auto& renderTarget = *renderPassBegin.renderTarget;
+
+  const auto& targetInfo = renderTarget.GetCreateInfo();
+
+  auto& gl = *mImpl->mController.GetGL();
+
+  if(targetInfo.surface)
+  {
+    // Bind surface FB
+    BindFrameBuffer(GL_FRAMEBUFFER, 0);
+  }
+  else if(targetInfo.framebuffer)
+  {
+    // bind framebuffer and swap.
+    renderTarget.GetFramebuffer()->Bind();
+  }
+
+  // clear (ideally cache the setup)
+
+  // In GL we assume that the last attachment is depth/stencil (we may need
+  // to cache extra information inside GLES RenderTarget if we want to be
+  // more specific in case of MRT)
+
+  const auto& attachments = *renderPass.GetCreateInfo().attachments;
+  const auto& color0      = attachments[0];
+  GLuint      mask        = 0;
+  if(color0.loadOp == AttachmentLoadOp::CLEAR)
+  {
+    mask |= GL_COLOR_BUFFER_BIT;
+
+    // Set clear color
+    // Something goes wrong here if Alpha mask is GL_TRUE
+    ColorMask(true);
+
+    if(!mImpl->mGlStateCache.mClearColorSet ||
+       mImpl->mGlStateCache.mClearColor.r != renderPassBegin.clearValues[0].color.r ||
+       mImpl->mGlStateCache.mClearColor.g != renderPassBegin.clearValues[0].color.g ||
+       mImpl->mGlStateCache.mClearColor.b != renderPassBegin.clearValues[0].color.b ||
+       mImpl->mGlStateCache.mClearColor.a != renderPassBegin.clearValues[0].color.a)
+    {
+      gl.ClearColor(renderPassBegin.clearValues[0].color.r,
+                    renderPassBegin.clearValues[0].color.g,
+                    renderPassBegin.clearValues[0].color.b,
+                    renderPassBegin.clearValues[0].color.a);
+
+      mImpl->mGlStateCache.mClearColorSet = true;
+      mImpl->mGlStateCache.mClearColor    = Vector4(renderPassBegin.clearValues[0].color.r,
+                                                 renderPassBegin.clearValues[0].color.g,
+                                                 renderPassBegin.clearValues[0].color.b,
+                                                 renderPassBegin.clearValues[0].color.a);
+    }
+  }
+
+  // check for depth stencil
+  if(attachments.size() > 1)
+  {
+    const auto& depthStencil = attachments.back();
+    if(depthStencil.loadOp == AttachmentLoadOp::CLEAR)
+    {
+      if(!mImpl->mGlStateCache.mDepthMaskEnabled)
+      {
+        mImpl->mGlStateCache.mDepthMaskEnabled = true;
+        gl.DepthMask(true);
+      }
+      mask |= GL_DEPTH_BUFFER_BIT;
+    }
+    if(depthStencil.stencilLoadOp == AttachmentLoadOp::CLEAR)
+    {
+      if(mImpl->mGlStateCache.mStencilMask != 0xFF)
+      {
+        mImpl->mGlStateCache.mStencilMask = 0xFF;
+        gl.StencilMask(0xFF);
+      }
+      mask |= GL_STENCIL_BUFFER_BIT;
+    }
+  }
+
+  SetScissorTestEnabled(true);
+  gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
+  ClearBuffer(mask, true);
+  SetScissorTestEnabled(false);
+
+  mImpl->mCurrentRenderPass   = &renderPass;
+  mImpl->mCurrentRenderTarget = &renderTarget;
+}
+
+void Context::EndRenderPass()
+{
+  if(mImpl->mCurrentRenderTarget)
+  {
+    if(mImpl->mCurrentRenderTarget->GetFramebuffer())
+    {
+      auto& gl = *mImpl->mController.GetGL();
+      gl.Flush();
+    }
+  }
+}
+
 void Context::ClearState()
 {
   mImpl->mCurrentTextureBindings.clear();
+}
+
+void Context::ColorMask(bool enabled)
+{
+  if(enabled != mImpl->mGlStateCache.mColorMask)
+  {
+    mImpl->mGlStateCache.mColorMask = enabled;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.ColorMask(enabled, enabled, enabled, enabled);
+  }
+}
+
+void Context::ClearStencilBuffer()
+{
+  ClearBuffer(GL_STENCIL_BUFFER_BIT, false);
+}
+
+void Context::ClearDepthBuffer()
+{
+  ClearBuffer(GL_DEPTH_BUFFER_BIT, false);
+}
+
+void Context::ClearBuffer(uint32_t mask, bool forceClear)
+{
+  mask = mImpl->mGlStateCache.mFrameBufferStateCache.GetClearMask(mask, forceClear, mImpl->mGlStateCache.mScissorTestEnabled);
+  if(mask > 0)
+  {
+    auto& gl = *mImpl->mController.GetGL();
+    gl.Clear(mask);
+  }
+}
+
+void Context::SetScissorTestEnabled(bool scissorEnabled)
+{
+  if(mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
+  {
+    mImpl->mGlStateCache.mScissorTestEnabled = scissorEnabled;
+
+    auto& gl = *mImpl->mController.GetGL();
+    if(scissorEnabled)
+    {
+      gl.Enable(GL_SCISSOR_TEST);
+    }
+    else
+    {
+      gl.Disable(GL_SCISSOR_TEST);
+    }
+  }
+}
+
+void Context::SetStencilTestEnable(bool stencilEnable)
+{
+  if(stencilEnable != mImpl->mGlStateCache.mStencilBufferEnabled)
+  {
+    mImpl->mGlStateCache.mStencilBufferEnabled = stencilEnable;
+
+    auto& gl = *mImpl->mController.GetGL();
+    if(stencilEnable)
+    {
+      gl.Enable(GL_STENCIL_TEST);
+    }
+    else
+    {
+      gl.Disable(GL_STENCIL_TEST);
+    }
+  }
+}
+
+void Context::StencilMask(uint32_t writeMask)
+{
+  if(writeMask != mImpl->mGlStateCache.mStencilMask)
+  {
+    mImpl->mGlStateCache.mStencilMask = writeMask;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.StencilMask(writeMask);
+  }
+}
+
+void Context::StencilFunc(Graphics::CompareOp compareOp,
+                          uint32_t            reference,
+                          uint32_t            compareMask)
+{
+  if(compareOp != mImpl->mGlStateCache.mStencilFunc ||
+     reference != mImpl->mGlStateCache.mStencilFuncRef ||
+     compareMask != mImpl->mGlStateCache.mStencilFuncMask)
+  {
+    mImpl->mGlStateCache.mStencilFunc     = compareOp;
+    mImpl->mGlStateCache.mStencilFuncRef  = reference;
+    mImpl->mGlStateCache.mStencilFuncMask = compareMask;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.StencilFunc(GLCompareOp(compareOp).op, reference, compareMask);
+  }
+}
+
+void Context::StencilOp(Graphics::StencilOp failOp,
+                        Graphics::StencilOp depthFailOp,
+                        Graphics::StencilOp passOp)
+{
+  if(failOp != mImpl->mGlStateCache.mStencilOpFail ||
+     depthFailOp != mImpl->mGlStateCache.mStencilOpDepthFail ||
+     passOp != mImpl->mGlStateCache.mStencilOpDepthPass)
+  {
+    mImpl->mGlStateCache.mStencilOpFail      = failOp;
+    mImpl->mGlStateCache.mStencilOpDepthFail = depthFailOp;
+    mImpl->mGlStateCache.mStencilOpDepthPass = passOp;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.StencilOp(GLStencilOp(failOp).op, GLStencilOp(depthFailOp).op, GLStencilOp(passOp).op);
+  }
+}
+
+void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
+{
+  if(compareOp != mImpl->mGlStateCache.mDepthFunction)
+  {
+    mImpl->mGlStateCache.mDepthFunction = compareOp;
+    auto& gl                            = *mImpl->mController.GetGL();
+    gl.DepthFunc(GLCompareOp(compareOp).op);
+  }
+}
+
+void Context::SetDepthTestEnable(bool depthTestEnable)
+{
+  if(depthTestEnable != mImpl->mGlStateCache.mDepthBufferEnabled)
+  {
+    mImpl->mGlStateCache.mDepthBufferEnabled = depthTestEnable;
+
+    auto& gl = *mImpl->mController.GetGL();
+    if(depthTestEnable)
+    {
+      gl.Enable(GL_DEPTH_TEST);
+    }
+    else
+    {
+      gl.Disable(GL_DEPTH_TEST);
+    }
+  }
+}
+
+void Context::SetDepthWriteEnable(bool depthWriteEnable)
+{
+  if(depthWriteEnable != mImpl->mGlStateCache.mDepthMaskEnabled)
+  {
+    mImpl->mGlStateCache.mDepthMaskEnabled = depthWriteEnable;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.DepthMask(depthWriteEnable);
+  }
+}
+
+void Context::ActiveTexture(uint32_t textureBindingIndex)
+{
+  if(mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
+  {
+    mImpl->mGlStateCache.mActiveTextureUnit = textureBindingIndex;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.ActiveTexture(GL_TEXTURE0 + textureBindingIndex);
+  }
+}
+
+void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId)
+{
+  uint32_t typeId = static_cast<uint32_t>(textureTypeId);
+  if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+  {
+    mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.BindTexture(target, textureId);
+  }
+}
+
+void Context::GenerateMipmap(GLenum target)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.GenerateMipmap(target);
+}
+
+void Context::BindBuffer(GLenum target, uint32_t bufferId)
+{
+  if(mImpl->mGlStateCache.mBoundArrayBufferId != bufferId)
+  {
+    mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
+
+    auto& gl = *mImpl->mController.GetGL();
+    gl.BindBuffer(target, bufferId);
+  }
+}
+
+void Context::DrawBuffers(uint32_t count, const GLenum* buffers)
+{
+  mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                            mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                            mImpl->mGlStateCache.StencilBufferWriteEnabled());
+
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DrawBuffers(count, buffers);
+}
+
+void Context::BindFrameBuffer(GLenum target, uint32_t bufferId)
+{
+  mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(bufferId);
+
+  auto& gl = *mImpl->mController.GetGL();
+  gl.BindFramebuffer(target, bufferId);
+}
+
+void Context::GenFramebuffers(uint32_t count, uint32_t* framebuffers)
+{
+  auto& gl = *mImpl->mController.GetGL();
+  gl.GenFramebuffers(count, framebuffers);
+
+  mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersCreated(count, framebuffers);
+}
+
+void Context::DeleteFramebuffers(uint32_t count, uint32_t* framebuffers)
+{
+  mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersDeleted(count, framebuffers);
+
+  auto& gl = *mImpl->mController.GetGL();
+  gl.DeleteFramebuffers(count, framebuffers);
+}
+
+GLStateCache& Context::GetGLStateCache()
+{
+  return mImpl->mGlStateCache;
+}
+
+void Context::GlContextCreated()
+{
+  if(!mImpl->mGlContextCreated)
+  {
+    mImpl->mGlContextCreated = true;
+
+    // Set the initial GL state
+    mImpl->InitializeGlState();
+  }
+}
+
+void Context::GlContextDestroyed()
+{
+  mImpl->mGlContextCreated = false;
+}
+
+void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
+{
+  // Since the pipeline is deleted, invalidate the cached pipeline.
+  if(mImpl->mCurrentPipeline == &pipeline->GetPipeline())
+  {
+    mImpl->mCurrentPipeline = nullptr;
+  }
 }
 
 } // namespace Dali::Graphics::GLES

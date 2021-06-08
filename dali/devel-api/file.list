@@ -9,6 +9,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
@@ -56,6 +57,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.h
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
@@ -135,6 +137,7 @@ SET( devel_api_text_abstraction_src_files
    ${adaptor_devel_api_dir}/text-abstraction/shaping.cpp
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.cpp
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/hyphenation.cpp
 )
 
 
@@ -152,4 +155,5 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/text-abstraction-definitions.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.h
+   ${adaptor_devel_api_dir}/text-abstraction/hyphenation.h
 )

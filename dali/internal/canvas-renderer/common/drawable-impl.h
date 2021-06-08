@@ -86,6 +86,11 @@ public:
   virtual bool Transform(const Dali::Matrix3& matrix);
 
   /**
+   * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox
+   */
+  virtual Rect<float> GetBoundingBox() const;
+
+  /**
    * @brief Set whether drawable added to the other object(canvas or drawable) or not.
    * @param[in] added Ture if added, false otherwise.
    */

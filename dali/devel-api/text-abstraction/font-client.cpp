@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,26 @@ namespace TextAbstraction
 {
 const PointSize26Dot6 FontClient::DEFAULT_POINT_SIZE   = 768u;                           // 12*64
 const float           FontClient::DEFAULT_ITALIC_ANGLE = 12.f * Dali::Math::PI_OVER_180; // FreeType documentation states the software italic is done by doing a horizontal shear of 12 degrees (file ftsynth.h).
+
+//Default atlas block
+const bool     FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED = true;
+const uint32_t FontClient::DEFAULT_TEXT_ATLAS_WIDTH         = 512u;
+const uint32_t FontClient::DEFAULT_TEXT_ATLAS_HEIGHT        = 512u;
+const Size     FontClient::DEFAULT_TEXT_ATLAS_SIZE(DEFAULT_TEXT_ATLAS_WIDTH, DEFAULT_TEXT_ATLAS_HEIGHT);
+
+//Maximum atlas block
+const uint32_t FontClient::MAX_TEXT_ATLAS_WIDTH  = 1024u;
+const uint32_t FontClient::MAX_TEXT_ATLAS_HEIGHT = 1024u;
+const Size     FontClient::MAX_TEXT_ATLAS_SIZE(MAX_TEXT_ATLAS_WIDTH, MAX_TEXT_ATLAS_HEIGHT);
+
+//MAX_WIDTH_FIT_IN_ATLAS: blockWidth + 2 * DOUBLE_PIXEL_PADDING + 1u <= atlasWidth
+//MAX_HEIGHT_FIT_IN_ATLAS: blockHeight + 2 * DOUBLE_PIXEL_PADDING + 1u <= atlasHeight
+const uint16_t FontClient::PADDING_TEXT_ATLAS_BLOCK = 5u; // 2 * DOUBLE_PIXEL_PADDING + 1u
+
+//Maximum block size to fit into atlas block
+const Size FontClient::MAX_SIZE_FIT_IN_ATLAS(MAX_TEXT_ATLAS_WIDTH - PADDING_TEXT_ATLAS_BLOCK, MAX_TEXT_ATLAS_HEIGHT - PADDING_TEXT_ATLAS_BLOCK);
+
+const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u; //Found this value from toolkit
 
 FontClient::GlyphBufferData::GlyphBufferData()
 : buffer{nullptr},
@@ -233,6 +253,41 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   return GetImplementation(*this).CreateEmbeddedItem(description, pixelFormat);
+}
+
+void FontClient::EnableAtlasLimitation(bool enabled)
+{
+  return GetImplementation(*this).EnableAtlasLimitation(enabled);
+}
+
+bool FontClient::IsAtlasLimitationEnabled() const
+{
+  return GetImplementation(*this).IsAtlasLimitationEnabled();
+}
+
+Size FontClient::GetMaximumTextAtlasSize() const
+{
+  return GetImplementation(*this).GetMaximumTextAtlasSize();
+}
+
+Size FontClient::GetDefaultTextAtlasSize() const
+{
+  return GetImplementation(*this).GetDefaultTextAtlasSize();
+}
+
+Size FontClient::GetCurrentMaximumBlockSizeFitInAtlas() const
+{
+  return GetImplementation(*this).GetCurrentMaximumBlockSizeFitInAtlas();
+}
+
+bool FontClient::SetCurrentMaximumBlockSizeFitInAtlas(const Size& currentMaximumBlockSizeFitInAtlas)
+{
+  return GetImplementation(*this).SetCurrentMaximumBlockSizeFitInAtlas(currentMaximumBlockSizeFitInAtlas);
+}
+
+uint32_t FontClient::GetNumberOfPointsPerOneUnitOfPointSize() const
+{
+  return GetImplementation(*this).GetNumberOfPointsPerOneUnitOfPointSize();
 }
 
 FontClient::FontClient(Internal::FontClient* internal)

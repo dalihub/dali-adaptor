@@ -18,17 +18,29 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+#include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-program.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-render-pass.h>
+#include <dali/internal/graphics/gles-impl/gles-graphics-render-target.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
+#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/public-api/common/dali-common.h>
-#include "gles-graphics-program.h"
+
+// Uncomment the following define to turn on frame dumping
+//#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
+DUMP_FRAME_INIT();
 
 namespace Dali::Graphics
 {
@@ -88,6 +100,9 @@ T0* CastObject(T1* apiObject)
   return static_cast<T0*>(apiObject);
 }
 
+// Maximum size of texture upload buffer.
+const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
+
 } // namespace
 
 EglGraphicsController::~EglGraphicsController() = default;
@@ -95,16 +110,21 @@ EglGraphicsController::~EglGraphicsController() = default;
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #1\n");
-  mGlAbstraction = &glAbstraction;
-  mContext       = std::make_unique<GLES::Context>(*this);
+  mGlAbstraction  = &glAbstraction;
+  mContext        = std::make_unique<GLES::Context>(*this);
+  mCurrentContext = mContext.get();
 }
 
-void EglGraphicsController::Initialize(Integration::GlSyncAbstraction&          glSyncAbstraction,
-                                       Integration::GlContextHelperAbstraction& glContextHelperAbstraction)
+void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
+                                       Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
+                                       Internal::Adaptor::GraphicsInterface&    graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #2\n");
-  mGlSyncAbstraction          = &glSyncAbstraction;
+  auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
+
+  mEglSyncImplementation      = syncImplPtr;
   mGlContextHelperAbstraction = &glContextHelperAbstraction;
+  mGraphics                   = &graphicsInterface;
 }
 
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
@@ -122,16 +142,35 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
   }
 }
 
+void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
+{
+  // Use command buffer to execute presentation (we should pool it)
+  CommandBufferCreateInfo info;
+  info.SetLevel(CommandBufferLevel::PRIMARY);
+  info.fixedCapacity        = 1; // only one command
+  auto presentCommandBuffer = new GLES::CommandBuffer(info, *this);
+  presentCommandBuffer->PresentRenderTarget(static_cast<GLES::RenderTarget*>(renderTarget));
+  SubmitInfo submitInfo;
+  submitInfo.cmdBuffer = {presentCommandBuffer};
+  submitInfo.flags     = 0 | SubmitFlagBits::FLUSH;
+  SubmitCommandBuffers(submitInfo);
+}
+
+void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget)
+{
+  auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
+  if(rt->GetCreateInfo().surface)
+  {
+    auto* surfaceInterface = reinterpret_cast<Dali::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
+    surfaceInterface->MakeContextCurrent();
+    surfaceInterface->PostRender();
+  }
+}
+
 Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
 {
   DALI_ASSERT_DEBUG(mGlAbstraction && "Graphics controller not initialized");
   return *mGlAbstraction;
-}
-
-Integration::GlSyncAbstraction& EglGraphicsController::GetGlSyncAbstraction()
-{
-  DALI_ASSERT_DEBUG(mGlSyncAbstraction && "Graphics controller not initialized");
-  return *mGlSyncAbstraction;
 }
 
 Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelperAbstraction()
@@ -140,11 +179,22 @@ Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelp
   return *mGlContextHelperAbstraction;
 }
 
-Graphics::UniquePtr<CommandBuffer>
-EglGraphicsController::CreateCommandBuffer(const CommandBufferCreateInfo&       commandBufferCreateInfo,
-                                           Graphics::UniquePtr<CommandBuffer>&& oldCommandBuffer)
+Internal::Adaptor::EglSyncImplementation& EglGraphicsController::GetEglSyncImplementation()
+{
+  DALI_ASSERT_DEBUG(mEglSyncImplementation && "Sync implementation not initialized");
+  return *mEglSyncImplementation;
+}
+
+Graphics::UniquePtr<CommandBuffer> EglGraphicsController::CreateCommandBuffer(
+  const CommandBufferCreateInfo&       commandBufferCreateInfo,
+  Graphics::UniquePtr<CommandBuffer>&& oldCommandBuffer)
 {
   return NewObject<GLES::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
+}
+
+Graphics::UniquePtr<RenderPass> EglGraphicsController::CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, Graphics::UniquePtr<RenderPass>&& oldRenderPass)
+{
+  return NewObject<GLES::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
 }
 
 Graphics::UniquePtr<Texture>
@@ -153,13 +203,20 @@ EglGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo,
   return NewObject<GLES::Texture>(textureCreateInfo, *this, std::move(oldTexture));
 }
 
-Graphics::UniquePtr<Buffer>
-EglGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer)
+Graphics::UniquePtr<Buffer> EglGraphicsController::CreateBuffer(
+  const BufferCreateInfo& bufferCreateInfo, Graphics::UniquePtr<Buffer>&& oldBuffer)
 {
   return NewObject<GLES::Buffer>(bufferCreateInfo, *this, std::move(oldBuffer));
 }
 
-Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
+Graphics::UniquePtr<Framebuffer> EglGraphicsController::CreateFramebuffer(
+  const FramebufferCreateInfo& framebufferCreateInfo, Graphics::UniquePtr<Framebuffer>&& oldFramebuffer)
+{
+  return NewObject<GLES::Framebuffer>(framebufferCreateInfo, *this, std::move(oldFramebuffer));
+}
+
+Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(
+  const PipelineCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
   // Create pipeline cache if needed
   if(!mPipelineCache)
@@ -170,7 +227,8 @@ Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(const Pipeli
   return mPipelineCache->GetPipeline(pipelineCreateInfo, std::move(oldPipeline));
 }
 
-Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
+Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(
+  const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
 {
   // Create program cache if needed
   if(!mPipelineCache)
@@ -191,9 +249,62 @@ Graphics::UniquePtr<Sampler> EglGraphicsController::CreateSampler(const SamplerC
   return NewObject<GLES::Sampler>(samplerCreateInfo, *this, std::move(oldSampler));
 }
 
+Graphics::UniquePtr<RenderTarget> EglGraphicsController::CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, Graphics::UniquePtr<RenderTarget>&& oldRenderTarget)
+{
+  return NewObject<GLES::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+}
+
+Graphics::UniquePtr<SyncObject> EglGraphicsController::CreateSyncObject(const SyncObjectCreateInfo& syncObjectCreateInfo,
+                                                                        UniquePtr<SyncObject>&&     oldSyncObject)
+{
+  if(GetGLESVersion() < GLES::GLESVersion::GLES_30)
+  {
+    return NewObject<EGL::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
+  }
+  else
+  {
+    return NewObject<GLES::SyncObject>(syncObjectCreateInfo, *this, std::move(oldSyncObject));
+  }
+}
+
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
   return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();
+}
+
+void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this);
+  mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
+}
+
+void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  mSurfaceContexts.erase(std::remove_if(
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
+                         mSurfaceContexts.end());
+}
+
+void EglGraphicsController::ActivateResourceContext()
+{
+  mCurrentContext = mContext.get();
+  mCurrentContext->GlContextCreated();
+}
+
+void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  if(surface && mGraphics->IsResourceContextSupported())
+  {
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) {
+      return (iter.first == surface);
+    });
+
+    if(iter != mSurfaceContexts.end())
+    {
+      mCurrentContext = iter->second.get();
+      mCurrentContext->GlContextCreated();
+    }
+  }
 }
 
 void EglGraphicsController::AddTexture(GLES::Texture& texture)
@@ -208,6 +319,12 @@ void EglGraphicsController::AddBuffer(GLES::Buffer& buffer)
   mCreateBufferQueue.push(&buffer);
 }
 
+void EglGraphicsController::AddFramebuffer(GLES::Framebuffer& framebuffer)
+{
+  // Assuming we are on the correct context
+  mCreateFramebufferQueue.push(&framebuffer);
+}
+
 void EglGraphicsController::ProcessDiscardQueues()
 {
   // Process textures
@@ -216,8 +333,11 @@ void EglGraphicsController::ProcessDiscardQueues()
   // Process buffers
   ProcessDiscardQueue<GLES::Buffer>(mDiscardBufferQueue);
 
+  // Process Framebuffers
+  ProcessDiscardQueue<GLES::Framebuffer>(mDiscardFramebufferQueue);
+
   // Process pipelines
-  ProcessDiscardQueue<GLES::Pipeline>(mDiscardPipelineQueue);
+  ProcessDiscardQueue(mDiscardPipelineQueue);
 
   // Process programs
   ProcessDiscardQueue<GLES::Program>(mDiscardProgramQueue);
@@ -239,99 +359,217 @@ void EglGraphicsController::ProcessCreateQueues()
 
   // Process buffers
   ProcessCreateQueue(mCreateBufferQueue);
+
+  // Process framebuffers
+  ProcessCreateQueue(mCreateFramebufferQueue);
+}
+
+void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer)
+{
+  for(auto& cmd : commandBuffer.GetCommands())
+  {
+    // process command
+    switch(cmd.type)
+    {
+      case GLES::CommandType::FLUSH:
+      {
+        // Nothing to do here
+        break;
+      }
+      case GLES::CommandType::BIND_TEXTURES:
+      {
+        mCurrentContext->BindTextures(cmd.bindTextures.textureBindings);
+        break;
+      }
+      case GLES::CommandType::BIND_VERTEX_BUFFERS:
+      {
+        auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
+        mCurrentContext->BindVertexBuffers(bindings);
+        break;
+      }
+      case GLES::CommandType::BIND_UNIFORM_BUFFER:
+      {
+        auto& bindings = cmd.bindUniformBuffers;
+        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
+        break;
+      }
+      case GLES::CommandType::BIND_INDEX_BUFFER:
+      {
+        mCurrentContext->BindIndexBuffer(cmd.bindIndexBuffer);
+        break;
+      }
+      case GLES::CommandType::BIND_SAMPLERS:
+      {
+        break;
+      }
+      case GLES::CommandType::BIND_PIPELINE:
+      {
+        auto pipeline = static_cast<const GLES::Pipeline*>(cmd.bindPipeline.pipeline);
+        mCurrentContext->BindPipeline(pipeline);
+        break;
+      }
+      case GLES::CommandType::DRAW:
+      {
+        mCurrentContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::DRAW_INDEXED:
+      {
+        mCurrentContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::DRAW_INDEXED_INDIRECT:
+      {
+        mCurrentContext->Flush(false, cmd.draw);
+        break;
+      }
+      case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
+      {
+        mGlAbstraction->Scissor(cmd.scissor.region.x, cmd.scissor.region.y, cmd.scissor.region.width, cmd.scissor.region.height);
+        break;
+      }
+      case GLES::CommandType::SET_SCISSOR_TEST:
+      {
+        mCurrentContext->SetScissorTestEnabled(cmd.scissorTest.enable);
+        break;
+      }
+      case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
+      {
+        mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
+        break;
+      }
+
+      case GLES::CommandType::SET_COLOR_MASK:
+      {
+        mCurrentContext->ColorMask(cmd.colorMask.enabled);
+        break;
+      }
+      case GLES::CommandType::CLEAR_STENCIL_BUFFER:
+      {
+        mCurrentContext->ClearStencilBuffer();
+        break;
+      }
+      case GLES::CommandType::CLEAR_DEPTH_BUFFER:
+      {
+        mCurrentContext->ClearDepthBuffer();
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_TEST_ENABLE:
+      {
+        mCurrentContext->SetStencilTestEnable(cmd.stencilTest.enabled);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_FUNC:
+      {
+        mCurrentContext->StencilFunc(cmd.stencilFunc.compareOp,
+                                     cmd.stencilFunc.reference,
+                                     cmd.stencilFunc.compareMask);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_WRITE_MASK:
+      {
+        mCurrentContext->StencilMask(cmd.stencilWriteMask.mask);
+        break;
+      }
+
+      case GLES::CommandType::SET_STENCIL_OP:
+      {
+        mCurrentContext->StencilOp(cmd.stencilOp.failOp,
+                                   cmd.stencilOp.depthFailOp,
+                                   cmd.stencilOp.passOp);
+        break;
+      }
+
+      case GLES::CommandType::SET_DEPTH_COMPARE_OP:
+      {
+        mCurrentContext->SetDepthCompareOp(cmd.depth.compareOp);
+        break;
+      }
+      case GLES::CommandType::SET_DEPTH_TEST_ENABLE:
+      {
+        mCurrentContext->SetDepthTestEnable(cmd.depth.testEnabled);
+        break;
+      }
+      case GLES::CommandType::SET_DEPTH_WRITE_ENABLE:
+      {
+        mCurrentContext->SetDepthWriteEnable(cmd.depth.writeEnabled);
+        break;
+      }
+
+      case GLES::CommandType::BEGIN_RENDERPASS:
+      {
+        auto&       renderTarget = *cmd.beginRenderPass.renderTarget;
+        const auto& targetInfo   = renderTarget.GetCreateInfo();
+
+        if(targetInfo.surface)
+        {
+          // switch to surface context
+          mGraphics->ActivateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(targetInfo.surface));
+        }
+        else if(targetInfo.framebuffer)
+        {
+          // switch to resource context
+          mGraphics->ActivateResourceContext();
+        }
+
+        mCurrentContext->BeginRenderPass(cmd.beginRenderPass);
+        break;
+      }
+      case GLES::CommandType::END_RENDERPASS:
+      {
+        mCurrentContext->EndRenderPass();
+
+        auto syncObject = const_cast<GLES::SyncObject*>(static_cast<const GLES::SyncObject*>(cmd.endRenderPass.syncObject));
+        if(syncObject)
+        {
+          syncObject->InitializeResource();
+        }
+        break;
+      }
+      case GLES::CommandType::PRESENT_RENDER_TARGET:
+      {
+        ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);
+
+        // push this command buffer to the discard queue
+        mDiscardCommandBufferQueue.push(const_cast<GLES::CommandBuffer*>(&commandBuffer));
+        break;
+      }
+      case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
+      {
+        // Process secondary command buffers
+        // todo: check validity of the secondaries
+        //       there are operations which are illigal to be done
+        //       within secondaries.
+        for(auto& buf : cmd.executeCommandBuffers.buffers)
+        {
+          ProcessCommandBuffer(*static_cast<const GLES::CommandBuffer*>(buf));
+        }
+        break;
+      }
+    }
+  }
 }
 
 void EglGraphicsController::ProcessCommandQueues()
 {
   // TODO: command queue per context, sync between queues should be
   // done externally
+  currentFramebuffer = nullptr;
+
+  DUMP_FRAME_START();
 
   while(!mCommandQueue.empty())
   {
     auto cmdBuf = mCommandQueue.front();
     mCommandQueue.pop();
-
-    for(auto& cmd : cmdBuf->GetCommands())
-    {
-      // process command
-      switch(cmd.type)
-      {
-        case GLES::CommandType::FLUSH:
-        {
-          // Nothing to do here
-          break;
-        }
-        case GLES::CommandType::BIND_TEXTURES:
-        {
-          mContext->BindTextures(cmd.bindTextures.textureBindings);
-          break;
-        }
-        case GLES::CommandType::BIND_VERTEX_BUFFERS:
-        {
-          auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
-          mContext->BindVertexBuffers(bindings);
-          break;
-        }
-        case GLES::CommandType::BIND_UNIFORM_BUFFER:
-        {
-          auto& bindings = cmd.bindUniformBuffers;
-          mContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
-          break;
-        }
-        case GLES::CommandType::BIND_INDEX_BUFFER:
-        {
-          mContext->BindIndexBuffer(cmd.bindIndexBuffer);
-          break;
-        }
-        case GLES::CommandType::BIND_SAMPLERS:
-        {
-          break;
-        }
-        case GLES::CommandType::BIND_PIPELINE:
-        {
-          mContext->BindPipeline(cmd.bindPipeline.pipeline);
-          break;
-        }
-        case GLES::CommandType::DRAW:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::DRAW_INDEXED:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::DRAW_INDEXED_INDIRECT:
-        {
-          mContext->Flush(false, cmd.draw);
-          break;
-        }
-        case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
-        {
-          mGlAbstraction->Scissor(cmd.scissor.region.x, cmd.scissor.region.y, cmd.scissor.region.width, cmd.scissor.region.height);
-          break;
-        }
-        case GLES::CommandType::SET_SCISSOR_TEST:
-        {
-          if(cmd.scissorTest.enable)
-          {
-            mGlAbstraction->Enable(GL_SCISSOR_TEST);
-          }
-          else
-          {
-            mGlAbstraction->Disable(GL_SCISSOR_TEST);
-          }
-          break;
-        }
-        case GLES::CommandType::SET_VIEWPORT: // @todo Consider correcting for orientation here?
-        {
-          mGlAbstraction->Viewport(cmd.viewport.region.x, cmd.viewport.region.y, cmd.viewport.region.width, cmd.viewport.region.height);
-          break;
-        }
-      }
-    }
+    DUMP_FRAME_COMMAND_BUFFER(cmdBuf);
+    ProcessCommandBuffer(*cmdBuf);
   }
+
+  DUMP_FRAME_END();
 }
 
 void EglGraphicsController::ProcessTextureUpdateQueue()
@@ -345,23 +583,100 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
 
     if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
     {
-      // GPU memory must be already allocated (glTexImage2D())
-      auto*       texture    = static_cast<GLES::Texture*>(info.dstTexture);
-      const auto& createInfo = texture->GetCreateInfo();
+      // GPU memory must be already allocated.
+
+      // Check if it needs conversion
+      auto*       texture            = static_cast<GLES::Texture*>(info.dstTexture);
+      const auto& createInfo         = texture->GetCreateInfo();
+      auto        srcFormat          = GLES::GLTextureFormatType(info.srcFormat).format;
+      auto        srcType            = GLES::GLTextureFormatType(info.srcFormat).type;
+      auto        destInternalFormat = GLES::GLTextureFormatType(createInfo.format).internalFormat;
+      auto        destFormat         = GLES::GLTextureFormatType(createInfo.format).format;
+
+      // From render-texture.cpp
+      const bool isSubImage(info.dstOffset2D.x != 0 || info.dstOffset2D.y != 0 ||
+                            info.srcExtent2D.width != (createInfo.size.width / (1 << info.level)) ||
+                            info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
+
+      auto*                sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
+      std::vector<uint8_t> tempBuffer;
+      if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
+      {
+        // Convert RGB to RGBA if necessary.
+        texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer);
+        sourceBuffer = &tempBuffer[0];
+        srcFormat    = destFormat;
+        srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+      }
+
+      // Calculate the maximum mipmap level for the texture
+      texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
+
+      GLenum bindTarget{GL_TEXTURE_2D};
+      GLenum target{GL_TEXTURE_2D};
+
+      if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
+      {
+        bindTarget = GL_TEXTURE_CUBE_MAP;
+        target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
+      }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
 
-      mGlAbstraction->BindTexture(GL_TEXTURE_2D, texture->GetGLTexture());
-      mGlAbstraction->TexSubImage2D(GL_TEXTURE_2D,
-                                    info.level,
-                                    info.dstOffset2D.x,
-                                    info.dstOffset2D.y,
-                                    info.srcExtent2D.width,
-                                    info.srcExtent2D.height,
-                                    GLES::GLTextureFormatType(createInfo.format).format,
-                                    GLES::GLTextureFormatType(createInfo.format).type,
-                                    source.memorySource.memory);
-
+      if(!isSubImage)
+      {
+        if(!texture->IsCompressed())
+        {
+          mGlAbstraction->TexImage2D(target,
+                                     info.level,
+                                     destInternalFormat,
+                                     info.srcExtent2D.width,
+                                     info.srcExtent2D.height,
+                                     0,
+                                     srcFormat,
+                                     srcType,
+                                     sourceBuffer);
+        }
+        else
+        {
+          mGlAbstraction->CompressedTexImage2D(target,
+                                               info.level,
+                                               destInternalFormat,
+                                               info.srcExtent2D.width,
+                                               info.srcExtent2D.height,
+                                               0,
+                                               info.srcSize,
+                                               sourceBuffer);
+        }
+      }
+      else
+      {
+        if(!texture->IsCompressed())
+        {
+          mGlAbstraction->TexSubImage2D(target,
+                                        info.level,
+                                        info.dstOffset2D.x,
+                                        info.dstOffset2D.y,
+                                        info.srcExtent2D.width,
+                                        info.srcExtent2D.height,
+                                        srcFormat,
+                                        srcType,
+                                        sourceBuffer);
+        }
+        else
+        {
+          mGlAbstraction->CompressedTexSubImage2D(target,
+                                                  info.level,
+                                                  info.dstOffset2D.x,
+                                                  info.dstOffset2D.y,
+                                                  info.srcExtent2D.width,
+                                                  info.srcExtent2D.height,
+                                                  srcFormat,
+                                                  info.srcSize,
+                                                  sourceBuffer);
+        }
+      }
       // free staging memory
       free(source.memorySource.memory);
     }
@@ -398,6 +713,8 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
                   reinterpret_cast<char*>(source.memorySource.memory) + info.srcSize,
                   stagingBuffer);
 
+        mTextureUploadTotalCPUMemoryUsed += info.srcSize;
+
         // store staging buffer
         source.memorySource.memory = stagingBuffer;
         break;
@@ -414,10 +731,37 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
       }
     }
   }
+
+  // If upload buffer exceeds maximum size, flush.
+  if(mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB * 1024)
+  {
+    Flush();
+    mTextureUploadTotalCPUMemoryUsed = 0;
+  }
+}
+
+void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
+{
+  while(!mTextureMipmapGenerationRequests.empty())
+  {
+    auto* texture = mTextureMipmapGenerationRequests.front();
+
+    mCurrentContext->BindTexture(texture->GetGlTarget(), texture->GetTextureTypeId(), texture->GetGLTexture());
+    mCurrentContext->GenerateMipmap(texture->GetGlTarget());
+
+    mTextureMipmapGenerationRequests.pop();
+  }
+}
+
+void EglGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& texture)
+{
+  mTextureMipmapGenerationRequests.push(static_cast<const GLES::Texture*>(&texture));
 }
 
 Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
 {
+  mGraphics->ActivateResourceContext();
+
   // Mapping buffer requires the object to be created NOW
   // Workaround - flush now, otherwise there will be given a staging buffer
   // in case when the buffer is not there yet

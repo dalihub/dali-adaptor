@@ -30,6 +30,7 @@
 #include <dali/internal/imaging/common/loader-ktx.h>
 #include <dali/internal/imaging/common/loader-png.h>
 #include <dali/internal/imaging/common/loader-wbmp.h>
+#include <dali/internal/imaging/common/loader-webp.h>
 #include <dali/internal/system/common/file-reader.h>
 
 using namespace Dali::Integration;
@@ -61,6 +62,7 @@ enum FileFormats
   FORMAT_JPEG,
   FORMAT_BMP,
   FORMAT_GIF,
+  FORMAT_WEBP,
   FORMAT_KTX,
   FORMAT_ASTC,
   FORMAT_ICO,
@@ -82,6 +84,7 @@ const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_CO
     {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
     {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
     {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
@@ -107,6 +110,7 @@ const FormatExtension FORMAT_EXTENSIONS[] =
     {".jpg",  FORMAT_JPEG},
     {".bmp",  FORMAT_BMP },
     {".gif",  FORMAT_GIF },
+    {".webp", FORMAT_WEBP },
     {".ktx",  FORMAT_KTX },
     {".astc", FORMAT_ASTC},
     {".ico",  FORMAT_ICO },
@@ -280,7 +284,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
 
       if(!result)
       {
-        DALI_LOG_WARNING("Unable to convert %s\n", path.c_str());
+        DALI_LOG_ERROR("Unable to convert %s\n", path.c_str());
         pixelBuffer.Reset();
       }
 
@@ -288,7 +292,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", path.c_str());
+      DALI_LOG_ERROR("Image Decoder for %s unavailable\n", path.c_str());
     }
   }
 
@@ -360,12 +364,12 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
       const bool read_res = headerFunction(input, width, height);
       if(!read_res)
       {
-        DALI_LOG_WARNING("Image Decoder failed to read header for %s\n", filename.c_str());
+        DALI_LOG_ERROR("Image Decoder failed to read header for %s\n", filename.c_str());
       }
     }
     else
     {
-      DALI_LOG_WARNING("Image Decoder for %s unavailable\n", filename.c_str());
+      DALI_LOG_ERROR("Image Decoder for %s unavailable\n", filename.c_str());
     }
   }
   return ImageDimensions(width, height);
@@ -408,7 +412,7 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
           const bool                     read_res = headerFunction(input, width, height);
           if(!read_res)
           {
-            DALI_LOG_WARNING("Image Decoder failed to read header for resourceBuffer\n");
+            DALI_LOG_ERROR("Image Decoder failed to read header for resourceBuffer\n");
           }
         }
       }

@@ -43,6 +43,49 @@ const int32_t DALI_MAGNIFY_DEFAULT = GL_LINEAR;
 
 namespace Dali::Graphics::GLES
 {
+struct ColorConversion
+{
+  Format srcFormat;
+  Format destFormat;
+  std::vector<uint8_t> (*pConversionFunc)(const void*, uint32_t, uint32_t, uint32_t, uint32_t);
+  void (*pConversionWriteFunc)(const void*, uint32_t, uint32_t, uint32_t, uint32_t, void*);
+};
+
+inline void WriteRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+{
+  auto inData  = reinterpret_cast<const uint8_t*>(pData);
+  auto outData = reinterpret_cast<uint8_t*>(pOutput);
+  auto outIdx  = 0u;
+  for(auto i = 0u; i < sizeInBytes; i += 3)
+  {
+    outData[outIdx]     = inData[i];
+    outData[outIdx + 1] = inData[i + 1];
+    outData[outIdx + 2] = inData[i + 2];
+    outData[outIdx + 3] = 0xff;
+    outIdx += 4;
+  }
+}
+
+/**
+ * Converts RGB to RGBA
+ */
+inline std::vector<uint8_t> ConvertRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride)
+{
+  std::vector<uint8_t> rgbaBuffer{};
+  rgbaBuffer.resize(width * height * 4);
+  WriteRGB32ToRGBA32(pData, sizeInBytes, width, height, rowStride, &rgbaBuffer[0]);
+  return rgbaBuffer;
+}
+
+/**
+ * Format conversion table
+ */
+static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE = {
+  {Format::R8G8B8_UNORM, Format::R8G8B8A8_UNORM, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+
+/**
+ * Constructor
+ */
 Texture::Texture(const Graphics::TextureCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : TextureResource(createInfo, controller)
 {
@@ -70,8 +113,15 @@ bool Texture::InitializeResource()
 
 bool Texture::InitializeNativeImage()
 {
-  auto   gl = mController.GetGL();
+  auto   context = mController.GetCurrentContext();
+  auto   gl      = mController.GetGL();
   GLuint texture{0};
+
+  if(!gl || !context)
+  {
+    // Do nothing during shutdown
+    return false;
+  }
 
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
   bool                    created     = nativeImage->CreateResource();
@@ -79,7 +129,7 @@ bool Texture::InitializeNativeImage()
   if(created)
   {
     gl->GenTextures(1, &texture);
-    gl->BindTexture(mGlTarget, texture);
+    context->BindTexture(mGlTarget, GetTextureTypeId(), texture);
 
     gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
 
@@ -112,11 +162,18 @@ bool Texture::InitializeNativeImage()
 
 bool Texture::InitializeTexture()
 {
-  auto gl = mController.GetGL();
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
+  {
+    // Do nothing during shutdown
+    return false;
+  }
 
   GLuint texture{0};
 
-  mGlTarget = GLTextureTarget(mCreateInfo.textureType).target;
+  mGlTarget     = GLTextureTarget(mCreateInfo.textureType).target;
+  mIsCompressed = Graphics::GLES::FormatCompression(mCreateInfo.format).compressed;
 
   switch(mCreateInfo.textureType)
   {
@@ -130,27 +187,96 @@ bool Texture::InitializeTexture()
       {
         // Bind texture
         gl->GenTextures(1, &texture);
-        gl->BindTexture(GL_TEXTURE_2D, texture);
+        context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), texture);
 
         // Allocate memory for the texture
-        gl->TexImage2D(GL_TEXTURE_2D,
-                       0,
-                       format.format,
-                       mCreateInfo.size.width,
-                       mCreateInfo.size.height,
-                       0,
-                       format.format,
-                       format.type,
-                       (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        if(!mIsCompressed)
+        {
+          gl->TexImage2D(GL_TEXTURE_2D,
+                         0,
+                         format.internalFormat,
+                         mCreateInfo.size.width,
+                         mCreateInfo.size.height,
+                         0,
+                         format.format,
+                         format.type,
+                         (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        }
+        else
+        {
+          gl->CompressedTexImage2D(GL_TEXTURE_2D,
+                                   0,
+                                   format.internalFormat,
+                                   mCreateInfo.size.width,
+                                   mCreateInfo.size.height,
+                                   0,
+                                   mCreateInfo.dataSize,
+                                   (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+        }
+
+        // Clear staging buffer if there was any
+        mStagingBuffer.clear();
+        mTextureId = texture;
+
+        // Default texture filtering (to be set later via command buffer binding)
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
+      }
+      break;
+    }
+    // Texture Cubemap
+    case Graphics::TextureType::TEXTURE_CUBEMAP:
+    {
+      Graphics::GLES::GLTextureFormatType format(mCreateInfo.format);
+
+      if(format.format && format.type)
+      {
+        // Bind texture
+        gl->GenTextures(1, &texture);
+        context->BindTexture(GL_TEXTURE_CUBE_MAP, GetTextureTypeId(), texture);
+        gl->PixelStorei(GL_UNPACK_ALIGNMENT, 1); // We always use tightly packed data
+
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_WRAP_DEFAULT);
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_WRAP_DEFAULT);
+
+        // Allocate memory for the texture
+        for(uint32_t i = 0; i < 6; ++i)
+        {
+          if(!mIsCompressed)
+          {
+            gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                           0,
+                           format.internalFormat,
+                           mCreateInfo.size.width,
+                           mCreateInfo.size.height,
+                           0,
+                           format.format,
+                           format.type,
+                           (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
+          else
+          {
+            gl->CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                                     0,
+                                     format.internalFormat,
+                                     mCreateInfo.size.width,
+                                     mCreateInfo.size.height,
+                                     0,
+                                     mCreateInfo.dataSize,
+                                     (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
+        }
 
         // Clear staging buffer if there was any
         mStagingBuffer.clear();
 
         mTextureId = texture;
 
-        // Default texture filtering (to be set later via command buffer binding)
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Graphics::GLES::GLSamplerFilterAndMipMapMode(Graphics::SamplerFilter::LINEAR, SamplerMipmapMode::NONE));
+        gl->TexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_WRAP_DEFAULT);
       }
       break;
     }
@@ -188,20 +314,23 @@ void Texture::DiscardResource()
 
 void Texture::Bind(const TextureBinding& binding) const
 {
-  auto gl = mController.GetGL();
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
+  {
+    // Do nothing during shutdown
+    return;
+  }
 
-  gl->ActiveTexture(GL_TEXTURE0 + binding.binding);
-  gl->BindTexture(mGlTarget, mTextureId);
+  context->ActiveTexture(binding.binding);
+  context->BindTexture(mGlTarget, GetTextureTypeId(), mTextureId);
 
   // For GLES2 if there is a sampler set in the binding
   if(binding.sampler)
   {
-    // Non-default.
-    auto*       sampler           = static_cast<const GLES::Sampler*>(binding.sampler);
-    const auto& samplerCreateInfo = sampler->GetCreateInfo();
+    const auto& samplerCreateInfo = static_cast<const GLES::Sampler*>(binding.sampler)->GetCreateInfo();
 
     auto mipMapMode = samplerCreateInfo.mipMapMode;
-    mipMapMode      = Graphics::SamplerMipmapMode::NONE; // @todo Remove when mip-map generation is supported
 
     gl->TexParameteri(mGlTarget, GL_TEXTURE_MIN_FILTER, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, mipMapMode).glFilter);
     gl->TexParameteri(mGlTarget, GL_TEXTURE_MAG_FILTER, GLSamplerFilter(samplerCreateInfo.magFilter).glFilter);
@@ -223,6 +352,11 @@ void Texture::Bind(const TextureBinding& binding) const
       gl->TexParameteri(mGlTarget, GL_TEXTURE_WRAP_R, GL_WRAP_DEFAULT);
     }
   }
+
+  if(mMaxMipMapLevel)
+  {
+    gl->TexParameteri(mGlTarget, GL_TEXTURE_MAX_LEVEL, mMaxMipMapLevel);
+  }
 }
 
 void Texture::Prepare()
@@ -240,6 +374,33 @@ void Texture::Prepare()
 
     nativeImage->PrepareTexture();
   }
+}
+
+/**
+ * This function tests whether format is supported by the driver. If possible it applies
+ * format conversion to suitable supported pixel format.
+ */
+bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer)
+{
+  // No need to convert
+  if(srcFormat == destFormat)
+  {
+    return false;
+  }
+
+  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) {
+    return item.srcFormat == srcFormat && item.destFormat == destFormat;
+  });
+
+  // No suitable format, return empty array
+  if(it == COLOR_CONVERSION_TABLE.end())
+  {
+    return false;
+  }
+  auto begin = reinterpret_cast<const uint8_t*>(pData);
+
+  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, 0u));
+  return !outputBuffer.empty();
 }
 
 } // namespace Dali::Graphics::GLES

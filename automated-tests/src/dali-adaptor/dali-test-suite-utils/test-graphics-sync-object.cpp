@@ -12,30 +12,37 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-#include <dali/internal/canvas-renderer/common/shape-factory.h>
-#include <dali/internal/canvas-renderer/common/shape-impl.h>
+#include "test-graphics-sync-object.h"
 
 namespace Dali
 {
-namespace Internal
+TestGraphicsSyncObject::TestGraphicsSyncObject(TestGraphicsSyncImplementation& syncImpl, const Graphics::SyncObjectCreateInfo& createInfo)
+: mSyncImplementation(syncImpl),
+  mSyncObject(nullptr),
+  mCreateInfo(createInfo)
 {
-namespace Adaptor
-{
-namespace ShapeFactory
-{
-__attribute__((weak)) Dali::Internal::Adaptor::Shape* New()
-{
-  // default implementation returns 'dummy'.
-  return new Internal::Adaptor::Shape();
 }
 
-} // namespace ShapeFactory
+TestGraphicsSyncObject::~TestGraphicsSyncObject()
+{
+  mSyncImplementation.DestroySyncObject(mSyncObject);
+}
 
-} // namespace Adaptor
+void TestGraphicsSyncObject::InitializeResource()
+{
+  mSyncObject = static_cast<TestSyncObject*>(mSyncImplementation.CreateSyncObject());
+}
 
-} // namespace Internal
+bool TestGraphicsSyncObject::IsSynced()
+{
+  bool synced = false;
+  if(mSyncObject)
+  {
+    synced = mSyncObject->IsSynced();
+  }
+  return synced;
+}
 
 } // namespace Dali

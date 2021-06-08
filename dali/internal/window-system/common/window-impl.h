@@ -221,7 +221,7 @@ public:
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
-  bool SetNotificationLevel(WindowNotificationLevel level);
+  WindowOperationResult SetNotificationLevel(WindowNotificationLevel level);
 
   /**
    * @copydoc Dali::Window::GetNotificationLevel()
@@ -241,7 +241,7 @@ public:
   /**
    * @copydoc Dali::Window::SetScreenOffMode()
    */
-  bool SetScreenOffMode(WindowScreenOffMode screenOffMode);
+  WindowOperationResult SetScreenOffMode(WindowScreenOffMode screenOffMode);
 
   /**
    * @copydoc Dali::Window::GetScreenOffMode()
@@ -251,7 +251,7 @@ public:
   /**
    * @copydoc Dali::Window::SetBrightness()
    */
-  bool SetBrightness(int brightness);
+  WindowOperationResult SetBrightness(int brightness);
 
   /**
    * @copydoc Dali::Window::GetBrightness()
@@ -434,6 +434,13 @@ private:
   void OnWindowRedrawRequest();
 
   /**
+   * @brief Called when the window is resized or moved by display server.
+   *
+   * @param positionSize the updated window's position and size.
+   */
+  void OnUpdatePositionSize(Dali::PositionSize& positionSize);
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
@@ -566,7 +573,6 @@ private:
   bool                 mIsFocusAcceptable : 1;
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
-  bool                 mResizeEnabled : 1;
   WindowType           mType;
   Dali::Window         mParentWindow;
 

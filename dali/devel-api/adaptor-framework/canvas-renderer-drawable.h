@@ -45,7 +45,7 @@ class Shape;
 /**
  * @brief Drawable is a object class for drawing a vector primitive.
  */
-class CanvasRenderer::Drawable : public BaseHandle
+class DALI_ADAPTOR_API CanvasRenderer::Drawable : public BaseHandle
 {
 public:
   /**
@@ -106,6 +106,13 @@ public:
    * @return Returns True when it's successful. False otherwise.
    */
   bool Transform(const Dali::Matrix3& matrix);
+
+  /**
+   * @brief Gets the bounding box of the drawable object before any transformation.
+   * @note The bounding box doesn't indicate the rendering region in the result but primitive region of the object.
+   * @return Returns the bounding box information.
+   */
+  Rect<float> GetBoundingBox() const;
 
   /**
    * @brief Downcast a handle to Drawable handle.

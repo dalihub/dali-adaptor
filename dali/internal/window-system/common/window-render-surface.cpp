@@ -79,6 +79,45 @@ void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, c
   }
 }
 
+Rect<int32_t> RecalculateRect0(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+{
+  return rect;
+}
+
+Rect<int32_t> RecalculateRect90(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+{
+  Rect<int32_t> newRect;
+  newRect.x      = surfaceSize.height - (rect.y + rect.height);
+  newRect.y      = rect.x;
+  newRect.width  = rect.height;
+  newRect.height = rect.width;
+  return newRect;
+}
+
+Rect<int32_t> RecalculateRect180(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+{
+  Rect<int32_t> newRect;
+  newRect.x      = surfaceSize.width - (rect.x + rect.width);
+  newRect.y      = surfaceSize.height - (rect.y + rect.height);
+  newRect.width  = rect.width;
+  newRect.height = rect.height;
+  return newRect;
+}
+
+Rect<int32_t> RecalculateRect270(Rect<int32_t>& rect, const Rect<int32_t>& surfaceSize)
+{
+  Rect<int32_t> newRect;
+  newRect.x      = rect.y;
+  newRect.y      = surfaceSize.width - (rect.x + rect.width);
+  newRect.width  = rect.height;
+  newRect.height = rect.width;
+  return newRect;
+}
+
+using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int32_t>&);
+
+RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
+
 } // unnamed namespace
 
 WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
@@ -344,15 +383,15 @@ void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
   bool needToResize = false;
 
   // Check moving
-  if((fabs(positionSize.x - mPositionSize.x) > MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.y - mPositionSize.y) > MINIMUM_DIMENSION_CHANGE))
+  if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
   {
     needToMove = true;
   }
 
   // Check resizing
-  if((fabs(positionSize.width - mPositionSize.width) > MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.height - mPositionSize.height) > MINIMUM_DIMENSION_CHANGE))
+  if((fabs(positionSize.width - mPositionSize.width) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.height - mPositionSize.height) >= MINIMUM_DIMENSION_CHANGE))
   {
     needToResize = true;
   }
@@ -390,6 +429,8 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
+  mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
+
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
   Dali::Integration::Scene scene = mScene.GetHandle();
@@ -454,8 +495,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
   }
 
-  MakeContextCurrent();
-
   /**
     * wl_egl_window_tizen_set_rotation(SetEglWindowRotation)                -> PreRotation
     * wl_egl_window_tizen_set_buffer_transform(SetEglWindowBufferTransform) -> Screen Rotation
@@ -465,7 +504,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     *          because output transform event should be occured before egl window is not created.
     */
 
-  if(resizingSurface || mDefaultScreenRotationAvailable)
+  if(mIsResizing || mDefaultScreenRotationAvailable)
   {
     int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
 
@@ -512,12 +551,20 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     mDefaultScreenRotationAvailable = false;
   }
 
-  SetBufferDamagedRects(damagedRects, clippingRect);
+  SetBufferDamagedRects(mDamagedRects, clippingRect);
+
+  if(clippingRect.IsEmpty())
+  {
+    mDamagedRects.clear();
+  }
+
+  // This is now done when the render pass for the render surface begins
+  //  MakeContextCurrent();
 
   return true;
 }
 
-void WindowRenderSurface::PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects)
+void WindowRenderSurface::PostRender()
 {
   // Inform the gl implementation that rendering has finished before informing the surface
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
@@ -526,37 +573,29 @@ void WindowRenderSurface::PostRender(bool renderToFbo, bool replacingSurface, bo
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if(renderToFbo)
+    if(mIsResizing)
     {
-      mGLES.Flush();
-      mGLES.Finish();
-    }
-    else
-    {
-      if(resizingSurface)
+      if(!mWindowRotationFinished)
       {
-        if(!mWindowRotationFinished)
+        if(mThreadSynchronization)
         {
-          if(mThreadSynchronization)
-          {
-            // Enable PostRender flag
-            mThreadSynchronization->PostRenderStarted();
-          }
+          // Enable PostRender flag
+          mThreadSynchronization->PostRenderStarted();
+        }
 
-          DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
+        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
 
-          mRotationTrigger->Trigger();
+        mRotationTrigger->Trigger();
 
-          if(mThreadSynchronization)
-          {
-            // Wait until the event-thread complete the rotation event processing
-            mThreadSynchronization->PostRenderWaitForCompletion();
-          }
+        if(mThreadSynchronization)
+        {
+          // Wait until the event-thread complete the rotation event processing
+          mThreadSynchronization->PostRenderWaitForCompletion();
         }
       }
     }
 
-    SwapBuffers(damagedRects);
+    SwapBuffers(mDamagedRects);
 
     if(mRenderNotification)
     {
@@ -738,8 +777,16 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
       return;
     }
 
-    std::vector<Rect<int>> damagedRegion;
-    damagedRegion.push_back(clippingRect);
+    std::vector<Rect<int>>   damagedRegion;
+    Dali::Integration::Scene scene = mScene.GetHandle();
+    if(scene)
+    {
+      damagedRegion.push_back(RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](clippingRect, scene.GetCurrentSurfaceRect()));
+    }
+    else
+    {
+      damagedRegion.push_back(clippingRect);
+    }
 
     eglImpl.SetDamageRegion(mEGLSurface, damagedRegion);
   }
@@ -750,7 +797,15 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
-    Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
+    Rect<int32_t> surfaceRect;
+    int32_t       orientation = 0;
+
+    Dali::Integration::Scene scene = mScene.GetHandle();
+    if(scene)
+    {
+      surfaceRect = scene.GetCurrentSurfaceRect();
+      orientation = std::min(scene.GetCurrentSurfaceOrientation() / 90, 3);
+    }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
@@ -796,7 +851,7 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
     {
       if(!mergedRects[i].IsEmpty())
       {
-        mergedRects[j++] = mergedRects[i];
+        mergedRects[j++] = RecalculateRect[orientation](mergedRects[i], surfaceRect);
       }
     }
 

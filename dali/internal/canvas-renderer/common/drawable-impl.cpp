@@ -97,6 +97,15 @@ bool Drawable::Transform(const Dali::Matrix3& matrix)
   return pImpl->Transform(matrix);
 }
 
+Rect<float> Drawable::GetBoundingBox() const
+{
+  if(!pImpl)
+  {
+    return Rect<float>(0, 0, 0, 0);
+  }
+  return pImpl->GetBoundingBox();
+}
+
 void Drawable::SetDrawableAdded(bool added)
 {
   if(!pImpl)

@@ -15,26 +15,21 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/common/canvas-renderer-factory.h>
-#include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/capture-devel.h>
+#include <dali/internal/system/common/capture-impl.h>
+
 
 namespace Dali
 {
-namespace Internal
+namespace DevelCapture
 {
-namespace Adaptor
+
+Dali::Devel::PixelBuffer GetCapturedBuffer(Dali::Capture capture)
 {
-namespace CanvasRendererFactory
-{
-__attribute__((weak)) Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox)
-{
-  return new Internal::Adaptor::CanvasRenderer();
+  return GetImpl(capture).GetCapturedBuffer();
 }
 
-} // namespace CanvasRendererFactory
-
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace DevelWindow
 
 } // namespace Dali

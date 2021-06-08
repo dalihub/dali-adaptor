@@ -65,13 +65,12 @@ enum class StateLookupIndex : uint32_t
 {
   COLOR_BLEND_STATE_BIT    = 0,
   VIEWPORT_STATE_BIT       = 1,
-  FRAMEBUFFER_STATE_BIT    = 2,
-  BASE_PIPELINE_STATE_BIT  = 3,
-  DEPTH_STENCIL_STATE_BIT  = 4,
-  RASTERIZATION_STATE_BIT  = 5,
-  VERTEX_INPUT_STATE_BIT   = 6,
-  INPUT_ASSEMBLY_STATE_BIT = 7,
-  MAX_STATE                = 8
+  BASE_PIPELINE_STATE_BIT  = 2,
+  DEPTH_STENCIL_STATE_BIT  = 3,
+  RASTERIZATION_STATE_BIT  = 4,
+  VERTEX_INPUT_STATE_BIT   = 5,
+  INPUT_ASSEMBLY_STATE_BIT = 6,
+  MAX_STATE                = 7
 };
 
 /**
@@ -169,12 +168,6 @@ void InitialiseStateCompareLookupTable()
              lvp.scissor == rvp.scissor &&
              lvp.scissorTestEnable == rvp.scissorTestEnable;
     },
-    [](const auto* lhs, const auto* rhs) -> bool // framebufferState
-    {
-      const auto& lfb = *lhs->framebufferState;
-      const auto& rfb = *rhs->framebufferState;
-      return lfb.framebuffer == rfb.framebuffer;
-    },
     [](const auto* lhs, const auto* rhs) -> bool // basePipeline
     {
       return lhs->basePipeline == rhs->basePipeline;
@@ -232,7 +225,6 @@ inline uint32_t GetStateBitmask(const PipelineCreateInfo& info)
   uint32_t mask{0u};
   mask |= bool(info.colorBlendState) << int(StateLookupIndex::COLOR_BLEND_STATE_BIT);
   mask |= bool(info.viewportState) << int(StateLookupIndex::VIEWPORT_STATE_BIT);
-  mask |= bool(info.framebufferState) << int(StateLookupIndex::FRAMEBUFFER_STATE_BIT);
   mask |= bool(info.basePipeline) << int(StateLookupIndex::BASE_PIPELINE_STATE_BIT);
   mask |= bool(info.depthStencilState) << int(StateLookupIndex::DEPTH_STENCIL_STATE_BIT);
   mask |= bool(info.rasterizationState) << int(StateLookupIndex::RASTERIZATION_STATE_BIT);

@@ -159,9 +159,9 @@ public:
   using WebEngineFrameRenderedSignalType = Signal<void(void)>;
 
   /**
-   * @brief WebView signal type related with policy would be decided.
+   * @brief WebView signal type related with response policy would be decided.
    */
-  using WebEnginePolicyDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEnginePolicyDecision>)>;
+  using WebEngineResponsePolicyDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
    * @brief Hit test callback called after hit test is created asynchronously.
@@ -819,11 +819,11 @@ public:
   virtual WebEngineConsoleMessageSignalType& ConsoleMessageSignal() = 0;
 
   /**
-   * @brief Connect to this signal to be notified when new policy would be decided.
+   * @brief Connect to this signal to be notified when response policy would be decided.
    *
    * @return A signal object to connect with.
    */
-  virtual WebEnginePolicyDecisionSignalType& PolicyDecisionSignal() = 0;
+  virtual WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal() = 0;
 
   /**
    * @brief Connect to this signal to be notified when certificate need be confirmed.

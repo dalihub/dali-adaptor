@@ -79,7 +79,12 @@ public:
   bool Transform(const Dali::Matrix3& matrix) override;
 
   /**
-   * @copydoc Internal::Adaptor::Drawable::SetdrawableAdded
+   * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox
+   */
+  Rect<float> GetBoundingBox() const override;
+
+  /**
+   * @copydoc Internal::Adaptor::Drawable::SetDrawableAdded
    */
   void SetDrawableAdded(bool added) override;
 

@@ -55,11 +55,6 @@ public:
 
 public: // from WindowRenderSurface
   /**
-   * @copydoc Dali::NativeRenderSurface::GetSurface()
-   */
-  Any GetDrawable() override;
-
-  /**
    * @copydoc Dali::NativeRenderSurface::SetRenderNotification()
    */
   void SetRenderNotification(TriggerEventInterface* renderNotification) override;
@@ -123,7 +118,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
+  void PostRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
@@ -166,11 +161,6 @@ private:
    */
   void CreateNativeRenderable() override;
 
-  /**
-   * @copydoc Dali::NativeRenderSurface::ReleaseDrawable()
-   */
-  void ReleaseDrawable() override;
-
 private: // Data
   SurfaceSize                           mSurfaceSize;
   TriggerEventInterface*                mRenderNotification;
@@ -181,9 +171,9 @@ private: // Data
   ColorDepth                            mColorDepth;
   tbm_format                            mTbmFormat;
   bool                                  mOwnSurface;
+  std::vector<Rect<int>>                mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass
 
   tbm_surface_queue_h             mTbmQueue;
-  tbm_surface_h                   mConsumeSurface;
   ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
 };
 

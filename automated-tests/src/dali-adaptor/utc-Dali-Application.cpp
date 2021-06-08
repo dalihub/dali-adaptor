@@ -15,10 +15,10 @@
  *
  */
 
-#include <stdlib.h>
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/application-devel.h>
+#include <stdlib.h>
 
 using namespace Dali;
 
@@ -594,7 +594,7 @@ int UtcDaliApplicationAddIdleWithReturnValueN(void)
 
 int UtcDaliApplicationGetDataPathP(void)
 {
-  setenv( "DALI_APPLICATION_DATA_DIR", "MyDataPath", 1);
+  setenv("DALI_APPLICATION_DATA_DIR", "MyDataPath", 1);
   std::string dataPath = DevelApplication::GetDataPath();
   DALI_TEST_EQUALS(dataPath, "MyDataPath", TEST_LOCATION);
   END_TEST;

@@ -21,7 +21,6 @@
 
 namespace Dali
 {
-
 Accessibility::Accessible::Accessible()
 {
 }
@@ -73,6 +72,14 @@ Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Access
 Accessibility::Bridge* Accessibility::Bridge::GetCurrentBridge()
 {
   return Accessibility::DummyBridge::GetInstance();
+}
+
+void Accessibility::Bridge::DisableAutoInit()
+{
+}
+
+void Accessibility::Bridge::EnableAutoInit()
+{
 }
 
 void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue1, int newValue2)

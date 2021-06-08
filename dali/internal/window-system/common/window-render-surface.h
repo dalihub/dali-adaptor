@@ -166,7 +166,7 @@ public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::PostRender()
    */
-  void PostRender(bool renderToFbo, bool replacingSurface, bool resizingSurface, const std::vector<Rect<int>>& damagedRects) override;
+  void PostRender() override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::StopRender()
@@ -301,7 +301,8 @@ private: // Data
   int                                    mScreenRotationAngle;
   uint32_t                               mDpiHorizontal;
   uint32_t                               mDpiVertical;
-  bool                                   mOwnSurface; ///< Whether we own the surface (responsible for deleting it)
+  std::vector<Rect<int>>                 mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass
+  bool                                   mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
   bool                                   mWindowRotationFinished;
   bool                                   mScreenRotationFinished;
   bool                                   mResizeFinished;

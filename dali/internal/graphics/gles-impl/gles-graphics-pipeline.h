@@ -30,6 +30,7 @@
 namespace Dali::Graphics::GLES
 {
 class PipelineCache;
+class Program;
 
 /**
  * @brief PipelineImpl is the implementation of Pipeline
@@ -60,12 +61,9 @@ public:
    *
    * Binds Pipeline by binding GL program and flushing state.
    *
-   * If previous pipeline specified, it will be used in order to
-   * avoid redundant state swiches.
-   *
-   * @param[in] prevPipeline previous pipeline
+   * @param[in] glProgram The GL program to be bound
    */
-  void Bind(GLES::PipelineImpl* prevPipeline);
+  void Bind(const uint32_t glProgram) const;
 
   /**
    * @brief Increases ref count

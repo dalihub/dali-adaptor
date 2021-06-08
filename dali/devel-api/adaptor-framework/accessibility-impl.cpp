@@ -596,7 +596,7 @@ class NonControlAccessible : public virtual Accessible, public virtual Collectio
 {
 protected:
   Dali::WeakHandle<Dali::Actor> self;
-  bool        root = false;
+  bool                          root = false;
 
   Dali::Actor Self()
   {
@@ -618,12 +618,12 @@ public:
 
   Dali::Rect<> GetExtents(Dali::Accessibility::CoordType ctype) override
   {
-    Dali::Actor actor = Self();
-    Vector2 screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
-    Vector3 size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
-    bool    positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
-    Vector3 anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
-    Vector2 position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
+    Dali::Actor actor                   = Self();
+    Vector2     screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
+    Vector3     size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
+    bool        positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
+    Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
+    Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
 
     return {position.x, position.y, size.x, size.y};
   }
@@ -730,7 +730,7 @@ public:
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
     return {
-      {"t", type.GetName()},
+      {"class", type.GetName()},
     };
   }
 

@@ -83,9 +83,15 @@ void Buffer::InitializeCPUBuffer()
 
 void Buffer::InitializeGPUBuffer()
 {
-  auto gl = mController.GetGL();
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
+  {
+    return;
+  }
+
   gl->GenBuffers(1, &mBufferId);
-  gl->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
+  context->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
   gl->BufferData(GL_ARRAY_BUFFER, mCreateInfo.size, nullptr, GL_STATIC_DRAW);
 }
 
@@ -123,7 +129,12 @@ void Buffer::DiscardResource()
 
 void Buffer::Bind(Graphics::BufferUsage bindingTarget) const
 {
-  auto gl = mController.GetGL();
+  auto context = mController.GetCurrentContext();
+  auto gl      = mController.GetGL();
+  if(!gl || !context)
+  {
+    return;
+  }
 
   // CPU allocated buffer may be bound only as Uniform Buffer
   // on special binding point
@@ -142,12 +153,12 @@ void Buffer::Bind(Graphics::BufferUsage bindingTarget) const
     {
       case Graphics::BufferUsage::VERTEX_BUFFER:
       {
-        gl->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
+        context->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
         break;
       }
       case Graphics::BufferUsage::INDEX_BUFFER:
       {
-        gl->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferId);
+        context->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, mBufferId);
         break;
       }
       default:
