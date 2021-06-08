@@ -246,7 +246,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 
   // for each attribute bind vertices
-  const auto& pipelineState = mImpl->mNewPipeline->GetCreateInfo();
+  const auto& pipelineState = mImpl->mNewPipeline ? mImpl->mNewPipeline->GetCreateInfo() : mImpl->mCurrentPipeline->GetCreateInfo();
   const auto& vi            = pipelineState.vertexInputState;
   for(const auto& attr : vi->attributes)
   {
