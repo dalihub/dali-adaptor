@@ -270,7 +270,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 
   // Resolve topology
-  const auto& ia = mImpl->mNewPipeline->GetCreateInfo().inputAssemblyState;
+  const auto& ia = pipelineState.inputAssemblyState;
 
   // Bind uniforms
 
