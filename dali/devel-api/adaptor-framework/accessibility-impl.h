@@ -1051,6 +1051,89 @@ public:
 };
 
 /**
+ * @brief Interface representing objects which can store a set of selected items
+ */
+class DALI_ADAPTOR_API Selection : public virtual Accessible
+{
+public:
+  /**
+   * @brief Gets number of selected children
+   *
+   * @return number of selected children (zero if none)
+   */
+  virtual int GetSelectedChildrenCount() = 0;
+
+  /**
+   * @brief Gets a specific selected child
+   *
+   * @param selectedChildIndex index of the selected child
+   *
+   * @note @p selectedChildIndex refers to the list of selected children,
+   * not the list of all children
+   *
+   * @return selected child or nullptr if index is invalid
+   */
+  virtual Accessible* GetSelectedChild(int selectedChildIndex) = 0;
+
+  /**
+   * @brief Selects a child
+   *
+   * @param childIndex index of the child
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool SelectChild(int childIndex) = 0;
+
+  /**
+   * @brief Deselects a selected child
+   *
+   * @param selectedChildIndex index of the selected child
+   *
+   * @note @p selectedChildIndex refers to the list of selected children,
+   * not the list of all children
+   *
+   * @return true on success, false otherwise
+   *
+   * @see Dali::Accessibility::Selection::DeselectChild
+   */
+  virtual bool DeselectSelectedChild(int selectedChildIndex) = 0;
+
+  /**
+   * @brief Checks whether a child is selected
+   *
+   * @param childIndex index of the child
+   *
+   * @return true if given child is selected, false otherwise
+   */
+  virtual bool IsChildSelected(int childIndex) = 0;
+
+  /**
+   * @brief Selects all children
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool SelectAll() = 0;
+
+  /**
+   * @brief Deselects all children
+   *
+   * @return true on success, false otherwise
+   */
+  virtual bool ClearSelection() = 0;
+
+  /**
+   * @brief Deselects a child
+   *
+   * @param childIndex index of the child
+   *
+   * @return true on success, false otherwise
+   *
+   * @see Dali::Accessibility::Selection::DeselectSelectedChild
+   */
+  virtual bool DeselectChild(int childIndex) = 0;
+};
+
+/**
  * @brief minimalistic, always empty Accessible object with settable address
  *
  * For those situations, where you want to return address in different bridge

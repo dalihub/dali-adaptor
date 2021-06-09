@@ -33,6 +33,7 @@
 #include <dali/internal/accessibility/bridge/bridge-component.h>
 #include <dali/internal/accessibility/bridge/bridge-editable-text.h>
 #include <dali/internal/accessibility/bridge/bridge-object.h>
+#include <dali/internal/accessibility/bridge/bridge-selection.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
@@ -49,7 +50,8 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeAction,
                    public BridgeValue,
                    public BridgeText,
-                   public BridgeEditableText
+                   public BridgeEditableText,
+                   public BridgeSelection
 {
   DBus::DBusClient                                              listenOnAtspiEnabledSignalClient;
   DBus::DBusClient                                              registryClient, directReadingClient;
@@ -242,6 +244,7 @@ public:
     BridgeValue::RegisterInterfaces();
     BridgeText::RegisterInterfaces();
     BridgeEditableText::RegisterInterfaces();
+    BridgeSelection::RegisterInterfaces();
 
     RegisterOnBridge(&application);
 
