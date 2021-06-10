@@ -74,6 +74,7 @@ GlWindow::GlWindow()
   mOpaqueState(false),
   mResizeEnabled(false),
   mVisible(false),
+  mIsWindowRotated(false),
   mIsTouched(false),
   mIsEGLInitialized(false),
   mDepth(false),
