@@ -70,6 +70,23 @@ const char* IMAGE_WIDTH_EVEN_EXIF8_RGB = TEST_RESOURCE_DIR "/f-even-exif-8.jpg";
 
 // this is image is not exist, for negative test
 const char* IMAGENONEXIST = "non-exist.jpg";
+
+Dali::Vector<uint8_t> FileToMemory(const char* filename)
+{
+  Dali::Vector<uint8_t> buffer;
+  FILE *fp;
+  fp = fopen(filename, "rb");
+  if(fp != NULL)
+  {
+    fseek(fp, 0, SEEK_END);
+    size_t size = ftell(fp);
+    buffer.Resize(size);
+    fseek(fp, 0, SEEK_SET);
+    fread(buffer.Begin(), size, sizeof(uint8_t), fp);
+    fclose(fp);
+  }
+  return buffer;
+}
 } // namespace
 
 void utc_dali_load_image_startup(void)
@@ -219,6 +236,154 @@ int UtcDaliLoadImageN(void)
 {
   Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromFile(IMAGENONEXIST);
   DALI_TEST_CHECK(!pixelBuffer);
+
+  END_TEST;
+}
+
+int UtcDaliLoadImageFromBufferP(void)
+{
+  Devel::PixelBuffer pixelBuffer = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_34_RGBA));
+  DALI_TEST_CHECK(pixelBuffer);
+  DALI_TEST_EQUALS(pixelBuffer.GetWidth(), 34u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffer.GetHeight(), 34u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffer.GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
+
+  Devel::PixelBuffer pixelBuffer2 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_128_RGB));
+  DALI_TEST_CHECK(pixelBuffer2);
+  DALI_TEST_EQUALS(pixelBuffer2.GetWidth(), 128u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffer2.GetHeight(), 128u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffer2.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  Devel::PixelBuffer pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_LARGE_EXIF3_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 2000u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 2560u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  Devel::PixelBuffer BufferJpeg1 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF1_RGB));
+  DALI_TEST_CHECK(BufferJpeg1);
+  DALI_TEST_EQUALS(BufferJpeg1.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(BufferJpeg1.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(BufferJpeg1.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF2_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF3_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF4_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF5_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF6_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF7_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF8_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 55u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  BufferJpeg1 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF1_RGB));
+  DALI_TEST_CHECK(BufferJpeg1);
+  DALI_TEST_EQUALS(BufferJpeg1.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(BufferJpeg1.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(BufferJpeg1.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF2_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF3_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF4_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF5_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF6_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF7_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_EVEN_EXIF8_RGB));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 50u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+  DALI_IMAGE_TEST_EQUALS(BufferJpeg1, pixelBufferJpeg, 8, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliLoadImageFromBufferN(void)
+{
+  Devel::PixelBuffer pixelBufferEmpty = Dali::LoadImageFromBuffer(Dali::Vector<uint8_t>());
+  DALI_TEST_CHECK(!pixelBufferEmpty);
+
+  Dali::Vector<uint8_t> strange;
+  strange.PushBack(0x11);
+  strange.PushBack(0x22);
+  strange.PushBack(0x33);
+  Devel::PixelBuffer pixelBufferStrange = Dali::LoadImageFromBuffer(strange);
+  DALI_TEST_CHECK(!pixelBufferStrange);
 
   END_TEST;
 }
