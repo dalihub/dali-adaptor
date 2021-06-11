@@ -115,12 +115,14 @@ bool Framebuffer::InitializeResource()
       auto depthTexture = static_cast<const GLES::Texture*>(mCreateInfo.depthStencilAttachment.depthTexture);
       auto attachmentId = DEPTH_STENCIL_ATTACHMENT_TYPE(depthTexture->GetCreateInfo().format).attachment;
 
+      AttachTexture(depthTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.depthLevel);
+    }
+    else if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+    {
       gl->GenRenderbuffers(1, &mDepthBufferId);
       gl->BindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
       gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mCreateInfo.size.width, mCreateInfo.size.height);
-      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentId, GL_RENDERBUFFER, mDepthBufferId);
-
-      AttachTexture(depthTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.depthLevel);
+      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBufferId);
     }
 
     if(mCreateInfo.depthStencilAttachment.stencilTexture)
@@ -128,13 +130,14 @@ bool Framebuffer::InitializeResource()
       auto stencilTexture = static_cast<const GLES::Texture*>(mCreateInfo.depthStencilAttachment.stencilTexture);
       auto attachmentId   = DEPTH_STENCIL_ATTACHMENT_TYPE(stencilTexture->GetCreateInfo().format).attachment;
 
-      // Create a stencil render target.
+      AttachTexture(stencilTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.stencilLevel);
+    }
+    else if(mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+    {
       gl->GenRenderbuffers(1, &mStencilBufferId);
       gl->BindRenderbuffer(GL_RENDERBUFFER, mStencilBufferId);
       gl->RenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, mCreateInfo.size.width, mCreateInfo.size.height);
-      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentId, GL_RENDERBUFFER, mStencilBufferId);
-
-      AttachTexture(stencilTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.stencilLevel);
+      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mStencilBufferId);
     }
 
     context->BindFrameBuffer(GL_FRAMEBUFFER, 0);
