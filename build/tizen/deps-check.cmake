@@ -18,6 +18,9 @@ ARG_ENABLE( ENABLE_PROFILE enable_profile "${ENABLE_VAL};UBUNTU" "Select the var
 # Tizen Major version
 ARG_ENABLE( ENABLE_TIZEN_MAJOR_VERSION enable_tizen_major_version "${ENABLE_VAL};0" "Specify the Tizen Major version for backwards compatibility" )
 
+# Tizen Minor version
+ARG_ENABLE( ENABLE_TIZEN_MINOR_VERSION enable_tizen_minor_version "${ENABLE_VAL};0" "Specify the Tizen Minor version for backwards compatibility" )
+
 ARG_ENABLE( ENABLE_FEEDBACK enable_feedback 1 "Enable feedback plugin" )
 
 ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
@@ -138,6 +141,13 @@ ELSE()
 ENDIF()
 
 CHECK_MODULE_AND_SET( WAYLAND_EXTENSION xdg-shell-client text-client input-method-client [] )
+
+IF( enable_tizen_major_version GREATER 5 )
+  IF( enable_tizen_minor_version GREATER 5 )
+    CHECK_MODULE_AND_SET( AUTOFILL capi-ui-autofill [] )
+    ADD_DEFINITIONS( -DCAPI_AUTOFILL_SUPPORT )
+  ENDIF()
+ENDIF()
 
 # BUILD CONDITIONS
 IF( watch_available AND WEARABLE_PROFILE )
@@ -296,6 +306,8 @@ IF (NOT APPLE)
     ${LIBCRYPTO_LDFLAGS}
     ${HARFBUZZ_LDFLAGS}
     ${UTILX_LDFLAGS}
+    ${AUTOFILL_LDFLAGS}
+    ${TPKP_CURL_LDFLAGS}
     -lgif
     -lturbojpeg
     -ljpeg
