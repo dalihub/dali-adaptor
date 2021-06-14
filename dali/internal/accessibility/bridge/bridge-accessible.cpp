@@ -691,7 +691,7 @@ Accessible* BridgeAccessible::GetParent()
   // if you want more, then you need to change setApplicationRoot to
   // add/remove ApplicationRoot and make roots a vector.
   auto p = FindSelf()->GetParent();
-  assert(p);
+
   return p;
 }
 DBus::ValueOrError<std::vector<Accessible*>> BridgeAccessible::GetChildren()
