@@ -84,6 +84,7 @@ public:
 public:
   class Drawable;
   class Shape;
+  class DrawableGroup;
 
 public:
   /**

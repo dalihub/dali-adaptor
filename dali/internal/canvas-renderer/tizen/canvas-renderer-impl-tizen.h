@@ -28,6 +28,7 @@
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 
 namespace Dali
@@ -103,6 +104,16 @@ private:
    */
   void MakeTargetBuffer(const Vector2& size);
 
+#ifdef THORVG_SUPPORT
+  /**
+   * @brief Push drawable object to parent.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @param[in] group The scene object of tvg that can be drawable group.
+   */
+  void PushDrawableToGroup(Dali::CanvasRenderer::Drawable& drawable, tvg::Scene* group);
+#endif
+
 private:
   Devel::PixelBuffer mPixelBuffer;
 
@@ -110,9 +121,7 @@ private:
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
   tvg::Scene*                    mTvgRoot;
 #endif
-  typedef std::vector<WeakHandle<Dali::CanvasRenderer::Drawable> > DrawableVector;
-  typedef DrawableVector::iterator                                 DrawableVectorIterator;
-  DrawableVector                                                   mDrawables;
+  DrawableGroup::DrawableVector mDrawables;
 
   Vector2 mSize;
   Vector2 mViewBox;

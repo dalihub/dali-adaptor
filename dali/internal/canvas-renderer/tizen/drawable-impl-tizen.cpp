@@ -48,7 +48,8 @@ DrawableTizen* DrawableTizen::New()
 
 DrawableTizen::DrawableTizen()
 : mAdded(false),
-  mChanged(false)
+  mChanged(false),
+  mType(Drawable::Types::NONE)
 #ifdef THORVG_SUPPORT
   ,
   mTvgPaint(nullptr)
@@ -59,7 +60,7 @@ DrawableTizen::DrawableTizen()
 DrawableTizen::~DrawableTizen()
 {
 #ifdef THORVG_SUPPORT
-  if(mTvgPaint && !mAdded)
+  if(mTvgPaint)
   {
     delete mTvgPaint;
   }
@@ -209,9 +210,14 @@ Rect<float> DrawableTizen::GetBoundingBox() const
 #endif
 }
 
-void DrawableTizen::SetDrawableAdded(bool added)
+void DrawableTizen::SetAdded(bool added)
 {
   mAdded = !!added;
+}
+
+bool DrawableTizen::IsAdded() const
+{
+  return mAdded;
 }
 
 void* DrawableTizen::GetObject() const
@@ -230,17 +236,6 @@ void DrawableTizen::SetObject(const void* object)
   {
     mTvgPaint = static_cast<tvg::Paint*>((void*)object);
   }
-  else
-  {
-    if(mAdded)
-    {
-      mTvgPaint = nullptr;
-    }
-    if(mTvgPaint)
-    {
-      delete mTvgPaint;
-    }
-  }
 #endif
 }
 
@@ -253,6 +248,16 @@ void DrawableTizen::SetChanged(bool changed)
 bool DrawableTizen::GetChanged() const
 {
   return mChanged;
+}
+
+void DrawableTizen::SetType(Drawable::Types type)
+{
+  mType = type;
+}
+
+Drawable::Types DrawableTizen::GetType() const
+{
+  return mType;
 }
 } // namespace Adaptor
 

@@ -55,6 +55,10 @@ std::vector<std::string> Accessible::GetInterfaces()
       tmp.push_back(AtspiDbusInterfaceAction);
     }
   }
+  if(dynamic_cast<Selection*>(this))
+  {
+    tmp.push_back(AtspiDbusInterfaceSelection);
+  }
   return tmp;
 }
 

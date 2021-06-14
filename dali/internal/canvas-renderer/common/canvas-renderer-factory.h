@@ -32,10 +32,10 @@ class CanvasRenderer;
 namespace CanvasRendererFactory
 {
 /**
-   * @brief Creates new instance of CanvasRenderer implementation
-   * @param[in] viewBox The viewBox of canvas.
-   * @return pointer to CanvasRenderer implementation instance
-   */
+ * @brief Creates new instance of CanvasRenderer implementation
+ * @param[in] viewBox The viewBox of canvas.
+ * @return pointer to CanvasRenderer implementation instance
+ */
 Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox);
 
 } // namespace CanvasRendererFactory

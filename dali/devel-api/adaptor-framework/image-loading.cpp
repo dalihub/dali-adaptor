@@ -51,6 +51,30 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
   return Dali::Devel::PixelBuffer();
 }
 
+Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+{
+  if(buffer.Empty())
+  {
+    DALI_LOG_ERROR("buffer is empty!\n");
+    return Dali::Devel::PixelBuffer();
+  }
+  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+
+  Internal::Platform::FileReader fileReader(buffer);
+  FILE* const                    fp = fileReader.GetFile();
+  if(fp != NULL)
+  {
+    Dali::Devel::PixelBuffer bitmap;
+    // Make path as empty string. Path information just for file format hint.
+    bool                     success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, std::string(""), fp, bitmap);
+    if(success && bitmap)
+    {
+      return bitmap;
+    }
+  }
+  return Dali::Devel::PixelBuffer();
+}
+
 ImageDimensions GetClosestImageSize(const std::string& filename,
                                     ImageDimensions    size,
                                     FittingMode::Type  fittingMode,

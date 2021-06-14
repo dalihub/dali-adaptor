@@ -865,12 +865,12 @@ struct GLTextureFormatType
       }
       case Graphics::Format::ETC2_R8G8B8A8_UNORM_BLOCK:
       {
-        Assign(0, 0);
+        Assign(GL_COMPRESSED_RGBA8_ETC2_EAC, 0);
         break;
       }
       case Graphics::Format::ETC2_R8G8B8A8_SRGB_BLOCK:
       {
-        Assign(0, 0);
+        Assign(GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC, 0);
         break;
       }
       case Graphics::Format::EAC_R11_UNORM_BLOCK:

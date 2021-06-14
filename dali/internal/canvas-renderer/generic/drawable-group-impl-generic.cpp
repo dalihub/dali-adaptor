@@ -1,6 +1,3 @@
-#ifndef DALI_INTERNAL_SHAPE_FACTORY_H
-#define DALI_INTERNAL_SHAPE_FACTORY_H
-
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
@@ -18,8 +15,11 @@
  *
  */
 
+// CLASS HEADER
+#include <dali/internal/canvas-renderer/generic/drawable-group-impl-generic.h>
+
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer-shape.h>
+#include <dali/public-api/object/type-registry.h>
 
 namespace Dali
 {
@@ -27,20 +27,43 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace ShapeFactory
+namespace // unnamed namespace
 {
-/**
- * @brief Creates new instance of Shape implementation
- * @return pointer to Shape implementation instance
- */
-Dali::Internal::Adaptor::Shape* New();
+// Type Registration
+Dali::BaseHandle Create()
+{
+  return Dali::BaseHandle();
+}
 
-} // namespace ShapeFactory
+Dali::TypeRegistration type(typeid(Dali::CanvasRenderer::DrawableGroup), typeid(Dali::BaseHandle), Create);
+
+} // unnamed namespace
+
+DrawableGroupGeneric* DrawableGroupGeneric::New()
+{
+  return new DrawableGroupGeneric();
+}
+
+DrawableGroupGeneric::DrawableGroupGeneric()
+{
+}
+
+DrawableGroupGeneric::~DrawableGroupGeneric()
+{
+}
+
+bool DrawableGroupGeneric::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
+{
+  return false;
+}
+
+bool DrawableGroupGeneric::Clear()
+{
+  return false;
+}
 
 } // namespace Adaptor
 
 } // namespace Internal
 
 } // namespace Dali
-
-#endif // DALI_INTERNAL_SHAPE_FACTORY_H

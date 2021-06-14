@@ -15,7 +15,8 @@
  *
  */
 
-#include <dali/internal/canvas-renderer/generic/canvas-renderer-impl-generic.h>
+// CLASS HEADER
+#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 namespace Dali
 {
@@ -23,14 +24,24 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace CanvasRendererFactory
+DrawableGroup::DrawableGroup() = default;
+
+DrawableGroup::~DrawableGroup() = default;
+
+bool DrawableGroup::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 {
-Dali::Internal::Adaptor::CanvasRenderer* New(const Vector2& viewBox)
-{
-  return Dali::Internal::Adaptor::CanvasRendererGeneric::New(viewBox);
+  return false;
 }
 
-} // namespace CanvasRendererFactory
+bool DrawableGroup::Clear()
+{
+  return false;
+}
+
+DrawableGroup::DrawableVector DrawableGroup::GetDrawables() const
+{
+  return DrawableGroup::DrawableVector();
+}
 
 } // namespace Adaptor
 
