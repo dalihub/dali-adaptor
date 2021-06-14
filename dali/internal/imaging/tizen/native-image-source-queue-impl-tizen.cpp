@@ -38,8 +38,7 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE 3
 
-const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
-const char* SAMPLER_TYPE    = "samplerExternalOES";
+const char* SAMPLER_TYPE = "samplerExternalOES";
 
 // clang-format off
 int FORMATS_BLENDING_REQUIRED[] = {
@@ -73,7 +72,8 @@ NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t width, ui
 }
 
 NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
-: mMutex(),
+: mCustomFragmentPrefix(),
+  mMutex(),
   mWidth(width),
   mHeight(height),
   mTbmQueue(NULL),
@@ -88,6 +88,8 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_
 
   GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics                = static_cast<EglGraphics*>(graphics);
+
+  mCustomFragmentPrefix = mEglGraphics->GetEglImageExtensionString();
 
   mTbmQueue = GetSurfaceFromAny(nativeImageSourceQueue);
 
@@ -280,7 +282,7 @@ void NativeImageSourceQueueTizen::PrepareTexture()
 
 const char* NativeImageSourceQueueTizen::GetCustomFragmentPrefix() const
 {
-  return FRAGMENT_PREFIX;
+  return mCustomFragmentPrefix;
 }
 
 const char* NativeImageSourceQueueTizen::GetCustomSamplerTypename() const
