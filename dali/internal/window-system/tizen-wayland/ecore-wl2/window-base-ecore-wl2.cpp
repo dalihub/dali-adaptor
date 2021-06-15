@@ -980,6 +980,22 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
     RotationEvent rotationEvent;
     rotationEvent.angle     = ev->angle;
     rotationEvent.winResize = 0;
+
+    if(ev->w == 0 || ev->h ==0)
+    {
+      // Use previous client side window's size.
+      if(mWindowRotationAngle == 90 || mWindowRotationAngle == 270)
+      {
+        ev->w = mWindowPositionSize.height;
+        ev->h = mWindowPositionSize.width;
+      }
+      else
+      {
+        ev->w = mWindowPositionSize.width;
+        ev->h = mWindowPositionSize.height;
+      }
+    }
+
     mWindowRotationAngle    = ev->angle;
 
     if(ev->angle == 0 || ev->angle == 180)
@@ -1940,7 +1956,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
   if(!mNotificationLevelChangeDone)
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetNotificationLevel: Level change is failed [%d, %d]\n", level, mNotificationChangeState);
-    Dali::WindowOperationResult::UNKNOWN_ERROR;
+    return Dali::WindowOperationResult::UNKNOWN_ERROR;
   }
   else if(mNotificationChangeState == TIZEN_POLICY_ERROR_STATE_PERMISSION_DENIED)
   {
