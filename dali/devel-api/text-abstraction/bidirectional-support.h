@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_BIDIRECTIONAL_SUPPORT_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,13 +77,13 @@ public:
    *
    * @param[in] paragraph Pointer to the first character of the paragraph coded in UTF32.
    * @param[in] numberOfCharacters The number of characters of the paragraph.
-   * @param[in] matchSystemLanguageDirection Whether match for system language direction or not.
-   * @param[in] layoutDirection The direction of the system language.
+   * @param[in] matchLayoutDirection Whether match for layout direction or not.
+   * @param[in] layoutDirection The direction of the layout direction.
    * @return An index of an object inside a table storing the bidirectional data.
    */
   BidiInfoIndex CreateInfo(const Character* const paragraph,
                            Length                 numberOfCharacters,
-                           bool                   matchSystemLanguageDirection,
+                           bool                   matchLayoutDirection,
                            LayoutDirection::Type  layoutDirection);
 
   /**

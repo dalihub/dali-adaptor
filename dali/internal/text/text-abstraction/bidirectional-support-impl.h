@@ -57,7 +57,7 @@ public:
    */
   BidiInfoIndex CreateInfo(const Character* const paragraph,
                            Length                 numberOfCharacters,
-                           bool                   matchSystemLanguageDirection,
+                           bool                   matchLayoutDirection,
                            LayoutDirection::Type  layoutDirection);
 
   /**
