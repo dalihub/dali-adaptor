@@ -58,46 +58,6 @@ void BridgeAccessible::RegisterInterfaces()
   dbusServer.addInterface("/", desc, true);
 }
 
-static bool AcceptObjectCheckRole(Component* obj)
-{
-  if(!obj)
-    return false;
-  switch(obj->GetRole())
-  {
-    case Role::APPLICATION:
-    case Role::FILLER:
-    case Role::SCROLL_PANE:
-    case Role::SPLIT_PANE:
-    case Role::WINDOW:
-    case Role::IMAGE:
-    case Role::IMAGE_MAP:
-    case Role::LIST:
-    case Role::ICON:
-    case Role::TOOL_BAR:
-    case Role::REDUNDANT_OBJECT:
-    case Role::COLOR_CHOOSER:
-    case Role::TREE_TABLE:
-    case Role::PAGE_TAB_LIST:
-    case Role::PAGE_TAB:
-    case Role::SPIN_BUTTON:
-    case Role::INPUT_METHOD_WINDOW:
-    case Role::EMBEDDED:
-    case Role::INVALID:
-    case Role::NOTIFICATION:
-    case Role::DATE_EDITOR:
-    case Role::TABLE:
-    {
-      return false;
-    }
-    default:
-    {
-      break;
-    }
-  }
-
-  return true;
-}
-
 static bool AcceptObjectCheckRelations(Component* obj)
 {
   auto r = obj->GetRelationSet();
@@ -151,8 +111,6 @@ static bool AcceptObject(Component* obj)
     return false;
   const auto states = obj->GetStates();
   if(!states[State::VISIBLE])
-    return false;
-  if(!AcceptObjectCheckRole(obj))
     return false;
   if(!AcceptObjectCheckRelations(obj))
     return false;
