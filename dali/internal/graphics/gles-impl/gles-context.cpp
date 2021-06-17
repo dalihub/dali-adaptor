@@ -509,106 +509,12 @@ void Context::ResolveUniformBuffers()
 
 void Context::ResolveStandaloneUniforms()
 {
-  auto& gl = *mImpl->mController.GetGL();
-
   // Find reflection for program
   const auto program = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+  const auto ptr     = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
 
-  const auto& reflection = program->GetReflection();
-
-  auto extraInfos = reflection.GetStandaloneUniformExtraInfo();
-
-  const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
-
-  for(const auto& info : extraInfos)
-  {
-    auto type   = GLTypeConversion(info.type).type;
-    auto offset = info.offset;
-    switch(type)
-    {
-      case GLType::FLOAT_VEC2:
-      {
-        gl.Uniform2fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::FLOAT_VEC3:
-      {
-        gl.Uniform3fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::FLOAT_VEC4:
-      {
-        gl.Uniform4fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::INT_VEC2:
-      {
-        gl.Uniform2iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
-        break;
-      }
-      case GLType::INT_VEC3:
-      {
-        gl.Uniform3iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
-        break;
-      }
-      case GLType::INT_VEC4:
-      {
-        gl.Uniform4iv(info.location, info.arraySize, reinterpret_cast<const GLint*>(&ptr[offset]));
-        break;
-      }
-      case GLType::BOOL:
-      {
-        // not supported by DALi
-        break;
-      }
-      case GLType::BOOL_VEC2:
-      {
-        // not supported by DALi
-        break;
-      }
-      case GLType::BOOL_VEC3:
-      {
-        // not supported by DALi
-        break;
-      }
-      case GLType::BOOL_VEC4:
-      {
-        // not supported by DALi
-        break;
-      }
-      case GLType::FLOAT:
-      {
-        gl.Uniform1fv(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::FLOAT_MAT2:
-      {
-        gl.UniformMatrix2fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::FLOAT_MAT3:
-      {
-        gl.UniformMatrix3fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::FLOAT_MAT4:
-      {
-        gl.UniformMatrix4fv(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
-        break;
-      }
-      case GLType::SAMPLER_2D:
-      {
-        break;
-      }
-      case GLType::SAMPLER_CUBE:
-      {
-        break;
-      }
-      default:
-      {
-      }
-    }
-  }
+  // Update program uniforms
+  program->GetImplementation()->UpdateStandaloneUniformBlock(ptr);
 }
 
 void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
