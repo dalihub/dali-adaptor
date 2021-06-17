@@ -238,14 +238,7 @@ Requires:   %{name} = %{version}-%{release}
 %description dali2-feedback-plugin
 Feedback plugin to play haptic and audio feedback for Dali
 
-##############################
-# Preparation
-##############################
-%prep
-%setup -q
-
 #Use TZ_PATH when tizen version is 3.x or greater
-
 %define dali_data_rw_dir         %TZ_SYS_RO_SHARE/dali/
 %define dali_data_ro_dir         %TZ_SYS_RO_SHARE/dali/
 %define font_preloaded_path      %TZ_SYS_RO_SHARE/fonts/
@@ -255,6 +248,13 @@ Feedback plugin to play haptic and audio feedback for Dali
 
 %define user_shader_cache_dir    %{dali_data_ro_dir}/core/shaderbin/
 %define dali_plugin_sound_files  /plugins/sounds/
+
+##############################
+# Preparation
+##############################
+%prep
+%setup -q
+
 
 ##############################
 # Build
@@ -317,7 +317,7 @@ cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 # if mobile || "undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 
-mkdir mobile
+mkdir -p mobile
 pushd mobile
 
 cmake -DENABLE_PROFILE=MOBILE $cmake_flags ..
@@ -333,7 +333,7 @@ popd
 # if tv ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "common" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 
-mkdir tv
+mkdir -p tv
 pushd tv
 
 cmake -DENABLE_PROFILE=TV $cmake_flags ..
@@ -349,7 +349,7 @@ popd
 # if wearable || "undefined"
 %if "%{?profile}" != "mobile" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "common"
 
-mkdir wearable
+mkdir -p wearable
 pushd wearable
 
 cmake -DENABLE_PROFILE=WEARABLE $cmake_flags ..
@@ -365,7 +365,7 @@ popd
 # if ivi ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "common" && "%{?profile}" != "mobile"
 
-mkdir ivi
+mkdir -p ivi
 pushd ivi
 
 cmake -DENABLE_PROFILE=IVI $cmake_flags ..
@@ -382,7 +382,7 @@ popd
 # if common ||"undefined"
 %if "%{?profile}" != "wearable" && "%{?profile}" != "tv" && "%{?profile}" != "ivi" && "%{?profile}" != "mobile"
 
-mkdir common
+mkdir -p common
 pushd common
 
 cmake -DENABLE_PROFILE=COMMON $cmake_flags ..
