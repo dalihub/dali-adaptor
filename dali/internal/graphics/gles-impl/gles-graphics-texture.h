@@ -147,7 +147,19 @@ public:
     return mIsCompressed;
   }
 
+  void SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t value) const;
+
 private:
+  mutable struct SamplerStateCache
+  {
+    uint32_t minFilter{0};
+    uint32_t magFilter{0};
+    uint32_t wrapS{0};
+    uint32_t wrapT{0};
+    uint32_t wrapR{0};
+    uint32_t maxLevel{0};
+  } mDefaultSamplerState;
+
   std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};

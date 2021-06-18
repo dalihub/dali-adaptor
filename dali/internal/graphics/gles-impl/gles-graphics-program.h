@@ -120,6 +120,24 @@ public:
    */
   bool GetParameter(uint32_t parameterId, void* out);
 
+  /**
+   * @brief Updates standalone uniforms
+   *
+   * Updates standalone uniforms (issues the GL calls) and
+   * updates internal uniform cache
+   *
+   * @param[in] ptr Valid pointer to the uniform block memory
+   */
+  void UpdateStandaloneUniformBlock(const char* ptr);
+
+  /**
+   * @brief Builds standalone uniform cache
+   *
+   * This function allocates cache memory and
+   * gathers a list of GL functions per uniform type.
+   */
+  void BuildStandaloneUniformCache();
+
 private:
   friend class Program;
 
