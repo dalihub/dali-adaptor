@@ -696,8 +696,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Collect damage rects
           mCore.PreRender(scene, mDamagedRects);
 
-          graphics.ActivateSurfaceContext(windowSurface);
-
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
 

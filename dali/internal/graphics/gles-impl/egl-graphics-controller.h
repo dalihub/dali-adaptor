@@ -447,7 +447,14 @@ public:
    */
   void Flush()
   {
-    mGraphics->ActivateResourceContext();
+    if(!mCreateTextureQueue.empty() ||
+       !mCreateBufferQueue.empty() ||
+       !mCreateFramebufferQueue.empty() ||
+       !mTextureUpdateRequests.empty() ||
+       !mTextureMipmapGenerationRequests.empty())
+    {
+      mGraphics->ActivateResourceContext();
+    }
 
     // Process creations
     ProcessCreateQueues();
