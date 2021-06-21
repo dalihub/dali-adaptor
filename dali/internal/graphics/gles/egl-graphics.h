@@ -91,6 +91,13 @@ public:
   void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override;
 
   /**
+   * This is called after all the surfaces have been rendered.
+   *
+   * @note This should not be called if uploading resource only without rendering any surface.
+   */
+  void PostRender() override;
+
+  /**
    * Inform graphics interface that this is the first frame after a resume.
    * (For debug only)
    */

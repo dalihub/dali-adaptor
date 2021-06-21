@@ -720,7 +720,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     if(!mUploadWithoutRendering)
     {
-      graphics.ActivateResourceContext();
+      graphics.PostRender();
     }
 
     mCore.PostRender(mUploadWithoutRendering);

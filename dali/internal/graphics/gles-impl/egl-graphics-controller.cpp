@@ -158,6 +158,8 @@ void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
 
 void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget)
 {
+  mCurrentContext->InvalidateDepthStencilBuffers();
+
   auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
   if(rt->GetCreateInfo().surface)
   {

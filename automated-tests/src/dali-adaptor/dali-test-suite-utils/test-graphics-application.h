@@ -111,6 +111,11 @@ public:
     mCallstack.PushCall("ActivateResourceContext()", namedParams.str(), namedParams);
   }
 
+  void PostRender() override
+  {
+    mCallstack.PushCall("PostRender()", "");
+  }
+
   /**
    * Inform graphics interface that this is the first frame after a resume.
    */

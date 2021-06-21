@@ -654,6 +654,14 @@ void Context::ClearBuffer(uint32_t mask, bool forceClear)
   }
 }
 
+void Context::InvalidateDepthStencilBuffers()
+{
+  auto& gl = *mImpl->mController.GetGL();
+
+  GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
+  gl.InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+}
+
 void Context::SetScissorTestEnabled(bool scissorEnabled)
 {
   if(mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
