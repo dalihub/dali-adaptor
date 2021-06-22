@@ -31,6 +31,7 @@
 #include <dali/public-api/capture/capture.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/adaptor-framework/timer.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -91,6 +92,11 @@ public:
    * @copydoc Dali::Capture::GetTexture
    */
   Dali::Texture GetTexture();
+
+  /**
+   * @copydoc Dali::Capture::GetCapturedBuffer
+   */
+  Dali::Devel::PixelBuffer GetCapturedBuffer();
 
   /**
    * @copydoc Dali::Capture::FinishedSignal
@@ -211,6 +217,7 @@ private:
   Dali::Capture::CaptureFinishedSignalType    mFinishedSignal;
   std::string                                 mPath;
   Dali::NativeImageSourcePtr                  mNativeImageSourcePtr; ///< pointer to surface image
+  Dali::Devel::PixelBuffer                    mPixelBuffer;
   bool                                        mFileSave;
   bool                                        mIsNativeImageSourcePossible;
 };

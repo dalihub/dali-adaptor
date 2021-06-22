@@ -129,6 +129,37 @@ Dali::Texture Capture::GetTexture()
   return mTexture;
 }
 
+Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
+{
+  if(!mPixelBuffer || !mPixelBuffer.GetBuffer())
+  {
+    uint8_t* bufferPointer;
+    uint32_t             width, height;
+    Dali::Pixel::Format  pixelFormat;
+    if(mIsNativeImageSourcePossible)
+    {
+      std::vector<uint8_t> buffer;
+      if(!mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+      {
+        return Dali::Devel::PixelBuffer();
+      }
+      bufferPointer = &buffer[0];
+    }
+    else
+    {
+      width = mTexture.GetWidth();
+      height = mTexture.GetHeight();
+      pixelFormat = Dali::Pixel::RGBA8888;
+      bufferPointer = mFrameBuffer.GetRenderedBuffer();
+    }
+    mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+
+    memcpy(mPixelBuffer.GetBuffer(), bufferPointer, width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
+  }
+
+  return mPixelBuffer;
+}
+
 Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 {
   return mFinishedSignal;
