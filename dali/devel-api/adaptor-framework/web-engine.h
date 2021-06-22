@@ -160,7 +160,7 @@ public:
   /**
    * @brief Get the url.
    */
-  const std::string& GetUrl();
+  std::string GetUrl() const;
 
   /**
    * @brief Load a given string as web contents.
@@ -417,7 +417,7 @@ public:
    *
    * @return The string value of user agent
    */
-  const std::string& GetUserAgent() const;
+  std::string GetUserAgent() const;
 
   /**
    * @brief Set user agent string.
@@ -730,18 +730,18 @@ public:
   Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be customized.
+   * @brief Connect to this signal to be notified when context menu would be shown.
    *
    * @return A signal object to connect with.
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal();
+  Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& ContextMenuShownSignal();
 
   /**
-   * @brief Connect to this signal to be notified when context menu item is selected.
+   * @brief Connect to this signal to be notified when context menu would be hidden.
    *
    * @return A signal object to connect with.
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal();
+  Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal();
 
 private: // Not intended for application developers
   /**

@@ -132,7 +132,7 @@ Dali::PixelData WebEngine::GetFavicon() const
   return GetImplementation(*this).GetFavicon();
 }
 
-const std::string& WebEngine::GetUrl()
+std::string WebEngine::GetUrl() const
 {
   return GetImplementation(*this).GetUrl();
 }
@@ -317,7 +317,7 @@ void WebEngine::ClearAllTilesResources()
   GetImplementation(*this).ClearAllTilesResources();
 }
 
-const std::string& WebEngine::GetUserAgent() const
+std::string WebEngine::GetUserAgent() const
 {
   return GetImplementation(*this).GetUserAgent();
 }
@@ -547,14 +547,14 @@ Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHa
   return GetImplementation(*this).HttpAuthHandlerSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& WebEngine::ContextMenuShownSignal()
 {
-  return GetImplementation(*this).ContextMenuCustomizedSignal();
+  return GetImplementation(*this).ContextMenuShownSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& WebEngine::ContextMenuHiddenSignal()
 {
-  return GetImplementation(*this).ContextMenuItemSelectedSignal();
+  return GetImplementation(*this).ContextMenuHiddenSignal();
 }
 
 } // namespace Dali
