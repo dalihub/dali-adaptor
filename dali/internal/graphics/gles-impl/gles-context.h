@@ -176,6 +176,7 @@ public:
   void ClearStencilBuffer();
   void ClearDepthBuffer();
   void ClearBuffer(uint32_t mask, bool forceClear);
+  void InvalidateDepthStencilBuffers();
   void SetScissorTestEnabled(bool scissorEnabled);
   void SetStencilTestEnable(bool stencilEnable);
   void StencilMask(uint32_t writeMask);

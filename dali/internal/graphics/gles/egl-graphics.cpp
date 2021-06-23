@@ -93,6 +93,16 @@ void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
   mGraphicsController.ActivateSurfaceContext(surface);
 }
 
+void EglGraphics::PostRender()
+{
+  ActivateResourceContext();
+
+  if(mGraphicsController.GetCurrentContext())
+  {
+    mGraphicsController.GetCurrentContext()->InvalidateDepthStencilBuffers();
+  }
+}
+
 void EglGraphics::SetFirstFrameAfterResume()
 {
   if(mEglImplementation)

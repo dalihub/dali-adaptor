@@ -696,8 +696,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Collect damage rects
           mCore.PreRender(scene, mDamagedRects);
 
-          graphics.ActivateSurfaceContext(windowSurface);
-
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
 
@@ -722,7 +720,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     if(!mUploadWithoutRendering)
     {
-      graphics.ActivateResourceContext();
+      graphics.PostRender();
     }
 
     mCore.PostRender(mUploadWithoutRendering);

@@ -93,6 +93,13 @@ public:
   virtual void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) = 0;
 
   /**
+   * Inform graphics interface that all the surfaces have been rendered.
+   *
+   * @note This should not be called if uploading resource only without rendering any surface.
+   */
+  virtual void PostRender() = 0;
+
+  /**
    * Inform graphics interface that this is the first frame after a resume.
    */
   virtual void SetFirstFrameAfterResume() = 0;

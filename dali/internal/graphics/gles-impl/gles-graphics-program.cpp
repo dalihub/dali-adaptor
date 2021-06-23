@@ -28,6 +28,32 @@
 
 namespace Dali::Graphics::GLES
 {
+using Integration::GlAbstraction;
+
+/**
+ * Structure stores pointer to the function
+ * which will set the uniform of particular type
+ */
+struct UniformSetter
+{
+  union
+  {
+    void (GlAbstraction::*uniformfProc)(GLint, GLsizei, const float*);
+    void (GlAbstraction::*uniformiProc)(GLint, GLsizei, const int*);
+    void (GlAbstraction::*uniformMatrixProc)(GLint, GLsizei, GLboolean, const float*);
+  };
+
+  enum class Type
+  {
+    UNDEFINED = 0,
+    FLOAT,
+    INT,
+    MATRIX
+  };
+
+  Type type;
+};
+
 struct ProgramImpl::Impl
 {
   explicit Impl(EglGraphicsController& _controller, const ProgramCreateInfo& info)
@@ -51,6 +77,12 @@ struct ProgramImpl::Impl
   uint32_t               refCount{0u};
 
   std::unique_ptr<GLES::Reflection> reflection{nullptr};
+
+  // Uniform cache
+  std::vector<uint8_t> uniformData;
+
+  // List of standalone uniform setters
+  std::vector<UniformSetter> uniformSetters;
 };
 
 ProgramImpl::ProgramImpl(const Graphics::ProgramCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
@@ -125,6 +157,20 @@ bool ProgramImpl::Create()
   mImpl->reflection->BuildUniformReflection();
   mImpl->reflection->BuildVertexAttributeReflection();
 
+  // populate uniform cache memory for standalone uniforms (it's not needed
+  // for real UBOs as real UBOs work with whole memory blocks)
+  auto& reflection = mImpl->reflection;
+  if(!reflection->GetStandaloneUniformExtraInfo().empty())
+  {
+    UniformBlockInfo blockInfo;
+    mImpl->reflection->GetUniformBlock(0, blockInfo);
+    auto uniformCacheSize = blockInfo.size;
+    mImpl->uniformData.resize(uniformCacheSize);
+
+    std::fill(mImpl->uniformData.begin(), mImpl->uniformData.end(), 0);
+
+    BuildStandaloneUniformCache();
+  }
   return true;
 }
 
@@ -166,6 +212,146 @@ EglGraphicsController& ProgramImpl::GetController() const
 const ProgramCreateInfo& ProgramImpl::GetCreateInfo() const
 {
   return mImpl->createInfo;
+}
+
+void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
+{
+  const auto& reflection = GetReflection();
+
+  const auto& extraInfos = reflection.GetStandaloneUniformExtraInfo();
+
+  auto& gl = *GetController().GetGL();
+
+  // Set uniforms
+  int  index    = 0;
+  auto cachePtr = reinterpret_cast<char*>(mImpl->uniformData.data());
+  for(const auto& info : extraInfos)
+  {
+    auto& setter = mImpl->uniformSetters[index++];
+
+    auto offset = info.offset;
+    switch(setter.type)
+    {
+      case UniformSetter::Type::FLOAT:
+      {
+        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        {
+          (gl.*(setter.uniformfProc))(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+        }
+        break;
+      }
+      case UniformSetter::Type::INT:
+      {
+        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        {
+          (gl.*(setter.uniformiProc))(info.location, info.arraySize, reinterpret_cast<const int*>(&ptr[offset]));
+          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+        }
+        break;
+      }
+      case UniformSetter::Type::MATRIX:
+      {
+        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        {
+          (gl.*(setter.uniformMatrixProc))(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
+          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+        }
+        break;
+      }
+      case UniformSetter::Type::UNDEFINED:
+      {
+      }
+    }
+  }
+}
+
+void ProgramImpl::BuildStandaloneUniformCache()
+{
+  const auto& reflection = GetReflection();
+  const auto& extraInfos = reflection.GetStandaloneUniformExtraInfo();
+
+  // Prepare pointers to the uniform setter calls
+  mImpl->uniformSetters.resize(extraInfos.size());
+  int index = 0;
+  for(const auto& info : extraInfos)
+  {
+    auto type                         = GLTypeConversion(info.type).type;
+    mImpl->uniformSetters[index].type = UniformSetter::Type::UNDEFINED;
+    switch(type)
+    {
+      case GLType::FLOAT_VEC2:
+      {
+        mImpl->uniformSetters[index].uniformfProc = &GlAbstraction::Uniform2fv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::FLOAT;
+        break;
+      }
+      case GLType::FLOAT_VEC3:
+      {
+        mImpl->uniformSetters[index].uniformfProc = &GlAbstraction::Uniform3fv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::FLOAT;
+        break;
+      }
+      case GLType::FLOAT_VEC4:
+      {
+        mImpl->uniformSetters[index].uniformfProc = &GlAbstraction::Uniform4fv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::FLOAT;
+        break;
+      }
+      case GLType::INT_VEC2:
+      {
+        mImpl->uniformSetters[index].uniformiProc = &GlAbstraction::Uniform2iv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::INT;
+        break;
+      }
+      case GLType::INT_VEC3:
+      {
+        mImpl->uniformSetters[index].uniformiProc = &GlAbstraction::Uniform3iv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::INT;
+        break;
+      }
+      case GLType::INT_VEC4:
+      {
+        mImpl->uniformSetters[index].uniformiProc = &GlAbstraction::Uniform4iv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::INT;
+        break;
+      }
+      case GLType::BOOL:
+      case GLType::BOOL_VEC2:
+      case GLType::BOOL_VEC3:
+      case GLType::BOOL_VEC4:
+      case GLType::FLOAT:
+      {
+        mImpl->uniformSetters[index].uniformfProc = &GlAbstraction::Uniform1fv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::FLOAT;
+        break;
+      }
+      case GLType::FLOAT_MAT2:
+      {
+        mImpl->uniformSetters[index].uniformMatrixProc = &GlAbstraction::UniformMatrix2fv;
+        mImpl->uniformSetters[index].type              = UniformSetter::Type::MATRIX;
+        break;
+      }
+      case GLType::FLOAT_MAT3:
+      {
+        mImpl->uniformSetters[index].uniformMatrixProc = &GlAbstraction::UniformMatrix3fv;
+        mImpl->uniformSetters[index].type              = UniformSetter::Type::MATRIX;
+        break;
+      }
+      case GLType::FLOAT_MAT4:
+      {
+        mImpl->uniformSetters[index].uniformMatrixProc = &GlAbstraction::UniformMatrix4fv;
+        mImpl->uniformSetters[index].type              = UniformSetter::Type::MATRIX;
+        break;
+      }
+      case GLType::SAMPLER_2D:
+      case GLType::SAMPLER_CUBE:
+      default:
+      {
+      }
+    }
+    index++;
+  }
 }
 
 Program::~Program()
