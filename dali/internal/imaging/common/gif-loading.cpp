@@ -1282,10 +1282,6 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
 {
   int  error;
   bool ret = false;
-  if(!mImpl->mLoadSucceeded)
-  {
-    return false;
-  }
 
   Mutex::ScopedLock lock(mImpl->mMutex);
   if(!mImpl->mLoadSucceeded)
