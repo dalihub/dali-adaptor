@@ -691,7 +691,7 @@ private:                                          // Data
   public:
     void OnAccessibleKeyEvent(const Dali::KeyEvent& event);
   };
-  AccessibilityObserver accessibilityObserver;
+  AccessibilityObserver mAccessibilityObserver;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor)

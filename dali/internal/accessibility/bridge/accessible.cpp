@@ -48,9 +48,9 @@ std::vector<std::string> Accessible::GetInterfaces()
   {
     tmp.push_back(AtspiDbusInterfaceComponent);
   }
-  if(auto d = dynamic_cast<Action*>(this))
+  if(auto action = dynamic_cast<Action*>(this))
   {
-    if(d->GetActionCount() > 0)
+    if(action->GetActionCount() > 0)
     {
       tmp.push_back(AtspiDbusInterfaceAction);
     }
@@ -68,99 +68,101 @@ Accessible::Accessible()
 
 Accessible::~Accessible()
 {
-  auto b = bridgeData.lock();
-  if(b)
-    b->knownObjects.erase(this);
+  auto handle = mBridgeData.lock();
+  if(handle)
+  {
+    handle->mKnownObjects.erase(this);
+  }
 }
 
 void Accessible::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitActiveDescendantChanged(obj, child);
+    bridgeData->mBridge->EmitActiveDescendantChanged(obj, child);
   }
 }
 
-void Accessible::EmitStateChanged(State state, int newValue1, int newValue2)
+void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitStateChanged(this, state, newValue1, newValue2);
+    bridgeData->mBridge->EmitStateChanged(this, state, newValue, reserved);
   }
 }
 
-void Accessible::EmitShowing(bool showing)
+void Accessible::EmitShowing(bool isShowing)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitStateChanged(this, State::SHOWING, showing ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(this, State::SHOWING, isShowing ? 1 : 0, 0);
   }
 }
 
-void Accessible::EmitVisible(bool visible)
+void Accessible::EmitVisible(bool isVisible)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitStateChanged(this, State::VISIBLE, visible ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(this, State::VISIBLE, isVisible ? 1 : 0, 0);
   }
 }
 
-void Accessible::EmitHighlighted(bool set)
+void Accessible::EmitHighlighted(bool isHighlighted)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitStateChanged(this, State::HIGHLIGHTED, set ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(this, State::HIGHLIGHTED, isHighlighted ? 1 : 0, 0);
   }
 }
 
-void Accessible::EmitFocused(bool set)
+void Accessible::EmitFocused(bool isFocused)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitStateChanged(this, State::FOCUSED, set ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(this, State::FOCUSED, isFocused ? 1 : 0, 0);
   }
 }
 void Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
+    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::INSERTED, position, length, content);
   }
 }
 void Accessible::EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
+    bridgeData->mBridge->EmitTextChanged(this, TextChangedState::DELETED, position, length, content);
   }
 }
-void Accessible::EmitTextCaretMoved(unsigned int cursorPosition)
+void Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitCaretMoved(this, cursorPosition);
+    bridgeData->mBridge->EmitCursorMoved(this, cursorPosition);
   }
 }
-void Accessible::Emit(WindowEvent we, unsigned int detail1)
+void Accessible::Emit(WindowEvent event, unsigned int detail)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->Emit(this, we, detail1);
+    bridgeData->mBridge->Emit(this, event, detail);
   }
 }
-void Accessible::Emit(ObjectPropertyChangeEvent ev)
+void Accessible::Emit(ObjectPropertyChangeEvent event)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->Emit(this, ev);
+    bridgeData->mBridge->Emit(this, event);
   }
 }
 
 void Accessible::EmitBoundsChanged(Rect<> rect)
 {
-  if(auto b = GetBridgeData())
+  if(auto bridgeData = GetBridgeData())
   {
-    b->bridge->EmitBoundsChanged(this, rect);
+    bridgeData->mBridge->EmitBoundsChanged(this, rect);
   }
 }
 
@@ -176,37 +178,39 @@ std::vector<Accessible*> Accessible::GetChildren()
 
 std::shared_ptr<Bridge::Data> Accessible::GetBridgeData()
 {
-  auto b = bridgeData.lock();
-  if(!b)
+  auto handle = mBridgeData.lock();
+  if(!handle)
   {
-    auto p = Bridge::GetCurrentBridge();
-    b      = p->data;
+    auto bridge = Bridge::GetCurrentBridge();
+    handle = bridge->mData;
   }
-  return b;
+  return handle;
 }
 
 Address Accessible::GetAddress()
 {
-  auto b = bridgeData.lock();
-  if(!b)
+  auto handle = mBridgeData.lock();
+  if(!handle)
   {
-    b = GetBridgeData();
-    if(b)
-      b->bridge->RegisterOnBridge(this);
+    handle = GetBridgeData();
+    if(handle)
+    {
+      handle->mBridge->RegisterOnBridge(this);
+    }
   }
   std::ostringstream tmp;
   tmp << this;
-  return {b ? b->busName : "", tmp.str()};
+  return {handle ? handle->mBusName : "", tmp.str()};
 }
 
-void Bridge::RegisterOnBridge(Accessible* obj)
+void Bridge::RegisterOnBridge(Accessible* object)
 {
-  assert(!obj->bridgeData.lock() || obj->bridgeData.lock() == data);
-  if(!obj->bridgeData.lock())
+  assert(!object->mBridgeData.lock() || object->mBridgeData.lock() == mData);
+  if(!object->mBridgeData.lock())
   {
-    assert(data);
-    data->knownObjects.insert(obj);
-    obj->bridgeData = data;
+    assert(mData);
+    mData->mKnownObjects.insert(object);
+    object->mBridgeData = mData;
   }
 }
 
@@ -220,32 +224,37 @@ Accessible* Accessible::GetDefaultLabel()
   return this;
 }
 
-void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool doRecursive)
+void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)
 {
-  if(auto b = GetBridgeData())
+  if(auto data = GetBridgeData())
   {
-    auto s = GetStates() & states;
-    for(auto i = 0u; i < s.size(); i++)
+    auto currentState = GetStates() & states;
+    for(auto i = 0u; i < currentState.size(); i++)
     {
       auto index = static_cast<Dali::Accessibility::State>(i);
-      if(s[index])
-        b->bridge->EmitStateChanged(this, index, 1, 0);
+      if(currentState[index])
+      {
+        data->mBridge->EmitStateChanged(this, index, 1, 0);
+      }
     }
-    if(doRecursive)
+
+    if(isRecursive)
     {
       auto children = GetChildren();
-      for(auto c : children)
-        c->NotifyAccessibilityStateChange(states, doRecursive);
+      for(auto iter : children)
+      {
+        iter->NotifyAccessibilityStateChange(states, isRecursive);
+      }
     }
   }
 }
 
-void Accessible::FindWordSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
+void Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
-  set_wordbreaks_utf8(s, length, language, breaks);
+  set_wordbreaks_utf8(string, length, language, breaks);
 }
 
-void Accessible::FindLineSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
+void Accessible::FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
-  set_linebreaks_utf8(s, length, language, breaks);
+  set_linebreaks_utf8(string, length, language, breaks);
 }

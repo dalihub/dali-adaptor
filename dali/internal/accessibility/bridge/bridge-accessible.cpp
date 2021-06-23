@@ -34,16 +34,16 @@ namespace {
 
 bool SortVertically(Component* lhs, Component* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
 
   return leftRect.y < rightRect.y;
 }
 
 bool SortHorizontally(Component* lhs, Component* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
 
   return leftRect.x < rightRect.x;
 }
@@ -52,7 +52,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
 {
   // Find first with non-zero area
   auto first = std::find_if(children.begin(), children.end(), [](Component* component) -> bool {
-    auto extents = component->GetExtents(CoordType::WINDOW);
+    auto extents = component->GetExtents(CoordinateType::WINDOW);
     return extents.height != 0.0f && extents.width != 0.0f;
   });
 
@@ -62,7 +62,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   }
 
   std::vector<std::vector<Component*>> lines(1);
-  Dali::Rect<> lineRect = (*first)->GetExtents(CoordType::WINDOW);
+  Dali::Rect<> lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
   Dali::Rect<> rect;
 
   // Split into lines
@@ -70,7 +70,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   {
     auto child = *it;
 
-    rect = child->GetExtents(CoordType::WINDOW);
+    rect = child->GetExtents(CoordinateType::WINDOW);
     if(rect.height == 0.0f || rect.width == 0.0f)
     {
       // Zero area, ignore
@@ -164,11 +164,11 @@ static bool ObjectIsCollapsed(Component* obj)
   return states[State::EXPANDABLE] && !states[State::EXPANDED];
 }
 
-static bool OobjectIsZeroSize(Component* obj)
+static bool ObjectIsZeroSize(Component* obj)
 {
   if(!obj)
     return false;
-  auto extents = obj->GetExtents(CoordType::WINDOW);
+  auto extents = obj->GetExtents(CoordinateType::WINDOW);
   return extents.height == 0 || extents.width == 0;
 }
 
@@ -195,7 +195,7 @@ static bool AcceptObject(Component* obj)
   }
   else
   {
-    if(OobjectIsZeroSize(obj))
+    if(ObjectIsZeroSize(obj))
     {
       return false;
     }
@@ -218,7 +218,7 @@ static std::string objDump(Component* obj)
   if(!obj)
     return "nullptr";
   std::ostringstream o;
-  auto               e = obj->GetExtents(CoordType::SCREEN);
+  auto               e = obj->GetExtents(CoordinateType::SCREEN);
   o << "name: " << obj->GetName() << " extent: (" << e.x << ", "
     << e.y << "), [" << e.width << ", " << e.height << "]";
   return o.str();
@@ -248,30 +248,40 @@ static std::string makeIndent(unsigned int maxRecursionDepth)
   return std::string(GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH - maxRecursionDepth, ' ');
 }
 
-Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point p, CoordType cType, unsigned int maxRecursionDepth)
+Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point p, CoordinateType type, unsigned int maxRecursionDepth)
 {
   if(!root || maxRecursionDepth == 0)
+  {
     return nullptr;
+  }
+
   auto root_component = dynamic_cast<Component*>(root);
   LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << makeIndent(maxRecursionDepth) << objDump(root_component);
 
-  if(root_component && !root_component->Contains(p, cType))
+  if(root_component && !root_component->IsAccessibleContainedAtPoint(p, type))
+  {
     return nullptr;
+  }
 
   auto children = root->GetChildren();
   for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
   {
     //check recursively all children first
-    auto result = CalculateNavigableAccessibleAtPoint(*childIt, p, cType, maxRecursionDepth - 1);
+    auto result = CalculateNavigableAccessibleAtPoint(*childIt, p, type, maxRecursionDepth - 1);
     if(result)
+    {
       return result;
+    }
   }
+
   if(root_component)
   {
     //Found a candidate, all its children are already checked
     auto controledBy = GetObjectInRelation(root_component, RelationType::CONTROLLED_BY);
     if(!controledBy)
+    {
       controledBy = root_component;
+    }
 
     if(controledBy->IsProxy() || AcceptObject(controledBy))
     {
@@ -376,12 +386,12 @@ DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gestur
   return FindSelf()->DoGesture(Dali::Accessibility::GestureInfo{type, xBeg, xEnd, yBeg, yEnd, state, eventTime});
 }
 
-DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordType)
+DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordinateType)
 {
   Accessible* deputy     = nullptr;
   auto        accessible = FindSelf();
-  auto        cType      = static_cast<CoordType>(coordType);
-  LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordType;
+  auto        cType      = static_cast<CoordinateType>(coordinateType);
+  LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
   auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
   bool recurse   = false;
   if(component)

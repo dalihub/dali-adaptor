@@ -31,8 +31,12 @@ BridgeComponent::BridgeComponent()
 
 void BridgeComponent::RegisterInterfaces()
 {
+  // The second arguments below are the names (or signatures) of DBus methods.
+  // Screen Reader will call the methods with the exact names as specified in the AT-SPI Component interface:
+  // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Component.xml
+
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceComponent};
-  AddFunctionToInterface(desc, "Contains", &BridgeComponent::Contains);
+  AddFunctionToInterface(desc, "Contains", &BridgeComponent::IsAccessibleContainedAtPoint);
   AddFunctionToInterface(desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint);
   AddFunctionToInterface(desc, "GetExtents", &BridgeComponent::GetExtents);
   AddFunctionToInterface(desc, "GetPosition", &BridgeComponent::GetPosition);
@@ -56,27 +60,27 @@ Component* BridgeComponent::FindSelf() const
   return s2;
 }
 
-DBus::ValueOrError<bool> BridgeComponent::Contains(int32_t x, int32_t y, uint32_t coordType)
+DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainedAtPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->Contains({x, y}, static_cast<CoordType>(coordType));
+  return FindSelf()->IsAccessibleContainedAtPoint({x, y}, static_cast<CoordinateType>(coordType));
 }
 DBus::ValueOrError<Accessible*> BridgeComponent::GetAccessibleAtPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<CoordType>(coordType));
+  return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<CoordinateType>(coordType));
 }
 DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeComponent::GetExtents(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
   return std::tuple<int32_t, int32_t, int32_t, int32_t>{p.x, p.y, p.width, p.height};
 }
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
   return {static_cast<int32_t>(p.x), static_cast<int32_t>(p.y)};
 }
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetSize(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordType>(coordType));
+  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
   return {static_cast<int32_t>(p.width), static_cast<int32_t>(p.height)};
 }
 DBus::ValueOrError<ComponentLayer> BridgeComponent::GetLayer()
