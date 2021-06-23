@@ -88,6 +88,21 @@ Rect<float> DrawableGeneric::GetBoundingBox() const
   return Rect<float>(0, 0, 0, 0);
 }
 
+bool DrawableGeneric::SetClipPath(Dali::CanvasRenderer::Drawable& clip)
+{
+  return false;
+}
+
+Dali::CanvasRenderer::Drawable DrawableGeneric::GetCompositionDrawable() const
+{
+  return Dali::CanvasRenderer::Drawable();
+}
+
+Drawable::CompositionType DrawableGeneric::GetCompositionType() const
+{
+  return Drawable::CompositionType::NONE;
+}
+
 void DrawableGeneric::SetAdded(bool added)
 {
 }

@@ -82,6 +82,20 @@ public:
    * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox()
    */
   Rect<float> GetBoundingBox() const override;
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetClipPath()
+   */
+  bool SetClipPath(Dali::CanvasRenderer::Drawable& clip) override;
+
+  /**
+   * @copydoc Internal::Adaptor::Drawable::GetCompositionDrawable()
+   */
+  Dali::CanvasRenderer::Drawable GetCompositionDrawable() const override;
+
+  /**
+   * @copydoc Internal::Adaptor::Drawable::GetCompositionType()
+   */
+  CompositionType GetCompositionType() const override;
 
   /**
    * @copydoc Internal::Adaptor::Drawable::SetAdded()
@@ -140,9 +154,11 @@ protected:
   virtual ~DrawableTizen() override;
 
 private:
-  bool            mAdded;
-  bool            mChanged;
-  Drawable::Types mType;
+  bool                           mAdded;
+  bool                           mChanged;
+  Drawable::Types                mType;
+  Drawable::CompositionType      mCompositionType;
+  Dali::CanvasRenderer::Drawable mCompositionDrawable;
 
 #ifdef THORVG_SUPPORT
   tvg::Paint* mTvgPaint;

@@ -115,6 +115,13 @@ public:
   Rect<float> GetBoundingBox() const;
 
   /**
+   * @brief The intersection with clip drawable is determined and only the resulting pixels from own drawable are rendered.
+   * @param[in] clip The clip drawable object.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetClipPath(Drawable& clip);
+
+  /**
    * @brief Downcast a handle to Drawable handle.
    *
    * If handle points to an InputMethodContext the downcast produces valid

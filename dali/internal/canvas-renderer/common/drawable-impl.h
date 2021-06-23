@@ -47,6 +47,17 @@ public:
     DRAWABLE_GROUP ///< Meaning of DrawableGorup class that inherits Drawable.
   };
 
+  /**
+   * @brief Enumeration indicating type used in the composition of two objects - the target and the source.
+   */
+  enum class CompositionType
+  {
+    NONE = 0,          ///< Means that type is not defined.
+    CLIP_PATH,         ///< The intersection of the source and the target is determined and only the resulting pixels from the source are rendered.
+    ALPHA_MASK,        ///< The pixels of the source and the target are alpha blended. As a result, only the part of the source, which intersects with the target is visible.
+    ALPHA_MASK_INVERSE ///< The pixels of the source and the complement to the target's pixels are alpha blended. As a result, only the part of the source which is not covered by the target is visible.
+  };
+
 public:
   /**
    * @brief Constructor
@@ -97,6 +108,23 @@ public:
    * @copydoc Dali::CanvasRenderer::Drawable::GetBoundingBox
    */
   virtual Rect<float> GetBoundingBox() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetClipPath()
+   */
+  virtual bool SetClipPath(Dali::CanvasRenderer::Drawable& clip);
+
+  /**
+   * @brief Returns a composition drawble object.
+   * @return Returns a composition drawble object.
+   */
+  virtual Dali::CanvasRenderer::Drawable GetCompositionDrawable() const;
+
+  /**
+   * @brief Returns a composition type
+   * @return Returns a composition type
+   */
+  virtual CompositionType GetCompositionType() const;
 
   /**
    * @brief Set whether this drawable object was added to other object(CanvasRenderer or DrawableGroup) or not.

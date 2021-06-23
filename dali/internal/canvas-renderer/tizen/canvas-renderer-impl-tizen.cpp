@@ -264,6 +264,35 @@ void CanvasRendererTizen::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& dr
     }
   }
 
+  Dali::CanvasRenderer::Drawable compositeDrawable = drawableImpl.GetCompositionDrawable();
+  if(DALI_UNLIKELY(compositeDrawable))
+  {
+    Internal::Adaptor::Drawable& compositeDrawableImpl = Dali::GetImplementation(compositeDrawable);
+    tvg::Paint*                  tvgCompositeObject    = static_cast<tvg::Paint*>(compositeDrawableImpl.GetObject());
+    if(tvgCompositeObject)
+    {
+      tvg::Paint*     tvgDuplicatedCompositeObject = tvgCompositeObject->duplicate();
+      Drawable::Types type                         = compositeDrawableImpl.GetType();
+
+      if(type == Drawable::Types::DRAWABLE_GROUP)
+      {
+        Dali::CanvasRenderer::DrawableGroup& compositeGroup             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(compositeDrawable);
+        Internal::Adaptor::DrawableGroup&    compositeDrawableGroupImpl = Dali::GetImplementation(compositeGroup);
+        DrawableGroup::DrawableVector        compositeDrawables         = compositeDrawableGroupImpl.GetDrawables();
+        for(auto& it : compositeDrawables)
+        {
+          PushDrawableToGroup(it, static_cast<tvg::Scene*>(tvgDuplicatedCompositeObject));
+        }
+      }
+
+      if(tvgDuplicatedObject->composite(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject)), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
+      {
+        DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
+        return;
+      }
+    }
+  }
+
   if(parent->push(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject))) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("Tvg push fail [%p]\n", this);

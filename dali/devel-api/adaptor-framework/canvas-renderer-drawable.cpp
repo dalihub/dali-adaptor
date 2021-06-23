@@ -74,6 +74,11 @@ Rect<float> CanvasRenderer::Drawable::GetBoundingBox() const
   return GetImplementation(*this).GetBoundingBox();
 }
 
+bool CanvasRenderer::Drawable::SetClipPath(Drawable& clip)
+{
+  return GetImplementation(*this).SetClipPath(clip);
+}
+
 CanvasRenderer::Drawable CanvasRenderer::Drawable::DownCast(BaseHandle handle)
 {
   return CanvasRenderer::Drawable(dynamic_cast<Internal::Adaptor::Drawable*>(handle.GetObjectPtr()));
