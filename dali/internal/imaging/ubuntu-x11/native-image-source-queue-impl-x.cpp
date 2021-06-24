@@ -36,10 +36,6 @@ namespace Adaptor
 namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE 3
-
-const char* FRAGMENT_PREFIX = "\n";
-const char* SAMPLER_TYPE    = "sampler2D";
-
 } // namespace
 
 NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
@@ -94,12 +90,17 @@ void NativeImageSourceQueueX::PrepareTexture()
 
 const char* NativeImageSourceQueueX::GetCustomFragmentPrefix() const
 {
-  return FRAGMENT_PREFIX;
+  return nullptr;
+}
+
+bool NativeImageSourceQueueX::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
 }
 
 const char* NativeImageSourceQueueX::GetCustomSamplerTypename() const
 {
-  return SAMPLER_TYPE;
+  return nullptr;
 }
 
 int NativeImageSourceQueueX::GetTextureTarget() const

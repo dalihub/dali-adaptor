@@ -115,6 +115,11 @@ const char* NativeBitmapBuffer::GetCustomFragmentPrefix() const
   return nullptr;
 }
 
+bool NativeBitmapBuffer::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
+}
+
 const char* NativeBitmapBuffer::GetCustomSamplerTypename() const
 {
   return nullptr;

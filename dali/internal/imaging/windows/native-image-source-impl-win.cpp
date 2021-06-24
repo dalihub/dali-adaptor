@@ -233,6 +233,11 @@ const char* NativeImageSourceWin::GetCustomFragmentPrefix() const
   return nullptr;
 }
 
+bool NativeImageSourceWin::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
+}
+
 const char* NativeImageSourceWin::GetCustomSamplerTypename() const
 {
   return nullptr;

@@ -308,6 +308,11 @@ const char* NativeImageSourceAndroid::GetCustomFragmentPrefix() const
   return nullptr;
 }
 
+bool NativeImageSourceAndroid::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
+}
+
 const char* NativeImageSourceAndroid::GetCustomSamplerTypename() const
 {
   return nullptr;

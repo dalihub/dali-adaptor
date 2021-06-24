@@ -38,7 +38,8 @@ namespace Adaptor
 {
 namespace
 {
-const char* SAMPLER_TYPE = "samplerExternalOES";
+const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
+const char* SAMPLER_TYPE    = "samplerExternalOES";
 
 // clang-format off
 tbm_format FORMATS_BLENDING_REQUIRED[] = {
@@ -74,8 +75,7 @@ NativeImageSourceTizen* NativeImageSourceTizen::New(uint32_t width, uint32_t hei
 }
 
 NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
-: mCustomFragmentPrefix(),
-  mWidth(width),
+: mWidth(width),
   mHeight(height),
   mOwnTbmSurface(false),
   mTbmSurface(NULL),
@@ -93,8 +93,6 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
 
   GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics                = static_cast<EglGraphics*>(graphics);
-
-  mCustomFragmentPrefix = mEglGraphics->GetEglImageExtensionString();
 
   mTbmSurface = GetSurfaceFromAny(nativeImageSource);
 
@@ -464,7 +462,12 @@ void NativeImageSourceTizen::PrepareTexture()
 
 const char* NativeImageSourceTizen::GetCustomFragmentPrefix() const
 {
-  return mCustomFragmentPrefix;
+  return FRAGMENT_PREFIX;
+}
+
+bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader)
+{
+  return mEglGraphics->ApplyNativeFragmentShader(shader, SAMPLER_TYPE);
 }
 
 const char* NativeImageSourceTizen::GetCustomSamplerTypename() const

@@ -25,6 +25,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <cstdlib>
+#include <cstring>
 #include <memory>
 
 // INTERNAL INCLUDES
@@ -42,7 +43,10 @@ namespace
 {
 static constexpr int32_t     INITIAL_GLES_VERSION                         = 30;
 static constexpr int32_t     GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
+static constexpr const char* LEGACY_SHADING_LANGUAGE_VERSION              = "100";
 static constexpr const char* KHR_BLEND_EQUATION_ADVANCED                  = "GL_KHR_blend_equation_advanced";
+
+static constexpr const char* DEFAULT_SAMPLER_TYPE = "sampler2D";
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#extension GL_KHR_blend_equation_advanced : enable\n"
@@ -357,21 +361,52 @@ public:
     return mShadingLanguageVersion;
   }
 
-  const char* GetEglImageExtensionString()
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
   {
-    ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
-    if(!mIsContextCreated)
+    bool        modified        = false;
+    std::string versionString   = "#version";
+    size_t      versionPosition = shader.find(versionString);
+    if(versionPosition != std::string::npos)
     {
-      mContextCreatedWaitCondition.Wait(lock);
-    }
-    if(mShadingLanguageVersion < 300)
-    {
-      return OES_EGL_IMAGE_EXTERNAL_STRING;
+      std::string extensionString;
+      size_t shadingLanguageVersionPosition = shader.find_first_not_of(" \t", versionPosition + versionString.length());
+      if(shadingLanguageVersionPosition != std::string::npos &&
+         shader.substr(shadingLanguageVersionPosition, 3) == LEGACY_SHADING_LANGUAGE_VERSION)
+      {
+        extensionString = OES_EGL_IMAGE_EXTERNAL_STRING;
+      }
+      else
+      {
+        extensionString = OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3;
+      }
+
+      if(shader.find(extensionString) == std::string::npos)
+      {
+        modified                 = true;
+        size_t extensionPosition = shader.find_first_of("\n", versionPosition) + 1;
+        shader.insert(extensionPosition, extensionString);
+      }
     }
     else
     {
-      return OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3;
+      if(shader.find(OES_EGL_IMAGE_EXTERNAL_STRING) == std::string::npos)
+      {
+        modified = true;
+        shader   = OES_EGL_IMAGE_EXTERNAL_STRING + shader;
+      }
     }
+
+    if(shader.find(customSamplerType) == std::string::npos)
+    {
+      size_t pos = shader.find(DEFAULT_SAMPLER_TYPE);
+      if(pos != std::string::npos)
+      {
+        modified = true;
+        shader.replace(pos, strlen(DEFAULT_SAMPLER_TYPE), customSamplerType);
+      }
+    }
+
+    return modified;
   }
 
   /* OpenGL ES 2.0 */

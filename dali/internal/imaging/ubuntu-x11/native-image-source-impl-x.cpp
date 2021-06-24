@@ -362,6 +362,11 @@ const char* NativeImageSourceX::GetCustomFragmentPrefix() const
   return nullptr;
 }
 
+bool NativeImageSourceX::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
+}
+
 const char* NativeImageSourceX::GetCustomSamplerTypename() const
 {
   return nullptr;

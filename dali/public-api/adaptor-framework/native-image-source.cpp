@@ -110,6 +110,11 @@ const char* NativeImageSource::GetCustomFragmentPrefix() const
   return mImpl->GetCustomFragmentPrefix();
 }
 
+bool NativeImageSource::ApplyNativeFragmentShader(std::string& shader)
+{
+  return mImpl->ApplyNativeFragmentShader(shader);
+}
+
 const char* NativeImageSource::GetCustomSamplerTypename() const
 {
   return mImpl->GetCustomSamplerTypename();
