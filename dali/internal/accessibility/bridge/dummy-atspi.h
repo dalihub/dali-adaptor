@@ -102,6 +102,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void EmitMovedOutOfScreen(Accessibility::Accessible* obj, MovedOutOfScreenType type) override
+  {
+  }
+
   void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int newValue, int reserved) override
   {
   }

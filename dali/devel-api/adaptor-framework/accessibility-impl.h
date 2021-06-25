@@ -218,6 +218,14 @@ struct DALI_ADAPTOR_API Bridge
   virtual void EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content) = 0;
 
   /**
+   * @brief Emits MoveOuted event on at-spi bus.
+   *
+   * @param[in] obj Accessible object
+   * @param[in] type Direction type when an Accessible object moves out of screen
+   **/
+  virtual void EmitMovedOutOfScreen(Accessible* obj, MovedOutOfScreenType type) = 0;
+
+  /**
    * @brief Emits state-changed event on at-spi bus.
    *
    * @param[in] obj The accessible object
@@ -532,6 +540,13 @@ public:
    * @param[in] cursorPosition The new cursor position
    */
   void EmitTextCursorMoved(unsigned int cursorPosition);
+
+  /**
+   * @brief Emits "MoveOuted" event.
+   *
+   * @param[in] type moved out of screen type
+   */
+  void EmitMovedOutOfScreen(MovedOutOfScreenType type);
 
   /**
    * @brief Emits "highlighted" event.
