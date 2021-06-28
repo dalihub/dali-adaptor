@@ -34,6 +34,12 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
+namespace
+{
+const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
+const char* SAMPLER_TYPE    = "samplerExternalOES";
+} // namespace
+
 namespace Dali
 {
 namespace Internal
