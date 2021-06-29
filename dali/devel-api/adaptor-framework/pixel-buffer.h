@@ -2,7 +2,7 @@
 #define DALI_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -243,6 +243,13 @@ public:
    * @return true if alpha is pre-multiplied.
    */
   bool IsAlphaPreMultiplied() const;
+
+  /**
+   * @brief Get the brightness of the pixel buffer.
+   * @note The range is 255 to 0. The closer to 255, the brighter. 0 is not bright.
+   * @return brightness of the pixel buffer.
+   */
+  uint32_t GetBrightness() const;
 
 public:
   /**

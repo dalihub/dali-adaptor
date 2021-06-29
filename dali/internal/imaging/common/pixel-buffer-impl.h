@@ -227,6 +227,11 @@ public:
    */
   bool IsAlphaPreMultiplied() const;
 
+  /**
+   * @copydoc Devel::PixelBuffer::GetBrightness()
+   */
+  uint32_t GetBrightness() const;
+
 private:
   /*
    * Undefined copy constructor.
