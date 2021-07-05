@@ -505,6 +505,11 @@ bool WindowRenderSurface::PreRender( bool resizingSurface, const std::vector<Rec
     mDefaultScreenRotationAvailable = false;
   }
 
+  if(!mRotationFinished)
+  {
+    SetFullSwapNextFrame();
+  }
+
   SetBufferDamagedRects( damagedRects, clippingRect );
 
   return true;
