@@ -127,7 +127,7 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mWindowBase(),
   mThreadSynchronization(nullptr),
   mRenderNotification(nullptr),
-  mRotationTrigger(nullptr),
+  mPostRenderTrigger(),
   mFrameRenderedTrigger(),
   mGraphics(nullptr),
   mEGLSurface(nullptr),
@@ -145,7 +145,8 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mWindowRotationFinished(true),
   mScreenRotationFinished(true),
   mResizeFinished(true),
-  mDefaultScreenRotationAvailable(false)
+  mDefaultScreenRotationAvailable(false),
+  mIsImeWindowSurface(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -153,10 +154,6 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
 
 WindowRenderSurface::~WindowRenderSurface()
 {
-  if(mRotationTrigger)
-  {
-    delete mRotationTrigger;
-  }
 }
 
 void WindowRenderSurface::Initialize(Any surface)
@@ -215,9 +212,10 @@ void WindowRenderSurface::SetTransparency(bool transparent)
 
 void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 {
-  if(!mRotationTrigger)
+  if(!mPostRenderTrigger)
   {
-    mRotationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessRotationRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
+    mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
+                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
   mPositionSize.width  = width;
@@ -225,6 +223,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 
   mWindowRotationAngle    = angle;
   mWindowRotationFinished = false;
+  mResizeFinished = false;
 
   mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
 
@@ -544,7 +543,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
       mWindowBase->ResizeEglWindow(positionSize);
       mResizeFinished = true;
 
-      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize\n");
+      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize, x: %d, y: %d, w: %d, h:%d\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height);
     }
 
     SetFullSwapNextFrame();
@@ -573,25 +572,23 @@ void WindowRenderSurface::PostRender()
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if(mIsResizing)
+    if((mIsResizing && !mWindowRotationFinished) || mIsImeWindowSurface)
     {
-      if(!mWindowRotationFinished)
+      if(mThreadSynchronization)
       {
-        if(mThreadSynchronization)
-        {
-          // Enable PostRender flag
-          mThreadSynchronization->PostRenderStarted();
-        }
+        // Enable PostRender flag
+        mThreadSynchronization->PostRenderStarted();
+      }
 
-        DALI_LOG_RELEASE_INFO("WindowRenderSurface::PostRender: Trigger rotation event\n");
+      if(!mWindowRotationFinished || mIsImeWindowSurface)
+      {
+        mPostRenderTrigger->Trigger();
+      }
 
-        mRotationTrigger->Trigger();
-
-        if(mThreadSynchronization)
-        {
-          // Wait until the event-thread complete the rotation event processing
-          mThreadSynchronization->PostRenderWaitForCompletion();
-        }
+      if(mThreadSynchronization)
+      {
+        // Wait until the event-thread complete the rotation event processing
+        mThreadSynchronization->PostRenderWaitForCompletion();
       }
     }
 
@@ -643,6 +640,16 @@ Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequire
   return mGraphics ? mGraphics->GetStencilBufferRequired() : Integration::StencilBufferAvailable::FALSE;
 }
 
+void WindowRenderSurface::InitializeImeSurface()
+{
+  mIsImeWindowSurface = true;
+  if(!mPostRenderTrigger)
+  {
+    mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
+                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+  }
+}
+
 void WindowRenderSurface::OutputTransformed()
 {
   int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
@@ -663,13 +670,19 @@ void WindowRenderSurface::OutputTransformed()
   }
 }
 
-void WindowRenderSurface::ProcessRotationRequest()
+void WindowRenderSurface::ProcessPostRender()
 {
-  mWindowRotationFinished = true;
+  if(!mWindowRotationFinished)
+  {
+    mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done\n");
+    mWindowRotationFinished = true;
+  }
 
-  mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
-
-  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::ProcessRotationRequest: Rotation Done\n");
+  if(mIsImeWindowSurface)
+  {
+    mWindowBase->ImeWindowReadyToRender();
+  }
 
   if(mThreadSynchronization)
   {

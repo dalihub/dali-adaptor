@@ -63,9 +63,10 @@ ApplicationPtr Application::New(
   const std::string&             stylesheet,
   Dali::Application::WINDOW_MODE windowMode,
   const PositionSize&            positionSize,
-  Framework::Type                applicationType)
+  Framework::Type                applicationType,
+  WindowType                     type)
 {
-  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType));
+  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type));
   return application;
 }
 
@@ -75,13 +76,13 @@ void Application::PreInitialize(int* argc, char** argv[])
   {
     Dali::TextAbstraction::FontClientPreInitialize();
 
-    gPreInitializedApplication = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL);
+    gPreInitializedApplication = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL);
     gPreInitializedApplication->CreateWindow(); // Only create window
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
   }
 }
 
-Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType)
+Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type)
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -102,6 +103,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mEnvironmentOptions(),
   mWindowPositionSize(positionSize),
   mLaunchpadState(Launchpad::NONE),
+  mDefaultWindowType(type),
   mSlotDelegate(this)
 {
   // Get mName from environment options
@@ -190,7 +192,7 @@ void Application::CreateWindow()
 
   const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
 
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mMainWindowMode == Dali::Application::TRANSPARENT);
+  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
   mMainWindow                       = Dali::Window(window);
 
   // Quit the application when the window is closed
@@ -443,6 +445,12 @@ void Application::SetCommandLineOptions(int* argc, char** argv[])
   mCommandLineOptions = new CommandLineOptions(argc, argv);
 
   mFramework->SetCommandLineOptions(argc, argv);
+}
+
+void Application::SetDefaultWindowType(WindowType type)
+{
+  mDefaultWindowType = type;
+  mMainWindow.SetType(type);
 }
 
 ApplicationPtr Application::GetPreInitializedApplication()

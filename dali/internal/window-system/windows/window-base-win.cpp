@@ -372,6 +372,11 @@ void WindowBaseWin::SetType(Dali::WindowType type)
 {
 }
 
+Dali::WindowType WindowBaseWin::GetType() const
+{
+  return Dali::WindowType::NORMAL;
+}
+
 Dali::WindowOperationResult WindowBaseWin::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   return Dali::WindowOperationResult::NOT_SUPPORTED;
@@ -575,6 +580,35 @@ int WindowBaseWin::CreateFrameRenderedSyncFence()
 int WindowBaseWin::CreateFramePresentedSyncFence()
 {
   return -1;
+}
+
+void WindowBaseWin::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+}
+
+void WindowBaseWin::InitializeIme()
+{
+}
+
+void WindowBaseWin::ImeWindowReadyToRender()
+{
+}
+
+void WindowBaseWin::RequestMoveToServer()
+{
+}
+
+void WindowBaseWin::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseWin::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseWin::IsFloatingModeEnabled() const
+{
+  return false;
 }
 
 } // namespace Adaptor

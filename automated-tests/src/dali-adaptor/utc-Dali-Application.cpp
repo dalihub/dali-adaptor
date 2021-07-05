@@ -132,6 +132,21 @@ int UtcDaliApplicationNew04(void)
   END_TEST;
 }
 
+int UtcDaliApplicationNew05(void)
+{
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
+
+  Application application = DevelApplication::New(&argc, &argv, "stylesheet", Application::WINDOW_MODE::OPAQUE, PositionSize(), WindowType::IME);
+
+  MyTestApp testApp(application);
+
+  DALI_TEST_CHECK(application);
+
+  END_TEST;
+}
+
 int UtcDaliApplicationCopyAndAssignment(void)
 {
   Application application = Application::New();

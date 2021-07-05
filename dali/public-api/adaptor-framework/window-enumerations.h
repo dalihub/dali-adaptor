@@ -38,6 +38,13 @@ enum class WindowOrientation
 
 /**
  * @brief An enum of Window types.
+ * Window type has effect of DALi window's behavior, window's stack and extra functions.
+ * The default window type is NORMAL. If application does not set the specific window type, this type will be set.
+ *
+ * Ime window type is special type. It can only set by one Application::New function.
+ * The fuction is "New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type)".
+ * Ime window type can not set by Window::SetType().
+ *
  * @SINCE_2_0.0
  */
 enum class WindowType
@@ -45,7 +52,8 @@ enum class WindowType
   NORMAL,       ///< A default window type. Indicates a normal, top-level window. Almost every window will be created with this type. @SINCE_2_0.0
   NOTIFICATION, ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_2_0.0
   UTILITY,      ///< A persistent utility window, like a toolbox or palette. @SINCE_2_0.0
-  DIALOG        ///< Used for simple dialog windows. @SINCE_2_0.0
+  DIALOG,       ///< Used for simple dialog window. @SINCE_2_0.0
+  IME           ///< Used for Ime keyboard window. It should be set in application New function. @SINCE_2_0.33
 };
 
 /**
@@ -103,6 +111,21 @@ enum class WindowOperationResult
   PERMISSION_DENIED, ///< Permission denied.
   NOT_SUPPORTED,     ///< The operation is not supported.
   INVALID_OPERATION, ///< The operation is invalid. (e.g. Try to operate to the wrong window)
+};
+
+/**
+ * @brief Enumeration of direction for window resized by display server.
+ */
+enum class WindowResizeDirection
+{
+  TOP_LEFT      = 1, ///< Start resizing window to the top-left edge.
+  TOP           = 2, ///< Start resizing window to the top side.
+  TOP_RIGHT     = 3, ///< Start resizing window to the top-right edge.
+  LEFT          = 4, ///< Start resizing window to the left side.
+  RIGHT         = 5, ///< Start resizing window to the right side.
+  BOTTOM_LEFT   = 6, ///< Start resizing window to the bottom-left edge.
+  BOTTOM        = 7, ///< Start resizing window to the bottom side.
+  BOTTOM_RIGHT  = 8  ///< Start resizing window to the bottom-right edge.
 };
 
 } // namespace Dali

@@ -250,6 +250,11 @@ public:
   virtual void SetType(Dali::WindowType type) = 0;
 
   /**
+   * @copydoc Dali::Window::GetType()
+   */
+  virtual Dali::WindowType GetType() const = 0;
+
+  /**
    * @copydoc Dali::Window::SetNotificationLevel()
    */
   virtual Dali::WindowOperationResult SetNotificationLevel(Dali::WindowNotificationLevel level) = 0;
@@ -333,6 +338,36 @@ public:
   virtual void WindowRotationCompleted(int degree, int width, int height) = 0;
 
   /**
+   * @brief starts the window is moved by display server
+   */
+  virtual void RequestMoveToServer() = 0;
+
+  /**
+   * @brief starts the window is resized by display server
+   *
+   * @param[in] direction It is direction of the started edge/side.
+   */
+  virtual void RequestResizeToServer(WindowResizeDirection direction) = 0;
+
+  /**
+   * @brief Enables the floating mode of window.
+   *
+   * The floating mode is to support making partial size window easliy.
+   * It is useful to make popup style window
+   * and this window is always upper than the other normal window.
+   *
+   * A special display server(as a Tizen display server) supports this mode.
+   *
+   * @param[in] enable Enable floating mode or not.
+   */
+  virtual void EnableFloatingMode(bool enable) = 0;
+
+  /**
+   * @brief Gets whether floating mode is enabled or not.
+   */
+  virtual bool IsFloatingModeEnabled() const = 0;
+
+  /**
    * @copydoc Dali::Window::SetTransparency()
    */
   virtual void SetTransparency(bool transparent) = 0;
@@ -353,6 +388,23 @@ public:
    * @return The file descriptor that tells when it is presented.
    */
   virtual int CreateFramePresentedSyncFence() = 0;
+
+  /**
+   * @copydoc Dali::Window::SetPositionSizeWithAngle()
+   */
+  virtual void SetPositionSizeWithAngle(PositionSize positionSize, int angle) = 0;
+
+  /**
+   * @brief Initialize for Ime window.
+   * It should be called when the window is only used for Ime keyboard window.
+   */
+  virtual void InitializeIme() = 0;
+
+  /**
+   * @brief Send the signal to display server for Ime Window is ready to render.
+   * It is used for compositing by display server.
+   */
+  virtual void ImeWindowReadyToRender() = 0;
 
   // Signals
 

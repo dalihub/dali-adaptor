@@ -535,6 +535,11 @@ void WindowBaseCocoa::SetType( Dali::WindowType type )
 {
 }
 
+Dali::WindowType WindowBaseCocoa::GetType() const
+{
+  return Dali::WindowType::NORMAL;
+}
+
 WindowOperationResult WindowBaseCocoa::SetNotificationLevel( WindowNotificationLevel level )
 {
   return WindowOperationResult::NOT_SUPPORTED;
@@ -644,6 +649,35 @@ int WindowBaseCocoa::CreateFrameRenderedSyncFence()
 int WindowBaseCocoa::CreateFramePresentedSyncFence()
 {
   return -1;
+}
+
+void WindowBaseCocoa::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+}
+
+void WindowBaseCocoa::InitializeIme()
+{
+}
+
+void WindowBaseCocoa::ImeWindowReadyToRender()
+{
+}
+
+void WindowBaseCocoa::RequestMoveToServer()
+{
+}
+
+void WindowBaseCocoa::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseCocoa::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseCocoa::IsFloatingModeEnabled() const
+{
+  return false;
 }
 
 } // namespace Dali::Internal::Adaptor

@@ -26,6 +26,22 @@ namespace Dali
 namespace DevelApplication
 {
 /**
+   * @brief This is the constructor for applications.
+   * Especially, it is for keyboard application.
+   * If you want to create Ime window, use this API with WindowType::IME.
+   *
+   * @param[in,out]  argc                A pointer to the number of arguments
+   * @param[in,out]  argv                A pointer to the argument list
+   * @param[in]      stylesheet          The path to user defined theme file
+   * @param[in]      windowMode          A member of WINDOW_MODE
+   * @param[in]      positionSize        A position and a size of the window
+   * @param[in]      type                It is window type for default window.
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
+   */
+DALI_ADAPTOR_API Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, WindowType type);
+
+/**
  * @brief Ensures that the function passed in is called from the main loop when it is idle.
  * @param[in] application A handle to the Application
  * @param[in] callback The function to call

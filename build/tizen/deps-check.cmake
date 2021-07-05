@@ -127,7 +127,7 @@ ENDIF()
 
 IF( enable_wayland )
   IF( enable_ecore_wayland2 )
-    PKG_CHECK_MODULES(WAYLAND ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 xkbcommon libtbm )
+    PKG_CHECK_MODULES(WAYLAND ecore-wl2 egl wayland-egl wayland-egl-tizen wayland-client>=1.2.0 input-method-client xkbcommon libtbm )
   ELSE()
     PKG_CHECK_MODULES(WAYLAND ecore-wayland egl wayland-egl wayland-client>=1.2.0 xkbcommon libtbm)
   ENDIF()

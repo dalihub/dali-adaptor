@@ -723,8 +723,6 @@ struct Framework::Impl
 #ifdef COMPONENT_APPLICATION_SUPPORT
   int AppComponentMain()
   {
-    int ret;
-
     /*Crate component_based_app_base_lifecycle_callback*/
     component_based_app_base_lifecycle_callback_s callback;
     callback.init      = AppInit;

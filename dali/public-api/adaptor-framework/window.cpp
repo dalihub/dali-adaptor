@@ -48,7 +48,7 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
 
   if(isNewWindowAllowed)
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, isTransparent);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, WindowType::NORMAL, isTransparent);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 

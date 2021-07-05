@@ -250,6 +250,11 @@ void WindowBaseAndroid::SetType(Dali::WindowType type)
 {
 }
 
+Dali::WindowType WindowBaseAndroid::GetType() const
+{
+  return Dali::WindowType::NORMAL;
+}
+
 Dali::WindowOperationResult WindowBaseAndroid::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
   return Dali::WindowOperationResult::NOT_SUPPORTED;
@@ -353,6 +358,35 @@ int WindowBaseAndroid::CreateFramePresentedSyncFence()
 int WindowBaseAndroid::GetOrientation() const
 {
   return 0;
+}
+
+void WindowBaseAndroid::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
+{
+}
+
+void WindowBaseAndroid::InitializeIme()
+{
+}
+
+void WindowBaseAndroid::ImeWindowReadyToRender()
+{
+}
+
+void WindowBaseAndroid::RequestMoveToServer()
+{
+}
+
+void WindowBaseAndroid::RequestResizeToServer(WindowResizeDirection direction)
+{
+}
+
+void WindowBaseAndroid::EnableFloatingMode(bool enable)
+{
+}
+
+bool WindowBaseAndroid::IsFloatingModeEnabled() const
+{
+  return false;
 }
 
 } // namespace Adaptor

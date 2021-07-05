@@ -19,6 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 
 // EXTERNAL INCLUDES
+#include <algorithm>
 #include <iostream>
 
 //comment out 2 lines below to get more logs
@@ -28,6 +29,72 @@
 using namespace Dali::Accessibility;
 
 #define GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH 10000
+
+namespace {
+
+bool SortVertically(Component* lhs, Component* rhs)
+{
+  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+
+  return leftRect.y < rightRect.y;
+}
+
+bool SortHorizontally(Component* lhs, Component* rhs)
+{
+  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+
+  return leftRect.x < rightRect.x;
+}
+
+std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& children)
+{
+  // Find first with non-zero area
+  auto first = std::find_if(children.begin(), children.end(), [](Component* component) -> bool {
+    auto extents = component->GetExtents(CoordType::WINDOW);
+    return extents.height != 0.0f && extents.width != 0.0f;
+  });
+
+  if(first == children.end())
+  {
+    return {};
+  }
+
+  std::vector<std::vector<Component*>> lines(1);
+  Dali::Rect<> lineRect = (*first)->GetExtents(CoordType::WINDOW);
+  Dali::Rect<> rect;
+
+  // Split into lines
+  for(auto it = first; it != children.end(); ++it)
+  {
+    auto child = *it;
+
+    rect = child->GetExtents(CoordType::WINDOW);
+    if(rect.height == 0.0f || rect.width == 0.0f)
+    {
+      // Zero area, ignore
+      continue;
+    }
+
+    if(lineRect.y + (0.25 * lineRect.height) >= rect.y)
+    {
+      // Same line
+      lines.back().push_back(child);
+    }
+    else
+    {
+      // Start a new line
+      lineRect = rect;
+      lines.emplace_back();
+      lines.back().push_back(child);
+    }
+  }
+
+  return lines;
+}
+
+} // anonymous namespace
 
 BridgeAccessible::BridgeAccessible()
 {
@@ -56,46 +123,6 @@ void BridgeAccessible::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetReadingMaterial", &BridgeAccessible::GetReadingMaterial);
   AddFunctionToInterface(desc, "GetRelationSet", &BridgeAccessible::GetRelationSet);
   dbusServer.addInterface("/", desc, true);
-}
-
-static bool AcceptObjectCheckRole(Component* obj)
-{
-  if(!obj)
-    return false;
-  switch(obj->GetRole())
-  {
-    case Role::APPLICATION:
-    case Role::FILLER:
-    case Role::SCROLL_PANE:
-    case Role::SPLIT_PANE:
-    case Role::WINDOW:
-    case Role::IMAGE:
-    case Role::IMAGE_MAP:
-    case Role::LIST:
-    case Role::ICON:
-    case Role::TOOL_BAR:
-    case Role::REDUNDANT_OBJECT:
-    case Role::COLOR_CHOOSER:
-    case Role::TREE_TABLE:
-    case Role::PAGE_TAB_LIST:
-    case Role::PAGE_TAB:
-    case Role::SPIN_BUTTON:
-    case Role::INPUT_METHOD_WINDOW:
-    case Role::EMBEDDED:
-    case Role::INVALID:
-    case Role::NOTIFICATION:
-    case Role::DATE_EDITOR:
-    case Role::TABLE:
-    {
-      return false;
-    }
-    default:
-    {
-      break;
-    }
-  }
-
-  return true;
 }
 
 static bool AcceptObjectCheckRelations(Component* obj)
@@ -151,8 +178,6 @@ static bool AcceptObject(Component* obj)
     return false;
   const auto states = obj->GetStates();
   if(!states[State::VISIBLE])
-    return false;
-  if(!AcceptObjectCheckRole(obj))
     return false;
   if(!AcceptObjectCheckRelations(obj))
     return false;
@@ -398,7 +423,26 @@ Accessible* BridgeAccessible::GetCurrentlyHighlighted()
 
 std::vector<Accessible*> BridgeAccessible::ValidChildrenGet(const std::vector<Accessible*>& children, Accessible* start, Accessible* root)
 {
-  return children;
+  std::vector<Component*> vec;
+  std::vector<Accessible*> ret;
+
+  for(auto child : children)
+  {
+    if(auto* component = dynamic_cast<Component*>(child); component)
+    {
+      vec.push_back(component);
+    }
+  }
+
+  std::sort(vec.begin(), vec.end(), &SortVertically);
+
+  for(auto& line : SplitLines(vec))
+  {
+    std::sort(line.begin(), line.end(), &SortHorizontally);
+    ret.insert(ret.end(), line.begin(), line.end());
+  }
+
+  return ret;
 }
 
 static bool DeputyIs(Accessible* obj)
