@@ -88,7 +88,8 @@ public:
 
 public:
   /**
-   * @brief Draw inner canvas the contexts added to the CanvasRenderer.
+   * @brief Prepare for drawing drawables added to CanvasRenderer on inner canvas.
+   * @return Returns True when it's successful. False otherwise.
    */
   bool Commit();
 
@@ -106,6 +107,18 @@ public:
    * @return Returns the pixel buffer.
    */
   Devel::PixelBuffer GetPixelBuffer();
+
+  /**
+   * @brief Draw drawables added to CanvasRenderer to inner buffer.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool Rasterize();
+
+  /**
+   * @brief Returns whether the drawables added to the Canvas are changed.
+   * @return Returns True when drawables added to the Canvas are changed, False otherwise.
+   */
+  bool IsCanvasChanged() const;
 
   /**
    * @brief This is the size of the buffer in the Canvas.
