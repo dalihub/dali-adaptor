@@ -213,6 +213,44 @@ static bool AcceptObject(Accessible* obj)
   return AcceptObject(c);
 }
 
+static int32_t GetItemCountOfList(Accessible* obj)
+{
+  int32_t itemCount = 0;
+  if(obj && obj->GetRole() == Role::LIST)
+  {
+    for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
+    {
+      auto child = obj->GetChildAtIndex(i);
+      if(child && child->GetRole() == Role::LIST_ITEM)
+      {
+        itemCount++;
+      }
+    }
+  }
+  return itemCount;
+}
+
+static int32_t GetItemCountOfFirstDescendantList(Accessible* obj)
+{
+  int32_t itemCount = 0;
+  itemCount         = GetItemCountOfList(obj);
+  if(itemCount > 0 || !obj)
+  {
+    return itemCount;
+  }
+
+  for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
+  {
+    auto child = obj->GetChildAtIndex(i);
+    itemCount  = GetItemCountOfFirstDescendantList(child);
+    if(itemCount > 0)
+    {
+      return itemCount;
+    }
+  }
+  return itemCount;
+}
+
 static std::string objDump(Component* obj)
 {
   if(!obj)
@@ -284,69 +322,100 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
 
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
-  auto        self          = FindSelf();
-  auto        attributes    = self->GetAttributes();
-  auto        name          = self->GetName();
-  std::string labeledByName = "";
-  std::string textIfceName  = "";
-  auto        role          = static_cast<uint32_t>(self->GetRole());
-  auto        states        = self->GetStates();
-  auto        localizedName = self->GetLocalizedRoleName();
-  auto        childCount    = static_cast<int32_t>(self->GetChildCount());
+  auto self                     = FindSelf();
+  auto findObjectByRelationType = [this, &self](RelationType relationType) {
+    auto relations = self->GetRelationSet();
+    auto relation  = std::find_if(relations.begin(),
+                                 relations.end(),
+                                 [relationType](const Dali::Accessibility::Relation& relation) -> bool {
+                                   return relation.relationType == relationType;
+                                 });
+    return relations.end() != relation && !relation->targets.empty() ? Find(relation->targets.back()) : nullptr;
+  };
+
+  auto        labellingObject = findObjectByRelationType(RelationType::LABELLED_BY);
+  std::string labeledByName   = labellingObject ? labellingObject->GetName() : "";
+
+  auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
 
   double currentValue     = 0.0;
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
   double minimumValue     = 0.0;
-
-  auto* value = dynamic_cast<Dali::Accessibility::Value*>(self);
-  if(value)
+  auto*  valueInterface   = dynamic_cast<Dali::Accessibility::Value*>(self);
+  if(valueInterface)
   {
-    currentValue     = value->GetCurrent();
-    minimumIncrement = value->GetMinimumIncrement();
-    maximumValue     = value->GetMaximum();
-    minimumValue     = value->GetMinimum();
+    currentValue     = valueInterface->GetCurrent();
+    minimumIncrement = valueInterface->GetMinimumIncrement();
+    maximumValue     = valueInterface->GetMaximum();
+    minimumValue     = valueInterface->GetMinimum();
   }
 
-  auto    description             = self->GetDescription();
-  auto    indexInParent           = static_cast<int32_t>(self->GetIndexInParent());
-  bool    isSelectedInParent      = false;
-  bool    hasCheckBoxChild        = false;
   int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount      = 0;
-
-  for(auto i = 0u; i < static_cast<size_t>(childCount); ++i)
+  auto*   selfSelectionInterface  = dynamic_cast<Dali::Accessibility::Selection*>(self);
+  if(selfSelectionInterface)
   {
-    auto q = self->GetChildAtIndex(i);
-    auto s = q->GetStates();
-    if(s[State::SELECTABLE])
+    selectedChildCount      = selfSelectionInterface->GetSelectedChildrenCount();
+    auto firstSelectedChild = selfSelectionInterface->GetSelectedChild(0);
+    if(firstSelectedChild)
     {
-      if(s[State::SELECTED])
-      {
-        ++selectedChildCount;
-        if(firstSelectedChildIndex < 0)
-          firstSelectedChildIndex = static_cast<int32_t>(i);
-      }
+      firstSelectedChildIndex = firstSelectedChild->GetIndexInParent();
     }
-    if(q->GetRole() == Role::CHECK_BOX)
-      hasCheckBoxChild = true;
   }
 
-  int32_t     listChildrenCount = 0;
-  Accessible* parent            = self->GetParent();
-  auto        parentStateSet    = parent ? parent->GetStates() : States{};
-  auto        parentChildCount  = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
-  auto        parentRole        = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
-  Accessible* describedByObject = nullptr;
+  auto childCount       = static_cast<int32_t>(self->GetChildCount());
+  bool hasCheckBoxChild = false;
+  for(auto i = 0u; i < static_cast<size_t>(childCount); ++i)
+  {
+    auto child = self->GetChildAtIndex(i);
+    if(child->GetRole() == Role::CHECK_BOX)
+    {
+      hasCheckBoxChild = true;
+      break;
+    }
+  }
+
+  auto    role              = static_cast<uint32_t>(self->GetRole());
+  int32_t listChildrenCount = 0;
+  if(role == static_cast<uint32_t>(Role::DIALOG))
+  {
+    listChildrenCount = GetItemCountOfFirstDescendantList(self);
+  }
+
+  auto*       textInterface         = dynamic_cast<Dali::Accessibility::Text*>(self);
+  std::string nameFromTextInterface = "";
+  if(textInterface)
+  {
+    nameFromTextInterface = textInterface->GetText(0, textInterface->GetCharacterCount());
+  }
+
+  auto description       = self->GetDescription();
+  auto attributes        = self->GetAttributes();
+  auto states            = self->GetStates();
+  auto name              = self->GetName();
+  auto localizedRoleName = self->GetLocalizedRoleName();
+  auto indexInParent     = static_cast<int32_t>(self->GetIndexInParent());
+
+  auto  parent                   = self->GetParent();
+  auto  parentRole               = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
+  auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
+  auto  parentStateSet           = parent ? parent->GetStates() : States{};
+  bool  isSelectedInParent       = false;
+  auto* parentSelectionInterface = dynamic_cast<Dali::Accessibility::Selection*>(parent);
+  if(parentSelectionInterface)
+  {
+    isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
+  }
 
   return {
     attributes,
     name,
     labeledByName,
-    textIfceName,
+    nameFromTextInterface,
     role,
     states,
-    localizedName,
+    localizedRoleName,
     childCount,
     currentValue,
     minimumIncrement,
