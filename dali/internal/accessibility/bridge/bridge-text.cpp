@@ -25,26 +25,32 @@ using namespace Dali::Accessibility;
 
 void BridgeText::RegisterInterfaces()
 {
+  // The second arguments below are the names (or signatures) of DBus methods.
+  // Screen Reader will call the methods with the exact names as specified in the AT-SPI Text interface:
+  // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Text.xml
+
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceText};
   AddFunctionToInterface(desc, "GetText", &BridgeText::GetText);
   AddGetPropertyToInterface(desc, "CharacterCount", &BridgeText::GetCharacterCount);
-  AddGetPropertyToInterface(desc, "CaretOffset", &BridgeText::GetCaretOffset);
-  AddFunctionToInterface(desc, "SetCaretOffset", &BridgeText::SetCaretOffset);
+  AddGetPropertyToInterface(desc, "CaretOffset", &BridgeText::GetCursorOffset);
+  AddFunctionToInterface(desc, "SetCaretOffset", &BridgeText::SetCursorOffset);
   AddFunctionToInterface(desc, "GetTextAtOffset", &BridgeText::GetTextAtOffset);
-  AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetSelection);
-  AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetSelection);
+  AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetRangeOfSelection);
+  AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetRangeOfSelection);
   AddFunctionToInterface(desc, "RemoveSelection", &BridgeText::RemoveSelection);
   dbusServer.addInterface("/", desc, true);
 }
 
 Text* BridgeText::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<Text*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Text interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto textObject = dynamic_cast<Text*>(self);
+  if(!textObject)
+  {
+    throw std::domain_error{"object " + textObject->GetAddress().ToString() + " doesn't have Text interface"};
+  }
+  return textObject;
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)
@@ -57,26 +63,26 @@ DBus::ValueOrError<int32_t> BridgeText::GetCharacterCount()
   return FindSelf()->GetCharacterCount();
 }
 
-DBus::ValueOrError<int32_t> BridgeText::GetCaretOffset()
+DBus::ValueOrError<int32_t> BridgeText::GetCursorOffset()
 {
-  return FindSelf()->GetCaretOffset();
+  return FindSelf()->GetCursorOffset();
 }
 
-DBus::ValueOrError<bool> BridgeText::SetCaretOffset(int32_t offset)
+DBus::ValueOrError<bool> BridgeText::SetCursorOffset(int32_t offset)
 {
-  return FindSelf()->SetCaretOffset(offset);
+  return FindSelf()->SetCursorOffset(offset);
 }
 
 DBus::ValueOrError<std::string, int, int> BridgeText::GetTextAtOffset(int32_t offset, uint32_t boundary)
 {
-  auto r = FindSelf()->GetTextAtOffset(offset, static_cast<TextBoundary>(boundary));
-  return {r.content, static_cast<int>(r.startOffset), static_cast<int>(r.endOffset)};
+  auto range = FindSelf()->GetTextAtOffset(offset, static_cast<TextBoundary>(boundary));
+  return {range.content, static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
-DBus::ValueOrError<int, int> BridgeText::GetSelection(int32_t selectionNum)
+DBus::ValueOrError<int, int> BridgeText::GetRangeOfSelection(int32_t selectionNum)
 {
-  auto r = FindSelf()->GetSelection(selectionNum);
-  return {static_cast<int>(r.startOffset), static_cast<int>(r.endOffset)};
+  auto range = FindSelf()->GetRangeOfSelection(selectionNum);
+  return {static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
 DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionNum)
@@ -84,7 +90,7 @@ DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionNum)
   return FindSelf()->RemoveSelection(selectionNum);
 }
 
-DBus::ValueOrError<bool> BridgeText::SetSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset)
+DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset)
 {
-  return FindSelf()->SetSelection(selectionNum, startOffset, endOffset);
+  return FindSelf()->SetRangeOfSelection(selectionNum, startOffset, endOffset);
 }

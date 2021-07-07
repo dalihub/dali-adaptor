@@ -126,7 +126,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   }
 
   con           = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));
-  data->busName = DBus::getConnectionName(con);
+  mData->mBusName = DBus::getConnectionName(con);
   dbusServer    = {con};
 
   {
@@ -166,7 +166,7 @@ void BridgeBase::ForceDown()
 const std::string& BridgeBase::GetBusName() const
 {
   static std::string empty;
-  return data ? data->busName : empty;
+  return mData ? mData->mBusName : empty;
 }
 
 Accessible* BridgeBase::FindByPath(const std::string& name) const
@@ -181,22 +181,22 @@ Accessible* BridgeBase::FindByPath(const std::string& name) const
   }
 }
 
-void BridgeBase::AddPopup(Accessible* obj)
+void BridgeBase::AddPopup(Accessible* object)
 {
-  if(std::find(popups.begin(), popups.end(), obj) != popups.end())
+  if(std::find(popups.begin(), popups.end(), object) != popups.end())
   {
     return;
   }
-  popups.push_back(obj);
+  popups.push_back(object);
   if(IsUp())
   {
-    obj->Emit(WindowEvent::ACTIVATE, 0);
+    object->Emit(WindowEvent::ACTIVATE, 0);
   }
 }
 
-void BridgeBase::RemovePopup(Accessible* obj)
+void BridgeBase::RemovePopup(Accessible* object)
 {
-  auto it = std::find(popups.begin(), popups.end(), obj);
+  auto it = std::find(popups.begin(), popups.end(), object);
   if(it == popups.end())
   {
     return;
@@ -204,7 +204,7 @@ void BridgeBase::RemovePopup(Accessible* obj)
   popups.erase(it);
   if(IsUp())
   {
-    obj->Emit(WindowEvent::DEACTIVATE, 0);
+    object->Emit(WindowEvent::DEACTIVATE, 0);
     if(popups.empty())
     {
       application.children.back()->Emit(WindowEvent::ACTIVATE, 0);
@@ -246,43 +246,46 @@ Accessible* BridgeBase::Find(const std::string& path) const
   {
     return &application;
   }
-  void*              p;
+
+  void* accessible;
   std::istringstream tmp{path};
-  if(!(tmp >> p))
+  if(!(tmp >> accessible))
   {
     throw std::domain_error{"invalid path '" + path + "'"};
   }
-  auto it = data->knownObjects.find(static_cast<Accessible*>(p));
-  if(it == data->knownObjects.end())
+
+  auto it = mData->mKnownObjects.find(static_cast<Accessible*>(accessible));
+  if(it == mData->mKnownObjects.end())
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }
-  return static_cast<Accessible*>(p);
+
+  return static_cast<Accessible*>(accessible);
 }
 
 Accessible* BridgeBase::Find(const Address& ptr) const
 {
-  assert(ptr.GetBus() == data->busName);
+  assert(ptr.GetBus() == mData->mBusName);
   return Find(ptr.GetPath());
 }
 
 Accessible* BridgeBase::FindSelf() const
 {
-  auto pth  = DBus::DBusServer::getCurrentObjectPath();
+  auto path  = DBus::DBusServer::getCurrentObjectPath();
   auto size = strlen(AtspiPath);
-  if(pth.size() <= size)
+  if(path.size() <= size)
   {
-    throw std::domain_error{"invalid path '" + pth + "'"};
+    throw std::domain_error{"invalid path '" + path + "'"};
   }
-  if(pth.substr(0, size) != AtspiPath)
+  if(path.substr(0, size) != AtspiPath)
   {
-    throw std::domain_error{"invalid path '" + pth + "'"};
+    throw std::domain_error{"invalid path '" + path + "'"};
   }
-  if(pth[size] != '/')
+  if(path[size] != '/')
   {
-    throw std::domain_error{"invalid path '" + pth + "'"};
+    throw std::domain_error{"invalid path '" + path + "'"};
   }
-  return Find(StripPrefix(pth));
+  return Find(StripPrefix(path));
 }
 
 void BridgeBase::IdSet(int id)

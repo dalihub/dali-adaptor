@@ -25,19 +25,19 @@
 
 using namespace Dali::Accessibility;
 
-bool Component::Contains(Point p, CoordType ctype)
+bool Component::IsAccessibleContainedAtPoint(Point point, Dali::Accessibility::CoordinateType type)
 {
-  auto extents = GetExtents(ctype);
-  return p.x >= extents.x && p.y >= extents.y && p.x <= extents.x + extents.width && p.y <= extents.y + extents.height;
+  auto extents = GetExtents(type);
+  return point.x >= extents.x && point.y >= extents.y && point.x <= extents.x + extents.width && point.y <= extents.y + extents.height;
 }
 
-Accessible* Component::GetAccessibleAtPoint(Point p, CoordType ctype)
+Accessible* Component::GetAccessibleAtPoint(Point point, Dali::Accessibility::CoordinateType type)
 {
   auto children = GetChildren();
   for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
   {
     auto component = dynamic_cast<Component*>(*childIt);
-    if(component && component->Contains(p, ctype))
+    if(component && component->IsAccessibleContainedAtPoint(point, type))
     {
       return component;
     }

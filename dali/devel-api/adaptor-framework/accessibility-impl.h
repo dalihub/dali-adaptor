@@ -49,7 +49,7 @@ class DALI_ADAPTOR_API Collection;
 class DALI_ADAPTOR_API Action;
 
 /**
- * @brief Base class for different accessibility bridges
+ * @brief Base class for different accessibility bridges.
  *
  * Bridge is resposible for initializing and managing connection on accessibility bus.
  * Accessibility clients will not get any information about UI without initialized and upraised bridge.
@@ -71,84 +71,94 @@ struct DALI_ADAPTOR_API Bridge
   virtual ~Bridge() = default;
 
   /**
-   * @brief Get bus name which bridge is initialized on
+   * @brief Gets bus name which bridge is initialized on.
    */
   virtual const std::string& GetBusName() const = 0;
 
   /**
-   * @brief Registers top level window
+   * @brief Registers top level window.
    *
    * Hierarchy of objects visible for accessibility clients is based on tree-like
    * structure created from Actors objects. This method allows to connect chosen
    * object as direct ancestor of application and therefore make it visible for
    * accessibility clients.
+   *
+   * @param[in] object The accessible object
    */
-  virtual void AddTopLevelWindow(Accessible*) = 0;
+  virtual void AddTopLevelWindow(Accessible* object) = 0;
 
   /**
-   * @brief Removes top level window
+   * @brief Removes top level window.
    *
    * Hierarchy of objects visible for accessibility clients is based on tree-like
    * structure created from Actors objects. This method removes previously added
    * window from visible accessibility objects.
+   *
+   * @param[in] object The accessible object
    */
-  virtual void RemoveTopLevelWindow(Accessible*) = 0;
+  virtual void RemoveTopLevelWindow(Accessible* object) = 0;
 
   /**
-   * @brief Adds popup window
+   * @brief Adds popup window.
    *
    * Hierarchy of objects visible for accessibility clients is based on tree-like
    * structure created from Actors objects. This method adds new popup to the tree.
+   *
+   * @param[in] object The accessible object
    */
-  virtual void AddPopup(Accessible*) = 0;
+  virtual void AddPopup(Accessible* object) = 0;
 
   /**
-   * @brief Removes popup window
+   * @brief Removes popup window.
    *
    * Hierarchy of objects visible for accessibility clients is based on tree-like
    * structure created from Actors objects. This method removes previously added
    * popup window.
+   *
+   * @param[in] object The accessible object
    */
-  virtual void RemovePopup(Accessible*) = 0;
+  virtual void RemovePopup(Accessible* object) = 0;
 
   /**
-   * @brief Set name of current application which will be visible on accessibility bus
+   * @brief Sets name of current application which will be visible on accessibility bus.
+   *
+   * @param[in] name The application name
    */
-  virtual void SetApplicationName(std::string) = 0;
+  virtual void SetApplicationName(std::string name) = 0;
 
   /**
-   * @brief Get object being root of accessibility tree
+   * @brief Gets object being root of accessibility tree.
    *
    * @return handler to accessibility object
    */
   virtual Accessible* GetApplication() const = 0;
 
   /**
-   * @brief Find an object in accessibility tree
+   * @brief Finds an object in accessibility tree.
    *
-   * @param[in] s path to object
+   * @param[in] path The path to object
    *
-   * @return handler to accessibility object
+   * @return The handler to accessibility object
    */
-  virtual Accessible* FindByPath(const std::string& s) const = 0;
+  virtual Accessible* FindByPath(const std::string& path) const = 0;
 
   /**
-   * @brief Show application on accessibility bus
+   * @brief Shows application on accessibility bus.
    */
   virtual void ApplicationShown() = 0;
 
   /**
-   * @brief Hide application on accessibility bus
+   * @brief Hides application on accessibility bus.
    */
   virtual void ApplicationHidden() = 0;
 
   /**
-   * @brief Initialize accessibility bus
+   * @brief Initializes accessibility bus.
    */
   virtual void Initialize() = 0;
 
   /**
-   * @brief Terminate accessibility bus
+   * @brief Terminates accessibility bus.
    */
   virtual void Terminate() = 0;
 
@@ -157,12 +167,12 @@ struct DALI_ADAPTOR_API Bridge
    */
   virtual ForceUpResult ForceUp()
   {
-    if(data)
+    if(mData)
     {
       return ForceUpResult::ALREADY_UP;
     }
-    data         = std::make_shared<Data>();
-    data->bridge = this;
+    mData = std::make_shared<Data>();
+    mData->mBridge = this;
     return ForceUpResult::JUST_STARTED;
   }
 
@@ -172,46 +182,73 @@ struct DALI_ADAPTOR_API Bridge
   virtual void ForceDown() = 0;
 
   /**
-   * @brief Check if bridge is activated or not.
+   * @brief Checks if bridge is activated or not.
    * @return True if brige is activated.
    */
   bool IsUp() const
   {
-    return bool(data);
+    return bool(mData);
   }
 
   /**
-   * @brief Emits caret-moved event on at-spi bus.
+   * @brief Emits cursor-moved event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] cursorPosition The new cursor position
    **/
-  virtual void EmitCaretMoved(Accessible* obj, unsigned int cursorPosition) = 0;
+  virtual void EmitCursorMoved(Accessible* obj, unsigned int cursorPosition) = 0;
 
   /**
    * @brief Emits active-descendant-changed event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] child The child of the object
    **/
   virtual void EmitActiveDescendantChanged(Accessible* obj, Accessible* child) = 0;
 
   /**
    * @brief Emits text-changed event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] state The changed state for text, such as Inserted or Deleted
+   * @param[in] position The cursor position
+   * @param[in] length The text length
+   * @param[in] content The changed text
    **/
   virtual void EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content) = 0;
 
   /**
    * @brief Emits state-changed event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] state The accessibility state (SHOWING, HIGHLIGHTED, etc)
+   * @param[in] newValue Whether the state value is changed to new value or not.
+   * @param[in] reserved Reserved. (Currently, this argument is not implemented in dali)
    **/
-  virtual void EmitStateChanged(Accessible* obj, State state, int val1, int val2 = 0) = 0;
+  virtual void EmitStateChanged(Accessible* obj, State state, int newValue, int reserved = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] event The enumerated window event
+   * @param[in] detail The additional parameter which interpretation depends on chosen event
    **/
-  virtual void Emit(Accessible* obj, WindowEvent we, unsigned int detail1 = 0) = 0;
+  virtual void Emit(Accessible* obj, WindowEvent event, unsigned int detail = 0) = 0;
 
   /**
    * @brief Emits property-changed event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] event Property changed event
    **/
   virtual void Emit(Accessible* obj, ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] rect The rectangle for changed bounds
    **/
   virtual void EmitBoundsChanged(Accessible* obj, Rect<> rect) = 0;
 
@@ -220,16 +257,23 @@ struct DALI_ADAPTOR_API Bridge
    *
    * Screen-reader might receive this event and reply, that given keycode is consumed. In that case
    * further processing of the keycode should be ignored.
+   *
+   * @param[in] type Key event type
+   * @param[in] keyCode Key code
+   * @param[in] keyName Key name
+   * @param[in] timeStamp Time stamp
+   * @param[in] isText Whether it's text or not
+   * @return Whether this event is consumed or not
    **/
   virtual Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) = 0;
 
   /**
    * @brief Reads given text by screen reader
    *
-   * @param text The text to read
-   * @param discardable If TRUE, reading can be discarded by subsequent reading requests,
+   * @param[in] text The text to read
+   * @param[in] discardable If TRUE, reading can be discarded by subsequent reading requests,
    * if FALSE the reading must finish before next reading request can be started
-   * @param callback the callback function that is called on reading signals emitted
+   * @param[in] callback the callback function that is called on reading signals emitted
    * during processing of this reading request.
    * Callback can be one of the following signals:
    * ReadingCancelled, ReadingStopped, ReadingSkipped
@@ -249,29 +293,35 @@ struct DALI_ADAPTOR_API Bridge
   /**
    * @brief Cancels anything screen-reader is reading / has queued to read
    *
-   * @param alsoNonDiscardable whether to cancel non-discardable readings as well
+   * @param[in] alsoNonDiscardable whether to cancel non-discardable readings as well
    */
   virtual void StopReading(bool alsoNonDiscardable) = 0;
 
   /**
    * @brief Suppresses reading of screen-reader
    *
-   * @param suppress whether to suppress reading of screen-reader
+   * @param[in] suppress whether to suppress reading of screen-reader
    */
   virtual void SuppressScreenReader(bool suppress) = 0;
 
   /**
-   * @brief Get screen reader status.
+   * @brief Gets screen reader status.
+   *
+   * @return True if screen reader is enabled
    */
   virtual bool GetScreenReaderEnabled() = 0;
 
   /**
-   * @brief Get ATSPI status.
+   * @brief Gets ATSPI status.
+   *
+   * @return True if ATSPI is enabled
    */
-  virtual bool GetIsEnabled() = 0;
+  virtual bool IsEnabled() = 0;
 
   /**
    * @brief Returns instance of bridge singleton object.
+   *
+   * @return The current bridge object
    **/
   static Bridge* GetCurrentBridge();
 
@@ -306,12 +356,13 @@ struct DALI_ADAPTOR_API Bridge
 protected:
   struct Data
   {
-    std::unordered_set<Accessible*> knownObjects;
-    std::string                     busName;
-    Bridge*                         bridge = nullptr;
-    Actor                           highlightActor, currentlyHighlightedActor;
+    std::unordered_set<Accessible*> mKnownObjects;
+    std::string                     mBusName;
+    Bridge*                         mBridge = nullptr;
+    Actor                           mHighlightActor;
+    Actor                           mCurrentlyHighlightedActor;
   };
-  std::shared_ptr<Data> data;
+  std::shared_ptr<Data> mData;
   friend class Accessible;
 
   enum class AutoInitState
@@ -319,28 +370,33 @@ protected:
     DISABLED,
     ENABLED
   };
+
   inline static AutoInitState autoInitState = AutoInitState::ENABLED;
 
   /**
-   * @brief Registers accessible object to be known in bridge object
+   * @brief Registers accessible object to be known in bridge object.
    *
    * Bridge must known about all currently alive accessible objects, as some requst
    * might come and object will be identified by number id (it's memory address).
    * To avoid memory corruption number id is checked against set of known objects.
+   *
+   * @param[in] object The accessible object
    **/
-  void RegisterOnBridge(Accessible*);
+  void RegisterOnBridge(Accessible* object);
 
   /**
    * @brief Tells bridge, that given object is considered root (doesn't have any parents).
    *
    * All root objects will have the same parent - application object. Application object
    * is controlled by bridge and private.
+   *
+   * @param[in] owner The accessible object
    **/
-  void SetIsOnRootLevel(Accessible*);
+  void SetIsOnRootLevel(Accessible* owner);
 };
 
 /**
- * @brief Check if ATSPI is activated or not.
+ * @brief Checks if ATSPI is activated or not.
  * @return True if ATSPI is activated.
  */
 inline bool IsUp()
@@ -349,15 +405,17 @@ inline bool IsUp()
   {
     return false;
   }
-  if(Bridge::GetCurrentBridge()->GetIsEnabled() == false)
+
+  if(Bridge::GetCurrentBridge()->IsEnabled() == false)
   {
     return false;
   }
+
   return Bridge::GetCurrentBridge()->IsUp();
 }
 
 /**
- * @brief Basic interface implemented by all accessibility objects
+ * @brief Basic interface implemented by all accessibility objects.
  */
 class Accessible
 {
@@ -367,160 +425,180 @@ public:
   using utf8_t = unsigned char;
 
   /**
-   * @brief Calculaties word boundaries in given utf8 text.
+   * @brief Calculates and finds word boundaries in given utf8 text.
    *
-   * s and length represents source text pointer and it's length respectively. langauge represents
-   * language to use. Word boundaries are returned as non-zero values in table breaks, which
-   * must be of size at least length.
-   **/
-  void FindWordSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks);
+   * @param[in] string The source text to find
+   * @param[in] length The length of text to find
+   * @param[in] language The language to use
+   * @param[out] breaks The word boundaries in given text
+   *
+   * @note Word boundaries are returned as non-zero values in table breaks, which must be of size at least length.
+   */
+  void FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks);
 
   /**
-   * @brief Calculaties line boundaries in given utf8 text.
+   * @brief Calculates and finds line boundaries in given utf8 text.
    *
-   * s and length represents source text pointer and it's length respectively. langauge represents
-   * language to use. Line boundaries are returned as non-zero values in table breaks, which
-   * must be of size at least length.
-   **/
-  void FindLineSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks);
+   * @param[in] string The source text to find
+   * @param[in] length The length of text to find
+   * @param[in] language The language to use
+   * @param[out] breaks The line boundaries in given text
+   *
+   * @note Line boundaries are returned as non-zero values in table breaks, which must be of size at least length.
+   */
+  void FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks);
 
   /**
-   * @brief Helper function for emiting active-descendant-changed event
-   **/
+   * @brief Helper function for emiting active-descendant-changed event.
+   *
+   * @param[in] obj The accessible object
+   * @param[in] child The child of the object
+   */
   void EmitActiveDescendantChanged(Accessible* obj, Accessible* child);
 
   /**
-   * @brief Helper function for emiting state-changed event
-   **/
-  void EmitStateChanged(State state, int newValue1, int newValue2 = 0);
+   * @brief Helper function for emiting state-changed event.
+   *
+   * @param[in] state The accessibility state (SHOWING, HIGHLIGHTED, etc)
+   * @param[in] newValue Whether the state value is changed to new value or not.
+   * @param[in] reserved Reserved. (TODO : Currently, this argument is not implemented in dali)
+   *
+   * @note The second argument determines which value is depending on State.
+   * For instance, if the state is PRESSED, newValue means isPressed or isSelected.
+   * If the state is SHOWING, newValue means isShowing.
+   */
+  void EmitStateChanged(State state, int newValue, int reserved = 0);
 
   /**
-   * @brief Helper function for emiting bounds-changed event
-   **/
+   * @brief Helper function for emiting bounds-changed event.
+   *
+   * @param rect The rectangle for changed bounds
+   */
   void EmitBoundsChanged(Rect<> rect);
 
   /**
-   * @brief Emit "showing" event.
-   * The method inform accessibility clients about "showing" state
+   * @brief Emits "showing" event.
+   * The method informs accessibility clients about "showing" state.
    *
-   * @param[in] showing flag pointing if object is showing
+   * @param[in] isShowing The flag pointing if object is showing
    */
-  void EmitShowing(bool showing);
+  void EmitShowing(bool isShowing);
 
   /**
-   * @brief Emit "visible" event.
-   * The method inform accessibility clients about "visible" state
+   * @brief Emits "visible" event.
+   * The method informs accessibility clients about "visible" state.
    *
-   * @param[in] visible flag pointing if object is visible
+   * @param[in] isVisible The flag pointing if object is visible
    */
-  void EmitVisible(bool visible);
+  void EmitVisible(bool isVisible);
 
   /**
-   * @brief Emit "highlighted" event.
-   * The method inform accessibility clients about "highlighted" state
+   * @brief Emits "highlighted" event.
+   * The method informs accessibility clients about "highlighted" state.
    *
-   * @param[in] set flag pointing if object is highlighted
+   * @param[in] isHighlighted The flag pointing if object is highlighted
    */
-  void EmitHighlighted(bool set);
+  void EmitHighlighted(bool isHighlighted);
 
   /**
-   * @brief Emit "focused" event.
-   * The method inform accessibility clients about "focused" state
+   * @brief Emits "focused" event.
+   * The method informs accessibility clients about "focused" state.
    *
-   * @param[in] set flag pointing if object is focused
+   * @param[in] isFocused The flag pointing if object is focused
    */
-  void EmitFocused(bool set);
+  void EmitFocused(bool isFocused);
 
   /**
-   * @brief Emit "text inserted" event
+   * @brief Emits "text inserted" event.
    *
-   * @param[in] position caret position
-   * @param[in] length text length
-   * @param[in] content inserted text
+   * @param[in] position The cursor position
+   * @param[in] length The text length
+   * @param[in] content The inserted text
    */
   void EmitTextInserted(unsigned int position, unsigned int length, const std::string& content);
 
   /**
-   * @brief Emit "text deleted" event
+   * @brief Emits "text deleted" event.
    *
-   * @param[in] position caret position
-   * @param[in] length text length
-   * @param[in] content deleted text
+   * @param[in] position The cursor position
+   * @param[in] length The text length
+   * @param[in] content The deleted text
    */
   void EmitTextDeleted(unsigned int position, unsigned int length, const std::string& content);
 
   /**
-   * @brief Emit "caret moved" event
+   * @brief Emits "cursor moved" event.
    *
-   * @param[in] cursorPosition new caret position
+   * @param[in] cursorPosition The new cursor position
    */
-  void EmitTextCaretMoved(unsigned int cursorPosition);
+  void EmitTextCursorMoved(unsigned int cursorPosition);
 
   /**
-   * @brief Emit "highlighted" event
+   * @brief Emits "highlighted" event.
    *
-   * @param[in] we enumerated window event
-   * @param[in] detail1 additional parameter which interpretation depends on chosen event
+   * @param[in] event The enumerated window event
+   * @param[in] detail The additional parameter which interpretation depends on chosen event
    */
-  void Emit(WindowEvent we, unsigned int detail1 = 0);
+  void Emit(WindowEvent event, unsigned int detail = 0);
 
   /**
-   * @brief Emits property-changed event
+   * @brief Emits property-changed event.
+   *
    * @param[in] event Property changed event
    **/
   void Emit(ObjectPropertyChangeEvent event);
 
   /**
-   * @brief Get accessibility name
+   * @brief Gets accessibility name.
    *
-   * @return string with name
+   * @return The string with name
    */
   virtual std::string GetName() = 0;
 
   /**
-   * @brief Get accessibility description
+   * @brief Gets accessibility description.
    *
-   * @return string with description
+   * @return The string with description
    */
   virtual std::string GetDescription() = 0;
 
   /**
-   * @brief Get parent
+   * @brief Gets parent.
    *
-   * @return handler to accessibility object
+   * @return The handler to accessibility object
    */
   virtual Accessible* GetParent() = 0;
 
   /**
-   * @brief Get count of children
+   * @brief Gets the number of children.
    *
-   * @return unsigned integer value
+   * @return The number of children
    */
   virtual size_t GetChildCount() = 0;
 
   /**
-   * @brief Get collection with all children
+   * @brief Gets collection with all children.
    *
-   * @return collection of accessibility objects
+   * @return The collection of accessibility objects
    */
   virtual std::vector<Accessible*> GetChildren();
 
   /**
-   * @brief Get nth child
+   * @brief Gets child of the index.
    *
-   * @return accessibility object
+   * @return The child object
    */
   virtual Accessible* GetChildAtIndex(size_t index) = 0;
 
   /**
-   * @brief Get index that current object has in its parent's children collection
+   * @brief Gets index that current object has in its parent's children collection.
    *
-   * @return unsigned integer index
+   * @return The index of the current object
    */
   virtual size_t GetIndexInParent() = 0;
 
   /**
-   * @brief Get accessibility role
+   * @brief Gets accessibility role.
    *
    * @return Role enumeration
    *
@@ -529,9 +607,9 @@ public:
   virtual Role GetRole() = 0;
 
   /**
-   * @brief Get name of accessibility role
+   * @brief Gets name of accessibility role.
    *
-   * @return string with human readable role converted from enumeration
+   * @return The string with human readable role converted from enumeration
    *
    * @see Dali::Accessibility::Role
    * @see Accessibility::Accessible::GetRole
@@ -539,9 +617,9 @@ public:
   virtual std::string GetRoleName();
 
   /**
-   * @brief Get localized name of accessibility role
+   * @brief Gets localized name of accessibility role.
    *
-   * @return string with human readable role translated according to current
+   * @return The string with human readable role translated according to current
    * translation domain
    *
    * @see Dali::Accessibility::Role
@@ -553,9 +631,9 @@ public:
   virtual std::string GetLocalizedRoleName();
 
   /**
-   * @brief Get accessibility states
+   * @brief Gets accessibility states.
    *
-   * @return collection of states
+   * @return The collection of states
    *
    * @note States class is instatation of ArrayBitset template class
    *
@@ -565,37 +643,39 @@ public:
   virtual States GetStates() = 0;
 
   /**
-   * @brief Get accessibility attributes
+   * @brief Gets accessibility attributes.
    *
-   * @return map of attributes and their values
+   * @return The map of attributes and their values
    */
   virtual Attributes GetAttributes() = 0;
 
   /**
-   * @brief Check if this is proxy
+   * @brief Checks if this is proxy.
    *
    * @return True if this is proxy
    */
   virtual bool IsProxy();
 
   /**
-   * @brief Get unique address on accessibility bus
+   * @brief Gets unique address on accessibility bus.
    *
-   * @return class containing address
+   * @return The Address class containing address
    *
    * @see Dali::Accessibility::Address
    */
   virtual Address GetAddress();
 
   /**
-   * @brief Get accessibility object, which is "default label" for this object
+   * @brief Gets accessibility object, which is "default label" for this object.
+   *
+   * @return The Accessible object
    */
   virtual Accessible* GetDefaultLabel();
 
   /**
-   * @brief Depute an object to perform provided gesture
+   * @brief Deputes an object to perform provided gesture.
    *
-   * @param[in] gestureInfo structure describing the gesture
+   * @param[in] gestureInfo The structure describing the gesture
    *
    * @return true on success, false otherwise
    *
@@ -604,53 +684,55 @@ public:
   virtual bool DoGesture(const GestureInfo& gestureInfo) = 0;
 
   /**
-   * @brief Re-emits selected states of an Accessibility Object
+   * @brief Re-emits selected states of an Accessibility Object.
    *
-   * @param[in] states chosen states to re-emit
-   * @param[in] doRecursive if true all children of the Accessibility Object will also re-emit the states
+   * @param[in] states The chosen states to re-emit
+   * @param[in] isRecursive If true, all children of the Accessibility object will also re-emit the states
    */
-  void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool doRecursive);
+  void NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive);
 
   /**
-   * @brief Get information about current object and all relations that connects
-   * it with other accessibility objects
+   * @brief Gets information about current object and all relations that connects
+   * it with other accessibility objects.
    *
-   * @return iterable collection of Relation objects
+   * @return The iterable collection of Relation objects
    *
    * @see Dali::Accessibility::Relation
    */
   virtual std::vector<Relation> GetRelationSet() = 0;
 
   /**
-   * @brief Get all implemented interfaces
+   * @brief Gets all implemented interfaces.
    *
-   * @return collection of strings with implemented interfaces
+   * @return The collection of strings with implemented interfaces
    */
   std::vector<std::string> GetInterfaces();
 
   /**
-   * @brief Check if object is on root level
+   * @brief Checks if object is on root level.
+   *
+   * @return Whether object is on root level or not
    */
-  bool GetIsOnRootLevel() const
+  bool IsOnRootLevel() const
   {
-    return isOnRootLevel;
+    return mIsOnRootLevel;
   }
 
   /**
-   * @brief The method registers functor resposible for converting Actor into Accessible
-   * @param functor returning Accessible handle from Actor object
+   * @brief The method registers functor resposible for converting Actor into Accessible.
+   * @param functor The returning Accessible handle from Actor object
    */
   static void RegisterControlAccessibilityGetter(std::function<Accessible*(Dali::Actor)> functor);
 
   /**
-   * @brief Acquire Accessible object from Actor object
+   * @brief Acquires Accessible object from Actor object.
    *
    * @param[in] actor Actor object
-   * @param[in] root true, if it's top level object (window)
+   * @param[in] isRoot True, if it's top level object (window)
    *
-   * @return handle to Accessible object
+   * @return The handle to Accessible object
    */
-  static Accessible* Get(Dali::Actor actor, bool root = false);
+  static Accessible* Get(Dali::Actor actor, bool isRoot = false);
 
 protected:
   Accessible();
@@ -661,83 +743,114 @@ protected:
   std::shared_ptr<Bridge::Data> GetBridgeData();
 
 public:
+  /**
+   * @brief Gets the highlight actor.
+   *
+   * This method is to get the highlight itself.
+   * @return The highlight actor
+   */
   static Dali::Actor GetHighlightActor();
-  static void        SetHighlightActor(Dali::Actor actor);
+
+  /**
+   * @brief Sets the highlight actor.
+   *
+   * This method is to set the highlight itself.
+   * @param[in] actor The highlight actor
+   */
+  static void SetHighlightActor(Dali::Actor actor);
+
+  /**
+   * @brief Gets the currently highlighted actor.
+   *
+   * @return The current highlighted actor
+   */
   static Dali::Actor GetCurrentlyHighlightedActor();
-  static void        SetCurrentlyHighlightedActor(Dali::Actor);
-  static void        SetObjectRegistry(ObjectRegistry registry);
+
+  /**
+   * @brief Sets currently highlighted actor.
+   *
+   * @param[in] actor The highlight actor
+   */
+  static void SetCurrentlyHighlightedActor(Dali::Actor actor);
+
+  /**
+   * @brief Sets ObjectRegistry.
+   *
+   * @param[in] registry ObjectRegistry instance
+   */
+  static void SetObjectRegistry(ObjectRegistry registry);
 
 private:
   friend class Bridge;
 
-  std::weak_ptr<Bridge::Data> bridgeData;
-  bool                        isOnRootLevel = false;
+  std::weak_ptr<Bridge::Data> mBridgeData;
+  bool                        mIsOnRootLevel = false;
 };
 
 /**
- * @brief Interface enabling to perform provided actions
+ * @brief Interface enabling to perform provided actions.
  */
 class Action : public virtual Accessible
 {
 public:
   /**
-   * @brief Get name of action with given index
+   * @brief Gets name of action with given index.
    *
-   * @param[in] index index of action
+   * @param[in] index The index of action
    *
-   * @return string with name of action
+   * @return The string with name of action
    */
   virtual std::string GetActionName(size_t index) = 0;
 
   /**
-   * @brief Get translated name of action with given index
+   * @brief Gets translated name of action with given index.
    *
-   * @param[in] index index of action
+   * @param[in] index The index of action
    *
-   * @return string with name of action translated according to current translation domain
+   * @return The string with name of action translated according to current translation domain
    *
-   * @note translation is not supported in this version
+   * @note The translation is not supported in this version
    */
   virtual std::string GetLocalizedActionName(size_t index) = 0;
 
   /**
-   * @brief Get description of action with given index
+   * @brief Gets description of action with given index.
    *
-   * @param[in] index index of action
+   * @param[in] index The index of action
    *
-   * @return string with description of action
+   * @return The string with description of action
    */
   virtual std::string GetActionDescription(size_t index) = 0;
 
   /**
-   * @brief Get key code binded to action with given index
+   * @brief Gets key code binded to action with given index.
    *
-   * @param[in] index index of action
+   * @param[in] index The index of action
    *
-   * @return string with key name
+   * @return The string with key name
    */
   virtual std::string GetActionKeyBinding(size_t index) = 0;
 
   /**
-   * @brief Get number of provided actions
+   * @brief Gets number of provided actions.
    *
-   * @return unsigned integer with number of actions
+   * @return The number of actions
    */
   virtual size_t GetActionCount() = 0;
 
   /**
-   * @brief Perform an action with given index
+   * @brief Performs an action with given index.
    *
-   * @param index index of action
+   * @param index The index of action
    *
    * @return true on success, false otherwise
    */
   virtual bool DoAction(size_t index) = 0;
 
   /**
-   * @brief Perform an action with given name
+   * @brief Performs an action with given name.
    *
-   * @param name name of action
+   * @param name The name of action
    *
    * @return true on success, false otherwise
    */
@@ -745,7 +858,7 @@ public:
 };
 
 /**
- * @brief Interface enabling advanced quering of accessibility objects
+ * @brief Interface enabling advanced quering of accessibility objects.
  *
  * @note since all mathods can be implemented inside bridge,
  * none methods have to be overrided
@@ -756,54 +869,57 @@ public:
 };
 
 /**
- * @brief Interface representing objects having screen coordinates
+ * @brief Interface representing objects having screen coordinates.
  */
 class Component : public virtual Accessible
 {
 public:
   /**
-   * @brief Get rectangle describing size
+   * @brief Gets rectangle describing size.
    *
-   * @param[in] ctype enumeration with type of coordinate systems
+   * @param[in] type The enumeration with type of coordinate systems
    *
    * @return Rect<> object
    *
    * @see Dali::Rect
    */
-  virtual Rect<> GetExtents(CoordType ctype) = 0;
+  virtual Rect<> GetExtents(CoordinateType type) = 0;
 
   /**
-   * @brief Get layer current object is localized on
+   * @brief Gets layer current object is localized on.
    *
-   * @return enumeration pointing layer
+   * @return The enumeration pointing layer
    *
    * @see Dali::Accessibility::ComponentLayer
    */
   virtual ComponentLayer GetLayer() = 0;
 
   /**
-   * @brief Get value of z-order
+   * @brief Gets value of z-order.
    *
-   * @return value of z-order
+   * @return The value of z-order
+   * @remarks MDI means "Multi Document Interface" (https://en.wikipedia.org/wiki/Multiple-document_interface)
+   * which in short means that many stacked windows can be displayed within a single application.
+   * In such model, the concept of z-order of UI element became important to deal with element overlapping.
    */
   virtual int16_t GetMdiZOrder() = 0;
 
   /**
-   * @brief Set current object as "focused"
+   * @brief Sets current object as "focused".
    *
    * @return true on success, false otherwise
    */
   virtual bool GrabFocus() = 0;
 
   /**
-   * @brief Get value of alpha channel
+   * @brief Gets value of alpha channel.
    *
-   * @return alpha channel value in range [0.0, 1.0]
+   * @return The alpha channel value in range [0.0, 1.0]
    */
   virtual double GetAlpha() = 0;
 
   /**
-   * @brief Set current object as "highlighted"
+   * @brief Sets current object as "highlighted".
    *
    * The method assings "highlighted" state, simultaneously removing it
    * from currently highlighted object.
@@ -813,7 +929,7 @@ public:
   virtual bool GrabHighlight() = 0;
 
   /**
-   * @brief Set current object as "unhighlighted"
+   * @brief Sets current object as "unhighlighted".
    *
    * The method removes "highlighted" state from object.
    *
@@ -824,7 +940,7 @@ public:
   virtual bool ClearHighlight() = 0;
 
   /**
-   * @brief Check whether object can be scrolled
+   * @brief Checks whether object can be scrolled.
    *
    * @return true if object is scrollable, false otherwise
    *
@@ -833,76 +949,77 @@ public:
   virtual bool IsScrollable();
 
   /**
-   * @brief Get Accessible object containing given point
+   * @brief Gets Accessible object containing given point.
    *
-   * @param[in] p two-dimensional point
-   * @param[in] ctype enumeration with type of coordinate system
+   * @param[in] point The two-dimensional point
+   * @param[in] type The enumeration with type of coordinate system
    *
-   * @return handle to last child of current object which contains given point
+   * @return The handle to last child of current object which contains given point
    *
    * @see Dali::Accessibility::Point
    */
-  virtual Accessible* GetAccessibleAtPoint(Point p, CoordType ctype);
+  virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type);
 
   /**
-   * @brief Check if current object contains given point
+   * @brief Checks if current object contains given point.
    *
-   * @param[in] p two-dimensional point
-   * @param[in] ctype enumeration with type of coordinate system
+   * @param[in] point The two-dimensional point
+   * @param[in] type The enumeration with type of coordinate system
    *
-   * @return handle to Accessible object
+   * @return True if accessible contains in point, otherwise false.
    *
+   * @remarks This method is `Contains` in DBus method.
    * @see Dali::Accessibility::Point
    */
-  virtual bool Contains(Point p, CoordType ctype);
+  virtual bool IsAccessibleContainedAtPoint(Point point, CoordinateType type);
 };
 
 /**
- * @brief Interface representing objects which can store numeric value
+ * @brief Interface representing objects which can store numeric value.
  */
 class Value : public virtual Accessible
 {
 public:
   /**
-   * @brief Get the lowest possible value
+   * @brief Gets the lowest possible value.
    *
-   * @return double value
+   * @return The minimum value
   */
   virtual double GetMinimum() = 0;
 
   /**
-   * @brief Get current value
+   * @brief Gets the current value.
    *
-   * @return double value
+   * @return The current value
   */
   virtual double GetCurrent() = 0;
 
   /**
-   * @brief Get the highest possible value
+   * @brief Gets the highest possible value.
    *
-   * @return double value
+   * @return The highest value.
   */
   virtual double GetMaximum() = 0;
 
   /**
-   * @brief Set value
+   * @brief Sets the current value.
    *
-   * @param[in] val double value
+   * @param[in] value The current value to set
    *
    * @return true if value could have been assigned, false otherwise
   */
-  virtual bool SetCurrent(double val) = 0;
+  virtual bool SetCurrent(double value) = 0;
 
   /**
-   * @brief Get the lowest increment that can be distinguished
+   * @brief Gets the lowest increment that can be distinguished.
    *
-   * @return double value
+   * @return The lowest increment
   */
   virtual double GetMinimumIncrement() = 0;
 };
 
 /**
- * @brief Interface representing objects which can store immutable texts
+ * @brief Interface representing objects which can store immutable texts.
  *
  * @see Dali::Accessibility::EditableText
  */
@@ -910,43 +1027,46 @@ class DALI_ADAPTOR_API Text : public virtual Accessible
 {
 public:
   /**
-   * @brief Get stored text in given range
+   * @brief Gets stored text in given range.
    *
-   * @param[in] startOffset index of first character
-   * @param[in] endOffset index of first character after the last one expected
+   * @param[in] startOffset The index of first character
+   * @param[in] endOffset The index of first character after the last one expected
    *
-   * @return substring of stored text
+   * @return The substring of stored text
    */
   virtual std::string GetText(size_t startOffset, size_t endOffset) = 0;
 
   /**
-   * @brief Get number of all stored characters
+   * @brief Gets number of all stored characters.
    *
-   * @return number of characters
+   * @return The number of characters
+   * @remarks This method is `CharacterCount` in DBus method.
    */
   virtual size_t GetCharacterCount() = 0;
 
   /**
-   * @brief Get caret offset
+   * @brief Gets the cursor offset.
    *
-   * @return Value of caret offset
+   * @return Value of cursor offset
+   * @remarks This method is `CaretOffset` in DBus method.
    */
-  virtual size_t GetCaretOffset() = 0;
+  virtual size_t GetCursorOffset() = 0;
 
   /**
-   * @brief Set caret offset
+   * @brief Sets the cursor offset.
    *
-   * @param[in] offset Caret offset
+   * @param[in] offset Cursor offset
    *
    * @return True if successful
+   * @remarks This method is `SetCaretOffset` in DBus method.
    */
-  virtual bool SetCaretOffset(size_t offset) = 0;
+  virtual bool SetCursorOffset(size_t offset) = 0;
 
   /**
-   * @brief Get substring of stored text truncated in concrete gradation
+   * @brief Gets substring of stored text truncated in concrete gradation.
    *
-   * @param[in] offset position in stored text
-   * @param[in] boundary enumeration describing text gradation
+   * @param[in] offset The position in stored text
+   * @param[in] boundary The enumeration describing text gradation
    *
    * @return Range structure containing acquired text and offsets in original string
    *
@@ -955,43 +1075,45 @@ public:
   virtual Range GetTextAtOffset(size_t offset, TextBoundary boundary) = 0;
 
   /**
-   * @brief Get selected text
+   * @brief Gets selected text.
    *
-   * @param[in] selectionNum selection index
+   * @param[in] selectionIndex The selection index
    * @note Currently only one selection (i.e. with index = 0) is supported
    *
    * @return Range structure containing acquired text and offsets in original string
    *
+   * @remarks This method is `GetSelection` in DBus method.
    * @see Dali::Accessibility::Range
    */
-  virtual Range GetSelection(size_t selectionNum) = 0;
+  virtual Range GetRangeOfSelection(size_t selectionIndex) = 0;
 
   /**
-   * @brief Remove selection
+   * @brief Removes the whole selection.
    *
-   * @param[in] selectionNum selection index
+   * @param[in] selectionIndex The selection index
    * @note Currently only one selection (i.e. with index = 0) is supported
    *
    * @return bool on success, false otherwise
    */
-  virtual bool RemoveSelection(size_t selectionNum) = 0;
+  virtual bool RemoveSelection(size_t selectionIndex) = 0;
 
   /**
-   * @brief Get selected text
+   * @brief Sets selected text.
    *
-   * @param[in] selectionNum selection index
-   * @param[in] startOffset index of first character
-   * @param[in] endOffset index of first character after the last one expected
+   * @param[in] selectionIndex The selection index
+   * @param[in] startOffset The index of first character
+   * @param[in] endOffset The index of first character after the last one expected
    *
    * @note Currently only one selection (i.e. with index = 0) is supported
    *
    * @return true on success, false otherwise
+   * @remarks This method is `SetSelection` in DBus method.
    */
-  virtual bool SetSelection(size_t selectionNum, size_t startOffset, size_t endOffset) = 0;
+  virtual bool SetRangeOfSelection(size_t selectionIndex, size_t startOffset, size_t endOffset) = 0;
 };
 
 /**
- * @brief Interface representing objects which can store editable texts
+ * @brief Interface representing objects which can store editable texts.
  *
  * @note Paste method is entirely implemented inside bridge
  *
@@ -1001,49 +1123,49 @@ class DALI_ADAPTOR_API EditableText : public virtual Accessible
 {
 public:
   /**
-   * @brief Copy text in range to system clipboard
+   * @brief Copies text in range to system clipboard.
    *
-   * @param[in] startPosition index of first character
-   * @param[in] endPosition index of first character after the last one expected
+   * @param[in] startPosition The index of first character
+   * @param[in] endPosition The index of first character after the last one expected
    *
    * @return true on success, false otherwise
    */
   virtual bool CopyText(size_t startPosition, size_t endPosition) = 0;
 
   /**
-   * @brief Cut text in range to system clipboard
+   * @brief Cuts text in range to system clipboard.
    *
-   * @param[in] startPosition index of first character
-   * @param[in] endPosition index of first character after the last one expected
+   * @param[in] startPosition The index of first character
+   * @param[in] endPosition The index of first character after the last one expected
    *
    * @return true on success, false otherwise
    */
   virtual bool CutText(size_t startPosition, size_t endPosition) = 0;
 
   /**
-   * @brief Delete text in range
+   * @brief Deletes text in range.
    *
-   * @param[in] startPosition index of first character
-   * @param[in] endPosition index of first character after the last one expected
+   * @param[in] startPosition The index of first character
+   * @param[in] endPosition The index of first character after the last one expected
    *
    * @return true on success, false otherwise
    */
   virtual bool DeleteText(size_t startPosition, size_t endPosition) = 0;
 
   /**
-   * @brief Insert text at startPosition
+   * @brief Inserts text at startPosition.
    *
-   * @param[in] startPosition index of first character
-   * @param[in] text text content
+   * @param[in] startPosition The index of first character
+   * @param[in] text The text content
    *
    * @return true on success, false otherwise
    */
   virtual bool InsertText(size_t startPosition, std::string text) = 0;
 
   /**
-   * @brief Replace text with content
+   * @brief Replaces text with content.
    *
-   * @param[in] newContents text content
+   * @param[in] newContents The text content
    *
    * @return true on success, false otherwise
    */
@@ -1051,43 +1173,43 @@ public:
 };
 
 /**
- * @brief Interface representing objects which can store a set of selected items
+ * @brief Interface representing objects which can store a set of selected items.
  */
 class DALI_ADAPTOR_API Selection : public virtual Accessible
 {
 public:
   /**
-   * @brief Gets number of selected children
+   * @brief Gets the number of selected children.
    *
-   * @return number of selected children (zero if none)
+   * @return The number of selected children (zero if none)
    */
   virtual int GetSelectedChildrenCount() = 0;
 
   /**
-   * @brief Gets a specific selected child
+   * @brief Gets a specific selected child.
    *
-   * @param selectedChildIndex index of the selected child
+   * @param selectedChildIndex The index of the selected child
    *
    * @note @p selectedChildIndex refers to the list of selected children,
    * not the list of all children
    *
-   * @return selected child or nullptr if index is invalid
+   * @return The selected child or nullptr if index is invalid
    */
   virtual Accessible* GetSelectedChild(int selectedChildIndex) = 0;
 
   /**
-   * @brief Selects a child
+   * @brief Selects a child.
    *
-   * @param childIndex index of the child
+   * @param childIndex The index of the child
    *
    * @return true on success, false otherwise
    */
   virtual bool SelectChild(int childIndex) = 0;
 
   /**
-   * @brief Deselects a selected child
+   * @brief Deselects a selected child.
    *
-   * @param selectedChildIndex index of the selected child
+   * @param selectedChildIndex The index of the selected child
    *
    * @note @p selectedChildIndex refers to the list of selected children,
    * not the list of all children
@@ -1099,32 +1221,32 @@ public:
   virtual bool DeselectSelectedChild(int selectedChildIndex) = 0;
 
   /**
-   * @brief Checks whether a child is selected
+   * @brief Checks whether a child is selected.
    *
-   * @param childIndex index of the child
+   * @param childIndex The index of the child
    *
    * @return true if given child is selected, false otherwise
    */
   virtual bool IsChildSelected(int childIndex) = 0;
 
   /**
-   * @brief Selects all children
+   * @brief Selects all children.
    *
    * @return true on success, false otherwise
    */
   virtual bool SelectAll() = 0;
 
   /**
-   * @brief Deselects all children
+   * @brief Deselects all children.
    *
    * @return true on success, false otherwise
    */
   virtual bool ClearSelection() = 0;
 
   /**
-   * @brief Deselects a child
+   * @brief Deselects a child.
    *
-   * @param childIndex index of the child
+   * @param childIndex The index of the child.
    *
    * @return true on success, false otherwise
    *
@@ -1134,7 +1256,7 @@ public:
 };
 
 /**
- * @brief minimalistic, always empty Accessible object with settable address
+ * @brief The minimalistic, always empty Accessible object with settable address.
  *
  * For those situations, where you want to return address in different bridge
  * (embedding for example), but the object itself ain't planned to be used otherwise.
@@ -1144,72 +1266,86 @@ class DALI_ADAPTOR_API EmptyAccessibleWithAddress : public virtual Accessible
 {
 public:
   EmptyAccessibleWithAddress() = default;
+
   EmptyAccessibleWithAddress(Address address)
-  : address(std::move(address))
+  : mAddress(std::move(address))
   {
   }
 
   void SetAddress(Address address)
   {
-    this->address = std::move(address);
+    this->mAddress = std::move(address);
   }
 
   std::string GetName() override
   {
     return "";
   }
+
   std::string GetDescription() override
   {
     return "";
   }
+
   Accessible* GetParent() override
   {
     return nullptr;
   }
+
   size_t GetChildCount() override
   {
     return 0;
   }
+
   std::vector<Accessible*> GetChildren() override
   {
     return {};
   }
+
   Accessible* GetChildAtIndex(size_t index) override
   {
     throw std::domain_error{"out of bounds index (" + std::to_string(index) + ") - no children"};
   }
+
   size_t GetIndexInParent() override
   {
     return static_cast<size_t>(-1);
   }
+
   Role GetRole() override
   {
     return {};
   }
+
   std::string GetRoleName() override;
-  States      GetStates() override
+
+  States GetStates() override
   {
     return {};
   }
+
   Attributes GetAttributes() override
   {
     return {};
   }
+
   Address GetAddress() override
   {
-    return address;
+    return mAddress;
   }
+
   bool DoGesture(const GestureInfo& gestureInfo) override
   {
     return false;
   }
+
   std::vector<Relation> GetRelationSet() override
   {
     return {};
   }
 
 private:
-  Address address;
+  Address mAddress;
 };
 
 } // namespace Accessibility

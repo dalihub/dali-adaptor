@@ -90,7 +90,7 @@ int Dali::AtspiAccessibility::GetStatus()
   {
     if(bridge->GetScreenReaderEnabled())
     {
-      if(bridge->GetIsEnabled())
+      if(bridge->IsEnabled())
       {
         return 3;
       }
@@ -101,7 +101,7 @@ int Dali::AtspiAccessibility::GetStatus()
     }
     else
     {
-      if(bridge->GetIsEnabled())
+      if(bridge->IsEnabled())
       {
         return 1;
       }

@@ -56,7 +56,7 @@ public:
   DBus::ValueOrError<std::array<uint32_t, 2>>                                                                  GetStates();
   DBus::ValueOrError<std::unordered_map<std::string, std::string>>                                             GetAttributes();
   DBus::ValueOrError<std::vector<std::string>>                                                                 GetInterfaces();
-  DBus::ValueOrError<Dali::Accessibility::Accessible*, uint8_t, Dali::Accessibility::Accessible*>              GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordType);
+  DBus::ValueOrError<Dali::Accessibility::Accessible*, uint8_t, Dali::Accessibility::Accessible*>              GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordinateType);
   DBus::ValueOrError<Dali::Accessibility::Accessible*, uint8_t>                                                GetNeighbor(std::string root_path, int32_t direction, int32_t search_mode);
   DBus::ValueOrError<Dali::Accessibility::Accessible*, uint32_t, std::unordered_map<std::string, std::string>> GetDefaultLabelInfo();
   using ReadingMaterialType = DBus::ValueOrError<
@@ -100,7 +100,7 @@ private:
   Dali::Accessibility::Accessible*              GetCurrentlyHighlighted();
   Dali::Accessibility::Accessible*              DirectionalDepthFirstSearchTryNonDefunctSibling(bool& all_children_visited, Dali::Accessibility::Accessible* node, Dali::Accessibility::Accessible* start, Dali::Accessibility::Accessible* root, unsigned char forward);
   Dali::Accessibility::Accessible*              GetNextNonDefunctSibling(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* start, Dali::Accessibility::Accessible* root, unsigned char forward);
-  Dali::Accessibility::Component*               CalculateNavigableAccessibleAtPoint(Dali::Accessibility::Accessible* root, Dali::Accessibility::Point p, Dali::Accessibility::CoordType cType, unsigned int maxRecursionDepth);
+  Dali::Accessibility::Component*               CalculateNavigableAccessibleAtPoint(Dali::Accessibility::Accessible* root, Dali::Accessibility::Point p, Dali::Accessibility::CoordinateType type, unsigned int maxRecursionDepth);
   Dali::Accessibility::Component*               GetObjectInRelation(Dali::Accessibility::Accessible* obj, Dali::Accessibility::RelationType ralationType);
 };
 

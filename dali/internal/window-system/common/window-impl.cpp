@@ -100,8 +100,8 @@ Window::~Window()
   if(mAdaptor)
   {
     auto bridge      = Accessibility::Bridge::GetCurrentBridge();
-    auto accessible2 = mScene.GetRootLayer();
-    auto accessible  = Accessibility::Accessible::Get(accessible2);
+    auto rootLayer = mScene.GetRootLayer();
+    auto accessible  = Accessibility::Accessible::Get(rootLayer);
     bridge->RemoveTopLevelWindow(accessible);
 
     mAdaptor->RemoveWindow(this);
@@ -171,8 +171,8 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler->AddObserver(*this);
 
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto v          = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(v, true);
+  auto rootLayer  = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
   bridge->AddTopLevelWindow(accessible);
 
   // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
@@ -746,15 +746,15 @@ void Window::OnFocusChanged(bool focusIn)
 
   mSurface->SetFullSwapNextFrame();
 
-  if(auto b = Dali::Accessibility::Bridge::GetCurrentBridge())
+  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
   {
     if(focusIn)
     {
-      b->ApplicationShown();
+      bridge->ApplicationShown();
     }
     else
     {
-      b->ApplicationHidden();
+      bridge->ApplicationHidden();
     }
   }
 }

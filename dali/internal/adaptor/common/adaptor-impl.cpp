@@ -308,7 +308,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   auto bridge  = Accessibility::Bridge::GetCurrentBridge();
   bridge->SetApplicationName(appName);
   bridge->Initialize();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&accessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 }
 
 void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)

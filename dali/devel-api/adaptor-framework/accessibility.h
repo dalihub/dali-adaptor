@@ -77,9 +77,9 @@ enum class RelationType : uint32_t
 /**
  * @brief Enumeration describing if coordinates are relative to screen or window
  * @see Accessibility::Component::GetExtents
- * @see Accessibility::Component::Contains
+ * @see Accessibility::Component::IsAccessibleContainedAtPoint
  */
-enum class CoordType
+enum class CoordinateType
 {
   SCREEN, ///< Screen.
   WINDOW  ///< Window.
@@ -438,32 +438,32 @@ class BitSets
 {
   std::array<uint32_t, I> data;
 
-  void _set()
+  void Set()
   {
   }
 
-  static constexpr bool _accepts()
+  static constexpr bool Accepts()
   {
     return true;
   }
 
   template<typename T>
-  static constexpr bool _accepts()
+  static constexpr bool Accepts()
   {
     return std::is_enum<T>::value;
   }
 
   template<typename T, typename T2, typename... ARGS>
-  static constexpr bool _accepts()
+  static constexpr bool Accepts()
   {
-    return std::is_enum<T>::value && _accepts<T2, ARGS...>();
+    return std::is_enum<T>::value && Accepts<T2, ARGS...>();
   }
 
   template<typename T, typename... ARGS>
-  void _set(T t, ARGS... args)
+  void Set(T t, ARGS... args)
   {
     (*this)[t] = true;
-    _set(args...);
+    Set(args...);
   }
 
 public:
@@ -477,12 +477,12 @@ public:
   BitSets(const BitSets&) = default;
   BitSets(BitSets&&)      = default;
 
-  template<typename T, typename... ARGS, typename std::enable_if<_accepts<T, ARGS...>()>::type* = nullptr>
+  template<typename T, typename... ARGS, typename std::enable_if<Accepts<T, ARGS...>()>::type* = nullptr>
   BitSets(T t, ARGS... args)
   {
     for(auto& u : data)
       u = 0;
-    _set(t, args...);
+    Set(t, args...);
   }
 
   explicit BitSets(std::array<uint32_t, I> d)
@@ -742,7 +742,7 @@ struct DALI_ADAPTOR_API Size
 /**
  * @brief Helper class used to store data related with Accessibility::Text interface
  * @see Dali::Accessibility::Text::GetTextAtOffset
- * @see Dali::Accessibility::Text::GetSelection
+ * @see Dali::Accessibility::Text::GetRangeOfSelection
  */
 struct DALI_ADAPTOR_API Range
 {
