@@ -115,6 +115,11 @@ public:
   virtual bool SetClipPath(Dali::CanvasRenderer::Drawable& clip);
 
   /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetMask()
+   */
+  virtual bool SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type);
+
+  /**
    * @brief Returns a composition drawble object.
    * @return Returns a composition drawble object.
    */

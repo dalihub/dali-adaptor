@@ -93,6 +93,11 @@ bool DrawableGeneric::SetClipPath(Dali::CanvasRenderer::Drawable& clip)
   return false;
 }
 
+bool DrawableGeneric::SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type)
+{
+  return false;
+}
+
 Dali::CanvasRenderer::Drawable DrawableGeneric::GetCompositionDrawable() const
 {
   return Dali::CanvasRenderer::Drawable();

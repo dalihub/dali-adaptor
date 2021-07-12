@@ -67,6 +67,16 @@ public:
 
 public:
   /**
+   * @brief Enumeration indicating the type used in the masking of two objects - the mask drawable and the own drawable.
+   */
+  enum class MaskType
+  {
+    ALPHA = 0,    ///< The pixels of the own drawable and the mask drawable are alpha blended. As a result, only the part of the own drawable, which intersects with the mask drawable is visible.
+    ALPHA_INVERSE ///< The pixels of the own drawable and the complement to the mask drawable's pixels are alpha blended. As a result, only the part of the own which is not covered by the mask is visible.
+  };
+
+public:
+  /**
    * @brief Set the transparency value
    * @param[in] opacity The transparency level [0 ~ 1.0], 0 means totally transparent, while 1 means opaque.
    * @return Returns True when it's successful. False otherwise.
@@ -120,6 +130,14 @@ public:
    * @return Returns True when it's successful. False otherwise.
    */
   bool SetClipPath(Drawable& clip);
+
+  /**
+   * @brief The pixels of mask drawable and own drawable are blended according to MaskType.
+   * @param[in] mask The mask drawable object.
+   * @param[in] type The masking type.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetMask(Drawable& mask, MaskType type);
 
   /**
    * @brief Downcast a handle to Drawable handle.

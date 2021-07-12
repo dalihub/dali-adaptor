@@ -85,6 +85,11 @@ public:
   bool SetClipPath(Dali::CanvasRenderer::Drawable& clip) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::Drawable::SetMask()
+   */
+  bool SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type) override;
+
+  /**
    * @copydoc Internal::Adaptor::Drawable::GetCompositionDrawable()
    */
   Dali::CanvasRenderer::Drawable GetCompositionDrawable() const override;

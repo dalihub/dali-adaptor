@@ -115,6 +115,15 @@ bool Drawable::SetClipPath(Dali::CanvasRenderer::Drawable& clip)
   return mImpl->SetClipPath(clip);
 }
 
+bool Drawable::SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type)
+{
+  if(!mImpl)
+  {
+    return false;
+  }
+  return mImpl->SetMask(mask, type);
+}
+
 Dali::CanvasRenderer::Drawable Drawable::GetCompositionDrawable() const
 {
   if(!mImpl)
