@@ -48,8 +48,6 @@ CanvasRendererGeneric* CanvasRendererGeneric::New(const Vector2& viewBox)
 }
 
 CanvasRendererGeneric::CanvasRendererGeneric(const Vector2& viewBox)
-: mPixelBuffer(nullptr),
-  mSize(0, 0)
 {
 }
 
@@ -64,7 +62,7 @@ bool CanvasRendererGeneric::Commit()
 
 Devel::PixelBuffer CanvasRendererGeneric::GetPixelBuffer()
 {
-  return mPixelBuffer;
+  return Devel::PixelBuffer();
 }
 
 bool CanvasRendererGeneric::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
@@ -89,7 +87,17 @@ bool CanvasRendererGeneric::SetSize(const Vector2& size)
 
 const Vector2& CanvasRendererGeneric::GetSize()
 {
-  return mSize;
+  return Vector2::ZERO;
+}
+
+bool CanvasRendererGeneric::SetViewBox(const Vector2& viewBox)
+{
+  return false;
+}
+
+const Vector2& CanvasRendererGeneric::GetViewBox()
+{
+  return Vector2::ZERO;
 }
 
 } // namespace Adaptor

@@ -81,6 +81,16 @@ public:
    */
   const Vector2& GetSize() override;
 
+  /**
+   * @copydoc Dali::CanvasRenderer::SetViewBox()
+   */
+  bool SetViewBox(const Vector2& viewBox) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::GetViewBox()
+   */
+  const Vector2& GetViewBox() override;
+
 private:
   CanvasRendererGeneric()                             = delete;
   CanvasRendererGeneric(const CanvasRendererGeneric&) = delete;
@@ -97,10 +107,6 @@ private:
    * @brief Destructor.
    */
   virtual ~CanvasRendererGeneric() override;
-
-private:
-  Devel::PixelBuffer mPixelBuffer;
-  Vector2            mSize;
 };
 
 } // namespace Adaptor

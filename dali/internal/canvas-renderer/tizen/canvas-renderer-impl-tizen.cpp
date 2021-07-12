@@ -57,8 +57,8 @@ CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
   mTvgCanvas(nullptr),
   mTvgRoot(nullptr),
 #endif
-  mSize(0, 0),
-  mViewBox(0, 0),
+  mSize(Vector2::ZERO),
+  mViewBox(Vector2::ZERO),
   mChanged(false)
 {
   Initialize(viewBox);
@@ -286,6 +286,27 @@ bool CanvasRendererTizen::SetSize(const Vector2& size)
 const Vector2& CanvasRendererTizen::GetSize()
 {
   return mSize;
+}
+
+bool CanvasRendererTizen::SetViewBox(const Vector2& viewBox)
+{
+  if(viewBox.width < 1.0f || viewBox.height < 1.0f)
+  {
+    return false;
+  }
+
+  if(viewBox != mViewBox)
+  {
+    mViewBox = viewBox;
+    mChanged = true;
+  }
+
+  return true;
+}
+
+const Vector2& CanvasRendererTizen::GetViewBox()
+{
+  return mViewBox;
 }
 
 void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
