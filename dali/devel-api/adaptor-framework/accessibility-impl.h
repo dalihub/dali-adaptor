@@ -171,7 +171,7 @@ struct DALI_ADAPTOR_API Bridge
     {
       return ForceUpResult::ALREADY_UP;
     }
-    mData = std::make_shared<Data>();
+    mData          = std::make_shared<Data>();
     mData->mBridge = this;
     return ForceUpResult::JUST_STARTED;
   }
@@ -223,7 +223,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj Accessible object
    * @param[in] type Direction type when an Accessible object moves out of screen
    **/
-  virtual void EmitMovedOutOfScreen(Accessible* obj, MovedOutOfScreenType type) = 0;
+  virtual void EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type) = 0;
 
   /**
    * @brief Emits state-changed event on at-spi bus.
@@ -546,7 +546,7 @@ public:
    *
    * @param[in] type moved out of screen type
    */
-  void EmitMovedOutOfScreen(MovedOutOfScreenType type);
+  void EmitMovedOutOfScreen(ScreenRelativeMoveType type);
 
   /**
    * @brief Emits "highlighted" event.

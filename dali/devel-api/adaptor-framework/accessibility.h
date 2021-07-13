@@ -42,13 +42,14 @@ namespace Dali
 namespace Accessibility
 {
 /**
- * @brief Enumeration describing signal that occurs when object moves out of screen.
+ * @brief Enumeration describing type of object move relative to the screen. Only outgoing moves are signalled to AT-clients.
  */
-enum class MovedOutOfScreenType
+enum class ScreenRelativeMoveType
 {
-  NONE,
-  TOP_LEFT,     ///< Object moves out of top(or left) side of screen
-  BOTTOM_RIGHT ///< Object moves out of bottom(or right) side of screen
+  OUTSIDE               = 0, ///< Object moves outside of the screen
+  OUTGOING_TOP_LEFT     = 1, ///< Object moves out through the top(or left) side of the screen. Maps to: ATSPI_MOVE_OUTED_TOP_LEFT
+  OUTGOING_BOTTOM_RIGHT = 2, ///< Object moves out through the bottom(or right) side of the screen. Maps to: ATSPI_MOVE_OUTED_BOTTOM_RIGHT
+  INSIDE                     ///< Object moves into the screen or moves inside the screen
 };
 
 /**

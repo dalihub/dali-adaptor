@@ -144,7 +144,7 @@ void Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
   }
 }
 
-void Accessible::EmitMovedOutOfScreen(MovedOutOfScreenType type)
+void Accessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
 {
   if(auto bridgeData = GetBridgeData())
   {
@@ -191,7 +191,7 @@ std::shared_ptr<Bridge::Data> Accessible::GetBridgeData()
   if(!handle)
   {
     auto bridge = Bridge::GetCurrentBridge();
-    handle = bridge->mData;
+    handle      = bridge->mData;
   }
   return handle;
 }

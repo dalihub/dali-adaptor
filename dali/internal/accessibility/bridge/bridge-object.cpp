@@ -572,7 +572,7 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
   }
 }
 
-void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, MovedOutOfScreenType type)
+void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
 {
   auto        addr = obj->GetAddress();
   std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
