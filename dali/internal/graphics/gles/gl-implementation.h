@@ -40,23 +40,19 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr int32_t     INITIAL_GLES_VERSION                         = 30;
-static constexpr int32_t     GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
-static constexpr const char* KHR_BLEND_EQUATION_ADVANCED                  = "GL_KHR_blend_equation_advanced";
+const int32_t INITIAL_GLES_VERSION                         = 30;
+const int32_t GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
+const char*   KHR_BLEND_EQUATION_ADVANCED                  = "GL_KHR_blend_equation_advanced";
 
-static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
+const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
   "#extension GL_KHR_blend_equation_advanced : enable\n"
 
   "#if GL_KHR_blend_equation_advanced==1 || __VERSION__>=320\n"
   "  layout(blend_support_all_equations) out;\n"
   "#endif\n";
 
-static constexpr const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
+const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
   "out mediump vec4 fragColor;\n";
-
-static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING = "#extension GL_OES_EGL_image_external:require\n";
-
-static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3 = "#extension GL_OES_EGL_image_external_essl3:require\n";
 } // namespace
 
 /**
@@ -355,23 +351,6 @@ public:
       mContextCreatedWaitCondition.Wait(lock);
     }
     return mShadingLanguageVersion;
-  }
-
-  const char* GetEglImageExtensionString()
-  {
-    ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
-    if(!mIsContextCreated)
-    {
-      mContextCreatedWaitCondition.Wait(lock);
-    }
-    if(mShadingLanguageVersion < 300)
-    {
-      return OES_EGL_IMAGE_EXTERNAL_STRING;
-    }
-    else
-    {
-      return OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3;
-    }
   }
 
   /* OpenGL ES 2.0 */
