@@ -226,12 +226,12 @@ Dali::PixelData WebEngine::GetFavicon() const
   return mPlugin->GetFavicon();
 }
 
-const std::string& WebEngine::GetUrl()
+std::string WebEngine::GetUrl() const
 {
   return mPlugin->GetUrl();
 }
 
-const std::string& WebEngine::GetUserAgent() const
+std::string WebEngine::GetUserAgent() const
 {
   return mPlugin->GetUserAgent();
 }
@@ -641,14 +641,14 @@ Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& WebEngine::HttpAuthHa
   return mPlugin->HttpAuthHandlerSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& WebEngine::ContextMenuCustomizedSignal()
+Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& WebEngine::ContextMenuShownSignal()
 {
-  return mPlugin->ContextMenuCustomizedSignal();
+  return mPlugin->ContextMenuShownSignal();
 }
 
-Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& WebEngine::ContextMenuItemSelectedSignal()
+Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& WebEngine::ContextMenuHiddenSignal()
 {
-  return mPlugin->ContextMenuItemSelectedSignal();
+  return mPlugin->ContextMenuHiddenSignal();
 }
 
 } // namespace Adaptor

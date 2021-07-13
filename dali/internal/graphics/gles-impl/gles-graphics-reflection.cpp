@@ -558,7 +558,7 @@ const std::vector<Reflection::UniformExtraInfo>& Reflection::GetStandaloneUnifor
   return mStandaloneUniformExtraInfos;
 }
 
-std::vector<Dali::Graphics::UniformInfo> Reflection::GetSamplers() const
+const std::vector<Dali::Graphics::UniformInfo>& Reflection::GetSamplers() const
 {
   return mUniformOpaques;
 }

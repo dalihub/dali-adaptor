@@ -67,13 +67,6 @@ public:
   virtual std::vector<std::unique_ptr<WebEngineContextMenuItem>> GetItemList() const = 0;
 
   /**
-   * @brief Get position of the context menu.
-   *
-   * @return position of context menu.
-   */
-  virtual Dali::Vector2 GetPosition() const = 0;
-
-  /**
    * @brief Remove the item from the context menu.
    *
    * @param[in] item The context menu item to be removed

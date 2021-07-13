@@ -130,8 +130,8 @@ public:
   const std::string& GetBusName() const override;
   void               AddTopLevelWindow(Dali::Accessibility::Accessible* window) override;
   void               RemoveTopLevelWindow(Dali::Accessibility::Accessible* window) override;
-  void               AddPopup(Dali::Accessibility::Accessible*) override;
-  void               RemovePopup(Dali::Accessibility::Accessible*) override;
+  void               AddPopup(Dali::Accessibility::Accessible* object) override;
+  void               RemovePopup(Dali::Accessibility::Accessible* object) override;
 
   Dali::Accessibility::Accessible* GetApplication() const override
   {

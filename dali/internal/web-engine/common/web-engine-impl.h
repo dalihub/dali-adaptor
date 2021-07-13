@@ -112,12 +112,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetUrl()
    */
-  const std::string& GetUrl();
+  std::string GetUrl() const;
 
   /**
    * @copydoc Dali::WebEngine::GetUserAgent()
    */
-  const std::string& GetUserAgent() const;
+  std::string GetUserAgent() const;
 
   /**
    * @copydoc Dali::WebEngine::SetUserAgent()
@@ -525,14 +525,14 @@ public:
   Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
 
   /**
-   * @copydoc Dali::WebEngine::ContextMenuCustomizedSignal()
+   * @copydoc Dali::WebEngine::ContextMenuShownSignal()
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal();
+  Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& ContextMenuShownSignal();
 
   /**
-   * @copydoc Dali::WebEngine::ContextMenuItemSelectedSignal()
+   * @copydoc Dali::WebEngine::ContextMenuHiddenSignal()
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal();
+  Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal();
 
 private:
   /**

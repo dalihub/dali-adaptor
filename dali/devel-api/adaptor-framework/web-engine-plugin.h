@@ -39,7 +39,6 @@ class WebEngineCertificate;
 class WebEngineConsoleMessage;
 class WebEngineContext;
 class WebEngineContextMenu;
-class WebEngineContextMenuItem;
 class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
 class WebEngineHitTest;
@@ -105,7 +104,7 @@ public:
   using WebEngineRequestInterceptorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineRequestInterceptor>)>;
 
   /**
-   * @brief WebView signal type related with console message will be logged.
+   * @brief WebView signal type related with console message logged.
    */
   using WebEngineConsoleMessageSignalType = Signal<void(std::shared_ptr<Dali::WebEngineConsoleMessage>)>;
 
@@ -120,14 +119,14 @@ public:
   using WebEngineHttpAuthHandlerSignalType = Signal<void(std::shared_ptr<Dali::WebEngineHttpAuthHandler>)>;
 
   /**
-   * @brief WebView signal type related with context menu customized.
+   * @brief WebView signal type related with context menu shown.
    */
-  using WebEngineContextMenuCustomizedSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
+  using WebEngineContextMenuShownSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
 
   /**
-   * @brief WebView signal type related with context menu item selected.
+   * @brief WebView signal type related with context menu hidden.
    */
-  using WebEngineContextMenuItemSelectedSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenuItem>)>;
+  using WebEngineContextMenuHiddenSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -281,7 +280,7 @@ public:
    *
    * @return Url of string type
    */
-  virtual const std::string& GetUrl() = 0;
+  virtual std::string GetUrl() const = 0;
 
   /**
    * @brief Load a given string as web contents.
@@ -536,7 +535,7 @@ public:
    *
    * @return The string value of user agent
    */
-  virtual const std::string& GetUserAgent() const = 0;
+  virtual std::string GetUserAgent() const = 0;
 
   /**
    * @brief Set user agent string.
@@ -847,18 +846,18 @@ public:
   virtual WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal() = 0;
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be customized.
+   * @brief Connect to this signal to be notified when context menu would be shown.
    *
    * @return A signal object to connect with.
    */
-  virtual WebEngineContextMenuCustomizedSignalType& ContextMenuCustomizedSignal() = 0;
+  virtual WebEngineContextMenuShownSignalType& ContextMenuShownSignal() = 0;
 
   /**
-   * @brief Connect to this signal to be notified when context menu item is selected.
+   * @brief Connect to this signal to be notified when context menu would be hidden.
    *
    * @return A signal object to connect with.
    */
-  virtual WebEngineContextMenuItemSelectedSignalType& ContextMenuItemSelectedSignal() = 0;
+  virtual WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal() = 0;
 };
 
 // specialization has to be done in the same namespace

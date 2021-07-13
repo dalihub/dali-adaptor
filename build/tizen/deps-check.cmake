@@ -5,7 +5,7 @@ INCLUDE( common.cmake )
 ARG_ENABLE( ENABLE_EXPORTALL enable_exportall 1 "Enables the exporting of all the symbols in the library" )
 ARG_ENABLE( ENABLE_DEBUG enable_debug ${ENABLE_VAL} "Turns on debugging" )
 ARG_ENABLE( ENABLE_SHADERBINCACHE enable_shaderbincache ${ENABLE_VAL} "Enables shader binary cache" )
-ARG_ENABLE( ENABLE_NETWORKLOGGING enable_networklogging ${ENABLE_VAL} "Enables network for debug tool" )
+ARG_ENABLE( ENABLE_NETWORK_LOGGING enable_network_logging ${ENABLE_VAL} "Enables network for debug tool" )
 
 # Currently, dali-adaptor requires appfw on Tizen
 # and does not require it on Ubuntu.
@@ -169,7 +169,7 @@ IF( enable_shaderbincache )
   ADD_DEFINITIONS( -DSHADERBIN_CACHE_ENABLED )
 ENDIF()
 
-IF( enable_networklogging )
+IF( enable_network_logging )
   ADD_DEFINITIONS( -DNETWORK_LOGGING_ENABLED )
 ENDIF()
 

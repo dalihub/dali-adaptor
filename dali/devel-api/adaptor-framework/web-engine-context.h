@@ -126,6 +126,13 @@ public:
   virtual void SetProxyUri(const std::string& uri) = 0;
 
   /**
+   * @brief Get the proxy URI from the network backend of specific context.
+   *
+   * @return current proxy URI or null if it's not set
+   */
+  virtual std::string GetProxyUri() const = 0;
+
+  /**
    * @brief Set a proxy auth credential to network backend of specific context.
    * @details Normally, proxy auth credential should be got from the callback
    *          set by ewk_view_authentication_callback_set, once the username in
@@ -137,6 +144,21 @@ public:
   virtual void SetDefaultProxyAuth(const std::string& username, const std::string& password) = 0;
 
   /**
+   * @brief Set the given proxy to network backend of specific context.
+   *
+   * @param[in] proxy URI to set
+   * @param[in] bypass rule to set
+   */
+  virtual void SetProxyBypassRule(const std::string& proxy, const std::string& bypass) = 0;
+
+  /**
+   * @brief Get the proxy bypass rule from the network backend of specific context.
+   *
+   * @return current proxy bypass rule or null string if it's not set
+   */
+  virtual std::string GetProxyBypassRule() const = 0;
+
+  /**
    * @brief Add CA certificates to persistent NSS certificate database
    * Function accepts a path to a CA certificate file, a path to a directory
    * containing CA certificate files, or a colon-seprarated list of those.
@@ -145,6 +167,15 @@ public:
    * @param[in] certificatePath path to a CA certificate file(s), see above for details
    */
   virtual void SetCertificateFilePath(const std::string& certificatePath) = 0;
+
+  /**
+   * @brief Get CA certifcate file path
+   *
+   * It returns an internal string and should not be modified.
+   *
+   * @return certificate_file path which is set during ewk_context_certificate_file_set or null string otherwise
+   */
+  virtual std::string GetCertificateFilePath() const = 0;
 
   /**
    * @brief Request for deleting all web databases.
@@ -260,29 +291,20 @@ public:
   virtual bool IsCacheEnabled() const = 0;
 
   /**
-   * @brief Get CA certifcate file path
+   * @brief Set application id for context.
    *
-   * It returns an internal string and should not be modified.
-   *
-   * @return @c certificate_file is path which is set during ewk_context_certificate_file_set or @c null string otherwise
+   * @param[in] appId application id
    */
-  virtual std::string GetContextCertificateFile() const = 0;
+  virtual void SetAppId(const std::string& appId) = 0;
 
   /**
-   * @brief Set application id for @a context.
-   *
-   * @param[in] appID application id
-   */
-  virtual void SetContextAppId(const std::string& appID) = 0;
-
-  /**
-   * @brief Set application version for @a context.
+   * @brief Set application version for context.
    *
    * @param[in] appVersion application version
    *
-   * @return @c true if successful, @c false otherwise
+   * @return true if successful, false otherwise
    */
-  virtual bool SetContextAppVersion(const std::string& appVersion) = 0;
+  virtual bool SetAppVersion(const std::string& appVersion) = 0;
 
   /**
    * @brief To declare application type
@@ -290,14 +312,14 @@ public:
    * @param[in] applicationType The Application_Type enum
    *
    */
-  virtual void SetContextApplicationType(const ApplicationType applicationType) = 0;
+  virtual void SetApplicationType(const ApplicationType applicationType) = 0;
 
   /**
    * @brief Set time offset
    *
    * @param[in] timeOffset The value will be added to system time as offset
    */
-  virtual void SetContextTimeOffset(float timeOffset) = 0;
+  virtual void SetTimeOffset(float timeOffset) = 0;
 
   /**
    * @brief Set timezone offset
@@ -305,7 +327,23 @@ public:
    * @param[in] timeZoneOffset offset for time zone.
    * @param[in] daylightSavingTime The value is for daylight saving time use.
    */
-  virtual void SetContextTimeZoneOffset(float timeZoneOffset, float daylightSavingTime) = 0;
+  virtual void SetTimeZoneOffset(float timeZoneOffset, float daylightSavingTime) = 0;
+
+  /**
+   * @brief Set default zoom factor
+   *
+   * @param[in] zoomFactor default zoom factor
+   */
+  virtual void SetDefaultZoomFactor(float zoomFactor) = 0;
+
+  /**
+   * @brief Get default zoom factor
+   *
+   * Gets default zoom factor for all pages opened with this context.
+   *
+   * @return default zoom factor or negative value on error
+   */
+  virtual float GetDefaultZoomFactor() const = 0;
 
   /**
    * @brief Register url schemes as CORS enabled
@@ -326,22 +364,6 @@ public:
    *                   with the registered MIME type.
    */
   virtual void RegisterJsPluginMimeTypes(const std::vector<std::string>& mimeTypes) = 0;
-
-  /**
-   * @brief Set default zoom factor
-   *
-   * @param[in] zoomFactor default zoom factor
-   */
-  virtual void SetDefaultZoomFactor(float zoomFactor) = 0;
-
-  /**
-   * @brief Get default zoom factor
-   *
-   * Gets default zoom factor for all pages opened with this context.
-   *
-   * @return @c default zoom factor or negative value on error
-   */
-  virtual float GetContextDefaultZoomFactor() const = 0;
 
   /**
    * @brief Request for deleting all web application caches.
@@ -373,28 +395,6 @@ public:
    * @brief Delete all candidate form data from DB
    */
   virtual void DeleteAllFormCandidateData() = 0;
-
-  /**
-   * @brief Get the proxy URI from the network backend of specific context.
-   *
-   * @return current proxy URI or @c null string if it's not set
-   */
-  virtual std::string GetContextProxy() const = 0;
-
-  /**
-   * @brief Set the given proxy to network backend of specific context.
-   *
-   * @param[in] proxy URI to set
-   * @param[in] bypass rule to set
-   */
-  virtual void SetContextProxy(const std::string& proxy, const std::string& bypass) = 0;
-
-  /**
-   * @brief Get the proxy bypass rule from the network backend of specific context.
-   *
-   * @return current proxy bypass rule or @c null string if it's not set
-   */
-  virtual std::string GetProxyBypassRule() const = 0;
 
   /**
    * @brief Notify low memory to free unused memory.

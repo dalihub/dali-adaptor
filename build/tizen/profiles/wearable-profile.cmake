@@ -80,4 +80,3 @@ IF( COMPONENT_APPLICATION_SUPPORT )
         ${adaptor_adaptor_component_application_src_files}
       )
 ENDIF()
-

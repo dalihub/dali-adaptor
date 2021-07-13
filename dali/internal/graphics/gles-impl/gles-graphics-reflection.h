@@ -186,7 +186,7 @@ public:
    *
    * @return A vector of the sampler uniforms
    */
-  [[nodiscard]] std::vector<Dali::Graphics::UniformInfo> GetSamplers() const override;
+  const std::vector<Dali::Graphics::UniformInfo>& GetSamplers() const override;
 
   // Language
 

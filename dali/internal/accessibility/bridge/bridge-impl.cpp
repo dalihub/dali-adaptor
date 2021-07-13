@@ -99,18 +99,18 @@ public:
       return Consumed::NO;
     }
 
-    unsigned int evType = 0;
+    unsigned int keyType = 0;
 
     switch(type)
     {
       case KeyEventType::KEY_PRESSED:
       {
-        evType = 0;
+        keyType = 0;
         break;
       }
       case KeyEventType::KEY_RELEASED:
       {
-        evType = 1;
+        keyType = 1;
         break;
       }
       default:
@@ -119,7 +119,7 @@ public:
       }
     }
     auto m      = registryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
-    auto result = m.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{evType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
+    auto result = m.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
     if(!result)
     {
       LOG() << result.getError().message;
@@ -199,14 +199,14 @@ public:
 
   void ForceDown() override
   {
-    if(data)
+    if(mData)
     {
-      if(data->currentlyHighlightedActor && data->highlightActor)
+      if(mData->mCurrentlyHighlightedActor && mData->mHighlightActor)
       {
-        data->currentlyHighlightedActor.Remove(data->highlightActor);
+        mData->mCurrentlyHighlightedActor.Remove(mData->mHighlightActor);
       }
-      data->currentlyHighlightedActor = {};
-      data->highlightActor            = {};
+      mData->mCurrentlyHighlightedActor = {};
+      mData->mHighlightActor            = {};
     }
     highlightedActor     = {};
     highlightClearAction = {};
@@ -218,10 +218,10 @@ public:
 
   void Terminate() override
   {
-    if(data)
+    if(mData)
     {
-      data->currentlyHighlightedActor = {};
-      data->highlightActor            = {};
+      mData->mCurrentlyHighlightedActor = {};
+      mData->mHighlightActor            = {};
     }
     ForceDown();
     listenOnAtspiEnabledSignalClient = {};
@@ -314,17 +314,19 @@ public:
 
   void Initialize() override
   {
-    auto req = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
-    auto p   = req.property<bool>("ScreenReaderEnabled").get();
-    if(p)
+    auto dbusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
+    auto enabled = dbusClient.property<bool>("ScreenReaderEnabled").get();
+    if(enabled)
     {
-      screenReaderEnabled = std::get<0>(p);
+      screenReaderEnabled = std::get<0>(enabled);
     }
-    p = req.property<bool>("IsEnabled").get();
-    if(p)
+
+    enabled = dbusClient.property<bool>("IsEnabled").get();
+    if(enabled)
     {
-      isEnabled = std::get<0>(p);
+      isEnabled = std::get<0>(enabled);
     }
+
     if(screenReaderEnabled || isEnabled)
     {
       ForceUp();
@@ -336,7 +338,7 @@ public:
     return screenReaderEnabled;
   }
 
-  bool GetIsEnabled()
+  bool IsEnabled()
   {
     return isEnabled;
   }

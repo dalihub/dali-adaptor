@@ -35,23 +35,23 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return name;
   }
 
-  void AddTopLevelWindow(Accessibility::Accessible*) override
+  void AddTopLevelWindow(Accessibility::Accessible* object) override
   {
   }
 
-  void RemoveTopLevelWindow(Accessibility::Accessible*) override
+  void RemoveTopLevelWindow(Accessibility::Accessible* object) override
   {
   }
 
-  void AddPopup(Accessibility::Accessible*) override
+  void AddPopup(Accessibility::Accessible* object) override
   {
   }
 
-  void RemovePopup(Accessibility::Accessible*) override
+  void RemovePopup(Accessibility::Accessible* object) override
   {
   }
 
-  void SetApplicationName(std::string) override
+  void SetApplicationName(std::string name) override
   {
   }
 
@@ -60,7 +60,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return nullptr;
   }
 
-  Accessibility::Accessible* FindByPath(const std::string& s) const override
+  Accessibility::Accessible* FindByPath(const std::string& path) const override
   {
     return nullptr;
   }
@@ -90,7 +90,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitCaretMoved(Accessibility::Accessible* obj, unsigned int cursorPosition) override
+  void EmitCursorMoved(Accessibility::Accessible* obj, unsigned int cursorPosition) override
   {
   }
 
@@ -102,11 +102,11 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int val1, int val2) override
+  void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int newValue, int reserved) override
   {
   }
 
-  void Emit(Accessibility::Accessible* obj, Accessibility::WindowEvent we, unsigned int detail1) override
+  void Emit(Accessibility::Accessible* obj, Accessibility::WindowEvent event, unsigned int detail) override
   {
   }
 
@@ -148,7 +148,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return false;
   }
 
-  bool GetIsEnabled() override
+  bool IsEnabled() override
   {
     return false;
   }

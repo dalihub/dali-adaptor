@@ -59,12 +59,12 @@ bool Accessibility::Component::IsScrollable()
   return false;
 }
 
-bool Accessibility::Component::Contains(Point p, CoordType ctype)
+bool Accessibility::Component::IsAccessibleContainedAtPoint(Point point, CoordinateType type)
 {
   return false;
 }
 
-Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point p, Accessibility::CoordType ctype)
+Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Accessibility::Point p, Accessibility::CoordinateType ctype)
 {
   return nullptr;
 }
@@ -82,7 +82,7 @@ void Accessibility::Bridge::EnableAutoInit()
 {
 }
 
-void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue1, int newValue2)
+void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue, int reserved)
 {
 }
 
@@ -118,7 +118,7 @@ void Accessibility::Accessible::EmitTextDeleted(unsigned int position, unsigned 
 {
 }
 
-void Accessibility::Accessible::EmitTextCaretMoved(unsigned int cursorPosition)
+void Accessibility::Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
 {
 }
 
@@ -126,15 +126,15 @@ void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Acces
 {
 }
 
-void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
+void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
 }
 
-void Accessibility::Accessible::FindLineSeparationsUtf8(const utf8_t* s, size_t length, const char* language, char* breaks)
+void Accessibility::Accessible::FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
 }
 
-void Accessibility::Accessible::NotifyAccessibilityStateChange(Accessibility::States states, bool doRecursive)
+void Accessibility::Accessible::NotifyAccessibilityStateChange(Accessibility::States states, bool isRecursive)
 {
 }
 

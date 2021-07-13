@@ -21,6 +21,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
 #include <iomanip>
@@ -164,6 +165,8 @@ void SetProperty(Dali::Handle handle, int propertyId, JsonPropertyValue& propert
 
 int SetProperties(const std::string& setPropertyMessage)
 {
+  Dali::Actor root = Dali::Internal::Adaptor::Adaptor::Get().GetWindows()[0].GetRootLayer();
+
   std::istringstream iss(setPropertyMessage);
   std::string        token;
   getline(iss, token, '|'); // swallow command name
@@ -177,9 +180,8 @@ int SetProperties(const std::string& setPropertyMessage)
       getline(propss, propName, ';');
       getline(propss, propValue);
 
-      Dali::Actor root = Dali::Stage::GetCurrent().GetRootLayer();
-      int         id   = atoi(actorId.c_str());
-      Dali::Actor a    = root.FindChildById(id);
+      int         id = atoi(actorId.c_str());
+      Dali::Actor a  = root.FindChildById(id);
       if(a)
       {
         // lookup by name for custom properties
@@ -343,8 +345,9 @@ std::string DumpJson(Dali::Actor actor, int level)
 {
   // All the information about this actor
   std::ostringstream msg;
-  msg << "{ " << Quote("Name") << " : " << Quote(actor.GetProperty<std::string>(Actor::Property::NAME)) << ", " << Quote("level") << " : " << level << ", " << Quote("id") << " : " << actor.GetId() << ", " << Quote("IsVisible")
-      << " : " << actor.GetCurrentProperty<bool>(Actor::Property::VISIBLE) << ", " << Quote("IsSensitive") << " : " << actor.GetProperty<bool>(Actor::Property::SENSITIVE);
+  int                id = actor["id"];
+  msg << "{ " << Quote("Name") << " : " << Quote(actor.GetProperty<std::string>(Dali::Actor::Property::NAME)) << ", " << Quote("level") << " : " << level << ", " << Quote("id") << " : " << id << ", " << Quote("IsVisible")
+      << " : " << actor.GetCurrentProperty<bool>(Dali::Actor::Property::VISIBLE) << ", " << Quote("IsSensitive") << " : " << actor.GetProperty<bool>(Dali::Actor::Property::SENSITIVE);
 
   msg << ", " << Quote("properties") << ": [ ";
 
@@ -401,7 +404,7 @@ std::string DumpJson(Dali::Actor actor, int level)
 
 std::string GetActorTree()
 {
-  Dali::Actor actor = Dali::Stage::GetCurrent().GetRootLayer();
+  Dali::Actor actor = Dali::Internal::Adaptor::Adaptor::Get().GetWindows()[0].GetRootLayer();
   std::string str   = DumpJson(actor, 0);
   return str;
 }

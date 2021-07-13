@@ -111,11 +111,11 @@ void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChan
   }
 }
 
-void BridgeObject::Emit(Accessible* obj, WindowEvent we, unsigned int detail1)
+void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 {
   if(!IsUp()) return;
   const char* name = nullptr;
-  switch(we)
+  switch(event)
   {
     case WindowEvent::PROPERTY_CHANGE:
     {
@@ -226,14 +226,14 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent we, unsigned int detail1)
       AtspiDbusInterfaceEventWindow,
       name,
       "",
-      detail1,
+      detail,
       0,
       {0},
       {"", "root"});
   }
 }
 
-void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue1, int newValue2)
+void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, int reserved)
 {
   if(!IsUp()) return;
   const char* stateName = nullptr;
@@ -487,8 +487,8 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue1,
       AtspiDbusInterfaceEventObject,
       "StateChanged",
       stateName,
-      newValue1,
-      newValue2,
+      newValue,
+      reserved,
       {0},
       {"", "root"});
   }
@@ -521,7 +521,7 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
   });
 }
 
-void BridgeObject::EmitCaretMoved(Accessible* obj, unsigned int cursorPosition)
+void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
   auto        addr = obj->GetAddress();
   std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;

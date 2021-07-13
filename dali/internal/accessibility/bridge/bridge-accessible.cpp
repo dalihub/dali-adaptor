@@ -34,16 +34,16 @@ namespace {
 
 bool SortVertically(Component* lhs, Component* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
 
   return leftRect.y < rightRect.y;
 }
 
 bool SortHorizontally(Component* lhs, Component* rhs)
 {
-  auto leftRect  = lhs->GetExtents(CoordType::WINDOW);
-  auto rightRect = rhs->GetExtents(CoordType::WINDOW);
+  auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
+  auto rightRect = rhs->GetExtents(CoordinateType::WINDOW);
 
   return leftRect.x < rightRect.x;
 }
@@ -52,7 +52,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
 {
   // Find first with non-zero area
   auto first = std::find_if(children.begin(), children.end(), [](Component* component) -> bool {
-    auto extents = component->GetExtents(CoordType::WINDOW);
+    auto extents = component->GetExtents(CoordinateType::WINDOW);
     return extents.height != 0.0f && extents.width != 0.0f;
   });
 
@@ -62,7 +62,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   }
 
   std::vector<std::vector<Component*>> lines(1);
-  Dali::Rect<> lineRect = (*first)->GetExtents(CoordType::WINDOW);
+  Dali::Rect<> lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
   Dali::Rect<> rect;
 
   // Split into lines
@@ -70,7 +70,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   {
     auto child = *it;
 
-    rect = child->GetExtents(CoordType::WINDOW);
+    rect = child->GetExtents(CoordinateType::WINDOW);
     if(rect.height == 0.0f || rect.width == 0.0f)
     {
       // Zero area, ignore
@@ -164,11 +164,11 @@ static bool ObjectIsCollapsed(Component* obj)
   return states[State::EXPANDABLE] && !states[State::EXPANDED];
 }
 
-static bool OobjectIsZeroSize(Component* obj)
+static bool ObjectIsZeroSize(Component* obj)
 {
   if(!obj)
     return false;
-  auto extents = obj->GetExtents(CoordType::WINDOW);
+  auto extents = obj->GetExtents(CoordinateType::WINDOW);
   return extents.height == 0 || extents.width == 0;
 }
 
@@ -195,7 +195,7 @@ static bool AcceptObject(Component* obj)
   }
   else
   {
-    if(OobjectIsZeroSize(obj))
+    if(ObjectIsZeroSize(obj))
     {
       return false;
     }
@@ -213,12 +213,50 @@ static bool AcceptObject(Accessible* obj)
   return AcceptObject(c);
 }
 
+static int32_t GetItemCountOfList(Accessible* obj)
+{
+  int32_t itemCount = 0;
+  if(obj && obj->GetRole() == Role::LIST)
+  {
+    for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
+    {
+      auto child = obj->GetChildAtIndex(i);
+      if(child && child->GetRole() == Role::LIST_ITEM)
+      {
+        itemCount++;
+      }
+    }
+  }
+  return itemCount;
+}
+
+static int32_t GetItemCountOfFirstDescendantList(Accessible* obj)
+{
+  int32_t itemCount = 0;
+  itemCount         = GetItemCountOfList(obj);
+  if(itemCount > 0 || !obj)
+  {
+    return itemCount;
+  }
+
+  for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
+  {
+    auto child = obj->GetChildAtIndex(i);
+    itemCount  = GetItemCountOfFirstDescendantList(child);
+    if(itemCount > 0)
+    {
+      return itemCount;
+    }
+  }
+  return itemCount;
+}
+
 static std::string objDump(Component* obj)
 {
   if(!obj)
     return "nullptr";
   std::ostringstream o;
-  auto               e = obj->GetExtents(CoordType::SCREEN);
+  auto               e = obj->GetExtents(CoordinateType::SCREEN);
   o << "name: " << obj->GetName() << " extent: (" << e.x << ", "
     << e.y << "), [" << e.width << ", " << e.height << "]";
   return o.str();
@@ -248,30 +286,40 @@ static std::string makeIndent(unsigned int maxRecursionDepth)
   return std::string(GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH - maxRecursionDepth, ' ');
 }
 
-Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point p, CoordType cType, unsigned int maxRecursionDepth)
+Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* root, Point p, CoordinateType type, unsigned int maxRecursionDepth)
 {
   if(!root || maxRecursionDepth == 0)
+  {
     return nullptr;
+  }
+
   auto root_component = dynamic_cast<Component*>(root);
   LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << makeIndent(maxRecursionDepth) << objDump(root_component);
 
-  if(root_component && !root_component->Contains(p, cType))
+  if(root_component && !root_component->IsAccessibleContainedAtPoint(p, type))
+  {
     return nullptr;
+  }
 
   auto children = root->GetChildren();
   for(auto childIt = children.rbegin(); childIt != children.rend(); childIt++)
   {
     //check recursively all children first
-    auto result = CalculateNavigableAccessibleAtPoint(*childIt, p, cType, maxRecursionDepth - 1);
+    auto result = CalculateNavigableAccessibleAtPoint(*childIt, p, type, maxRecursionDepth - 1);
     if(result)
+    {
       return result;
+    }
   }
+
   if(root_component)
   {
     //Found a candidate, all its children are already checked
     auto controledBy = GetObjectInRelation(root_component, RelationType::CONTROLLED_BY);
     if(!controledBy)
+    {
       controledBy = root_component;
+    }
 
     if(controledBy->IsProxy() || AcceptObject(controledBy))
     {
@@ -284,69 +332,100 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
 
 BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 {
-  auto        self          = FindSelf();
-  auto        attributes    = self->GetAttributes();
-  auto        name          = self->GetName();
-  std::string labeledByName = "";
-  std::string textIfceName  = "";
-  auto        role          = static_cast<uint32_t>(self->GetRole());
-  auto        states        = self->GetStates();
-  auto        localizedName = self->GetLocalizedRoleName();
-  auto        childCount    = static_cast<int32_t>(self->GetChildCount());
+  auto self                     = FindSelf();
+  auto findObjectByRelationType = [this, &self](RelationType relationType) {
+    auto relations = self->GetRelationSet();
+    auto relation  = std::find_if(relations.begin(),
+                                 relations.end(),
+                                 [relationType](const Dali::Accessibility::Relation& relation) -> bool {
+                                   return relation.relationType == relationType;
+                                 });
+    return relations.end() != relation && !relation->targets.empty() ? Find(relation->targets.back()) : nullptr;
+  };
+
+  auto        labellingObject = findObjectByRelationType(RelationType::LABELLED_BY);
+  std::string labeledByName   = labellingObject ? labellingObject->GetName() : "";
+
+  auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
 
   double currentValue     = 0.0;
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
   double minimumValue     = 0.0;
-
-  auto* value = dynamic_cast<Dali::Accessibility::Value*>(self);
-  if(value)
+  auto*  valueInterface   = dynamic_cast<Dali::Accessibility::Value*>(self);
+  if(valueInterface)
   {
-    currentValue     = value->GetCurrent();
-    minimumIncrement = value->GetMinimumIncrement();
-    maximumValue     = value->GetMaximum();
-    minimumValue     = value->GetMinimum();
+    currentValue     = valueInterface->GetCurrent();
+    minimumIncrement = valueInterface->GetMinimumIncrement();
+    maximumValue     = valueInterface->GetMaximum();
+    minimumValue     = valueInterface->GetMinimum();
   }
 
-  auto    description             = self->GetDescription();
-  auto    indexInParent           = static_cast<int32_t>(self->GetIndexInParent());
-  bool    isSelectedInParent      = false;
-  bool    hasCheckBoxChild        = false;
   int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount      = 0;
-
-  for(auto i = 0u; i < static_cast<size_t>(childCount); ++i)
+  auto*   selfSelectionInterface  = dynamic_cast<Dali::Accessibility::Selection*>(self);
+  if(selfSelectionInterface)
   {
-    auto q = self->GetChildAtIndex(i);
-    auto s = q->GetStates();
-    if(s[State::SELECTABLE])
+    selectedChildCount      = selfSelectionInterface->GetSelectedChildrenCount();
+    auto firstSelectedChild = selfSelectionInterface->GetSelectedChild(0);
+    if(firstSelectedChild)
     {
-      if(s[State::SELECTED])
-      {
-        ++selectedChildCount;
-        if(firstSelectedChildIndex < 0)
-          firstSelectedChildIndex = static_cast<int32_t>(i);
-      }
+      firstSelectedChildIndex = firstSelectedChild->GetIndexInParent();
     }
-    if(q->GetRole() == Role::CHECK_BOX)
-      hasCheckBoxChild = true;
   }
 
-  int32_t     listChildrenCount = 0;
-  Accessible* parent            = self->GetParent();
-  auto        parentStateSet    = parent ? parent->GetStates() : States{};
-  auto        parentChildCount  = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
-  auto        parentRole        = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
-  Accessible* describedByObject = nullptr;
+  auto childCount       = static_cast<int32_t>(self->GetChildCount());
+  bool hasCheckBoxChild = false;
+  for(auto i = 0u; i < static_cast<size_t>(childCount); ++i)
+  {
+    auto child = self->GetChildAtIndex(i);
+    if(child->GetRole() == Role::CHECK_BOX)
+    {
+      hasCheckBoxChild = true;
+      break;
+    }
+  }
+
+  auto    role              = static_cast<uint32_t>(self->GetRole());
+  int32_t listChildrenCount = 0;
+  if(role == static_cast<uint32_t>(Role::DIALOG))
+  {
+    listChildrenCount = GetItemCountOfFirstDescendantList(self);
+  }
+
+  auto*       textInterface         = dynamic_cast<Dali::Accessibility::Text*>(self);
+  std::string nameFromTextInterface = "";
+  if(textInterface)
+  {
+    nameFromTextInterface = textInterface->GetText(0, textInterface->GetCharacterCount());
+  }
+
+  auto description       = self->GetDescription();
+  auto attributes        = self->GetAttributes();
+  auto states            = self->GetStates();
+  auto name              = self->GetName();
+  auto localizedRoleName = self->GetLocalizedRoleName();
+  auto indexInParent     = static_cast<int32_t>(self->GetIndexInParent());
+
+  auto  parent                   = self->GetParent();
+  auto  parentRole               = static_cast<uint32_t>(parent ? parent->GetRole() : Role{});
+  auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
+  auto  parentStateSet           = parent ? parent->GetStates() : States{};
+  bool  isSelectedInParent       = false;
+  auto* parentSelectionInterface = dynamic_cast<Dali::Accessibility::Selection*>(parent);
+  if(parentSelectionInterface)
+  {
+    isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
+  }
 
   return {
     attributes,
     name,
     labeledByName,
-    textIfceName,
+    nameFromTextInterface,
     role,
     states,
-    localizedName,
+    localizedRoleName,
     childCount,
     currentValue,
     minimumIncrement,
@@ -376,12 +455,12 @@ DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gestur
   return FindSelf()->DoGesture(Dali::Accessibility::GestureInfo{type, xBeg, xEnd, yBeg, yEnd, state, eventTime});
 }
 
-DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordType)
+DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavigableAtPoint(int32_t x, int32_t y, uint32_t coordinateType)
 {
   Accessible* deputy     = nullptr;
   auto        accessible = FindSelf();
-  auto        cType      = static_cast<CoordType>(coordType);
-  LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordType;
+  auto        cType      = static_cast<CoordinateType>(coordinateType);
+  LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
   auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
   bool recurse   = false;
   if(component)
