@@ -86,7 +86,6 @@ void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
   if(surface)
   {
-    surface->InitializeGraphics();
     surface->MakeContextCurrent();
   }
 
@@ -170,6 +169,7 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
     currentSurface = surface;
     if(currentSurface)
     {
+      currentSurface->InitializeGraphics();
       ActivateSurfaceContext(currentSurface);
     }
   }

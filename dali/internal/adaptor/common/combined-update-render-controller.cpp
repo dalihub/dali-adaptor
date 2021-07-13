@@ -701,6 +701,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
           Rect<int> clippingRect; // Empty for fbo rendering
 
+          windowSurface->InitializeGraphics();
+
           // Switch to the context of the surface, merge damaged areas for previous frames
           windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
 
