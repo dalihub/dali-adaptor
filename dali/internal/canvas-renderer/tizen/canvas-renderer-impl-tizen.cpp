@@ -267,6 +267,25 @@ bool CanvasRendererTizen::Rasterize()
 #endif
 }
 
+bool CanvasRendererTizen::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable)
+{
+#ifdef THORVG_SUPPORT
+  DrawableGroup::DrawableVector::iterator it = std::find(mDrawables.begin(), mDrawables.end(), drawable);
+  if(it != mDrawables.end())
+  {
+    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
+    drawableImpl.SetAdded(false);
+
+    mDrawables.erase(it);
+    mChanged = true;
+
+    return true;
+  }
+
+#endif
+  return false;
+}
+
 bool CanvasRendererTizen::SetSize(const Vector2& size)
 {
   if(size.width < 1.0f || size.height < 1.0f)
