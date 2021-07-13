@@ -286,6 +286,24 @@ bool CanvasRendererTizen::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawabl
   return false;
 }
 
+bool CanvasRendererTizen::RemoveAllDrawables()
+{
+#ifdef THORVG_SUPPORT
+  for(auto& it : mDrawables)
+  {
+    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(it);
+    drawableImpl.SetAdded(false);
+  }
+
+  mDrawables.clear();
+  mChanged = true;
+
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool CanvasRendererTizen::SetSize(const Vector2& size)
 {
   if(size.width < 1.0f || size.height < 1.0f)

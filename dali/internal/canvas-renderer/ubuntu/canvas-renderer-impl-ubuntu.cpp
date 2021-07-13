@@ -286,6 +286,24 @@ bool CanvasRendererUbuntu::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawab
   return false;
 }
 
+bool CanvasRendererUbuntu::RemoveAllDrawables()
+{
+#ifdef THORVG_SUPPORT
+  for(auto& it : mDrawables)
+  {
+    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(it);
+    drawableImpl.SetAdded(false);
+  }
+
+  mDrawables.clear();
+  mChanged = true;
+
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool CanvasRendererUbuntu::SetSize(const Vector2& size)
 {
   if(size.width < 1.0f || size.height < 1.0f)

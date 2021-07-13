@@ -110,6 +110,12 @@ public:
   bool RemoveDrawable(Drawable& drawable);
 
   /**
+   * @brief Remove all drawable objects added to the CanvasRenderer.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool RemoveAllDrawables();
+
+  /**
    * @brief Returns the PixelBuffer, which is the Render buffer of Canvas.
    *
    * @return Returns the pixel buffer.
