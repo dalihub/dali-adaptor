@@ -19,9 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#ifdef THORVG_SUPPORT
-#include <thorvg.h>
-#endif
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
