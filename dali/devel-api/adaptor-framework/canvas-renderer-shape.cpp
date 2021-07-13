@@ -93,6 +93,16 @@ Vector4 CanvasRenderer::Shape::GetFillColor() const
   return GetImplementation(*this).GetFillColor();
 }
 
+bool CanvasRenderer::Shape::SetFillGradient(CanvasRenderer::Gradient& gradient)
+{
+  return GetImplementation(*this).SetFillGradient(gradient);
+}
+
+CanvasRenderer::Gradient CanvasRenderer::Shape::GetFillGradient() const
+{
+  return GetImplementation(*this).GetFillGradient();
+}
+
 bool CanvasRenderer::Shape::SetFillRule(CanvasRenderer::Shape::FillRule rule)
 {
   return GetImplementation(*this).SetFillRule(rule);
@@ -121,6 +131,16 @@ bool CanvasRenderer::Shape::SetStrokeColor(Vector4 color)
 Vector4 CanvasRenderer::Shape::GetStrokeColor() const
 {
   return GetImplementation(*this).GetStrokeColor();
+}
+
+bool CanvasRenderer::Shape::SetStrokeGradient(CanvasRenderer::Gradient& gradient)
+{
+  return GetImplementation(*this).SetStrokeGradient(gradient);
+}
+
+CanvasRenderer::Gradient CanvasRenderer::Shape::GetStrokeGradient() const
+{
+  return GetImplementation(*this).GetStrokeGradient();
 }
 
 bool CanvasRenderer::Shape::SetStrokeDash(const Dali::Vector<float>& dashPattern)

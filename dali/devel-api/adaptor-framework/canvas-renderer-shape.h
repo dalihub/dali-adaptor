@@ -200,6 +200,19 @@ public:
   Vector4 GetFillColor() const;
 
   /**
+   * @brief Set the gradient to use for filling the path.
+   * @param[in] gradient The gradient object.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetFillGradient(CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @brief Get the gradient to use for filling the path.
+   * @return Returns The gradient object.
+   */
+  CanvasRenderer::Gradient GetFillGradient() const;
+
+  /**
    * @brief Set the fill rule.
    * @param[in] rule The current fill rule of the shape.
    * @return Returns True when it's successful. False otherwise.
@@ -237,6 +250,19 @@ public:
    * @return Returns the stroking color.
    */
   Vector4 GetStrokeColor() const;
+
+  /**
+   * @brief Set the gradient to use for stroking the path.
+   * @param[in] gradient The gradient object.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetStrokeGradient(CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @brief Get the gradient to use for stroking the path.
+   * @return Returns The gradient object.
+   */
+  CanvasRenderer::Gradient GetStrokeGradient() const;
 
   /**
    * @brief Sets the stroke dash pattern. The dash pattern is specified dash pattern.

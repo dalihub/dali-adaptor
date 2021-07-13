@@ -86,6 +86,10 @@ public:
   class Shape;
   class DrawableGroup;
 
+  class Gradient;
+  class LinearGradient;
+  class RadialGradient;
+
 public:
   /**
    * @brief Prepare for drawing drawables added to CanvasRenderer on inner canvas.
