@@ -65,6 +65,21 @@ public:
   void IgnoreSourceImage() override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::CanDequeueBuffer
+   */
+  bool CanDequeueBuffer() override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::DequeueBuffer
+   */
+  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
+   */
+  bool EnqueueBuffer(uint8_t* buffer) override;
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueAndroid() override;

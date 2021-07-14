@@ -111,6 +111,36 @@ public:
   void IgnoreSourceImage();
 
   /**
+   * @brief Checks if the buffer can be got from the queue.
+   *
+   * Check the available buffer using this API before call DequeueBuffer()
+   * @return True if the buffer can be got from the queue.
+   */
+  bool CanDequeueBuffer();
+
+  /**
+   * @brief Dequeue buffer from the queue.
+   *
+   * Acquire buffer and information of the queue.
+   * it returns the information of the buffer.
+   * @param[out] width The width of buffer
+   * @param[out] height The height of buffer
+   * @param[out] stride The stride of buffer
+   * @return A pointer of buffer
+   */
+  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride);
+
+  /**
+   * @brief Enqueue buffer to the queue.
+   *
+   * Enqueue buffer to the queue
+   * this requests the release of the buffer internally.
+   * @param[in] buffer A pointer of buffer
+   * @return True if success
+   */
+  bool EnqueueBuffer(uint8_t* buffer);
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()
    */
   int GetTextureTarget() const override;

@@ -54,6 +54,21 @@ public:
   virtual void IgnoreSourceImage() = 0;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::CanDequeueBuffer
+   */
+  virtual bool CanDequeueBuffer() = 0;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::DequeueBuffer
+   */
+  virtual uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) = 0;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
+   */
+  virtual bool EnqueueBuffer(uint8_t* buffer) = 0;
+
+  /**
    * destructor
    */
   virtual ~NativeImageSourceQueue() = default;

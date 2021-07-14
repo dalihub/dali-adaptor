@@ -79,6 +79,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_
   mTbmQueue(NULL),
   mConsumeSurface(NULL),
   mEglImages(),
+  mBuffers(),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mOwnTbmQueue(false),
@@ -206,6 +207,78 @@ void NativeImageSourceQueueTizen::IgnoreSourceImage()
       tbm_surface_queue_release(mTbmQueue, surface);
     }
   }
+}
+
+bool NativeImageSourceQueueTizen::CanDequeueBuffer()
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  if(tbm_surface_queue_can_dequeue(mTbmQueue, 0))
+  {
+    return true;
+  }
+  return false;
+}
+
+uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  if(mTbmQueue == NULL)
+  {
+    DALI_LOG_ERROR("TbmQueue is NULL");
+    return NULL;
+  }
+
+  tbm_surface_h tbmSurface;
+  if(tbm_surface_queue_dequeue(mTbmQueue, &tbmSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("Failed to dequeue a tbm_surface [%p]\n", tbmSurface);
+    return NULL;
+  }
+
+  tbm_surface_info_s info;
+  int                ret = tbm_surface_map(tbmSurface, TBM_OPTION_WRITE, &info);
+  if(ret != TBM_SURFACE_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("tbm_surface_map is failed! [%d] [%p]\n", ret, tbmSurface);
+    tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+    return NULL;
+  }
+
+  unsigned char* buffer = info.planes[0].ptr;
+  if(!buffer)
+  {
+    DALI_LOG_ERROR("tbm buffer pointer is null! [%p]\n", tbmSurface);
+    tbm_surface_unmap(tbmSurface);
+    tbm_surface_queue_cancel_dequeue(mTbmQueue, tbmSurface);
+    return NULL;
+  }
+
+  tbm_surface_internal_ref(tbmSurface);
+
+  stride = info.planes[0].stride;
+  width  = mWidth;
+  height = mHeight;
+
+  // Push the buffer
+  mBuffers.push_back(BufferPair(tbmSurface, buffer));
+  return buffer;
+}
+
+bool NativeImageSourceQueueTizen::EnqueueBuffer(uint8_t* buffer)
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  auto                    bufferInstance = std::find_if(mBuffers.begin(),
+                                     mBuffers.end(),
+                                     [buffer](BufferPair pair) { return (pair.second == buffer); });
+  if(bufferInstance != mBuffers.end())
+  {
+    tbm_surface_internal_unref((*bufferInstance).first);
+    tbm_surface_unmap((*bufferInstance).first);
+    tbm_surface_queue_enqueue(mTbmQueue, (*bufferInstance).first);
+    mBuffers.erase(bufferInstance);
+    return true;
+  }
+  return false;
 }
 
 bool NativeImageSourceQueueTizen::CreateResource()

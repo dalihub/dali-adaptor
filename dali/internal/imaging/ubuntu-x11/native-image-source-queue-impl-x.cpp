@@ -70,6 +70,21 @@ void NativeImageSourceQueueX::IgnoreSourceImage()
 {
 }
 
+bool NativeImageSourceQueueX::CanDequeueBuffer()
+{
+  return false;
+}
+
+uint8_t* NativeImageSourceQueueX::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueX::EnqueueBuffer(uint8_t* buffer)
+{
+  return false;
+}
+
 bool NativeImageSourceQueueX::CreateResource()
 {
   return true;

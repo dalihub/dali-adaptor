@@ -66,6 +66,21 @@ void NativeImageSourceQueueAndroid::IgnoreSourceImage()
 {
 }
 
+bool NativeImageSourceQueueAndroid::CanDequeueBuffer()
+{
+  return false;
+}
+
+uint8_t* NativeImageSourceQueueAndroid::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueAndroid::EnqueueBuffer(uint8_t* buffer)
+{
+  return false;
+}
+
 bool NativeImageSourceQueueAndroid::CreateResource()
 {
   return true;

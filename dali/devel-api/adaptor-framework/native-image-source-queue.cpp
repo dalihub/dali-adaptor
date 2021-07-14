@@ -60,6 +60,21 @@ void NativeImageSourceQueue::IgnoreSourceImage()
   mImpl->IgnoreSourceImage();
 }
 
+bool NativeImageSourceQueue::CanDequeueBuffer()
+{
+  return mImpl->CanDequeueBuffer();
+}
+
+uint8_t* NativeImageSourceQueue::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+{
+  return mImpl->DequeueBuffer(width, height, stride);
+}
+
+bool NativeImageSourceQueue::EnqueueBuffer(uint8_t* buffer)
+{
+  return mImpl->EnqueueBuffer(buffer);
+}
+
 bool NativeImageSourceQueue::CreateResource()
 {
   return mImpl->CreateResource();

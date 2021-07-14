@@ -69,6 +69,21 @@ public:
   void IgnoreSourceImage() override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::CanDequeueBuffer
+   */
+  bool CanDequeueBuffer() override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::DequeueBuffer
+   */
+  uint8_t* DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
+   */
+  bool EnqueueBuffer(uint8_t* buffer) override;
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueTizen() override;
@@ -175,17 +190,19 @@ private:
 
 private:
   typedef std::pair<tbm_surface_h, void*> EglImagePair;
+  typedef std::pair<tbm_surface_h, void*> BufferPair;
 
-  Dali::Mutex               mMutex;              ///< Mutex
-  uint32_t                  mWidth;              ///< image width
-  uint32_t                  mHeight;             ///< image height
-  tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle
-  tbm_surface_h             mConsumeSurface;     ///< The current tbm surface
-  std::vector<EglImagePair> mEglImages;          ///< EGL Image vector
-  EglGraphics*              mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
-  bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                      mBlendingRequired;   ///< Whether blending is required
+  Dali::Mutex               mMutex;                ///< Mutex
+  uint32_t                  mWidth;                ///< image width
+  uint32_t                  mHeight;               ///< image height
+  tbm_surface_queue_h       mTbmQueue;             ///< Tbm surface queue handle
+  tbm_surface_h             mConsumeSurface;       ///< The current tbm surface
+  std::vector<EglImagePair> mEglImages;            ///< EGL Image vector
+  std::vector<BufferPair>   mBuffers;              ///< Buffer vector
+  EglGraphics*              mEglGraphics;          ///< EGL Graphics
+  EglImageExtensions*       mEglImageExtensions;   ///< The EGL Image Extensions
+  bool                      mOwnTbmQueue;          ///< Whether we created tbm queue
+  bool                      mBlendingRequired;     ///< Whether blending is required
 };
 
 } // namespace Adaptor
