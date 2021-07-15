@@ -287,12 +287,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::EvaluateJavaScript()
    */
-  void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler);
+  void EvaluateJavaScript(const std::string& script, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback resultHandler);
 
   /**
    * @copydoc Dali::WebEngine::AddJavaScriptMessageHandler()
    */
-  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
+  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
    * @copydoc Dali::WebEngine::ClearAllTilesResources()
@@ -455,84 +455,84 @@ public:
   bool SendWheelEvent(const Dali::WheelEvent& event);
 
   /**
-   * @copydoc Dali::WebEngine::PageLoadStartedSignal()
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::PageLoadProgressSignal()
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::PageLoadFinishedSignal()
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::PageLoadErrorSignal()
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::ScrollEdgeReachedSignal()
-   */
-  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::UrlChangedSignal()
-   */
-  Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
-
-  /**
-   * @copydoc Dali::WebEngine::FormRepostDecisionSignal()
-   */
-  Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
-
-  /**
    * @copydoc Dali::WebEngine::FrameRenderedSignal()
    */
   Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
   /**
-   * @copydoc Dali::WebEngine::RequestInterceptorSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadStartedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
+  void RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   @copydoc Dali::WebEngine::ConsoleMessageSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadInProgressCallback()
    */
-  Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
+  void RegisterPageLoadInProgressCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   @copydoc Dali::WebEngine::ResponsePolicyDecisionSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadFinishedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal();
+  void RegisterPageLoadFinishedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::CertificateConfirmSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadErrorCallback()
    */
-  Dali::WebEnginePlugin::WebEngineCertificateSignalType& CertificateConfirmSignal();
+  void RegisterPageLoadErrorCallback(Dali::WebEnginePlugin::WebEnginePageLoadErrorCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::SslCertificateChangedSignal()
+   * @copydoc Dali::WebEngine::RegisterScrollEdgeReachedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineCertificateSignalType& SslCertificateChangedSignal();
+  void RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::HttpAuthHandlerSignal()
+   * @copydoc Dali::WebEngine::RegisterUrlChangedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
+  void RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::ContextMenuShownSignal()
+   * @copydoc Dali::WebEngine::RegisterFormRepostDecidedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& ContextMenuShownSignal();
+  void RegisterFormRepostDecidedCallback(Dali::WebEnginePlugin::WebEngineFormRepostDecidedCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::ContextMenuHiddenSignal()
+   * @copydoc Dali::WebEngine::RegisterRequestInterceptorCallback()
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal();
+  void RegisterRequestInterceptorCallback(Dali::WebEnginePlugin::WebEngineRequestInterceptorCallback callback);
+
+  /**
+   @copydoc Dali::WebEngine::RegisterConsoleMessageReceivedCallback()
+   */
+  void RegisterConsoleMessageReceivedCallback(Dali::WebEnginePlugin::WebEngineConsoleMessageReceivedCallback callback);
+
+  /**
+   @copydoc Dali::WebEngine::RegisterResponsePolicyDecidedCallback()
+   */
+  void RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineResponsePolicyDecidedCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterCertificateConfirmedCallback()
+   */
+  void RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterSslCertificateChangedCallback()
+   */
+  void RegisterSslCertificateChangedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterHttpAuthHandlerCallback()
+   */
+  void RegisterHttpAuthHandlerCallback(Dali::WebEnginePlugin::WebEngineHttpAuthHandlerCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterContextMenuShownCallback()
+   */
+  void RegisterContextMenuShownCallback(Dali::WebEnginePlugin::WebEngineContextMenuShownCallback callback);
+
+  /**
+   * @copydoc Dali::WebEngine::RegisterContextMenuHiddenCallback()
+   */
+  void RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback);
 
 private:
   /**

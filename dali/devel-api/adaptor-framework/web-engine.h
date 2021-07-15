@@ -331,7 +331,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler);
+  void EvaluateJavaScript(const std::string& script, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback resultHandler);
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -339,7 +339,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
+  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
    * @brief Register a callback for JavaScript alert.
@@ -632,55 +632,6 @@ public:
   bool SendWheelEvent(const WheelEvent& event);
 
   /**
-   * @brief Connect to this signal to be notified when page loading is started.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when page loading is in progress.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadInProgressSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when page loading is finished.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when an error occurs in page loading.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when scroll edge is reached.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when url is changed.
-   *
-   * @return A signal object to connect with
-   */
-  Dali::WebEnginePlugin::WebEngineUrlChangedSignalType& UrlChangedSignal();
-
-  /**
-   * @brief Connect to this signal to be notified when form repost decision is requested.
-   *
-   * @return A signal object to connect with.
-   */
-  Dali::WebEnginePlugin::WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal();
-
-  /**
    * @brief Connect to this signal to be notified when frame is rendered.
    *
    * @return A signal object to connect with.
@@ -688,60 +639,109 @@ public:
   Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
 
   /**
-   * @brief Connect to this signal to be notified when http request need be intercepted.
+   * @brief Callback to be called when page loading is started.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineRequestInterceptorSignalType& RequestInterceptorSignal();
+  void RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when console message will be logged.
+   * @brief Callback to be called when page loading is in progress.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineConsoleMessageSignalType& ConsoleMessageSignal();
+  void RegisterPageLoadInProgressCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when response policy would be decided.
+   * @brief Callback to be called when page loading is finished.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal();
+  void RegisterPageLoadFinishedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when certificate need be confirmed.
+   * @brief Callback to be called when an error occurs in page loading.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineCertificateSignalType& CertificateConfirmSignal();
+  void RegisterPageLoadErrorCallback(Dali::WebEnginePlugin::WebEnginePageLoadErrorCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when ssl certificate is changed.
+   * @brief Callback to be called when scroll edge is reached.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineCertificateSignalType& SslCertificateChangedSignal();
+  void RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when http authentication need be confirmed.
+   * @brief Callback to be called when url is changed.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal();
+  void RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be shown.
+   * @brief Callback to be called when form repost decision is requested.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuShownSignalType& ContextMenuShownSignal();
+  void RegisterFormRepostDecidedCallback(Dali::WebEnginePlugin::WebEngineFormRepostDecidedCallback callback);
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be hidden.
+   * @brief Callback to be called when http request need be intercepted.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal();
+  void RegisterRequestInterceptorCallback(Dali::WebEnginePlugin::WebEngineRequestInterceptorCallback callback);
+
+  /**
+   * @brief Callback to be called when console message will be logged.
+   *
+   * @param[in] callback
+   */
+  void RegisterConsoleMessageReceivedCallback(Dali::WebEnginePlugin::WebEngineConsoleMessageReceivedCallback callback);
+
+  /**
+   * @brief Callback to be called when response policy would be decided.
+   *
+   * @param[in] callback
+   */
+  void RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineResponsePolicyDecidedCallback callback);
+
+  /**
+   * @brief Callback to be called when certificate need be confirmed.
+   *
+   * @param[in] callback
+   */
+  void RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback);
+
+  /**
+   * @brief Callback to be called when ssl certificate is changed.
+   *
+   * @param[in] callback
+   */
+  void RegisterSslCertificateChangedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback);
+
+  /**
+   * @brief Callback to be called when http authentication need be confirmed.
+   *
+   * @param[in] callback
+   */
+  void RegisterHttpAuthHandlerCallback(Dali::WebEnginePlugin::WebEngineHttpAuthHandlerCallback callback);
+
+  /**
+   * @brief Callback to be called when context menu would be shown.
+   *
+   * @param[in] callback
+   */
+  void RegisterContextMenuShownCallback(Dali::WebEnginePlugin::WebEngineContextMenuShownCallback callback);
+
+  /**
+   * @brief Callback to be called when context menu would be hidden.
+   *
+   * @param[in] callback
+   */
+  void RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback);
 
 private: // Not intended for application developers
   /**
