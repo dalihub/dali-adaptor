@@ -772,8 +772,7 @@ private:
 
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 
-  // todo: to be removed after renderpass
-  const Graphics::Framebuffer* currentFramebuffer{nullptr};
+  std::queue<const GLES::CommandBuffer*> mPresentationCommandBuffers{}; ///< Queue of reusable command buffers used by presentation engine
 };
 
 } // namespace Graphics
