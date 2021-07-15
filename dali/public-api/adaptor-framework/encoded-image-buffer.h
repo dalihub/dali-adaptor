@@ -34,10 +34,7 @@ class EncodedImageBuffer;
 /**
  * @brief EncodedImageBuffer contains the large encoded raw buffer informations.
  *
- * We can upload this buffer by generated url.
- * The images are loaded by a worker thread to avoid blocking the main event thread.
- * @note cannot change raw buffer after make handle.
- * @note only regular image upload support now.
+ * @note Object will copy raw buffer data.
  */
 class DALI_ADAPTOR_API EncodedImageBuffer : public BaseHandle
 {
