@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,6 +137,11 @@ bool PixelBuffer::Rotate(Degree angle)
 bool PixelBuffer::IsAlphaPreMultiplied() const
 {
   return GetImplementation(*this).IsAlphaPreMultiplied();
+}
+
+uint32_t PixelBuffer::GetBrightness() const
+{
+  return GetImplementation(*this).GetBrightness();
 }
 
 } // namespace Devel

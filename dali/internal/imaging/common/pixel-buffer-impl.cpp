@@ -37,6 +37,10 @@ namespace Adaptor
 namespace
 {
 const float TWO_PI = 2.f * Math::PI; ///< 360 degrees in radians
+// based on W3C Recommendations (https://www.w3.org/TR/AERT/#color-contrast)
+constexpr uint32_t BRIGHTNESS_CONSTANT_R = 299;
+constexpr uint32_t BRIGHTNESS_CONSTANT_G = 587;
+constexpr uint32_t BRIGHTNESS_CONSTANT_B = 114;
 } // namespace
 
 PixelBuffer::PixelBuffer(unsigned char*      buffer,
@@ -464,6 +468,33 @@ void PixelBuffer::MultiplyColorByAlpha()
 bool PixelBuffer::IsAlphaPreMultiplied() const
 {
   return mPreMultiplied;
+}
+
+uint32_t PixelBuffer::GetBrightness() const
+{
+  uint32_t brightness = 0;
+
+  uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+  if(bytesPerPixel)
+  {
+    unsigned char* pixel      = mBuffer;
+    const uint32_t bufferSize = mWidth * mHeight;
+    uint64_t       red        = 0;
+    uint64_t       green      = 0;
+    uint64_t       blue       = 0;
+
+    for(uint32_t i = 0; i < bufferSize; ++i)
+    {
+      red += ReadChannel(pixel, mPixelFormat, Adaptor::RED);
+      green += ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
+      blue += ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
+      pixel += bytesPerPixel;
+    }
+    // http://www.w3.org/TR/AERT#color-contrast
+    brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
+  }
+
+  return brightness;
 }
 
 } // namespace Adaptor
