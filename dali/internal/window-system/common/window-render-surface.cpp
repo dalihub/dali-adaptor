@@ -223,7 +223,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 
   mWindowRotationAngle    = angle;
   mWindowRotationFinished = false;
-  mResizeFinished         = false;
+  mResizeFinished = false;
 
   mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
 
@@ -272,15 +272,15 @@ int WindowRenderSurface::GetOrientation() const
 
 void WindowRenderSurface::InitializeGraphics()
 {
+  mGraphics = &mAdaptor->GetGraphicsInterface();
+
+  DALI_ASSERT_ALWAYS(mGraphics && "Graphics interface is not created");
+
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  mEGL             = &eglGraphics->GetEglInterface();
+
   if(mEGLContext == NULL)
   {
-    mGraphics = &mAdaptor->GetGraphicsInterface();
-
-    DALI_ASSERT_ALWAYS(mGraphics && "Graphics interface is not created");
-
-    auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-    mEGL             = &eglGraphics->GetEglInterface();
-
     // Create the OpenGL context for this window
     Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
     eglImpl.ChooseConfig(true, mColorDepth);
