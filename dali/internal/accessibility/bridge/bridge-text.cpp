@@ -48,7 +48,7 @@ Text* BridgeText::FindSelf() const
   auto textObject = dynamic_cast<Text*>(self);
   if(!textObject)
   {
-    throw std::domain_error{"Object doesn't have Text interface"};
+    throw std::domain_error{"Object " + self->GetAddress().ToString() + " doesn't have Text interface"};
   }
   return textObject;
 }
