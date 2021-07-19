@@ -190,10 +190,9 @@ private:
   void DestroySurface();
 
 private:
-  const char*                         mCustomFragmentPrefix; ///< Prefix for CustomFragment
-  uint32_t                            mWidth;                ///< image width
-  uint32_t                            mHeight;               ///< image height
-  bool                                mOwnTbmSurface;        ///< Whether we created pixmap or not
+  uint32_t                            mWidth;         ///< image width
+  uint32_t                            mHeight;        ///< image height
+  bool                                mOwnTbmSurface; ///< Whether we created pixmap or not
   tbm_surface_h                       mTbmSurface;
   tbm_format                          mTbmFormat;
   bool                                mBlendingRequired;   ///< Whether blending is required
