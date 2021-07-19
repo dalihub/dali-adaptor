@@ -31,6 +31,21 @@ namespace Dali::Graphics::GLES
 using Integration::GlAbstraction;
 
 /**
+ * Memory compare working on 4-byte types. Since all types used in shaders are
+ * size of 4*N then no need for size and alignment checks.
+ */
+template<class A, class B>
+inline bool memcmp4(A* a, B* b, uint32_t size)
+{
+  auto* pa = reinterpret_cast<const uint32_t*>(a);
+  auto* pb = reinterpret_cast<const uint32_t*>(b);
+  size >>= 2;
+  while(size-- && *pa++ == *pb++)
+    ;
+  return (-1u == size);
+};
+
+/**
  * Structure stores pointer to the function
  * which will set the uniform of particular type
  */
@@ -228,42 +243,34 @@ void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
   for(const auto& info : extraInfos)
   {
     auto& setter = mImpl->uniformSetters[index++];
-
-    auto offset = info.offset;
-    switch(setter.type)
+    auto  offset = info.offset;
+    if(!memcmp4(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
     {
-      case UniformSetter::Type::FLOAT:
+      switch(setter.type)
       {
-        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        case UniformSetter::Type::FLOAT:
         {
           (gl.*(setter.uniformfProc))(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
-          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+          break;
         }
-        break;
-      }
-      case UniformSetter::Type::INT:
-      {
-        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        case UniformSetter::Type::INT:
         {
           (gl.*(setter.uniformiProc))(info.location, info.arraySize, reinterpret_cast<const int*>(&ptr[offset]));
-          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+          break;
         }
-        break;
-      }
-      case UniformSetter::Type::MATRIX:
-      {
-        if(0 != memcmp(&cachePtr[offset], &ptr[offset], info.size * info.arraySize))
+        case UniformSetter::Type::MATRIX:
         {
           (gl.*(setter.uniformMatrixProc))(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
-          memcpy(&cachePtr[offset], &ptr[offset], info.size * info.arraySize);
+          break;
         }
-        break;
-      }
-      case UniformSetter::Type::UNDEFINED:
-      {
+        case UniformSetter::Type::UNDEFINED:
+        {
+        }
       }
     }
   }
+  // Update caches
+  memmove(mImpl->uniformData.data(), ptr, mImpl->uniformData.size());
 }
 
 void ProgramImpl::BuildStandaloneUniformCache()

@@ -72,7 +72,7 @@ public:
    * @param[in] bindings List of bindings
    *
    */
-  void BindTextures(const std::vector<Graphics::TextureBinding>& bindings);
+  void BindTextures(const Graphics::TextureBinding* bindings, uint32_t count);
 
   /**
    * @brief Vertex buffers to bind
@@ -81,7 +81,7 @@ public:
    * currently processed and copied into the local storage.
    */
 
-  void BindVertexBuffers(const std::vector<GLES::VertexBufferBindingDescriptor>& bindings);
+  void BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindings, uint32_t count);
 
   /**
    * @brief Binds index buffer
@@ -102,7 +102,7 @@ public:
    * @param[in] uboBindings real UBO binfins
    * @param[in] standaloneBindings emulated (legacy) UBO object
    */
-  void BindUniformBuffers(const std::vector<UniformBufferBindingDescriptor>& uboBindings, const UniformBufferBindingDescriptor& standaloneBindings);
+  void BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindings, uint32_t uboCount, const UniformBufferBindingDescriptor& standaloneBindings);
 
   /**
    * @brief Resolves blend state on the currently attached pipeline

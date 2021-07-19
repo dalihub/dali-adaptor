@@ -144,11 +144,20 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 
 void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
 {
-  // Use command buffer to execute presentation (we should pool it)
-  CommandBufferCreateInfo info;
-  info.SetLevel(CommandBufferLevel::PRIMARY);
-  info.fixedCapacity        = 1; // only one command
-  auto presentCommandBuffer = new GLES::CommandBuffer(info, *this);
+  GLES::CommandBuffer* presentCommandBuffer{nullptr};
+  if(mPresentationCommandBuffers.empty())
+  {
+    CommandBufferCreateInfo info;
+    info.SetLevel(CommandBufferLevel::PRIMARY);
+    info.fixedCapacity   = 1; // only one command
+    presentCommandBuffer = new GLES::CommandBuffer(info, *this);
+  }
+  else
+  {
+    presentCommandBuffer = const_cast<GLES::CommandBuffer*>(mPresentationCommandBuffers.front());
+    presentCommandBuffer->Reset();
+    mPresentationCommandBuffers.pop();
+  }
   presentCommandBuffer->PresentRenderTarget(static_cast<GLES::RenderTarget*>(renderTarget));
   SubmitInfo submitInfo;
   submitInfo.cmdBuffer = {presentCommandBuffer};
@@ -368,8 +377,11 @@ void EglGraphicsController::ProcessCreateQueues()
 
 void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& commandBuffer)
 {
-  for(auto& cmd : commandBuffer.GetCommands())
+  auto       count    = 0u;
+  const auto commands = commandBuffer.GetCommands(count);
+  for(auto i = 0u; i < count; ++i)
   {
+    auto& cmd = commands[i];
     // process command
     switch(cmd.type)
     {
@@ -380,19 +392,19 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
       case GLES::CommandType::BIND_TEXTURES:
       {
-        mCurrentContext->BindTextures(cmd.bindTextures.textureBindings);
+        mCurrentContext->BindTextures(cmd.bindTextures.textureBindings.Ptr(), cmd.bindTextures.textureBindingsCount);
         break;
       }
       case GLES::CommandType::BIND_VERTEX_BUFFERS:
       {
-        auto& bindings = cmd.bindVertexBuffers.vertexBufferBindings;
-        mCurrentContext->BindVertexBuffers(bindings);
+        auto bindings = cmd.bindVertexBuffers.vertexBufferBindings.Ptr();
+        mCurrentContext->BindVertexBuffers(bindings, cmd.bindVertexBuffers.vertexBufferBindingsCount);
         break;
       }
       case GLES::CommandType::BIND_UNIFORM_BUFFER:
       {
         auto& bindings = cmd.bindUniformBuffers;
-        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindings, bindings.standaloneUniformsBufferBinding);
+        mCurrentContext->BindUniformBuffers(bindings.uniformBufferBindingsCount ? bindings.uniformBufferBindings.Ptr() : nullptr, bindings.uniformBufferBindingsCount, bindings.standaloneUniformsBufferBinding);
         break;
       }
       case GLES::CommandType::BIND_INDEX_BUFFER:
@@ -535,8 +547,12 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       {
         ResolvePresentRenderTarget(cmd.presentRenderTarget.targetToPresent);
 
-        // push this command buffer to the discard queue
-        mDiscardCommandBufferQueue.push(const_cast<GLES::CommandBuffer*>(&commandBuffer));
+        // The command buffer will be pushed into the queue of presentation command buffers
+        // for further reuse.
+        if(commandBuffer.GetCreateInfo().fixedCapacity == 1)
+        {
+          mPresentationCommandBuffers.push(&commandBuffer);
+        }
         break;
       }
       case GLES::CommandType::EXECUTE_COMMAND_BUFFERS:
@@ -545,8 +561,10 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         // todo: check validity of the secondaries
         //       there are operations which are illigal to be done
         //       within secondaries.
-        for(auto& buf : cmd.executeCommandBuffers.buffers)
+        auto buffers = cmd.executeCommandBuffers.buffers.Ptr();
+        for(auto j = 0u; j < cmd.executeCommandBuffers.buffersCount; ++j)
         {
+          auto& buf = buffers[j];
           ProcessCommandBuffer(*static_cast<const GLES::CommandBuffer*>(buf));
         }
         break;
@@ -557,10 +575,6 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
 
 void EglGraphicsController::ProcessCommandQueues()
 {
-  // TODO: command queue per context, sync between queues should be
-  // done externally
-  currentFramebuffer = nullptr;
-
   DUMP_FRAME_START();
 
   while(!mCommandQueue.empty())

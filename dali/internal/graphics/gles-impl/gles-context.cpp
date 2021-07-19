@@ -322,11 +322,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 }
 
-void Context::BindTextures(const std::vector<Graphics::TextureBinding>& bindings)
+void Context::BindTextures(const Graphics::TextureBinding* bindings, uint32_t count)
 {
   // for each texture allocate slot
-  for(const auto& binding : bindings)
+  for(auto i = 0u; i < count; ++i)
   {
+    auto& binding = bindings[i];
+
     // Resize binding array if needed
     if(mImpl->mCurrentTextureBindings.size() <= binding.binding)
     {
@@ -337,14 +339,14 @@ void Context::BindTextures(const std::vector<Graphics::TextureBinding>& bindings
   }
 }
 
-void Context::BindVertexBuffers(const std::vector<GLES::VertexBufferBindingDescriptor>& bindings)
+void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindings, uint32_t count)
 {
-  if(bindings.size() > mImpl->mCurrentVertexBufferBindings.size())
+  if(count > mImpl->mCurrentVertexBufferBindings.size())
   {
-    mImpl->mCurrentVertexBufferBindings.resize(bindings.size());
+    mImpl->mCurrentVertexBufferBindings.resize(count);
   }
   // Copy only set slots
-  std::copy_if(bindings.begin(), bindings.end(), mImpl->mCurrentVertexBufferBindings.begin(), [](auto& item) {
+  std::copy_if(bindings, bindings + count, mImpl->mCurrentVertexBufferBindings.begin(), [](auto& item) {
     return (nullptr != item.buffer);
   });
 }
@@ -360,21 +362,22 @@ void Context::BindPipeline(const GLES::Pipeline* newPipeline)
   mImpl->mNewPipeline = &newPipeline->GetPipeline();
 }
 
-void Context::BindUniformBuffers(const std::vector<UniformBufferBindingDescriptor>& uboBindings,
-                                 const UniformBufferBindingDescriptor&              standaloneBindings)
+void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindings,
+                                 uint32_t                              uboCount,
+                                 const UniformBufferBindingDescriptor& standaloneBindings)
 {
   if(standaloneBindings.buffer)
   {
     mImpl->mCurrentStandaloneUBOBinding = standaloneBindings;
   }
 
-  if(uboBindings.size() >= mImpl->mCurrentUBOBindings.size())
+  if(uboCount >= mImpl->mCurrentUBOBindings.size())
   {
-    mImpl->mCurrentUBOBindings.resize(uboBindings.size() + 1);
+    mImpl->mCurrentUBOBindings.resize(uboCount + 1);
   }
 
-  auto it = uboBindings.begin();
-  for(auto i = 0u; i < uboBindings.size(); ++i)
+  auto it = uboBindings;
+  for(auto i = 0u; i < uboCount; ++i)
   {
     if(it->buffer)
     {
@@ -554,22 +557,24 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
     // Something goes wrong here if Alpha mask is GL_TRUE
     ColorMask(true);
 
+    const auto clearValues = renderPassBegin.clearValues.Ptr();
+
     if(!mImpl->mGlStateCache.mClearColorSet ||
-       mImpl->mGlStateCache.mClearColor.r != renderPassBegin.clearValues[0].color.r ||
-       mImpl->mGlStateCache.mClearColor.g != renderPassBegin.clearValues[0].color.g ||
-       mImpl->mGlStateCache.mClearColor.b != renderPassBegin.clearValues[0].color.b ||
-       mImpl->mGlStateCache.mClearColor.a != renderPassBegin.clearValues[0].color.a)
+       mImpl->mGlStateCache.mClearColor.r != clearValues[0].color.r ||
+       mImpl->mGlStateCache.mClearColor.g != clearValues[0].color.g ||
+       mImpl->mGlStateCache.mClearColor.b != clearValues[0].color.b ||
+       mImpl->mGlStateCache.mClearColor.a != clearValues[0].color.a)
     {
-      gl.ClearColor(renderPassBegin.clearValues[0].color.r,
-                    renderPassBegin.clearValues[0].color.g,
-                    renderPassBegin.clearValues[0].color.b,
-                    renderPassBegin.clearValues[0].color.a);
+      gl.ClearColor(clearValues[0].color.r,
+                    clearValues[0].color.g,
+                    clearValues[0].color.b,
+                    clearValues[0].color.a);
 
       mImpl->mGlStateCache.mClearColorSet = true;
-      mImpl->mGlStateCache.mClearColor    = Vector4(renderPassBegin.clearValues[0].color.r,
-                                                 renderPassBegin.clearValues[0].color.g,
-                                                 renderPassBegin.clearValues[0].color.b,
-                                                 renderPassBegin.clearValues[0].color.a);
+      mImpl->mGlStateCache.mClearColor    = Vector4(clearValues[0].color.r,
+                                                 clearValues[0].color.g,
+                                                 clearValues[0].color.b,
+                                                 clearValues[0].color.a);
     }
   }
 

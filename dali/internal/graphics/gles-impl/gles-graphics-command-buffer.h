@@ -28,12 +28,15 @@
 #include "gles-graphics-types.h"
 #include "gles-sync-object.h"
 
+#include <cstring>
+
 namespace Dali::Graphics::GLES
 {
 class Pipeline;
 class RenderPass;
 class Framebuffer;
 class CommandBuffer;
+class CommandPool;
 enum class CommandType
 {
   FLUSH,
@@ -79,370 +82,25 @@ static void InvokeDestructor(T& object)
  */
 struct Command
 {
-  Command() = delete;
+  Command()
+  {
+  }
 
-  Command(CommandType commandType)
+  explicit Command(CommandType commandType)
   {
     type = commandType;
-    switch(type)
-    {
-      case CommandType::BIND_VERTEX_BUFFERS:
-      {
-        new(&bindVertexBuffers) decltype(bindVertexBuffers);
-        break;
-      }
-      case CommandType::BIND_TEXTURES:
-      {
-        new(&bindTextures) decltype(bindTextures);
-        break;
-      }
-      case CommandType::BEGIN_RENDERPASS:
-      {
-        // run destructor
-        new(&beginRenderPass) decltype(beginRenderPass);
-        break;
-      }
-      default:
-      {
-      }
-    }
   }
 
-  ~Command()
-  {
-    switch(type)
-    {
-      case CommandType::BIND_VERTEX_BUFFERS:
-      {
-        InvokeDestructor(bindVertexBuffers);
-        break;
-      }
-      case CommandType::BIND_TEXTURES:
-      {
-        InvokeDestructor(bindTextures);
-        break;
-      }
-      case CommandType::BEGIN_RENDERPASS:
-      {
-        // run destructor
-        InvokeDestructor(beginRenderPass);
-        break;
-      }
-      default:
-      {
-      }
-    }
-  }
+  ~Command() = default;
 
   /**
    * @brief Copy constructor
    * @param[in] rhs Command
    */
-  Command(const Command& rhs)
-  {
-    switch(rhs.type)
-    {
-      case CommandType::BIND_VERTEX_BUFFERS:
-      {
-        new(&bindVertexBuffers) decltype(bindVertexBuffers);
-        bindVertexBuffers = rhs.bindVertexBuffers;
-        break;
-      }
-      case CommandType::BIND_INDEX_BUFFER:
-      {
-        bindIndexBuffer = rhs.bindIndexBuffer;
-        break;
-      }
-      case CommandType::BIND_SAMPLERS:
-      {
-        bindSamplers = rhs.bindSamplers;
-        break;
-      }
-      case CommandType::BIND_TEXTURES:
-      {
-        new(&bindTextures) decltype(bindTextures);
-        bindTextures = rhs.bindTextures;
-        break;
-      }
-      case CommandType::BIND_PIPELINE:
-      {
-        bindPipeline = rhs.bindPipeline;
-        break;
-      }
-      case CommandType::BIND_UNIFORM_BUFFER:
-      {
-        bindUniformBuffers = rhs.bindUniformBuffers;
-        break;
-      }
-      case CommandType::DRAW:
-      {
-        draw.type = rhs.draw.type;
-        draw.draw = rhs.draw.draw;
-        break;
-      }
-      case CommandType::DRAW_INDEXED:
-      {
-        draw.type        = rhs.draw.type;
-        draw.drawIndexed = rhs.draw.drawIndexed;
-        break;
-      }
-      case CommandType::DRAW_INDEXED_INDIRECT:
-      {
-        draw.type                = rhs.draw.type;
-        draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
-        break;
-      }
-      case CommandType::BEGIN_RENDERPASS:
-      {
-        new(&beginRenderPass) BeginRenderPassDescriptor(rhs.beginRenderPass);
-        break;
-      }
-      case CommandType::END_RENDERPASS:
-      {
-        endRenderPass.syncObject = rhs.endRenderPass.syncObject;
-        break;
-      }
-      case CommandType::EXECUTE_COMMAND_BUFFERS:
-      {
-        executeCommandBuffers = rhs.executeCommandBuffers;
-        break;
-      }
-      case CommandType::FLUSH:
-      {
-        // Nothing to do
-        break;
-      }
-      case CommandType::SET_SCISSOR:
-      {
-        scissor.region = rhs.scissor.region;
-        break;
-      }
-      case CommandType::SET_SCISSOR_TEST:
-      {
-        scissorTest.enable = rhs.scissorTest.enable;
-        break;
-      }
-      case CommandType::SET_VIEWPORT:
-      {
-        viewport.region = rhs.viewport.region;
-        break;
-      }
-      case CommandType::PRESENT_RENDER_TARGET:
-      {
-        presentRenderTarget = rhs.presentRenderTarget;
-        break;
-      }
-      case CommandType::SET_COLOR_MASK:
-      {
-        colorMask.enabled = rhs.colorMask.enabled;
-        break;
-      }
-      case CommandType::CLEAR_STENCIL_BUFFER:
-      {
-        break;
-      }
-      case CommandType::CLEAR_DEPTH_BUFFER:
-      {
-        break;
-      }
-      case CommandType::SET_STENCIL_TEST_ENABLE:
-      {
-        stencilTest.enabled = rhs.stencilTest.enabled;
-        break;
-      }
-      case CommandType::SET_STENCIL_FUNC:
-      {
-        stencilFunc.compareMask = rhs.stencilFunc.compareMask;
-        stencilFunc.compareOp   = rhs.stencilFunc.compareOp;
-        stencilFunc.reference   = rhs.stencilFunc.reference;
-        break;
-      }
-      case CommandType::SET_STENCIL_WRITE_MASK:
-      {
-        stencilWriteMask.mask = rhs.stencilWriteMask.mask;
-        break;
-      }
-      case CommandType::SET_STENCIL_OP:
-      {
-        stencilOp.failOp      = rhs.stencilOp.failOp;
-        stencilOp.depthFailOp = rhs.stencilOp.depthFailOp;
-        stencilOp.passOp      = rhs.stencilOp.passOp;
-        break;
-      }
-
-      case CommandType::SET_DEPTH_COMPARE_OP:
-      {
-        depth.compareOp = rhs.depth.compareOp;
-        break;
-      }
-      case CommandType::SET_DEPTH_TEST_ENABLE:
-      {
-        depth.testEnabled = rhs.depth.testEnabled;
-        break;
-      }
-      case CommandType::SET_DEPTH_WRITE_ENABLE:
-      {
-        depth.writeEnabled = rhs.depth.writeEnabled;
-        break;
-      }
-    }
-    type = rhs.type;
-  }
-
-  /**
-   * @brief Move constructor
-   * @param[in] rhs Command
-   */
-  Command(Command&& rhs) noexcept
-  {
-    switch(rhs.type)
-    {
-      case CommandType::BIND_VERTEX_BUFFERS:
-      {
-        new(&bindVertexBuffers) decltype(bindVertexBuffers);
-        bindVertexBuffers = std::move(rhs.bindVertexBuffers);
-        break;
-      }
-      case CommandType::BIND_INDEX_BUFFER:
-      {
-        bindIndexBuffer = rhs.bindIndexBuffer;
-        break;
-      }
-      case CommandType::BIND_UNIFORM_BUFFER:
-      {
-        bindUniformBuffers = std::move(rhs.bindUniformBuffers);
-        break;
-      }
-      case CommandType::BIND_SAMPLERS:
-      {
-        bindSamplers = std::move(rhs.bindSamplers);
-        break;
-      }
-      case CommandType::BIND_TEXTURES:
-      {
-        new(&bindTextures) decltype(bindTextures);
-        bindTextures = std::move(rhs.bindTextures);
-        break;
-      }
-      case CommandType::BIND_PIPELINE:
-      {
-        bindPipeline = rhs.bindPipeline;
-        break;
-      }
-      case CommandType::DRAW:
-      {
-        draw.type = rhs.draw.type;
-        draw.draw = rhs.draw.draw;
-        break;
-      }
-      case CommandType::DRAW_INDEXED:
-      {
-        draw.type        = rhs.draw.type;
-        draw.drawIndexed = rhs.draw.drawIndexed;
-        break;
-      }
-      case CommandType::DRAW_INDEXED_INDIRECT:
-      {
-        draw.type                = rhs.draw.type;
-        draw.drawIndexedIndirect = rhs.draw.drawIndexedIndirect;
-        break;
-      }
-      case CommandType::BEGIN_RENDERPASS:
-      {
-        new(&beginRenderPass) BeginRenderPassDescriptor(std::move(rhs.beginRenderPass));
-        break;
-      }
-      case CommandType::END_RENDERPASS:
-      {
-        endRenderPass.syncObject = rhs.endRenderPass.syncObject;
-        break;
-      }
-      case CommandType::EXECUTE_COMMAND_BUFFERS:
-      {
-        executeCommandBuffers = std::move(rhs.executeCommandBuffers);
-        break;
-      }
-      case CommandType::FLUSH:
-      {
-        // Nothing to do
-        break;
-      }
-      case CommandType::SET_SCISSOR:
-      {
-        scissor.region = rhs.scissor.region;
-        break;
-      }
-      case CommandType::SET_SCISSOR_TEST:
-      {
-        scissorTest.enable = rhs.scissorTest.enable;
-        break;
-      }
-      case CommandType::SET_VIEWPORT:
-      {
-        viewport.region = rhs.viewport.region;
-        break;
-      }
-      case CommandType::PRESENT_RENDER_TARGET:
-      {
-        presentRenderTarget = rhs.presentRenderTarget;
-        break;
-      }
-      case CommandType::SET_COLOR_MASK:
-      {
-        colorMask.enabled = rhs.colorMask.enabled;
-        break;
-      }
-      case CommandType::CLEAR_STENCIL_BUFFER:
-      {
-        break;
-      }
-      case CommandType::CLEAR_DEPTH_BUFFER:
-      {
-        break;
-      }
-      case CommandType::SET_STENCIL_TEST_ENABLE:
-      {
-        stencilTest.enabled = rhs.stencilTest.enabled;
-        break;
-      }
-      case CommandType::SET_STENCIL_FUNC:
-      {
-        stencilFunc.compareMask = rhs.stencilFunc.compareMask;
-        stencilFunc.compareOp   = rhs.stencilFunc.compareOp;
-        stencilFunc.reference   = rhs.stencilFunc.reference;
-        break;
-      }
-      case CommandType::SET_STENCIL_WRITE_MASK:
-      {
-        stencilWriteMask.mask = rhs.stencilWriteMask.mask;
-        break;
-      }
-      case CommandType::SET_STENCIL_OP:
-      {
-        stencilOp.failOp      = rhs.stencilOp.failOp;
-        stencilOp.depthFailOp = rhs.stencilOp.depthFailOp;
-        stencilOp.passOp      = rhs.stencilOp.passOp;
-        break;
-      }
-
-      case CommandType::SET_DEPTH_COMPARE_OP:
-      {
-        depth.compareOp = rhs.depth.compareOp;
-        break;
-      }
-      case CommandType::SET_DEPTH_TEST_ENABLE:
-      {
-        depth.testEnabled = rhs.depth.testEnabled;
-        break;
-      }
-      case CommandType::SET_DEPTH_WRITE_ENABLE:
-      {
-        depth.writeEnabled = rhs.depth.writeEnabled;
-        break;
-      }
-    }
-    type = rhs.type;
-  }
+  Command(const Command& rhs) = default;
+  Command& operator=(const Command& rhs) = default;
+  Command(Command&& rhs) noexcept        = delete;
+  Command& operator=(Command&& rhs) = delete;
 
   CommandType type{CommandType::FLUSH}; ///< Type of command
 
@@ -450,19 +108,22 @@ struct Command
   {
     struct
     {
-      std::vector<Graphics::TextureBinding> textureBindings;
+      IndirectPtr<Graphics::TextureBinding> textureBindings;
+      uint32_t                              textureBindingsCount;
     } bindTextures{};
 
     // BindSampler command
     struct
     {
-      std::vector<Graphics::SamplerBinding> samplerBindings;
+      IndirectPtr<Graphics::SamplerBinding> samplerBindings;
+      uint32_t                              samplerBindingsCount;
     } bindSamplers;
 
     struct
     {
       using Binding = GLES::VertexBufferBindingDescriptor;
-      std::vector<Binding> vertexBufferBindings;
+      IndirectPtr<Binding> vertexBufferBindings;
+      uint32_t             vertexBufferBindingsCount;
     } bindVertexBuffers;
 
     struct : public IndexBufferBindingDescriptor
@@ -471,7 +132,8 @@ struct Command
 
     struct
     {
-      std::vector<UniformBufferBindingDescriptor> uniformBufferBindings{};
+      IndirectPtr<UniformBufferBindingDescriptor> uniformBufferBindings;
+      uint32_t                                    uniformBufferBindingsCount;
       UniformBufferBindingDescriptor              standaloneUniformsBufferBinding{};
     } bindUniformBuffers;
 
@@ -509,7 +171,8 @@ struct Command
 
     struct
     {
-      std::vector<const GLES::CommandBuffer*> buffers;
+      IndirectPtr<const GLES::CommandBuffer*> buffers;
+      uint32_t                                buffersCount;
     } executeCommandBuffers;
 
     struct
@@ -741,7 +404,13 @@ public:
    */
   void PresentRenderTarget(GLES::RenderTarget* renderTarget);
 
-  [[nodiscard]] const std::vector<Command>& GetCommands() const;
+  /**
+   * @brief Returns pointer to the list of command and size of the list
+   *
+   * @param[out] size Size of the list
+   * @return Valid pointer to the list of commands
+   */
+  [[nodiscard]] const Command* GetCommands(uint32_t& size) const;
 
   /**
    * @brief Destroy the associated resources
@@ -759,7 +428,7 @@ public:
   void DiscardResource() override;
 
 private:
-  std::vector<Command> mCommands; ///< List of commands in this command buffer
+  std::unique_ptr<CommandPool> mCommandPool; ///< Pool of commands and transient memory
 };
 } // namespace Dali::Graphics::GLES
 

@@ -58,35 +58,40 @@ class WebEnginePlugin
 {
 public:
   /**
-   * @brief WebEngine signal type related with page loading.
+   * @brief WebView signal type related with frame rendered.
    */
-  using WebEnginePageLoadSignalType = Signal<void(const std::string&)>;
+  using WebEngineFrameRenderedSignalType = Signal<void(void)>;
 
   /**
-   * @brief WebView signal type related with page loading error.
+   * @brief WebEngine callback related with page loading.
    */
-  using WebEnginePageLoadErrorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineLoadError>)>;
+  using WebEnginePageLoadCallback = std::function<void(const std::string&)>;
+
+  /**
+   * @brief WebView callback related with page loading error.
+   */
+  using WebEnginePageLoadErrorCallback = std::function<void(std::unique_ptr<Dali::WebEngineLoadError>)>;
 
   // forward declaration.
   enum class ScrollEdge;
 
   /**
-   * @brief WebView signal type related with scroll edge reached.
+   * @brief WebView callback related with scroll edge reached.
    */
-  using WebEngineScrollEdgeReachedSignalType = Signal<void(const ScrollEdge)>;
+  using WebEngineScrollEdgeReachedCallback = std::function<void(const ScrollEdge)>;
 
   /**
-   * @brief WebView signal type related with page url changed.
+   * @brief WebView callback related with page url changed.
    */
-  using WebEngineUrlChangedSignalType = Signal<void(const std::string&)>;
+  using WebEngineUrlChangedCallback = std::function<void(const std::string&)>;
 
   /**
-   * @brief WebView signal type related with screen captured.
+   * @brief WebView callback related with screen captured.
    */
   using ScreenshotCapturedCallback = std::function<void(Dali::PixelData)>;
 
   /**
-   * @brief WebView signal type related with geolocation permission.
+   * @brief WebView callback related with geolocation permission.
    *  Host and protocol of security origin will be provided when requesting
    *  geolocation permission.
    *  It returns true if a pop-up is created successfully, false otherwise.
@@ -94,39 +99,44 @@ public:
   using GeolocationPermissionCallback = std::function<bool(const std::string&, const std::string&)>;
 
   /**
-   * @brief WebView signal type related with video playing.
+   * @brief WebView callback related with video playing.
    */
   using VideoPlayingCallback = std::function<void(bool)>;
 
   /**
-   * @brief WebView signal type related with http request interceptor.
+   * @brief WebView callback related with http request interceptor.
    */
-  using WebEngineRequestInterceptorSignalType = Signal<void(std::shared_ptr<Dali::WebEngineRequestInterceptor>)>;
+  using WebEngineRequestInterceptorCallback = std::function<void(std::unique_ptr<Dali::WebEngineRequestInterceptor>)>;
 
   /**
-   * @brief WebView signal type related with console message logged.
+   * @brief WebView callback related with console message logged.
    */
-  using WebEngineConsoleMessageSignalType = Signal<void(std::shared_ptr<Dali::WebEngineConsoleMessage>)>;
+  using WebEngineConsoleMessageReceivedCallback = std::function<void(std::unique_ptr<Dali::WebEngineConsoleMessage>)>;
 
   /**
-   * @brief WebView signal type related with certificate changed.
+   * @brief WebView callback related with certificate changed.
    */
-  using WebEngineCertificateSignalType = Signal<void(std::shared_ptr<Dali::WebEngineCertificate>)>;
+  using WebEngineCertificateCallback = std::function<void(std::unique_ptr<Dali::WebEngineCertificate>)>;
 
   /**
-   * @brief WebView signal type related with http authentication.
+   * @brief WebView callback related with http authentication.
    */
-  using WebEngineHttpAuthHandlerSignalType = Signal<void(std::shared_ptr<Dali::WebEngineHttpAuthHandler>)>;
+  using WebEngineHttpAuthHandlerCallback = std::function<void(std::unique_ptr<Dali::WebEngineHttpAuthHandler>)>;
 
   /**
-   * @brief WebView signal type related with context menu shown.
+   * @brief WebView callback related with context menu shown.
    */
-  using WebEngineContextMenuShownSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
+  using WebEngineContextMenuShownCallback = std::function<void(std::unique_ptr<Dali::WebEngineContextMenu>)>;
 
   /**
-   * @brief WebView signal type related with context menu hidden.
+   * @brief WebView callback related with context menu hidden.
    */
-  using WebEngineContextMenuHiddenSignalType = Signal<void(std::shared_ptr<Dali::WebEngineContextMenu>)>;
+  using WebEngineContextMenuHiddenCallback = std::function<void(std::unique_ptr<Dali::WebEngineContextMenu>)>;
+
+  /**
+   * @brief Message result callback when JavaScript is executed with a message.
+   */
+  using JavaScriptMessageHandlerCallback = std::function<void(const std::string&)>;
 
   /**
    * @brief Alert callback when JavaScript alert is called with a message.
@@ -148,19 +158,19 @@ public:
   using JavaScriptPromptCallback = std::function<bool(const std::string&, const std::string&)>;
 
   /**
-   * @brief WebView signal type related with form repost decision.
+   * @brief WebView callback related with form repost decision.
    */
-  using WebEngineFormRepostDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEngineFormRepostDecision>)>;
+  using WebEngineFormRepostDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEngineFormRepostDecision>)>;
 
   /**
-   * @brief WebView signal type related with frame rendered.
+   * @brief WebView callback related with frame rendered.
    */
-  using WebEngineFrameRenderedSignalType = Signal<void(void)>;
+  using WebEngineFrameRenderedCallback = std::function<void(void)>;
 
   /**
-   * @brief WebView signal type related with response policy would be decided.
+   * @brief WebView callback related with response policy would be decided.
    */
-  using WebEngineResponsePolicyDecisionSignalType = Signal<void(std::shared_ptr<Dali::WebEnginePolicyDecision>)>;
+  using WebEngineResponsePolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
    * @brief Hit test callback called after hit test is created asynchronously.
@@ -451,7 +461,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  virtual void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler) = 0;
+  virtual void EvaluateJavaScript(const std::string& script, JavaScriptMessageHandlerCallback resultHandler) = 0;
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -459,7 +469,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
+  virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, JavaScriptMessageHandlerCallback handler) = 0;
 
   /**
    * @brief Register a callback for JavaScript alert.
@@ -748,55 +758,6 @@ public:
   virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when page loading is started.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEnginePageLoadSignalType& PageLoadStartedSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when page loading is in progress.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEnginePageLoadSignalType& PageLoadInProgressSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when page loading is finished.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEnginePageLoadSignalType& PageLoadFinishedSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when an error occurs in page loading.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when scroll edge is reached.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when url is changed.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEngineUrlChangedSignalType& UrlChangedSignal() = 0;
-
-  /**
-   * @brief Connect to this signal to be notified when form repost decision is requested.
-   *
-   * @return A signal object to connect with.
-   */
-  virtual WebEngineFormRepostDecisionSignalType& FormRepostDecisionSignal() = 0;
-
-  /**
    * @brief Connect to this signal to be notified when frame is rendered.
    *
    * @return A signal object to connect with.
@@ -804,60 +765,109 @@ public:
   virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
 
   /**
-   * @brief Connect to this signal to be notified when http request need be intercepted.
+   * @brief Callback to be called when page loading is started.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineRequestInterceptorSignalType& RequestInterceptorSignal() = 0;
+  virtual void RegisterPageLoadStartedCallback(WebEnginePageLoadCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when console message will be logged.
+   * @brief Callback to be called when page loading is in progress.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineConsoleMessageSignalType& ConsoleMessageSignal() = 0;
+  virtual void RegisterPageLoadInProgressCallback(WebEnginePageLoadCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when response policy would be decided.
+   * @brief Callback to be called when page loading is finished.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineResponsePolicyDecisionSignalType& ResponsePolicyDecisionSignal() = 0;
+  virtual void RegisterPageLoadFinishedCallback(WebEnginePageLoadCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when certificate need be confirmed.
+   * @brief Callback to be called when an error occurs in page loading.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineCertificateSignalType& CertificateConfirmSignal() = 0;
+  virtual void RegisterPageLoadErrorCallback(WebEnginePageLoadErrorCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when ssl certificate is changed.
+   * @brief Callback to be called when scroll edge is reached.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineCertificateSignalType& SslCertificateChangedSignal() = 0;
+  virtual void RegisterScrollEdgeReachedCallback(WebEngineScrollEdgeReachedCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when http authentication need be confirmed.
+   * @brief Callback to be called when url is changed.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineHttpAuthHandlerSignalType& HttpAuthHandlerSignal() = 0;
+  virtual void RegisterUrlChangedCallback(WebEngineUrlChangedCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be shown.
+   * @brief Callback to be called when form repost decision is requested.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineContextMenuShownSignalType& ContextMenuShownSignal() = 0;
+  virtual void RegisterFormRepostDecidedCallback(WebEngineFormRepostDecidedCallback callback) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when context menu would be hidden.
+   * @brief Callback to be called when http request need be intercepted.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineContextMenuHiddenSignalType& ContextMenuHiddenSignal() = 0;
+  virtual void RegisterRequestInterceptorCallback(WebEngineRequestInterceptorCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when console message will be logged.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterConsoleMessageReceivedCallback(WebEngineConsoleMessageReceivedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when response policy would be decided.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterResponsePolicyDecidedCallback(WebEngineResponsePolicyDecidedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when certificate need be confirmed.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterCertificateConfirmedCallback(WebEngineCertificateCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when ssl certificate is changed.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterSslCertificateChangedCallback(WebEngineCertificateCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when http authentication need be confirmed.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterHttpAuthHandlerCallback(WebEngineHttpAuthHandlerCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when context menu would be shown.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterContextMenuShownCallback(WebEngineContextMenuShownCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when context menu would be hidden.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterContextMenuHiddenCallback(WebEngineContextMenuHiddenCallback callback) = 0;
 };
 
 // specialization has to be done in the same namespace

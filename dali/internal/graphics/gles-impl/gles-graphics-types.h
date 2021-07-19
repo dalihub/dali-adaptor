@@ -2029,14 +2029,56 @@ enum class BoundTextureType
 };
 
 /**
+ * This class stores indirect pointer, used by the CommandBuffer
+ * to store data allocated within resizeable pool
+ */
+template<class T>
+struct IndirectPtr
+{
+  uint32_t ptr;  // relative pointer
+  void**   base; // base pointer
+
+  inline T* operator->()
+  {
+    return reinterpret_cast<T*>((reinterpret_cast<uint8_t*>(*base) + ptr));
+  }
+
+  inline T& operator*()
+  {
+    return *reinterpret_cast<T*>((reinterpret_cast<uint8_t*>(*base) + ptr));
+  }
+
+  // Returns indirect pointer casted to requested type
+  T* Ptr() const
+  {
+    auto val = reinterpret_cast<T*>((reinterpret_cast<uint8_t*>(*base) + ptr));
+    return val;
+  }
+
+  inline T& operator[](int index)
+  {
+    return reinterpret_cast<T*>((reinterpret_cast<uint8_t*>(*base) + ptr))[index];
+  }
+
+  // Fake assignment operator for void* type
+  inline IndirectPtr<T>& operator=(void* p)
+  {
+    ptr  = 0;
+    base = nullptr;
+    return *this;
+  }
+};
+
+/**
  * The descriptor of BeginRenderPass command
  */
 struct BeginRenderPassDescriptor
 {
-  const GLES::RenderPass*   renderPass{};
-  const GLES::RenderTarget* renderTarget{};
-  Rect2D                    renderArea{};
-  std::vector<ClearValue>   clearValues{};
+  const GLES::RenderPass*   renderPass;
+  const GLES::RenderTarget* renderTarget;
+  Rect2D                    renderArea;
+  IndirectPtr<ClearValue>   clearValues;
+  uint32_t                  clearValuesCount;
 };
 
 } // namespace Dali::Graphics::GLES

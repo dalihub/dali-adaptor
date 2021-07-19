@@ -86,9 +86,12 @@ std::string DumpStencilOp(Graphics::StencilOp stencilOp)
 
 void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
 {
-  bool first{true};
-  for(auto& cmd : commandBuffer->GetCommands())
+  bool       first{true};
+  uint32_t   count   = 0u;
+  const auto command = commandBuffer->GetCommands(count);
+  for(auto i = 0u; i < count; ++i)
   {
+    auto& cmd = command[i];
     if(!first)
     {
       fprintf(output, ",");
@@ -251,8 +254,9 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
                 cmd.beginRenderPass.renderArea.height);
         fprintf(output, "\"clearValues\":[");
         bool firstV = true;
-        for(auto& value : cmd.beginRenderPass.clearValues)
+        for(auto i = 0u; i < cmd.beginRenderPass.clearValuesCount; ++i)
         {
+          auto value = cmd.beginRenderPass.clearValues.Ptr()[i];
           if(!firstV)
           {
             fprintf(output, ",");
@@ -277,14 +281,15 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
       {
         fprintf(output, "{\"Cmd\":\"EXECUTE_COMMAND_BUFFERS\",\n\"buffers\":[");
         bool firstBuf{true};
-        for(auto& buf : cmd.executeCommandBuffers.buffers)
+        for(auto i = 0u; i < cmd.executeCommandBuffers.buffersCount; ++i)
         {
+          const auto buf = cmd.executeCommandBuffers.buffers.Ptr()[i];
           if(!firstBuf)
           {
             fprintf(output, ", ");
           }
           firstBuf = false;
-          DumpCommandBuffer(output, static_cast<const GLES::CommandBuffer*>(buf));
+          DumpCommandBuffer(output, buf);
         }
         fprintf(output, "]\n}");
         break;
