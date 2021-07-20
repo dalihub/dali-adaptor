@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
 #include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/system/linux/dali-efreet.h>
 #include <dali/internal/system/linux/dali-elementary.h>
 
 #include <dali/integration-api/debug.h>
@@ -163,6 +164,7 @@ void Framework::Run()
 {
   mRunning = true;
 
+  efreet_cache_disable();
   elm_init(mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr);
 
   Impl::AppCreate(this);
