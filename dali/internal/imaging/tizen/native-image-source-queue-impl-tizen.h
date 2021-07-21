@@ -123,6 +123,11 @@ public:
   const char* GetCustomFragmentPrefix() const override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader()
+   */
+  bool ApplyNativeFragmentShader(std::string& shader) override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
    */
   const char* GetCustomSamplerTypename() const override;
@@ -171,17 +176,16 @@ private:
 private:
   typedef std::pair<tbm_surface_h, void*> EglImagePair;
 
-  const char*               mCustomFragmentPrefix; ///< Prefix for CustomFragment
-  Dali::Mutex               mMutex;                ///< Mutex
-  uint32_t                  mWidth;                ///< image width
-  uint32_t                  mHeight;               ///< image height
-  tbm_surface_queue_h       mTbmQueue;             ///< Tbm surface queue handle
-  tbm_surface_h             mConsumeSurface;       ///< The current tbm surface
-  std::vector<EglImagePair> mEglImages;            ///< EGL Image vector
-  EglGraphics*              mEglGraphics;          ///< EGL Graphics
-  EglImageExtensions*       mEglImageExtensions;   ///< The EGL Image Extensions
-  bool                      mOwnTbmQueue;          ///< Whether we created tbm queue
-  bool                      mBlendingRequired;     ///< Whether blending is required
+  Dali::Mutex               mMutex;              ///< Mutex
+  uint32_t                  mWidth;              ///< image width
+  uint32_t                  mHeight;             ///< image height
+  tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h             mConsumeSurface;     ///< The current tbm surface
+  std::vector<EglImagePair> mEglImages;          ///< EGL Image vector
+  EglGraphics*              mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
+  bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                      mBlendingRequired;   ///< Whether blending is required
 };
 
 } // namespace Adaptor

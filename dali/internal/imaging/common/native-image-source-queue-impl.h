@@ -104,6 +104,11 @@ public:
   virtual const char* GetCustomFragmentPrefix() const = 0;
 
   /**
+   * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader()
+   */
+  virtual bool ApplyNativeFragmentShader(std::string& shader) = 0;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetCustomSamplerTypename()
    */
   virtual const char* GetCustomSamplerTypename() const = 0;
