@@ -193,6 +193,15 @@ bool CanvasRendererUbuntu::HaveDrawablesChanged(const Dali::CanvasRenderer::Draw
   {
     return true;
   }
+  Dali::CanvasRenderer::Drawable compositeDrawable = drawableImpl.GetCompositionDrawable();
+  if(DALI_UNLIKELY(compositeDrawable))
+  {
+    Internal::Adaptor::Drawable& compositeDrawableImpl = Dali::GetImplementation(compositeDrawable);
+    if(compositeDrawableImpl.GetChanged())
+    {
+      return true;
+    }
+  }
 
   if(drawableImpl.GetType() == Drawable::Types::DRAWABLE_GROUP)
   {
@@ -215,6 +224,13 @@ void CanvasRendererUbuntu::UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable
 {
   Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
   drawableImpl.SetChanged(changed);
+
+  Dali::CanvasRenderer::Drawable compositeDrawable = drawableImpl.GetCompositionDrawable();
+  if(DALI_UNLIKELY(compositeDrawable))
+  {
+    Internal::Adaptor::Drawable& compositeDrawableImpl = Dali::GetImplementation(compositeDrawable);
+    compositeDrawableImpl.SetChanged(changed);
+  }
 
   if(drawableImpl.GetType() == Drawable::Types::DRAWABLE_GROUP)
   {
