@@ -268,6 +268,11 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
+  /**
+   * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()
+   */
+  void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
+
 private:
 
   /**

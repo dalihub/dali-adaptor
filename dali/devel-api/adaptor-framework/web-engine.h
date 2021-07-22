@@ -339,6 +339,13 @@ public:
    */
   Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
 
+  /**
+   * @brief Get a plain text of current web page asynchronously.
+   *
+   * @param[in] callback The callback function called asynchronously.
+   */
+  void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor

@@ -279,4 +279,9 @@ Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEd
   return GetImplementation( *this ).ScrollEdgeReachedSignal();
 }
 
+void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
+{
+  GetImplementation(*this).GetPlainTextAsynchronously(callback);
+}
+
 } // namespace Dali

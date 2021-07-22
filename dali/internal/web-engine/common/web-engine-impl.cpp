@@ -378,6 +378,11 @@ Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEd
   return mPlugin->ScrollEdgeReachedSignal();
 }
 
+void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
+{
+  mPlugin->GetPlainTextAsynchronously(callback);
+}
+
 } // namespace Adaptor;
 } // namespace Internal;
 } // namespace Dali;
