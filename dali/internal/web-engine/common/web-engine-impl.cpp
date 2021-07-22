@@ -651,6 +651,11 @@ void WebEngine::RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngi
   mPlugin->RegisterContextMenuHiddenCallback(callback);
 }
 
+void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
+{
+  mPlugin->GetPlainTextAsynchronously(callback);
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali
