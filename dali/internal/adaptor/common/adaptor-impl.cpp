@@ -290,6 +290,11 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   {
     Integration::SetLongPressMinimumHoldingTime(mEnvironmentOptions->GetLongPressMinimumHoldingTime());
   }
+  if(mEnvironmentOptions->GetTapMaximumAllowedTime() > 0)
+  {
+    Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
+  }
+
 
   std::string systemCachePath = GetSystemCachePath();
   if(!systemCachePath.empty())
