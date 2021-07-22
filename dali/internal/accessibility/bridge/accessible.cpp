@@ -143,6 +143,15 @@ void Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
     bridgeData->mBridge->EmitCursorMoved(this, cursorPosition);
   }
 }
+
+void Accessible::EmitMovedOutOfScreen(MovedOutOfScreenType type)
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
+  }
+}
+
 void Accessible::Emit(WindowEvent event, unsigned int detail)
 {
   if(auto bridgeData = GetBridgeData())
