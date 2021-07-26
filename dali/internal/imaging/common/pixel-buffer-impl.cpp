@@ -479,23 +479,19 @@ uint32_t PixelBuffer::GetBrightness() const
   {
     unsigned char* pixel      = mBuffer;
     const uint32_t bufferSize = mWidth * mHeight;
+    uint64_t       red        = 0;
+    uint64_t       green      = 0;
+    uint64_t       blue       = 0;
 
-    if(bufferSize) // avoid division by zero to calculate brightness
+    for(uint32_t i = 0; i < bufferSize; ++i)
     {
-      uint64_t red   = 0;
-      uint64_t green = 0;
-      uint64_t blue  = 0;
-
-      for(uint32_t i = 0; i < bufferSize; ++i)
-      {
-        red += ReadChannel(pixel, mPixelFormat, Adaptor::RED);
-        green += ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
-        blue += ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
-        pixel += bytesPerPixel;
-      }
-      // http://www.w3.org/TR/AERT#color-contrast
-      brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
+      red += ReadChannel(pixel, mPixelFormat, Adaptor::RED);
+      green += ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
+      blue += ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
+      pixel += bytesPerPixel;
     }
+    // http://www.w3.org/TR/AERT#color-contrast
+    brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
   }
 
   return brightness;
