@@ -8,6 +8,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-picture.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable-group.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-gradient.cpp
@@ -65,6 +66,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-gradient.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-linear-gradient.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-radial-gradient.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-picture.h
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
