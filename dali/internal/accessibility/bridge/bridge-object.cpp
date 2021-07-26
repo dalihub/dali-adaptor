@@ -571,3 +571,18 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
       {"", "root"});
   }
 }
+
+void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, MovedOutOfScreenType type)
+{
+  auto        addr = obj->GetAddress();
+  std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+  dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+    p,
+    AtspiDbusInterfaceEventObject,
+    "MoveOuted",
+    "",
+    static_cast<int>(type),
+    0,
+    {0},
+    {"", "root"});
+}

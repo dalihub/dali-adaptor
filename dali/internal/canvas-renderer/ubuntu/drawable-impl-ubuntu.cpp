@@ -49,7 +49,9 @@ DrawableUbuntu* DrawableUbuntu::New()
 DrawableUbuntu::DrawableUbuntu()
 : mAdded(false),
   mChanged(false),
-  mType(Drawable::Types::NONE)
+  mType(Drawable::Types::NONE),
+  mCompositionType(Drawable::CompositionType::NONE),
+  mCompositionDrawable()
 #ifdef THORVG_SUPPORT
   ,
   mTvgPaint(nullptr)
@@ -208,6 +210,87 @@ Rect<float> DrawableUbuntu::GetBoundingBox() const
 #else
   return Rect<float>(0, 0, 0, 0);
 #endif
+}
+
+bool DrawableUbuntu::SetClipPath(Dali::CanvasRenderer::Drawable& clip)
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgPaint)
+  {
+    DALI_LOG_ERROR("Drawable is null\n");
+    return false;
+  }
+
+  Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(clip);
+  if(drawableImpl.IsAdded())
+  {
+    DALI_LOG_ERROR("Already used [%p][%p]\n", this, &clip);
+    return false;
+  }
+
+  drawableImpl.SetAdded(true);
+  mCompositionDrawable = clip;
+  mCompositionType     = Drawable::CompositionType::CLIP_PATH;
+  Drawable::SetChanged(true);
+
+  return true;
+#else
+  return false;
+#endif
+}
+
+bool DrawableUbuntu::SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type)
+{
+#ifdef THORVG_SUPPORT
+  if(!mTvgPaint)
+  {
+    DALI_LOG_ERROR("Drawable is null\n");
+    return false;
+  }
+
+  Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(mask);
+  if(drawableImpl.IsAdded())
+  {
+    DALI_LOG_ERROR("Already used [%p][%p]\n", this, &mask);
+    return false;
+  }
+
+  drawableImpl.SetAdded(true);
+  mCompositionDrawable = mask;
+  switch(type)
+  {
+    case Dali::CanvasRenderer::Drawable::MaskType::ALPHA:
+    {
+      mCompositionType = Drawable::CompositionType::ALPHA_MASK;
+      break;
+    }
+    case Dali::CanvasRenderer::Drawable::MaskType::ALPHA_INVERSE:
+    {
+      mCompositionType = Drawable::CompositionType::ALPHA_MASK_INVERSE;
+      break;
+    }
+    default:
+    {
+      mCompositionType = Drawable::CompositionType::ALPHA_MASK;
+      break;
+    }
+  }
+  Drawable::SetChanged(true);
+
+  return true;
+#else
+  return false;
+#endif
+}
+
+Dali::CanvasRenderer::Drawable DrawableUbuntu::GetCompositionDrawable() const
+{
+  return mCompositionDrawable;
+}
+
+Drawable::CompositionType DrawableUbuntu::GetCompositionType() const
+{
+  return mCompositionType;
 }
 
 void DrawableUbuntu::SetAdded(bool added)

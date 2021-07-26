@@ -534,6 +534,11 @@ public:
    */
   void RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback);
 
+  /**
+   * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()
+   */
+  void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
+
 private:
   /**
    * @brief Constructor.

@@ -106,6 +106,42 @@ Rect<float> Drawable::GetBoundingBox() const
   return mImpl->GetBoundingBox();
 }
 
+bool Drawable::SetClipPath(Dali::CanvasRenderer::Drawable& clip)
+{
+  if(!mImpl)
+  {
+    return false;
+  }
+  return mImpl->SetClipPath(clip);
+}
+
+bool Drawable::SetMask(Dali::CanvasRenderer::Drawable& mask, Dali::CanvasRenderer::Drawable::MaskType type)
+{
+  if(!mImpl)
+  {
+    return false;
+  }
+  return mImpl->SetMask(mask, type);
+}
+
+Dali::CanvasRenderer::Drawable Drawable::GetCompositionDrawable() const
+{
+  if(!mImpl)
+  {
+    return Dali::CanvasRenderer::Drawable();
+  }
+  return mImpl->GetCompositionDrawable();
+}
+
+Dali::Internal::Adaptor::Drawable::CompositionType Drawable::GetCompositionType() const
+{
+  if(!mImpl)
+  {
+    return Dali::Internal::Adaptor::Drawable::CompositionType::NONE;
+  }
+  return mImpl->GetCompositionType();
+}
+
 void Drawable::SetAdded(bool added)
 {
   if(!mImpl)

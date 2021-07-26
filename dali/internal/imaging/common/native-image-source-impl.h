@@ -120,6 +120,11 @@ public:
   virtual const char* GetCustomFragmentPrefix() const = 0;
 
   /**
+   * @copydoc Dali::NativeImageSource::ApplyNativeFragmentShader()
+   */
+  virtual bool ApplyNativeFragmentShader(std::string& shader) = 0;
+
+  /**
    * @copydoc Dali::NativeImageSource::GetCustomSamplerTypename()
    */
   virtual const char* GetCustomSamplerTypename() const = 0;

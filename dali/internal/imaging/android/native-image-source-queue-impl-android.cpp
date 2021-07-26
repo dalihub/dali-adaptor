@@ -33,12 +33,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace
-{
-const char* FRAGMENT_PREFIX = "\n";
-const char* SAMPLER_TYPE    = "sampler2D";
-
-} // namespace
 
 NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
 {
@@ -72,6 +66,21 @@ void NativeImageSourceQueueAndroid::IgnoreSourceImage()
 {
 }
 
+bool NativeImageSourceQueueAndroid::CanDequeueBuffer()
+{
+  return false;
+}
+
+uint8_t* NativeImageSourceQueueAndroid::DequeueBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
+{
+  return nullptr;
+}
+
+bool NativeImageSourceQueueAndroid::EnqueueBuffer(uint8_t* buffer)
+{
+  return false;
+}
+
 bool NativeImageSourceQueueAndroid::CreateResource()
 {
   return true;
@@ -92,12 +101,17 @@ void NativeImageSourceQueueAndroid::PrepareTexture()
 
 const char* NativeImageSourceQueueAndroid::GetCustomFragmentPrefix() const
 {
-  return FRAGMENT_PREFIX;
+  return nullptr;
+}
+
+bool NativeImageSourceQueueAndroid::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
 }
 
 const char* NativeImageSourceQueueAndroid::GetCustomSamplerTypename() const
 {
-  return SAMPLER_TYPE;
+  return nullptr;
 }
 
 int NativeImageSourceQueueAndroid::GetTextureTarget() const

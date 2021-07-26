@@ -159,6 +159,11 @@ const char* NativeImageSourceCocoa::GetCustomFragmentPrefix() const
   return nullptr;
 }
 
+bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader)
+{
+  return false;
+}
+
 const char* NativeImageSourceCocoa::GetCustomSamplerTypename() const
 {
   return nullptr;

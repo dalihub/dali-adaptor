@@ -178,6 +178,11 @@ public:
   using WebEngineHitTestCreatedCallback = std::function<bool(std::unique_ptr<Dali::WebEngineHitTest>)>;
 
   /**
+   * @brief The callback to be called when the web engine received a plain text of current web page.
+   */
+  using PlainTextReceivedCallback = std::function<void(const std::string&)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -868,6 +873,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterContextMenuHiddenCallback(WebEngineContextMenuHiddenCallback callback) = 0;
+
+  /**
+   * @brief Get a plain text of current web page asynchronously.
+   *
+   * @param[in] callback The callback function called asynchronously.
+   */
+  virtual void GetPlainTextAsynchronously(PlainTextReceivedCallback callback) = 0;
 };
 
 // specialization has to be done in the same namespace

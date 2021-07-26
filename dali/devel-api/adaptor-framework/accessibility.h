@@ -42,6 +42,16 @@ namespace Dali
 namespace Accessibility
 {
 /**
+ * @brief Enumeration describing signal that occurs when object moves out of screen.
+ */
+enum class MovedOutOfScreenType
+{
+  NONE,
+  TOP_LEFT,     ///< Object moves out of top(or left) side of screen
+  BOTTOM_RIGHT ///< Object moves out of bottom(or right) side of screen
+};
+
+/**
  * @brief Enumeration describing a relation between accessible objects
  * 1 to 0..N relation model is supported. By default relation is not symmetrical.
  * Symmetry must be explicitly maintained.

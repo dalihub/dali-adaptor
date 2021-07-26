@@ -126,6 +126,10 @@ void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Acces
 {
 }
 
+void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::MovedOutOfScreenType type)
+{
+}
+
 void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
 }

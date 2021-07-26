@@ -557,4 +557,9 @@ void WebEngine::RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngi
   GetImplementation(*this).RegisterContextMenuHiddenCallback(callback);
 }
 
+void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
+{
+  GetImplementation(*this).GetPlainTextAsynchronously(callback);
+}
+
 } // namespace Dali

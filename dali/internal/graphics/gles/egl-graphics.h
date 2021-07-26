@@ -194,9 +194,9 @@ public:
     return mGLES->GetShadingLanguageVersion();
   }
 
-  const char* GetEglImageExtensionString()
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
   {
-    return mGLES->GetEglImageExtensionString();
+    return mGLES->ApplyNativeFragmentShader(shader, customSamplerType);
   }
 
   void CacheConfigurations(ConfigurationManager& configurationManager) override;
