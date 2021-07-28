@@ -28,6 +28,8 @@
 #include "gles-graphics-render-pass.h"
 #include "gles-graphics-render-target.h"
 
+#include <map>
+
 namespace Dali::Graphics::GLES
 {
 struct Context::Impl
@@ -38,6 +40,39 @@ struct Context::Impl
   }
 
   ~Impl() = default;
+
+  /**
+   * Binds (and creates) VAO
+   *
+   * VAO is fixed per program so it has to be created only once assuming
+   * that VertexInputState has been set correctly for the pipeline.
+   *
+   */
+  void BindProgramVAO(GLES::ProgramImpl* program, const VertexInputState& vertexInputState)
+  {
+    auto& gl   = *mController.GetGL();
+    auto  iter = mProgramVAOMap.find(program);
+    if(iter != mProgramVAOMap.end())
+    {
+      if(mProgramVAOCurrentState != iter->second)
+      {
+        mProgramVAOCurrentState = iter->second;
+        gl.BindVertexArray(iter->second);
+      }
+      return;
+    }
+
+    uint32_t vao;
+    gl.GenVertexArrays(1, &vao);
+    gl.BindVertexArray(vao);
+    mProgramVAOMap[program] = vao;
+    for(const auto& attr : vertexInputState.attributes)
+    {
+      gl.EnableVertexAttribArray(attr.location);
+    }
+
+    mProgramVAOCurrentState = vao;
+  }
 
   /**
    * Sets the initial GL state.
@@ -165,7 +200,10 @@ struct Context::Impl
   const GLES::RenderTarget* mCurrentRenderTarget{nullptr};
   const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 
-  GLStateCache mGlStateCache{}; ///< GL status cache
+  // Each context must have own VAOs as they cannot be shared
+  std::map<GLES::ProgramImpl*, uint32_t> mProgramVAOMap;              ///< GL program-VAO map
+  uint32_t                               mProgramVAOCurrentState{0u}; ///< Currently bound VAO
+  GLStateCache                           mGlStateCache{};             ///< GL status cache
 
   bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
 };
@@ -180,6 +218,8 @@ Context::~Context() = default;
 void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 {
   auto& gl = *mImpl->mController.GetGL();
+
+  static const bool hasGLES3(mImpl->mController.GetGLESVersion() >= GLESVersion::GLES_30);
 
   // early out if neither current nor new pipelines are set
   // this behaviour may be valid so no assert
@@ -246,15 +286,25 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   }
 
   // for each attribute bind vertices
-  const auto& pipelineState = mImpl->mNewPipeline ? mImpl->mNewPipeline->GetCreateInfo() : mImpl->mCurrentPipeline->GetCreateInfo();
-  const auto& vi            = pipelineState.vertexInputState;
-  for(const auto& attr : vi->attributes)
+
+  const auto& pipelineState    = mImpl->mNewPipeline ? mImpl->mNewPipeline->GetCreateInfo() : mImpl->mCurrentPipeline->GetCreateInfo();
+  const auto& vertexInputState = pipelineState.vertexInputState;
+
+  if(hasGLES3)
+  {
+    mImpl->BindProgramVAO(static_cast<const GLES::Program*>(pipelineState.programState->program)->GetImplementation(), *vertexInputState);
+  }
+
+  for(const auto& attr : vertexInputState->attributes)
   {
     // Enable location
-    mImpl->SetVertexAttributeLocation(attr.location, true);
+    if(!hasGLES3)
+    {
+      mImpl->SetVertexAttributeLocation(attr.location, true);
+    }
 
     const auto& bufferSlot    = mImpl->mCurrentVertexBufferBindings[attr.binding];
-    const auto& bufferBinding = vi->bufferBindings[attr.binding];
+    const auto& bufferBinding = vertexInputState->bufferBindings[attr.binding];
 
     auto glesBuffer = bufferSlot.buffer->GetGLBuffer();
 
@@ -282,7 +332,11 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
       mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
                                                                 mImpl->mGlStateCache.DepthBufferWriteEnabled(),
                                                                 mImpl->mGlStateCache.StencilBufferWriteEnabled());
-      mImpl->FlushVertexAttributeLocations();
+      // For GLES3+ we use VAO, for GLES2 internal cache
+      if(!hasGLES3)
+      {
+        mImpl->FlushVertexAttributeLocations();
+      }
 
       gl.DrawArrays(GLESTopology(ia->topology),
                     drawCall.draw.firstVertex,
@@ -297,7 +351,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
       mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
                                                                 mImpl->mGlStateCache.DepthBufferWriteEnabled(),
                                                                 mImpl->mGlStateCache.StencilBufferWriteEnabled());
-      mImpl->FlushVertexAttributeLocations();
+
+      // For GLES3+ we use VAO, for GLES2 internal cache
+      if(!hasGLES3)
+      {
+        mImpl->FlushVertexAttributeLocations();
+      }
 
       auto indexBufferFormat = GLIndexFormat(binding.format).format;
       gl.DrawElements(GLESTopology(ia->topology),
