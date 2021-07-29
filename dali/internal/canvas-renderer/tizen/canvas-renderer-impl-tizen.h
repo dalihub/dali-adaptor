@@ -86,6 +86,16 @@ public:
    */
   const Vector2& GetSize() override;
 
+  /**
+   * @copydoc Dali::CanvasRenderer::SetViewBox()
+   */
+  bool SetViewBox(const Vector2& viewBox) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::GetViewBox()
+   */
+  const Vector2& GetViewBox() override;
+
 private:
   CanvasRendererTizen()                           = delete;
   CanvasRendererTizen(const CanvasRendererTizen&) = delete;

@@ -28,7 +28,6 @@ namespace Internal
 namespace Adaptor
 {
 CanvasRenderer::CanvasRenderer()
-: mSize(0, 0)
 {
 }
 
@@ -66,7 +65,17 @@ bool CanvasRenderer::SetSize(const Vector2& size)
 
 const Vector2& CanvasRenderer::GetSize()
 {
-  return mSize;
+  return Vector2::ZERO;
+}
+
+bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
+{
+  return false;
+}
+
+const Vector2& CanvasRenderer::GetViewBox()
+{
+  return Vector2::ZERO;
 }
 
 } // namespace Adaptor

@@ -133,6 +133,19 @@ public:
    */
   const Vector2& GetSize();
 
+  /**
+   * @brief This is the viewbox of the Canvas.
+   * @param[in] viewBox The size of viewbox.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetViewBox(const Vector2& viewBox);
+
+  /**
+   * @brief This is the viewbox of the Canvas.
+   * @return Returns The size of viewbox.
+   */
+  const Vector2& GetViewBox();
+
 public: // Not intended for application developers
   /// @cond internal
   /**

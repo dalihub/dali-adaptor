@@ -78,4 +78,14 @@ const Vector2& CanvasRenderer::GetSize()
   return GetImplementation(*this).GetSize();
 }
 
+bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
+{
+  return GetImplementation(*this).SetViewBox(viewBox);
+}
+
+const Vector2& CanvasRenderer::GetViewBox()
+{
+  return GetImplementation(*this).GetViewBox();
+}
+
 } // namespace Dali
