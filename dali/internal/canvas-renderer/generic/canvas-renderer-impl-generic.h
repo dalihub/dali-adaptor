@@ -62,6 +62,16 @@ public:
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
+   */
+  virtual bool IsCanvasChanged() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Rasterize()
+   */
+  virtual bool Rasterize();
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   bool SetSize(const Vector2& size) override;

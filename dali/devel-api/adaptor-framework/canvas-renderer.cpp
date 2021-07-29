@@ -58,6 +58,16 @@ bool CanvasRenderer::AddDrawable(Drawable& drawable)
   return GetImplementation(*this).AddDrawable(drawable);
 }
 
+bool CanvasRenderer::IsCanvasChanged() const
+{
+  return GetImplementation(*this).IsCanvasChanged();
+}
+
+bool CanvasRenderer::Rasterize()
+{
+  return GetImplementation(*this).Rasterize();
+}
+
 bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return GetImplementation(*this).SetSize(size);

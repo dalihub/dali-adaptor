@@ -96,15 +96,22 @@ void CanvasRendererUbuntu::Initialize(const Vector2& viewBox)
 bool CanvasRendererUbuntu::Commit()
 {
 #ifdef THORVG_SUPPORT
+  Mutex::ScopedLock lock(mMutex);
+
+  if(mSize.width < 1.0f || mSize.height < 1.0f)
+  {
+    DALI_LOG_ERROR("Size is zero [%p]\n", this);
+    return false;
+  }
+
   bool changed = false;
 
   for(auto& it : mDrawables)
   {
-    Internal::Adaptor::Drawable& drawableImpl = GetImplementation(it);
-    if(drawableImpl.GetChanged())
+    if(HaveDrawablesChanged(it))
     {
+      UpdateDrawablesChanged(it, false);
       changed = true;
-      drawableImpl.SetChanged(false);
     }
   }
 
@@ -114,17 +121,11 @@ bool CanvasRendererUbuntu::Commit()
   }
   else
   {
-    if(!mPixelBuffer.GetBuffer())
+    if(!mPixelBuffer || !mPixelBuffer.GetBuffer())
     {
       MakeTargetBuffer(mSize);
       mChanged = false;
     }
-  }
-
-  if(mSize.width < 1.0f || mSize.height < 1.0f)
-  {
-    DALI_LOG_ERROR("Size is zero [%p]\n", this);
-    return false;
   }
 
   if(mTvgCanvas->clear() != tvg::Result::Success)
@@ -140,28 +141,18 @@ bool CanvasRendererUbuntu::Commit()
     PushDrawableToGroup(it, mTvgRoot);
   }
 
-  if(mTvgCanvas->push(move(scene)) != tvg::Result::Success)
-  {
-    DALI_LOG_ERROR("ThorVG canvas push fail [%p]\n", this);
-    return false;
-  }
-
-  if(mViewBox != mSize)
+  if(mViewBox != mSize && mViewBox.width != 0 && mViewBox.height != 0)
   {
     auto scaleX = mSize.width / mViewBox.width;
     auto scaleY = mSize.height / mViewBox.height;
     mTvgRoot->scale(scaleX < scaleY ? scaleX : scaleY);
   }
 
-  mTvgCanvas->update(mTvgRoot);
-
-  if(mTvgCanvas->draw() != tvg::Result::Success)
+  if(mTvgCanvas->push(move(scene)) != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
+    DALI_LOG_ERROR("ThorVG canvas push fail [%p]\n", this);
     return false;
   }
-
-  mTvgCanvas->sync();
 
   return true;
 #else
@@ -184,15 +175,91 @@ bool CanvasRendererUbuntu::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
     return false;
   }
 
-  if(mSize.width < 1.0f || mSize.height < 1.0f)
-  {
-    DALI_LOG_ERROR("Size is zero [%p]\n", this);
-    return false;
-  }
-
   drawableImpl.SetAdded(true);
   mDrawables.push_back(drawable);
   mChanged = true;
+
+  return true;
+#else
+  return false;
+#endif
+}
+
+#ifdef THORVG_SUPPORT
+bool CanvasRendererUbuntu::HaveDrawablesChanged(const Dali::CanvasRenderer::Drawable& drawable) const
+{
+  const Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
+  if(drawableImpl.GetChanged())
+  {
+    return true;
+  }
+
+  if(drawableImpl.GetType() == Drawable::Types::DRAWABLE_GROUP)
+  {
+    const Dali::CanvasRenderer::DrawableGroup& group             = static_cast<const Dali::CanvasRenderer::DrawableGroup&>(drawable);
+    const Internal::Adaptor::DrawableGroup&    drawableGroupImpl = Dali::GetImplementation(group);
+    DrawableGroup::DrawableVector              drawables         = drawableGroupImpl.GetDrawables();
+    for(auto& it : drawables)
+    {
+      if(HaveDrawablesChanged(it))
+      {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+void CanvasRendererUbuntu::UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable& drawable, bool changed)
+{
+  Internal::Adaptor::Drawable& drawableImpl = GetImplementation(drawable);
+  drawableImpl.SetChanged(changed);
+
+  if(drawableImpl.GetType() == Drawable::Types::DRAWABLE_GROUP)
+  {
+    Dali::CanvasRenderer::DrawableGroup& group             = static_cast<Dali::CanvasRenderer::DrawableGroup&>(drawable);
+    Internal::Adaptor::DrawableGroup&    drawableGroupImpl = Dali::GetImplementation(group);
+    DrawableGroup::DrawableVector        drawables         = drawableGroupImpl.GetDrawables();
+    for(auto& it : drawables)
+    {
+      UpdateDrawablesChanged(it, changed);
+    }
+  }
+}
+#endif
+
+bool CanvasRendererUbuntu::IsCanvasChanged() const
+{
+#ifdef THORVG_SUPPORT
+  if(mChanged)
+  {
+    return true;
+  }
+
+  for(auto& it : mDrawables)
+  {
+    if(HaveDrawablesChanged(it))
+    {
+      return true;
+    }
+  }
+#endif
+  return false;
+}
+
+bool CanvasRendererUbuntu::Rasterize()
+{
+#ifdef THORVG_SUPPORT
+  Mutex::ScopedLock lock(mMutex);
+
+  if(mTvgCanvas->draw() != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
+    return false;
+  }
+
+  mTvgCanvas->sync();
 
   return true;
 #else
@@ -209,11 +276,9 @@ bool CanvasRendererUbuntu::SetSize(const Vector2& size)
 
   if(size != mSize)
   {
-    mSize = size;
-    MakeTargetBuffer(size);
+    mSize    = size;
+    mChanged = true;
   }
-
-  mChanged = true;
 
   return true;
 }

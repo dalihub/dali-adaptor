@@ -49,6 +49,16 @@ bool CanvasRenderer::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   return false;
 }
 
+bool CanvasRenderer::IsCanvasChanged() const
+{
+  return false;
+}
+
+bool CanvasRenderer::Rasterize()
+{
+  return false;
+}
+
 bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return false;
