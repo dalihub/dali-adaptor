@@ -80,6 +80,11 @@ bool CanvasRendererGeneric::Rasterize()
   return false;
 }
 
+bool CanvasRendererGeneric::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable)
+{
+  return false;
+}
+
 bool CanvasRendererGeneric::SetSize(const Vector2& size)
 {
   return false;

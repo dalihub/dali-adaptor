@@ -72,6 +72,11 @@ public:
   virtual bool Rasterize();
 
   /**
+   * @copydoc Dali::CanvasRenderer::RemoveDrawable()
+   */
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   bool SetSize(const Vector2& size) override;
