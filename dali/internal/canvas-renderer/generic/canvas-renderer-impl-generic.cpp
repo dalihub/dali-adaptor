@@ -85,6 +85,11 @@ bool CanvasRendererGeneric::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawa
   return false;
 }
 
+bool CanvasRendererGeneric::RemoveAllDrawables()
+{
+  return false;
+}
+
 bool CanvasRendererGeneric::SetSize(const Vector2& size)
 {
   return false;

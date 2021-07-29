@@ -79,6 +79,11 @@ public:
   virtual bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
+   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
+   */
+  virtual bool RemoveAllDrawables();
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   virtual bool SetSize(const Vector2& size);

@@ -73,6 +73,11 @@ bool CanvasRenderer::RemoveDrawable(Drawable& drawable)
   return GetImplementation(*this).RemoveDrawable(drawable);
 }
 
+bool CanvasRenderer::RemoveAllDrawables()
+{
+  return GetImplementation(*this).RemoveAllDrawables();
+}
+
 bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return GetImplementation(*this).SetSize(size);

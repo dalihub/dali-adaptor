@@ -82,6 +82,11 @@ public:
   bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
+   */
+  bool RemoveAllDrawables() override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   bool SetSize(const Vector2& size) override;
