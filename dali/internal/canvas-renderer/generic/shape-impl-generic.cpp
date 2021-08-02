@@ -82,6 +82,11 @@ bool ShapeGeneric::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vect
   return false;
 }
 
+bool ShapeGeneric::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+  return false;
+}
+
 bool ShapeGeneric::Close()
 {
   return false;

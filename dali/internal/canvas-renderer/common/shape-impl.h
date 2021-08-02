@@ -79,6 +79,11 @@ public:
   virtual bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
 
   /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  virtual bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand);
+
+  /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()
    */
   virtual bool Close();

@@ -105,6 +105,30 @@ public:
     EVEN_ODD     ///< Draw a horizontal line from the point to a location outside the shape, and count the number of intersections. If the number of intersections is an odd number, the point is inside the shape.
   };
 
+  /**
+   * @brief Enumeration specifying the values of the path commands.
+   * Not to be confused with the path commands from the svg path element (like M, L, Q, H and many others).
+   */
+  enum class PathCommandType
+  {
+    CLOSE = 0, ///< Ends the current sub-path and connects it with its initial point. This command doesn't expect any points.
+    MOVE_TO,   ///< Sets a new initial point of the sub-path and a new current point. This command expects 1 point: the starting position.
+    LINE_TO,   ///< Draws a line from the current point to the given point and sets a new value of the current point. This command expects 1 point: the end-position of the line.
+    CUBIC_TO   ///< Draws a cubic Bezier curve from the current point to the given point using two given control points and sets a new value of the current point. This command expects 3 points: the 1st control-point, the 2nd control-point, the end-point of the curve.
+  };
+
+  /**
+   * @brief Structure that contains information about a list of path commands.
+   * For each command from the mCommands array, an appropriate number of points in mPoints array should be specified.
+   */
+  struct PathCommands
+  {
+    PathCommandType* mCommands;     ///< Set of each PathComand.
+    uint32_t         mCommandCount; ///< The number of command array.
+    float*           mPoints;       ///< Set of each Point
+    uint32_t         mPointCount;   ///< The number of point array.
+  };
+
 public:
   /**
    * @brief Append the given rectangle with rounded corner to the path.
@@ -169,6 +193,16 @@ public:
    * @return Returns True when it's successful. False otherwise.
    */
   bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
+
+  /**
+   * @brief Appends a given sub-path to the path.
+   * The current point value is set to the last point from the sub-path.
+   * @param[in] pathCommand The command object that contain sub-path information. (This command information is copied internally.)
+   * @return Returns True when it's successful. False otherwise.
+   * @note The interface is designed for optimal path setting if the caller has a completed path commands already.
+   *
+   */
+  bool AddPath(PathCommands& pathCommand);
 
   /**
    * @brief Closes the current subpath by drawing a line to the beginning of the

@@ -58,6 +58,11 @@ bool Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 end
   return false;
 }
 
+bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+  return false;
+}
+
 bool Shape::Close()
 {
   return false;

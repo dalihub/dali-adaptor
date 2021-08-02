@@ -73,6 +73,11 @@ bool CanvasRenderer::Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoi
   return GetImplementation(*this).AddCubicTo(controlPoint1, controlPoint2, endPoint);
 }
 
+bool CanvasRenderer::Shape::AddPath(PathCommands& pathCommand)
+{
+  return GetImplementation(*this).AddPath(pathCommand);
+}
+
 bool CanvasRenderer::Shape::Close()
 {
   return GetImplementation(*this).Close();

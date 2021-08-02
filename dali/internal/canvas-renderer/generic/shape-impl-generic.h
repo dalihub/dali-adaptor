@@ -74,6 +74,11 @@ public:
   bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand) override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()
    */
   bool Close() override;

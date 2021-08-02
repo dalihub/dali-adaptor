@@ -199,6 +199,27 @@ bool ShapeUbuntu::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vecto
 #endif
 }
 
+bool ShapeUbuntu::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null\n");
+    return false;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>((void*)pathCommand.mPoints), pathCommand.mPointCount) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("AddPath() fail.\n");
+    return false;
+  }
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool ShapeUbuntu::Close()
 {
 #ifdef THORVG_SUPPORT
