@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,11 +62,11 @@ public:
   /**
     * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
     */
-  enum ColorDepth
+  enum class ColorFormat
   {
-    COLOR_DEPTH_DEFAULT, ///< Uses the current screen default depth (recommended)
-    COLOR_DEPTH_24,      ///< 24 bits per pixel
-    COLOR_DEPTH_32       ///< 32 bits per pixel
+    RGB888,   /// 8 red bits, 8 green bits, 8 blue bits
+    RGBA8888, /// 8 red bits, 8 green bits, 8 blue bits, alpha 8 bits
+    RGBX8888  /// 8 red bits, 8 green bits, 8 blue bits, and 8 ignored bits
   };
 
   /**
@@ -74,10 +74,10 @@ public:
    *        Depending on hardware, the width and height may have to be a power of two.
    * @param[in] width The width of the image
    * @param[in] height The height of the image
-   * @param[in] depth color depth of the image
+   * @param[in] colorFormat The color format of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageSourceQueuePtr New(uint32_t width, uint32_t height, ColorDepth depth);
+  static NativeImageSourceQueuePtr New(uint32_t width, uint32_t height, ColorFormat colorFormat);
 
   /**
    * @brief Creates a new NativeImageSourceQueue from an existing native image source.
@@ -217,10 +217,10 @@ private:
    * @brief Private constructor.
    * @param[in] width The width of the image
    * @param[in] height The height of the image
-   * @param[in] depth color depth of the image
+   * @param[in] colorFormat The color format of the image
    * @param[in] nativeImageSourceQueue contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSourceQueue(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue);
+  DALI_INTERNAL NativeImageSourceQueue(uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().

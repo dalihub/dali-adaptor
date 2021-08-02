@@ -47,11 +47,11 @@ public:
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
+   * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
+  static NativeImageSourceQueueTizen* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -175,12 +175,12 @@ private:
    * Private constructor; @see NativeImageSourceQueue::New()
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] colour depth of the image.
+   * @param[in] colorFormat The format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
+  NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
-  void Initialize(Dali::NativeImageSourceQueue::ColorDepth depth);
+  void Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat);
 
   void ResetEglImageList();
 
@@ -192,17 +192,17 @@ private:
   typedef std::pair<tbm_surface_h, void*> EglImagePair;
   typedef std::pair<tbm_surface_h, void*> BufferPair;
 
-  Dali::Mutex               mMutex;                ///< Mutex
-  uint32_t                  mWidth;                ///< image width
-  uint32_t                  mHeight;               ///< image height
-  tbm_surface_queue_h       mTbmQueue;             ///< Tbm surface queue handle
-  tbm_surface_h             mConsumeSurface;       ///< The current tbm surface
-  std::vector<EglImagePair> mEglImages;            ///< EGL Image vector
-  std::vector<BufferPair>   mBuffers;              ///< Buffer vector
-  EglGraphics*              mEglGraphics;          ///< EGL Graphics
-  EglImageExtensions*       mEglImageExtensions;   ///< The EGL Image Extensions
-  bool                      mOwnTbmQueue;          ///< Whether we created tbm queue
-  bool                      mBlendingRequired;     ///< Whether blending is required
+  Dali::Mutex               mMutex;              ///< Mutex
+  uint32_t                  mWidth;              ///< image width
+  uint32_t                  mHeight;             ///< image height
+  tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h             mConsumeSurface;     ///< The current tbm surface
+  std::vector<EglImagePair> mEglImages;          ///< EGL Image vector
+  std::vector<BufferPair>   mBuffers;            ///< Buffer vector
+  EglGraphics*              mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
+  bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                      mBlendingRequired;   ///< Whether blending is required
 };
 
 } // namespace Adaptor

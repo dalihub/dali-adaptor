@@ -33,14 +33,13 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid(width, height, depth, nativeImageSourceQueue);
+  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid(width, height, colorFormat, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 : mWidth(width),
   mHeight(height)
 {

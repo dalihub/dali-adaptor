@@ -43,11 +43,11 @@ public:
    * Depending on hardware the width and height may have to be a power of two.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] depth color depth of the image.
+   * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueAndroid* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
+  static NativeImageSourceQueueAndroid* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -171,10 +171,10 @@ private:
    * Private constructor; @see NativeImageSourceQueue::New()
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
-   * @param[in] colour depth of the image.
+   * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
+  NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
 private:
   uint32_t mWidth;  ///< image width

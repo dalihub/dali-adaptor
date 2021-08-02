@@ -59,20 +59,20 @@ const int NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 } // namespace
 
-NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(width, height, depth, nativeImageSourceQueue);
+  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(width, height, colorFormat, nativeImageSourceQueue);
   DALI_ASSERT_DEBUG(image && "NativeImageSourceQueueTizen allocation failed.");
 
   if(image)
   {
-    image->Initialize(depth);
+    image->Initialize(colorFormat);
   }
 
   return image;
 }
 
-NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 : mMutex(),
   mWidth(width),
   mHeight(height),
@@ -111,7 +111,7 @@ NativeImageSourceQueueTizen::~NativeImageSourceQueueTizen()
   }
 }
 
-void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::ColorDepth depth)
+void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat)
 {
   if(mWidth == 0 || mHeight == 0)
   {
@@ -120,31 +120,36 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
 
   if(mTbmQueue == NULL)
   {
-    int format = TBM_FORMAT_ARGB8888;
+    int tbmFormat = TBM_FORMAT_ARGB8888;
 
-    switch(depth)
+    switch(colorFormat)
     {
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_DEFAULT:
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_32:
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBA8888:
       {
-        format            = TBM_FORMAT_ARGB8888;
+        tbmFormat         = TBM_FORMAT_ARGB8888;
         mBlendingRequired = true;
         break;
       }
-      case Dali::NativeImageSourceQueue::COLOR_DEPTH_24:
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBX8888:
       {
-        format            = TBM_FORMAT_RGB888;
+        tbmFormat         = TBM_FORMAT_XRGB8888;
+        mBlendingRequired = false;
+        break;
+      }
+      case Dali::NativeImageSourceQueue::ColorFormat::RGB888:
+      {
+        tbmFormat         = TBM_FORMAT_RGB888;
         mBlendingRequired = false;
         break;
       }
       default:
       {
-        DALI_LOG_WARNING("Wrong color depth.\n");
+        DALI_LOG_WARNING("Wrong color format.\n");
         return;
       }
     }
 
-    mTbmQueue = tbm_surface_queue_create(TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, format, 0);
+    mTbmQueue = tbm_surface_queue_create(TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, tbmFormat, 0);
     if(!mTbmQueue)
     {
       DALI_LOG_ERROR("NativeImageSourceQueueTizen::Initialize: tbm_surface_queue_create is failed! [%p]\n", mTbmQueue);
