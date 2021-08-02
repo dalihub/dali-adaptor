@@ -59,6 +59,11 @@ public:
   virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveDrawable()
+   */
+  virtual bool RemoveDrawable(Dali::CanvasRenderer::Drawable drawable);
+
+  /**
    * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
    */
   virtual bool RemoveAllDrawables();

@@ -101,6 +101,26 @@ bool DrawableGroupTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 #endif
 }
 
+bool DrawableGroupTizen::RemoveDrawable(Dali::CanvasRenderer::Drawable drawable)
+{
+#ifdef THORVG_SUPPORT
+  DrawableGroup::DrawableVector::iterator it = std::find(mDrawables.begin(), mDrawables.end(), drawable);
+  if(it != mDrawables.end())
+  {
+    Internal::Adaptor::Drawable& drawableImpl = Dali::GetImplementation(*it);
+    drawableImpl.SetAdded(false);
+
+    mDrawables.erase(it);
+
+    Drawable::SetChanged(true);
+
+    return true;
+  }
+
+#endif
+  return false;
+}
+
 bool DrawableGroupTizen::RemoveAllDrawables()
 {
 #ifdef THORVG_SUPPORT

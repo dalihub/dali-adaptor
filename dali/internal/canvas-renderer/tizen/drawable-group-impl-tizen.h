@@ -53,6 +53,11 @@ public:
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveDrawable()
+   */
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable drawable) override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
    */
   bool RemoveAllDrawables() override;
