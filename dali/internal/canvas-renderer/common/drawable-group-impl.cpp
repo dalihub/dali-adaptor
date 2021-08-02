@@ -33,7 +33,7 @@ bool DrawableGroup::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   return false;
 }
 
-bool DrawableGroup::Clear()
+bool DrawableGroup::RemoveAllDrawables()
 {
   return false;
 }

@@ -48,9 +48,9 @@ bool CanvasRenderer::DrawableGroup::AddDrawable(Drawable& drawable)
   return GetImplementation(*this).AddDrawable(drawable);
 }
 
-bool CanvasRenderer::DrawableGroup::Clear()
+bool CanvasRenderer::DrawableGroup::RemoveAllDrawables()
 {
-  return GetImplementation(*this).Clear();
+  return GetImplementation(*this).RemoveAllDrawables();
 }
 
 } // namespace Dali

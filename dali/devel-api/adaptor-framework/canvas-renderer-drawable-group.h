@@ -81,10 +81,10 @@ public:
   bool AddDrawable(Drawable& drawable);
 
   /**
-   * @brief Clears the drawable object added to the DrawableGroup. This method does not free the memory of the added drawable object.
+   * @brief Remove all drawable objects added to the DrawableGroup.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool Clear();
+  bool RemoveAllDrawables();
 
 public: // Not intended for application developers
   /// @cond internal
