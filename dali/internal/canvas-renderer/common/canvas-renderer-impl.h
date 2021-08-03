@@ -64,6 +64,26 @@ public:
   virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
+   * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
+   */
+  virtual bool IsCanvasChanged() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Rasterize()
+   */
+  virtual bool Rasterize();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveDrawable()
+   */
+  virtual bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
+   */
+  virtual bool RemoveAllDrawables();
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   virtual bool SetSize(const Vector2& size);
@@ -73,13 +93,20 @@ public:
    */
   virtual const Vector2& GetSize();
 
+  /**
+   * @copydoc Dali::CanvasRenderer::SetViewBox()
+   */
+  virtual bool SetViewBox(const Vector2& viewBox);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::GetViewBox()
+   */
+  virtual const Vector2& GetViewBox();
+
   CanvasRenderer(const CanvasRenderer&) = delete;
   CanvasRenderer& operator=(CanvasRenderer&) = delete;
   CanvasRenderer(CanvasRenderer&&)           = delete;
   CanvasRenderer& operator=(CanvasRenderer&&) = delete;
-
-private:
-  Vector2 mSize;
 };
 
 } // namespace Adaptor

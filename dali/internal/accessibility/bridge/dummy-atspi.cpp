@@ -126,7 +126,7 @@ void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Acces
 {
 }
 
-void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::MovedOutOfScreenType type)
+void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::ScreenRelativeMoveType type)
 {
 }
 

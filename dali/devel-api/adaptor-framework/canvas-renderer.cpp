@@ -58,6 +58,26 @@ bool CanvasRenderer::AddDrawable(Drawable& drawable)
   return GetImplementation(*this).AddDrawable(drawable);
 }
 
+bool CanvasRenderer::IsCanvasChanged() const
+{
+  return GetImplementation(*this).IsCanvasChanged();
+}
+
+bool CanvasRenderer::Rasterize()
+{
+  return GetImplementation(*this).Rasterize();
+}
+
+bool CanvasRenderer::RemoveDrawable(Drawable& drawable)
+{
+  return GetImplementation(*this).RemoveDrawable(drawable);
+}
+
+bool CanvasRenderer::RemoveAllDrawables()
+{
+  return GetImplementation(*this).RemoveAllDrawables();
+}
+
 bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return GetImplementation(*this).SetSize(size);
@@ -66,6 +86,16 @@ bool CanvasRenderer::SetSize(const Vector2& size)
 const Vector2& CanvasRenderer::GetSize()
 {
   return GetImplementation(*this).GetSize();
+}
+
+bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
+{
+  return GetImplementation(*this).SetViewBox(viewBox);
+}
+
+const Vector2& CanvasRenderer::GetViewBox()
+{
+  return GetImplementation(*this).GetViewBox();
 }
 
 } // namespace Dali

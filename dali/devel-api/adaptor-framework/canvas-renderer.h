@@ -88,7 +88,8 @@ public:
 
 public:
   /**
-   * @brief Draw inner canvas the contexts added to the CanvasRenderer.
+   * @brief Prepare for drawing drawables added to CanvasRenderer on inner canvas.
+   * @return Returns True when it's successful. False otherwise.
    */
   bool Commit();
 
@@ -101,11 +102,37 @@ public:
   bool AddDrawable(Drawable& drawable);
 
   /**
+   * @brief Remove drawable object to the CanvasView.
+   * This method is similar to deregistration. Freeing memory is not concerned for drawables being removed.
+   * @param[in] drawable the drawable object.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool RemoveDrawable(Drawable& drawable);
+
+  /**
+   * @brief Remove all drawable objects added to the CanvasRenderer.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool RemoveAllDrawables();
+
+  /**
    * @brief Returns the PixelBuffer, which is the Render buffer of Canvas.
    *
    * @return Returns the pixel buffer.
    */
   Devel::PixelBuffer GetPixelBuffer();
+
+  /**
+   * @brief Draw drawables added to CanvasRenderer to inner buffer.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool Rasterize();
+
+  /**
+   * @brief Returns whether the drawables added to the Canvas are changed.
+   * @return Returns True when drawables added to the Canvas are changed, False otherwise.
+   */
+  bool IsCanvasChanged() const;
 
   /**
    * @brief This is the size of the buffer in the Canvas.
@@ -119,6 +146,19 @@ public:
    * @return Returns The size of canvas buffer.
    */
   const Vector2& GetSize();
+
+  /**
+   * @brief This is the viewbox of the Canvas.
+   * @param[in] viewBox The size of viewbox.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool SetViewBox(const Vector2& viewBox);
+
+  /**
+   * @brief This is the viewbox of the Canvas.
+   * @return Returns The size of viewbox.
+   */
+  const Vector2& GetViewBox();
 
 public: // Not intended for application developers
   /// @cond internal

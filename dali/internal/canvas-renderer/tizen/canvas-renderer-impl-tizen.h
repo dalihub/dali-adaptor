@@ -22,14 +22,15 @@
 #ifdef THORVG_SUPPORT
 #include <thorvg.h>
 #endif
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/object/weak-handle.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer.h>
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
-#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
+#include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 
 namespace Dali
 {
@@ -66,6 +67,26 @@ public:
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
+   */
+  bool IsCanvasChanged() const override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Rasterize()
+   */
+  bool Rasterize() override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveDrawable()
+   */
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
+   */
+  bool RemoveAllDrawables() override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   bool SetSize(const Vector2& size) override;
@@ -74,6 +95,16 @@ public:
    * @copydoc Dali::CanvasRenderer::GetSize()
    */
   const Vector2& GetSize() override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::SetViewBox()
+   */
+  bool SetViewBox(const Vector2& viewBox) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::GetViewBox()
+   */
+  const Vector2& GetViewBox() override;
 
 private:
   CanvasRendererTizen()                           = delete;
@@ -106,6 +137,22 @@ private:
 
 #ifdef THORVG_SUPPORT
   /**
+   * @brief Get drawables changed status.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @return Returns whether drawables have changed.
+   */
+  bool HaveDrawablesChanged(const Dali::CanvasRenderer::Drawable& drawable) const;
+
+  /**
+   * @brief Update drawables changed status.
+   * If drawable is a type that can have child drawables, it is called recursively.
+   * @param[in] drawable The drawable object.
+   * @param[in] changed The state of changed.
+   */
+  void UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable& drawable, bool changed);
+
+  /**
    * @brief Push drawable object to parent.
    * If drawable is a type that can have child drawables, it is called recursively.
    * @param[in] drawable The drawable object.
@@ -116,6 +163,7 @@ private:
 
 private:
   Devel::PixelBuffer mPixelBuffer;
+  Dali::Mutex        mMutex;
 
 #ifdef THORVG_SUPPORT
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;

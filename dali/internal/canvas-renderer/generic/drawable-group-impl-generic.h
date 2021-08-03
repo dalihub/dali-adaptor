@@ -49,9 +49,9 @@ public:
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear()
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
    */
-  bool Clear() override;
+  bool RemoveAllDrawables() override;
 
 private:
   DrawableGroupGeneric(const DrawableGroupGeneric&) = delete;

@@ -101,7 +101,7 @@ bool DrawableGroupTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
 #endif
 }
 
-bool DrawableGroupTizen::Clear()
+bool DrawableGroupTizen::RemoveAllDrawables()
 {
 #ifdef THORVG_SUPPORT
   if(!Drawable::GetObject() || !mTvgScene)
@@ -120,7 +120,7 @@ bool DrawableGroupTizen::Clear()
 
   if(static_cast<tvg::Scene*>(mTvgScene)->clear() != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("Clear() fail.\n");
+    DALI_LOG_ERROR("RemoveAllDrawables() fail.\n");
     return false;
   }
 

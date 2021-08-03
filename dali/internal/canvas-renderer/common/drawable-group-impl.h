@@ -59,9 +59,9 @@ public:
   virtual bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable);
 
   /**
-   * @copydoc Dali::CanvasRenderer::DrawableGroup::Clear()
+   * @copydoc Dali::CanvasRenderer::DrawableGroup::RemoveAllDrawables()
    */
-  virtual bool Clear();
+  virtual bool RemoveAllDrawables();
 
   /**
    * @brief Get list of drawables that added this group.

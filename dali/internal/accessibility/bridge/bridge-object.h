@@ -44,7 +44,7 @@ protected:
   void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail) override;
   void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent we) override;
   void EmitBoundsChanged(Dali::Accessibility::Accessible* obj, Dali::Rect<> rect) override;
-  void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::MovedOutOfScreenType type) override;
+  void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_OBJECT_H

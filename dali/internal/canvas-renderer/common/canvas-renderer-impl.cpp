@@ -28,7 +28,6 @@ namespace Internal
 namespace Adaptor
 {
 CanvasRenderer::CanvasRenderer()
-: mSize(0, 0)
 {
 }
 
@@ -49,6 +48,26 @@ bool CanvasRenderer::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)
   return false;
 }
 
+bool CanvasRenderer::IsCanvasChanged() const
+{
+  return false;
+}
+
+bool CanvasRenderer::Rasterize()
+{
+  return false;
+}
+
+bool CanvasRenderer::RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable)
+{
+  return false;
+}
+
+bool CanvasRenderer::RemoveAllDrawables()
+{
+  return false;
+}
+
 bool CanvasRenderer::SetSize(const Vector2& size)
 {
   return false;
@@ -56,7 +75,17 @@ bool CanvasRenderer::SetSize(const Vector2& size)
 
 const Vector2& CanvasRenderer::GetSize()
 {
-  return mSize;
+  return Vector2::ZERO;
+}
+
+bool CanvasRenderer::SetViewBox(const Vector2& viewBox)
+{
+  return false;
+}
+
+const Vector2& CanvasRenderer::GetViewBox()
+{
+  return Vector2::ZERO;
 }
 
 } // namespace Adaptor

@@ -62,6 +62,26 @@ public:
   bool AddDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::IsCanvasChanged()
+   */
+  virtual bool IsCanvasChanged() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Rasterize()
+   */
+  virtual bool Rasterize();
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveDrawable()
+   */
+  bool RemoveDrawable(Dali::CanvasRenderer::Drawable& drawable) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::RemoveAllDrawables()
+   */
+  bool RemoveAllDrawables() override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
   bool SetSize(const Vector2& size) override;
@@ -70,6 +90,16 @@ public:
    * @copydoc Dali::CanvasRenderer::GetSize()
    */
   const Vector2& GetSize() override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::SetViewBox()
+   */
+  bool SetViewBox(const Vector2& viewBox) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::GetViewBox()
+   */
+  const Vector2& GetViewBox() override;
 
 private:
   CanvasRendererGeneric()                             = delete;
@@ -87,10 +117,6 @@ private:
    * @brief Destructor.
    */
   virtual ~CanvasRendererGeneric() override;
-
-private:
-  Devel::PixelBuffer mPixelBuffer;
-  Vector2            mSize;
 };
 
 } // namespace Adaptor
