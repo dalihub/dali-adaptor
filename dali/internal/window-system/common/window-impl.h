@@ -391,6 +391,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   void EnableFloatingMode(bool enable);
 
+  /**
+   * @copydoc Dali::DevelWindow::IncludeInputRegion()
+   */
+  void IncludeInputRegion(const Rect<int>& inputRegion);
+
+  /**
+   * @copydoc Dali::DevelWindow::ExcludeInputRegion()
+   */
+  void ExcludeInputRegion(const Rect<int>& inputRegion);
+
 private:
   /**
    * @brief Enumeration for orietation mode.

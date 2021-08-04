@@ -502,6 +502,16 @@ public:
    */
   bool IsFloatingModeEnabled() const override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IncludeInputRegion()
+   */
+  void IncludeInputRegion(const Rect<int>& inputRegion) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
+   */
+  void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+
 private:
   /**
    * Second stage initialization
