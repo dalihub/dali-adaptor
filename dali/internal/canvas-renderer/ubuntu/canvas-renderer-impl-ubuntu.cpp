@@ -320,7 +320,7 @@ bool CanvasRendererUbuntu::RemoveAllDrawables()
 #endif
 }
 
-bool CanvasRendererUbuntu::SetSize(const Vector2& size)
+bool CanvasRendererUbuntu::SetSize(Vector2 size)
 {
   if(size.width < 1.0f || size.height < 1.0f)
   {
@@ -336,7 +336,7 @@ bool CanvasRendererUbuntu::SetSize(const Vector2& size)
   return true;
 }
 
-const Vector2& CanvasRendererUbuntu::GetSize()
+Vector2 CanvasRendererUbuntu::GetSize() const
 {
   return mSize;
 }

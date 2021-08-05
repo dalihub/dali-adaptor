@@ -90,12 +90,12 @@ bool CanvasRendererGeneric::RemoveAllDrawables()
   return false;
 }
 
-bool CanvasRendererGeneric::SetSize(const Vector2& size)
+bool CanvasRendererGeneric::SetSize(Vector2 size)
 {
   return false;
 }
 
-const Vector2& CanvasRendererGeneric::GetSize()
+Vector2 CanvasRendererGeneric::GetSize() const
 {
   return Vector2::ZERO;
 }
