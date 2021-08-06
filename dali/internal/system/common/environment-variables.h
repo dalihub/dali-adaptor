@@ -95,6 +95,9 @@ namespace Adaptor
  */
 #define DALI_ENV_LONG_PRESS_MINIMUM_HOLDING_TIME "DALI_LONG_PRESS_MINIMUM_HOLDING_TIME"
 
+// Tap-Gesture maximum allowed time required to be recognized as a multi tap gesture (millisecond)
+#define DALI_ENV_TAP_MAXIMUM_ALLOWED_TIME "DALI_TAP_MAXIMUM_ALLOWED_TIME"
+
 #define DALI_GLES_CALL_TIME "DALI_GLES_CALL_TIME"
 
 #define DALI_GLES_CALL_ACCUMULATE "DALI_GLES_CALL_ACCUMULATE"
