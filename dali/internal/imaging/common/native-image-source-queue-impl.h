@@ -36,7 +36,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::New()
    */
-  static NativeImageSourceQueue* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue);
+  static NativeImageSourceQueue* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()

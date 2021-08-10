@@ -38,13 +38,13 @@ namespace
 #define TBM_SURFACE_QUEUE_SIZE 3
 } // namespace
 
-NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, depth, nativeImageSourceQueue);
+  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, colorFormat, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 : mWidth(width),
   mHeight(height)
 {

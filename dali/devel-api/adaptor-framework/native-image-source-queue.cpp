@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@
 
 namespace Dali
 {
-NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t height, ColorDepth depth)
+NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t height, ColorFormat colorFormat)
 {
   Any                       empty;
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(width, height, depth, empty);
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(width, height, colorFormat, empty);
   if(image->mImpl)
   {
     return image;
@@ -37,7 +37,8 @@ NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t h
 
 NativeImageSourceQueuePtr NativeImageSourceQueue::New(Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, COLOR_DEPTH_DEFAULT, nativeImageSourceQueue);
+  //ColorFormat will be ignored.
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, ColorFormat::RGBA8888, nativeImageSourceQueue);
   if(image->mImpl)
   {
     return image;
@@ -145,10 +146,10 @@ NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSourceQueue::NativeImageSourceQueue(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSourceQueue)
+NativeImageSourceQueue::NativeImageSourceQueue(uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl        = factory->CreateNativeImageSourceQueue(width, height, depth, nativeImageSourceQueue);
+  mImpl        = factory->CreateNativeImageSourceQueue(width, height, colorFormat, nativeImageSourceQueue);
 }
 
 NativeImageSourceQueue::~NativeImageSourceQueue()

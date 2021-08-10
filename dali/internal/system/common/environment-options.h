@@ -244,6 +244,11 @@ public:
   int GetLongPressMinimumHoldingTime() const;
 
   /**
+   * @return The maximum allowed time required to be recognized as a multi tap gesture (millisecond)
+   */
+  int GetTapMaximumAllowedTime() const;
+
+  /**
    * @return The width of the window
    */
   unsigned int GetWindowWidth() const;
@@ -382,6 +387,7 @@ private: // Data
   int   mRotationMinimumTouchEvents;            ///< minimum events required before a rotation starts
   int   mRotationMinimumTouchEventsAfterStart;  ///< minimum events required after a rotation started
   int   mLongPressMinimumHoldingTime;           ///< minimum holding time required to be recognized as a long press gesture (millisecond)
+  int   mTapMaximumAllowedTime;                 ///< maximum allowed time required to be recognized as a multi tap gesture (millisecond)
   int   mGlesCallTime;                          ///< time in seconds between status updates
   int   mMultiSamplingLevel;                    ///< The number of samples required in multisample buffers
 

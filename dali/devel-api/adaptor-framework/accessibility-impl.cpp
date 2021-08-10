@@ -28,6 +28,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -625,7 +626,16 @@ public:
     Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
     Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
 
-    return {position.x, position.y, size.x, size.y};
+    if(type == Dali::Accessibility::CoordinateType::WINDOW)
+    {
+      return {position.x, position.y, size.x, size.y};
+    }
+    else // Dali::Accessibility::CoordinateType::SCREEN
+    {
+      auto window = Dali::DevelWindow::Get(actor);
+      auto windowPosition = window.GetPosition();
+      return {position.x + windowPosition.GetX(), position.y + windowPosition.GetY(), size.x, size.y};
+    }
   }
 
   Dali::Accessibility::ComponentLayer GetLayer() override

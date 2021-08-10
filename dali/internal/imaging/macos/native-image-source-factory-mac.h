@@ -32,10 +32,10 @@ public:
     Any                                 nativeImageSource) override;
 
   std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(
-    unsigned int                             width,
-    unsigned int                             height,
-    Dali::NativeImageSourceQueue::ColorDepth depth,
-    Any                                      nativeImageSourceQueue) override;
+    unsigned int                              width,
+    unsigned int                              height,
+    Dali::NativeImageSourceQueue::ColorFormat colorFormat,
+    Any                                       nativeImageSourceQueue) override;
 };
 
 } // namespace Dali::Internal::Adaptor

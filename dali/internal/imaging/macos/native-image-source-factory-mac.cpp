@@ -40,10 +40,10 @@ NativeImageSourceFactoryCocoa::CreateNativeImageSource(
 
 std::unique_ptr<NativeImageSourceQueue>
 NativeImageSourceFactoryCocoa::CreateNativeImageSourceQueue(
-  unsigned int                             width,
-  unsigned int                             height,
-  Dali::NativeImageSourceQueue::ColorDepth depth,
-  Any                                      nativeImageSourceQueue)
+  unsigned int                              width,
+  unsigned int                              height,
+  Dali::NativeImageSourceQueue::ColorFormat colorFormat,
+  Any                                       nativeImageSourceQueue)
 {
   return std::unique_ptr<NativeImageSourceQueue>(nullptr);
 }
