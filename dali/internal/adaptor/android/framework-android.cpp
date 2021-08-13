@@ -612,7 +612,7 @@ unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* 
     return mImpl->AddIdle(timeout, data, callback);
   }
 
-  return -1;
+  return 0;
 }
 void Framework::RemoveIdle(unsigned int id)
 {
