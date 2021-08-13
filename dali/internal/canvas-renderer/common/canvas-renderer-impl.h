@@ -86,12 +86,12 @@ public:
   /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
-  virtual bool SetSize(const Vector2& size);
+  virtual bool SetSize(Vector2 size);
 
   /**
    * @copydoc Dali::CanvasRenderer::GetSize()
    */
-  virtual const Vector2& GetSize();
+  virtual Vector2 GetSize() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::SetViewBox()
