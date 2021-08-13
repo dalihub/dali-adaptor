@@ -97,6 +97,16 @@ public:
   Vector4 GetFillColor() const override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillGradient()
+   */
+  bool SetFillGradient(Dali::CanvasRenderer::Gradient& gradient) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetFillGradient() const override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
    */
   bool SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule) override;
@@ -125,6 +135,16 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
    */
   Vector4 GetStrokeColor() const override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeGradient()
+   */
+  bool SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetStrokeGradient() const override;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
@@ -178,8 +198,10 @@ private:
    */
   void Initialize();
 
-#ifdef THORVG_SUPPORT
 private:
+  Dali::CanvasRenderer::Gradient mFillGradient;
+  Dali::CanvasRenderer::Gradient mStrokeGradient;
+#ifdef THORVG_SUPPORT
   tvg::Shape* mTvgShape;
 #endif
 };
