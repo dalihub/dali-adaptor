@@ -85,6 +85,7 @@ public:
   class Drawable;
   class Shape;
   class DrawableGroup;
+  class Picture;
 
   class Gradient;
   class LinearGradient;
