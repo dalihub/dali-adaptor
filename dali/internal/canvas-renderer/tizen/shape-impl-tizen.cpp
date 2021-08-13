@@ -208,7 +208,7 @@ bool ShapeTizen::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
     return false;
   }
 
-  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>((void*)pathCommand.mPoints), pathCommand.mPointCount) != tvg::Result::Success)
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("AddPath() fail.\n");
     return false;

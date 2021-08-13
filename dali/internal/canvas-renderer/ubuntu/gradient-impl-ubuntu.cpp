@@ -176,7 +176,7 @@ void GradientUbuntu::SetObject(const void* object)
 #ifdef THORVG_SUPPORT
   if(object)
   {
-    mTvgFill = static_cast<tvg::Fill*>((void*)object);
+    mTvgFill = static_cast<tvg::Fill*>(const_cast<void*>(object));
   }
 #endif
 }
