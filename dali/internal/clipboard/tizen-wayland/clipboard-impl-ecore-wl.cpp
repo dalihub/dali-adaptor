@@ -307,8 +307,7 @@ void Clipboard::RequestItem()
  */
 unsigned int Clipboard::NumberOfItems()
 {
-  int count = mImpl->GetCount();
-  return (count < 0 ? 0 : count);
+  return mImpl->GetCount();
 }
 
 void Clipboard::ShowClipboard()
