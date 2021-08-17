@@ -317,7 +317,7 @@ void DrawableTizen::SetObject(const void* object)
 #ifdef THORVG_SUPPORT
   if(object)
   {
-    mTvgPaint = static_cast<tvg::Paint*>((void*)object);
+    mTvgPaint = static_cast<tvg::Paint*>(const_cast<void*>(object));
   }
 #endif
 }

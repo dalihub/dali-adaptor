@@ -85,6 +85,11 @@ public:
   class Drawable;
   class Shape;
   class DrawableGroup;
+  class Picture;
+
+  class Gradient;
+  class LinearGradient;
+  class RadialGradient;
 
 public:
   /**
@@ -139,13 +144,13 @@ public:
    * @param[in] size The size of canvas buffer.
    * @return Returns True when it's successful. False otherwise.
    */
-  bool SetSize(const Vector2& size);
+  bool SetSize(Vector2 size);
 
   /**
    * @brief This is the size of the Buffer in the Canvas.
    * @return Returns The size of canvas buffer.
    */
-  const Vector2& GetSize();
+  Vector2 GetSize() const;
 
   /**
    * @brief This is the viewbox of the Canvas.

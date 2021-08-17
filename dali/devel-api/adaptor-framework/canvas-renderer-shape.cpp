@@ -73,6 +73,11 @@ bool CanvasRenderer::Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoi
   return GetImplementation(*this).AddCubicTo(controlPoint1, controlPoint2, endPoint);
 }
 
+bool CanvasRenderer::Shape::AddPath(PathCommands& pathCommand)
+{
+  return GetImplementation(*this).AddPath(pathCommand);
+}
+
 bool CanvasRenderer::Shape::Close()
 {
   return GetImplementation(*this).Close();
@@ -91,6 +96,16 @@ bool CanvasRenderer::Shape::SetFillColor(Vector4 color)
 Vector4 CanvasRenderer::Shape::GetFillColor() const
 {
   return GetImplementation(*this).GetFillColor();
+}
+
+bool CanvasRenderer::Shape::SetFillGradient(CanvasRenderer::Gradient& gradient)
+{
+  return GetImplementation(*this).SetFillGradient(gradient);
+}
+
+CanvasRenderer::Gradient CanvasRenderer::Shape::GetFillGradient() const
+{
+  return GetImplementation(*this).GetFillGradient();
 }
 
 bool CanvasRenderer::Shape::SetFillRule(CanvasRenderer::Shape::FillRule rule)
@@ -121,6 +136,16 @@ bool CanvasRenderer::Shape::SetStrokeColor(Vector4 color)
 Vector4 CanvasRenderer::Shape::GetStrokeColor() const
 {
   return GetImplementation(*this).GetStrokeColor();
+}
+
+bool CanvasRenderer::Shape::SetStrokeGradient(CanvasRenderer::Gradient& gradient)
+{
+  return GetImplementation(*this).SetStrokeGradient(gradient);
+}
+
+CanvasRenderer::Gradient CanvasRenderer::Shape::GetStrokeGradient() const
+{
+  return GetImplementation(*this).GetStrokeGradient();
 }
 
 bool CanvasRenderer::Shape::SetStrokeDash(const Dali::Vector<float>& dashPattern)

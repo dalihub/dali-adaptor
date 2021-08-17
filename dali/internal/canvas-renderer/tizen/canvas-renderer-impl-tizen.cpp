@@ -26,6 +26,8 @@
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
+#include <dali/internal/canvas-renderer/common/gradient-impl.h>
+#include <dali/internal/canvas-renderer/common/shape-impl.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
 namespace Dali
@@ -216,6 +218,29 @@ bool CanvasRendererTizen::HaveDrawablesChanged(const Dali::CanvasRenderer::Drawa
       }
     }
   }
+  else if(drawableImpl.GetType() == Drawable::Types::SHAPE)
+  {
+    const Dali::CanvasRenderer::Shape& shape        = static_cast<const Dali::CanvasRenderer::Shape&>(drawable);
+    Dali::CanvasRenderer::Gradient     fillGradient = shape.GetFillGradient();
+    if(DALI_UNLIKELY(fillGradient))
+    {
+      Internal::Adaptor::Gradient& fillGradientImpl = Dali::GetImplementation(fillGradient);
+      if(fillGradientImpl.GetChanged())
+      {
+        return true;
+      }
+    }
+
+    Dali::CanvasRenderer::Gradient strokeGradient = shape.GetStrokeGradient();
+    if(DALI_UNLIKELY(strokeGradient))
+    {
+      Internal::Adaptor::Gradient& strokeGradientImpl = Dali::GetImplementation(strokeGradient);
+      if(strokeGradientImpl.GetChanged())
+      {
+        return true;
+      }
+    }
+  }
 
   return false;
 }
@@ -240,6 +265,23 @@ void CanvasRendererTizen::UpdateDrawablesChanged(Dali::CanvasRenderer::Drawable&
     for(auto& it : drawables)
     {
       UpdateDrawablesChanged(it, changed);
+    }
+  }
+  else if(drawableImpl.GetType() == Drawable::Types::SHAPE)
+  {
+    Dali::CanvasRenderer::Shape&   shape        = static_cast<Dali::CanvasRenderer::Shape&>(drawable);
+    Dali::CanvasRenderer::Gradient fillGradient = shape.GetFillGradient();
+    if(DALI_UNLIKELY(fillGradient))
+    {
+      Internal::Adaptor::Gradient& fillGradientImpl = Dali::GetImplementation(fillGradient);
+      fillGradientImpl.SetChanged(changed);
+    }
+
+    Dali::CanvasRenderer::Gradient strokeGradient = shape.GetStrokeGradient();
+    if(DALI_UNLIKELY(strokeGradient))
+    {
+      Internal::Adaptor::Gradient& strokeGradientImpl = Dali::GetImplementation(strokeGradient);
+      strokeGradientImpl.SetChanged(changed);
     }
   }
 }
@@ -320,7 +362,7 @@ bool CanvasRendererTizen::RemoveAllDrawables()
 #endif
 }
 
-bool CanvasRendererTizen::SetSize(const Vector2& size)
+bool CanvasRendererTizen::SetSize(Vector2 size)
 {
   if(size.width < 1.0f || size.height < 1.0f)
   {
@@ -336,7 +378,7 @@ bool CanvasRendererTizen::SetSize(const Vector2& size)
   return true;
 }
 
-const Vector2& CanvasRendererTizen::GetSize()
+Vector2 CanvasRendererTizen::GetSize() const
 {
   return mSize;
 }
@@ -400,6 +442,45 @@ void CanvasRendererTizen::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& dr
     for(auto& it : drawables)
     {
       PushDrawableToGroup(it, static_cast<tvg::Scene*>(tvgDuplicatedObject));
+    }
+  }
+  else if(type == Drawable::Types::SHAPE)
+  {
+    //FillGradient
+    Dali::CanvasRenderer::Shape&   shape        = static_cast<Dali::CanvasRenderer::Shape&>(drawable);
+    Dali::CanvasRenderer::Gradient fillGradient = shape.GetFillGradient();
+    if(DALI_UNLIKELY(fillGradient))
+    {
+      Internal::Adaptor::Gradient& fillGradientImpl          = Dali::GetImplementation(fillGradient);
+      tvg::Fill*                   tvgDuplicatedFillGradient = static_cast<tvg::Fill*>(fillGradientImpl.GetObject())->duplicate();
+      if(!tvgDuplicatedFillGradient)
+      {
+        DALI_LOG_ERROR("Invalid gradient object [%p]\n", this);
+        return;
+      }
+      if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->fill(std::unique_ptr<tvg::Fill>(tvgDuplicatedFillGradient)) != tvg::Result::Success)
+      {
+        DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
+        return;
+      }
+    }
+
+    //StrokeGradient
+    Dali::CanvasRenderer::Gradient strokeGradient = shape.GetStrokeGradient();
+    if(DALI_UNLIKELY(strokeGradient))
+    {
+      Internal::Adaptor::Gradient& strokeGradientImpl          = Dali::GetImplementation(strokeGradient);
+      tvg::Fill*                   tvgDuplicatedStrokeGradient = static_cast<tvg::Fill*>(strokeGradientImpl.GetObject())->duplicate();
+      if(!tvgDuplicatedStrokeGradient)
+      {
+        DALI_LOG_ERROR("Invalid gradient object [%p]\n", this);
+        return;
+      }
+      if(static_cast<tvg::Shape*>(tvgDuplicatedObject)->stroke(std::unique_ptr<tvg::Fill>(tvgDuplicatedStrokeGradient)) != tvg::Result::Success)
+      {
+        DALI_LOG_ERROR("Tvg gradient set fail [%p]\n", this);
+        return;
+      }
     }
   }
 

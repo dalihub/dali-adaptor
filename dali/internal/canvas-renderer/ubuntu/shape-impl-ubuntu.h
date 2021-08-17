@@ -23,7 +23,6 @@
 #include <thorvg.h>
 #endif
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-shape.h>
@@ -78,6 +77,11 @@ public:
   bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint) override;
 
   /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand) override;
+
+  /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()
    */
   bool Close() override;
@@ -96,6 +100,16 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
    */
   Vector4 GetFillColor() const override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillGradient()
+   */
+  bool SetFillGradient(Dali::CanvasRenderer::Gradient& gradient) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetFillGradient() const override;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
@@ -126,6 +140,16 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
    */
   Vector4 GetStrokeColor() const override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeGradient()
+   */
+  bool SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeGradient()
+   */
+  Dali::CanvasRenderer::Gradient GetStrokeGradient() const override;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()
@@ -179,8 +203,10 @@ private:
    */
   void Initialize();
 
-#ifdef THORVG_SUPPORT
 private:
+  Dali::CanvasRenderer::Gradient mFillGradient;
+  Dali::CanvasRenderer::Gradient mStrokeGradient;
+#ifdef THORVG_SUPPORT
   tvg::Shape* mTvgShape;
 #endif
 };

@@ -20,9 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/canvas-renderer-gradient.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer-shape.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 
@@ -79,6 +79,11 @@ public:
   virtual bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint);
 
   /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  virtual bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand);
+
+  /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()
    */
   virtual bool Close();
@@ -97,6 +102,16 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::GetFillColor()
    */
   virtual Vector4 GetFillColor() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetFillGradient()
+   */
+  virtual bool SetFillGradient(Dali::CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetFillGradient()
+   */
+  virtual Dali::CanvasRenderer::Gradient GetFillGradient() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::SetFillRule()
@@ -127,6 +142,16 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::GetStrokeColor()
    */
   virtual Vector4 GetStrokeColor() const;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::SetStrokeGradient()
+   */
+  virtual bool SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient);
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::GetStrokeGradient()
+   */
+  virtual Dali::CanvasRenderer::Gradient GetStrokeGradient() const;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::SetStrokeDash()

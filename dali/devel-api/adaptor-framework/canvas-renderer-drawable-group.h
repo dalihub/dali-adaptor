@@ -81,6 +81,14 @@ public:
   bool AddDrawable(Drawable& drawable);
 
   /**
+   * @brief Remove drawable object to the DrawableGroup.
+   * This method is similar to deregistration. Freeing memory is not concerned for drawables being removed.
+   * @param[in] drawable the drawable object.
+   * @return Returns True when it's successful. False otherwise.
+   */
+  bool RemoveDrawable(Drawable drawable);
+
+  /**
    * @brief Remove all drawable objects added to the DrawableGroup.
    * @return Returns True when it's successful. False otherwise.
    */

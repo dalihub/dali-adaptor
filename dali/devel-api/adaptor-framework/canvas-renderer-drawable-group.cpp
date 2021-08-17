@@ -48,6 +48,11 @@ bool CanvasRenderer::DrawableGroup::AddDrawable(Drawable& drawable)
   return GetImplementation(*this).AddDrawable(drawable);
 }
 
+bool CanvasRenderer::DrawableGroup::RemoveDrawable(Drawable drawable)
+{
+  return GetImplementation(*this).RemoveDrawable(drawable);
+}
+
 bool CanvasRenderer::DrawableGroup::RemoveAllDrawables()
 {
   return GetImplementation(*this).RemoveAllDrawables();

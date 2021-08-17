@@ -46,8 +46,11 @@ ShapeTizen* ShapeTizen::New()
 }
 
 ShapeTizen::ShapeTizen()
+: mFillGradient(),
+  mStrokeGradient()
 #ifdef THORVG_SUPPORT
-: mTvgShape(nullptr)
+  ,
+  mTvgShape(nullptr)
 #endif
 {
   Initialize();
@@ -196,6 +199,27 @@ bool ShapeTizen::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector
 #endif
 }
 
+bool ShapeTizen::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null\n");
+    return false;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("AddPath() fail.\n");
+    return false;
+  }
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool ShapeTizen::Close()
 {
 #ifdef THORVG_SUPPORT
@@ -278,6 +302,27 @@ Vector4 ShapeTizen::GetFillColor() const
 #else
   return Vector4::ZERO;
 #endif
+}
+
+bool ShapeTizen::SetFillGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null [%p]\n", this);
+    return false;
+  }
+  mFillGradient = gradient;
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
+Dali::CanvasRenderer::Gradient ShapeTizen::GetFillGradient() const
+{
+  return mFillGradient;
 }
 
 bool ShapeTizen::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
@@ -392,6 +437,27 @@ Vector4 ShapeTizen::GetStrokeColor() const
 #else
   return Vector4(0, 0, 0, 0);
 #endif
+}
+
+bool ShapeTizen::SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null [%p]\n", this);
+    return false;
+  }
+  mStrokeGradient = gradient;
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
+Dali::CanvasRenderer::Gradient ShapeTizen::GetStrokeGradient() const
+{
+  return mStrokeGradient;
 }
 
 bool ShapeTizen::SetStrokeDash(const Dali::Vector<float> dashPattern)

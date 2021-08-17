@@ -46,8 +46,11 @@ ShapeUbuntu* ShapeUbuntu::New()
 }
 
 ShapeUbuntu::ShapeUbuntu()
+: mFillGradient(),
+  mStrokeGradient()
 #ifdef THORVG_SUPPORT
-: mTvgShape(nullptr)
+  ,
+  mTvgShape(nullptr)
 #endif
 {
   Initialize();
@@ -196,6 +199,27 @@ bool ShapeUbuntu::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vecto
 #endif
 }
 
+bool ShapeUbuntu::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null\n");
+    return false;
+  }
+
+  if(static_cast<tvg::Shape*>(mTvgShape)->appendPath(reinterpret_cast<const tvg::PathCommand*>(pathCommand.mCommands), pathCommand.mCommandCount, static_cast<const tvg::Point*>(static_cast<void*>(pathCommand.mPoints)), pathCommand.mPointCount) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("AddPath() fail.\n");
+    return false;
+  }
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
 bool ShapeUbuntu::Close()
 {
 #ifdef THORVG_SUPPORT
@@ -278,6 +302,27 @@ Vector4 ShapeUbuntu::GetFillColor() const
 #else
   return Vector4::ZERO;
 #endif
+}
+
+bool ShapeUbuntu::SetFillGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null [%p]\n", this);
+    return false;
+  }
+  mFillGradient = gradient;
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
+Dali::CanvasRenderer::Gradient ShapeUbuntu::GetFillGradient() const
+{
+  return mFillGradient;
 }
 
 bool ShapeUbuntu::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
@@ -392,6 +437,27 @@ Vector4 ShapeUbuntu::GetStrokeColor() const
 #else
   return Vector4(0, 0, 0, 0);
 #endif
+}
+
+bool ShapeUbuntu::SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+#ifdef THORVG_SUPPORT
+  if(!Drawable::GetObject() || !mTvgShape)
+  {
+    DALI_LOG_ERROR("Shape is null [%p]\n", this);
+    return false;
+  }
+  mStrokeGradient = gradient;
+  Drawable::SetChanged(true);
+  return true;
+#else
+  return false;
+#endif
+}
+
+Dali::CanvasRenderer::Gradient ShapeUbuntu::GetStrokeGradient() const
+{
+  return mStrokeGradient;
 }
 
 bool ShapeUbuntu::SetStrokeDash(const Dali::Vector<float> dashPattern)

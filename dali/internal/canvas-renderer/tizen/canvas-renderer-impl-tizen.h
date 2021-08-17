@@ -89,12 +89,12 @@ public:
   /**
    * @copydoc Dali::CanvasRenderer::SetSize()
    */
-  bool SetSize(const Vector2& size) override;
+  bool SetSize(Vector2 size) override;
 
   /**
    * @copydoc Dali::CanvasRenderer::GetSize()
    */
-  const Vector2& GetSize() override;
+  Vector2 GetSize() const override;
 
   /**
    * @copydoc Dali::CanvasRenderer::SetViewBox()

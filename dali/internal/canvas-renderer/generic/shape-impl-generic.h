@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-shape.h>
@@ -73,6 +72,11 @@ public:
    * @copydoc Dali::CanvasRenderer::Shape::AddCubicTo()
    */
   bool AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 endPoint) override;
+
+  /**
+   * @copydoc Dali::CanvasRenderer::Shape::AddPath()
+   */
+  bool AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand) override;
 
   /**
    * @copydoc Dali::CanvasRenderer::Shape::Close()

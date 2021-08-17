@@ -42,9 +42,10 @@ public:
    */
   enum class Types
   {
-    NONE = 0,      ///< Means that type is not defined.
-    SHAPE,         ///< Meaning of Shape class that inherits Drawable.
-    DRAWABLE_GROUP ///< Meaning of DrawableGorup class that inherits Drawable.
+    NONE = 0,       ///< Means that type is not defined.
+    SHAPE,          ///< Meaning of Shape class that inherits Drawable.
+    DRAWABLE_GROUP, ///< Meaning of DrawableGorup class that inherits Drawable.
+    PICTURE         ///< Meaning of Picture class that inherits Drawable.
   };
 
   /**

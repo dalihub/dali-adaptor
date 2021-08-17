@@ -78,12 +78,12 @@ bool CanvasRenderer::RemoveAllDrawables()
   return GetImplementation(*this).RemoveAllDrawables();
 }
 
-bool CanvasRenderer::SetSize(const Vector2& size)
+bool CanvasRenderer::SetSize(Vector2 size)
 {
   return GetImplementation(*this).SetSize(size);
 }
 
-const Vector2& CanvasRenderer::GetSize()
+Vector2 CanvasRenderer::GetSize() const
 {
   return GetImplementation(*this).GetSize();
 }

@@ -58,6 +58,11 @@ bool Shape::AddCubicTo(Vector2 controlPoint1, Vector2 controlPoint2, Vector2 end
   return false;
 }
 
+bool Shape::AddPath(Dali::CanvasRenderer::Shape::PathCommands& pathCommand)
+{
+  return false;
+}
+
 bool Shape::Close()
 {
   return false;
@@ -76,6 +81,16 @@ bool Shape::SetFillColor(Vector4 color)
 Vector4 Shape::GetFillColor() const
 {
   return Vector4(0, 0, 0, 0);
+}
+
+bool Shape::SetFillGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+  return false;
+}
+
+Dali::CanvasRenderer::Gradient Shape::GetFillGradient() const
+{
+  return Dali::CanvasRenderer::Gradient();
 }
 
 bool Shape::SetFillRule(Dali::CanvasRenderer::Shape::FillRule rule)
@@ -106,6 +121,16 @@ bool Shape::SetStrokeColor(Vector4 color)
 Vector4 Shape::GetStrokeColor() const
 {
   return Vector4(0, 0, 0, 0);
+}
+
+bool Shape::SetStrokeGradient(Dali::CanvasRenderer::Gradient& gradient)
+{
+  return false;
+}
+
+Dali::CanvasRenderer::Gradient Shape::GetStrokeGradient() const
+{
+  return Dali::CanvasRenderer::Gradient();
 }
 
 bool Shape::SetStrokeDash(const Dali::Vector<float> dashPattern)
