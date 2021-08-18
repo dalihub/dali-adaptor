@@ -99,9 +99,9 @@ Window::~Window()
 {
   if(mAdaptor)
   {
-    auto bridge      = Accessibility::Bridge::GetCurrentBridge();
-    auto rootLayer = mScene.GetRootLayer();
-    auto accessible  = Accessibility::Accessible::Get(rootLayer);
+    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
     bridge->RemoveTopLevelWindow(accessible);
 
     mAdaptor->RemoveWindow(this);
@@ -433,11 +433,11 @@ void Window::Show()
 
   if(!mIconified)
   {
-    WindowVisibilityObserver* observer(mAdaptor);
-    observer->OnWindowShown();
-
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, true);
+
+    WindowVisibilityObserver* observer(mAdaptor);
+    observer->OnWindowShown();
   }
 
   mSurface->SetFullSwapNextFrame();
@@ -453,11 +453,11 @@ void Window::Hide()
 
   if(!mIconified)
   {
-    WindowVisibilityObserver* observer(mAdaptor);
-    observer->OnWindowHidden();
-
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, false);
+
+    WindowVisibilityObserver* observer(mAdaptor);
+    observer->OnWindowHidden();
   }
 
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Hide(): iconified = %d, visible = %d\n", this, mNativeWindowId, mIconified, mVisible);
@@ -711,11 +711,11 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(mVisible)
     {
-      WindowVisibilityObserver* observer(mAdaptor);
-      observer->OnWindowHidden();
-
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, false);
+
+      WindowVisibilityObserver* observer(mAdaptor);
+      observer->OnWindowHidden();
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -726,11 +726,11 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(mVisible)
     {
-      WindowVisibilityObserver* observer(mAdaptor);
-      observer->OnWindowShown();
-
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, true);
+
+      WindowVisibilityObserver* observer(mAdaptor);
+      observer->OnWindowShown();
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
