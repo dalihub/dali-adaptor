@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 
 namespace Dali
 {
@@ -152,6 +153,11 @@ public:
    * @brief Dali::DevelNativeImageSource::ReleaseBuffer()
    */
   virtual bool ReleaseBuffer() = 0;
+
+  /**
+   * @brief Dali::DevelNativeImageSource::SetResourceDestructionCallback()
+   */
+  virtual void SetResourceDestructionCallback(EventThreadCallback* callback) = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )

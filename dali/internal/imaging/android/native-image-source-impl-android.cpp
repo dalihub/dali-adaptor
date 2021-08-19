@@ -74,7 +74,8 @@ NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t hei
   mBlendingRequired( false ),
   mColorDepth( depth ),
   mEglImageKHR( NULL ),
-  mEglImageExtensions( NULL )
+  mEglImageExtensions( NULL ),
+  mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
@@ -379,6 +380,11 @@ bool NativeImageSourceAndroid::ReleaseBuffer()
     return true;
   }
   return false;
+}
+
+void NativeImageSourceAndroid::SetResourceDestructionCallback(EventThreadCallback* callback)
+{
+  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
 }
 
 } // namespace Adaptor

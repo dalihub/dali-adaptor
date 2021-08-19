@@ -176,6 +176,11 @@ public:
    */
   bool ReleaseBuffer() override;
 
+  /**
+   * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
+   */
+  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
 private:
 
   /**
@@ -218,6 +223,7 @@ private:
   Dali::NativeImageSource::ColorDepth mColorDepth;  ///< color depth of image
   void* mEglImageKHR;                         ///< From EGL extension
   EglImageExtensions* mEglImageExtensions;    ///< The EGL Image Extensions
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;
 };
 
 } // namespace Adaptor

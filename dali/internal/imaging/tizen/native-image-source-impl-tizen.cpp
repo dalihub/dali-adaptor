@@ -88,7 +88,8 @@ NativeImageSourceTizen::NativeImageSourceTizen( uint32_t width, uint32_t height,
   mEglImageExtensions( NULL ),
   mSetSource( false ),
   mMutex(),
-  mIsBufferAcquired( false )
+  mIsBufferAcquired( false ),
+  mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS( Adaptor::IsAvailable() );
 
@@ -427,6 +428,11 @@ void NativeImageSourceTizen::DestroyResource()
 
     mEglImageKHR = NULL;
   }
+
+  if(mResourceDestructionCallback)
+  {
+    mResourceDestructionCallback->Trigger();
+  }
 }
 
 uint32_t NativeImageSourceTizen::TargetTexture()
@@ -543,6 +549,10 @@ bool NativeImageSourceTizen::ReleaseBuffer()
   return ret;
 }
 
+void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback)
+{
+  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
 
 } // namespace Adaptor
 
