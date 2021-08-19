@@ -58,7 +58,8 @@ NativeImageSourceWin::NativeImageSourceWin(unsigned int width, unsigned int heig
   mBlendingRequired(false),
   mColorDepth(depth),
   mEglImageKHR(NULL),
-  mEglImageExtensions(NULL)
+  mEglImageExtensions(NULL),
+  mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
@@ -157,6 +158,11 @@ void NativeImageSourceWin::DestroyResource()
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
+
+  if(mResourceDestructionCallback)
+  {
+    mResourceDestructionCallback->Trigger();
+  }
 }
 
 unsigned int NativeImageSourceWin::TargetTexture()
@@ -261,6 +267,11 @@ uint8_t* NativeImageSourceWin::AcquireBuffer(uint16_t& width, uint16_t& height, 
 bool NativeImageSourceWin::ReleaseBuffer()
 {
   return false;
+}
+
+void NativeImageSourceWin::SetResourceDestructionCallback(EventThreadCallback* callback)
+{
+  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
 }
 
 } // namespace Adaptor

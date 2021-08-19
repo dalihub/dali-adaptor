@@ -40,6 +40,11 @@ bool ReleaseBuffer(NativeImageSource& image)
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).ReleaseBuffer();
 }
 
+void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback)
+{
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetResourceDestructionCallback(callback);
+}
+
 } // namespace DevelNativeImageSource
 
 } // namespace Dali

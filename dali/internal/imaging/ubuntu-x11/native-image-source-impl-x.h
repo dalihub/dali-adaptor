@@ -167,6 +167,11 @@ public:
    */
   bool ReleaseBuffer() override;
 
+  /**
+   * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
+   */
+  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
 private:
   /**
    * Private constructor; @see NativeImageSource::New()
@@ -206,14 +211,15 @@ private:
   void GetPixmapDetails();
 
 private:
-  uint32_t                            mWidth;              ///< image width
-  uint32_t                            mHeight;             ///< image heights
-  bool                                mOwnPixmap;          ///< Whether we created pixmap or not
-  Ecore_X_Pixmap                      mPixmap;             ///< From Xlib
-  bool                                mBlendingRequired;   ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth mColorDepth;         ///< color depth of image
-  void*                               mEglImageKHR;        ///< From EGL extension
-  EglImageExtensions*                 mEglImageExtensions; ///< The EGL Image Extensions
+  uint32_t                             mWidth;                        ///< image width
+  uint32_t                             mHeight;                       ///< image heights
+  bool                                 mOwnPixmap;                    ///< Whether we created pixmap or not
+  Ecore_X_Pixmap                       mPixmap;                       ///< From Xlib
+  bool                                 mBlendingRequired;             ///< Whether blending is required
+  Dali::NativeImageSource::ColorDepth  mColorDepth;                   ///< color depth of image
+  void*                                mEglImageKHR;                  ///< From EGL extension
+  EglImageExtensions*                  mEglImageExtensions;           ///< The EGL Image Extensions
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;  ///< The Resource Destruction Callback
 };
 
 } // namespace Adaptor

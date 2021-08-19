@@ -156,6 +156,11 @@ public:
    */
   bool ReleaseBuffer() override;
 
+  /**
+   * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
+   */
+  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
 private:
   /**
    * Private constructor; @see NativeImageSource::New()
@@ -172,6 +177,7 @@ private:
 
 private:
   CFRef<CGImageRef> mImage;
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;  ///< The Resource Destruction Callback
 };
 
 } // namespace Dali::Internal::Adaptor
