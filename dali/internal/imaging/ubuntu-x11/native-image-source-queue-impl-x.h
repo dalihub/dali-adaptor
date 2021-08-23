@@ -134,11 +134,6 @@ public:
   int GetTextureTarget() const override;
 
   /**
-   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
-   */
-  const char* GetCustomFragmentPrefix() const override;
-
-  /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader()
    */
   bool ApplyNativeFragmentShader(std::string& shader) override;

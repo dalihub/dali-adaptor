@@ -103,11 +103,6 @@ void NativeImageSourceQueueX::PrepareTexture()
 {
 }
 
-const char* NativeImageSourceQueueX::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceQueueX::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

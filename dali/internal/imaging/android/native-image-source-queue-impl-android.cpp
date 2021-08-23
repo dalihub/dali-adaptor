@@ -98,11 +98,6 @@ void NativeImageSourceQueueAndroid::PrepareTexture()
 {
 }
 
-const char* NativeImageSourceQueueAndroid::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceQueueAndroid::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

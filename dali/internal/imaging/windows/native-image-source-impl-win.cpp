@@ -228,11 +228,6 @@ void NativeImageSourceWin::GetPixmapDetails()
 {
 }
 
-const char* NativeImageSourceWin::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceWin::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

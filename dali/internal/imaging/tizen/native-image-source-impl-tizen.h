@@ -126,11 +126,6 @@ public:
   }
 
   /**
-   * @copydoc Dali::NativeImageInterface::GetCustomFragmentPrefix()
-   */
-  const char* GetCustomFragmentPrefix() const override;
-
-  /**
    * @copydoc Dali::NativeImageInterface::ApplyNativeFragmentShader(std::string& shader)
    */
   bool ApplyNativeFragmentShader(std::string& shader) override;

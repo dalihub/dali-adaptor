@@ -110,11 +110,6 @@ int NativeBitmapBuffer::GetTextureTarget() const
   return 0;
 }
 
-const char* NativeBitmapBuffer::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeBitmapBuffer::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

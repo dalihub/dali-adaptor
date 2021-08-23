@@ -105,11 +105,6 @@ int NativeImageSource::GetTextureTarget() const
   return mImpl->GetTextureTarget();
 }
 
-const char* NativeImageSource::GetCustomFragmentPrefix() const
-{
-  return mImpl->GetCustomFragmentPrefix();
-}
-
 bool NativeImageSource::ApplyNativeFragmentShader(std::string& shader)
 {
   return mImpl->ApplyNativeFragmentShader(shader);

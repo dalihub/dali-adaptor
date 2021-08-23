@@ -303,11 +303,6 @@ int NativeImageSourceAndroid::GetTextureTarget() const
   return GL_TEXTURE_2D;
 }
 
-const char* NativeImageSourceAndroid::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceAndroid::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

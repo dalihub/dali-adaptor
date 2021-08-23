@@ -154,11 +154,6 @@ void NativeImageSourceCocoa::PrepareTexture()
 {
 }
 
-const char* NativeImageSourceCocoa::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceCocoa::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;
