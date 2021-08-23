@@ -1402,3 +1402,50 @@ int UtcDaliWindowSubtractInputRegion(void)
   }
   END_TEST;
 }
+
+
+int UtcDaliWindowSetNeedsRotationCompletedAcknowledgementNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::SetNeedsRotationCompletedAcknowledgement(arg1, true);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowUnsetNeedsRotationCompletedAcknowledgementNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::SetNeedsRotationCompletedAcknowledgement(arg1, false);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSendRotationCompletedAcknowledgementNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::SendRotationCompletedAcknowledgement(arg1);
+
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}

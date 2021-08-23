@@ -146,7 +146,8 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mScreenRotationFinished(true),
   mResizeFinished(true),
   mDefaultScreenRotationAvailable(false),
-  mIsImeWindowSurface(false)
+  mIsImeWindowSurface(false),
+  mNeedWindowRotationAcknowledgement(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -215,7 +216,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
   if(!mPostRenderTrigger)
   {
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+                                                                                                      TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
   mPositionSize.width  = width;
@@ -581,7 +582,31 @@ void WindowRenderSurface::PostRender()
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if((mIsResizing && !mWindowRotationFinished) || mIsImeWindowSurface)
+    bool needWindowRotationCompleted = false;
+
+    if(!mWindowRotationFinished)
+    {
+      if(mNeedWindowRotationAcknowledgement)
+      {
+        Dali::Integration::Scene scene = mScene.GetHandle();
+        if(scene)
+        {
+          if(scene.IsRotationCompletedAcknowledgementSet())
+          {
+            needWindowRotationCompleted = true;
+          }
+        }
+      }
+      else
+      {
+        if(mIsResizing)
+        {
+          needWindowRotationCompleted = true;
+        }
+      }
+    }
+
+    if(needWindowRotationCompleted || mIsImeWindowSurface)
     {
       if(mThreadSynchronization)
       {
@@ -657,6 +682,11 @@ void WindowRenderSurface::InitializeImeSurface()
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
                                                                                                         TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
+}
+
+void WindowRenderSurface::SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement)
+{
+  mNeedWindowRotationAcknowledgement = needAcknowledgement;
 }
 
 void WindowRenderSurface::OutputTransformed()

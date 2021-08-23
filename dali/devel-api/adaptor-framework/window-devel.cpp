@@ -186,6 +186,16 @@ void ExcludeInputRegion(Window window, const Rect<int>& inputRegion)
   GetImplementation(window).ExcludeInputRegion(inputRegion);
 }
 
+void SetNeedsRotationCompletedAcknowledgement(Window window, bool needAcknowledgement)
+{
+  GetImplementation(window).SetNeedsRotationCompletedAcknowledgement(needAcknowledgement);
+}
+
+void SendRotationCompletedAcknowledgement(Window window)
+{
+  GetImplementation(window).SendRotationCompletedAcknowledgement();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

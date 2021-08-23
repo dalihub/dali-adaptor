@@ -79,6 +79,7 @@ Window::Window()
   mIsFocusAcceptable(true),
   mIconified(false),
   mOpaqueState(false),
+  mWindowRotationAcknowledgement(false),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
@@ -1018,6 +1019,22 @@ void Window::IncludeInputRegion(const Rect<int>& inputRegion)
 void Window::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
   mWindowBase->ExcludeInputRegion(inputRegion);
+}
+
+void Window::SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement)
+{
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), needAcknowledgement(%d) Set needs Rotation Completed Acknowledgement\n", this, mNativeWindowId, needAcknowledgement);
+  mWindowSurface->SetNeedsRotationCompletedAcknowledgement(needAcknowledgement);
+  mWindowRotationAcknowledgement = needAcknowledgement;
+}
+
+void Window::SendRotationCompletedAcknowledgement()
+{
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SendRotationCompletedAcknowledgement(): orientation: %d, mWindowRotationAcknowledgement: %d\n", this, mNativeWindowId, mRotationAngle, mWindowRotationAcknowledgement);
+  if(mWindowRotationAcknowledgement)
+  {
+    SetRotationCompletedAcknowledgement();
+  }
 }
 
 } // namespace Adaptor

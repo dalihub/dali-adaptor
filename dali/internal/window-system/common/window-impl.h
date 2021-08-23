@@ -406,6 +406,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   void ExcludeInputRegion(const Rect<int>& inputRegion);
 
+  /**
+   * @copydoc Dali::DevelWindow::SetNeedsRotationCompletedAcknowledgement()
+   */
+  void SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement);
+
+  /**
+   * @copydoc Dali::DevelWindow::SendRotationCompletedAcknowledgement()
+   */
+  void SendRotationCompletedAcknowledgement();
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -610,6 +620,7 @@ private:
   bool                 mIsFocusAcceptable : 1;
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
+  bool                 mWindowRotationAcknowledgement : 1;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;
