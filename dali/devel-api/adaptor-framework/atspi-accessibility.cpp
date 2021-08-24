@@ -113,3 +113,8 @@ int Dali::AtspiAccessibility::GetStatus()
   }
   return -1;
 }
+
+bool Dali::AtspiAccessibility::IsEnabled()
+{
+  return Dali::Accessibility::IsUp();
+}
