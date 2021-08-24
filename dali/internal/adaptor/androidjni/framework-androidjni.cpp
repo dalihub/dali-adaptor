@@ -123,21 +123,21 @@ unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* 
   if(javaVM == nullptr || javaVM->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK)
   {
     DALI_LOG_ERROR("Couldn't get JNI env.");
-    return -1;
+    return 0;
   }
 
   jclass clazz = env->FindClass("com/sec/daliview/DaliView");
   if(!clazz)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.");
-    return -1;
+    return 0;
   }
 
   jmethodID addIdle = env->GetStaticMethodID(clazz, "addIdle", "(JJJ)I");
   if(!addIdle)
   {
     DALI_LOG_ERROR("Couldn't find com.sec.daliview.DaliView.addIdle.");
-    return -1;
+    return 0;
   }
 
   jint id = env->CallStaticIntMethod(clazz, addIdle, reinterpret_cast<jlong>(callback), reinterpret_cast<jlong>(data), static_cast<jlong>(timeout));
