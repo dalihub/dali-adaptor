@@ -688,13 +688,6 @@ public:
   void RegisterFormRepostDecidedCallback(Dali::WebEnginePlugin::WebEngineFormRepostDecidedCallback callback);
 
   /**
-   * @brief Callback to be called when http request need be intercepted.
-   *
-   * @param[in] callback
-   */
-  void RegisterRequestInterceptorCallback(Dali::WebEnginePlugin::WebEngineRequestInterceptorCallback callback);
-
-  /**
    * @brief Callback to be called when console message will be logged.
    *
    * @param[in] callback
