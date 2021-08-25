@@ -47,6 +47,7 @@ class DALI_ADAPTOR_API Value;
 class DALI_ADAPTOR_API Component;
 class DALI_ADAPTOR_API Collection;
 class DALI_ADAPTOR_API Action;
+class DALI_ADAPTOR_API Application;
 
 /**
  * @brief Base class for different accessibility bridges.
@@ -870,6 +871,31 @@ public:
    * @return true on success, false otherwise
    */
   virtual bool DoAction(const std::string& name) = 0;
+};
+
+/**
+ * @brief An interface identifying the root object
+ * associated with a running application.
+ *
+ * @note Provides global properties describing
+ * application's runtime environment.
+ */
+class Application : public virtual Accessible
+{
+public:
+  /**
+   * @brief Gets name of graphic user interface framework used by an application.
+   *
+   * @return String with name
+   */
+  virtual std::string GetToolkitName() = 0;
+
+  /**
+   * @brief Gets version of graphic user interface framework used by an application.
+   *
+   * @return String with version
+   */
+  virtual std::string GetVersion() = 0;
 };
 
 /**
