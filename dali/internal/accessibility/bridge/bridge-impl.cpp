@@ -297,7 +297,7 @@ public:
     }
   }
 
-  void ApplicationHidden() override
+  void WindowHidden() override
   {
     if(isShown && IsUp())
     {
@@ -306,7 +306,7 @@ public:
     isShown = false;
   }
 
-  void ApplicationShown() override
+  void WindowShown() override
   {
     if(!isShown && IsUp())
     {
@@ -426,6 +426,6 @@ void Bridge::EnableAutoInit()
 
   if(window && window.IsVisible())
   {
-    bridge->ApplicationShown();
+    bridge->WindowShown();
   }
 }

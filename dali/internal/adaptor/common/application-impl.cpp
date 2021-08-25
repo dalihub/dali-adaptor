@@ -238,7 +238,7 @@ void Application::Quit()
 
 void Application::QuitFromMainLoop()
 {
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
+  Accessibility::Bridge::GetCurrentBridge()->WindowHidden();
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   mAdaptor->Stop();

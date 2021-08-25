@@ -750,11 +750,11 @@ void Window::OnFocusChanged(bool focusIn)
   {
     if(focusIn)
     {
-      bridge->ApplicationShown();
+      bridge->WindowShown();
     }
     else
     {
-      bridge->ApplicationHidden();
+      bridge->WindowHidden();
     }
   }
 }
