@@ -611,6 +611,14 @@ bool WindowBaseWin::IsFloatingModeEnabled() const
   return false;
 }
 
+void WindowBaseWin::IncludeInputRegion(const Rect<int>& inputRegion)
+{
+}
+
+void WindowBaseWin::ExcludeInputRegion(const Rect<int>& inputRegion)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

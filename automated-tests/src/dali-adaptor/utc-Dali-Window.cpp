@@ -1350,3 +1350,39 @@ int UtcDaliWindowSetParentNegative(void)
   }
   END_TEST;
 }
+
+int UtcDaliWindowAddInputRegion(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Rect<int> includedInputRegion(0,0,720,640);
+    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowSubtractInputRegion(void)
+{
+  Dali::Window instance;
+  try
+  {
+    Rect<int> includedInputRegion(0,0,720,1280);
+    DevelWindow::IncludeInputRegion(instance, includedInputRegion);
+
+    Rect<int> excludedInputRegion(0,641,720,640);
+    DevelWindow::ExcludeInputRegion(instance, excludedInputRegion);
+
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}

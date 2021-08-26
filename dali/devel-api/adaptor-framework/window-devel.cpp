@@ -171,6 +171,16 @@ void EnableFloatingMode(Window window, bool enable)
   GetImplementation(window).EnableFloatingMode(enable);
 }
 
+void IncludeInputRegion(Window window, const Rect<int>& inputRegion)
+{
+  GetImplementation(window).IncludeInputRegion(inputRegion);
+}
+
+void ExcludeInputRegion(Window window, const Rect<int>& inputRegion)
+{
+  GetImplementation(window).ExcludeInputRegion(inputRegion);
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
