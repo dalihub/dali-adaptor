@@ -83,7 +83,7 @@ void Memory2::Unlock(bool flush)
     if(!buffer->IsCPUAllocated())
     {
       buffer->Bind(BufferUsage::VERTEX_BUFFER);
-      gl->BufferSubData(GL_ARRAY_BUFFER, mMapBufferInfo.offset, mMapBufferInfo.size, mMappedPointer);
+      gl->BufferSubData(GL_ARRAY_BUFFER, mMapBufferInfo.offset, GLsizeiptr(mMapBufferInfo.size), mMappedPointer);
     }
   }
 
