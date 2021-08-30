@@ -736,11 +736,13 @@ public:
     States state;
     if(mRoot)
     {
+      auto window = Dali::DevelWindow::Get(Self());
+      auto visible = window.IsVisible();
       state[State::ENABLED]   = true;
       state[State::SENSITIVE] = true;
-      state[State::SHOWING]   = true;
+      state[State::SHOWING]   = visible;
       state[State::VISIBLE]   = true;
-      state[State::ACTIVE]    = true;
+      state[State::ACTIVE]    = visible;
     }
     else
     {
