@@ -336,7 +336,6 @@ void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& 
 
 Adaptor::~Adaptor()
 {
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
