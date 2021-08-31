@@ -38,7 +38,6 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE 3
 
-const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
 const char* SAMPLER_TYPE    = "samplerExternalOES";
 
 // clang-format off
@@ -354,11 +353,6 @@ void NativeImageSourceQueueTizen::PrepareTexture()
       }
     }
   }
-}
-
-const char* NativeImageSourceQueueTizen::GetCustomFragmentPrefix() const
-{
-  return FRAGMENT_PREFIX;
 }
 
 bool NativeImageSourceQueueTizen::ApplyNativeFragmentShader(std::string& shader)

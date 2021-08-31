@@ -25,6 +25,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/web-engine-request-interceptor.h>
 #include <dali/devel-api/adaptor-framework/web-engine-security-origin.h>
 
 namespace Dali
@@ -35,6 +36,11 @@ namespace Dali
 class WebEngineContext
 {
 public:
+  /**
+   * @brief WebView callback related with http request interceptor.
+   */
+  using WebEngineRequestInterceptedCallback = std::function<void(Dali::WebEngineRequestInterceptorPtr)>;
+
   /**
    * @brief Callback for getting web database origins.
    */
@@ -274,6 +280,13 @@ public:
    * @param[in] callback callback for mime overridden
    */
   virtual void RegisterMimeOverriddenCallback(WebEngineMimeOverriddenCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when http request need be intercepted.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterRequestInterceptedCallback(WebEngineRequestInterceptedCallback callback) = 0;
 
   /**
    * @brief Toggle the cache to be enabled or disabled

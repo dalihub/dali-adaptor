@@ -45,7 +45,6 @@ class WebEngineHitTest;
 class WebEngineHttpAuthHandler;
 class WebEngineLoadError;
 class WebEnginePolicyDecision;
-class WebEngineRequestInterceptor;
 class WebEngineSettings;
 class HoverEvent;
 class WheelEvent;
@@ -102,11 +101,6 @@ public:
    * @brief WebView callback related with video playing.
    */
   using VideoPlayingCallback = std::function<void(bool)>;
-
-  /**
-   * @brief WebView callback related with http request interceptor.
-   */
-  using WebEngineRequestInterceptorCallback = std::function<void(std::unique_ptr<Dali::WebEngineRequestInterceptor>)>;
 
   /**
    * @brief WebView callback related with console message logged.
@@ -817,13 +811,6 @@ public:
    * @param[in] callback
    */
   virtual void RegisterFormRepostDecidedCallback(WebEngineFormRepostDecidedCallback callback) = 0;
-
-  /**
-   * @brief Callback to be called when http request need be intercepted.
-   *
-   * @param[in] callback
-   */
-  virtual void RegisterRequestInterceptorCallback(WebEngineRequestInterceptorCallback callback) = 0;
 
   /**
    * @brief Callback to be called when console message will be logged.

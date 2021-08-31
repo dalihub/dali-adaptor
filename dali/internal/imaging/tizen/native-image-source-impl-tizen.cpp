@@ -38,7 +38,6 @@ namespace Adaptor
 {
 namespace
 {
-const char* FRAGMENT_PREFIX = "#extension GL_OES_EGL_image_external:require\n";
 const char* SAMPLER_TYPE    = "samplerExternalOES";
 
 // clang-format off
@@ -458,11 +457,6 @@ void NativeImageSourceTizen::PrepareTexture()
 
     mSetSource = false;
   }
-}
-
-const char* NativeImageSourceTizen::GetCustomFragmentPrefix() const
-{
-  return FRAGMENT_PREFIX;
 }
 
 bool NativeImageSourceTizen::ApplyNativeFragmentShader(std::string& shader)

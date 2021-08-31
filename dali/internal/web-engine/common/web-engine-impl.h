@@ -495,11 +495,6 @@ public:
   void RegisterFormRepostDecidedCallback(Dali::WebEnginePlugin::WebEngineFormRepostDecidedCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::RegisterRequestInterceptorCallback()
-   */
-  void RegisterRequestInterceptorCallback(Dali::WebEnginePlugin::WebEngineRequestInterceptorCallback callback);
-
-  /**
    @copydoc Dali::WebEngine::RegisterConsoleMessageReceivedCallback()
    */
   void RegisterConsoleMessageReceivedCallback(Dali::WebEnginePlugin::WebEngineConsoleMessageReceivedCallback callback);

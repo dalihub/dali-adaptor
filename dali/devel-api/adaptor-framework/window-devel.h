@@ -308,6 +308,39 @@ DALI_ADAPTOR_API void RequestResizeToServer(Window window, WindowResizeDirection
  */
 DALI_ADAPTOR_API void EnableFloatingMode(Window window, bool enable);
 
+/**
+ * @brief Includes input region.
+ *
+ * This function inlcudes input regions.
+ * It can be used multiple times and supports multiple regions.
+ * It means input region will be extended.
+ *
+ * This input is related to mouse and touch event.
+ * If device has touch screen, this function is useful.
+ * Otherwise device does not have that, we can use it after connecting mouse to the device.
+ *
+ * @param[in] window The window instance.
+ * @param[in] inputRegion The added region to accept input events.
+ */
+DALI_ADAPTOR_API void IncludeInputRegion(Window window, const Rect<int>& inputRegion);
+
+/**
+ * @brief Excludes input region.
+ *
+ * This function excludes input regions.
+ * It can be used multiple times and supports multiple regions.
+ * It means input region will be reduced.
+ * Nofice, should be set input area by IncludeInputRegion() before this function is used.
+ *
+ * This input is related to mouse and touch event.
+ * If device has touch screen, this function is useful.
+ * Otherwise device does not have that, we can use it after connecting mouse to the device.
+ *
+ * @param[in] window The window instance.
+ * @param[in] inputRegion The subtracted region to except input events.
+ */
+DALI_ADAPTOR_API void ExcludeInputRegion(Window window, const Rect<int>& inputRegion);
+
 } // namespace DevelWindow
 
 } // namespace Dali

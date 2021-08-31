@@ -92,7 +92,7 @@ void Buffer::InitializeGPUBuffer()
 
   gl->GenBuffers(1, &mBufferId);
   context->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
-  gl->BufferData(GL_ARRAY_BUFFER, mCreateInfo.size, nullptr, GL_STATIC_DRAW);
+  gl->BufferData(GL_ARRAY_BUFFER, GLsizeiptr(mCreateInfo.size), nullptr, GL_STATIC_DRAW);
 }
 
 void Buffer::DestroyResource()

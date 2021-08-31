@@ -115,11 +115,6 @@ public:
   virtual int GetTextureTarget() const = 0;
 
   /**
-   * @copydoc Dali::NativeImageSource::GetCustomFragmentPrefix()
-   */
-  virtual const char* GetCustomFragmentPrefix() const = 0;
-
-  /**
    * @copydoc Dali::NativeImageSource::ApplyNativeFragmentShader()
    */
   virtual bool ApplyNativeFragmentShader(std::string& shader) = 0;

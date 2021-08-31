@@ -357,11 +357,6 @@ int NativeImageSourceX::GetTextureTarget() const
   return GL_TEXTURE_2D;
 }
 
-const char* NativeImageSourceX::GetCustomFragmentPrefix() const
-{
-  return nullptr;
-}
-
 bool NativeImageSourceX::ApplyNativeFragmentShader(std::string& shader)
 {
   return false;

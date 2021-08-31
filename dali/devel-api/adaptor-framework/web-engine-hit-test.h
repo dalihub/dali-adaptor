@@ -128,7 +128,7 @@ public:
    *
    * @return the attribute data of the hit element in the coordinates of the hit test
    */
-  virtual Dali::Property::Map& GetAttributes() const = 0;
+  virtual Dali::Property::Map GetAttributes() const = 0;
 
   /**
    * @brief Get the image file name extension of hit element of the hit test.
