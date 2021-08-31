@@ -995,16 +995,6 @@ void Window::EnableFloatingMode(bool enable)
   mWindowBase->EnableFloatingMode(enable);
 }
 
-void Window::IncludeInputRegion(const Rect<int>& inputRegion)
-{
-  mWindowBase->IncludeInputRegion(inputRegion);
-}
-
-void Window::ExcludeInputRegion(const Rect<int>& inputRegion)
-{
-  mWindowBase->ExcludeInputRegion(inputRegion);
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

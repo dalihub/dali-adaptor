@@ -406,18 +406,6 @@ public:
    */
   virtual void ImeWindowReadyToRender() = 0;
 
-  /**
-   * @brief Includes input region.
-   * @param[in] inputRegion The added region to accept input events.
-   */
-  virtual void IncludeInputRegion(const Rect<int>& inputRegion) = 0;
-
-  /**
-   * @brief Excludes input region.
-   * @param[in] inputRegion The subtracted region to except input events.
-   */
-  virtual void ExcludeInputRegion(const Rect<int>& inputRegion) = 0;
-
   // Signals
 
   /**

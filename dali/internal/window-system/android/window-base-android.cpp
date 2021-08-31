@@ -389,14 +389,6 @@ bool WindowBaseAndroid::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseAndroid::IncludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
-void WindowBaseAndroid::ExcludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

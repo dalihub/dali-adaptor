@@ -955,14 +955,6 @@ bool WindowBaseEcoreX::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseEcoreX::IncludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
-void WindowBaseEcoreX::ExcludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

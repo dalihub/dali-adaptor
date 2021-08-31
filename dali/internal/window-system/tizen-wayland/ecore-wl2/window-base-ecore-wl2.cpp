@@ -2720,30 +2720,6 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
   return ecore_wl2_window_floating_mode_get(mEcoreWindow);
 }
 
-void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
-{
-  Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
-
-  ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-}
-
-void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
-{
-  Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
-
-  ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
-  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

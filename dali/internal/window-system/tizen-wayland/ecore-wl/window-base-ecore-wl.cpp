@@ -2209,14 +2209,6 @@ bool WindowBaseEcoreWl::IsFloatingModeEnabled() const
   return false;
 }
 
-void WindowBaseEcoreWl::IncludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
-void WindowBaseEcoreWl::ExcludeInputRegion(const Rect<int>& inputRegion)
-{
-}
-
 } // namespace Adaptor
 
 } // namespace Internal
