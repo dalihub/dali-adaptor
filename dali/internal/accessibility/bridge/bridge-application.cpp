@@ -28,7 +28,7 @@ void BridgeApplication::RegisterInterfaces()
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceApplication};
   AddGetPropertyToInterface(desc, "ToolkitName", &BridgeApplication::GetToolkitName);
   AddGetPropertyToInterface(desc, "Version", &BridgeApplication::GetVersion);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Application* BridgeApplication::FindSelf() const

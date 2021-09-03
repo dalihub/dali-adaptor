@@ -32,17 +32,19 @@ void BridgeEditableText::RegisterInterfaces()
   AddFunctionToInterface(desc, "InsertText", &BridgeEditableText::InsertText);
   AddFunctionToInterface(desc, "PasteText", &BridgeEditableText::PasteText);
   AddFunctionToInterface(desc, "SetTextContents", &BridgeEditableText::SetTextContents);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 EditableText* BridgeEditableText::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<EditableText*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Text interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto editableTextInterface = dynamic_cast<EditableText*>(self);
+  if(!editableTextInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Text interface"};
+  }
+  return editableTextInterface;
 }
 
 DBus::ValueOrError<bool> BridgeEditableText::CopyText(int32_t startPos, int32_t endPos)

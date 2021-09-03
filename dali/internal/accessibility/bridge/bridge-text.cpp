@@ -38,19 +38,19 @@ void BridgeText::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetRangeOfSelection);
   AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetRangeOfSelection);
   AddFunctionToInterface(desc, "RemoveSelection", &BridgeText::RemoveSelection);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Text* BridgeText::FindSelf() const
 {
   auto self = BridgeBase::FindSelf();
   assert(self);
-  auto textObject = dynamic_cast<Text*>(self);
-  if(!textObject)
+  auto textInterface = dynamic_cast<Text*>(self);
+  if(!textInterface)
   {
     throw std::domain_error{"Object " + self->GetAddress().ToString() + " doesn't have Text interface"};
   }
-  return textObject;
+  return textInterface;
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)

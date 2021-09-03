@@ -88,7 +88,7 @@ enum class RelationType : uint32_t
 /**
  * @brief Enumeration describing if coordinates are relative to screen or window
  * @see Accessibility::Component::GetExtents
- * @see Accessibility::Component::IsAccessibleContainedAtPoint
+ * @see Accessibility::Component::IsAccessibleContainingPoint
  */
 enum class CoordinateType
 {
@@ -447,7 +447,7 @@ enum class ReadingInfoType
 template<size_t I, typename S>
 class BitSets
 {
-  std::array<uint32_t, I> data;
+  std::array<uint32_t, I> mData;
 
   void Set()
   {
@@ -480,7 +480,7 @@ class BitSets
 public:
   BitSets()
   {
-    for(auto& u : data)
+    for(auto& u : mData)
     {
       u = 0;
     }
@@ -491,8 +491,10 @@ public:
   template<typename T, typename... ARGS, typename std::enable_if<Accepts<T, ARGS...>()>::type* = nullptr>
   BitSets(T t, ARGS... args)
   {
-    for(auto& u : data)
+    for(auto& u : mData)
+    {
       u = 0;
+    }
     Set(t, args...);
   }
 
@@ -500,7 +502,7 @@ public:
   {
     for(auto i = 0u; i < I; ++i)
     {
-      data[i] = d[i];
+      mData[i] = d[i];
     }
   }
 
@@ -508,25 +510,25 @@ public:
   {
     for(auto i = 0u; i < I; ++i)
     {
-      data[i] = static_cast<uint32_t>(d[i]);
+      mData[i] = static_cast<uint32_t>(d[i]);
     }
   }
 
   BitSets& operator=(const BitSets&) = default;
   BitSets& operator=(BitSets&&) = default;
 
-  struct reference
+  struct Reference
   {
     std::array<uint32_t, I>& data;
     size_t                   pos;
 
-    reference& operator=(reference r)
+    Reference& operator=(Reference r)
     {
       (*this) = static_cast<bool>(r);
       return *this;
     }
 
-    reference& operator=(bool v)
+    Reference& operator=(bool v)
     {
       if(v)
       {
@@ -544,22 +546,22 @@ public:
       auto i = static_cast<size_t>(pos);
       return (data[i / 32] & (1 << (i & 31))) != 0;
     }
-  };
+  }; // Reference struct
 
-  reference operator[](S index)
+  Reference operator[](S index)
   {
-    return {data, static_cast<size_t>(index)};
+    return {mData, static_cast<size_t>(index)};
   }
 
   bool operator[](S index) const
   {
     auto i = static_cast<size_t>(index);
-    return (data[i / 32] & (1 << (i & 31))) != 0;
+    return (mData[i / 32] & (1 << (i & 31))) != 0;
   }
 
   std::array<uint32_t, I> GetRawData() const
   {
-    return data;
+    return mData;
   }
 
   BitSets operator|(BitSets b) const
@@ -567,7 +569,7 @@ public:
     BitSets r;
     for(auto i = 0u; i < I; ++i)
     {
-      r.data[i] = data[i] | b.data[i];
+      r.mData[i] = mData[i] | b.mData[i];
     }
     return r;
   }
@@ -577,7 +579,7 @@ public:
     BitSets r;
     for(auto i = 0u; i < I; ++i)
     {
-      r.data[i] = data[i] ^ b.data[i];
+      r.mData[i] = mData[i] ^ b.mData[i];
     }
     return r;
   }
@@ -587,7 +589,7 @@ public:
     BitSets r;
     for(auto i = 0u; i < I; ++i)
     {
-      r.data[i] = data[i] & b.data[i];
+      r.mData[i] = mData[i] & b.mData[i];
     }
     return r;
   }
@@ -596,7 +598,7 @@ public:
   {
     for(auto i = 0u; i < I; ++i)
     {
-      if(data[i] != b.data[i])
+      if(mData[i] != b.mData[i])
       {
         return false;
       }
@@ -611,7 +613,7 @@ public:
 
   explicit operator bool() const
   {
-    for(auto& u : data)
+    for(auto& u : mData)
     {
       if(u)
       {
@@ -625,7 +627,7 @@ public:
   {
     return I;
   }
-};
+}; // BitSets class
 
 using ReadingInfoTypes = BitSets<1, ReadingInfoType>;
 using States           = BitSets<2, State>;
@@ -780,8 +782,8 @@ struct DALI_ADAPTOR_API Range
 /**
  * @brief Structure containing all values needed to invoke Accessible::DoGesture
  * type : numerated gesture type
- * xBeg, yBeg : point where gesture begins
- * xEnd, yEnd : point where gesture ends
+ * startPositionX, startPositionY : point where gesture begins
+ * endPositionX, endPositionY : point where gesture ends
  * state : enumerated state of gesture
  * eventTime : time when event occured
  * @see Dali::Accessibility::Accessible::DoGesture
@@ -789,22 +791,22 @@ struct DALI_ADAPTOR_API Range
 struct DALI_ADAPTOR_API GestureInfo
 {
   GestureInfo() = default;
-  GestureInfo(Gesture type, int32_t xBeg, int32_t xEnd, int32_t yBeg, int32_t yEnd, GestureState state, uint32_t eventTime)
+  GestureInfo(Gesture type, int32_t startPositionX, int32_t endPositionX, int32_t startPositionY, int32_t endPositionY, GestureState state, uint32_t eventTime)
   : type(type),
-    xBeg(xBeg),
-    xEnd(xEnd),
-    yBeg(yBeg),
-    yEnd(yEnd),
+    startPointX(startPositionX),
+    endPointX(endPositionX),
+    startPointY(startPositionY),
+    endPointY(endPositionY),
     state(state),
     eventTime(eventTime)
   {
   }
 
   Gesture      type{};
-  int32_t      xBeg{};
-  int32_t      xEnd{};
-  int32_t      yBeg{};
-  int32_t      yEnd{};
+  int32_t      startPointX{};
+  int32_t      endPointX{};
+  int32_t      startPointY{};
+  int32_t      endPointY{};
   GestureState state{};
   uint32_t     eventTime{};
 };

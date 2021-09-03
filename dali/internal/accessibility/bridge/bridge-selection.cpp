@@ -31,17 +31,19 @@ void BridgeSelection::RegisterInterfaces()
   AddFunctionToInterface(desc, "SelectAll", &BridgeSelection::SelectAll);
   AddFunctionToInterface(desc, "ClearSelection", &BridgeSelection::ClearSelection);
   AddFunctionToInterface(desc, "DeselectChild", &BridgeSelection::DeselectChild);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Selection* BridgeSelection::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<Selection*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Selection interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto selectionInterface = dynamic_cast<Selection*>(self);
+  if(!selectionInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Selection interface"};
+  }
+  return selectionInterface;
 }
 
 DBus::ValueOrError<int32_t> BridgeSelection::GetSelectedChildrenCount()

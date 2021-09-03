@@ -38,7 +38,7 @@ protected:
   Dali::Accessibility::Component* FindSelf() const;
 
 public:
-  DBus::ValueOrError<bool>                                            IsAccessibleContainedAtPoint(int32_t x, int32_t y, uint32_t coordType);
+  DBus::ValueOrError<bool>                                            IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType);
   DBus::ValueOrError<Dali::Accessibility::Accessible*>                GetAccessibleAtPoint(int32_t x, int32_t y, uint32_t coordType);
   DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > GetExtents(uint32_t coordType);
   DBus::ValueOrError<int32_t, int32_t>                                GetPosition(uint32_t coordType);

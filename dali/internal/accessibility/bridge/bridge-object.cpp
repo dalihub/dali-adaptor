@@ -32,7 +32,7 @@ void BridgeObject::RegisterInterfaces()
 {
   // DBus::DBusInterfaceDescription desc{ AtspiDbusInterfaceEventObject };
   // stateChanged = addSignal<std::string, int, int, DBus::EldbusVariant<int>, Accessible*>(desc, "StateChanged");
-  // dbusServer.addInterface("/", desc, true);
+  // mDbusServer.addInterface("/", desc, true);
 }
 
 void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
@@ -40,16 +40,11 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
   if(!IsUp()) return;
   auto index = child->GetIndexInParent();
 
-  auto        addr       = obj->GetAddress();
-  const auto  prefixPath = "/org/a11y/atspi/accessible/";
-  const auto  nullPath   = "/org/a11y/atspi/null";
-  std::string p;
-  if(addr)
-    p = prefixPath + addr.GetPath();
-  else
-    p = nullPath;
-  dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<Address>, Address>(
-    p,
+  auto        addr = obj->GetAddress();
+  std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+  mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<Address>, Address>(
+    path,
     AtspiDbusInterfaceEventObject,
     "ActiveDescendantChanged",
     "",
@@ -63,6 +58,7 @@ void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChan
 {
   if(!IsUp()) return;
   const char* name = nullptr;
+
   switch(ev)
   {
     case ObjectPropertyChangeEvent::NAME:
@@ -91,16 +87,14 @@ void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChan
       break;
     }
   }
+
   if(name)
   {
     auto        addr = obj->GetAddress();
-    std::string p;
-    if(addr)
-      p = ATSPI_PREFIX_PATH + addr.GetPath();
-    else
-      p = ATSPI_NULL_PATH;
-    dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      p,
+    std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+      path,
       AtspiDbusInterfaceEventObject,
       "PropertyChange",
       name,
@@ -115,6 +109,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 {
   if(!IsUp()) return;
   const char* name = nullptr;
+
   switch(event)
   {
     case WindowEvent::PROPERTY_CHANGE:
@@ -213,16 +208,14 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
       break;
     }
   }
+
   if(name)
   {
     auto        addr = obj->GetAddress();
-    std::string p;
-    if(addr)
-      p = ATSPI_PREFIX_PATH + addr.GetPath();
-    else
-      p = ATSPI_NULL_PATH;
-    dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      p,
+    std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+      path,
       AtspiDbusInterfaceEventWindow,
       name,
       "",
@@ -237,6 +230,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 {
   if(!IsUp()) return;
   const char* stateName = nullptr;
+
   switch(state)
   {
     case State::INVALID:
@@ -474,16 +468,14 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
       break;
     }
   }
+
   if(stateName)
   {
     auto        addr = obj->GetAddress();
-    std::string p;
-    if(addr)
-      p = ATSPI_PREFIX_PATH + addr.GetPath();
-    else
-      p = ATSPI_NULL_PATH;
-    dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      p,
+    std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+      path,
       AtspiDbusInterfaceEventObject,
       "StateChanged",
       stateName,
@@ -496,21 +488,17 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
 void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 {
-  if(!allowObjectBoundsChangedEvent) return;
+  if(!IsBoundsChangedEventAllowed) return;
 
-  auto        addr       = obj->GetAddress();
-  const auto  prefixPath = "/org/a11y/atspi/accessible/";
-  const auto  nullPath   = "/org/a11y/atspi/null";
-  std::string p;
-  if(addr)
-    p = prefixPath + addr.GetPath();
-  else
-    p = nullPath;
+  auto        addr = obj->GetAddress();
+  std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
   DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
     std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
-  addFilteredEvent(FilteredEvents::boundsChanged, obj, 1.0f, [=]() {
-    dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
-      p,
+
+  AddFilteredEvent(FilteredEvents::BOUNDS_CHANGED, obj, 1.0f, [=]() {
+    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
+      path,
       AtspiDbusInterfaceEventObject,
       "BoundsChanged",
       "",
@@ -524,9 +512,10 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
   auto        addr = obj->GetAddress();
-  std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
-  dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-    p,
+  std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+  mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+    path,
     AtspiDbusInterfaceEventObject,
     "TextCaretMoved",
     "",
@@ -556,12 +545,14 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
       break;
     }
   }
+
   if(stateName)
   {
     auto        addr = obj->GetAddress();
-    std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
-    dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::string>, Address>(
-      p,
+    std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::string>, Address>(
+      path,
       AtspiDbusInterfaceEventObject,
       "TextChanged",
       stateName,
@@ -575,9 +566,10 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
 void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
 {
   auto        addr = obj->GetAddress();
-  std::string p    = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
-  dbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-    p,
+  std::string path = addr ? ATSPI_PREFIX_PATH + addr.GetPath() : ATSPI_NULL_PATH;
+
+  mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+    path,
     AtspiDbusInterfaceEventObject,
     "MoveOuted",
     "",

@@ -35,17 +35,19 @@ void BridgeAction::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetKeyBinding", &BridgeAction::GetActionKeyBinding);
   AddFunctionToInterface(desc, "DoAction", &BridgeAction::DoAction);
   AddFunctionToInterface(desc, "DoActionName", &BridgeAction::DoActionName);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Action* BridgeAction::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<Action*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Action interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto actionInterface = dynamic_cast<Action*>(self);
+  if(!actionInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Action interface"};
+  }
+  return actionInterface;
 }
 
 DBus::ValueOrError<std::string> BridgeAction::GetActionName(int32_t index)
@@ -71,7 +73,6 @@ DBus::ValueOrError<std::string> BridgeAction::GetActionKeyBinding(int32_t index)
 DBus::ValueOrError<int32_t> BridgeAction::GetActionCount()
 {
   return FindSelf()->GetActionCount();
-  ;
 }
 
 DBus::ValueOrError<bool> BridgeAction::DoAction(int32_t index)

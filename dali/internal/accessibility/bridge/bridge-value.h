@@ -39,7 +39,7 @@ protected:
 
 public:
   double GetCurrentValue();
-  void   SetCurrentValue(double new_value);
+  void   SetCurrentValue(double newValue);
   double GetMaximumValue();
   double GetMinimumIncrement();
   double GetMinimumValue();
