@@ -900,7 +900,7 @@ void WindowBaseEcoreX::CreateWindow(PositionSize positionSize, bool isTransparen
   }
 }
 
-void WindowBaseEcoreX::SetParent(WindowBase* parentWinBase)
+void WindowBaseEcoreX::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
   Ecore_X_Window ecoreParent = 0;
   if(parentWinBase)

@@ -290,7 +290,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetParent()
    */
-  void SetParent(WindowBase* parentWinBase) override;
+  void SetParent(WindowBase* parentWinBase, bool belowParent) override;
 
   /**
    * @copydoc  Dali::Internal::Adaptor::WindowBase::CreateFrameRenderedSyncFence()

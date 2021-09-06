@@ -740,7 +740,7 @@ void GlWindow::SetChild(Dali::Window& child)
       WindowBase* childWindowBase = renderSurface->GetWindowBase();
       if(childWindowBase)
       {
-        childWindowBase->SetParent(mWindowBase.get());
+        childWindowBase->SetParent(mWindowBase.get(), false);
       }
     }
   }

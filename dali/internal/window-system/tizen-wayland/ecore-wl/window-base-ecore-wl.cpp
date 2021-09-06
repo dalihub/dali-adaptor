@@ -2159,7 +2159,7 @@ void WindowBaseEcoreWl::CreateWindow(PositionSize positionSize)
   }
 }
 
-void WindowBaseEcoreWl::SetParent(WindowBase* parentWinBase)
+void WindowBaseEcoreWl::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
   Ecore_Wl_Window* ecoreParent = NULL;
   if(parentWinBase)

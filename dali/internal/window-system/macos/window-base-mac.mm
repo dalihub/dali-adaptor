@@ -635,7 +635,7 @@ void WindowBaseCocoa::SetTransparency( bool transparent )
   mImpl->mWindow.alphaValue = static_cast<CGFloat>(!transparent);
 }
 
-void WindowBaseCocoa::SetParent( WindowBase* parentWinBase )
+void WindowBaseCocoa::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
   auto &parent = dynamic_cast<WindowBaseCocoa&>(*parentWinBase);
   [mImpl->mWindow setParentWindow:parent.mImpl->mWindow];

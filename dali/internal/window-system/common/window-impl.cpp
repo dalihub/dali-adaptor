@@ -917,13 +917,28 @@ void Window::SetParent(Dali::Window& parent)
     {
       Dali::DevelWindow::Unparent(parent);
     }
-    mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase);
+    mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, false);
+  }
+}
+
+void Window::SetParent(Dali::Window& parent, bool belowParent)
+{
+  if(DALI_UNLIKELY(parent))
+  {
+    mParentWindow     = parent;
+    Dali::Window self = Dali::Window(this);
+    // check circular parent window setting
+    if(Dali::DevelWindow::GetParent(parent) == self)
+    {
+      Dali::DevelWindow::Unparent(parent);
+    }
+    mWindowBase->SetParent(GetImplementation(mParentWindow).mWindowBase, belowParent);
   }
 }
 
 void Window::Unparent()
 {
-  mWindowBase->SetParent(nullptr);
+  mWindowBase->SetParent(nullptr, false);
   mParentWindow.Reset();
 }
 
