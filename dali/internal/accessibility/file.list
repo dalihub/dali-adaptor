@@ -51,6 +51,7 @@ SET( adaptor_accessibility_atspi_bridge_src_files
     ${adaptor_accessibility_dir}/bridge/accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-accessible.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-action.cpp
+    ${adaptor_accessibility_dir}/bridge/bridge-application.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-base.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-collection.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-component.cpp

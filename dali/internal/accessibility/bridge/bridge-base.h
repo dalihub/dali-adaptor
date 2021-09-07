@@ -19,13 +19,14 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
-class AppAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection
+class AppAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
 {
 public:
   Dali::Accessibility::EmptyAccessibleWithAddress parent;
@@ -98,6 +99,16 @@ public:
   Dali::Accessibility::Address GetAddress() override
   {
     return {"", "root"};
+  }
+
+  std::string GetToolkitName() override
+  {
+    return {"dali"};
+  }
+
+  std::string GetVersion() override
+  {
+    return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
   }
 };
 
