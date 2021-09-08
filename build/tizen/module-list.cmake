@@ -7,6 +7,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/adaptor/file.list )
 SET( adaptor_clipboard_dir ${ADAPTOR_ROOT}/dali/internal/clipboard )
 include( ${ADAPTOR_ROOT}/dali/internal/clipboard/file.list )
 
+SET( adaptor_drag_and_drop_dir ${ADAPTOR_ROOT}/dali/internal/drag-and-drop )
+include( ${ADAPTOR_ROOT}/dali/internal/drag-and-drop/file.list )
+
 SET( adaptor_framework_dir ${ADAPTOR_ROOT}/dali/internal/adaptor-framework )
 include( ${ADAPTOR_ROOT}/dali/internal/adaptor-framework/file.list )
 
@@ -92,6 +95,9 @@ include( ${ADAPTOR_ROOT}/dali/internal/adaptor/file.list )
 
 SET( adaptor_clipboard_dir ${ADAPTOR_ROOT}/dali/internal/clipboard )
 include( ${ADAPTOR_ROOT}/dali/internal/clipboard/file.list )
+
+SET( adaptor_drag_and_drop_dir ${ADAPTOR_ROOT}/dali/internal/drag-and-drop )
+include( ${ADAPTOR_ROOT}/dali/internal/drag-and-drop/file.list )
 
 SET( adaptor_framework_dir ${ADAPTOR_ROOT}/dali/internal/adaptor-framework )
 include( ${ADAPTOR_ROOT}/dali/internal/adaptor-framework/file.list )
