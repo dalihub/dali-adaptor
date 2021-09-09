@@ -59,6 +59,14 @@ std::vector<std::string> Accessible::GetInterfaces()
   {
     tmp.push_back(AtspiDbusInterfaceSelection);
   }
+  if(dynamic_cast<Hypertext*>(this))
+  {
+    tmp.push_back(AtspiDbusInterfaceHypertext);
+  }
+  if(dynamic_cast<Hyperlink*>(this))
+  {
+    tmp.push_back(AtspiDbusInterfaceHyperlink);
+  }
   return tmp;
 }
 
