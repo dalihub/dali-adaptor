@@ -108,7 +108,7 @@ inline uint32_t HashPixels(const uint32_t* const pixels, unsigned int numPixels)
 void SetupScanlineForHalvingTestsRGBA8888(size_t scanlineLength, Dali::Vector<uint32_t>& scanline, Dali::Vector<uint32_t>& reference)
 {
   scanline.Resize(scanlineLength);
-  reference.Reserve(scanlineLength / 2 + 32);
+  reference.Resize(scanlineLength / 2 + 32);
 
   // Prepare some random pixels:
   srand(19 * 23 * 47 * 53);
@@ -129,10 +129,10 @@ void SetupScanlineForHalvingTestsRGBA8888(size_t scanlineLength, Dali::Vector<ui
     scanline[i * 2 + 1] = PixelRGBA8888(red2, green2, blue2, alpha2);
 
     // Average the two pixels manually as a reference:
-    reference.PushBack(PixelRGBA8888((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u, (alpha1 + alpha2) >> 1u));
+    reference[i] = (PixelRGBA8888((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u, (alpha1 + alpha2) >> 1u));
   }
 
-  for(size_t i = scanlineLength / 2; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength / 2; i < reference.Count(); ++i)
   {
     reference[i] = 0xEEEEEEEE;
   }
@@ -144,7 +144,7 @@ void SetupScanlineForHalvingTestsRGBA8888(size_t scanlineLength, Dali::Vector<ui
 void SetupScanlineForHalvingTestsRGB565(size_t scanlineLength, Dali::Vector<uint16_t>& scanline, Dali::Vector<uint16_t>& reference)
 {
   scanline.Resize(scanlineLength);
-  reference.Reserve(scanlineLength / 2 + 32);
+  reference.Resize(scanlineLength / 2 + 32);
 
   // Prepare some random pixels:
   srand48(19 * 23 * 47 * 53);
@@ -163,10 +163,10 @@ void SetupScanlineForHalvingTestsRGB565(size_t scanlineLength, Dali::Vector<uint
     scanline[i * 2 + 1] = PixelRGB565(red2, green2, blue2);
 
     // Average the two pixels manually as a reference:
-    reference.PushBack(PixelRGB565((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u));
+    reference[i] = (PixelRGB565((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u));
   }
 
-  for(size_t i = scanlineLength / 2; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength / 2; i < reference.Count(); ++i)
   {
     reference[i] = 0xEEEE;
   }
@@ -178,7 +178,7 @@ void SetupScanlineForHalvingTestsRGB565(size_t scanlineLength, Dali::Vector<uint
 void SetupScanlineForHalvingTests2Bytes(size_t scanlineLength, Dali::Vector<uint8_t>& scanline, Dali::Vector<uint8_t>& reference)
 {
   scanline.Resize(scanlineLength * 2);
-  reference.Reserve(scanlineLength + 32);
+  reference.Resize(scanlineLength + 32);
 
   // Prepare some random pixels:
   srand48(19 * 23 * 47 * 53 * 59);
@@ -197,11 +197,11 @@ void SetupScanlineForHalvingTests2Bytes(size_t scanlineLength, Dali::Vector<uint
     scanline[i * 4 + 3] = c22;
 
     // Average the two pixels manually as a reference:
-    reference.PushBack((c11 + c21) >> 1u);
-    reference.PushBack((c12 + c22) >> 1u);
+    reference[i * 2]     = ((c11 + c21) >> 1u);
+    reference[i * 2 + 1] = ((c12 + c22) >> 1u);
   }
 
-  for(size_t i = scanlineLength; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength; i < reference.Count(); ++i)
   {
     reference[i] = 0xEE;
   }
@@ -212,8 +212,8 @@ void SetupScanlineForHalvingTests2Bytes(size_t scanlineLength, Dali::Vector<uint
  */
 void SetupScanlineForHalvingTests1Byte(size_t scanlineLength, Dali::Vector<uint8_t>& scanline, Dali::Vector<uint8_t>& reference)
 {
-  scanline.Resize(scanlineLength * 2);
-  reference.Reserve(scanlineLength + 32);
+  scanline.Resize(scanlineLength);
+  reference.Resize(scanlineLength / 2 + 32);
 
   // Prepare some random pixels:
   srand48(19 * 23 * 47 * 53 * 63);
@@ -228,10 +228,10 @@ void SetupScanlineForHalvingTests1Byte(size_t scanlineLength, Dali::Vector<uint8
     scanline[i * 2 + 1] = c2;
 
     // Average the two pixels manually as a reference:
-    reference.PushBack((c1 + c2) >> 1u);
+    reference[i] = ((c1 + c2) >> 1u);
   }
 
-  for(size_t i = scanlineLength; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength / 2; i < reference.Count(); ++i)
   {
     reference[i] = 0xEE;
   }
@@ -244,12 +244,12 @@ void SetupScanlineForHalvingTests1Byte(size_t scanlineLength, Dali::Vector<uint8
  */
 void SetupScanlinesRGBA8888(size_t scanlineLength, Dali::Vector<uint32_t>& scanline1, Dali::Vector<uint32_t>& scanline2, Dali::Vector<uint32_t>& reference, Dali::Vector<uint32_t>& output)
 {
-  scanline1.Reserve(scanlineLength);
-  scanline2.Reserve(scanlineLength);
-  reference.Reserve(scanlineLength + 32);
-  output.Reserve(scanlineLength + 32);
+  scanline1.Resize(scanlineLength);
+  scanline2.Resize(scanlineLength);
+  reference.Resize(scanlineLength + 32);
+  output.Resize(scanlineLength + 32);
 
-  for(size_t i = scanlineLength; i < output.Capacity(); ++i)
+  for(size_t i = scanlineLength; i < output.Count(); ++i)
   {
     output[i]    = 0xDEADBEEF;
     reference[i] = 0xDEADBEEF;
@@ -270,11 +270,11 @@ void SetupScanlinesRGBA8888(size_t scanlineLength, Dali::Vector<uint32_t>& scanl
     const uint32_t alpha2 = RandomComponent8();
 
     // The average of these pixels should equal the reference:
-    scanline1.PushBack(PixelRGBA8888(red1, green1, blue1, alpha1));
-    scanline2.PushBack(PixelRGBA8888(red2, green2, blue2, alpha2));
+    scanline1[i] = (PixelRGBA8888(red1, green1, blue1, alpha1));
+    scanline2[i] = (PixelRGBA8888(red2, green2, blue2, alpha2));
 
     // Average the two pixels manually as a reference:
-    reference.PushBack(PixelRGBA8888((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u, (alpha1 + alpha2) >> 1u));
+    reference[i] = (PixelRGBA8888((red1 + red2) >> 1u, (green1 + green2) >> 1u, (blue1 + blue2) >> 1u, (alpha1 + alpha2) >> 1u));
   }
 }
 
@@ -284,7 +284,7 @@ void SetupScanlinesRGBA8888(size_t scanlineLength, Dali::Vector<uint32_t>& scanl
 void MatchScanlinesRGBA8888(Dali::Vector<uint32_t>& reference, Dali::Vector<uint32_t>& output, size_t& numMatches, const char* const location)
 {
   numMatches = 0;
-  for(size_t i = 0, length = reference.Capacity(); i < length; ++i)
+  for(size_t i = 0, length = reference.Count(); i < length; ++i)
   {
     DALI_TEST_EQUALS(output[i], reference[i], location);
     numMatches += output[i] == reference[i];
@@ -851,7 +851,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGBA8888(void)
 
   // Check that the halving matches the independently calculated reference:
   size_t numMatches = 0;
-  for(int i = 0, length = reference.Size(); i < length; ++i)
+  for(int i = 0, length = scanlineLength / 2; i < length; ++i)
   {
     DALI_TEST_EQUALS(scanline[i], reference[i], TEST_LOCATION);
     numMatches += scanline[i] == reference[i];
@@ -859,7 +859,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGBA8888(void)
   DALI_TEST_EQUALS(numMatches, scanlineLength / 2, TEST_LOCATION);
 
   // Test for no beyond-bounds writes:
-  for(size_t i = scanlineLength / 2; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength / 2; i < reference.Count(); ++i)
   {
     DALI_TEST_EQUALS(reference[i], (uint32_t)0xEEEEEEEE, TEST_LOCATION);
   }
@@ -881,7 +881,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGB565(void)
 
   // Check output against reference:
   size_t numMatches = 0;
-  for(int i = 0, length = reference.Size(); i < length; ++i)
+  for(int i = 0, length = scanlineLength / 2; i < length; ++i)
   {
     DALI_TEST_EQUALS(scanline[i], reference[i], TEST_LOCATION);
     numMatches += scanline[i] == reference[i];
@@ -889,7 +889,7 @@ int UtcDaliImageOperationsHalveScanlineInPlaceRGB565(void)
   DALI_TEST_EQUALS(numMatches, scanlineLength / 2, TEST_LOCATION);
 
   // Test for no beyond-bounds writes:
-  for(size_t i = scanlineLength / 2; i < reference.Capacity(); ++i)
+  for(size_t i = scanlineLength / 2; i < reference.Count(); ++i)
   {
     DALI_TEST_EQUALS(reference[i], (uint16_t)0xEEEE, TEST_LOCATION);
   }
@@ -911,7 +911,7 @@ int UtcDaliImageOperationsHalveScanlineInPlace2Bytes(void)
 
   // Test the output against the reference (no differences):
   size_t numMatches = 0;
-  for(int i = 0, length = reference.Size(); i < length; ++i)
+  for(int i = 0, length = scanlineLength; i < length; ++i)
   {
     DALI_TEST_EQUALS(1u * scanline[i], 1u * reference[i], TEST_LOCATION);
     numMatches += scanline[i] == reference[i];
@@ -936,11 +936,12 @@ int UtcDaliImageOperationsHalveScanlineInPlace1Byte(void)
 
   // Test the reference matches the output:
   size_t numMatches = 0;
-  for(int i = 0, length = reference.Size(); i < length; ++i)
+  for(int i = 0, length = scanlineLength / 2; i < length; ++i)
   {
     DALI_TEST_EQUALS(1u * scanline[i], 1u * reference[i], TEST_LOCATION);
     numMatches += scanline[i] == reference[i];
   }
+  // Only half will be matched
   DALI_TEST_EQUALS(numMatches, scanlineLength / 2, TEST_LOCATION);
 
   END_TEST;
@@ -975,7 +976,7 @@ int UtcDaliImageOperationsAverageScanlines1(void)
   // Check the output matches the independently generated reference:
   size_t numMatches = 0;
   MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Capacity(), TEST_LOCATION);
+  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
 
   END_TEST;
 }
@@ -1010,7 +1011,7 @@ int UtcDaliImageOperationsAverageScanlines2(void)
   // Check the output matches the independently generated reference:
   size_t numMatches = 0;
   MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Capacity(), TEST_LOCATION);
+  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
 
   END_TEST;
 }
@@ -1044,7 +1045,7 @@ int UtcDaliImageOperationsAverageScanlines3(void)
   // Check the output matches the independently generated reference:
   size_t numMatches = 0;
   MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Capacity(), TEST_LOCATION);
+  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
 
   END_TEST;
 }
@@ -1066,7 +1067,7 @@ int UtcDaliImageOperationsAverageScanlinesRGBA8888(void)
   // Check the output matches the independently generated reference:
   size_t numMatches = 0;
   MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Capacity(), TEST_LOCATION);
+  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
 
   END_TEST;
 }
