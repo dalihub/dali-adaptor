@@ -341,7 +341,7 @@ void WindowBaseAndroid::SetTransparency(bool transparent)
 {
 }
 
-void WindowBaseAndroid::SetParent(WindowBase* parentWinBase)
+void WindowBaseAndroid::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
 }
 

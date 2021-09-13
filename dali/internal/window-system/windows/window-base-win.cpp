@@ -568,7 +568,7 @@ void WindowBaseWin::EventEntry(TWinEventInfo* event)
   }
 }
 
-void WindowBaseWin::SetParent(WindowBase* parentWinBase)
+void WindowBaseWin::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
 }
 

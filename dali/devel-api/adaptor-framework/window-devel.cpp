@@ -106,6 +106,11 @@ void SetParent(Window window, Window parent)
   GetImplementation(window).SetParent(parent);
 }
 
+void SetParent(Window window, Window parent, bool belowParent)
+{
+  GetImplementation(window).SetParent(parent, belowParent);
+}
+
 void Unparent(Window window)
 {
   GetImplementation(window).Unparent();

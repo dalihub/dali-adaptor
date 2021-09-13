@@ -158,6 +158,18 @@ DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettings
 DALI_ADAPTOR_API void SetParent(Window window, Window parent);
 
 /**
+ * @brief Sets parent window of the window.
+ *
+ * After setting that, these windows do together when raise-up, lower and iconified/deiconified.
+ * This function has the additional flag whether the child is located above or below of the parent.
+ *
+ * @param[in] window The window instance
+ * @param[in] parent The parent window instance
+ * @param[in] belowParent The flag is whether the child is located above or below of the parent.
+ */
+DALI_ADAPTOR_API void SetParent(Window window, Window parent, bool belowParent);
+
+/**
  * @brief Unsets parent window of the window.
  *
  * After unsetting, the window is disconnected his parent window.

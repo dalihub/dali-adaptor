@@ -375,7 +375,7 @@ public:
   /**
    * @copydoc Dali::Window::SetParent()
    */
-  virtual void SetParent(WindowBase* parentWinBase) = 0;
+  virtual void SetParent(WindowBase* parentWinBase, bool belowParent) = 0;
 
   /**
    * @brief Create a sync fence that can tell the frame is rendered by the graphics driver.

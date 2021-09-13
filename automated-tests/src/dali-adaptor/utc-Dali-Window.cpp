@@ -1351,6 +1351,22 @@ int UtcDaliWindowSetParentNegative(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetParentWithBelowParentNegative(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    Dali::Window arg2;
+    DevelWindow::SetParent(arg1, arg2, true);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowAddInputRegion(void)
 {
   Dali::Window instance;

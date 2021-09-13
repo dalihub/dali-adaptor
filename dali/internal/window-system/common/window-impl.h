@@ -326,9 +326,14 @@ public:
   static Dali::Window Get(Dali::Actor actor);
 
   /**
-   * @copydoc Dali::DevelWindow::SetParent()
+   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent)
    */
   void SetParent(Dali::Window& parent);
+
+  /**
+   * @copydoc Dali::DevelWindow::SetParent(Window window, Window parent, bool belowParent)
+   */
+  void SetParent(Dali::Window& parent, bool belowParent);
 
   /**
    * @copydoc Dali::DevelWindow::Unparent()

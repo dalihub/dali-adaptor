@@ -2513,7 +2513,7 @@ void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
   ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
 }
 
-void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase)
+void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
 {
   Ecore_Wl2_Window* ecoreParent = NULL;
   if(parentWinBase)
@@ -2521,7 +2521,7 @@ void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase)
     WindowBaseEcoreWl2* winBaseEcore2 = static_cast<WindowBaseEcoreWl2*>(parentWinBase);
     ecoreParent                       = winBaseEcore2->mEcoreWindow;
   }
-  ecore_wl2_window_parent_set(mEcoreWindow, ecoreParent);
+  ecore_wl2_window_transient_parent_set(mEcoreWindow, ecoreParent, belowParent);
 }
 
 int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
