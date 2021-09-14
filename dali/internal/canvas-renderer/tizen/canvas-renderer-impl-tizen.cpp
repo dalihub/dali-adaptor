@@ -407,7 +407,7 @@ const Vector2& CanvasRendererTizen::GetViewBox()
 void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
 {
 #ifdef THORVG_SUPPORT
-  mPixelBuffer = Devel::PixelBuffer::New(size.width, size.height, Dali::Pixel::RGBA8888);
+  mPixelBuffer = Devel::PixelBuffer::New(size.width, size.height, Dali::Pixel::BGRA8888);
 
   unsigned char* pBuffer;
   pBuffer = mPixelBuffer.GetBuffer();
@@ -418,7 +418,7 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
     return;
   }
 
-  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ABGR8888);
+  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ARGB8888);
 #endif
 }
 
