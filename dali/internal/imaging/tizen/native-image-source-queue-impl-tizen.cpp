@@ -82,7 +82,8 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mOwnTbmQueue(false),
-  mBlendingRequired(false)
+  mBlendingRequired(false),
+  mIsResized(false)
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
@@ -185,12 +186,16 @@ void NativeImageSourceQueueTizen::SetSize(uint32_t width, uint32_t height)
 {
   Dali::Mutex::ScopedLock lock(mMutex);
 
+  if(mWidth == width && mHeight == height)
+  {
+    return;
+  }
+
   tbm_surface_queue_reset(mTbmQueue, width, height, tbm_surface_queue_get_format(mTbmQueue));
 
-  mWidth  = width;
-  mHeight = height;
-
-  ResetEglImageList();
+  mWidth     = width;
+  mHeight    = height;
+  mIsResized = true;
 }
 
 void NativeImageSourceQueueTizen::IgnoreSourceImage()
@@ -297,7 +302,7 @@ void NativeImageSourceQueueTizen::DestroyResource()
 {
   Dali::Mutex::ScopedLock lock(mMutex);
 
-  ResetEglImageList();
+  ResetEglImageList(true);
 }
 
 uint32_t NativeImageSourceQueueTizen::TargetTexture()
@@ -325,6 +330,12 @@ void NativeImageSourceQueueTizen::PrepareTexture()
       {
         tbm_surface_queue_release(mTbmQueue, oldSurface);
       }
+    }
+
+    if(mIsResized)
+    {
+      ResetEglImageList(false);
+      mIsResized = false;
     }
 
     if(mConsumeSurface)
@@ -380,9 +391,11 @@ bool NativeImageSourceQueueTizen::SourceChanged() const
   return false;
 }
 
-void NativeImageSourceQueueTizen::ResetEglImageList()
+void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
 {
-  if(mConsumeSurface)
+  // When Tbm surface queue is reset(resized), the surface acquired before reset() is still valid, not the others.
+  // We can still use the acquired surface so that we will release it as the oldSurface in PrepareTexture() when the next surface is ready.
+  if(releaseConsumeSurface && mConsumeSurface)
   {
     if(tbm_surface_internal_is_valid(mConsumeSurface))
     {
