@@ -308,12 +308,6 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   }
 
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
-
-  auto appName = GetApplicationPackageName();
-  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
-  bridge->SetApplicationName(appName);
-  bridge->Initialize();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 }
 
 void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)
@@ -389,6 +383,13 @@ void Adaptor::Start()
 
   // Start the callback manager
   mCallbackManager->Start();
+
+  // Initialize accessibility bridge after callback manager is started to use Idler callback
+  auto appName = GetApplicationPackageName();
+  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
+  bridge->SetApplicationName(appName);
+  bridge->Initialize();
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
