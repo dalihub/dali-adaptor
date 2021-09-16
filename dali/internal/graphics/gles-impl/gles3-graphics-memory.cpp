@@ -65,7 +65,7 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
       // @TODO: trashing vertex binding, better find target that is rarely used
       buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
       void* ptr      = nullptr;
-      ptr            = gl->MapBufferRange(GL_ARRAY_BUFFER, mMapBufferInfo.offset, GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
+      ptr            = gl->MapBufferRange(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
       mMappedPointer = ptr;
     }
     return mMappedPointer;
