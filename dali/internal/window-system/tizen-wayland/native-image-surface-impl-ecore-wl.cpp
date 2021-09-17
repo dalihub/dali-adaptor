@@ -44,6 +44,7 @@ NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueu
   mEGLSurface(nullptr),
   mEGLContext(nullptr),
   mColorDepth(COLOR_DEPTH_32),
+  mTbmFormat(0u),
   mTbmQueue(nullptr),
   mDepth(false),
   mStencil(false),
