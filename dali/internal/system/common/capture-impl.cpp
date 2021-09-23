@@ -53,6 +53,7 @@ Capture::Capture()
   mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
+  mPixelBuffer(),
   mFileSave( false ),
   mIsNativeImageSourcePossible(true)
 {
@@ -64,6 +65,7 @@ Capture::Capture( Dali::CameraActor cameraActor )
   mTimer(),
   mPath(),
   mNativeImageSourcePtr( NULL ),
+  mPixelBuffer(),
   mFileSave( false ),
   mIsNativeImageSourcePossible(true)
 {
@@ -133,17 +135,20 @@ Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   if(!mPixelBuffer || !mPixelBuffer.GetBuffer())
   {
-    uint8_t* bufferPointer;
+    uint8_t*             bufferPointer = nullptr;
     uint32_t             width, height;
     Dali::Pixel::Format  pixelFormat;
+    std::vector<uint8_t> buffer;
     if(mIsNativeImageSourcePossible)
     {
-      std::vector<uint8_t> buffer;
-      if(!mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+      if(mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
       {
-        return Dali::Devel::PixelBuffer();
+        if(width > 0 && height > 0)
+        {
+          // Get captured imge only if it have more than 1 pixels.
+          bufferPointer = &buffer[0];
+        }
       }
-      bufferPointer = &buffer[0];
     }
     else
     {
@@ -151,6 +156,11 @@ Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
       height = mTexture.GetHeight();
       pixelFormat = Dali::Pixel::RGBA8888;
       bufferPointer = mFrameBuffer.GetRenderedBuffer();
+    }
+    if(bufferPointer == nullptr)
+    {
+      // Fail to capture. Return empty pixel buffer.
+      return Dali::Devel::PixelBuffer();
     }
     mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
 
