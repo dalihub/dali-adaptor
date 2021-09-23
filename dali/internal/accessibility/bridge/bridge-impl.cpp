@@ -55,7 +55,7 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeSelection,
                    public BridgeApplication
 {
-  DBus::DBusClient                                              listenOnAtspiEnabledSignalClient;
+  DBus::DBusClient                                              accessibilityStatusClient;
   DBus::DBusClient                                              registryClient, directReadingClient;
   bool                                                          screenReaderEnabled = false;
   bool                                                          isEnabled           = false;
@@ -63,35 +63,11 @@ class BridgeImpl : public virtual BridgeBase,
   std::unordered_map<int32_t, std::function<void(std::string)>> directReadingCallbacks;
   Dali::Actor                                                   highlightedActor;
   std::function<void(Dali::Actor)>                              highlightClearAction;
+  Dali::CallbackBase* mIdleCallback = NULL;
 
 public:
   BridgeImpl()
   {
-    listenOnAtspiEnabledSignalClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
-
-    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
-      screenReaderEnabled = res;
-      if(screenReaderEnabled || isEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
-    });
-
-    listenOnAtspiEnabledSignalClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
-      isEnabled = res;
-      if(screenReaderEnabled || isEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
-    });
   }
 
   Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
@@ -226,7 +202,11 @@ public:
       mData->mHighlightActor            = {};
     }
     ForceDown();
-    listenOnAtspiEnabledSignalClient = {};
+    if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
+    {
+      Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
+    }
+    accessibilityStatusClient        = {};
     dbusServer                       = {};
     con                              = {};
   }
@@ -315,24 +295,92 @@ public:
     isShown = true;
   }
 
-  void Initialize() override
+  void ReadAndListenProperty()
   {
-    auto dbusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
-    auto enabled = dbusClient.property<bool>("ScreenReaderEnabled").get();
+    // read property
+    auto enabled = accessibilityStatusClient.property<bool>("ScreenReaderEnabled").get();
     if(enabled)
     {
       screenReaderEnabled = std::get<0>(enabled);
     }
-
-    enabled = dbusClient.property<bool>("IsEnabled").get();
+    enabled = accessibilityStatusClient.property<bool>("IsEnabled").get();
     if(enabled)
     {
       isEnabled = std::get<0>(enabled);
     }
-
     if(screenReaderEnabled || isEnabled)
     {
       ForceUp();
+    }
+
+    // listen property change
+    accessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+      screenReaderEnabled = res;
+      if(screenReaderEnabled || isEnabled)
+      {
+        ForceUp();
+      }
+      else
+      {
+        ForceDown();
+      }
+    });
+
+    accessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
+      isEnabled = res;
+      if(screenReaderEnabled || isEnabled)
+      {
+        ForceUp();
+      }
+      else
+      {
+        ForceDown();
+      }
+    });
+  }
+
+  bool InitializeAccessibilityStatusClient()
+  {
+    accessibilityStatusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
+
+    if (!accessibilityStatusClient)
+    {
+      DALI_LOG_ERROR("Accessibility Status DbusClient is not ready\n");
+      return false;
+    }
+
+    return true;
+  }
+
+  bool OnIdleSignal()
+  {
+    if ( InitializeAccessibilityStatusClient() )
+    {
+      ReadAndListenProperty();
+      mIdleCallback = NULL;
+      return false;
+    }
+
+    return true;
+  }
+
+  void Initialize() override
+  {
+    if ( InitializeAccessibilityStatusClient() )
+    {
+      ReadAndListenProperty();
+      return;
+    }
+
+    // Initialize failed. Try it again on Idle
+    if( Dali::Adaptor::IsAvailable() )
+    {
+      Dali::Adaptor& adaptor = Dali::Adaptor::Get();
+      if( NULL == mIdleCallback )
+      {
+        mIdleCallback = MakeCallback( this, &BridgeImpl::OnIdleSignal );
+        adaptor.AddIdle( mIdleCallback, true );
+      }
     }
   }
 

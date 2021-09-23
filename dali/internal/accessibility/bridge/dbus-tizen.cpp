@@ -110,9 +110,12 @@ DBus::DBusClient::DBusClient(std::string busName, std::string pathName, std::str
   else
     connectionState->connection = conn;
 
-  std::ostringstream o;
-  o << "bus = " << busName << " path = " << pathName << " connection = " << DBUS_W->eldbus_connection_unique_name_get_impl(connectionState->connection);
-  info = o.str();
+
+  if (!connectionState->connection)
+  {
+    DALI_LOG_ERROR("DBusClient connection is not ready\n");
+    return;
+  }
 
   connectionState->object = DBUS_W->eldbus_object_get_impl(connectionState->connection, busName.c_str(), pathName.c_str());
   if(connectionState->object)
@@ -511,10 +514,13 @@ struct DefaultDBusWrapper : public DBusWrapper
       }
     }
 
-    eldbus_init();
     auto p = eldbus_connection_get(eldbusType);
+    if (!p)
+    {
+      DALI_LOG_ERROR("cannot get dbus connection\n");
+      return NULL;
+    }
     auto w = create(p, true);
-    eldbus_shutdown();
     return w;
   }
 
