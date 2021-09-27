@@ -93,7 +93,7 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   else
   {
     mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
-    if(!mParsedImage)
+    if(!mParsedImage || !mParsedImage->shapes)
     {
       DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
       return false;
