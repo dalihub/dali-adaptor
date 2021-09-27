@@ -530,6 +530,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   configAttribs.PushBack(8);
 
   //  For underlay video playback, we also need to set the alpha value of the 24/32bit window.
+  // TODO: When the tbm queue of GlView is 24bit, do we have to set the alpha size??
   configAttribs.PushBack(EGL_ALPHA_SIZE);
   configAttribs.PushBack(8);
 

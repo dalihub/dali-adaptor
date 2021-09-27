@@ -177,7 +177,7 @@ private:
 
   void Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat);
 
-  void ResetEglImageList();
+  void ResetEglImageList(bool releaseConsumeSurface);
 
   tbm_surface_queue_h GetSurfaceFromAny(Any source) const;
 
@@ -198,6 +198,7 @@ private:
   EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
   bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
   bool                      mBlendingRequired;   ///< Whether blending is required
+  bool                      mIsResized;          ///< Whether the size has changed
 };
 
 } // namespace Adaptor

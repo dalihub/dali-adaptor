@@ -144,14 +144,14 @@ struct DALI_ADAPTOR_API Bridge
   virtual Accessible* FindByPath(const std::string& path) const = 0;
 
   /**
-   * @brief Shows application on accessibility bus.
+   * @brief Notifies accessibility dbus that window has just been shown.
    */
-  virtual void ApplicationShown() = 0;
+  virtual void WindowShown() = 0;
 
   /**
-   * @brief Hides application on accessibility bus.
+   * @brief Notifies accessibility dbus that window has just been hidden.
    */
-  virtual void ApplicationHidden() = 0;
+  virtual void WindowHidden() = 0;
 
   /**
    * @brief Initializes accessibility bus.

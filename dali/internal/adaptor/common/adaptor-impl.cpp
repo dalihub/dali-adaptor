@@ -308,12 +308,6 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   }
 
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
-
-  auto appName = GetApplicationPackageName();
-  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
-  bridge->SetApplicationName(appName);
-  bridge->Initialize();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 }
 
 void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)
@@ -336,7 +330,7 @@ void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& 
 
 Adaptor::~Adaptor()
 {
-  Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
+  Accessibility::Bridge::GetCurrentBridge()->WindowHidden();
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
@@ -389,6 +383,13 @@ void Adaptor::Start()
 
   // Start the callback manager
   mCallbackManager->Start();
+
+  // Initialize accessibility bridge after callback manager is started to use Idler callback
+  auto appName = GetApplicationPackageName();
+  auto bridge  = Accessibility::Bridge::GetCurrentBridge();
+  bridge->SetApplicationName(appName);
+  bridge->Initialize();
+  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
@@ -955,7 +956,7 @@ void Adaptor::RequestProcessEventsOnIdle(bool forceProcess)
 
 void Adaptor::OnWindowShown()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationShown();
+  Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown();
 
   if(PAUSED_WHILE_HIDDEN == mState)
   {
@@ -987,7 +988,7 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->ApplicationHidden();
+  Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden();
 
   if(RUNNING == mState || READY == mState)
   {

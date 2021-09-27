@@ -65,11 +65,11 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return nullptr;
   }
 
-  void ApplicationShown() override
+  void WindowShown() override
   {
   }
 
-  void ApplicationHidden() override
+  void WindowHidden() override
   {
   }
 
