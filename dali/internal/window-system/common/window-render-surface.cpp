@@ -764,6 +764,8 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
       return;
     }
 
+    mGraphics->ActivateSurfaceContext(this);
+
     EGLint bufferAge = eglImpl.GetBufferAge(mEGLSurface);
 
     // Buffer age 0 means the back buffer in invalid and requires full swap
