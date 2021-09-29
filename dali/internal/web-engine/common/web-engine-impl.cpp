@@ -185,7 +185,7 @@ void WebEngine::Destroy()
   mPlugin->Destroy();
 }
 
-Dali::NativeImageInterfacePtr WebEngine::GetNativeImageSource()
+Dali::NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return mPlugin->GetNativeImageSource();
 }
