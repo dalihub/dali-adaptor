@@ -290,6 +290,10 @@ cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
+%if 0%{?enable_logging}
+cmake_flags+=" -DENABLE_NETWORK_LOGGING=ON"
+%endif
+
 libtoolize --force
 cd %{_builddir}/%{name}-%{version}/build/tizen
 
