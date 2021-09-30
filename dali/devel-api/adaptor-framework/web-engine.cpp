@@ -91,7 +91,7 @@ void WebEngine::Destroy()
   GetImplementation(*this).Destroy();
 }
 
-NativeImageInterfacePtr WebEngine::GetNativeImageSource()
+NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return GetImplementation(*this).GetNativeImageSource();
 }
