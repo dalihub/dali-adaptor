@@ -25,23 +25,61 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
+/**
+ * @brief The BridgeAction class is to correspond with Dali::Accessibility::Action.
+ */
 class BridgeAction : public virtual BridgeBase
 {
 protected:
   BridgeAction() = default;
 
+  /**
+   * @brief Registers Action functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the Action object of the currently executed DBus method call.
+   *
+   * @return The Action object
+   */
   Dali::Accessibility::Action* FindSelf() const;
 
 public:
+  /**
+   * @copydoc Dali::Accessibility::Action::GetActionName()
+   */
   DBus::ValueOrError<std::string> GetActionName(int32_t index);
+
+  /**
+   * @copydoc Dali::Accessibility::Action::GetLocalizedActionName()
+   */
   DBus::ValueOrError<std::string> GetLocalizedActionName(int32_t index);
+
+  /**
+   * @copydoc Dali::Accessibility::Action::GetActionDescription()
+   */
   DBus::ValueOrError<std::string> GetActionDescription(int32_t index);
+
+  /**
+   * @copydoc Dali::Accessibility::Action::GetActionKeyBinding()
+   */
   DBus::ValueOrError<std::string> GetActionKeyBinding(int32_t index);
-  DBus::ValueOrError<int32_t>     GetActionCount();
-  DBus::ValueOrError<bool>        DoAction(int32_t index);
-  DBus::ValueOrError<bool>        DoActionName(std::string name);
+
+  /**
+   * @copydoc Dali::Accessibility::Action::GetActionCount()
+   */
+  DBus::ValueOrError<int32_t> GetActionCount();
+
+  /**
+   * @copydoc Dali::Accessibility::Action::DoAction()
+   */
+  DBus::ValueOrError<bool> DoAction(int32_t index);
+
+  /**
+   * @copydoc Dali::Accessibility::Action::DoAction()
+   */
+  DBus::ValueOrError<bool> DoActionName(std::string name);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACTION_H

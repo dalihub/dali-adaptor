@@ -79,18 +79,18 @@ DBus::ValueOrError<std::string, int, int> BridgeText::GetTextAtOffset(int32_t of
   return {range.content, static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
-DBus::ValueOrError<int, int> BridgeText::GetRangeOfSelection(int32_t selectionNum)
+DBus::ValueOrError<int, int> BridgeText::GetRangeOfSelection(int32_t selectionIndex)
 {
-  auto range = FindSelf()->GetRangeOfSelection(selectionNum);
+  auto range = FindSelf()->GetRangeOfSelection(selectionIndex);
   return {static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
-DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionNum)
+DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionIndex)
 {
-  return FindSelf()->RemoveSelection(selectionNum);
+  return FindSelf()->RemoveSelection(selectionIndex);
 }
 
-DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset)
+DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset)
 {
-  return FindSelf()->SetRangeOfSelection(selectionNum, startOffset, endOffset);
+  return FindSelf()->SetRangeOfSelection(selectionIndex, startOffset, endOffset);
 }

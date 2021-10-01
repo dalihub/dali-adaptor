@@ -26,6 +26,24 @@
 
 using namespace Dali::Accessibility;
 
+namespace
+{
+/**
+ * @brief Enumeration used for quering Accessibility objects.
+ *
+ * Refer to MatchType enumeration.
+ */
+enum class AtspiCollection
+{
+  MATCH_INVALID,
+  MATCH_ALL,
+  MATCH_ANY,
+  MATCH_NONE,
+  MATCH_EMPTY,
+  MATCH_LAST_DEFINED,
+};
+} // anonymous namespace
+
 void BridgeCollection::RegisterInterfaces()
 {
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceCollection};
@@ -45,20 +63,19 @@ Collection* BridgeCollection::FindSelf() const
   return collectionInterface;
 }
 
-enum
-{
-  ATSPI_Collection_MATCH_INVALID,
-  ATSPI_Collection_MATCH_ALL,
-  ATSPI_Collection_MATCH_ANY,
-  ATSPI_Collection_MATCH_NONE,
-  ATSPI_Collection_MATCH_EMPTY,
-  ATSPI_Collection_MATCH_LAST_DEFINED,
-};
-
+/**
+ * @brief The BridgeCollection::Comparer structure.
+ *
+ * Once the data is de-serialized by DBusWrapper, the data of match rule is passed
+ * to Comparer type which do the comparison against a single accessible object.
+ */
 struct BridgeCollection::Comparer
 {
   using Mode = MatchType;
 
+  /**
+   * @brief Enumeration to check the object is found first.
+   */
   enum class CompareFuncExit
   {
     FIRST_FOUND,
@@ -69,23 +86,23 @@ struct BridgeCollection::Comparer
   {
     switch(mode)
     {
-      case ATSPI_Collection_MATCH_INVALID:
+      case static_cast<int32_t>(AtspiCollection::MATCH_INVALID):
       {
         return Mode::INVALID;
       }
-      case ATSPI_Collection_MATCH_ALL:
+      case static_cast<int32_t>(AtspiCollection::MATCH_ALL):
       {
         return Mode::ALL;
       }
-      case ATSPI_Collection_MATCH_ANY:
+      case static_cast<int32_t>(AtspiCollection::MATCH_ANY):
       {
         return Mode::ANY;
       }
-      case ATSPI_Collection_MATCH_NONE:
+      case static_cast<int32_t>(AtspiCollection::MATCH_NONE):
       {
         return Mode::NONE;
       }
-      case ATSPI_Collection_MATCH_EMPTY:
+      case static_cast<int32_t>(AtspiCollection::MATCH_EMPTY):
       {
         return Mode::EMPTY;
       }
@@ -93,43 +110,46 @@ struct BridgeCollection::Comparer
     return Mode::INVALID;
   }
 
+  /**
+   * @brief The ComparerInterfaces structure
+   */
   struct ComparerInterfaces
   {
-    std::unordered_set<std::string> object;
-    std::vector<std::string>        requested;
-    Mode                            mode = Mode::INVALID;
+    std::unordered_set<std::string> mObject;
+    std::vector<std::string>        mRequested;
+    Mode                            mMode = Mode::INVALID;
 
     ComparerInterfaces(MatchRule* rule)
-    : mode(ConvertToMatchType(std::get<Index::InterfacesMatchType>(*rule)))
+    : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::INTERFACES_MATCH_TYPE)>(*rule)))
     {
-      requested = {std::get<Index::Interfaces>(*rule).begin(), std::get<Index::Interfaces>(*rule).end()};
+      mRequested = {std::get<static_cast<std::size_t>(Index::INTERFACES)>(*rule).begin(), std::get<static_cast<std::size_t>(Index::INTERFACES)>(*rule).end()};
     }
 
     void Update(Accessible* obj)
     {
-      object.clear();
+      mObject.clear();
       for(auto& interface : obj->GetInterfaces())
       {
-        object.insert(std::move(interface));
+        mObject.insert(std::move(interface));
       }
     }
 
-    bool RequestEmpty() const
+    bool IsRequestEmpty() const
     {
-      return requested.empty();
+      return mRequested.empty();
     }
 
-    bool ObjectEmpty() const
+    bool IsObjectEmpty() const
     {
-      return object.empty();
+      return mObject.empty();
     }
 
     bool Compare(CompareFuncExit exit)
     {
       bool foundAny = false;
-      for(auto& iname : requested)
+      for(auto& iname : mRequested)
       {
-        bool found = (object.find(iname) != object.end());
+        bool found = (mObject.find(iname) != mObject.end());
         if(found)
         {
           foundAny = true;
@@ -144,39 +164,43 @@ struct BridgeCollection::Comparer
     }
   }; // ComparerInterfaces struct
 
+  /**
+   * @brief The ComparerAttributes structure
+   */
   struct ComparerAttributes
   {
-    std::unordered_map<std::string, std::string> requested, object;
-    Mode                                         mode = Mode::INVALID;
+    std::unordered_map<std::string, std::string> mRequested;
+    std::unordered_map<std::string, std::string> mObject;
+    Mode                                         mMode = Mode::INVALID;
 
     ComparerAttributes(MatchRule* rule)
-    : mode(ConvertToMatchType(std::get<Index::AttributesMatchType>(*rule)))
+    : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::ATTRIBUTES_MATCH_TYPE)>(*rule)))
     {
-      requested = std::get<Index::Attributes>(*rule);
+      mRequested = std::get<static_cast<std::size_t>(Index::ATTRIBUTES)>(*rule);
     }
 
     void Update(Accessible* obj)
     {
-      object = obj->GetAttributes();
+      mObject = obj->GetAttributes();
     }
 
-    bool RequestEmpty() const
+    bool IsRequestEmpty() const
     {
-      return requested.empty();
+      return mRequested.empty();
     }
 
-    bool ObjectEmpty() const
+    bool IsObjectEmpty() const
     {
-      return object.empty();
+      return mObject.empty();
     }
 
     bool Compare(CompareFuncExit exit)
     {
       bool foundAny = false;
-      for(auto& iname : requested)
+      for(auto& iname : mRequested)
       {
-        auto it    = object.find(iname.first);
-        bool found = it != object.end() && iname.second == it->second;
+        auto it    = mObject.find(iname.first);
+        bool found = it != mObject.end() && iname.second == it->second;
         if(found)
         {
           foundAny = true;
@@ -191,38 +215,43 @@ struct BridgeCollection::Comparer
     }
   }; // ComparerAttributes struct
 
+  /**
+   * @brief The ComparerRoles structure
+   */
   struct ComparerRoles
   {
     using Roles = BitSets<4, Role>;
-    Roles requested, object;
-    Mode  mode = Mode::INVALID;
+
+    Roles mRequested;
+    Roles mObject;
+    Mode  mMode = Mode::INVALID;
 
     ComparerRoles(MatchRule* rule)
-    : mode(ConvertToMatchType(std::get<Index::RolesMatchType>(*rule)))
+    : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::ROLES_MATCH_TYPE)>(*rule)))
     {
-      requested = Roles{std::get<Index::Roles>(*rule)};
+      mRequested = Roles{std::get<static_cast<std::size_t>(Index::ROLES)>(*rule)};
     }
 
     void Update(Accessible* obj)
     {
-      object                 = {};
-      object[obj->GetRole()] = true;
-      assert(object);
+      mObject                 = {};
+      mObject[obj->GetRole()] = true;
+      assert(mObject);
     }
 
-    bool RequestEmpty() const
+    bool IsRequestEmpty() const
     {
-      return !requested;
+      return !mRequested;
     }
 
-    bool ObjectEmpty() const
+    bool IsObjectEmpty() const
     {
-      return !object;
+      return !mObject;
     }
 
     bool Compare(CompareFuncExit exit)
     {
-      switch(mode)
+      switch(mMode)
       {
         case Mode::INVALID:
         {
@@ -231,50 +260,54 @@ struct BridgeCollection::Comparer
         case Mode::EMPTY:
         case Mode::ALL:
         {
-          return requested == (object & requested);
+          return mRequested == (mObject & mRequested);
         }
         case Mode::ANY:
         {
-          return bool(object & requested);
+          return bool(mObject & mRequested);
         }
         case Mode::NONE:
         {
-          return bool(object & requested);
+          return bool(mObject & mRequested);
         }
       }
       return false;
     }
   }; // ComparerRoles struct
 
+  /**
+   * @brief The ComparerStates structure
+   */
   struct ComparerStates
   {
-    States requested, object;
-    Mode   mode = Mode::INVALID;
+    States mRequested;
+    States mObject;
+    Mode   mMode = Mode::INVALID;
 
     ComparerStates(MatchRule* rule)
-    : mode(ConvertToMatchType(std::get<Index::StatesMatchType>(*rule)))
+    : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::STATES_MATCH_TYPE)>(*rule)))
     {
-      requested = States{std::get<Index::States>(*rule)};
+      mRequested = States{std::get<static_cast<std::size_t>(Index::STATES)>(*rule)};
     }
 
     void Update(Accessible* obj)
     {
-      object = obj->GetStates();
+      mObject = obj->GetStates();
     }
 
-    bool RequestEmpty() const
+    bool IsRequestEmpty() const
     {
-      return !requested;
+      return !mRequested;
     }
 
-    bool ObjectEmpty() const
+    bool IsObjectEmpty() const
     {
-      return !object;
+      return !mObject;
     }
 
     bool Compare(CompareFuncExit exit)
     {
-      switch(mode)
+      switch(mMode)
       {
         case Mode::INVALID:
         {
@@ -283,15 +316,15 @@ struct BridgeCollection::Comparer
         case Mode::EMPTY:
         case Mode::ALL:
         {
-          return requested == (object & requested);
+          return mRequested == (mObject & mRequested);
         }
         case Mode::ANY:
         {
-          return bool(object & requested);
+          return bool(mObject & mRequested);
         }
         case Mode::NONE:
         {
-          return bool(object & requested);
+          return bool(mObject & mRequested);
         }
       }
       return false;
@@ -301,17 +334,17 @@ struct BridgeCollection::Comparer
   template<typename T>
   bool CompareFunc(T& cmp, Accessible* obj)
   {
-    if(cmp.mode == Mode::INVALID)
+    if(cmp.mMode == Mode::INVALID)
     {
       return true;
     }
 
     cmp.Update(obj);
-    switch(cmp.mode)
+    switch(cmp.mMode)
     {
       case Mode::ANY:
       {
-        if(cmp.RequestEmpty() || cmp.ObjectEmpty())
+        if(cmp.IsRequestEmpty() || cmp.IsObjectEmpty())
         {
           return false;
         }
@@ -319,11 +352,11 @@ struct BridgeCollection::Comparer
       }
       case Mode::ALL:
       {
-        if(cmp.RequestEmpty())
+        if(cmp.IsRequestEmpty())
         {
           return true;
         }
-        if(cmp.ObjectEmpty())
+        if(cmp.IsObjectEmpty())
         {
           return false;
         }
@@ -331,7 +364,7 @@ struct BridgeCollection::Comparer
       }
       case Mode::NONE:
       {
-        if(cmp.RequestEmpty() || cmp.ObjectEmpty())
+        if(cmp.IsRequestEmpty() || cmp.IsObjectEmpty())
         {
           return true;
         }
@@ -339,11 +372,11 @@ struct BridgeCollection::Comparer
       }
       case Mode::EMPTY:
       {
-        if(cmp.RequestEmpty() && cmp.ObjectEmpty())
+        if(cmp.IsRequestEmpty() && cmp.IsObjectEmpty())
         {
           return true;
         }
-        if(cmp.RequestEmpty() || cmp.ObjectEmpty())
+        if(cmp.IsRequestEmpty() || cmp.IsObjectEmpty())
         {
           return false;
         }
@@ -355,7 +388,7 @@ struct BridgeCollection::Comparer
       }
     }
 
-    switch(cmp.mode)
+    switch(cmp.mMode)
     {
       case Mode::EMPTY:
       case Mode::ALL:
@@ -387,7 +420,8 @@ struct BridgeCollection::Comparer
         return true;
       }
     }
-    switch(cmp.mode)
+
+    switch(cmp.mMode)
     {
       case Mode::EMPTY:
       case Mode::ALL:
@@ -407,43 +441,44 @@ struct BridgeCollection::Comparer
     return false;
   }
 
-  ComparerInterfaces interface;
-  ComparerAttributes attribute;
-  ComparerRoles      role;
-  ComparerStates     state;
-
-  Comparer(MatchRule* mr)
-  : interface(mr),
-    attribute(mr),
-    role(mr),
-    state(mr)
+  Comparer(MatchRule* rule)
+  : mInterface(rule),
+    mAttribute(rule),
+    mRole(rule),
+    mState(rule)
   {
   }
 
   bool operator()(Accessible* obj)
   {
-    return CompareFunc(interface, obj) &&
-           CompareFunc(attribute, obj) &&
-           CompareFunc(role, obj) &&
-           CompareFunc(state, obj);
+    return CompareFunc(mInterface, obj) &&
+           CompareFunc(mAttribute, obj) &&
+           CompareFunc(mRole, obj) &&
+           CompareFunc(mState, obj);
   }
+
+  ComparerInterfaces mInterface;
+  ComparerAttributes mAttribute;
+  ComparerRoles      mRole;
+  ComparerStates     mState;
 }; // BridgeCollection::Comparer struct
 
-void BridgeCollection::VisitNodes(Accessible* obj, std::vector<Accessible*>& result, Comparer& cmp, size_t maxCount)
+
+void BridgeCollection::VisitNodes(Accessible* obj, std::vector<Accessible*>& result, Comparer& comparer, size_t maxCount)
 {
   if(maxCount > 0 && result.size() >= maxCount)
   {
     return;
   }
 
-  if(cmp(obj))
+  if(comparer(obj))
   {
     result.emplace_back(obj);
   }
 
   for(auto i = 0u; i < obj->GetChildCount(); ++i)
   {
-    VisitNodes(obj->GetChildAtIndex(i), result, cmp, maxCount);
+    VisitNodes(obj->GetChildAtIndex(i), result, comparer, maxCount);
   }
 }
 
