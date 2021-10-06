@@ -222,10 +222,9 @@ private:
    *
    * @param[in] children Children accessible objects
    * @param start The start node // NEED TO UPDATE! It seems not to be used anywhere in this function.
-   * @param root The root node // NEED To UPDATE!
    * @return The valid children
    */
-  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start, Dali::Accessibility::Accessible* root);
+  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
 
   /**
    * @brief Gets the currently highlighted accessible.
@@ -254,11 +253,10 @@ private:
    *
    * @param obj The accessible object to find its non defunct sibling
    * @param start The start node
-   * @param root The root node
    * @param forward If forward is 1, then it navigates forward, otherwise backward.
    * @return The non defunct sibling accessible
    */
-  Dali::Accessibility::Accessible* GetNextNonDefunctSibling(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* start, Dali::Accessibility::Accessible* root, unsigned char forward);
+  Dali::Accessibility::Accessible* GetNextNonDefunctSibling(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* start, unsigned char forward);
 
   /**
    * @brief Gets Component object in relation.
