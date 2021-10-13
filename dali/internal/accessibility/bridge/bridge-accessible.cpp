@@ -354,6 +354,37 @@ static Accessible* GetDeputyOfProxyInParent(Accessible* obj)
   return nullptr;
 }
 
+static std::vector<Component*> GetScrollableParents(Accessible *accessible)
+{
+  std::vector<Component*> scrollableParents;
+
+  while(accessible)
+  {
+    accessible = accessible->GetParent();
+    auto component = dynamic_cast<Component*>(accessible);
+    if(component && component->IsScrollable())
+    {
+      scrollableParents.push_back(component);
+    }
+  }
+  return scrollableParents;
+}
+
+static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible *child, Accessible *start)
+{
+  auto scrollableParentsOfChild = GetScrollableParents(child);
+  auto scrollableParentsOfStart = GetScrollableParents(start);
+
+  // find the first different scrollable parent by comparing from top to bottom.
+  // since it can not be the same after that, there is no need to compare.
+  while(!scrollableParentsOfChild.empty() && !scrollableParentsOfStart.empty() && scrollableParentsOfChild.back() == scrollableParentsOfStart.back())
+  {
+    scrollableParentsOfChild.pop_back();
+    scrollableParentsOfStart.pop_back();
+   }
+
+  return scrollableParentsOfChild;
+}
 
 } // anonymous namespace
 
@@ -603,16 +634,32 @@ Accessible* BridgeAccessible::GetCurrentlyHighlighted()
   return nullptr;
 }
 
-std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start, Accessible* root)
+std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
 {
+  if(children.empty())
+  {
+    return children;
+  }
+
   std::vector<Component*> vec;
   std::vector<Accessible*> ret;
 
+  Dali::Rect<> scrollableParentExtents;
+  auto nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
+  if (!nonDuplicatedScrollableParents.empty())
+  {
+    scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);
+  }
+
   for(auto child : children)
   {
-    if(auto* component = dynamic_cast<Component*>(child); component)
+    auto* component = dynamic_cast<Component*>(child);
+    if(component)
     {
-      vec.push_back(component);
+      if(nonDuplicatedScrollableParents.empty() || scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
+      {
+        vec.push_back(component);
+      }
     }
   }
 
@@ -663,7 +710,7 @@ struct CycleDetection
   unsigned int mCounter;
 };
 
-Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessible* start, Accessible* root, unsigned char forward)
+Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessible* start, unsigned char forward)
 {
   if(!obj)
   {
@@ -676,7 +723,7 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
     return nullptr;
   }
 
-  auto children = GetValidChildren(parent->GetChildren(), start, root);
+  auto children = GetValidChildren(parent->GetChildren(), start);
 
   unsigned int childrenCount = children.size();
   if(childrenCount == 0)
@@ -703,7 +750,7 @@ Accessible* BridgeAccessible::FindNonDefunctSibling(bool& areAllChildrenVisited,
 {
   while(true)
   {
-    Accessible* sibling = GetNextNonDefunctSibling(node, start, root, forward);
+    Accessible* sibling = GetNextNonDefunctSibling(node, start, forward);
     if(sibling)
     {
       node                  = sibling;
@@ -790,7 +837,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     }
 
     auto children = node->GetChildren();
-    children      = GetValidChildren(children, start, root);
+    children      = GetValidChildren(children, start);
 
     // do accept:
     // 1. not start node
