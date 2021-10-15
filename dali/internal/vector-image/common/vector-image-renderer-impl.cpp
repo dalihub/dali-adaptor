@@ -22,9 +22,11 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/type-registry.h>
 
+#ifndef THORVG_SUPPORT
 // INTERNAL INCLUDES
 #include <third-party/nanosvg/nanosvg.h>
 #include <third-party/nanosvg/nanosvgrast.h>
+#endif
 
 namespace Dali
 {
@@ -57,14 +59,34 @@ VectorImageRendererPtr VectorImageRenderer::New()
 }
 
 VectorImageRenderer::VectorImageRenderer()
-: mPlugin(std::string()),
-  mParsedImage(nullptr),
+#ifdef THORVG_SUPPORT
+: mPicture(nullptr),
+  mDefaultWidth(0),
+  mDefaultHeight(0)
+#else
+: mParsedImage(nullptr),
   mRasterizer(nullptr)
+#endif
 {
 }
 
 VectorImageRenderer::~VectorImageRenderer()
 {
+#ifdef THORVG_SUPPORT
+
+  //NOTE: Initializer::term() will call clear() internally.
+  //However, due to the delete on mPicture, a crash occurs for the paint
+  //that has already been deleted in clear() of term().
+  //Therefore, it temporarily performs a non-free clear().
+  mSwCanvas->clear(false);
+
+  if(mPicture)
+  {
+    delete(mPicture);
+  }
+
+  tvg::Initializer::term(tvg::CanvasEngine::Sw);
+#else
   if(mParsedImage)
   {
     nsvgDelete(mParsedImage);
@@ -74,66 +96,154 @@ VectorImageRenderer::~VectorImageRenderer()
   {
     nsvgDeleteRasterizer(mRasterizer);
   }
+#endif
 }
 
 void VectorImageRenderer::Initialize()
 {
-  if(!mPlugin.IsValid())
-  {
-    mRasterizer = nsvgCreateRasterizer();
-  }
+#ifdef THORVG_SUPPORT
+  tvg::Initializer::init(tvg::CanvasEngine::Sw, 0);
+
+  mSwCanvas = tvg::SwCanvas::gen();
+  mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
+  mSwCanvas->reserve(1);  //has one picture
+#else
+  mRasterizer = nsvgCreateRasterizer();
+#endif
 }
 
 bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 {
-  if(mPlugin.IsValid())
+#ifdef THORVG_SUPPORT
+  if(!mSwCanvas)
   {
-    return mPlugin.Load(data);
+    DALI_LOG_ERROR("VectorImageRenderer::Load Canvas Object is null [%p]\n", this);
+    return false;
   }
-  else
+
+  if(!mPicture)
   {
-    mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
-    if(!mParsedImage || !mParsedImage->shapes)
+    mPicture = tvg::Picture::gen().release();
+    if(!mPicture)
     {
-      DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
+      DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
       return false;
     }
-    return true;
   }
+
+  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), false);
+
+  if(ret != tvg::Result::Success)
+  {
+    switch (ret)
+    {
+      case tvg::Result::InvalidArguments:
+      {
+        DALI_LOG_ERROR("VectorImageRenderer::Load Load fail(Invalid arguments) Size:%d [%p]\n", data.Size(), this);
+        break;
+      }
+      case tvg::Result::NonSupport:
+      {
+        DALI_LOG_ERROR("VectorImageRenderer::Load Load fail(Invalid SVG) Size:%d [%p]\n", data.Size(), this);
+        break;
+      }
+      case tvg::Result::Unknown:
+      {
+        DALI_LOG_ERROR("VectorImageRenderer::Load Load fail(Parse fail) Size:%d [%p]\n", data.Size(), this);
+        break;
+      }
+      default:
+      {
+        DALI_LOG_ERROR("VectorImageRenderer::Load Load fail / Size:%d [%p]\n", data.Size(), this);
+        break;
+      }
+    }
+    return false;
+  }
+
+  float w, h;
+  mPicture->size(&w, &h);
+  mDefaultWidth = static_cast<uint32_t>(w);
+  mDefaultHeight = static_cast<uint32_t>(h);
+
+  return true;
+#else
+  mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
+  if(!mParsedImage || !mParsedImage->shapes)
+  {
+    DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
+    return false;
+  }
+  return true;
+#endif
 }
 
 bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
 {
-  if(mPlugin.IsValid())
+#ifdef THORVG_SUPPORT
+  if(!mSwCanvas || !mPicture)
   {
-    return mPlugin.Rasterize(buffer);
-  }
-  else
-  {
-    if(mParsedImage != nullptr)
-    {
-      int stride = buffer.GetWidth() * Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
-      nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, buffer.GetBuffer(), buffer.GetWidth(), buffer.GetHeight(), stride);
-      return true;
-    }
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: either Canvas[%p] or Picture[%p] is invalid [%p]\n", mSwCanvas.get(), mPicture, this);
     return false;
   }
+
+  mSwCanvas->clear(false);
+
+  auto pBuffer = buffer.GetBuffer();
+  if(!pBuffer)
+  {
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: pixel buffer is null [%p]\n", this);
+    return false;
+  }
+
+  auto width = buffer.GetWidth();
+  auto height = buffer.GetHeight();
+
+  mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::SwCanvas::ABGR8888);
+
+  DALI_LOG_RELEASE_INFO("VectorImageRenderer::Rasterize: Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
+
+  mPicture->size(width, height);
+
+  /* We can push everytime since we cleared the canvas just before. */
+  if(mSwCanvas->push(std::unique_ptr<tvg::Picture>(mPicture)) != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Picture push fail [%p]\n", this);
+    return false;
+  }
+
+  if(mSwCanvas->draw() != tvg::Result::Success)
+  {
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail [%p]\n", this);
+    return false;
+  }
+
+  mSwCanvas->sync();
+
+  return true;
+#else
+  if(mParsedImage != nullptr)
+  {
+    int stride = buffer.GetWidth() * Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
+    nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, buffer.GetBuffer(), buffer.GetWidth(), buffer.GetHeight(), stride);
+    return true;
+  }
+  return false;
+#endif
 }
 
 void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-  if(mPlugin.IsValid())
+#ifdef THORVG_SUPPORT
+  width = mDefaultWidth;
+  height = mDefaultHeight;
+#else
+  if(mParsedImage)
   {
-    mPlugin.GetDefaultSize(width, height);
+    width  = mParsedImage->width;
+    height = mParsedImage->height;
   }
-  else
-  {
-    if(mParsedImage)
-    {
-      width  = mParsedImage->width;
-      height = mParsedImage->height;
-    }
-  }
+#endif
 }
 
 } // namespace Adaptor
