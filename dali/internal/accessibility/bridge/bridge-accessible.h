@@ -221,10 +221,18 @@ private:
    * @brief Gets valid children accessible.
    *
    * @param[in] children Children accessible objects
-   * @param start The start node // NEED TO UPDATE! It seems not to be used anywhere in this function.
+   * @param start The start node
    * @return The valid children
    */
-  std::vector<Dali::Accessibility::Accessible*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
+  std::vector<Dali::Accessibility::Component*> GetValidChildren(const std::vector<Dali::Accessibility::Accessible*>& children, Dali::Accessibility::Accessible* start);
+
+  /**
+   * @brief Sorts children accessible based on the coordinates from top-left to bottom-right.
+   *
+   * @param[in,out] children Children accessible objects
+   * @return The sorted children
+   */
+  void SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children);
 
   /**
    * @brief Gets the currently highlighted accessible.

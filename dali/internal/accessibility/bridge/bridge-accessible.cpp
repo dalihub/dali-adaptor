@@ -52,8 +52,8 @@ bool SortHorizontally(Component* lhs, Component* rhs)
 std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& children)
 {
   // Find first with non-zero area
-  auto first = std::find_if(children.begin(), children.end(), [](Component* component) -> bool {
-    auto extents = component->GetExtents(CoordinateType::WINDOW);
+  auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool {
+    auto extents = child->GetExtents(CoordinateType::WINDOW);
     return extents.height != 0.0f && extents.width != 0.0f;
   });
 
@@ -78,7 +78,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
       continue;
     }
 
-    if(lineRect.y + (0.25 * lineRect.height) >= rect.y)
+    if(lineRect.y + (0.5 * lineRect.height) >= rect.y + (0.5 * rect.height))
     {
       // Same line
       lines.back().push_back(child);
@@ -294,7 +294,7 @@ static bool IsRoleAcceptableWhenNavigatingNextPrev(Accessible* obj)
   return role != Role::POPUP_MENU && role != Role::DIALOG;
 }
 
-static Accessible* FindNonDefunctChild(const std::vector<Accessible*>& children, unsigned int currentIndex, unsigned char forward)
+static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, unsigned int currentIndex, unsigned char forward)
 {
   unsigned int childrenCount = children.size();
   for(; currentIndex < childrenCount; forward ? ++currentIndex : --currentIndex)
@@ -309,7 +309,7 @@ static Accessible* FindNonDefunctChild(const std::vector<Accessible*>& children,
 }
 
 // The auxiliary method for Depth-First Search (DFS) algorithm to find non defunct child directionally
-static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Accessible*>& children, unsigned char forward)
+static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Component*>& children, unsigned char forward)
 {
   if(!node)
   {
@@ -634,15 +634,14 @@ Accessible* BridgeAccessible::GetCurrentlyHighlighted()
   return nullptr;
 }
 
-std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
+std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
 {
   if(children.empty())
   {
-    return children;
+    return {};
   }
 
   std::vector<Component*> vec;
-  std::vector<Accessible*> ret;
 
   Dali::Rect<> scrollableParentExtents;
   auto nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
@@ -663,15 +662,27 @@ std::vector<Accessible*> BridgeAccessible::GetValidChildren(const std::vector<Ac
     }
   }
 
-  std::sort(vec.begin(), vec.end(), &SortVertically);
+  return vec;
+}
 
-  for(auto& line : SplitLines(vec))
+void BridgeAccessible::SortChildrenFromTopLeft(std::vector<Dali::Accessibility::Component*>& children)
+{
+  if(children.empty())
   {
-    std::sort(line.begin(), line.end(), &SortHorizontally);
-    ret.insert(ret.end(), line.begin(), line.end());
+    return;
   }
 
-  return ret;
+  std::vector<Component*> sortedChildren;
+
+  std::sort(children.begin(), children.end(), &SortVertically);
+
+  for(auto& line : SplitLines(children))
+  {
+    std::sort(line.begin(), line.end(), &SortHorizontally);
+    sortedChildren.insert(sortedChildren.end(), line.begin(), line.end());
+  }
+
+  children = sortedChildren;
 }
 
 
@@ -724,6 +735,7 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
   }
 
   auto children = GetValidChildren(parent->GetChildren(), start);
+  SortChildrenFromTopLeft(children);
 
   unsigned int childrenCount = children.size();
   if(childrenCount == 0)
@@ -836,8 +848,8 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
       return node;
     }
 
-    auto children = node->GetChildren();
-    children      = GetValidChildren(children, start);
+    auto children = GetValidChildren(node->GetChildren(), start);
+    SortChildrenFromTopLeft(children);
 
     // do accept:
     // 1. not start node
