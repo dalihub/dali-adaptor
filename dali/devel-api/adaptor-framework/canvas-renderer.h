@@ -20,9 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
+#include <dali/public-api/rendering/texture.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -121,11 +121,11 @@ public:
   bool RemoveAllDrawables();
 
   /**
-   * @brief Returns the PixelBuffer, which is the Render buffer of Canvas.
+   * @brief Returns the rasterized texture.
    *
-   * @return Returns the pixel buffer.
+   * @return Returns the texture.
    */
-  Devel::PixelBuffer GetPixelBuffer();
+  Dali::Texture GetRasterizedTexture();
 
   /**
    * @brief Draw drawables added to CanvasRenderer to inner buffer.
