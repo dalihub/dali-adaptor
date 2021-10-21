@@ -35,16 +35,16 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   switch(level)
   {
     case Dali::Integration::Log::DebugInfo:
-      LOG(LOG_INFO, DALI_TAG, "%s", message.c_str());
+      print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
       break;
     case Dali::Integration::Log::DebugWarning:
-      LOG(LOG_WARN, DALI_TAG, "%s", message.c_str());
+      print_log(DLOG_WARN, DALI_TAG, "%s", message.c_str());
       break;
     case Dali::Integration::Log::DebugError:
-      LOG(LOG_ERROR, DALI_TAG, "%s", message.c_str());
+      print_log(DLOG_ERROR, DALI_TAG, "%s", message.c_str());
       break;
     default:
-      LOG(LOG_DEFAULT, DALI_TAG, "%s", message.c_str());
+      print_log(DLOG_DEFAULT, DALI_TAG, "%s", message.c_str());
       break;
   }
 #pragma GCC diagnostic pop
