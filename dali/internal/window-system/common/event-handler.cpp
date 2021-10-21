@@ -283,6 +283,13 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     return;
   }
 
+  if( !(info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) && accessibilityAdaptor->IsForcedEnable() )
+  {
+    // When other apps, which are not implemented by DALi, are on top of Apps application,
+    // no event should be occurred on Apps because it's disabled by force already.
+    return;
+  }
+
   // When gesture is ONE_FINGER_SINGLE_TAP, the gesture value is 15.
   // When the state is aborted, the state of accessibility info is 3.
   if( info.gestureValue == 15 && info.state == 3 )
