@@ -21,7 +21,9 @@
 
 #include <memory>
 
+#if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
+#endif
 
 namespace Dali::TextAbstraction::Internal
 {
