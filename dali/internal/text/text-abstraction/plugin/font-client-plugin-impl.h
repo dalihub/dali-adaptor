@@ -35,7 +35,6 @@ class VectorFontCache;
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-#include FT_OUTLINE_H
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 
@@ -461,17 +460,6 @@ private:
   bool MatchFontDescriptionToPattern(_FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, _FcCharSet** characterSet);
 
   /**
-   * @brief Creates a font family pattern used to match fonts.
-   *
-   * @note Need to call FcPatternDestroy to free the resources.
-   *
-   * @param[in] fontDescription The font to cache.
-   *
-   * @return The pattern.
-   */
-  _FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription) const;
-
-  /**
    * @brief Retrieves the fonts present in the platform.
    *
    * @note Need to call FcFontSetDestroy to free the allocated resources.
@@ -516,25 +504,6 @@ private:
                     PointSize26Dot6 requestedPointSize,
                     FaceIndex       faceIndex,
                     bool            cacheDescription);
-
-  /**
-   * @brief Copy the color bitmap given in @p srcBuffer to @p data.
-   *
-   * @param[out] data The bitmap data.
-   * @param[in] srcWidth The width of the bitmap.
-   * @param[in] srcHeight The height of the bitmap.
-   * @param[in] srcBuffer The buffer of the bitmap.
-   */
-  void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer);
-
-  /**
-   * @brief Copy the FreeType bitmap to the given buffer.
-   *
-   * @param[out] data The bitmap data.
-   * @param[in] srcBitmap The FreeType bitmap.
-   * @param[in] isShearRequired Whether the bitmap needs a shear transform (for software italics).
-   */
-  void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap, bool isShearRequired);
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
@@ -625,17 +594,6 @@ private:
    * @param[in] path Path to the font file name.
    */
   void CacheFontPath(FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize, const FontPath& path);
-
-  /**
-   * @brief Creates a character set from a given font's @p description.
-   *
-   * @note Need to call FcCharSetDestroy to free the resources.
-   *
-   * @param[in] description The font's description.
-   *
-   * @return A character set.
-   */
-  _FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description);
 
   /**
    * @brief Free the resources allocated in the fallback cache.
