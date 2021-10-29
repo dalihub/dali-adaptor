@@ -23,12 +23,10 @@
 #include <dali/public-api/object/type-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-impl.h>
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
 #include <dali/internal/canvas-renderer/common/shape-impl.h>
-#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
 namespace Dali
 {
@@ -56,11 +54,11 @@ CanvasRendererTizen* CanvasRendererTizen::New(const Vector2& viewBox)
 CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
 :
 #ifdef THORVG_SUPPORT
-  mPixelBuffer(nullptr),
   mRasterizedTexture(),
   mMutex(),
   mTvgCanvas(nullptr),
   mTvgRoot(nullptr),
+  mNativeImageQueue(nullptr),
 #endif
   mSize(Vector2::ZERO),
   mViewBox(Vector2::ZERO),
@@ -126,11 +124,8 @@ bool CanvasRendererTizen::Commit()
   }
   else
   {
-    if(!mPixelBuffer || !mPixelBuffer.GetBuffer())
-    {
-      MakeTargetBuffer(mSize);
-      mChanged = false;
-    }
+    MakeTargetBuffer(mSize);
+    mChanged = false;
   }
 
   if(mTvgCanvas->clear() != tvg::Result::Success)
@@ -168,25 +163,18 @@ bool CanvasRendererTizen::Commit()
 Dali::Texture CanvasRendererTizen::GetRasterizedTexture()
 {
 #ifdef THORVG_SUPPORT
-  if(mPixelBuffer)
+  if(mNativeImageQueue)
   {
-    auto width  = mPixelBuffer.GetWidth();
-    auto height = mPixelBuffer.GetHeight();
-    if(width <= 0 || height <= 0)
+    if(!mRasterizedTexture)
     {
-      return Dali::Texture();
+      mRasterizedTexture = Dali::Texture::New(*mNativeImageQueue);
     }
-
-    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(mPixelBuffer);
-
-    if(!mRasterizedTexture || mRasterizedTexture.GetWidth() != width || mRasterizedTexture.GetHeight() != height)
-    {
-      mRasterizedTexture = Dali::Texture::New(Dali::TextureType::TEXTURE_2D, Dali::Pixel::BGRA8888, width, height);
-    }
-
-    mRasterizedTexture.Upload(pixelData);
+    return mRasterizedTexture;
   }
-  return mRasterizedTexture;
+  else
+  {
+    return Dali::Texture();
+  }
 #else
   return Dali::Texture();
 #endif
@@ -336,13 +324,33 @@ bool CanvasRendererTizen::Rasterize()
 #ifdef THORVG_SUPPORT
   Mutex::ScopedLock lock(mMutex);
 
-  if(mTvgCanvas->draw() != tvg::Result::Success)
+  if(mNativeImageQueue && mNativeImageQueue->CanDequeueBuffer())
   {
-    DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
+    uint32_t width, height, stride;
+    uint8_t* buffer = mNativeImageQueue->DequeueBuffer(width, height, stride);
+    if(!buffer)
+    {
+      DALI_LOG_ERROR("Pixel buffer create to fail [%p]\n", this);
+      return false;
+    }
+
+    mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), width, width, height, tvg::SwCanvas::ARGB8888);
+
+    if(mTvgCanvas->draw() != tvg::Result::Success)
+    {
+      DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
+      mNativeImageQueue->EnqueueBuffer(buffer);
+      return false;
+    }
+
+    mTvgCanvas->sync();
+
+    mNativeImageQueue->EnqueueBuffer(buffer);
+  }
+  else
+  {
     return false;
   }
-
-  mTvgCanvas->sync();
 
   return true;
 #else
@@ -432,18 +440,14 @@ const Vector2& CanvasRendererTizen::GetViewBox()
 void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
 {
 #ifdef THORVG_SUPPORT
-  mPixelBuffer = Devel::PixelBuffer::New(size.width, size.height, Dali::Pixel::BGRA8888);
-
-  unsigned char* pBuffer;
-  pBuffer = mPixelBuffer.GetBuffer();
-
-  if(!pBuffer)
+  if(!mNativeImageQueue)
   {
-    DALI_LOG_ERROR("Pixel buffer create to fail [%p]\n", this);
-    return;
+    mNativeImageQueue = Dali::NativeImageSourceQueue::New(size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::RGBA8888);
   }
-
-  mTvgCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), size.width, size.width, size.height, tvg::SwCanvas::ARGB8888);
+  else if(size.width != mSize.width || size.height != mSize.height)
+  {
+    mNativeImageQueue->SetSize(static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height));
+  }
 #endif
 }
 
