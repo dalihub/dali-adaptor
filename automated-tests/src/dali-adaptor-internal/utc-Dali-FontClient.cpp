@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <iostream>
 
 using namespace Dali;
 
@@ -344,5 +345,123 @@ int UtcDaliFontClientTextAtlasConstants(void)
   uint32_t numberOfPointsPerOneUnitOfPointSize = fontClient.GetNumberOfPointsPerOneUnitOfPointSize();
   DALI_TEST_EQUALS(numberOfPointsPerOneUnitOfPointSize, TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE, TEST_LOCATION);
 
+  END_TEST;
+}
+
+using namespace Dali::TextAbstraction;
+
+int UtcDaliFontClientGetDefaultFonts(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetDefaultFonts ");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontList fontList;
+  fontClient.GetDefaultFonts(fontList);
+
+  std::ostringstream oss;
+  oss << fontList << std::endl;
+
+  tet_printf("FontList: %s", oss.str().c_str());
+  DALI_TEST_CHECK(fontList.size() > 0);
+
+  END_TEST;
+}
+
+int UtcDaliFontClientGetSystemFonts(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetSystemFonts ");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontList fontList;
+  fontClient.GetSystemFonts(fontList);
+
+  std::ostringstream oss;
+  oss << fontList << std::endl;
+
+  tet_printf("FontList: %s", oss.str().c_str());
+  DALI_TEST_CHECK(fontList.size() > 0);
+
+  const PointSize26Dot6 pointSize = fontClient.GetPointSize(fontList.size());
+  DALI_TEST_EQUALS(pointSize, FontClient::DEFAULT_POINT_SIZE, TEST_LOCATION);
+
+  END_TEST;
+}
+
+std::ostream& operator<<(std::ostream& o, const FontDescription& description)
+{
+  o << "Font path: " << description.path << " family: "
+    << " width : " << description.width << " weight : " << description.weight << " slant : " << description.slant << std::endl;
+  return o;
+}
+
+int UtcDaliFontClientFindFallbackFont(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientFindFallbackFont ");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontList fontList;
+  fontClient.GetSystemFonts(fontList);
+  DALI_TEST_CHECK(fontList.size() > 0);
+
+  const std::string emptyString;
+  FontDescription   fontDescription;
+  fontDescription.width  = FontWidth::NORMAL;
+  fontDescription.weight = FontWeight::NORMAL;
+  fontDescription.slant  = FontSlant::NORMAL;
+  fontDescription.type   = FontDescription::BITMAP_FONT;
+
+  std::ostringstream oss;
+  oss << fontDescription;
+  tet_printf("Looking for: %s", oss.str().c_str());
+
+  FontId fontId = fontClient.FindFallbackFont('A',
+                                              fontDescription,
+                                              FontClient::DEFAULT_POINT_SIZE,
+                                              true);
+  DALI_TEST_CHECK(fontId != 0);
+
+  fontClient.GetDescription(fontId, fontDescription);
+  oss.clear();
+  oss << fontDescription;
+  tet_printf("Found: %d: %s", fontId, oss.str().c_str());
+
+  bool color = fontClient.IsColorGlyph(fontId, fontClient.GetGlyphIndex(fontId, 'A'));
+  DALI_TEST_CHECK(color || 1);
+  END_TEST;
+}
+
+int UtcDaliFontClientGetDefaultPlatformFontDescription(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetDefaultPlatformFontDescription");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontDescription fontDescription;
+  fontClient.GetDefaultPlatformFontDescription(fontDescription);
+
+  std::ostringstream oss;
+  oss << fontDescription;
+  tet_printf("%s", oss.str().c_str());
+
+  DALI_TEST_CHECK(fontDescription.path.empty() == false);
+
+  FontId fontId = fontClient.FindFallbackFont('A',
+                                              fontDescription,
+                                              FontClient::DEFAULT_POINT_SIZE,
+                                              true);
+
+  bool supported = fontClient.IsCharacterSupportedByFont(fontId, 'A');
+  DALI_TEST_EQUALS(supported, true, TEST_LOCATION);
   END_TEST;
 }
