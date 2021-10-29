@@ -20,7 +20,7 @@
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
-#include <dali/internal/text/text-abstraction/font-client-helper.h>
+#include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
