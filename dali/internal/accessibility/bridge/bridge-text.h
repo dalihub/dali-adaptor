@@ -21,24 +21,66 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
+/**
+ * @brief The BridgeText class is to correspond with Dali::Accessibility::Text.
+ */
 class BridgeText : public virtual BridgeBase
 {
 protected:
   BridgeText() = default;
 
+  /**
+   * @brief Registers Text functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the Text object of the currently executed DBus method call.
+   *
+   * @return The Text object
+   */
   Dali::Accessibility::Text* FindSelf() const;
 
 public:
-  DBus::ValueOrError<std::string>           GetText(int startOffset, int endOffset);
-  DBus::ValueOrError<int32_t>               GetCharacterCount();
-  DBus::ValueOrError<int32_t>               GetCursorOffset();
-  DBus::ValueOrError<bool>                  SetCursorOffset(int32_t offset);
+  /**
+   * @copydoc Dali::Accessibility::Text::GetText()
+   */
+  DBus::ValueOrError<std::string> GetText(int startOffset, int endOffset);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::GetCharacterCount()
+   */
+  DBus::ValueOrError<int32_t> GetCharacterCount();
+
+  /**
+   * @copydoc Dali::Accessibility::Text::GetCursorOffset()
+   */
+  DBus::ValueOrError<int32_t> GetCursorOffset();
+
+  /**
+   * @copydoc Dali::Accessibility::Text::SetCursorOffset()
+   */
+  DBus::ValueOrError<bool> SetCursorOffset(int32_t offset);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::GetTextAtOffset()
+   */
   DBus::ValueOrError<std::string, int, int> GetTextAtOffset(int32_t offset, uint32_t boundary);
-  DBus::ValueOrError<int, int>              GetRangeOfSelection(int32_t selectionNum);
-  DBus::ValueOrError<bool>                  RemoveSelection(int32_t selectionNum);
-  DBus::ValueOrError<bool>                  SetRangeOfSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::GetRangeOfSelection()
+   */
+  DBus::ValueOrError<int, int> GetRangeOfSelection(int32_t selectionIndex);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::RemoveSelection()
+   */
+  DBus::ValueOrError<bool> RemoveSelection(int32_t selectionIndex);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::SetRangeOfSelection()
+   */
+  DBus::ValueOrError<bool> SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_TEXT_H

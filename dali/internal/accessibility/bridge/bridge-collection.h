@@ -27,20 +27,54 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
+/**
+ * @brief The BridgeCollection class is to correspond with Dali::Accessibility::Collection.
+ *
+ * Collection interface is designed to allow AT-Clients to query the tree of accessibility objects
+ * exposed by an application with a single dbus call.
+ * The query takes as an input a match rule and returns zero or more matching accessibility objects as a result.
+ *
+ * A match rule can be a combination of at least one of four criteria :
+ *  Interface, Attribute, Role, State
+ *
+ * If more than one criteria is specified, the matching rule combines them using "AND" semantics.
+ */
 class BridgeCollection : public virtual BridgeBase
 {
 private:
   struct Comparer;
-  static void VisitNodes(Dali::Accessibility::Accessible* obj, std::vector<Dali::Accessibility::Accessible*>& result, Comparer& cmp, size_t maxCount);
+
+  /**
+   * @brief Visits all nodes of Accessible object and pushes the object to 'result' container.
+   *
+   * To query the entire tree, the BridgeCollection::Comparer is used inside this method,
+   * which traverse the tree using GetChildAtIndex().
+   * @param[in] obj The Accessible object to search
+   * @param[out] result The vector container for result
+   * @param[in] comparer BridgeCollection::Comparer which do the comparison against a single accessible object
+   * @param[in] maxCount The maximum count of containing Accessible object
+   */
+  static void VisitNodes(Dali::Accessibility::Accessible* obj, std::vector<Dali::Accessibility::Accessible*>& result, Comparer& comparer, size_t maxCount);
 
 protected:
   BridgeCollection() = default;
 
+  /**
+   * @brief Registers Collection functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the Collection object of the currently executed DBus method call.
+   *
+   * @return The Collection object
+   */
   Dali::Accessibility::Collection* FindSelf() const;
 
 public:
+  /**
+   * MatchRule type is a tuple that only carries data of de-serialized parameter from BridgeCollection::GetMatches dbus method.
+   */
   using MatchRule = std::tuple<
     std::array<int32_t, 2>,
     int32_t,
@@ -51,21 +85,31 @@ public:
     std::vector<std::string>,
     int32_t,
     bool>;
-  struct Index
+
+  /**
+   * @brief Enumeration for Collection Index.
+   */
+  enum class Index
   {
-    enum
-    {
-      States,
-      StatesMatchType,
-      Attributes,
-      AttributesMatchType,
-      Roles,
-      RolesMatchType,
-      Interfaces,
-      InterfacesMatchType,
-    };
+    STATES,
+    STATES_MATCH_TYPE,
+    ATTRIBUTES,
+    ATTRIBUTES_MATCH_TYPE,
+    ROLES,
+    ROLES_MATCH_TYPE,
+    INTERFACES,
+    INTERFACES_MATCH_TYPE,
   };
 
+  /**
+   * @brief Gets the matching Accessible objects with MatchRule.
+   *
+   * @param[in] rule BridgeCollection::MatchRule
+   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
+   * @param[in] count The maximum number of objects
+   * @param[in] traverse True if it is traverse, otherwise false.
+   * @return The matching Accessible objects
+   */
   DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatches(MatchRule rule, uint32_t sortBy, int32_t count, bool traverse);
 };
 

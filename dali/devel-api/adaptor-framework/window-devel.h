@@ -353,6 +353,29 @@ DALI_ADAPTOR_API void IncludeInputRegion(Window window, const Rect<int>& inputRe
  */
 DALI_ADAPTOR_API void ExcludeInputRegion(Window window, const Rect<int>& inputRegion);
 
+/**
+ * @brief Sets the necessary for window rotation Acknowledgement.
+ * After this function called, SendRotationCompletedAcknowledgement() should be called to complete window rotation.
+ *
+ * This function is supprot that application has the window rotation acknowledgement's control.
+ * It means display server waits when application's rotation work is finished.
+ * It is useful application has the other rendering engine which works asynchronous.
+ * For instance, GlView.
+ * It only works on Tizen device.
+ *
+ * @param[in] window The window instance.
+ * @param[in] needAcknowledgement the flag is true if window rotation acknowledge is sent.
+ */
+DALI_ADAPTOR_API void SetNeedsRotationCompletedAcknowledgement(Window window, bool needAcknowledgement);
+
+/**
+ * @brief send the Acknowledgement to complete window rotation.
+ * For this function, SetNeedsRotationCompletedAcknowledgement should be already called with true.
+ *
+ * @param[in] window The window instance.
+ */
+DALI_ADAPTOR_API void SendRotationCompletedAcknowledgement(Window window);
+
 } // namespace DevelWindow
 
 } // namespace Dali

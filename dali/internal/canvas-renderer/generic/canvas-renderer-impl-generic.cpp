@@ -60,9 +60,9 @@ bool CanvasRendererGeneric::Commit()
   return false;
 }
 
-Devel::PixelBuffer CanvasRendererGeneric::GetPixelBuffer()
+Dali::Texture CanvasRendererGeneric::GetRasterizedTexture()
 {
-  return Devel::PixelBuffer();
+  return Dali::Texture();
 }
 
 bool CanvasRendererGeneric::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)

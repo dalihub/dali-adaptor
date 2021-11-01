@@ -34,34 +34,41 @@ void BridgeValue::RegisterInterfaces()
   AddGetPropertyToInterface(desc, "MaximumValue", &BridgeValue::GetMaximumValue);
   AddGetPropertyToInterface(desc, "MinimumIncrement", &BridgeValue::GetMinimumIncrement);
   AddGetPropertyToInterface(desc, "MinimumValue", &BridgeValue::GetMinimumValue);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Value* BridgeValue::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<Value*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Value interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto valueInterface = dynamic_cast<Value*>(self);
+  if(!valueInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Value interface"};
+  }
+  return valueInterface;
 }
+
 double BridgeValue::GetCurrentValue()
 {
   return FindSelf()->GetCurrent();
 }
-void BridgeValue::SetCurrentValue(double new_value)
+
+void BridgeValue::SetCurrentValue(double newValue)
 {
-  FindSelf()->SetCurrent(new_value);
+  FindSelf()->SetCurrent(newValue);
 }
+
 double BridgeValue::GetMaximumValue()
 {
   return FindSelf()->GetMaximum();
 }
+
 double BridgeValue::GetMinimumIncrement()
 {
   return FindSelf()->GetMinimumIncrement();
 }
+
 double BridgeValue::GetMinimumValue()
 {
   return FindSelf()->GetMinimum();

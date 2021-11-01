@@ -20,11 +20,11 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
+#include <dali/public-api/rendering/texture.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -54,9 +54,9 @@ public:
   virtual bool Commit();
 
   /**
-   * @copydoc Dali::CanvasRenderer::GetPixelBuffer()
+   * @copydoc Dali::CanvasRenderer::GetRasterizedTexture()
    */
-  virtual Devel::PixelBuffer GetPixelBuffer();
+  virtual Dali::Texture GetRasterizedTexture();
 
   /**
    * @copydoc Dali::CanvasRenderer::AddDrawable()

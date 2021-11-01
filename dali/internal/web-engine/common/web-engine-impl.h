@@ -72,7 +72,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetNativeImageSource()
    */
-  Dali::NativeImageInterfacePtr GetNativeImageSource();
+  Dali::NativeImageSourcePtr GetNativeImageSource();
 
   /**
    * @copydoc Dali::WebEngine::GetSettings()

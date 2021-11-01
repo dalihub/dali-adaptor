@@ -28,20 +28,53 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
+/**
+ * @brief The BridgeValue class is to correspond with Dali::Accessibility::Value.
+ */
 class BridgeValue : public virtual BridgeBase
 {
 protected:
+  /**
+   * @brief Constructor.
+   */
   BridgeValue();
 
+  /**
+   * @brief Registers Value functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns Value Action object of the currently executed DBus method call.
+   *
+   * @return The Value object
+   */
   Dali::Accessibility::Value* FindSelf() const;
 
 public:
+  /**
+   * @copydoc Dali::Accessibility::Value::GetCurrent()
+   */
   double GetCurrentValue();
-  void   SetCurrentValue(double new_value);
+
+  /**
+   * @copydoc Dali::Accessibility::Value::SetCurrent()
+   */
+  void SetCurrentValue(double newValue);
+
+  /**
+   * @copydoc Dali::Accessibility::Value::GetMaximum()
+   */
   double GetMaximumValue();
+
+  /**
+   * @copydoc Dali::Accessibility::Value::GetMinimumIncrement()
+   */
   double GetMinimumIncrement();
+
+  /**
+   * @copydoc Dali::Accessibility::Value::GetMinimum()
+   */
   double GetMinimumValue();
 };
 

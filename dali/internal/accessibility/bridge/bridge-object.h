@@ -28,23 +28,64 @@
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 #include <dali/public-api/math/rect.h>
 
+/**
+ * @brief The BridgeObject class is to correspond with Dali::Accessibility::Bridge.
+ */
 class BridgeObject : public virtual BridgeBase
 {
 protected:
+  /**
+   * @brief Constructor.
+   */
   BridgeObject();
 
+  /**
+   * @brief Registers Bridge functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
-  DBus::DBusInterfaceDescription::SignalId stateChanged;
-
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitActiveDescendantChanged()
+   */
   void EmitActiveDescendantChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::Accessible* child) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitCursorMoved()
+   */
   void EmitCursorMoved(Dali::Accessibility::Accessible* obj, unsigned int cursorPosition) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitTextChanged()
+   */
   void EmitTextChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::TextChangedState state, unsigned int position, unsigned int length, const std::string& content) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitStateChanged()
+   */
   void EmitStateChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::State state, int newValue, int reserved) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Emit()
+   */
   void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail) override;
-  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent we) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Emit()
+   */
+  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
+   */
   void EmitBoundsChanged(Dali::Accessibility::Accessible* obj, Dali::Rect<> rect) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()
+   */
   void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
+
+protected:
+  DBus::DBusInterfaceDescription::SignalId mStateChanged;
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_OBJECT_H

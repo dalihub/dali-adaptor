@@ -32,43 +32,45 @@ void BridgeEditableText::RegisterInterfaces()
   AddFunctionToInterface(desc, "InsertText", &BridgeEditableText::InsertText);
   AddFunctionToInterface(desc, "PasteText", &BridgeEditableText::PasteText);
   AddFunctionToInterface(desc, "SetTextContents", &BridgeEditableText::SetTextContents);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 EditableText* BridgeEditableText::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<EditableText*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Text interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto editableTextInterface = dynamic_cast<EditableText*>(self);
+  if(!editableTextInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Text interface"};
+  }
+  return editableTextInterface;
 }
 
-DBus::ValueOrError<bool> BridgeEditableText::CopyText(int32_t startPos, int32_t endPos)
+DBus::ValueOrError<bool> BridgeEditableText::CopyText(int32_t startPosition, int32_t endPosition)
 {
-  return FindSelf()->CopyText(startPos, endPos);
+  return FindSelf()->CopyText(startPosition, endPosition);
 }
 
-DBus::ValueOrError<bool> BridgeEditableText::CutText(int32_t startPos, int32_t endPos)
+DBus::ValueOrError<bool> BridgeEditableText::CutText(int32_t startPosition, int32_t endPosition)
 {
-  return FindSelf()->CutText(startPos, endPos);
+  return FindSelf()->CutText(startPosition, endPosition);
 }
 
-DBus::ValueOrError<bool> BridgeEditableText::DeleteText(int32_t startPos, int32_t endPos)
+DBus::ValueOrError<bool> BridgeEditableText::DeleteText(int32_t startPosition, int32_t endPosition)
 {
-  return FindSelf()->DeleteText(startPos, endPos);
+  return FindSelf()->DeleteText(startPosition, endPosition);
 }
 
-DBus::ValueOrError<bool> BridgeEditableText::InsertText(int32_t startPos, std::string text, [[maybe_unused]] int32_t length)
+DBus::ValueOrError<bool> BridgeEditableText::InsertText(int32_t startPosition, std::string text, [[maybe_unused]] int32_t length)
 {
-  return FindSelf()->InsertText(startPos, std::move(text));
+  return FindSelf()->InsertText(startPosition, std::move(text));
 }
 
-DBus::ValueOrError<bool> BridgeEditableText::PasteText(int32_t pos)
+DBus::ValueOrError<bool> BridgeEditableText::PasteText(int32_t position)
 {
   // auto imfManager = Dali::Internal::Adaptor::ImfManager::Get();
-  // imfManager.SetCursorPosition( pos );
+  // imfManager.SetCursorPosition( position );
   // auto clipboard = Dali::Internal::Adaptor::Clipboard::Get();
   // clipboard.RequestItem();
   // return true;

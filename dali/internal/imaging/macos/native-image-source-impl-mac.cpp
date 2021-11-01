@@ -45,7 +45,8 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
   unsigned int                        height,
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
-: mImage(MakeRef<CGImageRef>(nullptr))
+: mImage(MakeRef<CGImageRef>(nullptr)),
+  mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
   DALI_ASSERT_ALWAYS(nativeImageSource.Empty());
@@ -203,6 +204,11 @@ uint8_t* NativeImageSourceCocoa::AcquireBuffer(uint16_t& width, uint16_t& height
 bool NativeImageSourceCocoa::ReleaseBuffer()
 {
   return false;
+}
+
+void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback)
+{
+  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
 }
 
 } // namespace Dali::Internal::Adaptor

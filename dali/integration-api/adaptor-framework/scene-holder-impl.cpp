@@ -262,6 +262,11 @@ void SceneHolder::SurfaceRotated(float width, float height, int orientation)
   mScene.SurfaceRotated(width, height, orientation);
 }
 
+void SceneHolder::SetRotationCompletedAcknowledgement()
+{
+  mScene.SetRotationCompletedAcknowledgement();
+}
+
 void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
   if(timeStamp < 1)

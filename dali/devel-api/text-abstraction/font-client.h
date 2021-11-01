@@ -307,10 +307,11 @@ public:
 
   /**
    * @brief Retrieves a unique font identifier for a given bitmap font.
+   * If the font is not present, it will cache the given font, and give it a new font id.
    *
    * @param[in] bitmapFont A bitmap font.
    *
-   * @return A valid font identifier, or zero if no bitmap font is created.
+   * @return A valid font identifier.
    */
   FontId GetFontId(const BitmapFont& bitmapFont);
 

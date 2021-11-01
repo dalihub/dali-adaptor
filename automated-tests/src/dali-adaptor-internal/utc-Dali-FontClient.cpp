@@ -19,11 +19,13 @@
 
 #include <dali-test-suite-utils.h>
 #include <dali/dali.h>
+#include <dali/devel-api/text-abstraction/bitmap-font.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
-#include <dali/internal/text/text-abstraction/font-client-helper.h>
+#include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <iostream>
 
 using namespace Dali;
 
@@ -343,6 +345,555 @@ int UtcDaliFontClientTextAtlasConstants(void)
 
   uint32_t numberOfPointsPerOneUnitOfPointSize = fontClient.GetNumberOfPointsPerOneUnitOfPointSize();
   DALI_TEST_EQUALS(numberOfPointsPerOneUnitOfPointSize, TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE, TEST_LOCATION);
+
+  END_TEST;
+}
+
+using namespace Dali::TextAbstraction;
+
+int UtcDaliFontClientGetDefaultFonts(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetDefaultFonts ");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontList fontList;
+  fontClient.GetDefaultFonts(fontList);
+
+  std::ostringstream oss;
+  oss << fontList << std::endl;
+
+  tet_printf("FontList: %s", oss.str().c_str());
+  DALI_TEST_CHECK(fontList.size() > 0);
+
+  END_TEST;
+}
+
+int UtcDaliFontClientGetSystemFonts(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetSystemFonts ");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontList fontList;
+  fontClient.GetSystemFonts(fontList);
+
+  std::ostringstream oss;
+  oss << fontList << std::endl;
+
+  tet_printf("FontList: %s", oss.str().c_str());
+  DALI_TEST_CHECK(fontList.size() > 0);
+
+  const PointSize26Dot6 pointSize = fontClient.GetPointSize(fontList.size());
+  DALI_TEST_EQUALS(pointSize, FontClient::DEFAULT_POINT_SIZE, TEST_LOCATION);
+
+  END_TEST;
+}
+
+std::ostream& operator<<(std::ostream& o, const FontDescription& description)
+{
+  o << "Font path: " << description.path << " family: "
+    << " width : " << description.width << " weight : " << description.weight << " slant : " << description.slant << std::endl;
+  return o;
+}
+
+int UtcDaliFontClientGetDefaultPlatformFontDescription(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientGetDefaultPlatformFontDescription");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  FontDescription fontDescription;
+  fontClient.GetDefaultPlatformFontDescription(fontDescription);
+
+  std::ostringstream oss;
+  oss << fontDescription;
+  tet_printf("%s", oss.str().c_str());
+
+  DALI_TEST_CHECK(fontDescription.path.empty() == false);
+
+  FontId fontId = fontClient.FindFallbackFont('A',
+                                              fontDescription,
+                                              FontClient::DEFAULT_POINT_SIZE,
+                                              true);
+
+  bool supported = fontClient.IsCharacterSupportedByFont(fontId, 'A');
+  DALI_TEST_EQUALS(supported, true, TEST_LOCATION);
+  END_TEST;
+}
+
+namespace
+{
+constexpr uint8_t U1               = 1u;
+constexpr uint8_t U2               = 2u;
+constexpr uint8_t U3               = 3u;
+constexpr uint8_t U4               = 4u;
+constexpr uint8_t U5               = 5u;
+constexpr uint8_t U6               = 6u;
+constexpr uint8_t U0               = 0u;
+constexpr uint8_t UTF8_LENGTH[256] = {
+  U1, U1, U1, U1, U1, U1, U1, U1, U1, U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, // lead byte = 0xxx xxxx (U+0000 - U+007F + some extended ascii characters)
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1,
+  U1, //
+  U1,
+  U1, //
+
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2, //
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2, // lead byte = 110x xxxx (U+0080 - U+07FF)
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2,
+  U2, //
+  U2,
+  U2, //
+
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3, // lead byte = 1110 xxxx (U+0800 - U+FFFF)
+  U3,
+  U3,
+  U3,
+  U3,
+  U3,
+  U3, //
+
+  U4,
+  U4,
+  U4,
+  U4,
+  U4,
+  U4,
+  U4,
+  U4, // lead byte = 1111 0xxx (U+10000 - U+1FFFFF)
+
+  U5,
+  U5,
+  U5,
+  U5, // lead byte = 1111 10xx (U+200000 - U+3FFFFFF)
+
+  U6,
+  U6, // lead byte = 1111 110x (U+4000000 - U+7FFFFFFF)
+
+  U0,
+  U0, // Non valid.
+};
+
+constexpr uint8_t CR = 0xd;
+constexpr uint8_t LF = 0xa;
+
+uint8_t GetUtf8Length(uint8_t utf8LeadByte)
+{
+  return UTF8_LENGTH[utf8LeadByte];
+}
+
+uint32_t Utf8ToUtf32(const uint8_t* const utf8, uint32_t length, uint32_t* utf32)
+{
+  uint32_t numberOfCharacters = 0u;
+
+  const uint8_t* begin = utf8;
+  const uint8_t* end   = utf8 + length;
+
+  for(; begin < end; ++numberOfCharacters)
+  {
+    const uint8_t leadByte = *begin;
+
+    switch(UTF8_LENGTH[leadByte])
+    {
+      case U1:
+      {
+        if(CR == leadByte)
+        {
+          // Replace CR+LF or CR by LF
+          *utf32++ = LF;
+
+          // Look ahead if the next one is a LF.
+          ++begin;
+          if(begin < end)
+          {
+            if(LF == *begin)
+            {
+              ++begin;
+            }
+          }
+        }
+        else
+        {
+          *utf32++ = leadByte;
+          begin++;
+        }
+        break;
+      }
+
+      case U2:
+      {
+        uint32_t& code = *utf32++;
+        code           = leadByte & 0x1fu;
+        begin++;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        break;
+      }
+
+      case U3:
+      {
+        uint32_t& code = *utf32++;
+        code           = leadByte & 0x0fu;
+        begin++;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        break;
+      }
+
+      case U4:
+      {
+        uint32_t& code = *utf32++;
+        code           = leadByte & 0x07u;
+        begin++;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        break;
+      }
+
+      case U5:
+      {
+        uint32_t& code = *utf32++;
+        code           = leadByte & 0x03u;
+        begin++;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        break;
+      }
+
+      case U6:
+      {
+        uint32_t& code = *utf32++;
+        code           = leadByte & 0x01u;
+        begin++;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        code <<= 6u;
+        code |= *begin++ & 0x3fu;
+        break;
+      }
+
+      case U0: // Invalid case
+      {
+        begin++;
+        *utf32++ = 0x20; // Use white space
+        break;
+      }
+    }
+  }
+
+  return numberOfCharacters;
+}
+
+TextAbstraction::FontId SetupBitmapFont()
+{
+  struct GlyphDesc
+  {
+    GlyphDesc()
+    {
+    }
+    GlyphDesc(const std::string& url, const std::string& utf8)
+    {
+      this->url = url;
+      std::copy(utf8.begin(), utf8.end(), this->utf8);
+    }
+    std::string url;
+    uint8_t     utf8[4];
+  };
+  std::vector<GlyphDesc> glyphs;
+
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0030.png", ":"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0031.png", "0"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0032.png", "1"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0033.png", "2"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0034.png", "3"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0035.png", "4"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0036.png", "5"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0037.png", "6"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0038.png", "7"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u0039.png", "8"});
+  glyphs.push_back({TEST_RESOURCE_DIR "/fonts/bitmap/u003a.png", "9"});
+
+  TextAbstraction::BitmapFont bitmapFont;
+  bitmapFont.glyphs.reserve(glyphs.size());
+  bitmapFont.name               = "Digits";
+  bitmapFont.underlinePosition  = 0.f;
+  bitmapFont.underlineThickness = 0.f;
+  bitmapFont.isColorFont        = true;
+
+  for(const auto& glyph : glyphs)
+  {
+    uint32_t c = 0u;
+    Utf8ToUtf32(glyph.utf8, GetUtf8Length(glyph.utf8[0u]), &c);
+    TextAbstraction::BitmapGlyph bitmapGlyph(glyph.url, c, 34.f, 0.f);
+    bitmapFont.glyphs.push_back(std::move(bitmapGlyph));
+  }
+
+  TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
+  return fontClient.GetFontId(bitmapFont);
+}
+
+} // namespace
+
+int UtcDaliFontClientTestBitmapFont(void)
+{
+  TestApplication application;
+  tet_infoline(" UtcDaliFontClientTestBitmapFont");
+
+  FontClient fontClient;
+  fontClient = FontClient::Get();
+
+  auto bitmapFontId = SetupBitmapFont();
+
+  FontDescription fontDescription;
+  fontClient.GetDescription(bitmapFontId, fontDescription);
+  std::ostringstream oss;
+  oss << fontDescription;
+  tet_printf("Found: %d: %s", bitmapFontId, oss.str().c_str());
+
+  bool color = fontClient.IsColorGlyph(bitmapFontId, fontClient.GetGlyphIndex(bitmapFontId, '2'));
+  DALI_TEST_EQUALS(color, true, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(fontClient.GetPointSize(bitmapFontId), FontClient::DEFAULT_POINT_SIZE, TEST_LOCATION);
+
+  DALI_TEST_EQUALS(fontClient.IsCharacterSupportedByFont(bitmapFontId, '3'), true, TEST_LOCATION);
+  DALI_TEST_EQUALS(fontClient.IsCharacterSupportedByFont(bitmapFontId, 'a'), false, TEST_LOCATION);
 
   END_TEST;
 }

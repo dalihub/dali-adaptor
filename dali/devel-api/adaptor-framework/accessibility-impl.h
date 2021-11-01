@@ -73,6 +73,8 @@ struct DALI_ADAPTOR_API Bridge
 
   /**
    * @brief Gets bus name which bridge is initialized on.
+   *
+   * @return The bus name
    */
   virtual const std::string& GetBusName() const = 0;
 
@@ -380,7 +382,7 @@ protected:
     ENABLED
   };
 
-  inline static AutoInitState autoInitState = AutoInitState::ENABLED;
+  inline static AutoInitState mAutoInitState = AutoInitState::ENABLED;
 
   /**
    * @brief Registers accessible object to be known in bridge object.
@@ -1002,7 +1004,7 @@ public:
   virtual Accessible* GetAccessibleAtPoint(Point point, CoordinateType type);
 
   /**
-   * @brief Checks if current object contains given point.
+   * @brief Checks if the current object contains the given point inside.
    *
    * @param[in] point The two-dimensional point
    * @param[in] type The enumeration with type of coordinate system
@@ -1012,7 +1014,7 @@ public:
    * @remarks This method is `Contains` in DBus method.
    * @see Dali::Accessibility::Point
    */
-  virtual bool IsAccessibleContainedAtPoint(Point point, CoordinateType type);
+  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type);
 };
 
 /**

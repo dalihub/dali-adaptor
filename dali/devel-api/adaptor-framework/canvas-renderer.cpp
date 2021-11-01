@@ -48,9 +48,9 @@ bool CanvasRenderer::Commit()
   return GetImplementation(*this).Commit();
 }
 
-Devel::PixelBuffer CanvasRenderer::GetPixelBuffer()
+Dali::Texture CanvasRenderer::GetRasterizedTexture()
 {
-  return GetImplementation(*this).GetPixelBuffer();
+  return GetImplementation(*this).GetRasterizedTexture();
 }
 
 bool CanvasRenderer::AddDrawable(Drawable& drawable)

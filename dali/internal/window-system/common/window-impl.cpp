@@ -79,6 +79,7 @@ Window::Window()
   mIsFocusAcceptable(true),
   mIconified(false),
   mOpaqueState(false),
+  mWindowRotationAcknowledgement(false),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
@@ -506,9 +507,11 @@ unsigned int Window::GetAuxiliaryHintId(const std::string& hint) const
 
 void Window::SetInputRegion(const Rect<int>& inputRegion)
 {
-  mWindowBase->SetInputRegion(inputRegion);
+  Rect<int> convertRegion = RecalculateRect(inputRegion);
 
-  DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window::SetInputRegion: x = %d, y = %d, w = %d, h = %d\n", inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
+  DALI_LOG_INFO(gWindowLogFilter, Debug::Verbose, "Window (%p), WinId (%d), SetInputRegion, RecalculateRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, convertRegion.x, convertRegion.y, convertRegion.width, convertRegion.height);
+
+  mWindowBase->SetInputRegion(convertRegion);
 }
 
 void Window::SetType(WindowType type)
@@ -1010,14 +1013,74 @@ void Window::EnableFloatingMode(bool enable)
   mWindowBase->EnableFloatingMode(enable);
 }
 
+Rect<int> Window::RecalculateRect(const Rect<int>& rect)
+{
+  Rect<int> newRect;
+  int screenWidth, screenHeight;
+
+  WindowSystem::GetScreenSize(screenWidth, screenHeight);
+
+  if(mRotationAngle == 90)
+  {
+    newRect.x      = rect.y;
+    newRect.y      = screenHeight - (rect.x + rect.width);
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else if(mRotationAngle == 180)
+  {
+    newRect.x      = screenWidth - (rect.x + rect.width);
+    newRect.y      = screenHeight - (rect.y + rect.height);
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  else if(mRotationAngle == 270)
+  {
+    newRect.x      = screenWidth - (rect.y + rect.height);
+    newRect.y      = rect.x;
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else
+  {
+    newRect.x      = rect.x;
+    newRect.y      = rect.y;
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  return newRect;
+}
+
 void Window::IncludeInputRegion(const Rect<int>& inputRegion)
 {
-  mWindowBase->IncludeInputRegion(inputRegion);
+  Rect<int> convertRegion = RecalculateRect(inputRegion);
+
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IncludeInputRegion, RecalculateRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, convertRegion.x, convertRegion.y, convertRegion.width, convertRegion.height);
+  mWindowBase->IncludeInputRegion(convertRegion);
 }
 
 void Window::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
-  mWindowBase->ExcludeInputRegion(inputRegion);
+  Rect<int> convertRegion = RecalculateRect(inputRegion);
+
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), ExcludeInputRegion, RecalculateRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, convertRegion.x, convertRegion.y, convertRegion.width, convertRegion.height);
+  mWindowBase->ExcludeInputRegion(convertRegion);
+}
+
+void Window::SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement)
+{
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), needAcknowledgement(%d) Set needs Rotation Completed Acknowledgement\n", this, mNativeWindowId, needAcknowledgement);
+  mWindowSurface->SetNeedsRotationCompletedAcknowledgement(needAcknowledgement);
+  mWindowRotationAcknowledgement = needAcknowledgement;
+}
+
+void Window::SendRotationCompletedAcknowledgement()
+{
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SendRotationCompletedAcknowledgement(): orientation: %d, mWindowRotationAcknowledgement: %d\n", this, mNativeWindowId, mRotationAngle, mWindowRotationAcknowledgement);
+  if(mWindowRotationAcknowledgement)
+  {
+    SetRotationCompletedAcknowledgement();
+  }
 }
 
 } // namespace Adaptor

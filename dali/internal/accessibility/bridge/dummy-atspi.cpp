@@ -59,7 +59,7 @@ bool Accessibility::Component::IsScrollable()
   return false;
 }
 
-bool Accessibility::Component::IsAccessibleContainedAtPoint(Point point, CoordinateType type)
+bool Accessibility::Component::IsAccessibleContainingPoint(Point point, CoordinateType type)
 {
   return false;
 }

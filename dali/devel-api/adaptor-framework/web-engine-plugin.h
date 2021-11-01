@@ -21,13 +21,14 @@
 // EXTERNAL INCLUDES
 #include <functional>
 #include <memory>
-
-// INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/web-engine-hit-test.h>
-#include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
+
+// INTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/devel-api/adaptor-framework/web-engine-hit-test.h>
+#include <dali/devel-api/common/bitwise-enum.h>
 
 namespace Dali
 {
@@ -282,7 +283,7 @@ public:
   /**
    * @brief Get image to render.
    */
-  virtual NativeImageInterfacePtr GetNativeImageSource() = 0;
+  virtual NativeImageSourcePtr GetNativeImageSource() = 0;
 
   /**
    * @brief Return the URL of the Web.
