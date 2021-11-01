@@ -38,11 +38,6 @@ class NativeImageSurface
 {
 public:
   /**
-   * @brief Destructor
-   */
-  virtual ~NativeImageSurface() = default;
-
-  /**
    * @copydoc Dali::NativeImageSurface::GetNativeRenderable()
    */
   virtual Any GetNativeRenderable() = 0;
