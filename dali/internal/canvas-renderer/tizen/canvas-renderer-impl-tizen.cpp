@@ -54,8 +54,11 @@ CanvasRendererTizen* CanvasRendererTizen::New(const Vector2& viewBox)
 }
 
 CanvasRendererTizen::CanvasRendererTizen(const Vector2& viewBox)
-: mPixelBuffer(nullptr),
+:
 #ifdef THORVG_SUPPORT
+  mPixelBuffer(nullptr),
+  mRasterizedTexture(),
+  mMutex(),
   mTvgCanvas(nullptr),
   mTvgRoot(nullptr),
 #endif
@@ -162,9 +165,31 @@ bool CanvasRendererTizen::Commit()
 #endif
 }
 
-Devel::PixelBuffer CanvasRendererTizen::GetPixelBuffer()
+Dali::Texture CanvasRendererTizen::GetRasterizedTexture()
 {
-  return mPixelBuffer;
+#ifdef THORVG_SUPPORT
+  if(mPixelBuffer)
+  {
+    auto width  = mPixelBuffer.GetWidth();
+    auto height = mPixelBuffer.GetHeight();
+    if(width <= 0 || height <= 0)
+    {
+      return Dali::Texture();
+    }
+
+    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(mPixelBuffer);
+
+    if(!mRasterizedTexture || mRasterizedTexture.GetWidth() != width || mRasterizedTexture.GetHeight() != height)
+    {
+      mRasterizedTexture = Dali::Texture::New(Dali::TextureType::TEXTURE_2D, Dali::Pixel::BGRA8888, width, height);
+    }
+
+    mRasterizedTexture.Upload(pixelData);
+  }
+  return mRasterizedTexture;
+#else
+  return Dali::Texture();
+#endif
 }
 
 bool CanvasRendererTizen::AddDrawable(Dali::CanvasRenderer::Drawable& drawable)

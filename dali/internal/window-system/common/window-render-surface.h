@@ -119,6 +119,17 @@ public: // API
   void InitializeImeSurface();
 
   /**
+   * @brief Sets the necessary for window rotation acknowledge.
+   * After this function called, SendRotationCompletedAcknowledgement() should be called to complete window rotation.
+   *
+   * More detail description is written in DevelWindow::SetNeedsRotationCompletedAcknowledgement().
+   *
+   * @param[in] window The window instance.
+   * @param[in] needAcknowledgement the flag is true if window rotation acknowledgement is sent.
+   */
+  void SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement);
+
+  /**
    * @brief This signal is emitted when the output is transformed.
    */
   OutputSignalType& OutputTransformedSignal();
@@ -319,6 +330,7 @@ private: // Data
   bool                                   mResizeFinished;
   bool                                   mDefaultScreenRotationAvailable;
   bool                                   mIsImeWindowSurface;
+  bool                                   mNeedWindowRotationAcknowledgement;
 
 }; // class WindowRenderSurface
 

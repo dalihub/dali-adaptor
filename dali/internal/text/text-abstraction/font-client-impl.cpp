@@ -25,7 +25,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
-#include <dali/internal/text/text-abstraction/font-client-plugin-impl.h>
+#include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 

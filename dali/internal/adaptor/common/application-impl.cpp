@@ -456,7 +456,11 @@ void Application::SetDefaultWindowType(WindowType type)
 
 ApplicationPtr Application::GetPreInitializedApplication()
 {
-  return gPreInitializedApplication;
+  // Reset the handle to decrease the reference count
+  ApplicationPtr application = gPreInitializedApplication;
+  gPreInitializedApplication.Reset();
+
+  return application;
 }
 
 Graphics::Controller& Application::GetController()

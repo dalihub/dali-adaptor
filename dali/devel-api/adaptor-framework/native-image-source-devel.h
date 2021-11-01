@@ -19,6 +19,8 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/native-image-source.h>
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
+
 
 namespace Dali
 {
@@ -59,6 +61,15 @@ DALI_ADAPTOR_API uint8_t* AcquireBuffer(NativeImageSource& image, uint16_t& widt
  * @return     @c true If the buffer is released successfully, and @c false otherwise
  */
 DALI_ADAPTOR_API bool ReleaseBuffer(NativeImageSource& image);
+
+/**
+ * @brief Set the Resource Destruction Callback object
+ *
+ * @param image The instance of NativeImageSource.
+ * @param callback The Resource Destruction callback
+ * @note Ownership of the callback is passed onto this class.
+ */
+DALI_ADAPTOR_API void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback);
 
 } // namespace DevelNativeImageSource
 

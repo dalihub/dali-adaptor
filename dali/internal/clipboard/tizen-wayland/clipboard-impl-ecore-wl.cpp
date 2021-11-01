@@ -58,6 +58,7 @@ struct Clipboard::Impl
 {
   Impl()
   {
+#ifdef DALI_ELDBUS_AVAILABLE
     Eldbus_Object* eldbus_obj;
     eldbus_init();
     cbhm_conn    = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SESSION);
@@ -65,17 +66,21 @@ struct Clipboard::Impl
     eldbus_proxy = eldbus_proxy_get(eldbus_obj, CBHM_DBUS_INTERFACE);
     eldbus_name_owner_changed_callback_add(cbhm_conn, CBHM_DBUS_INTERFACE, NULL, cbhm_conn, EINA_TRUE);
     eldbus_proxy_signal_handler_add(eldbus_proxy, "ItemClicked", _on_item_clicked, this);
+#endif // DALI_ELDBUS_AVAILABLE
     mVisible           = false;
     mIsFirstTimeHidden = true;
   }
 
   ~Impl()
   {
+#ifdef DALI_ELDBUS_AVAILABLE
     if(cbhm_conn)
       eldbus_connection_unref(cbhm_conn);
     eldbus_shutdown();
+#endif // DALI_ELDBUS_AVAILABLE
   }
 
+#ifdef DALI_ELDBUS_AVAILABLE
   Eldbus_Proxy* cbhm_proxy_get()
   {
     return eldbus_proxy;
@@ -85,6 +90,7 @@ struct Clipboard::Impl
   {
     return cbhm_conn;
   }
+#endif // DALI_ELDBUS_AVAILABLE
 
   void SetItem(const std::string& itemData)
   {
@@ -176,10 +182,13 @@ struct Clipboard::Impl
 
   int GetCount()
   {
+#ifdef DALI_ELDBUS_AVAILABLE
     Eldbus_Message *reply, *req;
     const char *    errname = NULL, *errmsg = NULL;
-    int             count = -1;
+#endif // DALI_ELDBUS_AVAILABLE
+    int count = -1;
 
+#ifdef DALI_ELDBUS_AVAILABLE
     if(!(req = eldbus_proxy_method_call_new(eldbus_proxy, "CbhmGetCount")))
     {
       DALI_LOG_ERROR("Failed to create method call on org.freedesktop.DBus.Properties.Get");
@@ -213,12 +222,15 @@ struct Clipboard::Impl
     eldbus_message_unref(req);
     eldbus_message_unref(reply);
     DALI_LOG_ERROR("cbhm item count(%d)", count);
+#endif // DALI_ELDBUS_AVAILABLE
     return count;
   }
 
   void ShowClipboard()
   {
+#ifdef DALI_ELDBUS_AVAILABLE
     eldbus_proxy_call(cbhm_proxy_get(), "CbhmShow", NULL, NULL, -1, "s", "0");
+#endif // DALI_ELDBUS_AVAILABLE
     mIsFirstTimeHidden = true;
     mVisible           = true;
   }
@@ -230,7 +242,9 @@ struct Clipboard::Impl
       mIsFirstTimeHidden = false;
       return;
     }
+#ifdef DALI_ELDBUS_AVAILABLE
     eldbus_proxy_call(cbhm_proxy_get(), "CbhmHide", NULL, NULL, -1, "");
+#endif // DALI_ELDBUS_AVAILABLE
     mIsFirstTimeHidden = false;
     mVisible           = false;
   }
@@ -240,6 +254,7 @@ struct Clipboard::Impl
     return mVisible;
   }
 
+#ifdef DALI_ELDBUS_AVAILABLE
   static void _on_item_clicked(void* data, const Eldbus_Message* msg EINA_UNUSED)
   {
     static_cast<Clipboard::Impl*>(data)->RequestItem();
@@ -247,6 +262,7 @@ struct Clipboard::Impl
 
   Eldbus_Proxy*      eldbus_proxy;
   Eldbus_Connection* cbhm_conn;
+#endif // DALI_ELDBUS_AVAILABLE
 
   std::string mSendBuffer;
   bool        mVisible;

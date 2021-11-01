@@ -55,10 +55,12 @@ const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
 
 const char* DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 
+#ifdef DALI_ELDBUS_AVAILABLE
 // DBUS accessibility
 const char* BUS       = "org.enlightenment.wm-screen-reader";
 const char* INTERFACE = "org.tizen.GestureNavigation";
 const char* PATH      = "/org/tizen/GestureNavigation";
+#endif // DALI_ELDBUS_AVAILABLE
 
 struct KeyCodeMap
 {
@@ -1353,9 +1355,9 @@ void WindowBaseEcoreWl2::OnFontSizeChanged()
   mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
 }
 
+#ifdef DALI_ELDBUS_AVAILABLE
 void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message)
 {
-#ifdef DALI_ELDBUS_AVAILABLE
   AccessibilityInfo info;
 
   // The string defines the arg-list's respective types.
@@ -1365,8 +1367,8 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification(void* context, c
   }
 
   mAccessibilitySignal.Emit(info);
-#endif
 }
+#endif // DALI_ELDBUS_AVAILABLE
 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {

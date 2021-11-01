@@ -406,6 +406,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   void ExcludeInputRegion(const Rect<int>& inputRegion);
 
+  /**
+   * @copydoc Dali::DevelWindow::SetNeedsRotationCompletedAcknowledgement()
+   */
+  void SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement);
+
+  /**
+   * @copydoc Dali::DevelWindow::SendRotationCompletedAcknowledgement()
+   */
+  void SendRotationCompletedAcknowledgement();
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -473,7 +483,7 @@ private:
   /**
    * @brief Called when the window is resized or moved by display server.
    *
-   * @param positionSize the updated window's position and size.
+   * @param[in] positionSize the updated window's position and size.
    */
   void OnUpdatePositionSize(Dali::PositionSize& positionSize);
 
@@ -496,6 +506,20 @@ private:
    * @brief Check available window orientation for Available orientation.
    */
   bool IsOrientationAvailable(WindowOrientation orientation) const;
+
+  /**
+   * @brief Return the rect value to recalulate with the default system coordinates.
+   *
+   * Some native window APIs work the geometry value based on the default system coordinates.
+   * IncludeInputRegion() and ExcludeInputRegion() are one of them.
+   * When the window is rotated, current window's geometry already were set with the rotated angle.
+   * If IncludeInputRegion() or ExcludeInputRegion() are called with rotated angle by application,
+   * the rect's area should be re-calcuated on the default system coordinates.
+   *
+   * @param[in] rect the window's current position and size with current window rotation angle.
+   * @return the re-calculated rect on the default system coordinates.
+   */
+  Rect<int> RecalculateRect(const Rect<int>& rect);
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -610,6 +634,7 @@ private:
   bool                 mIsFocusAcceptable : 1;
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
+  bool                 mWindowRotationAcknowledgement : 1;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;

@@ -2,6 +2,5 @@
 # module: vector-image, backend: common
 SET( adaptor_vector_image_common_src_files
     ${adaptor_vector_image_dir}/common/vector-image-renderer-impl.cpp
-    ${adaptor_vector_image_dir}/common/vector-image-renderer-plugin-proxy.cpp
 )
 

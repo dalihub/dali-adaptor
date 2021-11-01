@@ -114,7 +114,7 @@ public:
   /**
    * @brief Get native image source to render.
    */
-  NativeImageInterfacePtr GetNativeImageSource();
+  NativeImageSourcePtr GetNativeImageSource();
 
   /**
    * @brief Get settings of WebEngine.

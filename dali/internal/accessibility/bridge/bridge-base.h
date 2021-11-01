@@ -26,16 +26,19 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
+/**
+ * @brief The AppAccessible class is to define Accessibility Application.
+ */
 class AppAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
 {
 public:
-  Dali::Accessibility::EmptyAccessibleWithAddress parent;
-  std::vector<Dali::Accessibility::Accessible*>   children;
-  std::string                                     name;
+  Dali::Accessibility::EmptyAccessibleWithAddress mParent;
+  std::vector<Dali::Accessibility::Accessible*>   mChildren;
+  std::string                                     mName;
 
   std::string GetName() override
   {
-    return name;
+    return mName;
   }
 
   std::string GetDescription() override
@@ -45,20 +48,22 @@ public:
 
   Dali::Accessibility::Accessible* GetParent() override
   {
-    return &parent;
+    return &mParent;
   }
 
   size_t GetChildCount() override
   {
-    return children.size();
+    return mChildren.size();
   }
 
   Dali::Accessibility::Accessible* GetChildAtIndex(size_t index) override
   {
-    auto s = children.size();
-    if(index >= s)
-      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(s) + " children"};
-    return children[index];
+    auto size = mChildren.size();
+    if(index >= size)
+    {
+      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(size) + " children"};
+    }
+    return mChildren[index];
   }
 
   size_t GetIndexInParent() override
@@ -81,9 +86,15 @@ public:
     return {};
   }
 
-  Dali::Accessibility::Accessible* getActiveWindow()
+  /**
+   * @brief Gets the active window.
+   *
+   * @return Null if mChildren is empty, otherwise the active window
+   * @note Currently, the default window would be returned when mChildren is not empty.
+   */
+  Dali::Accessibility::Accessible* GetActiveWindow()
   {
-    return children.empty() ? nullptr : children[0];
+    return mChildren.empty() ? nullptr : mChildren[0];
   }
 
   bool DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override
@@ -112,43 +123,88 @@ public:
   }
 };
 
+/**
+ * @brief Enumeration for FilteredEvents.
+ */
 enum class FilteredEvents
 {
-  boundsChanged
+  BOUNDS_CHANGED ///< Bounds changed
 };
 
+// Custom specialization of std::hash
 namespace std
 {
 template<>
 struct hash<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>>
 {
-  size_t operator()(std::pair<FilteredEvents, Dali::Accessibility::Accessible*> v) const
+  size_t operator()(std::pair<FilteredEvents, Dali::Accessibility::Accessible*> value) const
   {
-    return (static_cast<size_t>(v.first) * 131) ^ reinterpret_cast<size_t>(v.second);
+    return (static_cast<size_t>(value.first) * 131) ^ reinterpret_cast<size_t>(value.second);
   }
 };
 } // namespace std
 
+/**
+ * @brief The BridgeBase class is basic class for Bridge functions.
+ */
 class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
 {
-  std::unordered_map<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> filteredEvents;
+  std::unordered_map<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> mFilteredEvents;
 
-  bool tickFilteredEvents();
+  /**
+   * @brief Removes all FilteredEvents using Tick signal.
+   *
+   * @return False if mFilteredEvents is empty, otherwise true.
+   */
+  bool TickFilteredEvents();
 
 public:
-  void addFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
+  /**
+   * @brief Adds FilteredEvents, Accessible, and delay time to mFilteredEvents.
+   *
+   * @param[in] kind FilteredEvents enum value
+   * @param[in] obj Accessible object
+   * @param[in] delay The delay time
+   * @param[in] functor The function to be called // NEED TO UPDATE!
+   */
+  void AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::GetBusName()
+   */
   const std::string& GetBusName() const override;
-  void               AddTopLevelWindow(Dali::Accessibility::Accessible* window) override;
-  void               RemoveTopLevelWindow(Dali::Accessibility::Accessible* window) override;
-  void               AddPopup(Dali::Accessibility::Accessible* object) override;
-  void               RemovePopup(Dali::Accessibility::Accessible* object) override;
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::AddTopLevelWindow()
+   */
+  void AddTopLevelWindow(Dali::Accessibility::Accessible* window) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::RemoveTopLevelWindow()
+   */
+  void RemoveTopLevelWindow(Dali::Accessibility::Accessible* window) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::AddPopup()
+   */
+  void AddPopup(Dali::Accessibility::Accessible* object) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::RemovePopup()
+   */
+  void RemovePopup(Dali::Accessibility::Accessible* object) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::GetApplication()
+   */
   Dali::Accessibility::Accessible* GetApplication() const override
   {
-    return &application;
+    return &mApplication;
   }
 
+  /**
+   * @brief Adds function to dbus interface.
+   */
   template<typename SELF, typename... RET, typename... ARGS>
   void AddFunctionToInterface(
     DBus::DBusInterfaceDescription& desc, const std::string& funcName, DBus::ValueOrError<RET...> (SELF::*funcPtr)(ARGS...))
@@ -168,6 +224,9 @@ public:
         });
   }
 
+  /**
+   * @brief Adds 'Get' property to dbus interface.
+   */
   template<typename T, typename SELF>
   void AddGetPropertyToInterface(DBus::DBusInterfaceDescription& desc,
                                  const std::string&              funcName,
@@ -188,6 +247,9 @@ public:
                           {});
   }
 
+  /**
+   * @brief Adds 'Set' property to dbus interface.
+   */
   template<typename T, typename SELF>
   void AddSetPropertyToInterface(DBus::DBusInterfaceDescription& desc,
                                  const std::string&              funcName,
@@ -207,6 +269,9 @@ public:
       });
   }
 
+  /**
+   * @brief Adds 'Set' and 'Get' properties to dbus interface.
+   */
   template<typename T, typename T1, typename SELF>
   void AddGetSetPropertyToInterface(DBus::DBusInterfaceDescription& desc,
                                     const std::string&              funcName,
@@ -238,6 +303,10 @@ public:
           }
         });
   }
+
+  /**
+   * @brief Adds 'Get' and 'Set' properties to dbus interface.
+   */
   template<typename T, typename T1, typename SELF>
   void AddGetSetPropertyToInterface(DBus::DBusInterfaceDescription& desc,
                                     const std::string&              funcName,
@@ -269,25 +338,78 @@ public:
           }
         });
   }
+
+  /**
+   * @brief Gets the string of the path excluding the specified prefix.
+   *
+   * @param path The path to get
+   * @return The string stripped of the specific prefix
+   */
   static std::string StripPrefix(const std::string& path);
 
+  /**
+   * @brief Finds the Accessible object according to the path.
+   *
+   * @param[in] path The path for Accessible object
+   * @return The Accessible object corresponding to the path
+   */
   Dali::Accessibility::Accessible* Find(const std::string& path) const;
+
+  /**
+   * @brief Finds the Accessible object with the given address.
+   *
+   * @param[in] ptr The unique Address of the object
+   * @return The Accessible object corresponding to the path
+   */
   Dali::Accessibility::Accessible* Find(const Dali::Accessibility::Address& ptr) const;
+
+  /**
+   * @brief Returns the target object of the currently executed DBus method call.
+   *
+   * And any subclasses redefine `FindSelf` with a different return type as a convenient wrapper around dynamic_cast.
+   * @return The Accessible object
+   * @note When a DBus method is called on some object, this target object (`currentObject`) is temporarily saved by the bridge,
+   * because DBus handles the invocation target separately from the method arguments.
+   * We then use the saved object inside the 'glue' method (e.g. BridgeValue::GetMinimum)
+   * to call the equivalent method on the respective C++ object (this could be ScrollBar::AccessibleImpl::GetMinimum in the example given).
+   */
   Dali::Accessibility::Accessible* FindSelf() const;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::FindByPath()
+   */
   Dali::Accessibility::Accessible* FindByPath(const std::string& name) const override;
-  void                             SetApplicationName(std::string name) override
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::SetApplicationName()
+   */
+  void SetApplicationName(std::string name) override
   {
-    application.name = std::move(name);
+    mApplication.mName = std::move(name);
   }
 
 protected:
-  mutable AppAccessible                         application;
-  std::vector<Dali::Accessibility::Accessible*> popups;
+  mutable AppAccessible                         mApplication;
+  std::vector<Dali::Accessibility::Accessible*> mPopups;
 
 private:
-  void IdSet(int id);
-  int  IdGet();
-  void RegisteredEventsUpdate();
+
+  /**
+   * @brief Sets an ID.
+   * @param[in] id An ID (integer value)
+   */
+  void SetId(int id);
+
+  /**
+   * @brief Gets the ID.
+   * @return The ID to be set
+   */
+  int GetId();
+
+  /**
+   * @brief Update registered events.
+   */
+  void UpdateRegisteredEvents();
 
   using CacheElementType = std::tuple<
     Dali::Accessibility::Address,
@@ -299,21 +421,45 @@ private:
     Dali::Accessibility::Role,
     std::string,
     std::array<uint32_t, 2>>;
+
+  /**
+   * @brief Gets Items  // NEED TO UPDATE!
+   *
+   * @return
+   */
   DBus::ValueOrError<std::vector<CacheElementType>> GetItems();
-  CacheElementType                                  CreateCacheElement(Dali::Accessibility::Accessible* item);
+
+  /**
+   * @brief Creates CacheElement.
+   *
+   * CreateCacheElement method works for GetItems which is a part of ATSPI protocol.
+   * ATSPI client library (libatspi from at-spi2-core) depending on cacheing policy configuration uses GetItems
+   * to pre-load entire accessible tree from application to its own cache in single dbus call.
+   * Otherwise the particular nodes in a tree are cached lazily when client library tries to access them.
+   * @param item Accessible to get information
+   * @return The elements to be cached
+   */
+  CacheElementType CreateCacheElement(Dali::Accessibility::Accessible* item);
 
 protected:
   BridgeBase();
   virtual ~BridgeBase();
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ForceUp()
+   */
   ForceUpResult ForceUp() override;
-  void          ForceDown() override;
 
-  DBus::DBusServer           dbusServer;
-  DBusWrapper::ConnectionPtr con;
-  int                        id = 0;
-  DBus::DBusClient           registry;
-  bool                       allowObjectBoundsChangedEvent{false};
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ForceDown()
+   */
+  void ForceDown() override;
+
+  DBus::DBusServer           mDbusServer;
+  DBusWrapper::ConnectionPtr mConnectionPtr;
+  int                        mId = 0;
+  DBus::DBusClient           mRegistry;
+  bool                       IsBoundsChangedEventAllowed{false};
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H

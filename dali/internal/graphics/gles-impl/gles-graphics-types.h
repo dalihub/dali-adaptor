@@ -1820,6 +1820,81 @@ struct GLBlendOp
         glBlendOp = GL_MAX;
         break;
       }
+      case Graphics::BlendOp::MULTIPLY:
+      {
+        glBlendOp = GL_MULTIPLY;
+        break;
+      }
+      case Graphics::BlendOp::SCREEN:
+      {
+        glBlendOp = GL_SCREEN;
+        break;
+      }
+      case Graphics::BlendOp::OVERLAY:
+      {
+        glBlendOp = GL_OVERLAY;
+        break;
+      }
+      case Graphics::BlendOp::DARKEN:
+      {
+        glBlendOp = GL_DARKEN;
+        break;
+      }
+      case Graphics::BlendOp::LIGHTEN:
+      {
+        glBlendOp = GL_LIGHTEN;
+        break;
+      }
+      case Graphics::BlendOp::COLOR_DODGE:
+      {
+        glBlendOp = GL_COLORDODGE;
+        break;
+      }
+      case Graphics::BlendOp::COLOR_BURN:
+      {
+        glBlendOp = GL_COLORBURN;
+        break;
+      }
+      case Graphics::BlendOp::HARD_LIGHT:
+      {
+        glBlendOp = GL_HARDLIGHT;
+        break;
+      }
+      case Graphics::BlendOp::SOFT_LIGHT:
+      {
+        glBlendOp = GL_SOFTLIGHT;
+        break;
+      }
+      case Graphics::BlendOp::DIFFERENCE:
+      {
+        glBlendOp = GL_DIFFERENCE;
+        break;
+      }
+      case Graphics::BlendOp::EXCLUSION:
+      {
+        glBlendOp = GL_EXCLUSION;
+        break;
+      }
+      case Graphics::BlendOp::HUE:
+      {
+        glBlendOp = GL_HSL_HUE;
+        break;
+      }
+      case Graphics::BlendOp::SATURATION:
+      {
+        glBlendOp = GL_HSL_SATURATION;
+        break;
+      }
+      case Graphics::BlendOp::COLOR:
+      {
+        glBlendOp = GL_HSL_COLOR;
+        break;
+      }
+      case Graphics::BlendOp::LUMINOSITY:
+      {
+        glBlendOp = GL_HSL_LUMINOSITY;
+        break;
+      }
     }
   }
 

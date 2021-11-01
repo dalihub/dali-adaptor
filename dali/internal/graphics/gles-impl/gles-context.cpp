@@ -517,6 +517,10 @@ void Context::ResolveBlendState()
       if(newBlendState->colorBlendOp == newBlendState->alphaBlendOp)
       {
         gl.BlendEquation(GLBlendOp(newBlendState->colorBlendOp));
+        if(newBlendState->colorBlendOp >= Graphics::ADVANCED_BLEND_OPTIONS_START)
+        {
+          gl.BlendBarrier();
+        }
       }
       else
       {

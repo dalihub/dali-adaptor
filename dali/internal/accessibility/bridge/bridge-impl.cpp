@@ -43,6 +43,9 @@
 
 using namespace Dali::Accessibility;
 
+/**
+ * @brief The BridgeImpl class is to implement some Bridge functions.
+ */
 class BridgeImpl : public virtual BridgeBase,
                    public BridgeAccessible,
                    public BridgeObject,
@@ -55,21 +58,25 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeSelection,
                    public BridgeApplication
 {
-  DBus::DBusClient                                              accessibilityStatusClient;
-  DBus::DBusClient                                              registryClient, directReadingClient;
-  bool                                                          screenReaderEnabled = false;
-  bool                                                          isEnabled           = false;
-  bool                                                          isShown             = false;
-  std::unordered_map<int32_t, std::function<void(std::string)>> directReadingCallbacks;
-  Dali::Actor                                                   highlightedActor;
-  std::function<void(Dali::Actor)>                              highlightClearAction;
-  Dali::CallbackBase* mIdleCallback = NULL;
+  DBus::DBusClient                                              mAccessibilityStatusClient;
+  DBus::DBusClient                                              mRegistryClient;
+  DBus::DBusClient                                              mDirectReadingClient;
+  bool                                                          mIsScreenReaderEnabled = false;
+  bool                                                          mIsEnabled             = false;
+  bool                                                          mIsShown               = false;
+  std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
+  Dali::Actor                                                   mHighlightedActor;
+  std::function<void(Dali::Actor)>                              mHighlightClearAction;
+  Dali::CallbackBase*                                           mIdleCallback          = NULL;
 
 public:
   BridgeImpl()
   {
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Emit()
+   */
   Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
     if(!IsUp())
@@ -96,8 +103,9 @@ public:
         return Consumed::NO;
       }
     }
-    auto m      = registryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
-    auto result = m.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
+
+    auto methodObject = mRegistryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
+    auto result       = methodObject.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
     if(!result)
     {
       LOG() << result.getError().message;
@@ -106,6 +114,9 @@ public:
     return std::get<0>(result) ? Consumed::YES : Consumed::NO;
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Pause()
+   */
   void Pause() override
   {
     if(!IsUp())
@@ -113,7 +124,7 @@ public:
       return;
     }
 
-    directReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")";
@@ -122,6 +133,9 @@ public:
                                                                                         true);
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Resume()
+   */
   void Resume() override
   {
     if(!IsUp())
@@ -129,7 +143,7 @@ public:
       return;
     }
 
-    directReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")";
@@ -138,6 +152,9 @@ public:
                                                                                         false);
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::StopReading()
+   */
   void StopReading(bool alsoNonDiscardable) override
   {
     if(!IsUp())
@@ -145,7 +162,7 @@ public:
       return;
     }
 
-    directReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")";
@@ -154,6 +171,9 @@ public:
                                                                                         alsoNonDiscardable);
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Say()
+   */
   void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
   {
     if(!IsUp())
@@ -161,20 +181,23 @@ public:
       return;
     }
 
-    directReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
+    mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
       if(!msg)
       {
         LOG() << "Direct reading command failed (" << msg.getError().message << ")";
       }
       else if(callback)
       {
-        directReadingCallbacks.emplace(std::get<2>(msg), callback);
+        mDirectReadingCallbacks.emplace(std::get<2>(msg), callback);
       }
     },
                                                                                                                            text,
                                                                                                                            discardable);
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ForceDown()
+   */
   void ForceDown() override
   {
     if(mData)
@@ -186,14 +209,17 @@ public:
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
     }
-    highlightedActor     = {};
-    highlightClearAction = {};
+    mHighlightedActor     = {};
+    mHighlightClearAction = {};
     BridgeAccessible::ForceDown();
-    registryClient      = {};
-    directReadingClient = {};
-    directReadingCallbacks.clear();
+    mRegistryClient       = {};
+    mDirectReadingClient  = {};
+    mDirectReadingCallbacks.clear();
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Terminate()
+   */
   void Terminate() override
   {
     if(mData)
@@ -206,11 +232,14 @@ public:
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
     }
-    accessibilityStatusClient        = {};
-    dbusServer                       = {};
-    con                              = {};
+    mAccessibilityStatusClient        = {};
+    mDbusServer                       = {};
+    mConnectionPtr                    = {};
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ForceUp()
+   */
   ForceUpResult ForceUp() override
   {
     if(BridgeAccessible::ForceUp() == ForceUpResult::ALREADY_UP)
@@ -229,21 +258,24 @@ public:
     BridgeSelection::RegisterInterfaces();
     BridgeApplication::RegisterInterfaces();
 
-    RegisterOnBridge(&application);
+    RegisterOnBridge(&mApplication);
 
-    registryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, con};
-    directReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, con};
-    directReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
-      auto it = directReadingCallbacks.find(id);
-      if(it != directReadingCallbacks.end())
+    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, mConnectionPtr};
+    mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
+
+    mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
+      auto it = mDirectReadingCallbacks.find(id);
+      if(it != mDirectReadingCallbacks.end())
       {
         it->second(readingState);
         if(readingState != "ReadingPaused" && readingState != "ReadingResumed" && readingState != "ReadingStarted")
-          directReadingCallbacks.erase(it);
+        {
+          mDirectReadingCallbacks.erase(it);
+        }
       }
     });
 
-    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, con};
+    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, mConnectionPtr};
     Address root{"", "root"};
     auto    res = proxy.method<Address(Address)>("Embed").call(root);
     if(!res)
@@ -251,72 +283,93 @@ public:
       LOG() << "Call to Embed failed: " << res.getError().message;
     }
     assert(res);
-    application.parent.SetAddress(std::move(std::get<0>(res)));
-    if(isShown)
+
+    mApplication.mParent.SetAddress(std::move(std::get<0>(res)));
+    if(mIsShown)
     {
       EmitActivate();
     }
     return ForceUpResult::JUST_STARTED;
   }
 
+  /**
+   * @brief Sends a signal to dbus that the default window is activated.
+   *
+   * TODO : This is subject to change if/when we implement multi-window support.
+   * @see BridgeObject::Emit()
+   */
   void EmitActivate()
   {
-    auto win = application.getActiveWindow();
+    auto win = mApplication.GetActiveWindow();
     if(win)
     {
       win->Emit(WindowEvent::ACTIVATE, 0);
     }
   }
 
+  /**
+   * @brief Sends a signal to dbus that the default window is deactivated.
+   *
+   * TODO : This is subject to change if/when we implement multi-window support.
+   * @see BridgeObject::Emit()
+   */
   void EmitDeactivate()
   {
-    auto win = application.getActiveWindow();
+    auto win = mApplication.GetActiveWindow();
     if(win)
     {
       win->Emit(WindowEvent::DEACTIVATE, 0);
     }
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowHidden()
+   */
   void WindowHidden() override
   {
-    if(isShown && IsUp())
+    if(mIsShown && IsUp())
     {
       EmitDeactivate();
     }
-    isShown = false;
+    mIsShown = false;
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowShown()
+   */
   void WindowShown() override
   {
-    if(!isShown && IsUp())
+    if(!mIsShown && IsUp())
     {
       EmitActivate();
     }
-    isShown = true;
+    mIsShown = true;
   }
 
   void ReadAndListenProperty()
   {
     // read property
-    auto enabled = accessibilityStatusClient.property<bool>("ScreenReaderEnabled").get();
+    auto enabled = mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").get();
     if(enabled)
     {
-      screenReaderEnabled = std::get<0>(enabled);
+      mIsScreenReaderEnabled = std::get<0>(enabled);
     }
-    enabled = accessibilityStatusClient.property<bool>("IsEnabled").get();
+
+    enabled = mAccessibilityStatusClient.property<bool>("IsEnabled").get();
     if(enabled)
     {
-      isEnabled = std::get<0>(enabled);
+      mIsEnabled = std::get<0>(enabled);
     }
-    if(screenReaderEnabled || isEnabled)
+
+    if(mIsScreenReaderEnabled || mIsEnabled)
     {
       ForceUp();
     }
 
     // listen property change
-    accessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
-      screenReaderEnabled = res;
-      if(screenReaderEnabled || isEnabled)
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+      mIsScreenReaderEnabled = res;
+      if(mIsScreenReaderEnabled || mIsEnabled)
       {
         ForceUp();
       }
@@ -326,9 +379,9 @@ public:
       }
     });
 
-    accessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
-      isEnabled = res;
-      if(screenReaderEnabled || isEnabled)
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
+      mIsEnabled = res;
+      if(mIsScreenReaderEnabled || mIsEnabled)
       {
         ForceUp();
       }
@@ -341,9 +394,9 @@ public:
 
   bool InitializeAccessibilityStatusClient()
   {
-    accessibilityStatusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
+    mAccessibilityStatusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
 
-    if (!accessibilityStatusClient)
+    if (!mAccessibilityStatusClient)
     {
       DALI_LOG_ERROR("Accessibility Status DbusClient is not ready\n");
       return false;
@@ -364,6 +417,9 @@ public:
     return true;
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::Initialize()
+   */
   void Initialize() override
   {
     if ( InitializeAccessibilityStatusClient() )
@@ -384,22 +440,37 @@ public:
     }
   }
 
-  bool GetScreenReaderEnabled()
+  /**
+   * @copydoc Dali::Accessibility::Bridge::GetScreenReaderEnabled()
+   */
+  bool GetScreenReaderEnabled() override
   {
-    return screenReaderEnabled;
+    return mIsScreenReaderEnabled;
   }
 
-  bool IsEnabled()
+  /**
+   * @copydoc Dali::Accessibility::Bridge::IsEnabled()
+   */
+  bool IsEnabled() override
   {
-    return isEnabled;
+    return mIsEnabled;
   }
-};
+}; // BridgeImpl
 
-static bool bridgeInitialized;
-
-static Bridge* CreateBridge()
+namespace // unnamed namespace
 {
-  bridgeInitialized = true;
+
+bool INITIALIZED_BRIDGE = false;
+
+/**
+ * @brief Creates BridgeImpl instance.
+ *
+ * @return The BridgeImpl instance
+ * @note This method is to check environment variable first. If ATSPI is disable using env, it returns dummy bridge instance.
+ */
+Bridge* CreateBridge()
+{
+  INITIALIZED_BRIDGE = true;
 
   try
   {
@@ -419,6 +490,10 @@ static Bridge* CreateBridge()
   }
 }
 
+} // unnamed namespace
+
+// Dali::Accessibility::Bridge class implementation
+
 Bridge* Bridge::GetCurrentBridge()
 {
   static Bridge* bridge;
@@ -427,7 +502,7 @@ Bridge* Bridge::GetCurrentBridge()
   {
     return bridge;
   }
-  else if(autoInitState == AutoInitState::ENABLED)
+  else if(mAutoInitState == AutoInitState::ENABLED)
   {
     bridge = CreateBridge();
 
@@ -446,19 +521,19 @@ Bridge* Bridge::GetCurrentBridge()
 
 void Bridge::DisableAutoInit()
 {
-  if(bridgeInitialized)
+  if(INITIALIZED_BRIDGE)
   {
     DALI_LOG_ERROR("Bridge::DisableAutoInit() called after bridge auto-initialization");
   }
 
-  autoInitState = AutoInitState::DISABLED;
+  mAutoInitState = AutoInitState::DISABLED;
 }
 
 void Bridge::EnableAutoInit()
 {
-  autoInitState = AutoInitState::ENABLED;
+  mAutoInitState = AutoInitState::ENABLED;
 
-  if(bridgeInitialized)
+  if(INITIALIZED_BRIDGE)
   {
     return;
   }

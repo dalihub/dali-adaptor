@@ -38,14 +38,14 @@ BridgeBase::BridgeBase()
 {
 }
 
-void BridgeBase::addFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
+void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
 {
   if(delay < 0)
   {
     delay = 0;
   }
 
-  auto it = filteredEvents.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
+  auto it = mFilteredEvents.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
   if(it.second)
   {
     functor();
@@ -58,13 +58,13 @@ void BridgeBase::addFilteredEvent(FilteredEvents kind, Dali::Accessibility::Acce
   if(!tickTimer)
   {
     tickTimer = Dali::Timer::New(100);
-    tickTimer.TickSignal().Connect(this, &BridgeBase::tickFilteredEvents);
+    tickTimer.TickSignal().Connect(this, &BridgeBase::TickFilteredEvents);
   }
 }
 
-bool BridgeBase::tickFilteredEvents()
+bool BridgeBase::TickFilteredEvents()
 {
-  for(auto it = filteredEvents.begin(); it != filteredEvents.end();)
+  for(auto it = mFilteredEvents.begin(); it != mFilteredEvents.end();)
   {
     if(it->second.first)
     {
@@ -79,33 +79,33 @@ bool BridgeBase::tickFilteredEvents()
       }
       else
       {
-        it = filteredEvents.erase(it);
+        it = mFilteredEvents.erase(it);
         continue;
       }
     }
     ++it;
   }
-  return !filteredEvents.empty();
+  return !mFilteredEvents.empty();
 }
 
-void BridgeBase::RegisteredEventsUpdate()
+void BridgeBase::UpdateRegisteredEvents()
 {
   using ReturnType = std::vector<std::tuple<std::string, std::string>>;
-  registry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
+  mRegistry.method<DBus::ValueOrError<ReturnType>()>("GetRegisteredEvents").asyncCall([this](DBus::ValueOrError<ReturnType> msg) {
     if(!msg)
     {
       LOG() << "Get registered events failed";
       return;
     }
 
-    allowObjectBoundsChangedEvent = false;
+    IsBoundsChangedEventAllowed = false;
 
     ReturnType values = std::get<ReturnType>(msg.getValues());
     for(long unsigned int i = 0; i < values.size(); i++)
     {
       if(!std::get<1>(values[i]).compare("Object:BoundsChanged"))
       {
-        allowObjectBoundsChangedEvent = true;
+        IsBoundsChangedEventAllowed = true;
       }
     }
   });
@@ -125,31 +125,31 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
     throw std::domain_error{std::string("failed at call '") + dbusLocators::atspi::GET_ADDRESS + "': " + addr.getError().message};
   }
 
-  con           = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));
-  mData->mBusName = DBus::getConnectionName(con);
-  dbusServer    = {con};
+  mConnectionPtr  = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));
+  mData->mBusName = DBus::getConnectionName(mConnectionPtr);
+  mDbusServer     = {mConnectionPtr};
 
   {
-    DBus::DBusInterfaceDescription desc{"org.a11y.atspi.Cache"};
+    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceCache};
     AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
-    dbusServer.addInterface("/org/a11y/atspi/cache", desc);
+    mDbusServer.addInterface(AtspiDbusPathCache, desc);
   }
   {
-    DBus::DBusInterfaceDescription desc{"org.a11y.atspi.Application"};
-    AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::IdGet, &BridgeBase::IdSet);
-    dbusServer.addInterface(AtspiPath, desc);
+    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceApplication};
+    AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::GetId, &BridgeBase::SetId);
+    mDbusServer.addInterface(AtspiPath, desc);
   }
 
-  registry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, AtspiDbusInterfaceRegistry, con};
+  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, AtspiDbusInterfaceRegistry, mConnectionPtr};
 
-  RegisteredEventsUpdate();
+  UpdateRegisteredEvents();
 
-  registry.addSignal<void(void)>("EventListenerRegistered", [this](void) {
-    RegisteredEventsUpdate();
+  mRegistry.addSignal<void(void)>("EventListenerRegistered", [this](void) {
+    UpdateRegisteredEvents();
   });
 
-  registry.addSignal<void(void)>("EventListenerDeregistered", [this](void) {
-    RegisteredEventsUpdate();
+  mRegistry.addSignal<void(void)>("EventListenerDeregistered", [this](void) {
+    UpdateRegisteredEvents();
   });
 
   return ForceUpResult::JUST_STARTED;
@@ -158,9 +158,9 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
-  registry   = {};
-  dbusServer = {};
-  con        = {};
+  mRegistry      = {};
+  mDbusServer    = {};
+  mConnectionPtr = {};
 }
 
 const std::string& BridgeBase::GetBusName() const
@@ -183,11 +183,11 @@ Accessible* BridgeBase::FindByPath(const std::string& name) const
 
 void BridgeBase::AddPopup(Accessible* object)
 {
-  if(std::find(popups.begin(), popups.end(), object) != popups.end())
+  if(std::find(mPopups.begin(), mPopups.end(), object) != mPopups.end())
   {
     return;
   }
-  popups.push_back(object);
+  mPopups.push_back(object);
   if(IsUp())
   {
     object->Emit(WindowEvent::ACTIVATE, 0);
@@ -196,39 +196,40 @@ void BridgeBase::AddPopup(Accessible* object)
 
 void BridgeBase::RemovePopup(Accessible* object)
 {
-  auto it = std::find(popups.begin(), popups.end(), object);
-  if(it == popups.end())
+  auto it = std::find(mPopups.begin(), mPopups.end(), object);
+  if(it == mPopups.end())
   {
     return;
   }
-  popups.erase(it);
+  mPopups.erase(it);
+
   if(IsUp())
   {
     object->Emit(WindowEvent::DEACTIVATE, 0);
-    if(popups.empty())
+    if(mPopups.empty())
     {
-      application.children.back()->Emit(WindowEvent::ACTIVATE, 0);
+      mApplication.mChildren.back()->Emit(WindowEvent::ACTIVATE, 0);
     }
     else
     {
-      popups.back()->Emit(WindowEvent::ACTIVATE, 0);
+      mPopups.back()->Emit(WindowEvent::ACTIVATE, 0);
     }
   }
 }
 
 void BridgeBase::AddTopLevelWindow(Accessible* root)
 {
-  application.children.push_back(root);
+  mApplication.mChildren.push_back(root);
   SetIsOnRootLevel(root);
 }
 
 void BridgeBase::RemoveTopLevelWindow(Accessible* root)
 {
-  for(auto i = 0u; i < application.children.size(); ++i)
+  for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
   {
-    if(application.children[i] == root)
+    if(mApplication.mChildren[i] == root)
     {
-      application.children.erase(application.children.begin() + i);
+      mApplication.mChildren.erase(mApplication.mChildren.begin() + i);
       break;
     }
   }
@@ -244,7 +245,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
 {
   if(path == "root")
   {
-    return &application;
+    return &mApplication;
   }
 
   void* accessible;
@@ -288,19 +289,19 @@ Accessible* BridgeBase::FindSelf() const
   return Find(StripPrefix(path));
 }
 
-void BridgeBase::IdSet(int id)
+void BridgeBase::SetId(int id)
 {
-  this->id = id;
+  this->mId = id;
 }
 
-int BridgeBase::IdGet()
+int BridgeBase::GetId()
 {
-  return this->id;
+  return this->mId;
 }
 
 auto BridgeBase::GetItems() -> DBus::ValueOrError<std::vector<CacheElementType>>
 {
-  auto root = &application;
+  auto root = &mApplication;
 
   std::vector<CacheElementType> res;
 
@@ -323,7 +324,7 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     return {};
   }
 
-  auto root   = &application;
+  auto root   = &mApplication;
   auto parent = item->GetParent();
 
   std::vector<Address> children;

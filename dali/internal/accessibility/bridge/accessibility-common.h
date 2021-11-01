@@ -30,6 +30,8 @@
 #include <dali/internal/accessibility/bridge/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
+/* DBus Interfaces */
+
 #define A11yDbusName "org.a11y.Bus"
 #define A11yDbusPath "/org/a11y/bus"
 #define A11yDbusStatusInterface "org.a11y.Status"
@@ -42,6 +44,8 @@
 #define AtspiDbusInterfaceAccessible "org.a11y.atspi.Accessible"
 #define AtspiDbusInterfaceAction "org.a11y.atspi.Action"
 #define AtspiDbusInterfaceApplication "org.a11y.atspi.Application"
+#define AtspiDbusInterfaceCache "org.a11y.atspi.Cache"
+#define AtspiDbusPathCache "/org/a11y/atspi/cache"
 #define AtspiDbusInterfaceCollection "org.a11y.atspi.Collection"
 #define AtspiDbusInterfaceComponent "org.a11y.atspi.Component"
 #define AtspiDbusInterfaceDocument "org.a11y.atspi.Document"
@@ -102,41 +106,47 @@ enum class SortOrder : uint32_t
 
 namespace DBus
 {
+
+/**
+ * @brief The CurrentBridgePtr class is to save the current Accessibility Bridge.
+ */
 class CurrentBridgePtr
 {
-  static Dali::Accessibility::Bridge*& get()
+  static Dali::Accessibility::Bridge*& Get()
   {
-    static thread_local Dali::Accessibility::Bridge* b = nullptr;
-    return b;
+    static thread_local Dali::Accessibility::Bridge* bridge = nullptr;
+    return bridge;
   }
-  Dali::Accessibility::Bridge* prev;
+  Dali::Accessibility::Bridge* mPrev;
   CurrentBridgePtr(const CurrentBridgePtr&) = delete;
   CurrentBridgePtr(CurrentBridgePtr&&)      = delete;
   CurrentBridgePtr& operator=(const CurrentBridgePtr&) = delete;
   CurrentBridgePtr& operator=(CurrentBridgePtr&&) = delete;
 
 public:
-  CurrentBridgePtr(Dali::Accessibility::Bridge* b)
-  : prev(get())
+  CurrentBridgePtr(Dali::Accessibility::Bridge* bridge)
+  : mPrev(Get())
   {
-    get() = b;
+    Get() = bridge;
   }
 
   ~CurrentBridgePtr()
   {
-    get() = prev;
+    Get() = mPrev;
   }
 
-  static Dali::Accessibility::Bridge* current()
+  static Dali::Accessibility::Bridge* GetCurrentBridge()
   {
-    return get();
+    return Get();
   }
-};
+}; // CurrentBridgePtr
 
+
+// Templates for setting and getting Accessible values
 namespace detail
 {
 template<typename T>
-struct signature_accessible_impl : signature_helper<signature_accessible_impl<T>>
+struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
 {
   using subtype = std::pair<std::string, ObjectPath>;
 
@@ -144,14 +154,14 @@ struct signature_accessible_impl : signature_helper<signature_accessible_impl<T>
   static constexpr auto sig_v  = concat("(so)");
 
   /**
-   * @brief Marshals value v as marshalled type into message
+   * @brief Marshals value address as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, T* t)
+  static void set(const DBusWrapper::MessageIterPtr& iter, T* accessible)
   {
-    if(t)
+    if(accessible)
     {
-      auto v = t->GetAddress();
-      signature<subtype>::set(iter, {v.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + v.GetPath()}});
+      auto address = accessible->GetAddress();
+      signature<subtype>::set(iter, {address.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + address.GetPath()}});
     }
     else
     {
@@ -160,9 +170,9 @@ struct signature_accessible_impl : signature_helper<signature_accessible_impl<T>
   }
 
   /**
-   * @brief Marshals value from marshalled type into variable v
+   * @brief Marshals value from marshalled type into variable path
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, T*& v)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, T*& path)
   {
     subtype tmp;
     if(!signature<subtype>::get(iter, tmp))
@@ -172,7 +182,7 @@ struct signature_accessible_impl : signature_helper<signature_accessible_impl<T>
 
     if(tmp.second.value == ATSPI_NULL_PATH)
     {
-      v = nullptr;
+      path = nullptr;
       return true;
     }
 
@@ -181,19 +191,19 @@ struct signature_accessible_impl : signature_helper<signature_accessible_impl<T>
       return false;
     }
 
-    auto b = CurrentBridgePtr::current();
-    if(b->GetBusName() != tmp.first)
+    auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
+    if(currentBridge->GetBusName() != tmp.first)
     {
       return false;
     }
 
-    v = b->FindByPath(tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH)));
-    return v != nullptr;
+    path = currentBridge->FindByPath(tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH)));
+    return path != nullptr;
   }
 };
 
 template<>
-struct signature<Dali::Accessibility::Accessible*> : public signature_accessible_impl<Dali::Accessibility::Accessible>
+struct signature<Dali::Accessibility::Accessible*> : public SignatureAccessibleImpl<Dali::Accessibility::Accessible>
 {
 };
 
@@ -206,24 +216,24 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
   static constexpr auto sig_v  = concat("(so)");
 
   /**
-   * @brief Marshals value v as marshalled type into message
+   * @brief Marshals value address as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::Address& v)
+  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::Address& address)
   {
-    if(v)
+    if(address)
     {
-      signature<subtype>::set(iter, {v.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + v.GetPath()}});
+      signature<subtype>::set(iter, {address.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + address.GetPath()}});
     }
     else
     {
-      signature<subtype>::set(iter, {v.GetBus(), ObjectPath{ATSPI_NULL_PATH}});
+      signature<subtype>::set(iter, {address.GetBus(), ObjectPath{ATSPI_NULL_PATH}});
     }
   }
 
   /**
-   * @brief Marshals value from marshalled type into variable v
+   * @brief Marshals value from marshalled type into variable address
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::Address& v)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::Address& address)
   {
     subtype tmp;
     if(!signature<subtype>::get(iter, tmp))
@@ -233,7 +243,7 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
 
     if(tmp.second.value == ATSPI_NULL_PATH)
     {
-      v = {};
+      address = {};
       return true;
     }
     if(tmp.second.value.substr(0, strlen(ATSPI_PREFIX_PATH)) != ATSPI_PREFIX_PATH)
@@ -241,7 +251,7 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
       return false;
     }
 
-    v = {std::move(tmp.first), tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH))};
+    address = {std::move(tmp.first), tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH))};
     return true;
   }
 };
@@ -255,24 +265,24 @@ struct signature<Dali::Accessibility::States> : signature_helper<signature<Dali:
   static constexpr auto sig_v  = signature<subtype>::sig_v;
 
   /**
-   * @brief Marshals value v as marshalled type into message
+   * @brief Marshals value state as marshalled type into message
    */
-  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::States& v)
+  static void set(const DBusWrapper::MessageIterPtr& iter, const Dali::Accessibility::States& states)
   {
-    signature<subtype>::set(iter, v.GetRawData());
+    signature<subtype>::set(iter, states.GetRawData());
   }
 
   /**
-   * @brief Marshals value from marshalled type into variable v
+   * @brief Marshals value from marshalled type into variable state
    */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::States& v)
+  static bool get(const DBusWrapper::MessageIterPtr& iter, Dali::Accessibility::States& state)
   {
     subtype tmp;
     if(!signature<subtype>::get(iter, tmp))
     {
       return false;
     }
-    v = Dali::Accessibility::States{tmp};
+    state = Dali::Accessibility::States{tmp};
     return true;
   }
 };
@@ -281,25 +291,25 @@ struct signature<Dali::Accessibility::States> : signature_helper<signature<Dali:
 
 struct _Logger
 {
-  const char*        file;
-  int                line;
-  std::ostringstream tmp;
+  const char*        mFile;
+  int                mLine;
+  std::ostringstream mTmp;
 
-  _Logger(const char* f, int l)
-  : file(f),
-    line(l)
+  _Logger(const char* file, int line)
+  : mFile(file),
+    mLine(line)
   {
   }
 
   ~_Logger()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: %s", file, line, tmp.str().c_str());
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: %s", mFile, mLine, mTmp.str().c_str());
   }
 
   template<typename T>
   _Logger& operator<<(T&& t)
   {
-    tmp << std::forward<T>(t);
+    mTmp << std::forward<T>(t);
     return *this;
   }
 };
@@ -315,19 +325,19 @@ struct _LoggerEmpty
 
 struct _LoggerScope
 {
-  const char* file;
-  int         line;
+  const char* mFile;
+  int         mLine;
 
-  _LoggerScope(const char* f, int l)
-  : file(f),
-    line(l)
+  _LoggerScope(const char* file, int line)
+  : mFile(file),
+    mLine(line)
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: +", file, line);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: +", mFile, mLine);
   }
 
   ~_LoggerScope()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: -", file, line);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: -", mFile, mLine);
   }
 };
 

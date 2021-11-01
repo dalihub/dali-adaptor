@@ -38,19 +38,19 @@ void BridgeText::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetRangeOfSelection);
   AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetRangeOfSelection);
   AddFunctionToInterface(desc, "RemoveSelection", &BridgeText::RemoveSelection);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Text* BridgeText::FindSelf() const
 {
   auto self = BridgeBase::FindSelf();
   assert(self);
-  auto textObject = dynamic_cast<Text*>(self);
-  if(!textObject)
+  auto textInterface = dynamic_cast<Text*>(self);
+  if(!textInterface)
   {
     throw std::domain_error{"Object " + self->GetAddress().ToString() + " doesn't have Text interface"};
   }
-  return textObject;
+  return textInterface;
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)
@@ -79,18 +79,18 @@ DBus::ValueOrError<std::string, int, int> BridgeText::GetTextAtOffset(int32_t of
   return {range.content, static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
-DBus::ValueOrError<int, int> BridgeText::GetRangeOfSelection(int32_t selectionNum)
+DBus::ValueOrError<int, int> BridgeText::GetRangeOfSelection(int32_t selectionIndex)
 {
-  auto range = FindSelf()->GetRangeOfSelection(selectionNum);
+  auto range = FindSelf()->GetRangeOfSelection(selectionIndex);
   return {static_cast<int>(range.startOffset), static_cast<int>(range.endOffset)};
 }
 
-DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionNum)
+DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionIndex)
 {
-  return FindSelf()->RemoveSelection(selectionNum);
+  return FindSelf()->RemoveSelection(selectionIndex);
 }
 
-DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionNum, int32_t startOffset, int32_t endOffset)
+DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset)
 {
-  return FindSelf()->SetRangeOfSelection(selectionNum, startOffset, endOffset);
+  return FindSelf()->SetRangeOfSelection(selectionIndex, startOffset, endOffset);
 }

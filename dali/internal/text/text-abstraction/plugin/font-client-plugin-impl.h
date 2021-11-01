@@ -24,6 +24,10 @@
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
+#include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
+#include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
+#include <dali/internal/text/text-abstraction/plugin/pixel-buffer-cache-item.h>
 
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
 #include <third-party/glyphy/vector-font-cache.h>
@@ -35,7 +39,6 @@ class VectorFontCache;
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
-#include FT_OUTLINE_H
 #include FT_STROKER_H
 #include FT_SYNTHESIS_H
 
@@ -54,11 +57,6 @@ namespace Internal
  * @brief Type used for indices addressing the vector with front descriptions of validated fonts.
  */
 typedef uint32_t FontDescriptionId;
-
-/**
- * @brief Type used for indices addressing the vector with pixel buffers.
- */
-typedef uint32_t PixelBufferId;
 
 /**
  * @brief Vector of character sets.
@@ -116,75 +114,10 @@ struct FontClient::Plugin
     FontId            fontId;             ///< The font identifier.
   };
 
-  /**
-   * @brief Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
-   */
-  struct FontFaceCacheItem
-  {
-    FontFaceCacheItem(FT_Face            ftFace,
-                      const FontPath&    path,
-                      PointSize26Dot6    requestedPointSize,
-                      FaceIndex          face,
-                      const FontMetrics& metrics);
-
-    FontFaceCacheItem(FT_Face            ftFace,
-                      const FontPath&    path,
-                      PointSize26Dot6    requestedPointSize,
-                      FaceIndex          face,
-                      const FontMetrics& metrics,
-                      int                fixedSizeIndex,
-                      float              fixedWidth,
-                      float              fixedHeight,
-                      bool               hasColorTables);
-
-    FT_Face         mFreeTypeFace;          ///< The FreeType face.
-    FontPath        mPath;                  ///< The path to the font file name.
-    PointSize26Dot6 mRequestedPointSize;    ///< The font point size.
-    FaceIndex       mFaceIndex;             ///< The face index.
-    FontMetrics     mMetrics;               ///< The font metrics.
-    _FcCharSet*     mCharacterSet;          ///< Pointer with the range of characters.
-    int             mFixedSizeIndex;        ///< Index to the fixed size table for the requested size.
-    float           mFixedWidthPixels;      ///< The height in pixels (fixed size bitmaps only)
-    float           mFixedHeightPixels;     ///< The height in pixels (fixed size bitmaps only)
-    unsigned int    mVectorFontId;          ///< The ID of the equivalent vector-based font
-    FontId          mFontId;                ///< Index to the vector with the cache of font's ids.
-    bool            mIsFixedSizeBitmap : 1; ///< Whether the font has fixed size bitmaps.
-    bool            mHasColorTables : 1;    ///< Whether the font has color tables.
-  };
-
   struct EllipsisItem
   {
     PointSize26Dot6 requestedPointSize;
     GlyphInfo       glyph;
-  };
-
-  /**
-   * @brief Caches pixel buffers.
-   */
-  struct PixelBufferCacheItem
-  {
-    Devel::PixelBuffer pixelBuffer; ///< The pixel buffer loaded from the url.
-    std::string        url;         ///< The url.
-  };
-
-  /**
-   * @brief Caches embedded items.
-   */
-  struct EmbeddedItem
-  {
-    PixelBufferId pixelBufferId; ///< Index to the vector of pixel buffers
-    unsigned int  width;         ///< The desired width.
-    unsigned int  height;        ///< The desired height.
-  };
-
-  /**
-   * @brief Stores a bitmap font and its pixel buffers per glyph.
-   */
-  struct BitmapFontCacheItem
-  {
-    BitmapFont                      font;         ///< The bitmap font.
-    std::vector<Devel::PixelBuffer> pixelBuffers; ///< The pixel buffers of the glyphs.
-    FontId                          id;           ///< Index to the vector with the cache of font's ids.
   };
 
   /**
@@ -254,6 +187,13 @@ struct FontClient::Plugin
    * @copydoc Dali::TextAbstraction::FontClient::IsCharacterSupportedByFont()
    */
   bool IsCharacterSupportedByFont(FontId fontId, Character character);
+
+  /**
+   * Get the cached font item for the given font
+   * @param[in] id The font id to search for
+   * @return the matching cached font item
+   */
+  const FontCacheItemInterface* GetCachedFontItem(FontId id) const;
 
   /**
    * @brief Finds within the @p fontList a font which support the @p carcode.
@@ -461,17 +401,6 @@ private:
   bool MatchFontDescriptionToPattern(_FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, _FcCharSet** characterSet);
 
   /**
-   * @brief Creates a font family pattern used to match fonts.
-   *
-   * @note Need to call FcPatternDestroy to free the resources.
-   *
-   * @param[in] fontDescription The font to cache.
-   *
-   * @return The pattern.
-   */
-  _FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription) const;
-
-  /**
    * @brief Retrieves the fonts present in the platform.
    *
    * @note Need to call FcFontSetDestroy to free the allocated resources.
@@ -516,25 +445,6 @@ private:
                     PointSize26Dot6 requestedPointSize,
                     FaceIndex       faceIndex,
                     bool            cacheDescription);
-
-  /**
-   * @brief Copy the color bitmap given in @p srcBuffer to @p data.
-   *
-   * @param[out] data The bitmap data.
-   * @param[in] srcWidth The width of the bitmap.
-   * @param[in] srcHeight The height of the bitmap.
-   * @param[in] srcBuffer The buffer of the bitmap.
-   */
-  void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer);
-
-  /**
-   * @brief Copy the FreeType bitmap to the given buffer.
-   *
-   * @param[out] data The bitmap data.
-   * @param[in] srcBitmap The FreeType bitmap.
-   * @param[in] isShearRequired Whether the bitmap needs a shear transform (for software italics).
-   */
-  void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap, bool isShearRequired);
 
   /**
    * @brief Finds in the cache if there is a triplet with the path to the font file name, the font point size and the face index.
@@ -627,17 +537,6 @@ private:
   void CacheFontPath(FT_Face ftFace, FontId id, PointSize26Dot6 requestedPointSize, const FontPath& path);
 
   /**
-   * @brief Creates a character set from a given font's @p description.
-   *
-   * @note Need to call FcCharSetDestroy to free the resources.
-   *
-   * @param[in] description The font's description.
-   *
-   * @return A character set.
-   */
-  _FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description);
-
-  /**
    * @brief Free the resources allocated in the fallback cache.
    *
    * @param[in] fallbackCache The fallback cache.
@@ -650,10 +549,8 @@ private:
   void ClearCharacterSetFromFontFaceCache();
 
 private:
-  // Declared private and left undefined to avoid copies.
-  Plugin(const Plugin&);
-  // Declared private and left undefined to avoid copies.
-  Plugin& operator=(const Plugin&);
+  Plugin(const Plugin&) = delete;
+  Plugin& operator=(const Plugin&) = delete;
 
 private:
   FT_Library mFreeTypeLibrary; ///< A handle to a FreeType library instance.

@@ -168,6 +168,11 @@ public:
    */
   bool ReleaseBuffer() override;
 
+  /**
+   * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
+   */
+  void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
 private:
   /**
    * Private constructor; @see NativeImageSource::New()
@@ -190,19 +195,20 @@ private:
   void DestroySurface();
 
 private:
-  uint32_t                            mWidth;              ///< image width
-  uint32_t                            mHeight;             ///< image height
-  bool                                mOwnTbmSurface;      ///< Whether we created pixmap or not
-  tbm_surface_h                       mTbmSurface;
-  tbm_format                          mTbmFormat;
-  bool                                mBlendingRequired;   ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth mColorDepth;         ///< color depth of image
-  void*                               mEglImageKHR;        ///< From EGL extension
-  EglGraphics*                        mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*                 mEglImageExtensions; ///< The EGL Image Extensions
-  bool                                mSetSource;
-  mutable Dali::Mutex                 mMutex;
-  bool                                mIsBufferAcquired; ///< Whether AcquireBuffer is called
+  uint32_t                             mWidth;                        ///< image width
+  uint32_t                             mHeight;                       ///< image height
+  bool                                 mOwnTbmSurface;                ///< Whether we created pixmap or not
+  tbm_surface_h                        mTbmSurface;
+  tbm_format                           mTbmFormat;
+  bool                                 mBlendingRequired;             ///< Whether blending is required
+  Dali::NativeImageSource::ColorDepth  mColorDepth;                   ///< color depth of image
+  void*                                mEglImageKHR;                  ///< From EGL extension
+  EglGraphics*                         mEglGraphics;                  ///< EGL Graphics
+  EglImageExtensions*                  mEglImageExtensions;           ///< The EGL Image Extensions
+  bool                                 mSetSource;
+  mutable Dali::Mutex                  mMutex;
+  bool                                 mIsBufferAcquired;             ///< Whether AcquireBuffer is called
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;  ///< The Resource Destruction Callback
 };
 
 } // namespace Adaptor

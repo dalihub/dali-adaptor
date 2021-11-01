@@ -36,7 +36,7 @@ void BridgeComponent::RegisterInterfaces()
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Component.xml
 
   DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceComponent};
-  AddFunctionToInterface(desc, "Contains", &BridgeComponent::IsAccessibleContainedAtPoint);
+  AddFunctionToInterface(desc, "Contains", &BridgeComponent::IsAccessibleContainingPoint);
   AddFunctionToInterface(desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint);
   AddFunctionToInterface(desc, "GetExtents", &BridgeComponent::GetExtents);
   AddFunctionToInterface(desc, "GetPosition", &BridgeComponent::GetPosition);
@@ -47,62 +47,74 @@ void BridgeComponent::RegisterInterfaces()
   AddFunctionToInterface(desc, "GrabHighlight", &BridgeComponent::GrabHighlight);
   AddFunctionToInterface(desc, "GrabFocus", &BridgeComponent::GrabFocus);
   AddFunctionToInterface(desc, "ClearHighlight", &BridgeComponent::ClearHighlight);
-  dbusServer.addInterface("/", desc, true);
+  mDbusServer.addInterface("/", desc, true);
 }
 
 Component* BridgeComponent::FindSelf() const
 {
-  auto s = BridgeBase::FindSelf();
-  assert(s);
-  auto s2 = dynamic_cast<Component*>(s);
-  if(!s2)
-    throw std::domain_error{"object " + s->GetAddress().ToString() + " doesn't have Component interface"};
-  return s2;
+  auto self = BridgeBase::FindSelf();
+  assert(self);
+  auto componentInterface = dynamic_cast<Component*>(self);
+  if(!componentInterface)
+  {
+    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Component interface"};
+  }
+  return componentInterface;
 }
 
-DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainedAtPoint(int32_t x, int32_t y, uint32_t coordType)
+DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType)
 {
-  return FindSelf()->IsAccessibleContainedAtPoint({x, y}, static_cast<CoordinateType>(coordType));
+  return FindSelf()->IsAccessibleContainingPoint({x, y}, static_cast<CoordinateType>(coordType));
 }
+
 DBus::ValueOrError<Accessible*> BridgeComponent::GetAccessibleAtPoint(int32_t x, int32_t y, uint32_t coordType)
 {
   return FindSelf()->GetAccessibleAtPoint({x, y}, static_cast<CoordinateType>(coordType));
 }
+
 DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeComponent::GetExtents(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
-  return std::tuple<int32_t, int32_t, int32_t, int32_t>{p.x, p.y, p.width, p.height};
+  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  return std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height};
 }
+
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
-  return {static_cast<int32_t>(p.x), static_cast<int32_t>(p.y)};
+  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  return {static_cast<int32_t>(rect.x), static_cast<int32_t>(rect.y)};
 }
+
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetSize(uint32_t coordType)
 {
-  auto p = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
-  return {static_cast<int32_t>(p.width), static_cast<int32_t>(p.height)};
+  auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+  return {static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)};
 }
+
 DBus::ValueOrError<ComponentLayer> BridgeComponent::GetLayer()
 {
   return FindSelf()->GetLayer();
 }
+
 DBus::ValueOrError<double> BridgeComponent::GetAlpha()
 {
   return FindSelf()->GetAlpha();
 }
+
 DBus::ValueOrError<bool> BridgeComponent::GrabFocus()
 {
   return FindSelf()->GrabFocus();
 }
+
 DBus::ValueOrError<bool> BridgeComponent::GrabHighlight()
 {
   return FindSelf()->GrabHighlight();
 }
+
 DBus::ValueOrError<bool> BridgeComponent::ClearHighlight()
 {
   return FindSelf()->ClearHighlight();
 }
+
 DBus::ValueOrError<int16_t> BridgeComponent::GetMdiZOrder()
 {
   return FindSelf()->GetMdiZOrder();

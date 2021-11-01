@@ -146,7 +146,8 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mScreenRotationFinished(true),
   mResizeFinished(true),
   mDefaultScreenRotationAvailable(false),
-  mIsImeWindowSurface(false)
+  mIsImeWindowSurface(false),
+  mNeedWindowRotationAcknowledgement(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -215,7 +216,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
   if(!mPostRenderTrigger)
   {
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+                                                                                                      TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
   mPositionSize.width  = width;
@@ -554,9 +555,16 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
   SetBufferDamagedRects(mDamagedRects, clippingRect);
 
-  if(clippingRect.IsEmpty())
+  Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
+  if(clippingRect == surfaceRect)
   {
-    mDamagedRects.clear();
+    mDamagedRects.assign(1, surfaceRect);
+  }
+  else if(mDamagedRects.empty() && !clippingRect.IsEmpty())
+  {
+    // We will render clippingRect area but mDamagedRects is empty.
+    // So make mDamagedRects same with clippingRect to swap buffers.
+    mDamagedRects.assign(1, clippingRect);
   }
 
   // This is now done when the render pass for the render surface begins
@@ -574,7 +582,31 @@ void WindowRenderSurface::PostRender()
     GlImplementation& mGLES = eglGraphics->GetGlesInterface();
     mGLES.PostRender();
 
-    if((mIsResizing && !mWindowRotationFinished) || mIsImeWindowSurface)
+    bool needWindowRotationCompleted = false;
+
+    if(!mWindowRotationFinished)
+    {
+      if(mNeedWindowRotationAcknowledgement)
+      {
+        Dali::Integration::Scene scene = mScene.GetHandle();
+        if(scene)
+        {
+          if(scene.IsRotationCompletedAcknowledgementSet())
+          {
+            needWindowRotationCompleted = true;
+          }
+        }
+      }
+      else
+      {
+        if(mIsResizing)
+        {
+          needWindowRotationCompleted = true;
+        }
+      }
+    }
+
+    if(needWindowRotationCompleted || mIsImeWindowSurface)
     {
       if(mThreadSynchronization)
       {
@@ -650,6 +682,11 @@ void WindowRenderSurface::InitializeImeSurface()
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
                                                                                                         TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
+}
+
+void WindowRenderSurface::SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement)
+{
+  mNeedWindowRotationAcknowledgement = needAcknowledgement;
 }
 
 void WindowRenderSurface::OutputTransformed()
@@ -749,28 +786,25 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    if(!eglImpl.IsPartialUpdateRequired())
-    {
-      return;
-    }
-
     Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
 
-    if(mFullSwapNextFrame)
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
     {
       InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
-      clippingRect = Rect<int>();
+      clippingRect = surfaceRect;
       return;
     }
+
+    mGraphics->ActivateSurfaceContext(this);
 
     EGLint bufferAge = eglImpl.GetBufferAge(mEGLSurface);
 
     // Buffer age 0 means the back buffer in invalid and requires full swap
-    if(!damagedRects.size() || bufferAge == 0)
+    if(bufferAge == 0)
     {
       InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
-      clippingRect = Rect<int>();
+      clippingRect = surfaceRect;
       return;
     }
 
@@ -788,22 +822,25 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     if(!clippingRect.Intersect(surfaceRect) || clippingRect.Area() > surfaceRect.Area() * FULL_UPDATE_RATIO)
     {
       // clipping area too big or doesn't intersect surface rect
-      clippingRect = Rect<int>();
+      clippingRect = surfaceRect;
       return;
     }
 
-    std::vector<Rect<int>>   damagedRegion;
-    Dali::Integration::Scene scene = mScene.GetHandle();
-    if(scene)
+    if(!clippingRect.IsEmpty())
     {
-      damagedRegion.push_back(RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](clippingRect, scene.GetCurrentSurfaceRect()));
-    }
-    else
-    {
-      damagedRegion.push_back(clippingRect);
-    }
+      std::vector<Rect<int>>   damagedRegion;
+      Dali::Integration::Scene scene = mScene.GetHandle();
+      if(scene)
+      {
+        damagedRegion.push_back(RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](clippingRect, scene.GetCurrentSurfaceRect()));
+      }
+      else
+      {
+        damagedRegion.push_back(clippingRect);
+      }
 
-    eglImpl.SetDamageRegion(mEGLSurface, damagedRegion);
+      eglImpl.SetDamageRegion(mEGLSurface, damagedRegion);
+    }
   }
 }
 
@@ -824,7 +861,7 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || !damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
+    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || (damagedRects.size() != 0 && damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
     {
       mFullSwapNextFrame = false;
       eglImpl.SwapBuffers(mEGLSurface);
@@ -877,6 +914,8 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
 
     if(!mergedRects.size() || (mergedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
     {
+      // In normal cases, WindowRenderSurface::SwapBuffers() will not be called if mergedRects.size() is 0.
+      // For exceptional cases, swap full area.
       eglImpl.SwapBuffers(mEGLSurface);
     }
     else

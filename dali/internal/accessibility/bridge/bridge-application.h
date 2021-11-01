@@ -21,17 +21,26 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
-/*
+/**
+ * @brief The BridgeApplication class is to correspond with Dali::Accessibility::Application.
+ *
  * Implementation of org.a11y.atspi.Application interface
  */
-
 class BridgeApplication : public virtual BridgeBase
 {
 protected:
   BridgeApplication() = default;
 
+  /**
+   * @brief Registers Application functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the Application object of the currently executed DBus method call.
+   *
+   * @return The Application object
+   */
   Dali::Accessibility::Application* FindSelf() const;
 
 public:

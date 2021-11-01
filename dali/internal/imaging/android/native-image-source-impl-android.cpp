@@ -56,15 +56,16 @@ NativeImageSourceAndroid* NativeImageSourceAndroid::New(uint32_t width, uint32_t
   return image;
 }
 
-NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
 : mWidth(width),
-  mHeight(height),
+  mHeight(height ),
   mOwnPixmap(true),
   mPixmap(NULL),
   mBlendingRequired(false),
   mColorDepth(depth),
   mEglImageKHR(NULL),
-  mEglImageExtensions(NULL)
+  mEglImageExtensions(NULL),
+  mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
@@ -285,6 +286,11 @@ void NativeImageSourceAndroid::DestroyResource()
   mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
 
   mEglImageKHR = NULL;
+
+  if(mResourceDestructionCallback)
+  {
+    mResourceDestructionCallback->Trigger();
+  }
 }
 
 uint32_t NativeImageSourceAndroid::TargetTexture()
@@ -388,6 +394,11 @@ bool NativeImageSourceAndroid::ReleaseBuffer()
     return true;
   }
   return false;
+}
+
+void NativeImageSourceAndroid::SetResourceDestructionCallback(EventThreadCallback* callback)
+{
+  mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
 }
 
 } // namespace Adaptor

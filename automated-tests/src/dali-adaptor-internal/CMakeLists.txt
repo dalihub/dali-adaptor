@@ -51,16 +51,17 @@ PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core
     dali2-adaptor
     ecore
+    freetype2>=9.16.3
 )
+
+
 
 ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
 ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
-# Shouldn't have to do this!
-# But CMake's new auto-escape quote policy doesn't work right.
-CMAKE_POLICY(SET CMP0005 OLD)
-ADD_DEFINITIONS(-DTEST_IMAGE_DIR=\"\\\"${CMAKE_CURRENT_SOURCE_DIR}/../../images\\\"\" )
-ADD_DEFINITIONS(-DADDON_LIBS_PATH=\"\\\"${CMAKE_CURRENT_BINARY_DIR}\\\"\" )
+ADD_DEFINITIONS(-DTEST_IMAGE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../images\" )
+ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )
+ADD_DEFINITIONS(-DADDON_LIBS_PATH=\"${CMAKE_CURRENT_BINARY_DIR}\" )
 
 
 FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})

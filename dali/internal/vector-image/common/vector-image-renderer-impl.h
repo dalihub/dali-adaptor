@@ -21,14 +21,18 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#ifdef THORVG_SUPPORT
+#include <thorvg.h>
+#endif
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/devel-api/adaptor-framework/vector-image-renderer.h>
-#include <dali/internal/vector-image/common/vector-image-renderer-plugin-proxy.h>
 
+#ifndef THORVG_SUPPORT
 struct NSVGrasterizer;
 struct NSVGimage;
+#endif
 
 namespace Dali
 {
@@ -89,9 +93,15 @@ private:
   void Initialize();
 
 private:
-  VectorImageRendererPluginProxy mPlugin;
+#ifdef THORVG_SUPPORT
+  std::unique_ptr< tvg::SwCanvas >       mSwCanvas;
+  tvg::Picture*                          mPicture;        ///< The pointer to the picture
+  uint32_t                               mDefaultWidth;   ///< The width of the surface
+  uint32_t                               mDefaultHeight;  ///< The height of the surface
+#else
   NSVGimage*                     mParsedImage;
   NSVGrasterizer*                mRasterizer;
+#endif
 };
 
 } // namespace Adaptor

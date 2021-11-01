@@ -24,13 +24,14 @@
 #endif
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/object/weak-handle.h>
+#include <dali/public-api/rendering/texture.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -57,9 +58,9 @@ public:
   bool Commit() override;
 
   /**
-   * @copydoc Dali::CanvasRenderer::GetPixelBuffer()
+   * @copydoc Dali::CanvasRenderer::GetRasterizedTexture()
    */
-  Devel::PixelBuffer GetPixelBuffer() override;
+  Dali::Texture GetRasterizedTexture() override;
 
   /**
    * @copydoc Dali::CanvasRenderer::AddDrawable()
@@ -162,10 +163,10 @@ private:
 #endif
 
 private:
-  Devel::PixelBuffer mPixelBuffer;
-  Dali::Mutex        mMutex;
-
 #ifdef THORVG_SUPPORT
+  Devel::PixelBuffer             mPixelBuffer;
+  Dali::Texture                  mRasterizedTexture;
+  Dali::Mutex                    mMutex;
   std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
   tvg::Scene*                    mTvgRoot;
 #endif

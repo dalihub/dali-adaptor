@@ -170,6 +170,12 @@ public:
   void SurfaceRotated(float width, float height, int orientation);
 
   /**
+   * @brief Send message to acknowledge window rotation with current window orientation.
+   * It is to send message to render thread for completing window rotation by user.
+   */
+  void SetRotationCompletedAcknowledgement();
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
    */
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);
