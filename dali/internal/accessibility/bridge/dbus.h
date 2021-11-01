@@ -471,13 +471,24 @@ void debugPrint(const char* file, size_t line, const char* format, ...);
    */
 void setDebugPrinter(std::function<void(const char*, size_t)>);
 
+/**
+ * @brief Enumeration indicatng DBus error type
+ */
+enum class ErrorType
+{
+  DEFAULT,      ///< default
+  INVALID_REPLY ///< reply message has error
+};
+
 struct Error
 {
   std::string message;
+  ErrorType errorType;
 
   Error() = default;
-  Error(std::string msg)
-  : message(std::move(msg))
+  Error(std::string msg, ErrorType errorType = ErrorType::DEFAULT)
+  : message(std::move(msg)),
+    errorType(errorType)
   {
     assert(!message.empty());
   }
@@ -1842,7 +1853,7 @@ void asyncCall(CallId callId, const ConnectionState& connectionState, bool prope
       if(DBUS_W->eldbus_message_error_get_impl(reply, errname, errmsg))
       {
         DBUS_DEBUG("call %d: %s: %s", callId.id, errname.c_str(), errmsg.c_str());
-        callback(Error{errname + ": " + errmsg});
+        callback(Error{errname + ": " + errmsg, ErrorType::INVALID_REPLY});
       }
       else
       {

@@ -403,39 +403,28 @@ public:
     }
   }
 
-  void ReadAndListenProperty()
+  void ReadIsEnabledProperty()
   {
-    // read property
-    auto enabled = mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").get();
-    if(enabled)
-    {
-      mIsScreenReaderEnabled = std::get<0>(enabled);
-    }
-
-    enabled = mAccessibilityStatusClient.property<bool>("IsEnabled").get();
-    if(enabled)
-    {
-      mIsEnabled = std::get<0>(enabled);
-    }
-
-    if(mIsScreenReaderEnabled || mIsEnabled)
-    {
-      ForceUp();
-    }
-
-    // listen property change
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
-      mIsScreenReaderEnabled = res;
-      if(mIsScreenReaderEnabled || mIsEnabled)
+    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+      if(!msg)
+      {
+        DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
+        if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
+        {
+          ReadIsEnabledProperty();
+        }
+        return;
+      }
+      mIsEnabled = std::get<0>(msg);
+      if(mIsEnabled)
       {
         ForceUp();
       }
-      else
-      {
-        ForceDown();
-      }
     });
+  }
 
+  void ListenIsEnabledProperty()
+  {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
       mIsEnabled = res;
       if(mIsScreenReaderEnabled || mIsEnabled)
@@ -447,6 +436,50 @@ public:
         ForceDown();
       }
     });
+  }
+
+  void ReadScreenReaderEnabledProperty()
+  {
+    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+      if(!msg)
+      {
+        DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
+        if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
+        {
+          ReadScreenReaderEnabledProperty();
+        }
+        return;
+      }
+      mIsScreenReaderEnabled = std::get<0>(msg);
+      if(mIsScreenReaderEnabled)
+      {
+        ForceUp();
+      }
+    });
+  }
+
+  void ListenScreenReaderEnabledProperty()
+  {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+      mIsScreenReaderEnabled = res;
+      if(mIsScreenReaderEnabled || mIsEnabled)
+      {
+        ForceUp();
+      }
+      else
+      {
+        ForceDown();
+      }
+    });
+  }
+
+  void ReadAndListenProperties()
+  {
+    ReadIsEnabledProperty();
+    ListenIsEnabledProperty();
+
+    ReadScreenReaderEnabledProperty();
+    ListenScreenReaderEnabledProperty();
   }
 
   bool InitializeAccessibilityStatusClient()
@@ -466,7 +499,7 @@ public:
   {
     if ( InitializeAccessibilityStatusClient() )
     {
-      ReadAndListenProperty();
+      ReadAndListenProperties();
       mIdleCallback = NULL;
       return false;
     }
@@ -481,7 +514,7 @@ public:
   {
     if ( InitializeAccessibilityStatusClient() )
     {
-      ReadAndListenProperty();
+      ReadAndListenProperties();
       return;
     }
 
