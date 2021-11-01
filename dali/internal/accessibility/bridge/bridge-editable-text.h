@@ -21,21 +21,59 @@
 // INTERNAL INCLUDES
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
+/**
+ * @brief The BridgeEditableText class is to correspond with Dali::Accessibility::EditableText.
+ */
 class BridgeEditableText : public virtual BridgeBase
 {
 protected:
   BridgeEditableText() = default;
 
+  /**
+   * @brief Registers EditableText functions to dbus interfaces.
+   */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the EditableText object of the currently executed DBus method call.
+   *
+   * @return The EditableText object
+   */
   Dali::Accessibility::EditableText* FindSelf() const;
 
 public:
-  DBus::ValueOrError<bool> CopyText(int32_t startPos, int32_t endPos);
-  DBus::ValueOrError<bool> CutText(int32_t startPos, int32_t endPos);
-  DBus::ValueOrError<bool> DeleteText(int32_t startPos, int32_t endPos);
-  DBus::ValueOrError<bool> InsertText(int32_t startPos, std::string text, int32_t length);
-  DBus::ValueOrError<bool> PasteText(int32_t pos);
+  /**
+   * @copydoc Dali::Accessibility::EditableText::CopyText()
+   */
+  DBus::ValueOrError<bool> CopyText(int32_t startPosition, int32_t endPosition);
+
+  /**
+   * @copydoc Dali::Accessibility::EditableText::CutText()
+   */
+  DBus::ValueOrError<bool> CutText(int32_t startPosition, int32_t endPosition);
+
+  /**
+   * @copydoc Dali::Accessibility::EditableText::DeleteText()
+   */
+  DBus::ValueOrError<bool> DeleteText(int32_t startPosition, int32_t endPosition);
+
+  /**
+   * @copydoc Dali::Accessibility::EditableText::InsertText()
+   */
+  DBus::ValueOrError<bool> InsertText(int32_t startPosition, std::string text, int32_t length);
+
+  /**
+   * @brief Pastes text at position.
+   *
+   * @param[in] position The text position
+   * @return True on success, false otherwise
+   * @note Currently, this function is not implemented yet.
+   */
+  DBus::ValueOrError<bool> PasteText(int32_t position);
+
+  /**
+   * @copydoc Dali::Accessibility::EditableText::SetTextContents()
+   */
   DBus::ValueOrError<bool> SetTextContents(std::string newContents);
 };
 

@@ -40,7 +40,7 @@ BridgeObject::BridgeObject()
 void BridgeObject::RegisterInterfaces()
 {
   // DBus::DBusInterfaceDescription desc{ AtspiDbusInterfaceEventObject };
-  // stateChanged = addSignal<std::string, int, int, DBus::EldbusVariant<int>, Accessible*>(desc, "StateChanged");
+  // mStateChanged = addSignal<std::string, int, int, DBus::EldbusVariant<int>, Accessible*>(desc, "StateChanged");
   // mDbusServer.addInterface("/", desc, true);
 }
 
@@ -60,12 +60,12 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
     {"", "root"});
 }
 
-void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent ev)
+void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent event)
 {
   if(!IsUp()) return;
   const char* name = nullptr;
 
-  switch(ev)
+  switch(event)
   {
     case ObjectPropertyChangeEvent::NAME:
     {
