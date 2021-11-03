@@ -404,4 +404,9 @@ GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character) const
   return FT_Get_Char_Index(mFreeTypeFace, character);
 }
 
+GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character, Character variantSelector) const
+{
+  return FT_Face_GetCharVariantIndex(mFreeTypeFace, character, variantSelector);
+}
+
 } // namespace Dali::TextAbstraction::Internal

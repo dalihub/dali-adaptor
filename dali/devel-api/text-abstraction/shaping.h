@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/emoji-helper.h>
 #include <dali/devel-api/text-abstraction/script.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 

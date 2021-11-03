@@ -215,6 +215,11 @@ GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode)
   return GetImplementation(*this).GetGlyphIndex(fontId, charcode);
 }
 
+GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode, Character variantSelector)
+{
+  return GetImplementation(*this).GetGlyphIndex(fontId, charcode, variantSelector);
+}
+
 bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal)
 {
   return GetImplementation(*this).GetGlyphMetrics(array, size, type, horizontal);

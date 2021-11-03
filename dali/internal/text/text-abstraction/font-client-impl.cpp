@@ -284,6 +284,13 @@ GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode)
   return mPlugin->GetGlyphIndex(fontId, charcode);
 }
 
+GlyphIndex FontClient::GetGlyphIndex(FontId fontId, Character charcode, Character variantSelector)
+{
+  CreatePlugin();
+
+  return mPlugin->GetGlyphIndex(fontId, charcode, variantSelector);
+}
+
 bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal)
 {
   CreatePlugin();

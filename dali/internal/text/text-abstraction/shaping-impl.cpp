@@ -106,13 +106,15 @@ const hb_script_t SCRIPT_TO_HARFBUZZ[] =
     HB_SCRIPT_TAGALOG,
     HB_SCRIPT_MEETEI_MAYEK,
 
-    HB_SCRIPT_UNKNOWN, // EMOJI
-    HB_SCRIPT_UNKNOWN, // SYMBOLS1
-    HB_SCRIPT_UNKNOWN, // SYMBOLS2
-    HB_SCRIPT_UNKNOWN, // SYMBOLS3
-    HB_SCRIPT_UNKNOWN, // SYMBOLS4
-    HB_SCRIPT_UNKNOWN, // SYMBOLS5
-    HB_SCRIPT_UNKNOWN};
+    HB_SCRIPT_UNKNOWN,  // EMOJI
+    HB_SCRIPT_UNKNOWN,  // SYMBOLS1
+    HB_SCRIPT_UNKNOWN,  // SYMBOLS2
+    HB_SCRIPT_UNKNOWN,  // SYMBOLS3
+    HB_SCRIPT_UNKNOWN,  // SYMBOLS4
+    HB_SCRIPT_UNKNOWN,  // SYMBOLS5
+    HB_SCRIPT_UNKNOWN,  // UNKNOWN
+    HB_SCRIPT_UNKNOWN,  // EMOJI_TEXT
+    HB_SCRIPT_UNKNOWN}; // EMOJI_COLOR
 
 struct Shaping::Plugin
 {
@@ -197,6 +199,15 @@ struct Shaping::Plugin
 
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
+
+        //The invisible unicodes like U+FE0F and U+FE0E should be replaced by zero width glyph
+        //i.e: This text "&#x262a;&#xfe0f;&#xfe0f;&#xfe0f;&#x262a;&#xfe0f;" should be rendered as two adjacent glyphs.
+        if(TextAbstraction::IsOneOfEmojiScripts(script))
+        {
+          //TODO: check if this should be applied to all scripts
+          //Applied this only on EMOJI scripts to avoid compatibility issues with other scripts
+          hb_buffer_set_invisible_glyph(harfBuzzBuffer, TextAbstraction::GetUnicodeForInvisibleGlyph());
+        }
 
         hb_shape(harfBuzzFont, harfBuzzBuffer, NULL, 0u);
 
