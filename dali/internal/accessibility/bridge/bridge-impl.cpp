@@ -208,6 +208,8 @@ public:
       }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
+
+      mDisabledSignal.Emit();
     }
     mHighlightedActor     = {};
     mHighlightClearAction = {};
@@ -289,6 +291,9 @@ public:
     {
       EmitActivate();
     }
+
+    mEnabledSignal.Emit();
+
     return ForceUpResult::JUST_STARTED;
   }
 
