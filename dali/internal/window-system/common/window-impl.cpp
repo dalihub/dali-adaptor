@@ -92,7 +92,8 @@ Window::Window()
   mResizeSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
-  mKeyboardRepeatSettingsChangedSignal()
+  mKeyboardRepeatSettingsChangedSignal(),
+  mAuxiliaryMessageSignal()
 {
 }
 
@@ -142,6 +143,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->KeyboardRepeatSettingsChangedSignal().Connect(this, &Window::OnKeyboardRepeatSettingsChanged);
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
+  mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
 
@@ -856,6 +858,11 @@ void Window::OnResume()
   }
 
   mSurface->SetFullSwapNextFrame();
+}
+
+void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options)
+{
+  mAuxiliaryMessageSignal.Emit(key, value, options);
 }
 
 void Window::RecalculateTouchPosition(Integration::Point& point)

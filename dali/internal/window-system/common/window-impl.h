@@ -64,6 +64,7 @@ public:
   typedef Dali::DevelWindow::VisibilityChangedSignalType             VisibilityChangedSignalType;
   typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
   typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
+  typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -488,6 +489,15 @@ private:
   void OnUpdatePositionSize(Dali::PositionSize& positionSize);
 
   /**
+   * @brief Called when display server sent the auxiliary message.
+   *
+   * @param[in] key the auxiliary message's key.
+   * @param[in] value the auxiliary message's value.
+   * @param[in] options the auxiliary message's options. This is the list of string.
+   */
+  void OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options);
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
@@ -625,6 +635,14 @@ public: // Signals
     return mKeyboardRepeatSettingsChangedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::AuxiliaryMessageSignal()
+   */
+  AuxiliaryMessageSignalType& AuxiliaryMessageSignal()
+  {
+    return mAuxiliaryMessageSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -658,6 +676,7 @@ private:
   VisibilityChangedSignalType             mVisibilityChangedSignal;
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
+  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
 };
 
 } // namespace Adaptor
