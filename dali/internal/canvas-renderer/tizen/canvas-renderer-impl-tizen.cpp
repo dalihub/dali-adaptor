@@ -444,7 +444,7 @@ void CanvasRendererTizen::MakeTargetBuffer(const Vector2& size)
   {
     mNativeImageQueue = Dali::NativeImageSourceQueue::New(size.width, size.height, Dali::NativeImageSourceQueue::ColorFormat::RGBA8888);
   }
-  else if(size.width != mSize.width || size.height != mSize.height)
+  else
   {
     mNativeImageQueue->SetSize(static_cast<uint32_t>(size.width), static_cast<uint32_t>(size.height));
   }
