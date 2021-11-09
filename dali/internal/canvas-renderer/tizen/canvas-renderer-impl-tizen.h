@@ -29,9 +29,9 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/canvas-renderer-drawable.h>
 #include <dali/devel-api/adaptor-framework/canvas-renderer.h>
+#include <dali/devel-api/adaptor-framework/native-image-source-queue.h>
 #include <dali/internal/canvas-renderer/common/canvas-renderer-impl.h>
 #include <dali/internal/canvas-renderer/common/drawable-group-impl.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -164,11 +164,11 @@ private:
 
 private:
 #ifdef THORVG_SUPPORT
-  Devel::PixelBuffer             mPixelBuffer;
-  Dali::Texture                  mRasterizedTexture;
-  Dali::Mutex                    mMutex;
-  std::unique_ptr<tvg::SwCanvas> mTvgCanvas;
-  tvg::Scene*                    mTvgRoot;
+  Dali::Texture                   mRasterizedTexture;
+  Dali::Mutex                     mMutex;
+  std::unique_ptr<tvg::SwCanvas>  mTvgCanvas;
+  tvg::Scene*                     mTvgRoot;
+  Dali::NativeImageSourceQueuePtr mNativeImageQueue;
 #endif
   DrawableGroup::DrawableVector mDrawables;
 
