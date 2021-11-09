@@ -165,27 +165,6 @@ public:
     return false;
   }
 
-  void ReleaseResource()
-  {
-#ifdef DALI_ANIMATED_WEBP_ENABLED
-    if(&mWebPData != NULL)
-    {
-      mWebPData.bytes = nullptr;
-      WebPDataInit(&mWebPData);
-    }
-    if(mWebPAnimDecoder != nullptr)
-    {
-      WebPAnimDecoderDelete(mWebPAnimDecoder);
-      mWebPAnimDecoder = nullptr;
-    }
-#endif
-    if(mBuffer != NULL)
-    {
-      free((void*)mBuffer);
-      mBuffer = nullptr;
-    }
-  }
-
   // Moveable but not copyable
 
   Impl(const Impl&) = delete;
@@ -195,7 +174,19 @@ public:
 
   ~Impl()
   {
-    ReleaseResource();
+#ifdef DALI_ANIMATED_WEBP_ENABLED
+    if(&mWebPData != NULL)
+    {
+      mWebPData.bytes = nullptr;
+      WebPDataInit(&mWebPData);
+    }
+    if(mWebPAnimDecoder)
+    {
+      WebPAnimDecoderDelete(mWebPAnimDecoder);
+    }
+#endif
+    free((void*)mBuffer);
+    mBuffer = nullptr;
   }
 
   std::string           mUrl;
@@ -288,9 +279,8 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
       const int32_t imageBufferSize = width * height * sizeof(uint8_t) * channelNumber;
       memcpy(pixelBuffer.GetBuffer(), frameBuffer, imageBufferSize);
       free((void*)frameBuffer);
+      return pixelBuffer;
     }
-    mImpl->ReleaseResource();
-    return pixelBuffer;
   }
 #endif
 
