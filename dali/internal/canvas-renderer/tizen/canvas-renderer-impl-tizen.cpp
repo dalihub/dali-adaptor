@@ -334,7 +334,7 @@ bool CanvasRendererTizen::Rasterize()
       return false;
     }
 
-    mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), width, width, height, tvg::SwCanvas::ARGB8888);
+    mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), stride / 4, width, height, tvg::SwCanvas::ARGB8888);
 
     if(mTvgCanvas->draw() != tvg::Result::Success)
     {
