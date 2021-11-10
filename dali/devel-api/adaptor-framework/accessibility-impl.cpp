@@ -593,7 +593,7 @@ void Bridge::SetIsOnRootLevel(Accessible* owner)
 
 namespace
 {
-class NonControlAccessible : public virtual Accessible, public virtual Collection, public virtual Component
+class AdaptorAccessible : public virtual Accessible, public virtual Collection, public virtual Component
 {
 protected:
   Dali::WeakHandle<Dali::Actor> mSelf;
@@ -603,7 +603,7 @@ protected:
   {
     auto handle = mSelf.GetHandle();
 
-    // NonControlAccessible is deleted on ObjectDestroyedSignal
+    // AdaptorAccessible is deleted on ObjectDestroyedSignal
     // for the respective actor (see `nonControlAccessibles`).
     DALI_ASSERT_ALWAYS(handle);
 
@@ -611,7 +611,7 @@ protected:
   }
 
 public:
-  NonControlAccessible(Dali::Actor actor, bool isRoot)
+  AdaptorAccessible(Dali::Actor actor, bool isRoot)
   : mSelf(actor),
     mRoot(isRoot)
   {
@@ -772,11 +772,17 @@ public:
   {
     return {};
   }
-};
 
-using NonControlAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<NonControlAccessible> >;
+  Dali::Actor GetInternalActor() override
+  {
+    return mSelf.GetHandle();
+  }
+}; // AdaptorAccessible
 
-NonControlAccessiblesType nonControlAccessibles;
+using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
+
+// Save RefObject from an Actor in Accessible::Get()
+AdaptorAccessiblesType gAdaptorAccessibles;
 
 std::function<Accessible*(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> Accessible* {
   return nullptr;
@@ -790,7 +796,7 @@ void Accessible::SetObjectRegistry(ObjectRegistry registry)
   objectRegistry = registry;
 }
 
-void Accessible::RegisterControlAccessibilityGetter(std::function<Accessible*(Dali::Actor)> functor)
+void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor)
 {
   convertingFunctor = functor;
 }
@@ -805,18 +811,19 @@ Accessible* Accessible::Get(Dali::Actor actor, bool isRoot)
   auto accessible = convertingFunctor(actor);
   if(!accessible)
   {
-    if(nonControlAccessibles.empty() && objectRegistry)
+    if(gAdaptorAccessibles.empty() && objectRegistry)
     {
       objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
-        nonControlAccessibles.erase(obj);
+        gAdaptorAccessibles.erase(obj);
       });
     }
-    auto pair = nonControlAccessibles.emplace(&actor.GetBaseObject(), nullptr);
+    auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
     if(pair.second)
     {
-      pair.first->second.reset(new NonControlAccessible(actor, isRoot));
+      pair.first->second.reset(new AdaptorAccessible(actor, isRoot));
     }
     accessible = pair.first->second.get();
   }
+
   return accessible;
 }
