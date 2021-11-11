@@ -208,6 +208,8 @@ public:
       }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
+
+      mDisabledSignal.Emit();
     }
     mHighlightedActor     = {};
     mHighlightClearAction = {};
@@ -294,6 +296,9 @@ public:
       auto window    = Dali::DevelWindow::Get(rootLayer);
       EmitActivate(window); // Currently, sends a signal that the default window is activated here.
     }
+
+    mEnabledSignal.Emit();
+
     return ForceUpResult::JUST_STARTED;
   }
 

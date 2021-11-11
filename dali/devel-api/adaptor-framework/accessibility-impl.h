@@ -383,6 +383,16 @@ struct DALI_ADAPTOR_API Bridge
    */
   static void EnableAutoInit();
 
+  static Signal<void()>& EnabledSignal()
+  {
+    return mEnabledSignal;
+  }
+
+  static Signal<void()>& DisabledSignal()
+  {
+    return mDisabledSignal;
+  }
+
 protected:
   struct Data
   {
@@ -402,6 +412,9 @@ protected:
   };
 
   inline static AutoInitState mAutoInitState = AutoInitState::ENABLED;
+
+  inline static Signal<void()> mEnabledSignal;
+  inline static Signal<void()> mDisabledSignal;
 
   /**
    * @brief Registers accessible object to be known in bridge object.
