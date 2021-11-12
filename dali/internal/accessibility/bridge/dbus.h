@@ -483,7 +483,7 @@ enum class ErrorType
 struct Error
 {
   std::string message;
-  ErrorType errorType;
+  ErrorType errorType{ErrorType::DEFAULT};
 
   Error() = default;
   Error(std::string msg, ErrorType errorType = ErrorType::DEFAULT)
