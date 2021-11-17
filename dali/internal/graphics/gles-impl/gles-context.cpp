@@ -29,6 +29,7 @@
 #include "gles-graphics-render-target.h"
 
 #include <map>
+#include <assert.h>
 
 namespace Dali::Graphics::GLES
 {
@@ -867,7 +868,7 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
   if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS || typeId >= MAX_TEXTURE_TARGET)
   {
     DALI_LOG_ERROR("Invalid index (%d, %d)\n", mImpl->mGlStateCache.mActiveTextureUnit, typeId);
-    std::abort();
+    assert(0);
   }
 
   if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
