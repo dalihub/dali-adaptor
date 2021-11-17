@@ -864,6 +864,12 @@ void Context::ActiveTexture(uint32_t textureBindingIndex)
 void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId)
 {
   uint32_t typeId = static_cast<uint32_t>(textureTypeId);
+  if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS || typeId >= MAX_TEXTURE_TARGET)
+  {
+    DALI_LOG_ERROR("Invalid index (%d, %d)\n", mImpl->mGlStateCache.mActiveTextureUnit, typeId);
+    std::abort();
+  }
+
   if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
   {
     mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
