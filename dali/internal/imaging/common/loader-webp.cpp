@@ -130,7 +130,6 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
       WebPAnimDecoderGetInfo(webPAnimDecoder, &webPAnimInfo);
       width  = webPAnimInfo.canvas_width;
       height = webPAnimInfo.canvas_height;
-      ReleaseResource(webPData, webPAnimDecoder);
       return true;
     }
   }
@@ -226,7 +225,6 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       bitmap                   = Dali::Devel::PixelBuffer::New(webPAnimInfo.canvas_width, webPAnimInfo.canvas_height, Dali::Pixel::RGBA8888);
       const int32_t bufferSize = webPAnimInfo.canvas_width * webPAnimInfo.canvas_height * sizeof(uint32_t);
       memcpy(bitmap.GetBuffer(), frameBuffer, bufferSize);
-      ReleaseResource(webPData, webPAnimDecoder);
       return true;
     }
   }
