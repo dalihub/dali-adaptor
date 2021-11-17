@@ -98,13 +98,13 @@ Window::Window()
 
 Window::~Window()
 {
+  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer  = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
+  bridge->RemoveTopLevelWindow(accessible);
+
   if(mAdaptor)
   {
-    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-    auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer);
-    bridge->RemoveTopLevelWindow(accessible);
-
     mAdaptor->RemoveWindow(this);
   }
 
@@ -171,6 +171,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler = EventHandlerPtr(new EventHandler(mWindowSurface->GetWindowBase(), *mAdaptor));
   mEventHandler->AddObserver(*this);
 
+  // Add Window to bridge for ATSPI
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer, true);
@@ -753,11 +754,11 @@ void Window::OnFocusChanged(bool focusIn)
   {
     if(focusIn)
     {
-      bridge->WindowShown();
+      bridge->WindowFocused(handle);
     }
     else
     {
-      bridge->WindowHidden();
+      bridge->WindowUnfocused(handle);
     }
   }
 }

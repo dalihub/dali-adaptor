@@ -21,9 +21,11 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/signals/connection-tracker.h>
+#include <dali/public-api/actors/layer.h>
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**
@@ -34,6 +36,7 @@ class AppAccessible : public virtual Dali::Accessibility::Accessible, public vir
 public:
   Dali::Accessibility::EmptyAccessibleWithAddress mParent;
   std::vector<Dali::Accessibility::Accessible*>   mChildren;
+  std::vector<Dali::Window>                       mWindows;
   std::string                                     mName;
 
   std::string GetName() override
@@ -87,14 +90,32 @@ public:
   }
 
   /**
-   * @brief Gets the active window.
+   * @brief Gets the Accessible object from the window.
    *
-   * @return Null if mChildren is empty, otherwise the active window
+   * @param[in] window The window to find
+   * @return Null if mChildren is empty, otherwise the Accessible object
    * @note Currently, the default window would be returned when mChildren is not empty.
    */
-  Dali::Accessibility::Accessible* GetActiveWindow()
+  Dali::Accessibility::Accessible* GetWindowAccessible(Dali::Window window)
   {
-    return mChildren.empty() ? nullptr : mChildren[0];
+    if(mChildren.empty())
+    {
+      return nullptr;
+    }
+
+    Dali::Layer rootLayer = window.GetRootLayer();
+
+    // Find a child which is related to the window.
+    for(auto i = 0u; i < mChildren.size(); ++i)
+    {
+      if(rootLayer == mChildren[i]->GetInternalActor())
+      {
+        return mChildren[i];
+      }
+    }
+
+    // If can't find its children, return the default window.
+    return mChildren[0];
   }
 
   bool DoGesture(const Dali::Accessibility::GestureInfo& gestureInfo) override
@@ -105,6 +126,11 @@ public:
   std::vector<Dali::Accessibility::Relation> GetRelationSet() override
   {
     return {};
+  }
+
+  Dali::Actor GetInternalActor() override
+  {
+    return Dali::Actor{};
   }
 
   Dali::Accessibility::Address GetAddress() override
@@ -170,6 +196,22 @@ public:
   void AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
 
   /**
+   * @brief Callback when the visibility of the window is changed.
+   *
+   * @param[in] window The window to be changed
+   * @param[in] visible The visibility of the window
+   */
+  void OnWindowVisibilityChanged(Dali::Window window, bool visible);
+
+  /**
+   * @brief Callback when the window focus is changed.
+   *
+   * @param[in] window The window whose focus is changed
+   * @param[in] focusIn Whether the focus is in/out
+   */
+  void OnWindowFocusChanged(Dali::Window window, bool focusIn);
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::GetBusName()
    */
   const std::string& GetBusName() const override;
@@ -177,12 +219,12 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::AddTopLevelWindow()
    */
-  void AddTopLevelWindow(Dali::Accessibility::Accessible* window) override;
+  void AddTopLevelWindow(Dali::Accessibility::Accessible* windowAccessible) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::RemoveTopLevelWindow()
    */
-  void RemoveTopLevelWindow(Dali::Accessibility::Accessible* window) override;
+  void RemoveTopLevelWindow(Dali::Accessibility::Accessible* windowAccessible) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::AddPopup()

@@ -19,6 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
 #include <atomic>
 #include <cstdlib>
 #include <memory>
@@ -30,12 +31,14 @@ using namespace Dali::Accessibility;
 
 static Dali::Timer tickTimer;
 
-BridgeBase::~BridgeBase()
+BridgeBase::BridgeBase()
 {
 }
 
-BridgeBase::BridgeBase()
+BridgeBase::~BridgeBase()
 {
+  mApplication.mChildren.clear();
+  mApplication.mWindows.clear();
 }
 
 void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
@@ -217,17 +220,76 @@ void BridgeBase::RemovePopup(Accessible* object)
   }
 }
 
-void BridgeBase::AddTopLevelWindow(Accessible* root)
+void BridgeBase::OnWindowVisibilityChanged(Dali::Window window, bool visible)
 {
-  mApplication.mChildren.push_back(root);
-  SetIsOnRootLevel(root);
+  if(visible)
+  {
+    // TODO : Should we check 'out of screen' here? -> Then, we need an actor of this change.
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(window); // Called when Window is shown.
+  }
+  else
+  {
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(window); // Called when Window is hidden and iconified.
+  }
+
 }
 
-void BridgeBase::RemoveTopLevelWindow(Accessible* root)
+void BridgeBase::OnWindowFocusChanged(Dali::Window window, bool focusIn)
 {
+  if(focusIn)
+  {
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowFocused(window); // Called when Window is focused.
+  }
+  else
+  {
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowUnfocused(window); // Called when Window is out of focus.
+  }
+}
+
+void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
+{
+  if(windowAccessible->GetInternalActor() == nullptr)
+  {
+    return;
+  }
+
+  // Prevent adding the default window twice.
+  if(!mApplication.mChildren.empty() &&
+     mApplication.mChildren[0]->GetInternalActor() == windowAccessible->GetInternalActor())
+  {
+    return;
+  }
+
+  // Adds Window to a list of Windows.
+  mApplication.mChildren.push_back(windowAccessible);
+  SetIsOnRootLevel(windowAccessible);
+
+  Dali::Window window = Dali::DevelWindow::Get(windowAccessible->GetInternalActor());
+  if(window)
+  {
+    mApplication.mWindows.push_back(window);
+    Dali::DevelWindow::VisibilityChangedSignal(window).Connect(this, &BridgeBase::OnWindowVisibilityChanged);
+    window.FocusChangeSignal().Connect(this, &BridgeBase::OnWindowFocusChanged);
+  }
+}
+
+void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
+{
+  for(auto i = 0u; i < mApplication.mWindows.size(); ++i)
+  {
+    if(windowAccessible->GetInternalActor() == mApplication.mWindows[i].GetRootLayer())
+    {
+      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(mApplication.mWindows[i]);
+      Dali::DevelWindow::VisibilityChangedSignal(mApplication.mWindows[i]).Disconnect(this, &BridgeBase::OnWindowVisibilityChanged);
+      mApplication.mWindows[i].FocusChangeSignal().Disconnect(this, &BridgeBase::OnWindowFocusChanged);
+      mApplication.mWindows.erase(mApplication.mWindows.begin() + i);
+      break;
+    }
+  }
+
   for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
   {
-    if(mApplication.mChildren[i] == root)
+    if(mApplication.mChildren[i] == windowAccessible)
     {
       mApplication.mChildren.erase(mApplication.mChildren.begin() + i);
       break;

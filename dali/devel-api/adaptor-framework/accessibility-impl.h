@@ -35,6 +35,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/integration-api/debug.h>
 
 namespace Dali
@@ -147,13 +148,31 @@ struct DALI_ADAPTOR_API Bridge
 
   /**
    * @brief Notifies accessibility dbus that window has just been shown.
+   *
+   * @param[in] window The window to be shown
    */
-  virtual void WindowShown() = 0;
+  virtual void WindowShown(Window window) = 0;
 
   /**
    * @brief Notifies accessibility dbus that window has just been hidden.
+   *
+   * @param[in] window The window to be hidden
    */
-  virtual void WindowHidden() = 0;
+  virtual void WindowHidden(Window window) = 0;
+
+  /**
+   * @brief Notifies accessibility dbus that window has just been focused.
+   *
+   * @param[in] window The window to be focused
+   */
+  virtual void WindowFocused(Window window) = 0;
+
+  /**
+   * @brief Notifies accessibility dbus that window has just been out of focus.
+   *
+   * @param[in] window The window to be out of focus
+   */
+  virtual void WindowUnfocused(Window window) = 0;
 
   /**
    * @brief Initializes accessibility bus.
@@ -364,6 +383,16 @@ struct DALI_ADAPTOR_API Bridge
    */
   static void EnableAutoInit();
 
+  static Signal<void()>& EnabledSignal()
+  {
+    return mEnabledSignal;
+  }
+
+  static Signal<void()>& DisabledSignal()
+  {
+    return mDisabledSignal;
+  }
+
 protected:
   struct Data
   {
@@ -383,6 +412,9 @@ protected:
   };
 
   inline static AutoInitState mAutoInitState = AutoInitState::ENABLED;
+
+  inline static Signal<void()> mEnabledSignal;
+  inline static Signal<void()> mDisabledSignal;
 
   /**
    * @brief Registers accessible object to be known in bridge object.
@@ -720,6 +752,13 @@ public:
   virtual std::vector<Relation> GetRelationSet() = 0;
 
   /**
+   * @brief Gets internal Actor to be saved before.
+   *
+   * @return The internal Actor
+   */
+  virtual Dali::Actor GetInternalActor() = 0;
+
+  /**
    * @brief Gets all implemented interfaces.
    *
    * @return The collection of strings with implemented interfaces
@@ -735,22 +774,6 @@ public:
   {
     return mIsOnRootLevel;
   }
-
-  /**
-   * @brief The method registers functor resposible for converting Actor into Accessible.
-   * @param functor The returning Accessible handle from Actor object
-   */
-  static void RegisterControlAccessibilityGetter(std::function<Accessible*(Dali::Actor)> functor);
-
-  /**
-   * @brief Acquires Accessible object from Actor object.
-   *
-   * @param[in] actor Actor object
-   * @param[in] isRoot True, if it's top level object (window)
-   *
-   * @return The handle to Accessible object
-   */
-  static Accessible* Get(Dali::Actor actor, bool isRoot = false);
 
 protected:
   Accessible();
@@ -798,12 +821,29 @@ public:
    */
   static void SetObjectRegistry(ObjectRegistry registry);
 
+  /**
+   * @brief The method registers functor resposible for converting Actor into Accessible.
+   * @param functor The returning Accessible handle from Actor object
+   */
+  static void RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor);
+
+  /**
+   * @brief Acquires Accessible object from Actor object.
+   *
+   * @param[in] actor Actor object
+   * @param[in] isRoot True, if it's top level object (window)
+   *
+   * @return The handle to Accessible object
+   */
+  static Accessible* Get(Dali::Actor actor, bool isRoot = false);
+
 private:
   friend class Bridge;
 
   std::weak_ptr<Bridge::Data> mBridgeData;
   bool                        mIsOnRootLevel = false;
-};
+
+}; // Accessible class
 
 /**
  * @brief Interface enabling to perform provided actions.
@@ -1385,6 +1425,11 @@ public:
   std::vector<Relation> GetRelationSet() override
   {
     return {};
+  }
+
+  Dali::Actor GetInternalActor() override
+  {
+    return Dali::Actor{};
   }
 
 private:

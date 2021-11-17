@@ -22,6 +22,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <tbm_surface.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-impl.h>

@@ -330,7 +330,6 @@ void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& 
 
 Adaptor::~Adaptor()
 {
-  Accessibility::Bridge::GetCurrentBridge()->WindowHidden();
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
 
   // Ensure stop status
@@ -956,8 +955,6 @@ void Adaptor::RequestProcessEventsOnIdle(bool forceProcess)
 
 void Adaptor::OnWindowShown()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown();
-
   if(PAUSED_WHILE_HIDDEN == mState)
   {
     // Adaptor can now be resumed
@@ -988,8 +985,6 @@ void Adaptor::OnWindowShown()
 
 void Adaptor::OnWindowHidden()
 {
-  Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden();
-
   if(RUNNING == mState || READY == mState)
   {
     bool allWindowsHidden = true;
