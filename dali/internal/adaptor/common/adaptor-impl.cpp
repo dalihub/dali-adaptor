@@ -295,6 +295,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
     Integration::SetTapMaximumAllowedTime(mEnvironmentOptions->GetTapMaximumAllowedTime());
   }
 
+
   std::string systemCachePath = GetSystemCachePath();
   if(!systemCachePath.empty())
   {
@@ -675,10 +676,7 @@ bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)
   windowImpl.GetRootLayer().SetProperty(Dali::Actor::Property::LAYOUT_DIRECTION, mRootLayoutDirection);
 
   // Add the new Window to the container - the order is not important
-  {
-    Dali::Mutex::ScopedLock lock(mMutex);
-    mWindows.push_back(&windowImpl);
-  }
+  mWindows.push_back(&windowImpl);
 
   Dali::RenderSurfaceInterface* surface = windowImpl.GetSurface();
 
@@ -696,7 +694,6 @@ bool Adaptor::RemoveWindow(Dali::Integration::SceneHolder* childWindow)
   {
     if(*iter == &windowImpl)
     {
-      Dali::Mutex::ScopedLock lock(mMutex);
       mWindows.erase(iter);
       return true;
     }
@@ -711,7 +708,6 @@ bool Adaptor::RemoveWindow(std::string childWindowName)
   {
     if((*iter)->GetName() == childWindowName)
     {
-      Dali::Mutex::ScopedLock lock(mMutex);
       mWindows.erase(iter);
       return true;
     }
@@ -726,7 +722,6 @@ bool Adaptor::RemoveWindow(Internal::Adaptor::SceneHolder* childWindow)
   {
     if((*iter)->GetId() == childWindow->GetId())
     {
-      Dali::Mutex::ScopedLock lock(mMutex);
       mWindows.erase(iter);
       return true;
     }
@@ -821,7 +816,6 @@ Integration::PlatformAbstraction& Adaptor::GetPlatformAbstraction() const
 
 void Adaptor::GetWindowContainerInterface(WindowContainer& windows)
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
   windows = mWindows;
 }
 
@@ -1232,7 +1226,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mSystemTracer(),
   mObjectProfiler(nullptr),
   mSocketFactory(),
-  mMutex(),
   mThreadMode(threadMode),
   mEnvironmentOptionsOwned(environmentOptions ? false : true /* If not provided then we own the object */),
   mUseRemoteSurface(false),
