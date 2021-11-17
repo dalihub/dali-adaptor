@@ -208,6 +208,8 @@ public:
       }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
+
+      mDisabledSignal.Emit();
     }
     mHighlightedActor     = {};
     mHighlightClearAction = {};
@@ -215,6 +217,8 @@ public:
     mRegistryClient       = {};
     mDirectReadingClient  = {};
     mDirectReadingCallbacks.clear();
+    mApplication.mChildren.clear();
+    mApplication.mWindows.clear();
   }
 
   /**
@@ -285,100 +289,147 @@ public:
     assert(res);
 
     mApplication.mParent.SetAddress(std::move(std::get<0>(res)));
+
     if(mIsShown)
     {
-      EmitActivate();
+      auto rootLayer = Dali::Stage::GetCurrent().GetRootLayer();
+      auto window    = Dali::DevelWindow::Get(rootLayer);
+      EmitActivate(window); // Currently, sends a signal that the default window is activated here.
     }
+
+    mEnabledSignal.Emit();
+
     return ForceUpResult::JUST_STARTED;
   }
 
   /**
-   * @brief Sends a signal to dbus that the default window is activated.
+   * @brief Sends a signal to dbus that the window is shown.
    *
-   * TODO : This is subject to change if/when we implement multi-window support.
-   * @see BridgeObject::Emit()
+   * @param[in] window The window to be shown
+   * @see Accessible::EmitShowing() and BridgeObject::EmitStateChanged()
    */
-  void EmitActivate()
+  void EmitShown(Dali::Window window)
   {
-    auto win = mApplication.GetActiveWindow();
-    if(win)
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
     {
-      win->Emit(WindowEvent::ACTIVATE, 0);
+      windowAccessible->EmitShowing(true);
     }
   }
 
   /**
-   * @brief Sends a signal to dbus that the default window is deactivated.
+   * @brief Sends a signal to dbus that the window is hidden.
    *
-   * TODO : This is subject to change if/when we implement multi-window support.
-   * @see BridgeObject::Emit()
+   * @param[in] window The window to be hidden
+   * @see Accessible::EmitShowing() and BridgeObject::EmitStateChanged()
    */
-  void EmitDeactivate()
+  void EmitHidden(Dali::Window window)
   {
-    auto win = mApplication.GetActiveWindow();
-    if(win)
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
     {
-      win->Emit(WindowEvent::DEACTIVATE, 0);
+      windowAccessible->EmitShowing(false);
     }
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::WindowHidden()
+   * @brief Sends a signal to dbus that the window is activated.
+   *
+   * @param[in] window The window to be activated
+   * @see BridgeObject::Emit()
    */
-  void WindowHidden() override
+  void EmitActivate(Dali::Window window)
   {
-    if(mIsShown && IsUp())
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
     {
-      EmitDeactivate();
+      windowAccessible->Emit(WindowEvent::ACTIVATE, 0);
     }
-    mIsShown = false;
+  }
+
+  /**
+   * @brief Sends a signal to dbus that the window is deactivated.
+   *
+   * @param[in] window The window to be deactivated
+   * @see BridgeObject::Emit()
+   */
+  void EmitDeactivate(Dali::Window window)
+  {
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
+    {
+      windowAccessible->Emit(WindowEvent::DEACTIVATE, 0);
+    }
   }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::WindowShown()
    */
-  void WindowShown() override
+  void WindowShown(Dali::Window window) override
   {
     if(!mIsShown && IsUp())
     {
-      EmitActivate();
+      EmitShown(window);
     }
     mIsShown = true;
   }
 
-  void ReadAndListenProperty()
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowHidden()
+   */
+  void WindowHidden(Dali::Window window) override
   {
-    // read property
-    auto enabled = mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").get();
-    if(enabled)
+    if(mIsShown && IsUp())
     {
-      mIsScreenReaderEnabled = std::get<0>(enabled);
+      EmitHidden(window);
     }
+    mIsShown = false;
+  }
 
-    enabled = mAccessibilityStatusClient.property<bool>("IsEnabled").get();
-    if(enabled)
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowFocused()
+   */
+  void WindowFocused(Dali::Window window) override
+  {
+    if(mIsShown && IsUp())
     {
-      mIsEnabled = std::get<0>(enabled);
+      EmitActivate(window);
     }
+  }
 
-    if(mIsScreenReaderEnabled || mIsEnabled)
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowUnfocused()
+   */
+  void WindowUnfocused(Dali::Window window) override
+  {
+    if(mIsShown && IsUp())
     {
-      ForceUp();
+      EmitDeactivate(window);
     }
+  }
 
-    // listen property change
-    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
-      mIsScreenReaderEnabled = res;
-      if(mIsScreenReaderEnabled || mIsEnabled)
+  void ReadIsEnabledProperty()
+  {
+    mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+      if(!msg)
+      {
+        DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
+        if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
+        {
+          ReadIsEnabledProperty();
+        }
+        return;
+      }
+      mIsEnabled = std::get<0>(msg);
+      if(mIsEnabled)
       {
         ForceUp();
       }
-      else
-      {
-        ForceDown();
-      }
     });
+  }
 
+  void ListenIsEnabledProperty()
+  {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
       mIsEnabled = res;
       if(mIsScreenReaderEnabled || mIsEnabled)
@@ -390,6 +441,50 @@ public:
         ForceDown();
       }
     });
+  }
+
+  void ReadScreenReaderEnabledProperty()
+  {
+    mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
+      if(!msg)
+      {
+        DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
+        if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
+        {
+          ReadScreenReaderEnabledProperty();
+        }
+        return;
+      }
+      mIsScreenReaderEnabled = std::get<0>(msg);
+      if(mIsScreenReaderEnabled)
+      {
+        ForceUp();
+      }
+    });
+  }
+
+  void ListenScreenReaderEnabledProperty()
+  {
+    mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
+      mIsScreenReaderEnabled = res;
+      if(mIsScreenReaderEnabled || mIsEnabled)
+      {
+        ForceUp();
+      }
+      else
+      {
+        ForceDown();
+      }
+    });
+  }
+
+  void ReadAndListenProperties()
+  {
+    ReadIsEnabledProperty();
+    ListenIsEnabledProperty();
+
+    ReadScreenReaderEnabledProperty();
+    ListenScreenReaderEnabledProperty();
   }
 
   bool InitializeAccessibilityStatusClient()
@@ -409,7 +504,7 @@ public:
   {
     if ( InitializeAccessibilityStatusClient() )
     {
-      ReadAndListenProperty();
+      ReadAndListenProperties();
       mIdleCallback = NULL;
       return false;
     }
@@ -424,7 +519,7 @@ public:
   {
     if ( InitializeAccessibilityStatusClient() )
     {
-      ReadAndListenProperty();
+      ReadAndListenProperties();
       return;
     }
 
@@ -538,17 +633,19 @@ void Bridge::EnableAutoInit()
     return;
   }
 
-  auto rootLayer       = Dali::Stage::GetCurrent().GetRootLayer();
+  auto rootLayer       = Dali::Stage::GetCurrent().GetRootLayer(); // A root layer of the default window.
   auto window          = Dali::DevelWindow::Get(rootLayer);
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
+  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+
   auto* bridge = Bridge::GetCurrentBridge();
-  bridge->AddTopLevelWindow(Dali::Accessibility::Accessible::Get(rootLayer, true));
+  bridge->AddTopLevelWindow(accessible);
   bridge->SetApplicationName(applicationName);
   bridge->Initialize();
 
   if(window && window.IsVisible())
   {
-    bridge->WindowShown();
+    bridge->WindowShown(window);
   }
 }
