@@ -237,13 +237,12 @@ void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States stat
 {
   if(auto data = GetBridgeData())
   {
-    auto currentState = GetStates() & states;
-    for(auto i = 0u; i < currentState.size(); i++)
+    for(auto i = 0u; i < static_cast<unsigned int>(Dali::Accessibility::State::MAX_COUNT); i++)
     {
       auto index = static_cast<Dali::Accessibility::State>(i);
-      if(currentState[index])
+      if(states[index])
       {
-        data->mBridge->EmitStateChanged(this, index, 1, 0);
+        data->mBridge->EmitStateChanged(this, index, GetStates()[index], 0);
       }
     }
 
