@@ -24,6 +24,7 @@ namespace TextAbstraction
 {
 namespace
 {
+//TODO: Move the below defined characters to "defined-characters.h"
 constexpr unsigned int WHITE_SPACE_THRESHOLD = 0x21;   ///< All characters below 0x21 are considered white spaces.
 constexpr unsigned int CHAR_LF               = 0x000A; ///< NL Line feed, new line.
 constexpr unsigned int CHAR_VT               = 0x000B; ///< Vertical tab.
@@ -33,7 +34,6 @@ constexpr unsigned int CHAR_NEL              = 0x0085; ///< Next line.
 constexpr unsigned int CHAR_LS               = 0x2028; ///< Line separator.
 constexpr unsigned int CHAR_PS               = 0x2029; ///< Paragraph separator
 
-constexpr unsigned int CHAR_ZWS  = 0x200B; ///< Zero width space.
 constexpr unsigned int CHAR_ZWNJ = 0x200C; ///< Zero width non joiner.
 constexpr unsigned int CHAR_ZWJ  = 0x200D; ///< Zero width joiner.
 constexpr unsigned int CHAR_LTRM = 0x200E; ///< Left to Right Mark.
@@ -941,7 +941,11 @@ Script GetCharacterScript(Character character)
 {
   Script script = UNKNOWN;
 
-  if(IsCommonScript(character))
+  if(IsEmojiItem(character))
+  {
+    script = EMOJI;
+  }
+  else if(IsCommonScript(character))
   {
     script = COMMON;
   }
@@ -1033,6 +1037,11 @@ bool HasLigatureMustBreak(Script script)
 {
   return ((LATIN == script) ||
           (ARABIC == script));
+}
+
+Length GetNumberOfScripts()
+{
+  return EMOJI_COLOR + 1;
 }
 
 } // namespace TextAbstraction

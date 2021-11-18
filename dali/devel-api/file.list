@@ -148,6 +148,8 @@ SET( devel_api_text_abstraction_src_files
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.cpp
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.cpp
    ${adaptor_devel_api_dir}/text-abstraction/hyphenation.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/emoji-character-properties.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/emoji-helper.cpp
 )
 
 
@@ -166,4 +168,7 @@ SET( text_abstraction_header_files
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer.h
    ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.h
    ${adaptor_devel_api_dir}/text-abstraction/hyphenation.h
+   ${adaptor_devel_api_dir}/text-abstraction/emoji-character-properties.h
+   ${adaptor_devel_api_dir}/text-abstraction/emoji-helper.h
+   ${adaptor_devel_api_dir}/text-abstraction/defined-characters.h
 )
