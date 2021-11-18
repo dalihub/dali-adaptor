@@ -555,16 +555,19 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
   SetBufferDamagedRects(mDamagedRects, clippingRect);
 
-  Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
-  if(clippingRect == surfaceRect)
+  if(scene)
   {
-    mDamagedRects.assign(1, surfaceRect);
-  }
-  else if(mDamagedRects.empty() && !clippingRect.IsEmpty())
-  {
-    // We will render clippingRect area but mDamagedRects is empty.
-    // So make mDamagedRects same with clippingRect to swap buffers.
-    mDamagedRects.assign(1, clippingRect);
+    Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
+    if(clippingRect == surfaceRect)
+    {
+      mDamagedRects.assign(1, surfaceRect);
+    }
+    else if(mDamagedRects.empty() && !clippingRect.IsEmpty())
+    {
+      // We will render clippingRect area but mDamagedRects is empty.
+      // So make mDamagedRects same with clippingRect to swap buffers.
+      mDamagedRects.assign(1, clippingRect);
+    }
   }
 
   // This is now done when the render pass for the render surface begins
@@ -786,7 +789,13 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
-    Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
+    Rect<int> surfaceRect;
+
+    Dali::Integration::Scene scene = mScene.GetHandle();
+    if(scene)
+    {
+      surfaceRect = scene.GetCurrentSurfaceRect();
+    }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
@@ -829,7 +838,6 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     if(!clippingRect.IsEmpty())
     {
       std::vector<Rect<int>>   damagedRegion;
-      Dali::Integration::Scene scene = mScene.GetHandle();
       if(scene)
       {
         damagedRegion.push_back(RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](clippingRect, scene.GetCurrentSurfaceRect()));
