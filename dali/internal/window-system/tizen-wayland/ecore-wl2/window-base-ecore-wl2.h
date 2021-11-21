@@ -169,6 +169,14 @@ public:
    */
   void OnEcoreEventWindowRedrawRequest();
 
+  /**
+   * @brief Called when window's auxiliary is changed then display server send the changed message.
+   *
+   * @param[in] auxiliary's message data. It has key, value and integer list data.
+   */
+  void OnEcoreEventWindowAuxiliaryMessage(void* event);
+
+
 #ifdef DALI_ELDBUS_AVAILABLE
   /**
    * @brief Called when Ecore ElDBus accessibility event is received.

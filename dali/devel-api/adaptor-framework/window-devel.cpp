@@ -101,6 +101,11 @@ KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Win
   return GetImplementation(window).KeyboardRepeatSettingsChangedSignal();
 }
 
+AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
+{
+  return GetImplementation(window).AuxiliaryMessageSignal();
+}
+
 void SetParent(Window window, Window parent)
 {
   GetImplementation(window).SetParent(parent);
