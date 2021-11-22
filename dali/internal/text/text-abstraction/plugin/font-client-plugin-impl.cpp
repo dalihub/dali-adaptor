@@ -1000,6 +1000,19 @@ GlyphIndex FontClient::Plugin::GetGlyphIndex(FontId    fontId,
   return 0u;
 }
 
+GlyphIndex FontClient::Plugin::GetGlyphIndex(FontId    fontId,
+                                             Character charcode,
+                                             Character variantSelector)
+{
+  const FontCacheItemInterface* fontCacheItem = GetCachedFontItem(fontId);
+  if(fontCacheItem != nullptr)
+  {
+    return fontCacheItem->GetGlyphIndex(charcode, variantSelector);
+  }
+
+  return 0u;
+}
+
 bool FontClient::Plugin::GetGlyphMetrics(GlyphInfo* array,
                                          uint32_t   size,
                                          GlyphType  type,

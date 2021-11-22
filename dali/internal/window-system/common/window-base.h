@@ -73,6 +73,7 @@ public:
   typedef Signal<void()>                                    KeyboardRepeatSettingsChangedSignalType;
   typedef Signal<void()>                                    WindowRedrawRequestSignalType;
   typedef Signal<void(Dali::PositionSize&)>                 UpdatePositionSizeType;
+  typedef Signal<void(const std::string&, const std::string&, const Property::Array&)>             AuxiliaryMessageSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -505,6 +506,11 @@ public:
    */
   UpdatePositionSizeType& UpdatePositionSizeSignal();
 
+  /**
+   * @brief This signal is emitted when the window is received the auxiliary message from display server.
+   */
+  AuxiliaryMessageSignalType& AuxiliaryMessageSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -530,6 +536,7 @@ protected:
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
   UpdatePositionSizeType                  mUpdatePositionSizeSignal;
+  AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
 };
 
 } // namespace Adaptor

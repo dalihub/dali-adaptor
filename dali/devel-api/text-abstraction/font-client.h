@@ -385,6 +385,17 @@ public:
   GlyphIndex GetGlyphIndex(FontId fontId, Character charcode);
 
   /**
+   * @brief Return the glyph index of a given character code as modified by the variation selector.
+   *
+   * @param[in] fontId The identifier of the font for the required glyph.
+   * @param[in] charcode The UTF-32 character code.
+   * @param[in] variantSelector The UTF-32 character code point of the variation selector.
+   *
+   * @return The glyph index, or zero if the character code is undefined.
+   */
+  GlyphIndex GetGlyphIndex(FontId fontId, Character charcode, Character variantSelector);
+
+  /**
    * @brief Retrieve the metrics for a series of glyphs.
    *
    * @param[in,out] array An array of glyph-info structures with initialized FontId & GlyphIndex values.

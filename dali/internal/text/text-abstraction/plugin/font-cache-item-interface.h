@@ -82,6 +82,15 @@ struct FontCacheItemInterface
   virtual GlyphIndex GetGlyphIndex(Character character) const = 0;
 
   /**
+   * Get the index into this font's glyph table of the character
+   *
+   * @param[in] character to look up
+   * @param[in] variantSelector the variation selector modify character code
+   * @return the glyph index of this character
+   */
+  virtual GlyphIndex GetGlyphIndex(Character character, Character variantSelector) const = 0;
+
+  /**
    * Get the freetype typeface for this font.
    */
   virtual FT_Face GetTypeface() const = 0;

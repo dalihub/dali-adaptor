@@ -286,6 +286,11 @@ struct FontClient::Plugin
   GlyphIndex GetGlyphIndex(FontId fontId, Character charcode);
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetGlyphIndex()
+   */
+  GlyphIndex GetGlyphIndex(FontId fontId, Character charcode, Character variantSelector);
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::GetGlyphMetrics()
    */
   bool GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type, bool horizontal);

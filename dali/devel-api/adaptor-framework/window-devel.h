@@ -35,6 +35,7 @@ class RenderTaskList;
 
 namespace DevelWindow
 {
+
 typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
 typedef Signal<void(const KeyEvent&)> KeyEventSignalType; ///< Key event signal type
@@ -48,6 +49,8 @@ typedef Signal<void(Window, bool)> VisibilityChangedSignalType; ///< Visibility 
 typedef Signal<void(Window, WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
 
 typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
+
+typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType; ///< Auxiliary message signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -144,6 +147,19 @@ DALI_ADAPTOR_API TransitionEffectEventSignalType& TransitionEffectEventSignal(Wi
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window's auxiliary was changed then display server sent the message.
+ *
+ * Auxiliary message is sent by display server.
+ * When client application added the window's auxiliary hint and if the auxiliary is changed,
+ * display server send the auxiliary message.
+ * Auxiliary message has the key, value and options.
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window);
 
 /**
  * @brief Sets parent window of the window.
