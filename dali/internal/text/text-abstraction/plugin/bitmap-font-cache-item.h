@@ -86,6 +86,14 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   }
 
   /**
+   * @copydoc FontCacheItemInterface::GetGlyphIndex()
+   */
+  GlyphIndex GetGlyphIndex(Character character, Character variantSelector) const override
+  {
+    return 0u;
+  }
+
+  /**
    * @copydoc FontCacheItemInterface::GetTypeface()
    */
   FT_Face GetTypeface() const override

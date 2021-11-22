@@ -19,8 +19,10 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/emoji-character-properties.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <sys/types.h>
 
 namespace Dali
 {
@@ -100,7 +102,11 @@ enum Script
   SYMBOLS4, ///< Some symbols.
   SYMBOLS5, ///< Some symbols.
 
-  UNKNOWN ///< The script is unknown.
+  UNKNOWN,    ///< The script is unknown.
+  EMOJI_TEXT, ///< The Emoji request a text presentation for an emoji character.
+  EMOJI_COLOR ///< The Emoji request a color-emoji presentation for an emoji character.
+
+  //Note: update ScriptName and GetNumberOfScripts when adding new script
 };
 
 const char* const ScriptName[] =
@@ -173,7 +179,9 @@ const char* const ScriptName[] =
     "SYMBOLS4", ///< Some symbols.
     "SYMBOLS5", ///< Some symbols.
 
-    "UNKNOWN" ///< The script is unknown.
+    "UNKNOWN",    ///< The script is unknown.
+    "EMOJI_TEXT", ///< The Emoji request a text presentation for an emoji character.
+    "EMOJI_COLOR" ///< The Emoji request a color-emoji presentation for an emoji character.
 };
 
 /**
@@ -286,6 +294,14 @@ DALI_ADAPTOR_API bool IsCommonScript(Character character);
  * @return @e true if the script has ligatures that must be 'broken'.
  */
 DALI_ADAPTOR_API bool HasLigatureMustBreak(Script script);
+
+/**
+ * @brief Get the number of elements in enum Script
+ *
+ * @return returns the number of Scripts
+ */
+DALI_ADAPTOR_API Length GetNumberOfScripts();
+
 } // namespace TextAbstraction
 
 } // namespace Dali

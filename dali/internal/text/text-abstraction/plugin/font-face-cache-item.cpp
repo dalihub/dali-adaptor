@@ -117,7 +117,14 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertic
       glyph.height   = mFixedHeightPixels;
       glyph.advance  = mFixedWidthPixels;
       glyph.xBearing = 0.0f;
-      glyph.yBearing = mFixedHeightPixels;
+      if(horizontal)
+      {
+        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.horiBearingY) * FROM_266;
+      }
+      else
+      {
+        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.vertBearingY) * FROM_266;
+      }
 
       // Adjust the metrics if the fixed-size font should be down-scaled
       const float desiredFixedSize = static_cast<float>(mRequestedPointSize) * FROM_266 / POINTS_PER_INCH * dpiVertical;
@@ -402,6 +409,11 @@ bool FontFaceCacheItem::IsCharacterSupported(Character character)
 GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character) const
 {
   return FT_Get_Char_Index(mFreeTypeFace, character);
+}
+
+GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character, Character variantSelector) const
+{
+  return FT_Face_GetCharVariantIndex(mFreeTypeFace, character, variantSelector);
 }
 
 } // namespace Dali::TextAbstraction::Internal
