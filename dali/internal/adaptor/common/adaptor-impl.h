@@ -19,7 +19,6 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/render-controller.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
@@ -680,7 +679,6 @@ private:                                          // Data
   SystemTrace                 mSystemTracer;                          ///< System tracer
   ObjectProfiler*             mObjectProfiler;                        ///< Tracks object lifetime for profiling
   SocketFactory               mSocketFactory;                         ///< Socket factory
-  Mutex                       mMutex;                                 ///< Mutex
   ThreadMode                  mThreadMode;                            ///< The thread mode
   const bool                  mEnvironmentOptionsOwned : 1;           ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
   bool                        mUseRemoteSurface : 1;                  ///< whether the remoteSurface is used or not
