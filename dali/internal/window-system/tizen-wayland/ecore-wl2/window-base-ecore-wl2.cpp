@@ -1073,6 +1073,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
     if(windowMoved || windowResized)
     {
       Dali::PositionSize newPositionSize(ev->x, ev->y, newWidth, newHeight);
+      mWindowPositionSize = newPositionSize;
+      DALI_LOG_RELEASE_INFO("Update position & resize signal by server, x[%d] y[%d] w[%d] h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
       mUpdatePositionSizeSignal.Emit(newPositionSize);
     }
 
@@ -1727,6 +1729,26 @@ void WindowBaseEcoreWl2::Lower()
 void WindowBaseEcoreWl2::Activate()
 {
   ecore_wl2_window_activate(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::Maximize(bool maximize)
+{
+  ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
+}
+
+bool WindowBaseEcoreWl2::IsMaximized() const
+{
+  return ecore_wl2_window_maximized_get(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::Minimize(bool minimize)
+{
+  ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
+}
+
+bool WindowBaseEcoreWl2::IsMinimized() const
+{
+  return ecore_wl2_window_iconified_get(mEcoreWindow);
 }
 
 void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)

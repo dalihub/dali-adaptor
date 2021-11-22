@@ -219,6 +219,26 @@ void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
   GetImplementation(window).FeedKeyEvent(convertedEvent);
 }
 
+void Maximize(Window window, bool maximize)
+{
+  GetImplementation(window).Maximize(maximize);
+}
+
+bool IsMaximized(Window window)
+{
+  return GetImplementation(window).IsMaximized();
+}
+
+void Minimize(Window window, bool miniimize)
+{
+  GetImplementation(window).Minimize(miniimize);
+}
+
+bool IsMinimized(Window window)
+{
+  return GetImplementation(window).IsMinimized();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

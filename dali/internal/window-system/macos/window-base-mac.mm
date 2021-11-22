@@ -470,6 +470,24 @@ void WindowBaseCocoa::Activate()
   [mImpl->mWinController showWindow:nil];
 }
 
+void WindowBaseCocoa::Maximize(bool maximize)
+{
+}
+
+bool WindowBaseCocoa::IsMaximized() const
+{
+  return false;
+}
+
+void WindowBaseCocoa::Minimize(bool minimize)
+{
+}
+
+bool WindowBaseCocoa::IsMinimized() const
+{
+  return false;
+}
+
 void WindowBaseCocoa::SetAvailableAnlges( const std::vector< int >& angles )
 {
 }

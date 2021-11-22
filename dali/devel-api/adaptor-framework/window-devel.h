@@ -415,6 +415,50 @@ DALI_ADAPTOR_API void FeedWheelEvent(Window window, const Dali::WheelEvent& whee
  */
 DALI_ADAPTOR_API void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent);
 
+/**
+ * @brief Maximizes window's size.
+ * If this function is called with true, window will be resized with screen size.
+ * Otherwise window will be resized with previous size.
+ * It is for the window's MAX button in window's border.
+ *
+ * It is for client application.
+ * If window border is supported by display server, it is not necessary.
+ *
+ * @param[in] window The window instance.
+ * @param[in] maximize If window is maximized or unmaximized.
+ */
+DALI_ADAPTOR_API void Maximize(Window window, bool maximize);
+
+/**
+ * @brief Returns whether the window is maximized or not.
+ *
+ * @param[in] window The window instance.
+ * @return True if the window is maximized, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsMaximized(Window window);
+
+/**
+ * @brief Minimizes window's size.
+ * If this function is called with true, window will be iconified.
+ * Otherwise window will be activated.
+ * It is for the window's MIN button in window border.
+ *
+ * It is for client application.
+ * If window border is supported by display server, it is not necessary.
+ *
+ * @param[in] window The window instance.
+ * @param[in] minimize If window is minimized or unminimized(activated).
+ */
+DALI_ADAPTOR_API void Minimize(Window window, bool minimize);
+
+/**
+ * @brief Returns whether the window is minimized or not.
+ *
+ * @param[in] window The window instance.
+ * @return True if the window is minimized, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsMinimized(Window window);
+
 } // namespace DevelWindow
 
 } // namespace Dali
