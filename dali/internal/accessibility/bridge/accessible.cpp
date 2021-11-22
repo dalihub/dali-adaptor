@@ -233,6 +233,11 @@ void Bridge::RegisterOnBridge(const Accessible* object)
   }
 }
 
+bool Accessible::IsHidden() const
+{
+  return false;
+}
+
 bool Accessible::IsProxy() const
 {
   return false;

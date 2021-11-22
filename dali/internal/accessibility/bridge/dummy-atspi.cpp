@@ -46,6 +46,11 @@ std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridg
   return {};
 }
 
+bool Accessibility::Accessible::IsHidden() const
+{
+  return false;
+}
+
 bool Accessibility::Accessible::IsProxy() const
 {
   return false;

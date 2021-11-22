@@ -274,6 +274,15 @@ public:
   virtual Attributes GetAttributes() const = 0;
 
   /**
+   * @brief Checks if this is hidden.
+   *
+   * @return True if this is hidden
+   *
+   * @note Hidden means not present in the AT-SPI tree.
+   */
+  virtual bool IsHidden() const;
+
+  /**
    * @brief Checks if this is proxy.
    *
    * @return True if this is proxy
