@@ -871,12 +871,10 @@ on_error:
  *
  * @param[in] loaderInfo A LoaderInfo structure containing file descriptor and other data about GIF.
  * @param[out] prop A ImageProperties structure for storing information about GIF data.
- * @param[out] error Error code
  * @return The true or false whether reading was successful or not.
  */
 bool ReadHeader(LoaderInfo&      loaderInfo,
-                ImageProperties& prop, //output struct
-                int*             error)
+                ImageProperties& prop)
 {
   GifAnimationData&     animated    = loaderInfo.animated;
   GifCachedColorData&   cachedColor = loaderInfo.cachedColor;
@@ -1077,9 +1075,6 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
               cachedColor.globalCachedColor[i] = PixelLookup(colorMap, i);
             }
           }
-
-          // no errors in header scan etc. so set err and return value
-          *error = 0;
         }
       }
     }
@@ -1398,15 +1393,25 @@ struct GifLoading::Impl
 public:
   Impl(const std::string& url, bool isLocalResource)
   : mUrl(url),
-    mLoadSucceeded(true),
+    mLoadSucceeded(false),
     mMutex()
   {
     loaderInfo.gifAccessor = nullptr;
-    int error;
     loaderInfo.fileData.fileName        = mUrl.c_str();
     loaderInfo.fileData.isLocalResource = isLocalResource;
+  }
 
-    mLoadSucceeded = ReadHeader(loaderInfo, imageProperties, &error);
+  bool LoadGifInformation()
+  {
+    // Block to do not load this file again.
+    Mutex::ScopedLock lock(mMutex);
+    if(DALI_LIKELY(mLoadSucceeded))
+    {
+      return mLoadSucceeded;
+    }
+
+    mLoadSucceeded = ReadHeader(loaderInfo, imageProperties);
+    return mLoadSucceeded;
   }
 
   // Moveable but not copyable
@@ -1442,12 +1447,12 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
   int  error;
   bool ret = false;
 
-  Mutex::ScopedLock lock(mImpl->mMutex);
-  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  if(DALI_UNLIKELY(!mImpl->LoadGifInformation()))
   {
     return false;
   }
 
+  Mutex::ScopedLock lock(mImpl->mMutex);
   const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof(uint32_t);
 
   DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameStartIndex:%d, count:%d )\n", frameStartIndex, count);
@@ -1475,14 +1480,16 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 {
   int                      error;
   Dali::Devel::PixelBuffer pixelBuffer;
-  if(!mImpl->mLoadSucceeded)
+
+  DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
+
+  // If Gif file is still not loaded, Load the information.
+  if(DALI_UNLIKELY(!mImpl->LoadGifInformation()))
   {
     return pixelBuffer;
   }
 
   Mutex::ScopedLock lock(mImpl->mMutex);
-  DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
-
   pixelBuffer = Dali::Devel::PixelBuffer::New(mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888);
 
   mImpl->loaderInfo.animated.currentFrame = 1 + (frameIndex % mImpl->loaderInfo.animated.frameCount);
@@ -1497,17 +1504,35 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 
 ImageDimensions GifLoading::GetImageSize() const
 {
+  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  {
+    mImpl->LoadGifInformation();
+  }
   return ImageDimensions(mImpl->imageProperties.w, mImpl->imageProperties.h);
 }
 
 uint32_t GifLoading::GetImageCount() const
 {
+  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  {
+    mImpl->LoadGifInformation();
+  }
   return mImpl->loaderInfo.animated.frameCount;
 }
 
 uint32_t GifLoading::GetFrameInterval(uint32_t frameIndex) const
 {
-  return mImpl->loaderInfo.animated.frames[frameIndex].info.delay * 10;
+  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
+  {
+    mImpl->LoadGifInformation();
+  }
+
+  uint32_t interval = 0u;
+  if(DALI_LIKELY(mImpl->mLoadSucceeded))
+  {
+    interval = mImpl->loaderInfo.animated.frames[frameIndex].info.delay * 10;
+  }
+  return interval;
 }
 
 std::string GifLoading::GetUrl() const
