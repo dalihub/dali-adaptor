@@ -498,6 +498,20 @@ private:
   void OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options);
 
   /**
+   * @brief Called when Accessibility is enabled.
+   *
+   * This method is to register the window to accessibility bridge.
+   */
+  void OnAccessibilityEnabled();
+
+  /**
+   * @brief Called when Accessibility is disabled.
+   *
+   * This method is to remove the window from accessibility bridge.
+   */
+  void OnAccessibilityDisabled();
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
