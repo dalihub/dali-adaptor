@@ -585,7 +585,6 @@ static Eina_Bool EcoreEventWindowRedrawRequest(void* data, int type, void* event
 static Eina_Bool EcoreEventWindowAuxiliaryMessage(void *data, int type, void *event)
 {
   WindowBaseEcoreWl2*          windowBase             = static_cast<WindowBaseEcoreWl2*>(data);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventWindowAuxiliaryMessage, window[ %d ]\n", windowAuxiliaryMessage->win);
   if(windowBase)
   {
     windowBase->OnEcoreEventWindowAuxiliaryMessage(event);
