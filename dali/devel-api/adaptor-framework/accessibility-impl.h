@@ -49,6 +49,8 @@ class DALI_ADAPTOR_API Component;
 class DALI_ADAPTOR_API Collection;
 class DALI_ADAPTOR_API Action;
 class DALI_ADAPTOR_API Application;
+class DALI_ADAPTOR_API Hypertext;
+class DALI_ADAPTOR_API Hyperlink;
 
 /**
  * @brief Base class for different accessibility bridges.
@@ -1253,6 +1255,91 @@ public:
    * @return true on success, false otherwise
    */
   virtual bool SetTextContents(std::string newContents) = 0;
+};
+
+/**
+ * @brief Interface representing hypertext that can store a collection of hyperlinks.
+ */
+class Hypertext : public virtual Accessible
+{
+public:
+  /**
+   * @brief Gets the handle to hyperlink object from a specified index in hyperlink collection of this hypertext.
+   *
+   * @param[in] linkIndex The 0-based index in hyperlink collection.
+   *
+   * @return Handle to hyperlink object at a specified index in hyperlink collection of hypertext.
+   */
+  virtual Hyperlink* GetLink(int32_t linkIndex) const = 0;
+
+  /**
+   * @brief Gets the index in hyperlink collection occupied by hyperlink which spans over a specified character offset in this hypertext.
+   *
+   * @param[in] characterOffset The 0-based index of character in hypertext.
+   *
+   * @return The value of 0-based index in hyperlink collection (-1 if there is no hyperlink at the specified character offset).
+   */
+  virtual int32_t GetLinkIndex(int32_t characterOffset) const = 0;
+
+  /**
+   * @brief Gets number of hyperlinks stored in this hypertext.
+   *
+   * @return The number of hyperlinks (zero if none or -1 if the number cannot be determined)
+   */
+  virtual int32_t GetLinkCount() const = 0;
+};
+
+/**
+ * @brief Interface representing a hyperlink in hypertext .
+ */
+class Hyperlink : public virtual Accessible
+{
+public:
+  /**
+   * @brief Gets the index of character in originating hypertext at which this hyperlink ends.
+   *
+   * @return The 0-based index of hyperlink's last character + 1, in its originating hypertext.
+   */
+  virtual int32_t GetEndIndex() const = 0;
+
+  /**
+   * @brief Gets the index of character in originating hypertext at which this hyperlink starts.
+   *
+   * @return The 0-based index of hyperlink's first character, in its originating hypertext.
+   */
+  virtual int32_t GetStartIndex() const = 0;
+
+  /**
+   * @brief Gets the total number of anchors which this hyperlink has. Though, typical hyperlinks will have only one anchor.
+   *
+   * @return The number of anchors.
+   */
+  virtual int32_t GetAnchorCount() const = 0;
+
+  /**
+   * @brief Gets the object associated with a particular hyperlink's anchor.
+   *
+   * @param[in] anchorIndex The 0-based index in anchor collection.
+   *
+   * @return The handle to accessible object.
+   */
+  virtual Accessible* GetAnchorAccessible(int32_t anchorIndex) const = 0;
+
+  /**
+   * @brief Gets the URI associated with a particular hyperlink's anchor.
+   *
+   * @param[in] anchorIndex The 0-based index in anchor collection.
+   *
+   * @return The string containing URI.
+   */
+  virtual std::string GetAnchorUri(int32_t anchorIndex) const = 0;
+
+  /**
+   * @brief Tells whether this hyperlink object is still valid with respect to its originating hypertext object.
+   *
+   * @return True if hyperlink object is valid, false otherwise
+   */
+  virtual bool IsValid() const = 0;
 };
 
 /**

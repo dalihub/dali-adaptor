@@ -117,14 +117,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertic
       glyph.height   = mFixedHeightPixels;
       glyph.advance  = mFixedWidthPixels;
       glyph.xBearing = 0.0f;
-      if(horizontal)
-      {
-        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.horiBearingY) * FROM_266;
-      }
-      else
-      {
-        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.vertBearingY) * FROM_266;
-      }
+      glyph.yBearing = mFixedHeightPixels;
 
       // Adjust the metrics if the fixed-size font should be down-scaled
       const float desiredFixedSize = static_cast<float>(mRequestedPointSize) * FROM_266 / POINTS_PER_INCH * dpiVertical;
