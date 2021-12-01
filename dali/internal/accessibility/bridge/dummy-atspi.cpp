@@ -34,11 +34,6 @@ std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
   return {};
 }
 
-Accessibility::Accessible* Accessibility::Accessible::GetDefaultLabel()
-{
-  return nullptr;
-}
-
 Accessibility::Address Accessibility::Accessible::GetAddress()
 {
   return {};

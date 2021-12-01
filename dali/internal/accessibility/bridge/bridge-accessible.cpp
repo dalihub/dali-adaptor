@@ -32,7 +32,6 @@ using namespace Dali::Accessibility;
 
 namespace
 {
-
 bool SortVertically(Component* lhs, Component* rhs)
 {
   auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
@@ -63,8 +62,8 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   }
 
   std::vector<std::vector<Component*>> lines(1);
-  Dali::Rect<> lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
-  Dali::Rect<> rect;
+  Dali::Rect<>                         lineRect = (*first)->GetExtents(CoordinateType::WINDOW);
+  Dali::Rect<>                         rect;
 
   // Split into lines
   for(auto it = first; it != children.end(); ++it)
@@ -251,7 +250,7 @@ static std::string GetComponentInfo(Component* obj)
   std::ostringstream object;
   auto               extent = obj->GetExtents(CoordinateType::SCREEN);
   object << "name: " << obj->GetName() << " extent: (" << extent.x << ", "
-    << extent.y << "), [" << extent.width << ", " << extent.height << "]";
+         << extent.y << "), [" << extent.width << ", " << extent.height << "]";
   return object.str();
 }
 
@@ -354,13 +353,13 @@ static Accessible* GetDeputyOfProxyInParent(Accessible* obj)
   return nullptr;
 }
 
-static std::vector<Component*> GetScrollableParents(Accessible *accessible)
+static std::vector<Component*> GetScrollableParents(Accessible* accessible)
 {
   std::vector<Component*> scrollableParents;
 
   while(accessible)
   {
-    accessible = accessible->GetParent();
+    accessible     = accessible->GetParent();
     auto component = dynamic_cast<Component*>(accessible);
     if(component && component->IsScrollable())
     {
@@ -370,7 +369,7 @@ static std::vector<Component*> GetScrollableParents(Accessible *accessible)
   return scrollableParents;
 }
 
-static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible *child, Accessible *start)
+static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible* child, Accessible* start)
 {
   auto scrollableParentsOfChild = GetScrollableParents(child);
   auto scrollableParentsOfStart = GetScrollableParents(start);
@@ -381,13 +380,12 @@ static std::vector<Component*> GetNonDuplicatedScrollableParents(Accessible *chi
   {
     scrollableParentsOfChild.pop_back();
     scrollableParentsOfStart.pop_back();
-   }
+  }
 
   return scrollableParentsOfChild;
 }
 
 } // anonymous namespace
-
 
 BridgeAccessible::BridgeAccessible()
 {
@@ -649,8 +647,8 @@ std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Acc
   std::vector<Component*> vec;
 
   Dali::Rect<> scrollableParentExtents;
-  auto nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
-  if (!nonDuplicatedScrollableParents.empty())
+  auto         nonDuplicatedScrollableParents = GetNonDuplicatedScrollableParents(children.front(), start);
+  if(!nonDuplicatedScrollableParents.empty())
   {
     scrollableParentExtents = nonDuplicatedScrollableParents.front()->GetExtents(CoordinateType::WINDOW);
   }
@@ -689,7 +687,6 @@ void BridgeAccessible::SortChildrenFromTopLeft(std::vector<Dali::Accessibility::
 
   children = sortedChildren;
 }
-
 
 template<class T>
 struct CycleDetection
@@ -861,7 +858,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     // 2. parent after all children in backward traversing
     // 3. Nodes with roles: ATSPI_ROLE_PAGE_TAB, ATSPI_ROLE_POPUP_MENU and ATSPI_ROLE_DIALOG, only when looking for first or last element.
     //    Objects with those roles shouldnt be reachable, when navigating next / prev.
-    bool areAllChildrenVisitedOrMovingForward= (children.size() == 0 || forward || areAllChildrenVisited);
+    bool areAllChildrenVisitedOrMovingForward = (children.size() == 0 || forward || areAllChildrenVisited);
 
     if(!forceNext && node != start && areAllChildrenVisitedOrMovingForward && IsObjectAcceptable(node))
     {
@@ -879,7 +876,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     // be checked first before using the elm_layout as a node.
     if(forceNext && forward)
     {
-      auto deputy = GetDeputyOfProxyInParent(node);
+      auto deputy            = GetDeputyOfProxyInParent(node);
       nextRelatedInDirection = GetObjectInRelation(deputy, RelationType::FLOWS_TO);
     }
 
@@ -1041,7 +1038,11 @@ std::string BridgeAccessible::GetName()
 
 DBus::ValueOrError<Accessible*, uint32_t, std::unordered_map<std::string, std::string>> BridgeAccessible::GetDefaultLabelInfo()
 {
-  auto defaultLabel = FindSelf()->GetDefaultLabel();
+  auto defaultLabel = GetDefaultLabel();
+  if(defaultLabel == nullptr)
+  {
+    defaultLabel = FindSelf();
+  }
   // By default, the text is taken from navigation context root's accessibility properties name and description.
   return {defaultLabel, static_cast<uint32_t>(defaultLabel->GetRole()), defaultLabel->GetAttributes()};
 }

@@ -43,12 +43,17 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void AddPopup(Accessibility::Accessible* object) override
+  void RegisterDefaultLabel(Accessibility::Accessible* object) override
   {
   }
 
-  void RemovePopup(Accessibility::Accessible* object) override
+  void UnregisterDefaultLabel(Accessibility::Accessible* object) override
   {
+  }
+
+  Dali::Accessibility::Accessible* GetDefaultLabel() const override
+  {
+    return nullptr;
   }
 
   void SetApplicationName(std::string name) override

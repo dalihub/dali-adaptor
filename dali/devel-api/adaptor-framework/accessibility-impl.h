@@ -35,8 +35,8 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
 {
@@ -105,25 +105,38 @@ struct DALI_ADAPTOR_API Bridge
   virtual void RemoveTopLevelWindow(Accessible* object) = 0;
 
   /**
-   * @brief Adds popup window.
+   * @brief Adds object on the top of the stack of "default label" sourcing objects.
    *
-   * Hierarchy of objects visible for accessibility clients is based on tree-like
-   * structure created from Actors objects. This method adds new popup to the tree.
+   * @see GetDefaultLabel
    *
    * @param[in] object The accessible object
    */
-  virtual void AddPopup(Accessible* object) = 0;
+  virtual void RegisterDefaultLabel(Accessible* object) = 0;
 
   /**
-   * @brief Removes popup window.
+   * @brief Removes object from the stack of "default label" sourcing objects.
    *
-   * Hierarchy of objects visible for accessibility clients is based on tree-like
-   * structure created from Actors objects. This method removes previously added
-   * popup window.
+   * @see GetDefaultLabel
    *
    * @param[in] object The accessible object
    */
-  virtual void RemovePopup(Accessible* object) = 0;
+  virtual void UnregisterDefaultLabel(Accessible* object) = 0;
+
+  /**
+   * @brief Gets the top-most object from the stack of "default label" sourcing objects.
+   *
+   * The "default label" is a reading material (text) derived from an accesibility object
+   * that could be read by screen-reader immediately after the navigation context has changed
+   * (window activates, popup shows up, tab changes) and before first UI element is highlighted.
+   *
+   * @return The handler to accessibility object
+   * @note This is a Tizen only feature not present in upstream ATSPI.
+   * Feature can be enabled/disabled for particular context root object
+   * by setting value of its accessibility attribute "default_label".
+   * Following strings are valid values for "default_label" attribute: "enabled", "disabled".
+   * Any other value will be interpreted as "enabled".
+   */
+  virtual Accessible* GetDefaultLabel() const = 0;
 
   /**
    * @brief Sets name of current application which will be visible on accessibility bus.
@@ -716,13 +729,6 @@ public:
    * @see Dali::Accessibility::Address
    */
   virtual Address GetAddress();
-
-  /**
-   * @brief Gets accessibility object, which is "default label" for this object.
-   *
-   * @return The Accessible object
-   */
-  virtual Accessible* GetDefaultLabel();
 
   /**
    * @brief Deputes an object to perform provided gesture.

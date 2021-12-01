@@ -236,11 +236,6 @@ bool Accessible::IsProxy()
   return false;
 }
 
-Accessible* Accessible::GetDefaultLabel()
-{
-  return this;
-}
-
 void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)
 {
   if(auto data = GetBridgeData())
