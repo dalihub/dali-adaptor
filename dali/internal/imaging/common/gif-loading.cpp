@@ -1239,15 +1239,19 @@ struct GifLoading::Impl
 public:
   Impl(const std::string& url, bool isLocalResource)
   : mUrl(url),
-    mLoadSucceeded(true),
+    mLoadSucceeded(false),
     mMutex()
   {
     loaderInfo.gifAccessor = nullptr;
-    int error;
     loaderInfo.fileData.fileName        = mUrl.c_str();
     loaderInfo.fileData.isLocalResource = isLocalResource;
+  }
 
+  bool LoadGifInformation()
+  {
+    int error;
     mLoadSucceeded = ReadHeader(loaderInfo, imageProperties, &error);
+    return mLoadSucceeded;
   }
 
   // Moveable but not copyable
@@ -1286,7 +1290,10 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
   Mutex::ScopedLock lock(mImpl->mMutex);
   if(!mImpl->mLoadSucceeded)
   {
-    return false;
+    if(!mImpl->LoadGifInformation())
+    {
+      return false;
+    }
   }
 
   const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof(uint32_t);
@@ -1316,13 +1323,18 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 {
   int                      error;
   Dali::Devel::PixelBuffer pixelBuffer;
-  if(!mImpl->mLoadSucceeded)
-  {
-    return pixelBuffer;
-  }
 
   Mutex::ScopedLock lock(mImpl->mMutex);
   DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
+
+  // If Gif file is still not loaded, Load the information.
+  if(!mImpl->mLoadSucceeded)
+  {
+    if(!mImpl->LoadGifInformation())
+    {
+      return pixelBuffer;
+    }
+  }
 
   pixelBuffer = Dali::Devel::PixelBuffer::New(mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888);
 
@@ -1338,16 +1350,28 @@ Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 
 ImageDimensions GifLoading::GetImageSize() const
 {
+  if(!mImpl->mLoadSucceeded)
+  {
+    DALI_LOG_ERROR("Gif file is still not loaded, this image size could not be correct value.\n");
+  }
   return ImageDimensions(mImpl->imageProperties.w, mImpl->imageProperties.h);
 }
 
 uint32_t GifLoading::GetImageCount() const
 {
+  if(!mImpl->mLoadSucceeded)
+  {
+    DALI_LOG_ERROR("Gif file is still not loaded, this image count could not be correct value.\n");
+  }
   return mImpl->loaderInfo.animated.frameCount;
 }
 
 uint32_t GifLoading::GetFrameInterval(uint32_t frameIndex) const
 {
+  if(!mImpl->mLoadSucceeded)
+  {
+    DALI_LOG_ERROR("Gif file is still not loaded, this frame interval could not be correct value.\n");
+  }
   return mImpl->loaderInfo.animated.frames[frameIndex].info.delay * 10;
 }
 

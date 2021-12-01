@@ -89,7 +89,6 @@ public:
    * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
-
   Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) override;
 
   /**
@@ -109,7 +108,7 @@ public:
    *
    * @note The frame is needed to be loaded before this function is called.
    *
-   * @return The time interval of the frame(microsecond).
+   * @return The time interval between frameIndex and frameIndex + 1(microsecond).
    */
   uint32_t GetFrameInterval(uint32_t frameIndex) const override;
 
@@ -126,6 +125,15 @@ public:
    * @return True when the animated image loading is succeeded.
    */
   bool HasLoadingSucceeded() const override;
+
+private:
+  /**
+   * @brief Decode Frame of the animated image.
+   *
+   * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   */
+  Dali::Devel::PixelBuffer DecodeFrame(uint32_t frameIndex);
 
 private:
   struct Impl;
