@@ -63,6 +63,11 @@ public:
     return mChildren.size();
   }
 
+  std::vector<Dali::Accessibility::Accessible*> GetChildren() override
+  {
+    return mChildren;
+  }
+
   Dali::Accessibility::Accessible* GetChildAtIndex(size_t index) override
   {
     auto size = mChildren.size();

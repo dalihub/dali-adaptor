@@ -195,16 +195,6 @@ void Accessible::EmitBoundsChanged(Rect<> rect)
   }
 }
 
-std::vector<Accessible*> Accessible::GetChildren()
-{
-  std::vector<Accessible*> tmp(GetChildCount());
-  for(auto i = 0u; i < tmp.size(); ++i)
-  {
-    tmp[i] = GetChildAtIndex(i);
-  }
-  return tmp;
-}
-
 std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
 {
   auto handle = mBridgeData.lock();

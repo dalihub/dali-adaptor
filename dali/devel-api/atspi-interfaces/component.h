@@ -105,7 +105,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool IsScrollable() const;
+  virtual bool IsScrollable() const = 0;
 
   /**
    * @brief Gets Accessible object containing given point.

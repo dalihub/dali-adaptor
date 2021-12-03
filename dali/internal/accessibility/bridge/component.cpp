@@ -45,8 +45,3 @@ Accessible* Component::GetAccessibleAtPoint(Point point, Dali::Accessibility::Co
   }
   return nullptr;
 }
-
-bool Component::IsScrollable() const
-{
-  return false;
-}

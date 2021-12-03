@@ -205,7 +205,7 @@ public:
    *
    * @return The collection of accessibility objects
    */
-  virtual std::vector<Accessible*> GetChildren();
+  virtual std::vector<Accessible*> GetChildren() = 0;
 
   /**
    * @brief Gets child of the index.
