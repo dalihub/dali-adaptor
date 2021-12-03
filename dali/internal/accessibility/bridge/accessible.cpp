@@ -36,46 +36,46 @@
 
 using namespace Dali::Accessibility;
 
-std::vector<std::string> Accessible::GetInterfaces()
+std::vector<std::string> Accessible::GetInterfaces() const
 {
   std::vector<std::string> tmp;
   tmp.push_back(AtspiDbusInterfaceAccessible);
-  if(dynamic_cast<Collection*>(this))
+  if(dynamic_cast<const Collection*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceCollection);
   }
-  if(dynamic_cast<Text*>(this))
+  if(dynamic_cast<const Text*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceText);
   }
-  if(dynamic_cast<EditableText*>(this))
+  if(dynamic_cast<const EditableText*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceEditableText);
   }
-  if(dynamic_cast<Value*>(this))
+  if(dynamic_cast<const Value*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceValue);
   }
-  if(dynamic_cast<Component*>(this))
+  if(dynamic_cast<const Component*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceComponent);
   }
-  if(auto action = dynamic_cast<Action*>(this))
+  if(auto action = dynamic_cast<const Action*>(this))
   {
     if(action->GetActionCount() > 0)
     {
       tmp.push_back(AtspiDbusInterfaceAction);
     }
   }
-  if(dynamic_cast<Selection*>(this))
+  if(dynamic_cast<const Selection*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceSelection);
   }
-  if(dynamic_cast<Hypertext*>(this))
+  if(dynamic_cast<const Hypertext*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceHypertext);
   }
-  if(dynamic_cast<Hyperlink*>(this))
+  if(dynamic_cast<const Hyperlink*>(this))
   {
     tmp.push_back(AtspiDbusInterfaceHyperlink);
   }
@@ -86,7 +86,7 @@ Accessible::Accessible()
 {
 }
 
-Accessible::~Accessible()
+Accessible::~Accessible() noexcept
 {
   auto handle = mBridgeData.lock();
   if(handle)
@@ -205,7 +205,7 @@ std::vector<Accessible*> Accessible::GetChildren()
   return tmp;
 }
 
-std::shared_ptr<Bridge::Data> Accessible::GetBridgeData()
+std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
 {
   auto handle = mBridgeData.lock();
   if(!handle)
@@ -216,7 +216,7 @@ std::shared_ptr<Bridge::Data> Accessible::GetBridgeData()
   return handle;
 }
 
-Address Accessible::GetAddress()
+Address Accessible::GetAddress() const
 {
   auto handle = mBridgeData.lock();
   if(!handle)
@@ -232,7 +232,7 @@ Address Accessible::GetAddress()
   return {handle ? handle->mBusName : "", tmp.str()};
 }
 
-void Bridge::RegisterOnBridge(Accessible* object)
+void Bridge::RegisterOnBridge(const Accessible* object)
 {
   assert(!object->mBridgeData.lock() || object->mBridgeData.lock() == mData);
   if(!object->mBridgeData.lock())
@@ -243,7 +243,7 @@ void Bridge::RegisterOnBridge(Accessible* object)
   }
 }
 
-bool Accessible::IsProxy()
+bool Accessible::IsProxy() const
 {
   return false;
 }

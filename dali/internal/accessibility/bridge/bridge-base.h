@@ -33,22 +33,22 @@
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**
- * @brief The AppAccessible class is to define Accessibility Application.
+ * @brief The ApplicationAccessible class is to define Accessibility Application.
  */
-class AppAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
+class ApplicationAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
 {
 public:
-  Dali::Accessibility::EmptyAccessibleWithAddress mParent;
-  std::vector<Dali::Accessibility::Accessible*>   mChildren;
-  std::vector<Dali::Window>                       mWindows;
-  std::string                                     mName;
+  Dali::Accessibility::ProxyAccessible          mParent;
+  std::vector<Dali::Accessibility::Accessible*> mChildren;
+  std::vector<Dali::Window>                     mWindows;
+  std::string                                   mName;
 
-  std::string GetName() override
+  std::string GetName() const override
   {
     return mName;
   }
 
-  std::string GetDescription() override
+  std::string GetDescription() const override
   {
     return "";
   }
@@ -58,7 +58,7 @@ public:
     return &mParent;
   }
 
-  size_t GetChildCount() override
+  size_t GetChildCount() const override
   {
     return mChildren.size();
   }
@@ -78,7 +78,7 @@ public:
     throw std::domain_error{"can't call GetIndexInParent on application object"};
   }
 
-  Dali::Accessibility::Role GetRole() override
+  Dali::Accessibility::Role GetRole() const override
   {
     return Dali::Accessibility::Role::APPLICATION;
   }
@@ -88,7 +88,7 @@ public:
     return {};
   }
 
-  Dali::Accessibility::Attributes GetAttributes() override
+  Dali::Accessibility::Attributes GetAttributes() const override
   {
     return {};
   }
@@ -137,17 +137,17 @@ public:
     return Dali::Actor{};
   }
 
-  Dali::Accessibility::Address GetAddress() override
+  Dali::Accessibility::Address GetAddress() const override
   {
     return {"", "root"};
   }
 
-  std::string GetToolkitName() override
+  std::string GetToolkitName() const override
   {
     return {"dali"};
   }
 
-  std::string GetVersion() override
+  std::string GetVersion() const override
   {
     return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
   }
@@ -443,7 +443,7 @@ public:
   }
 
 protected:
-  mutable AppAccessible                         mApplication;
+  mutable ApplicationAccessible                 mApplication;
   std::vector<Dali::Accessibility::Accessible*> mDefaultLabels;
   bool                                          mIsScreenReaderSuppressed = false;
 

@@ -396,11 +396,11 @@ struct DALI_ADAPTOR_API Bridge
 protected:
   struct Data
   {
-    std::unordered_set<Accessible*> mKnownObjects;
-    std::string                     mBusName;
-    Bridge*                         mBridge = nullptr;
-    Actor                           mHighlightActor;
-    Actor                           mCurrentlyHighlightedActor;
+    std::unordered_set<const Accessible*> mKnownObjects;
+    std::string                           mBusName;
+    Bridge*                               mBridge = nullptr;
+    Actor                                 mHighlightActor;
+    Actor                                 mCurrentlyHighlightedActor;
   };
   std::shared_ptr<Data> mData;
   friend class Accessible;
@@ -425,7 +425,7 @@ protected:
    *
    * @param[in] object The accessible object
    **/
-  void RegisterOnBridge(Accessible* object);
+  void RegisterOnBridge(const Accessible* object);
 
   /**
    * @brief Tells bridge, that given object is considered root (doesn't have any parents).

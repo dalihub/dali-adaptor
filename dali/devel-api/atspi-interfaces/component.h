@@ -42,7 +42,7 @@ public:
    *
    * @see Dali::Rect
    */
-  virtual Rect<> GetExtents(CoordinateType type) = 0;
+  virtual Rect<> GetExtents(CoordinateType type) const = 0;
 
   /**
    * @brief Gets layer current object is localized on.
@@ -51,7 +51,7 @@ public:
    *
    * @see Dali::Accessibility::ComponentLayer
    */
-  virtual ComponentLayer GetLayer() = 0;
+  virtual ComponentLayer GetLayer() const = 0;
 
   /**
    * @brief Gets value of z-order.
@@ -61,7 +61,7 @@ public:
    * which in short means that many stacked windows can be displayed within a single application.
    * In such model, the concept of z-order of UI element became important to deal with element overlapping.
    */
-  virtual int16_t GetMdiZOrder() = 0;
+  virtual int16_t GetMdiZOrder() const = 0;
 
   /**
    * @brief Sets current object as "focused".
@@ -75,7 +75,7 @@ public:
    *
    * @return The alpha channel value in range [0.0, 1.0]
    */
-  virtual double GetAlpha() = 0;
+  virtual double GetAlpha() const = 0;
 
   /**
    * @brief Sets current object as "highlighted".
@@ -105,7 +105,7 @@ public:
    *
    * @see Dali:Accessibility::State
    */
-  virtual bool IsScrollable();
+  virtual bool IsScrollable() const;
 
   /**
    * @brief Gets Accessible object containing given point.
@@ -130,7 +130,7 @@ public:
    * @remarks This method is `Contains` in DBus method.
    * @see Dali::Accessibility::Point
    */
-  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type);
+  virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const;
 };
 
 } // namespace Dali::Accessibility

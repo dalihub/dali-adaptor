@@ -37,21 +37,21 @@ public:
    *
    * @return The 0-based index of hyperlink's last character + 1, in its originating hypertext.
    */
-  virtual int32_t GetEndIndex() const = 0;
+  virtual std::int32_t GetEndIndex() const = 0;
 
   /**
    * @brief Gets the index of character in originating hypertext at which this hyperlink starts.
    *
    * @return The 0-based index of hyperlink's first character, in its originating hypertext.
    */
-  virtual int32_t GetStartIndex() const = 0;
+  virtual std::int32_t GetStartIndex() const = 0;
 
   /**
    * @brief Gets the total number of anchors which this hyperlink has. Though, typical hyperlinks will have only one anchor.
    *
    * @return The number of anchors.
    */
-  virtual int32_t GetAnchorCount() const = 0;
+  virtual std::int32_t GetAnchorCount() const = 0;
 
   /**
    * @brief Gets the object associated with a particular hyperlink's anchor.
@@ -60,7 +60,7 @@ public:
    *
    * @return The handle to accessible object.
    */
-  virtual Accessible* GetAnchorAccessible(int32_t anchorIndex) const = 0;
+  virtual Accessible* GetAnchorAccessible(std::int32_t anchorIndex) const = 0;
 
   /**
    * @brief Gets the URI associated with a particular hyperlink's anchor.
@@ -69,7 +69,7 @@ public:
    *
    * @return The string containing URI.
    */
-  virtual std::string GetAnchorUri(int32_t anchorIndex) const = 0;
+  virtual std::string GetAnchorUri(std::int32_t anchorIndex) const = 0;
 
   /**
    * @brief Tells whether this hyperlink object is still valid with respect to its originating hypertext object.

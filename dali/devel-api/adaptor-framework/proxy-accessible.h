@@ -30,16 +30,16 @@ namespace Dali::Accessibility
 /**
  * @brief The minimalistic, always empty Accessible object with settable address.
  *
- * For those situations, where you want to return address in different bridge
- * (embedding for example), but the object itself ain't planned to be used otherwise.
- * This object has null parent, no children, empty name and so on
+ * To be used as a proxy object, in those situations where you want to return an address in
+ * a different bridge (embedding for example), but the object itself isn't planned to be used
+ * otherwise. This object has no parent, no children, an empty name and so on.
  */
-class DALI_ADAPTOR_API EmptyAccessibleWithAddress : public virtual Accessible
+class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible
 {
 public:
-  EmptyAccessibleWithAddress() = default;
+  ProxyAccessible() = default;
 
-  EmptyAccessibleWithAddress(Address address)
+  ProxyAccessible(Address address)
   : mAddress(std::move(address))
   {
   }
@@ -49,12 +49,12 @@ public:
     this->mAddress = std::move(address);
   }
 
-  std::string GetName() override
+  std::string GetName() const override
   {
     return "";
   }
 
-  std::string GetDescription() override
+  std::string GetDescription() const override
   {
     return "";
   }
@@ -64,7 +64,7 @@ public:
     return nullptr;
   }
 
-  size_t GetChildCount() override
+  size_t GetChildCount() const override
   {
     return 0;
   }
@@ -84,24 +84,27 @@ public:
     return static_cast<size_t>(-1);
   }
 
-  Role GetRole() override
+  Role GetRole() const override
   {
     return {};
   }
 
-  std::string GetRoleName() override;
+  std::string GetRoleName() const override
+  {
+    return {};
+  }
 
   States GetStates() override
   {
     return {};
   }
 
-  Attributes GetAttributes() override
+  Attributes GetAttributes() const override
   {
     return {};
   }
 
-  Address GetAddress() override
+  Address GetAddress() const override
   {
     return mAddress;
   }
