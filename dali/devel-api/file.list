@@ -1,7 +1,7 @@
 
 
 SET( devel_api_src_files
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-impl.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
@@ -54,7 +54,7 @@ SET( devel_api_src_files
 
 SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.h
-  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-impl.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-bridge.h
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
@@ -91,6 +91,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.h
   ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.h
   ${adaptor_devel_api_dir}/adaptor-framework/pixel-buffer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/proxy-accessible.h
   ${adaptor_devel_api_dir}/adaptor-framework/sound-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/style-monitor.h
   ${adaptor_devel_api_dir}/adaptor-framework/tilt-sensor.h
@@ -132,6 +133,21 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.h
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player-plugin.h
+)
+
+
+SET( devel_api_atspi_interfaces_header_files
+  ${adaptor_devel_api_dir}/atspi-interfaces/accessible.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/action.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/application.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/collection.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/component.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/editable-text.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/hyperlink.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/hypertext.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/selection.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/text.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/value.h
 )
 
 

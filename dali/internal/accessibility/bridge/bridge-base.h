@@ -25,7 +25,11 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/application.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**

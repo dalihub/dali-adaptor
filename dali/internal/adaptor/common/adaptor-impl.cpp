@@ -67,7 +67,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/internal/system/common/logging.h>
 
 #include <dali/internal/imaging/common/image-loader-plugin-proxy.h>

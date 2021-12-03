@@ -25,7 +25,7 @@
 #include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/internal/accessibility/bridge/dbus-locators.h>
 #include <dali/internal/accessibility/bridge/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>

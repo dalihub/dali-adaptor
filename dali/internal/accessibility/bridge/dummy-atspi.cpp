@@ -15,8 +15,10 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
 
 namespace Dali

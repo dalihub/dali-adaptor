@@ -1,3 +1,6 @@
+#ifndef DALI_ADAPTOR_DUMMY_ATSPI_H
+#define DALI_ADAPTOR_DUMMY_ATSPI_H
+
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
@@ -15,8 +18,8 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 
 namespace Dali::Accessibility
 {
@@ -172,3 +175,5 @@ struct DummyBridge : Dali::Accessibility::Bridge
 };
 
 } // namespace Dali::Accessibility
+
+#endif // DALI_ADAPTOR_DUMMY_ATSPI_H

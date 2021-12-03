@@ -26,6 +26,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**
