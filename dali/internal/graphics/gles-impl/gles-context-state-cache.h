@@ -101,7 +101,7 @@ struct GLStateCache
   GLuint mBoundElementArrayBufferId{0}; ///< The ID passed to glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
 
   // glBindTexture() state
-  GLenum mActiveTextureUnit{MAX_TEXTURE_UNITS};
+  GLenum mActiveTextureUnit{0};
   GLuint mBoundTextureId[MAX_TEXTURE_UNITS][MAX_TEXTURE_TARGET]; ///< The ID passed to glBindTexture()
 
   // glBlendFuncSeparate() state

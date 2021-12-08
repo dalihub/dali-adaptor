@@ -852,7 +852,7 @@ void Context::SetDepthWriteEnable(bool depthWriteEnable)
 
 void Context::ActiveTexture(uint32_t textureBindingIndex)
 {
-  if(mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
+  if(mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex && textureBindingIndex < MAX_TEXTURE_UNITS)
   {
     mImpl->mGlStateCache.mActiveTextureUnit = textureBindingIndex;
 
@@ -867,7 +867,7 @@ void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_
   if(mImpl->mGlStateCache.mActiveTextureUnit >= MAX_TEXTURE_UNITS || typeId >= MAX_TEXTURE_TARGET)
   {
     DALI_LOG_ERROR("Invalid index (%d, %d)\n", mImpl->mGlStateCache.mActiveTextureUnit, typeId);
-    std::abort();
+    return;
   }
 
   if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
