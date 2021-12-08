@@ -396,7 +396,11 @@ bool CanvasRendererUbuntu::SetSize(Vector2 size)
 
   if(size != mSize)
   {
-    mSize    = size;
+    mSize = size;
+    if(mViewBox == Vector2::ZERO)
+    {
+      mViewBox = size;
+    }
     mChanged = true;
   }
 

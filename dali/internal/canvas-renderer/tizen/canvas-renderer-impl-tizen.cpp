@@ -336,6 +336,8 @@ bool CanvasRendererTizen::Rasterize()
 
     mTvgCanvas->target(reinterpret_cast<uint32_t*>(buffer), stride / 4, width, height, tvg::SwCanvas::ARGB8888);
 
+    mTvgCanvas->update(mTvgRoot);
+
     if(mTvgCanvas->draw() != tvg::Result::Success)
     {
       DALI_LOG_ERROR("ThorVG Draw fail [%p]\n", this);
@@ -404,7 +406,11 @@ bool CanvasRendererTizen::SetSize(Vector2 size)
 
   if(size != mSize)
   {
-    mSize    = size;
+    mSize = size;
+    if(mViewBox == Vector2::ZERO)
+    {
+      mViewBox = size;
+    }
     mChanged = true;
   }
 

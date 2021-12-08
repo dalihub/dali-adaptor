@@ -203,15 +203,15 @@ static bool IsObjectAcceptable(Accessible* obj)
   return IsObjectAcceptable(component);
 }
 
-static int32_t GetItemCountOfList(Accessible* obj)
+static int32_t GetItemCountOfContainer(Accessible* obj, Dali::Accessibility::Role containerRole, Dali::Accessibility::Role itemRole, bool isDirectChild)
 {
   int32_t itemCount = 0;
-  if(obj && obj->GetRole() == Role::LIST)
+  if(obj && (!isDirectChild || obj->GetRole() == containerRole))
   {
     for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
     {
       auto child = obj->GetChildAtIndex(i);
-      if(child && child->GetRole() == Role::LIST_ITEM)
+      if(child && child->GetRole() == itemRole)
       {
         itemCount++;
       }
@@ -220,10 +220,10 @@ static int32_t GetItemCountOfList(Accessible* obj)
   return itemCount;
 }
 
-static int32_t GetItemCountOfFirstDescendantList(Accessible* obj)
+static int32_t GetItemCountOfFirstDescendantContainer(Accessible* obj, Dali::Accessibility::Role containerRole, Dali::Accessibility::Role itemRole, bool isDirectChild)
 {
   int32_t itemCount = 0;
-  itemCount         = GetItemCountOfList(obj);
+  itemCount         = GetItemCountOfContainer(obj, containerRole, itemRole, isDirectChild);
   if(itemCount > 0 || !obj)
   {
     return itemCount;
@@ -232,7 +232,7 @@ static int32_t GetItemCountOfFirstDescendantList(Accessible* obj)
   for(auto i = 0u; i < static_cast<size_t>(obj->GetChildCount()); ++i)
   {
     auto child = obj->GetChildAtIndex(i);
-    itemCount  = GetItemCountOfFirstDescendantList(child);
+    itemCount  = GetItemCountOfFirstDescendantContainer(child, containerRole, itemRole, isDirectChild);
     if(itemCount > 0)
     {
       return itemCount;
@@ -542,11 +542,15 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     }
   }
 
-  auto    role              = static_cast<uint32_t>(self->GetRole());
+  auto    atspiRole         = self->GetRole();
   int32_t listChildrenCount = 0;
-  if(role == static_cast<uint32_t>(Role::DIALOG))
+  if(atspiRole == Role::DIALOG)
   {
-    listChildrenCount = GetItemCountOfFirstDescendantList(self);
+    listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::LIST, Role::LIST_ITEM, true);
+  }
+  else if(atspiRole == Role::POPUP_MENU)
+  {
+    listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::POPUP_MENU, Role::MENU_ITEM, false);
   }
 
   auto*       textInterface         = dynamic_cast<Dali::Accessibility::Text*>(self);
@@ -556,11 +560,12 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     nameFromTextInterface = textInterface->GetText(0, textInterface->GetCharacterCount());
   }
 
-  auto description       = self->GetDescription();
   auto attributes        = self->GetAttributes();
-  auto states            = self->GetStates();
   auto name              = self->GetName();
+  auto role              = static_cast<uint32_t>(atspiRole);
+  auto states            = self->GetStates();
   auto localizedRoleName = self->GetLocalizedRoleName();
+  auto description       = self->GetDescription();
   auto indexInParent     = static_cast<int32_t>(self->GetIndexInParent());
 
   auto  parent                   = self->GetParent();
