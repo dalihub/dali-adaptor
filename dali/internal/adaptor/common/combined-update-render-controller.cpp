@@ -694,7 +694,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           mDamagedRects.clear();
 
           // Collect damage rects
-          mCore.PreRender(windowRenderStatus, scene, mDamagedRects);
+          mCore.PreRender(scene, mDamagedRects);
 
           // Render off-screen frame buffers first if any
           mCore.RenderScene(windowRenderStatus, scene, true);
@@ -702,10 +702,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           Rect<int> clippingRect; // Empty for fbo rendering
 
           // Switch to the context of the surface, merge damaged areas for previous frames
-          if(windowRenderStatus.NeedsUpdate())
-          {
-            windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
-          }
+          windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
 
           // Render the surface
           mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
