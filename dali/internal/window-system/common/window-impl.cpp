@@ -101,7 +101,7 @@ Window::~Window()
 {
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer);
+  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
   bridge->RemoveTopLevelWindow(accessible);
 
   if(mAdaptor)
@@ -178,6 +178,9 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer, true);
   bridge->AddTopLevelWindow(accessible);
+
+  bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
+  bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
 
   // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
   // The show must be called after the adaptor is initialized.
@@ -863,6 +866,22 @@ void Window::OnResume()
 void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options)
 {
   mAuxiliaryMessageSignal.Emit(key, value, options);
+}
+
+void Window::OnAccessibilityEnabled()
+{
+  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer  = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  bridge->AddTopLevelWindow(accessible);
+}
+
+void Window::OnAccessibilityDisabled()
+{
+  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+  auto rootLayer  = mScene.GetRootLayer();
+  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  bridge->RemoveTopLevelWindow(accessible);
 }
 
 void Window::RecalculateTouchPosition(Integration::Point& point)
