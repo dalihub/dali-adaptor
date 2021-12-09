@@ -43,6 +43,13 @@
 
 using namespace Dali::Accessibility;
 
+namespace // unnamed namespace
+{
+
+const int RETRY_INTERVAL = 1000;
+
+} // unnamed namespace
+
 /**
  * @brief The BridgeImpl class is to implement some Bridge functions.
  */
@@ -68,6 +75,9 @@ class BridgeImpl : public virtual BridgeBase,
   Dali::Actor                                                   mHighlightedActor;
   std::function<void(Dali::Actor)>                              mHighlightClearAction;
   Dali::CallbackBase*                                           mIdleCallback          = NULL;
+  Dali::Timer                                                   mInitializeTimer;
+  Dali::Timer                                                   mReadIsEnabledTimer;
+  Dali::Timer                                                   mReadScreenReaderEnabledTimer;
 
 public:
   BridgeImpl()
@@ -221,6 +231,24 @@ public:
     mApplication.mWindows.clear();
   }
 
+  void StopTimer()
+  {
+    if(mInitializeTimer)
+    {
+      mInitializeTimer.Stop();
+    }
+
+    if(mReadIsEnabledTimer)
+    {
+      mReadIsEnabledTimer.Stop();
+    }
+
+    if(mReadScreenReaderEnabledTimer)
+    {
+      mReadScreenReaderEnabledTimer.Stop();
+    }
+  }
+
   /**
    * @copydoc Dali::Accessibility::Bridge::Terminate()
    */
@@ -232,6 +260,7 @@ public:
       mData->mHighlightActor            = {};
     }
     ForceDown();
+    StopTimer();
     if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
@@ -408,6 +437,12 @@ public:
     }
   }
 
+  bool ReadIsEnabledTimerCallback()
+  {
+    ReadIsEnabledProperty();
+    return false;
+  }
+
   void ReadIsEnabledProperty()
   {
     mAccessibilityStatusClient.property<bool>("IsEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
@@ -416,7 +451,12 @@ public:
         DALI_LOG_ERROR("Get IsEnabled property error: %s\n", msg.getError().message.c_str());
         if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
         {
-          ReadIsEnabledProperty();
+          if(!mReadIsEnabledTimer)
+          {
+            mReadIsEnabledTimer = Dali::Timer::New(RETRY_INTERVAL);
+            mReadIsEnabledTimer.TickSignal().Connect(this, &BridgeImpl::ReadIsEnabledTimerCallback);
+          }
+          mReadIsEnabledTimer.Start();
         }
         return;
       }
@@ -443,6 +483,12 @@ public:
     });
   }
 
+  bool ReadScreenReaderEnabledTimerCallback()
+  {
+    ReadScreenReaderEnabledProperty();
+    return false;
+  }
+
   void ReadScreenReaderEnabledProperty()
   {
     mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
@@ -451,7 +497,12 @@ public:
         DALI_LOG_ERROR("Get ScreenReaderEnabled property error: %s\n", msg.getError().message.c_str());
         if(msg.getError().errorType == DBus::ErrorType::INVALID_REPLY)
         {
-          ReadScreenReaderEnabledProperty();
+          if(!mReadScreenReaderEnabledTimer)
+          {
+            mReadScreenReaderEnabledTimer = Dali::Timer::New(RETRY_INTERVAL);
+            mReadScreenReaderEnabledTimer.TickSignal().Connect(this, &BridgeImpl::ReadScreenReaderEnabledTimerCallback);
+          }
+          mReadScreenReaderEnabledTimer.Start();
         }
         return;
       }
@@ -500,6 +551,16 @@ public:
     return true;
   }
 
+  bool InitializeTimerCallback()
+  {
+    if ( InitializeAccessibilityStatusClient() )
+    {
+      ReadAndListenProperties();
+      return false;
+    }
+    return true;
+  }
+
   bool OnIdleSignal()
   {
     if ( InitializeAccessibilityStatusClient() )
@@ -509,7 +570,15 @@ public:
       return false;
     }
 
-    return true;
+    if(!mInitializeTimer)
+    {
+      mInitializeTimer = Dali::Timer::New(RETRY_INTERVAL);
+      mInitializeTimer.TickSignal().Connect(this, &BridgeImpl::InitializeTimerCallback);
+    }
+    mInitializeTimer.Start();
+
+    mIdleCallback = NULL;
+    return false;
   }
 
   /**
