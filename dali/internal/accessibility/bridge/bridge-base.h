@@ -433,6 +433,7 @@ public:
 protected:
   mutable AppAccessible                         mApplication;
   std::vector<Dali::Accessibility::Accessible*> mPopups;
+  bool                                          mIsScreenReaderSuppressed = false;
 
 private:
 
