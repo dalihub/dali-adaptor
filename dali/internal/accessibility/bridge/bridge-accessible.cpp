@@ -604,11 +604,6 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     describedByObject};
 }
 
-void BridgeAccessible::SuppressScreenReader(bool suppress)
-{
-  mIsScreenReaderSuppressed = suppress;
-}
-
 DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime)
 {
   // Please be aware of sending GestureInfo point in the different order with parameters

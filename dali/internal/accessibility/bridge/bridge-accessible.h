@@ -189,11 +189,6 @@ public:
   ReadingMaterialType GetReadingMaterial();
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::SuppressScreenReader()
-   */
-  void SuppressScreenReader(bool) override;
-
-  /**
    * @copydoc Dali::Accessibility::Accessible::DoGesture()
    */
   DBus::ValueOrError<bool> DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime);
@@ -284,9 +279,6 @@ private:
    * @return The Component object
    */
   Dali::Accessibility::Component* CalculateNavigableAccessibleAtPoint(Dali::Accessibility::Accessible* root, Dali::Accessibility::Point point, Dali::Accessibility::CoordinateType type, unsigned int maxRecursionDepth);
-
-protected:
-  bool mIsScreenReaderSuppressed = false;
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H

@@ -441,6 +441,7 @@ public:
 protected:
   mutable AppAccessible                         mApplication;
   std::vector<Dali::Accessibility::Accessible*> mDefaultLabels;
+  bool                                          mIsScreenReaderSuppressed = false;
 
 private:
   /**

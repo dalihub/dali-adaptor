@@ -443,6 +443,19 @@ public:
     }
   }
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::SuppressScreenReader()
+   */
+  void SuppressScreenReader(bool suppress) override
+  {
+    if(mIsScreenReaderSuppressed == suppress)
+    {
+      return;
+    }
+    mIsScreenReaderSuppressed = suppress;
+    ReadScreenReaderEnabledProperty();
+  }
+
   bool ReadIsEnabledTimerCallback()
   {
     ReadIsEnabledProperty();
@@ -467,9 +480,13 @@ public:
         return;
       }
       mIsEnabled = std::get<0>(msg);
-      if(mIsEnabled)
+      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
       {
         ForceUp();
+      }
+      else
+      {
+        ForceDown();
       }
     });
   }
@@ -497,6 +514,12 @@ public:
 
   void ReadScreenReaderEnabledProperty()
   {
+    // can be true because of SuppressScreenReader before init
+    if (!mAccessibilityStatusClient)
+    {
+      return;
+    }
+
     mAccessibilityStatusClient.property<bool>("ScreenReaderEnabled").asyncGet([this](DBus::ValueOrError<bool> msg) {
       if(!msg)
       {
@@ -513,9 +536,13 @@ public:
         return;
       }
       mIsScreenReaderEnabled = std::get<0>(msg);
-      if(mIsScreenReaderEnabled)
+      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
       {
         ForceUp();
+      }
+      else
+      {
+        ForceDown();
       }
     });
   }
@@ -524,7 +551,7 @@ public:
   {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
       mIsScreenReaderEnabled = res;
-      if(mIsScreenReaderEnabled || mIsEnabled)
+      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
       {
         ForceUp();
       }
