@@ -90,9 +90,9 @@ void FontFaceCacheItem::GetFontMetrics(FontMetrics& metrics, unsigned int dpiVer
     {
       const float scaleFactor = desiredFixedSize / mFixedHeightPixels;
 
-      metrics.ascender           = metrics.ascender * scaleFactor;
-      metrics.descender          = metrics.descender * scaleFactor;
-      metrics.height             = metrics.height * scaleFactor;
+      metrics.ascender           = round(metrics.ascender * scaleFactor);
+      metrics.descender          = round(metrics.descender * scaleFactor);
+      metrics.height             = round(metrics.height * scaleFactor);
       metrics.underlinePosition  = metrics.underlinePosition * scaleFactor;
       metrics.underlineThickness = metrics.underlineThickness * scaleFactor;
     }
@@ -117,7 +117,15 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertic
       glyph.height   = mFixedHeightPixels;
       glyph.advance  = mFixedWidthPixels;
       glyph.xBearing = 0.0f;
-      glyph.yBearing = mFixedHeightPixels;
+
+      if(horizontal)
+      {
+        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.horiBearingY) * FROM_266;
+      }
+      else
+      {
+        glyph.yBearing += static_cast<float>(ftFace->glyph->metrics.vertBearingY) * FROM_266;
+      }
 
       // Adjust the metrics if the fixed-size font should be down-scaled
       const float desiredFixedSize = static_cast<float>(mRequestedPointSize) * FROM_266 / POINTS_PER_INCH * dpiVertical;
@@ -125,12 +133,11 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertic
       if(desiredFixedSize > 0.f)
       {
         const float scaleFactor = desiredFixedSize / mFixedHeightPixels;
-
-        glyph.width    = glyph.width * scaleFactor;
-        glyph.height   = glyph.height * scaleFactor;
-        glyph.advance  = glyph.advance * scaleFactor;
-        glyph.xBearing = glyph.xBearing * scaleFactor;
-        glyph.yBearing = glyph.yBearing * scaleFactor;
+        glyph.width             = round(glyph.width * scaleFactor);
+        glyph.height            = round(glyph.height * scaleFactor);
+        glyph.advance           = round(glyph.advance * scaleFactor);
+        glyph.xBearing          = round(glyph.xBearing * scaleFactor);
+        glyph.yBearing          = round(glyph.yBearing * scaleFactor);
 
         glyph.scaleFactor = scaleFactor;
       }
