@@ -42,14 +42,14 @@ public:
   /**
    * @brief Destructor
    */
-  ~RenderPass() override = default;
+  ~RenderPass() override;
 
   /**
    * @brief Called when GL resources are destroyed
    */
   void DestroyResource() override
   {
-    // TODO: Implement destroying the resource
+    // There is no graphic resource here. do nothing.
   }
 
   /**
@@ -59,17 +59,14 @@ public:
    */
   bool InitializeResource() override
   {
-    // TODO: Implement initializing resource
-    return {};
+    // There is no graphic resource here. return true.
+    return true;
   }
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
    */
-  void DiscardResource() override
-  {
-    // TODO: Implement moving to the discard queue
-  }
+  void DiscardResource() override;
 
 private:
   struct Impl;

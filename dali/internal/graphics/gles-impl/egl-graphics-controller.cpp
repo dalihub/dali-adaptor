@@ -347,6 +347,12 @@ void EglGraphicsController::ProcessDiscardQueues()
   // Process Framebuffers
   ProcessDiscardQueue<GLES::Framebuffer>(mDiscardFramebufferQueue);
 
+  // Process RenderPass
+  ProcessDiscardQueue<GLES::RenderPass>(mDiscardRenderPassQueue);
+
+  // Process RenderTarget
+  ProcessDiscardQueue<GLES::RenderTarget>(mDiscardRenderTargetQueue);
+
   // Process pipelines
   ProcessDiscardQueue(mDiscardPipelineQueue);
 

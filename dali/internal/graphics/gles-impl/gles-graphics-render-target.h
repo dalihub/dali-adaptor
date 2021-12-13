@@ -48,10 +48,7 @@ public:
   /**
    * @brief Called when GL resources are destroyed
    */
-  void DestroyResource() override
-  {
-    // TODO: Implement destroying the resource
-  }
+  void DestroyResource() override;
 
   /**
    * @brief Called when initializing the resource
@@ -60,17 +57,14 @@ public:
    */
   bool InitializeResource() override
   {
-    // TODO: Implement initializing resource
-    return {};
+    // There is no graphic resource here. return true.
+    return true;
   }
 
   /**
    * @brief Called when UniquePtr<> on client-side dies
    */
-  void DiscardResource() override
-  {
-    // TODO: Implement moving to the discard queue
-  }
+  void DiscardResource() override;
 
   /**
    * @brief Returns framebuffer associated with the render target
@@ -81,10 +75,6 @@ public:
    * @brief Returns surface associated with the render target
    */
   Surface* GetSurface() const;
-
-private:
-  struct Impl;
-  std::unique_ptr<Impl> mImpl{nullptr};
 };
 
 } // namespace Dali::Graphics::GLES

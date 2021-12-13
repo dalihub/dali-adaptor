@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include "gles-graphics-render-pass.h"
 
+// INTERNAL INCLUDES
+#include "egl-graphics-controller.h"
+
 namespace Dali::Graphics::GLES
 {
 struct RenderPass::Impl
@@ -25,7 +28,7 @@ struct RenderPass::Impl
   Impl()  = default;
   ~Impl() = default;
 
-  std::vector<AttachmentDescription> attachments;
+  std::vector<AttachmentDescription> attachments{};
 };
 
 RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
@@ -39,6 +42,13 @@ RenderPass::RenderPass(const Graphics::RenderPassCreateInfo& createInfo, Graphic
     mImpl->attachments.insert(mImpl->attachments.end(), createInfo.attachments->begin(), createInfo.attachments->end());
     mCreateInfo.attachments = &mImpl->attachments;
   }
+}
+
+RenderPass::~RenderPass() = default;
+
+void RenderPass::DiscardResource()
+{
+  mController.DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::GLES
