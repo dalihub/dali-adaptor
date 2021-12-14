@@ -1567,15 +1567,16 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       }
       else
       {
+        FT_Size_Metrics& ftMetrics = ftFace->size->metrics;
+
+        FontMetrics metrics(static_cast<float>(ftMetrics.ascender) * FROM_266,
+                            static_cast<float>(ftMetrics.descender) * FROM_266,
+                            static_cast<float>(ftMetrics.height) * FROM_266,
+                            static_cast<float>(ftFace->underline_position) * FROM_266,
+                            static_cast<float>(ftFace->underline_thickness) * FROM_266);
+
         const float fixedWidth  = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].width);
         const float fixedHeight = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
-
-        // Indicate that the font is a fixed sized bitmap
-        FontMetrics metrics(fixedHeight, // The ascender in pixels.
-                            0.0f,
-                            fixedHeight, // The height in pixels.
-                            0.0f,
-                            0.0f);
 
         // Create the FreeType font face item to cache.
         FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
