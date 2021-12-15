@@ -77,7 +77,7 @@ public:
 
 private:
   struct Impl;
-  std::unique_ptr<Impl> mImpl;
+  std::unique_ptr<Impl> mImpl{nullptr};
 };
 
 } // namespace Dali::Graphics::GLES

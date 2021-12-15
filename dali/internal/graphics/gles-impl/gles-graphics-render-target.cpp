@@ -25,33 +25,30 @@
 
 namespace Dali::Graphics::GLES
 {
-struct RenderTarget::Impl
-{
-  Impl(EglGraphicsController& controller)
-  : controller(controller){};
-
-  ~Impl() = default;
-
-  EglGraphicsController& controller;
-};
 
 RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : RenderTargetResource(createInfo, controller)
 {
-  mImpl = std::make_unique<Impl>(controller);
-
   if(createInfo.surface)
   {
     controller.CreateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(createInfo.surface));
   }
 }
 
-RenderTarget::~RenderTarget()
+RenderTarget::~RenderTarget() = default;
+
+void RenderTarget::DestroyResource()
 {
+  // This is a proper destructor
   if(mCreateInfo.surface)
   {
-    mImpl->controller.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
+    mController.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
   }
+}
+
+void RenderTarget::DiscardResource()
+{
+  mController.DiscardResource(this);
 }
 
 GLES::Framebuffer* RenderTarget::GetFramebuffer() const
