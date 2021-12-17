@@ -24,8 +24,9 @@
 #include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/framework.h>

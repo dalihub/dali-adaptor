@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H
-#define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H
+#ifndef DALI_ADAPTOR_ATSPI_APPLICATION_H
+#define DALI_ADAPTOR_ATSPI_APPLICATION_H
 
 /*
  * Copyright (c) 2021 Samsung Electronics Co., Ltd.
@@ -15,49 +15,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
+// EXTERNAL INCLUDES
+#include <string>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/application.h>
-#include <dali/internal/accessibility/bridge/bridge-base.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 
-/**
- * @brief The BridgeApplication class is to correspond with Dali::Accessibility::Application.
- *
- * Implementation of org.a11y.atspi.Application interface
- */
-class BridgeApplication : public virtual BridgeBase
+namespace Dali::Accessibility
 {
-protected:
-  BridgeApplication() = default;
-
-  /**
-   * @brief Registers Application functions to dbus interfaces.
-   */
-  void RegisterInterfaces();
-
-  /**
-   * @brief Returns the Application object of the currently executed DBus method call.
-   *
-   * @return The Application object
-   */
-  Dali::Accessibility::Application* FindSelf() const;
-
+/**
+ * @brief An interface identifying the root object
+ * associated with a running application.
+ *
+ * @note Provides global properties describing
+ * application's runtime environment.
+ */
+class DALI_ADAPTOR_API Application : public virtual Accessible
+{
 public:
   /**
    * @brief Gets name of graphic user interface framework used by an application.
    *
    * @return String with name
    */
-  std::string GetToolkitName();
+  virtual std::string GetToolkitName() = 0;
 
   /**
    * @brief Gets version of graphic user interface framework used by an application.
    *
    * @return String with version
    */
-  std::string GetVersion();
+  virtual std::string GetVersion() = 0;
 };
 
-#endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_APPLICATION_H
+} // namespace Dali::Accessibility
+
+#endif // DALI_ADAPTOR_ATSPI_APPLICATION_H

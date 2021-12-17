@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**

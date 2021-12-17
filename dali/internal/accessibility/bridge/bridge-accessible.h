@@ -25,7 +25,9 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include "bridge-base.h"
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**
  * @brief The BridgeAccessible class is to correspond with Dali::Accessibility::Accessible.

@@ -21,6 +21,7 @@
 #include <iostream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 using namespace Dali::Accessibility;

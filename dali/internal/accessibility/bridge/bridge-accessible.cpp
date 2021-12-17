@@ -22,6 +22,13 @@
 #include <algorithm>
 #include <iostream>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
+
 //comment out 2 lines below to get more logs
 #undef LOG
 #define LOG() _LoggerEmpty()

@@ -15,7 +15,7 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/atspi-accessibility.h>
 
 void Dali::AtspiAccessibility::Pause()

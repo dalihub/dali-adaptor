@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// CLASS HEADER
-
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/actor.h>
@@ -27,8 +25,12 @@
 #include <dali/public-api/object/weak-handle.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
