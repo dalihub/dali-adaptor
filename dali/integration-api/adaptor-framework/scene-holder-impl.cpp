@@ -238,9 +238,8 @@ void SceneHolder::CreateRenderTarget()
     .SetSurface(mSurface.get())
     .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
-  mRenderTarget = mAdaptor->GetGraphicsInterface().GetController().CreateRenderTarget(rtInfo, std::move(mRenderTarget));
 
-  mScene.SetSurfaceRenderTarget(mRenderTarget.get());
+  mScene.SetSurfaceRenderTarget(rtInfo);
 }
 
 void SceneHolder::Pause()

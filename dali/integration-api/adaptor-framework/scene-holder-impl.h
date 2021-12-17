@@ -338,9 +338,6 @@ private:
   class SceneHolderLifeCycleObserver;
   std::unique_ptr<SceneHolderLifeCycleObserver> mLifeCycleObserver; ///< The adaptor life cycle observer
 
-private:
-  Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
-
 protected:
   uint32_t                 mId;    ///< A unique ID to identify the SceneHolder starting from 0
   Dali::Integration::Scene mScene; ///< The Scene
