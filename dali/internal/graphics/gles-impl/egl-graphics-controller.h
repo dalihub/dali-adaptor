@@ -392,30 +392,6 @@ public:
   }
 
   /**
-   * @brief Pushes RenderPass to the discard queue
-   *
-   * Function is called from the UniquePtr custom deleter.
-   *
-   * @param[in] program Pointer to the RenderPass
-   */
-  void DiscardResource(GLES::RenderPass* renderPass)
-  {
-    mDiscardRenderPassQueue.push(renderPass);
-  }
-
-  /**
-   * @brief Pushes RenderTarget to the discard queue
-   *
-   * Function is called from the UniquePtr custom deleter.
-   *
-   * @param[in] program Pointer to the RenderTarget
-   */
-  void DiscardResource(GLES::RenderTarget* renderTarget)
-  {
-    mDiscardRenderTargetQueue.push(renderTarget);
-  }
-
-  /**
    * @brief Pushes Shader to the discard queue
    *
    * Function is called from the UniquePtr custom deleter.
@@ -771,8 +747,6 @@ private:
 
   std::queue<GLES::Program*>             mDiscardProgramQueue;       ///< Discard queue for program resource
   std::queue<GLES::Pipeline*>            mDiscardPipelineQueue;      ///< Discard queue of pipelines
-  std::queue<GLES::RenderPass*>          mDiscardRenderPassQueue;    ///< Discard queue for renderpass resource
-  std::queue<GLES::RenderTarget*>        mDiscardRenderTargetQueue;  ///< Discard queue for rendertarget resource
   std::queue<GLES::Shader*>              mDiscardShaderQueue;        ///< Discard queue of shaders
   std::queue<GLES::Sampler*>             mDiscardSamplerQueue;       ///< Discard queue of samplers
   std::queue<const GLES::CommandBuffer*> mDiscardCommandBufferQueue; ///< Discard queue of command buffers

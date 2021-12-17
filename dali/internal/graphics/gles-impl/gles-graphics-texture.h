@@ -160,7 +160,7 @@ private:
     uint32_t maxLevel{0};
   } mDefaultSamplerState;
 
-  std::vector<char> mStagingBuffer{};
+  std::vector<char> mStagingBuffer;
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
   uint32_t          mMaxMipMapLevel{0u};
