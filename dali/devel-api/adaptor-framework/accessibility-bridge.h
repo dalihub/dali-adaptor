@@ -353,7 +353,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @return The current bridge object
    **/
-  static Bridge* GetCurrentBridge();
+  static std::shared_ptr<Bridge> GetCurrentBridge();
 
   /**
    * @brief Blocks auto-initialization of AT-SPI bridge

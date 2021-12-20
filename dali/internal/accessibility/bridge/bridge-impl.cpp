@@ -665,7 +665,7 @@ bool INITIALIZED_BRIDGE = false;
  * @return The BridgeImpl instance
  * @note This method is to check environment variable first. If ATSPI is disable using env, it returns dummy bridge instance.
  */
-Bridge* CreateBridge()
+std::shared_ptr<Bridge> CreateBridge()
 {
   INITIALIZED_BRIDGE = true;
 
@@ -678,7 +678,7 @@ Bridge* CreateBridge()
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
 
-    return new BridgeImpl;
+    return std::make_shared<BridgeImpl>();
   }
   catch(const std::exception&)
   {
@@ -691,9 +691,9 @@ Bridge* CreateBridge()
 
 // Dali::Accessibility::Bridge class implementation
 
-Bridge* Bridge::GetCurrentBridge()
+std::shared_ptr<Bridge> Bridge::GetCurrentBridge()
 {
-  static Bridge* bridge;
+  static std::shared_ptr<Bridge> bridge;
 
   if(bridge)
   {
@@ -741,7 +741,7 @@ void Bridge::EnableAutoInit()
 
   auto accessible = Accessibility::Accessible::Get(rootLayer, true);
 
-  auto* bridge = Bridge::GetCurrentBridge();
+  auto bridge = Bridge::GetCurrentBridge();
   bridge->AddTopLevelWindow(accessible);
   bridge->SetApplicationName(applicationName);
   bridge->Initialize();

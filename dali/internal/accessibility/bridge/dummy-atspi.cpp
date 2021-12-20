@@ -66,7 +66,7 @@ Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Access
   return nullptr;
 }
 
-Accessibility::Bridge* Accessibility::Bridge::GetCurrentBridge()
+std::shared_ptr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()
 {
   return Accessibility::DummyBridge::GetInstance();
 }

@@ -25,11 +25,11 @@ namespace Dali::Accessibility
 {
 struct DummyBridge : Dali::Accessibility::Bridge
 {
-  static DummyBridge* GetInstance()
+  static std::shared_ptr<DummyBridge> GetInstance()
   {
-    static DummyBridge instance;
+    static auto instance = std::make_shared<DummyBridge>();
 
-    return &instance;
+    return instance;
   }
 
   const std::string& GetBusName() const override
