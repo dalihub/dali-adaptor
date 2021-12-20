@@ -19,13 +19,17 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/actors/layer.h>
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/signals/connection-tracker.h>
-#include <dali/public-api/actors/layer.h>
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/application.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**
@@ -227,14 +231,22 @@ public:
   void RemoveTopLevelWindow(Dali::Accessibility::Accessible* windowAccessible) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::AddPopup()
+   * @copydoc Dali::Accessibility::Bridge::RegisterDefaultLabel()
    */
-  void AddPopup(Dali::Accessibility::Accessible* object) override;
+  void RegisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::RemovePopup()
+   * @copydoc Dali::Accessibility::Bridge::UnregisterDefaultLabel()
    */
-  void RemovePopup(Dali::Accessibility::Accessible* object) override;
+  void UnregisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
+   */
+  Dali::Accessibility::Accessible* GetDefaultLabel() const override
+  {
+    return mDefaultLabels.empty() ? nullptr : mDefaultLabels.back();
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetApplication()
@@ -432,10 +444,10 @@ public:
 
 protected:
   mutable AppAccessible                         mApplication;
-  std::vector<Dali::Accessibility::Accessible*> mPopups;
+  std::vector<Dali::Accessibility::Accessible*> mDefaultLabels;
+  bool                                          mIsScreenReaderSuppressed = false;
 
 private:
-
   /**
    * @brief Sets an ID.
    * @param[in] id An ID (integer value)

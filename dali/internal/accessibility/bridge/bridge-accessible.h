@@ -25,7 +25,9 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include "bridge-base.h"
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/internal/accessibility/bridge/bridge-base.h>
 
 /**
  * @brief The BridgeAccessible class is to correspond with Dali::Accessibility::Accessible.
@@ -33,7 +35,6 @@
 class BridgeAccessible : public virtual BridgeBase
 {
 protected:
-
   /**
    * @brief Constructor.
    */
@@ -50,10 +51,10 @@ public:
    */
   enum class NeighborSearchMode
   {
-    NORMAL                          = 0,   ///< Normal
-    RECURSE_FROM_ROOT               = 1,   ///< Recurse from root
-    CONTINUE_AFTER_FAILED_RECURSION = 2,   ///< Continue after failed recursion
-    RECURSE_TO_OUTSIDE              = 3,   ///< Recurse to outside
+    NORMAL                          = 0, ///< Normal
+    RECURSE_FROM_ROOT               = 1, ///< Recurse from root
+    CONTINUE_AFTER_FAILED_RECURSION = 2, ///< Continue after failed recursion
+    RECURSE_TO_OUTSIDE              = 3, ///< Recurse to outside
   };
 
   using ReadingMaterialType = DBus::ValueOrError<
@@ -177,7 +178,7 @@ public:
    *
    * The "Default label" is a text that could be read by screen-reader immediately
    * after the navigation context has changed (window activates, popup shows up, tab changes) and before first UI element is highlighted.
-   * @return The array containing the default label, its role, and its attributes
+   * @return The array containing the Accessible object being a source of default label text, its role, and its attributes
    * @note This is a Tizen only feature not present in upstream ATSPI.
    * Feature can be enabled/disabled for particular context root object by setting value of its accessibility attribute "default_label".
    */
@@ -188,11 +189,6 @@ public:
    * @return Reading material information
    */
   ReadingMaterialType GetReadingMaterial();
-
-  /**
-   * @copydoc Dali::Accessibility::Bridge::SuppressScreenReader()
-   */
-  void SuppressScreenReader(bool) override;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::DoGesture()
@@ -285,10 +281,6 @@ private:
    * @return The Component object
    */
   Dali::Accessibility::Component* CalculateNavigableAccessibleAtPoint(Dali::Accessibility::Accessible* root, Dali::Accessibility::Point point, Dali::Accessibility::CoordinateType type, unsigned int maxRecursionDepth);
-
-
-protected:
-  bool mIsScreenReaderSuppressed = false;
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_ACCESSIBLE_H

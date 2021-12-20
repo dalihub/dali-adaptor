@@ -25,6 +25,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-base.h>
 #include <dali/public-api/math/rect.h>
 

@@ -15,8 +15,10 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
 #include <dali/devel-api/adaptor-framework/accessibility.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/accessibility/bridge/dummy-atspi.h>
 
 namespace Dali
@@ -32,11 +34,6 @@ Accessibility::Accessible::~Accessible()
 std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
 {
   return {};
-}
-
-Accessibility::Accessible* Accessibility::Accessible::GetDefaultLabel()
-{
-  return nullptr;
 }
 
 Accessibility::Address Accessibility::Accessible::GetAddress()

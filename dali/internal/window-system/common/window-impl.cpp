@@ -32,7 +32,8 @@
 #include <thread>
 
 // INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/accessibility-impl.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/common/event-handler.h>

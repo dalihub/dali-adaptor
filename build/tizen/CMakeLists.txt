@@ -272,6 +272,7 @@ SET( tizenadaptordevelapidir ${INCLUDE_DIR}/dali/devel-api )
 SET( tizenadaptorintegrationapidir ${INCLUDE_DIR}/dali/integration-api/adaptor-framework )
 SET( tizenadaptorframeworkpublicapidir ${tizenadaptorpublicapidir}/adaptor-framework )
 SET( tizenadaptorframeworkdevelapidir ${tizenadaptordevelapidir}/adaptor-framework )
+SET( tizenatspiinterfacesdevelapidir ${tizenadaptordevelapidir}/atspi-interfaces )
 SET( tizentextabstractiondevelapidir ${tizenadaptordevelapidir}/text-abstraction )
 SET( tizenadaptordaliheaderdir ${INCLUDE_DIR}/dali )
 SET( tizenwatchpublicapidir ${tizenadaptorpublicapidir}/watch )
@@ -285,6 +286,7 @@ INSTALL( FILES ${public_api_header_files} DESTINATION ${tizenadaptorpublicapidir
 INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadaptorintegrationapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
+INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
 INSTALL( FILES ${text_abstraction_header_files} DESTINATION ${tizentextabstractiondevelapidir} )
 
 # Install Android framework headers for Android build

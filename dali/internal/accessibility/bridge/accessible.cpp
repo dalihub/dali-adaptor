@@ -18,6 +18,18 @@
 // CLASS HEADER
 
 //INTERNAL INCLUDES
+#include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/action.h>
+#include <dali/devel-api/atspi-interfaces/application.h>
+#include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/devel-api/atspi-interfaces/editable-text.h>
+#include <dali/devel-api/atspi-interfaces/hyperlink.h>
+#include <dali/devel-api/atspi-interfaces/hypertext.h>
+#include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
@@ -234,11 +246,6 @@ void Bridge::RegisterOnBridge(Accessible* object)
 bool Accessible::IsProxy()
 {
   return false;
-}
-
-Accessible* Accessible::GetDefaultLabel()
-{
-  return this;
 }
 
 void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States states, bool isRecursive)

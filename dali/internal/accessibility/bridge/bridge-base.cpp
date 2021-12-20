@@ -184,42 +184,6 @@ Accessible* BridgeBase::FindByPath(const std::string& name) const
   }
 }
 
-void BridgeBase::AddPopup(Accessible* object)
-{
-  if(std::find(mPopups.begin(), mPopups.end(), object) != mPopups.end())
-  {
-    return;
-  }
-  mPopups.push_back(object);
-  if(IsUp())
-  {
-    object->Emit(WindowEvent::ACTIVATE, 0);
-  }
-}
-
-void BridgeBase::RemovePopup(Accessible* object)
-{
-  auto it = std::find(mPopups.begin(), mPopups.end(), object);
-  if(it == mPopups.end())
-  {
-    return;
-  }
-  mPopups.erase(it);
-
-  if(IsUp())
-  {
-    object->Emit(WindowEvent::DEACTIVATE, 0);
-    if(mPopups.empty())
-    {
-      mApplication.mChildren.back()->Emit(WindowEvent::ACTIVATE, 0);
-    }
-    else
-    {
-      mPopups.back()->Emit(WindowEvent::ACTIVATE, 0);
-    }
-  }
-}
-
 void BridgeBase::OnWindowVisibilityChanged(Dali::Window window, bool visible)
 {
   if(visible)
@@ -231,7 +195,6 @@ void BridgeBase::OnWindowVisibilityChanged(Dali::Window window, bool visible)
   {
     Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(window); // Called when Window is hidden and iconified.
   }
-
 }
 
 void BridgeBase::OnWindowFocusChanged(Dali::Window window, bool focusIn)
@@ -264,6 +227,8 @@ void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
   mApplication.mChildren.push_back(windowAccessible);
   SetIsOnRootLevel(windowAccessible);
 
+  RegisterDefaultLabel(windowAccessible);
+
   Dali::Window window = Dali::DevelWindow::Get(windowAccessible->GetInternalActor());
   if(window)
   {
@@ -287,6 +252,8 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
     }
   }
 
+  UnregisterDefaultLabel(windowAccessible);
+
   for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
   {
     if(mApplication.mChildren[i] == windowAccessible)
@@ -294,6 +261,23 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
       mApplication.mChildren.erase(mApplication.mChildren.begin() + i);
       break;
     }
+  }
+}
+
+void BridgeBase::RegisterDefaultLabel(Accessible* object)
+{
+  if(std::find(mDefaultLabels.begin(), mDefaultLabels.end(), object) == mDefaultLabels.end())
+  {
+    mDefaultLabels.push_back(object);
+  }
+}
+
+void BridgeBase::UnregisterDefaultLabel(Accessible* object)
+{
+  auto it = std::find(mDefaultLabels.begin(), mDefaultLabels.end(), object);
+  if(it != mDefaultLabels.end())
+  {
+    mDefaultLabels.erase(it);
   }
 }
 
@@ -310,7 +294,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
     return &mApplication;
   }
 
-  void* accessible;
+  void*              accessible;
   std::istringstream tmp{path};
   if(!(tmp >> accessible))
   {
@@ -334,7 +318,7 @@ Accessible* BridgeBase::Find(const Address& ptr) const
 
 Accessible* BridgeBase::FindSelf() const
 {
-  auto path  = DBus::DBusServer::getCurrentObjectPath();
+  auto path = DBus::DBusServer::getCurrentObjectPath();
   auto size = strlen(AtspiPath);
   if(path.size() <= size)
   {
