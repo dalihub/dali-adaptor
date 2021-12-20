@@ -116,7 +116,8 @@ void BridgeBase::UpdateRegisteredEvents()
 
 BridgeBase::ForceUpResult BridgeBase::ForceUp()
 {
-  if(Bridge::ForceUp() == ForceUpResult::ALREADY_UP)
+  //TODO: checking mBusName is enough? or a new variable to check bridge state?
+  if(Bridge::ForceUp() == ForceUpResult::ALREADY_UP && !GetBusName().empty())
   {
     return ForceUpResult::ALREADY_UP;
   }
@@ -125,7 +126,8 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 
   if(!addr)
   {
-    throw std::domain_error{std::string("failed at call '") + dbusLocators::atspi::GET_ADDRESS + "': " + addr.getError().message};
+    DALI_LOG_ERROR("failed at call '%s': %s\n", dbusLocators::atspi::GET_ADDRESS, addr.getError().message.c_str());
+    return ForceUpResult::FAILED;
   }
 
   mConnectionPtr  = DBusWrapper::Installed()->eldbus_address_connection_get_impl(std::get<0>(addr));

@@ -82,6 +82,7 @@ class BridgeImpl : public virtual BridgeBase,
   Dali::Timer                                                   mInitializeTimer;
   Dali::Timer                                                   mReadIsEnabledTimer;
   Dali::Timer                                                   mReadScreenReaderEnabledTimer;
+  Dali::Timer                                                   mForceUpTimer;
 
 public:
   BridgeImpl()
@@ -233,23 +234,33 @@ public:
     mDirectReadingCallbacks.clear();
     mApplication.mChildren.clear();
     mApplication.mWindows.clear();
+    ClearTimer();
   }
 
-  void StopTimer()
+  void ClearTimer()
   {
     if(mInitializeTimer)
     {
       mInitializeTimer.Stop();
+      mInitializeTimer.Reset();
     }
 
     if(mReadIsEnabledTimer)
     {
       mReadIsEnabledTimer.Stop();
+      mReadIsEnabledTimer.Reset();
     }
 
     if(mReadScreenReaderEnabledTimer)
     {
       mReadScreenReaderEnabledTimer.Stop();
+      mReadScreenReaderEnabledTimer.Reset();
+    }
+
+    if(mForceUpTimer)
+    {
+      mForceUpTimer.Stop();
+      mForceUpTimer.Reset();
     }
   }
 
@@ -264,7 +275,6 @@ public:
       mData->mHighlightActor            = {};
     }
     ForceDown();
-    StopTimer();
     if((NULL != mIdleCallback) && Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
@@ -274,14 +284,34 @@ public:
     mConnectionPtr                    = {};
   }
 
+  bool ForceUpTimerCallback()
+  {
+    if(ForceUp() != ForceUpResult::FAILED)
+    {
+      return false;
+    }
+    return true;
+  }
+
   /**
    * @copydoc Dali::Accessibility::Bridge::ForceUp()
    */
   ForceUpResult ForceUp() override
   {
-    if(BridgeAccessible::ForceUp() == ForceUpResult::ALREADY_UP)
+    auto forceUpResult = BridgeAccessible::ForceUp();
+    if(forceUpResult == ForceUpResult::ALREADY_UP)
     {
-      return ForceUpResult::ALREADY_UP;
+      return forceUpResult;
+    }
+    else if(forceUpResult == ForceUpResult::FAILED)
+    {
+      if(!mForceUpTimer)
+      {
+        mForceUpTimer = Dali::Timer::New(RETRY_INTERVAL);
+        mForceUpTimer.TickSignal().Connect(this, &BridgeImpl::ForceUpTimerCallback);
+        mForceUpTimer.Start();
+      }
+      return forceUpResult;
     }
 
     BridgeObject::RegisterInterfaces();
@@ -456,6 +486,18 @@ public:
     ReadScreenReaderEnabledProperty();
   }
 
+  void SwitchBridge()
+  {
+    if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
+    {
+      ForceUp();
+    }
+    else
+    {
+      ForceDown();
+    }
+  }
+
   bool ReadIsEnabledTimerCallback()
   {
     ReadIsEnabledProperty();
@@ -479,15 +521,15 @@ public:
         }
         return;
       }
+
+      if(mReadIsEnabledTimer)
+      {
+        mReadIsEnabledTimer.Stop();
+        mReadIsEnabledTimer.Reset();
+      }
+
       mIsEnabled = std::get<0>(msg);
-      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
+      SwitchBridge();
     });
   }
 
@@ -495,14 +537,7 @@ public:
   {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("IsEnabled", [this](bool res) {
       mIsEnabled = res;
-      if(mIsScreenReaderEnabled || mIsEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
+      SwitchBridge();
     });
   }
 
@@ -535,15 +570,15 @@ public:
         }
         return;
       }
+
+      if(mReadScreenReaderEnabledTimer)
+      {
+        mReadScreenReaderEnabledTimer.Stop();
+        mReadScreenReaderEnabledTimer.Reset();
+      }
+
       mIsScreenReaderEnabled = std::get<0>(msg);
-      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
+      SwitchBridge();
     });
   }
 
@@ -551,14 +586,7 @@ public:
   {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
       mIsScreenReaderEnabled = res;
-      if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
-      {
-        ForceUp();
-      }
-      else
-      {
-        ForceDown();
-      }
+      SwitchBridge();
     });
   }
 
