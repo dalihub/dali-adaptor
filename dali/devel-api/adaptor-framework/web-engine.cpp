@@ -526,6 +526,11 @@ void WebEngine::RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::Web
   GetImplementation(*this).RegisterResponsePolicyDecidedCallback(callback);
 }
 
+void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
+{
+  GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
+}
+
 void WebEngine::RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback)
 {
   GetImplementation(*this).RegisterCertificateConfirmedCallback(callback);

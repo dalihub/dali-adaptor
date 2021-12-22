@@ -620,6 +620,11 @@ void WebEngine::RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::Web
   mPlugin->RegisterResponsePolicyDecidedCallback(callback);
 }
 
+void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
+{
+  mPlugin->RegisterNavigationPolicyDecidedCallback(callback);
+}
+
 void WebEngine::RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback)
 {
   mPlugin->RegisterCertificateConfirmedCallback(callback);
