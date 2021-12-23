@@ -105,7 +105,15 @@ const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
 
 } // namespace
 
-EglGraphicsController::~EglGraphicsController() = default;
+EglGraphicsController::~EglGraphicsController()
+{
+  while(!mPresentationCommandBuffers.empty())
+  {
+    auto presentCommandBuffer = const_cast<GLES::CommandBuffer*>(mPresentationCommandBuffers.front());
+    delete presentCommandBuffer;
+    mPresentationCommandBuffers.pop();
+  }
+}
 
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
