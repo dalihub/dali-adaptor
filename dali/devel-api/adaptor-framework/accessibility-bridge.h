@@ -51,7 +51,8 @@ struct DALI_ADAPTOR_API Bridge
   enum class ForceUpResult
   {
     JUST_STARTED,
-    ALREADY_UP
+    ALREADY_UP,
+    FAILED
   };
 
   /**
