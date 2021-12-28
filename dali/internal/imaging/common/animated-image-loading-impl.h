@@ -27,6 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/animated-image-loading.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <dali/internal/imaging/common/image-operations.h>
 
 namespace Dali
 {
@@ -66,9 +67,26 @@ public:
   ~AnimatedImageLoading() override = default;
 
   /**
-   * @copydoc Dali::AnimatedImageLoading::LoadFrame()
+   * @brief Load a frame of the animated image.
+   *
+   * @note This function will load the entire animated image into memory if not already loaded.
+   * @param[in] frameIndex The frame index to load.
+   * @param[in] size The width and height to fit the loaded image to.
+   * @param[in] fittingMode The FittingMode of the resource to load
+   * @param[in] samplingMode The SamplingMode of the resource to load
+   *
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
-  virtual Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) = 0;
+  Dali::Devel::PixelBuffer LoadFrame(uint32_t                 frameIndex,
+                                     ImageDimensions          size,
+                                     Dali::FittingMode::Type  fittingMode,
+                                     Dali::SamplingMode::Type samplingMode)
+  {
+    Dali::Devel::PixelBuffer pixelBuffer = LoadFrame(frameIndex);
+    return Dali::Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, size, fittingMode, samplingMode);
+  }
+
+public:
 
   /**
    * @copydoc Dali::AnimatedImageLoading::GetImageSize()
@@ -94,6 +112,16 @@ public:
    * @copydoc Dali::AnimatedImageLoading::HasLoadingSucceeded()
    */
   virtual bool HasLoadingSucceeded() const = 0;
+
+private:
+  /**
+   * @brief Load a frame of the animated image.
+   *
+   * @note This function will load the entire animated image into memory if not already loaded.
+   * @param[in] frameIndex The frame index to load.
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   */
+  virtual Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) = 0;
 };
 
 } // namespace Adaptor

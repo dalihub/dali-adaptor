@@ -60,9 +60,13 @@ AnimatedImageLoading AnimatedImageLoading::DownCast(BaseHandle handle)
 AnimatedImageLoading::~AnimatedImageLoading()
 {
 }
-Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t frameIndex)
+
+Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t                 frameIndex,
+                                                         ImageDimensions          size,
+                                                         Dali::FittingMode::Type  fittingMode,
+                                                         Dali::SamplingMode::Type samplingMode)
 {
-  return GetImplementation(*this).LoadFrame(frameIndex);
+  return GetImplementation(*this).LoadFrame(frameIndex, size, fittingMode, samplingMode);
 }
 
 ImageDimensions AnimatedImageLoading::GetImageSize() const
