@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,9 @@ namespace Dali::Graphics::GLES
 {
 class CommandPool
 {
-  static const uint32_t COMMAND_POOL_DEFAULT_INCREMENT = 1024 * 32; // 32kb banks
-  static const uint32_t MEMORY_POOL_DEFAULT_INCREMENT  = 1024;      // 4kb memory pool increment
-  static const uint32_t MEMORY_POOL_DEFAULT_ALIGNMENT  = 64;        // 64bytes alignment
+  static constexpr uint32_t COMMAND_POOL_DEFAULT_INCREMENT = 1024 * 32 / sizeof(Command); // 32kb banks
+  static const     uint32_t MEMORY_POOL_DEFAULT_INCREMENT  = 1024;                        // 1kb memory pool increment
+  static const     uint32_t MEMORY_POOL_DEFAULT_ALIGNMENT  = 64;                          // 64bytes alignment
 
   template<class T>
   struct Block
@@ -94,17 +94,25 @@ class CommandPool
 
     IndirectPtr<T> Allocate(uint32_t count)
     {
-      // set fixed capacity
-      if(fixedCapacity && data.size() != fixedCapacity)
+      // Set fixed capacity
+      if(fixedCapacity)
       {
-        data.resize(fixedCapacity);
-        totalCapacity = data.size();
+        // resize data size when capacity is not setuped.
+        // Note if totalCapacity is bigger than fixedCapacity,
+        // just skip here and resize dynamically
+        if(DALI_UNLIKELY(totalCapacity < fixedCapacity))
+        {
+          data.resize(fixedCapacity);
+          totalCapacity = data.size();
+        }
       }
 
-      // or resize dynamically
-      else if(data.size() <= offset + count)
+      // Resize dynamically
+      if(DALI_UNLIKELY(totalCapacity < offset + count))
       {
-        data.resize(data.size() + Increment);
+        // Resize the memory size as ceil((offset + count - totalCapacity)) / Increment) * Increment
+        // So the incremented size of data is always multiplied of the value Increment.
+        data.resize(data.size() + ((offset + count - totalCapacity - 1) / Increment + 1) * Increment);
 
         // update base pointer, required for address translation
         totalCapacity = data.size();
