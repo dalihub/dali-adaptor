@@ -66,9 +66,12 @@ bool AnimatedImageLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, 
   return GetImplementation(*this).LoadNextNFrames(frameStartIndex, count, pixelData);
 }
 
-Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t frameIndex)
+Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t                 frameIndex,
+                                                         ImageDimensions          size,
+                                                         FittingMode::Type        fittingMode,
+                                                         Dali::SamplingMode::Type samplingMode)
 {
-  return GetImplementation(*this).LoadFrame(frameIndex);
+  return GetImplementation(*this).LoadFrame(frameIndex, size, fittingMode, samplingMode);
 }
 
 ImageDimensions AnimatedImageLoading::GetImageSize() const
