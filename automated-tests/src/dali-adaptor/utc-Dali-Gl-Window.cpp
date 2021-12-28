@@ -110,12 +110,12 @@ int UtcDaliGlWindowNew2(void)
   END_TEST;
 }
 
-int UtcDaliGlWindowSetEglConfigGles20(void)
+int UtcDaliGlWindowSetGraphicsConfigGles20(void)
 {
   Dali::GlWindow window;
   try
   {
-    window.SetEglConfig(true, true, 0, Dali::GlWindow::GlesVersion::VERSION_2_0);
+    window.SetGraphicsConfig(true, true, 0, Dali::GlWindow::GlesVersion::VERSION_2_0);
 
     DALI_TEST_CHECK(false);
   }
@@ -126,12 +126,12 @@ int UtcDaliGlWindowSetEglConfigGles20(void)
   END_TEST;
 }
 
-int UtcDaliGlWindowSetEglConfigGles30(void)
+int UtcDaliGlWindowSetGraphicsConfigGles30(void)
 {
   Dali::GlWindow window;
   try
   {
-    window.SetEglConfig(true, true, 0, Dali::GlWindow::GlesVersion::VERSION_3_0);
+    window.SetGraphicsConfig(true, true, 0, Dali::GlWindow::GlesVersion::VERSION_3_0);
 
     DALI_TEST_CHECK(false);
   }
@@ -395,13 +395,13 @@ void glTerminate(void)
 {
 }
 
-int UtcDaliGlWindowRegisterGlCallback(void)
+int UtcDaliGlWindowRegisterGlCallbacks(void)
 {
   Dali::GlWindow window;
 
   try
   {
-    window.RegisterGlCallback(Dali::MakeCallback(glInit), Dali::MakeCallback(glRenderFrame), Dali::MakeCallback(glTerminate));
+    window.RegisterGlCallbacks(Dali::MakeCallback(glInit), Dali::MakeCallback(glRenderFrame), Dali::MakeCallback(glTerminate));
 
     DALI_TEST_CHECK(false);
   }
@@ -418,7 +418,7 @@ int UtcDaliGlWindowRenderOnce(void)
 
   try
   {
-    window.RegisterGlCallback(Dali::MakeCallback(glInit), Dali::MakeCallback(glRenderFrame), Dali::MakeCallback(glTerminate));
+    window.RegisterGlCallbacks(Dali::MakeCallback(glInit), Dali::MakeCallback(glRenderFrame), Dali::MakeCallback(glTerminate));
     window.RenderOnce();
 
     DALI_TEST_CHECK(false);

@@ -85,7 +85,7 @@ void GlWindowRenderThread::SetWindowBase(WindowBase* windowBase)
   mWindowBase = windowBase;
 }
 
-void GlWindowRenderThread::SetEglConfig(bool depth, bool stencil, int msaa, int version)
+void GlWindowRenderThread::SetGraphicsConfig(bool depth, bool stencil, int msaa, int version)
 {
   mDepth       = depth;
   mStencil     = stencil;
@@ -116,7 +116,7 @@ void GlWindowRenderThread::Stop()
   mRenderThreadWaitCondition.Notify(lock);
 }
 
-void GlWindowRenderThread::RegisterGlCallback(CallbackBase* initCallback,
+void GlWindowRenderThread::RegisterGlCallbacks(CallbackBase* initCallback,
                                               CallbackBase* renderFrameCallback,
                                               CallbackBase* terminateCallback)
 {
