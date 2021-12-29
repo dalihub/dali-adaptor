@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/object/weak-handle.h>
+#include <dali/public-api/signals/connection-tracker.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -28,7 +29,10 @@
 
 namespace Dali::Accessibility
 {
-class DALI_ADAPTOR_API ActorAccessible : public virtual Accessible, public virtual Collection, public virtual Component
+class DALI_ADAPTOR_API ActorAccessible : public virtual Accessible,
+                                         public virtual Collection,
+                                         public virtual Component,
+                                         public Dali::ConnectionTracker
 {
 public:
   ActorAccessible() = delete;
@@ -48,32 +52,32 @@ public:
   /**
    * @copydoc Dali::Accessibility::Accessible::GetParent()
    */
-  Accessible* GetParent() override;
+  Accessible* GetParent() final;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildCount()
    */
-  std::size_t GetChildCount() const override;
+  std::size_t GetChildCount() const final;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildren()
    */
-  std::vector<Accessible*> GetChildren() override;
+  std::vector<Accessible*> GetChildren() final;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildAtIndex()
    */
-  Accessible* GetChildAtIndex(std::size_t index) override;
+  Accessible* GetChildAtIndex(std::size_t index) final;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetIndexInParent()
    */
-  std::size_t GetIndexInParent() override;
+  std::size_t GetIndexInParent() final;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetInternalActor()
    */
-  Dali::Actor GetInternalActor() override;
+  Dali::Actor GetInternalActor() final;
 
   /**
    * @copydoc Dali::Accessibility::Component::GetLayer()
@@ -100,6 +104,16 @@ public:
    */
   Dali::Rect<> GetExtents(CoordinateType type) const override;
 
+  /**
+   * @brief Notifies this object that its children have changed.
+   *
+   * This is useful if you maintain a custom collection of children that are not derived from
+   * ActorAccessible and the contents or order of elements in that collection change.
+   *
+   * @see DoGetChildren()
+   */
+  void OnChildrenChanged();
+
 protected:
   Dali::Actor Self() const
   {
@@ -111,8 +125,37 @@ protected:
     return handle;
   }
 
+  /**
+   * @brief Populates the collection of children of this Accessible.
+   *
+   * The default implementation retrieves the children from the Actor hierarchy. Override this if
+   * you want to report other objects as children, either instead of, or together with the
+   * dependent Actor-derived Accessibles. Remember to call OnChildrenChanged() if you want your
+   * implementation of DoGetChildren() to be called again (in case your custom collection of
+   * children changes).
+   *
+   * @param[out] children The initially empty vector to insert children into
+   *
+   * @note GetChildCound(), GetChildren() and GetChildAtIndex() are not available for overriding,
+   * but they respect the children collection reported by this method.
+   *
+   * @see OnChildrenChanged()
+   * @see GetChildCount()
+   * @see GetChildren()
+   * @see GetChildAtIndex()
+   */
+  virtual void DoGetChildren(std::vector<Accessible*>& children);
+
 private:
+  // Extra overload for OnChildrenChanged() to connect to signals directly
+  void OnChildrenChanged(Dali::Actor);
+
+  // Ensures children are up to date (calls DoGetChildren() if necessary)
+  void UpdateChildren();
+
   Dali::WeakHandle<Dali::Actor> mSelf;
+  std::vector<Accessible*>      mChildren;
+  bool                          mChildrenDirty;
 };
 
 } // namespace Dali::Accessibility
