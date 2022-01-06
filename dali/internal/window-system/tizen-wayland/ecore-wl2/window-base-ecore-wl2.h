@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -175,7 +175,6 @@ public:
    * @param[in] auxiliary's message data. It has key, value and integer list data.
    */
   void OnEcoreEventWindowAuxiliaryMessage(void* event);
-
 
 #ifdef DALI_ELDBUS_AVAILABLE
   /**
@@ -548,10 +547,10 @@ private:
   Dali::Vector<Ecore_Event_Handler*>                        mEcoreEventHandler;
   Ecore_Wl2_Window*                                         mEcoreWindow;
 
-  wl_surface*             mWlSurface;
-  wl_input_panel*         mWlInputPanel;
-  wl_output*              mWlOutput;
-  wl_input_panel_surface* mWlInputPanelSurface;
+  wl_surface*                 mWlSurface;
+  zwp_input_panel_v1*         mWlInputPanel;
+  wl_output*                  mWlOutput;
+  zwp_input_panel_surface_v1* mWlInputPanelSurface;
 
   wl_egl_window*        mEglWindow;
   wl_display*           mDisplay;
