@@ -246,7 +246,6 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
   {
     if(windowAccessible->GetInternalActor() == mApplication.mWindows[i].GetRootLayer())
     {
-      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(mApplication.mWindows[i]);
       Dali::DevelWindow::VisibilityChangedSignal(mApplication.mWindows[i]).Disconnect(this, &BridgeBase::OnWindowVisibilityChanged);
       mApplication.mWindows[i].FocusChangeSignal().Disconnect(this, &BridgeBase::OnWindowFocusChanged);
       mApplication.mWindows.erase(mApplication.mWindows.begin() + i);
