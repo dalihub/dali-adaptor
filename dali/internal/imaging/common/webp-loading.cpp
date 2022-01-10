@@ -352,22 +352,26 @@ Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
 {
   Dali::Devel::PixelBuffer pixelBuffer;
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-  if(mImpl->mLatestLoadedFrame > static_cast<int32_t>(frameIndex))
+  if(mImpl->mLatestLoadedFrame >= static_cast<int32_t>(frameIndex))
   {
     mImpl->mLatestLoadedFrame = INITIAL_INDEX;
     WebPAnimDecoderReset(mImpl->mWebPAnimDecoder);
   }
 
-  uint8_t* frameBuffer;
   int32_t timestamp;
+  uint8_t* frameBuffer = nullptr;
   for(; mImpl->mLatestLoadedFrame < static_cast<int32_t>(frameIndex);)
   {
     WebPAnimDecoderGetNext(mImpl->mWebPAnimDecoder, &frameBuffer, &timestamp);
     mImpl->mTimeStamp[++mImpl->mLatestLoadedFrame] = timestamp;
   }
-  const int bufferSize = mImpl->mWebPAnimInfo.canvas_width * mImpl->mWebPAnimInfo.canvas_height * sizeof(uint32_t);
-  pixelBuffer = Dali::Devel::PixelBuffer::New(mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height, Dali::Pixel::RGBA8888);
-  memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
+
+  if(frameBuffer != nullptr)
+  {
+    const int bufferSize = mImpl->mWebPAnimInfo.canvas_width * mImpl->mWebPAnimInfo.canvas_height * sizeof(uint32_t);
+    pixelBuffer          = Dali::Devel::PixelBuffer::New(mImpl->mWebPAnimInfo.canvas_width, mImpl->mWebPAnimInfo.canvas_height, Dali::Pixel::RGBA8888);
+    memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
+  }
 
 #endif
   return pixelBuffer;
