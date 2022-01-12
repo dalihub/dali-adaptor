@@ -21,6 +21,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/object-registry.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -36,7 +37,7 @@ namespace Dali::Accessibility
 class DALI_ADAPTOR_API Accessible
 {
 public:
-  virtual ~Accessible();
+  virtual ~Accessible() noexcept;
 
   using utf8_t = unsigned char;
 
@@ -50,7 +51,7 @@ public:
    *
    * @note Word boundaries are returned as non-zero values in table breaks, which must be of size at least length.
    */
-  void FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks);
+  static void FindWordSeparationsUtf8(const utf8_t* string, std::size_t length, const char* language, char* breaks);
 
   /**
    * @brief Calculates and finds line boundaries in given utf8 text.
@@ -62,7 +63,7 @@ public:
    *
    * @note Line boundaries are returned as non-zero values in table breaks, which must be of size at least length.
    */
-  void FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks);
+  static void FindLineSeparationsUtf8(const utf8_t* string, std::size_t length, const char* language, char* breaks);
 
   /**
    * @brief Helper function for emiting active-descendant-changed event.
@@ -176,14 +177,14 @@ public:
    *
    * @return The string with name
    */
-  virtual std::string GetName() = 0;
+  virtual std::string GetName() const = 0;
 
   /**
    * @brief Gets accessibility description.
    *
    * @return The string with description
    */
-  virtual std::string GetDescription() = 0;
+  virtual std::string GetDescription() const = 0;
 
   /**
    * @brief Gets parent.
@@ -197,28 +198,28 @@ public:
    *
    * @return The number of children
    */
-  virtual size_t GetChildCount() = 0;
+  virtual std::size_t GetChildCount() const = 0;
 
   /**
    * @brief Gets collection with all children.
    *
    * @return The collection of accessibility objects
    */
-  virtual std::vector<Accessible*> GetChildren();
+  virtual std::vector<Accessible*> GetChildren() = 0;
 
   /**
    * @brief Gets child of the index.
    *
    * @return The child object
    */
-  virtual Accessible* GetChildAtIndex(size_t index) = 0;
+  virtual Accessible* GetChildAtIndex(std::size_t index) = 0;
 
   /**
    * @brief Gets index that current object has in its parent's children collection.
    *
    * @return The index of the current object
    */
-  virtual size_t GetIndexInParent() = 0;
+  virtual std::size_t GetIndexInParent() = 0;
 
   /**
    * @brief Gets accessibility role.
@@ -227,7 +228,7 @@ public:
    *
    * @see Dali::Accessibility::Role
    */
-  virtual Role GetRole() = 0;
+  virtual Role GetRole() const = 0;
 
   /**
    * @brief Gets name of accessibility role.
@@ -237,7 +238,7 @@ public:
    * @see Dali::Accessibility::Role
    * @see Accessibility::Accessible::GetRole
    */
-  virtual std::string GetRoleName();
+  virtual std::string GetRoleName() const;
 
   /**
    * @brief Gets localized name of accessibility role.
@@ -251,7 +252,7 @@ public:
    *
    * @note translation is not supported in this version
    */
-  virtual std::string GetLocalizedRoleName();
+  virtual std::string GetLocalizedRoleName() const;
 
   /**
    * @brief Gets accessibility states.
@@ -270,14 +271,23 @@ public:
    *
    * @return The map of attributes and their values
    */
-  virtual Attributes GetAttributes() = 0;
+  virtual Attributes GetAttributes() const = 0;
+
+  /**
+   * @brief Checks if this is hidden.
+   *
+   * @return True if this is hidden
+   *
+   * @note Hidden means not present in the AT-SPI tree.
+   */
+  virtual bool IsHidden() const;
 
   /**
    * @brief Checks if this is proxy.
    *
    * @return True if this is proxy
    */
-  virtual bool IsProxy();
+  virtual bool IsProxy() const;
 
   /**
    * @brief Gets unique address on accessibility bus.
@@ -286,7 +296,7 @@ public:
    *
    * @see Dali::Accessibility::Address
    */
-  virtual Address GetAddress();
+  virtual Address GetAddress() const;
 
   /**
    * @brief Deputes an object to perform provided gesture.
@@ -329,7 +339,7 @@ public:
    *
    * @return The collection of strings with implemented interfaces
    */
-  std::vector<std::string> GetInterfaces();
+  std::vector<std::string> GetInterfaces() const;
 
   /**
    * @brief Checks if object is on root level.
@@ -347,7 +357,7 @@ protected:
   Accessible(Accessible&&)              = delete;
   Accessible&                   operator=(const Accessible&) = delete;
   Accessible&                   operator=(Accessible&&) = delete;
-  std::shared_ptr<Bridge::Data> GetBridgeData();
+  std::shared_ptr<Bridge::Data> GetBridgeData() const;
 
 public:
   /**
@@ -406,8 +416,8 @@ public:
 private:
   friend class Bridge;
 
-  std::weak_ptr<Bridge::Data> mBridgeData;
-  bool                        mIsOnRootLevel = false;
+  mutable std::weak_ptr<Bridge::Data> mBridgeData;
+  bool                                mIsOnRootLevel = false;
 
 }; // Accessible class
 

@@ -26,7 +26,7 @@
 
 using namespace Dali::Accessibility;
 
-bool Component::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type)
+bool Component::IsAccessibleContainingPoint(Point point, Dali::Accessibility::CoordinateType type) const
 {
   auto extents = GetExtents(type);
   return point.x >= extents.x && point.y >= extents.y && point.x <= extents.x + extents.width && point.y <= extents.y + extents.height;
@@ -44,9 +44,4 @@ Accessible* Component::GetAccessibleAtPoint(Point point, Dali::Accessibility::Co
     }
   }
   return nullptr;
-}
-
-bool Component::IsScrollable()
-{
-  return false;
 }

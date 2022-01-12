@@ -33,7 +33,7 @@ public:
    *
    * @return The number of selected children (zero if none)
    */
-  virtual int GetSelectedChildrenCount() = 0;
+  virtual int GetSelectedChildrenCount() const = 0;
 
   /**
    * @brief Gets a specific selected child.
@@ -77,7 +77,7 @@ public:
    *
    * @return true if given child is selected, false otherwise
    */
-  virtual bool IsChildSelected(int childIndex) = 0;
+  virtual bool IsChildSelected(int childIndex) const = 0;
 
   /**
    * @brief Selects all children.

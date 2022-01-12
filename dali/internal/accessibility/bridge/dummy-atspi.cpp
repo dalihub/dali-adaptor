@@ -27,7 +27,7 @@ Accessibility::Accessible::Accessible()
 {
 }
 
-Accessibility::Accessible::~Accessible()
+Accessibility::Accessible::~Accessible() noexcept
 {
 }
 
@@ -36,27 +36,32 @@ std::vector<Accessibility::Accessible*> Accessibility::Accessible::GetChildren()
   return {};
 }
 
-Accessibility::Address Accessibility::Accessible::GetAddress()
+Accessibility::Address Accessibility::Accessible::GetAddress() const
 {
   return {};
 }
 
-std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridgeData()
+std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridgeData() const
 {
   return {};
 }
 
-bool Accessibility::Accessible::IsProxy()
+bool Accessibility::Accessible::IsHidden() const
 {
   return false;
 }
 
-bool Accessibility::Component::IsScrollable()
+bool Accessibility::Accessible::IsProxy() const
 {
   return false;
 }
 
-bool Accessibility::Component::IsAccessibleContainingPoint(Point point, CoordinateType type)
+bool Accessibility::Component::IsScrollable() const
+{
+  return false;
+}
+
+bool Accessibility::Component::IsAccessibleContainingPoint(Point point, CoordinateType type) const
 {
   return false;
 }
@@ -66,7 +71,7 @@ Accessibility::Accessible* Accessibility::Component::GetAccessibleAtPoint(Access
   return nullptr;
 }
 
-Accessibility::Bridge* Accessibility::Bridge::GetCurrentBridge()
+std::shared_ptr<Accessibility::Bridge> Accessibility::Bridge::GetCurrentBridge()
 {
   return Accessibility::DummyBridge::GetInstance();
 }

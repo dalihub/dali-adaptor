@@ -19,16 +19,16 @@
  */
 
 // EXTERNAL INCLUDES
-#include <functional>
-#include <memory>
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
+#include <functional>
+#include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/adaptor-framework/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -166,6 +166,11 @@ public:
    * @brief WebView callback related with response policy would be decided.
    */
   using WebEngineResponsePolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
+
+  /**
+   * @brief WebView callback related with navigation policy would be decided.
+   */
+  using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
    * @brief Hit test callback called after hit test is created asynchronously.
@@ -826,6 +831,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterResponsePolicyDecidedCallback(WebEngineResponsePolicyDecidedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when navigation policy would be decided.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
 
   /**
    * @brief Callback to be called when certificate need be confirmed.

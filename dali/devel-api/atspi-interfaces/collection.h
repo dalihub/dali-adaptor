@@ -30,7 +30,6 @@ namespace Dali::Accessibility
  */
 class DALI_ADAPTOR_API Collection : public virtual Accessible
 {
-public:
 };
 
 } // namespace Dali::Accessibility

@@ -22,10 +22,12 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
-#include <dali/public-api/object/weak-handle.h>
+#include <string_view>
+#include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -42,510 +44,145 @@ const std::string& Dali::Accessibility::Address::GetBus() const
   return mBus.empty() && Bridge::GetCurrentBridge() ? Bridge::GetCurrentBridge()->GetBusName() : mBus;
 }
 
-std::string EmptyAccessibleWithAddress::GetRoleName()
-{
-  return "";
-}
-
-std::string Accessible::GetLocalizedRoleName()
+std::string Accessible::GetLocalizedRoleName() const
 {
   return GetRoleName();
 }
 
-std::string Accessible::GetRoleName()
+std::string Accessible::GetRoleName() const
 {
-  switch(GetRole())
+  static const std::unordered_map<Role, std::string_view> roleMap{
+    {Role::INVALID, "invalid"},
+    {Role::ACCELERATOR_LABEL, "accelerator label"},
+    {Role::ALERT, "alert"},
+    {Role::ANIMATION, "animation"},
+    {Role::ARROW, "arrow"},
+    {Role::CALENDAR, "calendar"},
+    {Role::CANVAS, "canvas"},
+    {Role::CHECK_BOX, "check box"},
+    {Role::CHECK_MENU_ITEM, "check menu item"},
+    {Role::COLOR_CHOOSER, "color chooser"},
+    {Role::COLUMN_HEADER, "column header"},
+    {Role::COMBO_BOX, "combo box"},
+    {Role::DATE_EDITOR, "date editor"},
+    {Role::DESKTOP_ICON, "desktop icon"},
+    {Role::DESKTOP_FRAME, "desktop frame"},
+    {Role::DIAL, "dial"},
+    {Role::DIALOG, "dialog"},
+    {Role::DIRECTORY_PANE, "directory pane"},
+    {Role::DRAWING_AREA, "drawing area"},
+    {Role::FILE_CHOOSER, "file chooser"},
+    {Role::FILLER, "filler"},
+    {Role::FOCUS_TRAVERSABLE, "focus traversable"},
+    {Role::FONT_CHOOSER, "font chooser"},
+    {Role::FRAME, "frame"},
+    {Role::GLASS_PANE, "glass pane"},
+    {Role::HTML_CONTAINER, "html container"},
+    {Role::ICON, "icon"},
+    {Role::IMAGE, "image"},
+    {Role::INTERNAL_FRAME, "internal frame"},
+    {Role::LABEL, "label"},
+    {Role::LAYERED_PANE, "layered pane"},
+    {Role::LIST, "list"},
+    {Role::LIST_ITEM, "list item"},
+    {Role::MENU, "menu"},
+    {Role::MENU_BAR, "menu bar"},
+    {Role::MENU_ITEM, "menu item"},
+    {Role::OPTION_PANE, "option pane"},
+    {Role::PAGE_TAB, "page tab"},
+    {Role::PAGE_TAB_LIST, "page tab list"},
+    {Role::PANEL, "panel"},
+    {Role::PASSWORD_TEXT, "password text"},
+    {Role::POPUP_MENU, "popup menu"},
+    {Role::PROGRESS_BAR, "progress bar"},
+    {Role::PUSH_BUTTON, "push button"},
+    {Role::RADIO_BUTTON, "radio button"},
+    {Role::RADIO_MENU_ITEM, "radio menu item"},
+    {Role::ROOT_PANE, "root pane"},
+    {Role::ROW_HEADER, "row header"},
+    {Role::SCROLL_BAR, "scroll bar"},
+    {Role::SCROLL_PANE, "scroll pane"},
+    {Role::SEPARATOR, "separator"},
+    {Role::SLIDER, "slider"},
+    {Role::SPIN_BUTTON, "spin button"},
+    {Role::SPLIT_PANE, "split pane"},
+    {Role::STATUS_BAR, "status bar"},
+    {Role::TABLE, "table"},
+    {Role::TABLE_CELL, "table cell"},
+    {Role::TABLE_COLUMN_HEADER, "table column header"},
+    {Role::TABLE_ROW_HEADER, "table row header"},
+    {Role::TEAROFF_MENU_ITEM, "tearoff menu item"},
+    {Role::TERMINAL, "terminal"},
+    {Role::TEXT, "text"},
+    {Role::TOGGLE_BUTTON, "toggle button"},
+    {Role::TOOL_BAR, "tool bar"},
+    {Role::TOOL_TIP, "tool tip"},
+    {Role::TREE, "tree"},
+    {Role::TREE_TABLE, "tree table"},
+    {Role::UNKNOWN, "unknown"},
+    {Role::VIEWPORT, "viewport"},
+    {Role::WINDOW, "window"},
+    {Role::EXTENDED, "extended"},
+    {Role::HEADER, "header"},
+    {Role::FOOTER, "footer"},
+    {Role::PARAGRAPH, "paragraph"},
+    {Role::RULER, "ruler"},
+    {Role::APPLICATION, "application"},
+    {Role::AUTOCOMPLETE, "autocomplete"},
+    {Role::EDITBAR, "edit bar"},
+    {Role::EMBEDDED, "embedded"},
+    {Role::ENTRY, "entry"},
+    {Role::CHART, "chart"},
+    {Role::CAPTION, "caution"},
+    {Role::DOCUMENT_FRAME, "document frame"},
+    {Role::HEADING, "heading"},
+    {Role::PAGE, "page"},
+    {Role::SECTION, "section"},
+    {Role::REDUNDANT_OBJECT, "redundant object"},
+    {Role::FORM, "form"},
+    {Role::LINK, "link"},
+    {Role::INPUT_METHOD_WINDOW, "input method window"},
+    {Role::TABLE_ROW, "table row"},
+    {Role::TREE_ITEM, "tree item"},
+    {Role::DOCUMENT_SPREADSHEET, "document spreadsheet"},
+    {Role::DOCUMENT_PRESENTATION, "document presentation"},
+    {Role::DOCUMENT_TEXT, "document text"},
+    {Role::DOCUMENT_WEB, "document web"},
+    {Role::DOCUMENT_EMAIL, "document email"},
+    {Role::COMMENT, "comment"},
+    {Role::LIST_BOX, "list box"},
+    {Role::GROUPING, "grouping"},
+    {Role::IMAGE_MAP, "image map"},
+    {Role::NOTIFICATION, "notification"},
+    {Role::INFO_BAR, "info bar"},
+    {Role::LEVEL_BAR, "level bar"},
+    {Role::TITLE_BAR, "title bar"},
+    {Role::BLOCK_QUOTE, "block quote"},
+    {Role::AUDIO, "audio"},
+    {Role::VIDEO, "video"},
+    {Role::DEFINITION, "definition"},
+    {Role::ARTICLE, "article"},
+    {Role::LANDMARK, "landmark"},
+    {Role::LOG, "log"},
+    {Role::MARQUEE, "marquee"},
+    {Role::MATH, "math"},
+    {Role::RATING, "rating"},
+    {Role::TIMER, "timer"},
+    {Role::STATIC, "static"},
+    {Role::MATH_FRACTION, "math fraction"},
+    {Role::MATH_ROOT, "math root"},
+    {Role::SUBSCRIPT, "subscript"},
+    {Role::SUPERSCRIPT, "superscript"},
+  };
+
+  auto it = roleMap.find(GetRole());
+
+  if(it == roleMap.end())
   {
-    case Role::INVALID:
-    {
-      return "invalid";
-    }
-    case Role::ACCELERATOR_LABEL:
-    {
-      return "accelerator label";
-    }
-    case Role::ALERT:
-    {
-      return "alert";
-    }
-    case Role::ANIMATION:
-    {
-      return "animation";
-    }
-    case Role::ARROW:
-    {
-      return "arrow";
-    }
-    case Role::CALENDAR:
-    {
-      return "calendar";
-    }
-    case Role::CANVAS:
-    {
-      return "canvas";
-    }
-    case Role::CHECK_BOX:
-    {
-      return "check box";
-    }
-    case Role::CHECK_MENU_ITEM:
-    {
-      return "check menu item";
-    }
-    case Role::COLOR_CHOOSER:
-    {
-      return "color chooser";
-    }
-    case Role::COLUMN_HEADER:
-    {
-      return "column header";
-    }
-    case Role::COMBO_BOX:
-    {
-      return "combo box";
-    }
-    case Role::DATE_EDITOR:
-    {
-      return "date editor";
-    }
-    case Role::DESKTOP_ICON:
-    {
-      return "desktop icon";
-    }
-    case Role::DESKTOP_FRAME:
-    {
-      return "desktop frame";
-    }
-    case Role::DIAL:
-    {
-      return "dial";
-    }
-    case Role::DIALOG:
-    {
-      return "dialog";
-    }
-    case Role::DIRECTORY_PANE:
-    {
-      return "directory pane";
-    }
-    case Role::DRAWING_AREA:
-    {
-      return "drawing area";
-    }
-    case Role::FILE_CHOOSER:
-    {
-      return "file chooser";
-    }
-    case Role::FILLER:
-    {
-      return "filler";
-    }
-    case Role::FOCUS_TRAVERSABLE:
-    {
-      return "focus traversable";
-    }
-    case Role::FONT_CHOOSER:
-    {
-      return "font chooser";
-    }
-    case Role::FRAME:
-    {
-      return "frame";
-    }
-    case Role::GLASS_PANE:
-    {
-      return "glass pane";
-    }
-    case Role::HTML_CONTAINER:
-    {
-      return "html container";
-    }
-    case Role::ICON:
-    {
-      return "icon";
-    }
-    case Role::IMAGE:
-    {
-      return "image";
-    }
-    case Role::INTERNAL_FRAME:
-    {
-      return "internal frame";
-    }
-    case Role::LABEL:
-    {
-      return "label";
-    }
-    case Role::LAYERED_PANE:
-    {
-      return "layered pane";
-    }
-    case Role::LIST:
-    {
-      return "list";
-    }
-    case Role::LIST_ITEM:
-    {
-      return "list item";
-    }
-    case Role::MENU:
-    {
-      return "menu";
-    }
-    case Role::MENU_BAR:
-    {
-      return "menu bar";
-    }
-    case Role::MENU_ITEM:
-    {
-      return "menu item";
-    }
-    case Role::OPTION_PANE:
-    {
-      return "option pane";
-    }
-    case Role::PAGE_TAB:
-    {
-      return "page tab";
-    }
-    case Role::PAGE_TAB_LIST:
-    {
-      return "page tab list";
-    }
-    case Role::PANEL:
-    {
-      return "panel";
-    }
-    case Role::PASSWORD_TEXT:
-    {
-      return "password text";
-    }
-    case Role::POPUP_MENU:
-    {
-      return "popup menu";
-    }
-    case Role::PROGRESS_BAR:
-    {
-      return "progress bar";
-    }
-    case Role::PUSH_BUTTON:
-    {
-      return "push button";
-    }
-    case Role::RADIO_BUTTON:
-    {
-      return "radio button";
-    }
-    case Role::RADIO_MENU_ITEM:
-    {
-      return "radio menu item";
-    }
-    case Role::ROOT_PANE:
-    {
-      return "root pane";
-    }
-    case Role::ROW_HEADER:
-    {
-      return "row header";
-    }
-    case Role::SCROLL_BAR:
-    {
-      return "scroll bar";
-    }
-    case Role::SCROLL_PANE:
-    {
-      return "scroll pane";
-    }
-    case Role::SEPARATOR:
-    {
-      return "separator";
-    }
-    case Role::SLIDER:
-    {
-      return "slider";
-    }
-    case Role::SPIN_BUTTON:
-    {
-      return "spin button";
-    }
-    case Role::SPLIT_PANE:
-    {
-      return "split pane";
-    }
-    case Role::STATUS_BAR:
-    {
-      return "status bar";
-    }
-    case Role::TABLE:
-    {
-      return "table";
-    }
-    case Role::TABLE_CELL:
-    {
-      return "table cell";
-    }
-    case Role::TABLE_COLUMN_HEADER:
-    {
-      return "table column header";
-    }
-    case Role::TABLE_ROW_HEADER:
-    {
-      return "table row header";
-    }
-    case Role::TEAROFF_MENU_ITEM:
-    {
-      return "tearoff menu item";
-    }
-    case Role::TERMINAL:
-    {
-      return "terminal";
-    }
-    case Role::TEXT:
-    {
-      return "text";
-    }
-    case Role::TOGGLE_BUTTON:
-    {
-      return "toggle button";
-    }
-    case Role::TOOL_BAR:
-    {
-      return "tool bar";
-    }
-    case Role::TOOL_TIP:
-    {
-      return "tool tip";
-    }
-    case Role::TREE:
-    {
-      return "tree";
-    }
-    case Role::TREE_TABLE:
-    {
-      return "tree table";
-    }
-    case Role::UNKNOWN:
-    {
-      return "unknown";
-    }
-    case Role::VIEWPORT:
-    {
-      return "viewport";
-    }
-    case Role::WINDOW:
-    {
-      return "window";
-    }
-    case Role::EXTENDED:
-    {
-      return "extended";
-    }
-    case Role::HEADER:
-    {
-      return "header";
-    }
-    case Role::FOOTER:
-    {
-      return "footer";
-    }
-    case Role::PARAGRAPH:
-    {
-      return "paragraph";
-    }
-    case Role::RULER:
-    {
-      return "ruler";
-    }
-    case Role::APPLICATION:
-    {
-      return "application";
-    }
-    case Role::AUTOCOMPLETE:
-    {
-      return "autocomplete";
-    }
-    case Role::EDITBAR:
-    {
-      return "edit bar";
-    }
-    case Role::EMBEDDED:
-    {
-      return "embedded";
-    }
-    case Role::ENTRY:
-    {
-      return "entry";
-    }
-    case Role::CHART:
-    {
-      return "chart";
-    }
-    case Role::CAPTION:
-    {
-      return "caution";
-    }
-    case Role::DOCUMENT_FRAME:
-    {
-      return "document frame";
-    }
-    case Role::HEADING:
-    {
-      return "heading";
-    }
-    case Role::PAGE:
-    {
-      return "page";
-    }
-    case Role::SECTION:
-    {
-      return "section";
-    }
-    case Role::REDUNDANT_OBJECT:
-    {
-      return "redundant object";
-    }
-    case Role::FORM:
-    {
-      return "form";
-    }
-    case Role::LINK:
-    {
-      return "link";
-    }
-    case Role::INPUT_METHOD_WINDOW:
-    {
-      return "input method window";
-    }
-    case Role::TABLE_ROW:
-    {
-      return "table row";
-    }
-    case Role::TREE_ITEM:
-    {
-      return "tree item";
-    }
-    case Role::DOCUMENT_SPREADSHEET:
-    {
-      return "document spreadsheet";
-    }
-    case Role::DOCUMENT_PRESENTATION:
-    {
-      return "document presentation";
-    }
-    case Role::DOCUMENT_TEXT:
-    {
-      return "document text";
-    }
-    case Role::DOCUMENT_WEB:
-    {
-      return "document web";
-    }
-    case Role::DOCUMENT_EMAIL:
-    {
-      return "document email";
-    }
-    case Role::COMMENT:
-    {
-      return "comment";
-    }
-    case Role::LIST_BOX:
-    {
-      return "list box";
-    }
-    case Role::GROUPING:
-    {
-      return "grouping";
-    }
-    case Role::IMAGE_MAP:
-    {
-      return "image map";
-    }
-    case Role::NOTIFICATION:
-    {
-      return "notification";
-    }
-    case Role::INFO_BAR:
-    {
-      return "info bar";
-    }
-    case Role::LEVEL_BAR:
-    {
-      return "level bar";
-    }
-    case Role::TITLE_BAR:
-    {
-      return "title bar";
-    }
-    case Role::BLOCK_QUOTE:
-    {
-      return "block quote";
-    }
-    case Role::AUDIO:
-    {
-      return "audio";
-    }
-    case Role::VIDEO:
-    {
-      return "video";
-    }
-    case Role::DEFINITION:
-    {
-      return "definition";
-    }
-    case Role::ARTICLE:
-    {
-      return "article";
-    }
-    case Role::LANDMARK:
-    {
-      return "landmark";
-    }
-    case Role::LOG:
-    {
-      return "log";
-    }
-    case Role::MARQUEE:
-    {
-      return "marquee";
-    }
-    case Role::MATH:
-    {
-      return "math";
-    }
-    case Role::RATING:
-    {
-      return "rating";
-    }
-    case Role::TIMER:
-    {
-      return "timer";
-    }
-    case Role::STATIC:
-    {
-      return "static";
-    }
-    case Role::MATH_FRACTION:
-    {
-      return "math fraction";
-    }
-    case Role::MATH_ROOT:
-    {
-      return "math root";
-    }
-    case Role::SUBSCRIPT:
-    {
-      return "subscript";
-    }
-    case Role::SUPERSCRIPT:
-    {
-      return "superscript";
-    }
-    case Role::MAX_COUNT:
-    {
-      break;
-    }
+    return {};
   }
-  return "";
+
+  return std::string{it->second};
 }
 
 Dali::Actor Accessible::GetCurrentlyHighlightedActor()
@@ -595,64 +232,16 @@ void Bridge::SetIsOnRootLevel(Accessible* owner)
 
 namespace
 {
-class AdaptorAccessible : public virtual Accessible, public virtual Collection, public virtual Component
+class AdaptorAccessible : public ActorAccessible
 {
 protected:
-  Dali::WeakHandle<Dali::Actor> mSelf;
-  bool                          mRoot = false;
-
-  Dali::Actor Self()
-  {
-    auto handle = mSelf.GetHandle();
-
-    // AdaptorAccessible is deleted on ObjectDestroyedSignal
-    // for the respective actor (see `nonControlAccessibles`).
-    DALI_ASSERT_ALWAYS(handle);
-
-    return handle;
-  }
+  bool mRoot = false;
 
 public:
   AdaptorAccessible(Dali::Actor actor, bool isRoot)
-  : mSelf(actor),
+  : ActorAccessible(actor),
     mRoot(isRoot)
   {
-  }
-
-  Dali::Rect<> GetExtents(Dali::Accessibility::CoordinateType type) override
-  {
-    Dali::Actor actor                   = Self();
-    Vector2     screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
-    Vector3     size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
-    bool        positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
-    Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
-    Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
-
-    if(type == Dali::Accessibility::CoordinateType::WINDOW)
-    {
-      return {position.x, position.y, size.x, size.y};
-    }
-    else // Dali::Accessibility::CoordinateType::SCREEN
-    {
-      auto window = Dali::DevelWindow::Get(actor);
-      auto windowPosition = window.GetPosition();
-      return {position.x + windowPosition.GetX(), position.y + windowPosition.GetY(), size.x, size.y};
-    }
-  }
-
-  Dali::Accessibility::ComponentLayer GetLayer() override
-  {
-    return Dali::Accessibility::ComponentLayer::WINDOW;
-  }
-
-  int16_t GetMdiZOrder() override
-  {
-    return 0;
-  }
-
-  double GetAlpha() override
-  {
-    return 0;
   }
 
   bool GrabFocus() override
@@ -670,65 +259,7 @@ public:
     return false;
   }
 
-  bool IsScrollable() override
-  {
-    return false;
-  }
-
-  std::string GetName() override
-  {
-    return Self().GetProperty<std::string>(Dali::Actor::Property::NAME);
-  }
-
-  std::string GetDescription() override
-  {
-    return "";
-  }
-
-  Accessible* GetParent() override
-  {
-    if(IsOnRootLevel())
-    {
-      auto data = GetBridgeData();
-      return data->mBridge->GetApplication();
-    }
-    return Get(Self().GetParent());
-  }
-
-  size_t GetChildCount() override
-  {
-    return static_cast<size_t>(Self().GetChildCount());
-  }
-
-  Accessible* GetChildAtIndex(size_t index) override
-  {
-    auto numberOfChildren = static_cast<size_t>(Self().GetChildCount());
-    if(index >= numberOfChildren)
-    {
-      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(numberOfChildren) + " children"};
-    }
-    return Get(Self().GetChildAt(static_cast<unsigned int>(index)));
-  }
-
-  size_t GetIndexInParent() override
-  {
-    auto parent = Self().GetParent();
-    if(!parent)
-    {
-      return 0;
-    }
-    auto size = static_cast<size_t>(parent.GetChildCount());
-    for(auto i = 0u; i < size; ++i)
-    {
-      if(parent.GetChildAt(i) == Self())
-      {
-        return i;
-      }
-    }
-    throw std::domain_error{"actor is not a child of it's parent"};
-  }
-
-  Role GetRole() override
+  Role GetRole() const override
   {
     return mRoot ? Role::WINDOW : Role::REDUNDANT_OBJECT;
   }
@@ -738,8 +269,8 @@ public:
     States state;
     if(mRoot)
     {
-      auto window = Dali::DevelWindow::Get(Self());
-      auto visible = window.IsVisible();
+      auto window             = Dali::DevelWindow::Get(Self());
+      auto visible            = window.IsVisible();
       state[State::ENABLED]   = true;
       state[State::SENSITIVE] = true;
       state[State::SHOWING]   = visible;
@@ -748,19 +279,18 @@ public:
     }
     else
     {
-      auto parentState = GetParent()->GetStates();
+      auto parentState      = GetParent()->GetStates();
       state[State::SHOWING] = parentState[State::SHOWING];
       state[State::VISIBLE] = parentState[State::VISIBLE];
     }
     return state;
   }
 
-  Attributes GetAttributes() override
+  Attributes GetAttributes() const override
   {
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
-    return
-    {
+    return {
       {"class", type.GetName()},
     };
   }
@@ -773,11 +303,6 @@ public:
   std::vector<Relation> GetRelationSet() override
   {
     return {};
-  }
-
-  Dali::Actor GetInternalActor() override
-  {
-    return mSelf.GetHandle();
   }
 }; // AdaptorAccessible
 
@@ -796,6 +321,9 @@ ObjectRegistry objectRegistry;
 void Accessible::SetObjectRegistry(ObjectRegistry registry)
 {
   objectRegistry = registry;
+  objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
+    gAdaptorAccessibles.erase(obj);
+  });
 }
 
 void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor)
@@ -813,12 +341,6 @@ Accessible* Accessible::Get(Dali::Actor actor, bool isRoot)
   auto accessible = convertingFunctor(actor);
   if(!accessible)
   {
-    if(gAdaptorAccessibles.empty() && objectRegistry)
-    {
-      objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
-        gAdaptorAccessibles.erase(obj);
-      });
-    }
     auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
     if(pair.second)
     {

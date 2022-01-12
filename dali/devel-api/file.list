@@ -2,6 +2,7 @@
 
 SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
@@ -55,6 +56,7 @@ SET( devel_api_src_files
 SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-bridge.h
+  ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.h
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h

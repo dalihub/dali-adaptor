@@ -39,7 +39,7 @@ public:
    *
    * @return Handle to hyperlink object at a specified index in hyperlink collection of hypertext.
    */
-  virtual Hyperlink* GetLink(int32_t linkIndex) const = 0;
+  virtual Hyperlink* GetLink(std::int32_t linkIndex) const = 0;
 
   /**
    * @brief Gets the index in hyperlink collection occupied by hyperlink which spans over a specified character offset in this hypertext.
@@ -48,14 +48,14 @@ public:
    *
    * @return The value of 0-based index in hyperlink collection (-1 if there is no hyperlink at the specified character offset).
    */
-  virtual int32_t GetLinkIndex(int32_t characterOffset) const = 0;
+  virtual std::int32_t GetLinkIndex(std::int32_t characterOffset) const = 0;
 
   /**
    * @brief Gets number of hyperlinks stored in this hypertext.
    *
    * @return The number of hyperlinks (zero if none or -1 if the number cannot be determined)
    */
-  virtual int32_t GetLinkCount() const = 0;
+  virtual std::int32_t GetLinkCount() const = 0;
 };
 
 } // namespace Dali::Accessibility

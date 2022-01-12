@@ -38,7 +38,7 @@ public:
    *
    * @return The string with name of action
    */
-  virtual std::string GetActionName(size_t index) = 0;
+  virtual std::string GetActionName(std::size_t index) const = 0;
 
   /**
    * @brief Gets translated name of action with given index.
@@ -49,7 +49,7 @@ public:
    *
    * @note The translation is not supported in this version
    */
-  virtual std::string GetLocalizedActionName(size_t index) = 0;
+  virtual std::string GetLocalizedActionName(std::size_t index) const = 0;
 
   /**
    * @brief Gets description of action with given index.
@@ -58,7 +58,7 @@ public:
    *
    * @return The string with description of action
    */
-  virtual std::string GetActionDescription(size_t index) = 0;
+  virtual std::string GetActionDescription(std::size_t index) const = 0;
 
   /**
    * @brief Gets key code binded to action with given index.
@@ -67,14 +67,14 @@ public:
    *
    * @return The string with key name
    */
-  virtual std::string GetActionKeyBinding(size_t index) = 0;
+  virtual std::string GetActionKeyBinding(std::size_t index) const = 0;
 
   /**
    * @brief Gets number of provided actions.
    *
    * @return The number of actions
    */
-  virtual size_t GetActionCount() = 0;
+  virtual std::size_t GetActionCount() const = 0;
 
   /**
    * @brief Performs an action with given index.
@@ -83,7 +83,7 @@ public:
    *
    * @return true on success, false otherwise
    */
-  virtual bool DoAction(size_t index) = 0;
+  virtual bool DoAction(std::size_t index) = 0;
 
   /**
    * @brief Performs an action with given name.

@@ -40,14 +40,14 @@ public:
    *
    * @return String with name
    */
-  virtual std::string GetToolkitName() = 0;
+  virtual std::string GetToolkitName() const = 0;
 
   /**
    * @brief Gets version of graphic user interface framework used by an application.
    *
    * @return String with version
    */
-  virtual std::string GetVersion() = 0;
+  virtual std::string GetVersion() const = 0;
 };
 
 } // namespace Dali::Accessibility

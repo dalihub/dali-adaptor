@@ -33,21 +33,21 @@ public:
    *
    * @return The minimum value
   */
-  virtual double GetMinimum() = 0;
+  virtual double GetMinimum() const = 0;
 
   /**
    * @brief Gets the current value.
    *
    * @return The current value
   */
-  virtual double GetCurrent() = 0;
+  virtual double GetCurrent() const = 0;
 
   /**
    * @brief Gets the highest possible value.
    *
    * @return The highest value.
   */
-  virtual double GetMaximum() = 0;
+  virtual double GetMaximum() const = 0;
 
   /**
    * @brief Sets the current value.
@@ -63,7 +63,7 @@ public:
    *
    * @return The lowest increment
   */
-  virtual double GetMinimumIncrement() = 0;
+  virtual double GetMinimumIncrement() const = 0;
 };
 
 } // namespace Dali::Accessibility
