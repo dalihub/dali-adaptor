@@ -180,7 +180,7 @@ void Capture::DeleteFrameBuffer()
 
 bool Capture::IsFrameBufferCreated()
 {
-  return mFrameBuffer;
+  return static_cast<bool>(mFrameBuffer);
 }
 
 void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2& size, Dali::Actor source, const Dali::Vector4& clearColor)
