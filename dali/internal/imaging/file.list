@@ -17,6 +17,7 @@ SET( adaptor_imaging_common_src_files
     ${adaptor_imaging_dir}/common/loader-ktx.cpp
     ${adaptor_imaging_dir}/common/loader-png.cpp
     ${adaptor_imaging_dir}/common/loader-wbmp.cpp
+    ${adaptor_imaging_dir}/common/loader-webp.cpp
     ${adaptor_imaging_dir}/common/pixel-manipulation.cpp
     ${adaptor_imaging_dir}/common/gif-loading.cpp
     ${adaptor_imaging_dir}/common/webp-loading.cpp
