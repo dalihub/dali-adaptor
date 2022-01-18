@@ -138,6 +138,13 @@ public: // API
   void UpdatePositionSize(Dali::PositionSize positionSize);
 
   /**
+   * @brief Query whether window is rotating or not.
+   *
+   * @return true if window is rotating, false otherwise.
+   */
+  bool IsWindowRotating() const;
+
+  /**
    * @brief This signal is emitted when the output is transformed.
    */
   OutputSignalType& OutputTransformedSignal();
