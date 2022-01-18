@@ -18,14 +18,24 @@
 // CLASS HEADER
 #include <dali/devel-api/adaptor-framework/actor-accessible.h>
 
+// EXTERNAL INCLUDES
+#include <dali/devel-api/actors/actor-devel.h>
+
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 
 namespace Dali::Accessibility
 {
 ActorAccessible::ActorAccessible(Actor actor)
-: mSelf(actor)
+: mSelf(actor),
+  mChildrenDirty{true} // to trigger the initial UpdateChildren()
 {
+  // Select the right overload manually because Connect(this, &OnChildrenChanged) is ambiguous.
+  void (ActorAccessible::*handler)(Dali::Actor) = &ActorAccessible::OnChildrenChanged;
+
+  Dali::DevelActor::ChildAddedSignal(actor).Connect(this, handler);
+  Dali::DevelActor::ChildRemovedSignal(actor).Connect(this, handler);
+  Dali::DevelActor::ChildOrderChangedSignal(actor).Connect(this, handler);
 }
 
 std::string ActorAccessible::GetName() const
@@ -51,45 +61,45 @@ Accessible* ActorAccessible::GetParent()
 
 std::size_t ActorAccessible::GetChildCount() const
 {
-  return static_cast<std::size_t>(Self().GetChildCount());
+  // ActorAccessible is never stored in const memory and it is an implementation detail that
+  // children are recalculated lazily.
+  const_cast<ActorAccessible*>(this)->UpdateChildren();
+
+  return mChildren.size();
 }
 
 std::vector<Accessible*> ActorAccessible::GetChildren()
 {
-  std::vector<Accessible*> tmp(GetChildCount());
-  for(auto i = 0u; i < tmp.size(); ++i)
-  {
-    tmp[i] = GetChildAtIndex(i);
-  }
+  UpdateChildren();
 
-  return tmp;
+  return mChildren;
 }
 
 Accessible* ActorAccessible::GetChildAtIndex(std::size_t index)
 {
-  auto numberOfChildren = GetChildCount();
-  if(DALI_UNLIKELY(index >= numberOfChildren))
+  auto childCount = GetChildCount(); // calls UpdateChildren()
+  if(DALI_UNLIKELY(index >= childCount))
   {
-    throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(numberOfChildren) + " children"};
+    throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(childCount) + " children"};
   }
 
-  return Get(Self().GetChildAt(static_cast<std::uint32_t>(index)));
+  return mChildren[index];
 }
 
 std::size_t ActorAccessible::GetIndexInParent()
 {
-  auto self   = Self();
-  auto parent = self.GetParent();
+  auto* parent = GetParent();
 
   if(DALI_UNLIKELY(!parent))
   {
     throw std::domain_error{"can't call GetIndexInParent on object without parent"};
   }
 
-  auto size = static_cast<std::size_t>(parent.GetChildCount());
-  for(auto i = 0u; i < size; ++i)
+  // Avoid calling parent->GetChildren() in order not to make an unnecessary copy
+  auto childCount = parent->GetChildCount();
+  for(auto i = 0u; i < childCount; ++i)
   {
-    if(parent.GetChildAt(i) == self)
+    if(parent->GetChildAtIndex(i) == this)
     {
       return i;
     }
@@ -142,6 +152,52 @@ Dali::Rect<> ActorAccessible::GetExtents(CoordinateType type) const
     auto windowPosition = window.GetPosition();
     return {position.x + windowPosition.GetX(), position.y + windowPosition.GetY(), size.x, size.y};
   }
+}
+
+void ActorAccessible::OnChildrenChanged()
+{
+  mChildrenDirty = true;
+}
+
+void ActorAccessible::OnChildrenChanged(Dali::Actor)
+{
+  OnChildrenChanged();
+}
+
+void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)
+{
+  auto self       = Self();
+  auto childCount = self.GetChildCount();
+
+  children.reserve(childCount);
+
+  for(auto i = 0u; i < childCount; ++i)
+  {
+    children.push_back(Accessible::Get(self.GetChildAt(i)));
+  }
+}
+
+void ActorAccessible::UpdateChildren()
+{
+  if(!mChildrenDirty)
+  {
+    return;
+  }
+
+  // Set to false before DoGetChildren() to prevent recursion
+  // in case DoGetChildren() does something strange.
+  mChildrenDirty = false;
+
+  mChildren.clear();
+  DoGetChildren(mChildren);
+
+  // Erase-remove idiom
+  // TODO (C++20): Replace with std::erase_if
+  auto it = std::remove_if(mChildren.begin(), mChildren.end(), [](const Accessible* child) {
+    return !child;
+  });
+  mChildren.erase(it, mChildren.end());
+  mChildren.shrink_to_fit();
 }
 
 } // namespace Dali::Accessibility
