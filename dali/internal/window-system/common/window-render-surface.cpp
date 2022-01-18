@@ -228,7 +228,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 
   mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
 
-  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mWindowRotationAngle, mScreenRotationAngle);
+  DALI_LOG_RELEASE_INFO("angle = %d screen rotation = %d, flag = %d\n", mWindowRotationAngle, mScreenRotationAngle, mWindowRotationFinished);
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -712,13 +712,18 @@ void WindowRenderSurface::OutputTransformed()
   }
 }
 
+bool WindowRenderSurface::IsWindowRotating() const
+{
+  return !(mWindowRotationFinished);
+}
+
 void WindowRenderSurface::ProcessPostRender()
 {
   if(!mWindowRotationFinished)
   {
     mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done\n");
     mWindowRotationFinished = true;
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done, flag = %d\n", mWindowRotationFinished);
   }
 
   if(mIsImeWindowSurface)

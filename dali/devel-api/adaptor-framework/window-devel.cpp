@@ -201,6 +201,11 @@ void SendRotationCompletedAcknowledgement(Window window)
   GetImplementation(window).SendRotationCompletedAcknowledgement();
 }
 
+bool IsWindowRotating(Window window)
+{
+  return GetImplementation(window).IsWindowRotating();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
