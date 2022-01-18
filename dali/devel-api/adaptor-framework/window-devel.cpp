@@ -244,6 +244,11 @@ bool IsMinimized(Window window)
   return GetImplementation(window).IsMinimized();
 }
 
+bool IsWindowRotating(Window window)
+{
+  return GetImplementation(window).IsWindowRotating();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
