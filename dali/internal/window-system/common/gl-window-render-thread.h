@@ -104,7 +104,7 @@ public:
   void SetWindowBase(WindowBase* windowBase);
 
   /**
-   * @brief Sets egl configuration for GlWindow
+   * @brief Sets graphics configuration for GlWindow
    *
    * @param[in] depth the flag of depth buffer. If true is set, 24bit depth buffer is enabled.
    * @param[in] stencil the flag of stencil. it true is set, 8bit stencil buffer is enabled.
@@ -112,7 +112,7 @@ public:
    * @param[in] version the GLES version.
    *
    */
-  void SetEglConfig(bool depth, bool stencil, int msaa, int version);
+  void SetGraphicsConfig(bool depth, bool stencil, int msaa, int version);
 
   /**
    * Pauses the Render Thread.
@@ -139,9 +139,9 @@ public:
   void Stop();
 
   /**
-   * @copydoc Dali::GlWindow::RegisterGlCallback()
+   * @copydoc Dali::GlWindow::RegisterGlCallbacks()
    */
-  void RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
+  void RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
 
   /**
    * Enable OnDemand Rendering Mode
