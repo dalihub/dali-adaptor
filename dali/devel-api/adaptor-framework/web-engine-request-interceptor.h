@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_REQUEST_INTERCEPTOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public:
    *
    * @return true if succeeded or false otherwise
    */
-  virtual bool AddResponseBody(const std::string& body, uint32_t length) = 0;
+  virtual bool AddResponseBody(const int8_t* body, uint32_t length) = 0;
 
   /**
    * @brief Writes whole response at once.
@@ -121,7 +121,7 @@ public:
    *
    * @return true if succeeded or false otherwise
    */
-  virtual bool AddResponse(const std::string& headers, const std::string& body, uint32_t length) = 0;
+  virtual bool AddResponse(const std::string& headers, const int8_t* body, uint32_t length) = 0;
 
   /**
    * @brief Writes a part of response body.
@@ -136,7 +136,7 @@ public:
    *
    * @return true if succeeded or false otherwise
    */
-  virtual bool WriteResponseChunk(const std::string& chunk, uint32_t length) = 0;
+  virtual bool WriteResponseChunk(const int8_t* chunk, uint32_t length) = 0;
 };
 
 using WebEngineRequestInterceptorPtr = Dali::IntrusivePtr<WebEngineRequestInterceptor>;
