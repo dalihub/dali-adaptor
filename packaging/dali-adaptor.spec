@@ -282,6 +282,11 @@ CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
 cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
 %endif
 
+# Use this conditional when Tizen version is 7.x or greater
+%if 0%{?tizen_version_major} >= 7
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
+%endif
+
 %if 0%{?enable_debug}
 cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 %endif
