@@ -87,9 +87,57 @@ void Widget::SetContentInfo(const std::string& contentInfo)
   }
 }
 
+bool Widget::IsKeyEventUsing() const
+{
+  if(mImpl != nullptr)
+  {
+    return mImpl->IsKeyEventUsing();
+  }
+
+  //if mImpl is null, return default value
+  return false;
+}
+
+void Widget::SetUsingKeyEvent(bool flag)
+{
+  if(mImpl != nullptr)
+  {
+    mImpl->SetUsingKeyEvent(flag);
+  }
+}
+
 void Widget::SetImpl(Impl* impl)
 {
   mImpl = impl;
+}
+
+
+void Widget::SetInformation(Dali::Window window, const std::string& widgetId)
+{
+  if(mImpl != nullptr)
+  {
+    mImpl->SetInformation(window, widgetId);
+  }
+}
+
+Dali::Window Widget::GetWindow() const
+{
+  if(mImpl != nullptr)
+  {
+    return mImpl->GetWindow();
+  }
+
+  return Dali::Window();
+}
+
+std::string Widget::GetWidgetId() const
+{
+  if(mImpl != nullptr)
+  {
+    return mImpl->GetWidgetId();
+  }
+
+  return std::string();
 }
 
 Internal::Adaptor::Widget& GetImplementation(Dali::Widget& widget)

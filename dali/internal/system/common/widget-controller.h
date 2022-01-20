@@ -40,6 +40,31 @@ public:
    * Set content information to widget framework
    */
   virtual void SetContentInfo(const std::string& contentInfo) = 0;
+
+  /**
+   * Check Widget is using key
+   */
+  virtual bool IsKeyEventUsing() const = 0;
+
+  /**
+   * Set the flag that widget is using keyEvent
+   */
+  virtual void SetUsingKeyEvent(bool flag) = 0;
+
+  /**
+   * Set the Information of widget
+   */
+  virtual void SetInformation(Dali::Window window, const std::string& widgetId) = 0;
+
+  /**
+   * Get the window
+   */
+  virtual Dali::Window GetWindow() const = 0;
+
+  /**
+   * Get the widget id
+   */
+  virtual std::string GetWidgetId() const = 0;
 };
 
 } // namespace Adaptor
