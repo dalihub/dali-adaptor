@@ -605,6 +605,11 @@ void WindowRenderSurface::PostRender()
         if(mIsResizing)
         {
           needWindowRotationCompleted = true;
+          DALI_LOG_RELEASE_INFO("Window is rotated!!!!\n");
+        }
+        else
+        {
+          DALI_LOG_RELEASE_INFO("Window is rotating~\n");
         }
       }
     }
