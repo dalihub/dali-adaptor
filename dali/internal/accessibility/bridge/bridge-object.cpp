@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <iostream>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 
 using namespace Dali::Accessibility;
 
@@ -46,7 +48,11 @@ void BridgeObject::RegisterInterfaces()
 
 void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
 {
-  if(!IsUp()) return;
+  if(!IsUp() || obj->IsHidden() || child->IsHidden())
+  {
+    return;
+  }
+
   auto index = child->GetIndexInParent();
 
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<Address>, Address>(
@@ -60,47 +66,30 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
     {"", "root"});
 }
 
-void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent event)
+void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 {
-  if(!IsUp()) return;
-  const char* name = nullptr;
+  static const std::unordered_map<ObjectPropertyChangeEvent, std::string_view> eventMap{
+    {ObjectPropertyChangeEvent::NAME, "accessible-name"},
+    {ObjectPropertyChangeEvent::DESCRIPTION, "accessible-description"},
+    {ObjectPropertyChangeEvent::VALUE, "accessible-value"},
+    {ObjectPropertyChangeEvent::PARENT, "accessible-parent"},
+    {ObjectPropertyChangeEvent::ROLE, "accessible-role"},
+  };
 
-  switch(event)
+  if(!IsUp() || obj->IsHidden())
   {
-    case ObjectPropertyChangeEvent::NAME:
-    {
-      name = "accessible-name";
-      break;
-    }
-    case ObjectPropertyChangeEvent::DESCRIPTION:
-    {
-      name = "accessible-description";
-      break;
-    }
-    case ObjectPropertyChangeEvent::VALUE:
-    {
-      name = "accessible-value";
-      break;
-    }
-    case ObjectPropertyChangeEvent::PARENT:
-    {
-      name = "accessible-parent";
-      break;
-    }
-    case ObjectPropertyChangeEvent::ROLE:
-    {
-      name = "accessible-role";
-      break;
-    }
+    return;
   }
 
-  if(name)
+  auto eventName = eventMap.find(event);
+
+  if(eventName != eventMap.end())
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
       AtspiDbusInterfaceEventObject,
       "PropertyChange",
-      name,
+      std::string{eventName->second},
       0,
       0,
       {0},
@@ -110,114 +99,41 @@ void BridgeObject::Emit(Accessible* obj, Dali::Accessibility::ObjectPropertyChan
 
 void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 {
-  if(!IsUp()) return;
-  const char* name = nullptr;
+  static const std::unordered_map<WindowEvent, std::string_view> eventMap{
+    {WindowEvent::PROPERTY_CHANGE, "PropertyChange"},
+    {WindowEvent::MINIMIZE, "Minimize"},
+    {WindowEvent::MAXIMIZE, "Maximize"},
+    {WindowEvent::RESTORE, "Restore"},
+    {WindowEvent::CLOSE, "Close"},
+    {WindowEvent::CREATE, "Create"},
+    {WindowEvent::REPARENT, "Reparent"},
+    {WindowEvent::DESKTOP_CREATE, "DesktopCreate"},
+    {WindowEvent::DESKTOP_DESTROY, "DesktopDestroy"},
+    {WindowEvent::DESTROY, "Destroy"},
+    {WindowEvent::ACTIVATE, "Activate"},
+    {WindowEvent::DEACTIVATE, "Deactivate"},
+    {WindowEvent::RAISE, "Raise"},
+    {WindowEvent::LOWER, "Lower"},
+    {WindowEvent::MOVE, "Move"},
+    {WindowEvent::RESIZE, "Resize"},
+    {WindowEvent::SHADE, "Shade"},
+    {WindowEvent::UU_SHADE, "uUshade"},
+    {WindowEvent::RESTYLE, "Restyle"},
+  };
 
-  switch(event)
+  if(!IsUp() || obj->IsHidden())
   {
-    case WindowEvent::PROPERTY_CHANGE:
-    {
-      name = "PropertyChange";
-      break;
-    }
-    case WindowEvent::MINIMIZE:
-    {
-      name = "Minimize";
-      break;
-    }
-    case WindowEvent::MAXIMIZE:
-    {
-      name = "Maximize";
-      break;
-    }
-    case WindowEvent::RESTORE:
-    {
-      name = "Restore";
-      break;
-    }
-    case WindowEvent::CLOSE:
-    {
-      name = "Close";
-      break;
-    }
-    case WindowEvent::CREATE:
-    {
-      name = "Create";
-      break;
-    }
-    case WindowEvent::REPARENT:
-    {
-      name = "Reparent";
-      break;
-    }
-    case WindowEvent::DESKTOP_CREATE:
-    {
-      name = "DesktopCreate";
-      break;
-    }
-    case WindowEvent::DESKTOP_DESTROY:
-    {
-      name = "DesktopDestroy";
-      break;
-    }
-    case WindowEvent::DESTROY:
-    {
-      name = "Destroy";
-      break;
-    }
-    case WindowEvent::ACTIVATE:
-    {
-      name = "Activate";
-      break;
-    }
-    case WindowEvent::DEACTIVATE:
-    {
-      name = "Deactivate";
-      break;
-    }
-    case WindowEvent::RAISE:
-    {
-      name = "Raise";
-      break;
-    }
-    case WindowEvent::LOWER:
-    {
-      name = "Lower";
-      break;
-    }
-    case WindowEvent::MOVE:
-    {
-      name = "Move";
-      break;
-    }
-    case WindowEvent::RESIZE:
-    {
-      name = "Resize";
-      break;
-    }
-    case WindowEvent::SHADE:
-    {
-      name = "Shade";
-      break;
-    }
-    case WindowEvent::UU_SHADE:
-    {
-      name = "uUshade";
-      break;
-    }
-    case WindowEvent::RESTYLE:
-    {
-      name = "Restyle";
-      break;
-    }
+    return;
   }
 
-  if(name)
+  auto eventName = eventMap.find(event);
+
+  if(eventName != eventMap.end())
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
       AtspiDbusInterfaceEventWindow,
-      name,
+      std::string{eventName->second},
       "",
       detail,
       0,
@@ -228,254 +144,69 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 
 void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, int reserved)
 {
-  if(!IsUp()) return;
-  const char* stateName = nullptr;
+  static const std::unordered_map<State, std::string_view> stateMap{
+    {State::INVALID, "invalid"},
+    {State::ACTIVE, "active"},
+    {State::ARMED, "armed"},
+    {State::BUSY, "busy"},
+    {State::CHECKED, "checked"},
+    {State::COLLAPSED, "collapsed"},
+    {State::DEFUNCT, "defunct"},
+    {State::EDITABLE, "editable"},
+    {State::ENABLED, "enabled"},
+    {State::EXPANDABLE, "expandable"},
+    {State::EXPANDED, "expanded"},
+    {State::FOCUSABLE, "focusable"},
+    {State::FOCUSED, "focused"},
+    {State::HAS_TOOLTIP, "has-tooltip"},
+    {State::HORIZONTAL, "horizontal"},
+    {State::ICONIFIED, "iconified"},
+    {State::MODAL, "modal"},
+    {State::MULTI_LINE, "multi-line"},
+    {State::MULTI_SELECTABLE, "multiselectable"},
+    {State::OPAQUE, "opaque"},
+    {State::PRESSED, "pressed"},
+    {State::RESIZEABLE, "resizable"},
+    {State::SELECTABLE, "selectable"},
+    {State::SELECTED, "selected"},
+    {State::SENSITIVE, "sensitive"},
+    {State::SHOWING, "showing"},
+    {State::SINGLE_LINE, "single-line"},
+    {State::STALE, "stale"},
+    {State::TRANSIENT, "transient"},
+    {State::VERTICAL, "vertical"},
+    {State::VISIBLE, "visible"},
+    {State::MANAGES_DESCENDANTS, "manages-descendants"},
+    {State::INDETERMINATE, "indeterminate"},
+    {State::REQUIRED, "required"},
+    {State::TRUNCATED, "truncated"},
+    {State::ANIMATED, "animated"},
+    {State::INVALID_ENTRY, "invalid-entry"},
+    {State::SUPPORTS_AUTOCOMPLETION, "supports-autocompletion"},
+    {State::SELECTABLE_TEXT, "selectable-text"},
+    {State::IS_DEFAULT, "is-default"},
+    {State::VISITED, "visited"},
+    {State::CHECKABLE, "checkable"},
+    {State::HAS_POPUP, "has-popup"},
+    {State::READ_ONLY, "read-only"},
+    {State::HIGHLIGHTED, "highlighted"},
+    {State::HIGHLIGHTABLE, "highlightable"},
+  };
 
-  switch(state)
+  if(!IsUp() || obj->IsHidden())
   {
-    case State::INVALID:
-    {
-      stateName = "invalid";
-      break;
-    }
-    case State::ACTIVE:
-    {
-      stateName = "active";
-      break;
-    }
-    case State::ARMED:
-    {
-      stateName = "armed";
-      break;
-    }
-    case State::BUSY:
-    {
-      stateName = "busy";
-      break;
-    }
-    case State::CHECKED:
-    {
-      stateName = "checked";
-      break;
-    }
-    case State::COLLAPSED:
-    {
-      stateName = "collapsed";
-      break;
-    }
-    case State::DEFUNCT:
-    {
-      stateName = "defunct";
-      break;
-    }
-    case State::EDITABLE:
-    {
-      stateName = "editable";
-      break;
-    }
-    case State::ENABLED:
-    {
-      stateName = "enabled";
-      break;
-    }
-    case State::EXPANDABLE:
-    {
-      stateName = "expandable";
-      break;
-    }
-    case State::EXPANDED:
-    {
-      stateName = "expanded";
-      break;
-    }
-    case State::FOCUSABLE:
-    {
-      stateName = "focusable";
-      break;
-    }
-    case State::FOCUSED:
-    {
-      stateName = "focused";
-      break;
-    }
-    case State::HAS_TOOLTIP:
-    {
-      stateName = "has-tooltip";
-      break;
-    }
-    case State::HORIZONTAL:
-    {
-      stateName = "horizontal";
-      break;
-    }
-    case State::ICONIFIED:
-    {
-      stateName = "iconified";
-      break;
-    }
-    case State::MODAL:
-    {
-      stateName = "modal";
-      break;
-    }
-    case State::MULTI_LINE:
-    {
-      stateName = "multi-line";
-      break;
-    }
-    case State::MULTI_SELECTABLE:
-    {
-      stateName = "multiselectable";
-      break;
-    }
-    case State::OPAQUE:
-    {
-      stateName = "opaque";
-      break;
-    }
-    case State::PRESSED:
-    {
-      stateName = "pressed";
-      break;
-    }
-    case State::RESIZEABLE:
-    {
-      stateName = "resizable";
-      break;
-    }
-    case State::SELECTABLE:
-    {
-      stateName = "selectable";
-      break;
-    }
-    case State::SELECTED:
-    {
-      stateName = "selected";
-      break;
-    }
-    case State::SENSITIVE:
-    {
-      stateName = "sensitive";
-      break;
-    }
-    case State::SHOWING:
-    {
-      stateName = "showing";
-      break;
-    }
-    case State::SINGLE_LINE:
-    {
-      stateName = "single-line";
-      break;
-    }
-    case State::STALE:
-    {
-      stateName = "stale";
-      break;
-    }
-    case State::TRANSIENT:
-    {
-      stateName = "transient";
-      break;
-    }
-    case State::VERTICAL:
-    {
-      stateName = "vertical";
-      break;
-    }
-    case State::VISIBLE:
-    {
-      stateName = "visible";
-      break;
-    }
-    case State::MANAGES_DESCENDANTS:
-    {
-      stateName = "manages-descendants";
-      break;
-    }
-    case State::INDETERMINATE:
-    {
-      stateName = "indeterminate";
-      break;
-    }
-    case State::REQUIRED:
-    {
-      stateName = "required";
-      break;
-    }
-    case State::TRUNCATED:
-    {
-      stateName = "truncated";
-      break;
-    }
-    case State::ANIMATED:
-    {
-      stateName = "animated";
-      break;
-    }
-    case State::INVALID_ENTRY:
-    {
-      stateName = "invalid-entry";
-      break;
-    }
-    case State::SUPPORTS_AUTOCOMPLETION:
-    {
-      stateName = "supports-autocompletion";
-      break;
-    }
-    case State::SELECTABLE_TEXT:
-    {
-      stateName = "selectable-text";
-      break;
-    }
-    case State::IS_DEFAULT:
-    {
-      stateName = "is-default";
-      break;
-    }
-    case State::VISITED:
-    {
-      stateName = "visited";
-      break;
-    }
-    case State::CHECKABLE:
-    {
-      stateName = "checkable";
-      break;
-    }
-    case State::HAS_POPUP:
-    {
-      stateName = "has-popup";
-      break;
-    }
-    case State::READ_ONLY:
-    {
-      stateName = "read-only";
-      break;
-    }
-    case State::HIGHLIGHTED:
-    {
-      stateName = "highlighted";
-      break;
-    }
-    case State::HIGHLIGHTABLE:
-    {
-      stateName = "highlightable";
-      break;
-    }
-    case State::MAX_COUNT:
-    {
-      break;
-    }
+    return;
   }
 
-  if(stateName)
+  auto stateName = stateMap.find(state);
+
+  if(stateName != stateMap.end())
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
       AtspiDbusInterfaceEventObject,
       "StateChanged",
-      stateName,
+      std::string{stateName->second},
       newValue,
       reserved,
       {0},
@@ -485,7 +216,10 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
 void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 {
-  if(!IsBoundsChangedEventAllowed) return;
+  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden())
+  {
+    return;
+  }
 
   DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
     std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
@@ -505,6 +239,11 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
+  if(!IsUp() || obj->IsHidden())
+  {
+    return;
+  }
+
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
     AtspiDbusInterfaceEventObject,
@@ -518,32 +257,25 @@ void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 
 void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content)
 {
-  const char* stateName = nullptr;
-  switch(state)
+  static const std::unordered_map<TextChangedState, std::string_view> stateMap{
+    {TextChangedState::INSERTED, "insert"},
+    {TextChangedState::DELETED, "delete"},
+  };
+
+  if(!IsUp() || obj->IsHidden())
   {
-    case TextChangedState::INSERTED:
-    {
-      stateName = "insert";
-      break;
-    }
-    case TextChangedState::DELETED:
-    {
-      stateName = "delete";
-      break;
-    }
-    case TextChangedState::MAX_COUNT:
-    {
-      break;
-    }
+    return;
   }
 
-  if(stateName)
+  auto stateName = stateMap.find(state);
+
+  if(stateName != stateMap.end())
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::string>, Address>(
       GetAccessiblePath(obj),
       AtspiDbusInterfaceEventObject,
       "TextChanged",
-      stateName,
+      std::string{stateName->second},
       position,
       length,
       {content},
@@ -553,6 +285,11 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
 
 void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
 {
+  if(!IsUp() || obj->IsHidden())
+  {
+    return;
+  }
+
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
     AtspiDbusInterfaceEventObject,
