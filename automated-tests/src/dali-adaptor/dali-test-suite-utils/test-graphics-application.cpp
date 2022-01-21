@@ -86,8 +86,8 @@ void TestGraphicsApplication::CreateScene()
   createInfo.SetSurface({nullptr})
     .SetExtent({mSurfaceWidth, mSurfaceHeight})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
-  mRenderTarget = mGraphicsController.CreateRenderTarget(createInfo, nullptr);
-  mScene.SetSurfaceRenderTarget(mRenderTarget.get());
+  //mRenderTarget = mGraphicsController.CreateRenderTarget(createInfo, nullptr);
+  mScene.SetSurfaceRenderTarget(createInfo);
 }
 
 void TestGraphicsApplication::InitializeCore()
