@@ -95,11 +95,11 @@ Accessible::~Accessible() noexcept
   }
 }
 
-void Accessible::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
+void Accessible::EmitActiveDescendantChanged(Accessible* child)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitActiveDescendantChanged(obj, child);
+    bridgeData->mBridge->EmitActiveDescendantChanged(this, child);
   }
 }
 

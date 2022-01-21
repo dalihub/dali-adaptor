@@ -68,10 +68,9 @@ public:
   /**
    * @brief Helper function for emiting active-descendant-changed event.
    *
-   * @param[in] obj The accessible object
    * @param[in] child The child of the object
    */
-  void EmitActiveDescendantChanged(Accessible* obj, Accessible* child);
+  void EmitActiveDescendantChanged(Accessible* child);
 
   /**
    * @brief Helper function for emiting state-changed event.

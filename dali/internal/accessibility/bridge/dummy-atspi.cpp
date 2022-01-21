@@ -124,7 +124,7 @@ void Accessibility::Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
 {
 }
 
-void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* obj, Accessibility::Accessible* child)
+void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* child)
 {
 }
 
