@@ -18,23 +18,12 @@
  */
 
 // EXTERNAL INCLUDES
-
-#include <string.h>
-#include <array>
-#include <atomic>
-#include <bitset>
-#include <cassert>
-#include <exception>
-#include <functional>
-#include <list>
-#include <map>
-#include <memory>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-bitset.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
@@ -435,202 +424,12 @@ enum class ReadingInfoType
   NAME,
   ROLE,
   DESCRIPTION,
-  STATE
+  STATE,
+  MAX_COUNT
 };
 
-/**
- * @brief Helper class for storing values treated as bit sets
- * This class provides all bitset-like methods for bitset size larger, than long long int
- * @see Dali::Accessibility::Accessible::GetStates
- * @see Dali::Accessibility::Accessible::GetRoles
- */
-template<size_t I, typename S>
-class BitSets
-{
-  std::array<uint32_t, I> mData;
-
-  void Set()
-  {
-  }
-
-  static constexpr bool Accepts()
-  {
-    return true;
-  }
-
-  template<typename T>
-  static constexpr bool Accepts()
-  {
-    return std::is_enum<T>::value;
-  }
-
-  template<typename T, typename T2, typename... ARGS>
-  static constexpr bool Accepts()
-  {
-    return std::is_enum<T>::value && Accepts<T2, ARGS...>();
-  }
-
-  template<typename T, typename... ARGS>
-  void Set(T t, ARGS... args)
-  {
-    (*this)[t] = true;
-    Set(args...);
-  }
-
-public:
-  BitSets()
-  {
-    for(auto& u : mData)
-    {
-      u = 0;
-    }
-  }
-  BitSets(const BitSets&) = default;
-  BitSets(BitSets&&)      = default;
-
-  template<typename T, typename... ARGS, typename std::enable_if<Accepts<T, ARGS...>()>::type* = nullptr>
-  BitSets(T t, ARGS... args)
-  {
-    for(auto& u : mData)
-    {
-      u = 0;
-    }
-    Set(t, args...);
-  }
-
-  explicit BitSets(std::array<uint32_t, I> d)
-  {
-    for(auto i = 0u; i < I; ++i)
-    {
-      mData[i] = d[i];
-    }
-  }
-
-  explicit BitSets(std::array<int32_t, I> d)
-  {
-    for(auto i = 0u; i < I; ++i)
-    {
-      mData[i] = static_cast<uint32_t>(d[i]);
-    }
-  }
-
-  BitSets& operator=(const BitSets&) = default;
-  BitSets& operator=(BitSets&&) = default;
-
-  struct Reference
-  {
-    std::array<uint32_t, I>& data;
-    size_t                   pos;
-
-    Reference& operator=(Reference r)
-    {
-      (*this) = static_cast<bool>(r);
-      return *this;
-    }
-
-    Reference& operator=(bool v)
-    {
-      if(v)
-      {
-        data[pos / 32] |= 1 << (pos & 31);
-      }
-      else
-      {
-        data[pos / 32] &= ~(1 << (pos & 31));
-      }
-      return *this;
-    }
-
-    operator bool() const
-    {
-      auto i = static_cast<size_t>(pos);
-      return (data[i / 32] & (1 << (i & 31))) != 0;
-    }
-  }; // Reference struct
-
-  Reference operator[](S index)
-  {
-    return {mData, static_cast<size_t>(index)};
-  }
-
-  bool operator[](S index) const
-  {
-    auto i = static_cast<size_t>(index);
-    return (mData[i / 32] & (1 << (i & 31))) != 0;
-  }
-
-  std::array<uint32_t, I> GetRawData() const
-  {
-    return mData;
-  }
-
-  BitSets operator|(BitSets b) const
-  {
-    BitSets r;
-    for(auto i = 0u; i < I; ++i)
-    {
-      r.mData[i] = mData[i] | b.mData[i];
-    }
-    return r;
-  }
-
-  BitSets operator^(BitSets b) const
-  {
-    BitSets r;
-    for(auto i = 0u; i < I; ++i)
-    {
-      r.mData[i] = mData[i] ^ b.mData[i];
-    }
-    return r;
-  }
-
-  BitSets operator&(BitSets b) const
-  {
-    BitSets r;
-    for(auto i = 0u; i < I; ++i)
-    {
-      r.mData[i] = mData[i] & b.mData[i];
-    }
-    return r;
-  }
-
-  bool operator==(BitSets b) const
-  {
-    for(auto i = 0u; i < I; ++i)
-    {
-      if(mData[i] != b.mData[i])
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  bool operator!=(BitSets b) const
-  {
-    return !((*this) == b);
-  }
-
-  explicit operator bool() const
-  {
-    for(auto& u : mData)
-    {
-      if(u)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  size_t size() const
-  {
-    return I;
-  }
-}; // BitSets class
-
-using ReadingInfoTypes = BitSets<1, ReadingInfoType>;
-using States           = BitSets<2, State>;
+using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
+using States           = EnumBitSet<State, State::MAX_COUNT>;
 using Attributes       = std::unordered_map<std::string, std::string>;
 
 /**

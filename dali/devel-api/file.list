@@ -55,6 +55,7 @@ SET( devel_api_src_files
 
 SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-bitset.h
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility-bridge.h
   ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.h
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.h
