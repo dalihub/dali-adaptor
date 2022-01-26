@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2614,10 +2614,17 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   EINA_ITERATOR_FOREACH(globals, global)
   {
+#ifdef OVER_TIZEN_VERSION_7
+    if(strcmp(global->interface, "zwp_input_panel_v1") == 0)
+    {
+      mWlInputPanel = (zwp_input_panel_v1*)wl_registry_bind(registry, global->id, &zwp_input_panel_v1_interface, 1);
+    }
+#else
     if(strcmp(global->interface, "wl_input_panel") == 0)
     {
       mWlInputPanel = (wl_input_panel*)wl_registry_bind(registry, global->id, &wl_input_panel_interface, 1);
     }
+#endif
     else if(strcmp(global->interface, "wl_output") == 0)
     {
       mWlOutput = (wl_output*)wl_registry_bind(registry, global->id, &wl_output_interface, 1);
@@ -2635,15 +2642,21 @@ void WindowBaseEcoreWl2::InitializeIme()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland output panel interface\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  mWlInputPanelSurface = zwp_input_panel_v1_get_input_panel_surface(mWlInputPanel, mWlSurface);
+#else
   mWlInputPanelSurface = wl_input_panel_get_input_panel_surface(mWlInputPanel, mWlSurface);
+#endif
   if(!mWlInputPanelSurface)
   {
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  zwp_input_panel_surface_v1_set_toplevel(mWlInputPanelSurface, mWlOutput, ZWP_INPUT_PANEL_SURFACE_V1_POSITION_CENTER_BOTTOM);
+#else
   wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
+#endif
 }
 
 void WindowBaseEcoreWl2::ImeWindowReadyToRender()
@@ -2653,8 +2666,11 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::ImeWindowReadyToRender(), wayland input panel surface is null\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
+#else
   wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
+#endif
 }
 
 void WindowBaseEcoreWl2::RequestMoveToServer()
