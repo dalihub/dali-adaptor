@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2614,9 +2614,9 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   EINA_ITERATOR_FOREACH(globals, global)
   {
-    if(strcmp(global->interface, "zwp_input_panel_v1") == 0)
+    if(strcmp(global->interface, "wl_input_panel") == 0)
     {
-      mWlInputPanel = (zwp_input_panel_v1*)wl_registry_bind(registry, global->id, &zwp_input_panel_v1_interface, 1);
+      mWlInputPanel = (wl_input_panel*)wl_registry_bind(registry, global->id, &wl_input_panel_interface, 1);
     }
     else if(strcmp(global->interface, "wl_output") == 0)
     {
@@ -2636,14 +2636,14 @@ void WindowBaseEcoreWl2::InitializeIme()
     return;
   }
 
-  mWlInputPanelSurface = zwp_input_panel_v1_get_input_panel_surface(mWlInputPanel, mWlSurface);
+  mWlInputPanelSurface = wl_input_panel_get_input_panel_surface(mWlInputPanel, mWlSurface);
   if(!mWlInputPanelSurface)
   {
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
     return;
   }
 
-  zwp_input_panel_surface_v1_set_toplevel(mWlInputPanelSurface, mWlOutput, ZWP_INPUT_PANEL_SURFACE_V1_POSITION_CENTER_BOTTOM);
+  wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
 }
 
 void WindowBaseEcoreWl2::ImeWindowReadyToRender()
@@ -2654,7 +2654,7 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     return;
   }
 
-  zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
+  wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
 }
 
 void WindowBaseEcoreWl2::RequestMoveToServer()
