@@ -582,9 +582,9 @@ static Eina_Bool EcoreEventWindowRedrawRequest(void* data, int type, void* event
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Window Auxiliary Message Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
-static Eina_Bool EcoreEventWindowAuxiliaryMessage(void *data, int type, void *event)
+static Eina_Bool EcoreEventWindowAuxiliaryMessage(void* data, int type, void* event)
 {
-  WindowBaseEcoreWl2*          windowBase             = static_cast<WindowBaseEcoreWl2*>(data);
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
     windowBase->OnEcoreEventWindowAuxiliaryMessage(event);
@@ -1210,10 +1210,9 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl2::OnDetentRotation\n");
 
-  int direction = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
-  int timeStamp = detentEvent->timestamp;
+  int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
 
-  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2(0.0f, 0.0f), 0, timeStamp);
+  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, detentEvent->direction, 0, Vector2(0.0f, 0.0f), clockwise, detentEvent->timestamp);
 
   mWheelEventSignal.Emit(wheelEvent);
 }
@@ -1403,30 +1402,29 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowRedrawRequest()
 
 void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
 {
- Ecore_Wl2_Event_Aux_Message *message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
- if(message)
- {
-   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n",message->key, message->val);
-   std::string key(message->key);
-   std::string value(message->val);
-   Dali::Property::Array options;
+  Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
+  if(message)
+  {
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n", message->key, message->val);
+    std::string           key(message->key);
+    std::string           value(message->val);
+    Dali::Property::Array options;
 
-   if(message->options)
-   {
-     Eina_List *l;
-     void* data;
-     EINA_LIST_FOREACH(message->options, l, data)
-     {
-       DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n",(char*)data);
-       std::string option(static_cast<char*>(data));
-       options.Add(option);
-     }
-   }
+    if(message->options)
+    {
+      Eina_List* l;
+      void*      data;
+      EINA_LIST_FOREACH(message->options, l, data)
+      {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n", (char*)data);
+        std::string option(static_cast<char*>(data));
+        options.Add(option);
+      }
+    }
 
-   mAuxiliaryMessageSignal.Emit(key, value, options);
- }
+    mAuxiliaryMessageSignal.Emit(key, value, options);
+  }
 }
-
 
 void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
 {
