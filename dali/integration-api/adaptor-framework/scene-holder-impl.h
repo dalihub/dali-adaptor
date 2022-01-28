@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -262,6 +262,14 @@ public:
   Dali::Integration::SceneHolder::WheelEventSignalType& WheelEventSignal()
   {
     return mScene.WheelEventSignal();
+  }
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::WheelEventGeneratedSignal()
+   */
+  Dali::Integration::SceneHolder::WheelEventGeneratedSignalType& WheelEventGeneratedSignal()
+  {
+    return mScene.WheelEventGeneratedSignal();
   }
 
 public: // The following methods can be overridden if required
