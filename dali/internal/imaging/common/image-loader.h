@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_IMAGE_LOADER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,16 +44,18 @@ namespace ImageLoader
  * @param[out] bitmap Pointer to write bitmap to
  * @return true on success, false on failure
  */
-bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, std::string path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
+bool ConvertStreamToBitmap(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
 
 /**
- * Convert a bitmap and write to a file stream.
+ * Convert a file stream into image planes.
+ * @param[in] resource The resource to convert.
  * @param[in] path The path to the resource.
  * @param[in] fp File Pointer. Closed on exit.
- * @param[out] pixelData Reference to PixelData object.
+ * @param[out] pixelBuffers Pointer to write buffer to
  * @return true on success, false on failure
+ * @note If the image file doesn't support to load planes, this method returns one RGB bitmap image.
  */
-bool ConvertBitmapToStream(std::string path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer);
+bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers);
 
 /**
  * Loads an image synchronously

@@ -113,6 +113,22 @@ bool IsJpegErrorFatal(const std::string& errorMessage)
   return true;
 }
 
+bool IsJpegDecodingFailed()
+{
+  std::string errorString = tjGetErrorStr();
+
+  if(DALI_UNLIKELY(IsJpegErrorFatal(errorString)))
+  {
+    DALI_LOG_ERROR("%s\n", errorString.c_str());
+    return true;
+  }
+  else
+  {
+    DALI_LOG_WARNING("%s\n", errorString.c_str());
+    return false;
+  }
+}
+
 // helpers for safe exif memory handling
 using ExifHandle = std::unique_ptr<ExifData, decltype(exif_data_free)*>;
 
@@ -476,198 +492,11 @@ void Rotate270(PixelArray buffer, int width, int height)
   }
 }
 
-} // namespace
-
-namespace Dali
+void GetJpegPixelFormat(int jpegColorspace, TJPF& pixelLibJpegType, Pixel::Format& pixelFormat)
 {
-namespace TizenPlatform
-{
-JpegTransform ConvertExifOrientation(ExifData* exifData);
-bool          TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight);
+  pixelLibJpegType = TJPF_RGB;
+  pixelFormat      = Pixel::RGB888;
 
-bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
-{
-  // using libjpeg API to avoid having to read the whole file in a buffer
-  struct jpeg_decompress_struct cinfo;
-  struct JpegErrorState         jerr;
-  cinfo.err = jpeg_std_error(&jerr.errorManager);
-
-  jerr.errorManager.output_message = JpegOutputMessageHandler;
-  jerr.errorManager.error_exit     = JpegErrorHandler;
-
-  // On error exit from the JPEG lib, control will pass via JpegErrorHandler
-  // into this branch body for cleanup and error return:
-  if(DALI_UNLIKELY(setjmp(jerr.jumpBuffer)))
-  {
-    DALI_LOG_ERROR("setjmp failed\n");
-    jpeg_destroy_decompress(&cinfo);
-    return false;
-  }
-
-// jpeg_create_decompress internally uses C casts
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wold-style-cast"
-  jpeg_create_decompress(&cinfo);
-#pragma GCC diagnostic pop
-
-  jpeg_stdio_src(&cinfo, fp);
-
-  // Check header to see if it is  JPEG file
-  if(DALI_UNLIKELY(jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK))
-  {
-    DALI_LOG_ERROR("jpeg_read_header failed\n");
-    width = height = 0;
-    jpeg_destroy_decompress(&cinfo);
-    return false;
-  }
-
-  width  = cinfo.image_width;
-  height = cinfo.image_height;
-
-  jpeg_destroy_decompress(&cinfo);
-  return true;
-}
-
-bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
-{
-  const int   flags = 0;
-  FILE* const fp    = input.file;
-
-  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
-  {
-    DALI_LOG_ERROR("Error seeking to end of file\n");
-    return false;
-  }
-
-  long         positionIndicator = ftell(fp);
-  unsigned int jpegBufferSize    = 0u;
-  if(positionIndicator > -1L)
-  {
-    jpegBufferSize = static_cast<unsigned int>(positionIndicator);
-  }
-
-  if(DALI_UNLIKELY(0u == jpegBufferSize))
-  {
-    DALI_LOG_ERROR("Jpeg buffer size error\n");
-    return false;
-  }
-
-  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
-  {
-    DALI_LOG_ERROR("Error seeking to start of file\n");
-    return false;
-  }
-
-  Vector<unsigned char> jpegBuffer;
-  try
-  {
-    jpegBuffer.ResizeUninitialized(jpegBufferSize);
-  }
-  catch(...)
-  {
-    DALI_LOG_ERROR("Could not allocate temporary memory to hold JPEG file of size %uMB.\n", jpegBufferSize / 1048576U);
-    return false;
-  }
-  unsigned char* const jpegBufferPtr = jpegBuffer.Begin();
-
-  // Pull the compressed JPEG image bytes out of a file and into memory:
-  if(DALI_UNLIKELY(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize))
-  {
-    DALI_LOG_ERROR("Error on image file read.\n");
-    return false;
-  }
-
-  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
-  {
-    DALI_LOG_ERROR("Error seeking to start of file\n");
-    return false;
-  }
-
-  auto jpeg = MakeJpegDecompressor();
-
-  if(DALI_UNLIKELY(!jpeg))
-  {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
-    return false;
-  }
-
-  auto transform = JpegTransform::NONE;
-
-  // extract exif data
-  auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
-
-  if(exifData && input.reorientationRequested)
-  {
-    transform = ConvertExifOrientation(exifData.get());
-  }
-
-  std::unique_ptr<Property::Map> exifMap;
-  exifMap.reset(new Property::Map());
-
-  if(DALI_LIKELY(exifData))
-  {
-    for(auto k = 0u; k < EXIF_IFD_COUNT; ++k)
-    {
-      auto content = exifData->ifd[k];
-      for(auto i = 0u; i < content->count; ++i)
-      {
-        auto&&      tag       = content->entries[i];
-        const char* shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
-        if(shortName)
-        {
-          AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
-        }
-      }
-    }
-  }
-
-  // Push jpeg data in memory buffer through TurboJPEG decoder to make a raw pixel array:
-  int chrominanceSubsampling = -1;
-  int preXformImageWidth = 0, preXformImageHeight = 0;
-
-  // In Ubuntu, the turbojpeg version is not correct. so build error occurs.
-  // Temporarily separate Ubuntu and other profiles.
-#ifndef DALI_PROFILE_UBUNTU
-  int jpegColorspace = -1;
-  if(tjDecompressHeader3(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling, &jpegColorspace) == -1)
-  {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
-    // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
-  }
-#else
-  if(tjDecompressHeader2(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling) == -1)
-  {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
-    // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
-  }
-#endif
-
-  if(DALI_UNLIKELY(preXformImageWidth == 0 || preXformImageHeight == 0))
-  {
-    DALI_LOG_ERROR("Invalid Image!\n");
-    return false;
-  }
-
-  int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
-  int requiredHeight = input.scalingParameters.dimensions.GetHeight();
-
-  // If transform is a 90 or 270 degree rotation, the logical width and height
-  // request from the client needs to be adjusted to account by effectively
-  // rotating that too, and the final width and height need to be swapped:
-  int postXformImageWidth  = preXformImageWidth;
-  int postXformImageHeight = preXformImageHeight;
-
-  int scaledPreXformWidth   = preXformImageWidth;
-  int scaledPreXformHeight  = preXformImageHeight;
-  int scaledPostXformWidth  = postXformImageWidth;
-  int scaledPostXformHeight = postXformImageHeight;
-
-  TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, scaledPreXformWidth, scaledPreXformHeight, scaledPostXformWidth, scaledPostXformHeight);
-
-  // Colorspace conversion options
-  TJPF          pixelLibJpegType = TJPF_RGB;
-  Pixel::Format pixelFormat      = Pixel::RGB888;
-#ifndef DALI_PROFILE_UBUNTU
   switch(jpegColorspace)
   {
     case TJCS_RGB:
@@ -699,34 +528,15 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       break;
     }
   }
-#endif
-  // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
-  bitmap = Dali::Devel::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
+}
 
-  // set metadata
-  GetImplementation(bitmap).SetMetadata(std::move(exifMap));
-
-  auto bitmapPixelBuffer = bitmap.GetBuffer();
-
-  if(tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags) == -1)
-  {
-    std::string errorString = tjGetErrorStr();
-
-    if(DALI_UNLIKELY(IsJpegErrorFatal(errorString)))
-    {
-      DALI_LOG_ERROR("%s\n", errorString.c_str());
-      return false;
-    }
-    else
-    {
-      DALI_LOG_WARNING("%s\n", errorString.c_str());
-    }
-  }
-
-  const unsigned int bufferWidth  = GetTextureDimension(scaledPreXformWidth);
-  const unsigned int bufferHeight = GetTextureDimension(scaledPreXformHeight);
+bool TransformBitmap(int scaledPreXformWidth, int scaledPreXformHeight, JpegTransform transform, uint8_t* bitmapPixelBuffer, Pixel::Format pixelFormat)
+{
+  const unsigned int bufferWidth  = Dali::TizenPlatform::GetTextureDimension(scaledPreXformWidth);
+  const unsigned int bufferHeight = Dali::TizenPlatform::GetTextureDimension(scaledPreXformHeight);
 
   bool result = false;
+
   switch(transform)
   {
     case JpegTransform::NONE:
@@ -811,6 +621,304 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
       DALI_LOG_ERROR("Unsupported JPEG Orientation transformation: %x.\n", transform);
       break;
     }
+  }
+  return result;
+}
+
+bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBuffer, unsigned int& jpegBufferSize)
+{
+  FILE* const fp = input.file;
+
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
+  {
+    DALI_LOG_ERROR("Error seeking to end of file\n");
+    return false;
+  }
+
+  long positionIndicator = ftell(fp);
+  jpegBufferSize         = 0u;
+  if(positionIndicator > -1L)
+  {
+    jpegBufferSize = static_cast<unsigned int>(positionIndicator);
+  }
+
+  if(DALI_UNLIKELY(0u == jpegBufferSize))
+  {
+    DALI_LOG_ERROR("Jpeg buffer size error\n");
+    return false;
+  }
+
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
+  {
+    DALI_LOG_ERROR("Error seeking to start of file\n");
+    return false;
+  }
+
+  try
+  {
+    jpegBuffer.ResizeUninitialized(jpegBufferSize);
+  }
+  catch(...)
+  {
+    DALI_LOG_ERROR("Could not allocate temporary memory to hold JPEG file of size %uMB.\n", jpegBufferSize / 1048576U);
+    return false;
+  }
+  unsigned char* const jpegBufferPtr = jpegBuffer.Begin();
+
+  // Pull the compressed JPEG image bytes out of a file and into memory:
+  if(DALI_UNLIKELY(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize))
+  {
+    DALI_LOG_ERROR("Error on image file read.\n");
+    return false;
+  }
+
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
+  {
+    DALI_LOG_ERROR("Error seeking to start of file\n");
+    return false;
+  }
+
+  return true;
+}
+
+} // namespace
+
+namespace Dali
+{
+namespace TizenPlatform
+{
+bool          DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv);
+JpegTransform ConvertExifOrientation(ExifData* exifData);
+bool          TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, JpegTransform transform, int& preXformImageWidth, int& preXformImageHeight, int& postXformImageWidth, int& postXformImageHeight);
+
+bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
+{
+  // using libjpeg API to avoid having to read the whole file in a buffer
+  struct jpeg_decompress_struct cinfo;
+  struct JpegErrorState         jerr;
+  cinfo.err = jpeg_std_error(&jerr.errorManager);
+
+  jerr.errorManager.output_message = JpegOutputMessageHandler;
+  jerr.errorManager.error_exit     = JpegErrorHandler;
+
+  // On error exit from the JPEG lib, control will pass via JpegErrorHandler
+  // into this branch body for cleanup and error return:
+  if(DALI_UNLIKELY(setjmp(jerr.jumpBuffer)))
+  {
+    DALI_LOG_ERROR("setjmp failed\n");
+    jpeg_destroy_decompress(&cinfo);
+    return false;
+  }
+
+// jpeg_create_decompress internally uses C casts
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+  jpeg_create_decompress(&cinfo);
+#pragma GCC diagnostic pop
+
+  jpeg_stdio_src(&cinfo, fp);
+
+  // Check header to see if it is  JPEG file
+  if(DALI_UNLIKELY(jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK))
+  {
+    DALI_LOG_ERROR("jpeg_read_header failed\n");
+    width = height = 0;
+    jpeg_destroy_decompress(&cinfo);
+    return false;
+  }
+
+  width  = cinfo.image_width;
+  height = cinfo.image_height;
+
+  jpeg_destroy_decompress(&cinfo);
+  return true;
+}
+
+bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
+{
+  std::vector<Dali::Devel::PixelBuffer> pixelBuffers;
+
+  bool result = DecodeJpeg(input, pixelBuffers, false);
+  if(!result && pixelBuffers.empty())
+  {
+    bitmap.Reset();
+  }
+  else
+  {
+    bitmap = pixelBuffers[0];
+  }
+  return result;
+}
+
+bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+{
+  return DecodeJpeg(input, pixelBuffers, true);
+}
+
+bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers, bool decodeToYuv)
+{
+  Vector<uint8_t> jpegBuffer;
+  unsigned int    jpegBufferSize = 0u;
+
+  if(!LoadJpegFile(input, jpegBuffer, jpegBufferSize))
+  {
+    DALI_LOG_ERROR("LoadJpegFile failed\n");
+    return false;
+  }
+
+  auto jpeg = MakeJpegDecompressor();
+  if(DALI_UNLIKELY(!jpeg))
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    return false;
+  }
+
+  uint8_t* const jpegBufferPtr = jpegBuffer.Begin();
+  auto           transform     = JpegTransform::NONE;
+
+  // extract exif data
+  auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
+
+  if(exifData && input.reorientationRequested)
+  {
+    transform = ConvertExifOrientation(exifData.get());
+  }
+
+  // Push jpeg data in memory buffer through TurboJPEG decoder to make a raw pixel array:
+  int chrominanceSubsampling = -1;
+  int preXformImageWidth = 0, preXformImageHeight = 0;
+  int jpegColorspace = -1;
+
+  if(tjDecompressHeader3(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling, &jpegColorspace) == -1)
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
+  }
+
+  if(DALI_UNLIKELY(preXformImageWidth == 0 || preXformImageHeight == 0))
+  {
+    DALI_LOG_ERROR("Invalid Image!\n");
+    return false;
+  }
+
+  int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
+  int requiredHeight = input.scalingParameters.dimensions.GetHeight();
+
+  // If transform is a 90 or 270 degree rotation, the logical width and height
+  // request from the client needs to be adjusted to account by effectively
+  // rotating that too, and the final width and height need to be swapped:
+  int postXformImageWidth  = preXformImageWidth;
+  int postXformImageHeight = preXformImageHeight;
+
+  int scaledPreXformWidth   = preXformImageWidth;
+  int scaledPreXformHeight  = preXformImageHeight;
+  int scaledPostXformWidth  = postXformImageWidth;
+  int scaledPostXformHeight = postXformImageHeight;
+
+  TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, scaledPreXformWidth, scaledPreXformHeight, scaledPostXformWidth, scaledPostXformHeight);
+
+  bool result = false;
+
+  // Now we support YUV420 only
+  if(decodeToYuv && chrominanceSubsampling == TJSAMP_420 && transform == JpegTransform::NONE)
+  {
+    unsigned char* planes[3];
+
+    // Allocate buffers for each plane and decompress the jpeg buffer into the buffers
+    for(int i = 0; i < 3; i++)
+    {
+      auto planeSize = tjPlaneSizeYUV(i, scaledPostXformWidth, 0, scaledPostXformHeight, chrominanceSubsampling);
+
+      unsigned char* buffer = static_cast<unsigned char*>(malloc(planeSize));
+      if(!buffer)
+      {
+        DALI_LOG_ERROR("Buffer allocation is failed [%d]\n", planeSize);
+        pixelBuffers.clear();
+        return false;
+      }
+
+      int           width, height, planeWidth;
+      Pixel::Format pixelFormat = Pixel::RGB888;
+
+      if(i == 0)
+      {
+        // luminance plane
+        width       = scaledPostXformWidth;
+        height      = scaledPostXformHeight;
+        planeWidth  = tjPlaneWidth(i, scaledPostXformWidth, chrominanceSubsampling);
+        pixelFormat = Pixel::L8;
+      }
+      else
+      {
+        // chrominance plane
+        width       = tjPlaneWidth(i, scaledPostXformWidth, chrominanceSubsampling);
+        height      = tjPlaneHeight(i, scaledPostXformHeight, chrominanceSubsampling);
+        planeWidth  = width;
+        pixelFormat = (i == 1 ? Pixel::CHROMINANCE_U : Pixel::CHROMINANCE_V);
+      }
+
+      Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth, pixelFormat);
+      Dali::Devel::PixelBuffer          bitmap   = Devel::PixelBuffer(internal.Get());
+      planes[i]                                  = buffer;
+      pixelBuffers.push_back(bitmap);
+    }
+
+    const int flags = 0;
+
+    int decodeResult = tjDecompressToYUVPlanes(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char**>(&planes), scaledPostXformWidth, nullptr, scaledPostXformHeight, flags);
+    if(decodeResult == -1 && IsJpegDecodingFailed())
+    {
+      pixelBuffers.clear();
+      return false;
+    }
+
+    result = true;
+  }
+  else
+  {
+    // Colorspace conversion options
+    TJPF          pixelLibJpegType = TJPF_RGB;
+    Pixel::Format pixelFormat      = Pixel::RGB888;
+
+    GetJpegPixelFormat(jpegColorspace, pixelLibJpegType, pixelFormat);
+
+    // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
+    Dali::Devel::PixelBuffer bitmap = Dali::Devel::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
+
+    // Set metadata
+    if(DALI_LIKELY(exifData))
+    {
+      std::unique_ptr<Property::Map> exifMap = std::make_unique<Property::Map>();
+
+      for(auto k = 0u; k < EXIF_IFD_COUNT; ++k)
+      {
+        auto content = exifData->ifd[k];
+        for(auto i = 0u; i < content->count; ++i)
+        {
+          auto&&      tag       = content->entries[i];
+          const char* shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
+          if(shortName)
+          {
+            AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
+          }
+        }
+      }
+
+      GetImplementation(bitmap).SetMetadata(std::move(exifMap));
+    }
+
+    auto      bitmapPixelBuffer = bitmap.GetBuffer();
+    const int flags             = 0;
+
+    int decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+    if(decodeResult == -1 && IsJpegDecodingFailed())
+    {
+      return false;
+    }
+    pixelBuffers.push_back(bitmap);
+
+    // Transform bitmap
+    result = TransformBitmap(scaledPreXformWidth, scaledPreXformHeight, transform, bitmapPixelBuffer, pixelFormat);
   }
 
   return result;
