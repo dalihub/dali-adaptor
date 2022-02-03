@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <libexif/exif-loader.h>
 #include <libexif/exif-tag.h>
 #include <setjmp.h>
+#include <stdlib.h>
 #include <turbojpeg.h>
 #include <array>
 #include <cstring>
@@ -36,6 +37,7 @@
 #include <dali/public-api/object/property-map.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
@@ -49,6 +51,8 @@ using PixelArray                    = unsigned char*;
 const unsigned int DECODED_L8       = 1;
 const unsigned int DECODED_RGB888   = 3;
 const unsigned int DECODED_RGBA8888 = 4;
+
+constexpr auto DECODE_JPEG_TO_YUV_ENV = "DALI_DECODE_JPEG_TO_YUV_ENV";
 
 /** Transformations that can be applied to decoded pixels to respect exif orientation
   *  codes in image headers */
@@ -806,6 +810,350 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     {
       DALI_LOG_ERROR("Unsupported JPEG Orientation transformation: %x.\n", transform);
       break;
+    }
+  }
+
+  return result;
+}
+
+bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+{
+  const int   flags = 0;
+  FILE* const fp    = input.file;
+
+  if(fseek(fp, 0, SEEK_END))
+  {
+    DALI_LOG_ERROR("Error seeking to end of file\n");
+    return false;
+  }
+
+  long         positionIndicator = ftell(fp);
+  unsigned int jpegBufferSize    = 0u;
+  if(positionIndicator > -1L)
+  {
+    jpegBufferSize = static_cast<unsigned int>(positionIndicator);
+  }
+
+  if(0u == jpegBufferSize)
+  {
+    DALI_LOG_ERROR("Jpeg buffer size error\n");
+    return false;
+  }
+
+  if(fseek(fp, 0, SEEK_SET))
+  {
+    DALI_LOG_ERROR("Error seeking to start of file\n");
+    return false;
+  }
+
+  Vector<unsigned char> jpegBuffer;
+  try
+  {
+    jpegBuffer.Resize(jpegBufferSize);
+  }
+  catch(...)
+  {
+    DALI_LOG_ERROR("Could not allocate temporary memory to hold JPEG file of size %uMB.\n", jpegBufferSize / 1048576U);
+    return false;
+  }
+  unsigned char* const jpegBufferPtr = jpegBuffer.Begin();
+
+  // Pull the compressed JPEG image bytes out of a file and into memory:
+  if(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize)
+  {
+    DALI_LOG_ERROR("Error on image file read.\n");
+    return false;
+  }
+
+  if(fseek(fp, 0, SEEK_SET))
+  {
+    DALI_LOG_ERROR("Error seeking to start of file\n");
+  }
+
+  auto jpeg = MakeJpegDecompressor();
+
+  if(!jpeg)
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    return false;
+  }
+
+  auto transform = JpegTransform::NONE;
+
+  // extract exif data
+  auto exifData = MakeExifDataFromData(jpegBufferPtr, jpegBufferSize);
+
+  if(exifData && input.reorientationRequested)
+  {
+    transform = ConvertExifOrientation(exifData.get());
+  }
+
+  std::unique_ptr<Property::Map> exifMap;
+  exifMap.reset(new Property::Map());
+
+  for(auto k = 0u; k < EXIF_IFD_COUNT; ++k)
+  {
+    auto content = exifData->ifd[k];
+    for(auto i = 0u; i < content->count; ++i)
+    {
+      auto&&      tag       = content->entries[i];
+      const char* shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
+      if(shortName)
+      {
+        AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
+      }
+    }
+  }
+
+  // Push jpeg data in memory buffer through TurboJPEG decoder to make a raw pixel array:
+  int chrominanceSubsampling = -1;
+  int preXformImageWidth = 0, preXformImageHeight = 0;
+
+  int jpegColorspace = -1;
+  if(tjDecompressHeader3(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling, &jpegColorspace) == -1)
+  {
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
+  }
+
+  if(preXformImageWidth == 0 || preXformImageHeight == 0)
+  {
+    DALI_LOG_ERROR("Invalid Image!\n");
+    return false;
+  }
+
+  int requiredWidth  = input.scalingParameters.dimensions.GetWidth();
+  int requiredHeight = input.scalingParameters.dimensions.GetHeight();
+
+  // If transform is a 90 or 270 degree rotation, the logical width and height
+  // request from the client needs to be adjusted to account by effectively
+  // rotating that too, and the final width and height need to be swapped:
+  int postXformImageWidth  = preXformImageWidth;
+  int postXformImageHeight = preXformImageHeight;
+
+  int scaledPreXformWidth   = preXformImageWidth;
+  int scaledPreXformHeight  = preXformImageHeight;
+  int scaledPostXformWidth  = postXformImageWidth;
+  int scaledPostXformHeight = postXformImageHeight;
+
+  TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, scaledPreXformWidth, scaledPreXformHeight, scaledPostXformWidth, scaledPostXformHeight);
+
+  auto decodeToYuvString = EnvironmentVariable::GetEnvironmentVariable(DECODE_JPEG_TO_YUV_ENV);
+  bool decodeToYuv       = decodeToYuvString ? std::atoi(decodeToYuvString) : false;
+  int  decodeResult      = -1;
+  bool result            = false;
+
+  // Now we support YUV420 only
+  if(decodeToYuv && chrominanceSubsampling == TJSAMP_420 && transform == JpegTransform::NONE)
+  {
+    unsigned char* planes[3];
+
+    // Allocate buffers for each plane and decompress the jpeg buffer into the buffers
+    for(int i = 0; i < 3; i++)
+    {
+      auto planeSize = tjPlaneSizeYUV(i, scaledPostXformWidth, 0, scaledPostXformHeight, chrominanceSubsampling);
+
+      unsigned char* buffer = static_cast<unsigned char*>(malloc(planeSize));
+      if(!buffer)
+      {
+        DALI_LOG_ERROR("Buffer allocation is failed [%d]\n", planeSize);
+        pixelBuffers.clear();
+        return false;
+      }
+
+      int width, height, planeWidth;
+
+      if(i == 0)
+      {
+        // luminance
+        width      = scaledPostXformWidth;
+        height     = scaledPostXformHeight;
+        planeWidth = tjPlaneWidth(i, scaledPostXformWidth, chrominanceSubsampling);
+      }
+      else
+      {
+        width      = tjPlaneWidth(i, scaledPostXformWidth, chrominanceSubsampling);
+        height     = tjPlaneHeight(i, scaledPostXformHeight, chrominanceSubsampling);
+        planeWidth = width;
+      }
+
+      Internal::Adaptor::PixelBufferPtr internal = Internal::Adaptor::PixelBuffer::New(buffer, planeSize, width, height, planeWidth, Pixel::L8);
+      Dali::Devel::PixelBuffer          bitmap   = Devel::PixelBuffer(internal.Get());
+
+      planes[i] = buffer;
+
+      pixelBuffers.push_back(bitmap);
+    }
+
+    decodeResult = tjDecompressToYUVPlanes(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char**>(&planes), scaledPostXformWidth, nullptr, scaledPostXformHeight, flags);
+    if(decodeResult == -1)
+    {
+      std::string errorString = tjGetErrorStr();
+
+      if(IsJpegErrorFatal(errorString))
+      {
+        DALI_LOG_ERROR("%s\n", errorString.c_str());
+        pixelBuffers.clear();
+        return false;
+      }
+      else
+      {
+        DALI_LOG_WARNING("%s\n", errorString.c_str());
+      }
+    }
+
+    result = true;
+  }
+  else
+  {
+    // Colorspace conversion options
+    TJPF          pixelLibJpegType = TJPF_RGB;
+    Pixel::Format pixelFormat      = Pixel::RGB888;
+
+    switch(jpegColorspace)
+    {
+      case TJCS_RGB:
+      // YCbCr is not an absolute colorspace but rather a mathematical transformation of RGB designed solely for storage and transmission.
+      // YCbCr images must be converted to RGB before they can actually be displayed.
+      case TJCS_YCbCr:
+      {
+        pixelLibJpegType = TJPF_RGB;
+        pixelFormat      = Pixel::RGB888;
+        break;
+      }
+      case TJCS_GRAY:
+      {
+        pixelLibJpegType = TJPF_GRAY;
+        pixelFormat      = Pixel::L8;
+        break;
+      }
+      case TJCS_CMYK:
+      case TJCS_YCCK:
+      {
+        pixelLibJpegType = TJPF_CMYK;
+        pixelFormat      = Pixel::RGBA8888;
+        break;
+      }
+      default:
+      {
+        pixelLibJpegType = TJPF_RGB;
+        pixelFormat      = Pixel::RGB888;
+        break;
+      }
+    }
+
+    // Allocate a bitmap and decompress the jpeg buffer into its pixel buffer:
+    Dali::Devel::PixelBuffer bitmap = Dali::Devel::PixelBuffer::New(scaledPostXformWidth, scaledPostXformHeight, pixelFormat);
+
+    // set metadata
+    GetImplementation(bitmap).SetMetadata(std::move(exifMap));
+
+    auto bitmapPixelBuffer = bitmap.GetBuffer();
+
+    decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+    if(decodeResult == -1)
+    {
+      std::string errorString = tjGetErrorStr();
+
+      if(IsJpegErrorFatal(errorString))
+      {
+        DALI_LOG_ERROR("%s\n", errorString.c_str());
+        return false;
+      }
+      else
+      {
+        DALI_LOG_WARNING("%s\n", errorString.c_str());
+      }
+    }
+    pixelBuffers.push_back(bitmap);
+
+    const unsigned int bufferWidth  = GetTextureDimension(scaledPreXformWidth);
+    const unsigned int bufferHeight = GetTextureDimension(scaledPreXformHeight);
+
+    switch(transform)
+    {
+      case JpegTransform::NONE:
+      {
+        result = true;
+        break;
+      }
+      // 3 orientation changes for a camera held perpendicular to the ground or upside-down:
+      case JpegTransform::ROTATE_180:
+      {
+        static auto rotate180Functions = TransformFunctionArray{
+          &Rotate180<1>,
+          &Rotate180<3>,
+          &Rotate180<4>,
+        };
+        result = Transform(rotate180Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      case JpegTransform::ROTATE_270:
+      {
+        static auto rotate270Functions = TransformFunctionArray{
+          &Rotate270<1>,
+          &Rotate270<3>,
+          &Rotate270<4>,
+        };
+        result = Transform(rotate270Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      case JpegTransform::ROTATE_90:
+      {
+        static auto rotate90Functions = TransformFunctionArray{
+          &Rotate90<1>,
+          &Rotate90<3>,
+          &Rotate90<4>,
+        };
+        result = Transform(rotate90Functions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      case JpegTransform::FLIP_VERTICAL:
+      {
+        static auto flipVerticalFunctions = TransformFunctionArray{
+          &FlipVertical<1>,
+          &FlipVertical<3>,
+          &FlipVertical<4>,
+        };
+        result = Transform(flipVerticalFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      // Less-common orientation changes, since they don't correspond to a camera's physical orientation:
+      case JpegTransform::FLIP_HORIZONTAL:
+      {
+        static auto flipHorizontalFunctions = TransformFunctionArray{
+          &FlipHorizontal<1>,
+          &FlipHorizontal<3>,
+          &FlipHorizontal<4>,
+        };
+        result = Transform(flipHorizontalFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      case JpegTransform::TRANSPOSE:
+      {
+        static auto transposeFunctions = TransformFunctionArray{
+          &Transpose<1>,
+          &Transpose<3>,
+          &Transpose<4>,
+        };
+        result = Transform(transposeFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      case JpegTransform::TRANSVERSE:
+      {
+        static auto transverseFunctions = TransformFunctionArray{
+          &Transverse<1>,
+          &Transverse<3>,
+          &Transverse<4>,
+        };
+        result = Transform(transverseFunctions, bitmapPixelBuffer, bufferWidth, bufferHeight, pixelFormat);
+        break;
+      }
+      default:
+      {
+        DALI_LOG_ERROR("Unsupported JPEG Orientation transformation: %x.\n", transform);
+        break;
+      }
     }
   }
 
