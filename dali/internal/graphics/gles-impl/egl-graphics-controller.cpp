@@ -663,6 +663,8 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, info.srcStride);
+
       mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
 
       if(!isSubImage)

@@ -51,9 +51,8 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   unsigned char* destBuffer       = buffer.GetBuffer();
 
   unsigned int destBytesPerPixel = Dali::Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
-
-  int srcOffset  = 0;
-  int destOffset = 0;
+  unsigned int srcStrideBytes    = mask.GetStride() * srcBytesPerPixel;
+  unsigned int destStrideBytes   = buffer.GetStride() * destBytesPerPixel;
 
   // if image is premultiplied, the other channels of the image need to multiply by alpha.
   if(buffer.IsAlphaPreMultiplied())
@@ -71,6 +70,9 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
     {
       for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
       {
+        int srcOffset  = 0;
+        int destOffset = 0;
+
         for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
         {
           auto srcAlpha = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
@@ -96,6 +98,8 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
           srcOffset += srcBytesPerPixel;
           destOffset += destBytesPerPixel;
         }
+        srcBuffer += srcStrideBytes;
+        destBuffer += destStrideBytes;
       }
     }
   }
@@ -103,6 +107,9 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   {
     for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
     {
+      int srcOffset  = 0;
+      int destOffset = 0;
+
       for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
       {
         unsigned char srcAlpha  = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
@@ -116,6 +123,8 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
         srcOffset += srcBytesPerPixel;
         destOffset += destBytesPerPixel;
       }
+      srcBuffer += srcStrideBytes;
+      destBuffer += destStrideBytes;
     }
   }
 }
@@ -136,12 +145,14 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
     srcAlphaMask = 0xFF;
   }
 
-  unsigned int   srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel(srcPixelFormat);
   unsigned char* srcBuffer        = mask.GetBuffer();
+  unsigned int   srcBytesPerPixel = Dali::Pixel::GetBytesPerPixel(srcPixelFormat);
+  unsigned int   srcStrideBytes   = mask.GetStride() * srcBytesPerPixel;
 
   // Set up source color offsets
   Dali::Pixel::Format srcColorPixelFormat   = buffer.GetPixelFormat();
   unsigned int        srcColorBytesPerPixel = Dali::Pixel::GetBytesPerPixel(srcColorPixelFormat);
+  unsigned int        srcColorStrideBytes   = buffer.GetStride() * srcColorBytesPerPixel;
 
   // Setup destination offsets
   Dali::Pixel::Format destPixelFormat     = Dali::Pixel::RGBA8888;
@@ -150,19 +161,20 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
   int                 destAlphaMask       = 0;
   Dali::Pixel::GetAlphaOffsetAndMask(destPixelFormat, destAlphaByteOffset, destAlphaMask);
 
-  PixelBufferPtr newPixelBuffer = PixelBuffer::New(buffer.GetWidth(), buffer.GetHeight(), destPixelFormat);
-  unsigned char* destBuffer     = newPixelBuffer->GetBuffer();
-  unsigned char* oldBuffer      = buffer.GetBuffer();
+  PixelBufferPtr newPixelBuffer  = PixelBuffer::New(buffer.GetWidth(), buffer.GetHeight(), destPixelFormat);
+  unsigned char* destBuffer      = newPixelBuffer->GetBuffer();
+  unsigned char* oldBuffer       = buffer.GetBuffer();
+  unsigned int   destStrideBytes = newPixelBuffer->GetStride() * destBytesPerPixel;
 
-  int  srcAlphaOffset = 0;
-  int  srcColorOffset = 0;
-  int  destOffset     = 0;
-  bool hasAlpha       = Dali::Pixel::HasAlpha(buffer.GetPixelFormat());
+  bool hasAlpha = Dali::Pixel::HasAlpha(buffer.GetPixelFormat());
 
   unsigned char destAlpha = 0;
 
   for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
   {
+    int srcAlphaOffset = 0;
+    int srcColorOffset = 0;
+    int destOffset     = 0;
     for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
     {
       unsigned char srcAlpha = srcBuffer[srcAlphaOffset + srcAlphaByteOffset] & srcAlphaMask;
@@ -186,6 +198,9 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
       srcAlphaOffset += srcBytesPerPixel;
       destOffset += destBytesPerPixel;
     }
+    oldBuffer += srcColorStrideBytes;
+    srcBuffer += srcStrideBytes;
+    destBuffer += destStrideBytes;
   }
 
   return newPixelBuffer;

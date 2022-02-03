@@ -47,12 +47,14 @@ PixelBuffer::PixelBuffer(unsigned char*      buffer,
                          unsigned int        bufferSize,
                          unsigned int        width,
                          unsigned int        height,
+                         unsigned int        stride,
                          Dali::Pixel::Format pixelFormat)
 : mMetadata(),
   mBuffer(buffer),
   mBufferSize(bufferSize),
   mWidth(width),
   mHeight(height),
+  mStride(stride ? stride : width),
   mPixelFormat(pixelFormat),
   mPreMultiplied(false)
 {
@@ -73,16 +75,17 @@ PixelBufferPtr PixelBuffer::New(unsigned int        width,
   {
     buffer = static_cast<unsigned char*>(malloc(bufferSize));
   }
-  return new PixelBuffer(buffer, bufferSize, width, height, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, width, pixelFormat);
 }
 
 PixelBufferPtr PixelBuffer::New(unsigned char*      buffer,
                                 unsigned int        bufferSize,
                                 unsigned int        width,
                                 unsigned int        height,
+                                unsigned int        stride,
                                 Dali::Pixel::Format pixelFormat)
 {
-  return new PixelBuffer(buffer, bufferSize, width, height, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, stride, pixelFormat);
 }
 
 Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
@@ -91,12 +94,14 @@ Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
                                                    pixelBuffer.mBufferSize,
                                                    pixelBuffer.mWidth,
                                                    pixelBuffer.mHeight,
+                                                   pixelBuffer.mStride,
                                                    pixelBuffer.mPixelFormat,
                                                    Dali::PixelData::FREE);
   pixelBuffer.mBuffer       = NULL;
   pixelBuffer.mWidth        = 0;
   pixelBuffer.mHeight       = 0;
   pixelBuffer.mBufferSize   = 0;
+  pixelBuffer.mStride       = 0;
 
   return pixelData;
 }
@@ -109,6 +114,11 @@ unsigned int PixelBuffer::GetWidth() const
 unsigned int PixelBuffer::GetHeight() const
 {
   return mHeight;
+}
+
+uint32_t PixelBuffer::GetStride() const
+{
+  return mStride;
 }
 
 Dali::Pixel::Format PixelBuffer::GetPixelFormat() const
@@ -141,7 +151,7 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
     memcpy(destBuffer, mBuffer, mBufferSize);
   }
 
-  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mPixelFormat, Dali::PixelData::FREE);
+  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mStride, mPixelFormat, Dali::PixelData::FREE);
   return pixelData;
 }
 
@@ -201,6 +211,7 @@ void PixelBuffer::TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer)
   mBufferSize         = pixelBuffer.mBufferSize;
   mWidth              = pixelBuffer.mWidth;
   mHeight             = pixelBuffer.mHeight;
+  mStride             = pixelBuffer.mStride;
   mPixelFormat        = pixelBuffer.mPixelFormat;
 }
 
@@ -271,6 +282,7 @@ bool PixelBuffer::Rotate(Degree angle)
   Platform::RotateByShear(mBuffer,
                           mWidth,
                           mHeight,
+                          mStride,
                           pixelSize,
                           radians,
                           pixelsOut,
@@ -289,6 +301,7 @@ bool PixelBuffer::Rotate(Degree angle)
     mBuffer     = pixelsOut;
     pixelsOut   = nullptr;
     mBufferSize = mWidth * mHeight * pixelSize;
+    mStride     = mWidth; // The buffer is tightly packed.
   }
 
   return success;
@@ -327,8 +340,8 @@ PixelBufferPtr PixelBuffer::NewCrop(const PixelBuffer& inBuffer, uint16_t x, uin
 {
   PixelBufferPtr outBuffer     = PixelBuffer::New(cropDimensions.GetWidth(), cropDimensions.GetHeight(), inBuffer.GetPixelFormat());
   int            bytesPerPixel = Pixel::GetBytesPerPixel(inBuffer.mPixelFormat);
-  int            srcStride     = inBuffer.mWidth * bytesPerPixel;
-  int            destStride    = cropDimensions.GetWidth() * bytesPerPixel;
+  int            srcStride     = inBuffer.mStride * bytesPerPixel;
+  int            destStride    = cropDimensions.GetWidth() * bytesPerPixel; // The destination buffer is tightly packed
 
   // Clamp crop to right edge
   if(x + cropDimensions.GetWidth() > inBuffer.mWidth)
@@ -409,7 +422,7 @@ PixelBufferPtr PixelBuffer::NewResize(const PixelBuffer& inBuffer, ImageDimensio
      inBuffer.mPixelFormat == Pixel::RGBA8888 ||
      inBuffer.mPixelFormat == Pixel::BGRA8888)
   {
-    Dali::Internal::Platform::Resample(inBuffer.mBuffer, inDimensions, outBuffer->GetBuffer(), outDimensions, filterType, bytesPerPixel, hasAlpha);
+    Dali::Internal::Platform::Resample(inBuffer.mBuffer, inDimensions, inBuffer.mStride, outBuffer->GetBuffer(), outDimensions, filterType, bytesPerPixel, hasAlpha);
   }
   else
   {
@@ -443,8 +456,9 @@ void PixelBuffer::MultiplyColorByAlpha()
   // must be skipped in such case
   if(Pixel::GetBytesPerPixel(mPixelFormat) && Pixel::HasAlpha(mPixelFormat))
   {
-    unsigned char*     pixel      = mBuffer;
-    const unsigned int bufferSize = mWidth * mHeight;
+    unsigned char*     pixel       = mBuffer;
+    const unsigned int strideBytes = mStride * bytesPerPixel;
+    const unsigned int widthBytes  = mWidth * bytesPerPixel;
 
     // Collect all valid channel list before lookup whole buffer
     std::vector<Channel> validChannelList;
@@ -458,32 +472,35 @@ void PixelBuffer::MultiplyColorByAlpha()
 
     if(DALI_LIKELY(!validChannelList.empty()))
     {
-      for(unsigned int i = 0; i < bufferSize; ++i)
+      for(unsigned int y = 0; y < mHeight; y++)
       {
-        unsigned int alpha = ReadChannel(pixel, mPixelFormat, Adaptor::ALPHA);
-        if(alpha < 255)
+        for(unsigned int x = 0; x < widthBytes; x += bytesPerPixel)
         {
-          // If alpha is 255, we don't need to change color. Skip current pixel
-          // But if alpha is not 255, we should change color.
-          if(alpha > 0)
+          unsigned int alpha = ReadChannel(&pixel[x], mPixelFormat, Adaptor::ALPHA);
+          if(alpha < 255)
           {
-            for(const Channel& channel : validChannelList)
+            // If alpha is 255, we don't need to change color. Skip current pixel
+            // But if alpha is not 255, we should change color.
+            if(alpha > 0)
             {
-              auto color = ReadChannel(pixel, mPixelFormat, channel);
-              WriteChannel(pixel, mPixelFormat, channel, color * alpha / 255);
+              for(const Channel& channel : validChannelList)
+              {
+                auto color = ReadChannel(&pixel[x], mPixelFormat, channel);
+                WriteChannel(&pixel[x], mPixelFormat, channel, color * alpha / 255);
+              }
+            }
+            else
+            {
+              // If alpha is 0, just set all pixel as zero.
+              memset(&pixel[x], 0, bytesPerPixel);
             }
           }
-          else
-          {
-            // If alpha is 0, just set all pixel as zero.
-            memset(pixel, 0, bytesPerPixel);
-          }
         }
-        pixel += bytesPerPixel;
+        pixel += strideBytes;
       }
     }
+    mPreMultiplied = true;
   }
-  mPreMultiplied = true;
 }
 
 bool PixelBuffer::IsAlphaPreMultiplied() const
@@ -493,30 +510,33 @@ bool PixelBuffer::IsAlphaPreMultiplied() const
 
 uint32_t PixelBuffer::GetBrightness() const
 {
-  uint32_t brightness = 0;
-
+  uint32_t brightness    = 0;
   uint32_t bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
-  if(bytesPerPixel)
+
+  if(bytesPerPixel && mWidth && mHeight)
   {
-    unsigned char* pixel      = mBuffer;
-    const uint32_t bufferSize = mWidth * mHeight;
+    unsigned char* pixel       = mBuffer;
+    const uint32_t strideBytes = mStride * bytesPerPixel;
+    const uint32_t widthBytes  = mWidth * bytesPerPixel;
+    const uint32_t bufferSize  = mWidth * mHeight;
 
-    if(bufferSize) // avoid division by zero to calculate brightness
+    uint64_t red   = 0;
+    uint64_t green = 0;
+    uint64_t blue  = 0;
+
+    for(unsigned int y = 0; y < mHeight; y++)
     {
-      uint64_t red   = 0;
-      uint64_t green = 0;
-      uint64_t blue  = 0;
-
-      for(uint32_t i = 0; i < bufferSize; ++i)
+      for(unsigned int x = 0; x < widthBytes; x += bytesPerPixel)
       {
-        red += ReadChannel(pixel, mPixelFormat, Adaptor::RED);
-        green += ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
-        blue += ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
-        pixel += bytesPerPixel;
+        red += ReadChannel(&pixel[x], mPixelFormat, Adaptor::RED);
+        green += ReadChannel(&pixel[x], mPixelFormat, Adaptor::GREEN);
+        blue += ReadChannel(&pixel[x], mPixelFormat, Adaptor::BLUE);
       }
-      // http://www.w3.org/TR/AERT#color-contrast
-      brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
+      pixel += strideBytes;
     }
+
+    // http://www.w3.org/TR/AERT#color-contrast
+    brightness = (red * BRIGHTNESS_CONSTANT_R + green * BRIGHTNESS_CONSTANT_G + blue * BRIGHTNESS_CONSTANT_B) / (1000uLL * bufferSize);
   }
 
   return brightness;

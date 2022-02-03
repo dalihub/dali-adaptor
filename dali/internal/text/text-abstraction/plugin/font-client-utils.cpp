@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,6 +154,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
   {
     Dali::Internal::Platform::LanczosSample4BPP(srcBuffer,
                                                 inputDimensions,
+                                                srcWidth,
                                                 data.buffer,
                                                 desiredDimensions);
   }
@@ -224,6 +225,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
             Dali::Internal::Platform::HorizontalShear(pixelsIn,
                                                       width,
                                                       height,
+                                                      width,
                                                       1u,
                                                       -TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE,
                                                       pixelsOut,
