@@ -77,7 +77,31 @@ public:
    * @return True if hyperlink object is valid, false otherwise
    */
   virtual bool IsValid() const = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Hyperlink.
+   *
+   * @param obj The Accessible
+   * @return A Hyperlink or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Hyperlink* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::HYPERLINK>
+{
+  using Type = Hyperlink;
+};
+} // namespace Internal
+
+inline Hyperlink* Hyperlink::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::HYPERLINK>(obj);
+}
 
 } // namespace Dali::Accessibility
 

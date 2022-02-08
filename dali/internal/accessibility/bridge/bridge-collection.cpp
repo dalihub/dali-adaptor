@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
-#include <iostream>
 #include <unordered_set>
 #include <vector>
 
@@ -46,21 +45,14 @@ enum class AtspiCollection
 
 void BridgeCollection::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceCollection};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::COLLECTION)};
   AddFunctionToInterface(desc, "GetMatches", &BridgeCollection::GetMatches);
   mDbusServer.addInterface("/", desc, true);
 }
 
 Collection* BridgeCollection::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto collectionInterface = dynamic_cast<Collection*>(self);
-  if(!collectionInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Collection interface"};
-  }
-  return collectionInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::COLLECTION>();
 }
 
 /**
@@ -128,7 +120,7 @@ struct BridgeCollection::Comparer
     void Update(Accessible* obj)
     {
       mObject.clear();
-      for(auto& interface : obj->GetInterfaces())
+      for(auto& interface : obj->GetInterfacesAsStrings())
       {
         mObject.insert(std::move(interface));
       }
@@ -485,7 +477,7 @@ void BridgeCollection::VisitNodes(Accessible* obj, std::vector<Accessible*>& res
 DBus::ValueOrError<std::vector<Accessible*> > BridgeCollection::GetMatches(MatchRule rule, uint32_t sortBy, int32_t count, bool traverse)
 {
   std::vector<Accessible*> res;
-  auto                     self    = BridgeBase::FindSelf();
+  auto                     self    = BridgeBase::FindCurrentObject();
   auto                     matcher = Comparer{&rule};
   VisitNodes(self, res, matcher, count);
 

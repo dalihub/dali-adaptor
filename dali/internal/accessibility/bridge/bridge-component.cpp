@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/accessibility/bridge/bridge-component.h>
 
-// EXTERNAL INCLUDES
-#include <iostream>
-
 #define DBUS_INTERFACE_PROPERTIES "org.freedesktop.DBus.Properties"
 
 using namespace Dali::Accessibility;
@@ -35,7 +32,7 @@ void BridgeComponent::RegisterInterfaces()
   // Screen Reader will call the methods with the exact names as specified in the AT-SPI Component interface:
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Component.xml
 
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceComponent};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::COMPONENT)};
   AddFunctionToInterface(desc, "Contains", &BridgeComponent::IsAccessibleContainingPoint);
   AddFunctionToInterface(desc, "GetAccessibleAtPoint", &BridgeComponent::GetAccessibleAtPoint);
   AddFunctionToInterface(desc, "GetExtents", &BridgeComponent::GetExtents);
@@ -52,14 +49,7 @@ void BridgeComponent::RegisterInterfaces()
 
 Component* BridgeComponent::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto componentInterface = dynamic_cast<Component*>(self);
-  if(!componentInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Component interface"};
-  }
-  return componentInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::COMPONENT>();
 }
 
 DBus::ValueOrError<bool> BridgeComponent::IsAccessibleContainingPoint(int32_t x, int32_t y, uint32_t coordType)

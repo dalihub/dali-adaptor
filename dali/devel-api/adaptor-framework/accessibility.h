@@ -428,9 +428,76 @@ enum class ReadingInfoType
   MAX_COUNT
 };
 
+/**
+ * @brief Enumeration of all AT-SPI interfaces.
+ *
+ * @see Dali::Accessibility::Accessible::GetInterfaceName()
+ * @see Dali::Accessibility::AtspiInterfaceType
+ */
+enum class AtspiInterface
+{
+  ACCESSIBLE,
+  ACTION,
+  APPLICATION,
+  CACHE,
+  COLLECTION,
+  COMPONENT,
+  DEVICE_EVENT_CONTROLLER,
+  DEVICE_EVENT_LISTENER,
+  DOCUMENT,
+  EDITABLE_TEXT,
+  EVENT_DOCUMENT,
+  EVENT_FOCUS,
+  EVENT_KEYBOARD,
+  EVENT_MOUSE,
+  EVENT_OBJECT,
+  EVENT_TERMINAL,
+  EVENT_WINDOW,
+  HYPERLINK,
+  HYPERTEXT,
+  IMAGE,
+  REGISTRY,
+  SELECTION,
+  SOCKET,
+  TABLE,
+  TABLE_CELL,
+  TEXT,
+  VALUE,
+  MAX_COUNT
+};
+
+using AtspiInterfaces  = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
 using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
 using States           = EnumBitSet<State, State::MAX_COUNT>;
 using Attributes       = std::unordered_map<std::string, std::string>;
+
+namespace Internal
+{
+/*
+ * AT-SPI interfaces exposed as native C++ types should specialize this like so:
+ *
+ * template<>
+ * struct AtspiInterfaceTypeHelper<AtspiInterface::ACCESSIBLE>
+ * {
+ *   using Type = Dali::Accessibility::Accessible;
+ * };
+ */
+template<AtspiInterface I>
+struct AtspiInterfaceTypeHelper; // no default definition
+
+} // namespace Internal
+
+/**
+ * @brief Resolves to the native C++ type that represents the given AT-SPI interface.
+ *
+ * For example, @code AtspiInterfaceType<AtspiInterface::ACCESSIBLE> @endcode is the same as
+ * @code Dali::Accessibility::Accessible @endcode. Not all AT-SPI interfaces have native C++
+ * representations (in which case, such an expression will not compile).
+ *
+ * @tparam I Enumeration value indicating the requested AT-SPI interface.
+ */
+template<AtspiInterface I>
+using AtspiInterfaceType = typename Internal::AtspiInterfaceTypeHelper<I>::Type;
 
 /**
  * @brief Class representing unique object address on accessibility bus

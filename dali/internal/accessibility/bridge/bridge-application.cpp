@@ -25,7 +25,7 @@ using namespace Dali::Accessibility;
 
 void BridgeApplication::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceApplication};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
   AddGetPropertyToInterface(desc, "ToolkitName", &BridgeApplication::GetToolkitName);
   AddGetPropertyToInterface(desc, "Version", &BridgeApplication::GetVersion);
   mDbusServer.addInterface("/", desc, true);
@@ -33,14 +33,7 @@ void BridgeApplication::RegisterInterfaces()
 
 Application* BridgeApplication::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto appInterface = dynamic_cast<Application*>(self);
-  if(!appInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Application interface"};
-  }
-  return appInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::APPLICATION>();
 }
 
 std::string BridgeApplication::GetToolkitName()

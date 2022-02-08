@@ -329,7 +329,7 @@ public:
 
     RegisterOnBridge(&mApplication);
 
-    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, mConnectionPtr};
+    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
     mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
@@ -344,7 +344,7 @@ public:
       }
     });
 
-    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, mConnectionPtr};
+    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
     Address root{"", "root"};
     auto    res = proxy.method<Address(Address)>("Embed").call(root);
     if(!res)

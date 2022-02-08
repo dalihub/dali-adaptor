@@ -93,7 +93,31 @@ public:
    * @return true on success, false otherwise
    */
   virtual bool DoAction(const std::string& name) = 0;
+
+  /**
+   * @brief Downcasts an Accessible to an Action.
+   *
+   * @param obj The Accessible
+   * @return An Action or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Action* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::ACTION>
+{
+  using Type = Action;
+};
+} // namespace Internal
+
+inline Action* Action::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::ACTION>(obj);
+}
 
 } // namespace Dali::Accessibility
 

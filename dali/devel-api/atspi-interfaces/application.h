@@ -48,7 +48,31 @@ public:
    * @return String with version
    */
   virtual std::string GetVersion() const = 0;
+
+  /**
+   * @brief Downcasts an Accessible to an Application.
+   *
+   * @param obj The Accessible
+   * @return An Application or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Application* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::APPLICATION>
+{
+  using Type = Application;
+};
+} // namespace Internal
+
+inline Application* Application::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::APPLICATION>(obj);
+}
 
 } // namespace Dali::Accessibility
 

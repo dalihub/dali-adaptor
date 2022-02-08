@@ -30,47 +30,23 @@
 #include <dali/internal/accessibility/bridge/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-/* DBus Interfaces */
+// DBus names
 
 #define A11yDbusName "org.a11y.Bus"
-#define A11yDbusPath "/org/a11y/bus"
 #define A11yDbusStatusInterface "org.a11y.Status"
 #define AtspiDbusNameRegistry "org.a11y.atspi.Registry"
-#define AtspiDbusPathRegistry "/org/a11y/atspi/registry"
-#define AtspiDbusInterfaceRegistry "org.a11y.atspi.Registry"
-#define AtspiDbusPathRoot "/org/a11y/atspi/accessible/root"
-#define AtspiDbusInterfaceSocket "org.a11y.atspi.Socket"
-#define AtspiPath "/org/a11y/atspi/accessible"
-#define AtspiDbusInterfaceAccessible "org.a11y.atspi.Accessible"
-#define AtspiDbusInterfaceAction "org.a11y.atspi.Action"
-#define AtspiDbusInterfaceApplication "org.a11y.atspi.Application"
-#define AtspiDbusInterfaceCache "org.a11y.atspi.Cache"
-#define AtspiDbusPathCache "/org/a11y/atspi/cache"
-#define AtspiDbusInterfaceCollection "org.a11y.atspi.Collection"
-#define AtspiDbusInterfaceComponent "org.a11y.atspi.Component"
-#define AtspiDbusInterfaceDocument "org.a11y.atspi.Document"
-#define AtspiDbusInterfaceEditableText "org.a11y.atspi.EditableText"
-#define AtspiDbusInterfaceEventKeyboard "org.a11y.atspi.Event.Keyboard"
-#define AtspiDbusInterfaceEventMouse "org.a11y.atspi.Event.Mouse"
-#define AtspiDbusInterfaceEventObject "org.a11y.atspi.Event.Object"
-#define AtspiDbusInterfaceHyperlink "org.a11y.atspi.Hyperlink"
-#define AtspiDbusInterfaceHypertext "org.a11y.atspi.Hypertext"
-#define AtspiDbusInterfaceImage "org.a11y.atspi.Image"
-#define AtspiDbusInterfaceSelection "org.a11y.atspi.Selection"
-#define AtspiDbusInterfaceTable "org.a11y.atspi.Table"
-#define AtspiDbusInterfaceTableCell "org.a11y.atspi.TableCell"
-#define AtspiDbusInterfaceText "org.a11y.atspi.Text"
-#define AtspiDbusInterfaceValue "org.a11y.atspi.Value"
-#define AtspiDbusInterfaceSocket "org.a11y.atspi.Socket"
-#define AtspiDbusInterfaceEventWindow "org.a11y.atspi.Event.Window"
-
-#define AtspiDbusPathDec "/org/a11y/atspi/registry/deviceeventcontroller"
-#define AtspiDbusInterfaceDec "org.a11y.atspi.DeviceEventController"
-#define AtspiDbusInterfaceDeviceEventListener "org.a11y.atspi.DeviceEventListener"
-
 #define DirectReadingDBusName "org.tizen.ScreenReader"
-#define DirectReadingDBusPath "/org/tizen/DirectReading"
 #define DirectReadingDBusInterface "org.tizen.DirectReading"
+
+// DBus paths
+
+#define A11yDbusPath "/org/a11y/bus"
+#define AtspiDbusPathCache "/org/a11y/atspi/cache"
+#define AtspiDbusPathDec "/org/a11y/atspi/registry/deviceeventcontroller"
+#define AtspiDbusPathRegistry "/org/a11y/atspi/registry"
+#define AtspiDbusPathRoot "/org/a11y/atspi/accessible/root"
+#define AtspiPath "/org/a11y/atspi/accessible"
+#define DirectReadingDBusPath "/org/tizen/DirectReading"
 
 struct ObjectPath;
 

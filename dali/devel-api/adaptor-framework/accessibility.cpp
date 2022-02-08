@@ -31,8 +31,16 @@
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/action.h>
+#include <dali/devel-api/atspi-interfaces/application.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
+#include <dali/devel-api/atspi-interfaces/editable-text.h>
+#include <dali/devel-api/atspi-interfaces/hyperlink.h>
+#include <dali/devel-api/atspi-interfaces/hypertext.h>
+#include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/atspi-interfaces/text.h>
+#include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -178,6 +186,99 @@ std::string Accessible::GetRoleName() const
   auto it = roleMap.find(GetRole());
 
   if(it == roleMap.end())
+  {
+    return {};
+  }
+
+  return std::string{it->second};
+}
+
+AtspiInterfaces Accessible::GetInterfaces() const
+{
+  if(!mInterfaces)
+  {
+    mInterfaces = DoGetInterfaces();
+    DALI_ASSERT_DEBUG(mInterfaces); // There has to be at least AtspiInterface::ACCESSIBLE
+  }
+
+  return mInterfaces;
+}
+
+std::vector<std::string> Accessible::GetInterfacesAsStrings() const
+{
+  std::vector<std::string> ret;
+  AtspiInterfaces          interfaces = GetInterfaces();
+
+  for(std::size_t i = 0u; i < static_cast<std::size_t>(AtspiInterface::MAX_COUNT); ++i)
+  {
+    auto interface = static_cast<AtspiInterface>(i);
+
+    if(interfaces[interface])
+    {
+      auto name = GetInterfaceName(interface);
+
+      DALI_ASSERT_DEBUG(!name.empty());
+      ret.emplace_back(std::move(name));
+    }
+  }
+
+  return ret;
+}
+
+AtspiInterfaces Accessible::DoGetInterfaces() const
+{
+  AtspiInterfaces interfaces;
+
+  interfaces[AtspiInterface::ACCESSIBLE]    = true;
+  interfaces[AtspiInterface::ACTION]        = dynamic_cast<const Action*>(this);
+  interfaces[AtspiInterface::APPLICATION]   = dynamic_cast<const Application*>(this);
+  interfaces[AtspiInterface::COLLECTION]    = dynamic_cast<const Collection*>(this);
+  interfaces[AtspiInterface::COMPONENT]     = dynamic_cast<const Component*>(this);
+  interfaces[AtspiInterface::EDITABLE_TEXT] = dynamic_cast<const EditableText*>(this);
+  interfaces[AtspiInterface::HYPERLINK]     = dynamic_cast<const Hyperlink*>(this);
+  interfaces[AtspiInterface::HYPERTEXT]     = dynamic_cast<const Hypertext*>(this);
+  interfaces[AtspiInterface::SELECTION]     = dynamic_cast<const Selection*>(this);
+  interfaces[AtspiInterface::TEXT]          = dynamic_cast<const Text*>(this);
+  interfaces[AtspiInterface::VALUE]         = dynamic_cast<const Value*>(this);
+
+  return interfaces;
+}
+
+std::string Accessible::GetInterfaceName(AtspiInterface interface)
+{
+  static const std::unordered_map<AtspiInterface, std::string_view> interfaceMap{
+    {AtspiInterface::ACCESSIBLE, "org.a11y.atspi.Accessible"},
+    {AtspiInterface::ACTION, "org.a11y.atspi.Action"},
+    {AtspiInterface::APPLICATION, "org.a11y.atspi.Application"},
+    {AtspiInterface::CACHE, "org.a11y.atspi.Cache"},
+    {AtspiInterface::COLLECTION, "org.a11y.atspi.Collection"},
+    {AtspiInterface::COMPONENT, "org.a11y.atspi.Component"},
+    {AtspiInterface::DEVICE_EVENT_CONTROLLER, "org.a11y.atspi.DeviceEventController"},
+    {AtspiInterface::DEVICE_EVENT_LISTENER, "org.a11y.atspi.DeviceEventListener"},
+    {AtspiInterface::DOCUMENT, "org.a11y.atspi.Document"},
+    {AtspiInterface::EDITABLE_TEXT, "org.a11y.atspi.EditableText"},
+    {AtspiInterface::EVENT_DOCUMENT, "org.a11y.atspi.Event.Document"},
+    {AtspiInterface::EVENT_FOCUS, "org.a11y.atspi.Event.Focus"},
+    {AtspiInterface::EVENT_KEYBOARD, "org.a11y.atspi.Event.Keyboard"},
+    {AtspiInterface::EVENT_MOUSE, "org.a11y.atspi.Event.Mouse"},
+    {AtspiInterface::EVENT_OBJECT, "org.a11y.atspi.Event.Object"},
+    {AtspiInterface::EVENT_TERMINAL, "org.a11y.atspi.Event.Terminal"},
+    {AtspiInterface::EVENT_WINDOW, "org.a11y.atspi.Event.Window"},
+    {AtspiInterface::HYPERLINK, "org.a11y.atspi.Hyperlink"},
+    {AtspiInterface::HYPERTEXT, "org.a11y.atspi.Hypertext"},
+    {AtspiInterface::IMAGE, "org.a11y.atspi.Image"},
+    {AtspiInterface::REGISTRY, "org.a11y.atspi.Registry"},
+    {AtspiInterface::SELECTION, "org.a11y.atspi.Selection"},
+    {AtspiInterface::SOCKET, "org.a11y.atspi.Socket"},
+    {AtspiInterface::TABLE, "org.a11y.atspi.Table"},
+    {AtspiInterface::TABLE_CELL, "org.a11y.atspi.TableCell"},
+    {AtspiInterface::TEXT, "org.a11y.atspi.Text"},
+    {AtspiInterface::VALUE, "org.a11y.atspi.Value"},
+  };
+
+  auto it = interfaceMap.find(interface);
+
+  if(it == interfaceMap.end())
   {
     return {};
   }

@@ -169,6 +169,22 @@ public:
   /**
    * @brief Constructs a new BitSet with all bits initialized with bits from the specified integer.
    *
+   * This constructor is only available for BitSets with 32-bit capacity. Equivalent to the pseudocode:
+   * @code
+   * for(i = 0; i < 32; ++i) bits[i] = (data >> i) & 0x1;
+   * @endcode
+   *
+   * @param data 32-bit integer with the initial values.
+   */
+  template<std::size_t I = N, typename = std::enable_if_t<(I == N && N == 1u)>>
+  explicit BitSet(std::uint32_t data)
+  {
+    mData[0] = data;
+  }
+
+  /**
+   * @brief Constructs a new BitSet with all bits initialized with bits from the specified integer.
+   *
    * This constructor is only available for BitSets with 64-bit capacity. Equivalent to the pseudocode:
    * @code
    * for(i = 0; i < 64; ++i) bits[i] = (data >> i) & 0x1;
@@ -360,6 +376,21 @@ public:
   /**
    * @brief Obtains a copy of the internal storage serialized as a single integer.
    *
+   * This method is only available for BitSets with 32-bit capacity.
+   *
+   * @return A copy of the internal storage.
+   *
+   * @see BitSet::BitSet(std::uint32_t)
+   */
+  template<std::size_t I = N, typename = std::enable_if_t<(I == N && N == 1u)>>
+  std::uint32_t GetRawData32() const
+  {
+    return mData[0];
+  }
+
+  /**
+   * @brief Obtains a copy of the internal storage serialized as a single integer.
+   *
    * This method is only available for BitSets with 64-bit capacity.
    *
    * @return A copy of the internal storage.
@@ -424,6 +455,38 @@ public:
   // Operators
 
   /**
+   * @copydoc BitSet::operator~() const
+   */
+  EnumBitSet operator~() const
+  {
+    return BitSet<N>::operator~();
+  }
+
+  /**
+   * @copydoc BitSet::operator|(const BitSet&) const
+   */
+  EnumBitSet operator|(const EnumBitSet& other) const
+  {
+    return BitSet<N>::operator|(other);
+  }
+
+  /**
+   * @copydoc BitSet::operator&(const BitSet&) const
+   */
+  EnumBitSet operator&(const EnumBitSet& other) const
+  {
+    return BitSet<N>::operator&(other);
+  }
+
+  /**
+   * @copydoc BitSet::operator^(const BitSet&) const
+   */
+  EnumBitSet operator^(const EnumBitSet& other) const
+  {
+    return BitSet<N>::operator^(other);
+  }
+
+  /**
    * @copydoc BitSet::operator[](IndexType) const
    */
   bool operator[](Enum index) const
@@ -440,6 +503,12 @@ public:
   }
 
 private:
+  // For operators '~|&^'
+  EnumBitSet(BitSet<N>&& bitSet)
+  : BitSet<N>(bitSet)
+  {
+  }
+
   // No data members (non-virtual destructor)
 };
 

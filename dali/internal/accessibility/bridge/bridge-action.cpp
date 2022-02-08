@@ -18,14 +18,11 @@
 // CLASS HEADER
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 
-// EXTERNAL INCLUDES
-#include <iostream>
-
 using namespace Dali::Accessibility;
 
 void BridgeAction::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceAction};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACTION)};
 
   AddGetPropertyToInterface(desc, "NActions", &BridgeAction::GetActionCount);
 
@@ -40,14 +37,7 @@ void BridgeAction::RegisterInterfaces()
 
 Action* BridgeAction::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto actionInterface = dynamic_cast<Action*>(self);
-  if(!actionInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Action interface"};
-  }
-  return actionInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::ACTION>();
 }
 
 DBus::ValueOrError<std::string> BridgeAction::GetActionName(int32_t index)

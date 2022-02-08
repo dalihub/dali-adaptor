@@ -25,7 +25,7 @@ using namespace Dali::Accessibility;
 
 void BridgeHyperlink::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceHyperlink};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::HYPERLINK)};
   AddGetPropertyToInterface(desc, "NAnchors", &BridgeHyperlink::GetAnchorCount);
   AddGetPropertyToInterface(desc, "StartIndex", &BridgeHyperlink::GetStartIndex);
   AddGetPropertyToInterface(desc, "EndIndex", &BridgeHyperlink::GetEndIndex);
@@ -37,14 +37,7 @@ void BridgeHyperlink::RegisterInterfaces()
 
 Hyperlink* BridgeHyperlink::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto hyperlinkInterface = dynamic_cast<Hyperlink*>(self);
-  if(!hyperlinkInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Hyperlink interface"};
-  }
-  return hyperlinkInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::HYPERLINK>();
 }
 
 DBus::ValueOrError<int32_t> BridgeHyperlink::GetEndIndex()

@@ -336,9 +336,26 @@ public:
   /**
    * @brief Gets all implemented interfaces.
    *
-   * @return The collection of strings with implemented interfaces
+   * Override DoGetInterfaces() to customize the return value of this method.
+   *
+   * @return The collection of implemented interfaces
+   *
+   * @see DoGetInterfaces()
    */
-  std::vector<std::string> GetInterfaces() const;
+  AtspiInterfaces GetInterfaces() const;
+
+  /**
+   * @brief Gets all implemented interfaces.
+   *
+   * Converts all interfaces returned by GetInterfaces() to their DBus names
+   * using GetInterfaceName().
+   *
+   * @return The collection of names of implemented interfaces
+   *
+   * @see GetInterfaces()
+   * @see GetInterfaceName()
+   */
+  std::vector<std::string> GetInterfacesAsStrings() const;
 
   /**
    * @brief Checks if object is on root level.
@@ -357,6 +374,20 @@ protected:
   Accessible&                   operator=(const Accessible&) = delete;
   Accessible&                   operator=(Accessible&&) = delete;
   std::shared_ptr<Bridge::Data> GetBridgeData() const;
+
+  /**
+   * @brief Returns the collection of AT-SPI interfaces implemented by this Accessible.
+   *
+   * This method is called only once and its return value is cached. The default implementation
+   * uses dynamic_cast to determine which interfaces are implemented. Override this if you
+   * conceptually provide fewer interfaces than dynamic_cast can see.
+   *
+   * @return The collection of implemented interfaces
+   *
+   * @see GetInterfaces()
+   * @see GetInterfaceName()
+   */
+  virtual AtspiInterfaces DoGetInterfaces() const;
 
 public:
   /**
@@ -412,13 +443,51 @@ public:
    */
   static Accessible* Get(Dali::Actor actor, bool isRoot = false);
 
+  /**
+   * @brief Obtains the DBus interface name for the specified AT-SPI interface.
+   *
+   * @param interface AT-SPI interface identifier (e.g. AtspiInterface::ACCESSIBLE)
+   * @return AT-SPI interface name (e.g. "org.a11y.atspi.Accessible")
+   */
+  static std::string GetInterfaceName(AtspiInterface interface);
+
+  /**
+   * @brief Downcasts an Accessible pointer to an AT-SPI interface pointer.
+   *
+   * @tparam I Desired AT-SPI interface
+   *
+   * @param obj Object to cast.
+   *
+   * @return Pointer to an AT-SPI interface or null if the interface is not implemented.
+   */
+  template<AtspiInterface I>
+  static AtspiInterfaceType<I>* DownCast(Accessible* obj)
+  {
+    if(!obj || !obj->GetInterfaces()[I])
+    {
+      return nullptr;
+    }
+
+    return dynamic_cast<AtspiInterfaceType<I>*>(obj);
+  }
+
 private:
   friend class Bridge;
 
   mutable std::weak_ptr<Bridge::Data> mBridgeData;
+  mutable AtspiInterfaces             mInterfaces;
   bool                                mIsOnRootLevel = false;
 
 }; // Accessible class
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::ACCESSIBLE>
+{
+  using Type = Accessible;
+};
+} // namespace Internal
 
 } // namespace Dali::Accessibility
 

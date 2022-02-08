@@ -118,7 +118,31 @@ public:
    * @remarks This method is `SetSelection` in DBus method.
    */
   virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset) = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Text.
+   *
+   * @param obj The Accessible
+   * @return A Text or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Text* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::TEXT>
+{
+  using Type = Text;
+};
+} // namespace Internal
+
+inline Text* Text::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::TEXT>(obj);
+}
 
 } // namespace Dali::Accessibility
 

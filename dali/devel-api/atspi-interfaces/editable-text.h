@@ -84,7 +84,31 @@ public:
    * @return true on success, false otherwise
    */
   virtual bool SetTextContents(std::string newContents) = 0;
+
+  /**
+   * @brief Downcasts an Accessible to an EditableText.
+   *
+   * @param obj The Accessible
+   * @return An EditableText or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline EditableText* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::EDITABLE_TEXT>
+{
+  using Type = EditableText;
+};
+} // namespace Internal
+
+inline EditableText* EditableText::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::EDITABLE_TEXT>(obj);
+}
 
 } // namespace Dali::Accessibility
 
