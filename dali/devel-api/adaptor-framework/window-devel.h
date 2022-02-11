@@ -32,6 +32,7 @@ class KeyEvent;
 class TouchEvent;
 class WheelEvent;
 class RenderTaskList;
+struct TouchPoint;
 
 namespace DevelWindow
 {
@@ -400,6 +401,27 @@ DALI_ADAPTOR_API void SendRotationCompletedAcknowledgement(Window window);
  */
 DALI_ADAPTOR_API bool IsWindowRotating(Window window);
 
+/**
+ * @brief Feed (Send) touch event to window
+ * @param[in] window The window instance
+ * @param[in] point The touch point
+ * @param[in] timeStamp The time stamp
+ */
+DALI_ADAPTOR_API void FeedTouchPoint(Window window, const Dali::TouchPoint& point, int32_t timeStamp);
+
+/**
+ * @brief Feed (Send) wheel event to window
+ * @param[in] window The window instance
+ * @param[in] wheelEvent The wheel event
+ */
+DALI_ADAPTOR_API void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent);
+
+/**
+ * @brief Feed (Send) key event to window
+ * @param[in] window The window instance
+ * @param[in] keyEvent The key event holding the key information.
+ */
+DALI_ADAPTOR_API void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent);
 
 } // namespace DevelWindow
 
