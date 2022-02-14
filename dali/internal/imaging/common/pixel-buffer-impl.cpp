@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,12 +47,14 @@ PixelBuffer::PixelBuffer(unsigned char*      buffer,
                          unsigned int        bufferSize,
                          unsigned int        width,
                          unsigned int        height,
+                         unsigned int        stride,
                          Dali::Pixel::Format pixelFormat)
 : mMetadata(),
   mBuffer(buffer),
   mBufferSize(bufferSize),
   mWidth(width),
   mHeight(height),
+  mStride(stride ? stride : width),
   mPixelFormat(pixelFormat),
   mPreMultiplied(false)
 {
@@ -73,16 +75,17 @@ PixelBufferPtr PixelBuffer::New(unsigned int        width,
   {
     buffer = static_cast<unsigned char*>(malloc(bufferSize));
   }
-  return new PixelBuffer(buffer, bufferSize, width, height, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, width, pixelFormat);
 }
 
 PixelBufferPtr PixelBuffer::New(unsigned char*      buffer,
                                 unsigned int        bufferSize,
                                 unsigned int        width,
                                 unsigned int        height,
+                                unsigned int        stride,
                                 Dali::Pixel::Format pixelFormat)
 {
-  return new PixelBuffer(buffer, bufferSize, width, height, pixelFormat);
+  return new PixelBuffer(buffer, bufferSize, width, height, stride, pixelFormat);
 }
 
 Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
@@ -91,12 +94,14 @@ Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
                                                    pixelBuffer.mBufferSize,
                                                    pixelBuffer.mWidth,
                                                    pixelBuffer.mHeight,
+                                                   pixelBuffer.mStride,
                                                    pixelBuffer.mPixelFormat,
                                                    Dali::PixelData::FREE);
   pixelBuffer.mBuffer       = NULL;
   pixelBuffer.mWidth        = 0;
   pixelBuffer.mHeight       = 0;
   pixelBuffer.mBufferSize   = 0;
+  pixelBuffer.mStride       = 0;
 
   return pixelData;
 }
@@ -109,6 +114,11 @@ unsigned int PixelBuffer::GetWidth() const
 unsigned int PixelBuffer::GetHeight() const
 {
   return mHeight;
+}
+
+uint32_t PixelBuffer::GetStride() const
+{
+  return mStride;
 }
 
 Dali::Pixel::Format PixelBuffer::GetPixelFormat() const
@@ -141,7 +151,7 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
     memcpy(destBuffer, mBuffer, mBufferSize);
   }
 
-  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mPixelFormat, Dali::PixelData::FREE);
+  Dali::PixelData pixelData = Dali::PixelData::New(destBuffer, mBufferSize, mWidth, mHeight, mStride, mPixelFormat, Dali::PixelData::FREE);
   return pixelData;
 }
 
@@ -201,6 +211,7 @@ void PixelBuffer::TakeOwnershipOfBuffer(PixelBuffer& pixelBuffer)
   mBufferSize         = pixelBuffer.mBufferSize;
   mWidth              = pixelBuffer.mWidth;
   mHeight             = pixelBuffer.mHeight;
+  mStride             = pixelBuffer.mStride;
   mPixelFormat        = pixelBuffer.mPixelFormat;
 }
 
