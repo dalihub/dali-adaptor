@@ -300,3 +300,18 @@ void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType 
     {0},
     {"", "root"});
 }
+
+void BridgeObject::EmitSocketAvailable(Accessible* obj)
+{
+  if(!IsUp() || obj->IsHidden())
+  {
+    return;
+  }
+
+  mDbusServer.emit2<Address, Address>(
+    GetAccessiblePath(obj),
+    Accessible::GetInterfaceName(AtspiInterface::SOCKET),
+    "Available",
+    obj->GetAddress(),
+    {"", "root"});
+}

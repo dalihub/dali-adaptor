@@ -20,6 +20,7 @@
 //INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
@@ -113,6 +114,16 @@ void Accessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
+  }
+}
+
+void Accessible::EmitSocketAvailable()
+{
+  DALI_ASSERT_DEBUG(Socket::DownCast(this));
+
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitSocketAvailable(this);
   }
 }
 

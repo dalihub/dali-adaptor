@@ -85,6 +85,11 @@ protected:
    */
   void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitSocketAvailable()
+   */
+  void EmitSocketAvailable(Dali::Accessibility::Accessible* obj) override;
+
 protected:
   DBus::DBusInterfaceDescription::SignalId mStateChanged;
 };
