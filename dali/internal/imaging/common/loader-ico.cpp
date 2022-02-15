@@ -201,7 +201,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   {
     return false;
   }
-  map.Resize(fsize);
+  map.ResizeUninitialized(fsize);
 
   if(fread(&map[0], 1, fsize, fp) != fsize)
   {
@@ -637,7 +637,7 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
 
   // Set up the surface as soon as we have the width and height, so we have a black image if there are any further errors.
-  surface.Resize(w * h * 4);
+  surface.ResizeUninitialized(w * h * 4);
   memset(&surface[0], 0, w * h * 4);
 
   if(!read_ushort(&map[0], fsize, &position, &word))
@@ -706,8 +706,8 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   unsigned int bitStride = ((w + 31) / 32) * 4;
 
   // Pixbuf only ever contains one scanline worth of data.
-  pixbuf.Resize(stride);
-  maskbuf.Resize(bitStride * h);
+  pixbuf.ResizeUninitialized(stride);
+  maskbuf.ResizeUninitialized(bitStride * h);
 
   // Handle different bits-per-pixel.
   if(!HandleBitsPerPixel(bitcount, map, pix, surface, w, h, fsize, position, pixbuf, stride, pal))
