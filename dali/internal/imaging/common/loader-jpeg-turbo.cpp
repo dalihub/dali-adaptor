@@ -375,7 +375,7 @@ void Transpose(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -397,7 +397,7 @@ void Rotate90(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -426,7 +426,7 @@ void Transverse(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -449,7 +449,7 @@ void Rotate270(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -561,7 +561,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.Resize(jpegBufferSize);
+    jpegBuffer.ResizeUninitialized(jpegBufferSize);
   }
   catch(...)
   {
@@ -633,7 +633,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 #else
   if(tjDecompressHeader2(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling) == -1)
   {
-    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    //DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
   }
 #endif
@@ -895,7 +895,7 @@ bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>&
       return false;
     }
 
-    encodedPixels.Resize(dstBufferSize);
+    encodedPixels.ResizeUninitialized(dstBufferSize);
     memcpy(encodedPixels.Begin(), dstBuffer.get(), dstBufferSize);
   }
   return true;
