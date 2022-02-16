@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,7 +90,8 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     if(asset)
     {
       length = AAsset_getLength(asset);
-      memblock.Resize(length + 1); // 1 for extra zero at the end
+      memblock.ResizeUninitialized(length + 1);
+      memblock[length] = 0; // 1 for extra zero at the end
 
       char* buffer = reinterpret_cast<char*>(memblock.Begin());
       errorCode    = (AAsset_read(asset, buffer, length) != length) ? 0 : 1;
@@ -110,7 +111,6 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
     {
       fseek(file, 0, SEEK_END);
       length = ftell(file);
-      //Dali::Vector.Resize would lead to calling PushBack for each byte, waste of CPU resource
       memblock.ResizeUninitialized(length + 1);
       //put last byte as 0, in case this is a text file without null-terminator
       memblock[length] = 0;

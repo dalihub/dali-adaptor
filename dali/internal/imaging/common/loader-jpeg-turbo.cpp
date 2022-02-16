@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -633,7 +633,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 #else
   if(tjDecompressHeader2(jpeg.get(), jpegBufferPtr, jpegBufferSize, &preXformImageWidth, &preXformImageHeight, &chrominanceSubsampling) == -1)
   {
-    //DALI_LOG_ERROR("%s\n", tjGetErrorStr());
+    DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     // Do not set width and height to 0 or return early as this sometimes fails only on determining subsampling type.
   }
 #endif
