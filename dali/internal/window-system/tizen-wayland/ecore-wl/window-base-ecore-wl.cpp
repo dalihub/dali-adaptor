@@ -1368,6 +1368,24 @@ void WindowBaseEcoreWl::Activate()
   ecore_wl_window_activate(mEcoreWindow);
 }
 
+void WindowBaseEcoreWl::Maximize(bool maximize)
+{
+}
+
+bool WindowBaseEcoreWl::IsMaximized() const
+{
+  return false;
+}
+
+void WindowBaseEcoreWl::Minimize(bool minimize)
+{
+}
+
+bool WindowBaseEcoreWl::IsMinimized() const
+{
+  return false;
+}
+
 void WindowBaseEcoreWl::SetAvailableAnlges(const std::vector<int>& angles)
 {
   int rotations[4] = {0};

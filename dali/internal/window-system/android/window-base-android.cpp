@@ -187,6 +187,24 @@ void WindowBaseAndroid::Activate()
 {
 }
 
+void WindowBaseAndroid::Maximize(bool maximize)
+{
+}
+
+bool WindowBaseAndroid::IsMaximized() const
+{
+  return false;
+}
+
+void WindowBaseAndroid::Minimize(bool minimize)
+{
+}
+
+bool WindowBaseAndroid::IsMinimized() const
+{
+  return false;
+}
+
 void WindowBaseAndroid::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }

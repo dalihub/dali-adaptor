@@ -261,6 +261,26 @@ public:
   void Activate() override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Maximize()
+   */
+  void Maximize(bool maximize) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsMaximized()
+   */
+  bool IsMaximized() const override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::Minimize()
+   */
+  void Minimize(bool minimize) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsMinimized()
+   */
+  bool IsMinimized() const override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
    */
   void SetAvailableAnlges(const std::vector<int>& angles) override;

@@ -384,7 +384,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers started.\n");
+      DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers started. eglSurface(%p)\n", eglSurface);
     }
 #endif //DALI_PROFILE_UBUNTU
 
@@ -394,7 +394,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers finished.\n");
+      DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers finished.\n");
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
@@ -452,7 +452,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers started.\n");
+      DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR started. eglSurface(%p)\n", eglSurface);
     }
 #endif //DALI_PROFILE_UBUNTU
 
@@ -465,7 +465,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_LOG_RELEASE_INFO("EglImplementation::SwapBuffers finished.\n");
+      DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR finished.\n");
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
