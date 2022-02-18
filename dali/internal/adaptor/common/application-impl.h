@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -324,9 +324,6 @@ public: // Signals
     return mLowMemorySignal;
   }
 
-  // Temporary to test GFXApi
-  Graphics::Controller& GetController();
-
 protected:
   /**
    * Private Constructor
@@ -400,12 +397,12 @@ private:
   Dali::Application::WINDOW_MODE mMainWindowMode; ///< Window mode of the main window
   std::string                    mMainWindowName; ///< Name of the main window as obtained from environment options
 
-  std::string          mStylesheet;
-  EnvironmentOptions   mEnvironmentOptions;
-  PositionSize         mWindowPositionSize;
-  Launchpad::State     mLaunchpadState;
-  bool                 mUseRemoteSurface;
-  WindowType           mDefaultWindowType;         ///< Default window's type. It is used when Application is created.
+  std::string        mStylesheet;
+  EnvironmentOptions mEnvironmentOptions;
+  PositionSize       mWindowPositionSize;
+  Launchpad::State   mLaunchpadState;
+  bool               mUseRemoteSurface;
+  WindowType         mDefaultWindowType; ///< Default window's type. It is used when Application is created.
 
   SlotDelegate<Application> mSlotDelegate;
 
