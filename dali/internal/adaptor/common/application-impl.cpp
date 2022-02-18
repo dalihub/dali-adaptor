@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -460,12 +460,6 @@ ApplicationPtr Application::GetPreInitializedApplication()
   gPreInitializedApplication.Reset();
 
   return application;
-}
-
-Graphics::Controller& Application::GetController()
-{
-  auto& adaptor = Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor);
-  return adaptor.GetGraphicsInterface().GetController();
 }
 
 } // namespace Adaptor
