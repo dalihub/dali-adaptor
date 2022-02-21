@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,9 +106,9 @@ void VectorImageRenderer::Initialize()
 
   mSwCanvas = tvg::SwCanvas::gen();
   mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
-  mSwCanvas->reserve(1);  //has one picture
+  mSwCanvas->reserve(1); //has one picture
 #else
-  mRasterizer = nsvgCreateRasterizer();
+  mRasterizer  = nsvgCreateRasterizer();
 #endif
 }
 
@@ -131,11 +131,11 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
     }
   }
 
-  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), false);
+  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), true);
 
   if(ret != tvg::Result::Success)
   {
-    switch (ret)
+    switch(ret)
     {
       case tvg::Result::InvalidArguments:
       {
@@ -163,7 +163,7 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 
   float w, h;
   mPicture->size(&w, &h);
-  mDefaultWidth = static_cast<uint32_t>(w);
+  mDefaultWidth  = static_cast<uint32_t>(w);
   mDefaultHeight = static_cast<uint32_t>(h);
 
   return true;
@@ -196,7 +196,7 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
     return false;
   }
 
-  auto width = buffer.GetWidth();
+  auto width  = buffer.GetWidth();
   auto height = buffer.GetHeight();
 
   mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::SwCanvas::ABGR8888);
@@ -212,9 +212,10 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
     return false;
   }
 
-  if(mSwCanvas->draw() != tvg::Result::Success)
+  auto ret = mSwCanvas->draw();
+  if(ret != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail [%p]\n", this);
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail %d [%p]\n", static_cast<int>(ret), this);
     return false;
   }
 
@@ -235,7 +236,7 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
 void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
 #ifdef THORVG_SUPPORT
-  width = mDefaultWidth;
+  width  = mDefaultWidth;
   height = mDefaultHeight;
 #else
   if(mParsedImage)
