@@ -19,10 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <functional>
+#include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/actors/actor.h>
+#include <functional>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -53,8 +53,8 @@ public:
   {
     ENTER, ///< The drag object has entered the target object.
     LEAVE, ///< The drag object has left the target object.
-    MOVE, ///< The drag object moves in the target object.
-    DROP  ///< The drag object dropped in the target object.
+    MOVE,  ///< The drag object moves in the target object.
+    DROP   ///< The drag object dropped in the target object.
   };
 
   /**
@@ -62,28 +62,49 @@ public:
    */
   struct DragEvent
   {
-    DragEvent() { this->data = nullptr; }
+    DragEvent()
+    {
+      this->data = nullptr;
+    }
     DragEvent(DragType type, Dali::Vector2 position, char* data = nullptr)
     {
-      this->type = type;
+      this->type     = type;
       this->position = position;
-      this->data = data;
+      this->data     = data;
     }
 
-    void SetAction(DragType type) { this->type = type; }
-    DragType GetAction() { return type; }
-    void SetPosition(Dali::Vector2 position) { this->position = position; }
-    Dali::Vector2 GetPosition() { return position; }
-    void SetData(char* data) { this->data = data; }
-    char* GetData() { return data; }
+    void SetAction(DragType type)
+    {
+      this->type = type;
+    }
+    DragType GetAction()
+    {
+      return type;
+    }
+    void SetPosition(Dali::Vector2 position)
+    {
+      this->position = position;
+    }
+    Dali::Vector2 GetPosition()
+    {
+      return position;
+    }
+    void SetData(char* data)
+    {
+      this->data = data;
+    }
+    char* GetData()
+    {
+      return data;
+    }
 
   private:
-    DragType type; ///< The drag event type.
-    Dali::Vector2 position; ///< The position of drag object.
-    char* data; ///< The data of drag object.
+    DragType      type{DragType::DROP}; ///< The drag event type.
+    Dali::Vector2 position;             ///< The position of drag object.
+    char*         data{nullptr};        ///< The data of drag object.
   };
 
-  using DragAndDropFunction      = std::function<void(const DragEvent&)>;
+  using DragAndDropFunction = std::function<void(const DragEvent&)>;
 
   /**
    * @brief Create an uninitialized DragAndDrop.

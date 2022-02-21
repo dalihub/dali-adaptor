@@ -30,12 +30,11 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 struct DropTarget
 {
-  Dali::Actor target;
+  Dali::Actor                            target;
   Dali::DragAndDrop::DragAndDropFunction callback;
-  bool inside;
+  bool                                   inside;
 };
 
 /**
@@ -92,22 +91,20 @@ public:
 private:
   DragAndDropEcoreWl(const DragAndDropEcoreWl&) = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&) = delete;
-  DragAndDropEcoreWl(DragAndDropEcoreWl&&) = delete;
+  DragAndDropEcoreWl(DragAndDropEcoreWl&&)           = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&&) = delete;
 
 private:
-  Dali::Window mDragWindow;
-  uint32_t mSerial;
-  Ecore_Event_Handler* mSendHandler;
-  Ecore_Event_Handler* mReceiveHandler;
-  Ecore_Event_Handler* mMotionHandler;
-  Ecore_Event_Handler* mDropHandler;
-  int mTargetIndex;
-  Dali::Vector2 mPosition;
-  std::string mData;
+  Dali::Window            mDragWindow;
+  uint32_t                mSerial{0u};
+  Ecore_Event_Handler*    mSendHandler{nullptr};
+  Ecore_Event_Handler*    mReceiveHandler{nullptr};
+  Ecore_Event_Handler*    mMotionHandler{nullptr};
+  Ecore_Event_Handler*    mDropHandler{nullptr};
+  int                     mTargetIndex{0};
+  Dali::Vector2           mPosition;
+  std::string             mData;
   std::vector<DropTarget> mDropTargets;
-
-public:
 }; // class DragAndDropEcoreWl
 
 } // namespace Adaptor

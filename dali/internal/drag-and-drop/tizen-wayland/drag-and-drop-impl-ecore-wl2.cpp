@@ -19,9 +19,9 @@
 #include <dali/internal/drag-and-drop/tizen-wayland/drag-and-drop-impl-ecore-wl2.h>
 
 // EXTERNAL INCLUDES
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <unistd.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 static bool IsIntersection(int px, int py, int tx, int ty, int tw, int th)
 {
   if(px > tx && py > ty && px < (tx + tw) && py < (ty + th))
@@ -76,7 +75,6 @@ static Eina_Bool EcoreEventDataDrop(void* data, int type, void* event)
   return ECORE_CALLBACK_PASS_ON;
 }
 
-
 Dali::DragAndDrop GetDragAndDrop()
 {
   Dali::DragAndDrop dnd;
@@ -94,7 +92,7 @@ Dali::DragAndDrop GetDragAndDrop()
     else
     {
       // Create a singleon instance
-      DragAndDropEcoreWl *dndImpl = new DragAndDropEcoreWl();
+      DragAndDropEcoreWl* dndImpl = new DragAndDropEcoreWl();
 
       dnd = Dali::DragAndDrop(dndImpl);
       service.Register(typeid(Dali::DragAndDrop), dnd);
@@ -106,10 +104,10 @@ Dali::DragAndDrop GetDragAndDrop()
 
 DragAndDropEcoreWl::DragAndDropEcoreWl()
 {
-  mSendHandler = ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this);
+  mSendHandler    = ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this);
   mReceiveHandler = ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventOfferDataReady, this);
-  mMotionHandler = ecore_event_handler_add(ECORE_WL2_EVENT_DND_MOTION, EcoreEventDataMotion, this);
-  mDropHandler = ecore_event_handler_add(ECORE_WL2_EVENT_DND_DROP, EcoreEventDataDrop, this);
+  mMotionHandler  = ecore_event_handler_add(ECORE_WL2_EVENT_DND_MOTION, EcoreEventDataMotion, this);
+  mDropHandler    = ecore_event_handler_add(ECORE_WL2_EVENT_DND_DROP, EcoreEventDataDrop, this);
 }
 
 DragAndDropEcoreWl::~DragAndDropEcoreWl()
@@ -146,14 +144,14 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
   mDragWindow.Add(shadow);
 
   // Start Drag and Drop
-  Ecore_Wl2_Window* parentWindow = AnyCast<Ecore_Wl2_Window*>(parent.GetNativeHandle());
-  Ecore_Wl2_Window* dragWindow = AnyCast<Ecore_Wl2_Window*>(mDragWindow.GetNativeHandle());
-  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-  Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
+  Ecore_Wl2_Window*  parentWindow = AnyCast<Ecore_Wl2_Window*>(parent.GetNativeHandle());
+  Ecore_Wl2_Window*  dragWindow   = AnyCast<Ecore_Wl2_Window*>(mDragWindow.GetNativeHandle());
+  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
 
   // TODO: Makes mime-type common
-  char *mimeTypes[2] = {"text/plain"};
-  mimeTypes[1] = NULL;
+  char* mimeTypes[2] = {"text/plain"};
+  mimeTypes[1]       = NULL;
 
   // Set mimetype
   ecore_wl2_dnd_drag_types_set(input, (const char**)mimeTypes);
@@ -167,9 +165,9 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
 bool DragAndDropEcoreWl::AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback)
 {
   DropTarget targetData;
-  targetData.target = target;
+  targetData.target   = target;
   targetData.callback = callback;
-  targetData.inside = false;
+  targetData.inside   = false;
 
   mDropTargets.push_back(targetData);
 
@@ -184,13 +182,13 @@ void DragAndDropEcoreWl::SendData(void* event)
     return;
   }
 
-  int len = strlen(mData.c_str());
-  char *buf = new char[len + 1];
+  int   len = strlen(mData.c_str());
+  char* buf = new char[len + 1];
   strncpy(buf, mData.c_str(), len);
   buf[len] = '\0';
 
   // Write source object data to target object
-  write(ev->fd, buf, len+1);
+  write(ev->fd, buf, len + 1);
   close(ev->fd);
 
   if(mDragWindow)
@@ -200,7 +198,7 @@ void DragAndDropEcoreWl::SendData(void* event)
 
   if(buf)
   {
-    free(buf);
+    delete[] buf;
   }
 }
 
@@ -219,16 +217,16 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
 
 bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 {
-  Ecore_Wl2_Event_Dnd_Motion *ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
+  Ecore_Wl2_Event_Dnd_Motion* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
 
   Dali::DragAndDrop::DragEvent dragEvent;
-  Dali::Vector2 curPosition(ev->x, ev->y);
+  Dali::Vector2                curPosition(ev->x, ev->y);
 
   for(int i = 0; i < mDropTargets.size(); i++)
   {
-    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
-    Vector2 size = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-    bool currentInside = IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height);
+    Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
+    Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+    bool    currentInside = IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height);
 
     // Calculate Drag Enter, Leave, Move Event
     if(currentInside && !mDropTargets[i].inside)
@@ -261,7 +259,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
 bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 {
-  Ecore_Wl2_Event_Dnd_Drop *ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Drop*>(event);
+  Ecore_Wl2_Event_Dnd_Drop* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Drop*>(event);
 
   // Check the target object region
   mTargetIndex = -1;
@@ -269,22 +267,22 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   for(int i = 0; i < mDropTargets.size(); i++)
   {
     Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
-    Vector2 size = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+    Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
     // If the drop position is in the target object region, request drop data to the source object
     if(IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height))
     {
-      mTargetIndex = i;
-      mPosition = position;
+      mTargetIndex        = i;
+      mPosition           = position;
       Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
 
-      char *mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
+      char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
       if(mimetype)
       {
-         ecore_wl2_offer_accept(ev->offer, mimetype);
-         ecore_wl2_offer_receive(ev->offer, mimetype);
-         Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-         Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(display);
-         ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+        ecore_wl2_offer_accept(ev->offer, mimetype);
+        ecore_wl2_offer_receive(ev->offer, mimetype);
+        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+        Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+        ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
       }
       return true;
     }
