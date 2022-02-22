@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -582,9 +582,9 @@ static Eina_Bool EcoreEventWindowRedrawRequest(void* data, int type, void* event
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Window Auxiliary Message Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
-static Eina_Bool EcoreEventWindowAuxiliaryMessage(void *data, int type, void *event)
+static Eina_Bool EcoreEventWindowAuxiliaryMessage(void* data, int type, void* event)
 {
-  WindowBaseEcoreWl2*          windowBase             = static_cast<WindowBaseEcoreWl2*>(data);
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
     windowBase->OnEcoreEventWindowAuxiliaryMessage(event);
@@ -1073,6 +1073,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
     if(windowMoved || windowResized)
     {
       Dali::PositionSize newPositionSize(ev->x, ev->y, newWidth, newHeight);
+      mWindowPositionSize = newPositionSize;
+      DALI_LOG_RELEASE_INFO("Update position & resize signal by server, x[%d] y[%d] w[%d] h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
       mUpdatePositionSizeSignal.Emit(newPositionSize);
     }
 
@@ -1210,10 +1212,9 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl2::OnDetentRotation\n");
 
-  int direction = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
-  int timeStamp = detentEvent->timestamp;
+  int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
 
-  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, direction, 0, Vector2(0.0f, 0.0f), 0, timeStamp);
+  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, detentEvent->direction, 0, Vector2(0.0f, 0.0f), clockwise, detentEvent->timestamp);
 
   mWheelEventSignal.Emit(wheelEvent);
 }
@@ -1403,30 +1404,29 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowRedrawRequest()
 
 void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
 {
- Ecore_Wl2_Event_Aux_Message *message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
- if(message)
- {
-   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n",message->key, message->val);
-   std::string key(message->key);
-   std::string value(message->val);
-   Dali::Property::Array options;
+  Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
+  if(message)
+  {
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n", message->key, message->val);
+    std::string           key(message->key);
+    std::string           value(message->val);
+    Dali::Property::Array options;
 
-   if(message->options)
-   {
-     Eina_List *l;
-     void* data;
-     EINA_LIST_FOREACH(message->options, l, data)
-     {
-       DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n",(char*)data);
-       std::string option(static_cast<char*>(data));
-       options.Add(option);
-     }
-   }
+    if(message->options)
+    {
+      Eina_List* l;
+      void*      data;
+      EINA_LIST_FOREACH(message->options, l, data)
+      {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n", (char*)data);
+        std::string option(static_cast<char*>(data));
+        options.Add(option);
+      }
+    }
 
-   mAuxiliaryMessageSignal.Emit(key, value, options);
- }
+    mAuxiliaryMessageSignal.Emit(key, value, options);
+  }
 }
-
 
 void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
 {
@@ -1727,6 +1727,26 @@ void WindowBaseEcoreWl2::Lower()
 void WindowBaseEcoreWl2::Activate()
 {
   ecore_wl2_window_activate(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::Maximize(bool maximize)
+{
+  ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
+}
+
+bool WindowBaseEcoreWl2::IsMaximized() const
+{
+  return ecore_wl2_window_maximized_get(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::Minimize(bool minimize)
+{
+  ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
+}
+
+bool WindowBaseEcoreWl2::IsMinimized() const
+{
+  return ecore_wl2_window_iconified_get(mEcoreWindow);
 }
 
 void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
@@ -2614,10 +2634,17 @@ void WindowBaseEcoreWl2::InitializeIme()
 
   EINA_ITERATOR_FOREACH(globals, global)
   {
+#ifdef OVER_TIZEN_VERSION_7
+    if(strcmp(global->interface, "zwp_input_panel_v1") == 0)
+    {
+      mWlInputPanel = (zwp_input_panel_v1*)wl_registry_bind(registry, global->id, &zwp_input_panel_v1_interface, 1);
+    }
+#else
     if(strcmp(global->interface, "wl_input_panel") == 0)
     {
       mWlInputPanel = (wl_input_panel*)wl_registry_bind(registry, global->id, &wl_input_panel_interface, 1);
     }
+#endif
     else if(strcmp(global->interface, "wl_output") == 0)
     {
       mWlOutput = (wl_output*)wl_registry_bind(registry, global->id, &wl_output_interface, 1);
@@ -2635,15 +2662,21 @@ void WindowBaseEcoreWl2::InitializeIme()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland output panel interface\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  mWlInputPanelSurface = zwp_input_panel_v1_get_input_panel_surface(mWlInputPanel, mWlSurface);
+#else
   mWlInputPanelSurface = wl_input_panel_get_input_panel_surface(mWlInputPanel, mWlSurface);
+#endif
   if(!mWlInputPanelSurface)
   {
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get wayland input panel surface\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  zwp_input_panel_surface_v1_set_toplevel(mWlInputPanelSurface, mWlOutput, ZWP_INPUT_PANEL_SURFACE_V1_POSITION_CENTER_BOTTOM);
+#else
   wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
+#endif
 }
 
 void WindowBaseEcoreWl2::ImeWindowReadyToRender()
@@ -2653,8 +2686,11 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::ImeWindowReadyToRender(), wayland input panel surface is null\n");
     return;
   }
-
+#ifdef OVER_TIZEN_VERSION_7
+  zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
+#else
   wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
+#endif
 }
 
 void WindowBaseEcoreWl2::RequestMoveToServer()

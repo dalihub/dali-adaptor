@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   {
     fileSize = file->tellg();
 
-    memblock.Resize(fileSize);
+    memblock.ResizeUninitialized(fileSize);
 
     file->seekg(0, std::ios::beg);
     file->read(reinterpret_cast<char*>(memblock.Begin()), fileSize);

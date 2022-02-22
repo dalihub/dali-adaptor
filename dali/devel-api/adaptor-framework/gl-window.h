@@ -169,7 +169,7 @@ public:
   GlWindow& operator=(GlWindow&& rhs);
 
   /**
-   * @brief Sets egl configuration for GlWindow
+   * @brief Sets graphics configuration for GlWindow
    *
    * @param[in] depth the flag of depth buffer. If true is set, 24bit depth buffer is enabled.
    * @param[in] stencil the flag of stencil. it true is set, 8bit stencil buffer is enabled.
@@ -177,7 +177,7 @@ public:
    * @param[in] version the GLES version
    *
    */
-  void SetEglConfig(bool depth, bool stencil, int msaa, GlesVersion version);
+  void SetGraphicsConfig(bool depth, bool stencil, int msaa, GlesVersion version);
 
   /**
    * @brief Raises GlWindow to the top of GlWindow stack.
@@ -365,7 +365,7 @@ public:
    * @endcode
    * This callback is called when GlWindow is deleted.
    */
-  void RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
+  void RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
 
   /**
    * @brief Renders once more even if GL render functions are not added to idler.

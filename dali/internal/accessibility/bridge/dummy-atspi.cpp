@@ -46,6 +46,11 @@ std::shared_ptr<Accessibility::Bridge::Data> Accessibility::Accessible::GetBridg
   return {};
 }
 
+bool Accessibility::Accessible::IsHidden() const
+{
+  return false;
+}
+
 bool Accessibility::Accessible::IsProxy() const
 {
   return false;
@@ -119,7 +124,7 @@ void Accessibility::Accessible::EmitTextCursorMoved(unsigned int cursorPosition)
 {
 }
 
-void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* obj, Accessibility::Accessible* child)
+void Accessibility::Accessible::EmitActiveDescendantChanged(Accessibility::Accessible* child)
 {
 }
 

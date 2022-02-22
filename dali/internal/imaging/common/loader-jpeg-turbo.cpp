@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -375,7 +375,7 @@ void Transpose(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -397,7 +397,7 @@ void Rotate90(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -426,7 +426,7 @@ void Transverse(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -449,7 +449,7 @@ void Rotate270(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -561,7 +561,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.Resize(jpegBufferSize);
+    jpegBuffer.ResizeUninitialized(jpegBufferSize);
   }
   catch(...)
   {
@@ -895,7 +895,7 @@ bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>&
       return false;
     }
 
-    encodedPixels.Resize(dstBufferSize);
+    encodedPixels.ResizeUninitialized(dstBufferSize);
     memcpy(encodedPixels.Begin(), dstBuffer.get(), dstBufferSize);
   }
   return true;

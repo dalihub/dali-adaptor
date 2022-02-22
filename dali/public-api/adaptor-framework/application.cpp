@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,11 +227,6 @@ Application::LowBatterySignalType& Application::LowBatterySignal()
 Application::LowMemorySignalType& Application::LowMemorySignal()
 {
   return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
-}
-
-Graphics::Controller& Application::GetController()
-{
-  return Internal::Adaptor::GetImplementation(*this).GetController();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

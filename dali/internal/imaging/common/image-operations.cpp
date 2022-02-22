@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1967,7 +1967,7 @@ void Resample(const unsigned char* __restrict__ inPixels,
                                 NULL,          // Pclist_y. Optional pointers to contributor lists from another instance of a Resampler.
                                 FILTER_SCALE,  // src_x_ofs,
                                 FILTER_SCALE); // src_y_ofs. Offset input image by specified amount (fractional values okay).
-  samples[0].Resize(srcWidth);
+  samples[0].ResizeUninitialized(srcWidth);
   for(int i = 1; i < numChannels; ++i)
   {
     resamplers[i] = new Resampler(srcWidth,
@@ -1982,7 +1982,7 @@ void Resample(const unsigned char* __restrict__ inPixels,
                                   resamplers[0]->get_clist_y(),
                                   FILTER_SCALE,
                                   FILTER_SCALE);
-    samples[i].Resize(srcWidth);
+    samples[i].ResizeUninitialized(srcWidth);
   }
 
   const int srcPitch = srcWidth * numChannels;

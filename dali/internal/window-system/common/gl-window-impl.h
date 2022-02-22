@@ -68,9 +68,9 @@ public:
   static GlWindow* New(const PositionSize& positionSize, const std::string& name, const std::string& className, bool isTransparent = false);
 
   /**
-   * @copydoc Dali::GlWindow::SetEglConfig()
+   * @copydoc Dali::GlWindow::SetGraphicsConfig()
    */
-  void SetEglConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version);
+  void SetGraphicsConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version);
 
   /**
    * @copydoc Dali::GlWindow::Raise()
@@ -173,9 +173,9 @@ public:
   void SetPreferredOrientation(WindowOrientation orientation);
 
   /**
-   * @copydoc Dali::GlWindow::RegisterGlCallback()
+   * @copydoc Dali::GlWindow::RegisterGlCallbacks()
    */
-  void RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
+  void RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback);
 
   /**
    * @copydoc Dali::GlWindow::RenderOnce()

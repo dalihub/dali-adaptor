@@ -246,7 +246,6 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
   {
     if(windowAccessible->GetInternalActor() == mApplication.mWindows[i].GetRootLayer())
     {
-      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(mApplication.mWindows[i]);
       Dali::DevelWindow::VisibilityChangedSignal(mApplication.mWindows[i]).Disconnect(this, &BridgeBase::OnWindowVisibilityChanged);
       mApplication.mWindows[i].FocusChangeSignal().Disconnect(this, &BridgeBase::OnWindowFocusChanged);
       mApplication.mWindows.erase(mApplication.mWindows.begin() + i);
@@ -304,7 +303,7 @@ Accessible* BridgeBase::Find(const std::string& path) const
   }
 
   auto it = mData->mKnownObjects.find(static_cast<Accessible*>(accessible));
-  if(it == mData->mKnownObjects.end())
+  if(it == mData->mKnownObjects.end() || (*it)->IsHidden())
   {
     throw std::domain_error{"unknown object '" + path + "'"};
   }

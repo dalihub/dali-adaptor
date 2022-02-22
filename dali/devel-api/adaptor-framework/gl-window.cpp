@@ -69,9 +69,9 @@ GlWindow::GlWindow(GlWindow&& rhs) = default;
 
 GlWindow& GlWindow::operator=(GlWindow&& rhs) = default;
 
-void GlWindow::SetEglConfig(bool depth, bool stencil, int msaa, GlesVersion version)
+void GlWindow::SetGraphicsConfig(bool depth, bool stencil, int msaa, GlesVersion version)
 {
-  GetImplementation(*this).SetEglConfig(depth, stencil, msaa, version);
+  GetImplementation(*this).SetGraphicsConfig(depth, stencil, msaa, version);
 }
 
 void GlWindow::Raise()
@@ -174,9 +174,9 @@ void GlWindow::SetPreferredOrientation(WindowOrientation orientation)
   GetImplementation(*this).SetPreferredOrientation(orientation);
 }
 
-void GlWindow::RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
+void GlWindow::RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
 {
-  GetImplementation(*this).RegisterGlCallback(initCallback, renderFrameCallback, terminateCallback);
+  GetImplementation(*this).RegisterGlCallbacks(initCallback, renderFrameCallback, terminateCallback);
 }
 
 void GlWindow::RenderOnce()

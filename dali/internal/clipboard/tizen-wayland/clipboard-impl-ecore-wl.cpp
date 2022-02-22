@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,9 +115,9 @@ struct Clipboard::Impl
 
 #ifdef ECORE_WAYLAND2
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
-    ecore_wl2_dnd_selection_set(input, types);
+    mSerial                = ecore_wl2_dnd_selection_set(input, types);
 #else
-    ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
+    mSerial               = ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
 #endif
   }
 
@@ -151,6 +151,11 @@ struct Clipboard::Impl
 #else
     Ecore_Wl_Event_Data_Source_Send*     ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send*>(event);
 #endif
+
+    if(ev->serial != mSerial)
+    {
+      return NULL;
+    }
 
     int         len_buf      = mSendBuffer.length();
     int         len_remained = len_buf;
@@ -267,6 +272,7 @@ struct Clipboard::Impl
   std::string mSendBuffer;
   bool        mVisible;
   bool        mIsFirstTimeHidden;
+  uint32_t    mSerial{0u};
 };
 
 Clipboard::Clipboard(Impl* impl)

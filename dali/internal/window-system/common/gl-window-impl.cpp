@@ -191,7 +191,7 @@ void GlWindow::SetClass(const std::string& name, const std::string className)
   mWindowBase->SetClass(name, className);
 }
 
-void GlWindow::SetEglConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version)
+void GlWindow::SetGraphicsConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::GlesVersion version)
 {
   // Init Graphics
   mDepth   = depth;
@@ -211,7 +211,7 @@ void GlWindow::SetEglConfig(bool depth, bool stencil, int msaa, Dali::GlWindow::
     rVersion = 30;
   }
 
-  mGlWindowRenderThread->SetEglConfig(depth, stencil, msaa, rVersion);
+  mGlWindowRenderThread->SetGraphicsConfig(depth, stencil, msaa, rVersion);
 }
 
 void GlWindow::Raise()
@@ -746,13 +746,13 @@ void GlWindow::SetChild(Dali::Window& child)
   }
 }
 
-void GlWindow::RegisterGlCallback(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
+void GlWindow::RegisterGlCallbacks(CallbackBase* initCallback, CallbackBase* renderFrameCallback, CallbackBase* terminateCallback)
 {
   if(mIsEGLInitialized == false)
   {
     InitializeGraphics();
   }
-  mGlWindowRenderThread->RegisterGlCallback(initCallback, renderFrameCallback, terminateCallback);
+  mGlWindowRenderThread->RegisterGlCallbacks(initCallback, renderFrameCallback, terminateCallback);
   mGlWindowRenderThread->Start();
 }
 

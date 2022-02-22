@@ -309,6 +309,24 @@ void WindowBaseWin::Activate()
 {
 }
 
+void WindowBaseWin::Maximize(bool maximize)
+{
+}
+
+bool WindowBaseWin::IsMaximized() const
+{
+  return false;
+}
+
+void WindowBaseWin::Minimize(bool minimize)
+{
+}
+
+bool WindowBaseWin::IsMinimized() const
+{
+  return false;
+}
+
 void WindowBaseWin::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }

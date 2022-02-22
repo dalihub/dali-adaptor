@@ -181,6 +181,26 @@ public:
   virtual void Activate() = 0;
 
   /**
+   * @copydoc Dali::DevelWindow::Maximize()
+   */
+  virtual void Maximize(bool maximize) = 0;
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMaximized()
+   */
+  virtual bool IsMaximized() const = 0;
+
+  /**
+   * @copydoc Dali::DevelWindow::Minimize()
+   */
+  virtual void Minimize(bool minimize) = 0;
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMinimized()
+   */
+  virtual bool IsMinimized() const = 0;
+
+  /**
    * @copydoc Dali::Window::SetAvailableOrientations()
    */
   virtual void SetAvailableAnlges(const std::vector<int>& angles) = 0;

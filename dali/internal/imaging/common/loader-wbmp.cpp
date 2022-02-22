@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     DALI_LOG_ERROR("Error: WBMP size is too large!\n");
     return false;
   }
-  map.Resize(fsize);
+  map.ResizeUninitialized(fsize);
 
   if(fread(&map[0], 1, fsize, fp) != fsize)
   {
@@ -172,8 +172,8 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     return false;
   }
 
-  surface.Resize(w * h);         //(w * h * 4);
-  memset(&surface[0], 0, w * h); // w * h * 4
+  surface.ResizeUninitialized(w * h); //(w * h * 4);
+  memset(&surface[0], 0, w * h);      // w * h * 4
 
   line_length = (w + 7) >> 3;
   for(y = 0; y < h; y++)
@@ -252,7 +252,7 @@ bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   unsigned int headerSize = 1 + 1 + 4 + 4; // 8 + 8 + 32 + 32;
   headerSize              = std::min(headerSize, fsize);
 
-  map.Resize(headerSize);
+  map.ResizeUninitialized(headerSize);
   if(fread(&map[0], 1, headerSize, fp) != headerSize)
   {
     DALI_LOG_WARNING("image file read opeation error!\n");

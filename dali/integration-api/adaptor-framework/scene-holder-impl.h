@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,6 +264,14 @@ public:
     return mScene.WheelEventSignal();
   }
 
+  /**
+   * @copydoc Dali::Integration::SceneHolder::WheelEventGeneratedSignal()
+   */
+  Dali::Integration::SceneHolder::WheelEventGeneratedSignalType& WheelEventGeneratedSignal()
+  {
+    return mScene.WheelEventGeneratedSignal();
+  }
+
 public: // The following methods can be overridden if required
   /**
    * @brief Returns whether the Scene is visible or not.
@@ -337,9 +345,6 @@ private:
 
   class SceneHolderLifeCycleObserver;
   std::unique_ptr<SceneHolderLifeCycleObserver> mLifeCycleObserver; ///< The adaptor life cycle observer
-
-private:
-  Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
 
 protected:
   uint32_t                 mId;    ///< A unique ID to identify the SceneHolder starting from 0

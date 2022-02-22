@@ -201,6 +201,44 @@ void SendRotationCompletedAcknowledgement(Window window)
   GetImplementation(window).SendRotationCompletedAcknowledgement();
 }
 
+void FeedTouchPoint(Window window, const Dali::TouchPoint& point, int32_t timeStamp)
+{
+  Integration::Point convertedPoint(point);
+  GetImplementation(window).FeedTouchPoint(convertedPoint, timeStamp);
+}
+
+void FeedWheelEvent(Window window, const Dali::WheelEvent& wheelEvent)
+{
+  Integration::WheelEvent convertedEvent(static_cast<Integration::WheelEvent::Type>(wheelEvent.GetType()), wheelEvent.GetDirection(), wheelEvent.GetModifiers(), wheelEvent.GetPoint(), wheelEvent.GetDelta(), wheelEvent.GetTime());
+  GetImplementation(window).FeedWheelEvent(convertedEvent);
+}
+
+void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
+{
+  Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
+  GetImplementation(window).FeedKeyEvent(convertedEvent);
+}
+
+void Maximize(Window window, bool maximize)
+{
+  GetImplementation(window).Maximize(maximize);
+}
+
+bool IsMaximized(Window window)
+{
+  return GetImplementation(window).IsMaximized();
+}
+
+void Minimize(Window window, bool miniimize)
+{
+  GetImplementation(window).Minimize(miniimize);
+}
+
+bool IsMinimized(Window window)
+{
+  return GetImplementation(window).IsMinimized();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

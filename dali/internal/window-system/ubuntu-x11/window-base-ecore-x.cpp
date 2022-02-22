@@ -703,6 +703,24 @@ void WindowBaseEcoreX::Activate()
   ecore_x_netwm_client_active_request(ecore_x_window_root_get(mEcoreWindow), mEcoreWindow, 1 /* request type, 1:application, 2:pager */, 0);
 }
 
+void WindowBaseEcoreX::Maximize(bool maximize)
+{
+}
+
+bool WindowBaseEcoreX::IsMaximized() const
+{
+  return false;
+}
+
+void WindowBaseEcoreX::Minimize(bool minimize)
+{
+}
+
+bool WindowBaseEcoreX::IsMinimized() const
+{
+  return false;
+}
+
 void WindowBaseEcoreX::SetAvailableAnlges(const std::vector<int>& angles)
 {
 }

@@ -22,12 +22,12 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
-#include <dali/public-api/object/weak-handle.h>
 #include <string_view>
 #include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/actor-accessible.h>
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
@@ -232,64 +232,16 @@ void Bridge::SetIsOnRootLevel(Accessible* owner)
 
 namespace
 {
-class AdaptorAccessible : public virtual Accessible, public virtual Collection, public virtual Component
+class AdaptorAccessible : public ActorAccessible
 {
 protected:
-  Dali::WeakHandle<Dali::Actor> mSelf;
-  bool                          mRoot = false;
-
-  Dali::Actor Self() const
-  {
-    auto handle = mSelf.GetHandle();
-
-    // AdaptorAccessible is deleted on ObjectDestroyedSignal
-    // for the respective actor (see `nonControlAccessibles`).
-    DALI_ASSERT_ALWAYS(handle);
-
-    return handle;
-  }
+  bool mRoot = false;
 
 public:
   AdaptorAccessible(Dali::Actor actor, bool isRoot)
-  : mSelf(actor),
+  : ActorAccessible(actor),
     mRoot(isRoot)
   {
-  }
-
-  Dali::Rect<> GetExtents(Dali::Accessibility::CoordinateType type) const override
-  {
-    Dali::Actor actor                   = Self();
-    Vector2     screenPosition          = actor.GetProperty(Actor::Property::SCREEN_POSITION).Get<Vector2>();
-    Vector3     size                    = actor.GetCurrentProperty<Vector3>(Actor::Property::SIZE) * actor.GetCurrentProperty<Vector3>(Actor::Property::WORLD_SCALE);
-    bool        positionUsesAnchorPoint = actor.GetProperty(Actor::Property::POSITION_USES_ANCHOR_POINT).Get<bool>();
-    Vector3     anchorPointOffSet       = size * (positionUsesAnchorPoint ? actor.GetCurrentProperty<Vector3>(Actor::Property::ANCHOR_POINT) : AnchorPoint::TOP_LEFT);
-    Vector2     position                = Vector2(screenPosition.x - anchorPointOffSet.x, screenPosition.y - anchorPointOffSet.y);
-
-    if(type == Dali::Accessibility::CoordinateType::WINDOW)
-    {
-      return {position.x, position.y, size.x, size.y};
-    }
-    else // Dali::Accessibility::CoordinateType::SCREEN
-    {
-      auto window         = Dali::DevelWindow::Get(actor);
-      auto windowPosition = window.GetPosition();
-      return {position.x + windowPosition.GetX(), position.y + windowPosition.GetY(), size.x, size.y};
-    }
-  }
-
-  Dali::Accessibility::ComponentLayer GetLayer() const override
-  {
-    return Dali::Accessibility::ComponentLayer::WINDOW;
-  }
-
-  int16_t GetMdiZOrder() const override
-  {
-    return 0;
-  }
-
-  double GetAlpha() const override
-  {
-    return 0;
   }
 
   bool GrabFocus() override
@@ -305,64 +257,6 @@ public:
   bool ClearHighlight() override
   {
     return false;
-  }
-
-  bool IsScrollable() const override
-  {
-    return false;
-  }
-
-  std::string GetName() const override
-  {
-    return Self().GetProperty<std::string>(Dali::Actor::Property::NAME);
-  }
-
-  std::string GetDescription() const override
-  {
-    return "";
-  }
-
-  Accessible* GetParent() override
-  {
-    if(IsOnRootLevel())
-    {
-      auto data = GetBridgeData();
-      return data->mBridge->GetApplication();
-    }
-    return Get(Self().GetParent());
-  }
-
-  size_t GetChildCount() const override
-  {
-    return static_cast<size_t>(Self().GetChildCount());
-  }
-
-  Accessible* GetChildAtIndex(size_t index) override
-  {
-    auto numberOfChildren = static_cast<size_t>(Self().GetChildCount());
-    if(index >= numberOfChildren)
-    {
-      throw std::domain_error{"invalid index " + std::to_string(index) + " for object with " + std::to_string(numberOfChildren) + " children"};
-    }
-    return Get(Self().GetChildAt(static_cast<unsigned int>(index)));
-  }
-
-  size_t GetIndexInParent() override
-  {
-    auto parent = Self().GetParent();
-    if(!parent)
-    {
-      return 0;
-    }
-    auto size = static_cast<size_t>(parent.GetChildCount());
-    for(auto i = 0u; i < size; ++i)
-    {
-      if(parent.GetChildAt(i) == Self())
-      {
-        return i;
-      }
-    }
-    throw std::domain_error{"actor is not a child of it's parent"};
   }
 
   Role GetRole() const override
@@ -410,11 +304,6 @@ public:
   {
     return {};
   }
-
-  Dali::Actor GetInternalActor() override
-  {
-    return mSelf.GetHandle();
-  }
 }; // AdaptorAccessible
 
 using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
@@ -432,6 +321,9 @@ ObjectRegistry objectRegistry;
 void Accessible::SetObjectRegistry(ObjectRegistry registry)
 {
   objectRegistry = registry;
+  objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
+    gAdaptorAccessibles.erase(obj);
+  });
 }
 
 void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor)
@@ -449,12 +341,6 @@ Accessible* Accessible::Get(Dali::Actor actor, bool isRoot)
   auto accessible = convertingFunctor(actor);
   if(!accessible)
   {
-    if(gAdaptorAccessibles.empty() && objectRegistry)
-    {
-      objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
-        gAdaptorAccessibles.erase(obj);
-      });
-    }
     auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
     if(pair.second)
     {

@@ -10,6 +10,7 @@ SET( SOURCES
     ${adaptor_canvas_renderer_tizen_src_files}
     ${adaptor_clipboard_common_src_files}
     ${adaptor_clipboard_tizen_wayland_src_files}
+    ${adaptor_drag_and_drop_tizen_wayland_src_files}
     ${adaptor_framework_generic_src_files}
     ${devel_api_src_files}
     ${adaptor_devel_api_text_abstraction_src_files}

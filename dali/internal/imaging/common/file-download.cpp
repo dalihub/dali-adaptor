@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ CURLcode DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBu
   {
     dataSize += chunks[i].data.capacity();
   }
-  dataBuffer.Resize(dataSize);
+  dataBuffer.ResizeUninitialized(dataSize);
 
   size_t offset = 0;
   for(size_t i = 0; i < chunks.size(); ++i)

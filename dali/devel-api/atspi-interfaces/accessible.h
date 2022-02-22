@@ -68,10 +68,9 @@ public:
   /**
    * @brief Helper function for emiting active-descendant-changed event.
    *
-   * @param[in] obj The accessible object
    * @param[in] child The child of the object
    */
-  void EmitActiveDescendantChanged(Accessible* obj, Accessible* child);
+  void EmitActiveDescendantChanged(Accessible* child);
 
   /**
    * @brief Helper function for emiting state-changed event.
@@ -205,7 +204,7 @@ public:
    *
    * @return The collection of accessibility objects
    */
-  virtual std::vector<Accessible*> GetChildren();
+  virtual std::vector<Accessible*> GetChildren() = 0;
 
   /**
    * @brief Gets child of the index.
@@ -272,6 +271,15 @@ public:
    * @return The map of attributes and their values
    */
   virtual Attributes GetAttributes() const = 0;
+
+  /**
+   * @brief Checks if this is hidden.
+   *
+   * @return True if this is hidden
+   *
+   * @note Hidden means not present in the AT-SPI tree.
+   */
+  virtual bool IsHidden() const;
 
   /**
    * @brief Checks if this is proxy.

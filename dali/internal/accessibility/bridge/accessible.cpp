@@ -95,11 +95,11 @@ Accessible::~Accessible() noexcept
   }
 }
 
-void Accessible::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
+void Accessible::EmitActiveDescendantChanged(Accessible* child)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitActiveDescendantChanged(obj, child);
+    bridgeData->mBridge->EmitActiveDescendantChanged(this, child);
   }
 }
 
@@ -195,16 +195,6 @@ void Accessible::EmitBoundsChanged(Rect<> rect)
   }
 }
 
-std::vector<Accessible*> Accessible::GetChildren()
-{
-  std::vector<Accessible*> tmp(GetChildCount());
-  for(auto i = 0u; i < tmp.size(); ++i)
-  {
-    tmp[i] = GetChildAtIndex(i);
-  }
-  return tmp;
-}
-
 std::shared_ptr<Bridge::Data> Accessible::GetBridgeData() const
 {
   auto handle = mBridgeData.lock();
@@ -241,6 +231,11 @@ void Bridge::RegisterOnBridge(const Accessible* object)
     mData->mKnownObjects.insert(object);
     object->mBridgeData = mData;
   }
+}
+
+bool Accessible::IsHidden() const
+{
+  return false;
 }
 
 bool Accessible::IsProxy() const

@@ -220,7 +220,7 @@ struct BridgeCollection::Comparer
    */
   struct ComparerRoles
   {
-    using Roles = BitSets<4, Role>;
+    using Roles = EnumBitSet<Role, Role::MAX_COUNT>;
 
     Roles mRequested;
     Roles mObject;

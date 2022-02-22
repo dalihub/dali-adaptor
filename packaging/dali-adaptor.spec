@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.1.3
+Version:    2.1.10
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -280,6 +280,11 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_5"
 CFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
 CXXFLAGS+=" -DECORE_WAYLAND2 -DEFL_BETA_API_SUPPORT"
 cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
+%endif
+
+# Use this conditional when Tizen version is 7.x or greater
+%if 0%{?tizen_version_major} >= 7
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
 %endif
 
 %if 0%{?enable_debug}
