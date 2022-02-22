@@ -32,8 +32,8 @@ namespace Dali::Graphics::GLES
 class CommandPool
 {
   static constexpr uint32_t COMMAND_POOL_DEFAULT_INCREMENT = 1024 * 32 / sizeof(Command); // 32kb banks
-  static const     uint32_t MEMORY_POOL_DEFAULT_INCREMENT  = 1024;                        // 1kb memory pool increment
-  static const     uint32_t MEMORY_POOL_DEFAULT_ALIGNMENT  = 64;                          // 64bytes alignment
+  static const uint32_t     MEMORY_POOL_DEFAULT_INCREMENT  = 1024;                        // 1kb memory pool increment
+  static const uint32_t     MEMORY_POOL_DEFAULT_ALIGNMENT  = 64;                          // 64bytes alignment
 
   template<class T>
   struct Block
@@ -234,9 +234,9 @@ CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo
 
 CommandBuffer::~CommandBuffer() = default;
 
-void CommandBuffer::BindVertexBuffers(uint32_t                             firstBinding,
-                                      std::vector<const Graphics::Buffer*> buffers,
-                                      std::vector<uint32_t>                offsets)
+void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
+                                      const std::vector<const Graphics::Buffer*>& buffers,
+                                      const std::vector<uint32_t>&                offsets)
 {
   auto command                                         = mCommandPool->AllocateCommand(CommandType::BIND_VERTEX_BUFFERS);
   command->bindVertexBuffers.vertexBufferBindingsCount = firstBinding + buffers.size();
@@ -314,7 +314,7 @@ void CommandBuffer::BindPipeline(const Graphics::Pipeline& pipeline)
   command->bindPipeline.pipeline = static_cast<const GLES::Pipeline*>(&pipeline);
 }
 
-void CommandBuffer::BindTextures(std::vector<TextureBinding>& textureBindings)
+void CommandBuffer::BindTextures(const std::vector<TextureBinding>& textureBindings)
 {
   auto  command                        = mCommandPool->AllocateCommand(CommandType::BIND_TEXTURES);
   auto& bindTexturesCmd                = command->bindTextures;
@@ -323,7 +323,7 @@ void CommandBuffer::BindTextures(std::vector<TextureBinding>& textureBindings)
   memcpy(bindTexturesCmd.textureBindings.Ptr(), textureBindings.data(), sizeof(TextureBinding) * textureBindings.size());
 }
 
-void CommandBuffer::BindSamplers(std::vector<SamplerBinding>& samplerBindings)
+void CommandBuffer::BindSamplers(const std::vector<SamplerBinding>& samplerBindings)
 {
   auto  command                        = mCommandPool->AllocateCommand(CommandType::BIND_SAMPLERS);
   auto& bindSamplersCmd                = command->bindSamplers;
@@ -349,10 +349,10 @@ void CommandBuffer::BindIndexBuffer(const Graphics::Buffer& buffer,
 }
 
 void CommandBuffer::BeginRenderPass(
-  Graphics::RenderPass*   renderPass,
-  Graphics::RenderTarget* renderTarget,
-  Rect2D                  renderArea,
-  std::vector<ClearValue> clearValues)
+  Graphics::RenderPass*          renderPass,
+  Graphics::RenderTarget*        renderTarget,
+  Rect2D                         renderArea,
+  const std::vector<ClearValue>& clearValues)
 {
   auto  command                    = mCommandPool->AllocateCommand(CommandType::BEGIN_RENDERPASS);
   auto& cmd                        = *command;
