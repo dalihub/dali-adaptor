@@ -134,17 +134,9 @@ public:
   // Constructors
 
   /**
-   * @brief Constructs a new BitSet with all bits set to 0.
-   *
-   * Equivalent to the pseudocode:
-   * @code
-   * for(i = 0; i < max; ++i) bits[i] = 0;
-   * @endcode
+   * @brief Constructor.
    */
-  BitSet()
-  {
-    std::fill(mData.begin(), mData.end(), 0u);
-  }
+  BitSet() = default;
 
   BitSet(const BitSet&) = default;
 
@@ -398,7 +390,7 @@ private:
     return result;
   }
 
-  ArrayType mData;
+  ArrayType mData{};
 };
 
 /**
