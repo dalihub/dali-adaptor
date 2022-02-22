@@ -117,6 +117,26 @@ public:
   void Activate();
 
   /**
+   * @copydoc Dali::DevelWindow::Maximize()
+   */
+  void Maximize(bool maximize);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMaximized()
+   */
+  bool IsMaximized() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::Minimize()
+   */
+  void Minimize(bool minimize);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsMinimized()
+   */
+  bool IsMinimized() const;
+
+  /**
    * @copydoc Dali::Window::GetLayerCount()
    */
   uint32_t GetLayerCount() const;

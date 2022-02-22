@@ -316,8 +316,9 @@ void WindowRenderSurface::CreateSurface()
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   mEGLSurface                                   = eglImpl.CreateSurfaceWindow(window, mColorDepth);
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), w = %d h = %d angle = %d screen rotation = %d\n",
+  DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), EGLSurface (%p), w = %d h = %d angle = %d screen rotation = %d\n",
                         mWindowBase->GetNativeWindowId(),
+                        mEGLSurface,
                         mPositionSize.width,
                         mPositionSize.height,
                         mWindowRotationAngle,
@@ -375,6 +376,41 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   return eglImpl.ReplaceSurfaceWindow(window, mEGLSurface, mEGLContext);
+}
+
+void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
+{
+  bool needToMove   = false;
+  bool needToResize = false;
+
+  // Check moving
+  if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
+  {
+    needToMove = true;
+  }
+
+  // Check resizing
+  if((fabs(positionSize.width - mPositionSize.width) >= MINIMUM_DIMENSION_CHANGE) ||
+     (fabs(positionSize.height - mPositionSize.height) >= MINIMUM_DIMENSION_CHANGE))
+  {
+    needToResize = true;
+  }
+
+  if(needToResize)
+  {
+    mResizeFinished = false;
+    mPositionSize   = positionSize;
+  }
+  else
+  {
+    if(needToMove)
+    {
+      mPositionSize = positionSize;
+    }
+  }
+
+  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
 }
 
 void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)

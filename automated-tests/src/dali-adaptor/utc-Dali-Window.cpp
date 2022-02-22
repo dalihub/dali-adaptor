@@ -198,6 +198,70 @@ int UtcDaliWindowActivateN(void)
   END_TEST;
 }
 
+int UtcDaliWindowMaximizeN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    DevelWindow::Maximize(instance, true);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowIsMaximizedN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    DevelWindow::IsMaximized(instance);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowMinimizeN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    DevelWindow::Minimize(instance, true);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowIsMinimizedN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    DevelWindow::IsMinimized(instance);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowAddAvailableOrientationN(void)
 {
   Dali::Window window;

@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,8 @@ public:
   typedef Signal<void(const Dali::TouchEvent&)> TouchEventSignalType; ///< Touch signal type
 
   typedef Signal<void(const Dali::WheelEvent&)> WheelEventSignalType; ///< Touched signal type
+
+  typedef Signal<bool(const Dali::WheelEvent&)> WheelEventGeneratedSignalType; ///< Wheel event generated signal type
 
   /**
    * @brief Create an uninitialized SceneHolder handle.
@@ -211,6 +213,21 @@ public:
    * @return The signal to connect to
    */
   WheelEventSignalType& WheelEventSignal();
+
+  /**
+   * @brief This signal is emitted to KeyboardFocusManager when a custom wheel type event is received.
+   * When a custom wheel event occurs, it need to process the focused actor first.
+   *
+   * Therefore, KeyboardFocusManager first checks whether WheelEvent is generated as WheelEventGeneratedSignal.
+   * This is only valid for custom wheel events.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallbackName(const WheelEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  WheelEventGeneratedSignalType& WheelEventGeneratedSignal();
 
 public: // Not intended for application developers
   /**
