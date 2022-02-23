@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -542,13 +542,17 @@ inline unsigned int AverageComponent(unsigned int a, unsigned int b)
  **/
 inline uint32_t AveragePixelRGBA8888(uint32_t a, uint32_t b)
 {
-  const unsigned int avg =
-    ((AverageComponent((a & 0xff000000) >> 1u, (b & 0xff000000) >> 1u) << 1u) & 0xff000000) +
-    (AverageComponent(a & 0x00ff0000, b & 0x00ff0000) & 0x00ff0000) +
-    (AverageComponent(a & 0x0000ff00, b & 0x0000ff00) & 0x0000ff00) +
-    (AverageComponent(a & 0x000000ff, b & 0x000000ff));
-  return avg;
-  ///@ToDo: Optimise by trying return (((a ^ b) & 0xfefefefeUL) >> 1) + (a & b);
+  /**
+   * @code
+   * const unsigned int avg =
+   *   (AverageComponent((a & 0xff000000) >> 1u, (b & 0xff000000) >> 1u) << 1u) & 0xff000000) +
+   *   (AverageComponent(a & 0x00ff0000, b & 0x00ff0000) & 0x00ff0000) +
+   *   (AverageComponent(a & 0x0000ff00, b & 0x0000ff00) & 0x0000ff00) +
+   *   (AverageComponent(a & 0x000000ff, b & 0x000000ff);
+   * return avg;
+   * @endcode
+   */
+  return (((a ^ b) & 0xfefefefeu) >> 1) + (a & b);
   ///@ToDo: Optimise for ARM using the single ARMV6 instruction: UHADD8  R4, R0, R5. This is not Neon. It runs in the normal integer pipeline so there is no downside like a stall moving between integer and copro.
 }
 
@@ -560,11 +564,16 @@ inline uint32_t AveragePixelRGBA8888(uint32_t a, uint32_t b)
  **/
 inline uint32_t AveragePixelRGB565(uint32_t a, uint32_t b)
 {
-  const unsigned int avg =
-    (AverageComponent(a & 0xf800, b & 0xf800) & 0xf800) +
-    (AverageComponent(a & 0x7e0, b & 0x7e0) & 0x7e0) +
-    (AverageComponent(a & 0x1f, b & 0x1f));
-  return avg;
+  /**
+   * @code
+   * const unsigned int avg =
+   *   (AverageComponent(a & 0xf800, b & 0xf800) & 0xf800) +
+   *   (AverageComponent(a & 0x7e0, b & 0x7e0) & 0x7e0) +
+   *   (AverageComponent(a & 0x1f, b & 0x1f));
+   * return avg;
+   * @endcode
+   */
+  return (((a ^ b) & 0xf7deu) >> 1) + (a & b);
 }
 
 /** @return The weighted blend of two integers as a 16.16 fixed-point number, given a 0.16 fixed-point blending factor. */

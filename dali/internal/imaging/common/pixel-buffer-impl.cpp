@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -449,15 +449,26 @@ void PixelBuffer::MultiplyColorByAlpha()
     for(unsigned int i = 0; i < bufferSize; ++i)
     {
       unsigned int alpha = ReadChannel(pixel, mPixelFormat, Adaptor::ALPHA);
+      if(alpha < 255)
       {
-        auto red       = ReadChannel(pixel, mPixelFormat, Adaptor::RED);
-        auto green     = ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
-        auto blue      = ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
-        auto luminance = ReadChannel(pixel, mPixelFormat, Adaptor::LUMINANCE);
-        WriteChannel(pixel, mPixelFormat, Adaptor::RED, red * alpha / 255);
-        WriteChannel(pixel, mPixelFormat, Adaptor::GREEN, green * alpha / 255);
-        WriteChannel(pixel, mPixelFormat, Adaptor::BLUE, blue * alpha / 255);
-        WriteChannel(pixel, mPixelFormat, Adaptor::LUMINANCE, luminance * alpha / 255);
+        // If alpha is 255, we don't need to change color. Skip current pixel
+        // But if alpha is not 255, we should change color.
+        if(alpha > 0)
+        {
+          auto red       = ReadChannel(pixel, mPixelFormat, Adaptor::RED);
+          auto green     = ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
+          auto blue      = ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
+          auto luminance = ReadChannel(pixel, mPixelFormat, Adaptor::LUMINANCE);
+          WriteChannel(pixel, mPixelFormat, Adaptor::RED, red * alpha / 255);
+          WriteChannel(pixel, mPixelFormat, Adaptor::GREEN, green * alpha / 255);
+          WriteChannel(pixel, mPixelFormat, Adaptor::BLUE, blue * alpha / 255);
+          WriteChannel(pixel, mPixelFormat, Adaptor::LUMINANCE, luminance * alpha / 255);
+        }
+        else
+        {
+          // If alpha is 0, just set all pixel as zero.
+          memset(pixel, 0, bytesPerPixel);
+        }
       }
       pixel += bytesPerPixel;
     }
