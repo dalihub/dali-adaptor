@@ -1253,20 +1253,35 @@ void HalveScanlineInPlaceRGB888(unsigned char* const pixels, const unsigned int 
 
   const unsigned int lastPair = EvenDown(width - 2);
 
-  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+  /**
+   * @code
+   *  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+   * {
+   *   // Load all the byte pixel components we need:
+   *   const unsigned int c11 = pixels[pixel * 3];
+   *   const unsigned int c12 = pixels[pixel * 3 + 1];
+   *   const unsigned int c13 = pixels[pixel * 3 + 2];
+   *   const unsigned int c21 = pixels[pixel * 3 + 3];
+   *   const unsigned int c22 = pixels[pixel * 3 + 4];
+   *   const unsigned int c23 = pixels[pixel * 3 + 5];
+   *
+   *   // Save the averaged byte pixel components:
+   *   pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+   *   pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+   *   pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+   * }
+   *   @endcode
+   */
+  //@ToDo : Fix here if we found that collect 12 bytes == 3 uint32_t with 4 colors, and calculate in one-operation
+  std::uint8_t* inPixelPtr  = pixels;
+  std::uint8_t* outPixelPtr = pixels;
+  for(std::uint32_t scanedPixelCount = 0; scanedPixelCount <= lastPair; scanedPixelCount += 2)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 3];
-    const unsigned int c12 = pixels[pixel * 3 + 1];
-    const unsigned int c13 = pixels[pixel * 3 + 2];
-    const unsigned int c21 = pixels[pixel * 3 + 3];
-    const unsigned int c22 = pixels[pixel * 3 + 4];
-    const unsigned int c23 = pixels[pixel * 3 + 5];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
-    pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+    *(outPixelPtr + 0) = ((*(inPixelPtr + 0) ^ *(inPixelPtr + 3)) >> 1) + (*(inPixelPtr + 0) & *(inPixelPtr + 3));
+    *(outPixelPtr + 1) = ((*(inPixelPtr + 1) ^ *(inPixelPtr + 4)) >> 1) + (*(inPixelPtr + 1) & *(inPixelPtr + 4));
+    *(outPixelPtr + 2) = ((*(inPixelPtr + 2) ^ *(inPixelPtr + 5)) >> 1) + (*(inPixelPtr + 2) & *(inPixelPtr + 5));
+    inPixelPtr += 6;
+    outPixelPtr += 3;
   }
 }
 
@@ -1310,15 +1325,22 @@ void HalveScanlineInPlace2Bytes(unsigned char* const pixels, const unsigned int 
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 2];
-    const unsigned int c12 = pixels[pixel * 2 + 1];
-    const unsigned int c21 = pixels[pixel * 2 + 2];
-    const unsigned int c22 = pixels[pixel * 2 + 3];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c11 = pixels[pixel * 2];
+     * const unsigned int c12 = pixels[pixel * 2 + 1];
+     * const unsigned int c21 = pixels[pixel * 2 + 2];
+     * const unsigned int c22 = pixels[pixel * 2 + 3];
+     *
+     * // Save the averaged byte pixel components:
+     * pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+     * pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[(outPixel << 1)]     = ((pixels[(pixel << 1)] ^ pixels[(pixel << 1) | 2]) >> 1) + (pixels[(pixel << 1)] & pixels[(pixel << 1) | 2]);
+    pixels[(outPixel << 1) | 1] = ((pixels[(pixel << 1) | 1] ^ pixels[(pixel << 1) | 3]) >> 1) + (pixels[(pixel << 1) | 1] & pixels[(pixel << 1) | 3]);
   }
 }
 
@@ -1330,12 +1352,18 @@ void HalveScanlineInPlace1Byte(unsigned char* const pixels, const unsigned int w
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c1 = pixels[pixel];
-    const unsigned int c2 = pixels[pixel + 1];
-
-    // Save the averaged byte pixel component:
-    pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c1 = pixels[pixel];
+     * const unsigned int c2 = pixels[pixel + 1];
+     *
+     * // Save the averaged byte pixel component:
+     * pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[outPixel] = ((pixels[pixel] ^ pixels[pixel | 1]) >> 1) + (pixels[pixel] & pixels[pixel | 1]);
   }
 }
 
