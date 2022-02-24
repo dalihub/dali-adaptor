@@ -64,12 +64,14 @@ public:
   {
     DragEvent()
     {
+      this->mimeType = nullptr;
       this->data = nullptr;
     }
-    DragEvent(DragType type, Dali::Vector2 position, char* data = nullptr)
+    DragEvent(DragType type, Dali::Vector2 position, const char* mimeType = nullptr, char* data = nullptr)
     {
       this->type     = type;
       this->position = position;
+      this->mimeType = mimeType;
       this->data     = data;
     }
 
@@ -89,6 +91,14 @@ public:
     {
       return position;
     }
+    void SetMimeType(const char* mimeType)
+    {
+      this->mimeType = mimeType;
+    }
+    const char* GetMimeType()
+    {
+      return mimeType;
+    }
     void SetData(char* data)
     {
       this->data = data;
@@ -101,7 +111,35 @@ public:
   private:
     DragType      type{DragType::DROP}; ///< The drag event type.
     Dali::Vector2 position;             ///< The position of drag object.
+    const char*   mimeType;             ///< The mime type of drag object.
     char*         data{nullptr};        ///< The data of drag object.
+  };
+
+  /**
+   * @brief Structure that contains information about the drag data information.
+   */
+  struct DragData
+  {
+     void SetMimeType(const char* mimeType)
+     {
+       this->mimeType = mimeType;
+     }
+     const char* GetMimeType() const
+     {
+       return mimeType;
+     }
+     void SetData(char* data)
+     {
+       this->data = data;
+     }
+     char* GetData() const
+     {
+       return data;
+     }
+
+  private:
+     const char* mimeType{nullptr}; ///<The mime type of drag data.
+     char*       data{nullptr};     ///<The drag data.
   };
 
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
@@ -140,7 +178,7 @@ public:
    * @param[in] dragData The data to send to target object.
    * @return bool true if the drag operation is started successfully.
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData);
+  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const DragData& dragData);
 
   /**
    * @brief Add the listener for receiving the drag and drop events.
@@ -150,6 +188,14 @@ public:
    * @return bool true if the listener is added successfully.
    */
   bool AddListener(Dali::Actor target, DragAndDropFunction callback);
+
+  /**
+   * @brief Remove the listener.
+   *
+   * @param[in] target The drop target object.
+   * @return bool true if the listener is removed successfully.
+   */
+  bool RemoveListener(Dali::Actor target);
 
 public:
   /**

@@ -56,7 +56,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const Dali::DragAndDrop::DragData& data) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
@@ -64,9 +64,9 @@ public:
   bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
-   * @copydoc Dali::DragAndDrop::SetData()
+   * @copydoc Dali::DragAndDrop::RemoveListener()
    */
-  void SetData(std::string data);
+  bool RemoveListener(Dali::Actor target) override;
 
   /**
    * @copydoc Dali::DragAndDrop::SendData()
@@ -102,8 +102,10 @@ private:
   Ecore_Event_Handler*    mMotionHandler{nullptr};
   Ecore_Event_Handler*    mDropHandler{nullptr};
   int                     mTargetIndex{0};
-  Dali::Vector2           mPosition;
+  std::string             mMimeType;
   std::string             mData;
+  int                     mDataSize{0};
+  Dali::Vector2           mPosition;
   std::vector<DropTarget> mDropTargets;
 }; // class DragAndDropEcoreWl
 

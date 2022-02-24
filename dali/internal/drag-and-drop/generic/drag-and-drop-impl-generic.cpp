@@ -61,12 +61,17 @@ DragAndDropGeneric::~DragAndDropGeneric()
 {
 }
 
-bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData)
+bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const Dali::DragAndDrop::DragData& dragData)
 {
   return true;
 }
 
 bool DragAndDropGeneric::AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback)
+{
+  return true;
+}
+
+bool DragAndDropGeneric::RemoveListener(Dali::Actor target)
 {
   return true;
 }
