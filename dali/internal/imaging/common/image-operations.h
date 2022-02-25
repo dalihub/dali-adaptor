@@ -580,9 +580,14 @@ inline uint32_t AveragePixelRGB565(uint32_t a, uint32_t b)
 inline unsigned int WeightedBlendIntToFixed1616(unsigned int a, unsigned int b, unsigned int fractBlend)
 {
   DALI_ASSERT_DEBUG(fractBlend <= 65535u && "Factor should be in 0.16 fixed-point.");
-  const unsigned int weightedAFixed = a * (65535u - fractBlend);
-  const unsigned int weightedBFixed = b * fractBlend;
-  const unsigned     blended        = (weightedAFixed + weightedBFixed);
+  /**
+   * @code
+   * const unsigned int weightedAFixed = a * (65535u - fractBlend);
+   * const unsigned int weightedBFixed = b * fractBlend;
+   * const unsigned     blended        = (weightedAFixed + weightedBFixed);
+   * @endcode
+   */
+  const unsigned int blended = (a << 16) - a + (static_cast<int32_t>(b) - static_cast<int32_t>(a)) * fractBlend;
   return blended;
 }
 
@@ -590,10 +595,15 @@ inline unsigned int WeightedBlendIntToFixed1616(unsigned int a, unsigned int b, 
 inline uint64_t WeightedBlendFixed1616ToFixed1632(unsigned int a, unsigned int b, unsigned int fractBlend)
 {
   DALI_ASSERT_DEBUG(fractBlend <= 65535u && "Factor should be in 0.16 fixed-point.");
-  // Blend while promoting intermediates to 16.32 fixed point:
-  const uint64_t weightedAFixed = uint64_t(a) * (65535u - fractBlend);
-  const uint64_t weightedBFixed = uint64_t(b) * fractBlend;
-  const uint64_t blended        = (weightedAFixed + weightedBFixed);
+  /**
+   * @code
+   * // Blend while promoting intermediates to 16.32 fixed point:
+   * const uint64_t weightedAFixed = uint64_t(a) * (65535u - fractBlend);
+   * const uint64_t weightedBFixed = uint64_t(b) * fractBlend;
+   * const uint64_t blended        = (weightedAFixed + weightedBFixed);
+   * @endcode
+   */
+  const uint64_t blended = (static_cast<uint64_t>(a) << 16) - a + (static_cast<int64_t>(b) - static_cast<int64_t>(a)) * fractBlend;
   return blended;
 }
 
@@ -605,9 +615,44 @@ inline unsigned int BilinearFilter1Component(unsigned int tl, unsigned int tr, u
   DALI_ASSERT_DEBUG(fractBlendHorizontal <= 65535u && "Factor should be in 0.16 fixed-point.");
   DALI_ASSERT_DEBUG(fractBlendVertical <= 65535u && "Factor should be in 0.16 fixed-point.");
 
-  const unsigned int topBlend   = WeightedBlendIntToFixed1616(tl, tr, fractBlendHorizontal);
-  const unsigned int botBlend   = WeightedBlendIntToFixed1616(bl, br, fractBlendHorizontal);
-  const uint64_t     blended2x2 = WeightedBlendFixed1616ToFixed1632(topBlend, botBlend, fractBlendVertical);
+  /**
+   * @code
+   * const unsigned int topBlend   = WeightedBlendIntToFixed1616(tl, tr, fractBlendHorizontal);
+   * const unsigned int botBlend   = WeightedBlendIntToFixed1616(bl, br, fractBlendHorizontal);
+   * const uint64_t     blended2x2 = WeightedBlendFixed1616ToFixed1632(topBlend, botBlend, fractBlendVertical);
+   * const unsigned int rounded    = (blended2x2 + (1u << 31u)) >> 32u;
+   * @endcode
+   */
+
+  /**
+   * Hard-coding optimize!
+   *
+   * Let p = 65536, s.t we can optimze it as << 16.
+   * Let x = fractBlendHorizontal, y = fractBlendVertical.
+   * topBlend = (tl*p - tl - tl*x + tr*x)
+   * botBlend = (bl*p - bl - bl*x + br*x)
+   * blended2x2 = topBlend*p - topBlend - topBlend*y + botBlend*y
+   *
+   * And now we can split all values.
+   * tl*p*p - tl*p - tl*x*p + tr*x*p  -  tl*p + tl + tl*x - tr*x  -  tl*y*p + tl*y + tl*x*y - tr*x*y  +  bl*y*p - bl*y - bl*x*y + br*x*y;
+   * --> (collect by p, x, and y)
+   * (tl)*p*p + (-2tl + (-tl + tr)*x + (-tl+bl)*y)*p + tl + (tl - tr)*x + (tl - bl)*y + (tl - tr - bl + br)*x*y
+   *
+   * A = (tl - tr) * x;
+   * B = (tl - bl) * y;
+   * C = (tl - tr - bl + br) * x * y;
+   * D = (2*tl + A + B)
+   * -->
+   * (tl << 32) - (D << 16) + tl + A + B + C
+   *
+   * Becareful of overflow and negative value.
+   */
+  const int32_t A = (static_cast<int32_t>(tl) - static_cast<int32_t>(tr)) * static_cast<int32_t>(fractBlendHorizontal);
+  const int32_t B = (static_cast<int32_t>(tl) - static_cast<int32_t>(bl)) * static_cast<int32_t>(fractBlendVertical);
+  const int64_t C = (static_cast<int64_t>(tl) - static_cast<int64_t>(tr) - static_cast<int64_t>(bl) + static_cast<int64_t>(br)) * static_cast<int64_t>(fractBlendHorizontal) * static_cast<int64_t>(fractBlendVertical);
+  const int64_t D = ((static_cast<int64_t>(tl) << 1) + A + B);
+
+  const uint64_t     blended2x2 = (static_cast<int64_t>(tl) << 32u) - (D << 16u) + tl + A + B + C;
   const unsigned int rounded    = (blended2x2 + (1u << 31u)) >> 32u;
   return rounded;
 }

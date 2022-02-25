@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ALPHA_MASK_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,19 @@ namespace Internal
 namespace Adaptor
 {
 /**
- * Apply the mask to a buffer's alpha channel
+ * @brief Apply the mask to a buffer's alpha channel
+ * @note It works well only if mask's alpha mask is 8bit
  * @param[in] buffer The buffer to apply the mask to
  * @param[in] mask The mask to apply
  */
 void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask);
 
 /**
- * Create a new PixelBuffer with an alpha channel large enough to handle the alpha from
+ * @brief Create a new PixelBuffer with an alpha channel large enough to handle the alpha from
  * the mask, converting the color values to the new size, and either multiplying the mask's
  * alpha into the existing alpha value, or writing the mask's alpha value directly into
  * the new buffer's alpha channel.
+ * @note It works well only if mask's alpha mask is 8bit
  *
  * @param[in] buffer The buffer to apply the mask to
  * @param[in] mask The mask to apply
