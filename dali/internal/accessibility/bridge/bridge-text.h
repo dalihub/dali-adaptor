@@ -82,6 +82,11 @@ public:
    * @copydoc Dali::Accessibility::Text::SetRangeOfSelection()
    */
   DBus::ValueOrError<bool> SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset);
+
+  /**
+   * @copydoc Dali::Accessibility::Text::GetRangeExtents()
+   */
+  DBus::ValueOrError<int32_t, int32_t, int32_t, int32_t> GetRangeExtents(int32_t startOffset, int32_t endOffset, uint32_t coordType);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_TEXT_H
