@@ -135,17 +135,17 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   mDbusServer     = {mConnectionPtr};
 
   {
-    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceCache};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::CACHE)};
     AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
     mDbusServer.addInterface(AtspiDbusPathCache, desc);
   }
   {
-    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceApplication};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
     AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::GetId, &BridgeBase::SetId);
     mDbusServer.addInterface(AtspiPath, desc);
   }
 
-  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, AtspiDbusInterfaceRegistry, mConnectionPtr};
+  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, Accessible::GetInterfaceName(AtspiInterface::REGISTRY), mConnectionPtr};
 
   UpdateRegisteredEvents();
 
@@ -317,7 +317,7 @@ Accessible* BridgeBase::Find(const Address& ptr) const
   return Find(ptr.GetPath());
 }
 
-Accessible* BridgeBase::FindSelf() const
+Accessible* BridgeBase::FindCurrentObject() const
 {
   auto path = DBus::DBusServer::getCurrentObjectPath();
   auto size = strlen(AtspiPath);
@@ -385,7 +385,7 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     root->GetAddress(),
     parent ? parent->GetAddress() : Address{},
     children,
-    item->GetInterfaces(),
+    item->GetInterfacesAsStrings(),
     item->GetName(),
     item->GetRole(),
     item->GetDescription(),

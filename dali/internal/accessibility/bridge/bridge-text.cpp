@@ -29,7 +29,7 @@ void BridgeText::RegisterInterfaces()
   // Screen Reader will call the methods with the exact names as specified in the AT-SPI Text interface:
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Text.xml
 
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceText};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::TEXT)};
   AddFunctionToInterface(desc, "GetText", &BridgeText::GetText);
   AddGetPropertyToInterface(desc, "CharacterCount", &BridgeText::GetCharacterCount);
   AddGetPropertyToInterface(desc, "CaretOffset", &BridgeText::GetCursorOffset);
@@ -43,14 +43,7 @@ void BridgeText::RegisterInterfaces()
 
 Text* BridgeText::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto textInterface = dynamic_cast<Text*>(self);
-  if(!textInterface)
-  {
-    throw std::domain_error{"Object " + self->GetAddress().ToString() + " doesn't have Text interface"};
-  }
-  return textInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::TEXT>();
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)

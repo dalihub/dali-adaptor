@@ -22,7 +22,7 @@ using namespace Dali::Accessibility;
 
 void BridgeSelection::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceSelection};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::SELECTION)};
   AddGetPropertyToInterface(desc, "NSelectedChildren", &BridgeSelection::GetSelectedChildrenCount);
   AddFunctionToInterface(desc, "GetSelectedChild", &BridgeSelection::GetSelectedChild);
   AddFunctionToInterface(desc, "SelectChild", &BridgeSelection::SelectChild);
@@ -36,14 +36,7 @@ void BridgeSelection::RegisterInterfaces()
 
 Selection* BridgeSelection::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto selectionInterface = dynamic_cast<Selection*>(self);
-  if(!selectionInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Selection interface"};
-  }
-  return selectionInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::SELECTION>();
 }
 
 DBus::ValueOrError<int32_t> BridgeSelection::GetSelectedChildrenCount()

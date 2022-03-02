@@ -56,7 +56,31 @@ public:
    * @return The number of hyperlinks (zero if none or -1 if the number cannot be determined)
    */
   virtual std::int32_t GetLinkCount() const = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Hypertext.
+   *
+   * @param obj The Accessible
+   * @return A Hypertext or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Hypertext* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::HYPERTEXT>
+{
+  using Type = Hypertext;
+};
+} // namespace Internal
+
+inline Hypertext* Hypertext::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::HYPERTEXT>(obj);
+}
 
 } // namespace Dali::Accessibility
 

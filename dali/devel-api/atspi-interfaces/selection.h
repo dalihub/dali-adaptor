@@ -103,7 +103,31 @@ public:
    * @see Dali::Accessibility::Selection::DeselectSelectedChild
    */
   virtual bool DeselectChild(int childIndex) = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Selection.
+   *
+   * @param obj The Accessible
+   * @return A Selection or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Selection* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::SELECTION>
+{
+  using Type = Selection;
+};
+} // namespace Internal
+
+inline Selection* Selection::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::SELECTION>(obj);
+}
 
 } // namespace Dali::Accessibility
 
