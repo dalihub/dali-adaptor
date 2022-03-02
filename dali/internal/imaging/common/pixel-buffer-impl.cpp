@@ -446,31 +446,41 @@ void PixelBuffer::MultiplyColorByAlpha()
     unsigned char*     pixel      = mBuffer;
     const unsigned int bufferSize = mWidth * mHeight;
 
-    for(unsigned int i = 0; i < bufferSize; ++i)
+    // Collect all valid channel list before lookup whole buffer
+    std::vector<Channel> validChannelList;
+    for(const Channel& channel : {Adaptor::RED, Adaptor::GREEN, Adaptor::BLUE, Adaptor::LUMINANCE})
     {
-      unsigned int alpha = ReadChannel(pixel, mPixelFormat, Adaptor::ALPHA);
-      if(alpha < 255)
+      if(HasChannel(mPixelFormat, channel))
       {
-        // If alpha is 255, we don't need to change color. Skip current pixel
-        // But if alpha is not 255, we should change color.
-        if(alpha > 0)
-        {
-          auto red       = ReadChannel(pixel, mPixelFormat, Adaptor::RED);
-          auto green     = ReadChannel(pixel, mPixelFormat, Adaptor::GREEN);
-          auto blue      = ReadChannel(pixel, mPixelFormat, Adaptor::BLUE);
-          auto luminance = ReadChannel(pixel, mPixelFormat, Adaptor::LUMINANCE);
-          WriteChannel(pixel, mPixelFormat, Adaptor::RED, red * alpha / 255);
-          WriteChannel(pixel, mPixelFormat, Adaptor::GREEN, green * alpha / 255);
-          WriteChannel(pixel, mPixelFormat, Adaptor::BLUE, blue * alpha / 255);
-          WriteChannel(pixel, mPixelFormat, Adaptor::LUMINANCE, luminance * alpha / 255);
-        }
-        else
-        {
-          // If alpha is 0, just set all pixel as zero.
-          memset(pixel, 0, bytesPerPixel);
-        }
+        validChannelList.emplace_back(channel);
       }
-      pixel += bytesPerPixel;
+    }
+
+    if(DALI_LIKELY(!validChannelList.empty()))
+    {
+      for(unsigned int i = 0; i < bufferSize; ++i)
+      {
+        unsigned int alpha = ReadChannel(pixel, mPixelFormat, Adaptor::ALPHA);
+        if(alpha < 255)
+        {
+          // If alpha is 255, we don't need to change color. Skip current pixel
+          // But if alpha is not 255, we should change color.
+          if(alpha > 0)
+          {
+            for(const Channel& channel : validChannelList)
+            {
+              auto color = ReadChannel(pixel, mPixelFormat, channel);
+              WriteChannel(pixel, mPixelFormat, channel, color * alpha / 255);
+            }
+          }
+          else
+          {
+            // If alpha is 0, just set all pixel as zero.
+            memset(pixel, 0, bytesPerPixel);
+          }
+        }
+        pixel += bytesPerPixel;
+      }
     }
   }
   mPreMultiplied = true;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,30 +55,47 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
   int srcOffset  = 0;
   int destOffset = 0;
 
-  float srcAlphaValue = 1.0f;
-
   // if image is premultiplied, the other channels of the image need to multiply by alpha.
   if(buffer.IsAlphaPreMultiplied())
   {
-    for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
+    // Collect all valid channel list before lookup whole buffer
+    std::vector<Channel> validChannelList;
+    for(const Channel& channel : {Adaptor::RED, Adaptor::GREEN, Adaptor::BLUE, Adaptor::LUMINANCE, Adaptor::ALPHA})
     {
-      for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
+      if(HasChannel(destPixelFormat, channel))
       {
-        auto srcAlpha      = ReadChannel(srcBuffer + srcOffset, srcPixelFormat, Adaptor::ALPHA);
-        auto destRed       = ReadChannel(destBuffer + destOffset, destPixelFormat, Adaptor::RED);
-        auto destGreen     = ReadChannel(destBuffer + destOffset, destPixelFormat, Adaptor::GREEN);
-        auto destBlue      = ReadChannel(destBuffer + destOffset, destPixelFormat, Adaptor::BLUE);
-        auto destLuminance = ReadChannel(destBuffer + destOffset, destPixelFormat, Adaptor::LUMINANCE);
-        auto destAlpha     = ReadChannel(destBuffer + destOffset, destPixelFormat, Adaptor::ALPHA);
+        validChannelList.emplace_back(channel);
+      }
+    }
+    if(DALI_LIKELY(!validChannelList.empty()))
+    {
+      for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
+      {
+        for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
+        {
+          auto srcAlpha = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
+          if(srcAlpha < 255)
+          {
+            // If alpha is 255, we don't need to change color. Skip current pixel
+            // But if alpha is not 255, we should change color.
+            if(srcAlpha > 0)
+            {
+              for(const Channel& channel : validChannelList)
+              {
+                auto color = ReadChannel(destBuffer + destOffset, destPixelFormat, channel);
+                WriteChannel(destBuffer + destOffset, destPixelFormat, channel, color * srcAlpha / 255);
+              }
+            }
+            else
+            {
+              // If alpha is 0, just set all pixel as zero.
+              memset(destBuffer + destOffset, 0, destBytesPerPixel);
+            }
+          }
 
-        WriteChannel(destBuffer + destOffset, destPixelFormat, Adaptor::RED, destRed * srcAlpha / 255);
-        WriteChannel(destBuffer + destOffset, destPixelFormat, Adaptor::GREEN, destGreen * srcAlpha / 255);
-        WriteChannel(destBuffer + destOffset, destPixelFormat, Adaptor::BLUE, destBlue * srcAlpha / 255);
-        WriteChannel(destBuffer + destOffset, destPixelFormat, Adaptor::LUMINANCE, destLuminance * srcAlpha / 255);
-        WriteChannel(destBuffer + destOffset, destPixelFormat, Adaptor::ALPHA, destAlpha * srcAlpha / 255);
-
-        srcOffset += srcBytesPerPixel;
-        destOffset += destBytesPerPixel;
+          srcOffset += srcBytesPerPixel;
+          destOffset += destBytesPerPixel;
+        }
       }
     }
   }
@@ -88,12 +105,11 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
     {
       for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
       {
-        unsigned char alpha = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
-        srcAlphaValue       = float(alpha) / 255.0f;
+        unsigned char srcAlpha  = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
+        unsigned char destAlpha = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
 
-        unsigned char destAlpha      = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
-        float         destAlphaValue = Clamp(float(destAlpha) * srcAlphaValue, 0.0f, 255.0f);
-        destAlpha                    = destAlphaValue;
+        destAlpha = (static_cast<std::uint16_t>(destAlpha) * static_cast<std::uint16_t>(srcAlpha)) / 255;
+
         destBuffer[destOffset + destAlphaByteOffset] &= ~destAlphaMask;
         destBuffer[destOffset + destAlphaByteOffset] |= (destAlpha & destAlphaMask);
 
@@ -143,27 +159,24 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
   int  destOffset     = 0;
   bool hasAlpha       = Dali::Pixel::HasAlpha(buffer.GetPixelFormat());
 
-  float         srcAlphaValue = 1.0f;
-  unsigned char destAlpha     = 0;
+  unsigned char destAlpha = 0;
 
   for(unsigned int row = 0; row < buffer.GetHeight(); ++row)
   {
     for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
     {
-      unsigned char alpha = srcBuffer[srcAlphaOffset + srcAlphaByteOffset] & srcAlphaMask;
-      srcAlphaValue       = float(alpha) / 255.0f;
+      unsigned char srcAlpha = srcBuffer[srcAlphaOffset + srcAlphaByteOffset] & srcAlphaMask;
 
       ConvertColorChannelsToRGBA8888(oldBuffer, srcColorOffset, srcColorPixelFormat, destBuffer, destOffset);
 
       if(hasAlpha)
       {
-        destAlpha            = ConvertAlphaChannelToA8(oldBuffer, srcColorOffset, srcColorPixelFormat);
-        float destAlphaValue = Clamp(float(destAlpha) * srcAlphaValue, 0.0f, 255.0f);
-        destAlpha            = destAlphaValue;
+        destAlpha = ConvertAlphaChannelToA8(oldBuffer, srcColorOffset, srcColorPixelFormat);
+        destAlpha = (static_cast<std::uint16_t>(destAlpha) * static_cast<std::uint16_t>(srcAlpha)) / 255;
       }
       else
       {
-        destAlpha = floorf(Clamp(srcAlphaValue * 255.0f, 0.0f, 255.0f));
+        destAlpha = srcAlpha;
       }
 
       destBuffer[destOffset + destAlphaByteOffset] &= ~destAlphaMask;
