@@ -1253,20 +1253,35 @@ void HalveScanlineInPlaceRGB888(unsigned char* const pixels, const unsigned int 
 
   const unsigned int lastPair = EvenDown(width - 2);
 
-  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+  /**
+   * @code
+   *  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+   * {
+   *   // Load all the byte pixel components we need:
+   *   const unsigned int c11 = pixels[pixel * 3];
+   *   const unsigned int c12 = pixels[pixel * 3 + 1];
+   *   const unsigned int c13 = pixels[pixel * 3 + 2];
+   *   const unsigned int c21 = pixels[pixel * 3 + 3];
+   *   const unsigned int c22 = pixels[pixel * 3 + 4];
+   *   const unsigned int c23 = pixels[pixel * 3 + 5];
+   *
+   *   // Save the averaged byte pixel components:
+   *   pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+   *   pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+   *   pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+   * }
+   *   @endcode
+   */
+  //@ToDo : Fix here if we found that collect 12 bytes == 3 uint32_t with 4 colors, and calculate in one-operation
+  std::uint8_t* inPixelPtr  = pixels;
+  std::uint8_t* outPixelPtr = pixels;
+  for(std::uint32_t scanedPixelCount = 0; scanedPixelCount <= lastPair; scanedPixelCount += 2)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 3];
-    const unsigned int c12 = pixels[pixel * 3 + 1];
-    const unsigned int c13 = pixels[pixel * 3 + 2];
-    const unsigned int c21 = pixels[pixel * 3 + 3];
-    const unsigned int c22 = pixels[pixel * 3 + 4];
-    const unsigned int c23 = pixels[pixel * 3 + 5];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
-    pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+    *(outPixelPtr + 0) = ((*(inPixelPtr + 0) ^ *(inPixelPtr + 3)) >> 1) + (*(inPixelPtr + 0) & *(inPixelPtr + 3));
+    *(outPixelPtr + 1) = ((*(inPixelPtr + 1) ^ *(inPixelPtr + 4)) >> 1) + (*(inPixelPtr + 1) & *(inPixelPtr + 4));
+    *(outPixelPtr + 2) = ((*(inPixelPtr + 2) ^ *(inPixelPtr + 5)) >> 1) + (*(inPixelPtr + 2) & *(inPixelPtr + 5));
+    inPixelPtr += 6;
+    outPixelPtr += 3;
   }
 }
 
@@ -1310,15 +1325,22 @@ void HalveScanlineInPlace2Bytes(unsigned char* const pixels, const unsigned int 
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 2];
-    const unsigned int c12 = pixels[pixel * 2 + 1];
-    const unsigned int c21 = pixels[pixel * 2 + 2];
-    const unsigned int c22 = pixels[pixel * 2 + 3];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c11 = pixels[pixel * 2];
+     * const unsigned int c12 = pixels[pixel * 2 + 1];
+     * const unsigned int c21 = pixels[pixel * 2 + 2];
+     * const unsigned int c22 = pixels[pixel * 2 + 3];
+     *
+     * // Save the averaged byte pixel components:
+     * pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+     * pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[(outPixel << 1)]     = ((pixels[(pixel << 1)] ^ pixels[(pixel << 1) | 2]) >> 1) + (pixels[(pixel << 1)] & pixels[(pixel << 1) | 2]);
+    pixels[(outPixel << 1) | 1] = ((pixels[(pixel << 1) | 1] ^ pixels[(pixel << 1) | 3]) >> 1) + (pixels[(pixel << 1) | 1] & pixels[(pixel << 1) | 3]);
   }
 }
 
@@ -1330,19 +1352,66 @@ void HalveScanlineInPlace1Byte(unsigned char* const pixels, const unsigned int w
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c1 = pixels[pixel];
-    const unsigned int c2 = pixels[pixel + 1];
-
-    // Save the averaged byte pixel component:
-    pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c1 = pixels[pixel];
+     * const unsigned int c2 = pixels[pixel + 1];
+     *
+     * // Save the averaged byte pixel component:
+     * pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[outPixel] = ((pixels[pixel] ^ pixels[pixel | 1]) >> 1) + (pixels[pixel] & pixels[pixel | 1]);
   }
 }
 
+// AverageScanline
+
+namespace
+{
 /**
- * @ToDo: Optimise for ARM using a 4 bytes at a time loop wrapped around the single ARMV6 instruction: UHADD8  R4, R0, R5. Note, this is not neon. It runs in the normal integer pipeline so there is no downside like a stall moving between integer and copro, or extra power for clocking-up the idle copro.
- * if (widthInComponents >= 7) { word32* aligned1 = scanline1 + 3 & 3; word32* aligned1_end = scanline1 + widthInPixels & 3; while(aligned1 < aligned1_end) { UHADD8  *aligned1++, *aligned2++, *alignedoutput++ } .. + 0 to 3 spare pixels at each end.
+ * @copydoc AverageScanlines1
+ * @note This API average eight components in one operation.
+ * It will give performance benifit.
  */
+inline void AverageScanlinesWithEightComponents(
+  const unsigned char* const scanline1,
+  const unsigned char* const __restrict__ scanline2,
+  unsigned char* const outputScanline,
+  const unsigned int   totalComponentCount)
+{
+  unsigned int component = 0;
+  if(DALI_LIKELY(totalComponentCount >= 8))
+  {
+    // Jump 8 components in one step
+    const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1);
+    const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2);
+    std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline);
+
+    const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
+    component                          = totalStepCount << 3;
+
+    // and for each step, calculate average of 8 bytes.
+    for(std::uint32_t i = 0; i < totalStepCount; ++i)
+    {
+      const auto& c1     = *(scanline18Step + i);
+      const auto& c2     = *(scanline28Step + i);
+      *(output8step + i) = static_cast<std::uint64_t>((((c1 ^ c2) & 0xfefefefefefefefeull) >> 1) + (c1 & c2));
+    }
+  }
+  // remaining components calculate
+  for(; component < totalComponentCount; ++component)
+  {
+    const auto& c1            = scanline1[component];
+    const auto& c2            = scanline2[component];
+    outputScanline[component] = static_cast<std::uint8_t>(((c1 ^ c2) >> 1) + (c1 & c2));
+  }
+}
+
+} // namespace
+
 void AverageScanlines1(const unsigned char* const scanline1,
                        const unsigned char* const __restrict__ scanline2,
                        unsigned char* const outputScanline,
@@ -1350,10 +1419,15 @@ void AverageScanlines1(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width);
 
-  for(unsigned int component = 0; component < width; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width);
 }
 
 void AverageScanlines2(const unsigned char* const scanline1,
@@ -1363,10 +1437,15 @@ void AverageScanlines2(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width * 2);
 
-  for(unsigned int component = 0; component < width * 2; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width * 2; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 2);
 }
 
 void AverageScanlines3(const unsigned char* const scanline1,
@@ -1376,10 +1455,15 @@ void AverageScanlines3(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width * 3);
 
-  for(unsigned int component = 0; component < width * 3; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width * 3; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 3);
 }
 
 void AverageScanlinesRGBA8888(const unsigned char* const scanline1,
@@ -1444,29 +1528,38 @@ void DownscaleInPlacePow2(unsigned char* const pixels,
     {
       const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
 
-      if(pixelFormat == Pixel::RGBA8888)
+      switch(pixelFormat)
       {
-        Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::RGB888)
-      {
-        Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::RGB565)
-      {
-        Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::LA88)
-      {
-        Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-      {
-        Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else
-      {
-        DALI_ASSERT_DEBUG(false && "Inner branch conditions don't match outer branch.");
+        case Pixel::RGBA8888:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+          break;
+        }
+        case Pixel::RGB888:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+          break;
+        }
+        case Pixel::RGB565:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+          break;
+        }
+        case Pixel::LA88:
+        {
+          Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+          break;
+        }
+        case Pixel::L8:
+        case Pixel::A8:
+        {
+          Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+          break;
+        }
+        default:
+        {
+          DALI_ASSERT_DEBUG(false && "Inner branch conditions don't match outer branch.");
+        }
       }
     }
   }
@@ -1541,6 +1634,8 @@ void DownscaleInPlacePow2SingleBytePerPixel(unsigned char*   pixels,
 {
   DownscaleInPlacePow2Generic<1, HalveScanlineInPlace1Byte, AverageScanlines1>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
 }
+
+// Point sampling group below
 
 namespace
 {
@@ -1703,25 +1798,34 @@ void PointSample(const unsigned char* inPixels,
   // Check the pixel format is one that is supported:
   if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
-    if(pixelFormat == Pixel::RGB888)
+    switch(pixelFormat)
     {
-      PointSample3BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::RGBA8888)
-    {
-      PointSample4BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88)
-    {
-      PointSample2BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-    {
-      PointSample1BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else
-    {
-      DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      case Pixel::RGB888:
+      {
+        PointSample3BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::RGBA8888:
+      {
+        PointSample4BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::RGB565:
+      case Pixel::LA88:
+      {
+        PointSample2BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        PointSample1BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
     }
   }
   else
@@ -2106,29 +2210,38 @@ void LinearSample(const unsigned char* __restrict__ inPixels,
   // Check the pixel format is one that is supported:
   if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
   {
-    if(pixelFormat == Pixel::RGB888)
+    switch(pixelFormat)
     {
-      LinearSample3BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::RGBA8888)
-    {
-      LinearSample4BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-    {
-      LinearSample1BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::LA88)
-    {
-      LinearSample2BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::RGB565)
-    {
-      LinearSampleRGB565(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else
-    {
-      DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      case Pixel::RGB888:
+      {
+        LinearSample3BPP(inPixels, inDimensions, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGBA8888:
+      {
+        LinearSample4BPP(inPixels, inDimensions, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        LinearSample1BPP(inPixels, inDimensions, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::LA88:
+      {
+        LinearSample2BPP(inPixels, inDimensions, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGB565:
+      {
+        LinearSampleRGB565(inPixels, inDimensions, outPixels, outDimensions);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
     }
   }
   else

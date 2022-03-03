@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -230,9 +230,9 @@ public:
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindVertexBuffers
    */
-  void BindVertexBuffers(uint32_t                             firstBinding,
-                         std::vector<const Graphics::Buffer*> buffers,
-                         std::vector<uint32_t>                offsets) override;
+  void BindVertexBuffers(uint32_t                                    firstBinding,
+                         const std::vector<const Graphics::Buffer*>& buffers,
+                         const std::vector<uint32_t>&                offsets) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindUniformBuffers
@@ -247,12 +247,12 @@ public:
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindTextures
    */
-  void BindTextures(std::vector<TextureBinding>& textureBindings) override;
+  void BindTextures(const std::vector<TextureBinding>& textureBindings) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindSamplers
    */
-  void BindSamplers(std::vector<SamplerBinding>& samplerBindings) override;
+  void BindSamplers(const std::vector<SamplerBinding>& samplerBindings) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindPushConstants
@@ -272,10 +272,10 @@ public:
    * @copydoc Dali::Graphics::CommandBuffer::BeginRenderPass
    */
   void BeginRenderPass(
-    Graphics::RenderPass*   renderPass,
-    Graphics::RenderTarget* renderTarget,
-    Rect2D                  renderArea,
-    std::vector<ClearValue> clearValues) override;
+    Graphics::RenderPass*          renderPass,
+    Graphics::RenderTarget*        renderTarget,
+    Rect2D                         renderArea,
+    const std::vector<ClearValue>& clearValues) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::EndRenderPass

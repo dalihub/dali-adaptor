@@ -25,12 +25,35 @@ namespace Dali::Accessibility
 /**
  * @brief Interface enabling advanced quering of accessibility objects.
  *
- * @note since all mathods can be implemented inside bridge,
- * none methods have to be overrided
+ * @note Since all methods can be implemented inside bridge,
+ * no methods have to be overriden.
  */
 class DALI_ADAPTOR_API Collection : public virtual Accessible
 {
+  /**
+   * @brief Downcasts an Accessible to a Collection.
+   *
+   * @param obj The Accessible
+   * @return A Collection or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Collection* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::COLLECTION>
+{
+  using Type = Collection;
+};
+} // namespace Internal
+
+inline Collection* Collection::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::COLLECTION>(obj);
+}
 
 } // namespace Dali::Accessibility
 

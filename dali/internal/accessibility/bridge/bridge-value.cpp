@@ -18,9 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 
-// EXTERNAL INCLUDES
-#include <iostream>
-
 using namespace Dali::Accessibility;
 
 BridgeValue::BridgeValue()
@@ -29,7 +26,7 @@ BridgeValue::BridgeValue()
 
 void BridgeValue::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceValue};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::VALUE)};
   AddGetSetPropertyToInterface(desc, "CurrentValue", &BridgeValue::GetCurrentValue, &BridgeValue::SetCurrentValue);
   AddGetPropertyToInterface(desc, "MaximumValue", &BridgeValue::GetMaximumValue);
   AddGetPropertyToInterface(desc, "MinimumIncrement", &BridgeValue::GetMinimumIncrement);
@@ -39,14 +36,7 @@ void BridgeValue::RegisterInterfaces()
 
 Value* BridgeValue::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto valueInterface = dynamic_cast<Value*>(self);
-  if(!valueInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Value interface"};
-  }
-  return valueInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::VALUE>();
 }
 
 double BridgeValue::GetCurrentValue()

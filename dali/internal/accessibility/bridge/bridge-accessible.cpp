@@ -400,7 +400,7 @@ BridgeAccessible::BridgeAccessible()
 
 void BridgeAccessible::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceAccessible};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::ACCESSIBLE)};
   AddGetPropertyToInterface(desc, "ChildCount", &BridgeAccessible::GetChildCount);
   AddGetPropertyToInterface(desc, "Name", &BridgeAccessible::GetName);
   AddGetPropertyToInterface(desc, "Description", &BridgeAccessible::GetDescription);
@@ -410,7 +410,7 @@ void BridgeAccessible::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetLocalizedRoleName", &BridgeAccessible::GetLocalizedRoleName);
   AddFunctionToInterface(desc, "GetState", &BridgeAccessible::GetStates);
   AddFunctionToInterface(desc, "GetAttributes", &BridgeAccessible::GetAttributes);
-  AddFunctionToInterface(desc, "GetInterfaces", &BridgeAccessible::GetInterfaces);
+  AddFunctionToInterface(desc, "GetInterfaces", &BridgeAccessible::GetInterfacesAsStrings);
   AddFunctionToInterface(desc, "GetChildAtIndex", &BridgeAccessible::GetChildAtIndex);
   AddFunctionToInterface(desc, "GetChildren", &BridgeAccessible::GetChildren);
   AddFunctionToInterface(desc, "GetIndexInParent", &BridgeAccessible::GetIndexInParent);
@@ -421,6 +421,11 @@ void BridgeAccessible::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetReadingMaterial", &BridgeAccessible::GetReadingMaterial);
   AddFunctionToInterface(desc, "GetRelationSet", &BridgeAccessible::GetRelationSet);
   mDbusServer.addInterface("/", desc, true);
+}
+
+Accessible* BridgeAccessible::FindSelf() const
+{
+  return FindCurrentObject();
 }
 
 Component* BridgeAccessible::GetObjectInRelation(Accessible* obj, RelationType relationType)
@@ -513,7 +518,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
   double minimumValue     = 0.0;
-  auto*  valueInterface   = dynamic_cast<Dali::Accessibility::Value*>(self);
+  auto*  valueInterface   = Value::DownCast(self);
   if(valueInterface)
   {
     currentValue     = valueInterface->GetCurrent();
@@ -524,7 +529,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   int32_t firstSelectedChildIndex = -1;
   int32_t selectedChildCount      = 0;
-  auto*   selfSelectionInterface  = dynamic_cast<Dali::Accessibility::Selection*>(self);
+  auto*   selfSelectionInterface  = Selection::DownCast(self);
   if(selfSelectionInterface)
   {
     selectedChildCount      = selfSelectionInterface->GetSelectedChildrenCount();
@@ -558,7 +563,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::POPUP_MENU, Role::MENU_ITEM, false);
   }
 
-  auto*       textInterface         = dynamic_cast<Dali::Accessibility::Text*>(self);
+  auto*       textInterface         = Text::DownCast(self);
   std::string nameFromTextInterface = "";
   if(textInterface)
   {
@@ -578,7 +583,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   auto  parentChildCount         = parent ? static_cast<int32_t>(parent->GetChildCount()) : 0;
   auto  parentStateSet           = parent ? parent->GetStates() : States{};
   bool  isSelectedInParent       = false;
-  auto* parentSelectionInterface = dynamic_cast<Dali::Accessibility::Selection*>(parent);
+  auto* parentSelectionInterface = Selection::DownCast(parent);
   if(parentSelectionInterface)
   {
     isSelectedInParent = parentSelectionInterface->IsChildSelected(indexInParent);
@@ -1014,9 +1019,9 @@ DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessibl
   return attributes;
 }
 
-DBus::ValueOrError<std::vector<std::string>> BridgeAccessible::GetInterfaces()
+DBus::ValueOrError<std::vector<std::string>> BridgeAccessible::GetInterfacesAsStrings()
 {
-  return FindSelf()->GetInterfaces();
+  return FindSelf()->GetInterfacesAsStrings();
 }
 
 int BridgeAccessible::GetChildCount()

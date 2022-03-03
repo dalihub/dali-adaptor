@@ -131,7 +131,31 @@ public:
    * @see Dali::Accessibility::Point
    */
   virtual bool IsAccessibleContainingPoint(Point point, CoordinateType type) const;
+
+  /**
+   * @brief Downcasts an Accessible to a Component.
+   *
+   * @param obj The Accessible
+   * @return A Component or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Component* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::COMPONENT>
+{
+  using Type = Component;
+};
+} // namespace Internal
+
+inline Component* Component::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::COMPONENT>(obj);
+}
 
 } // namespace Dali::Accessibility
 

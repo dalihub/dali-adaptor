@@ -950,6 +950,26 @@ int UtcDaliImageOperationsHalveScanlineInPlace1Byte(void)
 /**
  * @brief Test the function for averaging vertically-adjacent pairs of single-byte-per-pixel pixels on a scanline.
  */
+int UtcDaliImageOperationsAverageScanlines1ExceptTest(void)
+{
+  // Edge cases for averagescanlines1:
+  unsigned char shortEven1[]   = {0x00, 0x00, 0xff, 0xff, 0xff, 0xfe, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00, 0x02, 0x03, 0x00, 0x01};
+  unsigned char shortEven2[]   = {0x00, 0xff, 0x00, 0xff, 0x01, 0x01, 0xff, 0xfe, 0x00, 0x01, 0x01, 0x02, 0x00, 0x00, 0x03, 0x02};
+  unsigned char expectBuffer[] = {0x00, 0x7f, 0x7f, 0xff, 0x80, 0x7f, 0x80, 0x7f, 0x00, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
+  unsigned char outputBuffer[sizeof(shortEven1)];
+
+  AverageScanlines1(shortEven1, shortEven2, outputBuffer, sizeof(shortEven1));
+  for(unsigned i = 0; i < sizeof(shortEven1); ++i)
+  {
+    DALI_TEST_EQUALS(unsigned(outputBuffer[i]), unsigned(expectBuffer[i]), TEST_LOCATION);
+  }
+
+  END_TEST;
+}
+
+/**
+ * @brief Test the function for averaging vertically-adjacent pairs of single-byte-per-pixel pixels on a scanline.
+ */
 int UtcDaliImageOperationsAverageScanlines1(void)
 {
   // Red and cyan, averaging to grey:
@@ -964,19 +984,55 @@ int UtcDaliImageOperationsAverageScanlines1(void)
   }
 
   // Longer test reusing RGBA setup/test logic:
-  const size_t           scanlineLength = 4096u;
-  Dali::Vector<uint32_t> scanline1;
-  Dali::Vector<uint32_t> scanline2;
-  Dali::Vector<uint32_t> reference;
-  Dali::Vector<uint32_t> output;
-  SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+  {
+    const size_t           scanlineLength = 4096u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
 
-  AverageScanlines1((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4);
+    AverageScanlines1((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4);
 
-  // Check the output matches the independently generated reference:
-  size_t numMatches = 0;
-  MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Longer test reusing RGBA setup/test logic with none-8-divisable length
+  {
+    const size_t           scanlineLength = 1003u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines1((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Very short test reusing RGBA setup/test logic with less-than-8 length
+  {
+    const size_t           scanlineLength = 1003u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines1((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
 
   END_TEST;
 }
@@ -999,19 +1055,55 @@ int UtcDaliImageOperationsAverageScanlines2(void)
   }
 
   // Longer test reusing RGBA setup/test logic:
-  const size_t           scanlineLength = 4096u;
-  Dali::Vector<uint32_t> scanline1;
-  Dali::Vector<uint32_t> scanline2;
-  Dali::Vector<uint32_t> reference;
-  Dali::Vector<uint32_t> output;
-  SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+  {
+    const size_t           scanlineLength = 4096u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
 
-  AverageScanlines2((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 2);
+    AverageScanlines2((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 2);
 
-  // Check the output matches the independently generated reference:
-  size_t numMatches = 0;
-  MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Longer test reusing RGBA setup/test logic with none-8-divisable length
+  {
+    const size_t           scanlineLength = 501u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines2((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 2);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Very short test reusing RGBA setup/test logic with less-than-8 length
+  {
+    const size_t           scanlineLength = 3u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines2((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 2);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
 
   END_TEST;
 }
@@ -1033,19 +1125,55 @@ int UtcDaliImageOperationsAverageScanlines3(void)
   }
 
   // Longer test reusing RGBA setup/test logic:
-  const size_t           scanlineLength = 3 * 4 * 90u;
-  Dali::Vector<uint32_t> scanline1;
-  Dali::Vector<uint32_t> scanline2;
-  Dali::Vector<uint32_t> reference;
-  Dali::Vector<uint32_t> output;
-  SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+  {
+    const size_t           scanlineLength = 3 * 4 * 90u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
 
-  AverageScanlines3((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4 / 3);
+    AverageScanlines3((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4 / 3);
 
-  // Check the output matches the independently generated reference:
-  size_t numMatches = 0;
-  MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
-  DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Longer test reusing RGBA setup/test logic with none-8-divisable length
+  {
+    const size_t           scanlineLength = 3 * 501u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines3((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4 / 3);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
+
+  // Very short test reusing RGBA setup/test logic with less-than-8 length
+  {
+    const size_t           scanlineLength = 3u;
+    Dali::Vector<uint32_t> scanline1;
+    Dali::Vector<uint32_t> scanline2;
+    Dali::Vector<uint32_t> reference;
+    Dali::Vector<uint32_t> output;
+    SetupScanlinesRGBA8888(scanlineLength, scanline1, scanline2, reference, output);
+
+    AverageScanlines3((const unsigned char*)&scanline1[0], (const unsigned char*)&scanline2[0], (unsigned char*)&output[0], scanlineLength * 4 / 3);
+
+    // Check the output matches the independently generated reference:
+    size_t numMatches = 0;
+    MatchScanlinesRGBA8888(reference, output, numMatches, TEST_LOCATION);
+    DALI_TEST_EQUALS(numMatches, reference.Count(), TEST_LOCATION);
+  }
 
   END_TEST;
 }
