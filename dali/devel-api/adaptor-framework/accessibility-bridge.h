@@ -249,6 +249,13 @@ struct DALI_ADAPTOR_API Bridge
   virtual void EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type) = 0;
 
   /**
+   * @brief Emits "org.a11y.atspi.Socket.Available" event on AT-SPI bus.
+   *
+   * @param obj Accessible object
+   */
+  virtual void EmitSocketAvailable(Accessible* obj) = 0;
+
+  /**
    * @brief Emits state-changed event on at-spi bus.
    *
    * @param[in] obj The accessible object
