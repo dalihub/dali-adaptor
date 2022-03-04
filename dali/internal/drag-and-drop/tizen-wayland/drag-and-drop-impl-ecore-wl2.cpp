@@ -118,19 +118,14 @@ DragAndDropEcoreWl::~DragAndDropEcoreWl()
   ecore_event_handler_del(mDropHandler);
 }
 
-void DragAndDropEcoreWl::SetData(std::string data)
-{
-  // Save Data
-  mData = data;
-}
-
-bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData)
+bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const Dali::DragAndDrop::DragData& data)
 {
   // Get Parent Window
   auto parent = Dali::DevelWindow::Get(source);
 
   // Set Drag Source Data
-  SetData(dragData);
+  mMimeType = data.GetMimeType();
+  mData = data.GetData();
 
   // Apply Shadow Property
   shadow.SetProperty(Dali::Actor::Property::SIZE, Vector2(150, 150));
@@ -149,11 +144,13 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
   Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
   Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
 
-  // TODO: Makes mime-type common
-  char* mimeTypes[2] = {"text/plain"};
-  mimeTypes[1]       = NULL;
+  // Set mime type for drag and drop
+  const char* mimeTypes[2];
+  mimeTypes[0] = mMimeType.c_str();
+  mimeTypes[1] = NULL;
 
-  // Set mimetype
+
+  // Set mime type
   ecore_wl2_dnd_drag_types_set(input, (const char**)mimeTypes);
 
   // Start wayland drag and drop
@@ -164,12 +161,36 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
 
 bool DragAndDropEcoreWl::AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback)
 {
+  std::vector<DropTarget>::iterator itr;
+  for(itr = mDropTargets.begin(); itr < mDropTargets.end(); itr++)
+  {
+    if((*itr).target == target)
+    {
+      return false;
+    }
+  }
+
   DropTarget targetData;
   targetData.target   = target;
   targetData.callback = callback;
   targetData.inside   = false;
 
   mDropTargets.push_back(targetData);
+
+  return true;
+}
+
+bool DragAndDropEcoreWl::RemoveListener(Dali::Actor target)
+{
+  std::vector<DropTarget>::iterator itr;
+  for(itr = mDropTargets.begin(); itr < mDropTargets.end(); itr++)
+  {
+    if((*itr).target == target)
+    {
+      mDropTargets.erase(itr);
+      break;
+    }
+  }
 
   return true;
 }
@@ -182,13 +203,25 @@ void DragAndDropEcoreWl::SendData(void* event)
     return;
   }
 
-  int   len = strlen(mData.c_str());
-  char* buf = new char[len + 1];
-  strncpy(buf, mData.c_str(), len);
-  buf[len] = '\0';
+  int dataLength = strlen(mData.c_str());
+  int bufferSize = dataLength;
+  if((mMimeType.find("text") != std::string::npos) ||
+     (mMimeType.find("markup") != std::string::npos) ||
+     (mMimeType.find("image") != std::string::npos))
+  {
+     bufferSize += 1;
+  }
 
-  // Write source object data to target object
-  write(ev->fd, buf, len + 1);
+  char* buffer = new char[bufferSize];
+  if(!buffer)
+  {
+    return;
+  }
+
+  memcpy(buffer, mData.c_str(), dataLength);
+  buffer[dataLength] = '\0';
+
+  write(ev->fd, buffer, bufferSize);
   close(ev->fd);
 
   if(mDragWindow)
@@ -196,10 +229,7 @@ void DragAndDropEcoreWl::SendData(void* event)
     mDragWindow.Hide();
   }
 
-  if(buf)
-  {
-    delete[] buf;
-  }
+  delete [] buffer;
 }
 
 void DragAndDropEcoreWl::ReceiveData(void* event)
@@ -208,7 +238,7 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
 
   if(mTargetIndex != -1)
   {
-    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, ev->data);
+    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, ev->mimetype, ev->data);
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
   }
