@@ -132,6 +132,10 @@ void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::ScreenRelati
 {
 }
 
+void Accessibility::Accessible::EmitSocketAvailable()
+{
+}
+
 void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
 }

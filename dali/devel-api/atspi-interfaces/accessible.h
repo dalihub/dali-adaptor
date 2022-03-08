@@ -157,6 +157,14 @@ public:
   void EmitMovedOutOfScreen(ScreenRelativeMoveType type);
 
   /**
+   * @brief Emits "org.a11y.atspi.Socket.Available" signal.
+   */
+  // This belongs to Dali::Accessibility::Socket. However, all Emit*() helpers
+  // are here in Accessible, regardless of what interface they belong to (perhaps
+  // to spare a dynamic_cast if used like this: Accessible::Get()->Emit*(...)).
+  void EmitSocketAvailable();
+
+  /**
    * @brief Emits "highlighted" event.
    *
    * @param[in] event The enumerated window event
@@ -327,7 +335,7 @@ public:
   virtual std::vector<Relation> GetRelationSet() = 0;
 
   /**
-   * @brief Gets internal Actor to be saved before.
+   * @brief Gets the Actor associated with this Accessible (if there is one).
    *
    * @return The internal Actor
    */

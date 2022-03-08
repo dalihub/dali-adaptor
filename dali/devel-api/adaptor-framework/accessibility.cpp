@@ -39,6 +39,7 @@
 #include <dali/devel-api/atspi-interfaces/hyperlink.h>
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -238,6 +239,7 @@ AtspiInterfaces Accessible::DoGetInterfaces() const
   interfaces[AtspiInterface::HYPERLINK]     = dynamic_cast<const Hyperlink*>(this);
   interfaces[AtspiInterface::HYPERTEXT]     = dynamic_cast<const Hypertext*>(this);
   interfaces[AtspiInterface::SELECTION]     = dynamic_cast<const Selection*>(this);
+  interfaces[AtspiInterface::SOCKET]        = dynamic_cast<const Socket*>(this);
   interfaces[AtspiInterface::TEXT]          = dynamic_cast<const Text*>(this);
   interfaces[AtspiInterface::VALUE]         = dynamic_cast<const Value*>(this);
 

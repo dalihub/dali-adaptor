@@ -151,6 +151,7 @@ SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/hyperlink.h
   ${adaptor_devel_api_dir}/atspi-interfaces/hypertext.h
   ${adaptor_devel_api_dir}/atspi-interfaces/selection.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/socket.h
   ${adaptor_devel_api_dir}/atspi-interfaces/text.h
   ${adaptor_devel_api_dir}/atspi-interfaces/value.h
 )
