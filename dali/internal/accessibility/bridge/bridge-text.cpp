@@ -38,6 +38,7 @@ void BridgeText::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetRangeOfSelection);
   AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetRangeOfSelection);
   AddFunctionToInterface(desc, "RemoveSelection", &BridgeText::RemoveSelection);
+  AddFunctionToInterface(desc, "GetRangeExtents", &BridgeText::GetRangeExtents);
   mDbusServer.addInterface("/", desc, true);
 }
 
@@ -86,4 +87,10 @@ DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionIndex)
 DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset)
 {
   return FindSelf()->SetRangeOfSelection(selectionIndex, startOffset, endOffset);
+}
+
+DBus::ValueOrError<int32_t, int32_t, int32_t, int32_t> BridgeText::GetRangeExtents(int32_t startOffset, int32_t endOffset, uint32_t coordType)
+{
+  auto rect = FindSelf()->GetRangeExtents(startOffset, endOffset, static_cast<CoordinateType>(coordType));
+  return {static_cast<int32_t>(rect.x), static_cast<int32_t>(rect.y), static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)};
 }
