@@ -48,7 +48,7 @@ void BridgeObject::RegisterInterfaces()
 
 void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
 {
-  if(!IsUp() || obj->IsHidden() || child->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::ACTIVE_DESCENDANT_CHANGED] || child->IsHidden())
   {
     return;
   }
@@ -76,7 +76,7 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
     {ObjectPropertyChangeEvent::ROLE, "accessible-role"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::PROPERTY_CHANGED])
   {
     return;
   }
@@ -121,7 +121,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
     {WindowEvent::RESTYLE, "Restyle"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::WINDOW_CHANGED])
   {
     return;
   }
@@ -193,7 +193,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
     {State::HIGHLIGHTABLE, "highlightable"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::STATE_CHANGED]) // separate ?
   {
     return;
   }
@@ -216,7 +216,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
 void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 {
-  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden())
+  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
   {
     return;
   }
@@ -239,7 +239,7 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CARET_MOVED])
   {
     return;
   }
@@ -262,7 +262,7 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
     {TextChangedState::DELETED, "delete"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CHANGED])
   {
     return;
   }
@@ -285,7 +285,7 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
 
 void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
 {
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::MOVED_OUT])
   {
     return;
   }
@@ -303,7 +303,7 @@ void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType 
 
 void BridgeObject::EmitSocketAvailable(Accessible* obj)
 {
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden()) //TODO Suppress SocketAvailable event
   {
     return;
   }
