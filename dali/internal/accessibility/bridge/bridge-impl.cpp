@@ -144,7 +144,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         true);
@@ -163,7 +163,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         false);
@@ -182,7 +182,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         alsoNonDiscardable);
@@ -201,7 +201,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
       else if(callback)
       {

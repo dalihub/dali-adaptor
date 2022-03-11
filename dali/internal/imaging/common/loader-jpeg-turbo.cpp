@@ -603,16 +603,19 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   std::unique_ptr<Property::Map> exifMap;
   exifMap.reset(new Property::Map());
 
-  for(auto k = 0u; k < EXIF_IFD_COUNT; ++k)
+  if(DALI_LIKELY(exifData))
   {
-    auto content = exifData->ifd[k];
-    for(auto i = 0u; i < content->count; ++i)
+    for(auto k = 0u; k < EXIF_IFD_COUNT; ++k)
     {
-      auto&&      tag       = content->entries[i];
-      const char* shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
-      if(shortName)
+      auto content = exifData->ifd[k];
+      for(auto i = 0u; i < content->count; ++i)
       {
-        AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
+        auto&&      tag       = content->entries[i];
+        const char* shortName = exif_tag_get_name_in_ifd(tag->tag, static_cast<ExifIfd>(k));
+        if(shortName)
+        {
+          AddExifFieldPropertyMap(*exifMap, *tag, static_cast<ExifIfd>(k));
+        }
       }
     }
   }
