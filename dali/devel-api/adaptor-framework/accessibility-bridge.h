@@ -401,6 +401,16 @@ struct DALI_ADAPTOR_API Bridge
     return mDisabledSignal;
   }
 
+  static Signal<void()>& ScreenReaderEnabledSignal()
+  {
+    return mScreenReaderEnabledSignal;
+  }
+
+  static Signal<void()>& ScreenReaderDisabledSignal()
+  {
+    return mScreenReaderDisabledSignal;
+  }
+
 protected:
   struct Data
   {
@@ -423,6 +433,8 @@ protected:
 
   inline static Signal<void()> mEnabledSignal;
   inline static Signal<void()> mDisabledSignal;
+  inline static Signal<void()> mScreenReaderEnabledSignal;
+  inline static Signal<void()> mScreenReaderDisabledSignal;
 
   /**
    * @brief Registers accessible object to be known in bridge object.
