@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,19 +40,19 @@ namespace TizenPlatform
 #ifdef DALI_ANIMATED_WEBP_ENABLED
 bool ReadWebPInformation(FILE* const fp, WebPData& webPData)
 {
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_END) <= -1)
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
     return false;
   }
   WebPDataInit(&webPData);
   webPData.size = ftell(fp);
 
-  if((!fseek(fp, 0, SEEK_SET)))
+  if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
   {
     unsigned char* WebPDataBuffer;
     WebPDataBuffer = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * webPData.size));
@@ -82,12 +82,12 @@ void ReleaseResource(WebPData& webPData, WebPAnimDecoder* webPAnimDecoder)
 bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
   FILE* const fp = input.file;
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_END) <= -1)
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
     return false;
   }
@@ -95,12 +95,12 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   // If the image is non-animated webp
 #ifdef DALI_WEBP_AVAILABLE
   size_t webPSize = ftell(fp);
-  if((!fseek(fp, 0, SEEK_SET)))
+  if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
   {
     std::vector<uint8_t> encodedImage;
-    encodedImage.resize(webPSize, 0);
+    encodedImage.resize(webPSize);
     size_t readCount = fread(&encodedImage[0], sizeof(uint8_t), encodedImage.size(), fp);
-    if(readCount != encodedImage.size())
+    if(DALI_UNLIKELY(readCount != encodedImage.size()))
     {
       return false;
     }
@@ -143,12 +143,12 @@ bool LoadWebpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
   FILE* const fp = input.file;
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_END) <= -1)
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
     return false;
   }
@@ -156,26 +156,26 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   // If the image is non-animated webp
 #ifdef DALI_WEBP_AVAILABLE
   size_t webPSize = ftell(fp);
-  if((!fseek(fp, 0, SEEK_SET)))
+  if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
   {
     std::vector<uint8_t> encodedImage;
-    encodedImage.resize(webPSize, 0);
+    encodedImage.resize(webPSize);
     size_t readCount = fread(&encodedImage[0], sizeof(uint8_t), encodedImage.size(), fp);
-    if(readCount != encodedImage.size())
+    if(DALI_UNLIKELY(readCount != encodedImage.size()))
     {
       DALI_LOG_ERROR("WebP image loading failed.\n");
       return false;
     }
 
     int32_t width, height;
-    if(!WebPGetInfo(&encodedImage[0], encodedImage.size(), &width, &height))
+    if(DALI_UNLIKELY(!WebPGetInfo(&encodedImage[0], encodedImage.size(), &width, &height)))
     {
       DALI_LOG_ERROR("Cannot retrieve WebP image size information.\n");
       return false;
     }
 
     WebPBitstreamFeatures features;
-    if(VP8_STATUS_NOT_ENOUGH_DATA == WebPGetFeatures(&encodedImage[0], encodedImage.size(), &features))
+    if(DALI_UNLIKELY(VP8_STATUS_NOT_ENOUGH_DATA == WebPGetFeatures(&encodedImage[0], encodedImage.size(), &features)))
     {
       DALI_LOG_ERROR("Cannot retrieve WebP image features.\n");
       return false;

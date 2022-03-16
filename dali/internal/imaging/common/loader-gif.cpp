@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ bool LoadGifHeader(FILE* fp, unsigned int& width, unsigned int& height, GifFileT
   *gifInfo = DGifOpen(reinterpret_cast<void*>(fp), ReadDataFromGif);
 #endif
 
-  if(!(*gifInfo) || errorCode)
+  if(DALI_UNLIKELY(!(*gifInfo) || errorCode))
   {
     DALI_LOG_ERROR("GIF Loader: DGifOpen Error. Code: %d\n", errorCode);
     return false;
@@ -110,7 +110,7 @@ bool LoadGifHeader(FILE* fp, unsigned int& width, unsigned int& height, GifFileT
   height = (*gifInfo)->SHeight;
 
   // No proper size in GIF.
-  if(width <= 0 || height <= 0)
+  if(DALI_UNLIKELY(width <= 0 || height <= 0))
   {
     return false;
   }
@@ -131,7 +131,7 @@ bool DecodeImage(GifFileType* gifInfo, unsigned char* decodedData, const unsigne
       for(unsigned int currentByte = interlacePairPtr->startingByte; currentByte < height; currentByte += interlacePairPtr->incrementalByte)
       {
         unsigned char* row = decodedData + currentByte * bytesPerRow;
-        if(DGifGetLine(gifInfo, row, width) == GIF_ERROR)
+        if(DALI_UNLIKELY(DGifGetLine(gifInfo, row, width) == GIF_ERROR))
         {
           DALI_LOG_ERROR("GIF Loader: Error reading Interlaced GIF\n");
           return false;
@@ -146,7 +146,7 @@ bool DecodeImage(GifFileType* gifInfo, unsigned char* decodedData, const unsigne
 
     for(unsigned int row = 0; row < height; ++row)
     {
-      if(DGifGetLine(gifInfo, decodedDataPtr, width) == GIF_ERROR)
+      if(DALI_UNLIKELY(DGifGetLine(gifInfo, decodedDataPtr, width) == GIF_ERROR))
       {
         DALI_LOG_ERROR("GIF Loader: Error reading non-interlaced GIF\n");
         return false;
@@ -176,14 +176,14 @@ GifColorType* GetImageColors(SavedImage* image, GifFileType* gifInfo)
 /// Called when we want to handle IMAGE_DESC_RECORD_TYPE
 bool HandleImageDescriptionRecordType(Dali::Devel::PixelBuffer& bitmap, GifFileType* gifInfo, unsigned int width, unsigned int height, bool& finished)
 {
-  if(DGifGetImageDesc(gifInfo) == GIF_ERROR)
+  if(DALI_UNLIKELY(DGifGetImageDesc(gifInfo) == GIF_ERROR))
   {
     DALI_LOG_ERROR("GIF Loader: Error getting Image Description\n");
     return false;
   }
 
   // Ensure there is at least 1 image in the GIF.
-  if(gifInfo->ImageCount < 1)
+  if(DALI_UNLIKELY(gifInfo->ImageCount < 1))
   {
     DALI_LOG_ERROR("GIF Loader: No Images\n");
     return false;
@@ -206,7 +206,7 @@ bool HandleImageDescriptionRecordType(Dali::Devel::PixelBuffer& bitmap, GifFileT
   bitmap = Dali::Devel::PixelBuffer::New(actualWidth, actualHeight, pixelFormat);
 
   // Decode the GIF Image
-  if(!DecodeImage(gifInfo, decodedData, actualWidth, actualHeight, bytesPerRow))
+  if(DALI_UNLIKELY(!DecodeImage(gifInfo, decodedData, actualWidth, actualHeight, bytesPerRow)))
   {
     return false;
   }
@@ -256,7 +256,7 @@ bool HandleExtensionRecordType(GifFileType* gifInfo)
       extensionByte != NULL;
       extRetCode = DGifGetExtensionNext(gifInfo, &extensionByte))
   {
-    if(extRetCode == GIF_ERROR)
+    if(DALI_UNLIKELY(extRetCode == GIF_ERROR))
     {
       DALI_LOG_ERROR("GIF Loader: Error reading GIF Extension record.\n");
       return false;
@@ -285,7 +285,7 @@ bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   GifFileType* gifInfo(NULL);
   unsigned int width(0);
   unsigned int height(0);
-  if(!LoadGifHeader(fp, width, height, &gifInfo))
+  if(DALI_UNLIKELY(!LoadGifHeader(fp, width, height, &gifInfo)))
   {
     return false;
   }
@@ -299,7 +299,7 @@ bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       !finished && recordType != TERMINATE_RECORD_TYPE;
       returnCode = DGifGetRecordType(gifInfo, &recordType))
   {
-    if(returnCode == GIF_ERROR)
+    if(DALI_UNLIKELY(returnCode == GIF_ERROR))
     {
       DALI_LOG_ERROR("GIF Loader: Error getting Record Type\n");
       return false;
@@ -307,14 +307,14 @@ bool LoadBitmapFromGif(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
     if(IMAGE_DESC_RECORD_TYPE == recordType)
     {
-      if(!HandleImageDescriptionRecordType(bitmap, gifInfo, width, height, finished))
+      if(DALI_UNLIKELY(!HandleImageDescriptionRecordType(bitmap, gifInfo, width, height, finished)))
       {
         return false;
       }
     }
     else if(EXTENSION_RECORD_TYPE == recordType)
     {
-      if(!HandleExtensionRecordType(gifInfo))
+      if(DALI_UNLIKELY(!HandleExtensionRecordType(gifInfo)))
       {
         return false;
       }

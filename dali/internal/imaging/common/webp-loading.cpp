@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ public:
     mLoadSucceeded(true)
   {
     // mFrameCount will be 1 if the input image is non-animated image or animated image with single frame.
-    if(ReadWebPInformation(isLocalResource))
+    if(DALI_LIKELY(ReadWebPInformation(isLocalResource)))
     {
 #ifdef DALI_ANIMATED_WEBP_ENABLED
       WebPDataInit(&mWebPData);
@@ -116,18 +116,18 @@ public:
     {
       Internal::Platform::FileReader fileReader(mUrl);
       fp = fileReader.GetFile();
-      if(fp == nullptr)
+      if(DALI_UNLIKELY(fp == nullptr))
       {
         return false;
       }
 
-      if(fseek(fp, 0, SEEK_END) <= -1)
+      if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
       {
         return false;
       }
 
       mBufferSize = ftell(fp);
-      if(!fseek(fp, 0, SEEK_SET))
+      if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
       {
         mBuffer     = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
         mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
@@ -142,17 +142,17 @@ public:
       size_t                dataSize;
 
       succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory(mUrl, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE);
-      if(succeeded)
+      if(DALI_LIKELY(succeeded))
       {
         mBufferSize = dataBuffer.Size();
-        if(mBufferSize > 0U)
+        if(DALI_LIKELY(mBufferSize > 0U))
         {
           // Open a file handle on the memory buffer:
           Internal::Platform::FileReader fileReader(dataBuffer, mBufferSize);
           fp = fileReader.GetFile();
-          if(fp != nullptr)
+          if(DALI_LIKELY(fp != nullptr))
           {
-            if(!fseek(fp, 0, SEEK_SET))
+            if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
             {
               mBuffer     = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
               mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
@@ -242,7 +242,7 @@ bool WebPLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vect
     Dali::PixelData          imageData   = Devel::PixelBuffer::Convert(pixelBuffer);
     pixelData.push_back(imageData);
   }
-  if(pixelData.size() != static_cast<uint32_t>(count))
+  if(DALI_UNLIKELY(pixelData.size() != static_cast<uint32_t>(count)))
   {
     return false;
   }
@@ -259,13 +259,13 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
   if(mImpl->mFrameCount == 1)
   {
     int32_t width, height;
-    if(!WebPGetInfo(mImpl->mBuffer, mImpl->mBufferSize, &width, &height))
+    if(DALI_UNLIKELY(!WebPGetInfo(mImpl->mBuffer, mImpl->mBufferSize, &width, &height)))
     {
       return pixelBuffer;
     }
 
     WebPBitstreamFeatures features;
-    if(VP8_STATUS_NOT_ENOUGH_DATA == WebPGetFeatures(mImpl->mBuffer, mImpl->mBufferSize, &features))
+    if(DALI_UNLIKELY(VP8_STATUS_NOT_ENOUGH_DATA == WebPGetFeatures(mImpl->mBuffer, mImpl->mBufferSize, &features)))
     {
       return pixelBuffer;
     }
@@ -296,7 +296,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
   Mutex::ScopedLock lock(mImpl->mMutex);
-  if(frameIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded)
+  if(DALI_UNLIKELY(frameIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded))
   {
     return pixelBuffer;
   }

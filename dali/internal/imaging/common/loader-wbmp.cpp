@@ -47,7 +47,7 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_LOA
    ((1ULL << (29)) - 2048))
 
 //extract multiple bytes integer , and saved in *data
-int extractMultiByteInteger(unsigned int* data, void* map, size_t length, size_t* position)
+int extractMultiByteInteger(unsigned int* data, const std::uint8_t* const& map, size_t length, size_t* position)
 {
   // the header field contains an image type indentifier of multi-byte length(TypeField), an octet of general header info(FixHeaderField)
   //,  a multi-byte width field(Width) and a multi-byte height field(Height) and so on.
@@ -66,15 +66,15 @@ int extractMultiByteInteger(unsigned int* data, void* map, size_t length, size_t
     // for general width and height, if(buf & 0x80) == 0, then the next byte does not need to fetch again
     // first step, readBufCount = 1 , read int(4 bytes) to buf, if buf & 0x80 !=0, the buf need to continue to fetch
     // second step, readBufCount = 2, read next( 4 bytes) to buf, if buf & 0x80 == 0, then assigned the buf to target
-    if((readBufCount++) == 4)
+    if(DALI_UNLIKELY((readBufCount++) == 4))
     {
       return -1;
     }
-    if(*position > length)
+    if(DALI_UNLIKELY(*position > length))
     {
       return -1;
     }
-    buf                    = reinterpret_cast<unsigned char*>(map)[(*position)++];
+    buf                    = map[(*position)++];
     targetMultiByteInteger = (targetMultiByteInteger << 7) | (buf & 0x7f);
 
     if((buf & 0x80) == 0)
@@ -121,7 +121,7 @@ constexpr std::uint32_t cachedCalculation4BitTo4ByteTable[16] = {
 bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
   FILE* const fp = input.file;
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
     return false;
@@ -133,7 +133,7 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   std::uint32_t type;
   std::uint32_t lineByteLength;
 
-  if(fseek(fp, 0, SEEK_END))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
@@ -146,57 +146,59 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     fsize = static_cast<unsigned int>(positionIndicator);
   }
 
-  if(0u == fsize)
+  if(DALI_UNLIKELY(0u == fsize))
   {
     DALI_LOG_ERROR("Error: filesize is 0!\n");
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
   }
-  if(fsize <= 4)
+  if(DALI_UNLIKELY(fsize <= 4))
   {
     DALI_LOG_ERROR("Error: WBMP Raw Data Not Found!\n");
     return false;
   }
-  if(fsize > 4096 * 4096 * 4)
+  if(DALI_UNLIKELY(fsize > 4096 * 4096 * 4))
   {
     DALI_LOG_ERROR("Error: WBMP size is too large!\n");
     return false;
   }
   map.ResizeUninitialized(fsize);
 
-  if(fread(&map[0], 1, fsize, fp) != fsize)
+  if(DALI_UNLIKELY(fread(&map[0], 1, fsize, fp) != fsize))
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
   }
 
-  if(extractMultiByteInteger(&type, &map[0], fsize, &position) < 0)
+  const std::uint8_t* const inputBufferPtr = &map[0];
+
+  if(DALI_UNLIKELY(extractMultiByteInteger(&type, inputBufferPtr, fsize, &position) < 0))
   {
     return false;
   }
 
   position++; /* skipping one byte */
 
-  if(extractMultiByteInteger(&w, &map[0], fsize, &position) < 0)
+  if(DALI_UNLIKELY(extractMultiByteInteger(&w, inputBufferPtr, fsize, &position) < 0))
   {
     return false;
   }
-  if(extractMultiByteInteger(&h, &map[0], fsize, &position) < 0)
+  if(DALI_UNLIKELY(extractMultiByteInteger(&h, inputBufferPtr, fsize, &position) < 0))
   {
     return false;
   }
-  if(type != 0)
+  if(DALI_UNLIKELY(type != 0))
   {
     DALI_LOG_ERROR("Unknown Format!\n");
     return false;
   }
 
-  if((w < 1) || (h < 1) || (w > IMG_MAX_SIZE) || (h > IMG_MAX_SIZE))
+  if(DALI_UNLIKELY((w < 1) || (h < 1) || (w > IMG_MAX_SIZE) || (h > IMG_MAX_SIZE)))
   {
     return false;
   }
@@ -211,6 +213,7 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   // w >= 1 and h >= 1. So we can assume that outputPixels is not null.
   auto outputPixels = (bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
+
   /**
    * @code
    * std::uint8_t* line = NULL;
@@ -237,13 +240,13 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
    * @endcode
    */
 
-  const std::uint8_t* inputPixels                  = &map[0] + position;
+  const std::uint8_t* inputPixels                  = inputBufferPtr + position;
   const std::uint32_t lineByteLengthWithoutPadding = w >> 3;
   const std::uint8_t  linePadding                  = w & 0x07;
 
-  for(std::uint32_t y = 0; y < h; y++)
+  for(std::uint32_t y = 0; y < h; ++y)
   {
-    for(std::uint32_t x = 0; x < lineByteLengthWithoutPadding; x++)
+    for(std::uint32_t x = 0; x < lineByteLengthWithoutPadding; ++x)
     {
       // memset whole 8 bits
       // outputPixels filled 4 bytes in one operation.
@@ -272,7 +275,7 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, unsigned int& height)
 {
   FILE* const fp = input.file;
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
     return false;
@@ -282,7 +285,7 @@ bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 
   unsigned int w, h;
   unsigned int type;
-  if(fseek(fp, 0, SEEK_END))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
@@ -295,17 +298,17 @@ bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
     fsize = static_cast<unsigned int>(positionIndicator);
   }
 
-  if(0u == fsize)
+  if(DALI_UNLIKELY(0u == fsize))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking WBMP data\n");
     return false;
   }
-  if(fsize <= 4)
+  if(DALI_UNLIKELY(fsize <= 4))
   {
     DALI_LOG_ERROR("Error: WBMP Raw Data Not Found!\n");
     return false;
@@ -316,35 +319,37 @@ bool LoadWbmpHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   headerSize              = std::min(headerSize, fsize);
 
   map.ResizeUninitialized(headerSize);
-  if(fread(&map[0], 1, headerSize, fp) != headerSize)
+  if(DALI_UNLIKELY(fread(&map[0], 1, headerSize, fp) != headerSize))
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
   }
 
-  if(extractMultiByteInteger(&type, &map[0], headerSize, &position) < 0)
+  const std::uint8_t* const inputBufferPtr = &map[0];
+
+  if(DALI_UNLIKELY(extractMultiByteInteger(&type, inputBufferPtr, headerSize, &position) < 0))
   {
     DALI_LOG_ERROR("Error: unable to read type!\n");
     return false;
   }
   position++; /* skipping one byte */
-  if(type != 0)
+  if(DALI_UNLIKELY(type != 0))
   {
     DALI_LOG_ERROR("Error: unknown format!\n");
     return false;
   }
-  if(extractMultiByteInteger(&w, &map[0], headerSize, &position) < 0)
+  if(DALI_UNLIKELY(extractMultiByteInteger(&w, inputBufferPtr, headerSize, &position) < 0))
   {
     DALI_LOG_ERROR("Error: can not read width!\n");
     return false;
   }
-  if(extractMultiByteInteger(&h, &map[0], headerSize, &position) < 0)
+  if(DALI_UNLIKELY(extractMultiByteInteger(&h, inputBufferPtr, headerSize, &position) < 0))
   {
     DALI_LOG_ERROR("Error: can not read height!\n");
     return false;
   }
 
-  if((w < 1) || (h < 1) || (w > IMG_MAX_SIZE) || (h > IMG_MAX_SIZE))
+  if(DALI_UNLIKELY((w < 1) || (h < 1) || (w > IMG_MAX_SIZE) || (h > IMG_MAX_SIZE)))
   {
     DALI_LOG_ERROR("Error: file size is not supported!\n");
     return false;

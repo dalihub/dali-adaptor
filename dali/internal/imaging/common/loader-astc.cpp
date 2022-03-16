@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,14 +115,14 @@ bool LoadAstcHeader(FILE* const filePointer, unsigned int& width, unsigned int& 
 {
   // Pull the bytes of the file header in as a block:
   const unsigned int readLength = sizeof(AstcFileHeader);
-  if(fread(&fileHeader, 1, readLength, filePointer) != readLength)
+  if(DALI_UNLIKELY(fread(&fileHeader, 1, readLength, filePointer) != readLength))
   {
     return false;
   }
 
   // Check the header contains the ASTC native file identifier.
   bool headerIsValid = memcmp(fileHeader.magic, FileIdentifier, sizeof(fileHeader.magic)) == 0;
-  if(!headerIsValid)
+  if(DALI_UNLIKELY(!headerIsValid))
   {
     DALI_LOG_ERROR("File is not a valid ASTC native file\n");
     // Return here as otherwise, if not a valid ASTC file, we are likely to pick up other header errors spuriously.
@@ -136,14 +136,14 @@ bool LoadAstcHeader(FILE* const filePointer, unsigned int& width, unsigned int& 
   const unsigned int zDepth = static_cast<unsigned int>(fileHeader.zsize[0]) + (static_cast<unsigned int>(fileHeader.zsize[1]) << 8) + (static_cast<unsigned int>(fileHeader.zsize[2]) << 16);
 
   // Check image dimensions are within limits.
-  if((width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION))
+  if(DALI_UNLIKELY((width > MAX_TEXTURE_DIMENSION) || (height > MAX_TEXTURE_DIMENSION)))
   {
     DALI_LOG_ERROR("ASTC file has larger than supported dimensions: %d,%d\n", width, height);
     headerIsValid = false;
   }
 
   // Confirm the ASTC block does not have any Z depth.
-  if(zDepth != 1)
+  if(DALI_UNLIKELY(zDepth != 1))
   {
     DALI_LOG_ERROR("ASTC files with z size other than 1 are not supported. Z size is: %d\n", zDepth);
     headerIsValid = false;
@@ -165,7 +165,7 @@ bool LoadAstcHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
 bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
 {
   FILE* const filePointer = input.file;
-  if(!filePointer)
+  if(DALI_UNLIKELY(!filePointer))
   {
     DALI_LOG_ERROR("Null file handle passed to ASTC compressed bitmap file loader.\n");
     return false;
@@ -175,7 +175,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   AstcFileHeader fileHeader;
   unsigned int   width, height;
 
-  if(!LoadAstcHeader(filePointer, width, height, fileHeader))
+  if(DALI_UNLIKELY(!LoadAstcHeader(filePointer, width, height, fileHeader)))
   {
     DALI_LOG_ERROR("Could not load ASTC Header from file.\n");
     return false;
@@ -183,27 +183,27 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   // Retrieve the pixel format from the ASTC block size.
   Pixel::Format pixelFormat = GetAstcPixelFormat(fileHeader);
-  if(pixelFormat == Pixel::INVALID)
+  if(DALI_UNLIKELY(pixelFormat == Pixel::INVALID))
   {
     DALI_LOG_ERROR("No internal pixel format supported for ASTC file pixel format.\n");
     return false;
   }
 
   // Retrieve the file size.
-  if(fseek(filePointer, 0L, SEEK_END))
+  if(DALI_UNLIKELY(fseek(filePointer, 0L, SEEK_END)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
     return false;
   }
 
   off_t fileSize = ftell(filePointer);
-  if(fileSize == -1L)
+  if(DALI_UNLIKELY(fileSize == -1L))
   {
     DALI_LOG_ERROR("Could not determine ASTC file size.\n");
     return false;
   }
 
-  if(fseek(filePointer, sizeof(AstcFileHeader), SEEK_SET))
+  if(DALI_UNLIKELY(fseek(filePointer, sizeof(AstcFileHeader), SEEK_SET)))
   {
     DALI_LOG_ERROR("Could not seek through file.\n");
     return false;
@@ -213,7 +213,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   size_t imageByteCount = fileSize - sizeof(AstcFileHeader);
 
   // Sanity-check the image data is not too large and that it is at less than 2 bytes per texel:
-  if((imageByteCount > MAX_IMAGE_DATA_SIZE) || (imageByteCount > ((static_cast<size_t>(width) * height) << 1)))
+  if(DALI_UNLIKELY((imageByteCount > MAX_IMAGE_DATA_SIZE) || (imageByteCount > ((static_cast<size_t>(width) * height) << 1))))
   {
     DALI_LOG_ERROR("ASTC file has too large image-data field.\n");
     return false;
@@ -236,7 +236,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   const size_t bytesRead = fread(pixels, 1, imageByteCount, filePointer);
 
   // Check the size of loaded data is what we expected.
-  if(bytesRead != imageByteCount)
+  if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
     DALI_LOG_ERROR("Read of image pixel data failed.\n");
     return false;

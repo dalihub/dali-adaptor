@@ -497,7 +497,7 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
 
   // On error exit from the JPEG lib, control will pass via JpegErrorHandler
   // into this branch body for cleanup and error return:
-  if(setjmp(jerr.jumpBuffer))
+  if(DALI_UNLIKELY(setjmp(jerr.jumpBuffer)))
   {
     DALI_LOG_ERROR("setjmp failed\n");
     jpeg_destroy_decompress(&cinfo);
@@ -513,7 +513,7 @@ bool LoadJpegHeader(FILE* fp, unsigned int& width, unsigned int& height)
   jpeg_stdio_src(&cinfo, fp);
 
   // Check header to see if it is  JPEG file
-  if(jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK)
+  if(DALI_UNLIKELY(jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK))
   {
     DALI_LOG_ERROR("jpeg_read_header failed\n");
     width = height = 0;
@@ -533,7 +533,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   const int   flags = 0;
   FILE* const fp    = input.file;
 
-  if(fseek(fp, 0, SEEK_END))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking to end of file\n");
     return false;
@@ -546,13 +546,13 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     jpegBufferSize = static_cast<unsigned int>(positionIndicator);
   }
 
-  if(0u == jpegBufferSize)
+  if(DALI_UNLIKELY(0u == jpegBufferSize))
   {
     DALI_LOG_ERROR("Jpeg buffer size error\n");
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
     return false;
@@ -571,20 +571,21 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   unsigned char* const jpegBufferPtr = jpegBuffer.Begin();
 
   // Pull the compressed JPEG image bytes out of a file and into memory:
-  if(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize)
+  if(DALI_UNLIKELY(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize))
   {
     DALI_LOG_ERROR("Error on image file read.\n");
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
+    return false;
   }
 
   auto jpeg = MakeJpegDecompressor();
 
-  if(!jpeg)
+  if(DALI_UNLIKELY(!jpeg))
   {
     DALI_LOG_ERROR("%s\n", tjGetErrorStr());
     return false;
@@ -641,7 +642,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   }
 #endif
 
-  if(preXformImageWidth == 0 || preXformImageHeight == 0)
+  if(DALI_UNLIKELY(preXformImageWidth == 0 || preXformImageHeight == 0))
   {
     DALI_LOG_ERROR("Invalid Image!\n");
     return false;
@@ -711,7 +712,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   {
     std::string errorString = tjGetErrorStr();
 
-    if(IsJpegErrorFatal(errorString))
+    if(DALI_UNLIKELY(IsJpegErrorFatal(errorString)))
     {
       DALI_LOG_ERROR("%s\n", errorString.c_str());
       return false;
@@ -867,7 +868,7 @@ bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>&
   // Initialise a JPEG codec:
   {
     auto jpeg = MakeJpegCompressor();
-    if(!jpeg)
+    if(DALI_UNLIKELY(!jpeg))
     {
       DALI_LOG_ERROR("JPEG Compressor init failed: %s\n", tjGetErrorStr());
       return false;
@@ -882,17 +883,17 @@ bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>&
     unsigned long dstBufferSize = 0;
     const int     flags         = 0;
 
-    if(tjCompress2(jpeg.get(),
-                   const_cast<unsigned char*>(pixelBuffer),
-                   width,
-                   0,
-                   height,
-                   jpegPixelFormat,
-                   SetPointer(dstBuffer),
-                   &dstBufferSize,
-                   TJSAMP_444,
-                   quality,
-                   flags))
+    if(DALI_UNLIKELY(tjCompress2(jpeg.get(),
+                                 const_cast<unsigned char*>(pixelBuffer),
+                                 width,
+                                 0,
+                                 height,
+                                 jpegPixelFormat,
+                                 SetPointer(dstBuffer),
+                                 &dstBufferSize,
+                                 TJSAMP_444,
+                                 quality,
+                                 flags)))
     {
       DALI_LOG_ERROR("JPEG Compression failed: %s\n", tjGetErrorStr());
       return false;
@@ -985,7 +986,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
 
   int              numFactors = 0;
   tjscalingfactor* factors    = tjGetScalingFactors(&numFactors);
-  if(factors == NULL)
+  if(DALI_UNLIKELY(factors == NULL))
   {
     DALI_LOG_WARNING("TurboJpeg tjGetScalingFactors error!\n");
     success = false;
@@ -1080,7 +1081,7 @@ ExifHandle LoadExifData(FILE* fp)
   auto          exifData = MakeNullExifData();
   unsigned char dataBuffer[1024];
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking to start of file\n");
   }
@@ -1120,7 +1121,7 @@ bool LoadJpegHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
   unsigned int headerHeight;
 
   success = LoadJpegHeader(fp, headerWidth, headerHeight);
-  if(success)
+  if(DALI_LIKELY(success))
   {
     auto transform = JpegTransform::NONE;
 

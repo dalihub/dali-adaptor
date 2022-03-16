@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -187,7 +187,7 @@ inline bool ReadHeader(FILE* filePointer, KtxFileHeader& header)
   const unsigned int readLength = sizeof(KtxFileHeader);
 
   // Load the information directly into our structure
-  if(fread(&header, 1, readLength, filePointer) != readLength)
+  if(DALI_UNLIKELY(fread(&header, 1, readLength, filePointer) != readLength))
   {
     return false;
   }
@@ -457,14 +457,14 @@ bool ConvertPixelFormat(const uint32_t ktxPixelFormat, Dali::Pixel::Format& form
 bool LoadKtxHeader(FILE* const fp, unsigned int& width, unsigned int& height, KtxFileHeader& fileHeader)
 {
   // Pull the bytes of the file header in as a block:
-  if(!ReadHeader(fp, fileHeader))
+  if(DALI_UNLIKELY(!ReadHeader(fp, fileHeader)))
   {
     return false;
   }
   width  = fileHeader.pixelWidth;
   height = fileHeader.pixelHeight;
 
-  if(width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION)
+  if(DALI_UNLIKELY(width > MAX_TEXTURE_DIMENSION || height > MAX_TEXTURE_DIMENSION))
   {
     return false;
   }
@@ -531,7 +531,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   static_assert(sizeof(uint32_t) == 4);
 
   FILE* const fp = input.file;
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     DALI_LOG_ERROR("Null file handle passed to KTX compressed bitmap file loader.\n");
     return false;
@@ -541,14 +541,14 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   // Load the header info
   unsigned int width, height;
 
-  if(!LoadKtxHeader(fp, width, height, fileHeader))
+  if(DALI_UNLIKELY(!LoadKtxHeader(fp, width, height, fileHeader)))
   {
     return false;
   }
 
   // Skip the key-values:
   const long int imageSizeOffset = sizeof(KtxFileHeader) + fileHeader.bytesOfKeyValueData;
-  if(fseek(fp, imageSizeOffset, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, imageSizeOffset, SEEK_SET)))
   {
     DALI_LOG_ERROR("Seek past key/vals in KTX compressed bitmap file failed.\n");
     return false;
@@ -556,15 +556,15 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   // Load the size of the image data:
   uint32_t imageByteCount = 0;
-  if(fread(&imageByteCount, 1, 4, fp) != 4)
+  if(DALI_UNLIKELY(fread(&imageByteCount, 1, 4, fp) != 4))
   {
     DALI_LOG_ERROR("Read of image size failed.\n");
     return false;
   }
   // Sanity-check the image size:
-  if(imageByteCount > MAX_IMAGE_DATA_SIZE ||
-     // A compressed texture should certainly be less than 2 bytes per texel:
-     imageByteCount > width * height * 2)
+  if(DALI_UNLIKELY(imageByteCount > MAX_IMAGE_DATA_SIZE ||
+                   // A compressed texture should certainly be less than 2 bytes per texel:
+                   imageByteCount > width * height * 2))
   {
     DALI_LOG_ERROR("KTX file with too-large image-data field.\n");
     return false;
@@ -572,7 +572,7 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   Pixel::Format pixelFormat;
   const bool    pixelFormatKnown = ConvertPixelFormat(fileHeader.glInternalFormat, pixelFormat);
-  if(!pixelFormatKnown)
+  if(DALI_UNLIKELY(!pixelFormatKnown))
   {
     DALI_LOG_ERROR("No internal pixel format supported for KTX file pixel format.\n");
     return false;
@@ -591,14 +591,14 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     pixels = bitmap.GetBuffer();
   }
 
-  if(!pixels)
+  if(DALI_UNLIKELY(!pixels))
   {
     DALI_LOG_ERROR("Unable to reserve a pixel buffer to load the requested bitmap into.\n");
     return false;
   }
 
   const size_t bytesRead = fread(pixels, 1, imageByteCount, fp);
-  if(bytesRead != imageByteCount)
+  if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
     DALI_LOG_ERROR("Read of image pixel data failed.\n");
     return false;

@@ -260,7 +260,7 @@ struct GifAccessor
   {
     LoaderInfo::FileInfo* fi = reinterpret_cast<LoaderInfo::FileInfo*>(gifFileType->UserData);
 
-    if(fi->position >= fi->length)
+    if(DALI_UNLIKELY(fi->position >= fi->length))
     {
       return 0; // if at or past end - no
     }
@@ -294,23 +294,23 @@ bool LoaderInfo::FileData::LoadLocalFile()
 {
   Internal::Platform::FileReader fileReader(fileName);
   FILE*                          fp = fileReader.GetFile();
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_END) <= -1)
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
   {
     return false;
   }
 
   length = ftell(fp);
-  if(length <= -1)
+  if(DALI_UNLIKELY(length <= -1))
   {
     return false;
   }
 
-  if((!fseek(fp, 0, SEEK_SET)))
+  if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
   {
     globalMap = reinterpret_cast<GifByteType*>(malloc(sizeof(GifByteType) * length));
     length    = fread(globalMap, sizeof(GifByteType), length, fp);
@@ -330,17 +330,17 @@ bool LoaderInfo::FileData::LoadRemoteFile()
   size_t                dataSize;
 
   succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory(fileName, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE);
-  if(succeeded)
+  if(DALI_LIKELY(succeeded))
   {
     size_t blobSize = dataBuffer.Size();
-    if(blobSize > 0U)
+    if(DALI_LIKELY(blobSize > 0U))
     {
       // Open a file handle on the memory buffer:
       Dali::Internal::Platform::FileReader fileReader(dataBuffer, blobSize);
       FILE* const                          fp = fileReader.GetFile();
-      if(NULL != fp)
+      if(DALI_LIKELY(NULL != fp))
       {
-        if((!fseek(fp, 0, SEEK_SET)))
+        if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
         {
           globalMap = reinterpret_cast<GifByteType*>(malloc(sizeof(GifByteType) * blobSize));
           length    = fread(globalMap, sizeof(GifByteType), blobSize, fp);
@@ -368,12 +368,12 @@ bool LoaderInfo::FileData::LoadRemoteFile()
  * @param[in] index Frame index to be searched in GIF
  * @return A pointer to the ImageFrame.
  */
-inline int CombinePixelABGR(int a, int r, int g, int b)
+inline std::uint32_t CombinePixelABGR(const std::uint32_t& a, const std::uint32_t& r, const std::uint32_t& g, const std::uint32_t& b)
 {
   return (((a) << 24) + ((b) << 16) + ((g) << 8) + (r));
 }
 
-inline int PixelLookup(ColorMapObject* colorMap, int index)
+inline std::uint32_t PixelLookup(const ColorMapObject* const& colorMap, int index)
 {
   return CombinePixelABGR(0xFF, colorMap->Colors[index].Red, colorMap->Colors[index].Green, colorMap->Colors[index].Blue);
 }
@@ -401,25 +401,47 @@ ImageFrame* FindFrame(const GifAnimationData& animated, int index)
  * @brief Fill in an image with a specific rgba color value.
  *
  * @param[in] data A pointer pointing to an image data
- * @param[in] row A int containing the number of rows in an image
+ * @param[in] stride A int containing the number of stride in an image
  * @param[in] val A uint32_t containing rgba color value
  * @param[in] x X-coordinate used an offset to calculate pixel position
  * @param[in] y Y-coordinate used an offset to calculate pixel position
  * @param[in] width Width of the image
  * @param[in] height Height of the image
  */
-void FillImage(uint32_t* data, int row, uint32_t val, int x, int y, int width, int height)
+void FillImage(uint32_t* data, int stride, uint32_t val, int x, int y, int width, int height)
 {
-  int       xAxis, yAxis;
   uint32_t* pixelPosition;
 
-  for(yAxis = 0; yAxis < height; yAxis++)
+  // Boost time if stride == width and x == 0. We can assume that all pointer is continuous.
+  if(x == 0 && stride == width)
   {
-    pixelPosition = data + ((y + yAxis) * row) + x;
-    for(xAxis = 0; xAxis < width; xAxis++)
+    pixelPosition = data + (y * stride);
+    // Clear as white or transparent
+    // Special case. we can use memset.
+    if(val == 0x00 || val == 0xffffffffu)
     {
-      *pixelPosition = val;
-      pixelPosition++;
+      const std::int8_t setupVal = val & 0xff;
+      memset(pixelPosition, setupVal, width * height * sizeof(std::uint32_t));
+    }
+    else
+    {
+      for(int byteCount = 0; byteCount < width * height; ++byteCount)
+      {
+        *pixelPosition = val;
+        ++pixelPosition;
+      }
+    }
+  }
+  else
+  {
+    for(int yAxis = 0; yAxis < height; ++yAxis)
+    {
+      pixelPosition = data + ((y + yAxis) * stride) + x;
+      for(int xAxis = 0; xAxis < width; ++xAxis)
+      {
+        *pixelPosition = val;
+        ++pixelPosition;
+      }
     }
   }
 }
@@ -428,7 +450,7 @@ void FillImage(uint32_t* data, int row, uint32_t val, int x, int y, int width, i
  * @brief Fill a rgba data pixle blob with a frame color (bg or trans)
  *
  * @param[in] data A pointer pointing to an image data
- * @param[in] row A int containing the number of rows in an image
+ * @param[in] stride A int containing the number of stride in an image
  * @param[in] gif A pointer pointing to GIF File Type
  * @param[in] frameInfo A pointer pointing to Frame Information data
  * @param[in] x X-coordinate used an offset to calculate pixel position
@@ -436,7 +458,7 @@ void FillImage(uint32_t* data, int row, uint32_t val, int x, int y, int width, i
  * @param[in] width Width of the image
  * @param[in] height Height of the image
  */
-void FillFrame(uint32_t* data, int row, GifFileType* gif, FrameInfo* frameInfo, int x, int y, int w, int h)
+void FillFrame(uint32_t* data, int stride, GifFileType* gif, FrameInfo* frameInfo, int x, int y, int w, int h)
 {
   // solid color fill for pre frame region
   if(frameInfo->transparent < 0)
@@ -455,12 +477,12 @@ void FillFrame(uint32_t* data, int row, GifFileType* gif, FrameInfo* frameInfo, 
     }
     backGroundColor = gif->SBackGroundColor;
     // and do the fill
-    FillImage(data, row, CombinePixelABGR(0xff, colorMap->Colors[backGroundColor].Red, colorMap->Colors[backGroundColor].Green, colorMap->Colors[backGroundColor].Blue), x, y, w, h);
+    FillImage(data, stride, CombinePixelABGR(0xff, colorMap->Colors[backGroundColor].Red, colorMap->Colors[backGroundColor].Green, colorMap->Colors[backGroundColor].Blue), x, y, w, h);
   }
   // fill in region with 0 (transparent)
   else
   {
-    FillImage(data, row, 0, x, y, w, h);
+    FillImage(data, stride, 0, x, y, w, h);
   }
 }
 
@@ -650,7 +672,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   gifW = sp->ImageDesc.Width;
   gifH = sp->ImageDesc.Height;
 
-  if((gifW < w) || (gifH < h))
+  if(DALI_UNLIKELY((gifW < w) || (gifH < h)))
   {
     DALI_LOG_ERROR("gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
     DALI_ASSERT_DEBUG(false && "Dimensions are bigger than the Gif image size");
@@ -660,7 +682,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   // build a blob of memory to have pointers to rows of pixels
   // AND store the decoded gif pixels (1 byte per pixel) as welll
   rows = static_cast<GifRowType*>(malloc((gifH * sizeof(GifRowType)) + (gifW * gifH * sizeof(GifPixelType))));
-  if(!rows)
+  if(DALI_UNLIKELY(!rows))
   {
     goto on_error;
   }
@@ -678,7 +700,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
     {
       for(yy = intoffset[i]; yy < gifH; yy += intjump[i])
       {
-        if(DGifGetLine(gif, rows[yy], gifW) != GIF_OK)
+        if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
         {
           goto on_error;
         }
@@ -690,7 +712,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   {
     for(yy = 0; yy < gifH; yy++)
     {
-      if(DGifGetLine(gif, rows[yy], gifW) != GIF_OK)
+      if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
       {
         goto on_error;
       }
@@ -884,7 +906,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
   bool       full        = true;
 
   success = fileData.LoadFile();
-  if(!success || !fileData.globalMap)
+  if(DALI_UNLIKELY(!success || !fileData.globalMap))
   {
     success = false;
     DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
@@ -903,7 +925,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
       prop.h = gifAccessor.gif->SHeight;
 
       // if size is invalid - abort here
-      if((prop.w < 1) || (prop.h < 1) || (prop.w > IMG_MAX_SIZE) || (prop.h > IMG_MAX_SIZE) || IMG_TOO_BIG(prop.w, prop.h))
+      if(DALI_UNLIKELY((prop.w < 1) || (prop.h < 1) || (prop.w > IMG_MAX_SIZE) || (prop.h > IMG_MAX_SIZE) || IMG_TOO_BIG(prop.w, prop.h)))
       {
         if(IMG_TOO_BIG(prop.w, prop.h))
         {
@@ -945,14 +967,14 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
             GifByteType* img;
 
             // get image desc
-            if(DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR)
+            if(DALI_UNLIKELY(DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR))
             {
               success = false;
               DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
               break;
             }
             // skip decoding and just walk image to next
-            if(DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR)
+            if(DALI_UNLIKELY(DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR))
             {
               success = false;
               DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
@@ -975,7 +997,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
             {
               // allocate and save frame with field data
               frameInfo = NewFrame(animated, -1, 0, 0, imageNumber + 1);
-              if(!frameInfo)
+              if(DALI_UNLIKELY(!frameInfo))
               {
                 success = false;
                 DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
@@ -1007,7 +1029,7 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
                 int disposeMode       = (ext[1] >> 2) & 0x7;
                 int delay             = (int(ext[3]) << 8) | int(ext[2]);
                 frameInfo             = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
-                if(!frameInfo)
+                if(DALI_UNLIKELY(!frameInfo))
                 {
                   success = false;
                   DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
@@ -1104,7 +1126,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
   index = animated.currentFrame;
 
   // if index is invalid for animated image - error out
-  if((animated.animated) && ((index <= 0) || (index > animated.frameCount)))
+  if(DALI_UNLIKELY((animated.animated) && ((index <= 0) || (index > animated.frameCount))))
   {
     DALI_LOG_ERROR("LOAD_ERROR_GENERIC");
     return false;
@@ -1112,7 +1134,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
 
   // find the given frame index
   frame = FindFrame(animated, index);
-  if(!frame)
+  if(DALI_UNLIKELY(!frame))
   {
     DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
     return false;
@@ -1137,13 +1159,13 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
       loaderInfo.fileInfo.map      = fileData.globalMap;
       loaderInfo.fileInfo.length   = fileData.length;
       loaderInfo.fileInfo.position = 0;
-      if(!loaderInfo.fileInfo.map)
+      if(DALI_UNLIKELY(!loaderInfo.fileInfo.map))
       {
         DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
         return false;
       }
       std::unique_ptr<GifAccessor> gifAccessor = std::make_unique<GifAccessor>(loaderInfo.fileInfo);
-      if(!gifAccessor->gif)
+      if(DALI_UNLIKELY(!gifAccessor->gif))
       {
         DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
         return false;
@@ -1158,7 +1180,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
     // walk through gif records in file to figure out info
     do
     {
-      if(DGifGetRecordType(loaderInfo.gifAccessor->gif, &rec) == GIF_ERROR)
+      if(DALI_UNLIKELY(DGifGetRecordType(loaderInfo.gifAccessor->gif, &rec) == GIF_ERROR))
       {
         DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
         return false;
@@ -1186,7 +1208,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
         ImageFrame*  thisFrame     = NULL;
 
         // get image desc
-        if(DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR)
+        if(DALI_UNLIKELY(DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR))
         {
           DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
           return false;
@@ -1204,7 +1226,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           // allocate it
           thisFrame->data = new uint32_t[prop.w * prop.h];
 
-          if(!thisFrame->data)
+          if(DALI_UNLIKELY(!thisFrame->data))
           {
             DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
             return false;
@@ -1243,7 +1265,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
               {
                 // Find last preserved frame.
                 lastPreservedFrame = FindFrame(animated, imageNumber - prevIndex);
-                if(!lastPreservedFrame)
+                if(DALI_UNLIKELY(!lastPreservedFrame))
                 {
                   DALI_LOG_ERROR("LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND");
                   return false;
@@ -1260,7 +1282,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           // now draw this frame on top
           frameInfo = &(thisFrame->info);
           ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-          if(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first))
+          if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first)))
           {
             DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
             return false;
@@ -1286,7 +1308,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             FillFrame(reinterpret_cast<uint32_t*>(pixels), prop.w, loaderInfo.gifAccessor->gif, frameInfo, 0, 0, prop.w, prop.h);
 
             // and decode the gif with overwriting
-            if(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true))
+            if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true)))
             {
               DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
               return false;
@@ -1300,7 +1322,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
         else
         {
           // skip decoding and just walk image to next
-          if(DGifGetCode(loaderInfo.gifAccessor->gif, &img_code, &img) == GIF_ERROR)
+          if(DALI_UNLIKELY(DGifGetCode(loaderInfo.gifAccessor->gif, &img_code, &img) == GIF_ERROR))
           {
             DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
             return false;
@@ -1397,7 +1419,7 @@ bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vecto
   bool ret = false;
 
   Mutex::ScopedLock lock(mImpl->mMutex);
-  if(!mImpl->mLoadSucceeded)
+  if(DALI_UNLIKELY(!mImpl->mLoadSucceeded))
   {
     return false;
   }
