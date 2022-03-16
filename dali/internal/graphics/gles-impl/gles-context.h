@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,6 +163,25 @@ public:
    * @param[in] pipeline The pipeline
    */
   void InvalidateCachedPipeline(GLES::Pipeline* pipeline);
+
+  /**
+   * @brief Sets up EGL context for native rendering
+   *
+   * - The native rendering uses dedicated context
+   * - There is one EGL native rendering context per GLES::Context object
+   * - Native rendering context is compatible with the window/surface context
+   * - Native rendering context dies with GLES::Context object
+   *
+   * When native rendering is about to be executed, the dedicated EGL context
+   * is acquired (created or reused) and made current. The Window/Surface context
+   * is cached to be restored afterwards.
+   */
+  void PrepareForNativeRendering();
+
+  /**
+   * @brief Restores window/surface context after native rendering.
+   */
+  void RestoreFromNativeRendering();
 
   void ActiveTexture(uint32_t textureBindingIndex);
   void BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId);

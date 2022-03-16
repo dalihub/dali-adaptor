@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,16 @@
 #include "gles-graphics-render-pass.h"
 #include "gles-graphics-render-target.h"
 
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
 #include <map>
+
 
 namespace Dali::Graphics::GLES
 {
 struct Context::Impl
 {
-  Impl(EglGraphicsController& controller)
+  explicit Impl(EglGraphicsController& controller)
   : mController(controller)
   {
   }
@@ -206,6 +209,12 @@ struct Context::Impl
   GLStateCache                           mGlStateCache{};             ///< GL status cache
 
   bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
+
+  EGLContext mNativeDrawContext{0u}; ///< Native rendering EGL context compatible with window context
+
+  EGLSurface mCacheDrawReadSurface{0u};    ///< cached 'read' surface
+  EGLSurface mCacheDrawWriteSurface{0u};   ///< cached 'write' surface
+  EGLContext mCacheEGLGraphicsContext{0u}; ///< cached window context
 };
 
 Context::Context(EglGraphicsController& controller)
@@ -213,7 +222,15 @@ Context::Context(EglGraphicsController& controller)
   mImpl = std::make_unique<Impl>(controller);
 }
 
-Context::~Context() = default;
+Context::~Context()
+{
+  // Destroy native rendering context if one exists
+  if(mImpl->mNativeDrawContext)
+  {
+    eglDestroyContext(eglGetCurrentDisplay(), mImpl->mNativeDrawContext);
+    mImpl->mNativeDrawContext = EGL_NO_CONTEXT;
+  }
+}
 
 void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
 {
@@ -952,6 +969,57 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   {
     mImpl->mCurrentPipeline = nullptr;
   }
+}
+
+void Context::PrepareForNativeRendering()
+{
+  // this should be pretty much constant
+  auto display     = eglGetCurrentDisplay();
+  auto drawSurface = eglGetCurrentSurface(EGL_DRAW);
+  auto readSurface = eglGetCurrentSurface(EGL_READ);
+  auto context     = eglGetCurrentContext();
+
+  // push the surface and context data to the impl
+  // It's needed to restore context
+  if(!mImpl->mCacheEGLGraphicsContext)
+  {
+    mImpl->mCacheDrawWriteSurface   = drawSurface;
+    mImpl->mCacheDrawReadSurface    = readSurface;
+    mImpl->mCacheEGLGraphicsContext = context;
+  }
+
+  if(!mImpl->mNativeDrawContext)
+  {
+    EGLint configId{0u};
+    EGLint size{0u};
+    eglGetConfigs(display, nullptr, 0, &size);
+    std::vector<EGLConfig> configs;
+    configs.resize(size);
+    eglGetConfigs(display, configs.data(), configs.size(), &size);
+
+    eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+
+    auto version = int(mImpl->mController.GetGLESVersion());
+
+    std::vector<EGLint> attribs;
+    attribs.push_back(EGL_CONTEXT_MAJOR_VERSION_KHR);
+    attribs.push_back(version / 10);
+    attribs.push_back(EGL_CONTEXT_MINOR_VERSION_KHR);
+    attribs.push_back(version % 10);
+    attribs.push_back(EGL_NONE);
+
+    mImpl->mNativeDrawContext = eglCreateContext(display, configs[configId], EGL_NO_CONTEXT, attribs.data());
+  }
+
+  eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
+}
+
+void Context::RestoreFromNativeRendering()
+{
+  auto display = eglGetCurrentDisplay();
+
+  // bring back original context
+  eglMakeCurrent(display, mImpl->mCacheDrawWriteSurface, mImpl->mCacheDrawReadSurface, mImpl->mCacheEGLGraphicsContext);
 }
 
 } // namespace Dali::Graphics::GLES
