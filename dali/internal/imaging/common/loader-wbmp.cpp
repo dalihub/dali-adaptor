@@ -37,6 +37,9 @@ namespace
 Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_LOADER_WBMP");
 #endif
 
+// TODO : We need to determine it in dali-common.h or something else. Currently, we set this value in code level.
+#define DALI_BYTE_ORDER_BIG_ENDIAN 0
+
 #define IMG_MAX_SIZE 65536
 
 #define IMG_TOO_BIG(w, h)                                 \
@@ -84,6 +87,35 @@ int extractMultiByteInteger(unsigned int* data, void* map, size_t length, size_t
   return 0;
 }
 
+// Calculate 4bit integer into 4byte integer
+constexpr std::uint32_t Calculate4BitTo4Byte(const std::uint8_t& input)
+{
+  std::uint32_t output = 0;
+#if DALI_BYTE_ORDER_BIG_ENDIAN
+  output |= static_cast<std::uint32_t>(input & 0x08) << 21;
+  output |= static_cast<std::uint32_t>(input & 0x04) << 14;
+  output |= static_cast<std::uint32_t>(input & 0x02) << 7;
+  output |= static_cast<std::uint32_t>(input & 0x01);
+#else
+  output |= static_cast<std::uint32_t>(input & 0x08) >> 3;
+  output |= static_cast<std::uint32_t>(input & 0x04) << 6;
+  output |= static_cast<std::uint32_t>(input & 0x02) << 15;
+  output |= static_cast<std::uint32_t>(input & 0x01) << 24;
+#endif
+  return output * 0xff;
+}
+
+/**
+ * @brief Calculation result bit-->byte table in compile.
+ * Required memory = 16 * 4byte = 64byte
+ */
+// clang-format off
+constexpr std::uint32_t cachedCalculation4BitTo4ByteTable[16] = {
+  Calculate4BitTo4Byte(0x00), Calculate4BitTo4Byte(0x01), Calculate4BitTo4Byte(0x02), Calculate4BitTo4Byte(0x03),
+  Calculate4BitTo4Byte(0x04), Calculate4BitTo4Byte(0x05), Calculate4BitTo4Byte(0x06), Calculate4BitTo4Byte(0x07),
+  Calculate4BitTo4Byte(0x08), Calculate4BitTo4Byte(0x09), Calculate4BitTo4Byte(0x0a), Calculate4BitTo4Byte(0x0b),
+  Calculate4BitTo4Byte(0x0c), Calculate4BitTo4Byte(0x0d), Calculate4BitTo4Byte(0x0e), Calculate4BitTo4Byte(0x0f)};
+// clang-format on
 } // end unnamed namespace
 
 bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::PixelBuffer& bitmap)
@@ -95,14 +127,11 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     return false;
   }
   Dali::Vector<unsigned char> map;
-  Dali::Vector<unsigned char> surface; //unsigned int
   size_t                      position = 0;
 
-  unsigned int   w, h;
-  unsigned int   type;
-  unsigned int   line_length;
-  unsigned char* line = NULL;
-  unsigned int   cur  = 0, x, y;
+  std::uint32_t w, h;
+  std::uint32_t type;
+  std::uint32_t lineByteLength;
 
   if(fseek(fp, 0, SEEK_END))
   {
@@ -172,36 +201,70 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     return false;
   }
 
-  surface.ResizeUninitialized(w * h); //(w * h * 4);
-  memset(&surface[0], 0, w * h);      // w * h * 4
-
-  line_length = (w + 7) >> 3;
-  for(y = 0; y < h; y++)
+  lineByteLength = (w + 7) >> 3;
+  // fsize was wrong! Load failed.
+  if(DALI_UNLIKELY(position + h * lineByteLength > fsize))
   {
-    if(position + line_length > fsize)
+    DALI_LOG_ERROR("Pixel infomation is bigger than file size! (%u + %u * %u > %u)\n", static_cast<std::uint32_t>(position), h, lineByteLength, fsize);
+    return false;
+  }
+
+  // w >= 1 and h >= 1. So we can assume that outputPixels is not null.
+  auto outputPixels = (bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
+  /**
+   * @code
+   * std::uint8_t* line = NULL;
+   * std::uint32_t cur  = 0, x, y;
+   * for(y = 0; y < h; y++)
+   * {
+   *   line = &map[0] + position;
+   *   position += lineByteLength;
+   *   for(x = 0; x < w; x++)
+   *   {
+   *     int idx    = x >> 3;
+   *     int offset = 1 << (0x07 - (x & 0x07));
+   *     if(line[idx] & offset)
+   *     {
+   *       outputPixels[cur] = 0xff; //0xffffffff;
+   *     }
+   *     else
+   *     {
+   *       outputPixels[cur] = 0x00; //0xff000000;
+   *     }
+   *     cur++;
+   *   }
+   * }
+   * @endcode
+   */
+
+  const std::uint8_t* inputPixels                  = &map[0] + position;
+  const std::uint32_t lineByteLengthWithoutPadding = w >> 3;
+  const std::uint8_t  linePadding                  = w & 0x07;
+
+  for(std::uint32_t y = 0; y < h; y++)
+  {
+    for(std::uint32_t x = 0; x < lineByteLengthWithoutPadding; x++)
     {
-      return false;
+      // memset whole 8 bits
+      // outputPixels filled 4 bytes in one operation.
+      // cachedCalculation4BitTo4ByteTable calculated in compile-time.
+      *(reinterpret_cast<std::uint32_t*>(outputPixels + 0)) = cachedCalculation4BitTo4ByteTable[((*inputPixels) >> 4) & 0x0f];
+      *(reinterpret_cast<std::uint32_t*>(outputPixels + 4)) = cachedCalculation4BitTo4ByteTable[(*inputPixels) & 0x0f];
+      outputPixels += 8;
+      ++inputPixels;
     }
-    line = &map[0] + position;
-    position += line_length;
-    for(x = 0; x < w; x++)
+    if(linePadding > 0)
     {
-      int idx    = x >> 3;
-      int offset = 1 << (0x07 - (x & 0x07));
-      if(line[idx] & offset)
+      // memset linePadding bits naive.
+      for(std::uint8_t x = 0; x < linePadding; ++x)
       {
-        surface[cur] = 0xff; //0xffffffff;
+        const std::uint8_t offset = (0x07 - (x & 0x07));
+        *outputPixels             = ((*inputPixels) >> offset) & 1 ? 0xff : 0x00;
+        ++outputPixels;
       }
-      else
-      {
-        surface[cur] = 0x00; //0xff000000;
-      }
-      cur++;
+      ++inputPixels;
     }
   }
-  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(w, h, Pixel::L8)).GetBuffer();
-
-  memcpy(pixels, &surface[0], w * h); //w * h * 4
 
   return true;
 }
