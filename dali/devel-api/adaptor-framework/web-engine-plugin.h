@@ -26,6 +26,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/web-engine-hit-test.h>
 #include <dali/devel-api/common/bitwise-enum.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
@@ -675,6 +676,12 @@ public:
    * @param[in] activated Activate accessibility or not.
    */
   virtual void ActivateAccessibility(bool activated) = 0;
+
+  /**
+   * @brief Get the accessibility address (bus and path) for embedding.
+   * @return Accessibility address of the root web content element.
+   */
+  virtual Accessibility::Address GetAccessibilityAddress() = 0;
 
   /**
    * @brief Request to set the current page's visibility.
