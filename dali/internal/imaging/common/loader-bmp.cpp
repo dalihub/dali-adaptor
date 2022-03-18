@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,9 +147,9 @@ bool DecodeRGB24V5(FILE*          fp,
     return false;
   }
 
-  for(unsigned int yPos = 0; yPos < height; yPos++)
+  for(std::uint32_t yPos = 0; yPos < height; ++yPos)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       pixelsPtr = pixels + (yPos * rowStride);
@@ -163,11 +163,11 @@ bool DecodeRGB24V5(FILE*          fp,
       DALI_LOG_ERROR("Error reading the BMP image\n");
       return false;
     }
-    for(unsigned int i = 0; i < rowStride; i += 3)
+    for(std::uint32_t i = 0; i < rowStride; i += 3)
     {
-      unsigned char temp = pixelsPtr[i];
-      pixelsPtr[i]       = pixelsPtr[i + 2];
-      pixelsPtr[i + 2]   = temp;
+      std::uint8_t temp = pixelsPtr[i];
+      pixelsPtr[i]      = pixelsPtr[i + 2];
+      pixelsPtr[i + 2]  = temp;
     }
 
     if(padding)
@@ -214,9 +214,9 @@ bool DecodeBF32V4(FILE*          fp,
     return false;
   }
 
-  for(unsigned int yPos = 0; yPos < height; yPos++)
+  for(std::uint32_t yPos = 0; yPos < height; ++yPos)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       pixelsPtr = pixels + (yPos * rowStride);
@@ -230,11 +230,11 @@ bool DecodeBF32V4(FILE*          fp,
       DALI_LOG_ERROR("Error reading the BMP image\n");
       return false;
     }
-    for(unsigned int i = 0; i < rowStride; i += 4)
+    for(std::uint32_t i = 0; i < rowStride; i += 4)
     {
-      unsigned char temp = pixelsPtr[i];
-      pixelsPtr[i]       = pixelsPtr[i + 2];
-      pixelsPtr[i + 2]   = temp;
+      std::uint8_t temp = pixelsPtr[i];
+      pixelsPtr[i]      = pixelsPtr[i + 2];
+      pixelsPtr[i + 2]  = temp;
     }
     if(padding)
     {
@@ -280,9 +280,9 @@ bool DecodeBF32(FILE*          fp,
     return false;
   }
 
-  for(unsigned int yPos = 0; yPos < height; yPos++)
+  for(std::uint32_t yPos = 0; yPos < height; ++yPos)
   {
-    unsigned char* pixelsPtr;
+    std::uint8_t* pixelsPtr;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -299,11 +299,11 @@ bool DecodeBF32(FILE*          fp,
       DALI_LOG_ERROR("Error reading the BMP image\n");
       return false;
     }
-    for(unsigned int i = 0; i < rowStride; i += 4)
+    for(std::uint32_t i = 0; i < rowStride; i += 4)
     {
-      unsigned char temp = pixelsPtr[i];
-      pixelsPtr[i]       = pixelsPtr[i + 2];
-      pixelsPtr[i + 2]   = temp;
+      std::uint8_t temp = pixelsPtr[i];
+      pixelsPtr[i]      = pixelsPtr[i + 2];
+      pixelsPtr[i + 2]  = temp;
     }
 
     if(padding)
@@ -346,12 +346,12 @@ bool DecodeBF565(FILE*          fp,
     return false;
   }
 
-  width                  = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  unsigned int rowStride = width * 2;
+  width                   = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  std::uint32_t rowStride = width * 2;
 
-  for(unsigned int i = 0; i < height; i++)
+  for(std::uint32_t i = 0; i < height; ++i)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -402,12 +402,12 @@ bool DecodeBF555(FILE*          fp,
 
   width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
 
-  std::vector<char> raw(width * height * 2);
-  unsigned int      rawStride = width * 2;
-  unsigned int      rowStride = width * 3;
+  std::vector<std::uint8_t> raw(width * height * 2);
+  std::uint32_t             rawStride = width * 2;
+  std::uint32_t             rowStride = width * 3;
 
-  char* rawPtr = NULL;
-  for(unsigned int j = 0; j < height; j++)
+  std::uint8_t* rawPtr = NULL;
+  for(std::uint32_t j = 0; j < height; ++j)
   {
     rawPtr = &raw[0] + (j * rawStride);
     if(fread(rawPtr, 1, rawStride, fp) != rawStride)
@@ -416,9 +416,9 @@ bool DecodeBF555(FILE*          fp,
     }
   }
 
-  for(unsigned int yPos = 0; yPos < height; yPos++)
+  for(std::uint32_t yPos = 0; yPos < height; ++yPos)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -430,9 +430,9 @@ bool DecodeBF555(FILE*          fp,
       pixelsPtr = pixels + (((height - 1) - yPos) * rowStride);
     }
 
-    for(unsigned int k = 0; k < width; k++)
+    for(std::uint32_t k = 0; k < width; ++k)
     {
-      int index            = yPos * rawStride + 2 * k;
+      std::uint32_t index  = yPos * rawStride + 2 * k;
       pixelsPtr[3 * k]     = ((raw[index + 1] >> 2) & 0x1F) * 0xFF / 0x1F;
       pixelsPtr[3 * k + 1] = (((raw[index + 1] & 0x03) << 3) | (raw[index] >> 5)) * 0xFF / 0x1F;
       pixelsPtr[3 * k + 2] = (raw[index] & 0x1F) * 0xFF / 0x1F;
@@ -470,12 +470,12 @@ bool DecodeRGB555(FILE*          fp,
   }
 
   width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  std::vector<char> raw(width * height * 2);
-  unsigned int      rawStride = width * 2;
-  unsigned int      rowStride = width * 3;
+  std::vector<std::uint8_t> raw(width * height * 2);
+  std::uint32_t             rawStride = width * 2;
+  std::uint32_t             rowStride = width * 3;
 
-  char* rawPtr = NULL;
-  for(unsigned int j = 0; j < height; j++)
+  std::uint8_t* rawPtr = NULL;
+  for(std::uint32_t j = 0; j < height; ++j)
   {
     rawPtr = &raw[0] + (j * rawStride);
     if(fread(rawPtr, 1, rawStride, fp) != rawStride)
@@ -483,9 +483,9 @@ bool DecodeRGB555(FILE*          fp,
       return false;
     }
   }
-  for(unsigned int i = 0; i < height; i++)
+  for(std::uint32_t i = 0; i < height; ++i)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -496,9 +496,9 @@ bool DecodeRGB555(FILE*          fp,
       // the data in the file is bottom up, and we store the data top down
       pixelsPtr = pixels + (((height - 1) - i) * rowStride);
     }
-    for(unsigned int k = 0; k < width; k++)
+    for(std::uint32_t k = 0; k < width; ++k)
     {
-      int index            = i * rawStride + 2 * k;
+      std::uint32_t index  = i * rawStride + 2 * k;
       pixelsPtr[3 * k]     = ((raw[index + 1] >> 2) & 0x1F) * 0xFF / 0x1F;
       pixelsPtr[3 * k + 1] = (((raw[index + 1] & 0x03) << 3) | (raw[index] >> 5)) * 0xFF / 0x1F;
       pixelsPtr[3 * k + 2] = (raw[index] & 0x1F) * 0xFF / 0x1F;
@@ -535,18 +535,18 @@ bool DecodeRGB1(FILE*          fp,
     return false;
   }
 
-  unsigned char     colorTable[8] = {0};
-  char              cmd;
-  unsigned int      fillw = ((width & 63) != 0) ? width + 64 - (width & 63) : width;
-  std::vector<char> colorIndex(fillw * height);
-  unsigned int      rowStride = fillw * 3; // RGB
+  std::uint8_t              colorTable[8] = {0};
+  std::uint8_t              cmd;
+  std::uint32_t             fillw = ((width & 63) != 0) ? width + 64 - (width & 63) : width;
+  std::vector<std::uint8_t> colorIndex(fillw * height);
+  std::uint32_t             rowStride = fillw * 3; // RGB
 
   if(fread(colorTable, 1, 8, fp) != 8)
   {
     return false;
   }
 
-  for(unsigned int i = 0; i < fillw * height; i += 8)
+  for(std::uint32_t i = 0; i < fillw * height; i += 8)
   {
     if(fread(&cmd, 1, 1, fp) != 1)
     {
@@ -563,9 +563,9 @@ bool DecodeRGB1(FILE*          fp,
     colorIndex[i + 7] = (cmd & 0x01);
   }
 
-  for(unsigned int index = 0; index < height; index = index + 1)
+  for(std::uint32_t index = 0; index < height; ++index)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -576,9 +576,9 @@ bool DecodeRGB1(FILE*          fp,
       // the data in the file is bottom up, and we store the data top down
       pixelsPtr = pixels + (((height - 1) - index) * rowStride);
     }
-    for(unsigned int j = 0; j < fillw; j++)
+    for(std::uint32_t j = 0; j < fillw; ++j)
     {
-      unsigned int ctIndex = 0;
+      std::uint32_t ctIndex = 0;
       if((fillw * index + j) < (fillw * height))
       {
         ctIndex = colorIndex[fillw * index + j];
@@ -627,18 +627,18 @@ bool DecodeRGB4(FILE*          fp,
     return false;
   }
 
-  char              colorTable[64];
-  char              cmd;
-  unsigned int      fillw = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  std::vector<char> colorIndex(fillw * height);
-  unsigned int      rowStride = fillw * 3;
+  std::uint8_t              colorTable[64];
+  std::uint8_t              cmd;
+  std::uint32_t             fillw = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  std::vector<std::uint8_t> colorIndex(fillw * height);
+  std::uint32_t             rowStride = fillw * 3;
 
   if(fread(colorTable, 1, 64, fp) != 64)
   {
     return false;
   }
 
-  for(unsigned int i = 0; i < fillw * height; i += 2)
+  for(std::uint32_t i = 0; i < fillw * height; i += 2)
   {
     if(fread(&cmd, 1, 1, fp) != 1)
     {
@@ -648,11 +648,11 @@ bool DecodeRGB4(FILE*          fp,
     colorIndex[i]     = cmd >> 4;
     colorIndex[i + 1] = cmd & (0x0F);
   }
-  unsigned int ctIndex = 0;
+  std::uint32_t ctIndex = 0;
 
-  for(unsigned int index = 0; index < height; index = index + 1)
+  for(std::uint32_t index = 0; index < height; ++index)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -663,7 +663,7 @@ bool DecodeRGB4(FILE*          fp,
       // the data in the file is bottom up, and we store the data top down
       pixelsPtr = pixels + (((height - 1) - index) * rowStride);
     }
-    for(unsigned int j = 0; j < fillw; j++)
+    for(std::uint32_t j = 0; j < fillw; ++j)
     {
       ctIndex                = colorIndex[fillw * index + j];
       pixelsPtr[3 * j]       = colorTable[4 * ctIndex + 2];
@@ -703,29 +703,23 @@ bool DecodeRGB8(FILE*          fp,
     return false;
   }
 
-  std::vector<char> colorTable(1024);
+  std::vector<std::uint8_t> colorTable(1024);
   width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  char              cmd;
-  std::vector<char> colorIndex(width * height);
-  unsigned int      rowStride = width * 3; //RGB8->RGB24
+  std::vector<std::uint8_t> colorIndex(width * height);
+  std::uint32_t             rowStride = width * 3; //RGB8->RGB24
 
   if(fread(&colorTable[0], 1, 1024, fp) != 1024)
   {
     return false;
   }
-  for(unsigned int i = 0; i < width * height; i++)
+  if(fread(&colorIndex[0], 1, width * height, fp) != width * height)
   {
-    if(fread(&cmd, 1, 1, fp) != 1)
-    {
-      return false;
-    }
-
-    colorIndex[i] = cmd;
+    return false;
   }
-  unsigned int ctIndex = 0;
-  for(unsigned int index = 0; index < height; index = index + 1)
+  std::uint8_t ctIndex = 0;
+  for(std::uint32_t index = 0; index < height; ++index)
   {
-    unsigned char* pixelsPtr = NULL;
+    std::uint8_t* pixelsPtr = NULL;
     if(topDown)
     {
       // the data in the file is top down, and we store the data top down
@@ -736,7 +730,7 @@ bool DecodeRGB8(FILE*          fp,
       // the data in the file is bottom up, and we store the data top down
       pixelsPtr = pixels + (((height - 1) - index) * rowStride);
     }
-    for(unsigned int j = 0; j < width; j++)
+    for(std::uint8_t j = 0; j < width; ++j)
     {
       ctIndex                = colorIndex[width * index + j];
       pixelsPtr[3 * j]       = colorTable[4 * ctIndex + 2];
@@ -769,17 +763,17 @@ bool DecodeRLE4(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RLE4 format\n");
     return false;
   }
-  unsigned char* pixelsPtr = pixels;
-  width                    = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  char              cmd[2];
-  unsigned int      cmdStride = 2;
-  char              colorTable[64];
-  std::vector<char> colorIndex(width * height >> 1);
-  std::vector<char> run;
-  unsigned int      x  = 0;
-  unsigned int      y  = 0;
-  unsigned int      dx = 0;
-  unsigned int      dy = 0;
+  std::uint8_t* pixelsPtr = pixels;
+  width                   = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
+  std::uint8_t              cmd[2];
+  std::uint32_t             cmdStride = 2;
+  std::uint8_t              colorTable[64];
+  std::vector<std::uint8_t> colorIndex(width * height >> 1);
+  std::vector<std::uint8_t> run;
+  std::uint32_t             x  = 0;
+  std::uint32_t             y  = 0;
+  std::uint32_t             dx = 0;
+  std::uint32_t             dy = 0;
   width += (width & 1);
   width = width >> 1;
 
@@ -830,9 +824,9 @@ bool DecodeRLE4(FILE*          fp,
           break;
         default:
           // decode a literal run
-          unsigned int length = cmd[1] & (0xFF);
+          std::uint32_t length = cmd[1] & (0xFF);
           //size of run, which is word aligned
-          unsigned int bytesize = length;
+          std::uint32_t bytesize = length;
           bytesize += (bytesize & 1);
           bytesize >>= 1;
           bytesize += (bytesize & 1);
@@ -846,14 +840,14 @@ bool DecodeRLE4(FILE*          fp,
           {
             length += (length & 1);
             length >>= 1;
-            for(unsigned int i = 0; i < length; i += 1)
+            for(std::uint32_t i = 0; i < length; ++i)
             {
               colorIndex[(x >> 1) + width * (height - y - 1) + i] = run[i];
             }
           }
           else
           {
-            for(unsigned int i = 0; i < length; i++)
+            for(std::uint32_t i = 0; i < length; ++i)
             {
               if((i & 1) == 0) //copy high to low
               {
@@ -871,19 +865,19 @@ bool DecodeRLE4(FILE*          fp,
     }
     else
     {
-      unsigned int length = cmd[0] & (0xFF);
+      std::uint32_t length = cmd[0] & (0xFF);
       if((x & 1) == 0)
       {
         length += (length & 1);
         length >>= 1;
-        for(unsigned int i = 0; i < length; i++)
+        for(std::uint32_t i = 0; i < length; ++i)
         {
           colorIndex[(height - y - 1) * width + i + (x >> 1)] = cmd[1];
         }
       }
       else
       {
-        for(unsigned int i = 0; i < length; i++)
+        for(std::uint32_t i = 0; i < length; ++i)
         {
           if((i & 1) == 0)
           {
@@ -899,9 +893,9 @@ bool DecodeRLE4(FILE*          fp,
     }
   }
 
-  int ctIndexHigh = 0;
-  int ctIndexLow  = 0;
-  for(unsigned int index = 0; index < (width * height); index = index + 1)
+  std::uint32_t ctIndexHigh = 0;
+  std::uint32_t ctIndexLow  = 0;
+  for(std::uint32_t index = 0; index < (width * height); ++index)
   {
     ctIndexHigh              = colorIndex[index] >> 4;
     ctIndexLow               = colorIndex[index] & (0x0F);
@@ -937,15 +931,15 @@ bool DecodeRLE8(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RLE8 format\n");
     return false;
   }
-  unsigned char* pixelsPtr = pixels;
-  unsigned int   x         = 0;
-  unsigned int   y         = 0;
-  unsigned int   cmdStride = 2;
+  std::uint8_t* pixelsPtr = pixels;
+  std::uint32_t x         = 0;
+  std::uint32_t y         = 0;
+  std::uint32_t cmdStride = 2;
 
   width = ((width & 3) != 0) ? width + 4 - (width & 3) : width;
-  std::vector<char> colorTable(1024);
-  char              cmd[2];
-  std::vector<char> colorIndex(width * height);
+  std::vector<std::uint8_t> colorTable(1024);
+  std::uint8_t              cmd[2];
+  std::vector<std::uint8_t> colorIndex(width * height);
 
   if(fseek(fp, offset, SEEK_SET))
   {
@@ -958,12 +952,12 @@ bool DecodeRLE8(FILE*          fp,
     return false;
   }
 
-  unsigned int      dx         = 0;
-  unsigned int      dy         = 0;
-  bool              finish     = false;
-  unsigned int      length     = 0;
-  unsigned int      copylength = 0;
-  std::vector<char> run;
+  std::uint32_t             dx         = 0;
+  std::uint32_t             dy         = 0;
+  bool                      finish     = false;
+  std::uint32_t             length     = 0;
+  std::uint32_t             copylength = 0;
+  std::vector<std::uint8_t> run;
   while((x + y * width) < width * height)
   {
     if(finish)
@@ -1010,7 +1004,7 @@ bool DecodeRLE8(FILE*          fp,
             return false;
           }
 
-          for(unsigned int i = 0; i < length; i += 1)
+          for(std::uint32_t i = 0; i < length; ++i)
           {
             colorIndex[x + width * (height - y - 1) + i] = run[i];
           }
@@ -1021,15 +1015,15 @@ bool DecodeRLE8(FILE*          fp,
     else
     {
       length = cmd[0] & (0xFF);
-      for(unsigned int i = 0; i < length; i++)
+      for(std::uint32_t i = 0; i < length; ++i)
       {
         colorIndex[(height - y - 1) * width + x] = cmd[1];
         x++;
       }
     }
   }
-  int ctIndex = 0;
-  for(unsigned int index = 0; index < width * height; index = index + 1)
+  std::uint32_t ctIndex = 0;
+  for(std::uint32_t index = 0; index < width * height; ++index)
   {
     ctIndex                  = colorIndex[index];
     pixelsPtr[3 * index]     = colorTable[4 * ctIndex + 2];
