@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,14 @@ static const LoadFunctions BmpLoaders(TizenPlatform::LoadBmpHeader, TizenPlatfor
 int UtcDaliBmp24bpp(void)
 {
   ImageDetails image(TEST_IMAGE_DIR "/flag-24bpp.bmp", 32u, 32u);
+
+  TestImageLoading(image, BmpLoaders);
+
+  END_TEST;
+}
+int UtcDaliBmpRGB8(void)
+{
+  ImageDetails image(TEST_IMAGE_DIR "/w3c_home_256.bmp", 72u, 48u);
 
   TestImageLoading(image, BmpLoaders);
 
