@@ -30,7 +30,10 @@ namespace Adaptor
 {
 WidgetImplTizen::WidgetImplTizen(widget_base_instance_h instanceHandle)
 : Widget::Impl(),
-  mInstanceHandle(instanceHandle)
+  mInstanceHandle(instanceHandle),
+  mWindow(),
+  mWidgetId(),
+  mUsingKeyEvent(false)
 {
 }
 
@@ -48,6 +51,32 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   widget_base_context_set_content_info(mInstanceHandle, contentBundle);
 
   bundle_free(contentBundle);
+}
+
+bool WidgetImplTizen::IsKeyEventUsing() const
+{
+  return mUsingKeyEvent;
+}
+
+void WidgetImplTizen::SetUsingKeyEvent(bool flag)
+{
+  mUsingKeyEvent = flag;
+}
+
+void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
+{
+  mWindow = window;
+  mWidgetId = widgetId;
+}
+
+Dali::Window WidgetImplTizen::GetWindow() const
+{
+  return mWindow;
+}
+
+std::string WidgetImplTizen::GetWidgetId() const
+{
+  return mWidgetId;
 }
 
 } // namespace Adaptor

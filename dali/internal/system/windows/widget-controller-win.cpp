@@ -36,6 +36,28 @@ void WidgetImplWin::SetContentInfo(const std::string& contentInfo)
 {
 }
 
+bool WidgetImplWin::IsKeyEventUsing() const
+{
+}
+
+void WidgetImplWin::SetUsingKeyEvent(bool flag)
+{
+}
+
+void WidgetImplWin::SetInformation(Dali::Window window, const std::string& widgetId)
+{
+}
+
+Dali::Window WidgetImplWin::GetWindow() const
+{
+    return Dali::Window();
+}
+
+std::string WidgetImplWin::GetWidgetId() const
+{
+    return std::string();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

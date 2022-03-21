@@ -36,6 +36,28 @@ void WidgetImplUbuntu::SetContentInfo(const std::string& contentInfo)
 {
 }
 
+bool WidgetImplUbuntu::IsKeyEventUsing() const
+{
+}
+
+void WidgetImplUbuntu::SetUsingKeyEvent(bool flag)
+{
+}
+
+void WidgetImplUbuntu::SetInformation(Dali::Window window, const std::string& widgetId)
+{
+}
+
+Dali::Window WidgetImplUbuntu::GetWindow() const
+{
+    return Dali::Window();
+}
+
+std::string WidgetImplUbuntu::GetWidgetId() const
+{
+    return std::string();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
