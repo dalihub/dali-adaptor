@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@
 #endif
 
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
@@ -61,6 +62,7 @@ namespace
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
 #endif
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FRAMEWORK, true);
 
 bool IsWidgetFeatureEnabled()
 {
@@ -834,7 +836,9 @@ void Framework::Run()
   mRunning = true;
   int ret;
 
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_APPMAIN");
   ret = mImpl->AppMain();
+  DALI_TRACE_END(gTraceFilter, "DALI_APPMAIN");
   if(ret != APP_ERROR_NONE)
   {
     DALI_LOG_ERROR("Framework::Run(), ui_app_main() is failed. err = %d\n", ret);

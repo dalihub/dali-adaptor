@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,15 +42,18 @@ Dali::Integration::Trace::LogContextFunction TraceManagerAndroid::GetLogContextF
 
 void TraceManagerAndroid::LogContext(bool start, const char* tag)
 {
-  if(start)
+  if(traceManagerAndroid && traceManagerAndroid->mPerformanceInterface)
   {
-    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
-    traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
-  }
-  else
-  {
-    unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
-    traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
+    if(start)
+    {
+      unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
+      traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
+    }
+    else
+    {
+      unsigned short contextId = traceManagerAndroid->mPerformanceInterface->AddContext(tag);
+      traceManagerAndroid->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
+    }
   }
 }
 

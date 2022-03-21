@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -616,12 +616,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker(PerformanceInterface::UPDATE_START);
+    TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE");
     mCore.Update(frameDelta,
                  currentTime,
                  nextFrameTime,
                  updateStatus,
                  renderToFboEnabled,
                  isRenderingToFbo);
+    TRACE_UPDATE_RENDER_END("DALI_UPDATE");
     AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -665,6 +667,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
+    TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
     // Upload shared resources
     mCore.PreRender(renderStatus, mForceClear, mUploadWithoutRendering);
@@ -739,6 +742,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceDeleted();
     }
 
+    TRACE_UPDATE_RENDER_END("DALI_RENDER");
     AddPerformanceMarker(PerformanceInterface::RENDER_END);
 
     mForceClear = false;
