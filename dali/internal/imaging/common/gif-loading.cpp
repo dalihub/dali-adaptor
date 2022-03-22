@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,8 @@ Debug::Filter* gGifLoadingLogFilter = Debug::Filter::New(Debug::NoLogging, false
 
 const int        IMG_MAX_SIZE                = 65000;
 constexpr size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
+
+constexpr int LOCAL_CACHED_COLOR_GENERATE_THRESHOLD = 16; ///< Generate color map optimize only if colorCount * threshold < width * height, So we don't loop if image is small
 
 #if GIFLIB_MAJOR < 5
 const int DISPOSE_BACKGROUND = 2; /* Set area too background color */
@@ -131,6 +133,16 @@ struct GifAnimationData
   bool                    animated;
 };
 
+struct GifCachedColorData
+{
+  GifCachedColorData() = default;
+
+  // precalculated colormap table
+  std::vector<std::uint32_t> globalCachedColor{};
+  std::vector<std::uint32_t> localCachedColor{};
+  ColorMapObject*            localCachedColorMap{nullptr}; // Weak-pointer of ColorMapObject. should be nullptr if image changed
+};
+
 // Forward declaration
 struct GifAccessor;
 
@@ -187,6 +199,7 @@ struct LoaderInfo
 
   FileData                     fileData;
   GifAnimationData             animated;
+  GifCachedColorData           cachedColor;
   std::unique_ptr<GifAccessor> gifAccessor{nullptr};
   int                          imageNumber{0};
   FileInfo                     fileInfo;
@@ -617,7 +630,7 @@ FrameInfo* NewFrame(GifAnimationData& animated, int transparent, int dispose, in
  * @brief Decode a gif image into rows then expand to 32bit into the destination
  * data pointer.
  */
-bool DecodeImage(GifFileType* gif, uint32_t* data, int rowpix, int xin, int yin, int transparent, int x, int y, int w, int h, bool fill)
+bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t* data, int rowpix, int xin, int yin, int transparent, int x, int y, int w, int h, bool fill)
 {
   int             intoffset[] = {0, 4, 2, 1};
   int             intjump[]   = {8, 8, 4, 2};
@@ -626,6 +639,9 @@ bool DecodeImage(GifFileType* gif, uint32_t* data, int rowpix, int xin, int yin,
   bool            ret  = false;
   ColorMapObject* colorMap;
   uint32_t*       p;
+
+  // cached color data.
+  const std::uint32_t* cachedColorPtr = nullptr;
 
   // what we need is image size.
   SavedImage* sp;
@@ -685,65 +701,149 @@ bool DecodeImage(GifFileType* gif, uint32_t* data, int rowpix, int xin, int yin,
   if(gif->Image.ColorMap)
   {
     colorMap = gif->Image.ColorMap;
+    // use local cached color map without re-calculate cache.
+    if(gifCachedColor.localCachedColorMap == colorMap)
+    {
+      cachedColorPtr = gifCachedColor.localCachedColor.data();
+    }
+    // else if w * h is big enough, generate local cached color.
+    else if(colorMap->ColorCount * LOCAL_CACHED_COLOR_GENERATE_THRESHOLD < w * h)
+    {
+      gifCachedColor.localCachedColor.resize(colorMap->ColorCount);
+      for(i = 0; i < colorMap->ColorCount; ++i)
+      {
+        gifCachedColor.localCachedColor[i] = PixelLookup(colorMap, i);
+      }
+      gifCachedColor.localCachedColorMap = colorMap;
+
+      cachedColorPtr = gifCachedColor.localCachedColor.data();
+    }
   }
   else
   {
-    colorMap = gif->SColorMap;
+    colorMap       = gif->SColorMap;
+    cachedColorPtr = gifCachedColor.globalCachedColor.data();
   }
 
+  // HARD-CODING optimize
   // if we need to deal with transparent pixels at all...
   if(transparent >= 0)
   {
     // if we are told to FILL (overwrite with transparency kept)
     if(fill)
     {
-      for(yy = 0; yy < h; yy++)
+      // if we use cachedColor, use it
+      if(cachedColorPtr)
       {
-        p = data + ((y + yy) * rowpix) + x;
-        for(xx = 0; xx < w; xx++)
+        for(yy = 0; yy < h; yy++)
         {
-          pix = rows[yin + yy][xin + xx];
-          if(pix != transparent)
+          p = data + ((y + yy) * rowpix) + x;
+          for(xx = 0; xx < w; xx++)
           {
-            *p = PixelLookup(colorMap, pix);
+            pix = rows[yin + yy][xin + xx];
+            if(pix != transparent)
+            {
+              *p = cachedColorPtr[pix];
+            }
+            else
+            {
+              *p = 0;
+            }
+            p++;
           }
-          else
+        }
+      }
+      // we don't have cachedColor. use PixelLookup function.
+      else
+      {
+        for(yy = 0; yy < h; yy++)
+        {
+          p = data + ((y + yy) * rowpix) + x;
+          for(xx = 0; xx < w; xx++)
           {
-            *p = 0;
+            pix = rows[yin + yy][xin + xx];
+            if(pix != transparent)
+            {
+              *p = PixelLookup(colorMap, pix);
+            }
+            else
+            {
+              *p = 0;
+            }
+            p++;
           }
-          p++;
         }
       }
     }
     // paste on top with transparent pixels untouched
     else
     {
-      for(yy = 0; yy < h; yy++)
+      // if we use cachedColor, use it
+      if(cachedColorPtr)
       {
-        p = data + ((y + yy) * rowpix) + x;
-        for(xx = 0; xx < w; xx++)
+        for(yy = 0; yy < h; yy++)
         {
-          pix = rows[yin + yy][xin + xx];
-          if(pix != transparent)
+          p = data + ((y + yy) * rowpix) + x;
+          for(xx = 0; xx < w; xx++)
           {
-            *p = PixelLookup(colorMap, pix);
+            pix = rows[yin + yy][xin + xx];
+            if(pix != transparent)
+            {
+              *p = cachedColorPtr[pix];
+            }
+            p++;
           }
-          p++;
+        }
+      }
+      // we don't have cachedColor. use PixelLookup function.
+      else
+      {
+        for(yy = 0; yy < h; yy++)
+        {
+          p = data + ((y + yy) * rowpix) + x;
+          for(xx = 0; xx < w; xx++)
+          {
+            pix = rows[yin + yy][xin + xx];
+            if(pix != transparent)
+            {
+              *p = PixelLookup(colorMap, pix);
+            }
+            p++;
+          }
         }
       }
     }
   }
   else
   {
-    // walk pixels without worring about transparency at all
-    for(yy = 0; yy < h; yy++)
+    // if we use cachedColor, use it
+    if(cachedColorPtr)
     {
-      p = data + ((y + yy) * rowpix) + x;
-      for(xx = 0; xx < w; xx++)
+      // walk pixels without worring about transparency at all
+      for(yy = 0; yy < h; yy++)
       {
-        pix = rows[yin + yy][xin + xx];
-        *p  = PixelLookup(colorMap, pix);
-        p++;
+        p = data + ((y + yy) * rowpix) + x;
+        for(xx = 0; xx < w; xx++)
+        {
+          pix = rows[yin + yy][xin + xx];
+          *p  = cachedColorPtr[pix];
+          p++;
+        }
+      }
+    }
+    // we don't have cachedColor. use PixelLookup function.
+    else
+    {
+      // walk pixels without worring about transparency at all
+      for(yy = 0; yy < h; yy++)
+      {
+        p = data + ((y + yy) * rowpix) + x;
+        for(xx = 0; xx < w; xx++)
+        {
+          pix = rows[yin + yy][xin + xx];
+          *p  = PixelLookup(colorMap, pix);
+          p++;
+        }
       }
     }
   }
@@ -769,9 +869,10 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
                 ImageProperties& prop, //output struct
                 int*             error)
 {
-  GifAnimationData&     animated = loaderInfo.animated;
-  LoaderInfo::FileData& fileData = loaderInfo.fileData;
-  bool                  success  = false;
+  GifAnimationData&     animated    = loaderInfo.animated;
+  GifCachedColorData&   cachedColor = loaderInfo.cachedColor;
+  LoaderInfo::FileData& fileData    = loaderInfo.fileData;
+  bool                  success     = false;
   LoaderInfo::FileInfo  fileInfo;
   GifRecordType         rec;
 
@@ -956,6 +1057,18 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
           }
 
           animated.currentFrame = 1;
+
+          // cache global color map
+          ColorMapObject* colorMap = gifAccessor.gif->SColorMap;
+          if(colorMap)
+          {
+            cachedColor.globalCachedColor.resize(colorMap->ColorCount);
+            for(int i = 0; i < colorMap->ColorCount; ++i)
+            {
+              cachedColor.globalCachedColor[i] = PixelLookup(colorMap, i);
+            }
+          }
+          cachedColor.localCachedColorMap = nullptr;
 
           // no errors in header scan etc. so set err and return value
           *error = 0;
@@ -1147,7 +1260,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           // now draw this frame on top
           frameInfo = &(thisFrame->info);
           ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-          if(!DecodeImage(loaderInfo.gifAccessor->gif, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first))
+          if(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first))
           {
             DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
             return false;
@@ -1173,7 +1286,7 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             FillFrame(reinterpret_cast<uint32_t*>(pixels), prop.w, loaderInfo.gifAccessor->gif, frameInfo, 0, 0, prop.w, prop.h);
 
             // and decode the gif with overwriting
-            if(!DecodeImage(loaderInfo.gifAccessor->gif, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true))
+            if(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true))
             {
               DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
               return false;
