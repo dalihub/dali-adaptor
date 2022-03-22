@@ -66,6 +66,7 @@ enum class CommandType
   SET_DEPTH_COMPARE_OP,
   SET_DEPTH_TEST_ENABLE,
   SET_DEPTH_WRITE_ENABLE,
+  DRAW_NATIVE,
 };
 
 /**
@@ -215,6 +216,11 @@ struct Command
     {
       bool enabled;
     } colorMask;
+
+    struct
+    {
+      DrawNativeInfo drawNativeInfo;
+    } drawNative;
   };
 };
 
@@ -314,6 +320,11 @@ public:
     uint32_t          offset,
     uint32_t          drawCount,
     uint32_t          stride) override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::DrawNative
+   */
+  void DrawNative(const DrawNativeInfo* drawNativeInfo) override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::Reset

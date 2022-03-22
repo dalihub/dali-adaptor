@@ -1527,7 +1527,7 @@ struct DrawCallDescriptor
   {
     DRAW,
     DRAW_INDEXED,
-    DRAW_INDEXED_INDIRECT
+    DRAW_INDEXED_INDIRECT,
   };
 
   Type type{}; ///< Type of the draw call

@@ -430,6 +430,13 @@ void CommandBuffer::DrawIndexedIndirect(
   cmd.drawIndexedIndirect.stride    = stride;
 }
 
+void CommandBuffer::DrawNative(const DrawNativeInfo* drawNativeInfo)
+{
+  auto  command = mCommandPool->AllocateCommand(CommandType::DRAW_NATIVE);
+  auto& cmd     = command->drawNative;
+  memcpy(&cmd.drawNativeInfo, drawNativeInfo, sizeof(DrawNativeInfo));
+}
+
 void CommandBuffer::Reset()
 {
   mCommandPool->Rollback(false);

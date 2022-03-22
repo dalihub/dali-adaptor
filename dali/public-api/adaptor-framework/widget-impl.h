@@ -131,6 +131,22 @@ public:
    */
   void SetContentInfo(const std::string& contentInfo);
 
+  /**
+   * @brief Check Widget is using key
+   *
+   * widget can set flag to SetUsingKeyEvent
+   *
+   * @return True if Widget is using key
+   */
+  bool IsKeyEventUsing() const;
+
+  /**
+   * @brief Set the flag that widget is using keyEvent
+   *
+   * @param[in] flag The flag to set.
+   */
+  void SetUsingKeyEvent(bool flag);
+
 protected:
   /**
    * @brief WidgetImpl constructor
@@ -151,6 +167,28 @@ public:
    * @SINCE_1_3_5
    */
   void SetImpl(Impl* impl);
+
+  /**
+   * @brief Set the Information of widget
+   *
+   * @param window The window to set the information of widget
+   * @param widgetId The Id of widget
+   */
+  void SetInformation(Dali::Window window, const std::string& widgetId);
+
+  /**
+   * @brief Get the Window of widget
+   *
+   * @return the window of widget
+   */
+  Dali::Window GetWindow() const;
+
+  /**
+   * @brief Get the id of widget
+   *
+   * @return the id of widget
+   */
+  std::string GetWidgetId() const;
 
 private:
   Impl* mImpl;

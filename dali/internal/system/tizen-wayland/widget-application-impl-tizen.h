@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <widget_base.h>
+#include <screen_connector_provider.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -40,7 +41,7 @@ typedef IntrusivePtr<WidgetApplication> WidgetApplicationPtr;
 /**
  * Implementation of the WidgetApplication class.
  */
-class WidgetApplicationTizen : public WidgetApplication
+class WidgetApplicationTizen : public WidgetApplication, public ConnectionTracker
 {
 public:
   typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction> CreateWidgetFunctionPair;
@@ -78,7 +79,7 @@ public:
   /**
    * Add widget_base_instance_h - Widget instance pair to container.
    */
-  void AddWidget(widget_base_instance_h widgetBaseInstance, Dali::Widget widget, Dali::Window window);
+  void AddWidget(widget_base_instance_h widgetBaseInstance, Dali::Widget widget, Dali::Window window, const std::string& widgetId);
 
   /**
    * Find and get Widget instance in container by widget_base_instance_h.
@@ -93,12 +94,41 @@ public:
   /**
    * Find and get Window instance in container by widget_base_instance_h.
    */
-  Dali::Window GetWindowFromWidget(widget_base_instance_h widgetBaseInstance) const;
+  Dali::Window GetWindowFromWidget(Dali::Widget widget) const;
 
+  /**
+   * Find and get widget_base_instance in container by widget id.
+   */
+  widget_base_instance_h GetWidgetInstanceFromWidgetId(std::string& widgetId) const;
   /**
    * Get the number of created widget.
    */
   int32_t GetWidgetCount();
+
+  /**
+   * @brief connect the keyEvent for window
+   *
+   * @param[in] window window for connecting keyEvent
+   */
+  void ConnectKeyEvent(Dali::Window window);
+
+  /**
+   * @brief Callback for widget window
+   *
+   * If Widget Application consume key event, this api is not called.
+   *
+   * @param[in] event The key event.
+   */
+  void OnWindowKeyEvent(const Dali::KeyEvent& event);
+
+  /**
+   * @brief Feed keyEvent to Widget.
+   *
+   * @param[in] instanceHandle the handle of widget instance
+   * @param[in] keyEvent The key event for widget
+   * @return True if widget consume keyEvent, false otherwise.
+   */
+  bool FeedKeyEvent(widget_base_instance_h instanceHandle, const Dali::KeyEvent& keyEvent);
 
 protected:
   /**
@@ -124,9 +154,8 @@ private:
   CreateWidgetFunctionContainer mCreateWidgetFunctionContainer;
   WidgetInstanceContainer       mWidgetInstanceContainer;
 
-  typedef std::pair<widget_base_instance_h, Dali::Window> WindowInstancePair;
-  typedef std::vector<WindowInstancePair>                 WindowInstanceContainer;
-  WindowInstanceContainer                                 mWindowInstanceContainer;
+  bool mConnectedKeyEvent; // Check if keyEvent is connected
+  bool mReceivedKeyEvent;  // Check if application receive keyEvent
 };
 
 } // namespace Adaptor

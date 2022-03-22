@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ void TestImageLoading(const ImageDetails& image, const LoadFunctions& functions,
     if(*bufferPtr != *refBufferPtr)
     {
       tet_result(TET_FAIL);
-      tet_printf("%s Failed in %s at line %d\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
+      tet_printf("%s Failed in %s at line %d, %u'th buffer (input : %u != expect : %u)\n", __PRETTY_FUNCTION__, __FILE__, __LINE__, i, static_cast<unsigned int>(*bufferPtr), static_cast<unsigned int>(*refBufferPtr));
       break;
     }
   }

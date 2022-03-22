@@ -19,30 +19,22 @@
 #include <stdlib.h>
 #include <iostream>
 
-#include <dali/internal/imaging/common/loader-bmp.h>
+#include <dali/internal/imaging/common/loader-wbmp.h>
 #include "image-loaders.h"
 
 using namespace Dali;
 
 namespace
 {
-static const LoadFunctions BmpLoaders(TizenPlatform::LoadBmpHeader, TizenPlatform::LoadBitmapFromBmp);
+static const LoadFunctions WbmpLoaders(TizenPlatform::LoadWbmpHeader, TizenPlatform::LoadBitmapFromWbmp);
 
 } // Unnamed namespace.
 
-int UtcDaliBmp24bpp(void)
+int UtcDaliWbmpLoader(void)
 {
-  ImageDetails image(TEST_IMAGE_DIR "/flag-24bpp.bmp", 32u, 32u);
+  ImageDetails image(TEST_IMAGE_DIR "/test-image.wbmp", 32u, 64u);
 
-  TestImageLoading(image, BmpLoaders);
-
-  END_TEST;
-}
-int UtcDaliBmpRGB8(void)
-{
-  ImageDetails image(TEST_IMAGE_DIR "/w3c_home_256.bmp", 72u, 48u);
-
-  TestImageLoading(image, BmpLoaders);
+  TestImageLoading(image, WbmpLoaders);
 
   END_TEST;
 }

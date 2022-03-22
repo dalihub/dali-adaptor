@@ -17,6 +17,7 @@ SET(TC_SOURCES
     utc-Dali-Internal-PixelBuffer.cpp
     utc-Dali-Lifecycle-Controller.cpp
     utc-Dali-TiltSensor.cpp
+    utc-Dali-WbmpLoader.cpp
 )
 
 
