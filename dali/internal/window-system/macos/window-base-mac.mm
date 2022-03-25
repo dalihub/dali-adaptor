@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -374,6 +374,11 @@ Any WindowBaseCocoa::GetNativeWindow()
 int WindowBaseCocoa::GetNativeWindowId()
 {
   return mImpl->mWindow.windowNumber;
+}
+
+std::string WindowBaseCocoa::GetNativeWindowResourceId()
+{
+  return std::string();
 }
 
 EGLNativeWindowType WindowBaseCocoa::CreateEglWindow(int width, int height)

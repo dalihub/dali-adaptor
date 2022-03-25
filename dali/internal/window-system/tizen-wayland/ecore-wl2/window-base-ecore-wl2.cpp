@@ -1532,6 +1532,11 @@ int WindowBaseEcoreWl2::GetNativeWindowId()
   return ecore_wl2_window_id_get(mEcoreWindow);
 }
 
+std::string WindowBaseEcoreWl2::GetNativeWindowResourceId()
+{
+  return std::to_string(ecore_wl2_window_resource_id_get(mEcoreWindow));
+}
+
 EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow(int width, int height)
 {
   int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
