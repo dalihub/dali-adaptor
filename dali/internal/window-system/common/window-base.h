@@ -120,6 +120,12 @@ public:
   virtual int GetNativeWindowId() = 0;
 
   /**
+   * @brief Get the native window resource id assinged by window manager
+   * @return The native window resource id
+   */
+  virtual std::string GetNativeWindowResourceId() = 0;
+
+  /**
    * @brief Create the egl window
    */
   virtual EGLNativeWindowType CreateEglWindow( int width, int height ) = 0;

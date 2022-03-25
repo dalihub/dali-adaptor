@@ -219,6 +219,11 @@ Dali::RenderTaskList Window::GetRenderTaskList() const
   return mScene.GetRenderTaskList();
 }
 
+std::string Window::GetNativeResourceId() const
+{
+  return mWindowBase->GetNativeWindowResourceId();
+}
+
 void Window::AddAvailableOrientation( Dali::Window::WindowOrientation orientation )
 {
   if( IsOrientationAvailable( orientation ) == false )

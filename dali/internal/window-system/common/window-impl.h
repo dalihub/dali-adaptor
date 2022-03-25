@@ -128,6 +128,12 @@ public:
   Dali::RenderTaskList GetRenderTaskList() const;
 
   /**
+   * @brief Get window resource ID assigned by window manager
+   * @return The resource ID of the window
+   */
+  std::string GetNativeResourceId() const;
+
+  /**
    * @copydoc Dali::Window::AddAvailableOrientation()
    */
   void AddAvailableOrientation(Dali::Window::WindowOrientation orientation);

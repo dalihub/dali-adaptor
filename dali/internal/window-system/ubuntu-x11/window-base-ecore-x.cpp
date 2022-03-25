@@ -637,6 +637,11 @@ int WindowBaseEcoreX::GetNativeWindowId()
   return mEcoreWindow;
 }
 
+std::string WindowBaseEcoreX::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseEcoreX::CreateEglWindow( int width, int height )
 {
   // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit

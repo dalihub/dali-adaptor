@@ -1194,6 +1194,11 @@ int WindowBaseEcoreWl::GetNativeWindowId()
   return ecore_wl_window_id_get( mEcoreWindow );
 }
 
+std::string WindowBaseEcoreWl::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseEcoreWl::CreateEglWindow( int width, int height )
 {
   mEglWindow = wl_egl_window_create( mWlSurface, width, height );

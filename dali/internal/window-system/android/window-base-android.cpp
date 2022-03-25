@@ -128,6 +128,11 @@ int WindowBaseAndroid::GetNativeWindowId()
   return 0;
 }
 
+std::string WindowBaseAndroid::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseAndroid::CreateEglWindow( int width, int height )
 {
   // from eglplatform.h header
@@ -358,4 +363,3 @@ int WindowBaseAndroid::CreateFramePresentedSyncFence()
 } // namespace Internal
 
 } // namespace Dali
-

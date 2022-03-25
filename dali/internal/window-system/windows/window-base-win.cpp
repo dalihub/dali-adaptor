@@ -254,6 +254,11 @@ int WindowBaseWin::GetNativeWindowId()
   return mWin32Window;
 }
 
+std::string WindowBaseWin::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseWin::CreateEglWindow( int width, int height )
 {
   return reinterpret_cast< EGLNativeWindowType >( mWin32Window );
@@ -591,4 +596,3 @@ int WindowBaseWin::CreateFramePresentedSyncFence()
 } // namespace Internal
 
 } // namespace Dali
-
