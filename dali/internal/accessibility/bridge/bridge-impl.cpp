@@ -585,10 +585,23 @@ public:
     });
   }
 
+  void EmitScreenReaderEnabledSignal()
+  {
+    if (mIsScreenReaderEnabled)
+    {
+      mScreenReaderEnabledSignal.Emit();
+    }
+    else
+    {
+      mScreenReaderDisabledSignal.Emit();
+    }
+  }
+
   void ListenScreenReaderEnabledProperty()
   {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
       mIsScreenReaderEnabled = res;
+      EmitScreenReaderEnabledSignal();
       SwitchBridge();
     });
   }
