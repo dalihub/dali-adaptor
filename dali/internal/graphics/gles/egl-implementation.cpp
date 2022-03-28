@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <sstream>
 
@@ -42,6 +43,7 @@ const std::string EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_cont
 const std::string EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
 const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
 
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
 } // namespace
 
 namespace Dali
@@ -385,6 +387,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers started. eglSurface(%p)\n", eglSurface);
+      DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
     }
 #endif //DALI_PROFILE_UBUNTU
 
@@ -394,6 +397,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
+      DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers finished.\n");
       mSwapBufferCountAfterResume++;
     }
@@ -453,6 +457,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR started. eglSurface(%p)\n", eglSurface);
+      DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
     }
 #endif //DALI_PROFILE_UBUNTU
 
@@ -465,6 +470,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
+      DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR finished.\n");
       mSwapBufferCountAfterResume++;
     }

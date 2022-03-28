@@ -270,7 +270,7 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
-cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
+cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON -DENABLE_TRACE=ON"
 
 # Use this conditional when Tizen version is 5.x or greater
 %if 0%{?tizen_version_major} >= 5
@@ -289,10 +289,6 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
 
 %if 0%{?enable_debug}
 cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
-%endif
-
-%if 0%{?enable_trace}
-cmake_flags+=" -DENABLE_TRACE=ON"
 %endif
 
 %if 0%{?enable_logging}

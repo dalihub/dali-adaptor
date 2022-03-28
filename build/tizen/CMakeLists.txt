@@ -18,6 +18,7 @@ ENDIF()
 OPTION(ENABLE_PKG_CONFIGURE  "Use pkgconfig" ON)
 OPTION(ENABLE_LINK_TEST      "Enable the link test" ON)
 OPTION(ENABLE_ATSPI          "Enable AT-SPI accessibility" ON)
+OPTION(ENABLE_TRACE          "Enable Trace" OFF)
 
 # Include additional macros
 INCLUDE( common.cmake )
@@ -107,6 +108,10 @@ ENDIF()
 
 IF( NOT DALI_ELDBUS_AVAILABLE )
   SET( ENABLE_ATSPI OFF )
+ENDIF()
+
+IF( ENABLE_TRACE )
+  ADD_DEFINITIONS("-DTRACE_ENABLED")
 ENDIF()
 
 # Set up compiler flags and warnings
@@ -420,6 +425,7 @@ MESSAGE( STATUS "Using Tizen APP FW libraries:     ${ENABLE_APPFW}")
 MESSAGE( STATUS "Use pkg configure:                ${ENABLE_PKG_CONFIGURE}" )
 MESSAGE( STATUS "Enable link test:                 ${ENABLE_LINK_TEST}" )
 MESSAGE( STATUS "Enable AT-SPI:                    ${ENABLE_ATSPI}" )
+MESSAGE( STATUS "Enable Trace:                     ${ENABLE_TRACE}" )
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_C_FLAGS}")
