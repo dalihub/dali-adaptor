@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -478,8 +478,39 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription(FontDescription& font
       FcDefaultSubstitute(matchPattern);
 
       FcCharSet* characterSet = nullptr;
-      MatchFontDescriptionToPattern(matchPattern, mDefaultFontDescription, &characterSet);
+      bool       matched      = MatchFontDescriptionToPattern(matchPattern, mDefaultFontDescription, &characterSet);
+
+      // Caching the default font description
+      if(matched)
+      {
+        // Copy default font description info.
+        // Due to the type changed, we need to make some temperal font description.
+        FontDescription tempFontDescription = mDefaultFontDescription;
+
+        // Add the path to the cache.
+        tempFontDescription.type = FontDescription::FACE_FONT;
+        mFontDescriptionCache.push_back(tempFontDescription);
+
+        // Set the index to the vector of paths to font file names.
+        const FontDescriptionId validatedFontId = mFontDescriptionCache.size();
+
+        FONT_LOG_DESCRIPTION(tempFontDescription, "default platform font");
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  default font validatedFontId : %d\n", validatedFontId);
+
+        // Cache the index and the matched font's description.
+        FontDescriptionCacheItem item(tempFontDescription,
+                                      validatedFontId);
+
+        mValidatedFontCache.push_back(std::move(item));
+      }
+      else
+      {
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  default font validation failed for font [%s]\n", mDefaultFontDescription.family.c_str());
+      }
+
       // Decrease the reference counter of the character set as it's not stored.
+      // Note. the cached default font description will increase reference counter by
+      // mFontDescriptionCache. So we can decrease reference counter here.
       FcCharSetDestroy(characterSet);
 
       // Destroys the pattern created.
@@ -832,6 +863,18 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   FONT_LOG_DESCRIPTION(fontDescription, "");
+
+  // Special case when font Description don't have family information.
+  // In this case, we just use default description family and path.
+  const FontDescription& realFontDescription = fontDescription.family.empty() ? FontDescription(mDefaultFontDescription.path,
+                                                                                                mDefaultFontDescription.family,
+                                                                                                fontDescription.width,
+                                                                                                fontDescription.weight,
+                                                                                                fontDescription.slant,
+                                                                                                fontDescription.type)
+                                                                              : fontDescription;
+
+  FONT_LOG_DESCRIPTION(realFontDescription, "");
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "   requestedPointSize : %d\n", requestedPointSize);
 
   // This method uses three vectors which caches:
@@ -856,7 +899,7 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
   FontId fontId = 0u;
 
   // Check first if the font description matches with a previously loaded bitmap font.
-  if(FindBitmapFont(fontDescription.family, fontId))
+  if(FindBitmapFont(realFontDescription.family, fontId))
   {
     return fontId;
   }
@@ -864,11 +907,11 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
   // Check if the font's description have been validated before.
   FontDescriptionId validatedFontId = 0u;
 
-  if(!FindValidatedFont(fontDescription,
+  if(!FindValidatedFont(realFontDescription,
                         validatedFontId))
   {
     // Use font config to validate the font's description.
-    ValidateFont(fontDescription,
+    ValidateFont(realFontDescription,
                  validatedFontId);
   }
 
