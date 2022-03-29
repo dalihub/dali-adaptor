@@ -41,6 +41,7 @@ namespace
  * In this API, widget framework create a new keyEvent, find the proper widget and send this event.
  * Finally widget framework receive feedback from widget.
  */
+#ifdef OVER_TIZEN_VERSION_7
 bool OnKeyEventCallback(const char *id, screen_connector_event_type_e eventType, int keyCode, const char *keyName, long long cls, long long subcls, const char* identifier, long long timestamp, void *userData)
 {
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(userData);
@@ -72,6 +73,7 @@ bool OnKeyEventCallback(const char *id, screen_connector_event_type_e eventType,
 
   return consumed;
 }
+#endif
 
 int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w, int h, void* classData)
 {
@@ -138,7 +140,9 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   Internal::Adaptor::GetImplementation(widgetInstance).OnCreate(encodedContentString, window);
 
   // connect keyEvent for widget
+#ifdef OVER_TIZEN_VERSION_7
   application->ConnectKeyEvent(window);
+#endif
 
   return 0;
 }
@@ -376,7 +380,9 @@ void WidgetApplicationTizen::ConnectKeyEvent(Dali::Window window)
 {
   if(!mConnectedKeyEvent)
   {
+#ifdef OVER_TIZEN_VERSION_7
     screen_connector_provider_set_key_event_cb(OnKeyEventCallback, this);
+#endif
     mConnectedKeyEvent = true;
   }
   window.KeyEventSignal().Connect(this, &WidgetApplicationTizen::OnWindowKeyEvent);

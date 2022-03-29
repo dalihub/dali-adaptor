@@ -87,6 +87,13 @@ DALI_ADAPTOR_API int GetStatus();
  */
 DALI_ADAPTOR_API bool IsEnabled();
 
+/**
+ * @brief Returns whether the state of Screen Reader is enabled or not.
+ *
+ * @return True if Screen Reader is enabled, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsScreenReaderEnabled();
+
 } //namespace AtspiAccessibility
 } //namespace Dali
 

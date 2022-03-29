@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 
 namespace Dali
 {
@@ -131,6 +132,10 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THR
 #define LOG_EVENT_TRACE
 #define LOG_EVENT_TRACE_FMT(format, ...)
 #endif
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_COMBINED, false);
+#define TRACE_UPDATE_RENDER_BEGIN(tag) DALI_TRACE_BEGIN(gTraceFilter, tag)
+#define TRACE_UPDATE_RENDER_END(tag) DALI_TRACE_END(gTraceFilter, tag)
 
 } // unnamed namespace
 
