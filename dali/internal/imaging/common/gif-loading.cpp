@@ -366,7 +366,7 @@ bool LoaderInfo::FileData::LoadRemoteFile()
  *
  * @param[in] animated A structure containing GIF animation data
  * @param[in] index Frame index to be searched in GIF
- * @return A pointer to the ImageFrame.
+ * @return single 32-bit (ABGR) value.
  */
 inline std::uint32_t CombinePixelABGR(const std::uint32_t& a, const std::uint32_t& r, const std::uint32_t& g, const std::uint32_t& b)
 {
@@ -376,6 +376,40 @@ inline std::uint32_t CombinePixelABGR(const std::uint32_t& a, const std::uint32_
 inline std::uint32_t PixelLookup(const ColorMapObject* const& colorMap, int index)
 {
   return CombinePixelABGR(0xFF, colorMap->Colors[index].Red, colorMap->Colors[index].Green, colorMap->Colors[index].Blue);
+}
+
+/**
+ * @brief Get the Background Color from frameInfo
+ *
+ * @param[in] gif A pointer pointing to GIF File Type
+ * @param[in] frameInfo A pointer pointing to Frame Information data
+ * @return single 32-bit (ABGR) value. of background color
+ */
+std::uint32_t GetBackgroundColor(GifFileType* gif, FrameInfo* frameInfo)
+{
+  if(frameInfo->transparent < 0)
+  {
+    ColorMapObject* colorMap;
+    int             backGroundColor;
+
+    // work out color to use from colorMap
+    if(gif->Image.ColorMap)
+    {
+      colorMap = gif->Image.ColorMap;
+    }
+    else
+    {
+      colorMap = gif->SColorMap;
+    }
+    backGroundColor = gif->SBackGroundColor;
+    // Get background color from colormap
+    return PixelLookup(colorMap, backGroundColor);
+  }
+  else
+  {
+    // transparent
+    return 0;
+  }
 }
 
 /**
@@ -443,46 +477,6 @@ void FillImage(uint32_t* data, int stride, uint32_t val, int x, int y, int width
         ++pixelPosition;
       }
     }
-  }
-}
-
-/**
- * @brief Fill a rgba data pixle blob with a frame color (bg or trans)
- *
- * @param[in] data A pointer pointing to an image data
- * @param[in] stride A int containing the number of stride in an image
- * @param[in] gif A pointer pointing to GIF File Type
- * @param[in] frameInfo A pointer pointing to Frame Information data
- * @param[in] x X-coordinate used an offset to calculate pixel position
- * @param[in] y Y-coordinate used an offset to calculate pixel position
- * @param[in] width Width of the image
- * @param[in] height Height of the image
- */
-void FillFrame(uint32_t* data, int stride, GifFileType* gif, FrameInfo* frameInfo, int x, int y, int w, int h)
-{
-  // solid color fill for pre frame region
-  if(frameInfo->transparent < 0)
-  {
-    ColorMapObject* colorMap;
-    int             backGroundColor;
-
-    // work out color to use from colorMap
-    if(gif->Image.ColorMap)
-    {
-      colorMap = gif->Image.ColorMap;
-    }
-    else
-    {
-      colorMap = gif->SColorMap;
-    }
-    backGroundColor = gif->SBackGroundColor;
-    // and do the fill
-    FillImage(data, stride, CombinePixelABGR(0xff, colorMap->Colors[backGroundColor].Red, colorMap->Colors[backGroundColor].Green, colorMap->Colors[backGroundColor].Blue), x, y, w, h);
-  }
-  // fill in region with 0 (transparent)
-  else
-  {
-    FillImage(data, stride, 0, x, y, w, h);
   }
 }
 
@@ -652,7 +646,7 @@ FrameInfo* NewFrame(GifAnimationData& animated, int transparent, int dispose, in
  * @brief Decode a gif image into rows then expand to 32bit into the destination
  * data pointer.
  */
-bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t* data, int rowpix, int xin, int yin, int transparent, int x, int y, int w, int h, bool fill)
+bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t* data, int rowpix, int xin, int yin, int transparent, int x, int y, int w, int h, bool fill, uint32_t fillColor = 0u)
 {
   int             intoffset[] = {0, 4, 2, 1};
   int             intjump[]   = {8, 8, 4, 2};
@@ -769,7 +763,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
             }
             else
             {
-              *p = 0;
+              *p = fillColor;
             }
             p++;
           }
@@ -790,7 +784,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
             }
             else
             {
-              *p = 0;
+              *p = fillColor;
             }
             p++;
           }
@@ -1232,12 +1226,30 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             return false;
           }
 
+          // Lazy fill background color feature.
+          // DecodeImage function draw range is EQUAL with previous FillImage range,
+          // We don't need to fill background that time.
+          // It will try to reduce the number of FillImage API call
+          // Note : We might check overlapping. But that operation looks expensive
+          // So, just optimize only if EQUAL case.
+          bool     updateBackgroundColorLazy = false;
+          uint32_t backgroundColor           = 0u;
+          int      prevX                     = 0;
+          int      prevY                     = 0;
+          int      prevW                     = 0;
+          int      prevH                     = 0;
+
           // if we have no prior frame OR prior frame data... empty
           if((!previousFrame) || (!previousFrame->data))
           {
-            first     = true;
-            frameInfo = &(thisFrame->info);
-            memset(thisFrame->data, 0, prop.w * prop.h * sizeof(uint32_t));
+            first                     = true;
+            frameInfo                 = &(thisFrame->info);
+            updateBackgroundColorLazy = true;
+            backgroundColor           = 0u;
+            prevX                     = 0;
+            prevY                     = 0;
+            prevW                     = prop.w;
+            prevH                     = prop.h;
           }
           // we have a prior frame to copy data from...
           else
@@ -1256,7 +1268,12 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             // if dispose mode is "background" then fill with bg
             if(frameInfo->dispose == DISPOSE_BACKGROUND)
             {
-              FillFrame(thisFrame->data, prop.w, loaderInfo.gifAccessor->gif, frameInfo, x, y, w, h);
+              updateBackgroundColorLazy = true;
+              backgroundColor           = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
+              prevX                     = x;
+              prevY                     = y;
+              prevW                     = w;
+              prevH                     = h;
             }
             else if(frameInfo->dispose == DISPOSE_PREVIOUS) // GIF_DISPOSE_RESTORE
             {
@@ -1282,7 +1299,18 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
           // now draw this frame on top
           frameInfo = &(thisFrame->info);
           ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-          if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first)))
+
+          if(updateBackgroundColorLazy)
+          {
+            // If this frame's x,y,w,h is not equal with previous x,y,w,h, FillImage. else, don't fill
+            if(prevX != x || prevY != y || prevW != w || prevH != h)
+            {
+              FillImage(thisFrame->data, prop.w, backgroundColor, prevX, prevY, prevW, prevH);
+              // Don't send background color information to DecodeImage function.
+              updateBackgroundColorLazy = false;
+            }
+          }
+          if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first || updateBackgroundColorLazy, backgroundColor)))
           {
             DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
             return false;
@@ -1304,11 +1332,15 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
             frameInfo = &(thisFrame->info);
             ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
 
-            // clear out all pixels
-            FillFrame(reinterpret_cast<uint32_t*>(pixels), prop.w, loaderInfo.gifAccessor->gif, frameInfo, 0, 0, prop.w, prop.h);
+            // clear out all pixels only if x,y,w,h is not whole image.
+            if(x != 0 || y != 0 || w != static_cast<int>(prop.w) || h != static_cast<int>(prop.h))
+            {
+              const std::uint32_t backgroundColor = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
+              FillImage(reinterpret_cast<uint32_t*>(pixels), prop.w, backgroundColor, 0, 0, prop.w, prop.h);
+            }
 
             // and decode the gif with overwriting
-            if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true)))
+            if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true, 0u)))
             {
               DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
               return false;
