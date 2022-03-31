@@ -235,7 +235,6 @@ public:
     mDirectReadingClient  = {};
     mDirectReadingCallbacks.clear();
     mApplication.mChildren.clear();
-    mApplication.mWindows.clear();
     ClearTimer();
   }
 
@@ -359,13 +358,6 @@ public:
     mApplication.mParent.SetAddress(std::move(std::get<0>(res)));
 
     mEnabledSignal.Emit();
-
-    if(mIsShown)
-    {
-      auto rootLayer = Dali::Stage::GetCurrent().GetRootLayer();
-      auto window    = Dali::DevelWindow::Get(rootLayer);
-      EmitActivate(window); // Currently, sends a signal that the default window is activated here.
-    }
 
     return ForceUpResult::JUST_STARTED;
   }
