@@ -36,7 +36,6 @@ class AppAccessible : public virtual Dali::Accessibility::Accessible, public vir
 public:
   Dali::Accessibility::EmptyAccessibleWithAddress mParent;
   std::vector<Dali::Accessibility::Accessible*>   mChildren;
-  std::vector<Dali::Window>                       mWindows;
   std::string                                     mName;
 
   std::string GetName() override

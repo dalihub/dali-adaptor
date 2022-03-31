@@ -38,7 +38,6 @@ BridgeBase::BridgeBase()
 BridgeBase::~BridgeBase()
 {
   mApplication.mChildren.clear();
-  mApplication.mWindows.clear();
 }
 
 void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
@@ -220,32 +219,6 @@ void BridgeBase::RemovePopup(Accessible* object)
   }
 }
 
-void BridgeBase::OnWindowVisibilityChanged(Dali::Window window, bool visible)
-{
-  if(visible)
-  {
-    // TODO : Should we check 'out of screen' here? -> Then, we need an actor of this change.
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(window); // Called when Window is shown.
-  }
-  else
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(window); // Called when Window is hidden and iconified.
-  }
-
-}
-
-void BridgeBase::OnWindowFocusChanged(Dali::Window window, bool focusIn)
-{
-  if(focusIn)
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowFocused(window); // Called when Window is focused.
-  }
-  else
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowUnfocused(window); // Called when Window is out of focus.
-  }
-}
-
 void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
 {
   if(windowAccessible->GetInternalActor() == nullptr)
@@ -263,29 +236,10 @@ void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
   // Adds Window to a list of Windows.
   mApplication.mChildren.push_back(windowAccessible);
   SetIsOnRootLevel(windowAccessible);
-
-  Dali::Window window = Dali::DevelWindow::Get(windowAccessible->GetInternalActor());
-  if(window)
-  {
-    mApplication.mWindows.push_back(window);
-    Dali::DevelWindow::VisibilityChangedSignal(window).Connect(this, &BridgeBase::OnWindowVisibilityChanged);
-    window.FocusChangeSignal().Connect(this, &BridgeBase::OnWindowFocusChanged);
-  }
 }
 
 void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
 {
-  for(auto i = 0u; i < mApplication.mWindows.size(); ++i)
-  {
-    if(windowAccessible->GetInternalActor() == mApplication.mWindows[i].GetRootLayer())
-    {
-      Dali::DevelWindow::VisibilityChangedSignal(mApplication.mWindows[i]).Disconnect(this, &BridgeBase::OnWindowVisibilityChanged);
-      mApplication.mWindows[i].FocusChangeSignal().Disconnect(this, &BridgeBase::OnWindowFocusChanged);
-      mApplication.mWindows.erase(mApplication.mWindows.begin() + i);
-      break;
-    }
-  }
-
   for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
   {
     if(mApplication.mChildren[i] == windowAccessible)
