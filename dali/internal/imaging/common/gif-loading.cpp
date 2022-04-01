@@ -61,7 +61,7 @@ Debug::Filter* gGifLoadingLogFilter = Debug::Filter::New(Debug::NoLogging, false
 const int        IMG_MAX_SIZE                = 65000;
 constexpr size_t MAXIMUM_DOWNLOAD_IMAGE_SIZE = 50 * 1024 * 1024;
 
-constexpr int LOCAL_CACHED_COLOR_GENERATE_THRESHOLD = 16; ///< Generate color map optimize only if colorCount * threshold < width * height, So we don't loop if image is small
+constexpr int LOCAL_CACHED_COLOR_GENERATE_THRESHOLD = 64; ///< Generate color map optimize only if colorCount * threshold < width * height, So we don't loop if image is small
 
 #if GIFLIB_MAJOR < 5
 const int DISPOSE_BACKGROUND = 2; /* Set area too background color */
@@ -140,7 +140,6 @@ struct GifCachedColorData
   // precalculated colormap table
   std::vector<std::uint32_t> globalCachedColor{};
   std::vector<std::uint32_t> localCachedColor{};
-  ColorMapObject*            localCachedColorMap{nullptr}; // Weak-pointer of ColorMapObject. should be nullptr if image changed
 };
 
 // Forward declaration
@@ -717,20 +716,14 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   if(gif->Image.ColorMap)
   {
     colorMap = gif->Image.ColorMap;
-    // use local cached color map without re-calculate cache.
-    if(gifCachedColor.localCachedColorMap == colorMap)
-    {
-      cachedColorPtr = gifCachedColor.localCachedColor.data();
-    }
-    // else if w * h is big enough, generate local cached color.
-    else if(colorMap->ColorCount * LOCAL_CACHED_COLOR_GENERATE_THRESHOLD < w * h)
+    // if w * h is big enough, generate local cached color.
+    if(colorMap->ColorCount * LOCAL_CACHED_COLOR_GENERATE_THRESHOLD < w * h)
     {
       gifCachedColor.localCachedColor.resize(colorMap->ColorCount);
       for(i = 0; i < colorMap->ColorCount; ++i)
       {
         gifCachedColor.localCachedColor[i] = PixelLookup(colorMap, i);
       }
-      gifCachedColor.localCachedColorMap = colorMap;
 
       cachedColorPtr = gifCachedColor.localCachedColor.data();
     }
@@ -1084,7 +1077,6 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
               cachedColor.globalCachedColor[i] = PixelLookup(colorMap, i);
             }
           }
-          cachedColor.localCachedColorMap = nullptr;
 
           // no errors in header scan etc. so set err and return value
           *error = 0;
