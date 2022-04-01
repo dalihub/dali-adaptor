@@ -103,7 +103,7 @@ public:
     {
       this->data = data;
     }
-    char* GetData()
+    char* GetData() const
     {
       return data;
     }
@@ -128,18 +128,18 @@ public:
      {
        return mimeType;
      }
-     void SetData(char* data)
+     void SetData(const char* data)
      {
        this->data = data;
      }
-     char* GetData() const
+     const char* GetData() const
      {
        return data;
      }
 
   private:
      const char* mimeType{nullptr}; ///<The mime type of drag data.
-     char*       data{nullptr};     ///<The drag data.
+     const char* data{nullptr};     ///<The drag data.
   };
 
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
