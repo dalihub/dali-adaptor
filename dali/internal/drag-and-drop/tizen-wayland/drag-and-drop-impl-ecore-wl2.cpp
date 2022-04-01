@@ -125,7 +125,7 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
 
   // Set Drag Source Data
   mMimeType = data.GetMimeType();
-  mData = data.GetData();
+  mData     = data.GetData();
 
   // Apply Shadow Property
   shadow.SetProperty(Dali::Actor::Property::SIZE, Vector2(150, 150));
@@ -151,7 +151,6 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow
   const char* mimeTypes[2];
   mimeTypes[0] = mMimeType.c_str();
   mimeTypes[1] = NULL;
-
 
   // Set mime type
   ecore_wl2_dnd_drag_types_set(input, (const char**)mimeTypes);
@@ -212,7 +211,7 @@ void DragAndDropEcoreWl::SendData(void* event)
      (mMimeType.find("markup") != std::string::npos) ||
      (mMimeType.find("image") != std::string::npos))
   {
-     bufferSize += 1;
+    bufferSize += 1;
   }
 
   char* buffer = new char[bufferSize];
@@ -224,7 +223,12 @@ void DragAndDropEcoreWl::SendData(void* event)
   memcpy(buffer, mData.c_str(), dataLength);
   buffer[dataLength] = '\0';
 
-  write(ev->fd, buffer, bufferSize);
+  auto ret = write(ev->fd, buffer, bufferSize);
+  if(DALI_UNLIKELY(ret != bufferSize))
+  {
+    DALI_LOG_ERROR("write(ev->fd) return %d! Pleacse check it\n", static_cast<int>(ret));
+  }
+
   close(ev->fd);
 
   if(mDragWindow)
@@ -232,7 +236,7 @@ void DragAndDropEcoreWl::SendData(void* event)
     mDragWindow.Hide();
   }
 
-  delete [] buffer;
+  delete[] buffer;
 }
 
 void DragAndDropEcoreWl::ReceiveData(void* event)
@@ -255,7 +259,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
   Dali::DragAndDrop::DragEvent dragEvent;
   Dali::Vector2                curPosition(ev->x, ev->y);
 
-  for(int i = 0; i < mDropTargets.size(); i++)
+  for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
     Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
     Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
@@ -297,7 +301,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   // Check the target object region
   mTargetIndex = -1;
 
-  for(int i = 0; i < mDropTargets.size(); i++)
+  for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
     Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);

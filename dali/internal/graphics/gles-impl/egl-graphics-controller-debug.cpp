@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,6 +143,11 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
       case GLES::CommandType::DRAW_INDEXED:
       {
         fprintf(output, "{\"Cmd\":\"DRAW_INDEXED\"}\n");
+        break;
+      }
+      case GLES::CommandType::DRAW_NATIVE:
+      {
+        fprintf(output, "{\"Cmd\":\"DRAW_NATIVE\"}\n");
         break;
       }
       case GLES::CommandType::DRAW_INDEXED_INDIRECT:
