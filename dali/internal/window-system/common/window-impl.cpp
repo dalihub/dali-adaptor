@@ -81,6 +81,7 @@ Window::Window()
   mIconified(false),
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
+  mFocused(false),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
@@ -100,10 +101,13 @@ Window::Window()
 
 Window::~Window()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
-  bridge->RemoveTopLevelWindow(accessible);
+  if(mScene)
+  {
+    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+    bridge->RemoveTopLevelWindow(accessible);
+  }
 
   if(mAdaptor)
   {
@@ -175,10 +179,13 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler->AddObserver(*this);
 
   // Add Window to bridge for ATSPI
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
-  bridge->AddTopLevelWindow(accessible);
+  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  if (bridge->IsUp())
+  {
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+    bridge->AddTopLevelWindow(accessible);
+  }
 
   bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
   bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
@@ -467,6 +474,7 @@ void Window::Show()
   {
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, true);
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowShown();
@@ -487,6 +495,7 @@ void Window::Hide()
   {
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, false);
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowHidden();
@@ -747,6 +756,7 @@ void Window::OnIconifyChanged(bool iconified)
     {
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, false);
+      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowHidden();
@@ -762,6 +772,7 @@ void Window::OnIconifyChanged(bool iconified)
     {
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, true);
+      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowShown();
@@ -791,6 +802,7 @@ void Window::OnFocusChanged(bool focusIn)
       bridge->WindowUnfocused(handle);
     }
   }
+  mFocused = focusIn;
 }
 
 void Window::OnOutputTransformed()
@@ -922,6 +934,12 @@ void Window::OnAccessibilityEnabled()
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer, true);
   bridge->AddTopLevelWindow(accessible);
+
+  if(mFocused)
+  {
+    Dali::Window handle(this);
+    bridge->WindowFocused(handle);
+  }
 }
 
 void Window::OnAccessibilityDisabled()

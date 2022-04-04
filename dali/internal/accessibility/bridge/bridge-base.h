@@ -40,7 +40,6 @@ class ApplicationAccessible : public virtual Dali::Accessibility::Accessible, pu
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
   std::vector<Dali::Accessibility::Accessible*> mChildren;
-  std::vector<Dali::Window>                     mWindows;
   std::string                                   mName;
 
   std::string GetName() const override

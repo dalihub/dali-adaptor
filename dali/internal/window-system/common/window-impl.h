@@ -687,6 +687,7 @@ private:
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
   bool                 mWindowRotationAcknowledgement : 1;
+  bool                 mFocused : 1;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;
