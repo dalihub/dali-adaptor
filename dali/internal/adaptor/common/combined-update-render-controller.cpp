@@ -665,7 +665,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                   nextFrameTime,
                   updateStatus,
                   renderToFboEnabled,
-                  isRenderingToFbo );
+                  isRenderingToFbo,
+                  mUploadWithoutRendering);
     AddPerformanceMarker( PerformanceInterface::UPDATE_END );
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
