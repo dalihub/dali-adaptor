@@ -776,7 +776,7 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
   }
 
   // If upload buffer exceeds maximum size, flush.
-  if(mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB * 1024)
+  if(mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB * 1024 * 1024)
   {
     Flush();
     mTextureUploadTotalCPUMemoryUsed = 0;
