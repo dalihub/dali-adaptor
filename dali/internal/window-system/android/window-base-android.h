@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ANDROID_WINDOW_BASE_ANDROID_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,6 +122,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
    */
   int GetNativeWindowId() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowResourceId()
+   */
+  std::string GetNativeWindowResourceId() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
