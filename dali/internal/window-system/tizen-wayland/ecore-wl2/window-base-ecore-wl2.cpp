@@ -1532,7 +1532,11 @@ int WindowBaseEcoreWl2::GetNativeWindowId()
 
 std::string WindowBaseEcoreWl2::GetNativeWindowResourceId()
 {
+#ifdef OVER_TIZEN_VERSION_7
   return std::to_string(ecore_wl2_window_resource_id_get(mEcoreWindow));
+#else
+  return std::string();
+#endif
 }
 
 EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow(int width, int height)
