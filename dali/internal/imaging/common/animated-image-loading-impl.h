@@ -66,11 +66,6 @@ public:
   ~AnimatedImageLoading() override = default;
 
   /**
-   * @copydoc Dali::AnimatedImageLoading::LoadNextNFrames()
-   */
-  virtual bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData) = 0;
-
-  /**
    * @copydoc Dali::AnimatedImageLoading::LoadFrame()
    */
   virtual Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) = 0;

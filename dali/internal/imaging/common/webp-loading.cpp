@@ -42,8 +42,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
-typedef unsigned char WebPByteType;
+typedef uint8_t WebPByteType;
 
 namespace Dali
 {
@@ -66,14 +67,30 @@ struct WebPLoading::Impl
 {
 public:
   Impl(const std::string& url, bool isLocalResource)
-  : mUrl(url),
+  : mFile(nullptr),
+    mUrl(url),
     mFrameCount(1u),
     mMutex(),
     mBuffer(nullptr),
     mBufferSize(0u),
     mImageSize(),
     mLoadSucceeded(false),
+    mIsAnimatedImage(false),
     mIsLocalResource(isLocalResource)
+  {
+  }
+
+  Impl(FILE* const fp)
+  : mFile(fp),
+    mUrl(),
+    mFrameCount(1u),
+    mMutex(),
+    mBuffer(nullptr),
+    mBufferSize(0u),
+    mImageSize(),
+    mLoadSucceeded(false),
+    mIsAnimatedImage(false),
+    mIsLocalResource(true)
   {
   }
 
@@ -97,22 +114,29 @@ public:
     if(DALI_LIKELY(ReadWebPInformation()))
     {
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-      WebPDataInit(&mWebPData);
-      mWebPData.size  = mBufferSize;
-      mWebPData.bytes = mBuffer;
-      WebPAnimDecoderOptions webPAnimDecoderOptions;
-      WebPAnimDecoderOptionsInit(&webPAnimDecoderOptions);
-      webPAnimDecoderOptions.color_mode = MODE_RGBA;
-      mWebPAnimDecoder                  = WebPAnimDecoderNew(&mWebPData, &webPAnimDecoderOptions);
-      WebPAnimDecoderGetInfo(mWebPAnimDecoder, &mWebPAnimInfo);
-      mTimeStamp.assign(mWebPAnimInfo.frame_count, 0);
-      mFrameCount = mWebPAnimInfo.frame_count;
-      mImageSize  = ImageDimensions(mWebPAnimInfo.canvas_width, mWebPAnimInfo.canvas_height);
-#elif DALI_WEBP_AVAILABLE
-      int32_t imageWidth, imageHeight;
-      if(WebPGetInfo(mBuffer, mBufferSize, &imageWidth, &imageHeight))
+      if(mIsAnimatedImage)
       {
-        mImageSize = ImageDimensions(imageWidth, imageHeight);
+        WebPDataInit(&mWebPData);
+        mWebPData.size  = mBufferSize;
+        mWebPData.bytes = mBuffer;
+        WebPAnimDecoderOptions webPAnimDecoderOptions;
+        WebPAnimDecoderOptionsInit(&webPAnimDecoderOptions);
+        webPAnimDecoderOptions.color_mode = MODE_RGBA;
+        mWebPAnimDecoder                  = WebPAnimDecoderNew(&mWebPData, &webPAnimDecoderOptions);
+        WebPAnimDecoderGetInfo(mWebPAnimDecoder, &mWebPAnimInfo);
+        mTimeStamp.assign(mWebPAnimInfo.frame_count, 0);
+        mFrameCount = mWebPAnimInfo.frame_count;
+        mImageSize  = ImageDimensions(mWebPAnimInfo.canvas_width, mWebPAnimInfo.canvas_height);
+      }
+#endif
+#ifdef DALI_WEBP_AVAILABLE
+      if(!mIsAnimatedImage)
+      {
+        int32_t imageWidth, imageHeight;
+        if(WebPGetInfo(mBuffer, mBufferSize, &imageWidth, &imageHeight))
+        {
+          mImageSize = ImageDimensions(imageWidth, imageHeight);
+        }
       }
 #endif
       mLoadSucceeded = true;
@@ -129,55 +153,71 @@ public:
 
   bool ReadWebPInformation()
   {
-    FILE* fp = nullptr;
-    if(mIsLocalResource)
+    mBufferSize = 0;
+
+    FILE*                                           fp = mFile;
+    std::unique_ptr<Internal::Platform::FileReader> fileReader;
+    Dali::Vector<uint8_t>                           dataBuffer;
+    if(fp == nullptr)
     {
-      Internal::Platform::FileReader fileReader(mUrl);
-      fp = fileReader.GetFile();
-      if(DALI_UNLIKELY(fp == nullptr))
+      if(mIsLocalResource)
       {
-        return false;
+        fileReader = std::make_unique<Internal::Platform::FileReader>(mUrl);
+      }
+      else
+      {
+        size_t dataSize;
+        if(DALI_LIKELY(TizenPlatform::Network::DownloadRemoteFileIntoMemory(mUrl, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE)))
+        {
+          mBufferSize = dataBuffer.Size();
+          if(DALI_LIKELY(mBufferSize > 0U))
+          {
+            // Open a file handle on the memory buffer:
+            fileReader = std::make_unique<Internal::Platform::FileReader>(dataBuffer, mBufferSize);
+          }
+        }
       }
 
-      if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
+      fp = fileReader->GetFile();
+    }
+
+    if(DALI_LIKELY(fp != nullptr))
+    {
+      if(DALI_LIKELY(!fseek(fp, 12, SEEK_SET)))
       {
-        return false;
+        uint8_t mHeaderBuffer[5];
+        fread(mHeaderBuffer, sizeof(WebPByteType), 5, fp);
+        unsigned char VP8X[4]    = {'V', 'P', '8', 'X'};
+        bool          isExtended = true;
+        for(uint32_t i = 0; i < 4; ++i)
+        {
+          if(mHeaderBuffer[i] != VP8X[i])
+          {
+            isExtended = false;
+            break;
+          }
+        }
+        if(isExtended)
+        {
+          unsigned char extension = mHeaderBuffer[4];
+          mIsAnimatedImage        = ((extension >> 1) & 1) ? true : false;
+        }
       }
 
-      mBufferSize = ftell(fp);
+      if(mBufferSize == 0)
+      {
+        if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
+        {
+          return false;
+        }
+        mBufferSize = ftell(fp);
+      }
+
       if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
       {
         mBuffer     = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
         mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
         return true;
-      }
-    }
-    else
-    {
-      // remote file
-      bool                  succeeded;
-      Dali::Vector<uint8_t> dataBuffer;
-      size_t                dataSize;
-
-      succeeded = TizenPlatform::Network::DownloadRemoteFileIntoMemory(mUrl, dataBuffer, dataSize, MAXIMUM_DOWNLOAD_IMAGE_SIZE);
-      if(DALI_LIKELY(succeeded))
-      {
-        mBufferSize = dataBuffer.Size();
-        if(DALI_LIKELY(mBufferSize > 0U))
-        {
-          // Open a file handle on the memory buffer:
-          Internal::Platform::FileReader fileReader(dataBuffer, mBufferSize);
-          fp = fileReader.GetFile();
-          if(DALI_LIKELY(fp != nullptr))
-          {
-            if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
-            {
-              mBuffer     = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
-              mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
-              return true;
-            }
-          }
-        }
       }
     }
     return false;
@@ -186,15 +226,18 @@ public:
   void ReleaseResource()
   {
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-    if(&mWebPData != nullptr)
+    if(mIsAnimatedImage)
     {
-      mWebPData.bytes = nullptr;
-      WebPDataInit(&mWebPData);
-    }
-    if(mWebPAnimDecoder != nullptr)
-    {
-      WebPAnimDecoderDelete(mWebPAnimDecoder);
-      mWebPAnimDecoder = nullptr;
+      if(&mWebPData != nullptr)
+      {
+        mWebPData.bytes = nullptr;
+        WebPDataInit(&mWebPData);
+      }
+      if(mWebPAnimDecoder != nullptr)
+      {
+        WebPAnimDecoderDelete(mWebPAnimDecoder);
+        mWebPAnimDecoder = nullptr;
+      }
     }
 #endif
     if(mBuffer != nullptr)
@@ -216,6 +259,7 @@ public:
     ReleaseResource();
   }
 
+  FILE*                 mFile;
   std::string           mUrl;
   std::vector<uint32_t> mTimeStamp;
   int32_t               mLatestLoadedFrame{INITIAL_INDEX};
@@ -226,6 +270,7 @@ public:
   uint32_t        mBufferSize;
   ImageDimensions mImageSize;
   bool            mLoadSucceeded;
+  bool            mIsAnimatedImage;
   bool            mIsLocalResource;
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
@@ -244,34 +289,27 @@ AnimatedImageLoadingPtr WebPLoading::New(const std::string& url, bool isLocalRes
   return AnimatedImageLoadingPtr(new WebPLoading(url, isLocalResource));
 }
 
+AnimatedImageLoadingPtr WebPLoading::New(FILE* const fp)
+{
+#ifndef DALI_ANIMATED_WEBP_ENABLED
+  DALI_LOG_ERROR("The system does not support Animated WebP format.\n");
+#endif
+  return AnimatedImageLoadingPtr(new WebPLoading(fp));
+}
+
 WebPLoading::WebPLoading(const std::string& url, bool isLocalResource)
 : mImpl(new WebPLoading::Impl(url, isLocalResource))
+{
+}
+
+WebPLoading::WebPLoading(FILE* const fp)
+: mImpl(new WebPLoading::Impl(fp))
 {
 }
 
 WebPLoading::~WebPLoading()
 {
   delete mImpl;
-}
-
-bool WebPLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
-{
-  for(int i = 0; i < count; ++i)
-  {
-    Dali::Devel::PixelBuffer pixelBuffer = LoadFrame((frameStartIndex + i) % mImpl->mFrameCount);
-    if(DALI_UNLIKELY(!pixelBuffer))
-    {
-      return false;
-    }
-
-    Dali::PixelData imageData = Devel::PixelBuffer::Convert(pixelBuffer);
-    pixelData.push_back(imageData);
-  }
-  if(DALI_UNLIKELY(pixelData.size() != static_cast<uint32_t>(count)))
-  {
-    return false;
-  }
-  return true;
 }
 
 Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
@@ -283,6 +321,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
   {
     if(DALI_UNLIKELY(!mImpl->LoadWebPInformation()))
     {
+      mImpl->ReleaseResource();
       return pixelBuffer;
     }
   }
@@ -290,69 +329,69 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
   // WebPDecodeRGBA is faster than to use demux API for loading non-animated image.
   // If frame count is 1, use WebPDecodeRGBA api.
 #ifdef DALI_WEBP_AVAILABLE
-  if(mImpl->mFrameCount == 1)
+  if(!mImpl->mIsAnimatedImage)
   {
     int32_t width, height;
-    if(DALI_UNLIKELY(!WebPGetInfo(mImpl->mBuffer, mImpl->mBufferSize, &width, &height)))
+    if(DALI_LIKELY(WebPGetInfo(mImpl->mBuffer, mImpl->mBufferSize, &width, &height)))
     {
-      return pixelBuffer;
-    }
+      WebPBitstreamFeatures features;
+      if(DALI_LIKELY(VP8_STATUS_NOT_ENOUGH_DATA != WebPGetFeatures(mImpl->mBuffer, mImpl->mBufferSize, &features)))
+      {
+        uint32_t channelNumber = (features.has_alpha) ? 4 : 3;
+        uint8_t* frameBuffer   = nullptr;
+        if(channelNumber == 4)
+        {
+          frameBuffer = WebPDecodeRGBA(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
+        }
+        else
+        {
+          frameBuffer = WebPDecodeRGB(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
+        }
 
-    WebPBitstreamFeatures features;
-    if(DALI_UNLIKELY(VP8_STATUS_NOT_ENOUGH_DATA == WebPGetFeatures(mImpl->mBuffer, mImpl->mBufferSize, &features)))
-    {
-      return pixelBuffer;
+        if(frameBuffer != nullptr)
+        {
+          Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
+          int32_t                           bufferSize  = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+          Internal::Adaptor::PixelBufferPtr internal =
+            Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width, pixelFormat);
+          pixelBuffer = Devel::PixelBuffer(internal.Get());
+        }
+      }
     }
-
-    uint32_t      channelNumber = (features.has_alpha) ? 4 : 3;
-    Pixel::Format pixelFormat   = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
-    pixelBuffer                 = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
-    uint8_t* frameBuffer        = nullptr;
-    if(channelNumber == 4)
-    {
-      frameBuffer = WebPDecodeRGBA(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
-    }
-    else
-    {
-      frameBuffer = WebPDecodeRGB(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
-    }
-
-    if(frameBuffer != nullptr)
-    {
-      const int32_t imageBufferSize = width * height * sizeof(uint8_t) * channelNumber;
-      memcpy(pixelBuffer.GetBuffer(), frameBuffer, imageBufferSize);
-      free((void*)frameBuffer);
-    }
+    // The single frame resource should be released after loading.
     mImpl->ReleaseResource();
-    return pixelBuffer;
   }
 #endif
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-  Mutex::ScopedLock lock(mImpl->mMutex);
-  if(DALI_UNLIKELY(frameIndex >= mImpl->mWebPAnimInfo.frame_count || !mImpl->mLoadSucceeded))
+  if(mImpl->mIsAnimatedImage && mImpl->mBuffer != nullptr)
   {
-    return pixelBuffer;
-  }
+    Mutex::ScopedLock lock(mImpl->mMutex);
+    if(DALI_LIKELY(frameIndex < mImpl->mWebPAnimInfo.frame_count && mImpl->mLoadSucceeded))
+    {
+      DALI_LOG_INFO(gWebPLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
 
-  DALI_LOG_INFO(gWebPLoadingLogFilter, Debug::Concise, "LoadFrame( frameIndex:%d )\n", frameIndex);
+      if(mImpl->mPreLoadedFrame && mImpl->mLatestLoadedFrame == static_cast<int32_t>(frameIndex))
+      {
+        pixelBuffer = mImpl->mPreLoadedFrame;
+      }
+      else
+      {
+        pixelBuffer = DecodeFrame(frameIndex);
+      }
+      mImpl->mPreLoadedFrame.Reset();
 
-  if(mImpl->mPreLoadedFrame && mImpl->mLatestLoadedFrame == static_cast<int32_t>(frameIndex))
-  {
-    pixelBuffer = mImpl->mPreLoadedFrame;
+      // If time stamp of next frame is unknown, load a frame more to know it.
+      if(frameIndex + 1 < mImpl->mWebPAnimInfo.frame_count && mImpl->mTimeStamp[frameIndex + 1] == 0u)
+      {
+        mImpl->mPreLoadedFrame = DecodeFrame(frameIndex + 1);
+      }
+    }
+    else
+    {
+      mImpl->ReleaseResource();
+    }
   }
-  else
-  {
-    pixelBuffer = DecodeFrame(frameIndex);
-  }
-  mImpl->mPreLoadedFrame.Reset();
-
-  // If time stamp of next frame is unknown, load a frame more to know it.
-  if(frameIndex + 1 < mImpl->mWebPAnimInfo.frame_count && mImpl->mTimeStamp[frameIndex + 1] == 0u)
-  {
-    mImpl->mPreLoadedFrame = DecodeFrame(frameIndex + 1);
-  }
-
 #endif
   return pixelBuffer;
 }
@@ -368,12 +407,13 @@ Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
   }
 
   uint8_t* frameBuffer = nullptr;
-  int32_t timestamp = 0u;
+  int32_t  timestamp   = 0u;
   for(; mImpl->mLatestLoadedFrame < static_cast<int32_t>(frameIndex);)
   {
     WebPAnimDecoderGetNext(mImpl->mWebPAnimDecoder, &frameBuffer, &timestamp);
     mImpl->mTimeStamp[++mImpl->mLatestLoadedFrame] = timestamp;
   }
+
   if(frameBuffer != nullptr)
   {
     const int bufferSize = mImpl->mWebPAnimInfo.canvas_width * mImpl->mWebPAnimInfo.canvas_height * sizeof(uint32_t);
