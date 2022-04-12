@@ -355,12 +355,69 @@ public:
 
   bool GrabHighlight() override
   {
-    return false;
+    if(!IsUp())
+    {
+      return false;
+    }
+
+    // Only window accessible is able to grab and clear highlight
+    if(!mRoot)
+    {
+      return false;
+    }
+
+    auto self = Self();
+    auto oldHighlightedActor = GetCurrentlyHighlightedActor();
+    if(self == oldHighlightedActor)
+    {
+      return true;
+    }
+
+    // Clear the old highlight.
+    if(oldHighlightedActor)
+    {
+      auto oldHighlightedObject = Dali::Accessibility::Component::DownCast(Accessible::Get(oldHighlightedActor));
+      if(oldHighlightedObject)
+      {
+        oldHighlightedObject->ClearHighlight();
+      }
+    }
+
+    SetCurrentlyHighlightedActor(self);
+
+    auto window                                 = Dali::DevelWindow::Get(self);
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+    windowImpl.EmitAccessibilityHighlightSignal(true);
+
+    return true;
   }
 
   bool ClearHighlight() override
   {
-    return false;
+    if(!IsUp())
+    {
+      return false;
+    }
+
+    // Only window accessible is able to grab and clear highlight
+    if(!mRoot)
+    {
+      return false;
+    }
+
+    auto self = Self();
+    if(self != GetCurrentlyHighlightedActor())
+    {
+      return false;
+    }
+
+    SetCurrentlyHighlightedActor({});
+
+    auto window                                 = Dali::DevelWindow::Get(self);
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+    windowImpl.EmitAccessibilityHighlightSignal(false);
+
+    return true;
   }
 
   Role GetRole() const override

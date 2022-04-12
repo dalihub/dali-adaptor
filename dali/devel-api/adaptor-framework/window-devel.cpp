@@ -106,6 +106,11 @@ AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
   return GetImplementation(window).AuxiliaryMessageSignal();
 }
 
+AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window)
+{
+  return GetImplementation(window).AccessibilityHighlightSignal();
+}
+
 void SetParent(Window window, Window parent)
 {
   GetImplementation(window).SetParent(parent);

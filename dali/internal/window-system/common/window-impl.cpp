@@ -357,6 +357,12 @@ void Window::SetPositionSizeWithOrientation(PositionSize positionSize, WindowOri
   mWindowBase->SetPositionSizeWithAngle(positionSize, angle);
 }
 
+void Window::EmitAccessibilityHighlightSignal(bool highlight)
+{
+  Dali::Window handle(this);
+  mAccessibilityHighlightSignal.Emit(handle, highlight);
+}
+
 void Window::SetAvailableAnlges(const std::vector<int>& angles)
 {
   if(angles.size() > 4)
