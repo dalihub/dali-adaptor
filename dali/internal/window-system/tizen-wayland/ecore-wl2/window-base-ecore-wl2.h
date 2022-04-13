@@ -536,6 +536,24 @@ private:
    */
   void CreateWindow(PositionSize positionSize);
 
+  /**
+   * @brief Return the window's position and size to recalulate with the default system coordinates.
+   * It is used when window is moved or resized for native ecore wayland window system.
+   *
+   * @param[in] positionSize the window's current position and size with current oriented window's coordinates.
+   * @return the re-calculated window's position and size on the default system coordinates.
+   */
+  PositionSize RecalculatePositionSizeToSystem(PositionSize positionSize);
+
+  /**
+   * @brief Return the window's position and size to recalulate with current oriented window's coordinates.
+   * It is used when window is moved or resized for dali and uppler layer framework.
+   *
+   * @param[in] positionSize the window's current position and size with the default system coordinates.
+   * @return the re-calculated window's position and size on current oriented window's coordinates.
+   */
+  PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
+
 protected:
   // Undefined
   WindowBaseEcoreWl2(const WindowBaseEcoreWl2&) = delete;
@@ -562,7 +580,9 @@ private:
 
   std::vector<std::string> mSupportedAuxiliaryHints;
 
+  // It is based on the default system coordinates.
   Dali::PositionSize mWindowPositionSize;
+
   AuxiliaryHints     mAuxiliaryHints;
 
   WindowType mType;
@@ -572,6 +592,8 @@ private:
   int        mWindowRotationAngle;
   int        mScreenRotationAngle;
   int        mSupportedPreProtation;
+  int        mScreenWidth;
+  int        mScreenHeight;
 
   uint32_t          mNotificationChangeState;
   uint32_t          mScreenOffModeChangeState;

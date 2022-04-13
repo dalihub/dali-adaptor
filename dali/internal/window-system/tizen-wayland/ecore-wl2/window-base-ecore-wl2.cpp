@@ -449,9 +449,9 @@ static Eina_Bool EcoreEventDataSend(void* data, int type, void* event)
 }
 
 /**
-* Called when the source window sends us about the selected content.
-* For example, when item is selected in the clipboard.
-*/
+ * Called when the source window sends us about the selected content.
+ * For example, when item is selected in the clipboard.
+ */
 static Eina_Bool EcoreEventDataReceive(void* data, int type, void* event)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -732,6 +732,8 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
   mSupportedPreProtation(0),
+  mScreenWidth(0),
+  mScreenHeight(0),
   mNotificationChangeState(0),
   mScreenOffModeChangeState(0),
   mBrightnessChangeState(0),
@@ -1005,34 +1007,23 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
 
     if(ev->w == 0 || ev->h == 0)
     {
-      // Use previous client side window's size.
-      if(mWindowRotationAngle == 90 || mWindowRotationAngle == 270)
-      {
-        ev->w = mWindowPositionSize.height;
-        ev->h = mWindowPositionSize.width;
-      }
-      else
-      {
-        ev->w = mWindowPositionSize.width;
-        ev->h = mWindowPositionSize.height;
-      }
+      // When rotation event does not have the window width or height,
+      // previous DALi side window's size are used.
+      ev->w = mWindowPositionSize.width;
+      ev->h = mWindowPositionSize.height;
     }
 
     mWindowRotationAngle = ev->angle;
 
-    if(ev->angle == 0 || ev->angle == 180)
-    {
-      rotationEvent.width  = ev->w;
-      rotationEvent.height = ev->h;
-    }
-    else
-    {
-      rotationEvent.width  = ev->h;
-      rotationEvent.height = ev->w;
-    }
+    mWindowPositionSize.width  = ev->w;
+    mWindowPositionSize.height = ev->h;
 
-    mWindowPositionSize.width  = rotationEvent.width;
-    mWindowPositionSize.height = rotationEvent.height;
+    PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
+
+    rotationEvent.x      = newPositionSize.x;
+    rotationEvent.y      = newPositionSize.y;
+    rotationEvent.width  = newPositionSize.width;
+    rotationEvent.height = newPositionSize.height;
 
     mRotationSignal.Emit(rotationEvent);
   }
@@ -1072,7 +1063,14 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 
     if(windowMoved || windowResized)
     {
-      Dali::PositionSize newPositionSize(ev->x, ev->y, newWidth, newHeight);
+      mWindowPositionSize.x = ev->x;
+      mWindowPositionSize.y = ev->y;
+      mWindowPositionSize.width = newWidth;
+      mWindowPositionSize.height = newHeight;
+      DALI_LOG_RELEASE_INFO("Update position & resize signal by server, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+
+      Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
+      DALI_LOG_RELEASE_INFO("emit signal to update window's position and size, x[%d] y[%d] w[%d] h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
       mUpdatePositionSizeSignal.Emit(newPositionSize);
     }
 
@@ -1687,22 +1685,109 @@ bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
   return false;
 }
 
+PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToSystem(PositionSize positionSize)
+{
+  PositionSize newPositionSize;
+
+  if(mWindowRotationAngle == 90)
+  {
+    newPositionSize.x      = positionSize.y;
+    newPositionSize.y      = mScreenHeight - (positionSize.x + positionSize.width);
+    newPositionSize.width  = positionSize.height;
+    newPositionSize.height = positionSize.width;
+  }
+  else if(mWindowRotationAngle == 180)
+  {
+    newPositionSize.x      = mScreenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.y      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.width  = positionSize.width;
+    newPositionSize.height = positionSize.height;
+  }
+  else if(mWindowRotationAngle == 270)
+  {
+    newPositionSize.x      = mScreenWidth - (positionSize.y + positionSize.height);
+    newPositionSize.y      = positionSize.x;
+    newPositionSize.width  = positionSize.height;
+    newPositionSize.height = positionSize.width;
+  }
+  else
+  {
+    newPositionSize.x      = positionSize.x;
+    newPositionSize.y      = positionSize.y;
+    newPositionSize.width  = positionSize.width;
+    newPositionSize.height = positionSize.height;
+  }
+
+  DALI_LOG_RELEASE_INFO("input coord x[%d], y[%d], w{%d], h[%d], screen w[%d], h[%d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height, mScreenWidth, mScreenHeight);
+  DALI_LOG_RELEASE_INFO("recalc coord x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+
+  return newPositionSize;
+}
+
+PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize)
+{
+  PositionSize newPositionSize;
+
+  if(mWindowRotationAngle == 90)
+  {
+    newPositionSize.x      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.y      = positionSize.x;
+    newPositionSize.width  = positionSize.height;
+    newPositionSize.height = positionSize.width;
+  }
+  else if(mWindowRotationAngle == 180)
+  {
+    newPositionSize.x      = mScreenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.y      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.width  = positionSize.width;
+    newPositionSize.height = positionSize.height;
+  }
+  else if(mWindowRotationAngle == 270)
+  {
+    newPositionSize.x      = positionSize.y;
+    newPositionSize.y      = mScreenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.width  = positionSize.height;
+    newPositionSize.height = positionSize.width;
+  }
+  else
+  {
+    newPositionSize.x      = positionSize.x;
+    newPositionSize.y      = positionSize.y;
+    newPositionSize.width  = positionSize.width;
+    newPositionSize.height = positionSize.height;
+  }
+
+  DALI_LOG_RELEASE_INFO("input coord x[%d], y[%d], w{%d], h[%d], screen w[%d], h[%d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height, mScreenWidth, mScreenHeight);
+  DALI_LOG_RELEASE_INFO("recalc by current orientation coord x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+
+  return newPositionSize;
+}
+
 void WindowBaseEcoreWl2::Move(PositionSize positionSize)
 {
-  mWindowPositionSize = positionSize;
-  ecore_wl2_window_position_set(mEcoreWindow, positionSize.x, positionSize.y);
+  PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
+
+  mWindowPositionSize = newPositionSize;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_position_set x[%d], y[%d]\n", newPositionSize.x, newPositionSize.y);
+  ecore_wl2_window_position_set(mEcoreWindow, newPositionSize.x, newPositionSize.y);
 }
 
 void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
 {
-  mWindowPositionSize = positionSize;
-  ecore_wl2_window_geometry_set(mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
+
+  mWindowPositionSize = newPositionSize;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
 void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
 {
-  mWindowPositionSize = positionSize;
-  ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  PositionSize newPositionSize = RecalculatePositionSizeToSystem(positionSize);
+
+  mWindowPositionSize = newPositionSize;
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
@@ -1754,17 +1839,7 @@ void WindowBaseEcoreWl2::Show()
 {
   if(!mVisible)
   {
-    // Ecore-wl2 has the original window size
-    // and he always sends the window rotation event with the swapped size.
-    // So, to restore, dali should set the reswapped size(original window size) to ecore-wl2 for restoring.
-    if(mWindowRotationAngle == 0 || mWindowRotationAngle == 180)
-    {
-      ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
-    }
-    else
-    {
-      ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.height, mWindowPositionSize.width);
-    }
+    ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
   }
   mVisible = true;
 
@@ -2554,6 +2629,9 @@ void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
 
   // Set default type
   ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
+
+  // Get Screen width, height
+  ecore_wl2_display_screen_size_get(display, &mScreenWidth, &mScreenHeight);
 }
 
 void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
