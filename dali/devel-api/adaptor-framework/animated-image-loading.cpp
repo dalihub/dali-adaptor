@@ -60,12 +60,6 @@ AnimatedImageLoading AnimatedImageLoading::DownCast(BaseHandle handle)
 AnimatedImageLoading::~AnimatedImageLoading()
 {
 }
-
-bool AnimatedImageLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
-{
-  return GetImplementation(*this).LoadNextNFrames(frameStartIndex, count, pixelData);
-}
-
 Dali::Devel::PixelBuffer AnimatedImageLoading::LoadFrame(uint32_t frameIndex)
 {
   return GetImplementation(*this).LoadFrame(frameIndex);

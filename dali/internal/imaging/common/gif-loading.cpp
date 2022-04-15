@@ -1442,40 +1442,6 @@ GifLoading::~GifLoading()
   delete mImpl;
 }
 
-bool GifLoading::LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData)
-{
-  int  error;
-  bool ret = false;
-
-  if(DALI_UNLIKELY(!mImpl->LoadGifInformation()))
-  {
-    return false;
-  }
-
-  Mutex::ScopedLock lock(mImpl->mMutex);
-  const int bufferSize = mImpl->imageProperties.w * mImpl->imageProperties.h * sizeof(uint32_t);
-
-  DALI_LOG_INFO(gGifLoadingLogFilter, Debug::Concise, "LoadNextNFrames( frameStartIndex:%d, count:%d )\n", frameStartIndex, count);
-
-  for(int i = 0; i < count; ++i)
-  {
-    auto pixelBuffer = new unsigned char[bufferSize];
-
-    mImpl->loaderInfo.animated.currentFrame = 1 + ((frameStartIndex + i) % mImpl->loaderInfo.animated.frameCount);
-
-    if(ReadNextFrame(mImpl->loaderInfo, mImpl->imageProperties, pixelBuffer, &error))
-    {
-      if(pixelBuffer)
-      {
-        pixelData.push_back(Dali::PixelData::New(pixelBuffer, bufferSize, mImpl->imageProperties.w, mImpl->imageProperties.h, Dali::Pixel::RGBA8888, Dali::PixelData::DELETE_ARRAY));
-        ret = true;
-      }
-    }
-  }
-
-  return ret;
-}
-
 Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
 {
   int                      error;
