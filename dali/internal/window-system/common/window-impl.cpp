@@ -107,6 +107,8 @@ Window::~Window()
     auto rootLayer  = mScene.GetRootLayer();
     auto accessible = Accessibility::Accessible::Get(rootLayer, true);
     bridge->RemoveTopLevelWindow(accessible);
+    // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
+    bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
   }
 
   if(mAdaptor)

@@ -272,6 +272,11 @@ public:
   {
     if(mData)
     {
+      // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
+      for(auto windowAccessible : mApplication.mChildren)
+      {
+        BridgeObject::Emit(windowAccessible, WindowEvent::DESTROY);
+      }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
     }
