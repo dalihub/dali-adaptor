@@ -104,6 +104,11 @@ public:
     return {};
   }
 
+  bool IsProxy() const override
+  {
+    return true;
+  }
+
   Address GetAddress() const override
   {
     return mAddress;
