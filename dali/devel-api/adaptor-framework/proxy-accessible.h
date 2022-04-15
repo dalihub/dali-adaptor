@@ -32,21 +32,25 @@ namespace Dali::Accessibility
  *
  * To be used as a proxy object, in those situations where you want to return an address in
  * a different bridge (embedding for example), but the object itself isn't planned to be used
- * otherwise. This object has no parent, no children, an empty name and so on.
+ * otherwise. This object has a settable parent, no children, an empty name and so on.
  */
 class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible
 {
 public:
-  ProxyAccessible() = default;
-
-  ProxyAccessible(Address address)
-  : mAddress(std::move(address))
+  ProxyAccessible()
+  : mAddress{},
+    mParent{nullptr}
   {
   }
 
   void SetAddress(Address address)
   {
-    this->mAddress = std::move(address);
+    mAddress = std::move(address);
+  }
+
+  void SetParent(Accessible* parent)
+  {
+    mParent = parent;
   }
 
   std::string GetName() const override
@@ -61,7 +65,7 @@ public:
 
   Accessible* GetParent() override
   {
-    return nullptr;
+    return mParent;
   }
 
   size_t GetChildCount() const override
@@ -130,7 +134,8 @@ public:
   }
 
 private:
-  Address mAddress;
+  Address     mAddress;
+  Accessible* mParent;
 };
 
 } // namespace Dali::Accessibility
