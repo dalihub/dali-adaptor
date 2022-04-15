@@ -53,6 +53,8 @@ typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard re
 
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType; ///< Auxiliary message signal type
 
+typedef Signal<void(Window, bool)> AccessibilityHighlightSignalType; ///< Accessibility Highlight signal type
+
 /**
  * @brief Creates an initialized handle to a new Window.
  *
@@ -161,6 +163,25 @@ DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettings
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the window needs to grab or clear accessibility highlight.
+ * The highlight indicates that it is an object to interact with the user regardless of focus.
+ * After setting the highlight on the object, you can do things that the object can do, such as
+ * giving or losing focus.
+ *
+ * This signal is emitted by Dali::Accessibility::Component::GrabHighlight
+ * and Dali::Accessibility::Component::ClearHighlight
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, bool highlight );
+ * @endcode
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window);
 
 /**
  * @brief Sets parent window of the window.
