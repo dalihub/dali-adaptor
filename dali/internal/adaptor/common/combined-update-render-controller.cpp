@@ -544,6 +544,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   {
     LOG_UPDATE_RENDER_TRACE;
 
+    // For thread safe
+    bool uploadOnly = mUploadWithoutRendering;
+
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
     AddPerformanceMarker(PerformanceInterface::VSYNC);
 
@@ -621,7 +624,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
                  nextFrameTime,
                  updateStatus,
                  renderToFboEnabled,
-                 isRenderingToFbo);
+                 isRenderingToFbo,
+                 uploadOnly);
     AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -667,9 +671,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
 
     // Upload shared resources
-    mCore.PreRender(renderStatus, mForceClear, mUploadWithoutRendering);
+    mCore.PreRender(renderStatus, mForceClear);
 
-    if(!mUploadWithoutRendering)
+    if(!uploadOnly)
     {
       // Go through each window
       WindowContainer windows;
@@ -721,12 +725,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    if(!mUploadWithoutRendering)
+    if(!uploadOnly)
     {
       graphics.PostRender();
     }
 
-    mCore.PostRender(mUploadWithoutRendering);
+    mCore.PostRender();
 
     //////////////////////////////
     // DELETE SURFACE
