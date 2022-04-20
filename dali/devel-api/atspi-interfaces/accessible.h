@@ -375,6 +375,26 @@ public:
     return mIsOnRootLevel;
   }
 
+  /**
+   * @brief Gets all suppressed events.
+   *
+   * @return All suppressed events
+   */
+  AtspiEvents GetSuppressedEvents() const
+  {
+    return mSuppressedEvents;
+  }
+
+  /**
+   * @brief Gets all suppressed events.
+   *
+   * @return All suppressed events
+   */
+  AtspiEvents& GetSuppressedEvents()
+  {
+    return mSuppressedEvents;
+  }
+
 protected:
   Accessible();
   Accessible(const Accessible&)         = delete;
@@ -484,6 +504,7 @@ private:
 
   mutable std::weak_ptr<Bridge::Data> mBridgeData;
   mutable AtspiInterfaces             mInterfaces;
+  AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
 
 }; // Accessible class

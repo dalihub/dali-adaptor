@@ -2,7 +2,7 @@
 #define DALI_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,6 +155,14 @@ public:
    * @return The height of the buffer in pixels
    */
   unsigned int GetHeight() const;
+
+  /**
+   * @brief Gets the stride of the buffer in pixels.
+   *
+   * @SINCE_2_1.17
+   * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
+   */
+  unsigned int GetStride() const;
 
   /**
    * @brief Gets the pixel format.

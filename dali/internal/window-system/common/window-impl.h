@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,7 @@ public:
   typedef Dali::DevelWindow::TransitionEffectEventSignalType         TransitionEffectEventSignalType;
   typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
   typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
+  typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -150,6 +151,12 @@ public:
    * @copydoc Dali::DevelWindow::GetRenderTaskList()
    */
   Dali::RenderTaskList GetRenderTaskList() const;
+
+  /**
+   * @brief Get window resource ID assigned by window manager
+   * @return The resource ID of the window
+   */
+  std::string GetNativeResourceId() const;
 
   /**
    * @copydoc Dali::Window::AddAvailableOrientation()
@@ -385,6 +392,16 @@ public:
    * @copydoc Dali::DevelWindow::SetPositionSizeWithOrientation()
    */
   void SetPositionSizeWithOrientation(PositionSize positionSize, WindowOrientation orientation);
+
+  /**
+   * @brief Emit the accessibility highlight signal.
+   * The highlight indicates that it is an object to interact with the user regardless of focus.
+   * After setting the highlight on the object, you can do things that the object can do, such as
+   * giving or losing focus.
+   *
+   * @param[in] highlight If window needs to grab or clear highlight.
+   */
+  void EmitAccessibilityHighlightSignal(bool highlight);
 
 public: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -677,6 +694,14 @@ public: // Signals
     return mAuxiliaryMessageSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::AccessibilityHighlightSignal()
+   */
+  AccessibilityHighlightSignalType& AccessibilityHighlightSignal()
+  {
+    return mAccessibilityHighlightSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -687,6 +712,7 @@ private:
   bool                 mIconified : 1;
   bool                 mOpaqueState : 1;
   bool                 mWindowRotationAcknowledgement : 1;
+  bool                 mFocused : 1;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;
@@ -711,6 +737,7 @@ private:
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
+  AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
 };
 
 } // namespace Adaptor

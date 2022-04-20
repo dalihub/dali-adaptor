@@ -22,6 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 
 //INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/web-engine-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -544,6 +545,12 @@ public:
    * @param[in] activated Activate accessibility or not.
    */
   void ActivateAccessibility(bool activated);
+
+  /**
+   * @brief Get the accessibility address (bus and path) for embedding.
+   * @return Accessibility address of the root web content element.
+   */
+  Accessibility::Address GetAccessibilityAddress();
 
   /**
    * @brief Request to set the current page's visibility.

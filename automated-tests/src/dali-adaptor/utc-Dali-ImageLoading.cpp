@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,9 @@ const char* IMAGE_128_RGB = TEST_RESOURCE_DIR "/gallery-small-1.jpg";
 
 // resolution: 2000*2560, pixel format: RGB888
 const char* IMAGE_LARGE_EXIF3_RGB = TEST_RESOURCE_DIR "/f-large-exif-3.jpg";
+
+// resolution: 2048*2048, pixel format: RGB888, YUV420
+const char* IMAGE_LARGE_2048_YUV_420 = TEST_RESOURCE_DIR "/lake_front.jpg";
 
 // resolution: 55*64, pixel format: RGB888
 const char* IMAGE_WIDTH_ODD_EXIF1_RGB = TEST_RESOURCE_DIR "/f-odd-exif-1.jpg";
@@ -74,7 +77,7 @@ const char* IMAGENONEXIST = "non-exist.jpg";
 Dali::Vector<uint8_t> FileToMemory(const char* filename)
 {
   Dali::Vector<uint8_t> buffer;
-  FILE *fp;
+  FILE*                 fp;
   fp = fopen(filename, "rb");
   if(fp != NULL)
   {
@@ -415,6 +418,49 @@ int UtcDaliDownloadImageN(void)
 {
   Devel::PixelBuffer pixelBuffer = Dali::DownloadImageSynchronously(IMAGENONEXIST);
   DALI_TEST_CHECK(!pixelBuffer);
+
+  END_TEST;
+}
+
+int UtcDaliLoadImagePlanesFromFileP(void)
+{
+  std::vector<Devel::PixelBuffer> pixelBuffers;
+
+  Dali::LoadImagePlanesFromFile(IMAGE_LARGE_2048_YUV_420, pixelBuffers);
+  DALI_TEST_EQUALS(pixelBuffers.size(), 3, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetWidth(), 2048u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetHeight(), 2048u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetPixelFormat(), Pixel::L8, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[1].GetPixelFormat(), Pixel::CHROMINANCE_U, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[2].GetPixelFormat(), Pixel::CHROMINANCE_V, TEST_LOCATION);
+
+  pixelBuffers.clear();
+
+  // Test not supported image format: png
+  Dali::LoadImagePlanesFromFile(IMAGE_34_RGBA, pixelBuffers);
+  DALI_TEST_EQUALS(pixelBuffers.size(), 1, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetWidth(), 34u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetHeight(), 34u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetPixelFormat(), Pixel::RGBA8888, TEST_LOCATION);
+
+  pixelBuffers.clear();
+
+  // Test notsupported chrominace subsampling case
+  Dali::LoadImagePlanesFromFile(IMAGE_128_RGB, pixelBuffers);
+  DALI_TEST_EQUALS(pixelBuffers.size(), 1, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetWidth(), 128u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetHeight(), 128u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBuffers[0].GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliLoadImagePlanesFromFileN(void)
+{
+  std::vector<Devel::PixelBuffer> pixelBuffers;
+
+  Dali::LoadImagePlanesFromFile(IMAGENONEXIST, pixelBuffers);
+  DALI_TEST_CHECK(pixelBuffers.empty());
 
   END_TEST;
 }

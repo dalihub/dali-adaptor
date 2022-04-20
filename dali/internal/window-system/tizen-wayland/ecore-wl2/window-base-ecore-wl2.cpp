@@ -508,9 +508,8 @@ static Eina_Bool EcoreEventEffectEnd(void* data, int type, void* event)
 
 static Eina_Bool EcoreEventSeatKeyboardRepeatChanged(void* data, int type, void* event)
 {
-  Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed* keyboardRepeat = static_cast<Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed*>(event);
-  WindowBaseEcoreWl2*                           windowBase     = static_cast<WindowBaseEcoreWl2*>(data);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventSeatKeyboardRepeatChanged, id[ %d ]\n", keyboardRepeat->id);
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventSeatKeyboardRepeatChanged, id[ %d ]\n", static_cast<Ecore_Wl2_Event_Seat_Keyboard_Repeat_Changed*>(event)->id);
   if(windowBase)
   {
     windowBase->OnKeyboardRepeatSettingsChanged();
@@ -568,9 +567,8 @@ static void VconfNotifyFontSizeChanged(keynode_t* node, void* data)
 
 static Eina_Bool EcoreEventWindowRedrawRequest(void* data, int type, void* event)
 {
-  Ecore_Wl2_Event_Window_Redraw_Request* windowRedrawRequest = static_cast<Ecore_Wl2_Event_Window_Redraw_Request*>(event);
-  WindowBaseEcoreWl2*                    windowBase          = static_cast<WindowBaseEcoreWl2*>(data);
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventWindowRedrawRequest, window[ %d ]\n", windowRedrawRequest->win);
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::EcoreEventWindowRedrawRequest, window[ %d ]\n", static_cast<Ecore_Wl2_Event_Window_Redraw_Request*>(event)->win);
   if(windowBase)
   {
     windowBase->OnEcoreEventWindowRedrawRequest();
@@ -1530,6 +1528,15 @@ Any WindowBaseEcoreWl2::GetNativeWindow()
 int WindowBaseEcoreWl2::GetNativeWindowId()
 {
   return ecore_wl2_window_id_get(mEcoreWindow);
+}
+
+std::string WindowBaseEcoreWl2::GetNativeWindowResourceId()
+{
+#ifdef OVER_TIZEN_VERSION_7
+  return std::to_string(ecore_wl2_window_resource_id_get(mEcoreWindow));
+#else
+  return std::string();
+#endif
 }
 
 EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow(int width, int height)

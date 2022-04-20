@@ -402,7 +402,7 @@ int UtcDaliImageOperationsDownscaleBitmap(void)
  */
 int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
 {
-  unsigned outWidth = -1, outHeight = -1;
+  unsigned outWidth = -1, outHeight = -1, outStride = -1;
 
   // Do downscaling to 1 x 1 so we can easily assert the value of the single pixel produced:
 
@@ -410,26 +410,29 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   unsigned char check_4x4[16 * 3] = {
     0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(check_4x4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(check_4x4, 4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(outStride, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(check_4x4[0], (unsigned char)0x7f, TEST_LOCATION);
 
   // Scale down a 16 pixel black image with a single white pixel to a 1/16th grey single pixel:
   unsigned char single_4x4[16 * 3] = {
     0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4, 4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(outStride, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(single_4x4[0], (unsigned char)0xf, TEST_LOCATION);
 
   // Scale down a 16 pixel black image with a single white pixel to a 1/16th grey single pixel:
   // (white pixel at bottom-right of image)
   unsigned char single_4x4_2[16 * 3] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff};
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4_2, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(single_4x4_2, 4, 4, 4, 1, 1, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 1u, TEST_LOCATION);
+  DALI_TEST_EQUALS(outStride, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(single_4x4_2[0], (unsigned char)0xf, TEST_LOCATION);
 
   // Build a larger ~600 x ~600 uniform magenta image for tests which only test output dimensions:
@@ -443,41 +446,50 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
   }
 
   // Scaling to 0 x 0 should stop at 1 x 1:
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 0, 0, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 352, 0, 0, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 1u, TEST_LOCATION);
+  DALI_TEST_CHECK(outStride == outWidth);
 
   // Scaling to 1 x 1 should hit 1 x 1:
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 608, 608, 1, 1, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 608, 608, 608, 1, 1, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 1u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 1u, TEST_LOCATION);
+  DALI_TEST_CHECK(outStride == outWidth);
 
   // Scaling to original dimensions should NOP:
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 384, 384, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 384, 384, 384, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 384u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 384u, TEST_LOCATION);
+  DALI_TEST_CHECK(outStride == outWidth);
 
   // More dimension tests:
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 44, 11, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 352, 44, 11, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 44u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 44u, TEST_LOCATION);
+  DALI_TEST_CHECK(outStride == outWidth);
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 3, 48, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 384, 3, 48, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_EQUALS(outWidth, 48u, TEST_LOCATION);
   DALI_TEST_EQUALS(outHeight, 48u, TEST_LOCATION);
+  DALI_TEST_CHECK(outStride == outWidth);
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 3, 3, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 384, 384, 384, 3, 3, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_CHECK(outWidth == 3u && outHeight == 3u);
+  DALI_TEST_CHECK(outStride == outWidth);
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 320, 320, 5, 5, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 320, 320, 320, 5, 5, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_CHECK(outWidth == 5u && outHeight == 5u);
+  DALI_TEST_CHECK(outStride == outWidth);
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 448, 448, 7, 7, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 448, 448, 448, 7, 7, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_CHECK(outWidth == 7u && outHeight == 7u);
+  DALI_TEST_CHECK(outStride == outWidth);
 
-  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 11, 11, BoxDimensionTestBoth, outWidth, outHeight);
+  Dali::Internal::Platform::DownscaleInPlacePow2RGB888(magenta_600_x_600, 352, 352, 352, 11, 11, BoxDimensionTestBoth, outWidth, outHeight, outStride);
   DALI_TEST_CHECK(outWidth == 11u && outHeight == 11u);
+  DALI_TEST_CHECK(outStride == outWidth);
 
   // Check that no pixel values were modified by the repeated averaging of identical pixels in tests above:
   unsigned int numNonMagenta = 0u;
@@ -495,19 +507,22 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB888(void)
  */
 void TestDownscaleOutputsExpectedDimensionsRGBA8888(uint32_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
 {
-  unsigned int resultingWidth = -1, resultingHeight = -1;
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
   Dali::Internal::Platform::DownscaleInPlacePow2RGBA8888(
     reinterpret_cast<unsigned char*>(pixels),
     inputWidth,
     inputHeight,
+    inputWidth,
     desiredWidth,
     desiredHeight,
     BoxDimensionTestBoth,
     resultingWidth,
-    resultingHeight);
+    resultingHeight,
+    resultingStride);
 
   DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
   DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
 }
 
 /**
@@ -515,19 +530,22 @@ void TestDownscaleOutputsExpectedDimensionsRGBA8888(uint32_t pixels[], unsigned 
  */
 void TestDownscaleOutputsExpectedDimensionsRGB565(uint16_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
 {
-  unsigned int resultingWidth = -1, resultingHeight = -1;
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
   Dali::Internal::Platform::DownscaleInPlacePow2RGB565(
     reinterpret_cast<unsigned char*>(pixels),
     inputWidth,
     inputHeight,
+    inputWidth,
     desiredWidth,
     desiredHeight,
     BoxDimensionTestBoth,
     resultingWidth,
-    resultingHeight);
+    resultingHeight,
+    resultingStride);
 
   DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
   DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
 }
 
 /**
@@ -535,19 +553,22 @@ void TestDownscaleOutputsExpectedDimensionsRGB565(uint16_t pixels[], unsigned in
  */
 void TestDownscaleOutputsExpectedDimensions2ComponentPair(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
 {
-  unsigned int resultingWidth = -1, resultingHeight = -1;
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
   Dali::Internal::Platform::DownscaleInPlacePow2ComponentPair(
     pixels,
     inputWidth,
     inputHeight,
+    inputWidth,
     desiredWidth,
     desiredHeight,
     BoxDimensionTestBoth,
     resultingWidth,
-    resultingHeight);
+    resultingHeight,
+    resultingStride);
 
   DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
   DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
 }
 
 /**
@@ -555,19 +576,22 @@ void TestDownscaleOutputsExpectedDimensions2ComponentPair(uint8_t pixels[], unsi
  */
 void TestDownscaleOutputsExpectedDimensionsSingleComponent(uint8_t pixels[], unsigned inputWidth, unsigned inputHeight, unsigned int desiredWidth, unsigned int desiredHeight, unsigned int expectedWidth, unsigned int expectedHeight, const char* const location)
 {
-  unsigned int resultingWidth = -1, resultingHeight = -1;
+  unsigned int resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
   Dali::Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(
     pixels,
     inputWidth,
     inputHeight,
+    inputWidth,
     desiredWidth,
     desiredHeight,
     BoxDimensionTestBoth,
     resultingWidth,
-    resultingHeight);
+    resultingHeight,
+    resultingStride);
 
   DALI_TEST_EQUALS(resultingWidth, expectedWidth, location);
   DALI_TEST_EQUALS(resultingHeight, expectedHeight, location);
+  DALI_TEST_EQUALS(resultingStride, expectedWidth, location);
 }
 
 /**
@@ -581,58 +605,68 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGBA8888(void)
     image[i] = 0xffffffff;
   }
   unsigned char* const pixels         = reinterpret_cast<unsigned char*>(image);
-  unsigned int         resultingWidth = -1, resultingHeight = -1;
+  unsigned int         resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
 
   // Test downscaling where the input size is an exact multiple of the desired size:
   // (We expect a perfect result here)
 
-  DownscaleInPlacePow2RGBA8888(pixels, 600, 600, 75, 75, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 600, 600, 600, 75, 75, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 75u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 75u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 512, 512, 16, 16, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 512, 512, 512, 16, 16, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 16u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 16u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 512, 64, 16, 2, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 512, 64, 512, 16, 2, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 16u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 2u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 64, 1024, 4, 64, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 64, 1024, 64, 4, 64, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 4u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 64u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Test downscaling where the input size is slightly off being an exact multiple of the desired size:
   // (We expect a perfect match at the end because of rounding-down to an even width and height at each step)
 
-  DownscaleInPlacePow2RGBA8888(pixels, 601, 603, 75, 75, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 601, 603, 601, 75, 75, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 75u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 75u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 736 + 1, 352 + 3, 23, 11, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 736 + 1, 352 + 3, 736 + 1, 23, 11, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 23u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 11u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 384 + 3, 896 + 1, 3, 7, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 384 + 3, 896 + 1, 384 + 3, 3, 7, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 3u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 7u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Test downscales with source dimensions which are under a nice power of two by one:
 
   // The target is hit exactly due to losing spare columns or rows at each iteration:
-  DownscaleInPlacePow2RGBA8888(pixels, 63, 31, 7, 3, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 63, 31, 63, 7, 3, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 7u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 3u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Asking to downscale a bit smaller should stop at the dimensions of the last test as one more halving would go down to 3 x 1, which is too small.
-  DownscaleInPlacePow2RGBA8888(pixels, 63, 31, 4, 2, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 63, 31, 63, 4, 2, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 7u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 3u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Should stop at almost twice the requested dimensions:
-  DownscaleInPlacePow2RGBA8888(pixels, 15, 127, 4, 32, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 15, 127, 15, 4, 32, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 7u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 63u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Test downscales to 1 in one or both dimensions:
   // Parameters:                                         input-x  input-y, desired-x, desired-y, expected-x, expected-y
@@ -678,22 +712,25 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGBA8888Nops(void)
   }
   const uint32_t       imageHash      = HashPixels(image, numPixels);
   unsigned char* const pixels         = reinterpret_cast<unsigned char*>(image);
-  unsigned int         resultingWidth = -1, resultingHeight = -1;
+  unsigned int         resultingWidth = -1, resultingHeight = -1, resultingStride = -1;
 
   // Test downscales to the same size:
   // The point is just to be sure the downscale is a NOP in this case:
 
-  DownscaleInPlacePow2RGBA8888(pixels, 600, 600, 600, 600, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 600, 600, 600, 600, 600, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 600u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 600u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 512, 128, 512, 128, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 512, 128, 512, 512, 128, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 512u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 128u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
-  DownscaleInPlacePow2RGBA8888(pixels, 17, 1001, 17, 1001, BoxDimensionTestBoth, resultingWidth, resultingHeight);
+  DownscaleInPlacePow2RGBA8888(pixels, 17, 1001, 17, 17, 1001, BoxDimensionTestBoth, resultingWidth, resultingHeight, resultingStride);
   DALI_TEST_EQUALS(resultingWidth, 17u, TEST_LOCATION);
   DALI_TEST_EQUALS(resultingHeight, 1001u, TEST_LOCATION);
+  DALI_TEST_EQUALS(resultingStride, resultingWidth, TEST_LOCATION);
 
   // Test downscales that request a larger size (we never upscale so these are NOPs too):
   // Parameters:                                         input-x  input-y, desired-x, desired-y, expected-x, expected-y
@@ -714,8 +751,8 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGBA8888Nops(void)
 int UtcDaliImageOperationsDownscaleInPlacePow2RGB565(void)
 {
   // Test that calling with null and zero parameters doesn't blow up:
-  unsigned int outWidth, outHeight;
-  DownscaleInPlacePow2RGB565(0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight);
+  unsigned int outWidth, outHeight, outStride;
+  DownscaleInPlacePow2RGB565(0, 0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight, outStride);
 
   uint16_t image[608 * 608];
   for(unsigned i = 0; i < sizeof(image) / sizeof(image[0]); ++i)
@@ -754,8 +791,8 @@ int UtcDaliImageOperationsDownscaleInPlacePow2RGB565(void)
 int UtcDaliImageOperationsDownscaleInPlacePow2ComponentPair(void)
 {
   // Simple test that a null pointer does not get dereferenced in the function:
-  unsigned int outWidth, outHeight;
-  DownscaleInPlacePow2ComponentPair(0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight);
+  unsigned int outWidth, outHeight, outStride;
+  DownscaleInPlacePow2ComponentPair(0, 0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight, outStride);
 
   // Simple tests of dimensions output:
 
@@ -793,8 +830,8 @@ int UtcDaliImageOperationsDownscaleInPlacePow2ComponentPair(void)
 int UtcDaliImageOperationsDownscaleInPlacePow2SingleBytePerPixel(void)
 {
   // Simple test that a null pointer does not get dereferenced in the function:
-  unsigned int outWidth, outHeight;
-  DownscaleInPlacePow2SingleBytePerPixel(0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight);
+  unsigned int outWidth, outHeight, outStride;
+  DownscaleInPlacePow2SingleBytePerPixel(0, 0, 0, 0, 0, 0, BoxDimensionTestBoth, outWidth, outHeight, outStride);
 
   // Tests of output dimensions from downscaling:
   uint8_t image[608 * 608];
@@ -1298,7 +1335,7 @@ int UtcDaliImageOperationsPointSampleCheckerboardRGBA888(void)
 
   uint32_t outputImage[desiredWidth * desiredHeight];
 
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)&image->GetVector()[0], 256, 256, (unsigned char*)outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)&image->GetVector()[0], 256, 256, 256, (unsigned char*)outputImage, desiredWidth, desiredHeight);
 
   DALI_TEST_EQUALS(outputImage[0], (uint32_t)0xff0000ff, TEST_LOCATION);         // < Red corner pixel
   DALI_TEST_EQUALS(outputImage[7], (uint32_t)0xff00ff00, TEST_LOCATION);         // < Green corner pixel
@@ -1367,7 +1404,7 @@ int UtcDaliImageOperationsPointSampleRGBA888PixelsCorrectColor(void)
   buffer.resize(outputBufferSize);
   uint32_t* outputImage = &buffer[0];
 
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, inputWidth, inputHeight, (unsigned char*)outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, inputWidth, inputHeight, inputWidth, (unsigned char*)outputImage, desiredWidth, desiredHeight);
 
   // Check that all the output pixels are the right color:
   const uint32_t reference           = inputImage[inputWidth * inputHeight / 2];
@@ -1400,38 +1437,38 @@ int UtcDaliImageOperationsPointSampleRGBA888ScaleToSinglePixel(void)
   // Try several different starting image sizes:
 
   // 1x1 -> 1x1:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1, 1, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // Single-pixel wide tall stripe:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1024, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1024, 1, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // Single-pixel tall, wide strip:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1024, 1, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1024, 1, 1024, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // Square mid-size image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 103, 103, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 103, 103, 103, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // Wide mid-size image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 313, 79, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 313, 79, 313, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // Tall mid-size image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 53, 467, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 53, 467, 53, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, inputImage[0], TEST_LOCATION);
   outputImage = 0;
 
   // 0 x 0 input image (make sure output not written to):
   outputImage = 0xDEADBEEF;
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, 0, (unsigned char*)&outputImage, desiredWidth, desiredHeight);
   DALI_TEST_EQUALS(outputImage, (uint32_t)0xDEADBEEF, TEST_LOCATION);
   outputImage = 0;
 
@@ -1452,31 +1489,31 @@ int UtcDaliImageOperationsPointSampleRGBA888N(void)
   // Try several different starting image sizes:
 
   // 1x1 -> 1x1:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1, (unsigned char*)outputImage, 0, 0);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 1, 1, (unsigned char*)outputImage, 0, 0);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // Single-pixel wide tall stripe:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 102, (unsigned char*)outputImage, 0, 33);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 1, 102, 1, (unsigned char*)outputImage, 0, 33);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // Single-pixel tall, wide strip:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 102, 1, (unsigned char*)outputImage, 0, 67);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 102, 1, 102, (unsigned char*)outputImage, 0, 67);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // Square mid-size image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 103, 103, (unsigned char*)outputImage, 21, 0);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 103, 103, 103, (unsigned char*)outputImage, 21, 0);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // Wide mid-size image to 0 height
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 313, 79, (unsigned char*)outputImage, 99, 0);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 313, 79, 313, (unsigned char*)outputImage, 99, 0);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // Tall mid-size image to 0 height, over width
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 53, 46, (unsigned char*)outputImage, 9999, 0);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 53, 46, 53, (unsigned char*)outputImage, 9999, 0);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   // 0 x 0 input image:
-  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, (unsigned char*)outputImage, 200, 99);
+  Dali::Internal::Platform::PointSample4BPP((const unsigned char*)inputImage, 0, 0, 0, (unsigned char*)outputImage, 200, 99);
   DALI_TEST_EQUALS(0xaaaaaaaa, outputImage[0], TEST_LOCATION);
 
   END_TEST;

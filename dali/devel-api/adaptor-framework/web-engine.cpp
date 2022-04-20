@@ -421,6 +421,11 @@ void WebEngine::ActivateAccessibility(bool activated)
   GetImplementation(*this).ActivateAccessibility(activated);
 }
 
+Accessibility::Address WebEngine::GetAccessibilityAddress()
+{
+  return GetImplementation(*this).GetAccessibilityAddress();
+}
+
 bool WebEngine::SetVisibility(bool visible)
 {
   return GetImplementation(*this).SetVisibility(visible);

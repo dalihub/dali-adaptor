@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,18 @@ Devel::PixelBuffer LoadImageFromFile(const std::string& url, ImageDimensions siz
   return Dali::Devel::PixelBuffer();
 }
 
+void LoadImagePlanesFromFile(const std::string& url, std::vector<Devel::PixelBuffer>& buffers, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
+{
+  Integration::BitmapResourceType resourceType(size, fittingMode, samplingMode, orientationCorrection);
+
+  Internal::Platform::FileReader fileReader(url);
+  FILE* const                    fp = fileReader.GetFile();
+  if(fp != NULL)
+  {
+    TizenPlatform::ImageLoader::ConvertStreamToPlanes(resourceType, url, fp, buffers);
+  }
+}
+
 Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, ImageDimensions size, FittingMode::Type fittingMode, SamplingMode::Type samplingMode, bool orientationCorrection)
 {
   if(buffer.Empty())
@@ -66,7 +78,7 @@ Devel::PixelBuffer LoadImageFromBuffer(const Dali::Vector<uint8_t>& buffer, Imag
   {
     Dali::Devel::PixelBuffer bitmap;
     // Make path as empty string. Path information just for file format hint.
-    bool                     success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, std::string(""), fp, bitmap);
+    bool success = TizenPlatform::ImageLoader::ConvertStreamToBitmap(resourceType, std::string(""), fp, bitmap);
     if(success && bitmap)
     {
       return bitmap;

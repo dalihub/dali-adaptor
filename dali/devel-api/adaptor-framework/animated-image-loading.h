@@ -100,18 +100,6 @@ public:
   ~AnimatedImageLoading();
 
   /**
-   * @brief Load the next N Frames of the animated image.
-   *
-   * @note This function will load the entire animated image into memory if not already loaded.
-   * @param[in] frameStartIndex The frame counter to start from. Will usually be the next frame
-   * after the previous invocation of this method, or 0 to start.
-   * @param[in] count The number of frames to load
-   * @param[out] pixelData The vector in which to return the frame data
-   * @return True if the frame data was successfully loaded
-   */
-  bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData);
-
-  /**
    * @brief Load a frame of the animated image.
    *
    * @note This function will load the entire animated image into memory if not already loaded.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020  Samsung Electronics Co., Ltd
+ * Copyright 2022  Samsung Electronics Co., Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 using namespace Dali::Accessibility;
@@ -354,12 +355,69 @@ public:
 
   bool GrabHighlight() override
   {
-    return false;
+    if(!IsUp())
+    {
+      return false;
+    }
+
+    // Only window accessible is able to grab and clear highlight
+    if(!mRoot)
+    {
+      return false;
+    }
+
+    auto self = Self();
+    auto oldHighlightedActor = GetCurrentlyHighlightedActor();
+    if(self == oldHighlightedActor)
+    {
+      return true;
+    }
+
+    // Clear the old highlight.
+    if(oldHighlightedActor)
+    {
+      auto oldHighlightedObject = Dali::Accessibility::Component::DownCast(Accessible::Get(oldHighlightedActor));
+      if(oldHighlightedObject)
+      {
+        oldHighlightedObject->ClearHighlight();
+      }
+    }
+
+    SetCurrentlyHighlightedActor(self);
+
+    auto window                                 = Dali::DevelWindow::Get(self);
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+    windowImpl.EmitAccessibilityHighlightSignal(true);
+
+    return true;
   }
 
   bool ClearHighlight() override
   {
-    return false;
+    if(!IsUp())
+    {
+      return false;
+    }
+
+    // Only window accessible is able to grab and clear highlight
+    if(!mRoot)
+    {
+      return false;
+    }
+
+    auto self = Self();
+    if(self != GetCurrentlyHighlightedActor())
+    {
+      return false;
+    }
+
+    SetCurrentlyHighlightedActor({});
+
+    auto window                                 = Dali::DevelWindow::Get(self);
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+    windowImpl.EmitAccessibilityHighlightSignal(false);
+
+    return true;
   }
 
   Role GetRole() const override
@@ -391,11 +449,20 @@ public:
 
   Attributes GetAttributes() const override
   {
+    Attributes attributes;
+
+    if(mRoot)
+    {
+      Dali::Window window                         = Dali::DevelWindow::Get(Self());
+      Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+      attributes["resID"]                         = windowImpl.GetNativeResourceId();
+    }
+
     Dali::TypeInfo type;
     Self().GetTypeInfo(type);
-    return {
-      {"class", type.GetName()},
-    };
+    attributes["class"] = type.GetName();
+
+    return attributes;
   }
 
   bool DoGesture(const GestureInfo& gestureInfo) override

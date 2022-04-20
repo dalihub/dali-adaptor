@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <memory.h>
 #include <cmath>
 
@@ -32,6 +33,8 @@ void ConvoluteAndTranspose(unsigned char*     inBuffer,
                            unsigned char*     outBuffer,
                            const unsigned int bufferWidth,
                            const unsigned int bufferHeight,
+                           const unsigned int inBufferStride,
+                           const unsigned int outBufferStride,
                            const float        blurRadius)
 {
   // Calculate the weights for gaussian blur
@@ -73,7 +76,7 @@ void ConvoluteAndTranspose(unsigned char*     inBuffer,
   for(unsigned int y = 0; y < bufferHeight; y++)
   {
     unsigned int targetPixelIndex = y;
-    unsigned int ioffset          = y * bufferWidth;
+    unsigned int ioffset          = y * inBufferStride;
     for(unsigned int x = 0; x < bufferWidth; x++)
     {
       float r = 0.0f, g = 0.0f, b = 0.0f, a = 0.0f;
@@ -98,7 +101,7 @@ void ConvoluteAndTranspose(unsigned char*     inBuffer,
       outBuffer[targetPixelIndex * 4 + 2] = std::max(0, std::min(static_cast<int>(b + 0.5f), 255));
       outBuffer[targetPixelIndex * 4 + 3] = std::max(0, std::min(static_cast<int>(a + 0.5f), 255));
 
-      targetPixelIndex += bufferHeight;
+      targetPixelIndex += outBufferStride;
     }
   }
 
@@ -109,18 +112,24 @@ void PerformGaussianBlurRGBA(PixelBuffer& buffer, const float blurRadius)
 {
   unsigned int bufferWidth  = buffer.GetWidth();
   unsigned int bufferHeight = buffer.GetHeight();
+  unsigned int bufferStride = buffer.GetStride();
+
+  if(bufferWidth == 0 || bufferHeight == 0 || bufferStride == 0 || buffer.GetPixelFormat() != Pixel::RGBA8888)
+  {
+    DALI_LOG_ERROR("Invalid buffer!\n");
+    return;
+  }
 
   // Create a temporary buffer for the two-pass blur
   PixelBufferPtr softShadowImageBuffer = PixelBuffer::New(bufferWidth, bufferHeight, Pixel::RGBA8888);
-  memcpy(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), 4u * bufferWidth * bufferHeight);
 
   // We perform the blur first but write its output image buffer transposed, so that we
   // can just do it in two passes. The first pass blurs horizontally and transposes, the
   // second pass does the same, but as the image is now transposed, it's really doing a
   // vertical blur. The second transposition makes the image the right way up again. This
   // is much faster than doing a 2D convolution.
-  ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer->GetBuffer(), bufferWidth, bufferHeight, blurRadius);
-  ConvoluteAndTranspose(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, blurRadius);
+  ConvoluteAndTranspose(buffer.GetBuffer(), softShadowImageBuffer->GetBuffer(), bufferWidth, bufferHeight, bufferStride, bufferHeight, blurRadius);
+  ConvoluteAndTranspose(softShadowImageBuffer->GetBuffer(), buffer.GetBuffer(), bufferHeight, bufferWidth, bufferHeight, bufferStride, blurRadius);
 
   // On leaving scope, softShadowImageBuffer will get destroyed.
 }

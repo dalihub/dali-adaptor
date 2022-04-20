@@ -80,11 +80,11 @@ typedef unsigned char DATA8;
 #define ARGB_JOIN(a, r, g, b) \
   (((a) << 24) + ((r) << 16) + ((g) << 8) + (b))
 
-bool read_ushort(unsigned char* map, size_t length, size_t* position, unsigned short* ret)
+bool read_ushort(const unsigned char* const& map, size_t length, size_t* position, unsigned short* ret)
 {
   unsigned char b[2];
 
-  if(*position + 2 > length)
+  if(DALI_UNLIKELY(*position + 2 > length))
   {
     return false;
   }
@@ -94,12 +94,12 @@ bool read_ushort(unsigned char* map, size_t length, size_t* position, unsigned s
   return true;
 }
 
-bool read_uint(unsigned char* map, size_t length, size_t* position, unsigned int* ret)
+bool read_uint(const unsigned char* const& map, size_t length, size_t* position, unsigned int* ret)
 {
   unsigned char b[4];
   unsigned int  i;
 
-  if(*position + 4 > length)
+  if(DALI_UNLIKELY(*position + 4 > length))
   {
     return false;
   }
@@ -111,9 +111,9 @@ bool read_uint(unsigned char* map, size_t length, size_t* position, unsigned int
   return true;
 }
 
-bool read_uchar(unsigned char* map, size_t length, size_t* position, unsigned char* ret)
+bool read_uchar(const unsigned char* const& map, size_t length, size_t* position, unsigned char* ret)
 {
-  if(*position + 1 > length)
+  if(DALI_UNLIKELY(*position + 1 > length))
   {
     return false;
   }
@@ -121,9 +121,9 @@ bool read_uchar(unsigned char* map, size_t length, size_t* position, unsigned ch
   return true;
 }
 
-bool read_mem(unsigned char* map, size_t length, size_t* position, void* buffer, int size)
+bool read_mem(const unsigned char* const& map, size_t length, size_t* position, void* buffer, int size)
 {
-  if(*position + size > length)
+  if(DALI_UNLIKELY(*position + size > length))
   {
     return false;
   }
@@ -163,7 +163,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 {
   memset(&chosen, 0, sizeof(chosen));
 
-  if(fp == NULL)
+  if(DALI_UNLIKELY(fp == NULL))
   {
     DALI_LOG_ERROR("Error loading bitmap\n");
     return false;
@@ -172,7 +172,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   unsigned short word;
   unsigned char  byte;
 
-  if(fseek(fp, 0, SEEK_END))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END)))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
@@ -186,45 +186,46 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
     fsize = static_cast<unsigned int>(positionIndicator);
   }
 
-  if(0u == fsize)
+  if(DALI_UNLIKELY(0u == fsize))
   {
     return false;
   }
 
-  if(fseek(fp, 0, SEEK_SET))
+  if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking ICO data\n");
     return false;
   }
 
-  if(fsize < (ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER)) //6 + 16 + 40
+  if(DALI_UNLIKELY(fsize < (ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER))) //6 + 16 + 40
   {
     return false;
   }
   map.ResizeUninitialized(fsize);
-
-  if(fread(&map[0], 1, fsize, fp) != fsize)
+  if(DALI_UNLIKELY(fread(&map[0], 1, fsize, fp) != fsize))
   {
     DALI_LOG_WARNING("image file read opeation error!\n");
     return false;
   }
 
+  const std::uint8_t* const inputBufferPtr = &map[0];
+
   int            search = BIGGEST;
   unsigned short reserved, type, count;
-  if(!read_ushort(&map[0], fsize, &position, &reserved))
+  if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &reserved)))
   {
     return false;
   }
-  if(!read_ushort(&map[0], fsize, &position, &type))
+  if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &type)))
   {
     return false;
   }
-  if(!read_ushort(&map[0], fsize, &position, &count))
+  if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &count)))
   {
     return false;
   }
-  if(!((reserved == 0) &&
-       ((type == ICON) || (type == CURSOR)) && (count != 0)))
+  if(DALI_UNLIKELY(!((reserved == 0) &&
+                     ((type == ICON) || (type == CURSOR)) && (count != 0))))
   {
     return false;
   }
@@ -235,7 +236,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   for(unsigned short i = 0; i < count; i++)
   {
     unsigned char tw = 0, th = 0, tcols = 0;
-    if(!read_uchar(&map[0], fsize, &position, &tw))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &tw)))
     {
       return false;
     }
@@ -244,7 +245,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
     {
       w = 256;
     }
-    if(!read_uchar(&map[0], fsize, &position, &th))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &th)))
     {
       return false;
     }
@@ -253,16 +254,16 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
     {
       h = 256;
     }
-    if(!read_uchar(&map[0], fsize, &position, &tcols))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &tcols)))
     {
       return false;
     }
     int cols = tcols;
-    if(!read_uchar(&map[0], fsize, &position, &byte))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &byte)))
     {
       return false;
     }
-    if(!read_ushort(&map[0], fsize, &position, &word))
+    if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &word)))
     {
       return false;
     }
@@ -272,7 +273,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
       planes = word;
     }
     //else hot_x = word;
-    if(!read_ushort(&map[0], fsize, &position, &word))
+    if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &word)))
     {
       return false;
     }
@@ -291,15 +292,15 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 
     //else hot_y = word;
     unsigned int bmoffset, bmsize;
-    if(!read_uint(&map[0], fsize, &position, &bmsize))
+    if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &bmsize)))
     {
       return false;
     }
-    if(!read_uint(&map[0], fsize, &position, &bmoffset))
+    if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &bmoffset)))
     {
       return false;
     }
-    if((bmsize <= 0) || (bmoffset <= 0) || (bmoffset >= fsize))
+    if(DALI_UNLIKELY((bmsize <= 0) || (bmoffset <= 0) || (bmoffset >= fsize)))
     {
       return false;
     }
@@ -324,7 +325,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
     }
   }
 
-  if(chosen.bmoffset == 0)
+  if(DALI_UNLIKELY(chosen.bmoffset == 0))
   {
     return false;
   }
@@ -335,9 +336,9 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 /**
  * @brief Handle the different bits per pixel
  * @param[in] bitcount The bit count
- * @param[in/out] map The map to use/set
+ * @param[in] inputBufferPtr The map to use
  * @param[in/out] pix A reference to the pointer to the pix buffer
- * @param[in/out] surface A reference to the surface buffer
+ * @param[in/out] outputBufferPtr A reference to the surface buffer
  * @param[in] width The width
  * @param[in] height The height
  * @param[in] fsize The file size
@@ -348,24 +349,28 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
  */
 bool HandleBitsPerPixel(
   const unsigned int                bitcount,
-  Dali::Vector<unsigned char>&      map,
+  const std::uint8_t* const&        inputBufferPtr,
   unsigned int*&                    pix,
-  Dali::Vector<unsigned int>&       surface,
+  std::uint32_t* const&             outputBufferPtr,
   const unsigned int                width,
   const unsigned int                height,
   const unsigned int                fsize,
   size_t&                           position,
-  Dali::Vector<unsigned char>&      pixbuf,
   const unsigned int                stride,
   const Dali::Vector<unsigned int>& palette)
 {
+  // Pixbuf only ever contains one scanline worth of data.
+  Dali::Vector<std::uint8_t> pixbuf;
+  pixbuf.ResizeUninitialized(stride);
+  std::uint8_t* lineBufferPtr = &pixbuf[0];
+
   // Note: Switch is in order of most common format first.
   switch(bitcount)
   {
     case 32:
     {
-      unsigned char* p = &map[position];
-      pix              = &surface[0] + ((height - 1) * width);
+      const std::uint8_t* p = inputBufferPtr + position;
+      pix                   = outputBufferPtr + ((height - 1) * width);
 
       for(unsigned int i = 0; i < height; i++)
       {
@@ -384,12 +389,12 @@ bool HandleBitsPerPixel(
     {
       for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ((height - 1 - i) * width);
-        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
+        pix = outputBufferPtr + ((height - 1 - i) * width);
+        if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, stride)))
         {
           return false;
         }
-        unsigned char* p = &pixbuf[0];
+        const std::uint8_t* p = lineBufferPtr;
         for(unsigned int j = 0; j < width; j++)
         {
           *pix++ = ARGB_JOIN(0xff, p[0], p[1], p[2]);
@@ -403,12 +408,12 @@ bool HandleBitsPerPixel(
     {
       for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ((height - 1 - i) * width);
-        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
+        pix = outputBufferPtr + ((height - 1 - i) * width);
+        if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, stride)))
         {
           return false;
         }
-        unsigned char* p = &pixbuf[0];
+        const std::uint8_t* p = lineBufferPtr;
         for(unsigned int j = 0; j < width; j++)
         {
           *pix++ = palette[*p++];
@@ -421,12 +426,12 @@ bool HandleBitsPerPixel(
     {
       for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ((height - 1 - i) * width);
-        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
+        pix = outputBufferPtr + ((height - 1 - i) * width);
+        if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, stride)))
         {
           return false;
         }
-        unsigned char* p = &pixbuf[0];
+        const std::uint8_t* p = lineBufferPtr;
         for(unsigned int j = 0; j < width; j++)
         {
           if(j & 0x1)
@@ -446,16 +451,18 @@ bool HandleBitsPerPixel(
 
     case 1:
     {
+      const std::uint32_t bytesPerWidth          = width / 8;
+      const std::uint32_t bytesRemainingPerWidth = width & 7;
       for(unsigned int i = 0; i < height; i++)
       {
-        pix = &surface[0] + ((height - 1 - i) * width);
-        if(!read_mem(&map[0], fsize, &position, &pixbuf[0], stride))
+        pix = outputBufferPtr + ((height - 1 - i) * width);
+        if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, stride)))
         {
           return false;
         }
-        unsigned char* p = &pixbuf[0];
 
-        for(unsigned int j = 0; j < width; j += 8)
+        const std::uint8_t* p = lineBufferPtr;
+        for(unsigned int j = 0; j < bytesPerWidth; ++j)
         {
           *pix++ = palette[*p >> 7];
           *pix++ = palette[*p >> 6 & 0x01];
@@ -466,7 +473,15 @@ bool HandleBitsPerPixel(
           *pix++ = palette[*p >> 1 & 0x01];
           *pix++ = palette[*p >> 0 & 0x01];
 
-          p++;
+          ++p;
+        }
+        if(bytesRemainingPerWidth > 0)
+        {
+          for(std::uint32_t j = 0; j < bytesRemainingPerWidth; ++j)
+          {
+            *pix++ = palette[(*p >> (7 - j)) & 0x01];
+          }
+          ++p;
         }
       }
       break;
@@ -484,31 +499,28 @@ bool HandleBitsPerPixel(
 
 /**
  * @brief Apply the mask if required
- * @param[in/out] map The map to use/set
+ * @param[in] inputBufferPtr The map to use
  * @param[in] fsize The file size
  * @param[in/out] position The position in the file
- * @param[in//out] maskbuf The mask buffer
  * @param[in] bitStride The stride
  * @param[in] width The width
  * @param[in] height The height
  * @param[in/out] pix A reference to the pointer to the pix buffer
- * @param[in/out] surface A reference to the surface buffer
+ * @param[in/out] outputBufferPtr A reference to the surface buffer
  */
 bool ApplyMask(
-  Dali::Vector<unsigned char>& map,
-  const unsigned int           fsize,
-  size_t&                      position,
-  Dali::Vector<unsigned char>& maskbuf,
-  const unsigned int           bitStride,
-  const unsigned int           width,
-  const unsigned int           height,
-  unsigned int*&               pix,
-  Dali::Vector<unsigned int>&  surface)
+  const std::uint8_t* const& inputBufferPtr,
+  const unsigned int         fsize,
+  size_t&                    position,
+  const unsigned int         bitStride,
+  const unsigned int         width,
+  const unsigned int         height,
+  unsigned int*&             pix,
+  std::uint32_t* const&      outputBufferPtr)
 {
-  if(!read_mem(&map[0], fsize, &position, &maskbuf[0], bitStride * height))
-  {
-    return false;
-  }
+  Dali::Vector<std::uint8_t> maskbuf;
+  maskbuf.ResizeUninitialized(bitStride);
+  std::uint8_t* lineBufferPtr = &maskbuf[0];
 
   // Apply mask.
   // Precalc to save time in the loops.
@@ -518,8 +530,12 @@ bool ApplyMask(
   // Loop for each line of the image.
   for(unsigned int i = 0; i < height; ++i)
   {
-    unsigned char* m = &maskbuf[0] + (bitStride * i);
-    pix              = &surface[0] + ((height - 1 - i) * width);
+    pix = outputBufferPtr + ((height - 1 - i) * width);
+    if(DALI_UNLIKELY(!read_mem(inputBufferPtr, fsize, &position, lineBufferPtr, bitStride)))
+    {
+      return false;
+    }
+    const std::uint8_t* m = lineBufferPtr;
 
     // Do chunks of 8 pixels first so mask operations can be unrolled.
     for(unsigned int j = 0; j < bytesPerWidth; ++j)
@@ -561,7 +577,7 @@ bool LoadIcoHeader(const Dali::ImageLoader::Input& input, unsigned int& width, u
   unsigned int                fsize;
   FILE* const                 fp = input.file;
 
-  if(false == LoadIcoHeaderHelper(fp, chosen, map, fsize))
+  if(DALI_UNLIKELY(false == LoadIcoHeaderHelper(fp, chosen, map, fsize)))
   {
     return false;
   }
@@ -579,16 +595,10 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   unsigned int                fsize;
   FILE* const                 fp = input.file;
 
-  if(false == LoadIcoHeaderHelper(fp, chosen, map, fsize))
+  if(DALI_UNLIKELY(false == LoadIcoHeaderHelper(fp, chosen, map, fsize)))
   {
     return false;
   }
-
-  Dali::Vector<unsigned int>  pal;
-  Dali::Vector<unsigned int>  surface;
-  Dali::Vector<unsigned char> maskbuf;
-  Dali::Vector<unsigned char> pixbuf;
-  pal.Resize(256 * 4);
 
   unsigned int   dword;
   unsigned short word;
@@ -602,12 +612,14 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   unsigned int h    = chosen.h;
   unsigned int cols = chosen.cols;
 
+  const std::uint8_t* const inputBufferPtr = &map[0];
+
   // read bmp header time... let's do some checking
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // headersize - dont care
   }
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // width
   }
@@ -619,7 +631,7 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       diff_size = 1;
     }
   }
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // height
   }
@@ -636,95 +648,98 @@ bool LoadBitmapFromIco(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     DALI_LOG_WARNING("Broken ICO file!\n");
   }
 
-  // Set up the surface as soon as we have the width and height, so we have a black image if there are any further errors.
-  surface.ResizeUninitialized(w * h * 4);
-  memset(&surface[0], 0, w * h * 4);
-
-  if(!read_ushort(&map[0], fsize, &position, &word))
+  if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &word)))
   {
     return false; // planes
   }
   //planes2 = word;
-  if(!read_ushort(&map[0], fsize, &position, &word))
+  if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &word)))
   {
     return false; // bitcount
   }
   unsigned int bitcount = word;
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // compression
   }
   //compression = dword;
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // imagesize
   }
   //imagesize = dword;
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // z pixels per m
   }
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // y pizels per m
   }
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // colors used
   }
   //colorsused = dword;
-  if(!read_uint(&map[0], fsize, &position, &dword))
+  if(DALI_UNLIKELY(!read_uint(inputBufferPtr, fsize, &position, &dword)))
   {
     return false; // colors important
   }
 
+  Dali::Vector<unsigned int> pal;
+  pal.Resize(256 * 4);
   for(unsigned int i = 0; i < cols; i++)
   {
     unsigned char a, r, g, b;
 
-    if(!read_uchar(&map[0], fsize, &position, &b))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &b)))
     {
       return false;
     }
-    if(!read_uchar(&map[0], fsize, &position, &g))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &g)))
     {
       return false;
     }
-    if(!read_uchar(&map[0], fsize, &position, &r))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &r)))
     {
       return false;
     }
-    if(!read_uchar(&map[0], fsize, &position, &a))
+    if(DALI_UNLIKELY(!read_uchar(inputBufferPtr, fsize, &position, &a)))
     {
       return false;
     }
     pal[i] = ARGB_JOIN(0xff, b, g, r);
   }
 
+  Dali::Vector<std::uint32_t> surface;
+
   // This is the reference way of calculating the total number of bytes necessary to store one row of pixels.
   unsigned int stride    = (((bitcount * w) + 31) / 32) * 4;
   unsigned int bitStride = ((w + 31) / 32) * 4;
+  // Set up the surface as soon as we have the width and height.
+  surface.ResizeUninitialized(w * h);
 
-  // Pixbuf only ever contains one scanline worth of data.
-  pixbuf.ResizeUninitialized(stride);
-  maskbuf.ResizeUninitialized(bitStride * h);
+  std::uint32_t* const outputBufferPtr = &surface[0];
 
   // Handle different bits-per-pixel.
-  if(!HandleBitsPerPixel(bitcount, map, pix, surface, w, h, fsize, position, pixbuf, stride, pal))
+  if(DALI_UNLIKELY(!HandleBitsPerPixel(bitcount, inputBufferPtr, pix, outputBufferPtr, w, h, fsize, position, stride, pal)))
   {
     return false;
   }
 
   // From the spec: If bpp is less than 32, there will be a 1bpp mask bitmap also.
-  if((bitcount < 32) && !ApplyMask(map, fsize, position, maskbuf, bitStride, w, h, pix, surface))
+  if(bitcount < 32)
   {
-    // Return false if not able to apply mask when the bpp is less than 32
-    return false;
+    if(DALI_UNLIKELY(!ApplyMask(inputBufferPtr, fsize, position, bitStride, w, h, pix, outputBufferPtr)))
+    {
+      // Return false if not able to apply mask when the bpp is less than 32
+      return false;
+    }
   }
 
   bitmap      = Dali::Devel::PixelBuffer::New(w, h, Pixel::Format::RGBA8888);
   auto pixels = bitmap.GetBuffer();
-  memcpy(pixels, &surface[0], w * h * 4);
+  memcpy(pixels, outputBufferPtr, w * h * 4);
 
   return true;
 }

@@ -392,6 +392,13 @@ bool HasChannel(Dali::Pixel::Format pixelFormat, Channel channel)
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple channels.\n");
       break;
     }
+
+    case Dali::Pixel::CHROMINANCE_U:
+    case Dali::Pixel::CHROMINANCE_V:
+    {
+      DALI_LOG_ERROR("Pixel formats for chrominance are not compatible with simple channels.\n");
+      break;
+    }
   }
 
   return false;

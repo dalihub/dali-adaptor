@@ -466,10 +466,42 @@ enum class AtspiInterface
   MAX_COUNT
 };
 
-using AtspiInterfaces  = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
-using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
-using States           = EnumBitSet<State, State::MAX_COUNT>;
-using Attributes       = std::unordered_map<std::string, std::string>;
+/**
+ * @brief Enumeration of all AT-SPI events.
+ */
+enum class AtspiEvent
+{
+  PROPERTY_CHANGED,
+  BOUNDS_CHANGED,
+  LINK_SELECTED,
+  STATE_CHANGED,
+  CHILDREN_CHANGED,
+  VISIBLE_DATA_CHANGED,
+  SELECTION_CHANGED,
+  MODEL_CHANGED,
+  ACTIVE_DESCENDANT_CHANGED,
+  ROW_INSERTED,
+  ROW_REORDERED,
+  ROW_DELETED,
+  COLUMN_INSERTED,
+  COLUMN_REORDERED,
+  COLUMN_DELETED,
+  TEXT_BOUNDS_CHANGED,
+  TEXT_SELECTION_CHANGED,
+  TEXT_CHANGED,
+  TEXT_ATTRIBUTES_CHANGED,
+  TEXT_CARET_MOVED,
+  ATTRIBUTES_CHANGED,
+  MOVED_OUT,
+  WINDOW_CHANGED,
+  MAX_COUNT
+};
+
+using AtspiInterfaces   = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
+using AtspiEvents       = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
+using ReadingInfoTypes  = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
+using States            = EnumBitSet<State, State::MAX_COUNT>;
+using Attributes        = std::unordered_map<std::string, std::string>;
 
 namespace Internal
 {
