@@ -180,7 +180,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   // Add Window to bridge for ATSPI
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
-  if (bridge->IsUp())
+  if(bridge->IsUp())
   {
     auto rootLayer  = mScene.GetRootLayer();
     auto accessible = Accessibility::Accessible::Get(rootLayer, true);
@@ -652,11 +652,14 @@ void Window::SetSize(Dali::Window::WindowSize size)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
     SurfaceResized();
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
 
     Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
@@ -712,11 +715,14 @@ void Window::SetPositionSize(PositionSize positionSize)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
     SurfaceResized();
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
     Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
@@ -894,6 +900,8 @@ void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 
 void Window::OnRotation(const RotationEvent& rotation)
 {
+  PositionSize newPositionSize(rotation.x, rotation.y, rotation.width, rotation.height);
+
   mRotationAngle = rotation.angle;
   mWindowWidth   = rotation.width;
   mWindowHeight  = rotation.height;
@@ -901,14 +909,14 @@ void Window::OnRotation(const RotationEvent& rotation)
   // Notify that the orientation is changed
   mOrientation->OnOrientationChange(rotation);
 
-  mWindowSurface->RequestRotation(mRotationAngle, mWindowWidth, mWindowHeight);
+  mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
 
   int orientation = (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
   SurfaceRotated(mWindowWidth, mWindowHeight, orientation);
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): resize signal emit [%d x %d]\n", this, mNativeWindowId, mWindowWidth, mWindowHeight);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): x[%d], y[%d], resize signal emit [%d x %d]\n", this, mNativeWindowId, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
   // Emit signal
   Dali::Window handle(this);
   mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
@@ -1120,7 +1128,7 @@ void Window::EnableFloatingMode(bool enable)
 Rect<int> Window::RecalculateRect(const Rect<int>& rect)
 {
   Rect<int> newRect;
-  int screenWidth, screenHeight;
+  int       screenWidth, screenHeight;
 
   WindowSystem::GetScreenSize(screenWidth, screenHeight);
 

@@ -97,10 +97,9 @@ public: // API
   /**
    * Request surface rotation
    * @param[in] angle A new angle of the surface
-   * @param[in] width A new width of the surface
-   * @param[in] height A new height of the surface
+   * @param[in] positionSize A new position and size of the surface
    */
-  void RequestRotation(int angle, int width, int height);
+  void RequestRotation(int angle, PositionSize positionSize);
 
   /**
    * @brief Gets the window base object
