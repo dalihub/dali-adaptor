@@ -104,11 +104,14 @@ void TriggerEvent::Triggered(FileDescriptorMonitor::EventType eventBitMask, int 
     DALI_LOG_WARNING("Unable to read to UpdateEvent File descriptor\n");
   }
 
+  // Save value to prevent duplicate deletion
+  TriggerEventInterface::Options options = mOptions;
+
   // Call the connected callback
   CallbackBase::Execute(*mCallback);
 
   //check if we should delete ourselves after the trigger
-  if(mOptions == TriggerEventInterface::DELETE_AFTER_TRIGGER)
+  if(options == TriggerEventInterface::DELETE_AFTER_TRIGGER)
   {
     delete this;
   }
