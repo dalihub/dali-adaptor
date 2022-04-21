@@ -211,7 +211,7 @@ void WindowRenderSurface::SetTransparency(bool transparent)
   mWindowBase->SetTransparency(transparent);
 }
 
-void WindowRenderSurface::RequestRotation(int angle, int width, int height)
+void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
 {
   if(!mPostRenderTrigger)
   {
@@ -219,8 +219,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
                                                                                                       TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
-  mPositionSize.width  = width;
-  mPositionSize.height = height;
+  mPositionSize = positionSize;
 
   mWindowRotationAngle    = angle;
   mWindowRotationFinished = false;
@@ -228,7 +227,7 @@ void WindowRenderSurface::RequestRotation(int angle, int width, int height)
 
   mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
 
-  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::Rotate: angle = %d screen rotation = %d\n", mWindowRotationAngle, mScreenRotationAngle);
+  DALI_LOG_RELEASE_INFO("angle = %d screen rotation = %d, flag = %d\n", mWindowRotationAngle, mScreenRotationAngle, mWindowRotationFinished);
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -582,7 +581,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
       mWindowBase->ResizeEglWindow(positionSize);
       mResizeFinished = true;
 
-      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize, x: %d, y: %d, w: %d, h:%d\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize, totalAngle: %d, x: %d, y: %d, w: %d, h:%d\n", totalAngle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
     }
 
     SetFullSwapNextFrame();

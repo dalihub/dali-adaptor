@@ -30,6 +30,8 @@ struct RotationEvent
 {
   int angle;     ///< one of 0, 90, 180, 270
   int winResize; ///< true if the window should be resized
+  int x;         ///< converted x coordinate
+  int y;         ///< converted y coordinate
   int width;     ///< new window width
   int height;    ///< new window height
 };
