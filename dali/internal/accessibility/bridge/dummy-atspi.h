@@ -180,6 +180,19 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
     return false;
   }
+
+  Address EmbedSocket(const Address& plug, const Address& socket) override
+  {
+    return {};
+  }
+
+  void EmbedAtkSocket(const Address& plug, const Address& socket) override
+  {
+  }
+
+  void UnembedSocket(const Address& plug, const Address& socket) override
+  {
+  }
 };
 
 } // namespace Dali::Accessibility

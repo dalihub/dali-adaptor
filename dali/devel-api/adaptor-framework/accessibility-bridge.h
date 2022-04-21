@@ -366,6 +366,41 @@ struct DALI_ADAPTOR_API Bridge
   virtual bool IsEnabled() = 0;
 
   /**
+   * @brief Calls socket.Embed(plug) via D-Bus.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   *
+   * @return Address returned by the D-Bus call.
+   *
+   * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
+   * @see UnembedSocket()
+   */
+  virtual Address EmbedSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
+   * @brief Calls socket.Embedded(plug) via D-Bus.
+   *
+   * The "Embedded" D-Bus method is an ATK extension.
+   * See 'impl_Embedded' in AT_SPI2_ATK/atk-adaptor/adaptors/socket-adaptor.c for more information.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   */
+  virtual void EmbedAtkSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
+   * @brief Calls socket.Unmbed(plug) via D-Bus.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   *
+   * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
+   * @see EmbedSocket()
+   */
+  virtual void UnembedSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
    * @brief Returns instance of bridge singleton object.
    *
    * @return The current bridge object
