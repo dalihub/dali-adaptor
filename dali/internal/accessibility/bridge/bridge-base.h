@@ -30,18 +30,23 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/application.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**
  * @brief The ApplicationAccessible class is to define Accessibility Application.
  */
-class ApplicationAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
+class ApplicationAccessible : public virtual Dali::Accessibility::Accessible,
+                              public virtual Dali::Accessibility::Application,
+                              public virtual Dali::Accessibility::Collection,
+                              public virtual Dali::Accessibility::Socket
 {
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
   std::vector<Dali::Accessibility::Accessible*> mChildren;
   std::string                                   mName;
   std::string                                   mToolkitName{"dali"};
+  bool                                          mIsEmbedded{false};
 
   std::string GetName() const override
   {
@@ -80,6 +85,11 @@ public:
 
   size_t GetIndexInParent() override
   {
+    if(mIsEmbedded)
+    {
+      return 0u;
+    }
+
     throw std::domain_error{"can't call GetIndexInParent on application object"};
   }
 
@@ -155,6 +165,23 @@ public:
   std::string GetVersion() const override
   {
     return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
+  }
+
+  Dali::Accessibility::Address Embed(Dali::Accessibility::Address plug) override
+  {
+    mIsEmbedded = true;
+    mParent.SetAddress(plug);
+
+    return GetAddress();
+  }
+
+  void Unembed(Dali::Accessibility::Address plug) override
+  {
+    if(mParent.GetAddress() == plug)
+    {
+      mIsEmbedded = false;
+      mParent.SetAddress({});
+    }
   }
 };
 
