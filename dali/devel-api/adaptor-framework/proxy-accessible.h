@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
 
 namespace Dali::Accessibility
 {
@@ -34,7 +35,7 @@ namespace Dali::Accessibility
  * a different bridge (embedding for example), but the object itself isn't planned to be used
  * otherwise. This object has a settable parent, no children, an empty name and so on.
  */
-class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible
+class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible, public virtual Component
 {
 public:
   ProxyAccessible()
@@ -131,6 +132,48 @@ public:
   Dali::Actor GetInternalActor() override
   {
     return Dali::Actor{};
+  }
+
+  Rect<> GetExtents(CoordinateType type) const override
+  {
+    auto* parent = Component::DownCast(mParent);
+
+    return parent ? parent->GetExtents(type) : Rect<>{};
+  }
+
+  ComponentLayer GetLayer() const override
+  {
+    return ComponentLayer::WINDOW;
+  }
+
+  int16_t GetMdiZOrder() const override
+  {
+    return false;
+  }
+
+  bool GrabFocus() override
+  {
+    return false;
+  }
+
+  double GetAlpha() const override
+  {
+    return 0.0;
+  }
+
+  bool GrabHighlight() override
+  {
+    return false;
+  }
+
+  bool ClearHighlight() override
+  {
+    return false;
+  }
+
+  bool IsScrollable() const override
+  {
+    return false;
   }
 
 private:
