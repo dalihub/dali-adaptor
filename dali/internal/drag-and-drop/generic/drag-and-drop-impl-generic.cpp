@@ -61,7 +61,7 @@ DragAndDropGeneric::~DragAndDropGeneric()
 {
 }
 
-bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const Dali::DragAndDrop::DragData& dragData)
+bool DragAndDropGeneric::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& dragData, Dali::DragAndDrop::SourceFunction callback)
 {
   return true;
 }
