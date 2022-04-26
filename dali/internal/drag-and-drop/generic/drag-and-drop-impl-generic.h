@@ -49,7 +49,7 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const Dali::DragAndDrop::DragData& data) override;
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) override;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()

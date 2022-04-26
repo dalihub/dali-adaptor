@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
@@ -46,6 +47,17 @@ class DragAndDrop;
 class DALI_ADAPTOR_API DragAndDrop : public BaseHandle
 {
 public:
+  /**
+   * @brief Enumeration for the drag source event type in the source object
+   */
+  enum class SourceEventType
+  {
+    START,   ///< Drag and drop is started.
+    CANCEL,  ///< Drag and drop is cancelled.
+    ACCEPT,  ///< Drag and drop is accepted.
+    FINISH   ///< Drag and drop is finished.
+  };
+
   /**
    * @brief Enumeration for the drag event type in the target object
    */
@@ -143,6 +155,7 @@ public:
   };
 
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
+  using SourceFunction = std::function<void(enum SourceEventType)>;
 
   /**
    * @brief Create an uninitialized DragAndDrop.
@@ -174,11 +187,12 @@ public:
    * @brief Start the drag operation.
    *
    * @param[in] source The drag source object.
-   * @param[in] shadow The shadow object for drag object.
+   * @param[in] shadowWindow The shadow window for drag object.
    * @param[in] dragData The data to send to target object.
+   * @param[in] callback The drag source event callback.
    * @return bool true if the drag operation is started successfully.
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const DragData& dragData);
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const DragData& dragData, Dali::DragAndDrop::SourceFunction callback);
 
   /**
    * @brief Add the listener for receiving the drag and drop events.
