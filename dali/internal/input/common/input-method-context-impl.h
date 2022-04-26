@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_INPUT_COMMON_INPUT_METHOD_CONTEXT_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,6 +174,13 @@ public:
    * @copydoc Dali::InputMethodContext::SendCommitContent()
    */
   virtual void SendCommitContent(void* data, ImfContext* imfContext, void* eventInfo)
+  {
+  }
+
+  /**
+   * @copydoc Dali::InputMethodContext::SendSelectionSet()
+   */
+  virtual void SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo)
   {
   }
 
