@@ -480,14 +480,6 @@ DALI_ADAPTOR_API void Minimize(Window window, bool minimize);
  */
 DALI_ADAPTOR_API bool IsMinimized(Window window);
 
-/**
- * @brief Query whether window is rotating or not.
- *
- * @param[in] window The window instance.
- * @return true if window is rotating, false otherwise.
- */
-DALI_ADAPTOR_API bool IsWindowRotating(Window window);
-
 } // namespace DevelWindow
 
 } // namespace Dali
