@@ -113,30 +113,12 @@ public:
     // mFrameCount will be 1 if the input image is non-animated image or animated image with single frame.
     if(DALI_LIKELY(ReadWebPInformation()))
     {
-#ifdef DALI_WEBP_AVAILABLE
-      WebPDataInit(&mWebPData);
-      mWebPData.size  = mBufferSize;
-      mWebPData.bytes = mBuffer;
-
-      WebPDemuxer* demuxer = WebPDemux(&mWebPData);
-      uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
-      if(flags & ANIMATION_FLAG)
-      {
-        mIsAnimatedImage = true;
-      }
-
-      if(!mIsAnimatedImage)
-      {
-        int32_t imageWidth, imageHeight;
-        if(WebPGetInfo(mBuffer, mBufferSize, &imageWidth, &imageHeight))
-        {
-          mImageSize = ImageDimensions(imageWidth, imageHeight);
-        }
-      }
-#endif
 #ifdef DALI_ANIMATED_WEBP_ENABLED
       if(mIsAnimatedImage)
       {
+        WebPDataInit(&mWebPData);
+        mWebPData.size  = mBufferSize;
+        mWebPData.bytes = mBuffer;
         WebPAnimDecoderOptions webPAnimDecoderOptions;
         WebPAnimDecoderOptionsInit(&webPAnimDecoderOptions);
         webPAnimDecoderOptions.color_mode = MODE_RGBA;
@@ -145,6 +127,16 @@ public:
         mTimeStamp.assign(mWebPAnimInfo.frame_count, 0);
         mFrameCount = mWebPAnimInfo.frame_count;
         mImageSize  = ImageDimensions(mWebPAnimInfo.canvas_width, mWebPAnimInfo.canvas_height);
+      }
+#endif
+#ifdef DALI_WEBP_AVAILABLE
+      if(!mIsAnimatedImage)
+      {
+        int32_t imageWidth, imageHeight;
+        if(WebPGetInfo(mBuffer, mBufferSize, &imageWidth, &imageHeight))
+        {
+          mImageSize = ImageDimensions(imageWidth, imageHeight);
+        }
       }
 #endif
       mLoadSucceeded = true;
@@ -186,14 +178,32 @@ public:
         }
       }
 
-      if(fileReader)
-      {
-        fp = fileReader->GetFile();
-      }
+      fp = fileReader->GetFile();
     }
 
     if(DALI_LIKELY(fp != nullptr))
     {
+      if(DALI_LIKELY(!fseek(fp, 12, SEEK_SET)))
+      {
+        uint8_t mHeaderBuffer[5];
+        fread(mHeaderBuffer, sizeof(WebPByteType), 5, fp);
+        unsigned char VP8X[4]    = {'V', 'P', '8', 'X'};
+        bool          isExtended = true;
+        for(uint32_t i = 0; i < 4; ++i)
+        {
+          if(mHeaderBuffer[i] != VP8X[i])
+          {
+            isExtended = false;
+            break;
+          }
+        }
+        if(isExtended)
+        {
+          unsigned char extension = mHeaderBuffer[4];
+          mIsAnimatedImage        = ((extension >> 1) & 1) ? true : false;
+        }
+      }
+
       if(mBufferSize == 0)
       {
         if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
@@ -215,16 +225,14 @@ public:
 
   void ReleaseResource()
   {
-#ifdef DALI_WEBP_AVAILABLE
-    if(&mWebPData != nullptr)
-    {
-      mWebPData.bytes = nullptr;
-      WebPDataInit(&mWebPData);
-    }
-#endif
 #ifdef DALI_ANIMATED_WEBP_ENABLED
     if(mIsAnimatedImage)
     {
+      if(&mWebPData != nullptr)
+      {
+        mWebPData.bytes = nullptr;
+        WebPDataInit(&mWebPData);
+      }
       if(mWebPAnimDecoder != nullptr)
       {
         WebPAnimDecoderDelete(mWebPAnimDecoder);
@@ -265,11 +273,8 @@ public:
   bool            mIsAnimatedImage;
   bool            mIsLocalResource;
 
-#ifdef DALI_WEBP_AVAILABLE
-  WebPData                 mWebPData{0};
-#endif
-
 #ifdef DALI_ANIMATED_WEBP_ENABLED
+  WebPData                 mWebPData{0};
   WebPAnimDecoder*         mWebPAnimDecoder{nullptr};
   WebPAnimInfo             mWebPAnimInfo{0};
   Dali::Devel::PixelBuffer mPreLoadedFrame{};
