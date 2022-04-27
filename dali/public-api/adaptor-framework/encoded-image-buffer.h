@@ -1,7 +1,7 @@
 #ifndef DALI_ENCODED_IMAGE_BUFFER_H
 #define DALI_ENCODED_IMAGE_BUFFER_H
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <dali/public-api/object/base-handle.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -83,6 +83,13 @@ public:
    * @return A RawBufferType this buffer have
    */
   const RawBufferType& GetRawBuffer() const;
+
+  /**
+   * @brief Get the hash value of raw buffer
+   *
+   * @return A hash value of raw buffer.
+   */
+  const std::size_t GetHash() const;
 
 public: // Not intended for developer use
   explicit DALI_INTERNAL EncodedImageBuffer(Internal::EncodedImageBuffer* impl);

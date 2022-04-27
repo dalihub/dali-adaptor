@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  *
  */
 
+#include <dali-test-suite-utils.h>
+#include <dali/dali.h>
+#include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <dali/dali.h>
-#include <dali-test-suite-utils.h>
-#include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 
 using namespace Dali;
 
@@ -65,7 +65,7 @@ int UtcDaliEncodedImageBufferCopyConstructor(void)
   EncodedImageBuffer buffer = EncodedImageBuffer::New(tinybuffer());
   EncodedImageBuffer bufferCopy(buffer);
 
-  DALI_TEST_EQUALS( (bool)bufferCopy, true, TEST_LOCATION );
+  DALI_TEST_EQUALS((bool)bufferCopy, true, TEST_LOCATION);
   END_TEST;
 }
 
@@ -74,10 +74,10 @@ int UtcDaliEncodedImageBufferAssignmentOperator(void)
   EncodedImageBuffer buffer = EncodedImageBuffer::New(tinybuffer());
 
   EncodedImageBuffer buffer2;
-  DALI_TEST_EQUALS( (bool)buffer2, false, TEST_LOCATION );
+  DALI_TEST_EQUALS((bool)buffer2, false, TEST_LOCATION);
 
   buffer2 = buffer;
-  DALI_TEST_EQUALS( (bool)buffer2, true, TEST_LOCATION );
+  DALI_TEST_EQUALS((bool)buffer2, true, TEST_LOCATION);
 
   END_TEST;
 }
@@ -97,8 +97,25 @@ int UtcDaliEncodedImageBufferGetRawBuffer(void)
   EncodedImageBuffer::RawBufferType::Iterator jter = getBuffer.Begin();
   for(; iter != originBuffer.End(); ++iter, ++jter)
   {
-    DALI_TEST_EQUALS(*iter, *jter, TEST_LOCATION );
+    DALI_TEST_EQUALS(*iter, *jter, TEST_LOCATION);
   }
+
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferGetHash(void)
+{
+  EncodedImageBuffer buffer1 = EncodedImageBuffer::New(tinybuffer());
+  EncodedImageBuffer buffer2 = EncodedImageBuffer::New(tinybuffer());
+  EncodedImageBuffer buffer3 = EncodedImageBuffer::New(EncodedImageBuffer::RawBufferType()); //< EmptyBuffer
+
+  tet_infoline("Test different encoded buffer with same data has same hash value.");
+  DALI_TEST_CHECK(buffer1 != buffer2);
+  DALI_TEST_CHECK(buffer1.GetHash() == buffer2.GetHash());
+
+  tet_infoline("Test hash with empty buffer.");
+  DALI_TEST_CHECK(buffer1.GetHash() != buffer3.GetHash());
+  DALI_TEST_CHECK(buffer2.GetHash() != buffer3.GetHash());
 
   END_TEST;
 }
