@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -272,6 +272,18 @@ void CommitContent(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
   }
 }
 
+/**
+ * Called when the input method sends a selection set.
+ */
+void SelectionSet(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
+{
+  if(data)
+  {
+    InputMethodContextEcoreWl* inputMethodContext = static_cast<InputMethodContextEcoreWl*>(data);
+    inputMethodContext->SendSelectionSet(data, imfContext, eventInfo);
+  }
+}
+
 int GetWindowIdFromActor(Dali::Actor actor)
 {
   int windowId = kUninitializedWindowId;
@@ -397,6 +409,7 @@ void InputMethodContextEcoreWl::ConnectCallbacks()
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding, this);
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand, this);
     ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent, this);
+    ecore_imf_context_event_callback_add(mIMFContext, ECORE_IMF_CALLBACK_SELECTION_SET, SelectionSet, this);
 
     ecore_imf_context_input_panel_event_callback_add(mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT, InputPanelStateChangeCallback, this);
     ecore_imf_context_input_panel_event_callback_add(mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback, this);
@@ -418,6 +431,7 @@ void InputMethodContextEcoreWl::DisconnectCallbacks()
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_DELETE_SURROUNDING, ImfDeleteSurrounding);
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_PRIVATE_COMMAND_SEND, PrivateCommand);
     ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_COMMIT_CONTENT, CommitContent);
+    ecore_imf_context_event_callback_del(mIMFContext, ECORE_IMF_CALLBACK_SELECTION_SET, SelectionSet);
 
     ecore_imf_context_input_panel_event_callback_del(mIMFContext, ECORE_IMF_INPUT_PANEL_STATE_EVENT, InputPanelStateChangeCallback);
     ecore_imf_context_input_panel_event_callback_del(mIMFContext, ECORE_IMF_INPUT_PANEL_LANGUAGE_EVENT, InputPanelLanguageChangeCallback);
@@ -739,6 +753,26 @@ void InputMethodContextEcoreWl::SendCommitContent(void* data, ImfContext* imfCon
     {
       DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent commit content : %s, description : %s, mime type : %s\n", commitContent->content_uri, commitContent->description, commitContent->mime_types);
       mContentReceivedSignal.Emit(commitContent->content_uri, commitContent->description, commitContent->mime_types);
+    }
+  }
+}
+
+/**
+ * Called when the input method selection set.
+ */
+void InputMethodContextEcoreWl::SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendCommitContent\n");
+
+  if(Dali::Adaptor::IsAvailable())
+  {
+    Ecore_IMF_Event_Selection* selection = static_cast<Ecore_IMF_Event_Selection*>(eventInfo);
+    if(selection)
+    {
+      DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SendSelectionSet selection start index : %d, end index : %d\n", selection->start, selection->end);
+      Dali::InputMethodContext::EventData imfData(Dali::InputMethodContext::SELECTION_SET, selection->start, selection->end);
+      Dali::InputMethodContext            handle(this);
+      mEventSignal.Emit(handle, imfData);
     }
   }
 }
