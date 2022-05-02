@@ -85,7 +85,6 @@ public:
 
   // Accessibility
   typedef Signal<void(StyleChange::Type)>        StyleSignalType;
-  typedef Signal<void(const AccessibilityInfo&)> AccessibilitySignalType;
 
   /**
    * @brief Default constructor
@@ -508,11 +507,6 @@ public:
   StyleSignalType& StyleChangedSignal();
 
   /**
-   * @brief This signal is emitted when an accessibility event is received.
-   */
-  AccessibilitySignalType& AccessibilitySignal();
-
-  /**
    * @brief This signal is emitted when window's transition animation is started or ended.
    */
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
@@ -557,7 +551,6 @@ protected:
   SelectionSignalType                     mSelectionDataSendSignal;
   SelectionSignalType                     mSelectionDataReceivedSignal;
   StyleSignalType                         mStyleChangedSignal;
-  AccessibilitySignalType                 mAccessibilitySignal;
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;

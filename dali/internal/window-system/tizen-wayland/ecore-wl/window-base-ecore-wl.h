@@ -27,10 +27,6 @@
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
 
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif
-
 namespace Dali
 {
 namespace Internal
@@ -146,13 +142,6 @@ public:
    * @brief Called when a font size is changed.
    */
   void OnFontSizeChanged();
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  /**
-   * @brief Called when Ecore ElDBus accessibility event is received.
-   */
-  void OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message);
-#endif
 
   /**
    * @brief RegistryGlobalCallback
@@ -512,11 +501,6 @@ private:
   void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
-   * Initialize Ecore ElDBus
-   */
-  void InitializeEcoreElDBus();
-
-  /**
    * @brief Create window
    */
   void CreateWindow(PositionSize positionSize);
@@ -561,9 +545,6 @@ private:
   int mWindowRotationAngle;
   int mScreenRotationAngle;
   int mSupportedPreProtation;
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Connection* mSystemConnection;
-#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor

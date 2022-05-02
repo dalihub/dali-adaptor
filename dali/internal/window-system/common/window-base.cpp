@@ -37,7 +37,6 @@ WindowBase::WindowBase()
   mSelectionDataSendSignal(),
   mSelectionDataReceivedSignal(),
   mStyleChangedSignal(),
-  mAccessibilitySignal(),
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
   mUpdatePositionSizeSignal(),
@@ -107,11 +106,6 @@ WindowBase::SelectionSignalType& WindowBase::SelectionDataReceivedSignal()
 WindowBase::StyleSignalType& WindowBase::StyleChangedSignal()
 {
   return mStyleChangedSignal;
-}
-
-WindowBase::AccessibilitySignalType& WindowBase::AccessibilitySignal()
-{
-  return mAccessibilitySignal;
 }
 
 WindowBase::TransitionEffectEventSignalType& WindowBase::TransitionEffectEventSignal()
