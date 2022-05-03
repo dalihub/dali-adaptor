@@ -29,10 +29,6 @@
 #include <wayland-egl.h>
 #include <xkbcommon/xkbcommon.h>
 
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif
-
 namespace Dali
 {
 namespace Internal
@@ -175,13 +171,6 @@ public:
    * @param[in] auxiliary's message data. It has key, value and integer list data.
    */
   void OnEcoreEventWindowAuxiliaryMessage(void* event);
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  /**
-   * @brief Called when Ecore ElDBus accessibility event is received.
-   */
-  void OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message);
-#endif
 
   /**
    * @brief Called when a keymap is changed.
@@ -551,11 +540,6 @@ private:
   void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
-   * Initialize Ecore ElDBus
-   */
-  void InitializeEcoreElDBus();
-
-  /**
    * @brief Create window
    */
   void CreateWindow(PositionSize positionSize);
@@ -638,10 +622,6 @@ private:
   bool mVisible : 1;
   bool mOwnSurface;
   bool mBrightnessChangeDone;
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Connection* mSystemConnection;
-#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor

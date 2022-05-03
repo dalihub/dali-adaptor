@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,17 @@
 // CLASS HEADER
 #include "encoded-image-buffer-impl.h"
 
+// EXTERNAL INCLUDE
+#include <dali/devel-api/common/hash.h>
+
 namespace Dali
 {
 namespace Internal
 {
-
 EncodedImageBuffer::EncodedImageBuffer(const RawBufferType& buffer)
 : mBuffer(buffer)
 {
+  mBufferHash = CalculateHash(mBuffer);
 }
 
 EncodedImageBuffer::~EncodedImageBuffer()
@@ -42,6 +45,11 @@ IntrusivePtr<EncodedImageBuffer> EncodedImageBuffer::New(const RawBufferType& bu
 const EncodedImageBuffer::RawBufferType& EncodedImageBuffer::GetRawBuffer() const
 {
   return mBuffer;
+}
+
+const std::size_t EncodedImageBuffer::GetHash() const
+{
+  return mBufferHash;
 }
 
 } // namespace Internal

@@ -55,13 +55,6 @@ const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
 
 const char* DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
 
-#ifdef DALI_ELDBUS_AVAILABLE
-// DBUS accessibility
-const char* BUS       = "org.enlightenment.wm-screen-reader";
-const char* INTERFACE = "org.tizen.GestureNavigation";
-const char* PATH      = "/org/tizen/GestureNavigation";
-#endif // DALI_ELDBUS_AVAILABLE
-
 struct KeyCodeMap
 {
   xkb_keysym_t  keySym;
@@ -590,22 +583,6 @@ static Eina_Bool EcoreEventWindowAuxiliaryMessage(void* data, int type, void* ev
   return ECORE_CALLBACK_RENEW;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// ElDBus Accessibility Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef DALI_ELDBUS_AVAILABLE
-// Callback for Ecore ElDBus accessibility events.
-static void EcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(context);
-  if(windowBase)
-  {
-    windowBase->OnEcoreElDBusAccessibilityNotification(context, message);
-  }
-}
-#endif // DALI_ELDBUS_AVAILABLE
-
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -742,24 +719,12 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mVisible(true),
   mOwnSurface(false),
   mBrightnessChangeDone(true)
-#ifdef DALI_ELDBUS_AVAILABLE
-  ,
-  mSystemConnection(NULL)
-#endif
 {
   Initialize(positionSize, surface, isTransparent);
 }
 
 WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
 {
-#ifdef DALI_ELDBUS_AVAILABLE
-  // Close down ElDBus connections.
-  if(mSystemConnection)
-  {
-    eldbus_connection_unref(mSystemConnection);
-  }
-#endif // DALI_ELDBUS_AVAILABLE
-
   vconf_ignore_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged);
   vconf_ignore_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged);
 
@@ -861,8 +826,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Vconf notify - font name and size
   vconf_notify_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
   vconf_notify_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
-
-  InitializeEcoreElDBus();
 
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   mDisplay                   = ecore_wl2_display_get(display);
@@ -1365,21 +1328,6 @@ void WindowBaseEcoreWl2::OnFontSizeChanged()
 {
   mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
 }
-
-#ifdef DALI_ELDBUS_AVAILABLE
-void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message)
-{
-  AccessibilityInfo info;
-
-  // The string defines the arg-list's respective types.
-  if(!eldbus_message_arguments_get(message, "iiiiiiu", &info.gestureValue, &info.startX, &info.startY, &info.endX, &info.endY, &info.state, &info.eventTime))
-  {
-    DALI_LOG_ERROR("OnEcoreElDBusAccessibilityNotification: Error getting arguments\n");
-  }
-
-  mAccessibilitySignal.Emit(info);
-}
-#endif // DALI_ELDBUS_AVAILABLE
 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {
@@ -2603,38 +2551,6 @@ void WindowBaseEcoreWl2::WindowRotationCompleted(int degree, int width, int heig
 void WindowBaseEcoreWl2::SetTransparency(bool transparent)
 {
   ecore_wl2_window_alpha_set(mEcoreWindow, transparent);
-}
-
-void WindowBaseEcoreWl2::InitializeEcoreElDBus()
-{
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Object* object;
-  Eldbus_Proxy*  manager;
-
-  if(!(mSystemConnection = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SYSTEM)))
-  {
-    DALI_LOG_ERROR("Unable to get system bus\n");
-  }
-
-  object = eldbus_object_get(mSystemConnection, BUS, PATH);
-  if(!object)
-  {
-    DALI_LOG_ERROR("Getting object failed\n");
-    return;
-  }
-
-  manager = eldbus_proxy_get(object, INTERFACE);
-  if(!manager)
-  {
-    DALI_LOG_ERROR("Getting proxy failed\n");
-    return;
-  }
-
-  if(!eldbus_proxy_signal_handler_add(manager, "GestureDetected", EcoreElDBusAccessibilityNotification, this))
-  {
-    DALI_LOG_ERROR("No signal handler returned\n");
-  }
-#endif
 }
 
 void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)

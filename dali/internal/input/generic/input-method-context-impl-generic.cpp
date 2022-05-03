@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,6 +144,11 @@ void InputMethodContextGeneric::SendPrivateCommand(void* data, ImfContext* imfCo
 void InputMethodContextGeneric::SendCommitContent(void* data, ImfContext* imfContext, void* eventInfo)
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SendCommitContent\n");
+}
+
+void InputMethodContextGeneric::SendSelectionSet(void* data, ImfContext* imfContext, void* eventInfo)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SendSelectionSet\n");
 }
 
 void InputMethodContextGeneric::NotifyCursorPosition()

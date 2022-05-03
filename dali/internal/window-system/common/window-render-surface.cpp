@@ -747,13 +747,18 @@ void WindowRenderSurface::OutputTransformed()
   }
 }
 
+bool WindowRenderSurface::IsWindowRotating() const
+{
+  return !(mWindowRotationFinished);
+}
+
 void WindowRenderSurface::ProcessPostRender()
 {
   if(!mWindowRotationFinished)
   {
     mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done\n");
     mWindowRotationFinished = true;
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done, flag = %d\n", mWindowRotationFinished);
   }
 
   if(mIsImeWindowSurface)

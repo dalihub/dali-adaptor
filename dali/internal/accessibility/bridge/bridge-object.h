@@ -68,7 +68,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail) override;
+  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail = 0) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
