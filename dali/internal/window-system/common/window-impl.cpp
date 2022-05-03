@@ -1195,11 +1195,6 @@ void Window::SendRotationCompletedAcknowledgement()
   }
 }
 
-bool Window::IsWindowRotating() const
-{
-  return mWindowSurface->IsWindowRotating();
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

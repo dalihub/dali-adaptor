@@ -454,11 +454,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   void SendRotationCompletedAcknowledgement();
 
-  /**
-   * @copydoc Dali::DevelWindow::IsWindowRotating()
-   */
-  bool IsWindowRotating() const;
-
 private:
   /**
    * @brief Enumeration for orietation mode.
