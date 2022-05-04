@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,9 +47,9 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   return GetImplementation(*this).Load(data, dpi);
 }
 
-bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
+Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
 {
-  return GetImplementation(*this).Rasterize(buffer, scale);
+  return GetImplementation(*this).Rasterize(width, height);
 }
 
 void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
