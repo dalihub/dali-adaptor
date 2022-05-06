@@ -41,6 +41,7 @@ public:
   Dali::Accessibility::ProxyAccessible          mParent;
   std::vector<Dali::Accessibility::Accessible*> mChildren;
   std::string                                   mName;
+  std::string                                   mToolkitName{"dali"};
 
   std::string GetName() const override
   {
@@ -148,7 +149,7 @@ public:
 
   std::string GetToolkitName() const override
   {
-    return {"dali"};
+    return mToolkitName;
   }
 
   std::string GetVersion() const override
@@ -482,6 +483,14 @@ public:
   void SetApplicationName(std::string name) override
   {
     mApplication.mName = std::move(name);
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::SetToolkitName()
+   */
+  void SetToolkitName(std::string_view toolkitName) override
+  {
+    mApplication.mToolkitName = std::string{toolkitName};
   }
 
 protected:

@@ -63,6 +63,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void SetToolkitName(std::string_view toolkitName) override
+  {
+  }
+
   Accessibility::Accessible* GetApplication() const override
   {
     return nullptr;
