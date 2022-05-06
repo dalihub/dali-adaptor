@@ -1024,9 +1024,9 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 
     if(windowMoved || windowResized)
     {
-      mWindowPositionSize.x = ev->x;
-      mWindowPositionSize.y = ev->y;
-      mWindowPositionSize.width = newWidth;
+      mWindowPositionSize.x      = ev->x;
+      mWindowPositionSize.y      = ev->y;
+      mWindowPositionSize.width  = newWidth;
       mWindowPositionSize.height = newHeight;
       DALI_LOG_RELEASE_INFO("Update position & resize signal by server, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
@@ -1349,7 +1349,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
   Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
   if(message)
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n", message->key, message->val);
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n", message->key, message->val);
     std::string           key(message->key);
     std::string           value(message->val);
     Dali::Property::Array options;
@@ -1360,7 +1360,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
       void*      data;
       EINA_LIST_FOREACH(message->options, l, data)
       {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n", (char*)data);
+        DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n", (char*)data);
         std::string option(static_cast<char*>(data));
         options.Add(option);
       }
@@ -1794,7 +1794,7 @@ void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
   for(std::size_t i = 0; i < angles.size(); ++i)
   {
     rotations[i] = static_cast<int>(angles[i]);
-    DALI_LOG_RELEASE_INFO("%d ", rotations[i]);
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "%d ", rotations[i]);
   }
   ecore_wl2_window_available_rotations_set(mEcoreWindow, rotations, angles.size());
 }
