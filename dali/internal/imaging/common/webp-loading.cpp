@@ -193,6 +193,9 @@ public:
       free((void*)mBuffer);
       mBuffer = nullptr;
     }
+
+    // Set the flag so that webp information can be reloaded when visual is re-attached to scene.
+    mLoadSucceeded = false;
   }
 
   // Moveable but not copyable
@@ -315,6 +318,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
       free((void*)frameBuffer);
     }
     mImpl->ReleaseResource();
+
     return pixelBuffer;
   }
 #endif
