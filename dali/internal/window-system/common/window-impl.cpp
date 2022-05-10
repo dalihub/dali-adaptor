@@ -105,7 +105,7 @@ Window::~Window()
   {
     auto bridge     = Accessibility::Bridge::GetCurrentBridge();
     auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
     bridge->RemoveTopLevelWindow(accessible);
     // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
     bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
@@ -185,7 +185,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   if(bridge->IsUp())
   {
     auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
     bridge->AddTopLevelWindow(accessible);
   }
 
@@ -671,7 +671,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -689,7 +689,7 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -732,7 +732,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 Dali::Layer Window::GetRootLayer() const
@@ -882,7 +882,7 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
@@ -953,7 +953,7 @@ void Window::OnAccessibilityEnabled()
 {
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->AddTopLevelWindow(accessible);
 
   if(mFocused)
@@ -967,7 +967,7 @@ void Window::OnAccessibilityDisabled()
 {
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->RemoveTopLevelWindow(accessible);
 }
 

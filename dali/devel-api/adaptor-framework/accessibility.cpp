@@ -501,7 +501,7 @@ void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali
   convertingFunctor = functor;
 }
 
-Accessible* Accessible::Get(Dali::Actor actor, bool isRoot)
+Accessible* Accessible::Get(Dali::Actor actor)
 {
   if(!actor)
   {
@@ -514,6 +514,12 @@ Accessible* Accessible::Get(Dali::Actor actor, bool isRoot)
     auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
     if(pair.second)
     {
+      bool isRoot                    = false;
+      Dali::Integration::Scene scene = Dali::Integration::Scene::Get(actor);
+      if(scene)
+      {
+        isRoot = (actor == scene.GetRootLayer());
+      }
       pair.first->second.reset(new AdaptorAccessible(actor, isRoot));
     }
     accessible = pair.first->second.get();

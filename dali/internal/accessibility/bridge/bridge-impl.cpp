@@ -780,7 +780,7 @@ void Bridge::EnableAutoInit()
   auto window          = Dali::DevelWindow::Get(rootLayer);
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
 
   auto bridge = Bridge::GetCurrentBridge();
   bridge->AddTopLevelWindow(accessible);

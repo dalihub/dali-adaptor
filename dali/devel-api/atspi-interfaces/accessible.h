@@ -465,11 +465,10 @@ public:
    * @brief Acquires Accessible object from Actor object.
    *
    * @param[in] actor Actor object
-   * @param[in] isRoot True, if it's top level object (window)
    *
    * @return The handle to Accessible object
    */
-  static Accessible* Get(Dali::Actor actor, bool isRoot = false);
+  static Accessible* Get(Dali::Actor actor);
 
   /**
    * @brief Obtains the DBus interface name for the specified AT-SPI interface.
