@@ -132,6 +132,15 @@ struct DALI_ADAPTOR_API Bridge
   virtual void SetApplicationName(std::string name) = 0;
 
   /**
+   * @brief Sets the name of the GUI toolkit that AT-SPI clients can query.
+   *
+   * The default name is "dali".
+   *
+   * @param toolkitName The toolkit name
+   */
+  virtual void SetToolkitName(std::string_view toolkitName) = 0;
+
+  /**
    * @brief Gets object being root of accessibility tree.
    *
    * @return handler to accessibility object
