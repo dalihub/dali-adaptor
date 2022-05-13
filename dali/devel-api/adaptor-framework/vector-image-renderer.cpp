@@ -47,6 +47,11 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   return GetImplementation(*this).Load(data, dpi);
 }
 
+bool VectorImageRenderer::IsLoaded() const
+{
+  return GetImplementation(*this).IsLoaded();
+}
+
 Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
 {
   return GetImplementation(*this).Rasterize(width, height);
