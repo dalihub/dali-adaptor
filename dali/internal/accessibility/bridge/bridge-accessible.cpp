@@ -107,7 +107,7 @@ static bool AcceptObjectCheckRelations(Component* obj)
 
   for(const auto& it : relations)
   {
-    if(it.relationType == RelationType::CONTROLLED_BY)
+    if(it.mRelationType == RelationType::CONTROLLED_BY)
     {
       return false;
     }
@@ -437,11 +437,11 @@ Component* BridgeAccessible::GetObjectInRelation(Accessible* obj, RelationType r
 
   for(auto& relation : obj->GetRelationSet())
   {
-    if(relation.relationType == relationType)
+    if(relation.mRelationType == relationType)
     {
-      for(auto& address : relation.targets)
+      for(auto& target : relation.mTargets)
       {
-        auto component = dynamic_cast<Component*>(Find(address));
+        auto component = dynamic_cast<Component*>(target);
         if(component)
         {
           return component;
@@ -504,9 +504,9 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     auto relation  = std::find_if(relations.begin(),
                                  relations.end(),
                                  [relationType](const Dali::Accessibility::Relation& relation) -> bool {
-                                   return relation.relationType == relationType;
+                                   return relation.mRelationType == relationType;
                                  });
-    return relations.end() != relation && !relation->targets.empty() ? Find(relation->targets.back()) : nullptr;
+    return relations.end() != relation && !relation->mTargets.empty() ? relation->mTargets.back() : nullptr;
   };
 
   auto        labellingObject = findObjectByRelationType(RelationType::LABELLED_BY);
@@ -1061,7 +1061,7 @@ DBus::ValueOrError<std::vector<BridgeAccessible::Relation>> BridgeAccessible::Ge
 
   for(auto& it : relations)
   {
-    ret.emplace_back(Relation{static_cast<uint32_t>(it.relationType), it.targets});
+    ret.emplace_back(Relation{static_cast<uint32_t>(it.mRelationType), it.mTargets});
   }
 
   return ret;
