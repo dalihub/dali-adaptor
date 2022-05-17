@@ -110,7 +110,7 @@ void VectorImageRenderer::Initialize()
   mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
   mSwCanvas->reserve(1); //has one picture
 #else
-  mRasterizer  = nsvgCreateRasterizer();
+  mRasterizer = nsvgCreateRasterizer();
 #endif
 }
 
@@ -131,6 +131,10 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
       DALI_LOG_ERROR("VectorImageRenderer::Load: Picture gen Fail [%p]\n", this);
       return false;
     }
+  }
+  else
+  {
+    return true;
   }
 
   tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), true);
@@ -170,6 +174,11 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 
   return true;
 #else
+  if(mParsedImage)
+  {
+    return true;
+  }
+
   mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
   if(!mParsedImage || !mParsedImage->shapes)
   {
@@ -181,6 +190,15 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   mDefaultHeight = mParsedImage->height;
 
   return true;
+#endif
+}
+
+bool VectorImageRenderer::IsLoaded() const
+{
+#ifdef THORVG_SUPPORT
+  return mPicture ? true : false;
+#else
+  return mParsedImage ? true : false;
 #endif
 }
 

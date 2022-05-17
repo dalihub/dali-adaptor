@@ -62,6 +62,11 @@ public:
   bool Load(const Vector<uint8_t>& data, float dpi);
 
   /**
+   * @copydoc Dali::VectorImageRenderer::IsLoaded()
+   */
+  bool IsLoaded() const;
+
+  /**
    * @copydoc Dali::VectorImageRenderer::Rasterize()
    */
   Dali::Devel::PixelBuffer Rasterize(uint32_t width, uint32_t height);
