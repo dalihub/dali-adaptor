@@ -237,6 +237,8 @@ public:
       free((void*)mBuffer);
       mBuffer = nullptr;
     }
+
+    mLoadSucceeded = false;
   }
 
   // Moveable but not copyable

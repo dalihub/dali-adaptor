@@ -55,7 +55,7 @@ bool LoadBitmapFromWebp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   if(webPLoading)
   {
     Dali::Devel::PixelBuffer pixelBuffer = webPLoading.LoadFrame(FIRST_FRAME_INDEX);
-    if(pixelBuffer && webPLoading.HasLoadingSucceeded())
+    if(pixelBuffer)
     {
       bitmap = pixelBuffer;
       return true;
