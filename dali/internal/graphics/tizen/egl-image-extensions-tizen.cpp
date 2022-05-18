@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@
 
 #include <EGL/eglext.h>
 
+#include <tbm_bufmgr.h>
+#include <tbm_surface.h>
+#include <tbm_surface_internal.h>
+
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -41,6 +45,10 @@ namespace
 PFNEGLCREATEIMAGEKHRPROC            eglCreateImageKHRProc            = 0;
 PFNEGLDESTROYIMAGEKHRPROC           eglDestroyImageKHRProc           = 0;
 PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
+
+const std::string EGL_TIZEN_IMAGE_NATIVE_SURFACE = "EGL_TIZEN_image_native_surface";
+const std::string EGL_EXT_IMAGE_DMA_BUF_IMPORT   = "EGL_EXT_image_dma_buf_import";
+
 } // unnamed namespace
 
 namespace Dali
@@ -49,8 +57,15 @@ namespace Internal
 {
 namespace Adaptor
 {
+struct EglImageExtensions::Impl
+{
+  bool mIsTizenImageNativeSurfaceSupported{false};
+  bool mIsExtImageDmaBufImportSupported{false};
+};
+
 EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
-: mEglImplementation(eglImpl),
+: mImpl(new Impl()),
+  mEglImplementation(eglImpl),
   mImageKHRInitialized(false),
   mImageKHRInitializeFailed(false)
 {
@@ -59,6 +74,7 @@ EglImageExtensions::EglImageExtensions(EglImplementation* eglImpl)
 
 EglImageExtensions::~EglImageExtensions()
 {
+  delete mImpl;
 }
 
 void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
@@ -73,16 +89,55 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
     return NULL;
   }
 
-  // Use the EGL image extension
-  const EGLint attribs[] =
-    {
-      EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+  EGLImageKHR eglImage = EGL_NO_IMAGE_KHR;
 
-  EGLImageKHR eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
-                                               EGL_NO_CONTEXT,
-                                               EGL_NATIVE_SURFACE_TIZEN,
-                                               clientBuffer,
-                                               attribs);
+  // Use the EGL image extension
+  if(mImpl->mIsTizenImageNativeSurfaceSupported)
+  {
+    // If EGL_TIZEN_image_native_surface is supported
+    const EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+
+    eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
+                                     EGL_NO_CONTEXT,
+                                     EGL_NATIVE_SURFACE_TIZEN,
+                                     clientBuffer,
+                                     attribs);
+  }
+  else if(mImpl->mIsExtImageDmaBufImportSupported)
+  {
+    // Else then use EGL_EXT_image_dma_buf_import
+    tbm_surface_info_s info;
+    tbm_surface_h      tbmSurface = reinterpret_cast<tbm_surface_h>(clientBuffer);
+
+    if(tbm_surface_get_info(tbmSurface, &info) != TBM_SURFACE_ERROR_NONE)
+    {
+      return NULL;
+    }
+
+    // We support only 1 plane
+    tbm_bo tbmBo = tbm_surface_internal_get_bo(tbmSurface, tbm_surface_internal_get_plane_bo_idx(tbmSurface, 0));
+
+    // clang-format off
+    const EGLint attribs[] = {EGL_WIDTH, static_cast<EGLint>(info.width),
+                              EGL_HEIGHT, static_cast<EGLint>(info.height),
+                              EGL_LINUX_DRM_FOURCC_EXT, static_cast<EGLint>(info.format),
+                              EGL_DMA_BUF_PLANE0_FD_EXT, static_cast<EGLint>(reinterpret_cast<size_t>(tbm_bo_get_handle(tbmBo, TBM_DEVICE_3D).ptr)),
+                              EGL_DMA_BUF_PLANE0_OFFSET_EXT, static_cast<EGLint>(info.planes[0].offset),
+                              EGL_DMA_BUF_PLANE0_PITCH_EXT, static_cast<EGLint>(info.planes[0].stride),
+                              EGL_NONE};
+    // clang-format on
+
+    eglImage = eglCreateImageKHRProc(mEglImplementation->GetDisplay(),
+                                     EGL_NO_CONTEXT,
+                                     EGL_LINUX_DMA_BUF_EXT,
+                                     nullptr,
+                                     attribs);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Not supported\n");
+    return EGL_NO_IMAGE_KHR;
+  }
 
   if(EGL_NO_IMAGE_KHR == eglImage)
   {
@@ -219,6 +274,20 @@ void EglImageExtensions::InitializeEglImageKHR()
   else
   {
     mImageKHRInitializeFailed = true;
+  }
+
+  std::string extensionStr = eglQueryString(mEglImplementation->GetDisplay(), EGL_EXTENSIONS);
+
+  auto found = extensionStr.find(EGL_TIZEN_IMAGE_NATIVE_SURFACE);
+  if(found != std::string::npos)
+  {
+    mImpl->mIsTizenImageNativeSurfaceSupported = true;
+  }
+
+  found = extensionStr.find(EGL_EXT_IMAGE_DMA_BUF_IMPORT);
+  if(found != std::string::npos)
+  {
+    mImpl->mIsExtImageDmaBufImportSupported = true;
   }
 }
 
