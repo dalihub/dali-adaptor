@@ -248,12 +248,10 @@ FontClient::Plugin::FontDescriptionCacheItem::FontDescriptionCacheItem(FontDescr
 {
 }
 
-FontClient::Plugin::FontDescriptionSizeCacheItem::FontDescriptionSizeCacheItem(FontDescriptionId validatedFontId,
-                                                                               PointSize26Dot6   requestedPointSize,
-                                                                               FontId            fontId)
-: validatedFontId(validatedFontId),
-  requestedPointSize(requestedPointSize),
-  fontId(fontId)
+FontClient::Plugin::FontDescriptionSizeCacheKey::FontDescriptionSizeCacheKey(FontDescriptionId fontDescriptionId,
+                                                                             PointSize26Dot6   requestedPointSize)
+: fontDescriptionId(fontDescriptionId),
+  requestedPointSize(requestedPointSize)
 {
 }
 
@@ -299,6 +297,9 @@ FontClient::Plugin::~Plugin()
   DestroyCharacterSets(mCharacterSetCache);
   ClearCharacterSetFromFontFaceCache();
 
+  // Clear FontFaceCache here. Due to we sould deallocate FT_Faces before done freetype library
+  mFontFaceCache.clear();
+
 #ifdef ENABLE_VECTOR_BASED_TEXT_RENDERING
   delete mVectorFontCache;
 #endif
@@ -330,6 +331,7 @@ void FontClient::Plugin::ClearCache()
   mCharacterSetCache.Clear();
 
   mFontDescriptionSizeCache.clear();
+  mFontDescriptionSizeCache.rehash(0); // Note : unordered_map.clear() didn't deallocate memory
 
   mEllipsisCache.Clear();
   mPixelBufferCache.clear();
@@ -492,14 +494,14 @@ void FontClient::Plugin::GetDefaultPlatformFontDescription(FontDescription& font
         mFontDescriptionCache.push_back(tempFontDescription);
 
         // Set the index to the vector of paths to font file names.
-        const FontDescriptionId validatedFontId = mFontDescriptionCache.size();
+        const FontDescriptionId fontDescriptionId = mFontDescriptionCache.size();
 
         FONT_LOG_DESCRIPTION(tempFontDescription, "default platform font");
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  default font validatedFontId : %d\n", validatedFontId);
+        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  default font fontDescriptionId : %d\n", fontDescriptionId);
 
         // Cache the index and the matched font's description.
         FontDescriptionCacheItem item(tempFontDescription,
-                                      validatedFontId);
+                                      fontDescriptionId);
 
         mValidatedFontCache.push_back(std::move(item));
       }
@@ -586,9 +588,9 @@ void FontClient::Plugin::GetDescription(FontId           id,
       {
         for(const auto& item : mFontDescriptionSizeCache)
         {
-          if(item.fontId == fontIdCacheItem.id)
+          if(item.second == fontIdCacheItem.index)
           {
-            fontDescription = *(mFontDescriptionCache.begin() + item.validatedFontId - 1u);
+            fontDescription = *(mFontDescriptionCache.begin() + item.first.fontDescriptionId - 1u);
 
             FONT_LOG_DESCRIPTION(fontDescription, "");
             return;
@@ -599,7 +601,7 @@ void FontClient::Plugin::GetDescription(FontId           id,
       case FontDescription::BITMAP_FONT:
       {
         fontDescription.type   = FontDescription::BITMAP_FONT;
-        fontDescription.family = mBitmapFontCache[fontIdCacheItem.id].font.name;
+        fontDescription.family = mBitmapFontCache[fontIdCacheItem.index].font.name;
         break;
       }
       default:
@@ -649,7 +651,7 @@ bool FontClient::Plugin::IsCharacterSupportedByFont(FontId fontId, Character cha
 
 const FontCacheItemInterface* FontClient::Plugin::GetCachedFontItem(FontId id) const
 {
-  const FontId index = id - 1u;
+  const FontCacheIndex index = id - 1u;
   if((id > 0u) && (index < mFontIdCache.Count()))
   {
     const FontIdCacheItem& fontIdCacheItem = mFontIdCache[index];
@@ -657,11 +659,11 @@ const FontCacheItemInterface* FontClient::Plugin::GetCachedFontItem(FontId id) c
     {
       case FontDescription::FACE_FONT:
       {
-        return &mFontFaceCache[fontIdCacheItem.id];
+        return &mFontFaceCache[fontIdCacheItem.index];
       }
       case FontDescription::BITMAP_FONT:
       {
-        return &mBitmapFontCache[fontIdCacheItem.id];
+        return &mBitmapFontCache[fontIdCacheItem.index];
       }
       default:
       {
@@ -715,7 +717,7 @@ FontId FontClient::Plugin::FindFontForCharacter(const FontList&         fontList
         if((fontId > 0) &&
            (fontId - 1u < mFontIdCache.Count()))
         {
-          const FontFaceCacheItem& item = mFontFaceCache[mFontIdCache[fontId - 1u].id];
+          const FontFaceCacheItem& item = mFontFaceCache[mFontIdCache[fontId - 1u].index];
 
           foundColor = item.mHasColorTables;
         }
@@ -905,22 +907,22 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
   }
 
   // Check if the font's description have been validated before.
-  FontDescriptionId validatedFontId = 0u;
+  FontDescriptionId fontDescriptionId = 0u;
 
   if(!FindValidatedFont(realFontDescription,
-                        validatedFontId))
+                        fontDescriptionId))
   {
     // Use font config to validate the font's description.
     ValidateFont(realFontDescription,
-                 validatedFontId);
+                 fontDescriptionId);
   }
 
-  FontId fontFaceId = 0u;
-  // Check if exists a pair 'validatedFontId, requestedPointSize' in the cache.
-  if(!FindFont(validatedFontId, requestedPointSize, fontFaceId))
+  FontCacheIndex fontCacheIndex = 0u;
+  // Check if exists a pair 'fontDescriptionId, requestedPointSize' in the cache.
+  if(!FindFont(fontDescriptionId, requestedPointSize, fontCacheIndex))
   {
     // Retrieve the font file name path.
-    const FontDescription& description = *(mFontDescriptionCache.begin() + validatedFontId - 1u);
+    const FontDescription& description = *(mFontDescriptionCache.begin() + fontDescriptionId - 1u);
 
     // Retrieve the font id. Do not cache the description as it has been already cached.
     fontId = GetFontId(description.path,
@@ -928,17 +930,15 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
                        faceIndex,
                        false);
 
-    fontFaceId                               = mFontIdCache[fontId - 1u].id;
-    mFontFaceCache[fontFaceId].mCharacterSet = FcCharSetCopy(mCharacterSetCache[validatedFontId - 1u]);
+    fontCacheIndex                               = mFontIdCache[fontId - 1u].index;
+    mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(mCharacterSetCache[fontDescriptionId - 1u]);
 
-    // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
-    mFontDescriptionSizeCache.push_back(FontDescriptionSizeCacheItem(validatedFontId,
-                                                                     requestedPointSize,
-                                                                     fontFaceId));
+    // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
+    mFontDescriptionSizeCache.emplace(FontDescriptionSizeCacheKey(fontDescriptionId, requestedPointSize), fontCacheIndex);
   }
   else
   {
-    fontId = mFontFaceCache[fontFaceId].mFontId + 1u;
+    fontId = mFontFaceCache[fontCacheIndex].mFontId + 1u;
   }
 
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font id : %d\n", fontId);
@@ -958,8 +958,8 @@ FontId FontClient::Plugin::GetFontId(const BitmapFont& bitmapFont)
   BitmapFontCacheItem bitmapFontCacheItem(bitmapFont, mFontIdCache.Count());
 
   FontIdCacheItem fontIdCacheItem;
-  fontIdCacheItem.type = FontDescription::BITMAP_FONT;
-  fontIdCacheItem.id   = mBitmapFontCache.size();
+  fontIdCacheItem.type  = FontDescription::BITMAP_FONT;
+  fontIdCacheItem.index = mBitmapFontCache.size();
 
   mBitmapFontCache.push_back(std::move(bitmapFontCacheItem));
   mFontIdCache.PushBack(fontIdCacheItem);
@@ -968,7 +968,7 @@ FontId FontClient::Plugin::GetFontId(const BitmapFont& bitmapFont)
 }
 
 void FontClient::Plugin::ValidateFont(const FontDescription& fontDescription,
-                                      FontDescriptionId&     validatedFontId)
+                                      FontDescriptionId&     fontDescriptionId)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   FONT_LOG_DESCRIPTION(fontDescription, "");
@@ -989,17 +989,17 @@ void FontClient::Plugin::ValidateFont(const FontDescription& fontDescription,
     mFontDescriptionCache.push_back(description);
 
     // Set the index to the vector of paths to font file names.
-    validatedFontId = mFontDescriptionCache.size();
+    fontDescriptionId = mFontDescriptionCache.size();
 
     FONT_LOG_DESCRIPTION(description, "matched");
-    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validatedFontId : %d\n", validatedFontId);
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  fontDescriptionId : %d\n", fontDescriptionId);
 
     // The reference counter of the character set has already been increased in MatchFontDescriptionToPattern.
     mCharacterSetCache.PushBack(characterSet);
 
     // Cache the index and the matched font's description.
     FontDescriptionCacheItem item(description,
-                                  validatedFontId);
+                                  fontDescriptionId);
 
     mValidatedFontCache.push_back(std::move(item));
 
@@ -1010,7 +1010,7 @@ void FontClient::Plugin::ValidateFont(const FontDescription& fontDescription,
     {
       // Cache the given font's description if it's different than the matched.
       FontDescriptionCacheItem item(fontDescription,
-                                    validatedFontId);
+                                    fontDescriptionId);
 
       mValidatedFontCache.push_back(std::move(item));
     }
@@ -1109,7 +1109,7 @@ bool FontClient::Plugin::GetVectorMetrics(GlyphInfo* array,
     if((fontId > 0u) &&
        (fontId - 1u) < mFontIdCache.Count())
     {
-      FontFaceCacheItem& font = mFontFaceCache[mFontIdCache[fontId - 1u].id];
+      FontFaceCacheItem& font = mFontFaceCache[mFontIdCache[fontId - 1u].index];
 
       if(!font.mVectorFontId)
       {
@@ -1177,8 +1177,8 @@ void FontClient::Plugin::CreateVectorBlob(FontId fontId, GlyphIndex glyphIndex, 
   if((fontId > 0u) &&
      (fontId - 1u < mFontIdCache.Count()))
   {
-    const FontId       fontFaceId = mFontIdCache[fontId - 1u].id;
-    FontFaceCacheItem& font       = mFontFaceCache[fontFaceId];
+    const FontCacheIndex fontFaceId = mFontIdCache[fontId - 1u].index;
+    FontFaceCacheItem&   font       = mFontFaceCache[fontFaceId];
 
     if(!font.mVectorFontId)
     {
@@ -1219,7 +1219,7 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph(PointSize26Dot6 requestedP
                                       false);
 
   // Set the character index to access the glyph inside the font.
-  item.glyph.index = FT_Get_Char_Index(mFontFaceCache[mFontIdCache[item.glyph.fontId - 1u].id].mFreeTypeFace,
+  item.glyph.index = FT_Get_Char_Index(mFontFaceCache[mFontIdCache[item.glyph.fontId - 1u].index].mFreeTypeFace,
                                        ELLIPSIS_CHARACTER);
 
   GetBitmapMetrics(&item.glyph, 1u, true);
@@ -1632,11 +1632,11 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
         fontIdCacheItem.type = FontDescription::FACE_FONT;
 
         // Set the index to the FreeType font face cache.
-        fontIdCacheItem.id = mFontFaceCache.size();
-        fontFaceId         = fontIdCacheItem.id + 1u;
+        fontIdCacheItem.index = mFontFaceCache.size();
+        fontFaceId            = fontIdCacheItem.index + 1u;
 
         // Cache the items.
-        mFontFaceCache.push_back(fontFaceCacheItem);
+        mFontFaceCache.emplace_back(std::move(fontFaceCacheItem));
         mFontIdCache.PushBack(fontIdCacheItem);
 
         // Set the font id to be returned.
@@ -1690,11 +1690,11 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
         fontIdCacheItem.type = FontDescription::FACE_FONT;
 
         // Set the index to the FreeType font face cache.
-        fontIdCacheItem.id = mFontFaceCache.size();
-        fontFaceId         = fontIdCacheItem.id + 1u;
+        fontIdCacheItem.index = mFontFaceCache.size();
+        fontFaceId            = fontIdCacheItem.index + 1u;
 
         // Cache the items.
-        mFontFaceCache.push_back(fontFaceCacheItem);
+        mFontFaceCache.emplace_back(std::move(fontFaceCacheItem));
         mFontIdCache.PushBack(fontIdCacheItem);
 
         // Set the font id to be returned.
@@ -1752,13 +1752,13 @@ bool FontClient::Plugin::FindFont(const FontPath& path,
 }
 
 bool FontClient::Plugin::FindValidatedFont(const FontDescription& fontDescription,
-                                           FontDescriptionId&     validatedFontId)
+                                           FontDescriptionId&     fontDescriptionId)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   FONT_LOG_DESCRIPTION(fontDescription, "");
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of validated fonts in the cache : %d\n", mValidatedFontCache.size());
 
-  validatedFontId = 0u;
+  fontDescriptionId = 0u;
 
   for(const auto& item : mValidatedFontCache)
   {
@@ -1768,14 +1768,14 @@ bool FontClient::Plugin::FindValidatedFont(const FontDescription& fontDescriptio
        (fontDescription.weight == item.fontDescription.weight) &&
        (fontDescription.slant == item.fontDescription.slant))
     {
-      validatedFontId = item.index;
+      fontDescriptionId = item.index;
 
-      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font found, id : %d\n", validatedFontId);
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font description found, id : %d\n", fontDescriptionId);
       return true;
     }
   }
 
-  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font not found\n");
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font description not found\n");
   return false;
 }
 
@@ -1809,26 +1809,25 @@ bool FontClient::Plugin::FindFallbackFontList(const FontDescription& fontDescrip
   return false;
 }
 
-bool FontClient::Plugin::FindFont(FontDescriptionId validatedFontId,
+bool FontClient::Plugin::FindFont(FontDescriptionId fontDescriptionId,
                                   PointSize26Dot6   requestedPointSize,
-                                  FontId&           fontId)
+                                  FontCacheIndex&   fontCacheIndex)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
-  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "    validatedFontId  : %d\n", validatedFontId);
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "   fontDescriptionId : %d\n", fontDescriptionId);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize);
 
-  fontId = 0u;
+  fontCacheIndex = 0u;
 
-  for(const auto& item : mFontDescriptionSizeCache)
+  FontDescriptionSizeCacheKey key(fontDescriptionId, requestedPointSize);
+
+  const auto& iter = mFontDescriptionSizeCache.find(key);
+  if(iter != mFontDescriptionSizeCache.cend())
   {
-    if((validatedFontId == item.validatedFontId) &&
-       (requestedPointSize == item.requestedPointSize))
-    {
-      fontId = item.fontId;
+    fontCacheIndex = iter->second;
 
-      DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font found, id : %d\n", fontId);
-      return true;
-    }
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font found, index of font cache : %d\n", fontCacheIndex);
+    return true;
   }
 
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font not found.\n");
@@ -1984,9 +1983,9 @@ void FontClient::Plugin::CacheFontPath(FT_Face ftFace, FontId id, PointSize26Dot
     description.weight = FontWeight::BOLD;
   }
 
-  FontDescriptionId validatedFontId = 0u;
+  FontDescriptionId fontDescriptionId = 0u;
   if(!FindValidatedFont(description,
-                        validatedFontId))
+                        fontDescriptionId))
   {
     FcPattern* pattern = CreateFontFamilyPattern(description); // Creates a new pattern that needs to be destroyed by calling FcPatternDestroy.
 
@@ -2008,19 +2007,17 @@ void FontClient::Plugin::CacheFontPath(FT_Face ftFace, FontId id, PointSize26Dot
     mFontDescriptionCache.push_back(description);
 
     // Set the index to the vector of paths to font file names.
-    validatedFontId = mFontDescriptionCache.size();
+    fontDescriptionId = mFontDescriptionCache.size();
 
     // Increase the reference counter and add the character set to the cache.
     mCharacterSetCache.PushBack(FcCharSetCopy(characterSet));
 
     // Cache the index and the font's description.
     mValidatedFontCache.push_back(std::move(FontDescriptionCacheItem(std::move(description),
-                                                                     validatedFontId)));
+                                                                     fontDescriptionId)));
 
-    // Cache the pair 'validatedFontId, requestedPointSize' to improve the following queries.
-    mFontDescriptionSizeCache.push_back(FontDescriptionSizeCacheItem(validatedFontId,
-                                                                     requestedPointSize,
-                                                                     fontFaceId));
+    // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
+    mFontDescriptionSizeCache.emplace(FontDescriptionSizeCacheKey(fontDescriptionId, requestedPointSize), fontFaceId);
   }
 }
 

@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_CACHE_ITEM_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ struct FontCacheItemInterface
    *
    * @param[in,out] glyph The glyph to fill
    */
-  virtual bool GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertical, bool horizontal) const = 0;
+  virtual bool GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVertical, bool horizontal) const = 0;
 
   /**
    * Create a bitmap for the given glyph
