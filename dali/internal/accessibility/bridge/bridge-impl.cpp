@@ -859,3 +859,23 @@ void Bridge::EnableAutoInit()
     bridge->WindowShown(window);
   }
 }
+
+std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId)
+{
+  // The bus name should consist of dot-separated alphanumeric elements, e.g. "com.example.BusName123".
+  // Allowed characters in each element: "[A-Z][a-z][0-9]_", but no element may start with a digit.
+
+  static const char prefix[]   = "com.samsung.dali.widget_";
+  static const char underscore = '_';
+
+  std::stringstream tmp;
+
+  tmp << prefix;
+
+  for(char ch : widgetInstanceId)
+  {
+    tmp << (std::isalnum(ch) ? ch : underscore);
+  }
+
+  return tmp.str();
+}

@@ -447,6 +447,16 @@ struct DALI_ADAPTOR_API Bridge
    */
   static void EnableAutoInit();
 
+  /**
+   * @brief Encodes a widget ID as a usable bus name.
+   *
+   * @param widgetInstanceId The instance ID of a widget
+   * @return std::string Encoded bus name
+   *
+   * @see SetPreferredBusName
+   */
+  static std::string MakeBusNameForWidget(std::string_view widgetInstanceId);
+
   static Signal<void()>& EnabledSignal()
   {
     return mEnabledSignal;

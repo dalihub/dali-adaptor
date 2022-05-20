@@ -22,6 +22,9 @@
 #include <bundle.h>
 #include <widget_base.h>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+
 namespace Dali
 {
 namespace Internal
@@ -65,8 +68,13 @@ void WidgetImplTizen::SetUsingKeyEvent(bool flag)
 
 void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
 {
+  using Dali::Accessibility::Bridge;
+
   mWindow = window;
   mWidgetId = widgetId;
+
+  auto preferredBusName = Bridge::MakeBusNameForWidget(widgetId);
+  Bridge::GetCurrentBridge()->SetPreferredBusName(preferredBusName);
 }
 
 Dali::Window WidgetImplTizen::GetWindow() const
