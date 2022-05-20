@@ -125,6 +125,8 @@ struct DALI_ADAPTOR_API DBusWrapper
   virtual ObjectPtr     eldbus_object_get_impl(const ConnectionPtr& conn, const std::string& bus, const std::string& path)                                       = 0;
   virtual ProxyPtr      eldbus_proxy_get_impl(const ObjectPtr& obj, const std::string& interface)                                                                = 0;
   virtual ProxyPtr      eldbus_proxy_copy_impl(const ProxyPtr& ptr)                                                                                              = 0;
+  virtual void          eldbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
+  virtual void          eldbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus)                                                              = 0;
 
   class StringStorage
   {
@@ -2699,6 +2701,8 @@ private:
 DBusWrapper::ConnectionPtr getDBusConnectionByType(ConnectionType tp);
 DBusWrapper::ConnectionPtr getDBusConnectionByName(const std::string& name);
 std::string                getConnectionName(const DBusWrapper::ConnectionPtr&);
+void                       requestBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus);
+void                       releaseBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus);
 } // namespace DBus
 
 namespace std
