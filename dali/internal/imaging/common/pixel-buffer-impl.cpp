@@ -486,7 +486,7 @@ void PixelBuffer::MultiplyColorByAlpha()
               for(const Channel& channel : validChannelList)
               {
                 auto color = ReadChannel(&pixel[x], mPixelFormat, channel);
-                WriteChannel(&pixel[x], mPixelFormat, channel, color * alpha / 255);
+                WriteChannel(&pixel[x], mPixelFormat, channel, Platform::MultiplyAndNormalizeColor(color, alpha));
               }
             }
             else
