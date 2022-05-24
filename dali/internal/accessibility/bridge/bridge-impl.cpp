@@ -76,7 +76,6 @@ class BridgeImpl : public virtual BridgeBase,
   DBus::DBusClient                                              mDirectReadingClient;
   bool                                                          mIsScreenReaderEnabled = false;
   bool                                                          mIsEnabled             = false;
-  bool                                                          mIsShown               = false;
   std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
   Dali::Actor                                                   mHighlightedActor;
   std::function<void(Dali::Actor)>                              mHighlightClearAction;
@@ -425,11 +424,10 @@ public:
    */
   void WindowShown(Dali::Window window) override
   {
-    if(!mIsShown && IsUp())
+    if(IsUp())
     {
       EmitShown(window);
     }
-    mIsShown = true;
   }
 
   /**
@@ -437,11 +435,10 @@ public:
    */
   void WindowHidden(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitHidden(window);
     }
-    mIsShown = false;
   }
 
   /**
@@ -449,7 +446,7 @@ public:
    */
   void WindowFocused(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitActivate(window);
     }
@@ -460,7 +457,7 @@ public:
    */
   void WindowUnfocused(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitDeactivate(window);
     }

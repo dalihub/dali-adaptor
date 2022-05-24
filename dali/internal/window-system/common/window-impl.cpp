@@ -956,9 +956,16 @@ void Window::OnAccessibilityEnabled()
   auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->AddTopLevelWindow(accessible);
 
+  if(!mVisible || mIconified)
+  {
+    return;
+  }
+
+  Dali::Window handle(this);
+  bridge->WindowShown(handle);
+
   if(mFocused)
   {
-    Dali::Window handle(this);
     bridge->WindowFocused(handle);
   }
 }
