@@ -1,7 +1,8 @@
 
 # module: network, backend: common
 SET( adaptor_network_common_src_files 
-    ${adaptor_network_dir}/common/socket-factory.cpp 
+    ${adaptor_network_dir}/common/network-service-impl.cpp
+    ${adaptor_network_dir}/common/socket-factory.cpp
     ${adaptor_network_dir}/common/socket-impl.cpp
 )
 

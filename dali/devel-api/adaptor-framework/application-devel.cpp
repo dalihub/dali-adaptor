@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,9 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/application-impl.h>
+#include <dali/internal/network/common/network-service-impl.h>
 
 namespace Dali
 {
@@ -44,8 +46,7 @@ Application New(int* argc, char** argv[], const std::string& stylesheet, Applica
 
     //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
-  }
-  else
+  } else
   {
     internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type);
   }
@@ -65,6 +66,17 @@ std::string GetDataPath()
 Application DownCast(Dali::RefObject* refObject)
 {
   return Application(dynamic_cast<Dali::Internal::Adaptor::Application*>(refObject));
+}
+
+CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Application application)
+{
+  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable() && "Adaptor is not available")
+
+  Internal::Adaptor::NetworkServicePtr networkService = Internal::Adaptor::NetworkService::Get();
+
+  DALI_ASSERT_ALWAYS(networkService && "Network Service Unavailable");
+
+  return networkService->CustomCommandReceivedSignal();
 }
 
 } // namespace DevelApplication
