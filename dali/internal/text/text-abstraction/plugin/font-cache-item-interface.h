@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 
+// INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/internal/text/text-abstraction/font-client-impl.h> // for HarfBuzzFontHandle
 
+// EXTERNAL INCLUDES
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -94,6 +97,15 @@ struct FontCacheItemInterface
    * Get the freetype typeface for this font.
    */
   virtual FT_Face GetTypeface() const = 0;
+
+  /**
+   * Get the harfbuzz font struct for this font.
+   *
+   * @param[in] horizontalDpi Horizontal DPI for this harfbuzz font.
+   * @param[in] verticalDpi Vertical DPI for this harfbuzz font.
+   * @return the harfbuzz font data, or nullptr if failed.
+   */
+  virtual HarfBuzzFontHandle GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi) = 0;
 
   /**
    * @return true if this font has an italic style

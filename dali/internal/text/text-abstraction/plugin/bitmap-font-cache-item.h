@@ -107,6 +107,14 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   }
 
   /**
+   * @copydoc FontCacheItemInterface::GetHarfBuzzFont()
+   */
+  HarfBuzzFontHandle GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi) override
+  {
+    return nullptr;
+  }
+
+  /**
    * @copydoc FontCacheItemInterface::HasItalicStyle()
    */
   bool HasItalicStyle() const override

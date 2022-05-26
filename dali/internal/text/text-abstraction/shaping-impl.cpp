@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,34 +151,20 @@ struct Shaping::Plugin
     {
       case FontDescription::FACE_FONT:
       {
+        // Get our harfbuzz font struct
+        hb_font_t* harfBuzzFont = reinterpret_cast<hb_font_t*>(fontClientImpl.GetHarfBuzzFont(fontId));
+        if(nullptr == harfBuzzFont)
+        {
+          // Nothing to do if the harfBuzzFont is null.
+          return 0u;
+        }
+
         // Reserve some space to avoid reallocations.
         const Length numberOfGlyphs = static_cast<Length>(1.3f * static_cast<float>(numberOfCharacters));
         mIndices.Reserve(numberOfGlyphs);
         mAdvance.Reserve(numberOfGlyphs);
         mCharacterMap.Reserve(numberOfGlyphs);
         mOffset.Reserve(2u * numberOfGlyphs);
-
-        // Retrieve a FreeType font's face.
-        FT_Face face = fontClientImpl.GetFreetypeFace(fontId);
-        if(nullptr == face)
-        {
-          // Nothing to do if the face is null.
-          return 0u;
-        }
-
-        unsigned int horizontalDpi = 0u;
-        unsigned int verticalDpi   = 0u;
-        fontClient.GetDpi(horizontalDpi, verticalDpi);
-
-        FT_Set_Char_Size(face,
-                         0u,
-                         fontClient.GetPointSize(fontId),
-                         horizontalDpi,
-                         verticalDpi);
-
-        /* Get our harfbuzz font struct */
-        hb_font_t* harfBuzzFont;
-        harfBuzzFont = hb_ft_font_create(face, NULL);
 
         /* Create a buffer for harfbuzz to use */
         hb_buffer_t* harfBuzzBuffer = hb_buffer_create();
@@ -276,7 +262,6 @@ struct Shaping::Plugin
 
         /* Cleanup */
         hb_buffer_destroy(harfBuzzBuffer);
-        hb_font_destroy(harfBuzzFont);
         break;
       }
       case FontDescription::BITMAP_FONT:
