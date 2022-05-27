@@ -86,6 +86,13 @@ public:
   bool Load(const Vector<uint8_t>& data, float dpi);
 
   /**
+   * @brief Query whether the vector image is loaded.
+   *
+   * @return True if the image is loaded, false other wise.
+   */
+  bool IsLoaded() const;
+
+  /**
    * @brief Rasterizes the content to the pixel buffer synchronously.
    *
    * @param[in] width The pixel buffer width

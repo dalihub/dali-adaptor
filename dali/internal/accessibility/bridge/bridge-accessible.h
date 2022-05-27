@@ -91,7 +91,7 @@ public:
     Dali::Accessibility::Accessible*  // describedByObject
     >;
 
-  using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Address>>;
+  using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildCount()

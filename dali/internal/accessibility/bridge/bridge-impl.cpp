@@ -227,7 +227,9 @@ public:
       mData->mHighlightActor            = {};
 
       mDisabledSignal.Emit();
+      UnembedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
     }
+
     mHighlightedActor     = {};
     mHighlightClearAction = {};
     BridgeAccessible::ForceDown();
@@ -351,17 +353,8 @@ public:
       }
     });
 
-    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
-    Address root{"", "root"};
-    auto    res = proxy.method<Address(Address)>("Embed").call(root);
-    if(!res)
-    {
-      LOG() << "Call to Embed failed: " << res.getError().message;
-    }
-    assert(res);
-
-    mApplication.mParent.SetAddress(std::move(std::get<0>(res)));
-
+    auto parentAddress = EmbedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
+    mApplication.mParent.SetAddress(std::move(parentAddress));
     mEnabledSignal.Emit();
 
     return ForceUpResult::JUST_STARTED;
@@ -692,6 +685,40 @@ public:
   bool IsEnabled() override
   {
     return mIsEnabled;
+  }
+
+  Address EmbedSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+    auto reply  = client.method<Address(Address)>("Embed").call(plug);
+
+    if(!reply)
+    {
+      DALI_LOG_ERROR("Failed to embed socket %s: %s", socket.ToString().c_str(), reply.getError().message.c_str());
+      return {};
+    }
+
+    return std::get<0>(reply.getValues());
+  }
+
+  void EmbedAtkSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+
+    client.method<void(std::string)>("Embedded").call(ATSPI_PREFIX_PATH + plug.GetPath());
+  }
+
+  void UnembedSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+
+    client.method<void(Address)>("Unembed").call(plug);
+  }
+
+private:
+  DBus::DBusClient CreateSocketClient(const Address& socket)
+  {
+    return {socket.GetBus(), ATSPI_PREFIX_PATH + socket.GetPath(), Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
   }
 }; // BridgeImpl
 

@@ -63,6 +63,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void SetToolkitName(std::string_view toolkitName) override
+  {
+  }
+
   Accessibility::Accessible* GetApplication() const override
   {
     return nullptr;
@@ -175,6 +179,19 @@ struct DummyBridge : Dali::Accessibility::Bridge
   bool IsEnabled() override
   {
     return false;
+  }
+
+  Address EmbedSocket(const Address& plug, const Address& socket) override
+  {
+    return {};
+  }
+
+  void EmbedAtkSocket(const Address& plug, const Address& socket) override
+  {
+  }
+
+  void UnembedSocket(const Address& plug, const Address& socket) override
+  {
   }
 };
 

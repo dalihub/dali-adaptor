@@ -30,6 +30,8 @@ namespace Dali
 {
 namespace Accessibility
 {
+class Accessible;
+
 /**
  * @brief Enumeration describing type of object move relative to the screen. Only outgoing moves are signalled to AT-clients.
  */
@@ -711,22 +713,26 @@ struct DALI_ADAPTOR_API GestureInfo
 
 /**
  * @brief Class representing accessibility relations
+ *
  * Class connecting one source object with multiple target objects with usage
  * of specific relation type.
- * @note std::string representing source and targets are string values of Accessibility::Address
- * @see Dali::Accessibility::Accessible::Address
+ *
+ * A remote target object (i.e. one belonging to a different process) can be
+ * represented in terms of a ProxyAccessible.
+ *
+ * @see Dali::Accessibility::Accessible::Accessible
  * @see Dali::Accessibility::Accessible::RelationType
  */
 struct DALI_ADAPTOR_API Relation
 {
-  Relation(RelationType relationType, std::vector<Address> targets)
-  : relationType(relationType),
-    targets(targets)
+  Relation(RelationType relationType, const std::vector<Accessible*>& targets)
+  : mRelationType(relationType),
+    mTargets(targets)
   {
   }
 
-  RelationType         relationType;
-  std::vector<Address> targets;
+  RelationType             mRelationType;
+  std::vector<Accessible*> mTargets;
 };
 
 } // namespace Accessibility

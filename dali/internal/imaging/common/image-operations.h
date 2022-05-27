@@ -694,6 +694,19 @@ inline unsigned int BilinearFilter1Component(unsigned int tl, unsigned int tr, u
   return rounded;
 }
 
+/**
+ * @brief Fast multiply & divide by 255. It wiil be useful when we applying alpha value in color
+ *
+ * @param x The value between [0..255]
+ * @param y The value between [0..255]
+ * @return (x*y)/255
+ */
+inline uint8_t MultiplyAndNormalizeColor(const uint8_t& x, const uint8_t& y) noexcept
+{
+  const uint32_t xy = static_cast<const uint32_t>(x) * y;
+  return ((xy << 15) + (xy << 7) + xy) >> 23;
+}
+
 /**@}*/
 
 } /* namespace Platform */

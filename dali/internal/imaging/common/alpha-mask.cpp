@@ -18,7 +18,7 @@
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 #include <dali/internal/imaging/common/pixel-manipulation.h>
-#include <dali/public-api/images/image-operations.h> // For ImageDimensions
+#include <dali/public-api/images/image-operations.h> // For ImageDimensions and MultiplyAndNormalizeColor
 
 namespace Dali
 {
@@ -85,7 +85,7 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
               for(const Channel& channel : validChannelList)
               {
                 auto color = ReadChannel(destBuffer + destOffset, destPixelFormat, channel);
-                WriteChannel(destBuffer + destOffset, destPixelFormat, channel, color * srcAlpha / 255);
+                WriteChannel(destBuffer + destOffset, destPixelFormat, channel, Platform::MultiplyAndNormalizeColor(color, srcAlpha));
               }
             }
             else
@@ -112,10 +112,10 @@ void ApplyMaskToAlphaChannel(PixelBuffer& buffer, const PixelBuffer& mask)
 
       for(unsigned int col = 0; col < buffer.GetWidth(); ++col)
       {
-        unsigned char srcAlpha  = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
-        unsigned char destAlpha = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
+        uint8_t srcAlpha  = srcBuffer[srcOffset + srcAlphaByteOffset] & srcAlphaMask;
+        uint8_t destAlpha = destBuffer[destOffset + destAlphaByteOffset] & destAlphaMask;
 
-        destAlpha = (static_cast<std::uint16_t>(destAlpha) * static_cast<std::uint16_t>(srcAlpha)) / 255;
+        destAlpha = Platform::MultiplyAndNormalizeColor(srcAlpha, destAlpha);
 
         destBuffer[destOffset + destAlphaByteOffset] &= ~destAlphaMask;
         destBuffer[destOffset + destAlphaByteOffset] |= (destAlpha & destAlphaMask);
@@ -184,7 +184,7 @@ PixelBufferPtr CreateNewMaskedBuffer(const PixelBuffer& buffer, const PixelBuffe
       if(hasAlpha)
       {
         destAlpha = ConvertAlphaChannelToA8(oldBuffer, srcColorOffset, srcColorPixelFormat);
-        destAlpha = (static_cast<std::uint16_t>(destAlpha) * static_cast<std::uint16_t>(srcAlpha)) / 255;
+        destAlpha = Platform::MultiplyAndNormalizeColor(srcAlpha, destAlpha);
       }
       else
       {

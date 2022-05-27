@@ -371,7 +371,7 @@ extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length
     if(encoded_img)
     {
       const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
-      encoded_img->Resize(bufferSize + length); //< Can throw OOM.
+      encoded_img->ResizeUninitialized(bufferSize + length); //< Can throw OOM.
       unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
       memcpy(bufferBack, data, length);
     }
