@@ -414,15 +414,6 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
     DALI_LOG_ERROR("eglQuerySurface(%d)\n", eglGetError());
     age = 0;
   }
-
-  // 0 - invalid buffer
-  // 1, 2, 3
-  if(age > 3)
-  {
-    DALI_LOG_ERROR("EglImplementation::GetBufferAge() buffer age %d > 3\n", age);
-    age = 0; // shoudn't be more than 3 back buffers, if there is just reset, I don't want to add extra history level
-  }
-
   return age;
 }
 
