@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/ref-object.h>
@@ -89,7 +90,7 @@ public:
    * @param[in] isTransparent Whether window is transparent
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className,  Dali::WindowType type, bool isTransparent = false);
+  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent = false);
 
   /**
    * @copydoc Dali::Window::SetClass()
@@ -459,6 +460,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool IsWindowRotating() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::GetLastKeyEvent()
+   */
+  const Dali::KeyEvent& GetLastKeyEvent() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::GetLastTouchEvent()
+   */
+  const Dali::TouchEvent& GetLastTouchEvent() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -712,27 +723,19 @@ private:
   WindowBase*          mWindowBase;
   std::string          mName;
   std::string          mClassName;
-  bool                 mIsTransparent : 1;
-  bool                 mIsFocusAcceptable : 1;
-  bool                 mIconified : 1;
-  bool                 mOpaqueState : 1;
-  bool                 mWindowRotationAcknowledgement : 1;
-  bool                 mFocused : 1;
   Dali::Window         mParentWindow;
 
   OrientationPtr   mOrientation;
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;                    ///< The angle of the rotation
-  int mWindowWidth;                      ///< The width of the window
-  int mWindowHeight;                     ///< The height of the window
+  int mRotationAngle;  ///< The angle of the rotation
+  int mWindowWidth;    ///< The width of the window
+  int mWindowHeight;   ///< The height of the window
+  int mNativeWindowId; ///< The Native Window Id
 
-  EventHandlerPtr mEventHandler;         ///< The window events handler
-
-  OrientationMode mOrientationMode;      ///< The physical screen mode is portrait or landscape
-
-  int mNativeWindowId;                   ///< The Native Window Id
+  EventHandlerPtr mEventHandler;    ///< The window events handler
+  OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
 
   // Signals
   SignalType                              mDeleteRequestSignal;
@@ -743,6 +746,16 @@ private:
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
+
+  Dali::KeyEvent   mLastKeyEevent;
+  Dali::TouchEvent mLastTouchEevent;
+
+  bool mIsTransparent : 1;
+  bool mIsFocusAcceptable : 1;
+  bool mIconified : 1;
+  bool mOpaqueState : 1;
+  bool mWindowRotationAcknowledgement : 1;
+  bool mFocused : 1;
 };
 
 } // namespace Adaptor

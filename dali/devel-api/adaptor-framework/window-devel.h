@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ struct TouchPoint;
 
 namespace DevelWindow
 {
-
 typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
 
 typedef Signal<void(const KeyEvent&)> KeyEventSignalType; ///< Key event signal type
@@ -487,6 +486,22 @@ DALI_ADAPTOR_API bool IsMinimized(Window window);
  * @return true if window is rotating, false otherwise.
  */
 DALI_ADAPTOR_API bool IsWindowRotating(Window window);
+
+/**
+ * @brief Gets the last key event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last key event the window gets.
+ */
+DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
+
+/**
+ * @brief Gets the last touch event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last touch event the window gets.
+ */
+DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
 
 } // namespace DevelWindow
 
