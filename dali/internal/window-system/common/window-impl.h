@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -422,6 +422,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool IsWindowRotating() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::GetLastKeyEvent()
+   */
+  const Dali::KeyEvent& GetLastKeyEvent() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -697,6 +702,8 @@ private:
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
+
+  Dali::KeyEvent mLastKeyEevent;
 };
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -422,6 +422,14 @@ DALI_ADAPTOR_API void FeedWheelEvent(Window window, const Dali::WheelEvent& whee
  * @param[in] keyEvent The key event holding the key information.
  */
 DALI_ADAPTOR_API void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent);
+
+/**
+ * @brief Gets the last key event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last key event the window gets.
+ */
+DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
 
 } // namespace DevelWindow
 

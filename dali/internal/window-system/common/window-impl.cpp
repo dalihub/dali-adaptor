@@ -20,6 +20,7 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/orientation.h>
+#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/public-api/actors/actor.h>
@@ -94,7 +95,8 @@ Window::Window()
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
-  mAuxiliaryMessageSignal()
+  mAuxiliaryMessageSignal(),
+  mLastKeyEevent()
 {
 }
 
@@ -836,6 +838,8 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
+  mLastKeyEevent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+
   FeedKeyEvent(keyEvent);
 }
 
@@ -1139,6 +1143,11 @@ void Window::SendRotationCompletedAcknowledgement()
 bool Window::IsWindowRotating() const
 {
   return mWindowSurface->IsWindowRotating();
+}
+
+const Dali::KeyEvent& Window::GetLastKeyEvent() const
+{
+  return mLastKeyEevent;
 }
 
 } // namespace Adaptor

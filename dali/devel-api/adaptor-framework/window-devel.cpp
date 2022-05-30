@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -222,6 +222,11 @@ void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
 {
   Integration::KeyEvent convertedEvent(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
   GetImplementation(window).FeedKeyEvent(convertedEvent);
+}
+
+const KeyEvent& GetLastKeyEvent(Window window)
+{
+  return GetImplementation(window).GetLastKeyEvent();
 }
 
 } // namespace DevelWindow
