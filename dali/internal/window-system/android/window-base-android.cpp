@@ -201,6 +201,10 @@ bool WindowBaseAndroid::IsMaximized() const
   return false;
 }
 
+void WindowBaseAndroid::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseAndroid::Minimize(bool minimize)
 {
 }
@@ -208,6 +212,10 @@ void WindowBaseAndroid::Minimize(bool minimize)
 bool WindowBaseAndroid::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseAndroid::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseAndroid::SetAvailableAnlges(const std::vector<int>& angles)

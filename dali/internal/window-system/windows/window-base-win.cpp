@@ -323,6 +323,10 @@ bool WindowBaseWin::IsMaximized() const
   return false;
 }
 
+void WindowBaseWin::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseWin::Minimize(bool minimize)
 {
 }
@@ -330,6 +334,10 @@ void WindowBaseWin::Minimize(bool minimize)
 bool WindowBaseWin::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseWin::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseWin::SetAvailableAnlges(const std::vector<int>& angles)

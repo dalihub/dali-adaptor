@@ -138,6 +138,11 @@ public:
   bool IsMaximized() const override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMaximumSize()
+   */
+  void SetMaximumSize(Dali::Window::WindowSize size) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Minimize()
    */
   void Minimize(bool minimize) override;
@@ -146,6 +151,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsMinimized()
    */
   bool IsMinimized() const override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   */
+  void SetMimimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()

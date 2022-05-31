@@ -1779,6 +1779,12 @@ bool WindowBaseEcoreWl2::IsMaximized() const
   return ecore_wl2_window_maximized_get(mEcoreWindow);
 }
 
+void WindowBaseEcoreWl2::SetMaximumSize(Dali::Window::WindowSize size)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
+  ecore_wl2_window_maximum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
+}
+
 void WindowBaseEcoreWl2::Minimize(bool minimize)
 {
   ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
@@ -1787,6 +1793,12 @@ void WindowBaseEcoreWl2::Minimize(bool minimize)
 bool WindowBaseEcoreWl2::IsMinimized() const
 {
   return ecore_wl2_window_iconified_get(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::SetMimimumSize(Dali::Window::WindowSize size)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_minimum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
+  ecore_wl2_window_minimum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
 }
 
 void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)

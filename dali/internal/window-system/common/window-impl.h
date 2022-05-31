@@ -129,6 +129,11 @@ public:
   bool IsMaximized() const;
 
   /**
+   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   */
+  void SetMaximumSize(Dali::Window::WindowSize size);
+
+  /**
    * @copydoc Dali::DevelWindow::Minimize()
    */
   void Minimize(bool minimize);
@@ -137,6 +142,11 @@ public:
    * @copydoc Dali::DevelWindow::IsMinimized()
    */
   bool IsMinimized() const;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   */
+  void SetMimimumSize(Dali::Window::WindowSize size);
 
   /**
    * @copydoc Dali::Window::GetLayerCount()
