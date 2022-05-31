@@ -431,6 +431,14 @@ DALI_ADAPTOR_API void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent
  */
 DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
 
+/**
+ * @brief Gets the last touch event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last touch event the window gets.
+ */
+DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
+
 } // namespace DevelWindow
 
 } // namespace Dali

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/ref-object.h>
@@ -427,6 +428,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   const Dali::KeyEvent& GetLastKeyEvent() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::GetLastTouchEvent()
+   */
+  const Dali::TouchEvent& GetLastTouchEvent() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -704,6 +710,7 @@ private:
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
 
   Dali::KeyEvent mLastKeyEevent;
+  Dali::TouchEvent mLastTouchEevent;
 };
 
 } // namespace Adaptor

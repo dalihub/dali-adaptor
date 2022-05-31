@@ -96,7 +96,8 @@ Window::Window()
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
   mAuxiliaryMessageSignal(),
-  mLastKeyEevent()
+  mLastKeyEevent(),
+  mLastTouchEevent()
 {
 }
 
@@ -828,6 +829,7 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
+  mLastTouchEevent = Dali::Integration::NewTouchEvent(timeStamp, point);
   FeedTouchPoint(point, timeStamp);
 }
 
@@ -839,7 +841,6 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEevent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
-
   FeedKeyEvent(keyEvent);
 }
 
@@ -1148,6 +1149,11 @@ bool Window::IsWindowRotating() const
 const Dali::KeyEvent& Window::GetLastKeyEvent() const
 {
   return mLastKeyEevent;
+}
+
+const Dali::TouchEvent& Window::GetLastTouchEvent() const
+{
+  return mLastTouchEevent;
 }
 
 } // namespace Adaptor

@@ -229,6 +229,11 @@ const KeyEvent& GetLastKeyEvent(Window window)
   return GetImplementation(window).GetLastKeyEvent();
 }
 
+const TouchEvent& GetLastTouchEvent(Window window)
+{
+  return GetImplementation(window).GetLastTouchEvent();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
