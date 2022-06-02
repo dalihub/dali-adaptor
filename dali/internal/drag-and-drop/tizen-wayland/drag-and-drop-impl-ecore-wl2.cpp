@@ -104,6 +104,13 @@ static Eina_Bool EcoreEventDataEnter(void* data, int type, void* event)
 
   // Set default offer is reject
   ecore_wl2_offer_accept(ev->offer, NULL);
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool EcoreEventDataLeave(void* data, int type, void* event)
+{
+  DragAndDropEcoreWl* dndImpl = reinterpret_cast<DragAndDropEcoreWl*>(data);
+  dndImpl->ResetDropTargets();
 
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -147,6 +154,7 @@ DragAndDropEcoreWl::DragAndDropEcoreWl()
   mMotionHandler     = ecore_event_handler_add(ECORE_WL2_EVENT_DND_MOTION, EcoreEventDataMotion, this);
   mDropHandler       = ecore_event_handler_add(ECORE_WL2_EVENT_DND_DROP, EcoreEventDataDrop, this);
   mEnterHandler      = ecore_event_handler_add(ECORE_WL2_EVENT_DND_ENTER, EcoreEventDataEnter, this);
+  mLeaveHandler      = ecore_event_handler_add(ECORE_WL2_EVENT_DND_LEAVE, EcoreEventDataLeave, this);
 }
 
 DragAndDropEcoreWl::~DragAndDropEcoreWl()
@@ -247,6 +255,15 @@ void DragAndDropEcoreWl::CallSourceEvent(Dali::DragAndDrop::SourceEventType type
     mSourceCallback(type);
   }
 }
+
+void DragAndDropEcoreWl::ResetDropTargets()
+{
+  for(std::size_t i = 0; i < mDropTargets.size(); i++)
+  {
+     mDropTargets[i].inside = false;
+  }
+}
+
 
 void DragAndDropEcoreWl::SendData(void* event)
 {

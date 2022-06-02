@@ -93,6 +93,11 @@ public:
    */
   void CallSourceEvent(Dali::DragAndDrop::SourceEventType type);
 
+  /**
+   * @brief Reset drop targets.
+   */
+  void ResetDropTargets();
+
 private:
   DragAndDropEcoreWl(const DragAndDropEcoreWl&) = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&) = delete;
@@ -109,6 +114,7 @@ private:
   Ecore_Event_Handler*              mMotionHandler{nullptr};
   Ecore_Event_Handler*              mDropHandler{nullptr};
   Ecore_Event_Handler*              mEnterHandler{nullptr};
+  Ecore_Event_Handler*              mLeaveHandler{nullptr};
   int                               mTargetIndex{0};
   std::string                       mMimeType;
   std::string                       mData;
