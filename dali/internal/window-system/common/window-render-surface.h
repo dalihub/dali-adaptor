@@ -129,6 +129,15 @@ public: // API
   void SetNeedsRotationCompletedAcknowledgement(bool needAcknowledgement);
 
   /**
+   * @brief Updates window surface's position and size.
+   * It is just to update the local variable in window surface.
+   * This function is only called when window's position or size is changed by display server.
+   *
+   * @param[in] positionSize The updated window surface's position and size.
+   */
+  void UpdatePositionSize(Dali::PositionSize positionSize);
+
+  /**
    * @brief Query whether window is rotating or not.
    *
    * @return true if window is rotating, false otherwise.

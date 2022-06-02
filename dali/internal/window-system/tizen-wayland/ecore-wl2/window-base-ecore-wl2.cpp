@@ -1063,11 +1063,13 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 
     if(windowMoved || windowResized)
     {
-      mWindowPositionSize.x = ev->x;
-      mWindowPositionSize.y = ev->y;
-      mWindowPositionSize.width = newWidth;
+      mWindowPositionSize.x      = ev->x;
+      mWindowPositionSize.y      = ev->y;
+      mWindowPositionSize.width  = newWidth;
       mWindowPositionSize.height = newHeight;
       DALI_LOG_RELEASE_INFO("Update position & resize signal by server, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+
+      ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
       Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
       DALI_LOG_RELEASE_INFO("emit signal to update window's position and size, x[%d] y[%d] w[%d] h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);

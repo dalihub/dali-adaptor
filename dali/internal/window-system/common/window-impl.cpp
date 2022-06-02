@@ -824,7 +824,33 @@ void Window::OnWindowRedrawRequest()
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 {
-  SetPositionSize(positionSize);
+  PositionSize oldRect = mSurface->GetPositionSize();
+
+  mWindowSurface->UpdatePositionSize(positionSize);
+
+  PositionSize newRect = positionSize;
+
+  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
+  {
+    Uint16Pair newSize(newRect.width, newRect.height);
+
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
+    SurfaceResized();
+
+    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
+
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Updated PositionSize by server :resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    Dali::Window handle(this);
+    mResizeSignal.Emit(handle, newSize);
+    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+  }
+
+  mSurface->SetFullSwapNextFrame();
+
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
