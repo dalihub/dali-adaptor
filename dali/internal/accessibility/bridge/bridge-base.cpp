@@ -62,6 +62,11 @@ void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Acce
     tickTimer = Dali::Timer::New(100);
     tickTimer.TickSignal().Connect(this, &BridgeBase::TickFilteredEvents);
   }
+
+  if(!tickTimer.IsRunning())
+  {
+    tickTimer.Start();
+  }
 }
 
 bool BridgeBase::TickFilteredEvents()

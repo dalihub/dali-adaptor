@@ -627,6 +627,10 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   Accessible* deputy     = nullptr;
   auto        accessible = FindSelf();
   auto        cType      = static_cast<CoordinateType>(coordinateType);
+
+  x -= mData->mExtentsOffset.first;
+  y -= mData->mExtentsOffset.second;
+
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
   auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
   bool recurse   = false;

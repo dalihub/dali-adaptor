@@ -52,6 +52,11 @@ public:
    * @copydoc Dali::Accessibility::Socket::Unembed()
    */
   DBus::ValueOrError<void> Unembed(Dali::Accessibility::Address plug);
+
+  /**
+   * @copydoc Dali::Accessibility::Socket::SetOffset()
+   */
+  DBus::ValueOrError<void> SetOffset(std::int32_t x, std::int32_t y);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_SOCKET_H

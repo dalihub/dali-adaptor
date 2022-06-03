@@ -48,6 +48,14 @@ public:
   virtual void Unembed(Address plug) = 0;
 
   /**
+   * @brief Set the offset (position information).
+   *
+   * @param[in] x Horizontal offset
+   * @param[in] y Vertical offset
+   */
+  virtual void SetOffset(std::int32_t x, std::int32_t y) = 0;
+
+  /**
    * @brief Downcasts an Accessible to a Socket.
    *
    * @param obj The Accessible

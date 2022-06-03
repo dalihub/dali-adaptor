@@ -26,6 +26,7 @@ void BridgeSocket::RegisterInterfaces()
 
   AddFunctionToInterface(desc, "Embed", &BridgeSocket::Embed);
   AddFunctionToInterface(desc, "Unembed", &BridgeSocket::Unembed);
+  AddFunctionToInterface(desc, "SetOffset", &BridgeSocket::SetOffset);
 
   mDbusServer.addInterface("/", desc, true);
 }
@@ -43,5 +44,11 @@ DBus::ValueOrError<Address> BridgeSocket::Embed(Address plug)
 DBus::ValueOrError<void> BridgeSocket::Unembed(Address plug)
 {
   FindSelf()->Unembed(plug);
+  return {};
+}
+
+DBus::ValueOrError<void> BridgeSocket::SetOffset(std::int32_t x, std::int32_t y)
+{
+  FindSelf()->SetOffset(x, y);
   return {};
 }

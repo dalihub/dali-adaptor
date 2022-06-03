@@ -193,7 +193,18 @@ public:
     {
       mIsEmbedded = false;
       mParent.SetAddress({});
+      Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(0, 0);
     }
+  }
+
+  void SetOffset(std::int32_t x, std::int32_t y) override
+  {
+    if(!mIsEmbedded)
+    {
+      return;
+    }
+
+    Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(x, y);
   }
 
   // Component
@@ -267,7 +278,8 @@ public:
  */
 enum class FilteredEvents
 {
-  BOUNDS_CHANGED ///< Bounds changed
+  BOUNDS_CHANGED, ///< Bounds changed
+  SET_OFFSET, ///< Set offset
 };
 
 // Custom specialization of std::hash
