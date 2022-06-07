@@ -93,7 +93,7 @@ public:
     FT_Error&         error);
 
   /**
-   * @brief Load GlyphCacheData from face. The result will be cached.
+   * @brief Load GlyphCacheData from face. The result will not be cached.
    * @note If we call this API, We should release GlyphCacheData manually.
    *
    * @param[in] index Index of glyph in this face.
@@ -109,6 +109,23 @@ public:
     const bool&       isBoldRequired,
     GlyphCacheData&   data,
     FT_Error&         error);
+
+  /**
+   * @brief Resize bitmap glyph. The result will change cached glyph bitmap information.
+   * If glyph is not bitmap glyph, nothing happened.
+   *
+   * @param[in] index Index of glyph in this face.
+   * @param[in] flag Flag when we load the glyph.
+   * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] desiredWidth Desired width of bitmap.
+   * @param[in] desiredHeight Desired height of bitmap.
+   */
+  void ResizeBitmapGlyph(
+    const GlyphIndex& index,
+    const FT_Int32&   flag,
+    const bool&       isBoldRequired,
+    const uint32_t&   desiredWidth,
+    const uint32_t&   desiredHeight);
 
 private:
   // Private struct area.

@@ -143,7 +143,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
 
   // Creates the output buffer
   const unsigned int bufferSize = data.width * data.height * 4u;
-  data.buffer                   = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
+  data.buffer                   = new uint8_t[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
 
   if(inputDimensions == desiredDimensions)
   {

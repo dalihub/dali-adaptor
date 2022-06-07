@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
+// INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
+
+// EXTERNAL INCLUDES
 #include FT_BITMAP_H
 
 #if defined(DEBUG_ENABLED)
@@ -184,6 +188,102 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
     }
   }
   return false;
+}
+
+void GlyphCacheManager::ResizeBitmapGlyph(
+  const GlyphIndex& index,
+  const FT_Int32&   flag,
+  const bool&       isBoldRequired,
+  const uint32_t&   desiredWidth,
+  const uint32_t&   desiredHeight)
+{
+  FT_Error       error;
+  GlyphCacheData originGlyphData;
+  if(GetGlyphCacheDataFromIndex(index, flag, isBoldRequired, originGlyphData, error))
+  {
+    if(DALI_LIKELY(originGlyphData.mIsBitmap && originGlyphData.mBitmap))
+    {
+      const bool requiredResize = (originGlyphData.mBitmap->rows != desiredHeight) || (originGlyphData.mBitmap->width != desiredWidth);
+      if(requiredResize)
+      {
+        const GlyphCacheKey key  = GlyphCacheKey(index, flag, isBoldRequired);
+        auto                iter = mLRUGlyphCache.Find(key);
+
+        GlyphCacheData& destinationGlpyhData = iter->element;
+
+        const ImageDimensions inputDimensions(destinationGlpyhData.mBitmap->width, destinationGlpyhData.mBitmap->rows);
+        const ImageDimensions desiredDimensions(desiredWidth, desiredHeight);
+
+        uint8_t* desiredBuffer = nullptr;
+
+        switch(destinationGlpyhData.mBitmap->pixel_mode)
+        {
+          case FT_PIXEL_MODE_GRAY:
+          {
+            if(destinationGlpyhData.mBitmap->pitch == static_cast<int>(destinationGlpyhData.mBitmap->width))
+            {
+              desiredBuffer = new uint8_t[desiredWidth * desiredHeight];
+              // Resize bitmap here.
+              Dali::Internal::Platform::LanczosSample1BPP(destinationGlpyhData.mBitmap->buffer,
+                                                          inputDimensions,
+                                                          destinationGlpyhData.mBitmap->width,
+                                                          desiredBuffer,
+                                                          desiredDimensions);
+            }
+            break;
+          }
+#ifdef FREETYPE_BITMAP_SUPPORT
+          case FT_PIXEL_MODE_BGRA:
+          {
+            if(destinationGlpyhData.mBitmap->pitch == static_cast<int>(destinationGlpyhData.mBitmap->width << 2u))
+            {
+              desiredBuffer = new uint8_t[(desiredWidth * desiredHeight) << 2u];
+              // Resize bitmap here.
+              Dali::Internal::Platform::LanczosSample4BPP(destinationGlpyhData.mBitmap->buffer,
+                                                          inputDimensions,
+                                                          destinationGlpyhData.mBitmap->width,
+                                                          desiredBuffer,
+                                                          desiredDimensions);
+            }
+            break;
+          }
+#endif
+          default:
+          {
+            DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::GlyphCacheManager::ResizeBitmapGlyph. FontClient Unable to create Bitmap of this PixelType\n");
+            break;
+          }
+        }
+
+        if(desiredBuffer)
+        {
+          // Success to resize bitmap glyph.
+          // Release origin bitmap buffer.
+          delete[] destinationGlpyhData.mBitmap->buffer;
+
+          // Replace as desired buffer and size.
+          destinationGlpyhData.mBitmap->buffer = desiredBuffer;
+          destinationGlpyhData.mBitmap->width  = desiredWidth;
+          destinationGlpyhData.mBitmap->rows   = desiredHeight;
+          switch(destinationGlpyhData.mBitmap->pixel_mode)
+          {
+            case FT_PIXEL_MODE_GRAY:
+            {
+              destinationGlpyhData.mBitmap->pitch = desiredWidth;
+              break;
+            }
+#ifdef FREETYPE_BITMAP_SUPPORT
+            case FT_PIXEL_MODE_BGRA:
+            {
+              destinationGlpyhData.mBitmap->pitch = desiredWidth << 2u;
+              break;
+            }
+#endif
+          }
+        }
+      }
+    }
+  }
 }
 
 void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()

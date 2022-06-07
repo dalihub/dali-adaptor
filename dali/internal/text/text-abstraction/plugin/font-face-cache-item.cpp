@@ -34,6 +34,13 @@ const float FROM_266        = 1.0f / 64.0f;
 const float POINTS_PER_INCH = 72.f;
 
 /**
+ * @brief Maximum rate of bitmap glyph resize.
+ * If scale factor is bigger than this value, we will not cache resized glyph.
+ * Else, resize bitmap glyph itself and cache it.
+ */
+constexpr float MAXIMUM_RATE_OF_BITMAP_GLYPH_CACHE_RESIZE = 1.5f;
+
+/**
  * @brief Maximum size of glyph cache per each font face.
  */
 constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
@@ -181,7 +188,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
   if(mIsFixedSizeBitmap)
   {
     FT_Select_Size(mFreeTypeFace, mFixedSizeIndex); ///< @todo: needs to be investigated why it's needed to select the size again.
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphInfo.index, FT_LOAD_COLOR, false, glyphData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphData, error);
 
     if(FT_Err_Ok == error)
     {
@@ -214,6 +221,17 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
         glyphInfo.yBearing      = round(glyphInfo.yBearing * scaleFactor);
 
         glyphInfo.scaleFactor = scaleFactor;
+
+        if(scaleFactor < MAXIMUM_RATE_OF_BITMAP_GLYPH_CACHE_RESIZE)
+        {
+          // Resize bitmap glyph and cache it due to the performance issue.
+          // If scaleFactor is too big, cached bitmap may hold too big memory.
+          // So, we only hold small enough case.
+
+          // TODO : If dpiVertical value changed, this resize feature will be break down.
+          // Otherwise, this glyph will be resized only one times.
+          mGlyphCacheManager->ResizeBitmapGlyph(glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, static_cast<uint32_t>(glyphInfo.width), static_cast<uint32_t>(glyphInfo.height));
+        }
       }
     }
     else
