@@ -1165,7 +1165,7 @@ PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex,
                         data.width,
                         data.height,
                         data.format,
-                        PixelData::DELETE_ARRAY);
+                        PixelData::FREE);
 }
 
 void FontClient::Plugin::CreateVectorBlob(FontId fontId, GlyphIndex glyphIndex, VectorBlob*& blob, unsigned int& blobLength, unsigned int& nominalWidth, unsigned int& nominalHeight)

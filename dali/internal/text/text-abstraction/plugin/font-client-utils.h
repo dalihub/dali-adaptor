@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,8 +38,9 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data,
                    const unsigned char* const                    srcBuffer);
 
 void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data,
-                   FT_Bitmap                                     srcBitmap,
-                   bool                                          isShearRequired);
+                   FT_Bitmap&                                    srcBitmap,
+                   bool                                          isShearRequired,
+                   bool                                          moveBuffer = false);
 
 /**
  * @brief Creates a font family pattern used to match fonts.

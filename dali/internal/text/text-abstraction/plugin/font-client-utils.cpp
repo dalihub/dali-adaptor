@@ -143,7 +143,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
 
   // Creates the output buffer
   const unsigned int bufferSize = data.width * data.height * 4u;
-  data.buffer                   = new uint8_t[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
+  data.buffer                   = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
 
   if(inputDimensions == desiredDimensions)
   {
@@ -164,10 +164,12 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
  * @brief Copy the FreeType bitmap to the given buffer.
  *
  * @param[out] data The bitmap data.
- * @param[in] srcBitmap The FreeType bitmap.
+ * @param[in,out] srcBitmap The FreeType bitmap.
  * @param[in] isShearRequired Whether the bitmap needs a shear transform (for software italics).
+ * @param[in] moveBuffer Whether the bitmap buffer move. True if just copy buffer pointer. False if we use memcpy. (Default is false.)
+ * @note If you set moveBuffer=true, the bitmap's buffer moved frome srcBitmap to data. So srcBitmap buffer changed as nullptr.
  */
-void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap, bool isShearRequired)
+void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap& srcBitmap, bool isShearRequired, bool moveBuffer)
 {
   if(srcBitmap.width * srcBitmap.rows > 0)
   {
@@ -181,7 +183,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
           unsigned int width    = srcBitmap.width;
           unsigned     height   = srcBitmap.rows;
 
-          std::unique_ptr<uint8_t, void (*)(void*)> pixelsOutPtr(nullptr, free);
+          uint8_t* releaseRequiredPixelPtr = nullptr;
 
           if(isShearRequired)
           {
@@ -232,18 +234,52 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
                                                       widthOut,
                                                       heightOut);
 
-            width    = widthOut;
-            height   = heightOut;
-            pixelsIn = pixelsOut;
-            pixelsOutPtr.reset(pixelsOut);
+            if(DALI_LIKELY(pixelsOut))
+            {
+              width  = widthOut;
+              height = heightOut;
+
+              if(moveBuffer)
+              {
+                releaseRequiredPixelPtr = pixelsIn;
+              }
+              else
+              {
+                releaseRequiredPixelPtr = pixelsOut;
+              }
+
+              // Change input buffer ptr.
+              pixelsIn = pixelsOut;
+            }
+            else
+            {
+              DALI_LOG_ERROR("ERROR! software italic slant failed!\n");
+            }
           }
 
-          const unsigned int bufferSize = width * height;
-          data.buffer                   = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
-          data.width                    = width;
-          data.height                   = height;
-          data.format                   = Pixel::L8; // Sets the pixel format.
-          memcpy(data.buffer, pixelsIn, bufferSize);
+          data.width  = width;
+          data.height = height;
+          data.format = Pixel::L8; // Sets the pixel format.
+
+          if(moveBuffer)
+          {
+            data.buffer = pixelsIn;
+
+            // Happy trick for copyless convert bitmap!
+            srcBitmap.buffer = nullptr;
+          }
+          else
+          {
+            const unsigned int bufferSize = width * height;
+            data.buffer                   = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
+
+            memcpy(data.buffer, pixelsIn, bufferSize);
+          }
+
+          if(releaseRequiredPixelPtr)
+          {
+            free(releaseRequiredPixelPtr);
+          }
         }
         break;
       }
@@ -253,6 +289,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
       {
         if(srcBitmap.pitch == static_cast<int>(srcBitmap.width << 2u))
         {
+          // Color glyph doesn't support copyless convert bitmap. Just memcpy
           ConvertBitmap(data, srcBitmap.width, srcBitmap.rows, srcBitmap.buffer);
 
           // Sets the pixel format.

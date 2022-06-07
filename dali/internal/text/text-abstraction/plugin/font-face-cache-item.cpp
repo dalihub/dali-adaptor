@@ -424,7 +424,8 @@ void FontFaceCacheItem::CreateBitmap(
           data.outlineOffsetY = bitmapGlyph->top - offsetY - outlineWidth;
         }
 
-        ConvertBitmap(data, bitmapGlyph->bitmap, isShearRequired);
+        // Move bitmap buffer into data.buffer
+        ConvertBitmap(data, bitmapGlyph->bitmap, isShearRequired, true);
 
         // Copied FT_Glyph object must be released with FT_Done_Glyph
         FT_Done_Glyph(glyph);
