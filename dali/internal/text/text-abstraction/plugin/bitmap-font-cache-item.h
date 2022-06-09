@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_BITMAP_FONT_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,11 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   BitmapFontCacheItem(const BitmapFont& bitmapFont, FontId fontId);
 
   /**
+   * Destructor
+   */
+  ~BitmapFontCacheItem() = default;
+
+  /**
    * @copydoc FontCacheItemInterface::GetFontMetrics()
    */
   void GetFontMetrics(FontMetrics& metrics, unsigned int dpiVertical) const override;
@@ -49,7 +54,7 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
   /**
    * @copydoc FontCacheItemInterface::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertical, bool horizontal) const override;
+  bool GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVertical, bool horizontal) const override;
 
   /**
    * @copydoc FontCacheItemInterface::CreateBitmap()

@@ -854,7 +854,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
 
           // Retrieve the image
           TextAbstraction::FontClient::GlyphBufferData data;
-          std::unique_ptr<GlyphBuffer>                 glyphBufferPtr(new GlyphBuffer(data, GlyphBuffer::DELETE));
+          std::unique_ptr<GlyphBuffer>                 glyphBufferPtr(new GlyphBuffer(data, GlyphBuffer::FREE));
           if(isEmoji)
           {
             data.width  = parameters.glyphs[run.glyphIndex].width;
@@ -904,11 +904,10 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                                                     heightOut);
             if(nullptr != pixelsOut)
             {
-              delete[] data.buffer;
-              data.buffer                = pixelsOut;
-              glyphBufferPtr.get()->type = GlyphBuffer::FREE;
-              data.width                 = widthOut;
-              data.height                = heightOut;
+              free(data.buffer);
+              data.buffer = pixelsOut;
+              data.width  = widthOut;
+              data.height = heightOut;
             }
 
             glyphX = centerX - 0.5 * static_cast<double>(data.width);

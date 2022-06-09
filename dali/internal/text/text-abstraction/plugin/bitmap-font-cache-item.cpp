@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,14 +67,14 @@ void BitmapFontCacheItem::GetFontMetrics(FontMetrics& metrics, unsigned int dpiV
   metrics.underlineThickness = font.underlineThickness;
 }
 
-bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertical, bool horizontal) const
+bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVertical, bool horizontal) const
 {
   bool success(false);
 
   unsigned int index = 0u;
   for(auto& item : font.glyphs)
   {
-    if(item.utf32 == glyph.index)
+    if(item.utf32 == glyphInfo.index)
     {
       Devel::PixelBuffer& pixelBuffer = const_cast<Devel::PixelBuffer&>(pixelBuffers[index]);
       if(!pixelBuffer)
@@ -82,13 +82,13 @@ bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVert
         pixelBuffer = LoadImageFromFile(item.url);
       }
 
-      glyph.width       = static_cast<float>(pixelBuffer.GetWidth());
-      glyph.height      = static_cast<float>(pixelBuffer.GetHeight());
-      glyph.xBearing    = 0.f;
-      glyph.yBearing    = glyph.height + item.descender;
-      glyph.advance     = glyph.width;
-      glyph.scaleFactor = 1.f;
-      success           = true;
+      glyphInfo.width       = static_cast<float>(pixelBuffer.GetWidth());
+      glyphInfo.height      = static_cast<float>(pixelBuffer.GetHeight());
+      glyphInfo.xBearing    = 0.f;
+      glyphInfo.yBearing    = glyphInfo.height + item.descender;
+      glyphInfo.advance     = glyphInfo.width;
+      glyphInfo.scaleFactor = 1.f;
+      success               = true;
       break;
     }
     ++index;

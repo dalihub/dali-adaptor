@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>&        
   {
     // Creates the output buffer
     const unsigned int bufferSize = data.width * data.height * 4u;
-    data.buffer                   = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
+    data.buffer                   = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
 
     memset(data.buffer, 0u, bufferSize);
 
