@@ -195,23 +195,6 @@ struct Framework::Impl
 #endif
     mApplicationType = type;
     mCallbackManager = CallbackManager::New();
-
-    char* region   = nullptr;
-    char* language = nullptr;
-    system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region);
-    system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language);
-
-    if(region != nullptr)
-    {
-      mRegion = std::string(region);
-      free(region);
-    }
-
-    if(language != nullptr)
-    {
-      mLanguage = std::string(language);
-      free(language);
-    }
   }
 
   ~Impl()
@@ -294,13 +277,35 @@ struct Framework::Impl
     mRegion = region;
   }
 
-  std::string GetLanguage() const
+  std::string GetLanguage()
   {
+    if(mLanguage.empty())
+    {
+      char* language = nullptr;
+      system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, &language);
+
+      if(language != nullptr)
+      {
+        mLanguage = std::string(language);
+        free(language);
+      }
+    }
     return mLanguage;
   }
 
-  std::string GetRegion() const
+  std::string GetRegion()
   {
+    if(mRegion.empty())
+    {
+      char* region = nullptr;
+      system_settings_get_value_string(SYSTEM_SETTINGS_KEY_LOCALE_COUNTRY, &region);
+
+      if(region != nullptr)
+      {
+        mRegion = std::string(region);
+        free(region);
+      }
+    }
     return mRegion;
   }
 
@@ -308,8 +313,8 @@ struct Framework::Impl
   Type             mApplicationType;
   CallbackBase*    mAbortCallBack;
   CallbackManager* mCallbackManager;
-  std::string      mLanguage;
-  std::string      mRegion;
+  std::string      mLanguage{};
+  std::string      mRegion{};
 
   Framework*                  mFramework;
   AppCore::AppEventHandlerPtr handlers[5];
