@@ -20,10 +20,8 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/orientation.h>
-#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
-#include <dali/integration-api/events/touch-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -78,28 +76,26 @@ Window* Window::New(Any surface, const PositionSize& positionSize, const std::st
 Window::Window()
 : mWindowSurface(nullptr),
   mWindowBase(),
+  mIsTransparent(false),
+  mIsFocusAcceptable(true),
+  mIconified(false),
+  mOpaqueState(false),
+  mWindowRotationAcknowledgement(false),
+  mFocused(false),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
   mWindowWidth(0),
   mWindowHeight(0),
-  mNativeWindowId(-1),
   mOrientationMode(Internal::Adaptor::Window::OrientationMode::PORTRAIT),
+  mNativeWindowId(-1),
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
   mResizeSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
-  mAuxiliaryMessageSignal(),
-  mLastKeyEevent(),
-  mLastTouchEevent(),
-  mIsTransparent(false),
-  mIsFocusAcceptable(true),
-  mIconified(false),
-  mOpaqueState(false),
-  mWindowRotationAcknowledgement(false),
-  mFocused(false)
+  mAuxiliaryMessageSignal()
 {
 }
 
@@ -891,7 +887,6 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
-  mLastTouchEevent = Dali::Integration::NewTouchEvent(timeStamp, point);
   FeedTouchPoint(point, timeStamp);
 }
 
@@ -902,7 +897,6 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  mLastKeyEevent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   FeedKeyEvent(keyEvent);
 }
 
@@ -1213,16 +1207,6 @@ void Window::SendRotationCompletedAcknowledgement()
 bool Window::IsWindowRotating() const
 {
   return mWindowSurface->IsWindowRotating();
-}
-
-const Dali::KeyEvent& Window::GetLastKeyEvent() const
-{
-  return mLastKeyEevent;
-}
-
-const Dali::TouchEvent& Window::GetLastTouchEvent() const
-{
-  return mLastTouchEevent;
 }
 
 } // namespace Adaptor
