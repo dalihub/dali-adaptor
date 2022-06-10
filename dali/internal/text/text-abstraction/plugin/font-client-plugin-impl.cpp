@@ -1262,6 +1262,16 @@ bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
   return FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
 }
 
+HarfBuzzFontHandle FontClient::Plugin::GetHarfBuzzFont(FontId fontId)
+{
+  FontCacheItemInterface* fontCacheItem = const_cast<FontCacheItemInterface*>(GetCachedFontItem(fontId));
+  if(fontCacheItem != nullptr)
+  {
+    return fontCacheItem->GetHarfBuzzFont(mDpiHorizontal, mDpiVertical); // May cache
+  }
+  return nullptr;
+}
+
 GlyphIndex FontClient::Plugin::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   EmbeddedItem embeddedItem;

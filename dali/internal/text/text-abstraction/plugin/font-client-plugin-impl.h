@@ -414,6 +414,11 @@ public:
    */
   bool AddCustomFontDirectory(const FontPath& path);
 
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetHarfBuzzFont()
+   */
+  HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId);
+
 private:
   /**
    * @brief Caches the fonts present in the platform.
