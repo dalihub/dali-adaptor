@@ -1333,7 +1333,7 @@ void HalveScanlineInPlaceRGB565(unsigned char* pixels, unsigned int width)
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    const uint32_t averaged = AveragePixelRGB565(alignedPixels[pixel], alignedPixels[pixel + 1]);
+    const uint16_t averaged = AveragePixelRGB565(alignedPixels[pixel], alignedPixels[pixel + 1]);
     alignedPixels[outPixel] = averaged;
   }
 }
@@ -1395,6 +1395,7 @@ namespace
 /**
  * @copydoc AverageScanlines1
  * @note This API average eight components in one operation.
+ * @note Only possible if each scanline pointer's address aligned
  * It will give performance benifit.
  */
 inline void AverageScanlinesWithEightComponents(
@@ -1406,20 +1407,27 @@ inline void AverageScanlinesWithEightComponents(
   unsigned int component = 0;
   if(DALI_LIKELY(totalComponentCount >= 8))
   {
-    // Jump 8 components in one step
-    const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1);
-    const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2);
-    std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline);
-
-    const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
-    component                          = totalStepCount << 3;
-
-    // and for each step, calculate average of 8 bytes.
-    for(std::uint32_t i = 0; i < totalStepCount; ++i)
+    // Note reinsterpret_cast from uint8_t to uint64_t and read/write only allowed
+    // If pointer of data is aligned well.
+    if(((reinterpret_cast<std::ptrdiff_t>(scanline1) & (sizeof(std::uint64_t) - 1)) == 0) &&
+       ((reinterpret_cast<std::ptrdiff_t>(scanline2) & (sizeof(std::uint64_t) - 1)) == 0) &&
+       ((reinterpret_cast<std::ptrdiff_t>(outputScanline) & (sizeof(std::uint64_t) - 1)) == 0))
     {
-      const auto& c1     = *(scanline18Step + i);
-      const auto& c2     = *(scanline28Step + i);
-      *(output8step + i) = static_cast<std::uint64_t>((((c1 ^ c2) & 0xfefefefefefefefeull) >> 1) + (c1 & c2));
+      // Jump 8 components in one step
+      const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1);
+      const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2);
+      std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline);
+
+      const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
+      component                          = totalStepCount << 3;
+
+      // and for each step, calculate average of 8 bytes.
+      for(std::uint32_t i = 0; i < totalStepCount; ++i)
+      {
+        const auto& c1     = *(scanline18Step + i);
+        const auto& c2     = *(scanline28Step + i);
+        *(output8step + i) = static_cast<std::uint64_t>((((c1 ^ c2) & 0xfefefefefefefefeull) >> 1) + (c1 & c2));
+      }
     }
   }
   // remaining components calculate
@@ -1968,7 +1976,7 @@ inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
 
     // Find the two scanlines to blend and the weight to blend with:
     const unsigned int integerY1    = inY >> 16u;
-    const unsigned int integerY2    = integerY1 >= inputHeight ? integerY1 : integerY1 + 1;
+    const unsigned int integerY2    = integerY1 + 1 >= inputHeight ? integerY1 : integerY1 + 1;
     const unsigned int inputYWeight = inY & 65535u;
 
     DALI_ASSERT_DEBUG(integerY1 < inputHeight);
@@ -1982,7 +1990,7 @@ inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
     {
       // Work out the two pixel scanline offsets for this cluster of four samples:
       const unsigned int integerX1 = inX >> 16u;
-      const unsigned int integerX2 = integerX1 >= inputWidth ? integerX1 : integerX1 + 1;
+      const unsigned int integerX2 = integerX1 + 1 >= inputWidth ? integerX1 : integerX1 + 1;
 
       // Execute the loads:
       const PIXEL pixel1 = inScanline1[integerX1];
