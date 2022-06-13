@@ -620,6 +620,12 @@ private:
   Vector<EmbeddedItem>              mEmbeddedItemCache; ///< Cache embedded items.
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.
 
+  FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()
+  FontDescriptionId mLatestFoundFontDescriptionId;
+
+  FontDescriptionSizeCacheKey mLatestFoundCacheKey; ///< Latest found font description and id in FindFont()
+  FontCacheIndex              mLatestFoundCacheIndex;
+
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 
   bool    mIsAtlasLimitationEnabled : 1;      ///< Whether the validation on maximum atlas block size, then reduce block size to fit into it is enabled or not.
