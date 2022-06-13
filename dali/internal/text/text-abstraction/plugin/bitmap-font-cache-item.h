@@ -39,7 +39,7 @@ struct BitmapFontCacheItem : public FontCacheItemInterface
    * @param[in] bitmapFont The font to cache
    * @param[in] fontId The id of the font
    */
-  BitmapFontCacheItem(const BitmapFont& bitmapFont, FontId fontId);
+  BitmapFontCacheItem(const BitmapFont& bitmapFont);
 
   /**
    * Destructor

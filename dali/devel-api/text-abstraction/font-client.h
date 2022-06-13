@@ -262,21 +262,21 @@ public:
   void GetSystemFonts(FontList& systemFonts);
 
   /**
-   * @brief Retrieves the font description of a given font @p id.
+   * @brief Retrieves the font description of a given font @p fontId.
    *
-   * @param[in] id The font identifier.
+   * @param[in] fontId The font identifier.
    * @param[out] fontDescription The path, family & style (width, weight and slant) describing the font.
    */
-  void GetDescription(FontId id, FontDescription& fontDescription);
+  void GetDescription(FontId fontId, FontDescription& fontDescription);
 
   /**
-   * @brief Retrieves the font point size of a given font @p id.
+   * @brief Retrieves the font point size of a given font @p fontId.
    *
-   * @param[in] id The font identifier.
+   * @param[in] fontId The font identifier.
    *
    * @return The point size in 26.6 fractional points.
    */
-  PointSize26Dot6 GetPointSize(FontId id);
+  PointSize26Dot6 GetPointSize(FontId fontId);
 
   /**
    * @brief Whether the given @p character is supported by the font.

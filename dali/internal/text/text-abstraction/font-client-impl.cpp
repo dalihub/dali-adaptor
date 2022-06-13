@@ -152,18 +152,18 @@ void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescript
   mPlugin->GetDefaultPlatformFontDescription(fontDescription);
 }
 
-void FontClient::GetDescription(FontId id, FontDescription& fontDescription)
+void FontClient::GetDescription(FontId fontId, FontDescription& fontDescription)
 {
   CreatePlugin();
 
-  mPlugin->GetDescription(id, fontDescription);
+  mPlugin->GetDescription(fontId, fontDescription);
 }
 
-PointSize26Dot6 FontClient::GetPointSize(FontId id)
+PointSize26Dot6 FontClient::GetPointSize(FontId fontId)
 {
   CreatePlugin();
 
-  return mPlugin->GetPointSize(id);
+  return mPlugin->GetPointSize(fontId);
 }
 
 bool FontClient::IsCharacterSupportedByFont(FontId fontId, Character character)
@@ -246,10 +246,10 @@ FontId FontClient::GetFontId(const FontPath& path, PointSize26Dot6 requestedPoin
 {
   CreatePlugin();
 
-  return mPlugin->GetFontId(path,
-                            requestedPointSize,
-                            faceIndex,
-                            true);
+  return mPlugin->GetFontIdByPath(path,
+                                  requestedPointSize,
+                                  faceIndex,
+                                  true);
 }
 
 FontId FontClient::GetFontId(const FontDescription& fontDescription,

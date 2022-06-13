@@ -1,5 +1,5 @@
-#ifndef DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
-#define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
+#ifndef DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
+#define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
 
 /*
  * Copyright (c) 2022 Samsung Electronics Co., Ltd.
@@ -41,14 +41,14 @@ namespace Dali::TextAbstraction::Internal
  */
 struct FontFaceCacheItem : public FontCacheItemInterface
 {
-  FontFaceCacheItem(FT_Library&        freeTypeLibrary,
+  FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                     FT_Face            ftFace,
                     const FontPath&    path,
                     PointSize26Dot6    requestedPointSize,
                     FaceIndex          face,
                     const FontMetrics& metrics);
 
-  FontFaceCacheItem(FT_Library&        freeTypeLibrary,
+  FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                     FT_Face            ftFace,
                     const FontPath&    path,
                     PointSize26Dot6    requestedPointSize,
@@ -129,8 +129,8 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   }
 
 public:
-  FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
-  FT_Face     mFreeTypeFace;    ///< The FreeType face.
+  const FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
+  FT_Face           mFreeTypeFace;    ///< The FreeType face.
 
   std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
   std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont; ///< The harfbuzz font. It will store harfbuzz relate data.
@@ -151,4 +151,4 @@ public:
 
 } // namespace Dali::TextAbstraction::Internal
 
-#endif //DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
+#endif //DALI_TEXT_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H

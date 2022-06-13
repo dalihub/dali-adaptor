@@ -27,9 +27,10 @@ extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 
 namespace Dali::TextAbstraction::Internal
 {
-BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont, FontId fontId)
+BitmapFontCacheItem::BitmapFontCacheItem(const BitmapFont& bitmapFont)
 : font(bitmapFont),
-  id(fontId)
+  pixelBuffers(),
+  id(0u)
 {
   // Resize the vector with the pixel buffers.
   pixelBuffers.resize(bitmapFont.glyphs.size());

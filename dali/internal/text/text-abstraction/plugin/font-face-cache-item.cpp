@@ -113,7 +113,7 @@ inline const GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPo
 }
 } // namespace
 
-FontFaceCacheItem::FontFaceCacheItem(FT_Library&        freeTypeLibrary,
+FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,
@@ -138,7 +138,7 @@ FontFaceCacheItem::FontFaceCacheItem(FT_Library&        freeTypeLibrary,
 {
 }
 
-FontFaceCacheItem::FontFaceCacheItem(FT_Library&        freeTypeLibrary,
+FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,

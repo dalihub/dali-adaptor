@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_PIXEL_BUFFER_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ struct PixelBufferCacheItem
 {
   Devel::PixelBuffer pixelBuffer; ///< The pixel buffer loaded from the url.
   std::string        url;         ///< The url.
+  PixelBufferId      id;          ///< The id of this item. Should be bigger than 0.
 };
 
 } // namespace Dali::TextAbstraction::Internal

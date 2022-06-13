@@ -643,14 +643,14 @@ void FontClient::GetSystemFonts(FontList& systemFonts)
   GetImplementation(*this).GetSystemFonts(systemFonts);
 }
 
-void FontClient::GetDescription(FontId id, FontDescription& fontDescription)
+void FontClient::GetDescription(FontId fontId, FontDescription& fontDescription)
 {
-  GetImplementation(*this).GetDescription(id, fontDescription);
+  GetImplementation(*this).GetDescription(fontId, fontDescription);
 }
 
-PointSize26Dot6 FontClient::GetPointSize(FontId id)
+PointSize26Dot6 FontClient::GetPointSize(FontId fontId)
 {
-  return GetImplementation(*this).GetPointSize(id);
+  return GetImplementation(*this).GetPointSize(fontId);
 }
 
 bool FontClient::IsCharacterSupportedByFont(FontId fontId, Character character)

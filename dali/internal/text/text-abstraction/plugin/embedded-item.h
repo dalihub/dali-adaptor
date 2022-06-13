@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_TEXTABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
-#define DALI_INTERNAL_TEXTABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
+#ifndef DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
+#define DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,12 @@ namespace Dali::TextAbstraction::Internal
  */
 struct EmbeddedItem
 {
+  // Default constructor.
+  EmbeddedItem() = default;
+
+  // Default destructor.
+  ~EmbeddedItem() = default;
+
   /**
    * Get metrics for glyph from image
    * @param[in] item The embedded image
@@ -45,11 +51,12 @@ struct EmbeddedItem
   void CreateBitmap(const std::vector<PixelBufferCacheItem>&            pixelBufferCache,
                     Dali::TextAbstraction::FontClient::GlyphBufferData& data);
 
-  PixelBufferId pixelBufferId; ///< Index to the vector of pixel buffers
-  unsigned int  width;         ///< The desired width.
-  unsigned int  height;        ///< The desired height.
+  PixelBufferId pixelBufferId{0u}; ///< Index to the vector of pixel buffers
+  uint32_t      width{0u};         ///< The desired width.
+  uint32_t      height{0u};        ///< The desired height.
+  GlyphIndex    index{0u};         ///< The glyph index of this embedded items. Should be bigger than 0.
 };
 
 } // namespace Dali::TextAbstraction::Internal
 
-#endif //DALI_INTERNAL_TEXTABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
+#endif //DALI_INTERNAL_TEXT_ABSTRACTION_PLUGIN_EMBEDDED_ITEM_H
