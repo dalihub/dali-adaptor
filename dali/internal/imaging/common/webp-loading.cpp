@@ -119,7 +119,7 @@ public:
       mWebPData.bytes = mBuffer;
 
       WebPDemuxer* demuxer = WebPDemux(&mWebPData);
-      uint32_t flags = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
+      uint32_t     flags   = WebPDemuxGetI(demuxer, WEBP_FF_FORMAT_FLAGS);
       if(flags & ANIMATION_FLAG)
       {
         mIsAnimatedImage = true;
@@ -268,7 +268,7 @@ public:
   bool            mIsLocalResource;
 
 #ifdef DALI_WEBP_AVAILABLE
-  WebPData                 mWebPData{0};
+  WebPData mWebPData{0};
 #endif
 
 #ifdef DALI_ANIMATED_WEBP_ENABLED
@@ -397,7 +397,7 @@ Dali::Devel::PixelBuffer WebPLoading::DecodeFrame(uint32_t frameIndex)
 {
   Dali::Devel::PixelBuffer pixelBuffer;
 #ifdef DALI_ANIMATED_WEBP_ENABLED
-  if(mImpl->mLatestLoadedFrame > static_cast<int32_t>(frameIndex))
+  if(mImpl->mLatestLoadedFrame >= static_cast<int32_t>(frameIndex))
   {
     mImpl->mLatestLoadedFrame = INITIAL_INDEX;
     WebPAnimDecoderReset(mImpl->mWebPAnimDecoder);
