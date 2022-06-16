@@ -16,6 +16,12 @@ SET( adaptor_adaptor_tizen_wayland_src_files
     ${adaptor_adaptor_dir}/tizen-wayland/framework-tizen.cpp
 )
 
+# module: adaptor, backend: libuv-x11
+SET( adaptor_adaptor_libuv_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/libuv/framework-libuv.cpp
+)
+
 # module: adaptor, backend: tizen-wearable
 SET( adaptor_adaptor_tizen_wearable_src_files
     ${adaptor_adaptor_dir}/tizen-wayland/tizen-wearable/watch-application.cpp

@@ -106,8 +106,18 @@ IF( UNIX )
   INCLUDE( deps-check.cmake )
 ENDIF()
 
-IF( NOT DALI_ELDBUS_AVAILABLE )
+IF( UBUNTU_PROFILE OR ANDROID_PROFILE OR WIN32 OR APPLE OR LIBUV_X11_PROFILE )
+  SET( ENABLE_VCONF OFF )
+ELSE()
+  SET( ENABLE_VCONF ON )
+ENDIF()
+
+IF( NOT DALI_ELDBUS_AVAILABLE OR LIBUV_X11_PROFILE )
   SET( ENABLE_ATSPI OFF )
+ENDIF()
+
+IF( ENABLE_VCONF )
+  ADD_DEFINITIONS("-DVCONF_ENABLED")
 ENDIF()
 
 IF( ENABLE_TRACE )
@@ -125,8 +135,8 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   ADD_COMPILE_OPTIONS( /wd4251 )                        # Ignores warning C4251: "'identifier' : class 'type' needs to have dll-interface to be used by clients of class 'type2'"
 ENDIF()
 
-ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES
-                 ${DEFINITIONS} )
+ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES ${DEFINITIONS} )
+
 
 # from root/build/tizen, get back to root
 SET(ROOT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../)
@@ -430,6 +440,7 @@ MESSAGE( STATUS "Use pkg configure:                ${ENABLE_PKG_CONFIGURE}" )
 MESSAGE( STATUS "Enable link test:                 ${ENABLE_LINK_TEST}" )
 MESSAGE( STATUS "Enable AT-SPI:                    ${ENABLE_ATSPI}" )
 MESSAGE( STATUS "Enable Trace:                     ${ENABLE_TRACE}" )
+MESSAGE( STATUS "Enable VConf:                     ${ENABLE_VCONF}" )
 MESSAGE( STATUS "Tizen Platform Config supported   ${TIZEN_PLATFORM_CONFIG_SUPPORTED_LOGMSG}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_CXX_FLAGS}")
 MESSAGE( STATUS "Compile flags:                    ${CMAKE_C_FLAGS}")

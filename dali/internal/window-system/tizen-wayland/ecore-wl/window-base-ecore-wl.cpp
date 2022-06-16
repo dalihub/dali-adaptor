@@ -32,8 +32,11 @@
 #include <Ecore_Input.h>
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/object/any.h>
+
+#if defined(VCONF_ENABLED)
 #include <vconf-keys.h>
 #include <vconf.h>
+#endif
 
 namespace Dali
 {
@@ -50,7 +53,9 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 const uint32_t     MAX_TIZEN_CLIENT_VERSION = 7;
 const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
 
+#if defined(VCONF_ENABLED)
 const char* DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
+#endif
 
 // DBUS accessibility
 const char* BUS       = "org.enlightenment.wm-screen-reader";
@@ -417,6 +422,7 @@ static Eina_Bool EcoreEventDataReceive(void* data, int type, void* event)
 // Font Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if defined(VCONF_ENABLED)
 /**
  * Called when a font name is changed.
  */
@@ -440,6 +446,7 @@ static void VconfNotifyFontSizeChanged(keynode_t* node, void* data)
     windowBase->OnFontSizeChanged();
   }
 }
+#endif
 
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
@@ -572,8 +579,10 @@ WindowBaseEcoreWl::WindowBaseEcoreWl(Dali::PositionSize positionSize, Any surfac
 
 WindowBaseEcoreWl::~WindowBaseEcoreWl()
 {
+#if defined(VCONF_ENABLED)
   vconf_ignore_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged);
   vconf_ignore_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged);
+#endif
 
   for(Dali::Vector<Ecore_Event_Handler*>::Iterator iter = mEcoreEventHandler.Begin(), endIter = mEcoreEventHandler.End(); iter != endIter; ++iter)
   {
@@ -654,9 +663,11 @@ void WindowBaseEcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL_EVENT_SELECTION_DATA_READY, EcoreEventDataReceive, this));
 
+#if defined(VCONF_ENABLED)
   // Register Vconf notify - font name and size
   vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
   vconf_notify_key_changed_for_ui_thread(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
+#endif
 
   mDisplay = ecore_wl_display_get();
 
