@@ -2,7 +2,7 @@
 #define DALI_EGL_GRAPHICS_CONTROLLER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -756,6 +756,16 @@ public:
     return mCurrentContext;
   }
 
+  /**
+   * @brief Returns EGL shared context
+   *
+   * @return valid EGL shared context
+   */
+  void* GetSharedContext() const
+  {
+    return mSharedContext;
+  }
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
@@ -799,6 +809,8 @@ private:
   bool mIsShuttingDown{false}; ///< Indicates whether the controller is shutting down
 
   std::queue<const GLES::CommandBuffer*> mPresentationCommandBuffers{}; ///< Queue of reusable command buffers used by presentation engine
+
+  void* mSharedContext{nullptr}; ///< Shared EGL context
 };
 
 } // namespace Graphics

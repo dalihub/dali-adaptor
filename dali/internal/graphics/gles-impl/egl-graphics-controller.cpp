@@ -37,6 +37,10 @@
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/public-api/common/dali-common.h>
 
+#include <dali/internal/graphics/gles/egl-graphics.h>
+
+#include <any>
+
 // Uncomment the following define to turn on frame dumping
 //#define ENABLE_COMMAND_BUFFER_FRAME_DUMP 1
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
@@ -308,6 +312,12 @@ void EglGraphicsController::ActivateResourceContext()
 {
   mCurrentContext = mContext.get();
   mCurrentContext->GlContextCreated();
+
+  if(!mSharedContext)
+  {
+    auto eglGraphics = dynamic_cast<Dali::Internal::Adaptor::EglGraphics*>(mGraphics);
+    mSharedContext   = eglGraphics->GetEglImplementation().GetContext();
+  }
 }
 
 void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
@@ -588,6 +598,12 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         auto* info = &cmd.drawNative.drawNativeInfo;
 
         mCurrentContext->PrepareForNativeRendering();
+
+        if(info->glesNativeInfo.eglSharedContextStoragePointer)
+        {
+          auto* anyContext = reinterpret_cast<std::any*>(info->glesNativeInfo.eglSharedContextStoragePointer);
+          *anyContext      = mSharedContext;
+        }
 
         CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
 
