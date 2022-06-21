@@ -18,9 +18,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <limits> // for std::numeric_limits
 #include <unordered_map>
-#include <vector>
 
 namespace Dali::TextAbstraction::Internal
 {

@@ -18,10 +18,11 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/font-client.h> // For GlyphBufferData
+#include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/internal/text/text-abstraction/plugin/lru-cache-container.h>
 
 // EXTERNAL INCLUDES
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -66,6 +67,8 @@ public:
     FT_Int32          mStyleFlags{0};  // Get from FT_Face
     bool              mIsBitmap{false};
 
+    TextAbstraction::FontClient::GlyphBufferData* mRenderedBuffer{nullptr}; // Rendered glyph buffer. Cached only if system allow to cache and we rendered it before. Otherwise, just nullptr
+
     /**
      * @brief Release the memory of loaded mGlyph / mBitmap.
      */
@@ -86,11 +89,11 @@ public:
    * @return True if load successfully. False if something error occured.
    */
   bool GetGlyphCacheDataFromIndex(
-    const GlyphIndex& index,
-    const FT_Int32&   flag,
-    const bool&       isBoldRequired,
-    GlyphCacheData&   data,
-    FT_Error&         error);
+    const GlyphIndex index,
+    const FT_Int32   flag,
+    const bool       isBoldRequired,
+    GlyphCacheData&  data,
+    FT_Error&        error);
 
   /**
    * @brief Load GlyphCacheData from face. The result will not be cached.
@@ -104,11 +107,11 @@ public:
    * @return True if load successfully. False if something error occured.
    */
   bool LoadGlyphDataFromIndex(
-    const GlyphIndex& index,
-    const FT_Int32&   flag,
-    const bool&       isBoldRequired,
-    GlyphCacheData&   data,
-    FT_Error&         error);
+    const GlyphIndex index,
+    const FT_Int32   flag,
+    const bool       isBoldRequired,
+    GlyphCacheData&  data,
+    FT_Error&        error);
 
   /**
    * @brief Resize bitmap glyph. The result will change cached glyph bitmap information.
@@ -121,11 +124,28 @@ public:
    * @param[in] desiredHeight Desired height of bitmap.
    */
   void ResizeBitmapGlyph(
-    const GlyphIndex& index,
-    const FT_Int32&   flag,
-    const bool&       isBoldRequired,
-    const uint32_t&   desiredWidth,
-    const uint32_t&   desiredHeight);
+    const GlyphIndex index,
+    const FT_Int32   flag,
+    const bool       isBoldRequired,
+    const uint32_t   desiredWidth,
+    const uint32_t   desiredHeight);
+
+  /**
+   * @brief Cache rendered glyph bitmap. The result will change cached glyph information.
+   * If glyph is not single color glyph, or we already cached buffer before, nothing happened.
+   *
+   * @param[in] index Index of glyph in this face.
+   * @param[in] flag Flag when we load the glyph.
+   * @param[in] isBoldRequired True if we require some software bold.
+   * @param[in] srcBitmap Rendered glyph bitmap.
+   * @param[in] policy Compress behavior policy. default is MEMORY
+   */
+  void CacheRenderedGlyphBuffer(
+    const GlyphIndex                                                       index,
+    const FT_Int32                                                         flag,
+    const bool                                                             isBoldRequired,
+    const FT_Bitmap&                                                       srcBitmap,
+    const TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType policy);
 
 private:
   // Private struct area.
@@ -141,7 +161,7 @@ private:
     {
     }
 
-    GlyphCacheKey(const GlyphIndex& index, const FT_Int32& flag, const bool& boldRequired)
+    GlyphCacheKey(const GlyphIndex index, const FT_Int32 flag, const bool boldRequired)
     : mIndex(index),
       mFlag(flag),
       mIsBoldRequired(boldRequired)
