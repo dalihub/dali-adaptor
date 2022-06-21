@@ -545,7 +545,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     LOG_UPDATE_RENDER_TRACE;
 
     // For thread safe
-    bool uploadOnly = mUploadWithoutRendering;
+    bool         uploadOnly     = mUploadWithoutRendering;
+    unsigned int surfaceResized = mSurfaceResized;
 
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
     AddPerformanceMarker(PerformanceInterface::VSYNC);
@@ -676,7 +677,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // Upload shared resources
     mCore.PreRender(renderStatus, mForceClear);
 
-    if(!uploadOnly)
+    if(!uploadOnly || surfaceResized)
     {
       // Go through each window
       WindowContainer windows;

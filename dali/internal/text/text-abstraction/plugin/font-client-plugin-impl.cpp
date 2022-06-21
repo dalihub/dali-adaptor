@@ -272,6 +272,10 @@ FontClient::Plugin::Plugin(unsigned int horizontalDpi,
   mVectorFontCache(nullptr),
   mEllipsisCache(),
   mEmbeddedItemCache(),
+  mLatestFoundFontDescription(),
+  mLatestFoundFontDescriptionId(0u),
+  mLatestFoundCacheKey(0, 0),
+  mLatestFoundCacheIndex(0u),
   mDefaultFontDescriptionCached(false),
   mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
   mCurrentMaximumBlockSizeFitInAtlas(TextAbstraction::FontClient::MAX_SIZE_FIT_IN_ATLAS)
@@ -337,6 +341,9 @@ void FontClient::Plugin::ClearCache()
   mPixelBufferCache.clear();
   mEmbeddedItemCache.Clear();
   mBitmapFontCache.clear();
+
+  mLatestFoundFontDescription.family.clear();
+  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0);
 
   mDefaultFontDescriptionCached = false;
 }
@@ -1262,6 +1269,16 @@ bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
   return FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
 }
 
+HarfBuzzFontHandle FontClient::Plugin::GetHarfBuzzFont(FontId fontId)
+{
+  FontCacheItemInterface* fontCacheItem = const_cast<FontCacheItemInterface*>(GetCachedFontItem(fontId));
+  if(fontCacheItem != nullptr)
+  {
+    return fontCacheItem->GetHarfBuzzFont(mDpiHorizontal, mDpiVertical); // May cache
+  }
+  return nullptr;
+}
+
 GlyphIndex FontClient::Plugin::CreateEmbeddedItem(const TextAbstraction::FontClient::EmbeddedItemDescription& description, Pixel::Format& pixelFormat)
 {
   EmbeddedItem embeddedItem;
@@ -1760,15 +1777,36 @@ bool FontClient::Plugin::FindValidatedFont(const FontDescription& fontDescriptio
 
   fontDescriptionId = 0u;
 
+  // Fast cut if inputed family is empty.
+  if(DALI_UNLIKELY(fontDescription.family.empty()))
+  {
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font description not found / fontDescription.family is empty!\n");
+    return false;
+  }
+
+  // Heuristic optimize code : Compare with latest found item.
+  if((fontDescription.width == mLatestFoundFontDescription.width) &&
+     (fontDescription.weight == mLatestFoundFontDescription.weight) &&
+     (fontDescription.slant == mLatestFoundFontDescription.slant) &&
+     (fontDescription.family == mLatestFoundFontDescription.family))
+  {
+    fontDescriptionId = mLatestFoundFontDescriptionId;
+
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font description same as latest, id : %d\n", fontDescriptionId);
+    return true;
+  }
+
   for(const auto& item : mValidatedFontCache)
   {
-    if(!fontDescription.family.empty() &&
-       (fontDescription.family == item.fontDescription.family) &&
-       (fontDescription.width == item.fontDescription.width) &&
+    if((fontDescription.width == item.fontDescription.width) &&
        (fontDescription.weight == item.fontDescription.weight) &&
-       (fontDescription.slant == item.fontDescription.slant))
+       (fontDescription.slant == item.fontDescription.slant) &&
+       (fontDescription.family == item.fontDescription.family))
     {
       fontDescriptionId = item.index;
+
+      mLatestFoundFontDescription   = fontDescription;
+      mLatestFoundFontDescriptionId = fontDescriptionId;
 
       DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  validated font description found, id : %d\n", fontDescriptionId);
       return true;
@@ -1819,12 +1857,24 @@ bool FontClient::Plugin::FindFont(FontDescriptionId fontDescriptionId,
 
   fontCacheIndex = 0u;
 
-  FontDescriptionSizeCacheKey key(fontDescriptionId, requestedPointSize);
+  const FontDescriptionSizeCacheKey key(fontDescriptionId, requestedPointSize);
+
+  // Heuristic optimize code : Compare with latest found item.
+  if(key == mLatestFoundCacheKey)
+  {
+    fontCacheIndex = mLatestFoundCacheIndex;
+
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font same as latest, index of font cache : %d\n", fontCacheIndex);
+    return true;
+  }
 
   const auto& iter = mFontDescriptionSizeCache.find(key);
   if(iter != mFontDescriptionSizeCache.cend())
   {
     fontCacheIndex = iter->second;
+
+    mLatestFoundCacheKey   = key;
+    mLatestFoundCacheIndex = fontCacheIndex;
 
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  font found, index of font cache : %d\n", fontCacheIndex);
     return true;

@@ -72,6 +72,7 @@ FontFaceCacheItem::FontFaceCacheItem(FT_Library&        freeTypeLibrary,
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mGlyphCacheManager(new GlyphCacheManager(mFreeTypeFace, GetMaxNumberOfGlyphCache())),
+  mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
   mFaceIndex(face),
@@ -100,6 +101,7 @@ FontFaceCacheItem::FontFaceCacheItem(FT_Library&        freeTypeLibrary,
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
   mGlyphCacheManager(new GlyphCacheManager(mFreeTypeFace, GetMaxNumberOfGlyphCache())),
+  mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
   mFaceIndex(face),
@@ -121,7 +123,8 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
   mFreeTypeFace       = rhs.mFreeTypeFace;
-  mGlyphCacheManager  = rhs.mGlyphCacheManager;
+  mGlyphCacheManager  = std::move(rhs.mGlyphCacheManager);
+  mHarfBuzzProxyFont  = std::move(rhs.mHarfBuzzProxyFont);
   mPath               = std::move(rhs.mPath);
   mRequestedPointSize = rhs.mRequestedPointSize;
   mFaceIndex          = rhs.mFaceIndex;
@@ -135,8 +138,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
 
-  rhs.mGlyphCacheManager = nullptr;
-  rhs.mFreeTypeFace      = nullptr;
+  rhs.mFreeTypeFace = nullptr;
 }
 
 FontFaceCacheItem::~FontFaceCacheItem()
@@ -144,7 +146,12 @@ FontFaceCacheItem::~FontFaceCacheItem()
   // delete glyph cache manager before free face.
   if(mGlyphCacheManager)
   {
-    delete mGlyphCacheManager;
+    mGlyphCacheManager.reset();
+  }
+
+  if(mHarfBuzzProxyFont)
+  {
+    mHarfBuzzProxyFont.reset();
   }
 
   // Free face.
@@ -505,6 +512,16 @@ GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character) const
 GlyphIndex FontFaceCacheItem::GetGlyphIndex(Character character, Character variantSelector) const
 {
   return FT_Face_GetCharVariantIndex(mFreeTypeFace, character, variantSelector);
+}
+
+HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi)
+{
+  // Create new harfbuzz font only first time or DPI changed.
+  if(DALI_UNLIKELY(!mHarfBuzzProxyFont || mHarfBuzzProxyFont->mHorizontalDpi != horizontalDpi || mHarfBuzzProxyFont->mVerticalDpi != verticalDpi))
+  {
+    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, horizontalDpi, verticalDpi, mGlyphCacheManager.get()));
+  }
+  return mHarfBuzzProxyFont->GetHarfBuzzFont();
 }
 
 } // namespace Dali::TextAbstraction::Internal

@@ -240,32 +240,37 @@ bool LoadBitmapFromWbmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
    * @endcode
    */
 
-  const std::uint8_t* inputPixels                  = inputBufferPtr + position;
-  const std::uint32_t lineByteLengthWithoutPadding = w >> 3;
-  const std::uint8_t  linePadding                  = w & 0x07;
+  const std::uint8_t* inputPixels                 = inputBufferPtr + position;
+  const std::uint32_t lineBitLengthWithoutPadding = (w >> 3) << 3;
 
   for(std::uint32_t y = 0; y < h; ++y)
   {
-    for(std::uint32_t x = 0; x < lineByteLengthWithoutPadding; ++x)
+    std::uint32_t x = 0;
+    if((reinterpret_cast<std::ptrdiff_t>(outputPixels) & (sizeof(std::uint32_t) - 1)) == 0)
     {
-      // memset whole 8 bits
-      // outputPixels filled 4 bytes in one operation.
-      // cachedCalculation4BitTo4ByteTable calculated in compile-time.
-      *(reinterpret_cast<std::uint32_t*>(outputPixels + 0)) = cachedCalculation4BitTo4ByteTable[((*inputPixels) >> 4) & 0x0f];
-      *(reinterpret_cast<std::uint32_t*>(outputPixels + 4)) = cachedCalculation4BitTo4ByteTable[(*inputPixels) & 0x0f];
-      outputPixels += 8;
-      ++inputPixels;
+      for(; x < lineBitLengthWithoutPadding; x += 8)
+      {
+        // memset whole 8 bits
+        // outputPixels filled 4 bytes in one operation.
+        // cachedCalculation4BitTo4ByteTable calculated in compile-time.
+        *(reinterpret_cast<std::uint32_t*>(outputPixels + 0)) = cachedCalculation4BitTo4ByteTable[((*inputPixels) >> 4) & 0x0f];
+        *(reinterpret_cast<std::uint32_t*>(outputPixels + 4)) = cachedCalculation4BitTo4ByteTable[(*inputPixels) & 0x0f];
+        outputPixels += 8;
+        ++inputPixels;
+      }
     }
-    if(linePadding > 0)
     {
       // memset linePadding bits naive.
-      for(std::uint8_t x = 0; x < linePadding; ++x)
+      for(; x < w; ++x)
       {
         const std::uint8_t offset = (0x07 - (x & 0x07));
         *outputPixels             = ((*inputPixels) >> offset) & 1 ? 0xff : 0x00;
         ++outputPixels;
+        if(offset == 0)
+        {
+          ++inputPixels;
+        }
       }
-      ++inputPixels;
     }
   }
 

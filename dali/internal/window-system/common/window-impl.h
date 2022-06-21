@@ -747,8 +747,8 @@ private:
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
 
-  Dali::KeyEvent   mLastKeyEevent;
-  Dali::TouchEvent mLastTouchEevent;
+  Dali::KeyEvent   mLastKeyEvent;
+  Dali::TouchEvent mLastTouchEvent;
 
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;

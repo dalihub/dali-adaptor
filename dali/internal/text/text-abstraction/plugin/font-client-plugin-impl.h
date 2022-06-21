@@ -414,6 +414,11 @@ public:
    */
   bool AddCustomFontDirectory(const FontPath& path);
 
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetHarfBuzzFont()
+   */
+  HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId);
+
 private:
   /**
    * @brief Caches the fonts present in the platform.
@@ -614,6 +619,12 @@ private:
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   Vector<EmbeddedItem>              mEmbeddedItemCache; ///< Cache embedded items.
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.
+
+  FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()
+  FontDescriptionId mLatestFoundFontDescriptionId;
+
+  FontDescriptionSizeCacheKey mLatestFoundCacheKey; ///< Latest found font description and id in FindFont()
+  FontCacheIndex              mLatestFoundCacheIndex;
 
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 

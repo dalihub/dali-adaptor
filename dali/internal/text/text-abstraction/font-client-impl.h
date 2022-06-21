@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+using HarfBuzzFontHandle = void*; ///< @note We don't want to make other class include harfbuzz header. So we will keep harfbuzz font data as HarfBuzzFontHandle.
+
 /**
  * Implementation of the FontClient
  */
@@ -48,6 +50,7 @@ public:
    */
   ~FontClient();
 
+public: // API for Dali::TextAbstraction::FontClient used.
   /**
    * @copydoc Dali::TextAbstraction::FontClient::Get()
    */
@@ -259,6 +262,12 @@ public:
   uint32_t GetNumberOfPointsPerOneUnitOfPointSize() const;
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
+   */
+  bool AddCustomFontDirectory(const FontPath& path);
+
+public: // API for Dali::TextAbstraction::Internal::FontClient used.
+  /**
    * @brief Retrieves the pointer to the FreeType Font Face for the given @p fontId.
    *
    * @param[in] fontId The font id.
@@ -277,9 +286,12 @@ public:
   FontDescription::Type GetFontType(FontId fontId);
 
   /**
-   * @copydoc Dali::TextAbstraction::FontClient::AddCustomFontDirectory()
+   * @brief Get the harfbuzz font data of font.
+   *
+   * @param fontId The font id.
+   * @return The harfbuzz font data, or nullptr if failed.
    */
-  bool AddCustomFontDirectory(const FontPath& path);
+  HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId);
 
 private:
   /**
