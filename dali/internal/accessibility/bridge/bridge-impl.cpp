@@ -719,7 +719,7 @@ public:
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
   {
-    AddFilteredEvent(FilteredEvents::SET_OFFSET, socket, 1.0f, [=]() {
+    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]() {
       auto client = CreateSocketClient(socket->GetAddress());
 
       client.method<void(std::int32_t, std::int32_t)>("SetOffset").asyncCall([](DBus::ValueOrError<void>) {}, x, y);

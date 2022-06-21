@@ -274,9 +274,9 @@ public:
 };
 
 /**
- * @brief Enumeration for FilteredEvents.
+ * @brief Enumeration for CoalescableMessages.
  */
-enum class FilteredEvents
+enum class CoalescableMessages
 {
   BOUNDS_CHANGED, ///< Bounds changed
   SET_OFFSET, ///< Set offset
@@ -286,9 +286,9 @@ enum class FilteredEvents
 namespace std
 {
 template<>
-struct hash<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>>
+struct hash<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>>
 {
-  size_t operator()(std::pair<FilteredEvents, Dali::Accessibility::Accessible*> value) const
+  size_t operator()(std::pair<CoalescableMessages, Dali::Accessibility::Accessible*> value) const
   {
     return (static_cast<size_t>(value.first) * 131) ^ reinterpret_cast<size_t>(value.second);
   }
@@ -300,25 +300,25 @@ struct hash<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>>
  */
 class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
 {
-  std::unordered_map<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> mFilteredEvents;
+  std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> mCoalescableMessages;
 
   /**
-   * @brief Removes all FilteredEvents using Tick signal.
+   * @brief Removes all CoalescableMessages using Tick signal.
    *
-   * @return False if mFilteredEvents is empty, otherwise true.
+   * @return False if mCoalescableMessages is empty, otherwise true.
    */
-  bool TickFilteredEvents();
+  bool TickCoalescableMessages();
 
 public:
   /**
-   * @brief Adds FilteredEvents, Accessible, and delay time to mFilteredEvents.
+   * @brief Adds CoalescableMessages, Accessible, and delay time to mCoalescableMessages.
    *
-   * @param[in] kind FilteredEvents enum value
+   * @param[in] kind CoalescableMessages enum value
    * @param[in] obj Accessible object
    * @param[in] delay The delay time
    * @param[in] functor The function to be called // NEED TO UPDATE!
    */
-  void AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
+  void AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
 
   /**
    * @brief Callback when the visibility of the window is changed.

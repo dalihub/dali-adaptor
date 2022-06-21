@@ -40,14 +40,14 @@ BridgeBase::~BridgeBase()
   mApplication.mChildren.clear();
 }
 
-void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
+void BridgeBase::AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
 {
   if(delay < 0)
   {
     delay = 0;
   }
 
-  auto it = mFilteredEvents.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
+  auto it = mCoalescableMessages.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
   if(it.second)
   {
     functor();
@@ -60,7 +60,7 @@ void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Acce
   if(!tickTimer)
   {
     tickTimer = Dali::Timer::New(100);
-    tickTimer.TickSignal().Connect(this, &BridgeBase::TickFilteredEvents);
+    tickTimer.TickSignal().Connect(this, &BridgeBase::TickCoalescableMessages);
   }
 
   if(!tickTimer.IsRunning())
@@ -69,9 +69,9 @@ void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Acce
   }
 }
 
-bool BridgeBase::TickFilteredEvents()
+bool BridgeBase::TickCoalescableMessages()
 {
-  for(auto it = mFilteredEvents.begin(); it != mFilteredEvents.end();)
+  for(auto it = mCoalescableMessages.begin(); it != mCoalescableMessages.end();)
   {
     if(it->second.first)
     {
@@ -86,13 +86,13 @@ bool BridgeBase::TickFilteredEvents()
       }
       else
       {
-        it = mFilteredEvents.erase(it);
+        it = mCoalescableMessages.erase(it);
         continue;
       }
     }
     ++it;
   }
-  return !mFilteredEvents.empty();
+  return !mCoalescableMessages.empty();
 }
 
 void BridgeBase::UpdateRegisteredEvents()
