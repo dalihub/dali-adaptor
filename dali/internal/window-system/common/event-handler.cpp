@@ -535,11 +535,6 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
 void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
 {
 #ifdef DALI_ELDBUS_AVAILABLE
-  if( mPaused )
-  {
-    return;
-  }
-
   if( !mAccessibilityAdaptor )
   {
     DALI_LOG_ERROR( "Invalid accessibility adaptor\n" );
