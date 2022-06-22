@@ -103,7 +103,7 @@ CHECK_MODULE_AND_SET( SCREENCONNECTORPROVIDER screen_connector_provider [] )
 CHECK_MODULE_AND_SET( APPFW_WATCH capi-appfw-watch-application watch_available )
 CHECK_MODULE_AND_SET( APPCORE_WATCH appcore-watch [] )
 
-CHECK_MODULE_AND_SET( CAPI_APPFW_APPLICATION appcore-ui [] )
+CHECK_MODULE_AND_SET( CAPI_APPFW_APPLICATION app-core-ui-cpp [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE appcore-widget-base [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )

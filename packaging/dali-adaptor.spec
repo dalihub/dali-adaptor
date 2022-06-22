@@ -95,7 +95,7 @@ BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(libtbm)
 
 # for the adaptor
-BuildRequires:  pkgconfig(appcore-ui)
+BuildRequires:  pkgconfig(app-core-ui-cpp)
 BuildRequires:  pkgconfig(appcore-widget-base)
 BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(capi-appfw-app-common)
