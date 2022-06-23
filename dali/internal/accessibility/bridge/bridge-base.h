@@ -23,6 +23,7 @@
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <memory>
+#include <tuple>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
@@ -300,7 +301,7 @@ struct hash<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>>
  */
 class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
 {
-  std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> mCoalescableMessages;
+  std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::tuple<unsigned int, unsigned int, std::function<void()>>> mCoalescableMessages;
 
   /**
    * @brief Removes all CoalescableMessages using Tick signal.
