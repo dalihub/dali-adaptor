@@ -1337,6 +1337,10 @@ bool WindowBaseEcoreWl::IsMaximized() const
   return false;
 }
 
+void WindowBaseEcoreWl::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseEcoreWl::Minimize(bool minimize)
 {
 }
@@ -1344,6 +1348,10 @@ void WindowBaseEcoreWl::Minimize(bool minimize)
 bool WindowBaseEcoreWl::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseEcoreWl::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseEcoreWl::SetAvailableAnlges(const std::vector<int>& angles)

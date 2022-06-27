@@ -458,6 +458,19 @@ DALI_ADAPTOR_API void Maximize(Window window, bool maximize);
 DALI_ADAPTOR_API bool IsMaximized(Window window);
 
 /**
+ * @brief Sets window's maximum size.
+ *
+ * It is to set the maximized size when window is maximized or the window's size is increased by RequestResizeToServer().
+ * Although the size is set by this function, window's size can be increased over the limitation by SetPositionSize() or SetSize().
+ *
+ * After setting, if Maximize() is called, window is resized with the setting size and move the center.
+ *
+ * @param[in] window The window instance.
+ * @param[in] size the maximum size
+ */
+DALI_ADAPTOR_API void SetMaximumSize(Window window, Dali::Window::WindowSize size);
+
+/**
  * @brief Minimizes window's size.
  * If this function is called with true, window will be iconified.
  * Otherwise window will be activated.
@@ -478,6 +491,17 @@ DALI_ADAPTOR_API void Minimize(Window window, bool minimize);
  * @return True if the window is minimized, false otherwise.
  */
 DALI_ADAPTOR_API bool IsMinimized(Window window);
+
+/**
+ * @brief Sets window's minimum size.
+ *
+ * It is to set the minimum size when window's size is decreased by RequestResizeToServer().
+ * Although the size is set by this function, window's size can be decreased over the limitation by SetPositionSize() or SetSize().
+ *
+ * @param[in] window The window instance.
+ * @param[in] size the minimum size
+ */
+DALI_ADAPTOR_API void SetMimimumSize(Window window, Dali::Window::WindowSize size);
 
 /**
  * @brief Query whether window is rotating or not.
