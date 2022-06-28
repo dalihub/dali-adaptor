@@ -484,6 +484,10 @@ bool WindowBaseCocoa::IsMaximized() const
   return false;
 }
 
+void WindowBaseCocoa::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseCocoa::Minimize(bool minimize)
 {
 }
@@ -491,6 +495,10 @@ void WindowBaseCocoa::Minimize(bool minimize)
 bool WindowBaseCocoa::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseCocoa::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseCocoa::SetAvailableAnlges( const std::vector< int >& angles )

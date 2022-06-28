@@ -1,6 +1,6 @@
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,14 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-core.h>
 #include <stdio.h>
 #include <iomanip>
 #include <sstream>
+
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/network/common/network-service-impl.h>
 
 using Dali::Matrix;
 using Dali::Matrix3;
@@ -451,6 +454,18 @@ void DumpScene(unsigned int clientId, ClientSendDataInterface* sendData)
   std::string header(buf);
   json = buf + json;
   sendData->SendData(json.c_str(), json.length(), clientId);
+}
+
+void SetCustomCommand(const std::string& message)
+{
+  if(Adaptor::IsAvailable())
+  {
+    Internal::Adaptor::NetworkServicePtr networkService = Internal::Adaptor::NetworkService::Get();
+    if(networkService)
+    {
+      networkService->EmitCustomCommandReceivedSignal(message);
+    }
+  }
 }
 
 } // namespace Automation

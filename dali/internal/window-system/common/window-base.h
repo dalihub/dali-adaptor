@@ -196,6 +196,11 @@ public:
   virtual bool IsMaximized() const = 0;
 
   /**
+   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   */
+  virtual void SetMaximumSize(Dali::Window::WindowSize size) = 0;
+
+  /**
    * @copydoc Dali::DevelWindow::Minimize()
    */
   virtual void Minimize(bool minimize) = 0;
@@ -204,6 +209,11 @@ public:
    * @copydoc Dali::DevelWindow::IsMinimized()
    */
   virtual bool IsMinimized() const = 0;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   */
+  virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
    * @copydoc Dali::Window::SetAvailableOrientations()

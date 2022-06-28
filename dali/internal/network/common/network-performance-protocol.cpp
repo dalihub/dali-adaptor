@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,6 +64,7 @@ CommandInfo CommandLookup[]=
   {ENABLE_TIME_MARKER_BIT_MASK, "set_marker",     UNSIGNED_INT},
   {DUMP_SCENE_GRAPH,            "dump_scene",     NO_PARAMS   },
   {SET_PROPERTIES,              "set_properties", STRING      },
+  {CUSTOM_COMMAND,              "custom_command", STRING      },
   {UNKNOWN_COMMAND,             "unknown",        NO_PARAMS   }
 };
 // clang-format on
@@ -95,6 +96,9 @@ const char* const helpMsg =
     GREEN " set_properties " NORMAL " - set an actor property command. Format:\n\n"
     GREEN " set_properties " PARAM "|ActorIndex;Property;Value|" NORMAL ", e.g: \n"
     GREEN " set_properties " PARAM "|178;Size;[ 144.0, 144.0, 144.0 ]|178;Color;[ 1.0, 1,0, 1.0 ]|\n"
+    "\n"
+    GREEN " custom_command " NORMAL " - A custom command for an application. Format:\n\n"
+    GREEN " custom_command " PARAM "ANY_STRING" NORMAL "\n"
     "\n"
     GREEN " dump_scene" NORMAL " - dump the current scene in json format\n";
 // clang-format off

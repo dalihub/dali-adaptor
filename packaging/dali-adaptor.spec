@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.1.27
+Version:    2.1.28
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -95,7 +95,7 @@ BuildRequires:  pkgconfig(ecore-wayland)
 BuildRequires:  pkgconfig(libtbm)
 
 # for the adaptor
-BuildRequires:  pkgconfig(appcore-ui)
+BuildRequires:  pkgconfig(app-core-ui-cpp)
 BuildRequires:  pkgconfig(appcore-widget-base)
 BuildRequires:  pkgconfig(bundle)
 BuildRequires:  pkgconfig(capi-appfw-app-common)

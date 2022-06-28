@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,18 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/application.h>
+#include <dali/public-api/dali-adaptor-common.h>
+
+// EXTERNAL INCLUDES
+#include <dali/public-api/signals/dali-signal.h>
 
 namespace Dali
 {
 namespace DevelApplication
 {
+
+using CustomCommandReceivedSignalType = Signal<void(const std::string&)>; ///< Signal signature for CustomCommandReceivedSignal
+
 /**
    * @brief This is the constructor for applications.
    * Especially, it is for keyboard application.
@@ -75,6 +82,22 @@ DALI_ADAPTOR_API std::string GetDataPath();
  * @return handle to an Application object or an uninitialized base handle
  */
 DALI_ADAPTOR_API Application DownCast(Dali::RefObject* refObject);
+
+/**
+ * @brief This signal will be triggered when a custom command is received.
+ *
+ * For this signal to be triggered, the adaptor must be built with -DENABLE_NETWORK_LOGGING=ON
+ * and when running, DALI_NETWORK_CONTROL=1 must also be set.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName(const std::string&);
+ * @endcode
+ *
+ * @param[in] application A handle to the Application
+ * @return The signal when a custom command is received
+ */
+DALI_ADAPTOR_API CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Application application);
 
 } // namespace DevelApplication
 

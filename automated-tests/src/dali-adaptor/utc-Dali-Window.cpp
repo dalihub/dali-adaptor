@@ -230,6 +230,23 @@ int UtcDaliWindowIsMaximizedN(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetMaximumSizeN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    Dali::Window::WindowSize size(100, 100);
+    DevelWindow::SetMaximumSize(instance, size);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
 int UtcDaliWindowMinimizeN(void)
 {
   try
@@ -252,6 +269,23 @@ int UtcDaliWindowIsMinimizedN(void)
   {
     Dali::Window    instance;
     DevelWindow::IsMinimized(instance);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliWindowSetMimimumSizeN(void)
+{
+  try
+  {
+    Dali::Window    instance;
+    Dali::Window::WindowSize size(100, 100);
+    DevelWindow::SetMimimumSize(instance, size);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)

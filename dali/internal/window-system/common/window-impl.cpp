@@ -257,6 +257,11 @@ bool Window::IsMaximized() const
   return mWindowBase->IsMaximized();
 }
 
+void Window::SetMaximumSize(Dali::Window::WindowSize size)
+{
+  mWindowBase->SetMaximumSize(size);
+}
+
 void Window::Minimize(bool minimize)
 {
   mWindowBase->Minimize(minimize);
@@ -267,6 +272,11 @@ void Window::Minimize(bool minimize)
 bool Window::IsMinimized() const
 {
   return mWindowBase->IsMinimized();
+}
+
+void Window::SetMimimumSize(Dali::Window::WindowSize size)
+{
+  mWindowBase->SetMimimumSize(size);
 }
 
 uint32_t Window::GetLayerCount() const
