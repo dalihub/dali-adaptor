@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_PLUGIN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,9 +132,10 @@ public:
   virtual bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const = 0;
 
   /**
-   * @brief Ignores a rendered frame which is not shown yet.
+   * @brief Invalidates the rendered buffer.
+   * @note The upload completed signal will be emitted again.
    */
-  virtual void IgnoreRenderedFrame() = 0;
+  virtual void InvalidateBuffer() = 0;
 
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
