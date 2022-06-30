@@ -101,7 +101,14 @@ public:
 
   Dali::Accessibility::States GetStates() override
   {
-    return {};
+    Dali::Accessibility::States result;
+
+    for(auto* child : mChildren)
+    {
+      result = result | child->GetStates();
+    }
+
+    return result;
   }
 
   Dali::Accessibility::Attributes GetAttributes() const override
