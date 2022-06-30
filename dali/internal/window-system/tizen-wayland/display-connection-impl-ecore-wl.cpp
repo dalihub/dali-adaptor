@@ -45,7 +45,8 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay(NULL),
   mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
-  mGraphics(nullptr)
+  mGraphics(nullptr),
+  mBufMgr(nullptr)
 {
 }
 
@@ -106,6 +107,12 @@ void DisplayConnectionEcoreWl::SetGraphicsInterface(GraphicsInterface& graphics)
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
+  mBufMgr = tbm_bufmgr_init(-1);  // -1 is meaningless. The parameter in this function is deprecated.
+  if(mBufMgr == nullptr)
+  {
+    DALI_LOG_ERROR("Fail to init tbm buf mgr\n");
+    return nullptr;
+  }
   return reinterpret_cast<EGLNativeDisplayType>(tbm_dummy_display_create());
 }
 
@@ -114,6 +121,11 @@ void DisplayConnectionEcoreWl::ReleaseNativeDisplay()
   if(mDisplay)
   {
     tbm_dummy_display_destroy(reinterpret_cast<tbm_dummy_display*>(mDisplay));
+  }
+
+  if(mBufMgr != nullptr)
+  {
+    tbm_bufmgr_deinit(mBufMgr);
   }
 }
 
