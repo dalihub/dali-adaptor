@@ -173,11 +173,6 @@ int UtcDaliFontClientAtlasLimitationEnabled(void)
   DALI_TEST_GREATER(MAX_WIDTH_FIT_IN_ATLAS, glyphBufferData2000.width, TEST_LOCATION);
   DALI_TEST_GREATER(MAX_HEIGHT_FIT_IN_ATLAS, glyphBufferData2000.height, TEST_LOCATION);
 
-  // Release copied memories
-  free(glyphBufferData200.buffer);
-  free(glyphBufferData1000.buffer);
-  free(glyphBufferData2000.buffer);
-
   END_TEST;
 }
 

@@ -2058,6 +2058,57 @@ void LinearSample4BPP(const unsigned char* __restrict__ inPixels,
   LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
 }
 
+// Dispatch to a format-appropriate linear sampling function:
+void LinearSample(const unsigned char* __restrict__ inPixels,
+                  ImageDimensions inDimensions,
+                  unsigned int    inStride,
+                  Pixel::Format   pixelFormat,
+                  unsigned char* __restrict__ outPixels,
+                  ImageDimensions outDimensions)
+{
+  // Check the pixel format is one that is supported:
+  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
+  {
+    switch(pixelFormat)
+    {
+      case Pixel::RGB888:
+      {
+        LinearSample3BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGBA8888:
+      {
+        LinearSample4BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        LinearSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::LA88:
+      {
+        LinearSample2BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGB565:
+      {
+        LinearSampleRGB565(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
+    }
+  }
+  else
+  {
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
+  }
+}
+
 void Resample(const unsigned char* __restrict__ inPixels,
               ImageDimensions inputDimensions,
               unsigned int    inputStride,
@@ -2257,43 +2308,29 @@ void LanczosSample1BPP(const unsigned char* __restrict__ inPixels,
   Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 1, false);
 }
 
-// Dispatch to a format-appropriate linear sampling function:
-void LinearSample(const unsigned char* __restrict__ inPixels,
-                  ImageDimensions inDimensions,
-                  unsigned int    inStride,
-                  Pixel::Format   pixelFormat,
-                  unsigned char* __restrict__ outPixels,
-                  ImageDimensions outDimensions)
+// Dispatch to a format-appropriate third-party resampling function:
+void LanczosSample(const unsigned char* __restrict__ inPixels,
+                   ImageDimensions inDimensions,
+                   unsigned int    inStride,
+                   Pixel::Format   pixelFormat,
+                   unsigned char* __restrict__ outPixels,
+                   ImageDimensions outDimensions)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
+  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
     switch(pixelFormat)
     {
-      case Pixel::RGB888:
-      {
-        LinearSample3BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
-        break;
-      }
       case Pixel::RGBA8888:
+      case Pixel::BGRA8888:
       {
-        LinearSample4BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        LanczosSample4BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
         break;
       }
       case Pixel::L8:
       case Pixel::A8:
       {
-        LinearSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::LA88:
-      {
-        LinearSample2BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
-        break;
-      }
-      case Pixel::RGB565:
-      {
-        LinearSampleRGB565(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        LanczosSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
         break;
       }
       default:
@@ -2304,7 +2341,7 @@ void LinearSample(const unsigned char* __restrict__ inPixels,
   }
   else
   {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
   }
 }
 

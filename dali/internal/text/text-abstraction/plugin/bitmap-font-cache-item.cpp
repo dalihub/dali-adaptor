@@ -115,10 +115,7 @@ void BitmapFontCacheItem::CreateBitmap(
 
       data.isColorBitmap = font.isColorFont;
 
-      ConvertBitmap(data, data.width, data.height, pixelBuffer.GetBuffer());
-
-      // Sets the pixel format.
-      data.format = pixelBuffer.GetPixelFormat();
+      ConvertBitmap(data, data.width, data.height, pixelBuffer.GetBuffer(), pixelBuffer.GetPixelFormat());
       break;
     }
     ++index;

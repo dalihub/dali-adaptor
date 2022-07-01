@@ -35,7 +35,8 @@ namespace Dali::TextAbstraction::Internal
 void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data,
                    unsigned int                                  srcWidth,
                    unsigned int                                  srcHeight,
-                   const unsigned char* const                    srcBuffer);
+                   const unsigned char* const                    srcBuffer,
+                   const Pixel::Format                           srcFormat);
 
 void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data,
                    FT_Bitmap&                                    srcBitmap,

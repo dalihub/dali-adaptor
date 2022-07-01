@@ -357,6 +357,26 @@ void LinearSample4BPP(const unsigned char* __restrict__ inPixels,
                       ImageDimensions desiredDimensions);
 
 /**
+ * @brief Resample input image to output image using a Lanczos algorithm.
+ *
+ * @pre @p inPixels must not alias @p outPixels. The input image should be a totally
+ * separate buffer from the output buffer.
+ *
+ * @param[in] inPixels Pointer to the input image buffer.
+ * @param[in] inputDimensions The input dimensions of the image.
+ * @param[in] inputStride The input stride of the image.
+ * @param[in] pixelFormat The format of the image pointed at by pixels.
+ * @param[out] outPixels Pointer to the output image buffer.
+ * @param[in] desiredDimensions The output dimensions of the image.
+ */
+void LanczosSample(const unsigned char* __restrict__ inPixels,
+                   ImageDimensions inDimensions,
+                   unsigned int    inStride,
+                   Pixel::Format   pixelFormat,
+                   unsigned char* __restrict__ outPixels,
+                   ImageDimensions outDimensions);
+
+/**
  * @brief Resamples the input image with the Lanczos algorithm.
  *
  * @pre @p inPixels must not alias @p outPixels. The input image should be a totally
@@ -701,10 +721,21 @@ inline unsigned int BilinearFilter1Component(unsigned int tl, unsigned int tr, u
  * @param y The value between [0..255]
  * @return (x*y)/255
  */
-inline uint8_t MultiplyAndNormalizeColor(const uint8_t& x, const uint8_t& y) noexcept
+inline uint8_t MultiplyAndNormalizeColor(const uint8_t x, const uint8_t y) noexcept
 {
   const uint32_t xy = static_cast<const uint32_t>(x) * y;
   return ((xy << 15) + (xy << 7) + xy) >> 23;
+}
+
+/**
+ * @brief Fast division by 17 and roundup. It will be useful when we compress 8bit luminance value as 4bit for text glyph.
+ *
+ * @param x The value between [0..255]
+ * @return round(x / 17.0f).(same as (x+8)/17)
+ */
+inline uint8_t CompressBitPerPixel8To4(const uint8_t x) noexcept
+{
+  return ((((static_cast<const uint16_t>(x) << 4) - x + (x >> 4)) >> 7) + 1) >> 1;
 }
 
 /**@}*/
