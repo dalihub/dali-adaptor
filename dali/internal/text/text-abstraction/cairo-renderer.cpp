@@ -893,7 +893,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
             const unsigned int pixelSize = Pixel::GetBytesPerPixel(data.format);
 
             // If we need to decompress, create new memory and replace ownership.
-            if(data.compressType != TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS)
+            if(data.compressionType != TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION)
             {
               uint8_t* newBuffer = (uint8_t*)malloc(widthOut * heightOut * pixelSize);
               if(DALI_LIKELY(newBuffer != nullptr))
@@ -904,9 +904,9 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                   // Release previous buffer
                   free(data.buffer);
                 }
-                data.isBufferOwned = true;
-                data.buffer        = newBuffer;
-                data.compressType  = TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
+                data.isBufferOwned   = true;
+                data.buffer          = newBuffer;
+                data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
               }
             }
 
@@ -925,11 +925,11 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
               {
                 free(data.buffer);
               }
-              data.isBufferOwned = true;
-              data.compressType  = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
-              data.buffer        = pixelsOut;
-              data.width         = widthOut;
-              data.height        = heightOut;
+              data.isBufferOwned   = true;
+              data.compressionType = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+              data.buffer          = pixelsOut;
+              data.width           = widthOut;
+              data.height          = heightOut;
             }
 
             glyphX = centerX - 0.5 * static_cast<double>(data.width);

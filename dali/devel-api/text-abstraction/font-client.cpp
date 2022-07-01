@@ -58,7 +58,7 @@ FontClient::GlyphBufferData::GlyphBufferData()
   outlineOffsetX{0},
   outlineOffsetY{0},
   format{Pixel::A8},
-  compressType(CompressType::NO_COMPRESS),
+  compressionType(CompressionType::NO_COMPRESSION),
   isColorEmoji{false},
   isColorBitmap{false},
   isBufferOwned{false}
@@ -77,9 +77,9 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
 {
   size_t bufferSize                       = 0u;
   uint8_t*& __restrict__ compressedBuffer = outBufferData.buffer;
-  switch(outBufferData.compressType)
+  switch(outBufferData.compressionType)
   {
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION:
     {
       bufferSize = outBufferData.width * outBufferData.height * Pixel::GetBytesPerPixel(outBufferData.format);
 
@@ -94,7 +94,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
       memcpy(compressedBuffer, inBuffer, bufferSize);
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::BIT_PER_PIXEL_4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::BPP_4:
     {
       const uint32_t widthByte       = outBufferData.width * Pixel::GetBytesPerPixel(outBufferData.format);
       const uint32_t componentCount  = (widthByte >> 1);
@@ -129,7 +129,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
       }
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::COMPRESS_RLE4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::RLE_4:
     {
       const uint32_t widthByte = outBufferData.width * Pixel::GetBytesPerPixel(outBufferData.format);
 
@@ -309,9 +309,9 @@ void FontClient::GlyphBufferData::Decompress(const GlyphBufferData& __restrict__
     return;
   }
 
-  switch(inBufferData.compressType)
+  switch(inBufferData.compressionType)
   {
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION:
     {
       const auto bufferSize = inBufferData.width * inBufferData.height * Pixel::GetBytesPerPixel(inBufferData.format);
 
@@ -319,7 +319,7 @@ void FontClient::GlyphBufferData::Decompress(const GlyphBufferData& __restrict__
       memcpy(outBuffer, inBufferData.buffer, bufferSize);
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::BIT_PER_PIXEL_4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::BPP_4:
     {
       const uint32_t widthByte       = inBufferData.width * Pixel::GetBytesPerPixel(inBufferData.format);
       const uint32_t componentCount  = (widthByte >> 1);
@@ -348,7 +348,7 @@ void FontClient::GlyphBufferData::Decompress(const GlyphBufferData& __restrict__
       }
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::COMPRESS_RLE4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::RLE_4:
     {
       const uint32_t widthByte = inBufferData.width * Pixel::GetBytesPerPixel(inBufferData.format);
 
@@ -441,9 +441,9 @@ void FontClient::GlyphBufferData::Decompress(const GlyphBufferData& __restrict__
 
 void FontClient::GlyphBufferData::DecompressScanline(const GlyphBufferData& __restrict__ inBufferData, uint8_t* __restrict__ outBuffer, uint32_t& __restrict__ offset)
 {
-  switch(inBufferData.compressType)
+  switch(inBufferData.compressionType)
   {
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION:
     {
       const auto bufferSize = inBufferData.width * Pixel::GetBytesPerPixel(inBufferData.format);
 
@@ -454,7 +454,7 @@ void FontClient::GlyphBufferData::DecompressScanline(const GlyphBufferData& __re
       offset += bufferSize;
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::BIT_PER_PIXEL_4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::BPP_4:
     {
       const uint32_t widthByte       = inBufferData.width * Pixel::GetBytesPerPixel(inBufferData.format);
       const uint32_t componentCount  = (widthByte >> 1);
@@ -483,7 +483,7 @@ void FontClient::GlyphBufferData::DecompressScanline(const GlyphBufferData& __re
       offset += (widthByte + 1u) >> 1u;
       break;
     }
-    case TextAbstraction::FontClient::GlyphBufferData::CompressType::COMPRESS_RLE4:
+    case TextAbstraction::FontClient::GlyphBufferData::CompressionType::RLE_4:
     {
       const uint32_t widthByte = inBufferData.width * Pixel::GetBytesPerPixel(inBufferData.format);
 

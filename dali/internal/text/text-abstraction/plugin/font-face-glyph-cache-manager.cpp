@@ -33,7 +33,7 @@ namespace Dali::TextAbstraction::Internal
 {
 namespace
 {
-constexpr uint32_t THRESHOLD_WIDTH_FOR_BPP_COMPRESS = 8; // The smallest width of glyph that we use RLE4 method.
+constexpr uint32_t THRESHOLD_WIDTH_FOR_RLE4_COMPRESSION = 8; // The smallest width of glyph that we use RLE4 method.
 } // namespace
 
 GlyphCacheManager::GlyphCacheManager(FT_Face ftFace, std::size_t maxNumberOfGlyphCache)
@@ -297,11 +297,11 @@ void GlyphCacheManager::ResizeBitmapGlyph(
 }
 
 void GlyphCacheManager::CacheRenderedGlyphBuffer(
-  const GlyphIndex                                                       index,
-  const FT_Int32                                                         flag,
-  const bool                                                             isBoldRequired,
-  const FT_Bitmap&                                                       srcBitmap,
-  const TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType policy)
+  const GlyphIndex            index,
+  const FT_Int32              flag,
+  const bool                  isBoldRequired,
+  const FT_Bitmap&            srcBitmap,
+  const CompressionPolicyType policy)
 {
   if(srcBitmap.width * srcBitmap.rows <= 0)
   {
@@ -339,21 +339,21 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
         {
           renderBuffer.format = Pixel::L8;
 
-          if(policy == TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType::SPEED)
+          if(policy == CompressionPolicyType::SPEED)
           {
             // If policy is SPEED, we will not compress bitmap.
-            renderBuffer.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
+            renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
           }
           else
           {
             // If small enough glyph, compress as BPP4 method.
-            if(srcBitmap.width < THRESHOLD_WIDTH_FOR_BPP_COMPRESS)
+            if(srcBitmap.width < THRESHOLD_WIDTH_FOR_RLE4_COMPRESSION)
             {
-              renderBuffer.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::BIT_PER_PIXEL_4;
+              renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::BPP_4;
             }
             else
             {
-              renderBuffer.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::COMPRESS_RLE4;
+              renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::RLE_4;
             }
           }
 
@@ -372,8 +372,8 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
         case FT_PIXEL_MODE_BGRA:
         {
           // Copy buffer without compress
-          renderBuffer.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
-          renderBuffer.format       = Pixel::BGRA8888;
+          renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+          renderBuffer.format          = Pixel::BGRA8888;
 
           const auto compressedBufferSize = TextAbstraction::FontClient::GlyphBufferData::Compress(srcBitmap.buffer, renderBuffer);
           if(DALI_UNLIKELY(compressedBufferSize == 0u))

@@ -95,19 +95,14 @@ public:
      */
     ~GlyphBufferData();
 
-    // Compressed method of buffer. Each buffer compressed line by line
-    enum class CompressType
+    // Compression method of buffer. Each buffer compressed line by line
+    enum class CompressionType
     {
-      NO_COMPRESS     = 0, // No compression
-      BIT_PER_PIXEL_4 = 1, // Compress as 4 bit. Color become value * 17 (0x00, 0x11, 0x22, ... 0xee, 0xff). Only works for Pixel::L8 format
-      COMPRESS_RLE4   = 2, // Compress as 4 bit, and Run-Length-Encode. For more high compress rate, we store difference between previous scanline. Only works for Pixel::L8 format
-    };
-
-    // Compress priority of buffer.
-    enum class CompressPolicyType
-    {
-      SPEED  = 0,
-      MEMORY = 1,
+      NO_COMPRESSION = 0, // No compression
+      BPP_4          = 1, // Compress as 4 bit. Color become value * 17 (0x00, 0x11, 0x22, ... 0xee, 0xff).
+                          // Only works for Pixel::L8 format
+      RLE_4 = 2,          // Compress as 4 bit, and Run-Length-Encode. For more high compress rate, we store difference between previous scanline.
+                          // Only works for Pixel::L8 format
     };
 
     /**
@@ -116,7 +111,7 @@ public:
      *
      * @pre outBufferData must not have it's own buffer.
      * @param[in] inBuffer The input raw data.
-     * @param[in] outBufferData The output glyph buffer data.
+     * @param[in, out] outBufferData The output glyph buffer data.
      * @return Size of compressed out buffer, Or 0 if compress failed.
      */
     static size_t Compress(const uint8_t* const inBuffer, GlyphBufferData& outBufferData);
@@ -127,7 +122,7 @@ public:
      *
      * @pre outBuffer memory should be allocated.
      * @param[in] inBufferData The input glyph buffer data.
-     * @param[in] outBuffer The output pointer of raw buffer data.
+     * @param[in, out] outBuffer The output pointer of raw buffer data.
      */
     static void Decompress(const GlyphBufferData& inBufferData, uint8_t* outBuffer);
 
@@ -136,22 +131,23 @@ public:
      * After decompress one scanline successed, offset will be changed.
      *
      * @pre outBuffer memory should be allocated.
+     * @pre if inBufferData's compression type is RLE4, outBuffer memory should store the previous scanline data.
      * @param[in] inBufferData The input glyph buffer data.
-     * @param[in] outBuffer The output pointer of raw buffer data.
-     * @param[in, out] offset The offset of input. It will be changed if decompress scanline successed.
+     * @param[in, out] outBuffer The output pointer of raw buffer data.
+     * @param[in, out] offset The offset of input. It will be changed as next scanline's offset.
      */
     static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
 
-    uint8_t*      buffer;            ///< The glyph's bitmap buffer data.
-    uint32_t      width;             ///< The width of the bitmap.
-    uint32_t      height;            ///< The height of the bitmap.
-    int           outlineOffsetX;    ///< The additional horizontal offset to be added for the glyph's position for outline.
-    int           outlineOffsetY;    ///< The additional vertical offset to be added for the glyph's position for outline.
-    Pixel::Format format;            ///< The pixel's format of the bitmap.
-    CompressType  compressType : 3;  ///< The type of buffer compression.
-    bool          isColorEmoji : 1;  ///< Whether the glyph is an emoji.
-    bool          isColorBitmap : 1; ///< Whether the glyph is a color bitmap.
-    bool          isBufferOwned : 1; ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
+    uint8_t*        buffer;              ///< The glyph's bitmap buffer data.
+    uint32_t        width;               ///< The width of the bitmap.
+    uint32_t        height;              ///< The height of the bitmap.
+    int             outlineOffsetX;      ///< The additional horizontal offset to be added for the glyph's position for outline.
+    int             outlineOffsetY;      ///< The additional vertical offset to be added for the glyph's position for outline.
+    Pixel::Format   format;              ///< The pixel's format of the bitmap.
+    CompressionType compressionType : 3; ///< The type of buffer compression.
+    bool            isColorEmoji : 1;    ///< Whether the glyph is an emoji.
+    bool            isColorBitmap : 1;   ///< Whether the glyph is a color bitmap.
+    bool            isBufferOwned : 1;   ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
   };
 
   /**

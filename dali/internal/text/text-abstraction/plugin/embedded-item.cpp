@@ -45,8 +45,8 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>&        
   }
   else
   {
-    data.isBufferOwned = true;
-    data.compressType  = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
+    data.isBufferOwned   = true;
+    data.compressionType = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
     // Creates the output buffer
     const uint32_t bufferSize = data.width * data.height * 4u;

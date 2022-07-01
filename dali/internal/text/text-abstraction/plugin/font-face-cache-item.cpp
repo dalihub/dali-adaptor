@@ -88,9 +88,9 @@ inline const bool EnableCacheRenderedGlyph()
  */
 constexpr auto DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY =
 #if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
-  TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType::MEMORY; // If tizen target
+  GlyphCacheManager::CompressionPolicyType::MEMORY; // If tizen target
 #else
-  TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType::SPEED; // If not tizen target
+  GlyphCacheManager::CompressionPolicyType::SPEED; // If not tizen target
 #endif
 constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRESS_POLICY";
 
@@ -100,13 +100,13 @@ constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRES
  * @note This value fixed when we call it first time.
  * @return SPEED if value start with 's' or 'S'. MEMORY if value start with 'm' or 'M'. otherwise, use default
  */
-inline const TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType GetRenderedGlyphCompressPolicy()
+inline const GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
   using Dali::EnvironmentVariable::GetEnvironmentVariable;
   static auto policyString = GetEnvironmentVariable(RENDERED_GLYPH_COMPRESS_POLICY_ENV);
 
-  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType::SPEED
-                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType::MEMORY
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
                                                                                                                                           : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
@@ -475,12 +475,12 @@ void FontFaceCacheItem::CreateBitmap(
       // If we cache rendered glyph, and if we can use it, use cached thing first.
       if(ableUseCachedRenderedGlyph && glyphData.mRenderedBuffer)
       {
-        data.buffer        = glyphData.mRenderedBuffer->buffer;
-        data.width         = glyphData.mRenderedBuffer->width;
-        data.height        = glyphData.mRenderedBuffer->height;
-        data.format        = glyphData.mRenderedBuffer->format;
-        data.compressType  = glyphData.mRenderedBuffer->compressType;
-        data.isBufferOwned = false;
+        data.buffer          = glyphData.mRenderedBuffer->buffer;
+        data.width           = glyphData.mRenderedBuffer->width;
+        data.height          = glyphData.mRenderedBuffer->height;
+        data.format          = glyphData.mRenderedBuffer->format;
+        data.compressionType = glyphData.mRenderedBuffer->compressionType;
+        data.isBufferOwned   = false;
       }
       else
       {
@@ -509,12 +509,12 @@ void FontFaceCacheItem::CreateBitmap(
 
             if(DALI_LIKELY(FT_Err_Ok == error && dummyData.mRenderedBuffer))
             {
-              data.buffer        = dummyData.mRenderedBuffer->buffer;
-              data.width         = dummyData.mRenderedBuffer->width;
-              data.height        = dummyData.mRenderedBuffer->height;
-              data.format        = dummyData.mRenderedBuffer->format;
-              data.compressType  = dummyData.mRenderedBuffer->compressType;
-              data.isBufferOwned = false;
+              data.buffer          = dummyData.mRenderedBuffer->buffer;
+              data.width           = dummyData.mRenderedBuffer->width;
+              data.height          = dummyData.mRenderedBuffer->height;
+              data.format          = dummyData.mRenderedBuffer->format;
+              data.compressionType = dummyData.mRenderedBuffer->compressionType;
+              data.isBufferOwned   = false;
             }
             else
             {

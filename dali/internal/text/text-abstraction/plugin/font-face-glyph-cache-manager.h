@@ -75,6 +75,13 @@ public:
     void ReleaseGlyphData();
   };
 
+  // Compression priority of rendered glyph buffer.
+  enum class CompressionPolicyType
+  {
+    SPEED  = 0,
+    MEMORY = 1,
+  };
+
 public:
   // Public API area.
 
@@ -138,14 +145,14 @@ public:
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
    * @param[in] srcBitmap Rendered glyph bitmap.
-   * @param[in] policy Compress behavior policy. default is MEMORY
+   * @param[in] policy Compress behavior policy.
    */
   void CacheRenderedGlyphBuffer(
-    const GlyphIndex                                                       index,
-    const FT_Int32                                                         flag,
-    const bool                                                             isBoldRequired,
-    const FT_Bitmap&                                                       srcBitmap,
-    const TextAbstraction::FontClient::GlyphBufferData::CompressPolicyType policy);
+    const GlyphIndex            index,
+    const FT_Int32              flag,
+    const bool                  isBoldRequired,
+    const FT_Bitmap&            srcBitmap,
+    const CompressionPolicyType policy);
 
 private:
   // Private struct area.

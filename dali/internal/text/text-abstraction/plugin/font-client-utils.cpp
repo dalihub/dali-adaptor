@@ -144,7 +144,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
   data.format = srcFormat;
 
   // Note we don't compress here
-  data.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
+  data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
   const uint32_t bytePerPixel = Dali::Pixel::GetBytesPerPixel(srcFormat);
 
@@ -273,7 +273,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
           data.format = Pixel::L8; // Sets the pixel format.
 
           // Note we don't compress here
-          data.compressType = TextAbstraction::FontClient::GlyphBufferData::CompressType::NO_COMPRESS;
+          data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
           if(moveBuffer)
           {
