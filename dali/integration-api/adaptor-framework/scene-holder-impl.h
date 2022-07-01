@@ -249,6 +249,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::InterceptKeyEventSignal()
+   */
+  Dali::Integration::SceneHolder::KeyEventGeneratedSignalType& InterceptKeyEventSignal()
+  {
+    return mScene.InterceptKeyEventSignal();
+  }
+
+  /**
    * @copydoc Dali::Integration::SceneHolder::TouchedSignal()
    */
   Dali::Integration::SceneHolder::TouchEventSignalType& TouchedSignal()

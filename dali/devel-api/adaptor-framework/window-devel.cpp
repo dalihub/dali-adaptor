@@ -234,6 +234,11 @@ const TouchEvent& GetLastTouchEvent(Window window)
   return GetImplementation(window).GetLastTouchEvent();
 }
 
+InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
+{
+  return GetImplementation(window).InterceptKeyEventSignal();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
