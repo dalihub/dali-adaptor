@@ -36,23 +36,16 @@ struct TouchPoint;
 
 namespace DevelWindow
 {
-typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
-
-typedef Signal<void(const KeyEvent&)> KeyEventSignalType; ///< Key event signal type
-
-typedef Signal<void(const TouchEvent&)> TouchEventSignalType; ///< Touch signal type
-
-typedef Signal<void(const WheelEvent&)> WheelEventSignalType; ///< Touched signal type
-
-typedef Signal<void(Window, bool)> VisibilityChangedSignalType; ///< Visibility changed signal type
-
-typedef Signal<void(Window, WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
-
-typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
-
-typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType; ///< Auxiliary message signal type
-
-typedef Signal<void(Window, bool)> AccessibilityHighlightSignalType; ///< Accessibility Highlight signal type
+typedef Signal<void()>                                                               EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
+typedef Signal<void(const KeyEvent&)>                                                KeyEventSignalType;                      ///< Key event signal type
+typedef Signal<void(const TouchEvent&)>                                              TouchEventSignalType;                    ///< Touch signal type
+typedef Signal<void(const WheelEvent&)>                                              WheelEventSignalType;                    ///< Wheel signal type
+typedef Signal<void(Window, bool)>                                                   VisibilityChangedSignalType;             ///< Visibility changed signal type
+typedef Signal<void(Window, WindowEffectState, WindowEffectType)>                    TransitionEffectEventSignalType;         ///< Effect signal type and state
+typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
+typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;              ///< Auxiliary message signal type
+typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
+typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -527,6 +520,17 @@ DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
  * @note It returns the raw event the window gets. There is no hit-actor and local position information.
  */
 DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
+
+/**
+ * @brief The user would connect to this signal to intercept a KeyEvent at window.
+ *
+ * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.
+ * If a KeyEvent is consumed, no KeyEvent is delivered to the control.
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window);
 
 } // namespace DevelWindow
 
