@@ -44,7 +44,7 @@ constexpr float MAXIMUM_RATE_OF_BITMAP_GLYPH_CACHE_RESIZE = 1.5f;
  * @brief Maximum size of glyph cache per each font face.
  */
 constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
-constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 2u;
+constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
 
 constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
 
@@ -54,12 +54,62 @@ constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
  * @note This value fixed when we call it first time.
  * @return The max size of glyph cache.
  */
-size_t GetMaxNumberOfGlyphCache()
+inline const size_t GetMaxNumberOfGlyphCache()
 {
   using Dali::EnvironmentVariable::GetEnvironmentVariable;
   static auto numberString = GetEnvironmentVariable(MAX_NUMBER_OF_GLYPH_CACHE_ENV);
   static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_GLYPH_CACHE_MAX;
   return (number < MINIMUM_SIZE_OF_GLYPH_CACHE_MAX) ? MINIMUM_SIZE_OF_GLYPH_CACHE_MAX : number;
+}
+
+/**
+ * @brief Behavior about cache the rendered glyph cache.
+ */
+constexpr bool DEFAULT_ENABLE_CACHE_RENDERED_GLYPH = true;
+constexpr auto ENABLE_CACHE_RENDERED_GLYPH_ENV     = "DALI_ENABLE_CACHE_RENDERED_GLYPH";
+
+/**
+ * @brief Get whether we allow to cache rendered glyph from environment.
+ * If not settuped, default as true.
+ * @note This value fixed when we call it first time.
+ * @return True if we allow to cache rendered glyph.
+ */
+inline const bool EnableCacheRenderedGlyph()
+{
+  using Dali::EnvironmentVariable::GetEnvironmentVariable;
+  static auto numberString = GetEnvironmentVariable(ENABLE_CACHE_RENDERED_GLYPH_ENV);
+  static auto number       = numberString ? (std::strtoul(numberString, nullptr, 10) ? true : false) : DEFAULT_ENABLE_CACHE_RENDERED_GLYPH;
+  return number;
+}
+
+/**
+ * @brief Policy about compress the cached rendered glyph.
+ * It will be used only if CacheRenderedGlyph is enabled
+ */
+constexpr auto DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY =
+#if !(defined(DALI_PROFILE_UBUNTU) || defined(ANDROID) || defined(WIN32) || defined(__APPLE__))
+  GlyphCacheManager::CompressionPolicyType::MEMORY; // If tizen target
+#else
+  GlyphCacheManager::CompressionPolicyType::SPEED; // If not tizen target
+#endif
+constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRESS_POLICY";
+
+/**
+ * @brief Get whether we allow to cache rendered glyph from environment.
+ * If not settuped, default value used, as defined above.
+ * @note This value fixed when we call it first time.
+ * @return SPEED if value start with 's' or 'S'. MEMORY if value start with 'm' or 'M'. otherwise, use default
+ */
+inline const GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
+{
+  using Dali::EnvironmentVariable::GetEnvironmentVariable;
+  static auto policyString = GetEnvironmentVariable(RENDERED_GLYPH_COMPRESS_POLICY_ENV);
+
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
+                                                                                                                                          : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
+                                    : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
+  return policy;
 }
 } // namespace
 
@@ -319,16 +369,17 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
  * @brief Create a bitmap representation of a glyph from a face font
  *
  * @param[in]  glyphIndex        The index of a glyph within the specified font.
- * @param[in]  isItalicRequired  Whether the glyph requires italic style.
- * @param[in]  isBoldRequired    Whether the glyph requires bold style.
  * @param[out] data              The bitmap data.
  * @param[in]  outlineWidth      The width of the glyph outline in pixels.
+ * @param[in]  isItalicRequired  Whether the glyph requires italic style.
+ * @param[in]  isBoldRequired    Whether the glyph requires bold style.
  */
 void FontFaceCacheItem::CreateBitmap(
   GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
 {
   GlyphCacheManager::GlyphCacheData glyphData;
   FT_Error                          error;
+  FT_Int32                          loadFlag;
   // For the software italics.
   bool isShearRequired = false;
 
@@ -336,7 +387,7 @@ void FontFaceCacheItem::CreateBitmap(
   // Check to see if this is fixed size bitmap
   if(mIsFixedSizeBitmap)
   {
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, FT_LOAD_COLOR, isBoldRequired, glyphData, error);
+    loadFlag = FT_LOAD_COLOR;
   }
   else
 #endif
@@ -344,8 +395,10 @@ void FontFaceCacheItem::CreateBitmap(
     // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
     // i.e. with the SNum-3R font.
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, FT_LOAD_NO_AUTOHINT, isBoldRequired, glyphData, error);
+    loadFlag = FT_LOAD_NO_AUTOHINT;
   }
+  mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, loadFlag, isBoldRequired, glyphData, error);
+
   if(FT_Err_Ok == error)
   {
     if(isItalicRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_ITALIC))
@@ -354,9 +407,9 @@ void FontFaceCacheItem::CreateBitmap(
       isShearRequired = true;
     }
 
-    // Convert to bitmap if necessary
     if(!glyphData.mIsBitmap)
     {
+      // Convert to bitmap if necessary
       FT_Glyph glyph = glyphData.mGlyph;
 
       DALI_ASSERT_ALWAYS(glyph->format != FT_GLYPH_FORMAT_BITMAP && "Something wrong with cashing. Some bitmap glyph cached failed.");
@@ -417,29 +470,72 @@ void FontFaceCacheItem::CreateBitmap(
         }
       }
 
-      // Copy new glyph, and keep original cached glyph.
-      // If we already copy new glyph by stroke, just re-use that.
-      error = FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, isStrokeGlyphSuccess);
-      if(FT_Err_Ok == error)
+      const bool ableUseCachedRenderedGlyph = EnableCacheRenderedGlyph() && !isOutlineGlyph && !isShearRequired;
+
+      // If we cache rendered glyph, and if we can use it, use cached thing first.
+      if(ableUseCachedRenderedGlyph && glyphData.mRenderedBuffer)
       {
-        FT_BitmapGlyph bitmapGlyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
-
-        if(isOutlineGlyph)
-        {
-          // Calculate the additional horizontal and vertical offsets needed for the position of the outline glyph
-          data.outlineOffsetX = offsetX - bitmapGlyph->left - outlineWidth;
-          data.outlineOffsetY = bitmapGlyph->top - offsetY - outlineWidth;
-        }
-
-        // Move bitmap buffer into data.buffer
-        ConvertBitmap(data, bitmapGlyph->bitmap, isShearRequired, true);
-
-        // Copied FT_Glyph object must be released with FT_Done_Glyph
-        FT_Done_Glyph(glyph);
+        data.buffer          = glyphData.mRenderedBuffer->buffer;
+        data.width           = glyphData.mRenderedBuffer->width;
+        data.height          = glyphData.mRenderedBuffer->height;
+        data.format          = glyphData.mRenderedBuffer->format;
+        data.compressionType = glyphData.mRenderedBuffer->compressionType;
+        data.isBufferOwned   = false;
       }
       else
       {
-        DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Get_Glyph Failed with error: %d\n", error);
+        // Copy new glyph, and keep original cached glyph.
+        // If we already copy new glyph by stroke, just re-use that.
+        error = FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, 0, isStrokeGlyphSuccess);
+        if(FT_Err_Ok == error)
+        {
+          FT_BitmapGlyph bitmapGlyph = reinterpret_cast<FT_BitmapGlyph>(glyph);
+
+          if(isOutlineGlyph)
+          {
+            // Calculate the additional horizontal and vertical offsets needed for the position of the outline glyph
+            data.outlineOffsetX = offsetX - bitmapGlyph->left - outlineWidth;
+            data.outlineOffsetY = bitmapGlyph->top - offsetY - outlineWidth;
+          }
+
+          // If we can cache this bitmapGlyph, store it.
+          // Note : We will call this API once per each glyph.
+          if(ableUseCachedRenderedGlyph)
+          {
+            mGlyphCacheManager->CacheRenderedGlyphBuffer(glyphIndex, loadFlag, isBoldRequired, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
+
+            GlyphCacheManager::GlyphCacheData dummyData;
+            mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, loadFlag, isBoldRequired, dummyData, error);
+
+            if(DALI_LIKELY(FT_Err_Ok == error && dummyData.mRenderedBuffer))
+            {
+              data.buffer          = dummyData.mRenderedBuffer->buffer;
+              data.width           = dummyData.mRenderedBuffer->width;
+              data.height          = dummyData.mRenderedBuffer->height;
+              data.format          = dummyData.mRenderedBuffer->format;
+              data.compressionType = dummyData.mRenderedBuffer->compressionType;
+              data.isBufferOwned   = false;
+            }
+            else
+            {
+              // Something problem during cache or get rendered glyph buffer.
+              // Move bitmap buffer into data.buffer
+              ConvertBitmap(data, bitmapGlyph->bitmap, isShearRequired, true);
+            }
+          }
+          else
+          {
+            // Move bitmap buffer into data.buffer
+            ConvertBitmap(data, bitmapGlyph->bitmap, isShearRequired, true);
+          }
+
+          // Copied FT_Glyph object must be released with FT_Done_Glyph
+          FT_Done_Glyph(glyph);
+        }
+        else
+        {
+          DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "FontClient::Plugin::CreateBitmap. FT_Get_Glyph Failed with error: %d\n", error);
+        }
       }
     }
     else

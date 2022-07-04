@@ -119,6 +119,11 @@ SceneHolder::KeyEventGeneratedSignalType& SceneHolder::KeyEventGeneratedSignal()
   return GetImplementation(*this).KeyEventGeneratedSignal();
 }
 
+SceneHolder::KeyEventGeneratedSignalType& SceneHolder::InterceptKeyEventSignal()
+{
+  return GetImplementation(*this).InterceptKeyEventSignal();
+}
+
 SceneHolder::TouchEventSignalType& SceneHolder::TouchedSignal()
 {
   return GetImplementation(*this).TouchedSignal();

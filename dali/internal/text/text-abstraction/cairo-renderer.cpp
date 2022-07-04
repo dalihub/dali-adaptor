@@ -854,7 +854,6 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
 
           // Retrieve the image
           TextAbstraction::FontClient::GlyphBufferData data;
-          std::unique_ptr<GlyphBuffer>                 glyphBufferPtr(new GlyphBuffer(data, GlyphBuffer::FREE));
           if(isEmoji)
           {
             data.width  = parameters.glyphs[run.glyphIndex].width;
@@ -893,6 +892,24 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
             unsigned int       heightOut = data.height;
             const unsigned int pixelSize = Pixel::GetBytesPerPixel(data.format);
 
+            // If we need to decompress, create new memory and replace ownership.
+            if(data.compressionType != TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION)
+            {
+              uint8_t* newBuffer = (uint8_t*)malloc(widthOut * heightOut * pixelSize);
+              if(DALI_LIKELY(newBuffer != nullptr))
+              {
+                TextAbstraction::FontClient::GlyphBufferData::Decompress(data, newBuffer);
+                if(data.isBufferOwned)
+                {
+                  // Release previous buffer
+                  free(data.buffer);
+                }
+                data.isBufferOwned   = true;
+                data.buffer          = newBuffer;
+                data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+              }
+            }
+
             Dali::Internal::Platform::RotateByShear(data.buffer,
                                                     data.width,
                                                     data.height,
@@ -904,10 +921,15 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                                                     heightOut);
             if(nullptr != pixelsOut)
             {
-              free(data.buffer);
-              data.buffer = pixelsOut;
-              data.width  = widthOut;
-              data.height = heightOut;
+              if(data.isBufferOwned)
+              {
+                free(data.buffer);
+              }
+              data.isBufferOwned   = true;
+              data.compressionType = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+              data.buffer          = pixelsOut;
+              data.width           = widthOut;
+              data.height          = heightOut;
             }
 
             glyphX = centerX - 0.5 * static_cast<double>(data.width);

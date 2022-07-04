@@ -40,17 +40,17 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>&        
     Devel::PixelBuffer pixelBuffer = pixelBufferCache[pixelBufferId - 1u].pixelBuffer;
     if(pixelBuffer)
     {
-      ConvertBitmap(data, pixelBuffer.GetWidth(), pixelBuffer.GetHeight(), pixelBuffer.GetBuffer());
-
-      // Sets the pixel format.
-      data.format = pixelBuffer.GetPixelFormat();
+      ConvertBitmap(data, pixelBuffer.GetWidth(), pixelBuffer.GetHeight(), pixelBuffer.GetBuffer(), pixelBuffer.GetPixelFormat());
     }
   }
   else
   {
+    data.isBufferOwned   = true;
+    data.compressionType = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+
     // Creates the output buffer
-    const unsigned int bufferSize = data.width * data.height * 4u;
-    data.buffer                   = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
+    const uint32_t bufferSize = data.width * data.height * 4u;
+    data.buffer               = (uint8_t*)malloc(bufferSize); // @note The caller is responsible for deallocating the bitmap data using free.
 
     memset(data.buffer, 0u, bufferSize);
 

@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,14 +95,59 @@ public:
      */
     ~GlyphBufferData();
 
-    unsigned char* buffer;            ///< The glyph's bitmap buffer data.
-    unsigned int   width;             ///< The width of the bitmap.
-    unsigned int   height;            ///< The height of the bitmap.
-    int            outlineOffsetX;    ///< The additional horizontal offset to be added for the glyph's position for outline.
-    int            outlineOffsetY;    ///< The additional vertical offset to be added for the glyph's position for outline.
-    Pixel::Format  format;            ///< The pixel's format of the bitmap.
-    bool           isColorEmoji : 1;  ///< Whether the glyph is an emoji.
-    bool           isColorBitmap : 1; ///< Whether the glyph is a color bitmap.
+    // Compression method of buffer. Each buffer compressed line by line
+    enum class CompressionType
+    {
+      NO_COMPRESSION = 0, // No compression
+      BPP_4          = 1, // Compress as 4 bit. Color become value * 17 (0x00, 0x11, 0x22, ... 0xee, 0xff).
+                          // Only works for Pixel::L8 format
+      RLE_4 = 2,          // Compress as 4 bit, and Run-Length-Encode. For more high compress rate, we store difference between previous scanline.
+                          // Only works for Pixel::L8 format
+    };
+
+    /**
+     * @brief Helper static function to compress raw buffer from inBuffer to outBufferData.buffer.
+     * outBufferData will have it's own buffer.
+     *
+     * @pre outBufferData must not have it's own buffer.
+     * @param[in] inBuffer The input raw data.
+     * @param[in, out] outBufferData The output glyph buffer data.
+     * @return Size of compressed out buffer, Or 0 if compress failed.
+     */
+    static size_t Compress(const uint8_t* const inBuffer, GlyphBufferData& outBufferData);
+
+    /**
+     * @brief Helper static function to decompress raw buffer from inBuffer to outBufferPtr.
+     * If outBuffer is nullptr, Do nothing.
+     *
+     * @pre outBuffer memory should be allocated.
+     * @param[in] inBufferData The input glyph buffer data.
+     * @param[in, out] outBuffer The output pointer of raw buffer data.
+     */
+    static void Decompress(const GlyphBufferData& inBufferData, uint8_t* outBuffer);
+
+    /**
+     * @brief Special Helper static function to decompress raw buffer from inBuffer to outBuffer one scanline.
+     * After decompress one scanline successed, offset will be changed.
+     *
+     * @pre outBuffer memory should be allocated.
+     * @pre if inBufferData's compression type is RLE4, outBuffer memory should store the previous scanline data.
+     * @param[in] inBufferData The input glyph buffer data.
+     * @param[in, out] outBuffer The output pointer of raw buffer data.
+     * @param[in, out] offset The offset of input. It will be changed as next scanline's offset.
+     */
+    static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
+
+    uint8_t*        buffer;              ///< The glyph's bitmap buffer data.
+    uint32_t        width;               ///< The width of the bitmap.
+    uint32_t        height;              ///< The height of the bitmap.
+    int             outlineOffsetX;      ///< The additional horizontal offset to be added for the glyph's position for outline.
+    int             outlineOffsetY;      ///< The additional vertical offset to be added for the glyph's position for outline.
+    Pixel::Format   format;              ///< The pixel's format of the bitmap.
+    CompressionType compressionType : 3; ///< The type of buffer compression.
+    bool            isColorEmoji : 1;    ///< Whether the glyph is an emoji.
+    bool            isColorBitmap : 1;   ///< Whether the glyph is a color bitmap.
+    bool            isBufferOwned : 1;   ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
   };
 
   /**

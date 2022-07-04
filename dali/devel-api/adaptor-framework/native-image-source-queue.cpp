@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t h
 NativeImageSourceQueuePtr NativeImageSourceQueue::New(Any nativeImageSourceQueue)
 {
   //ColorFormat will be ignored.
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, ColorFormat::RGBA8888, nativeImageSourceQueue);
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, ColorFormat::BGRA8888, nativeImageSourceQueue);
   if(image->mImpl)
   {
     return image;

@@ -188,6 +188,19 @@ public:
   KeyEventGeneratedSignalType& KeyEventGeneratedSignal();
 
   /**
+   * @brief This signal is emitted when key event is received.
+   * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.
+   * If a KeyEvent is consumed, no KeyEvent is delivered to the control.
+   *
+   * A callback of the following type may be connected:
+   * @code
+   *   bool YourCallbackName(const KeyEvent& event);
+   * @endcode
+   * @return The signal to connect to
+   */
+  KeyEventGeneratedSignalType& InterceptKeyEventSignal();
+
+  /**
    * @brief This signal is emitted when the screen is touched and when the touch ends
    * (i.e. the down & up touch events only).
    *

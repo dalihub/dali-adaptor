@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ namespace
 {
 #define TBM_SURFACE_QUEUE_SIZE 3
 
-const char* SAMPLER_TYPE    = "samplerExternalOES";
+const char* SAMPLER_TYPE = "samplerExternalOES";
 
 // clang-format off
 int FORMATS_BLENDING_REQUIRED[] = {
@@ -124,19 +124,22 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
 
     switch(colorFormat)
     {
-      case Dali::NativeImageSourceQueue::ColorFormat::RGBA8888:
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBA8888: // TODO : Implement me after other codes fixed.
+      case Dali::NativeImageSourceQueue::ColorFormat::BGRA8888:
       {
         tbmFormat         = TBM_FORMAT_ARGB8888;
         mBlendingRequired = true;
         break;
       }
-      case Dali::NativeImageSourceQueue::ColorFormat::RGBX8888:
+      case Dali::NativeImageSourceQueue::ColorFormat::RGBX8888: // TODO : Implement me after other codes fixed.
+      case Dali::NativeImageSourceQueue::ColorFormat::BGRX8888:
       {
         tbmFormat         = TBM_FORMAT_XRGB8888;
         mBlendingRequired = false;
         break;
       }
-      case Dali::NativeImageSourceQueue::ColorFormat::RGB888:
+      case Dali::NativeImageSourceQueue::ColorFormat::RGB888: // TODO : Implement me after other codes fixed.
+      case Dali::NativeImageSourceQueue::ColorFormat::BGR888:
       {
         tbmFormat         = TBM_FORMAT_RGB888;
         mBlendingRequired = false;
