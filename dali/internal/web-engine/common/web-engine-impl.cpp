@@ -515,6 +515,11 @@ void WebEngine::ActivateAccessibility(bool activated)
   mPlugin->ActivateAccessibility(activated);
 }
 
+Accessibility::Address WebEngine::GetAccessibilityAddress()
+{
+  return mPlugin->GetAccessibilityAddress();
+}
+
 bool WebEngine::SetVisibility(bool visible)
 {
   return mPlugin->SetVisibility(visible);

@@ -24,6 +24,7 @@
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
+#include <dali/devel-api/events/key-event-devel.h>
 
 // EXTERNAL INCLUDES
 #include <bundle.h>
@@ -35,6 +36,45 @@ namespace Internal
 {
 namespace
 {
+/**
+ * This Api is called when widget viewer send keyEvent.
+ * In this API, widget framework create a new keyEvent, find the proper widget and send this event.
+ * Finally widget framework receive feedback from widget.
+ */
+#ifdef OVER_TIZEN_VERSION_7
+bool OnKeyEventCallback(const char *id, screen_connector_event_type_e eventType, int keyCode, const char *keyName, long long cls, long long subcls, const char* identifier, long long timestamp, void *userData)
+{
+  Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(userData);
+
+  // Create new key for widget
+  Dali::KeyEvent::State state = Dali::KeyEvent::DOWN;
+  if(eventType == SCREEN_CONNECTOR_EVENT_TYPE_KEY_DOWN)
+  {
+    state = Dali::KeyEvent::DOWN;
+  }
+  else if(eventType == SCREEN_CONNECTOR_EVENT_TYPE_KEY_UP)
+  {
+    state = Dali::KeyEvent::UP;
+  }
+
+  bool consumed = true;
+  std::string keyEventName = std::string(keyName);
+  Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEventName, "", "", keyCode, 0, timestamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
+
+  if(application)
+  {
+    std::string widgetId = std::string(id);
+    widget_base_instance_h instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
+    if(instanceHandle)
+    {
+      consumed = application->FeedKeyEvent(instanceHandle, event);
+    }
+  }
+
+  return consumed;
+}
+#endif
+
 int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w, int h, void* classData)
 {
   char* id;
@@ -79,10 +119,11 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   Dali::WidgetApplication::CreateWidgetFunction                        createFunction = pair.second;
 
   Dali::Widget widgetInstance = createFunction(pair.first);
-  application->AddWidget(instanceHandle, widgetInstance, window);
 
   Dali::Internal::Adaptor::Widget::Impl* widgetImpl = new Dali::Internal::Adaptor::WidgetImplTizen(instanceHandle);
   Internal::Adaptor::GetImplementation(widgetInstance).SetImpl(widgetImpl);
+
+  application->AddWidget(instanceHandle, widgetInstance, window, std::string(id));
 
   std::string encodedContentString = "";
 
@@ -97,6 +138,11 @@ int OnInstanceInit(widget_base_instance_h instanceHandle, bundle* content, int w
   }
 
   Internal::Adaptor::GetImplementation(widgetInstance).OnCreate(encodedContentString, window);
+
+  // connect keyEvent for widget
+#ifdef OVER_TIZEN_VERSION_7
+  application->ConnectKeyEvent(window);
+#endif
 
   return 0;
 }
@@ -172,7 +218,7 @@ int OnInstanceResize(widget_base_instance_h instanceHandle, int w, int h, void* 
 
   // Get Dali::Widget instance.
   Dali::Widget widgetInstance = application->GetWidget(instanceHandle);
-  Dali::Window window         = application->GetWindowFromWidget(instanceHandle);
+  Dali::Window window         = application->GetWindowFromWidget(widgetInstance);
   window.SetSize(Dali::Window::WindowSize(w, h));
   Internal::Adaptor::GetImplementation(widgetInstance).OnResize(window);
 
@@ -225,7 +271,9 @@ WidgetApplicationPtr WidgetApplicationTizen::New(
 }
 
 WidgetApplicationTizen::WidgetApplicationTizen(int* argc, char** argv[], const std::string& stylesheet)
-: WidgetApplication(argc, argv, stylesheet)
+: WidgetApplication(argc, argv, stylesheet),
+  mConnectedKeyEvent(false),
+  mReceivedKeyEvent(false)
 {
 }
 
@@ -269,10 +317,10 @@ WidgetApplicationTizen::CreateWidgetFunctionPair WidgetApplicationTizen::GetWidg
   return CreateWidgetFunctionPair("", NULL);
 }
 
-void WidgetApplicationTizen::AddWidget(widget_base_instance_h widgetBaseInstance, Dali::Widget widget, Dali::Window window)
+void WidgetApplicationTizen::AddWidget(widget_base_instance_h widgetBaseInstance, Dali::Widget widget, Dali::Window window, const std::string& widgetId)
 {
   mWidgetInstanceContainer.push_back(WidgetInstancePair(widgetBaseInstance, widget));
-  mWindowInstanceContainer.push_back(WindowInstancePair(widgetBaseInstance, window));
+  Internal::Adaptor::GetImplementation(widget).SetInformation(window, widgetId);
 }
 
 Dali::Widget WidgetApplicationTizen::GetWidget(widget_base_instance_h widgetBaseInstance) const
@@ -298,34 +346,79 @@ void WidgetApplicationTizen::DeleteWidget(widget_base_instance_h widgetBaseInsta
   {
     mWidgetInstanceContainer.erase(widgetInstance);
   }
-
-  // Delete WindowInstance
-  auto windowInstance = std::find_if(mWindowInstanceContainer.begin(),
-                                     mWindowInstanceContainer.end(),
-                                     [widgetBaseInstance](WindowInstancePair pair) { return (pair.first == widgetBaseInstance); });
-
-  if(windowInstance != mWindowInstanceContainer.end())
-  {
-    mWindowInstanceContainer.erase(windowInstance);
-  }
 }
 
-Dali::Window WidgetApplicationTizen::GetWindowFromWidget(widget_base_instance_h widgetBaseInstance) const
+Dali::Window WidgetApplicationTizen::GetWindowFromWidget(Dali::Widget widgetInstance) const
 {
-  for(auto&& iter : mWindowInstanceContainer)
+  if(widgetInstance)
   {
-    if((iter).first == widgetBaseInstance)
+    return Internal::Adaptor::GetImplementation(widgetInstance).GetWindow();
+  }
+
+  return Dali::Window();
+}
+
+widget_base_instance_h WidgetApplicationTizen::GetWidgetInstanceFromWidgetId(std::string& widgetId) const
+{
+  for(auto&& iter : mWidgetInstanceContainer)
+  {
+    if(widgetId == Internal::Adaptor::GetImplementation((iter).second).GetWidgetId())
     {
-      Dali::Window ret = (iter).second;
-      return ret;
+      return (iter).first;
     }
   }
-  return Dali::Window();
+
+  return nullptr;
 }
 
 int WidgetApplicationTizen::GetWidgetCount()
 {
   return mWidgetInstanceContainer.size();
+}
+
+void WidgetApplicationTizen::ConnectKeyEvent(Dali::Window window)
+{
+  if(!mConnectedKeyEvent)
+  {
+#ifdef OVER_TIZEN_VERSION_7
+    screen_connector_provider_set_key_event_cb(OnKeyEventCallback, this);
+#endif
+    mConnectedKeyEvent = true;
+  }
+  window.KeyEventSignal().Connect(this, &WidgetApplicationTizen::OnWindowKeyEvent);
+}
+
+void WidgetApplicationTizen::OnWindowKeyEvent(const Dali::KeyEvent& event)
+{
+  //If Widget Application consume key event, this api is not called.
+  mReceivedKeyEvent = true;
+}
+
+bool WidgetApplicationTizen::FeedKeyEvent(widget_base_instance_h instanceHandle, const Dali::KeyEvent& keyEvent)
+{
+  bool consumed = true;
+
+  // Check if application consume key event
+  Dali::Widget widgetInstance = GetWidget(instanceHandle);
+  if(widgetInstance)
+  {
+    Dali::Window window = GetWindowFromWidget(widgetInstance);
+
+    // Reset the state of key received
+    mReceivedKeyEvent = false;
+
+    // Feed the keyEvent to widget window
+    DevelWindow::FeedKeyEvent(window, keyEvent);
+
+    // if the application is not using a key event, verify that the window in the widget has received a key event.
+    if(Internal::Adaptor::GetImplementation(widgetInstance).IsKeyEventUsing() == false)
+    {
+      // if the window has received a key event, widget need to consume its key event
+      consumed = (mReceivedKeyEvent) ? false : true;
+    }
+  }
+
+  return consumed;
 }
 
 void WidgetApplicationTizen::OnInit()

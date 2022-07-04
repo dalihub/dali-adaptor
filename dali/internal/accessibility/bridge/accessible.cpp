@@ -19,68 +19,13 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/atspi-interfaces/accessible.h>
-#include <dali/devel-api/atspi-interfaces/action.h>
-#include <dali/devel-api/atspi-interfaces/application.h>
-#include <dali/devel-api/atspi-interfaces/collection.h>
-#include <dali/devel-api/atspi-interfaces/component.h>
-#include <dali/devel-api/atspi-interfaces/editable-text.h>
-#include <dali/devel-api/atspi-interfaces/hyperlink.h>
-#include <dali/devel-api/atspi-interfaces/hypertext.h>
-#include <dali/devel-api/atspi-interfaces/selection.h>
-#include <dali/devel-api/atspi-interfaces/text.h>
-#include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <third-party/libunibreak/linebreak.h>
 #include <third-party/libunibreak/wordbreak.h>
 
 using namespace Dali::Accessibility;
-
-std::vector<std::string> Accessible::GetInterfaces() const
-{
-  std::vector<std::string> tmp;
-  tmp.push_back(AtspiDbusInterfaceAccessible);
-  if(dynamic_cast<const Collection*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceCollection);
-  }
-  if(dynamic_cast<const Text*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceText);
-  }
-  if(dynamic_cast<const EditableText*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceEditableText);
-  }
-  if(dynamic_cast<const Value*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceValue);
-  }
-  if(dynamic_cast<const Component*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceComponent);
-  }
-  if(auto action = dynamic_cast<const Action*>(this))
-  {
-    if(action->GetActionCount() > 0)
-    {
-      tmp.push_back(AtspiDbusInterfaceAction);
-    }
-  }
-  if(dynamic_cast<const Selection*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceSelection);
-  }
-  if(dynamic_cast<const Hypertext*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceHypertext);
-  }
-  if(dynamic_cast<const Hyperlink*>(this))
-  {
-    tmp.push_back(AtspiDbusInterfaceHyperlink);
-  }
-  return tmp;
-}
 
 Accessible::Accessible()
 {
@@ -169,6 +114,16 @@ void Accessible::EmitMovedOutOfScreen(ScreenRelativeMoveType type)
   if(auto bridgeData = GetBridgeData())
   {
     bridgeData->mBridge->EmitMovedOutOfScreen(this, type);
+  }
+}
+
+void Accessible::EmitSocketAvailable()
+{
+  DALI_ASSERT_DEBUG(Socket::DownCast(this));
+
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitSocketAvailable(this);
   }
 }
 

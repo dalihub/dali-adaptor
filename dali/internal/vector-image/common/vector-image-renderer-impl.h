@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_IMAGE_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,9 +62,14 @@ public:
   bool Load(const Vector<uint8_t>& data, float dpi);
 
   /**
+   * @copydoc Dali::VectorImageRenderer::IsLoaded()
+   */
+  bool IsLoaded() const;
+
+  /**
    * @copydoc Dali::VectorImageRenderer::Rasterize()
    */
-  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
+  Dali::Devel::PixelBuffer Rasterize(uint32_t width, uint32_t height);
 
   /**
    * @copydoc Dali::VectorImageRenderer::GetDefaultSize()
@@ -94,14 +99,14 @@ private:
 
 private:
 #ifdef THORVG_SUPPORT
-  std::unique_ptr< tvg::SwCanvas >       mSwCanvas;
-  tvg::Picture*                          mPicture;        ///< The pointer to the picture
-  uint32_t                               mDefaultWidth;   ///< The width of the surface
-  uint32_t                               mDefaultHeight;  ///< The height of the surface
+  std::unique_ptr<tvg::SwCanvas> mSwCanvas{nullptr};
+  tvg::Picture*                  mPicture{nullptr}; ///< The pointer to the picture
 #else
-  NSVGimage*                     mParsedImage;
-  NSVGrasterizer*                mRasterizer;
+  NSVGimage*      mParsedImage{nullptr};
+  NSVGrasterizer* mRasterizer{nullptr};
 #endif
+  uint32_t mDefaultWidth{0};  ///< The default width of the file
+  uint32_t mDefaultHeight{0}; ///< The default height of the file
 };
 
 } // namespace Adaptor

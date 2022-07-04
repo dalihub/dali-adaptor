@@ -57,6 +57,13 @@ public:
   static AnimatedImageLoadingPtr New(const std::string& url, bool isLocalResource);
 
   /**
+   * Create a WebPLoading with the given url and resourceType.
+   * @param[in] fp The file pointer to be load.
+   * @return A newly created WebPLoading.
+   */
+  static AnimatedImageLoadingPtr New(FILE* const fp);
+
+  /**
    * @brief Constructor
    *
    * Construct a Loader with the given URL
@@ -66,21 +73,17 @@ public:
   WebPLoading(const std::string& url, bool isLocalResource);
 
   /**
+   * @brief Constructor
+   *
+   * Construct a Loader with the given URL
+   * @param[in] fp The file pointer to be load.
+   */
+  WebPLoading(FILE* const fp);
+
+  /**
    * @brief Destructor
    */
   ~WebPLoading() override;
-
-  /**
-   * @brief Load the next N Frames of the webp.
-   *
-   * @note This function will load the entire webp into memory if not already loaded.
-   * @param[in] frameStartIndex The frame counter to start from. Will usually be the next frame
-   * after the previous invocation of this method, or 0 to start.
-   * @param[in] count The number of frames to load
-   * @param[out] pixelData The vector in which to return the frame data
-   * @return True if the frame data was successfully loaded
-   */
-  bool LoadNextNFrames(uint32_t frameStartIndex, int count, std::vector<Dali::PixelData>& pixelData) override;
 
   /**
    * @brief Load the next Frame of the animated image.
@@ -89,7 +92,6 @@ public:
    * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
-
   Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) override;
 
   /**
@@ -109,7 +111,7 @@ public:
    *
    * @note The frame is needed to be loaded before this function is called.
    *
-   * @return The time interval of the frame(microsecond).
+   * @return The time interval between frameIndex and frameIndex + 1(microsecond).
    */
   uint32_t GetFrameInterval(uint32_t frameIndex) const override;
 
@@ -126,6 +128,15 @@ public:
    * @return True when the animated image loading is succeeded.
    */
   bool HasLoadingSucceeded() const override;
+
+private:
+  /**
+   * @brief Decode Frame of the animated image.
+   *
+   * @param[in] frameIndex The frame counter to load. Will usually be the next frame.
+   * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
+   */
+  Dali::Devel::PixelBuffer DecodeFrame(uint32_t frameIndex);
 
 private:
   struct Impl;

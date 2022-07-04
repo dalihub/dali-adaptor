@@ -132,6 +132,15 @@ struct DALI_ADAPTOR_API Bridge
   virtual void SetApplicationName(std::string name) = 0;
 
   /**
+   * @brief Sets the name of the GUI toolkit that AT-SPI clients can query.
+   *
+   * The default name is "dali".
+   *
+   * @param toolkitName The toolkit name
+   */
+  virtual void SetToolkitName(std::string_view toolkitName) = 0;
+
+  /**
    * @brief Gets object being root of accessibility tree.
    *
    * @return handler to accessibility object
@@ -249,6 +258,13 @@ struct DALI_ADAPTOR_API Bridge
   virtual void EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type) = 0;
 
   /**
+   * @brief Emits "org.a11y.atspi.Socket.Available" event on AT-SPI bus.
+   *
+   * @param obj Accessible object
+   */
+  virtual void EmitSocketAvailable(Accessible* obj) = 0;
+
+  /**
    * @brief Emits state-changed event on at-spi bus.
    *
    * @param[in] obj The accessible object
@@ -350,6 +366,41 @@ struct DALI_ADAPTOR_API Bridge
   virtual bool IsEnabled() = 0;
 
   /**
+   * @brief Calls socket.Embed(plug) via D-Bus.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   *
+   * @return Address returned by the D-Bus call.
+   *
+   * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
+   * @see UnembedSocket()
+   */
+  virtual Address EmbedSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
+   * @brief Calls socket.Embedded(plug) via D-Bus.
+   *
+   * The "Embedded" D-Bus method is an ATK extension.
+   * See 'impl_Embedded' in AT_SPI2_ATK/atk-adaptor/adaptors/socket-adaptor.c for more information.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   */
+  virtual void EmbedAtkSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
+   * @brief Calls socket.Unmbed(plug) via D-Bus.
+   *
+   * @param[in] plug The plug
+   * @param[in] socket The socket
+   *
+   * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
+   * @see EmbedSocket()
+   */
+  virtual void UnembedSocket(const Address& plug, const Address& socket) = 0;
+
+  /**
    * @brief Returns instance of bridge singleton object.
    *
    * @return The current bridge object
@@ -394,6 +445,16 @@ struct DALI_ADAPTOR_API Bridge
     return mDisabledSignal;
   }
 
+  static Signal<void()>& ScreenReaderEnabledSignal()
+  {
+    return mScreenReaderEnabledSignal;
+  }
+
+  static Signal<void()>& ScreenReaderDisabledSignal()
+  {
+    return mScreenReaderDisabledSignal;
+  }
+
 protected:
   struct Data
   {
@@ -416,6 +477,8 @@ protected:
 
   inline static Signal<void()> mEnabledSignal;
   inline static Signal<void()> mDisabledSignal;
+  inline static Signal<void()> mScreenReaderEnabledSignal;
+  inline static Signal<void()> mScreenReaderDisabledSignal;
 
   /**
    * @brief Registers accessible object to be known in bridge object.

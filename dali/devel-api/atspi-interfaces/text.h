@@ -19,6 +19,7 @@
 
 // EXTERNAL INCLUDES
 #include <string>
+#include <dali/public-api/math/rect.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
@@ -118,7 +119,43 @@ public:
    * @remarks This method is `SetSelection` in DBus method.
    */
   virtual bool SetRangeOfSelection(std::size_t selectionIndex, std::size_t startOffset, std::size_t endOffset) = 0;
+
+  /**
+   * @brief Gets the bounding box for text within a range in text.
+   *
+   * @param[in] startOffset The index of first character
+   * @param[in] endOffset The index of first character after the last one expected
+   * @param[in] type The enumeration with type of coordinate system
+   *
+   * @return Rect<> giving the position and size of the specified range of text
+   * @remarks This method is `GetRangeExtents` in DBus method.
+   */
+  virtual Rect<> GetRangeExtents(std::size_t startOffset, std::size_t endOffset, CoordinateType type) = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Text.
+   *
+   * @param obj The Accessible
+   * @return A Text or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Text* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::TEXT>
+{
+  using Type = Text;
+};
+} // namespace Internal
+
+inline Text* Text::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::TEXT>(obj);
+}
 
 } // namespace Dali::Accessibility
 

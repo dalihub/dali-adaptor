@@ -57,7 +57,7 @@ const float RAD_315 = RAD_225 + Math::PI_2;    ///< 315 degrees in radians;
 
 using Integration::Bitmap;
 using Integration::BitmapPtr;
-typedef unsigned char PixelBuffer;
+typedef uint8_t PixelBuffer;
 
 /**
  * @brief 4 byte pixel structure.
@@ -505,6 +505,7 @@ ImageDimensions CalculateDesiredDimensions(unsigned int bitmapWidth, unsigned in
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
+ * @param[in] strideIn The stride of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[out] pixelsOut The rotated output buffer.
  * @param[out] widthOut The width of the output buffer.
@@ -515,6 +516,7 @@ ImageDimensions CalculateDesiredDimensions(unsigned int bitmapWidth, unsigned in
 bool Rotate90(const uint8_t* const pixelsIn,
               unsigned int         widthIn,
               unsigned int         heightIn,
+              unsigned int         strideIn,
               unsigned int         pixelSize,
               uint8_t*&            pixelsOut,
               unsigned int&        widthOut,
@@ -525,6 +527,7 @@ bool Rotate90(const uint8_t* const pixelsIn,
   heightOut = widthIn;
 
   // Allocate memory for the rotated buffer.
+  // Output buffer is tightly packed
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
   if(nullptr == pixelsOut)
   {
@@ -538,7 +541,7 @@ bool Rotate90(const uint8_t* const pixelsIn,
   // Rotate the buffer.
   for(unsigned int y = 0u; y < heightIn; ++y)
   {
-    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int srcLineIndex = y * strideIn;
     const unsigned int dstX         = y;
     for(unsigned int x = 0u; x < widthIn; ++x)
     {
@@ -566,6 +569,7 @@ bool Rotate90(const uint8_t* const pixelsIn,
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
+ * @param[in] strideIn The stride of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[out] pixelsOut The rotated output buffer.
  *
@@ -574,10 +578,12 @@ bool Rotate90(const uint8_t* const pixelsIn,
 bool Rotate180(const uint8_t* const pixelsIn,
                unsigned int         widthIn,
                unsigned int         heightIn,
+               unsigned int         strideIn,
                unsigned int         pixelSize,
                uint8_t*&            pixelsOut)
 {
   // Allocate memory for the rotated buffer.
+  // Output buffer is tightly packed
   pixelsOut = static_cast<uint8_t*>(malloc(widthIn * heightIn * pixelSize));
   if(nullptr == pixelsOut)
   {
@@ -588,7 +594,7 @@ bool Rotate180(const uint8_t* const pixelsIn,
   // Rotate the buffer.
   for(unsigned int y = 0u; y < heightIn; ++y)
   {
-    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int srcLineIndex = y * strideIn;
     const unsigned int dstY         = heightIn - y - 1u;
     for(unsigned int x = 0u; x < widthIn; ++x)
     {
@@ -616,6 +622,7 @@ bool Rotate180(const uint8_t* const pixelsIn,
  * @param[in] pixelsIn The input buffer.
  * @param[in] widthIn The width of the input buffer.
  * @param[in] heightIn The height of the input buffer.
+ * @param[in] strideIn The stride of the input buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[out] pixelsOut The rotated output buffer.
  * @param[out] widthOut The width of the output buffer.
@@ -626,6 +633,7 @@ bool Rotate180(const uint8_t* const pixelsIn,
 bool Rotate270(const uint8_t* const pixelsIn,
                unsigned int         widthIn,
                unsigned int         heightIn,
+               unsigned int         strideIn,
                unsigned int         pixelSize,
                uint8_t*&            pixelsOut,
                unsigned int&        widthOut,
@@ -636,6 +644,7 @@ bool Rotate270(const uint8_t* const pixelsIn,
   heightOut = widthIn;
 
   // Allocate memory for the rotated buffer.
+  // Output buffer is tightly packed
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
   if(nullptr == pixelsOut)
   {
@@ -649,7 +658,7 @@ bool Rotate270(const uint8_t* const pixelsIn,
   // Rotate the buffer.
   for(unsigned int y = 0u; y < heightIn; ++y)
   {
-    const unsigned int srcLineIndex = y * widthIn;
+    const unsigned int srcLineIndex = y * strideIn;
     const unsigned int dstX         = widthOut - y - 1u;
     for(unsigned int x = 0u; x < widthIn; ++x)
     {
@@ -675,6 +684,7 @@ bool Rotate270(const uint8_t* const pixelsIn,
  *
  * @param[in] srcBufferPtr Pointer to the input pixel buffer.
  * @param[in] srcWidth The width of the input pixel buffer.
+ * @param[in] srcStride The stride of the input pixel buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[in,out] dstPixelBuffer Pointer to the output pixel buffer.
  * @param[in] dstWidth The width of the output pixel buffer.
@@ -684,6 +694,7 @@ bool Rotate270(const uint8_t* const pixelsIn,
  */
 void HorizontalSkew(const uint8_t* const srcBufferPtr,
                     int                  srcWidth,
+                    int                  srcStride,
                     unsigned int         pixelSize,
                     uint8_t*&            dstBufferPtr,
                     int                  dstWidth,
@@ -703,7 +714,7 @@ void HorizontalSkew(const uint8_t* const srcBufferPtr,
   for(i = 0u; i < srcWidth; ++i)
   {
     // Loop through row pixels
-    const unsigned int srcIndex = pixelSize * (row * srcWidth + i);
+    const unsigned int srcIndex = pixelSize * (row * srcStride + i);
 
     unsigned char src[4u] = {0u, 0u, 0u, 0u};
     for(unsigned int channel = 0u; channel < pixelSize; ++channel)
@@ -766,6 +777,7 @@ void HorizontalSkew(const uint8_t* const srcBufferPtr,
  * @param[in] srcBufferPtr Pointer to the input pixel buffer.
  * @param[in] srcWidth The width of the input pixel buffer.
  * @param[in] srcHeight The height of the input pixel buffer.
+ * @param[in] srcStride The stride of the input pixel buffer.
  * @param[in] pixelSize The size of the pixel.
  * @param[in,out] dstPixelBuffer Pointer to the output pixel buffer.
  * @param[in] dstWidth The width of the output pixel buffer.
@@ -777,6 +789,7 @@ void HorizontalSkew(const uint8_t* const srcBufferPtr,
 void VerticalSkew(const uint8_t* const srcBufferPtr,
                   int                  srcWidth,
                   int                  srcHeight,
+                  int                  srcStride,
                   unsigned int         pixelSize,
                   uint8_t*&            dstBufferPtr,
                   int                  dstWidth,
@@ -803,7 +816,7 @@ void VerticalSkew(const uint8_t* const srcBufferPtr,
   for(i = 0; i < srcHeight; ++i)
   {
     // Loop through column pixels
-    const unsigned int srcIndex = pixelSize * (i * srcWidth + column);
+    const unsigned int srcIndex = pixelSize * (i * srcStride + column);
 
     unsigned char src[4u] = {0u, 0u, 0u, 0u};
     for(unsigned int channel = 0u; channel < pixelSize; ++channel)
@@ -932,6 +945,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
 {
   const unsigned int inputWidth  = bitmap.GetWidth();
   const unsigned int inputHeight = bitmap.GetHeight();
+  const unsigned int inputStride = bitmap.GetStride();
 
   if(desiredDimensions.GetWidth() < 1u || desiredDimensions.GetHeight() < 1u)
   {
@@ -984,7 +998,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       // Add some pre-calculated offsets to the bitmap pointers so this is not done within a loop.
       // The cropping is added to the source pointer, and the padding is added to the destination.
       const auto               bytesPerPixel      = Pixel::GetBytesPerPixel(pixelFormat);
-      const PixelBuffer* const sourcePixels       = bitmap.GetBuffer() + ((((scanlinesToCrop / 2) * inputWidth) + (columnsToCrop / 2)) * bytesPerPixel);
+      const PixelBuffer* const sourcePixels       = bitmap.GetBuffer() + ((((scanlinesToCrop / 2) * inputStride) + (columnsToCrop / 2)) * bytesPerPixel);
       PixelBuffer* const       targetPixels       = croppedBitmap.GetBuffer();
       PixelBuffer* const       targetPixelsActive = targetPixels + ((((scanlinesToPad / 2) * desiredWidth) + (columnsToPad / 2)) * bytesPerPixel);
       DALI_ASSERT_DEBUG(sourcePixels && targetPixels);
@@ -992,7 +1006,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       // Copy the image data to the new bitmap.
       // Optimize to a single memcpy if the left and right edges don't need a crop or a pad.
       unsigned int outputSpan(desiredWidth * bytesPerPixel);
-      if(columnsToCrop == 0 && columnsToPad == 0)
+      if(columnsToCrop == 0 && columnsToPad == 0 && inputStride == inputWidth)
       {
         memcpy(targetPixelsActive, sourcePixels, (desiredHeight - scanlinesToPad) * outputSpan);
       }
@@ -1000,7 +1014,7 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       {
         // The width needs to change (due to either a crop or a pad), so we copy a scanline at a time.
         // Precalculate any constants to optimize the inner loop.
-        const unsigned int inputSpan(inputWidth * bytesPerPixel);
+        const unsigned int inputSpan(inputStride * bytesPerPixel);
         const unsigned int copySpan((desiredWidth - columnsToPad) * bytesPerPixel);
         const unsigned int scanlinesToCopy(desiredHeight - scanlinesToPad);
 
@@ -1078,6 +1092,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
   // Source dimensions as loaded from resources (e.g. filesystem):
   auto bitmapWidth  = bitmap.GetWidth();
   auto bitmapHeight = bitmap.GetHeight();
+  auto bitmapStride = bitmap.GetStride();
   // Desired dimensions (the rectangle to fit the source image to):
   auto desiredWidth  = desired.GetWidth();
   auto desiredHeight = desired.GetHeight();
@@ -1092,8 +1107,8 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     auto pixelFormat = bitmap.GetPixelFormat();
 
     // Do the fast power of 2 iterated box filter to get to roughly the right side if the filter mode requests that:
-    unsigned int shrunkWidth = -1, shrunkHeight = -1;
-    DownscaleInPlacePow2(bitmap.GetBuffer(), pixelFormat, bitmapWidth, bitmapHeight, desiredWidth, desiredHeight, fittingMode, samplingMode, shrunkWidth, shrunkHeight);
+    unsigned int shrunkWidth = -1, shrunkHeight = -1, outStride = -1;
+    DownscaleInPlacePow2(bitmap.GetBuffer(), pixelFormat, bitmapWidth, bitmapHeight, bitmapStride, desiredWidth, desiredHeight, fittingMode, samplingMode, shrunkWidth, shrunkHeight, outStride);
 
     // Work out the dimensions of the downscaled bitmap, given the scaling mode and desired dimensions:
     const ImageDimensions filteredDimensions = FitToScalingMode(ImageDimensions(desiredWidth, desiredHeight), ImageDimensions(shrunkWidth, shrunkHeight), fittingMode);
@@ -1113,11 +1128,11 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
         {
           if(samplingMode == SamplingMode::LINEAR || samplingMode == SamplingMode::BOX_THEN_LINEAR)
           {
-            LinearSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
+            LinearSample(bitmap.GetBuffer(), ImageDimensions(shrunkWidth, shrunkHeight), outStride, pixelFormat, outputBitmap.GetBuffer(), filteredDimensions);
           }
           else
           {
-            PointSample(bitmap.GetBuffer(), shrunkWidth, shrunkHeight, pixelFormat, outputBitmap.GetBuffer(), filteredWidth, filteredHeight);
+            PointSample(bitmap.GetBuffer(), shrunkWidth, shrunkHeight, outStride, pixelFormat, outputBitmap.GetBuffer(), filteredWidth, filteredHeight);
           }
           filtered = true;
         }
@@ -1126,6 +1141,7 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     // Copy out the 2^x downscaled, box-filtered pixels if no secondary filter (point or linear) was applied:
     if(filtered == false && (shrunkWidth < bitmapWidth || shrunkHeight < bitmapHeight))
     {
+      // The buffer is downscaled and it is tightly packed. We don't need to set a stride.
       outputBitmap = MakePixelBuffer(bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight);
     }
   }
@@ -1195,11 +1211,13 @@ template<
 void DownscaleInPlacePow2Generic(unsigned char* const pixels,
                                  const unsigned int   inputWidth,
                                  const unsigned int   inputHeight,
+                                 const unsigned int   inputStride,
                                  const unsigned int   desiredWidth,
                                  const unsigned int   desiredHeight,
                                  BoxDimensionTest     dimensionTest,
                                  unsigned&            outWidth,
-                                 unsigned&            outHeight)
+                                 unsigned&            outHeight,
+                                 unsigned&            outStride)
 {
   if(pixels == 0)
   {
@@ -1209,12 +1227,14 @@ void DownscaleInPlacePow2Generic(unsigned char* const pixels,
 
   // Scale the image until it would be smaller than desired, stopping if the
   // resulting height or width would be less than 1:
-  unsigned int scaledWidth = inputWidth, scaledHeight = inputHeight;
+  unsigned int scaledWidth = inputWidth, scaledHeight = inputHeight, stride = inputStride;
   while(ContinueScaling(dimensionTest, scaledWidth, scaledHeight, desiredWidth, desiredHeight))
   {
-    const unsigned int lastWidth = scaledWidth;
+    const unsigned int lastWidth  = scaledWidth;
+    const unsigned int lastStride = stride;
     scaledWidth >>= 1u;
     scaledHeight >>= 1u;
+    stride = scaledWidth;
 
     DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Scaling to %u\t%u.\n", scaledWidth, scaledHeight);
 
@@ -1224,8 +1244,8 @@ void DownscaleInPlacePow2Generic(unsigned char* const pixels,
     for(unsigned int y = 0; y <= lastScanlinePair; ++y)
     {
       // Scale two scanlines horizontally:
-      HalveScanlineInPlace(&pixels[y * 2 * lastWidth * BYTES_PER_PIXEL], lastWidth);
-      HalveScanlineInPlace(&pixels[(y * 2 + 1) * lastWidth * BYTES_PER_PIXEL], lastWidth);
+      HalveScanlineInPlace(&pixels[y * 2 * lastStride * BYTES_PER_PIXEL], lastWidth);
+      HalveScanlineInPlace(&pixels[(y * 2 + 1) * lastStride * BYTES_PER_PIXEL], lastWidth);
 
       // Scale vertical pairs of pixels while the last two scanlines are still warm in
       // the CPU cache(s):
@@ -1233,8 +1253,8 @@ void DownscaleInPlacePow2Generic(unsigned char* const pixels,
       // images but even a 4k wide RGB888 image will use just 24kB of cache (4k pixels
       // * 3 Bpp * 2 scanlines) for two scanlines on the first iteration.
       AverageScanlines(
-        &pixels[y * 2 * lastWidth * BYTES_PER_PIXEL],
-        &pixels[(y * 2 + 1) * lastWidth * BYTES_PER_PIXEL],
+        &pixels[y * 2 * lastStride * BYTES_PER_PIXEL],
+        &pixels[(y * 2 + 1) * lastStride * BYTES_PER_PIXEL],
         &pixels[y * scaledWidth * BYTES_PER_PIXEL],
         scaledWidth);
     }
@@ -1243,6 +1263,7 @@ void DownscaleInPlacePow2Generic(unsigned char* const pixels,
   ///@note: we could finish off with one of two mutually exclusive passes, one squashing horizontally as far as possible, and the other vertically, if we knew a following cpu point or bilinear filter would restore the desired aspect ratio.
   outWidth  = scaledWidth;
   outHeight = scaledHeight;
+  outStride = stride;
 }
 
 } // namespace
@@ -1253,20 +1274,35 @@ void HalveScanlineInPlaceRGB888(unsigned char* const pixels, const unsigned int 
 
   const unsigned int lastPair = EvenDown(width - 2);
 
-  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+  /**
+   * @code
+   *  for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
+   * {
+   *   // Load all the byte pixel components we need:
+   *   const unsigned int c11 = pixels[pixel * 3];
+   *   const unsigned int c12 = pixels[pixel * 3 + 1];
+   *   const unsigned int c13 = pixels[pixel * 3 + 2];
+   *   const unsigned int c21 = pixels[pixel * 3 + 3];
+   *   const unsigned int c22 = pixels[pixel * 3 + 4];
+   *   const unsigned int c23 = pixels[pixel * 3 + 5];
+   *
+   *   // Save the averaged byte pixel components:
+   *   pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+   *   pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+   *   pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+   * }
+   *   @endcode
+   */
+  //@ToDo : Fix here if we found that collect 12 bytes == 3 uint32_t with 4 colors, and calculate in one-operation
+  std::uint8_t* inPixelPtr  = pixels;
+  std::uint8_t* outPixelPtr = pixels;
+  for(std::uint32_t scanedPixelCount = 0; scanedPixelCount <= lastPair; scanedPixelCount += 2)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 3];
-    const unsigned int c12 = pixels[pixel * 3 + 1];
-    const unsigned int c13 = pixels[pixel * 3 + 2];
-    const unsigned int c21 = pixels[pixel * 3 + 3];
-    const unsigned int c22 = pixels[pixel * 3 + 4];
-    const unsigned int c23 = pixels[pixel * 3 + 5];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 3]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 3 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
-    pixels[outPixel * 3 + 2] = static_cast<unsigned char>(AverageComponent(c13, c23));
+    *(outPixelPtr + 0) = ((*(inPixelPtr + 0) ^ *(inPixelPtr + 3)) >> 1) + (*(inPixelPtr + 0) & *(inPixelPtr + 3));
+    *(outPixelPtr + 1) = ((*(inPixelPtr + 1) ^ *(inPixelPtr + 4)) >> 1) + (*(inPixelPtr + 1) & *(inPixelPtr + 4));
+    *(outPixelPtr + 2) = ((*(inPixelPtr + 2) ^ *(inPixelPtr + 5)) >> 1) + (*(inPixelPtr + 2) & *(inPixelPtr + 5));
+    inPixelPtr += 6;
+    outPixelPtr += 3;
   }
 }
 
@@ -1297,7 +1333,7 @@ void HalveScanlineInPlaceRGB565(unsigned char* pixels, unsigned int width)
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    const uint32_t averaged = AveragePixelRGB565(alignedPixels[pixel], alignedPixels[pixel + 1]);
+    const uint16_t averaged = AveragePixelRGB565(alignedPixels[pixel], alignedPixels[pixel + 1]);
     alignedPixels[outPixel] = averaged;
   }
 }
@@ -1310,15 +1346,22 @@ void HalveScanlineInPlace2Bytes(unsigned char* const pixels, const unsigned int 
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c11 = pixels[pixel * 2];
-    const unsigned int c12 = pixels[pixel * 2 + 1];
-    const unsigned int c21 = pixels[pixel * 2 + 2];
-    const unsigned int c22 = pixels[pixel * 2 + 3];
-
-    // Save the averaged byte pixel components:
-    pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
-    pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c11 = pixels[pixel * 2];
+     * const unsigned int c12 = pixels[pixel * 2 + 1];
+     * const unsigned int c21 = pixels[pixel * 2 + 2];
+     * const unsigned int c22 = pixels[pixel * 2 + 3];
+     *
+     * // Save the averaged byte pixel components:
+     * pixels[outPixel * 2]     = static_cast<unsigned char>(AverageComponent(c11, c21));
+     * pixels[outPixel * 2 + 1] = static_cast<unsigned char>(AverageComponent(c12, c22));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[(outPixel << 1)]     = ((pixels[(pixel << 1)] ^ pixels[(pixel << 1) | 2]) >> 1) + (pixels[(pixel << 1)] & pixels[(pixel << 1) | 2]);
+    pixels[(outPixel << 1) | 1] = ((pixels[(pixel << 1) | 1] ^ pixels[(pixel << 1) | 3]) >> 1) + (pixels[(pixel << 1) | 1] & pixels[(pixel << 1) | 3]);
   }
 }
 
@@ -1330,19 +1373,74 @@ void HalveScanlineInPlace1Byte(unsigned char* const pixels, const unsigned int w
 
   for(unsigned int pixel = 0, outPixel = 0; pixel <= lastPair; pixel += 2, ++outPixel)
   {
-    // Load all the byte pixel components we need:
-    const unsigned int c1 = pixels[pixel];
-    const unsigned int c2 = pixels[pixel + 1];
-
-    // Save the averaged byte pixel component:
-    pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+    /**
+     * @code
+     * // Load all the byte pixel components we need:
+     * const unsigned int c1 = pixels[pixel];
+     * const unsigned int c2 = pixels[pixel + 1];
+     *
+     * // Save the averaged byte pixel component:
+     * pixels[outPixel] = static_cast<unsigned char>(AverageComponent(c1, c2));
+     * @endcode
+     */
+    // Note : We can assume that pixel is even number. So we can use | operation instead of + operation.
+    pixels[outPixel] = ((pixels[pixel] ^ pixels[pixel | 1]) >> 1) + (pixels[pixel] & pixels[pixel | 1]);
   }
 }
 
+// AverageScanline
+
+namespace
+{
 /**
- * @ToDo: Optimise for ARM using a 4 bytes at a time loop wrapped around the single ARMV6 instruction: UHADD8  R4, R0, R5. Note, this is not neon. It runs in the normal integer pipeline so there is no downside like a stall moving between integer and copro, or extra power for clocking-up the idle copro.
- * if (widthInComponents >= 7) { word32* aligned1 = scanline1 + 3 & 3; word32* aligned1_end = scanline1 + widthInPixels & 3; while(aligned1 < aligned1_end) { UHADD8  *aligned1++, *aligned2++, *alignedoutput++ } .. + 0 to 3 spare pixels at each end.
+ * @copydoc AverageScanlines1
+ * @note This API average eight components in one operation.
+ * @note Only possible if each scanline pointer's address aligned
+ * It will give performance benifit.
  */
+inline void AverageScanlinesWithEightComponents(
+  const unsigned char* const scanline1,
+  const unsigned char* const __restrict__ scanline2,
+  unsigned char* const outputScanline,
+  const unsigned int   totalComponentCount)
+{
+  unsigned int component = 0;
+  if(DALI_LIKELY(totalComponentCount >= 8))
+  {
+    // Note reinsterpret_cast from uint8_t to uint64_t and read/write only allowed
+    // If pointer of data is aligned well.
+    if(((reinterpret_cast<std::ptrdiff_t>(scanline1) & (sizeof(std::uint64_t) - 1)) == 0) &&
+       ((reinterpret_cast<std::ptrdiff_t>(scanline2) & (sizeof(std::uint64_t) - 1)) == 0) &&
+       ((reinterpret_cast<std::ptrdiff_t>(outputScanline) & (sizeof(std::uint64_t) - 1)) == 0))
+    {
+      // Jump 8 components in one step
+      const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1);
+      const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2);
+      std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline);
+
+      const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
+      component                          = totalStepCount << 3;
+
+      // and for each step, calculate average of 8 bytes.
+      for(std::uint32_t i = 0; i < totalStepCount; ++i)
+      {
+        const auto& c1     = *(scanline18Step + i);
+        const auto& c2     = *(scanline28Step + i);
+        *(output8step + i) = static_cast<std::uint64_t>((((c1 ^ c2) & 0xfefefefefefefefeull) >> 1) + (c1 & c2));
+      }
+    }
+  }
+  // remaining components calculate
+  for(; component < totalComponentCount; ++component)
+  {
+    const auto& c1            = scanline1[component];
+    const auto& c2            = scanline2[component];
+    outputScanline[component] = static_cast<std::uint8_t>(((c1 ^ c2) >> 1) + (c1 & c2));
+  }
+}
+
+} // namespace
+
 void AverageScanlines1(const unsigned char* const scanline1,
                        const unsigned char* const __restrict__ scanline2,
                        unsigned char* const outputScanline,
@@ -1350,10 +1448,15 @@ void AverageScanlines1(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width);
 
-  for(unsigned int component = 0; component < width; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width);
 }
 
 void AverageScanlines2(const unsigned char* const scanline1,
@@ -1363,10 +1466,15 @@ void AverageScanlines2(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width * 2);
 
-  for(unsigned int component = 0; component < width * 2; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width * 2; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 2);
 }
 
 void AverageScanlines3(const unsigned char* const scanline1,
@@ -1376,10 +1484,15 @@ void AverageScanlines3(const unsigned char* const scanline1,
 {
   DebugAssertDualScanlineParameters(scanline1, scanline2, outputScanline, width * 3);
 
-  for(unsigned int component = 0; component < width * 3; ++component)
-  {
-    outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
-  }
+  /**
+   * @code
+   * for(unsigned int component = 0; component < width * 3; ++component)
+   * {
+   *   outputScanline[component] = static_cast<unsigned char>(AverageComponent(scanline1[component], scanline2[component]));
+   * }
+   * @endcode
+   */
+  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 3);
 }
 
 void AverageScanlinesRGBA8888(const unsigned char* const scanline1,
@@ -1427,15 +1540,18 @@ void DownscaleInPlacePow2(unsigned char* const pixels,
                           Pixel::Format        pixelFormat,
                           unsigned int         inputWidth,
                           unsigned int         inputHeight,
+                          unsigned int         inputStride,
                           unsigned int         desiredWidth,
                           unsigned int         desiredHeight,
                           FittingMode::Type    fittingMode,
                           SamplingMode::Type   samplingMode,
                           unsigned&            outWidth,
-                          unsigned&            outHeight)
+                          unsigned&            outHeight,
+                          unsigned&            outStride)
 {
   outWidth  = inputWidth;
   outHeight = inputHeight;
+  outStride = inputStride;
   // Perform power of 2 iterated 4:1 box filtering if the requested filter mode requires it:
   if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR)
   {
@@ -1444,29 +1560,38 @@ void DownscaleInPlacePow2(unsigned char* const pixels,
     {
       const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
 
-      if(pixelFormat == Pixel::RGBA8888)
+      switch(pixelFormat)
       {
-        Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::RGB888)
-      {
-        Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::RGB565)
-      {
-        Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::LA88)
-      {
-        Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-      {
-        Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
-      }
-      else
-      {
-        DALI_ASSERT_DEBUG(false && "Inner branch conditions don't match outer branch.");
+        case Pixel::RGBA8888:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGBA8888(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
+          break;
+        }
+        case Pixel::RGB888:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGB888(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
+          break;
+        }
+        case Pixel::RGB565:
+        {
+          Internal::Platform::DownscaleInPlacePow2RGB565(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
+          break;
+        }
+        case Pixel::LA88:
+        {
+          Internal::Platform::DownscaleInPlacePow2ComponentPair(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
+          break;
+        }
+        case Pixel::L8:
+        case Pixel::A8:
+        {
+          Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
+          break;
+        }
+        default:
+        {
+          DALI_ASSERT_DEBUG(false && "Inner branch conditions don't match outer branch.");
+        }
       }
     }
   }
@@ -1479,38 +1604,44 @@ void DownscaleInPlacePow2(unsigned char* const pixels,
 void DownscaleInPlacePow2RGB888(unsigned char*   pixels,
                                 unsigned int     inputWidth,
                                 unsigned int     inputHeight,
+                                unsigned int     inputStride,
                                 unsigned int     desiredWidth,
                                 unsigned int     desiredHeight,
                                 BoxDimensionTest dimensionTest,
                                 unsigned&        outWidth,
-                                unsigned&        outHeight)
+                                unsigned&        outHeight,
+                                unsigned&        outStride)
 {
-  DownscaleInPlacePow2Generic<3, HalveScanlineInPlaceRGB888, AverageScanlines3>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+  DownscaleInPlacePow2Generic<3, HalveScanlineInPlaceRGB888, AverageScanlines3>(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
 }
 
 void DownscaleInPlacePow2RGBA8888(unsigned char*   pixels,
                                   unsigned int     inputWidth,
                                   unsigned int     inputHeight,
+                                  unsigned int     inputStride,
                                   unsigned int     desiredWidth,
                                   unsigned int     desiredHeight,
                                   BoxDimensionTest dimensionTest,
                                   unsigned&        outWidth,
-                                  unsigned&        outHeight)
+                                  unsigned&        outHeight,
+                                  unsigned&        outStride)
 {
   DALI_ASSERT_DEBUG(((reinterpret_cast<ptrdiff_t>(pixels) & 3u) == 0u) && "Pointer should be 4-byte aligned for performance on some platforms.");
-  DownscaleInPlacePow2Generic<4, HalveScanlineInPlaceRGBA8888, AverageScanlinesRGBA8888>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+  DownscaleInPlacePow2Generic<4, HalveScanlineInPlaceRGBA8888, AverageScanlinesRGBA8888>(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
 }
 
 void DownscaleInPlacePow2RGB565(unsigned char*   pixels,
                                 unsigned int     inputWidth,
                                 unsigned int     inputHeight,
+                                unsigned int     inputStride,
                                 unsigned int     desiredWidth,
                                 unsigned int     desiredHeight,
                                 BoxDimensionTest dimensionTest,
                                 unsigned int&    outWidth,
-                                unsigned int&    outHeight)
+                                unsigned int&    outHeight,
+                                unsigned int&    outStride)
 {
-  DownscaleInPlacePow2Generic<2, HalveScanlineInPlaceRGB565, AverageScanlinesRGB565>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+  DownscaleInPlacePow2Generic<2, HalveScanlineInPlaceRGB565, AverageScanlinesRGB565>(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
 }
 
 /**
@@ -1521,26 +1652,32 @@ void DownscaleInPlacePow2RGB565(unsigned char*   pixels,
 void DownscaleInPlacePow2ComponentPair(unsigned char*   pixels,
                                        unsigned int     inputWidth,
                                        unsigned int     inputHeight,
+                                       unsigned int     inputStride,
                                        unsigned int     desiredWidth,
                                        unsigned int     desiredHeight,
                                        BoxDimensionTest dimensionTest,
                                        unsigned&        outWidth,
-                                       unsigned&        outHeight)
+                                       unsigned&        outHeight,
+                                       unsigned&        outStride)
 {
-  DownscaleInPlacePow2Generic<2, HalveScanlineInPlace2Bytes, AverageScanlines2>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+  DownscaleInPlacePow2Generic<2, HalveScanlineInPlace2Bytes, AverageScanlines2>(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
 }
 
 void DownscaleInPlacePow2SingleBytePerPixel(unsigned char*   pixels,
                                             unsigned int     inputWidth,
                                             unsigned int     inputHeight,
+                                            unsigned int     inputStride,
                                             unsigned int     desiredWidth,
                                             unsigned int     desiredHeight,
                                             BoxDimensionTest dimensionTest,
                                             unsigned int&    outWidth,
-                                            unsigned int&    outHeight)
+                                            unsigned int&    outHeight,
+                                            unsigned int&    outStride)
 {
-  DownscaleInPlacePow2Generic<1, HalveScanlineInPlace1Byte, AverageScanlines1>(pixels, inputWidth, inputHeight, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight);
+  DownscaleInPlacePow2Generic<1, HalveScanlineInPlace1Byte, AverageScanlines1>(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
 }
+
+// Point sampling group below
 
 namespace
 {
@@ -1555,12 +1692,13 @@ template<typename PIXEL>
 inline void PointSampleAddressablePixels(const uint8_t* inPixels,
                                          unsigned int   inputWidth,
                                          unsigned int   inputHeight,
+                                         unsigned int   inputStride,
                                          uint8_t*       outPixels,
                                          unsigned int   desiredWidth,
                                          unsigned int   desiredHeight)
 {
   DALI_ASSERT_DEBUG(((desiredWidth <= inputWidth && desiredHeight <= inputHeight) ||
-                     outPixels >= inPixels + inputWidth * inputHeight * sizeof(PIXEL) || outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL)) &&
+                     outPixels >= inPixels + inputStride * inputHeight * sizeof(PIXEL) || outPixels <= inPixels - desiredWidth * desiredHeight * sizeof(PIXEL)) &&
                     "The input and output buffers must not overlap for an upscaling.");
   DALI_ASSERT_DEBUG(reinterpret_cast<uint64_t>(inPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...).");
   DALI_ASSERT_DEBUG(reinterpret_cast<uint64_t>(outPixels) % sizeof(PIXEL) == 0 && "Pixel pointers need to be aligned to the size of the pixels (E.g., 4 bytes for RGBA, 2 bytes for RGB565, ...).");
@@ -1579,11 +1717,11 @@ inline void PointSampleAddressablePixels(const uint8_t* inPixels,
   {
     // Round fixed point y coordinate to nearest integer:
     const unsigned int integerY    = (inY + (1u << 15u)) >> 16u;
-    const PIXEL* const inScanline  = &inAligned[inputWidth * integerY];
+    const PIXEL* const inScanline  = &inAligned[inputStride * integerY];
     PIXEL* const       outScanline = &outAligned[desiredWidth * outY];
 
     DALI_ASSERT_DEBUG(integerY < inputHeight);
-    DALI_ASSERT_DEBUG(reinterpret_cast<const uint8_t*>(inScanline) < (inPixels + inputWidth * inputHeight * sizeof(PIXEL)));
+    DALI_ASSERT_DEBUG(reinterpret_cast<const uint8_t*>(inScanline) < (inPixels + inputStride * inputHeight * sizeof(PIXEL)));
     DALI_ASSERT_DEBUG(reinterpret_cast<uint8_t*>(outScanline) < (outPixels + desiredWidth * desiredHeight * sizeof(PIXEL)));
 
     unsigned int inX = 0;
@@ -1606,33 +1744,36 @@ inline void PointSampleAddressablePixels(const uint8_t* inPixels,
 void PointSample4BPP(const unsigned char* inPixels,
                      unsigned int         inputWidth,
                      unsigned int         inputHeight,
+                     unsigned int         inputStride,
                      unsigned char*       outPixels,
                      unsigned int         desiredWidth,
                      unsigned int         desiredHeight)
 {
-  PointSampleAddressablePixels<uint32_t>(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+  PointSampleAddressablePixels<uint32_t>(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
 }
 
 // RGB565, LA88
 void PointSample2BPP(const unsigned char* inPixels,
                      unsigned int         inputWidth,
                      unsigned int         inputHeight,
+                     unsigned int         inputStride,
                      unsigned char*       outPixels,
                      unsigned int         desiredWidth,
                      unsigned int         desiredHeight)
 {
-  PointSampleAddressablePixels<uint16_t>(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+  PointSampleAddressablePixels<uint16_t>(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
 }
 
 // L8, A8
 void PointSample1BPP(const unsigned char* inPixels,
                      unsigned int         inputWidth,
                      unsigned int         inputHeight,
+                     unsigned int         inputStride,
                      unsigned char*       outPixels,
                      unsigned int         desiredWidth,
                      unsigned int         desiredHeight)
 {
-  PointSampleAddressablePixels<uint8_t>(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
+  PointSampleAddressablePixels<uint8_t>(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
 }
 
 /* RGB888
@@ -1641,6 +1782,7 @@ void PointSample1BPP(const unsigned char* inPixels,
 void PointSample3BPP(const uint8_t* inPixels,
                      unsigned int   inputWidth,
                      unsigned int   inputHeight,
+                     unsigned int   inputStride,
                      uint8_t*       outPixels,
                      unsigned int   desiredWidth,
                      unsigned int   desiredHeight)
@@ -1662,7 +1804,7 @@ void PointSample3BPP(const uint8_t* inPixels,
   for(unsigned int outY = 0; outY < desiredHeight; ++outY)
   {
     const unsigned int   integerY    = (inY + (1u << 15u)) >> 16u;
-    const uint8_t* const inScanline  = &inPixels[inputWidth * integerY * BYTES_PER_PIXEL];
+    const uint8_t* const inScanline  = &inPixels[inputStride * integerY * BYTES_PER_PIXEL];
     uint8_t* const       outScanline = &outPixels[desiredWidth * outY * BYTES_PER_PIXEL];
     unsigned int         inX         = 0; //< 16.16 fixed-point input image x-coord.
 
@@ -1695,6 +1837,7 @@ void PointSample3BPP(const uint8_t* inPixels,
 void PointSample(const unsigned char* inPixels,
                  unsigned int         inputWidth,
                  unsigned int         inputHeight,
+                 unsigned int         inputStride,
                  Pixel::Format        pixelFormat,
                  unsigned char*       outPixels,
                  unsigned int         desiredWidth,
@@ -1703,25 +1846,34 @@ void PointSample(const unsigned char* inPixels,
   // Check the pixel format is one that is supported:
   if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
-    if(pixelFormat == Pixel::RGB888)
+    switch(pixelFormat)
     {
-      PointSample3BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::RGBA8888)
-    {
-      PointSample4BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88)
-    {
-      PointSample2BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-    {
-      PointSample1BPP(inPixels, inputWidth, inputHeight, outPixels, desiredWidth, desiredHeight);
-    }
-    else
-    {
-      DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      case Pixel::RGB888:
+      {
+        PointSample3BPP(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::RGBA8888:
+      {
+        PointSample4BPP(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::RGB565:
+      case Pixel::LA88:
+      {
+        PointSample2BPP(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        PointSample1BPP(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
     }
   }
   else
@@ -1790,6 +1942,7 @@ template<
   bool DEBUG_ASSERT_ALIGNMENT>
 inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
                                 ImageDimensions inputDimensions,
+                                unsigned int    inputStride,
                                 unsigned char* __restrict__ outPixels,
                                 ImageDimensions desiredDimensions)
 {
@@ -1798,7 +1951,7 @@ inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
   const unsigned int desiredWidth  = desiredDimensions.GetWidth();
   const unsigned int desiredHeight = desiredDimensions.GetHeight();
 
-  DALI_ASSERT_DEBUG(((outPixels >= inPixels + inputWidth * inputHeight * sizeof(PIXEL)) ||
+  DALI_ASSERT_DEBUG(((outPixels >= inPixels + inputStride * inputHeight * sizeof(PIXEL)) ||
                      (inPixels >= outPixels + desiredWidth * desiredHeight * sizeof(PIXEL))) &&
                     "Input and output buffers cannot overlap.");
   if(DEBUG_ASSERT_ALIGNMENT)
@@ -1823,21 +1976,21 @@ inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
 
     // Find the two scanlines to blend and the weight to blend with:
     const unsigned int integerY1    = inY >> 16u;
-    const unsigned int integerY2    = integerY1 >= inputHeight ? integerY1 : integerY1 + 1;
+    const unsigned int integerY2    = integerY1 + 1 >= inputHeight ? integerY1 : integerY1 + 1;
     const unsigned int inputYWeight = inY & 65535u;
 
     DALI_ASSERT_DEBUG(integerY1 < inputHeight);
     DALI_ASSERT_DEBUG(integerY2 < inputHeight);
 
-    const PIXEL* const inScanline1 = &inAligned[inputWidth * integerY1];
-    const PIXEL* const inScanline2 = &inAligned[inputWidth * integerY2];
+    const PIXEL* const inScanline1 = &inAligned[inputStride * integerY1];
+    const PIXEL* const inScanline2 = &inAligned[inputStride * integerY2];
 
     unsigned int inX = 0;
     for(unsigned int outX = 0; outX < desiredWidth; ++outX)
     {
       // Work out the two pixel scanline offsets for this cluster of four samples:
       const unsigned int integerX1 = inX >> 16u;
-      const unsigned int integerX2 = integerX1 >= inputWidth ? integerX1 : integerX1 + 1;
+      const unsigned int integerX2 = integerX1 + 1 >= inputWidth ? integerX1 : integerX1 + 1;
 
       // Execute the loads:
       const PIXEL pixel1 = inScanline1[integerX1];
@@ -1862,46 +2015,103 @@ inline void LinearSampleGeneric(const unsigned char* __restrict__ inPixels,
 
 void LinearSample1BPP(const unsigned char* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
+                      unsigned int    inputStride,
                       unsigned char* __restrict__ outPixels,
                       ImageDimensions desiredDimensions)
 {
-  LinearSampleGeneric<uint8_t, BilinearFilter1BPPByte, false>(inPixels, inputDimensions, outPixels, desiredDimensions);
+  LinearSampleGeneric<uint8_t, BilinearFilter1BPPByte, false>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
 }
 
 void LinearSample2BPP(const unsigned char* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
+                      unsigned int    inputStride,
                       unsigned char* __restrict__ outPixels,
                       ImageDimensions desiredDimensions)
 {
-  LinearSampleGeneric<Pixel2Bytes, BilinearFilter2Bytes, true>(inPixels, inputDimensions, outPixels, desiredDimensions);
+  LinearSampleGeneric<Pixel2Bytes, BilinearFilter2Bytes, true>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
 }
 
 void LinearSampleRGB565(const unsigned char* __restrict__ inPixels,
                         ImageDimensions inputDimensions,
+                        unsigned int    inputStride,
                         unsigned char* __restrict__ outPixels,
                         ImageDimensions desiredDimensions)
 {
-  LinearSampleGeneric<PixelRGB565, BilinearFilterRGB565, true>(inPixels, inputDimensions, outPixels, desiredDimensions);
+  LinearSampleGeneric<PixelRGB565, BilinearFilterRGB565, true>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
 }
 
 void LinearSample3BPP(const unsigned char* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
+                      unsigned int    inputStride,
                       unsigned char* __restrict__ outPixels,
                       ImageDimensions desiredDimensions)
 {
-  LinearSampleGeneric<Pixel3Bytes, BilinearFilterRGB888, false>(inPixels, inputDimensions, outPixels, desiredDimensions);
+  LinearSampleGeneric<Pixel3Bytes, BilinearFilterRGB888, false>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
 }
 
 void LinearSample4BPP(const unsigned char* __restrict__ inPixels,
                       ImageDimensions inputDimensions,
+                      unsigned int    inputStride,
                       unsigned char* __restrict__ outPixels,
                       ImageDimensions desiredDimensions)
 {
-  LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>(inPixels, inputDimensions, outPixels, desiredDimensions);
+  LinearSampleGeneric<Pixel4Bytes, BilinearFilter4Bytes, true>(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions);
+}
+
+// Dispatch to a format-appropriate linear sampling function:
+void LinearSample(const unsigned char* __restrict__ inPixels,
+                  ImageDimensions inDimensions,
+                  unsigned int    inStride,
+                  Pixel::Format   pixelFormat,
+                  unsigned char* __restrict__ outPixels,
+                  ImageDimensions outDimensions)
+{
+  // Check the pixel format is one that is supported:
+  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
+  {
+    switch(pixelFormat)
+    {
+      case Pixel::RGB888:
+      {
+        LinearSample3BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGBA8888:
+      {
+        LinearSample4BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        LinearSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::LA88:
+      {
+        LinearSample2BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::RGB565:
+      {
+        LinearSampleRGB565(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
+    }
+  }
+  else
+  {
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
+  }
 }
 
 void Resample(const unsigned char* __restrict__ inPixels,
               ImageDimensions inputDimensions,
+              unsigned int    inputStride,
               unsigned char* __restrict__ outPixels,
               ImageDimensions   desiredDimensions,
               Resampler::Filter filterType,
@@ -1985,7 +2195,7 @@ void Resample(const unsigned char* __restrict__ inPixels,
     samples[i].ResizeUninitialized(srcWidth);
   }
 
-  const int srcPitch = srcWidth * numChannels;
+  const int srcPitch = inputStride * numChannels;
   const int dstPitch = dstWidth * numChannels;
   int       dstY     = 0;
 
@@ -2081,65 +2291,64 @@ void Resample(const unsigned char* __restrict__ inPixels,
 
 void LanczosSample4BPP(const unsigned char* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
+                       unsigned int    inputStride,
                        unsigned char* __restrict__ outPixels,
                        ImageDimensions desiredDimensions)
 {
-  Resample(inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true);
+  Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true);
 }
 
 void LanczosSample1BPP(const unsigned char* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
+                       unsigned int    inputStride,
                        unsigned char* __restrict__ outPixels,
                        ImageDimensions desiredDimensions)
 {
   // For L8 images
-  Resample(inPixels, inputDimensions, outPixels, desiredDimensions, Resampler::LANCZOS4, 1, false);
+  Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 1, false);
 }
 
-// Dispatch to a format-appropriate linear sampling function:
-void LinearSample(const unsigned char* __restrict__ inPixels,
-                  ImageDimensions inDimensions,
-                  Pixel::Format   pixelFormat,
-                  unsigned char* __restrict__ outPixels,
-                  ImageDimensions outDimensions)
+// Dispatch to a format-appropriate third-party resampling function:
+void LanczosSample(const unsigned char* __restrict__ inPixels,
+                   ImageDimensions inDimensions,
+                   unsigned int    inStride,
+                   Pixel::Format   pixelFormat,
+                   unsigned char* __restrict__ outPixels,
+                   ImageDimensions outDimensions)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
+  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::BGRA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
   {
-    if(pixelFormat == Pixel::RGB888)
+    switch(pixelFormat)
     {
-      LinearSample3BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::RGBA8888)
-    {
-      LinearSample4BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
-    {
-      LinearSample1BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::LA88)
-    {
-      LinearSample2BPP(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else if(pixelFormat == Pixel::RGB565)
-    {
-      LinearSampleRGB565(inPixels, inDimensions, outPixels, outDimensions);
-    }
-    else
-    {
-      DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      case Pixel::RGBA8888:
+      case Pixel::BGRA8888:
+      {
+        LanczosSample4BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      case Pixel::L8:
+      case Pixel::A8:
+      {
+        LanczosSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
+        break;
+      }
+      default:
+      {
+        DALI_ASSERT_DEBUG(0 == "Inner branch conditions don't match outer branch.");
+      }
     }
   }
   else
   {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not linear sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
   }
 }
 
 void RotateByShear(const uint8_t* const pixelsIn,
                    unsigned int         widthIn,
                    unsigned int         heightIn,
+                   unsigned int         strideIn,
                    unsigned int         pixelSize,
                    float                radians,
                    uint8_t*&            pixelsOut,
@@ -2160,6 +2369,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     fastRotationPerformed = Rotate90(pixelsIn,
                                      widthIn,
                                      heightIn,
+                                     strideIn,
                                      pixelSize,
                                      pixelsOut,
                                      widthOut,
@@ -2184,6 +2394,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     fastRotationPerformed = Rotate180(pixelsIn,
                                       widthIn,
                                       heightIn,
+                                      strideIn,
                                       pixelSize,
                                       pixelsOut);
 
@@ -2208,6 +2419,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     fastRotationPerformed = Rotate270(pixelsIn,
                                       widthIn,
                                       heightIn,
+                                      strideIn,
                                       pixelSize,
                                       pixelsOut,
                                       widthOut,
@@ -2234,6 +2446,8 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   const uint8_t* const                      firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
   std::unique_ptr<uint8_t, void (*)(void*)> tmpPixelsInPtr((fastRotationPerformed ? pixelsOut : nullptr), free);
+
+  unsigned int stride = fastRotationPerformed ? widthOut : strideIn;
 
   // Reset the input/output
   widthIn   = widthOut;
@@ -2273,7 +2487,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     const float shear = angleTangent * ((angleTangent >= 0.f) ? (0.5f + static_cast<float>(y)) : (0.5f + static_cast<float>(y) - static_cast<float>(heightOut)));
 
     const int intShear = static_cast<int>(floor(shear));
-    HorizontalSkew(firstHorizontalSkewPixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>(intShear));
+    HorizontalSkew(firstHorizontalSkewPixelsIn, widthIn, stride, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>(intShear));
   }
 
   // Reset the 'pixel in' pointer with the output of the 'First Horizontal Skew' and free the memory allocated by the 'Fast Rotations'.
@@ -2312,7 +2526,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   for(column = 0u; column < widthOut; ++column, offset -= angleSinus)
   {
     const int shear = static_cast<int>(floor(offset));
-    VerticalSkew(tmpPixelsInPtr.get(), tmpWidthIn, tmpHeightIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>(shear));
+    VerticalSkew(tmpPixelsInPtr.get(), tmpWidthIn, tmpHeightIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>(shear));
   }
   // Reset the 'pixel in' pointer with the output of the 'Vertical Skew' and free the memory allocated by the 'First Horizontal Skew'.
   // Reset the input/output
@@ -2347,7 +2561,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   for(unsigned int y = 0u; y < heightOut; ++y, offset += angleTangent)
   {
     const int shear = static_cast<int>(floor(offset));
-    HorizontalSkew(tmpPixelsInPtr.get(), tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>(shear));
+    HorizontalSkew(tmpPixelsInPtr.get(), tmpWidthIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>(shear));
   }
 
   // The deleter of the tmpPixelsInPtr unique pointer is called freeing the memory allocated by the 'Vertical Skew'.
@@ -2357,6 +2571,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 void HorizontalShear(const uint8_t* const pixelsIn,
                      unsigned int         widthIn,
                      unsigned int         heightIn,
+                     unsigned int         strideIn,
                      unsigned int         pixelSize,
                      float                radians,
                      uint8_t*&            pixelsOut,
@@ -2397,7 +2612,7 @@ void HorizontalShear(const uint8_t* const pixelsIn,
     const float shear = radians * ((radians >= 0.f) ? (0.5f + static_cast<float>(y)) : (0.5f + static_cast<float>(y) - static_cast<float>(heightOut)));
 
     const int intShear = static_cast<int>(floor(shear));
-    HorizontalSkew(pixelsIn, widthIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>(intShear));
+    HorizontalSkew(pixelsIn, widthIn, strideIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>(intShear));
   }
 }
 

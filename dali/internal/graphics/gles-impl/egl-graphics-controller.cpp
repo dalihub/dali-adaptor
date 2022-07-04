@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -583,6 +583,17 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
         break;
       }
+      case GLES::CommandType::DRAW_NATIVE:
+      {
+        auto* info = &cmd.drawNative.drawNativeInfo;
+
+        mCurrentContext->PrepareForNativeRendering();
+
+        CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
+
+        mCurrentContext->RestoreFromNativeRendering();
+        break;
+      }
     }
   }
 }
@@ -652,6 +663,8 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+      mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, info.srcStride);
+
       mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
 
       if(!isSubImage)
@@ -763,7 +776,7 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
   }
 
   // If upload buffer exceeds maximum size, flush.
-  if(mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB * 1024)
+  if(mTextureUploadTotalCPUMemoryUsed > TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB * 1024 * 1024)
   {
     Flush();
     mTextureUploadTotalCPUMemoryUsed = 0;

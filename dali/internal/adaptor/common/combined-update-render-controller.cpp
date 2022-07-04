@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -544,6 +544,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   {
     LOG_UPDATE_RENDER_TRACE;
 
+    // For thread safe
+    bool         uploadOnly     = mUploadWithoutRendering;
+    unsigned int surfaceResized = mSurfaceResized;
+
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
     AddPerformanceMarker(PerformanceInterface::VSYNC);
 
@@ -616,12 +620,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker(PerformanceInterface::UPDATE_START);
+    TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE");
     mCore.Update(frameDelta,
                  currentTime,
                  nextFrameTime,
                  updateStatus,
                  renderToFboEnabled,
-                 isRenderingToFbo);
+                 isRenderingToFbo,
+                 uploadOnly);
+    TRACE_UPDATE_RENDER_END("DALI_UPDATE");
     AddPerformanceMarker(PerformanceInterface::UPDATE_END);
 
     unsigned int keepUpdatingStatus = updateStatus.KeepUpdating();
@@ -665,11 +672,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     Integration::RenderStatus renderStatus;
 
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
+    TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
     // Upload shared resources
-    mCore.PreRender(renderStatus, mForceClear, mUploadWithoutRendering);
+    mCore.PreRender(renderStatus, mForceClear);
 
-    if(!mUploadWithoutRendering)
+    if(!uploadOnly || surfaceResized)
     {
       // Go through each window
       WindowContainer windows;
@@ -718,12 +726,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
-    if(!mUploadWithoutRendering)
+    if(!uploadOnly)
     {
       graphics.PostRender();
     }
 
-    mCore.PostRender(mUploadWithoutRendering);
+    mCore.PostRender();
 
     //////////////////////////////
     // DELETE SURFACE
@@ -739,6 +747,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       SurfaceDeleted();
     }
 
+    TRACE_UPDATE_RENDER_END("DALI_RENDER");
     AddPerformanceMarker(PerformanceInterface::RENDER_END);
 
     mForceClear = false;

@@ -2,7 +2,7 @@
 #define DALI_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,27 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromFile(
   FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
   SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
   bool               orientationCorrection = true);
+
+/**
+ * @brief Load an image and save each plane to a separate buffer synchronously from local file.
+ *
+ * @note This method is thread safe, i.e. can be called from any thread.
+ *       If the image file doesn't support to load planes, this method returns a bitmap image instead.
+ *
+ * @param [in] url The URL of the image file to load.
+ * @param [out] buffers The loaded PixelBuffer object list or an empty list in case loading failed.
+ * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
+ * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
+ * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
+ * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
+ */
+DALI_ADAPTOR_API void LoadImagePlanesFromFile(
+  const std::string&               url,
+  std::vector<Devel::PixelBuffer>& buffers,
+  ImageDimensions                  size                  = ImageDimensions(0, 0),
+  FittingMode::Type                fittingMode           = FittingMode::DEFAULT,
+  SamplingMode::Type               samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool                             orientationCorrection = true);
 
 /**
  * @brief Load an image synchronously from encoded buffer.

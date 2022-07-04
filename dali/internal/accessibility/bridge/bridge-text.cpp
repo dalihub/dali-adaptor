@@ -29,7 +29,7 @@ void BridgeText::RegisterInterfaces()
   // Screen Reader will call the methods with the exact names as specified in the AT-SPI Text interface:
   // https://gitlab.gnome.org/GNOME/at-spi2-core/-/blob/master/xml/Text.xml
 
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceText};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::TEXT)};
   AddFunctionToInterface(desc, "GetText", &BridgeText::GetText);
   AddGetPropertyToInterface(desc, "CharacterCount", &BridgeText::GetCharacterCount);
   AddGetPropertyToInterface(desc, "CaretOffset", &BridgeText::GetCursorOffset);
@@ -38,19 +38,13 @@ void BridgeText::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetSelection", &BridgeText::GetRangeOfSelection);
   AddFunctionToInterface(desc, "SetSelection", &BridgeText::SetRangeOfSelection);
   AddFunctionToInterface(desc, "RemoveSelection", &BridgeText::RemoveSelection);
+  AddFunctionToInterface(desc, "GetRangeExtents", &BridgeText::GetRangeExtents);
   mDbusServer.addInterface("/", desc, true);
 }
 
 Text* BridgeText::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto textInterface = dynamic_cast<Text*>(self);
-  if(!textInterface)
-  {
-    throw std::domain_error{"Object " + self->GetAddress().ToString() + " doesn't have Text interface"};
-  }
-  return textInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::TEXT>();
 }
 
 DBus::ValueOrError<std::string> BridgeText::GetText(int startOffset, int endOffset)
@@ -93,4 +87,10 @@ DBus::ValueOrError<bool> BridgeText::RemoveSelection(int32_t selectionIndex)
 DBus::ValueOrError<bool> BridgeText::SetRangeOfSelection(int32_t selectionIndex, int32_t startOffset, int32_t endOffset)
 {
   return FindSelf()->SetRangeOfSelection(selectionIndex, startOffset, endOffset);
+}
+
+DBus::ValueOrError<int32_t, int32_t, int32_t, int32_t> BridgeText::GetRangeExtents(int32_t startOffset, int32_t endOffset, uint32_t coordType)
+{
+  auto rect = FindSelf()->GetRangeExtents(startOffset, endOffset, static_cast<CoordinateType>(coordType));
+  return {static_cast<int32_t>(rect.x), static_cast<int32_t>(rect.y), static_cast<int32_t>(rect.width), static_cast<int32_t>(rect.height)};
 }

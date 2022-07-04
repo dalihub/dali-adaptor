@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -634,6 +634,11 @@ int WindowBaseEcoreX::GetNativeWindowId()
   return mEcoreWindow;
 }
 
+std::string WindowBaseEcoreX::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseEcoreX::CreateEglWindow(int width, int height)
 {
   // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
@@ -712,6 +717,10 @@ bool WindowBaseEcoreX::IsMaximized() const
   return false;
 }
 
+void WindowBaseEcoreX::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseEcoreX::Minimize(bool minimize)
 {
 }
@@ -719,6 +728,10 @@ void WindowBaseEcoreX::Minimize(bool minimize)
 bool WindowBaseEcoreX::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseEcoreX::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseEcoreX::SetAvailableAnlges(const std::vector<int>& angles)

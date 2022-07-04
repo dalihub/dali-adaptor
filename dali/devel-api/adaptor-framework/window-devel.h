@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,22 +36,16 @@ struct TouchPoint;
 
 namespace DevelWindow
 {
-
-typedef Signal<void()> EventProcessingFinishedSignalType; ///< Event Processing finished signal type
-
-typedef Signal<void(const KeyEvent&)> KeyEventSignalType; ///< Key event signal type
-
-typedef Signal<void(const TouchEvent&)> TouchEventSignalType; ///< Touch signal type
-
-typedef Signal<void(const WheelEvent&)> WheelEventSignalType; ///< Touched signal type
-
-typedef Signal<void(Window, bool)> VisibilityChangedSignalType; ///< Visibility changed signal type
-
-typedef Signal<void(Window, WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType; ///< Effect signal type and state
-
-typedef Signal<void()> KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
-
-typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType; ///< Auxiliary message signal type
+typedef Signal<void()>                                                               EventProcessingFinishedSignalType;       ///< Event Processing finished signal type
+typedef Signal<void(const KeyEvent&)>                                                KeyEventSignalType;                      ///< Key event signal type
+typedef Signal<void(const TouchEvent&)>                                              TouchEventSignalType;                    ///< Touch signal type
+typedef Signal<void(const WheelEvent&)>                                              WheelEventSignalType;                    ///< Wheel signal type
+typedef Signal<void(Window, bool)>                                                   VisibilityChangedSignalType;             ///< Visibility changed signal type
+typedef Signal<void(Window, WindowEffectState, WindowEffectType)>                    TransitionEffectEventSignalType;         ///< Effect signal type and state
+typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType; ///< Keyboard repeat settings changed signal type
+typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;              ///< Auxiliary message signal type
+typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
+typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -161,6 +155,25 @@ DALI_ADAPTOR_API KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettings
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the window needs to grab or clear accessibility highlight.
+ * The highlight indicates that it is an object to interact with the user regardless of focus.
+ * After setting the highlight on the object, you can do things that the object can do, such as
+ * giving or losing focus.
+ *
+ * This signal is emitted by Dali::Accessibility::Component::GrabHighlight
+ * and Dali::Accessibility::Component::ClearHighlight
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, bool highlight );
+ * @endcode
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window);
 
 /**
  * @brief Sets parent window of the window.
@@ -438,6 +451,19 @@ DALI_ADAPTOR_API void Maximize(Window window, bool maximize);
 DALI_ADAPTOR_API bool IsMaximized(Window window);
 
 /**
+ * @brief Sets window's maximum size.
+ *
+ * It is to set the maximized size when window is maximized or the window's size is increased by RequestResizeToServer().
+ * Although the size is set by this function, window's size can be increased over the limitation by SetPositionSize() or SetSize().
+ *
+ * After setting, if Maximize() is called, window is resized with the setting size and move the center.
+ *
+ * @param[in] window The window instance.
+ * @param[in] size the maximum size
+ */
+DALI_ADAPTOR_API void SetMaximumSize(Window window, Dali::Window::WindowSize size);
+
+/**
  * @brief Minimizes window's size.
  * If this function is called with true, window will be iconified.
  * Otherwise window will be activated.
@@ -458,6 +484,53 @@ DALI_ADAPTOR_API void Minimize(Window window, bool minimize);
  * @return True if the window is minimized, false otherwise.
  */
 DALI_ADAPTOR_API bool IsMinimized(Window window);
+
+/**
+ * @brief Sets window's minimum size.
+ *
+ * It is to set the minimum size when window's size is decreased by RequestResizeToServer().
+ * Although the size is set by this function, window's size can be decreased over the limitation by SetPositionSize() or SetSize().
+ *
+ * @param[in] window The window instance.
+ * @param[in] size the minimum size
+ */
+DALI_ADAPTOR_API void SetMimimumSize(Window window, Dali::Window::WindowSize size);
+
+/**
+ * @brief Query whether window is rotating or not.
+ *
+ * @param[in] window The window instance.
+ * @return true if window is rotating, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsWindowRotating(Window window);
+
+/**
+ * @brief Gets the last key event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last key event the window gets.
+ */
+DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
+
+/**
+ * @brief Gets the last touch event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last touch event the window gets.
+ * @note It returns the raw event the window gets. There is no hit-actor and local position information.
+ */
+DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
+
+/**
+ * @brief The user would connect to this signal to intercept a KeyEvent at window.
+ *
+ * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.
+ * If a KeyEvent is consumed, no KeyEvent is delivered to the control.
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window);
 
 } // namespace DevelWindow
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,15 +80,15 @@ enum FileFormats
 // clang-format off
 const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_COUNT] =
   {
-    {Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  LoadPngHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
-    {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
-    {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
-    {0x0,                0x0,                LoadBitmapFromWbmp, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Png::MAGIC_BYTE_1,  Png::MAGIC_BYTE_2,  LoadBitmapFromPng,  nullptr, LoadPngHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Jpeg::MAGIC_BYTE_1, Jpeg::MAGIC_BYTE_2, LoadBitmapFromJpeg, LoadPlanesFromJpeg, LoadJpegHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Bmp::MAGIC_BYTE_1,  Bmp::MAGIC_BYTE_2,  LoadBitmapFromBmp,  nullptr, LoadBmpHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Gif::MAGIC_BYTE_1,  Gif::MAGIC_BYTE_2,  LoadBitmapFromGif,  nullptr, LoadGifHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, nullptr, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  nullptr, LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
+    {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
+    {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
+    {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
   };
 // clang-format on
 
@@ -151,6 +151,7 @@ FileFormats GetFormatHint(const std::string& filename)
 bool GetBitmapLoaderFunctions(FILE*                                        fp,
                               FileFormats                                  format,
                               Dali::ImageLoader::LoadBitmapFunction&       loader,
+                              Dali::ImageLoader::LoadPlanesFunction&       planeLoader,
                               Dali::ImageLoader::LoadBitmapHeaderFunction& header,
                               Bitmap::Profile&                             profile,
                               const std::string&                           filename)
@@ -238,9 +239,10 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
   // if a loader was found set the outputs
   if(loaderFound)
   {
-    loader  = lookupPtr->loader;
-    header  = lookupPtr->header;
-    profile = lookupPtr->profile;
+    loader      = lookupPtr->loader;
+    planeLoader = lookupPtr->planeLoader;
+    header      = lookupPtr->header;
+    profile     = lookupPtr->profile;
   }
 
   // Reset to the start of the file.
@@ -256,7 +258,7 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
 
 namespace ImageLoader
 {
-bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer)
+bool ConvertStreamToBitmap(const BitmapResourceType& resource, const std::string& path, FILE* const fp, Dali::Devel::PixelBuffer& pixelBuffer)
 {
   DALI_LOG_TRACE_METHOD(gLogFilter);
 
@@ -265,6 +267,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
   if(fp != NULL)
   {
     Dali::ImageLoader::LoadBitmapFunction       function;
+    Dali::ImageLoader::LoadPlanesFunction       planeLoader;
     Dali::ImageLoader::LoadBitmapHeaderFunction header;
 
     Bitmap::Profile profile;
@@ -272,6 +275,7 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
     if(GetBitmapLoaderFunctions(fp,
                                 GetFormatHint(path),
                                 function,
+                                planeLoader,
                                 header,
                                 profile,
                                 path))
@@ -289,6 +293,73 @@ bool ConvertStreamToBitmap(const BitmapResourceType& resource, std::string path,
       }
 
       pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Image Decoder for %s unavailable\n", path.c_str());
+    }
+  }
+
+  return result;
+}
+
+bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, const std::string& path, FILE* const fp, std::vector<Dali::Devel::PixelBuffer>& pixelBuffers)
+{
+  DALI_LOG_TRACE_METHOD(gLogFilter);
+
+  bool result = false;
+
+  if(fp != NULL)
+  {
+    Dali::ImageLoader::LoadBitmapFunction       loader;
+    Dali::ImageLoader::LoadPlanesFunction       planeLoader;
+    Dali::ImageLoader::LoadBitmapHeaderFunction header;
+
+    Bitmap::Profile profile;
+
+    if(GetBitmapLoaderFunctions(fp,
+                                GetFormatHint(path),
+                                loader,
+                                planeLoader,
+                                header,
+                                profile,
+                                path))
+    {
+      const Dali::ImageLoader::ScalingParameters scalingParameters(resource.size, resource.scalingMode, resource.samplingMode);
+      const Dali::ImageLoader::Input             input(fp, scalingParameters, resource.orientationCorrection);
+
+      pixelBuffers.clear();
+
+      // Run the image type decoder:
+      if(planeLoader)
+      {
+        result = planeLoader(input, pixelBuffers);
+        if(!result)
+        {
+          DALI_LOG_ERROR("Unable to convert %s\n", path.c_str());
+        }
+      }
+      else
+      {
+        Dali::Devel::PixelBuffer pixelBuffer;
+        result = loader(input, pixelBuffer);
+        if(!result)
+        {
+          DALI_LOG_ERROR("Unable to convert %s\n", path.c_str());
+          return false;
+        }
+
+        pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+        if(pixelBuffer)
+        {
+          pixelBuffers.push_back(pixelBuffer);
+        }
+        else
+        {
+          DALI_LOG_ERROR("ApplyAttributesToBitmap is failed [%s]\n", path.c_str());
+          return false;
+        }
+      }
     }
     else
     {
@@ -349,12 +420,14 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
   if(fp != NULL)
   {
     Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
+    Dali::ImageLoader::LoadPlanesFunction       planeLoader;
     Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
     Bitmap::Profile                             profile;
 
     if(GetBitmapLoaderFunctions(fp,
                                 GetFormatHint(filename),
                                 loaderFunction,
+                                planeLoader,
                                 headerFunction,
                                 profile,
                                 filename))
@@ -398,12 +471,14 @@ ImageDimensions GetClosestImageSize(Integration::ResourcePointer resourceBuffer,
       if(fp != NULL)
       {
         Dali::ImageLoader::LoadBitmapFunction       loaderFunction;
+        Dali::ImageLoader::LoadPlanesFunction       planeLoader;
         Dali::ImageLoader::LoadBitmapHeaderFunction headerFunction;
         Bitmap::Profile                             profile;
 
         if(GetBitmapLoaderFunctions(fp,
                                     FORMAT_UNKNOWN,
                                     loaderFunction,
+                                    planeLoader,
                                     headerFunction,
                                     profile,
                                     ""))

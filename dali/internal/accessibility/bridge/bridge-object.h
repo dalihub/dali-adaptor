@@ -68,7 +68,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail) override;
+  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::WindowEvent event, unsigned int detail = 0) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
@@ -84,6 +84,11 @@ protected:
    * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()
    */
   void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitSocketAvailable()
+   */
+  void EmitSocketAvailable(Dali::Accessibility::Accessible* obj) override;
 
 protected:
   DBus::DBusInterfaceDescription::SignalId mStateChanged;

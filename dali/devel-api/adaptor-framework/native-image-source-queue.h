@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,12 +61,16 @@ class DALI_ADAPTOR_API NativeImageSourceQueue : public NativeImageInterface
 public:
   /**
     * @brief Enumeration for the instance when creating a native image, the color depth has to be specified.
+    * @note This ColorFormat follows pixel byte order.
     */
   enum class ColorFormat
   {
     RGB888,   /// 8 red bits, 8 green bits, 8 blue bits
     RGBA8888, /// 8 red bits, 8 green bits, 8 blue bits, alpha 8 bits
-    RGBX8888  /// 8 red bits, 8 green bits, 8 blue bits, and 8 ignored bits
+    RGBX8888, /// 8 red bits, 8 green bits, 8 blue bits, and 8 ignored bits
+    BGR888,   /// 8 blue bits, 8 green bits, 8 red bits
+    BGRA8888, /// 8 blue bits, 8 green bits, 8 red bits, alpha 8 bits
+    BGRX8888, /// 8 blue bits, 8 green bits, 8 red bits, and 8 ignored bits
   };
 
   /**

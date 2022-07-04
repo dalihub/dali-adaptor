@@ -118,3 +118,8 @@ bool Dali::AtspiAccessibility::IsEnabled()
 {
   return Dali::Accessibility::IsUp();
 }
+
+bool Dali::AtspiAccessibility::IsScreenReaderEnabled()
+{
+  return Dali::Accessibility::Bridge::GetCurrentBridge()->GetScreenReaderEnabled();
+}

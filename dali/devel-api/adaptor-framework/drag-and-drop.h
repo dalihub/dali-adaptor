@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/object/base-handle.h>
@@ -47,6 +48,17 @@ class DALI_ADAPTOR_API DragAndDrop : public BaseHandle
 {
 public:
   /**
+   * @brief Enumeration for the drag source event type in the source object
+   */
+  enum class SourceEventType
+  {
+    START,   ///< Drag and drop is started.
+    CANCEL,  ///< Drag and drop is cancelled.
+    ACCEPT,  ///< Drag and drop is accepted.
+    FINISH   ///< Drag and drop is finished.
+  };
+
+  /**
    * @brief Enumeration for the drag event type in the target object
    */
   enum class DragType
@@ -64,12 +76,14 @@ public:
   {
     DragEvent()
     {
+      this->mimeType = nullptr;
       this->data = nullptr;
     }
-    DragEvent(DragType type, Dali::Vector2 position, char* data = nullptr)
+    DragEvent(DragType type, Dali::Vector2 position, const char* mimeType = nullptr, char* data = nullptr)
     {
       this->type     = type;
       this->position = position;
+      this->mimeType = mimeType;
       this->data     = data;
     }
 
@@ -89,11 +103,19 @@ public:
     {
       return position;
     }
+    void SetMimeType(const char* mimeType)
+    {
+      this->mimeType = mimeType;
+    }
+    const char* GetMimeType()
+    {
+      return mimeType;
+    }
     void SetData(char* data)
     {
       this->data = data;
     }
-    char* GetData()
+    char* GetData() const
     {
       return data;
     }
@@ -101,10 +123,39 @@ public:
   private:
     DragType      type{DragType::DROP}; ///< The drag event type.
     Dali::Vector2 position;             ///< The position of drag object.
+    const char*   mimeType;             ///< The mime type of drag object.
     char*         data{nullptr};        ///< The data of drag object.
   };
 
+  /**
+   * @brief Structure that contains information about the drag data information.
+   */
+  struct DragData
+  {
+     void SetMimeType(const char* mimeType)
+     {
+       this->mimeType = mimeType;
+     }
+     const char* GetMimeType() const
+     {
+       return mimeType;
+     }
+     void SetData(const char* data)
+     {
+       this->data = data;
+     }
+     const char* GetData() const
+     {
+       return data;
+     }
+
+  private:
+     const char* mimeType{nullptr}; ///<The mime type of drag data.
+     const char* data{nullptr};     ///<The drag data.
+  };
+
   using DragAndDropFunction = std::function<void(const DragEvent&)>;
+  using SourceFunction = std::function<void(enum SourceEventType)>;
 
   /**
    * @brief Create an uninitialized DragAndDrop.
@@ -136,11 +187,12 @@ public:
    * @brief Start the drag operation.
    *
    * @param[in] source The drag source object.
-   * @param[in] shadow The shadow object for drag object.
+   * @param[in] shadowWindow The shadow window for drag object.
    * @param[in] dragData The data to send to target object.
+   * @param[in] callback The drag source event callback.
    * @return bool true if the drag operation is started successfully.
    */
-  bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData);
+  bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const DragData& dragData, Dali::DragAndDrop::SourceFunction callback);
 
   /**
    * @brief Add the listener for receiving the drag and drop events.
@@ -150,6 +202,14 @@ public:
    * @return bool true if the listener is added successfully.
    */
   bool AddListener(Dali::Actor target, DragAndDropFunction callback);
+
+  /**
+   * @brief Remove the listener.
+   *
+   * @param[in] target The drop target object.
+   * @return bool true if the listener is removed successfully.
+   */
+  bool RemoveListener(Dali::Actor target);
 
 public:
   /**

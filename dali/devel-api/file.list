@@ -103,7 +103,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer.h
-  ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
@@ -151,6 +150,7 @@ SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/hyperlink.h
   ${adaptor_devel_api_dir}/atspi-interfaces/hypertext.h
   ${adaptor_devel_api_dir}/atspi-interfaces/selection.h
+  ${adaptor_devel_api_dir}/atspi-interfaces/socket.h
   ${adaptor_devel_api_dir}/atspi-interfaces/text.h
   ${adaptor_devel_api_dir}/atspi-interfaces/value.h
 )

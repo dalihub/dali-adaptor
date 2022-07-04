@@ -36,6 +36,7 @@
 #include <dali/internal/accessibility/bridge/bridge-hyperlink.h>
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-selection.h>
+#include <dali/internal/accessibility/bridge/bridge-socket.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/bridge-application.h>
@@ -67,14 +68,14 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeSelection,
                    public BridgeApplication,
                    public BridgeHypertext,
-                   public BridgeHyperlink
+                   public BridgeHyperlink,
+                   public BridgeSocket
 {
   DBus::DBusClient                                              mAccessibilityStatusClient;
   DBus::DBusClient                                              mRegistryClient;
   DBus::DBusClient                                              mDirectReadingClient;
   bool                                                          mIsScreenReaderEnabled = false;
   bool                                                          mIsEnabled             = false;
-  bool                                                          mIsShown               = false;
   std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
   Dali::Actor                                                   mHighlightedActor;
   std::function<void(Dali::Actor)>                              mHighlightClearAction;
@@ -142,7 +143,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         true);
@@ -161,7 +162,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("PauseResume").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         false);
@@ -180,7 +181,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<void>(bool)>("StopReading").asyncCall([](DBus::ValueOrError<void> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
                                                                                         alsoNonDiscardable);
@@ -199,7 +200,7 @@ public:
     mDirectReadingClient.method<DBus::ValueOrError<std::string, bool, int32_t>(std::string, bool)>("ReadCommand").asyncCall([=](DBus::ValueOrError<std::string, bool, int32_t> msg) {
       if(!msg)
       {
-        LOG() << "Direct reading command failed (" << msg.getError().message << ")";
+        LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
       else if(callback)
       {
@@ -225,7 +226,9 @@ public:
       mData->mHighlightActor            = {};
 
       mDisabledSignal.Emit();
+      UnembedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
     }
+
     mHighlightedActor     = {};
     mHighlightClearAction = {};
     BridgeAccessible::ForceDown();
@@ -233,7 +236,6 @@ public:
     mDirectReadingClient  = {};
     mDirectReadingCallbacks.clear();
     mApplication.mChildren.clear();
-    mApplication.mWindows.clear();
     ClearTimer();
   }
 
@@ -271,6 +273,11 @@ public:
   {
     if(mData)
     {
+      // The ~Window() after this point cannot emit DESTROY, because Bridge is not available. So emit DESTROY here.
+      for(auto windowAccessible : mApplication.mChildren)
+      {
+        BridgeObject::Emit(windowAccessible, WindowEvent::DESTROY);
+      }
       mData->mCurrentlyHighlightedActor = {};
       mData->mHighlightActor            = {};
     }
@@ -326,10 +333,11 @@ public:
     BridgeApplication::RegisterInterfaces();
     BridgeHypertext::RegisterInterfaces();
     BridgeHyperlink::RegisterInterfaces();
+    BridgeSocket::RegisterInterfaces();
 
     RegisterOnBridge(&mApplication);
 
-    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, AtspiDbusInterfaceDec, mConnectionPtr};
+    mRegistryClient      = {AtspiDbusNameRegistry, AtspiDbusPathDec, Accessible::GetInterfaceName(AtspiInterface::DEVICE_EVENT_CONTROLLER), mConnectionPtr};
     mDirectReadingClient = DBus::DBusClient{DirectReadingDBusName, DirectReadingDBusPath, DirectReadingDBusInterface, mConnectionPtr};
 
     mDirectReadingClient.addSignal<void(int32_t, std::string)>("ReadingStateChanged", [=](int32_t id, std::string readingState) {
@@ -344,25 +352,9 @@ public:
       }
     });
 
-    auto    proxy = DBus::DBusClient{AtspiDbusNameRegistry, AtspiDbusPathRoot, AtspiDbusInterfaceSocket, mConnectionPtr};
-    Address root{"", "root"};
-    auto    res = proxy.method<Address(Address)>("Embed").call(root);
-    if(!res)
-    {
-      LOG() << "Call to Embed failed: " << res.getError().message;
-    }
-    assert(res);
-
-    mApplication.mParent.SetAddress(std::move(std::get<0>(res)));
-
+    auto parentAddress = EmbedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
+    mApplication.mParent.SetAddress(std::move(parentAddress));
     mEnabledSignal.Emit();
-
-    if(mIsShown)
-    {
-      auto rootLayer = Dali::Stage::GetCurrent().GetRootLayer();
-      auto window    = Dali::DevelWindow::Get(rootLayer);
-      EmitActivate(window); // Currently, sends a signal that the default window is activated here.
-    }
 
     return ForceUpResult::JUST_STARTED;
   }
@@ -432,11 +424,10 @@ public:
    */
   void WindowShown(Dali::Window window) override
   {
-    if(!mIsShown && IsUp())
+    if(IsUp())
     {
       EmitShown(window);
     }
-    mIsShown = true;
   }
 
   /**
@@ -444,11 +435,10 @@ public:
    */
   void WindowHidden(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitHidden(window);
     }
-    mIsShown = false;
   }
 
   /**
@@ -456,7 +446,7 @@ public:
    */
   void WindowFocused(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitActivate(window);
     }
@@ -467,7 +457,7 @@ public:
    */
   void WindowUnfocused(Dali::Window window) override
   {
-    if(mIsShown && IsUp())
+    if(IsUp())
     {
       EmitDeactivate(window);
     }
@@ -582,10 +572,23 @@ public:
     });
   }
 
+  void EmitScreenReaderEnabledSignal()
+  {
+    if (mIsScreenReaderEnabled)
+    {
+      mScreenReaderEnabledSignal.Emit();
+    }
+    else
+    {
+      mScreenReaderDisabledSignal.Emit();
+    }
+  }
+
   void ListenScreenReaderEnabledProperty()
   {
     mAccessibilityStatusClient.addPropertyChangedEvent<bool>("ScreenReaderEnabled", [this](bool res) {
       mIsScreenReaderEnabled = res;
+      EmitScreenReaderEnabledSignal();
       SwitchBridge();
     });
   }
@@ -680,6 +683,40 @@ public:
   {
     return mIsEnabled;
   }
+
+  Address EmbedSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+    auto reply  = client.method<Address(Address)>("Embed").call(plug);
+
+    if(!reply)
+    {
+      DALI_LOG_ERROR("Failed to embed socket %s: %s", socket.ToString().c_str(), reply.getError().message.c_str());
+      return {};
+    }
+
+    return std::get<0>(reply.getValues());
+  }
+
+  void EmbedAtkSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+
+    client.method<void(std::string)>("Embedded").call(ATSPI_PREFIX_PATH + plug.GetPath());
+  }
+
+  void UnembedSocket(const Address& plug, const Address& socket) override
+  {
+    auto client = CreateSocketClient(socket);
+
+    client.method<void(Address)>("Unembed").call(plug);
+  }
+
+private:
+  DBus::DBusClient CreateSocketClient(const Address& socket)
+  {
+    return {socket.GetBus(), ATSPI_PREFIX_PATH + socket.GetPath(), Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
+  }
 }; // BridgeImpl
 
 namespace // unnamed namespace
@@ -767,7 +804,7 @@ void Bridge::EnableAutoInit()
   auto window          = Dali::DevelWindow::Get(rootLayer);
   auto applicationName = Dali::Internal::Adaptor::Adaptor::GetApplicationPackageName();
 
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
 
   auto bridge = Bridge::GetCurrentBridge();
   bridge->AddTopLevelWindow(accessible);

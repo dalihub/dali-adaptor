@@ -29,10 +29,6 @@
 #include <wayland-egl.h>
 #include <xkbcommon/xkbcommon.h>
 
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif
-
 namespace Dali
 {
 namespace Internal
@@ -176,13 +172,6 @@ public:
    */
   void OnEcoreEventWindowAuxiliaryMessage(void* event);
 
-#ifdef DALI_ELDBUS_AVAILABLE
-  /**
-   * @brief Called when Ecore ElDBus accessibility event is received.
-   */
-  void OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message);
-#endif
-
   /**
    * @brief Called when a keymap is changed.
    */
@@ -228,6 +217,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
    */
   int GetNativeWindowId() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowResourceId()
+   */
+  std::string GetNativeWindowResourceId() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
@@ -310,6 +304,11 @@ public:
   bool IsMaximized() const override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMaximumSize()
+   */
+  void SetMaximumSize(Dali::Window::WindowSize size) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Minimize()
    */
   void Minimize(bool minimize) override;
@@ -318,6 +317,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsMinimized()
    */
   bool IsMinimized() const override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   */
+  void SetMimimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
@@ -546,14 +550,27 @@ private:
   void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
-   * Initialize Ecore ElDBus
-   */
-  void InitializeEcoreElDBus();
-
-  /**
    * @brief Create window
    */
   void CreateWindow(PositionSize positionSize);
+
+  /**
+   * @brief Return the window's position and size to recalulate with the default system coordinates.
+   * It is used when window is moved or resized for native ecore wayland window system.
+   *
+   * @param[in] positionSize the window's current position and size with current oriented window's coordinates.
+   * @return the re-calculated window's position and size on the default system coordinates.
+   */
+  PositionSize RecalculatePositionSizeToSystem(PositionSize positionSize);
+
+  /**
+   * @brief Return the window's position and size to recalulate with current oriented window's coordinates.
+   * It is used when window is moved or resized for dali and uppler layer framework.
+   *
+   * @param[in] positionSize the window's current position and size with the default system coordinates.
+   * @return the re-calculated window's position and size on current oriented window's coordinates.
+   */
+  PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
 
 protected:
   // Undefined
@@ -571,7 +588,7 @@ private:
 #ifdef OVER_TIZEN_VERSION_7
   zwp_input_panel_v1* mWlInputPanel;
 #else
-  wl_input_panel* mWlInputPanel;
+  wl_input_panel*         mWlInputPanel;
 #endif
   wl_output* mWlOutput;
 #ifdef OVER_TIZEN_VERSION_7
@@ -589,8 +606,10 @@ private:
 
   std::vector<std::string> mSupportedAuxiliaryHints;
 
+  // It is based on the default system coordinates.
   Dali::PositionSize mWindowPositionSize;
-  AuxiliaryHints     mAuxiliaryHints;
+
+  AuxiliaryHints mAuxiliaryHints;
 
   WindowType mType;
   int        mNotificationLevel;
@@ -599,6 +618,8 @@ private:
   int        mWindowRotationAngle;
   int        mScreenRotationAngle;
   int        mSupportedPreProtation;
+  int        mScreenWidth;
+  int        mScreenHeight;
 
   uint32_t          mNotificationChangeState;
   uint32_t          mScreenOffModeChangeState;
@@ -611,10 +632,6 @@ private:
   bool mVisible : 1;
   bool mOwnSurface;
   bool mBrightnessChangeDone;
-
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Connection* mSystemConnection;
-#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor

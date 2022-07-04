@@ -2,7 +2,7 @@
 #define TEST_GL_ABSTRACTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -913,8 +913,8 @@ public:
     if(it2 == uniformIDs.end())
     {
       // Uniform not found, so add it...
-      uniformIDs[name] = mLastUniformIdUsed++;
-      return mLastUniformIdUsed;
+      uniformIDs[name] = ++mLastUniformIdUsed;
+      return uniformIDs[name];
     }
 
     return it2->second;
@@ -991,7 +991,30 @@ public:
 
     for(const auto& uniform : mCustomUniformData)
     {
-      GetUniformLocation(program, uniform.name.c_str());
+      auto iter = uniform.name.find("[");
+      auto name = uniform.name;
+      if(iter != std::string::npos)
+      {
+        name            = uniform.name.substr(0, iter);
+        auto arrayCount = std::stoi(uniform.name.substr(iter + 1));
+        iter            = uniform.name.find("]");
+        std::string suffix;
+        if(iter != std::string::npos && iter + 1 != uniform.name.length())
+        {
+          suffix = uniform.name.substr(iter + 1); // If there is a suffix, it means its an element of an array of struct
+        }
+
+        for(int i = 0; i < arrayCount; ++i)
+        {
+          std::stringstream nss;
+          nss << name << "[" << i << "]" << suffix;
+          GetUniformLocation(program, nss.str().c_str()); // Generate a GL loc per element
+        }
+      }
+      else
+      {
+        GetUniformLocation(program, name.c_str());
+      }
     }
   }
 

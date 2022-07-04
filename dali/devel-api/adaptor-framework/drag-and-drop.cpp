@@ -39,14 +39,19 @@ DragAndDrop DragAndDrop::Get()
   return Internal::Adaptor::GetDragAndDrop();
 }
 
-bool DragAndDrop::StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData)
+bool DragAndDrop::StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const DragData& dragData, Dali::DragAndDrop::SourceFunction callback)
 {
-  return GetImplementation(*this).StartDragAndDrop(source, shadow, dragData);
+  return GetImplementation(*this).StartDragAndDrop(source, shadowWindow, dragData, callback);
 }
 
 bool DragAndDrop::AddListener(Dali::Actor target, DragAndDropFunction callback)
 {
   return GetImplementation(*this).AddListener(target, callback);
+}
+
+bool DragAndDrop::RemoveListener(Dali::Actor target)
+{
+  return GetImplementation(*this).RemoveListener(target);
 }
 
 } // namespace Dali

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,6 @@
 #include <Ecore_Wayland.h>
 #include <tizen-extension-client-protocol.h>
 #include <wayland-egl.h>
-
-#ifdef DALI_ELDBUS_AVAILABLE
-#include <Eldbus.h>
-#endif
 
 namespace Dali
 {
@@ -147,13 +143,6 @@ public:
    */
   void OnFontSizeChanged();
 
-#ifdef DALI_ELDBUS_AVAILABLE
-  /**
-   * @brief Called when Ecore ElDBus accessibility event is received.
-   */
-  void OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message);
-#endif
-
   /**
    * @brief RegistryGlobalCallback
    */
@@ -189,6 +178,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowId()
    */
   int GetNativeWindowId() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowResourceId()
+   */
+  std::string GetNativeWindowResourceId() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
@@ -271,6 +265,11 @@ public:
   bool IsMaximized() const override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMaximumSize()
+   */
+  void SetMaximumSize(Dali::Window::WindowSize size) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Minimize()
    */
   void Minimize(bool minimize) override;
@@ -279,6 +278,11 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsMinimized()
    */
   bool IsMinimized() const override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetMimimumSize()
+   */
+  void SetMimimumSize(Dali::Window::WindowSize size) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetAvailableAnlges()
@@ -507,11 +511,6 @@ private:
   void Initialize(PositionSize positionSize, Any surface, bool isTransparent);
 
   /**
-   * Initialize Ecore ElDBus
-   */
-  void InitializeEcoreElDBus();
-
-  /**
    * @brief Create window
    */
   void CreateWindow(PositionSize positionSize);
@@ -556,9 +555,6 @@ private:
   int mWindowRotationAngle;
   int mScreenRotationAngle;
   int mSupportedPreProtation;
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Connection* mSystemConnection;
-#endif // DALI_ELDBUS_AVAILABLE
 };
 
 } // namespace Adaptor

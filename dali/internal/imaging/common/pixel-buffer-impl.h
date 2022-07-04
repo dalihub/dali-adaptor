@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,13 +60,14 @@ public:
    * @param [in] bufferSize       The size of the buffer in bytes
    * @param [in] width            Buffer width in pixels
    * @param [in] height           Buffer height in pixels
+   * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
-   * @param [in] releaseFunction  The function used to release the memory.
    */
   static PixelBufferPtr New(unsigned char* buffer,
                             unsigned int   bufferSize,
                             unsigned int   width,
                             unsigned int   height,
+                            unsigned int   stride,
                             Pixel::Format  pixelFormat);
 
   /**
@@ -85,12 +86,14 @@ public:
    * @param [in] bufferSize       The size of the buffer in bytes
    * @param [in] width            Buffer width in pixels
    * @param [in] height           Buffer height in pixels
+   * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
    */
   PixelBuffer(unsigned char* buffer,
               unsigned int   bufferSize,
               unsigned int   width,
               unsigned int   height,
+              unsigned int   stride,
               Pixel::Format  pixelFormat);
 
 protected:
@@ -113,6 +116,12 @@ public:
    * @return The height of the buffer in pixels
    */
   unsigned int GetHeight() const;
+
+  /**
+   * @brief Gets the stride of the buffer in pixels.
+   * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
+   */
+  unsigned int GetStride() const;
 
   /**
    * Get the pixel format
@@ -281,10 +290,11 @@ private:
 
 private:
   std::unique_ptr<Property::Map> mMetadata;      ///< Metadata fields
-  unsigned char*                 mBuffer;        ///< The raw pixel data
-  unsigned int                   mBufferSize;    ///< Buffer sized in bytes
-  unsigned int                   mWidth;         ///< Buffer width in pixels
-  unsigned int                   mHeight;        ///< Buffer height in pixels
+  uint8_t*                       mBuffer;        ///< The raw pixel data
+  uint32_t                       mBufferSize;    ///< Buffer sized in bytes
+  uint32_t                       mWidth;         ///< Buffer width in pixels
+  uint32_t                       mHeight;        ///< Buffer height in pixels
+  uint32_t                       mStride;        ///< Buffer stride in bytes, 0 means the buffer is tightly packed
   Pixel::Format                  mPixelFormat;   ///< Pixel format
   bool                           mPreMultiplied; ///< PreMultiplied
 };

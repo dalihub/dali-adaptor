@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/devel-api/atspi-interfaces/component.h>
 
 namespace Dali::Accessibility
 {
@@ -32,21 +33,25 @@ namespace Dali::Accessibility
  *
  * To be used as a proxy object, in those situations where you want to return an address in
  * a different bridge (embedding for example), but the object itself isn't planned to be used
- * otherwise. This object has no parent, no children, an empty name and so on.
+ * otherwise. This object has a settable parent, no children, an empty name and so on.
  */
-class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible
+class DALI_ADAPTOR_API ProxyAccessible : public virtual Accessible, public virtual Component
 {
 public:
-  ProxyAccessible() = default;
-
-  ProxyAccessible(Address address)
-  : mAddress(std::move(address))
+  ProxyAccessible()
+  : mAddress{},
+    mParent{nullptr}
   {
   }
 
   void SetAddress(Address address)
   {
-    this->mAddress = std::move(address);
+    mAddress = std::move(address);
+  }
+
+  void SetParent(Accessible* parent)
+  {
+    mParent = parent;
   }
 
   std::string GetName() const override
@@ -61,7 +66,7 @@ public:
 
   Accessible* GetParent() override
   {
-    return nullptr;
+    return mParent;
   }
 
   size_t GetChildCount() const override
@@ -104,6 +109,11 @@ public:
     return {};
   }
 
+  bool IsProxy() const override
+  {
+    return true;
+  }
+
   Address GetAddress() const override
   {
     return mAddress;
@@ -124,8 +134,51 @@ public:
     return Dali::Actor{};
   }
 
+  Rect<> GetExtents(CoordinateType type) const override
+  {
+    auto* parent = Component::DownCast(mParent);
+
+    return parent ? parent->GetExtents(type) : Rect<>{};
+  }
+
+  ComponentLayer GetLayer() const override
+  {
+    return ComponentLayer::WINDOW;
+  }
+
+  int16_t GetMdiZOrder() const override
+  {
+    return false;
+  }
+
+  bool GrabFocus() override
+  {
+    return false;
+  }
+
+  double GetAlpha() const override
+  {
+    return 0.0;
+  }
+
+  bool GrabHighlight() override
+  {
+    return false;
+  }
+
+  bool ClearHighlight() override
+  {
+    return false;
+  }
+
+  bool IsScrollable() const override
+  {
+    return false;
+  }
+
 private:
-  Address mAddress;
+  Address     mAddress;
+  Accessible* mParent;
 };
 
 } // namespace Dali::Accessibility

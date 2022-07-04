@@ -45,6 +45,13 @@ protected:
    */
   void RegisterInterfaces();
 
+  /**
+   * @brief Returns the Accessible object of the currently executed DBus method call.
+   *
+   * @return The Accessible object
+   */
+  Dali::Accessibility::Accessible* FindSelf() const;
+
 public:
   /**
    * @brief Enumeration for NeighborSearchMode.
@@ -84,7 +91,7 @@ public:
     Dali::Accessibility::Accessible*  // describedByObject
     >;
 
-  using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Address>>;
+  using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetChildCount()
@@ -147,9 +154,9 @@ public:
   DBus::ValueOrError<std::unordered_map<std::string, std::string>> GetAttributes();
 
   /**
-   * @copydoc Dali::Accessibility::Accessible::GetInterfaces()
+   * @copydoc Dali::Accessibility::Accessible::GetInterfacesAsStrings()
    */
-  DBus::ValueOrError<std::vector<std::string>> GetInterfaces();
+  DBus::ValueOrError<std::vector<std::string>> GetInterfacesAsStrings();
 
   /**
    * @brief Gets Accessible object on which surface lies the point with given coordinates.

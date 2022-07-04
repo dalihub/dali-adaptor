@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,29 @@ WidgetImplUbuntu::~WidgetImplUbuntu()
 
 void WidgetImplUbuntu::SetContentInfo(const std::string& contentInfo)
 {
+}
+
+bool WidgetImplUbuntu::IsKeyEventUsing() const
+{
+  return false;
+}
+
+void WidgetImplUbuntu::SetUsingKeyEvent(bool flag)
+{
+}
+
+void WidgetImplUbuntu::SetInformation(Dali::Window window, const std::string& widgetId)
+{
+}
+
+Dali::Window WidgetImplUbuntu::GetWindow() const
+{
+  return Dali::Window();
+}
+
+std::string WidgetImplUbuntu::GetWidgetId() const
+{
+  return std::string();
 }
 
 } // namespace Adaptor

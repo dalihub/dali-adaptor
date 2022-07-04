@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_CACHE_ITEM_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
  */
 
 // INTERNAL INCLUDES
-
 #include <dali/internal/text/text-abstraction/plugin/font-cache-item-interface.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
+#include <dali/internal/text/text-abstraction/plugin/harfbuzz-proxy-font.h>
 
 // EXTERNAL INCLUDES
 #include <fontconfig/fontconfig.h>
+#include <memory> // for std::unique_ptr
 
 // EXTERNAL INCLUDES
 #include <ft2build.h>
@@ -57,6 +59,11 @@ struct FontFaceCacheItem : public FontCacheItemInterface
                     float              fixedHeight,
                     bool               hasColorTables);
 
+  FontFaceCacheItem(const FontFaceCacheItem& rhs) = delete; // Do not use copy construct
+  FontFaceCacheItem(FontFaceCacheItem&& rhs);
+
+  ~FontFaceCacheItem();
+
   /**
    * @copydoc FontCacheItemInterface::GetFontMetrics()
    */
@@ -65,7 +72,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   /**
    * @copydoc FontCacheItemInterface::GetGlyphMetrics()
    */
-  bool GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertical, bool horizontal) const override;
+  bool GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVertical, bool horizontal) const override;
 
   /**
    * @copydoc FontCacheItemInterface::CreateBitmap()
@@ -109,6 +116,11 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   }
 
   /**
+   * @copydoc FontCacheItemInterface::GetHarfBuzzFont()
+   */
+  HarfBuzzFontHandle GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi) override;
+
+  /**
    * @copydoc FontCacheItemInterface::HasItalicStyle()
    */
   bool HasItalicStyle() const override
@@ -116,8 +128,13 @@ struct FontFaceCacheItem : public FontCacheItemInterface
     return (0u != (mFreeTypeFace->style_flags & FT_STYLE_FLAG_ITALIC));
   }
 
-  FT_Library&     mFreeTypeLibrary;       ///< A handle to a FreeType library instance.
-  FT_Face         mFreeTypeFace;          ///< The FreeType face.
+public:
+  FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
+  FT_Face     mFreeTypeFace;    ///< The FreeType face.
+
+  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
+  std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont; ///< The harfbuzz font. It will store harfbuzz relate data.
+
   FontPath        mPath;                  ///< The path to the font file name.
   PointSize26Dot6 mRequestedPointSize;    ///< The font point size.
   FaceIndex       mFaceIndex;             ///< The face index.

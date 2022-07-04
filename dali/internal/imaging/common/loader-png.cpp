@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,13 +59,13 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
 
   // Check header to see if it is a PNG file
   size_t size = fread(header, 1, 8, fp);
-  if(size != 8)
+  if(DALI_UNLIKELY(size != 8))
   {
     DALI_LOG_ERROR("fread failed\n");
     return false;
   }
 
-  if(png_sig_cmp(header, 0, 8))
+  if(DALI_UNLIKELY(png_sig_cmp(header, 0, 8)))
   {
     DALI_LOG_ERROR("png_sig_cmp failed\n");
     return false;
@@ -73,14 +73,14 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
 
   png = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
-  if(!png)
+  if(DALI_UNLIKELY(!png))
   {
     DALI_LOG_ERROR("Can't create PNG read structure\n");
     return false;
   }
 
   info = png_create_info_struct(png);
-  if(!info)
+  if(DALI_UNLIKELY(!info))
   {
     DALI_LOG_ERROR("png_create_info_struct failed\n");
     return false;
@@ -88,7 +88,7 @@ bool LoadPngHeader(FILE* fp, unsigned int& width, unsigned int& height, png_stru
 
   png_set_expand(png);
 
-  if(setjmp(png_jmpbuf(png)))
+  if(DALI_UNLIKELY(setjmp(png_jmpbuf(png))))
   {
     DALI_LOG_ERROR("error during png_init_io\n");
     return false;
@@ -134,7 +134,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   bool         valid = false;
 
   // Load info from the header
-  if(!LoadPngHeader(input.file, width, height, png, info))
+  if(DALI_UNLIKELY(!LoadPngHeader(input.file, width, height, png, info)))
   {
     return false;
   }
@@ -259,7 +259,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     }
   }
 
-  if(!valid)
+  if(DALI_UNLIKELY(!valid))
   {
     DALI_LOG_ERROR("Unsupported png format\n");
     return false;
@@ -270,7 +270,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
   png_read_update_info(png, info);
 
-  if(setjmp(png_jmpbuf(png)))
+  if(DALI_UNLIKELY(setjmp(png_jmpbuf(png))))
   {
     DALI_LOG_ERROR("error during png_read_image\n");
     return false;
@@ -300,17 +300,17 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
         break;
     }
   }
+  rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
+  if(DALI_UNLIKELY(!rows))
+  {
+    DALI_LOG_ERROR("malloc is failed\n");
+    return false;
+  }
 
   // decode the whole image into bitmap buffer
   auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
 
   DALI_ASSERT_DEBUG(pixels);
-  rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
-  if(!rows)
-  {
-    DALI_LOG_ERROR("malloc is failed\n");
-    return false;
-  }
 
   for(y = 0; y < height; y++)
   {
@@ -371,7 +371,7 @@ extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length
     if(encoded_img)
     {
       const Vector<unsigned char>::SizeType bufferSize = encoded_img->Count();
-      encoded_img->Resize(bufferSize + length); //< Can throw OOM.
+      encoded_img->ResizeUninitialized(bufferSize + length); //< Can throw OOM.
       unsigned char* const bufferBack = encoded_img->Begin() + bufferSize;
       memcpy(bufferBack, data, length);
     }

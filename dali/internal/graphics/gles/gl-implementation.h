@@ -49,9 +49,11 @@ static constexpr const char* KHR_BLEND_EQUATION_ADVANCED                  = "GL_
 static constexpr const char* DEFAULT_SAMPLER_TYPE = "sampler2D";
 
 static constexpr const char* FRAGMENT_SHADER_ADVANCED_BLEND_EQUATION_PREFIX =
+  "#ifdef GL_KHR_blend_equation_advanced\n"
   "#extension GL_KHR_blend_equation_advanced : enable\n"
+  "#endif\n"
 
-  "#if GL_KHR_blend_equation_advanced==1 || __VERSION__>=320\n"
+  "#if defined(GL_KHR_blend_equation_advanced) || __VERSION__>=320\n"
   "  layout(blend_support_all_equations) out;\n"
   "#endif\n";
 

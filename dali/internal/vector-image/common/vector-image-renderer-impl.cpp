@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,10 @@ Dali::BaseHandle Create()
 
 Dali::TypeRegistration type(typeid(Dali::VectorImageRenderer), typeid(Dali::BaseHandle), Create);
 
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gVectorImageLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_VECTOR_IMAGE");
+#endif
+
 } // unnamed namespace
 
 VectorImageRendererPtr VectorImageRenderer::New()
@@ -60,9 +64,7 @@ VectorImageRendererPtr VectorImageRenderer::New()
 
 VectorImageRenderer::VectorImageRenderer()
 #ifdef THORVG_SUPPORT
-: mPicture(nullptr),
-  mDefaultWidth(0),
-  mDefaultHeight(0)
+: mPicture(nullptr)
 #else
 : mParsedImage(nullptr),
   mRasterizer(nullptr)
@@ -106,7 +108,7 @@ void VectorImageRenderer::Initialize()
 
   mSwCanvas = tvg::SwCanvas::gen();
   mSwCanvas->mempool(tvg::SwCanvas::MempoolPolicy::Individual);
-  mSwCanvas->reserve(1);  //has one picture
+  mSwCanvas->reserve(1); //has one picture
 #else
   mRasterizer = nsvgCreateRasterizer();
 #endif
@@ -130,12 +132,16 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
       return false;
     }
   }
+  else
+  {
+    return true;
+  }
 
-  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), false);
+  tvg::Result ret = mPicture->load(reinterpret_cast<char*>(data.Begin()), data.Size(), true);
 
   if(ret != tvg::Result::Success)
   {
-    switch (ret)
+    switch(ret)
     {
       case tvg::Result::InvalidArguments:
       {
@@ -163,45 +169,88 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 
   float w, h;
   mPicture->size(&w, &h);
-  mDefaultWidth = static_cast<uint32_t>(w);
+  mDefaultWidth  = static_cast<uint32_t>(w);
   mDefaultHeight = static_cast<uint32_t>(h);
 
   return true;
 #else
+  if(mParsedImage)
+  {
+    return true;
+  }
+
   mParsedImage = nsvgParse(reinterpret_cast<char*>(data.Begin()), UNITS, dpi);
   if(!mParsedImage || !mParsedImage->shapes)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
     return false;
   }
+
+  mDefaultWidth  = mParsedImage->width;
+  mDefaultHeight = mParsedImage->height;
+
   return true;
 #endif
 }
 
-bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scale)
+bool VectorImageRenderer::IsLoaded() const
 {
+#ifdef THORVG_SUPPORT
+  return mPicture ? true : false;
+#else
+  return mParsedImage ? true : false;
+#endif
+}
+
+Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
+{
+  if(width == 0)
+  {
+    if(mDefaultWidth == 0)
+    {
+      DALI_LOG_ERROR("Invalid size [%d, %d]\n", width, height);
+      return Devel::PixelBuffer();
+    }
+    else
+    {
+      width = mDefaultWidth;
+    }
+  }
+
+  if(height == 0)
+  {
+    if(mDefaultHeight == 0)
+    {
+      DALI_LOG_ERROR("Invalid size [%d, %d]\n", width, height);
+      return Devel::PixelBuffer();
+    }
+    else
+    {
+      height = mDefaultHeight;
+    }
+  }
+
 #ifdef THORVG_SUPPORT
   if(!mSwCanvas || !mPicture)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: either Canvas[%p] or Picture[%p] is invalid [%p]\n", mSwCanvas.get(), mPicture, this);
-    return false;
+    return Devel::PixelBuffer();
   }
+
+  Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
 
   mSwCanvas->clear(false);
 
-  auto pBuffer = buffer.GetBuffer();
+  auto pBuffer = pixelBuffer.GetBuffer();
   if(!pBuffer)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: pixel buffer is null [%p]\n", this);
-    return false;
+    return Devel::PixelBuffer();
   }
-
-  auto width = buffer.GetWidth();
-  auto height = buffer.GetHeight();
 
   mSwCanvas->target(reinterpret_cast<uint32_t*>(pBuffer), width, width, height, tvg::SwCanvas::ABGR8888);
 
-  DALI_LOG_RELEASE_INFO("VectorImageRenderer::Rasterize: Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
+  DALI_LOG_INFO(gVectorImageLogFilter, Debug::Verbose, "Buffer[%p] size[%d x %d]! [%p]\n", pBuffer, width, height, this);
 
   mPicture->size(width, height);
 
@@ -209,41 +258,40 @@ bool VectorImageRenderer::Rasterize(Dali::Devel::PixelBuffer& buffer, float scal
   if(mSwCanvas->push(std::unique_ptr<tvg::Picture>(mPicture)) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Picture push fail [%p]\n", this);
-    return false;
+    return Devel::PixelBuffer();
   }
 
-  if(mSwCanvas->draw() != tvg::Result::Success)
+  auto ret = mSwCanvas->draw();
+  if(ret != tvg::Result::Success)
   {
-    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail [%p]\n", this);
-    return false;
+    DALI_LOG_ERROR("VectorImageRenderer::Rasterize: Draw fail %d [%p]\n", static_cast<int>(ret), this);
+    return Devel::PixelBuffer();
   }
 
   mSwCanvas->sync();
 
-  return true;
+  return pixelBuffer;
 #else
   if(mParsedImage != nullptr)
   {
-    int stride = buffer.GetWidth() * Pixel::GetBytesPerPixel(buffer.GetPixelFormat());
-    nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, buffer.GetBuffer(), buffer.GetWidth(), buffer.GetHeight(), stride);
-    return true;
+    Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(width, height, Dali::Pixel::RGBA8888);
+
+    float scaleX = static_cast<float>(width) / (mDefaultWidth > 0 ? static_cast<float>(mDefaultWidth) : 1.0f);
+    float scaleY = static_cast<float>(height) / (mDefaultHeight > 0 ? static_cast<float>(mDefaultHeight) : 1.0f);
+    float scale  = scaleX < scaleY ? scaleX : scaleY;
+    int   stride = pixelBuffer.GetWidth() * Pixel::GetBytesPerPixel(Dali::Pixel::RGBA8888);
+
+    nsvgRasterize(mRasterizer, mParsedImage, 0.0f, 0.0f, scale, pixelBuffer.GetBuffer(), width, height, stride);
+    return pixelBuffer;
   }
-  return false;
+  return Devel::PixelBuffer();
 #endif
 }
 
 void VectorImageRenderer::GetDefaultSize(uint32_t& width, uint32_t& height) const
 {
-#ifdef THORVG_SUPPORT
-  width = mDefaultWidth;
+  width  = mDefaultWidth;
   height = mDefaultHeight;
-#else
-  if(mParsedImage)
-  {
-    width  = mParsedImage->width;
-    height = mParsedImage->height;
-  }
-#endif
 }
 
 } // namespace Adaptor

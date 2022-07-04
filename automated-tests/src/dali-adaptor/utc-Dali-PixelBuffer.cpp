@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -227,6 +227,7 @@ int UtcDaliPixelBufferConvert(void)
     DALI_TEST_CHECK(pixelData);
     DALI_TEST_EQUALS(pixelData.GetWidth(), 10, TEST_LOCATION);
     DALI_TEST_EQUALS(pixelData.GetHeight(), 10, TEST_LOCATION);
+    DALI_TEST_EQUALS(pixelData.GetStride(), 10, TEST_LOCATION);
     DALI_TEST_EQUALS(pixelData.GetPixelFormat(), Pixel::RGB565, TEST_LOCATION);
 
     // Try drawing it
@@ -261,6 +262,7 @@ int UtcDaliPixelBufferGetWidth(void)
   FillCheckerboard(pixbuf);
 
   DALI_TEST_EQUALS(pixbuf.GetWidth(), 10, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixbuf.GetStride(), 10, TEST_LOCATION);
 
   END_TEST;
 }

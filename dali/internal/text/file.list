@@ -13,4 +13,6 @@ SET( adaptor_text_common_src_files
     ${adaptor_text_dir}/text-abstraction/plugin/font-client-utils.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/font-client-plugin-impl.cpp
     ${adaptor_text_dir}/text-abstraction/plugin/font-face-cache-item.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/font-face-glyph-cache-manager.cpp
+    ${adaptor_text_dir}/text-abstraction/plugin/harfbuzz-proxy-font.cpp
 )

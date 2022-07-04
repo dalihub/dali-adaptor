@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ const FontSlant::Type DefaultFontSlant()
  * @param[in] srcHeight The height of the bitmap.
  * @param[in] srcBuffer The buffer of the bitmap.
  */
-void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer)
+void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer, const Pixel::Format srcFormat)
 {
   // Set the input dimensions.
   const ImageDimensions inputDimensions(srcWidth, srcHeight);
@@ -141,21 +141,32 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
   data.height = (data.height == 0) ? srcHeight : data.height;
   const ImageDimensions desiredDimensions(data.width, data.height);
 
+  data.format = srcFormat;
+
+  // Note we don't compress here
+  data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+
+  const uint32_t bytePerPixel = Dali::Pixel::GetBytesPerPixel(srcFormat);
+
   // Creates the output buffer
-  const unsigned int bufferSize = data.width * data.height * 4u;
-  data.buffer                   = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
+  const uint32_t bufferSize = data.width * data.height * bytePerPixel;
 
   if(inputDimensions == desiredDimensions)
   {
     // There isn't downscaling.
-    memcpy(data.buffer, srcBuffer, bufferSize);
+    data.isBufferOwned = false;
+    data.buffer        = const_cast<uint8_t*>(srcBuffer);
   }
   else
   {
-    Dali::Internal::Platform::LanczosSample4BPP(srcBuffer,
-                                                inputDimensions,
-                                                data.buffer,
-                                                desiredDimensions);
+    data.isBufferOwned = true;
+    data.buffer        = (uint8_t*)malloc(bufferSize); // @note The caller is responsible for deallocating the bitmap data using free.
+    Dali::Internal::Platform::LanczosSample(srcBuffer,
+                                            inputDimensions,
+                                            srcWidth,
+                                            srcFormat,
+                                            data.buffer,
+                                            desiredDimensions);
   }
 }
 
@@ -163,11 +174,14 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
  * @brief Copy the FreeType bitmap to the given buffer.
  *
  * @param[out] data The bitmap data.
- * @param[in] srcBitmap The FreeType bitmap.
+ * @param[in,out] srcBitmap The FreeType bitmap.
  * @param[in] isShearRequired Whether the bitmap needs a shear transform (for software italics).
+ * @param[in] moveBuffer Whether the bitmap buffer move. True if just copy buffer pointer. False if we use memcpy. (Default is false.)
+ * @note If you set moveBuffer=true, the bitmap's buffer moved frome srcBitmap to data. So srcBitmap buffer changed as nullptr.
  */
-void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap srcBitmap, bool isShearRequired)
+void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap& srcBitmap, bool isShearRequired, bool moveBuffer)
 {
+  data.buffer = nullptr;
   if(srcBitmap.width * srcBitmap.rows > 0)
   {
     switch(srcBitmap.pixel_mode)
@@ -180,7 +194,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
           unsigned int width    = srcBitmap.width;
           unsigned     height   = srcBitmap.rows;
 
-          std::unique_ptr<uint8_t, void (*)(void*)> pixelsOutPtr(nullptr, free);
+          uint8_t* releaseRequiredPixelPtr = nullptr;
 
           if(isShearRequired)
           {
@@ -224,24 +238,61 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
             Dali::Internal::Platform::HorizontalShear(pixelsIn,
                                                       width,
                                                       height,
+                                                      width,
                                                       1u,
                                                       -TextAbstraction::FontClient::DEFAULT_ITALIC_ANGLE,
                                                       pixelsOut,
                                                       widthOut,
                                                       heightOut);
 
-            width    = widthOut;
-            height   = heightOut;
-            pixelsIn = pixelsOut;
-            pixelsOutPtr.reset(pixelsOut);
+            if(DALI_LIKELY(pixelsOut))
+            {
+              width  = widthOut;
+              height = heightOut;
+
+              if(moveBuffer)
+              {
+                releaseRequiredPixelPtr = pixelsIn;
+              }
+              else
+              {
+                releaseRequiredPixelPtr = pixelsOut;
+              }
+
+              // Change input buffer ptr.
+              pixelsIn = pixelsOut;
+            }
+            else
+            {
+              DALI_LOG_ERROR("ERROR! software italic slant failed!\n");
+            }
           }
 
-          const unsigned int bufferSize = width * height;
-          data.buffer                   = new unsigned char[bufferSize]; // @note The caller is responsible for deallocating the bitmap data using delete[].
-          data.width                    = width;
-          data.height                   = height;
-          data.format                   = Pixel::L8; // Sets the pixel format.
-          memcpy(data.buffer, pixelsIn, bufferSize);
+          data.width  = width;
+          data.height = height;
+          data.format = Pixel::L8; // Sets the pixel format.
+
+          // Note we don't compress here
+          data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+
+          if(moveBuffer)
+          {
+            data.isBufferOwned = true;
+            data.buffer        = pixelsIn;
+
+            // Happy trick for copyless convert bitmap!
+            srcBitmap.buffer = nullptr;
+          }
+          else
+          {
+            data.isBufferOwned = false;
+            data.buffer        = pixelsIn;
+          }
+
+          if(releaseRequiredPixelPtr)
+          {
+            free(releaseRequiredPixelPtr);
+          }
         }
         break;
       }
@@ -251,10 +302,8 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
       {
         if(srcBitmap.pitch == static_cast<int>(srcBitmap.width << 2u))
         {
-          ConvertBitmap(data, srcBitmap.width, srcBitmap.rows, srcBitmap.buffer);
-
-          // Sets the pixel format.
-          data.format = Pixel::BGRA8888;
+          // Color glyph doesn't support copyless convert bitmap. Just memcpy
+          ConvertBitmap(data, srcBitmap.width, srcBitmap.rows, srcBitmap.buffer, Pixel::BGRA8888);
         }
         break;
       }

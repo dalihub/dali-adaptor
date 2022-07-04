@@ -38,7 +38,6 @@ BridgeBase::BridgeBase()
 BridgeBase::~BridgeBase()
 {
   mApplication.mChildren.clear();
-  mApplication.mWindows.clear();
 }
 
 void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
@@ -135,17 +134,17 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
   mDbusServer     = {mConnectionPtr};
 
   {
-    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceCache};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::CACHE)};
     AddFunctionToInterface(desc, "GetItems", &BridgeBase::GetItems);
     mDbusServer.addInterface(AtspiDbusPathCache, desc);
   }
   {
-    DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceApplication};
+    DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::APPLICATION)};
     AddGetSetPropertyToInterface(desc, "Id", &BridgeBase::GetId, &BridgeBase::SetId);
     mDbusServer.addInterface(AtspiPath, desc);
   }
 
-  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, AtspiDbusInterfaceRegistry, mConnectionPtr};
+  mRegistry = {AtspiDbusNameRegistry, AtspiDbusPathRegistry, Accessible::GetInterfaceName(AtspiInterface::REGISTRY), mConnectionPtr};
 
   UpdateRegisteredEvents();
 
@@ -186,31 +185,6 @@ Accessible* BridgeBase::FindByPath(const std::string& name) const
   }
 }
 
-void BridgeBase::OnWindowVisibilityChanged(Dali::Window window, bool visible)
-{
-  if(visible)
-  {
-    // TODO : Should we check 'out of screen' here? -> Then, we need an actor of this change.
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(window); // Called when Window is shown.
-  }
-  else
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(window); // Called when Window is hidden and iconified.
-  }
-}
-
-void BridgeBase::OnWindowFocusChanged(Dali::Window window, bool focusIn)
-{
-  if(focusIn)
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowFocused(window); // Called when Window is focused.
-  }
-  else
-  {
-    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowUnfocused(window); // Called when Window is out of focus.
-  }
-}
-
 void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
 {
   if(windowAccessible->GetInternalActor() == nullptr)
@@ -230,29 +204,10 @@ void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
   SetIsOnRootLevel(windowAccessible);
 
   RegisterDefaultLabel(windowAccessible);
-
-  Dali::Window window = Dali::DevelWindow::Get(windowAccessible->GetInternalActor());
-  if(window)
-  {
-    mApplication.mWindows.push_back(window);
-    Dali::DevelWindow::VisibilityChangedSignal(window).Connect(this, &BridgeBase::OnWindowVisibilityChanged);
-    window.FocusChangeSignal().Connect(this, &BridgeBase::OnWindowFocusChanged);
-  }
 }
 
 void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
 {
-  for(auto i = 0u; i < mApplication.mWindows.size(); ++i)
-  {
-    if(windowAccessible->GetInternalActor() == mApplication.mWindows[i].GetRootLayer())
-    {
-      Dali::DevelWindow::VisibilityChangedSignal(mApplication.mWindows[i]).Disconnect(this, &BridgeBase::OnWindowVisibilityChanged);
-      mApplication.mWindows[i].FocusChangeSignal().Disconnect(this, &BridgeBase::OnWindowFocusChanged);
-      mApplication.mWindows.erase(mApplication.mWindows.begin() + i);
-      break;
-    }
-  }
-
   UnregisterDefaultLabel(windowAccessible);
 
   for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
@@ -317,7 +272,7 @@ Accessible* BridgeBase::Find(const Address& ptr) const
   return Find(ptr.GetPath());
 }
 
-Accessible* BridgeBase::FindSelf() const
+Accessible* BridgeBase::FindCurrentObject() const
 {
   auto path = DBus::DBusServer::getCurrentObjectPath();
   auto size = strlen(AtspiPath);
@@ -385,7 +340,7 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     root->GetAddress(),
     parent ? parent->GetAddress() : Address{},
     children,
-    item->GetInterfaces(),
+    item->GetInterfacesAsStrings(),
     item->GetName(),
     item->GetRole(),
     item->GetDescription(),

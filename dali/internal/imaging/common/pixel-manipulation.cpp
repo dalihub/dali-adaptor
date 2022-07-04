@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,20 @@ namespace Adaptor
 {
 namespace
 {
-constexpr Channel ALPHA_CHANNEL_ONLY[]       = {ALPHA};
-constexpr Channel LUMINANCE_CHANNEL_ONLY[]   = {LUMINANCE};
-constexpr Channel LUMINANCE_ALPHA_CHANNELS[] = {LUMINANCE, ALPHA};
-constexpr Channel RGB_CHANNELS[]             = {RED, GREEN, BLUE};
-constexpr Channel BGR_CHANNELS[]             = {BLUE, GREEN, RED};
-constexpr Channel RGBA_CHANNELS[]            = {RED, GREEN, BLUE, ALPHA};
-constexpr Channel BGRA_CHANNELS[]            = {BLUE, GREEN, RED, ALPHA};
+// clang-format off
+/**
+ * @brief Pre-defined offset tables for each Channel.
+ * If invalid channel, return -1. else, return the offset bytes.
+ */
+//                                                                           | LUMINANCE | RED | GREEN | BLUE | ALPHA | DEPTH | STENCIL |
+constexpr std::int8_t ALPHA_ONLY_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]      = {        -1 ,  -1 ,    -1 ,   -1 ,     0 ,    -1 ,      -1 };
+constexpr std::int8_t LUMINANCE_ONLY_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]  = {         0 ,  -1 ,    -1 ,   -1 ,    -1 ,    -1 ,      -1 };
+constexpr std::int8_t LUMINANCE_ALPHA_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS] = {         0 ,  -1 ,    -1 ,   -1 ,     1 ,    -1 ,      -1 };
+constexpr std::int8_t RGB_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]             = {        -1 ,   0 ,     1 ,    2 ,    -1 ,    -1 ,      -1 };
+constexpr std::int8_t BGR_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]             = {        -1 ,   2 ,     1 ,    0 ,    -1 ,    -1 ,      -1 };
+constexpr std::int8_t RGBA_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]            = {        -1 ,   0 ,     1 ,    2 ,     3 ,    -1 ,      -1 };
+constexpr std::int8_t BGRA_OFFSET_TABLE[MAX_NUMBER_OF_CHANNELS]            = {        -1 ,   2 ,     1 ,    0 ,     3 ,    -1 ,      -1 };
+// clang-format on
 
 /**
  * @brief Template to Read from a buffer with pixel formats that have one byte per channel.
@@ -43,22 +50,15 @@ constexpr Channel BGRA_CHANNELS[]            = {BLUE, GREEN, RED, ALPHA};
  * @tparam NumberOfChannels The number of channels to check
  * @param pixelData The pixel data to retrieve the value from
  * @param channel The channel we're after
- * @param channels The array of channels in the pixel format
+ * @param offsetTable The array of offset bytes for each channels in the pixel format
  * @return The value of the required channel
  */
-template<size_t NumberOfChannels>
-unsigned int ReadChannel(unsigned char* pixelData, Channel channel, const Channel (&channels)[NumberOfChannels])
+unsigned int ReadChannelTable(unsigned char* pixelData, Channel channel, const std::int8_t (&offsetTable)[MAX_NUMBER_OF_CHANNELS])
 {
-  auto num    = 0u;
   auto retVal = 0u;
-  for(auto current : channels)
+  if(offsetTable[channel] >= 0)
   {
-    if(channel == current)
-    {
-      retVal = static_cast<unsigned int>(*(pixelData + num));
-      break;
-    }
-    ++num;
+    retVal = static_cast<unsigned int>(*(pixelData + offsetTable[channel]));
   }
   return retVal;
 }
@@ -70,20 +70,13 @@ unsigned int ReadChannel(unsigned char* pixelData, Channel channel, const Channe
  * @param pixelData The pixel data to write the value to
  * @param channel The channel we're after
  * @param channelValue The value of the channel to set
- * @param channels The array of channels in the pixel format
+ * @param offsetTable The array of offset bytes for each channels in the pixel format
  */
-template<size_t NumberOfChannels>
-void WriteChannel(unsigned char* pixelData, Channel channel, unsigned int channelValue, const Channel (&channels)[NumberOfChannels])
+void WriteChannelTable(unsigned char* pixelData, Channel channel, unsigned int channelValue, const std::int8_t (&offsetTable)[MAX_NUMBER_OF_CHANNELS])
 {
-  auto num = 0u;
-  for(auto current : channels)
+  if(offsetTable[channel] >= 0)
   {
-    if(channel == current)
-    {
-      *(pixelData + num) = static_cast<unsigned char>(channelValue & 0xFF);
-      break;
-    }
-    ++num;
+    *(pixelData + offsetTable[channel]) = static_cast<unsigned char>(channelValue & 0xFF);
   }
 }
 
@@ -399,6 +392,13 @@ bool HasChannel(Dali::Pixel::Format pixelFormat, Channel channel)
       DALI_LOG_ERROR("Pixel formats for compressed images are not compatible with simple channels.\n");
       break;
     }
+
+    case Dali::Pixel::CHROMINANCE_U:
+    case Dali::Pixel::CHROMINANCE_V:
+    {
+      DALI_LOG_ERROR("Pixel formats for chrominance are not compatible with simple channels.\n");
+      break;
+    }
   }
 
   return false;
@@ -412,15 +412,15 @@ unsigned int ReadChannel(unsigned char*      pixelData,
   {
     case Dali::Pixel::A8:
     {
-      return ReadChannel(pixelData, channel, ALPHA_CHANNEL_ONLY);
+      return ReadChannelTable(pixelData, channel, ALPHA_ONLY_OFFSET_TABLE);
     }
     case Dali::Pixel::L8:
     {
-      return ReadChannel(pixelData, channel, LUMINANCE_CHANNEL_ONLY);
+      return ReadChannelTable(pixelData, channel, LUMINANCE_ONLY_OFFSET_TABLE);
     }
     case Dali::Pixel::LA88:
     {
-      return ReadChannel(pixelData, channel, LUMINANCE_ALPHA_CHANNELS);
+      return ReadChannelTable(pixelData, channel, LUMINANCE_ALPHA_OFFSET_TABLE);
     }
     case Dali::Pixel::RGB565:
     {
@@ -435,22 +435,22 @@ unsigned int ReadChannel(unsigned char*      pixelData,
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     {
-      return ReadChannel(pixelData, channel, RGB_CHANNELS);
+      return ReadChannelTable(pixelData, channel, RGB_OFFSET_TABLE);
     }
 
     case Dali::Pixel::BGR8888:
     {
-      return ReadChannel(pixelData, channel, BGR_CHANNELS);
+      return ReadChannelTable(pixelData, channel, BGR_OFFSET_TABLE);
     }
 
     case Dali::Pixel::RGBA8888:
     {
-      return ReadChannel(pixelData, channel, RGBA_CHANNELS);
+      return ReadChannelTable(pixelData, channel, RGBA_OFFSET_TABLE);
     }
 
     case Dali::Pixel::BGRA8888:
     {
-      return ReadChannel(pixelData, channel, BGRA_CHANNELS);
+      return ReadChannelTable(pixelData, channel, BGRA_OFFSET_TABLE);
     }
 
     case Dali::Pixel::RGBA4444:
@@ -496,17 +496,17 @@ void WriteChannel(unsigned char*      pixelData,
   {
     case Dali::Pixel::A8:
     {
-      WriteChannel(pixelData, channel, channelValue, ALPHA_CHANNEL_ONLY);
+      WriteChannelTable(pixelData, channel, channelValue, ALPHA_ONLY_OFFSET_TABLE);
       break;
     }
     case Dali::Pixel::L8:
     {
-      WriteChannel(pixelData, channel, channelValue, LUMINANCE_CHANNEL_ONLY);
+      WriteChannelTable(pixelData, channel, channelValue, LUMINANCE_ONLY_OFFSET_TABLE);
       break;
     }
     case Dali::Pixel::LA88:
     {
-      WriteChannel(pixelData, channel, channelValue, LUMINANCE_ALPHA_CHANNELS);
+      WriteChannelTable(pixelData, channel, channelValue, LUMINANCE_ALPHA_OFFSET_TABLE);
       break;
     }
     case Dali::Pixel::RGB565:
@@ -524,25 +524,25 @@ void WriteChannel(unsigned char*      pixelData,
     case Dali::Pixel::RGB888:
     case Dali::Pixel::RGB8888:
     {
-      WriteChannel(pixelData, channel, channelValue, RGB_CHANNELS);
+      WriteChannelTable(pixelData, channel, channelValue, RGB_OFFSET_TABLE);
       break;
     }
 
     case Dali::Pixel::BGR8888:
     {
-      WriteChannel(pixelData, channel, channelValue, BGR_CHANNELS);
+      WriteChannelTable(pixelData, channel, channelValue, BGR_OFFSET_TABLE);
       break;
     }
 
     case Dali::Pixel::RGBA8888:
     {
-      WriteChannel(pixelData, channel, channelValue, RGBA_CHANNELS);
+      WriteChannelTable(pixelData, channel, channelValue, RGBA_OFFSET_TABLE);
       break;
     }
 
     case Dali::Pixel::BGRA8888:
     {
-      WriteChannel(pixelData, channel, channelValue, BGRA_CHANNELS);
+      WriteChannelTable(pixelData, channel, channelValue, BGRA_OFFSET_TABLE);
       break;
     }
 

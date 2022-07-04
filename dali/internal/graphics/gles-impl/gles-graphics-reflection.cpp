@@ -33,6 +33,35 @@
 
 namespace
 {
+struct StringSize
+{
+  const char* const mString;
+  const uint32_t    mLength;
+
+  template<uint32_t kLength>
+  constexpr StringSize(const char (&string)[kLength])
+  : mString(string),
+    mLength(kLength - 1) // remove terminating null; N.B. there should be no other null.
+  {
+  }
+
+  operator const char*() const
+  {
+    return mString;
+  }
+};
+
+bool operator==(const StringSize& lhs, const char* rhs)
+{
+  return strncmp(lhs.mString, rhs, lhs.mLength) == 0;
+}
+
+const char* const    DELIMITERS = " \t\n";
+constexpr StringSize UNIFORM{"uniform"};
+constexpr StringSize SAMPLER_PREFIX{"sampler"};
+constexpr StringSize SAMPLER_TYPES[]   = {"2D", "Cube", "ExternalOES"};
+constexpr auto       END_SAMPLER_TYPES = SAMPLER_TYPES + std::extent<decltype(SAMPLER_TYPES)>::value;
+
 Dali::Graphics::VertexInputAttributeFormat GetVertexAttributeTypeFormat(GLenum type)
 {
   switch(type)
@@ -94,34 +123,68 @@ bool SortUniformExtraInfoByLocation(Dali::Graphics::GLES::Reflection::UniformExt
   return a.location < b.location;
 }
 
-struct StringSize
+std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
 {
-  const char* const mString;
-  const uint32_t    mLength;
+  std::vector<uint8_t> data;
+  auto*                shader           = static_cast<const Dali::Graphics::GLES::Shader*>(shaderState.shader);
+  auto&                shaderCreateInfo = shader->GetCreateInfo();
+  data.resize(shaderCreateInfo.sourceSize + 1);
+  std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
+  data[shaderCreateInfo.sourceSize] = 0;
 
-  template<uint32_t kLength>
-  constexpr StringSize(const char (&string)[kLength])
-  : mString(string),
-    mLength(kLength - 1) // remove terminating null; N.B. there should be no other null.
-  {
-  }
-
-  operator const char*() const
-  {
-    return mString;
-  }
-};
-
-bool operator==(const StringSize& lhs, const char* rhs)
-{
-  return strncmp(lhs.mString, rhs, lhs.mLength) == 0;
+  return std::string(reinterpret_cast<char*>(&data[0]));
 }
 
-const char* const    DELIMITERS = " \t\n";
-constexpr StringSize UNIFORM{"uniform"};
-constexpr StringSize SAMPLER_PREFIX{"sampler"};
-constexpr StringSize SAMPLER_TYPES[]   = {"2D", "Cube", "ExternalOES"};
-constexpr auto       END_SAMPLER_TYPES = SAMPLER_TYPES + std::extent<decltype(SAMPLER_TYPES)>::value;
+void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::UniformInfo>& uniformOpaques, int& samplerPosition, std::vector<int>& samplerPositions)
+{
+  if(!shaderSource.empty())
+  {
+    char* shaderStr = strdup(shaderSource.c_str());
+    char* uniform   = strstr(shaderStr, UNIFORM);
+
+    while(uniform)
+    {
+      char* outerToken = strtok_r(uniform + UNIFORM.mLength, ";", &uniform);
+
+      char* nextPtr = nullptr;
+      char* token   = strtok_r(outerToken, DELIMITERS, &nextPtr);
+      while(token)
+      {
+        if(SAMPLER_PREFIX == token)
+        {
+          token += SAMPLER_PREFIX.mLength;
+          if(std::find(SAMPLER_TYPES, END_SAMPLER_TYPES, token) != END_SAMPLER_TYPES)
+          {
+            bool found(false);
+            token = strtok_r(nullptr, DELIMITERS, &nextPtr);
+
+            for(uint32_t i = 0; i < static_cast<uint32_t>(uniformOpaques.size()); ++i)
+            {
+              if(samplerPositions[i] == -1 &&
+                 strncmp(token, uniformOpaques[i].name.c_str(), uniformOpaques[i].name.size()) == 0)
+              {
+                samplerPositions[i] = uniformOpaques[i].offset = samplerPosition++;
+                found                                          = true;
+                break;
+              }
+            }
+
+            if(!found)
+            {
+              DALI_LOG_ERROR("Sampler uniform %s declared but not used in the shader\n", token);
+            }
+            break;
+          }
+        }
+
+        token = strtok_r(nullptr, DELIMITERS, &nextPtr);
+      }
+
+      uniform = strstr(uniform, UNIFORM);
+    }
+    free(shaderStr);
+  }
+}
 
 } // anonymous namespace
 
@@ -591,71 +654,27 @@ void Reflection::SortOpaques()
   auto& programCreateInfo = mProgram.GetCreateInfo();
 
   std::vector<uint8_t> data;
+  std::string          vertShader;
   std::string          fragShader;
 
   for(auto& shaderState : *programCreateInfo.shaderState)
   {
-    if(shaderState.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    if(shaderState.pipelineStage == PipelineStage::VERTEX_SHADER)
     {
-      auto* shader           = static_cast<const GLES::Shader*>(shaderState.shader);
-      auto& shaderCreateInfo = shader->GetCreateInfo();
-      data.resize(shaderCreateInfo.sourceSize + 1);
-      std::memcpy(&data[0], shaderCreateInfo.sourceData, shaderCreateInfo.sourceSize);
-      data[shaderCreateInfo.sourceSize] = 0;
-      fragShader                        = std::string(reinterpret_cast<char*>(&data[0]));
-      break;
+      vertShader = GetShaderSource(shaderState);
+    }
+    else if(shaderState.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    {
+      fragShader = GetShaderSource(shaderState);
     }
   }
 
-  if(!fragShader.empty())
-  {
-    char*            shaderStr       = strdup(fragShader.c_str());
-    char*            uniform         = strstr(shaderStr, UNIFORM);
-    int              samplerPosition = 0;
-    std::vector<int> samplerPositions(mUniformOpaques.size(), -1);
+  int              samplerPosition = 0;
+  std::vector<int> samplerPositions(mUniformOpaques.size(), -1);
 
-    while(uniform)
-    {
-      char* outerToken = strtok_r(uniform + UNIFORM.mLength, ";", &uniform);
+  ParseShaderSamplers(vertShader, mUniformOpaques, samplerPosition, samplerPositions);
+  ParseShaderSamplers(fragShader, mUniformOpaques, samplerPosition, samplerPositions);
 
-      char* nextPtr = nullptr;
-      char* token   = strtok_r(outerToken, DELIMITERS, &nextPtr);
-      while(token)
-      {
-        if(SAMPLER_PREFIX == token)
-        {
-          token += SAMPLER_PREFIX.mLength;
-          if(std::find(SAMPLER_TYPES, END_SAMPLER_TYPES, token) != END_SAMPLER_TYPES)
-          {
-            bool found(false);
-            token = strtok_r(nullptr, DELIMITERS, &nextPtr);
-
-            for(uint32_t i = 0; i < static_cast<uint32_t>(mUniformOpaques.size()); ++i)
-            {
-              if(samplerPositions[i] == -1 &&
-                 strncmp(token, mUniformOpaques[i].name.c_str(), mUniformOpaques[i].name.size()) == 0)
-              {
-                samplerPositions[i] = mUniformOpaques[i].offset = samplerPosition++;
-                found                                           = true;
-                break;
-              }
-            }
-
-            if(!found)
-            {
-              DALI_LOG_ERROR("Sampler uniform %s declared but not used in the shader\n", token);
-            }
-            break;
-          }
-        }
-
-        token = strtok_r(nullptr, DELIMITERS, &nextPtr);
-      }
-
-      uniform = strstr(uniform, UNIFORM);
-    }
-    free(shaderStr);
-  }
   std::sort(mUniformOpaques.begin(), mUniformOpaques.end(), [](const UniformInfo& a, const UniformInfo& b) { return a.offset < b.offset; });
 }
 

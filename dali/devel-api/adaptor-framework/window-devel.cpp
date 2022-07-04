@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,6 +104,11 @@ KeyboardRepeatSettingsChangedSignalType& KeyboardRepeatSettingsChangedSignal(Win
 AuxiliaryMessageSignalType& AuxiliaryMessageSignal(Window window)
 {
   return GetImplementation(window).AuxiliaryMessageSignal();
+}
+
+AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window)
+{
+  return GetImplementation(window).AccessibilityHighlightSignal();
 }
 
 void SetParent(Window window, Window parent)
@@ -229,6 +234,11 @@ bool IsMaximized(Window window)
   return GetImplementation(window).IsMaximized();
 }
 
+void SetMaximumSize(Window window, Dali::Window::WindowSize size)
+{
+  GetImplementation(window).SetMaximumSize(size);
+}
+
 void Minimize(Window window, bool miniimize)
 {
   GetImplementation(window).Minimize(miniimize);
@@ -237,6 +247,31 @@ void Minimize(Window window, bool miniimize)
 bool IsMinimized(Window window)
 {
   return GetImplementation(window).IsMinimized();
+}
+
+void SetMimimumSize(Window window, Dali::Window::WindowSize size)
+{
+  GetImplementation(window).SetMimimumSize(size);
+}
+
+bool IsWindowRotating(Window window)
+{
+  return GetImplementation(window).IsWindowRotating();
+}
+
+const KeyEvent& GetLastKeyEvent(Window window)
+{
+  return GetImplementation(window).GetLastKeyEvent();
+}
+
+const TouchEvent& GetLastTouchEvent(Window window)
+{
+  return GetImplementation(window).GetLastTouchEvent();
+}
+
+InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
+{
+  return GetImplementation(window).InterceptKeyEventSignal();
 }
 
 } // namespace DevelWindow

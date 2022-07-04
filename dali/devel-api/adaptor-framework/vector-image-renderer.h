@@ -2,7 +2,7 @@
 #define DALI_VECTOR_IMAGE_RENDERER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,13 +86,20 @@ public:
   bool Load(const Vector<uint8_t>& data, float dpi);
 
   /**
-   * @brief Rasterizes the content to the target buffer synchronously.
+   * @brief Query whether the vector image is loaded.
    *
-   * @param[in] buffer The target buffer
-   * @param[in] scale The target image scale factor
-   * @return True if the rendering succeeds, false otherwise.
+   * @return True if the image is loaded, false other wise.
    */
-  bool Rasterize(Dali::Devel::PixelBuffer& buffer, float scale);
+  bool IsLoaded() const;
+
+  /**
+   * @brief Rasterizes the content to the pixel buffer synchronously.
+   *
+   * @param[in] width The pixel buffer width
+   * @param[in] height The pixel buffer height
+   * @return The handle to the rasterized PixelBuffer object or an empty handle in case failed.
+   */
+  Dali::Devel::PixelBuffer Rasterize(uint32_t width, uint32_t height);
 
   /**
    * @brief Gets the default size of the file.

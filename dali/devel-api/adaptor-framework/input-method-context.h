@@ -2,7 +2,7 @@
 #define DALI_INPUT_METHOD_CONTEXT_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,8 @@ public:
     COMMIT,             ///< Commit recieved
     DELETE_SURROUNDING, ///< Event to delete a range of characters from the string
     GET_SURROUNDING,    ///< Event to query string and cursor position
-    PRIVATE_COMMAND     ///< Private command sent from the input panel
+    PRIVATE_COMMAND,    ///< Private command sent from the input panel
+    SELECTION_SET       ///< input method needs to set the selection
   };
 
   /**
@@ -142,7 +143,9 @@ public:
     : predictiveString(),
       eventName(VOID),
       cursorOffset(0),
-      numberOfChars(0){};
+      numberOfChars(0),
+      startIndex(0),
+      endIndex(0){};
 
     /**
      * @brief Constructor
@@ -156,7 +159,26 @@ public:
     : predictiveString(aPredictiveString),
       eventName(aEventName),
       cursorOffset(aCursorOffset),
-      numberOfChars(aNumberOfChars)
+      numberOfChars(aNumberOfChars),
+      startIndex(0),
+      endIndex(0)
+    {
+    }
+
+    /**
+     * @brief Constructor
+     *
+     * @param[in] aEventName The name of the event from the InputMethodContext.
+     * @param[in] aStartIndex The start index of selection.
+     * @param[in] aEndIndex The end index of selection.
+     */
+    EventData(EventType aEventName, int aStartIndex, int aEndIndex)
+    : predictiveString(),
+      eventName(aEventName),
+      cursorOffset(0),
+      numberOfChars(0),
+      startIndex(aStartIndex),
+      endIndex(aEndIndex)
     {
     }
 
@@ -165,6 +187,8 @@ public:
     EventType   eventName;        ///< The name of the event from the InputMethodContext.
     int         cursorOffset;     ///< Start position from the current cursor position to start deleting characters.
     int         numberOfChars;    ///< number of characters to delete from the cursorOffset.
+    int         startIndex;       ///< The start index of selection.
+    int         endIndex;         ///< The end index of selection.
   };
 
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -441,22 +441,6 @@ static void VconfNotifyFontSizeChanged(keynode_t* node, void* data)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// ElDBus Accessibility Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-#ifdef DALI_ELDBUS_AVAILABLE
-// Callback for Ecore ElDBus accessibility events.
-static void EcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message)
-{
-  WindowBaseEcoreWl* windowBase = static_cast<WindowBaseEcoreWl*>(context);
-  if(windowBase)
-  {
-    windowBase->OnEcoreElDBusAccessibilityNotification(context, message);
-  }
-}
-#endif // DALI_ELDBUS_AVAILABLE
-
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   WindowBaseEcoreWl* windowBase = static_cast<WindowBaseEcoreWl*>(data);
@@ -582,24 +566,12 @@ WindowBaseEcoreWl::WindowBaseEcoreWl(Dali::PositionSize positionSize, Any surfac
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
   mSupportedPreProtation(0)
-#ifdef DALI_ELDBUS_AVAILABLE
-  ,
-  mSystemConnection(NULL)
-#endif
 {
   Initialize(positionSize, surface, isTransparent);
 }
 
 WindowBaseEcoreWl::~WindowBaseEcoreWl()
 {
-#ifdef DALI_ELDBUS_AVAILABLE
-  // Close down ElDBus connections.
-  if(mSystemConnection)
-  {
-    eldbus_connection_unref(mSystemConnection);
-  }
-#endif // DALI_ELDBUS_AVAILABLE
-
   vconf_ignore_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged);
   vconf_ignore_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged);
 
@@ -685,8 +657,6 @@ void WindowBaseEcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   // Register Vconf notify - font name and size
   vconf_notify_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
   vconf_notify_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
-
-  InitializeEcoreElDBus();
 
   mDisplay = ecore_wl_display_get();
 
@@ -1098,21 +1068,6 @@ void WindowBaseEcoreWl::OnFontSizeChanged()
   mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
 }
 
-void WindowBaseEcoreWl::OnEcoreElDBusAccessibilityNotification(void* context, const Eldbus_Message* message)
-{
-#ifdef DALI_ELDBUS_AVAILABLE
-  AccessibilityInfo info;
-
-  // The string defines the arg-list's respective types.
-  if(!eldbus_message_arguments_get(message, "iiiiiiu", &info.gestureValue, &info.startX, &info.startY, &info.endX, &info.endY, &info.state, &info.eventTime))
-  {
-    DALI_LOG_ERROR("OnEcoreElDBusAccessibilityNotification: Error getting arguments\n");
-  }
-
-  mAccessibilitySignal.Emit(info);
-#endif
-}
-
 void WindowBaseEcoreWl::RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   if(strcmp(interface, tizen_policy_interface.name) == 0)
@@ -1186,6 +1141,11 @@ Any WindowBaseEcoreWl::GetNativeWindow()
 int WindowBaseEcoreWl::GetNativeWindowId()
 {
   return ecore_wl_window_id_get(mEcoreWindow);
+}
+
+std::string WindowBaseEcoreWl::GetNativeWindowResourceId()
+{
+  return std::string();
 }
 
 EGLNativeWindowType WindowBaseEcoreWl::CreateEglWindow(int width, int height)
@@ -1377,6 +1337,10 @@ bool WindowBaseEcoreWl::IsMaximized() const
   return false;
 }
 
+void WindowBaseEcoreWl::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseEcoreWl::Minimize(bool minimize)
 {
 }
@@ -1384,6 +1348,10 @@ void WindowBaseEcoreWl::Minimize(bool minimize)
 bool WindowBaseEcoreWl::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseEcoreWl::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseEcoreWl::SetAvailableAnlges(const std::vector<int>& angles)
@@ -2133,38 +2101,6 @@ void WindowBaseEcoreWl::WindowRotationCompleted(int degree, int width, int heigh
 void WindowBaseEcoreWl::SetTransparency(bool transparent)
 {
   ecore_wl_window_alpha_set(mEcoreWindow, transparent);
-}
-
-void WindowBaseEcoreWl::InitializeEcoreElDBus()
-{
-#ifdef DALI_ELDBUS_AVAILABLE
-  Eldbus_Object* object;
-  Eldbus_Proxy*  manager;
-
-  if(!(mSystemConnection = eldbus_connection_get(ELDBUS_CONNECTION_TYPE_SYSTEM)))
-  {
-    DALI_LOG_ERROR("Unable to get system bus\n");
-  }
-
-  object = eldbus_object_get(mSystemConnection, BUS, PATH);
-  if(!object)
-  {
-    DALI_LOG_ERROR("Getting object failed\n");
-    return;
-  }
-
-  manager = eldbus_proxy_get(object, INTERFACE);
-  if(!manager)
-  {
-    DALI_LOG_ERROR("Getting proxy failed\n");
-    return;
-  }
-
-  if(!eldbus_proxy_signal_handler_add(manager, "GestureDetected", EcoreElDBusAccessibilityNotification, this))
-  {
-    DALI_LOG_ERROR("No signal handler returned\n");
-  }
-#endif
 }
 
 void WindowBaseEcoreWl::CreateWindow(PositionSize positionSize)

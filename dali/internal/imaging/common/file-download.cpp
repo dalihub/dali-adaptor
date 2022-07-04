@@ -145,11 +145,14 @@ CURLcode DownloadFileDataByChunk(CURL* curlHandle, Dali::Vector<uint8_t>& dataBu
   }
   dataBuffer.ResizeUninitialized(dataSize);
 
-  size_t offset = 0;
-  for(size_t i = 0; i < chunks.size(); ++i)
+  if(DALI_LIKELY(dataSize > 0))
   {
-    memcpy(&dataBuffer[offset], &chunks[i].data[0], chunks[i].data.capacity());
-    offset += chunks[i].data.capacity();
+    std::uint8_t* dataBufferPtr = dataBuffer.Begin();
+    for(size_t i = 0; i < chunks.size(); ++i)
+    {
+      memcpy(dataBufferPtr, &chunks[i].data[0], chunks[i].data.capacity());
+      dataBufferPtr += chunks[i].data.capacity();
+    }
   }
 
   return result;

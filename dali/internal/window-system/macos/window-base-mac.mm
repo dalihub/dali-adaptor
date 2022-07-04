@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -376,6 +376,11 @@ int WindowBaseCocoa::GetNativeWindowId()
   return mImpl->mWindow.windowNumber;
 }
 
+std::string WindowBaseCocoa::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseCocoa::CreateEglWindow(int width, int height)
 {
   // XXX: this method is called from a secondary thread, but
@@ -479,6 +484,10 @@ bool WindowBaseCocoa::IsMaximized() const
   return false;
 }
 
+void WindowBaseCocoa::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseCocoa::Minimize(bool minimize)
 {
 }
@@ -486,6 +495,10 @@ void WindowBaseCocoa::Minimize(bool minimize)
 bool WindowBaseCocoa::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseCocoa::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseCocoa::SetAvailableAnlges( const std::vector< int >& angles )

@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_CACHE_ITEM_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 
+// INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/font-metrics.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
+#include <dali/internal/text/text-abstraction/font-client-impl.h> // for HarfBuzzFontHandle
 
+// EXTERNAL INCLUDES
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -40,7 +43,7 @@ struct FontCacheItemInterface
    *
    * @param[in,out] glyph The glyph to fill
    */
-  virtual bool GetGlyphMetrics(GlyphInfo& glyph, unsigned int dpiVertical, bool horizontal) const = 0;
+  virtual bool GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVertical, bool horizontal) const = 0;
 
   /**
    * Create a bitmap for the given glyph
@@ -94,6 +97,15 @@ struct FontCacheItemInterface
    * Get the freetype typeface for this font.
    */
   virtual FT_Face GetTypeface() const = 0;
+
+  /**
+   * Get the harfbuzz font struct for this font.
+   *
+   * @param[in] horizontalDpi Horizontal DPI for this harfbuzz font.
+   * @param[in] verticalDpi Vertical DPI for this harfbuzz font.
+   * @return the harfbuzz font data, or nullptr if failed.
+   */
+  virtual HarfBuzzFontHandle GetHarfBuzzFont(const uint32_t& horizontalDpi, const uint32_t& verticalDpi) = 0;
 
   /**
    * @return true if this font has an italic style

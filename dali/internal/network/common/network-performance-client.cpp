@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <stdio.h>
+#include <iostream>
 #include <string>
 
 // INTERNAL INCLUDES
@@ -52,6 +53,7 @@ public:
   {
     UNKNOWN_COMMAND,
     SET_PROPERTY,
+    CUSTOM_COMMAND,
     DUMP_SCENE
   };
 
@@ -67,12 +69,19 @@ public:
 
   void AssignSetPropertyCommand(std::string setPropertyCommand)
   {
-    mCommandId       = SET_PROPERTY;
-    mPropertyCommand = setPropertyCommand;
+    mCommandId     = SET_PROPERTY;
+    mCommandString = setPropertyCommand;
   }
+
   void AssignDumpSceneCommand()
   {
     mCommandId = DUMP_SCENE;
+  }
+
+  void AssignCustomCommand(std::string&& customCommand)
+  {
+    mCommandId     = CUSTOM_COMMAND;
+    mCommandString = std::move(customCommand);
   }
 
   void RunCallback()
@@ -81,12 +90,17 @@ public:
     {
       case SET_PROPERTY:
       {
-        Automation::SetProperty(mPropertyCommand);
+        Automation::SetProperty(mCommandString);
         break;
       }
       case DUMP_SCENE:
       {
         Automation::DumpScene(mClientId, &mSendDataInterface);
+        break;
+      }
+      case CUSTOM_COMMAND:
+      {
+        Automation::SetCustomCommand(mCommandString);
         break;
       }
       default:
@@ -103,11 +117,28 @@ public:
   }
 
 private:
-  std::string              mPropertyCommand;   ///< property command
+  std::string              mCommandString;     ///< command string for property or custom command
   ClientSendDataInterface& mSendDataInterface; ///< Abstract client send data interface
   CommandId                mCommandId;         ///< command id
   const unsigned int       mClientId;          ///< client id
 };
+
+/**
+ * @brief Helper to ensure the AutomationCallback method we want is called in the main thread
+ */
+template<typename T>
+void TriggerOnMainThread(unsigned int clientId, ClientSendDataInterface& sendDataInterface, T&& lambda)
+{
+  // this needs to be run on the main thread, use the trigger event....
+  AutomationCallback* callback = new AutomationCallback(clientId, sendDataInterface);
+  lambda(callback);
+
+  // create a trigger event that automatically deletes itself after the callback has run in the main thread
+  TriggerEventInterface* interface = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::DELETE_AFTER_TRIGGER);
+
+  // asynchronous call, the call back will be run sometime later on the main thread
+  interface->Trigger();
+}
 
 } // unnamed namespace
 
@@ -217,29 +248,21 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
 
     case PerformanceProtocol::DUMP_SCENE_GRAPH:
     {
-      // this needs to be run on the main thread, use the trigger event....
-      AutomationCallback* callback = new AutomationCallback(mClientId, mSendDataInterface);
-      callback->AssignDumpSceneCommand();
-
-      // create a trigger event that automatically deletes itself after the callback has run in the main thread
-      TriggerEventInterface* interface = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::DELETE_AFTER_TRIGGER);
-
-      // asynchronous call, the call back will be run sometime later on the main thread
-      interface->Trigger();
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignDumpSceneCommand();});
       break;
     }
 
     case PerformanceProtocol::SET_PROPERTIES:
     {
-      // this needs to be run on the main thread, use the trigger event....
-      AutomationCallback* callback = new AutomationCallback(mClientId, mSendDataInterface);
-      callback->AssignSetPropertyCommand(stringParam);
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignSetPropertyCommand(stringParam);});
+      response = "Completed";
+      break;
+    }
 
-      // create a trigger event that automatically deletes itself after the callback has run in the main thread
-      TriggerEventInterface* interface = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::DELETE_AFTER_TRIGGER);
-
-      // asynchronous call, the call back will be run sometime later on the main thread
-      interface->Trigger();
+    case PerformanceProtocol::CUSTOM_COMMAND:
+    {
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignCustomCommand(std::move(stringParam));});
+      response = "Completed";
       break;
     }
 

@@ -25,7 +25,7 @@ using namespace Dali::Accessibility;
 
 void BridgeEditableText::RegisterInterfaces()
 {
-  DBus::DBusInterfaceDescription desc{AtspiDbusInterfaceEditableText};
+  DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::EDITABLE_TEXT)};
   AddFunctionToInterface(desc, "CopyText", &BridgeEditableText::CopyText);
   AddFunctionToInterface(desc, "CutText", &BridgeEditableText::CutText);
   AddFunctionToInterface(desc, "DeleteText", &BridgeEditableText::DeleteText);
@@ -37,14 +37,7 @@ void BridgeEditableText::RegisterInterfaces()
 
 EditableText* BridgeEditableText::FindSelf() const
 {
-  auto self = BridgeBase::FindSelf();
-  assert(self);
-  auto editableTextInterface = dynamic_cast<EditableText*>(self);
-  if(!editableTextInterface)
-  {
-    throw std::domain_error{"object " + self->GetAddress().ToString() + " doesn't have Text interface"};
-  }
-  return editableTextInterface;
+  return FindCurrentObjectWithInterface<Dali::Accessibility::AtspiInterface::EDITABLE_TEXT>();
 }
 
 DBus::ValueOrError<bool> BridgeEditableText::CopyText(int32_t startPosition, int32_t endPosition)

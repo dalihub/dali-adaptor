@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ class VectorFontCache;
 #endif
 
 // EXTERNAL INCLUDES
+#include <unordered_map>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -68,10 +70,17 @@ typedef Vector<_FcCharSet*> CharacterSetList;
  */
 struct FontClient::Plugin
 {
+private:
+  /// Redefine FontId name to specifiy the value's usage
+  using FontCacheIndex = FontId;
+
+  /**
+   * @brief Index of FontCache container.
+   */
   struct FontIdCacheItem
   {
-    FontDescription::Type type; ///< The type of font.
-    FontId                id;   ///< Index to the cache of fonts for the specified type.
+    FontDescription::Type type;  ///< The type of font.
+    FontCacheIndex        index; ///< Index to the cache of fonts for the specified type. Face or Bitmap
   };
 
   /**
@@ -101,18 +110,37 @@ struct FontClient::Plugin
   };
 
   /**
+   * @brief Pair of FontDescriptionId and PointSize. It will be used to find cached validate font.
+   */
+  struct FontDescriptionSizeCacheKey
+  {
+    FontDescriptionSizeCacheKey(FontDescriptionId fontDescriptionId,
+                                PointSize26Dot6   requestedPointSize);
+
+    FontDescriptionId fontDescriptionId;  ///< Index to the vector with font descriptions.
+    PointSize26Dot6   requestedPointSize; ///< The font point size.
+
+    bool operator==(FontDescriptionSizeCacheKey const& rhs) const noexcept
+    {
+      return fontDescriptionId == rhs.fontDescriptionId && requestedPointSize == rhs.requestedPointSize;
+    }
+  };
+
+  /**
+   * @brief Custom hash functions for FontDescriptionSizeCacheKey.
+   */
+  struct FontDescriptionSizeCacheKeyHash
+  {
+    std::size_t operator()(FontDescriptionSizeCacheKey const& key) const noexcept
+    {
+      return key.fontDescriptionId ^ key.requestedPointSize;
+    }
+  };
+
+  /**
    * @brief Caches the font id of the pair font point size and the index to the vector of font descriptions of validated fonts.
    */
-  struct FontDescriptionSizeCacheItem
-  {
-    FontDescriptionSizeCacheItem(FontDescriptionId validatedFontId,
-                                 PointSize26Dot6   requestedPointSize,
-                                 FontId            fontId);
-
-    FontDescriptionId validatedFontId;    ///< Index to the vector with font descriptions.
-    PointSize26Dot6   requestedPointSize; ///< The font point size.
-    FontId            fontId;             ///< The font identifier.
-  };
+  using FontDescriptionSizeCacheContainer = std::unordered_map<FontDescriptionSizeCacheKey, FontCacheIndex, FontDescriptionSizeCacheKeyHash>;
 
   struct EllipsisItem
   {
@@ -120,6 +148,7 @@ struct FontClient::Plugin
     GlyphInfo       glyph;
   };
 
+public:
   /**
    * Constructor.
    *
@@ -385,6 +414,11 @@ struct FontClient::Plugin
    */
   bool AddCustomFontDirectory(const FontPath& path);
 
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::GetHarfBuzzFont()
+   */
+  HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId);
+
 private:
   /**
    * @brief Caches the fonts present in the platform.
@@ -489,17 +523,17 @@ private:
 
   /**
    * @brief Finds in the cache a pair 'validated font identifier and font point size'.
-   * If there is one it writes the font identifier in the param @p fontId.
+   * If there is one it writes the font identifier in the param @p fontCacheIndex.
    *
    * @param[in] validatedFontId Index to the vector with font descriptions.
    * @param[in] requestedPointSize The font point size.
-   * @param[out] fontId The font identifier.
+   * @param[out] fontCacheIndex The index of font cache identifier.
    *
    * @return @e true if the pair is found.
    */
   bool FindFont(FontDescriptionId validatedFontId,
                 PointSize26Dot6   requestedPointSize,
-                FontId&           fontId);
+                FontCacheIndex&   fontCacheIndex);
 
   /**
    * @brief Finds in the cache a bitmap font with the @p bitmapFont family name.
@@ -571,12 +605,13 @@ private:
 
   std::vector<FallbackCacheItem> mFallbackCache; ///< Cached fallback font lists.
 
-  Vector<FontIdCacheItem>                   mFontIdCache;
-  std::vector<FontFaceCacheItem>            mFontFaceCache;            ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
-  std::vector<FontDescriptionCacheItem>     mValidatedFontCache;       ///< Caches indices to the vector of font descriptions for a given font.
-  FontList                                  mFontDescriptionCache;     ///< Caches font descriptions for the validated font.
-  CharacterSetList                          mCharacterSetCache;        ///< Caches character set lists for the validated font.
-  std::vector<FontDescriptionSizeCacheItem> mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+  Vector<FontIdCacheItem>               mFontIdCache;          ///< Caches from FontId to FontCacheIndex.
+  std::vector<FontFaceCacheItem>        mFontFaceCache;        ///< Caches the FreeType face and font metrics of the triplet 'path to the font file name, font point size and face index'.
+  std::vector<FontDescriptionCacheItem> mValidatedFontCache;   ///< Caches indices to the vector of font descriptions for a given font.
+  FontList                              mFontDescriptionCache; ///< Caches font descriptions for the validated font.
+  CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
+
+  FontDescriptionSizeCacheContainer mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
 
   VectorFontCache* mVectorFontCache; ///< Separate cache for vector data blobs etc.
 
@@ -584,6 +619,12 @@ private:
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   Vector<EmbeddedItem>              mEmbeddedItemCache; ///< Cache embedded items.
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.
+
+  FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()
+  FontDescriptionId mLatestFoundFontDescriptionId;
+
+  FontDescriptionSizeCacheKey mLatestFoundCacheKey; ///< Latest found font description and id in FindFont()
+  FontCacheIndex              mLatestFoundCacheIndex;
 
   bool mDefaultFontDescriptionCached : 1; ///< Whether the default font is cached or not
 

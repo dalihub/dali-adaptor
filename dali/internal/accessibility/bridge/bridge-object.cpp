@@ -41,14 +41,14 @@ BridgeObject::BridgeObject()
 
 void BridgeObject::RegisterInterfaces()
 {
-  // DBus::DBusInterfaceDescription desc{ AtspiDbusInterfaceEventObject };
+  // DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT)};
   // mStateChanged = addSignal<std::string, int, int, DBus::EldbusVariant<int>, Accessible*>(desc, "StateChanged");
   // mDbusServer.addInterface("/", desc, true);
 }
 
 void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* child)
 {
-  if(!IsUp() || obj->IsHidden() || child->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::ACTIVE_DESCENDANT_CHANGED] || child->IsHidden())
   {
     return;
   }
@@ -57,7 +57,7 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
 
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<Address>, Address>(
     GetAccessiblePath(obj),
-    AtspiDbusInterfaceEventObject,
+    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
     "ActiveDescendantChanged",
     "",
     index,
@@ -76,7 +76,7 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
     {ObjectPropertyChangeEvent::ROLE, "accessible-role"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::PROPERTY_CHANGED])
   {
     return;
   }
@@ -87,7 +87,7 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
-      AtspiDbusInterfaceEventObject,
+      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
       "PropertyChange",
       std::string{eventName->second},
       0,
@@ -121,7 +121,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
     {WindowEvent::RESTYLE, "Restyle"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::WINDOW_CHANGED])
   {
     return;
   }
@@ -132,7 +132,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
-      AtspiDbusInterfaceEventWindow,
+      Accessible::GetInterfaceName(AtspiInterface::EVENT_WINDOW),
       std::string{eventName->second},
       "",
       detail,
@@ -193,7 +193,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
     {State::HIGHLIGHTABLE, "highlightable"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::STATE_CHANGED]) // separate ?
   {
     return;
   }
@@ -204,7 +204,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
       GetAccessiblePath(obj),
-      AtspiDbusInterfaceEventObject,
+      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
       "StateChanged",
       std::string{stateName->second},
       newValue,
@@ -216,7 +216,7 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
 void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 {
-  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden())
+  if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
   {
     return;
   }
@@ -227,7 +227,7 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
   AddFilteredEvent(FilteredEvents::BOUNDS_CHANGED, obj, 1.0f, [=]() {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
       GetAccessiblePath(obj),
-      AtspiDbusInterfaceEventObject,
+      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
       "BoundsChanged",
       "",
       0,
@@ -239,14 +239,14 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CARET_MOVED])
   {
     return;
   }
 
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
-    AtspiDbusInterfaceEventObject,
+    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
     "TextCaretMoved",
     "",
     cursorPosition,
@@ -262,7 +262,7 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
     {TextChangedState::DELETED, "delete"},
   };
 
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CHANGED])
   {
     return;
   }
@@ -273,7 +273,7 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
   {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::string>, Address>(
       GetAccessiblePath(obj),
-      AtspiDbusInterfaceEventObject,
+      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
       "TextChanged",
       std::string{stateName->second},
       position,
@@ -285,18 +285,33 @@ void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsi
 
 void BridgeObject::EmitMovedOutOfScreen(Accessible* obj, ScreenRelativeMoveType type)
 {
-  if(!IsUp() || obj->IsHidden())
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::MOVED_OUT])
   {
     return;
   }
 
   mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
-    AtspiDbusInterfaceEventObject,
+    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
     "MoveOuted",
     "",
     static_cast<int>(type),
     0,
     {0},
+    {"", "root"});
+}
+
+void BridgeObject::EmitSocketAvailable(Accessible* obj)
+{
+  if(!IsUp() || obj->IsHidden()) //TODO Suppress SocketAvailable event
+  {
+    return;
+  }
+
+  mDbusServer.emit2<Address, Address>(
+    GetAccessiblePath(obj),
+    Accessible::GetInterfaceName(AtspiInterface::SOCKET),
+    "Available",
+    obj->GetAddress(),
     {"", "root"});
 }

@@ -584,15 +584,15 @@ public:
 };
 
 TestGraphicsController::TestGraphicsController()
-: mCallStack(true, "TestGraphicsController."),
-  mCommandBufferCallStack(true, "TestCommandBuffer."),
-  mFrameBufferCallStack(true, "TestFrameBuffer.")
+: mCallStack(false, "TestGraphicsController."),
+  mCommandBufferCallStack(false, "TestCommandBuffer."),
+  mFrameBufferCallStack(false, "TestFrameBuffer.")
 {
   mCallStack.Enable(true);
   mCommandBufferCallStack.Enable(true);
   auto& trace = mGl.GetTextureTrace();
   trace.Enable(true);
-  trace.EnableLogging(true);
+  trace.EnableLogging(false);
 }
 
 void TestGraphicsController::SubmitCommandBuffers(const Graphics::SubmitInfo& submitInfo)
@@ -691,6 +691,12 @@ void TestGraphicsController::ProcessCommandBuffer(TestGraphicsCommandBuffer& com
       {
         currentPipeline = Uncast<TestGraphicsPipeline>(cmd.data.bindPipeline.pipeline);
         BindPipeline(currentPipeline);
+        break;
+      }
+      case CommandType::DRAW_NATIVE:
+      {
+        auto info = &cmd.data.draw.drawNative.drawNativeInfo;
+        CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
         break;
       }
       case CommandType::DRAW:

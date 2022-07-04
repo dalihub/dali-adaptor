@@ -189,7 +189,7 @@ void TestGraphicsApplication::DoUpdate(uint32_t intervalMilliseconds, const char
   uint32_t nextVSyncTime  = mLastVSyncTime + intervalMilliseconds;
   float    elapsedSeconds = static_cast<float>(intervalMilliseconds) * 0.001f;
 
-  mCore->Update(elapsedSeconds, mLastVSyncTime, nextVSyncTime, mStatus, false, false);
+  mCore->Update(elapsedSeconds, mLastVSyncTime, nextVSyncTime, mStatus, false, false, false);
 
   GetRenderController().Initialize();
 
@@ -204,10 +204,10 @@ bool TestGraphicsApplication::Render(uint32_t intervalMilliseconds, const char* 
   mRenderStatus.SetNeedsUpdate(false);
   mRenderStatus.SetNeedsPostRender(false);
 
-  mCore->PreRender(mRenderStatus, false /*do not force clear*/, false /*do not skip rendering*/);
+  mCore->PreRender(mRenderStatus, false /*do not force clear*/);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
-  mCore->PostRender(false /*do not skip rendering*/);
+  mCore->PostRender();
 
   mFrame++;
 
@@ -218,7 +218,7 @@ bool TestGraphicsApplication::PreRenderWithPartialUpdate(uint32_t intervalMillis
 {
   DoUpdate(intervalMilliseconds, location);
 
-  mCore->PreRender(mRenderStatus, false /*do not force clear*/, false /*do not skip rendering*/);
+  mCore->PreRender(mRenderStatus, false /*do not force clear*/);
   mCore->PreRender(mScene, damagedRects);
 
   return mStatus.KeepUpdating() || mRenderStatus.NeedsUpdate();
@@ -228,7 +228,7 @@ bool TestGraphicsApplication::RenderWithPartialUpdate(std::vector<Rect<int>>& da
 {
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/, clippingRect);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/, clippingRect);
-  mCore->PostRender(false /*do not skip rendering*/);
+  mCore->PostRender();
 
   mFrame++;
 
@@ -259,10 +259,10 @@ bool TestGraphicsApplication::GetRenderNeedsPostRender()
 bool TestGraphicsApplication::RenderOnly()
 {
   // Update Time values
-  mCore->PreRender(mRenderStatus, false /*do not force clear*/, false /*do not skip rendering*/);
+  mCore->PreRender(mRenderStatus, false /*do not force clear*/);
   mCore->RenderScene(mRenderStatus, mScene, true /*render the off-screen buffers*/);
   mCore->RenderScene(mRenderStatus, mScene, false /*render the surface*/);
-  mCore->PostRender(false /*do not skip rendering*/);
+  mCore->PostRender();
 
   mFrame++;
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,6 @@ public:
 
   // Accessibility
   typedef Signal<void(StyleChange::Type)>        StyleSignalType;
-  typedef Signal<void(const AccessibilityInfo&)> AccessibilitySignalType;
 
   /**
    * @brief Default constructor
@@ -109,6 +108,12 @@ public:
    * @return The native window id
    */
   virtual int GetNativeWindowId() = 0;
+
+  /**
+   * @brief Get the native window resource id assinged by window manager
+   * @return The native window resource id
+   */
+  virtual std::string GetNativeWindowResourceId() = 0;
 
   /**
    * @brief Create the egl window
@@ -191,6 +196,11 @@ public:
   virtual bool IsMaximized() const = 0;
 
   /**
+   * @copydoc Dali::DevelWindow::SetMaximumSize()
+   */
+  virtual void SetMaximumSize(Dali::Window::WindowSize size) = 0;
+
+  /**
    * @copydoc Dali::DevelWindow::Minimize()
    */
   virtual void Minimize(bool minimize) = 0;
@@ -199,6 +209,11 @@ public:
    * @copydoc Dali::DevelWindow::IsMinimized()
    */
   virtual bool IsMinimized() const = 0;
+
+  /**
+   * @copydoc Dali::DevelWindow::SetMimimumSize()
+   */
+  virtual void SetMimimumSize(Dali::Window::WindowSize size) = 0;
 
   /**
    * @copydoc Dali::Window::SetAvailableOrientations()
@@ -502,11 +517,6 @@ public:
   StyleSignalType& StyleChangedSignal();
 
   /**
-   * @brief This signal is emitted when an accessibility event is received.
-   */
-  AccessibilitySignalType& AccessibilitySignal();
-
-  /**
    * @brief This signal is emitted when window's transition animation is started or ended.
    */
   TransitionEffectEventSignalType& TransitionEffectEventSignal();
@@ -551,7 +561,6 @@ protected:
   SelectionSignalType                     mSelectionDataSendSignal;
   SelectionSignalType                     mSelectionDataReceivedSignal;
   StyleSignalType                         mStyleChangedSignal;
-  AccessibilitySignalType                 mAccessibilitySignal;
   TransitionEffectEventSignalType         mTransitionEffectEventSignal;
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;

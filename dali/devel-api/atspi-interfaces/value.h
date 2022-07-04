@@ -64,7 +64,31 @@ public:
    * @return The lowest increment
   */
   virtual double GetMinimumIncrement() const = 0;
+
+  /**
+   * @brief Downcasts an Accessible to a Value.
+   *
+   * @param obj The Accessible
+   * @return A Value or null
+   *
+   * @see Dali::Accessibility::Accessible::DownCast()
+   */
+  static inline Value* DownCast(Accessible* obj);
 };
+
+namespace Internal
+{
+template<>
+struct AtspiInterfaceTypeHelper<AtspiInterface::VALUE>
+{
+  using Type = Value;
+};
+} // namespace Internal
+
+inline Value* Value::DownCast(Accessible* obj)
+{
+  return Accessible::DownCast<AtspiInterface::VALUE>(obj);
+}
 
 } // namespace Dali::Accessibility
 

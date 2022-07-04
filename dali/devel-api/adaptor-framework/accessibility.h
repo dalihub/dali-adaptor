@@ -30,6 +30,8 @@ namespace Dali
 {
 namespace Accessibility
 {
+class Accessible;
+
 /**
  * @brief Enumeration describing type of object move relative to the screen. Only outgoing moves are signalled to AT-clients.
  */
@@ -428,9 +430,108 @@ enum class ReadingInfoType
   MAX_COUNT
 };
 
-using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
-using States           = EnumBitSet<State, State::MAX_COUNT>;
-using Attributes       = std::unordered_map<std::string, std::string>;
+/**
+ * @brief Enumeration of all AT-SPI interfaces.
+ *
+ * @see Dali::Accessibility::Accessible::GetInterfaceName()
+ * @see Dali::Accessibility::AtspiInterfaceType
+ */
+enum class AtspiInterface
+{
+  ACCESSIBLE,
+  ACTION,
+  APPLICATION,
+  CACHE,
+  COLLECTION,
+  COMPONENT,
+  DEVICE_EVENT_CONTROLLER,
+  DEVICE_EVENT_LISTENER,
+  DOCUMENT,
+  EDITABLE_TEXT,
+  EVENT_DOCUMENT,
+  EVENT_FOCUS,
+  EVENT_KEYBOARD,
+  EVENT_MOUSE,
+  EVENT_OBJECT,
+  EVENT_TERMINAL,
+  EVENT_WINDOW,
+  HYPERLINK,
+  HYPERTEXT,
+  IMAGE,
+  REGISTRY,
+  SELECTION,
+  SOCKET,
+  TABLE,
+  TABLE_CELL,
+  TEXT,
+  VALUE,
+  MAX_COUNT
+};
+
+/**
+ * @brief Enumeration of all AT-SPI events.
+ */
+enum class AtspiEvent
+{
+  PROPERTY_CHANGED,
+  BOUNDS_CHANGED,
+  LINK_SELECTED,
+  STATE_CHANGED,
+  CHILDREN_CHANGED,
+  VISIBLE_DATA_CHANGED,
+  SELECTION_CHANGED,
+  MODEL_CHANGED,
+  ACTIVE_DESCENDANT_CHANGED,
+  ROW_INSERTED,
+  ROW_REORDERED,
+  ROW_DELETED,
+  COLUMN_INSERTED,
+  COLUMN_REORDERED,
+  COLUMN_DELETED,
+  TEXT_BOUNDS_CHANGED,
+  TEXT_SELECTION_CHANGED,
+  TEXT_CHANGED,
+  TEXT_ATTRIBUTES_CHANGED,
+  TEXT_CARET_MOVED,
+  ATTRIBUTES_CHANGED,
+  MOVED_OUT,
+  WINDOW_CHANGED,
+  MAX_COUNT
+};
+
+using AtspiInterfaces   = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
+using AtspiEvents       = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
+using ReadingInfoTypes  = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
+using States            = EnumBitSet<State, State::MAX_COUNT>;
+using Attributes        = std::unordered_map<std::string, std::string>;
+
+namespace Internal
+{
+/*
+ * AT-SPI interfaces exposed as native C++ types should specialize this like so:
+ *
+ * template<>
+ * struct AtspiInterfaceTypeHelper<AtspiInterface::ACCESSIBLE>
+ * {
+ *   using Type = Dali::Accessibility::Accessible;
+ * };
+ */
+template<AtspiInterface I>
+struct AtspiInterfaceTypeHelper; // no default definition
+
+} // namespace Internal
+
+/**
+ * @brief Resolves to the native C++ type that represents the given AT-SPI interface.
+ *
+ * For example, @code AtspiInterfaceType<AtspiInterface::ACCESSIBLE> @endcode is the same as
+ * @code Dali::Accessibility::Accessible @endcode. Not all AT-SPI interfaces have native C++
+ * representations (in which case, such an expression will not compile).
+ *
+ * @tparam I Enumeration value indicating the requested AT-SPI interface.
+ */
+template<AtspiInterface I>
+using AtspiInterfaceType = typename Internal::AtspiInterfaceTypeHelper<I>::Type;
 
 /**
  * @brief Class representing unique object address on accessibility bus
@@ -612,22 +713,26 @@ struct DALI_ADAPTOR_API GestureInfo
 
 /**
  * @brief Class representing accessibility relations
+ *
  * Class connecting one source object with multiple target objects with usage
  * of specific relation type.
- * @note std::string representing source and targets are string values of Accessibility::Address
- * @see Dali::Accessibility::Accessible::Address
+ *
+ * A remote target object (i.e. one belonging to a different process) can be
+ * represented in terms of a ProxyAccessible.
+ *
+ * @see Dali::Accessibility::Accessible::Accessible
  * @see Dali::Accessibility::Accessible::RelationType
  */
 struct DALI_ADAPTOR_API Relation
 {
-  Relation(RelationType relationType, std::vector<Address> targets)
-  : relationType(relationType),
-    targets(targets)
+  Relation(RelationType relationType, const std::vector<Accessible*>& targets)
+  : mRelationType(relationType),
+    mTargets(targets)
   {
   }
 
-  RelationType         relationType;
-  std::vector<Address> targets;
+  RelationType             mRelationType;
+  std::vector<Accessible*> mTargets;
 };
 
 } // namespace Accessibility

@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/object/object-registry.h>
 
 // INTERNAL INCLUDES
@@ -56,6 +57,8 @@ namespace Internal
 {
 namespace Adaptor
 {
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_APPLICATION, true);
+
 ApplicationPtr Application::gPreInitializedApplication(NULL);
 
 ApplicationPtr Application::New(
@@ -266,7 +269,9 @@ void Application::OnInit()
   }
 
   // Run the adaptor
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_ADAPTOR_START");
   mAdaptor->Start();
+  DALI_TRACE_END(gTraceFilter, "DALI_APP_ADAPTOR_START");
   Accessibility::Accessible::SetObjectRegistry(mAdaptor->GetObjectRegistry());
 
   if(!mStylesheet.empty())
@@ -285,7 +290,10 @@ void Application::OnInit()
   LanguageChangedSignal().Connect(&GetImplementation(lifecycleController), &LifecycleController::OnLanguageChanged);
 
   Dali::Application application(this);
+
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_APP_EMIT_INIT_SIGNAL");
   mInitSignal.Emit(application);
+  DALI_TRACE_END(gTraceFilter, "DALI_APP_EMIT_INIT_SIGNAL");
 
   mAdaptor->NotifySceneCreated();
 }

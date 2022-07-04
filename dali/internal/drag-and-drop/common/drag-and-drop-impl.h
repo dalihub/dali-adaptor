@@ -50,12 +50,17 @@ public:
   /**
    * @copydoc Dali::DragAndDrop::StartDragAndDrop()
    */
-  virtual bool StartDragAndDrop(Dali::Actor source, Dali::Actor shadow, const std::string& dragData) = 0;
+  virtual bool StartDragAndDrop(Dali::Actor source, Dali::Window shadowWindow, const Dali::DragAndDrop::DragData& data, Dali::DragAndDrop::SourceFunction callback) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::AddListener()
    */
   virtual bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+
+  /**
+   * @copydoc Dali::DragAndDrop::RemoveListener()
+   */
+  virtual bool RemoveListener(Dali::Actor target) = 0;
 
   /**
    * @copydoc Dali::DragAndDrop::SendData()

@@ -40,8 +40,8 @@ class ApplicationAccessible : public virtual Dali::Accessibility::Accessible, pu
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
   std::vector<Dali::Accessibility::Accessible*> mChildren;
-  std::vector<Dali::Window>                     mWindows;
   std::string                                   mName;
+  std::string                                   mToolkitName{"dali"};
 
   std::string GetName() const override
   {
@@ -149,7 +149,7 @@ public:
 
   std::string GetToolkitName() const override
   {
-    return {"dali"};
+    return mToolkitName;
   }
 
   std::string GetVersion() const override
@@ -425,14 +425,52 @@ public:
   /**
    * @brief Returns the target object of the currently executed DBus method call.
    *
-   * And any subclasses redefine `FindSelf` with a different return type as a convenient wrapper around dynamic_cast.
    * @return The Accessible object
    * @note When a DBus method is called on some object, this target object (`currentObject`) is temporarily saved by the bridge,
    * because DBus handles the invocation target separately from the method arguments.
    * We then use the saved object inside the 'glue' method (e.g. BridgeValue::GetMinimum)
    * to call the equivalent method on the respective C++ object (this could be ScrollBar::AccessibleImpl::GetMinimum in the example given).
    */
-  Dali::Accessibility::Accessible* FindSelf() const;
+  Dali::Accessibility::Accessible* FindCurrentObject() const;
+
+  /**
+   * @brief Returns the target object of the currently executed DBus method call.
+   *
+   * This method tries to downcast the return value of FindCurrentObject() to the requested type,
+   * issuing an error reply to the DBus caller if the requested type is not implemented. Whether
+   * a given type is implemented is decided based on the return value of Accessible::GetInterfaces()
+   * for the current object.
+   *
+   * @tparam I The requested AT-SPI interface
+   * @return The Accessible object (cast to a more derived type)
+   *
+   * @see FindCurrentObject()
+   * @see Dali::Accessibility::AtspiInterface
+   * @see Dali::Accessibility::AtspiInterfaceType
+   * @see Dali::Accessibility::Accessible::GetInterfaces()
+   */
+  template<Dali::Accessibility::AtspiInterface I>
+  auto* FindCurrentObjectWithInterface() const
+  {
+    using Type = Dali::Accessibility::AtspiInterfaceType<I>;
+
+    Type* result;
+    auto* currentObject = FindCurrentObject();
+    DALI_ASSERT_DEBUG(currentObject); // FindCurrentObject() throws domain_error
+
+    if(!(result = Dali::Accessibility::Accessible::DownCast<I>(currentObject)))
+    {
+      std::stringstream s;
+
+      s << "Object " << currentObject->GetAddress().ToString();
+      s << " does not implement ";
+      s << Dali::Accessibility::Accessible::GetInterfaceName(I);
+
+      throw std::domain_error{s.str()};
+    }
+
+    return result;
+  }
 
   /**
    * @copydoc Dali::Accessibility::Bridge::FindByPath()
@@ -445,6 +483,14 @@ public:
   void SetApplicationName(std::string name) override
   {
     mApplication.mName = std::move(name);
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::SetToolkitName()
+   */
+  void SetToolkitName(std::string_view toolkitName) override
+  {
+    mApplication.mToolkitName = std::string{toolkitName};
   }
 
 protected:

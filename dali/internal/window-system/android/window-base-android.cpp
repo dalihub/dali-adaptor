@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,6 +125,11 @@ int WindowBaseAndroid::GetNativeWindowId()
   return 0;
 }
 
+std::string WindowBaseAndroid::GetNativeWindowResourceId()
+{
+  return std::string();
+}
+
 EGLNativeWindowType WindowBaseAndroid::CreateEglWindow(int width, int height)
 {
   // from eglplatform.h header
@@ -196,6 +201,10 @@ bool WindowBaseAndroid::IsMaximized() const
   return false;
 }
 
+void WindowBaseAndroid::SetMaximumSize(Dali::Window::WindowSize size)
+{
+}
+
 void WindowBaseAndroid::Minimize(bool minimize)
 {
 }
@@ -203,6 +212,10 @@ void WindowBaseAndroid::Minimize(bool minimize)
 bool WindowBaseAndroid::IsMinimized() const
 {
   return false;
+}
+
+void WindowBaseAndroid::SetMimimumSize(Dali::Window::WindowSize size)
+{
 }
 
 void WindowBaseAndroid::SetAvailableAnlges(const std::vector<int>& angles)

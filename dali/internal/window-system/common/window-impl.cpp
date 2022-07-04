@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,10 @@
 
 // EXTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/orientation.h>
+#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/touch-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -76,34 +78,42 @@ Window* Window::New(Any surface, const PositionSize& positionSize, const std::st
 Window::Window()
 : mWindowSurface(nullptr),
   mWindowBase(),
-  mIsTransparent(false),
-  mIsFocusAcceptable(true),
-  mIconified(false),
-  mOpaqueState(false),
-  mWindowRotationAcknowledgement(false),
   mParentWindow(NULL),
   mPreferredAngle(static_cast<int>(WindowOrientation::NO_ORIENTATION_PREFERENCE)),
   mRotationAngle(0),
   mWindowWidth(0),
   mWindowHeight(0),
-  mOrientationMode(Internal::Adaptor::Window::OrientationMode::PORTRAIT),
   mNativeWindowId(-1),
+  mOrientationMode(Internal::Adaptor::Window::OrientationMode::PORTRAIT),
   mDeleteRequestSignal(),
   mFocusChangeSignal(),
   mResizeSignal(),
   mVisibilityChangedSignal(),
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
-  mAuxiliaryMessageSignal()
+  mAuxiliaryMessageSignal(),
+  mLastKeyEvent(),
+  mLastTouchEvent(),
+  mIsTransparent(false),
+  mIsFocusAcceptable(true),
+  mIconified(false),
+  mOpaqueState(false),
+  mWindowRotationAcknowledgement(false),
+  mFocused(false)
 {
 }
 
 Window::~Window()
 {
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
-  bridge->RemoveTopLevelWindow(accessible);
+  if(mScene)
+  {
+    auto bridge     = Accessibility::Bridge::GetCurrentBridge();
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
+    bridge->RemoveTopLevelWindow(accessible);
+    // Related to multi-window case. This is called for default window and non-default window, but it is effective for non-default window.
+    bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
+  }
 
   if(mAdaptor)
   {
@@ -175,10 +185,13 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler->AddObserver(*this);
 
   // Add Window to bridge for ATSPI
-  auto bridge     = Accessibility::Bridge::GetCurrentBridge();
-  auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
-  bridge->AddTopLevelWindow(accessible);
+  auto bridge = Accessibility::Bridge::GetCurrentBridge();
+  if(bridge->IsUp())
+  {
+    auto rootLayer  = mScene.GetRootLayer();
+    auto accessible = Accessibility::Accessible::Get(rootLayer);
+    bridge->AddTopLevelWindow(accessible);
+  }
 
   bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
   bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
@@ -244,6 +257,11 @@ bool Window::IsMaximized() const
   return mWindowBase->IsMaximized();
 }
 
+void Window::SetMaximumSize(Dali::Window::WindowSize size)
+{
+  mWindowBase->SetMaximumSize(size);
+}
+
 void Window::Minimize(bool minimize)
 {
   mWindowBase->Minimize(minimize);
@@ -254,6 +272,11 @@ void Window::Minimize(bool minimize)
 bool Window::IsMinimized() const
 {
   return mWindowBase->IsMinimized();
+}
+
+void Window::SetMimimumSize(Dali::Window::WindowSize size)
+{
+  mWindowBase->SetMimimumSize(size);
 }
 
 uint32_t Window::GetLayerCount() const
@@ -269,6 +292,11 @@ Dali::Layer Window::GetLayer(uint32_t depth) const
 Dali::RenderTaskList Window::GetRenderTaskList() const
 {
   return mScene.GetRenderTaskList();
+}
+
+std::string Window::GetNativeResourceId() const
+{
+  return mWindowBase->GetNativeWindowResourceId();
 }
 
 void Window::AddAvailableOrientation(WindowOrientation orientation)
@@ -343,6 +371,12 @@ void Window::SetPositionSizeWithOrientation(PositionSize positionSize, WindowOri
 {
   int angle = ConvertToAngle(orientation);
   mWindowBase->SetPositionSizeWithAngle(positionSize, angle);
+}
+
+void Window::EmitAccessibilityHighlightSignal(bool highlight)
+{
+  Dali::Window handle(this);
+  mAccessibilityHighlightSignal.Emit(handle, highlight);
 }
 
 void Window::SetAvailableAnlges(const std::vector<int>& angles)
@@ -467,6 +501,7 @@ void Window::Show()
   {
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, true);
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowShown();
@@ -487,6 +522,7 @@ void Window::Hide()
   {
     Dali::Window handle(this);
     mVisibilityChangedSignal.Emit(handle, false);
+    Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
     WindowVisibilityObserver* observer(mAdaptor);
     observer->OnWindowHidden();
@@ -632,11 +668,14 @@ void Window::SetSize(Dali::Window::WindowSize size)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
     SurfaceResized();
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
 
     Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
@@ -646,7 +685,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -664,7 +703,7 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -692,11 +731,14 @@ void Window::SetPositionSize(PositionSize positionSize)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
+
     SurfaceResized();
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
     Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
@@ -704,7 +746,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 Dali::Layer Window::GetRootLayer() const
@@ -747,6 +789,7 @@ void Window::OnIconifyChanged(bool iconified)
     {
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, false);
+      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowHidden();
@@ -762,6 +805,7 @@ void Window::OnIconifyChanged(bool iconified)
     {
       Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, true);
+      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowShown();
@@ -791,6 +835,7 @@ void Window::OnFocusChanged(bool focusIn)
       bridge->WindowUnfocused(handle);
     }
   }
+  mFocused = focusIn;
 }
 
 void Window::OnOutputTransformed()
@@ -851,11 +896,12 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer(), true)->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
+  mLastTouchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
   FeedTouchPoint(point, timeStamp);
 }
 
@@ -866,11 +912,14 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
+  mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   FeedKeyEvent(keyEvent);
 }
 
 void Window::OnRotation(const RotationEvent& rotation)
 {
+  PositionSize newPositionSize(rotation.x, rotation.y, rotation.width, rotation.height);
+
   mRotationAngle = rotation.angle;
   mWindowWidth   = rotation.width;
   mWindowHeight  = rotation.height;
@@ -878,14 +927,14 @@ void Window::OnRotation(const RotationEvent& rotation)
   // Notify that the orientation is changed
   mOrientation->OnOrientationChange(rotation);
 
-  mWindowSurface->RequestRotation(mRotationAngle, mWindowWidth, mWindowHeight);
+  mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
 
   int orientation = (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
   SurfaceRotated(mWindowWidth, mWindowHeight, orientation);
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): resize signal emit [%d x %d]\n", this, mNativeWindowId, mWindowWidth, mWindowHeight);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): x[%d], y[%d], resize signal emit [%d x %d]\n", this, mNativeWindowId, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
   // Emit signal
   Dali::Window handle(this);
   mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
@@ -920,15 +969,28 @@ void Window::OnAccessibilityEnabled()
 {
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->AddTopLevelWindow(accessible);
+
+  if(!mVisible || mIconified)
+  {
+    return;
+  }
+
+  Dali::Window handle(this);
+  bridge->WindowShown(handle);
+
+  if(mFocused)
+  {
+    bridge->WindowFocused(handle);
+  }
 }
 
 void Window::OnAccessibilityDisabled()
 {
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
-  auto accessible = Accessibility::Accessible::Get(rootLayer, true);
+  auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->RemoveTopLevelWindow(accessible);
 }
 
@@ -1091,7 +1153,7 @@ void Window::EnableFloatingMode(bool enable)
 Rect<int> Window::RecalculateRect(const Rect<int>& rect)
 {
   Rect<int> newRect;
-  int screenWidth, screenHeight;
+  int       screenWidth, screenHeight;
 
   WindowSystem::GetScreenSize(screenWidth, screenHeight);
 
@@ -1156,6 +1218,21 @@ void Window::SendRotationCompletedAcknowledgement()
   {
     SetRotationCompletedAcknowledgement();
   }
+}
+
+bool Window::IsWindowRotating() const
+{
+  return mWindowSurface->IsWindowRotating();
+}
+
+const Dali::KeyEvent& Window::GetLastKeyEvent() const
+{
+  return mLastKeyEvent;
+}
+
+const Dali::TouchEvent& Window::GetLastTouchEvent() const
+{
+  return mLastTouchEvent;
 }
 
 } // namespace Adaptor
