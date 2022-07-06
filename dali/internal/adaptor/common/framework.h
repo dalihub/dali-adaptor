@@ -59,6 +59,8 @@ public:
 
   /**
    * Observer class for the framework.
+   * @brief When the UI thread is enabled, the events are emitted on the UI thread.
+   * When it is disabled, the events are emitted on the main thread.
    */
   class Observer
   {
@@ -99,9 +101,9 @@ public:
     }
 
     /**
-    * Invoked when the AppControl message is received.
-    * @param[in] The bundle data of AppControl message.
-    */
+     * Invoked when the AppControl message is received.
+     * @param[in] The bundle data of AppControl message.
+     */
     virtual void OnAppControl(void*)
     {
     }
@@ -182,15 +184,75 @@ public:
 #endif
   };
 
+  /**
+   * TaskObserver class for the framework.
+   * @brief This is used only when UiThread is enabled. the events are emitted on the main thread.
+   */
+  class TaskObserver
+  {
+  public:
+    /**
+     * Invoked when the application is to be initialised.
+     */
+    virtual void OnTaskInit()
+    {
+    }
+
+    /**
+     * Invoked when the application is to be terminated.
+     */
+    virtual void OnTaskTerminate()
+    {
+    }
+
+    /**
+     * Invoked when the AppControl message is received.
+     * @param[in] The bundle data of AppControl message.
+     */
+    virtual void OnTaskAppControl(void*)
+    {
+    }
+
+    /**
+     * Invoked when the language of the device is changed.
+     */
+    virtual void OnTaskLanguageChanged()
+    {
+    }
+
+    /**
+     * Invoked when the region is changed.
+     */
+    virtual void OnTaskRegionChanged()
+    {
+    }
+
+    /**
+     * Invoked when the battery level of the device is low.
+     */
+    virtual void OnTaskBatteryLow(Dali::DeviceStatus::Battery::Status status)
+    {
+    }
+
+    /**
+     * Invoked when the memory level of the device is low.
+     */
+    virtual void OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status)
+    {
+    }
+  };
+
 public:
   /**
    * Constructor
-   * @param[in]  observer  The observer of the Framework.
-   * @param[in]  argc      A pointer to the number of arguments.
-   * @param[in]  argv      A pointer the the argument list.
-   * @param[in]  type      The type of application
+   * @param[in]  observer      The observer of the Framework.
+   * @param[in]  taskObserver  The task observer of the Framework.
+   * @param[in]  argc          A pointer to the number of arguments.
+   * @param[in]  argv          A pointer the the argument list.
+   * @param[in]  type          The type of application
+   * @param[in]  useUiThread   True if the application would create a UI thread
    */
-  Framework(Observer& observer, int* argc, char*** argv, Type type = NORMAL);
+  Framework(Observer& observer, TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread);
 
   /**
    * Destructor
@@ -328,15 +390,16 @@ private:
   void InitThreads();
 
 private:
-  Observer&    mObserver;
-  bool         mInitialised;
-  bool         mPaused;
-  bool         mRunning;
-  int*         mArgc;
-  char***      mArgv;
-  std::string  mBundleName;
-  std::string  mBundleId;
-  AbortHandler mAbortHandler;
+  Observer&     mObserver;
+  TaskObserver& mTaskObserver;
+  bool          mInitialised;
+  bool          mPaused;
+  bool          mRunning;
+  int*          mArgc;
+  char***       mArgv;
+  std::string   mBundleName;
+  std::string   mBundleId;
+  AbortHandler  mAbortHandler;
 
 private: // impl members
   struct Impl;

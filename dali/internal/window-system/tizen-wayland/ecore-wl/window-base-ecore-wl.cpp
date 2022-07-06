@@ -655,8 +655,8 @@ void WindowBaseEcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL_EVENT_SELECTION_DATA_READY, EcoreEventDataReceive, this));
 
   // Register Vconf notify - font name and size
-  vconf_notify_key_changed(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
-  vconf_notify_key_changed(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
+  vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
+  vconf_notify_key_changed_for_ui_thread(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
 
   mDisplay = ecore_wl_display_get();
 

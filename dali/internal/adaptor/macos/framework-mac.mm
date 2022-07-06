@@ -112,8 +112,9 @@ private:
   std::string mRegion;
 };
 
-Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
+Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
 : mObserver(observer),
+  mTaskObserver(taskObserver),
   mInitialised(false),
   mPaused(false),
   mRunning(false),

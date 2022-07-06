@@ -90,6 +90,22 @@ class Application;
  * app.ResumeSignal().Connect(&app, &MyApplication::Resume);
  * @endcode
  *
+ *
+ * #### UI thread
+ * There is the UI thread feature.
+ * UI thread is an additional thread that an Application object creates. The thread is for UI events.
+ *
+ * When the UI thread feature is enabled, you can use the task signals(TaskInit, TaskTerminate, TaskAppControl, TaskLanguageChanged, TaskLowBattery, and TaskLowMemory).
+ * The task signals are emitted on the main thread,
+ * and the normal signals(Init, Terminate, Pause, Resume, Reset, AppControl, LanguageChanged, Region, LowBattery, and LowMemory) are emitted on the UI thread.
+ *
+ * If you want to handle windows or actors in cases like when the memory level of the device is low, you have to use the normal signals, not the task signals.
+ * Callbacks of all signals in DALi except the task signals are emitted on the UI thread. (e.g., Timer callbacks are emitted on the UI thread.)
+ *
+ * To enable the UI Thread, you can use this method. you have to set True to the useUiThread.
+ * Dali::Application::New(int *argc, char **argv[], const std::string &stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread)
+ *
+ *
  * This class accepts command line arguments as well. The following options are supported:
  *
  * @code
@@ -186,6 +202,25 @@ public:
    * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.
    */
   static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize);
+
+  /**
+   * @brief This is the constructor for applications.
+   *
+   * @SINCE_2_1.20
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   * @param[in,out]  argc         A pointer to the number of arguments
+   * @param[in,out]  argv         A pointer to the argument list
+   * @param[in]      stylesheet   The path to user defined theme file
+   * @param[in]      windowMode   A member of WINDOW_MODE
+   * @param[in]      positionSize A position and a size of the window
+   * @param[in]      useUiThread  True if the application would create a UI thread
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.<BR>
+   * UI thread is an additional thread that DALi creates for UI events.
+   * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
+   */
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread);
 
   /**
    * @brief Constructs an empty handle.
@@ -322,6 +357,8 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should initialize
    * their application.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -330,6 +367,8 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should terminate
    * their application.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -338,6 +377,8 @@ public: // Signals
   /**
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -346,6 +387,8 @@ public: // Signals
   /**
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
@@ -353,37 +396,47 @@ public: // Signals
 
   /**
    * @brief This signal is sent when the system requires the user to reinitialize itself.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
   AppSignalType& ResetSignal();
 
   /**
-  * @brief This signal is emitted when another application sends a launch request to the application.
-  *
-  * When the application is launched, this signal is emitted after the main loop of the application starts up.
-  * The passed parameter describes the launch request and contains the information about why the application is launched.
-  * @SINCE_1_0.0
-  * @return The signal to connect to
-  */
+   * @brief This signal is emitted when another application sends a launch request to the application.
+   *
+   * When the application is launched, this signal is emitted after the main loop of the application starts up.
+   * The passed parameter describes the launch request and contains the information about why the application is launched.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
+   * @SINCE_1_0.0
+   * @return The signal to connect to
+   */
   AppControlSignalType& AppControlSignal();
 
   /**
    * @brief This signal is emitted when the language is changed on the device.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
    */
   AppSignalType& LanguageChangedSignal();
 
   /**
-  * @brief This signal is emitted when the region of the device is changed.
-  * @SINCE_1_0.0
-  * @return The signal to connect to
-  */
+   * @brief This signal is emitted when the region of the device is changed.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
+   * @SINCE_1_0.0
+   * @return The signal to connect to
+   */
   AppSignalType& RegionChangedSignal();
 
   /**
    * @brief This signal is emitted when the battery level of the device is low.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_2.62
    * @return The signal to connect to
    */
@@ -391,10 +444,74 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the memory level of the device is low.
+   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
    * @SINCE_1_2.62
    * @return The signal to connect to
    */
   LowMemorySignalType& LowMemorySignal();
+
+  // TaskSignal
+  /**
+   * @brief The user should connect to this signal to determine when they should initialize
+   * their application.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  AppSignalType& TaskInitSignal();
+
+  /**
+   * @brief The user should connect to this signal to determine when they should terminate
+   * their application.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  AppSignalType& TaskTerminateSignal();
+
+  /**
+   * @brief This signal is emitted when another application sends a launch request to the application.
+   *
+   * When the application is launched, this signal is emitted after the main loop of the application starts up.
+   * The passed parameter describes the launch request and contains the information about why the application is launched.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  AppControlSignalType& TaskAppControlSignal();
+
+  /**
+   * @brief This signal is emitted when the language is changed on the device.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  AppSignalType& TaskLanguageChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the region of the device is changed.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  AppSignalType& TaskRegionChangedSignal();
+
+  /**
+   * @brief This signal is emitted when the battery level of the device is low.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  LowBatterySignalType& TaskLowBatterySignal();
+
+  /**
+   * @brief This signal is emitted when the memory level of the device is low.
+   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @return The signal to connect to
+   */
+  LowMemorySignalType&  TaskLowMemorySignal();
 
 public: // Not intended for application developers
   /// @cond internal

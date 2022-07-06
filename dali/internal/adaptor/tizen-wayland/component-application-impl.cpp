@@ -35,7 +35,7 @@ ComponentApplicationPtr ComponentApplication::New(
 }
 
 ComponentApplication::ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode)
-: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::COMPONENT, WindowType::NORMAL)
+: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::COMPONENT, WindowType::NORMAL, false)
 {
 }
 

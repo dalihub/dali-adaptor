@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
@@ -33,6 +34,7 @@
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -68,9 +70,10 @@ ApplicationPtr Application::New(
   Dali::Application::WINDOW_MODE windowMode,
   const PositionSize&            positionSize,
   Framework::Type                applicationType,
-  WindowType                     type)
+  WindowType                     type,
+  bool                           useUiThread)
 {
-  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type));
+  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type, useUiThread));
   return application;
 }
 
@@ -80,13 +83,13 @@ void Application::PreInitialize(int* argc, char** argv[])
   {
     Dali::TextAbstraction::FontClientPreInitialize();
 
-    gPreInitializedApplication = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL);
+    gPreInitializedApplication = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
     gPreInitializedApplication->CreateWindow(); // Only create window
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
   }
 }
 
-Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type)
+Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread)
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -108,6 +111,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mWindowPositionSize(positionSize),
   mLaunchpadState(Launchpad::NONE),
   mDefaultWindowType(type),
+  mUseUiThread(useUiThread),
   mSlotDelegate(this)
 {
   // Get mName from environment options
@@ -118,8 +122,14 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
     mMainWindowName = (*argv)[0];
   }
 
+  const char* uiThreadEnabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ENABLE_UI_THREAD);
+  if(uiThreadEnabled && std::atoi(uiThreadEnabled) != 0)
+  {
+    mUseUiThread = true;
+  }
+
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-  mFramework          = new Framework(*this, argc, argv, applicationType);
+  mFramework          = new Framework(*this, *this, argc, argv, applicationType, mUseUiThread);
   mUseRemoteSurface   = (applicationType == Framework::WATCH);
 }
 
@@ -169,7 +179,7 @@ void Application::ChangePreInitializedWindowSize()
   }
   else if(screenWidth != mWindowPositionSize.width || screenHeight != mWindowPositionSize.height)
   {
-    //Some apps can receive screen size differently after launching by specifying size in manifest.
+    // Some apps can receive screen size differently after launching by specifying size in manifest.
     mWindowPositionSize.width  = screenWidth;
     mWindowPositionSize.height = screenHeight;
     mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
@@ -395,6 +405,48 @@ void Application::OnSurfaceCreated(Any newSurface)
 
 void Application::OnSurfaceDestroyed(Any surface)
 {
+}
+
+void Application::OnTaskInit()
+{
+  Dali::Application application(this);
+  mTaskInitSignal.Emit(application);
+}
+
+void Application::OnTaskTerminate()
+{
+  Dali::Application application(this);
+  mTaskTerminateSignal.Emit(application);
+}
+
+void Application::OnTaskAppControl(void* data)
+{
+  Dali::Application application(this);
+  mTaskAppControlSignal.Emit(application, data);
+}
+
+void Application::OnTaskLanguageChanged()
+{
+  Dali::Application application(this);
+  mTaskLanguageChangedSignal.Emit(application);
+}
+
+void Application::OnTaskRegionChanged()
+{
+  Dali::Application application(this);
+  mTaskRegionChangedSignal.Emit(application);
+}
+
+void Application::OnTaskBatteryLow(Dali::DeviceStatus::Battery::Status status)
+{
+  Dali::Application application(this);
+  mTaskLowBatterySignal.Emit(status);
+}
+
+void Application::OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status)
+{
+  Dali::Application application(this);
+  mTaskLowMemorySignal.Emit(status);
 }
 
 bool Application::AddIdle(CallbackBase* callback, bool hasReturnValue)

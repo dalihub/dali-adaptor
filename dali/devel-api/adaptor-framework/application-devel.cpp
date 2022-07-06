@@ -48,7 +48,7 @@ Application New(int* argc, char** argv[], const std::string& stylesheet, Applica
     internal->StoreWindowPositionSize(positionSize);
   } else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type, false);
   }
   return Application(internal.Get());
 }
