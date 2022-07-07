@@ -64,7 +64,7 @@ typedef IntrusivePtr<Application> ApplicationPtr;
 /**
  * Implementation of the Application class.
  */
-class Application : public BaseObject, public Framework::Observer
+class Application : public BaseObject, public Framework::Observer, public Framework::TaskObserver
 {
 public:
   typedef Dali::Application::LowBatterySignalType LowBatterySignalType;
@@ -82,8 +82,9 @@ public:
    * @param[in]  positionSize      A position and a size of the window
    * @param[in]  applicationType   A member of Dali::Framework::Type
    * @param[in]  type              It is window type for default window.
+   * @param[in]  useUiThread       True if the application would create a UI thread
    */
-  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type);
+  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
 
   /**
    * @copydoc Dali::DevelApplication::PreInitialize()
@@ -180,9 +181,9 @@ public: // From Framework::Observer
   void OnResume() override;
 
   /**
-  * Called when the framework received AppControlSignal.
-  * @param[in] The bundle data of AppControl event.
-  */
+   * Called when the framework received AppControlSignal.
+   * @param[in] The bundle data of AppControl event.
+   */
   void OnAppControl(void* data) override;
 
   /**
@@ -196,18 +197,18 @@ public: // From Framework::Observer
   void OnLanguageChanged() override;
 
   /**
-  * Called when the framework informs the application that the region of the device has changed.
-  */
+   * Called when the framework informs the application that the region of the device has changed.
+   */
   void OnRegionChanged() override;
 
   /**
-  * Called when the framework informs the application that the battery level of the device is low.
-  */
+   * Called when the framework informs the application that the battery level of the device is low.
+   */
   void OnBatteryLow(Dali::DeviceStatus::Battery::Status status) override;
 
   /**
-  * Called when the framework informs the application that the memory level of the device is low.
-  */
+   * Called when the framework informs the application that the memory level of the device is low.
+   */
   void OnMemoryLow(Dali::DeviceStatus::Memory::Status status) override;
 
   /**
@@ -219,6 +220,43 @@ public: // From Framework::Observer
    * Called when the framework informs the application that the platform surface is destroyed.
    */
   void OnSurfaceDestroyed(Any newSurface) override;
+
+public: // From Framework::TaskObserver
+  /**
+   * Called when the framework is initialised.
+   */
+  void OnTaskInit() override;
+
+  /**
+   * Called when the framework is terminated.
+   */
+  void OnTaskTerminate() override;
+
+  /**
+   * Called when the framework received AppControlSignal.
+   * @param[in] The bundle data of AppControl event.
+   */
+  void OnTaskAppControl(void* data) override;
+
+  /**
+   * Called when the framework informs the application that the language of the device has changed.
+   */
+  void OnTaskLanguageChanged() override;
+
+  /**
+   * Called when the framework informs the application that the region of the device has changed.
+   */
+  void OnTaskRegionChanged() override;
+
+  /**
+   * Called when the framework informs the application that the battery level of the device is low.
+   */
+  void OnTaskBatteryLow(Dali::DeviceStatus::Battery::Status status) override;
+
+  /**
+   * Called when the framework informs the application that the memory level of the device is low.
+   */
+  void OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status) override;
 
 public:
   /**
@@ -285,8 +323,8 @@ public: // Signals
   }
 
   /**
-  * @copydoc Dali::Application::AppControlSignal()
-  */
+   * @copydoc Dali::Application::AppControlSignal()
+   */
   Dali::Application::AppControlSignalType& AppControlSignal()
   {
     return mAppControlSignal;
@@ -301,27 +339,83 @@ public: // Signals
   }
 
   /**
-  * @copydoc Dali::Application::RegionChangedSignal()
-  */
+   * @copydoc Dali::Application::RegionChangedSignal()
+   */
   Dali::Application::AppSignalType& RegionChangedSignal()
   {
     return mRegionChangedSignal;
   }
 
   /**
-  * @copydoc Dali::Application::LowBatterySignal()
-  */
+   * @copydoc Dali::Application::LowBatterySignal()
+   */
   Dali::Application::LowBatterySignalType& LowBatterySignal()
   {
     return mLowBatterySignal;
   }
 
   /**
-  * @copydoc Dali::Application:::LowMemorySignal()
-  */
+   * @copydoc Dali::Application:::LowMemorySignal()
+   */
   Dali::Application::LowMemorySignalType& LowMemorySignal()
   {
     return mLowMemorySignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskInitSignal()
+   */
+  Dali::Application::AppSignalType& TaskInitSignal()
+  {
+    return mTaskInitSignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskTerminateSignal()
+   */
+  Dali::Application::AppSignalType& TaskTerminateSignal()
+  {
+    return mTaskTerminateSignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskAppControlSignal()
+   */
+  Dali::Application::AppControlSignalType& TaskAppControlSignal()
+  {
+    return mTaskAppControlSignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskLanguageChangedSignal()
+   */
+  Dali::Application::AppSignalType& TaskLanguageChangedSignal()
+  {
+    return mTaskLanguageChangedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskRegionChangedSignal()
+   */
+  Dali::Application::AppSignalType& TaskRegionChangedSignal()
+  {
+    return mTaskRegionChangedSignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskLowBatterySignal()
+   */
+  Dali::Application::LowBatterySignalType& TaskLowBatterySignal()
+  {
+    return mTaskLowBatterySignal;
+  }
+
+  /**
+   * @copydoc Dali::Application::TaskLowMemorySignal()
+   */
+  Dali::Application::LowMemorySignalType& TaskLowMemorySignal()
+  {
+    return mTaskLowMemorySignal;
   }
 
 protected:
@@ -334,8 +428,9 @@ protected:
    * @param[in]  positionSize       A position and a size of the window
    * @param[in]  applicationType    A member of Dali::Framework::Type
    * @param[in]  type               The default window's type.
+   * @param[in]  useUiThread         True if the application would create UI thread
    */
-  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type);
+  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
 
   /**
    * Destructor
@@ -383,6 +478,14 @@ private:
   LowBatterySignalType mLowBatterySignal;
   LowMemorySignalType  mLowMemorySignal;
 
+  AppSignalType        mTaskInitSignal;
+  AppSignalType        mTaskTerminateSignal;
+  AppControlSignalType mTaskAppControlSignal;
+  AppSignalType        mTaskLanguageChangedSignal;
+  AppSignalType        mTaskRegionChangedSignal;
+  LowBatterySignalType mTaskLowBatterySignal;
+  LowMemorySignalType  mTaskLowMemorySignal;
+
   EventLoop* mEventLoop;
   Framework* mFramework;
 
@@ -403,6 +506,7 @@ private:
   Launchpad::State   mLaunchpadState;
   bool               mUseRemoteSurface;
   WindowType         mDefaultWindowType; ///< Default window's type. It is used when Application is created.
+  bool               mUseUiThread;
 
   SlotDelegate<Application> mSlotDelegate;
 

@@ -23,11 +23,14 @@
 #include <app_control_internal.h>
 #include <bundle.h>
 #include <bundle_internal.h>
+#include <dlog.h>
+#include <glib.h>
 #include <system_info.h>
 #include <system_settings.h>
 #include <widget_base.h>
 #include <app_core_ui_base.hh>
 #include <app_event_internal.hh>
+
 // CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <appcore-watch/watch_app.h>
@@ -219,33 +222,230 @@ struct Framework::Impl
   class UiAppContext : public AppCoreUiBase
   {
   public:
+    class Task : public AppCoreTaskBase
+    {
+    public:
+      explicit Task(Framework* framework)
+      : mFramework(framework),
+        mNewBatteryStatus(Dali::DeviceStatus::Battery::Status::NORMAL),
+        mNewMemoryStatus(Dali::DeviceStatus::Memory::NORMAL)
+      {
+      }
+
+      virtual ~Task()
+      {
+      }
+
+      int OnCreate() override
+      {
+        // On the main thread, the log functions are not set. So print_log() is used directly.
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnCreate() emitted", __MODULE__, __func__, __LINE__);
+        mFramework->mTaskObserver.OnTaskInit();
+        return AppCoreTaskBase::OnCreate();
+      }
+
+      int OnTerminate() override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnTerminate() emitted", __MODULE__, __func__, __LINE__);
+        mFramework->mTaskObserver.OnTaskTerminate();
+        return AppCoreTaskBase::OnTerminate();
+      }
+
+      int OnControl(tizen_base::Bundle b) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnControl() emitted", __MODULE__, __func__, __LINE__);
+        AppCoreTaskBase::OnControl(b);
+
+        app_control_h appControl = nullptr;
+
+        auto* bundleData = b.GetHandle();
+        if(bundleData)
+        {
+          if(app_control_create_event(bundleData, &appControl) != TIZEN_ERROR_NONE)
+          {
+            print_log(DLOG_ERROR, "DALI", "%s: %s(%d) > Failed to create an app_control handle with Bundle", __MODULE__, __func__, __LINE__);
+          }
+        }
+        else
+        {
+          if(app_control_create(&appControl) != TIZEN_ERROR_NONE)
+          {
+            print_log(DLOG_ERROR, "DALI", "%s: %s(%d) > Failed to create an app_control handle", __MODULE__, __func__, __LINE__);
+          }
+        }
+        mFramework->mTaskObserver.OnTaskAppControl(appControl);
+
+        app_control_destroy(appControl);
+        return 0;
+      }
+
+      void OnUiEvent(AppCoreTaskBase::UiState state) override
+      {
+        // This event is emitted when the UI thread is paused or resumed.
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnUiEvent() emitted", __MODULE__, __func__, __LINE__);
+
+        // Note: This isn't implemented.
+        AppCoreTaskBase::OnUiEvent(state);
+      }
+
+      void OnLowMemory(AppCoreTaskBase::LowMemoryState state) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowMemory() emitted", __MODULE__, __func__, __LINE__);
+
+        mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
+
+        PostToUiThread(
+          [](gpointer userData) -> gboolean
+          {
+            auto* task      = static_cast<Task*>(userData);
+            auto* framework = static_cast<Framework*>(task->mFramework);
+            framework->mObserver.OnMemoryLow(task->mNewMemoryStatus);
+            return G_SOURCE_REMOVE;
+          });
+        mFramework->mTaskObserver.OnTaskMemoryLow(mNewMemoryStatus);
+        AppCoreTaskBase::OnLowMemory(state);
+      }
+
+      void OnLowBattery(AppCoreTaskBase::LowBatteryState state) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
+        mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
+
+        PostToUiThread(
+          [](gpointer userData) -> gboolean
+          {
+            auto* task      = static_cast<Task*>(userData);
+            auto* framework = static_cast<Framework*>(task->mFramework);
+            framework->mObserver.OnBatteryLow(task->mNewBatteryStatus);
+            return G_SOURCE_REMOVE;
+          });
+        mFramework->mTaskObserver.OnTaskBatteryLow(mNewBatteryStatus);
+        AppCoreTaskBase::OnLowBattery(state);
+      }
+
+      void OnLangChanged(const std::string& lang) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLangChanged() emitted", __MODULE__, __func__, __LINE__);
+        mNewLanguage = lang;
+        mFramework->SetLanguage(mNewLanguage);
+
+        PostToUiThread(
+          [](gpointer userData) -> gboolean
+          {
+            auto* task      = static_cast<Task*>(userData);
+            auto* framework = static_cast<Framework*>(task->mFramework);
+            framework->mObserver.OnLanguageChanged();
+            return G_SOURCE_REMOVE;
+          });
+
+        mFramework->mTaskObserver.OnTaskLanguageChanged();
+        AppCoreTaskBase::OnLangChanged(lang);
+      }
+
+      void OnRegionChanged(const std::string& region) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > nRegionChanged() emitted", __MODULE__, __func__, __LINE__);
+        mNewRegion = region;
+        mFramework->SetRegion(mNewRegion);
+
+        PostToUiThread(
+          [](gpointer userData) -> gboolean
+          {
+            auto* task      = static_cast<Task*>(userData);
+            auto* framework = static_cast<Framework*>(task->mFramework);
+            framework->mObserver.OnRegionChanged();
+            return G_SOURCE_REMOVE;
+          });
+
+        mFramework->mTaskObserver.OnTaskRegionChanged();
+        AppCoreTaskBase::OnRegionChanged(mNewRegion);
+      }
+
+      void OnDeviceOrientationChanged(AppCoreTaskBase::DeviceOrientationState state) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
+        // Note: This isn't emitted to the App.
+        AppCoreTaskBase::OnDeviceOrientationChanged(state);
+      }
+
+    private:
+      GMainContext* GetTizenGlibContext()
+      {
+        GMainContext* context;
+        const char*   env = getenv("TIZEN_GLIB_CONTEXT");
+        if(env)
+        {
+          context = (GMainContext*)strtoul(env, nullptr, 10);
+        }
+        else
+        {
+          context = nullptr;
+        }
+
+        return context;
+      }
+
+      void PostToUiThread(GSourceFunc func)
+      {
+        GSource* source = g_idle_source_new();
+        g_source_set_callback(source, func, this, nullptr);
+        g_source_attach(source, GetTizenGlibContext());
+        g_source_unref(source);
+      }
+
+    private:
+      Framework*                          mFramework;
+      std::string                         mNewLanguage;
+      std::string                         mNewRegion;
+      Dali::DeviceStatus::Battery::Status mNewBatteryStatus;
+      Dali::DeviceStatus::Memory::Status  mNewMemoryStatus;
+    };
+
     explicit UiAppContext(unsigned int hint, Framework* framework)
     : AppCoreUiBase(hint),
-      mFramework(framework)
+      mFramework(framework),
+      mUseUiThread(false)
     {
-      mLanguageChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LANG_CHANGE, OnLanguageChanged, this);
-      AddEvent(mLanguageChanged);
+      if(hint & AppCoreUiBase::HINT_DUAL_THREAD)
+      {
+        mUseUiThread = true;
+      }
 
-      mDeviceOrientationChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::DEVICE_ORIENTATION_CHANGED, OnDeviceOrientationChanged, this);
-      AddEvent(mDeviceOrientationChanged);
+      if(!mUseUiThread)
+      {
+        mLanguageChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LANG_CHANGE, OnLanguageChanged, this);
+        AddEvent(mLanguageChanged);
 
-      mRegionFormatChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::REGION_CHANGE, OnRegionFormatChanged, this);
-      AddEvent(mRegionFormatChanged);
+        mDeviceOrientationChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::DEVICE_ORIENTATION_CHANGED, OnDeviceOrientationChanged, this);
+        AddEvent(mDeviceOrientationChanged);
 
-      mLowMemory = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LOW_MEMORY, OnLowMemory, this);
-      AddEvent(mLowMemory);
+        mRegionFormatChanged = std::make_shared<AppEvent>(IAppCore::IEvent::Type::REGION_CHANGE, OnRegionFormatChanged, this);
+        AddEvent(mRegionFormatChanged);
 
-      mLowBattery = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LOW_BATTERY, OnLowBattery, this);
-      AddEvent(mLowBattery);
+        mLowMemory = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LOW_MEMORY, OnLowMemory, this);
+        AddEvent(mLowMemory);
+
+        mLowBattery = std::make_shared<AppEvent>(IAppCore::IEvent::Type::LOW_BATTERY, OnLowBattery, this);
+        AddEvent(mLowBattery);
+      }
     }
 
     virtual ~UiAppContext()
     {
-      RemoveEvent(mLowBattery);
-      RemoveEvent(mLowMemory);
-      RemoveEvent(mRegionFormatChanged);
-      RemoveEvent(mDeviceOrientationChanged);
-      RemoveEvent(mLanguageChanged);
+      if(!mUseUiThread)
+      {
+        RemoveEvent(mLowBattery);
+        RemoveEvent(mLowMemory);
+        RemoveEvent(mRegionFormatChanged);
+        RemoveEvent(mDeviceOrientationChanged);
+        RemoveEvent(mLanguageChanged);
+      }
+    }
+
+    std::unique_ptr<AppCoreTaskBase> CreateTask() override
+    {
+      return std::unique_ptr<AppCoreTaskBase>(
+        new Task(mFramework));
     }
 
     int OnCreate() override
@@ -451,12 +651,14 @@ struct Framework::Impl
     std::shared_ptr<AppEvent> mRegionFormatChanged;
     std::shared_ptr<AppEvent> mLowBattery;
     std::shared_ptr<AppEvent> mLowMemory;
+    bool                      mUseUiThread;
   };
 
   // Constructor
-  Impl(void* data, Type type)
+  Impl(void* data, Type type, bool useUiThread)
   : mAbortCallBack(NULL),
-    mCallbackManager(NULL)
+    mCallbackManager(NULL),
+    mUseUiThread(useUiThread)
 #ifdef APPCORE_WATCH_AVAILABLE
     ,
     mWatchCallback()
@@ -597,6 +799,7 @@ struct Framework::Impl
   Framework*                    mFramework;
   AppCore::AppEventHandlerPtr   handlers[5];
   std::unique_ptr<UiAppContext> mUiAppContext;
+  bool                          mUseUiThread;
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
   app_event_handler_h            watchHandlers[5];
@@ -766,6 +969,26 @@ struct Framework::Impl
                           AppCoreUiBase::HINT_BG_LAUNCH_CONTROL |
                           AppCoreUiBase::HINT_HW_ACC_CONTROL |
                           AppCoreUiBase::HINT_WINDOW_AUTO_CONTROL;
+
+      // For testing UIThread model, This code turns on the UI Thread feature forcibly.
+      //  ex) app_launcher -e [APPID] __K_UI_THREAD enable
+      // This code doesn't change mUseUiThread in Internal::Application
+      bundle* b = bundle_import_from_argv(*mFramework->mArgc, *mFramework->mArgv);
+      if(b != nullptr)
+      {
+        const char* val = bundle_get_val(b, "__K_UI_THREAD");
+        if(val != nullptr && strcmp(val, "enable") == 0)
+        {
+          mUseUiThread = true;
+        }
+
+        bundle_free(b);
+      }
+
+      if(mUseUiThread)
+      {
+        hint |= AppCoreUiBase::HINT_DUAL_THREAD;
+      }
 
       mUiAppContext = std::make_unique<UiAppContext>(hint, mFramework);
     }
@@ -988,8 +1211,9 @@ private:
   Impl& operator=(const Impl& impl);
 };
 
-Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Type type)
+Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
 : mObserver(observer),
+  mTaskObserver(taskObserver),
   mInitialised(false),
   mPaused(false),
   mRunning(false),
@@ -1010,7 +1234,7 @@ Framework::Framework(Framework::Observer& observer, int* argc, char*** argv, Typ
 
   InitThreads();
 
-  mImpl = new Impl(this, type);
+  mImpl = new Impl(this, type, useUiThread);
 }
 
 Framework::~Framework()
