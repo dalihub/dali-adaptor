@@ -32,7 +32,6 @@
 #include <EGL/eglext.h>
 #include <map>
 
-
 namespace Dali::Graphics::GLES
 {
 struct Context::Impl
@@ -593,11 +592,23 @@ void Context::ResolveUniformBuffers()
 void Context::ResolveStandaloneUniforms()
 {
   // Find reflection for program
-  const auto program = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
-  const auto ptr     = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
+  const GLES::Program* program{nullptr};
 
-  // Update program uniforms
-  program->GetImplementation()->UpdateStandaloneUniformBlock(ptr);
+  if(mImpl->mNewPipeline)
+  {
+    program = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+  }
+  else if(mImpl->mCurrentPipeline)
+  {
+    program = static_cast<const GLES::Program*>(mImpl->mCurrentPipeline->GetCreateInfo().programState->program);
+  }
+
+  if(program)
+  {
+    const auto ptr = reinterpret_cast<const char*>(mImpl->mCurrentStandaloneUBOBinding.buffer->GetCPUAllocatedAddress()) + mImpl->mCurrentStandaloneUBOBinding.offset;
+    // Update program uniforms
+    program->GetImplementation()->UpdateStandaloneUniformBlock(ptr);
+  }
 }
 
 void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
@@ -1008,7 +1019,7 @@ void Context::PrepareForNativeRendering()
     attribs.push_back(version % 10);
     attribs.push_back(EGL_NONE);
 
-    mImpl->mNativeDrawContext = eglCreateContext(display, configs[configId], EGL_NO_CONTEXT, attribs.data());
+    mImpl->mNativeDrawContext = eglCreateContext(display, configs[configId], mImpl->mController.GetSharedContext(), attribs.data());
   }
 
   eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
