@@ -316,7 +316,10 @@ void EglGraphicsController::ActivateResourceContext()
   if(!mSharedContext)
   {
     auto eglGraphics = dynamic_cast<Dali::Internal::Adaptor::EglGraphics*>(mGraphics);
-    mSharedContext   = eglGraphics->GetEglImplementation().GetContext();
+    if(eglGraphics)
+    {
+      mSharedContext = eglGraphics->GetEglImplementation().GetContext();
+    }
   }
 }
 
