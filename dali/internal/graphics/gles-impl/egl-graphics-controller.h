@@ -136,16 +136,6 @@ public:
     // Final flush
     Flush();
 
-    ClearTextureUpdateQueue();
-
-    // Remove all create queue and command queue.
-    // Note that all memory are already deallocated at Final flush.
-    mCreateTextureQueue              = {};
-    mCreateBufferQueue               = {};
-    mCreateFramebufferQueue          = {};
-    mTextureMipmapGenerationRequests = {};
-    mCommandQueue                    = {};
-
     if(mContext)
     {
       mContext->GlContextDestroyed();
@@ -474,26 +464,6 @@ public:
   }
 
   /**
-   * @brief Clears the texture update queue
-   */
-  void ClearTextureUpdateQueue()
-  {
-    // Remove remained CPU-allocated texture memory
-    while(!mTextureUpdateRequests.empty())
-    {
-      auto& request = mTextureUpdateRequests.front();
-      auto& source  = request.second;
-
-      if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
-      {
-        // free staging memory
-        free(source.memorySource.memory);
-      }
-      mTextureUpdateRequests.pop();
-    }
-  }
-
-  /**
    * @brief Flushes all pending updates
    *
    * Function flushes all pending resource constructions,
@@ -501,29 +471,26 @@ public:
    */
   void Flush()
   {
-    if(DALI_LIKELY(!mIsShuttingDown))
+    if(!mCreateTextureQueue.empty() ||
+       !mCreateBufferQueue.empty() ||
+       !mCreateFramebufferQueue.empty() ||
+       !mTextureUpdateRequests.empty() ||
+       !mTextureMipmapGenerationRequests.empty())
     {
-      if(!mCreateTextureQueue.empty() ||
-         !mCreateBufferQueue.empty() ||
-         !mCreateFramebufferQueue.empty() ||
-         !mTextureUpdateRequests.empty() ||
-         !mTextureMipmapGenerationRequests.empty())
-      {
-        mGraphics->ActivateResourceContext();
-      }
-
-      // Process creations
-      ProcessCreateQueues();
-
-      // Process updates
-      ProcessTextureUpdateQueue();
-
-      // Process texture mipmap generation requests
-      ProcessTextureMipmapGenerationQueue();
-
-      // Process main command queue
-      ProcessCommandQueues();
+      mGraphics->ActivateResourceContext();
     }
+
+    // Process creations
+    ProcessCreateQueues();
+
+    // Process updates
+    ProcessTextureUpdateQueue();
+
+    // Process texture mipmap generation requests
+    ProcessTextureMipmapGenerationQueue();
+
+    // Process main command queue
+    ProcessCommandQueues();
 
     // Reset texture cache in the contexts while destroying textures
     ResetTextureCache();
