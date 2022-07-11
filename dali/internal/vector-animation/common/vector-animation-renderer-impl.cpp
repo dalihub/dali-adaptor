@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,9 +106,9 @@ bool VectorAnimationRenderer::GetMarkerInfo(const std::string& marker, uint32_t&
   return mPlugin.GetMarkerInfo(marker, startFrame, endFrame);
 }
 
-void VectorAnimationRenderer::IgnoreRenderedFrame()
+void VectorAnimationRenderer::InvalidateBuffer()
 {
-  mPlugin.IgnoreRenderedFrame();
+  mPlugin.InvalidateBuffer();
 }
 
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()

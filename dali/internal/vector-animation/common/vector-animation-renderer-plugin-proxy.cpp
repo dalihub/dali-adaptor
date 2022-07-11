@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,6 +163,11 @@ void VectorAnimationRendererPluginProxy::GetDefaultSize(uint32_t& width, uint32_
   {
     mPlugin->GetDefaultSize(width, height);
   }
+  else
+  {
+    width  = 0;
+    height = 0;
+  }
 }
 
 void VectorAnimationRendererPluginProxy::GetLayerInfo(Property::Map& map) const
@@ -182,11 +187,11 @@ bool VectorAnimationRendererPluginProxy::GetMarkerInfo(const std::string& marker
   return false;
 }
 
-void VectorAnimationRendererPluginProxy::IgnoreRenderedFrame()
+void VectorAnimationRendererPluginProxy::InvalidateBuffer()
 {
   if(mPlugin)
   {
-    mPlugin->IgnoreRenderedFrame();
+    mPlugin->InvalidateBuffer();
   }
 }
 
