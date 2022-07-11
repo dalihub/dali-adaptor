@@ -36,6 +36,7 @@
 #include <dali/public-api/object/property-map.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
@@ -49,6 +50,18 @@ using PixelArray                    = unsigned char*;
 const unsigned int DECODED_L8       = 1;
 const unsigned int DECODED_RGB888   = 3;
 const unsigned int DECODED_RGBA8888 = 4;
+
+const char* CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[] = {"DALI_ENABLE_DECODE_JPEG_TO_YUV_444",
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_422",
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_420",
+                                                     "",
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_440",
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_411"};
+
+static bool gSubsamplingFormatTable[TJ_NUMSAMP] = {
+  false,
+};
+static bool gIsSubsamplingFormatTableInitialized = false;
 
 /** Transformations that can be applied to decoded pixels to respect exif orientation
   *  codes in image headers */
@@ -73,6 +86,22 @@ struct JpegErrorState
   struct jpeg_error_mgr errorManager;
   jmp_buf               jumpBuffer;
 };
+
+static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
+{
+  if(!gIsSubsamplingFormatTableInitialized)
+  {
+    for(int i = 0; i < TJ_NUMSAMP; i++)
+    {
+      auto valueString           = Dali::EnvironmentVariable::GetEnvironmentVariable(CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[i]);
+      gSubsamplingFormatTable[i] = valueString ? std::atoi(valueString) : false;
+    }
+
+    gIsSubsamplingFormatTableInitialized = true;
+  }
+
+  return gSubsamplingFormatTable[chrominanceSubsampling];
+}
 
 /**
   * @brief Called by the JPEG library when it hits an error.
@@ -819,8 +848,8 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
 
   bool result = false;
 
-  // Now we support YUV420 only
-  if(decodeToYuv && chrominanceSubsampling == TJSAMP_420 && transform == JpegTransform::NONE)
+  // Check decoding format
+  if(decodeToYuv && IsSubsamplingFormatEnabled(chrominanceSubsampling) && transform == JpegTransform::NONE)
   {
     unsigned char* planes[3];
 
