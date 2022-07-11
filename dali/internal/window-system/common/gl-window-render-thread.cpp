@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,8 +117,8 @@ void GlWindowRenderThread::Stop()
 }
 
 void GlWindowRenderThread::RegisterGlCallbacks(CallbackBase* initCallback,
-                                              CallbackBase* renderFrameCallback,
-                                              CallbackBase* terminateCallback)
+                                               CallbackBase* renderFrameCallback,
+                                               CallbackBase* terminateCallback)
 {
   mGLInitCallback        = std::unique_ptr<CallbackBase>(initCallback);
   mGLRenderFrameCallback = std::unique_ptr<CallbackBase>(renderFrameCallback);

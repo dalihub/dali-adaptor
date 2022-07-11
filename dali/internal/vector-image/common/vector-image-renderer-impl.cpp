@@ -74,6 +74,7 @@ VectorImageRenderer::VectorImageRenderer()
 
 VectorImageRenderer::~VectorImageRenderer()
 {
+  Mutex::ScopedLock lock(mMutex);
 #ifdef THORVG_SUPPORT
 
   //NOTE: Initializer::term() will call clear() internally.
@@ -116,6 +117,7 @@ void VectorImageRenderer::Initialize()
 
 bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 {
+  Mutex::ScopedLock lock(mMutex);
 #ifdef THORVG_SUPPORT
   if(!mSwCanvas)
   {
@@ -204,6 +206,8 @@ bool VectorImageRenderer::IsLoaded() const
 
 Dali::Devel::PixelBuffer VectorImageRenderer::Rasterize(uint32_t width, uint32_t height)
 {
+  Mutex::ScopedLock lock(mMutex);
+
   if(width == 0)
   {
     if(mDefaultWidth == 0)

@@ -46,7 +46,7 @@ Application Application::New(int* argc, char** argv[])
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -66,7 +66,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -88,7 +88,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -113,7 +113,32 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
+  }
+  return Application(internal.Get());
+}
+
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread)
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if(internal)
+  {
+    // pre-initialized application
+    internal->SetCommandLineOptions(argc, argv);
+    if(argc && (*argc > 0))
+    {
+      internal->GetWindow().SetClass((*argv)[0], "");
+    }
+    internal->SetStyleSheet(stylesheet);
+
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
+
+    //Store only the value before adaptor is created
+    internal->StoreWindowPositionSize(positionSize);
+  }
+  else
+  {
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, useUiThread);
   }
   return Application(internal.Get());
 }
@@ -227,6 +252,41 @@ Application::LowBatterySignalType& Application::LowBatterySignal()
 Application::LowMemorySignalType& Application::LowMemorySignal()
 {
   return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
+}
+
+Application::AppSignalType& Application::TaskInitSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskInitSignal();
+}
+
+Application::AppSignalType& Application::TaskTerminateSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskTerminateSignal();
+}
+
+Application::AppControlSignalType& Application::TaskAppControlSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskAppControlSignal();
+}
+
+Application::AppSignalType& Application::TaskLanguageChangedSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskLanguageChangedSignal();
+}
+
+Application::AppSignalType& Application::TaskRegionChangedSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskRegionChangedSignal();
+}
+
+Application::LowBatterySignalType& Application::TaskLowBatterySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskLowBatterySignal();
+}
+
+Application::LowMemorySignalType& Application::TaskLowMemorySignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskLowMemorySignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

@@ -65,12 +65,12 @@ public:
     */
   enum class ColorFormat
   {
-    RGB888,   /// 8 red bits, 8 green bits, 8 blue bits
-    RGBA8888, /// 8 red bits, 8 green bits, 8 blue bits, alpha 8 bits
-    RGBX8888, /// 8 red bits, 8 green bits, 8 blue bits, and 8 ignored bits
-    BGR888,   /// 8 blue bits, 8 green bits, 8 red bits
-    BGRA8888, /// 8 blue bits, 8 green bits, 8 red bits, alpha 8 bits
-    BGRX8888, /// 8 blue bits, 8 green bits, 8 red bits, and 8 ignored bits
+    BGR888   = 0, /// 8 blue bits, 8 green bits, 8 red bits
+    BGRA8888 = 1, /// 8 blue bits, 8 green bits, 8 red bits, alpha 8 bits
+    BGRX8888 = 2, /// 8 blue bits, 8 green bits, 8 red bits, and 8 ignored bits
+    RGB888   = 3, /// 8 red bits, 8 green bits, 8 blue bits
+    RGBA8888 = 4, /// 8 red bits, 8 green bits, 8 blue bits, alpha 8 bits
+    RGBX8888 = 5, /// 8 red bits, 8 green bits, 8 blue bits, and 8 ignored bits
   };
 
   /**

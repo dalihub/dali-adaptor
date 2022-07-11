@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,46 +65,22 @@ NativeImageSurfaceEcoreWl::NativeImageSurfaceEcoreWl(Dali::NativeImageSourceQueu
 
 bool NativeImageSurfaceEcoreWl::SetGraphicsConfig(bool depth, bool stencil, int msaa, int version)
 {
-  bool featureFlag = false;
-  int  error       = SYSTEM_INFO_ERROR_NONE;
-
-  if(version == 30)
+  // Setup the configuration
+  // The GLES version support is done by the caller
+  mDepth   = depth;
+  mStencil = stencil;
+  if(mMSAA == 0)
   {
-    error = system_info_get_platform_bool("http://tizen.org/feature/opengles.version.3_0", &featureFlag);
-  }
-  else if(version == 20)
-  {
-    error = system_info_get_platform_bool("http://tizen.org/feature/opengles.version.2_0", &featureFlag);
+    //EGL_DONT_CARE is -1
+    mMSAA = -1;
   }
   else
   {
-    DALI_LOG_ERROR("version is not valid");
-    return false;
+    mMSAA = msaa;
   }
+  mGLESVersion = version;
 
-  if(error != SYSTEM_INFO_ERROR_NONE)
-  {
-    DALI_LOG_ERROR("Can't check platform feature.\n");
-    return false;
-  }
-
-  if(featureFlag)
-  {
-    mDepth   = depth;
-    mStencil = stencil;
-    if(mMSAA == 0)
-    {
-      //EGL_DONT_CARE is -1
-      mMSAA = -1;
-    }
-    else
-    {
-      mMSAA = msaa;
-    }
-    mGLESVersion = version;
-  }
-
-  return featureFlag;
+  return true;
 }
 
 Any NativeImageSurfaceEcoreWl::GetNativeRenderable()

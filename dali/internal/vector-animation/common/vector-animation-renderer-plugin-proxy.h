@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_PLUGIN_PROXY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,9 +94,9 @@ public:
   bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const;
 
   /**
-   * @copydoc Dali::VectorAnimationRendererPlugin::IgnoreRenderedFrame()
+   * @copydoc Dali::VectorAnimationRendererPlugin::InvalidateBuffer()
    */
-  void IgnoreRenderedFrame();
+  void InvalidateBuffer();
 
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()

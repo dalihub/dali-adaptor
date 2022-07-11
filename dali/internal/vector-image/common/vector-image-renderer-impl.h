@@ -19,8 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/signals/connection-tracker.h>
+
 #ifdef THORVG_SUPPORT
 #include <thorvg.h>
 #endif
@@ -105,8 +107,9 @@ private:
   NSVGimage*      mParsedImage{nullptr};
   NSVGrasterizer* mRasterizer{nullptr};
 #endif
-  uint32_t mDefaultWidth{0};  ///< The default width of the file
-  uint32_t mDefaultHeight{0}; ///< The default height of the file
+  Dali::Mutex mMutex{};          ///< The mutex
+  uint32_t    mDefaultWidth{0};  ///< The default width of the file
+  uint32_t    mDefaultHeight{0}; ///< The default height of the file
 };
 
 } // namespace Adaptor

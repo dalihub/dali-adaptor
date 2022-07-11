@@ -144,6 +144,8 @@ namespace Adaptor
 
 #define DALI_ENV_SUPPRESS_SCREEN_READER "DALI_SUPPRESS_SCREEN_READER"
 
+#define DALI_ENV_ENABLE_UI_THREAD "DALI_ENABLE_UI_THREAD"
+
 } // namespace Adaptor
 
 } // namespace Internal
