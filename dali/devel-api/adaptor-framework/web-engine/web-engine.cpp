@@ -57,6 +57,16 @@ WebEngine WebEngine::New()
   return WebEngine(engine.Get());
 }
 
+Dali::WebEngineContext* WebEngine::GetContext()
+{
+  return Internal::Adaptor::WebEngine::GetContext();
+}
+
+Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
+{
+  return Internal::Adaptor::WebEngine::GetCookieManager();
+}
+
 WebEngine::WebEngine(const WebEngine& webEngine)
 : BaseHandle(webEngine)
 {
@@ -99,16 +109,6 @@ NativeImageSourcePtr WebEngine::GetNativeImageSource()
 Dali::WebEngineSettings& WebEngine::GetSettings() const
 {
   return GetImplementation(*this).GetSettings();
-}
-
-Dali::WebEngineContext& WebEngine::GetContext() const
-{
-  return GetImplementation(*this).GetContext();
-}
-
-Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
-{
-  return GetImplementation(*this).GetCookieManager();
 }
 
 Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
