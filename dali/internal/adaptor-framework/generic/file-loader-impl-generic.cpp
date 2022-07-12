@@ -69,7 +69,7 @@ int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector
   {
     fileSize = file->tellg();
 
-    memblock.Resize( fileSize );
+    memblock.ResizeUninitialized( fileSize );
 
     file->seekg (0, std::ios::beg);
     file->read( reinterpret_cast<char*>(memblock.Begin()), fileSize );

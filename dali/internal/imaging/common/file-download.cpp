@@ -148,7 +148,7 @@ CURLcode DownloadFileDataByChunk( CURL* curlHandle, Dali::Vector<uint8_t>& dataB
   {
     dataSize += chunks[i].data.capacity();
   }
-  dataBuffer.Resize(dataSize);
+  dataBuffer.ResizeUninitialized(dataSize);
 
   size_t offset = 0;
   for( size_t i=0; i<chunks.size() ; ++i )

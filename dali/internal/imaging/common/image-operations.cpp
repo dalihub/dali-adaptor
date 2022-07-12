@@ -1974,7 +1974,7 @@ void Resample( const unsigned char * __restrict__ inPixels,
                                  NULL,           // Pclist_y. Optional pointers to contributor lists from another instance of a Resampler.
                                  FILTER_SCALE,   // src_x_ofs,
                                  FILTER_SCALE ); // src_y_ofs. Offset input image by specified amount (fractional values okay).
-  samples[0].Resize( srcWidth );
+  samples[0].ResizeUninitialized( srcWidth );
   for( int i = 1; i < numChannels; ++i )
   {
     resamplers[i] = new Resampler( srcWidth,
@@ -1989,7 +1989,7 @@ void Resample( const unsigned char * __restrict__ inPixels,
                                    resamplers[0]->get_clist_y(),
                                    FILTER_SCALE,
                                    FILTER_SCALE );
-    samples[i].Resize( srcWidth );
+    samples[i].ResizeUninitialized( srcWidth );
   }
 
   const int srcPitch = srcWidth * numChannels;

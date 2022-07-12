@@ -369,7 +369,7 @@ void Transverse(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize( width * height );
+  data.ResizeUninitialized( width * height );
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -392,7 +392,7 @@ void Rotate90(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -421,7 +421,7 @@ void Rotate180(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -445,7 +445,7 @@ void Rotate270(PixelArray buffer, int width, int height)
 {
   using PixelT = PixelType<N>;
   Vector<PixelT> data;
-  data.Resize(width * height);
+  data.ResizeUninitialized(width * height);
   auto dataPtr = data.Begin();
 
   auto original = reinterpret_cast<PixelT*>(buffer);
@@ -560,7 +560,7 @@ bool LoadBitmapFromJpeg( const Dali::ImageLoader::Input& input, Dali::Devel::Pix
   Vector<unsigned char> jpegBuffer;
   try
   {
-    jpegBuffer.Resize( jpegBufferSize );
+    jpegBuffer.ResizeUninitialized( jpegBufferSize );
   }
   catch(...)
   {
@@ -898,7 +898,7 @@ bool EncodeToJpeg( const unsigned char* const pixelBuffer, Vector< unsigned char
       return false;
     }
 
-    encodedPixels.Resize( dstBufferSize );
+    encodedPixels.ResizeUninitialized( dstBufferSize );
     memcpy( encodedPixels.Begin(), dstBuffer.get(), dstBufferSize );
   }
   return true;
