@@ -193,6 +193,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   void UnembedSocket(const Address& plug, const Address& socket) override
   {
   }
+
+  void SetPreferredBusName(std::string_view preferredBusName) override
+  {
+  }
 };
 
 } // namespace Dali::Accessibility

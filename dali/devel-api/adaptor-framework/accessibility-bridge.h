@@ -401,6 +401,18 @@ struct DALI_ADAPTOR_API Bridge
   virtual void UnembedSocket(const Address& plug, const Address& socket) = 0;
 
   /**
+   * @brief Sets the preferred bus name.
+   *
+   * If the Bridge is enabled, it will immediately release the previous name and request the new one.
+   *
+   * Otherwise, the Bridge will request this name on AT-SPI activation (and release it on deactivation).
+   * It is up to the caller to determine whether a given name will be available in the system.
+   *
+   * @param preferredBusName The preferred bus name
+   */
+  virtual void SetPreferredBusName(std::string_view preferredBusName) = 0;
+
+  /**
    * @brief Returns instance of bridge singleton object.
    *
    * @return The current bridge object
@@ -434,6 +446,16 @@ struct DALI_ADAPTOR_API Bridge
    * @see Dali::Accessibility::Bridge::SetApplicationName
    */
   static void EnableAutoInit();
+
+  /**
+   * @brief Encodes a widget ID as a usable bus name.
+   *
+   * @param widgetInstanceId The instance ID of a widget
+   * @return std::string Encoded bus name
+   *
+   * @see SetPreferredBusName
+   */
+  static std::string MakeBusNameForWidget(std::string_view widgetInstanceId);
 
   static Signal<void()>& EnabledSignal()
   {

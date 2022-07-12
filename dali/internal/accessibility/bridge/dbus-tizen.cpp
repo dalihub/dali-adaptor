@@ -169,6 +169,16 @@ std::string DBus::getConnectionName(const DBusWrapper::ConnectionPtr& c)
   return DBUS_W->eldbus_connection_unique_name_get_impl(c);
 }
 
+void DBus::requestBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus)
+{
+  DBUS_W->eldbus_name_request_impl(conn, bus);
+}
+
+void DBus::releaseBusName(const DBusWrapper::ConnectionPtr& conn, const std::string& bus)
+{
+  DBUS_W->eldbus_name_release_impl(conn, bus);
+}
+
 bool DBus::DBusClient::getFromEinaValue(const _Eina_Value* v, void* dst)
 {
   return eina_value_get(const_cast<Eina_Value*>(v), dst);
@@ -542,6 +552,16 @@ struct DefaultDBusWrapper : public DBusWrapper
   ProxyPtr eldbus_proxy_copy_impl(const ProxyPtr& ptr) override
   {
     return create(get(ptr), false);
+  }
+
+  void eldbus_name_request_impl(const ConnectionPtr& conn, const std::string& bus) override
+  {
+    eldbus_name_request(get(conn), bus.c_str(), ELDBUS_NAME_REQUEST_FLAG_DO_NOT_QUEUE, nullptr, nullptr);
+  }
+
+  void eldbus_name_release_impl(const ConnectionPtr& conn, const std::string& bus) override
+  {
+    eldbus_name_release(get(conn), bus.c_str(), nullptr, nullptr);
   }
 
   struct Implementation

@@ -84,6 +84,11 @@ void Accessibility::Bridge::EnableAutoInit()
 {
 }
 
+std::string MakeBusNameForWidget(std::string_view widgetInstanceId)
+{
+  return std::string{widgetInstanceId};
+}
+
 void Accessibility::Accessible::EmitStateChanged(Accessibility::State state, int newValue, int reserved)
 {
 }

@@ -27,6 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
+#include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
@@ -84,6 +85,7 @@ class BridgeImpl : public virtual BridgeBase,
   Dali::Timer                                                   mReadIsEnabledTimer;
   Dali::Timer                                                   mReadScreenReaderEnabledTimer;
   Dali::Timer                                                   mForceUpTimer;
+  std::string                                                   mPreferredBusName;
 
 public:
   BridgeImpl()
@@ -227,6 +229,7 @@ public:
 
       mDisabledSignal.Emit();
       UnembedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
+      ReleaseBusName(mPreferredBusName);
     }
 
     mHighlightedActor     = {};
@@ -351,6 +354,8 @@ public:
         }
       }
     });
+
+    RequestBusName(mPreferredBusName);
 
     auto parentAddress = EmbedSocket(mApplication.GetAddress(), {AtspiDbusNameRegistry, "root"});
     mApplication.mParent.SetAddress(std::move(parentAddress));
@@ -712,10 +717,48 @@ public:
     client.method<void(Address)>("Unembed").call(plug);
   }
 
+  void SetPreferredBusName(std::string_view preferredBusName) override
+  {
+    if(preferredBusName == mPreferredBusName)
+    {
+      return;
+    }
+
+    std::string oldPreferredBusName = std::move(mPreferredBusName);
+    mPreferredBusName               = std::string{preferredBusName};
+
+    if(IsUp())
+    {
+      ReleaseBusName(oldPreferredBusName);
+      RequestBusName(mPreferredBusName);
+    }
+    // else: request/release will be handled by ForceUp/ForceDown, respectively
+  }
+
 private:
   DBus::DBusClient CreateSocketClient(const Address& socket)
   {
     return {socket.GetBus(), ATSPI_PREFIX_PATH + socket.GetPath(), Accessible::GetInterfaceName(AtspiInterface::SOCKET), mConnectionPtr};
+  }
+
+  void RequestBusName(const std::string& busName)
+  {
+    if(busName.empty())
+    {
+      return;
+    }
+
+    DBus::requestBusName(mConnectionPtr, busName);
+  }
+
+  void ReleaseBusName(const std::string& busName)
+  {
+    if(busName.empty())
+    {
+      return;
+    }
+
+    DBus::releaseBusName(mConnectionPtr, busName);
   }
 }; // BridgeImpl
 
@@ -815,4 +858,24 @@ void Bridge::EnableAutoInit()
   {
     bridge->WindowShown(window);
   }
+}
+
+std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId)
+{
+  // The bus name should consist of dot-separated alphanumeric elements, e.g. "com.example.BusName123".
+  // Allowed characters in each element: "[A-Z][a-z][0-9]_", but no element may start with a digit.
+
+  static const char prefix[]   = "com.samsung.dali.widget_";
+  static const char underscore = '_';
+
+  std::stringstream tmp;
+
+  tmp << prefix;
+
+  for(char ch : widgetInstanceId)
+  {
+    tmp << (std::isalnum(ch) ? ch : underscore);
+  }
+
+  return tmp.str();
 }
