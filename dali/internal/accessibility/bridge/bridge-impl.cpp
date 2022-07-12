@@ -717,6 +717,23 @@ public:
     client.method<void(Address)>("Unembed").call(plug);
   }
 
+  void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
+  {
+    AddCoalescableMessage(CoalescableMessages::SET_OFFSET, socket, 1.0f, [=]() {
+      auto client = CreateSocketClient(socket->GetAddress());
+
+      client.method<void(std::int32_t, std::int32_t)>("SetOffset").asyncCall([](DBus::ValueOrError<void>) {}, x, y);
+    });
+  }
+
+  void SetExtentsOffset(std::int32_t x, std::int32_t y) override
+  {
+    if(mData)
+    {
+      mData->mExtentsOffset = {x, y};
+    }
+  }
+
   void SetPreferredBusName(std::string_view preferredBusName) override
   {
     if(preferredBusName == mPreferredBusName)

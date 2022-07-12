@@ -266,29 +266,6 @@ static std::string MakeIndent(unsigned int maxRecursionDepth)
   return std::string(GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH - maxRecursionDepth, ' ');
 }
 
-static bool IsDeputy(Accessible* obj)
-{
-  //TODO: add deputy
-  return false;
-}
-
-static Accessible* GetProxyInParent(Accessible* obj)
-{
-  if(!obj)
-  {
-    return nullptr;
-  }
-
-  auto children = obj->GetChildren();
-  for(auto& child : children)
-  {
-    if(child->IsProxy())
-    {
-      return child;
-    }
-  }
-  return nullptr;
-}
 
 static bool IsRoleAcceptableWhenNavigatingNextPrev(Accessible* obj)
 {
@@ -353,11 +330,6 @@ static bool CheckChainEndWithAttribute(Accessible* obj, unsigned char forward)
     }
   }
   return false;
-}
-
-static Accessible* GetDeputyOfProxyInParent(Accessible* obj)
-{
-  return nullptr;
 }
 
 static std::vector<Component*> GetScrollableParents(Accessible* accessible)
@@ -627,6 +599,10 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   Accessible* deputy     = nullptr;
   auto        accessible = FindSelf();
   auto        cType      = static_cast<CoordinateType>(coordinateType);
+
+  x -= mData->mExtentsOffset.first;
+  y -= mData->mExtentsOffset.second;
+
   LOG() << "GetNavigableAtPoint: " << x << ", " << y << " type: " << coordinateType;
   auto component = CalculateNavigableAccessibleAtPoint(accessible, {x, y}, cType, GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH);
   bool recurse   = false;
@@ -742,6 +718,10 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
   {
     return nullptr;
   }
+  else if(parent->IsProxy())
+  {
+    return parent;
+  }
 
   auto children = GetValidChildren(parent->GetChildren(), start);
   SortChildrenFromTopLeft(children);
@@ -813,9 +793,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
 
   if(searchMode == BridgeAccessible::NeighborSearchMode::RECURSE_TO_OUTSIDE)
   {
-    // This only works if we navigate backward, and it is not possible to
-    // find in embedded process. In this case the deputy should be used */
-    return GetDeputyOfProxyInParent(start);
+    searchMode = BridgeAccessible::NeighborSearchMode::CONTINUE_AFTER_FAILED_RECURSION;
   }
 
   Accessible* node = start ? start : root;
@@ -876,17 +854,6 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     }
 
     Accessible* nextRelatedInDirection = !forceNext ? GetObjectInRelation(node, forward ? RelationType::FLOWS_TO : RelationType::FLOWS_FROM) : nullptr;
-    // forceNext means that the searchMode is NEIGHBOR_SEARCH_MODE_CONTINUE_AFTER_FAILED_RECURSING
-    // in this case the node is elm_layout which is parent of proxy object.
-    // There is an access object working for the proxy object, and the access
-    // object could have relation information. This relation information should
-    // be checked first before using the elm_layout as a node.
-    if(forceNext && forward)
-    {
-      auto deputy            = GetDeputyOfProxyInParent(node);
-      nextRelatedInDirection = GetObjectInRelation(deputy, RelationType::FLOWS_TO);
-    }
-
     if(nextRelatedInDirection && start && start->GetStates()[State::DEFUNCT])
     {
       nextRelatedInDirection = NULL;
@@ -895,27 +862,6 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     unsigned char wantCycleDetection = 0;
     if(nextRelatedInDirection)
     {
-      // Check whether nextRelatedInDirection is deputy object or not
-      Accessible* parent;
-      if(!forward)
-      {
-        // If the prev object is deputy, then go to inside of its proxy first
-        if(IsDeputy(nextRelatedInDirection))
-        {
-          parent                 = nextRelatedInDirection->GetParent();
-          nextRelatedInDirection = GetProxyInParent(parent);
-        }
-      }
-      else
-      {
-        // If current object is deputy, and it has relation next object,
-        // then do not use the relation next object, and use proxy first
-        if(IsDeputy(node))
-        {
-          parent                 = node->GetParent();
-          nextRelatedInDirection = GetProxyInParent(parent);
-        }
-      }
       node               = nextRelatedInDirection;
       wantCycleDetection = 1;
     }
@@ -949,9 +895,8 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
 
 DBus::ValueOrError<Accessible*, uint8_t> BridgeAccessible::GetNeighbor(std::string rootPath, int32_t direction, int32_t searchMode)
 {
-  auto start               = FindSelf();
-  rootPath                 = StripPrefix(rootPath);
-  auto          root       = !rootPath.empty() ? Find(rootPath) : nullptr;
+  auto          start      = FindSelf();
+  auto          root       = !rootPath.empty() ? Find(StripPrefix(rootPath)) : nullptr;
   auto          accessible = CalculateNeighbor(root, start, direction == 1, static_cast<NeighborSearchMode>(searchMode));
   unsigned char recurse    = 0;
   if(accessible)

@@ -194,6 +194,14 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
+  {
+  }
+
+  void SetExtentsOffset(std::int32_t x, std::int32_t y) override
+  {
+  }
+
   void SetPreferredBusName(std::string_view preferredBusName) override
   {
   }

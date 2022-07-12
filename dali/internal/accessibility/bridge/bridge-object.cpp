@@ -224,7 +224,7 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
   DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
     std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
 
-  AddFilteredEvent(FilteredEvents::BOUNDS_CHANGED, obj, 1.0f, [=]() {
+  AddCoalescableMessage(CoalescableMessages::BOUNDS_CHANGED, obj, 1.0f, [=]() {
     mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
       GetAccessiblePath(obj),
       Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
