@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_TEXTURE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,12 +129,14 @@ public:
   /**
    * @param pData  Input data
    * @param sizeInBytes Size of the input data in bytes
-   * @param width  Width of the output buffer
-   * @param height height of the output buffer
+   * @param inStride Stride of the input data.
+   * @param width Width of the input/output buffer
+   * @param height Height of the intput/output buffer
    * @param outputBuffer The buffer to write to
+   * @note output Buffer will be packed without stride.
    * @return true if converted, or false otherwise
    */
-  bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer);
+  bool TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t inStride, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer);
 
   bool InitializeNativeImage();
 
