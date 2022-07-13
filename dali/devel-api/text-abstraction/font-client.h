@@ -138,16 +138,16 @@ public:
      */
     static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
 
-    uint8_t*        buffer;              ///< The glyph's bitmap buffer data.
-    uint32_t        width;               ///< The width of the bitmap.
-    uint32_t        height;              ///< The height of the bitmap.
-    int             outlineOffsetX;      ///< The additional horizontal offset to be added for the glyph's position for outline.
-    int             outlineOffsetY;      ///< The additional vertical offset to be added for the glyph's position for outline.
-    Pixel::Format   format;              ///< The pixel's format of the bitmap.
-    CompressionType compressionType : 3; ///< The type of buffer compression.
-    bool            isColorEmoji : 1;    ///< Whether the glyph is an emoji.
-    bool            isColorBitmap : 1;   ///< Whether the glyph is a color bitmap.
-    bool            isBufferOwned : 1;   ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
+    uint8_t*        buffer;            ///< The glyph's bitmap buffer data.
+    uint32_t        width;             ///< The width of the bitmap.
+    uint32_t        height;            ///< The height of the bitmap.
+    int             outlineOffsetX;    ///< The additional horizontal offset to be added for the glyph's position for outline.
+    int             outlineOffsetY;    ///< The additional vertical offset to be added for the glyph's position for outline.
+    Pixel::Format   format;            ///< The pixel's format of the bitmap.
+    CompressionType compressionType;   ///< The type of buffer compression.
+    bool            isColorEmoji : 1;  ///< Whether the glyph is an emoji.
+    bool            isColorBitmap : 1; ///< Whether the glyph is a color bitmap.
+    bool            isBufferOwned : 1; ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
   };
 
   /**
