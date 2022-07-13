@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TIZEN_GRADIENT_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,8 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/canvas-renderer-gradient.h>
-#include <dali/devel-api/adaptor-framework/canvas-renderer.h>
+#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h>
+#include <dali/devel-api/adaptor-framework/canvas-renderer/canvas-renderer.h>
 #include <dali/internal/canvas-renderer/common/gradient-impl.h>
 #include <dali/internal/canvas-renderer/tizen/canvas-renderer-impl-tizen.h>
 

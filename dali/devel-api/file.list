@@ -1,20 +1,20 @@
 
 
 SET( devel_api_src_files
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-picture.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable-group.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-gradient.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-linear-gradient.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-radial-gradient.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
@@ -63,14 +63,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-shape.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-drawable-group.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-linear-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-radial-gradient.h
-  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer-picture.h
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
@@ -139,6 +131,17 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player-plugin.h
 )
 
+
+SET( devel_api_adaptor_framework_canvas_renderer_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-shape.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-drawable-group.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h
+  ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.h
+)
 
 SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/accessible.h
