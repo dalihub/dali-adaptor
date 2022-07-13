@@ -171,6 +171,11 @@ public:
   void OnEcoreEventWindowRedrawRequest();
 
   /**
+   * @brief Called when a conformant is changed.
+   */
+  void OnEcoreEventConformantChange(void* event);
+
+  /**
    * @brief Called when window's auxiliary is changed then display server send the changed message.
    *
    * @param[in] auxiliary's message data. It has key, value and integer list data.
@@ -209,6 +214,11 @@ public:
    * @brief RegistryGlobalCallbackRemove
    */
   void RegistryGlobalCallbackRemove(void* data, struct wl_registry* registry, uint32_t id);
+
+  /**
+   * @brief TizenPolicyConformantArea
+   */
+  void TizenPolicyConformantArea(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t conformantPart, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h);
 
   /**
    * @brief TizenPolicyNotificationChangeDone
