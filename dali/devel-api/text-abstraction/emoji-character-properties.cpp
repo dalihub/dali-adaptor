@@ -435,8 +435,8 @@ DALI_ADAPTOR_API bool IsEmojiItem(Character character)
 {
   return (IsEmojiComponent(character) ||
           IsEmojiModifier(character) ||
-          IsTextPresentationSelector(character) ||
-          IsEmojiPresentationSelector(character) ||
+          // IsTextPresentationSelector(character) ||
+          // IsEmojiPresentationSelector(character) ||
           IsTagSpec(character) ||
           IsTagEnd(character));
 }
@@ -462,6 +462,12 @@ DALI_ADAPTOR_API bool IsASCIIDigits(Character character)
 DALI_ADAPTOR_API bool IsEmojiVariationSequences(Character character)
 {
   return SET_CHAR_EMOJI_VARIATION_SEQUENCES.find(character) != SET_CHAR_EMOJI_VARIATION_SEQUENCES.end();
+}
+
+DALI_ADAPTOR_API bool IsNegativeSquaredLatinCapitalLetter(Character character)
+{
+  return (0x1F170 <= character &&
+          0x1F189 >= character);
 }
 
 } // namespace TextAbstraction

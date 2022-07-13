@@ -215,7 +215,8 @@ int UtcDaliGetCharacterScript(void)
   GetCharacterScriptCheckRange(0xFF5B, 0xFFEF, HWFW_S, TEST_LOCATION);
 
   GetCharacterScriptCheckRange(0x1ee00, 0x1eeff, ARABIC, TEST_LOCATION);
-  GetCharacterScriptCheckRange(0x1f170, 0x1f6ff, EMOJI, TEST_LOCATION);
+  GetCharacterScriptCheckRange(0x1f170, 0x1f189, SYMBOLS_NSLCL, TEST_LOCATION);
+  GetCharacterScriptCheckRange(0x1f18a, 0x1f6ff, EMOJI, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x1f900, 0x1f9ff, EMOJI, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x20000, 0x215ff, CJK, TEST_LOCATION);
   GetCharacterScriptCheckRange(0x21600, 0x230ff, CJK, TEST_LOCATION);

@@ -863,6 +863,7 @@ inline Script GetScriptAboveArabicPresentationFormsA(Character character)
   }
   // U+1f170 4. Enclosed characters: negative squared latin capital letter A
   // U+1f6ff 6b. Additional transport and map symbols
+  // Exclude U+1f170 ~ U+1f189. They are SYMBOLS_NSLCL (negative squared latin capital letter)
   else if((0x1f170 <= character) && (character <= 0x1f6ff))
   {
     script = EMOJI;
@@ -941,9 +942,21 @@ Script GetCharacterScript(Character character)
 {
   Script script = UNKNOWN;
 
-  if(IsEmojiItem(character))
+  if(IsTextPresentationSelector(character))
+  {
+    script = EMOJI_TEXT;
+  }
+  else if(IsEmojiPresentationSelector(character))
+  {
+    script = EMOJI_COLOR;
+  }
+  else if(IsEmojiItem(character))
   {
     script = EMOJI;
+  }
+  else if(IsNegativeSquaredLatinCapitalLetter(character))
+  {
+    script = SYMBOLS_NSLCL;
   }
   else if(IsCommonScript(character))
   {
@@ -1041,7 +1054,7 @@ bool HasLigatureMustBreak(Script script)
 
 Length GetNumberOfScripts()
 {
-  return EMOJI_COLOR + 1;
+  return SYMBOLS_NSLCL + 1;
 }
 
 } // namespace TextAbstraction

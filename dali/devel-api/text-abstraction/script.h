@@ -102,9 +102,10 @@ enum Script
   SYMBOLS4, ///< Some symbols.
   SYMBOLS5, ///< Some symbols.
 
-  UNKNOWN,    ///< The script is unknown.
-  EMOJI_TEXT, ///< The Emoji request a text presentation for an emoji character.
-  EMOJI_COLOR ///< The Emoji request a color-emoji presentation for an emoji character.
+  UNKNOWN,      ///< The script is unknown.
+  EMOJI_TEXT,   ///< The Emoji request a text presentation for an emoji character.
+  EMOJI_COLOR,  ///< The Emoji request a color-emoji presentation for an emoji character.
+  SYMBOLS_NSLCL ///< THe Negative Squared Latin Capital Letter
 
   //Note: update ScriptName and GetNumberOfScripts when adding new script
 };
@@ -179,9 +180,10 @@ const char* const ScriptName[] =
     "SYMBOLS4", ///< Some symbols.
     "SYMBOLS5", ///< Some symbols.
 
-    "UNKNOWN",    ///< The script is unknown.
-    "EMOJI_TEXT", ///< The Emoji request a text presentation for an emoji character.
-    "EMOJI_COLOR" ///< The Emoji request a color-emoji presentation for an emoji character.
+    "UNKNOWN",      ///< The script is unknown.
+    "EMOJI_TEXT",   ///< The Emoji request a text presentation for an emoji character.
+    "EMOJI_COLOR",  ///< The Emoji request a color-emoji presentation for an emoji character.
+    "SYMBOLS_NSLCL" ///< THe Negative Squared Latin Capital Letter
 };
 
 /**
