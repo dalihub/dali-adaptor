@@ -1,8 +1,8 @@
-#ifndef DALI_WEB_ENGINE_SECURITY_ORIGIN_H
-#define DALI_WEB_ENGINE_SECURITY_ORIGIN_H
+#ifndef DALI_WEB_ENGINE_FRAME_H
+#define DALI_WEB_ENGINE_FRAME_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,36 +24,28 @@
 namespace Dali
 {
 /**
- * @brief A class WebEngineSecurityOrigin for security origin of web engine.
+ * @brief A class WebEngineFrame for frame of web engine.
  */
-class WebEngineSecurityOrigin
+class WebEngineFrame
 {
 public:
   /**
    * @brief Constructor.
    */
-  WebEngineSecurityOrigin() = default;
+  WebEngineFrame() = default;
 
   /**
    * @brief Destructor.
    */
-  virtual ~WebEngineSecurityOrigin() = default;
+  virtual ~WebEngineFrame() = default;
 
   /**
-   * @brief Requests for getting host of security origin.
-   *
-   * @return host of security origin
+   * @brief Check whether the frame is main frame.
+   * @return true if the frame is main frame, false otherwise
    */
-  virtual std::string GetHost() const = 0;
-
-  /**
-   * @brief Requests for getting host of security origin.
-   *
-   * @return protocol of security origin
-   */
-  virtual std::string GetProtocol() const = 0;
+  virtual bool IsMainFrame() const = 0;
 };
 
 } // namespace Dali
 
-#endif // DALI_WEB_ENGINE_SECURITY_ORIGIN_H
+#endif // DALI_WEB_ENGINE_FRAME_H

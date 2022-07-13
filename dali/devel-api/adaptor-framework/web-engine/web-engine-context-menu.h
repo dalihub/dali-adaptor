@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_CONTEXT_MENU_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/web-engine-context-menu-item.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-context-menu-item.h>
 #include <dali/public-api/math/vector2.h>
 #include <memory>
 #include <string>

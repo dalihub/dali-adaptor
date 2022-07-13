@@ -9,6 +9,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-gradient.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-linear-gradient.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/actor-accessible.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/animated-image-loading.cpp
@@ -45,7 +46,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.cpp
@@ -97,25 +97,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/vector-image-renderer.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-player-plugin.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list-item.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-certificate.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-console-message.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context-menu.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context-menu-item.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-cookie-manager.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-form-repost-decision.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-frame.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-http-auth-handler.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-load-error.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-hit-test.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-policy-decision.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-request-interceptor.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-security-origin.h
-  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-settings.h
   ${adaptor_devel_api_dir}/adaptor-framework/key-extension-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/physical-keyboard.h
@@ -142,6 +123,30 @@ SET( devel_api_adaptor_framework_canvas_renderer_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-radial-gradient.h
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer-picture.h
 )
+
+
+SET( devel_api_adaptor_framework_web_engine_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-back-forward-list.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-back-forward-list-item.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-certificate.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-console-message.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-context.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-context-menu.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-context-menu-item.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-cookie-manager.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-form-repost-decision.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-frame.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-http-auth-handler.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-load-error.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-hit-test.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-policy-decision.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-request-interceptor.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-security-origin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine/web-engine-settings.h
+)
+
 
 SET( devel_api_atspi_interfaces_header_files
   ${adaptor_devel_api_dir}/atspi-interfaces/accessible.h

@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 
 //INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility.h>
-#include <dali/devel-api/adaptor-framework/web-engine-plugin.h>
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
