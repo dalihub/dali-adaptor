@@ -52,6 +52,7 @@ typedef Signal<void(Window, Dali::WindowOrientation)>                           
 typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
 typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
+typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;                 ///< InsetsChanged signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -617,6 +618,14 @@ DALI_ADAPTOR_API MoveCompletedSignalType& MoveCompletedSignal(Window window);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window insets are changed by appearing or disappearing indicator, virtual keyboard, or clipboard.
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API InsetsChangedSignalType& InsetsChangedSignal(Window window);
 
 } // namespace DevelWindow
 

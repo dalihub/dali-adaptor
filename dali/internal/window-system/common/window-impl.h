@@ -73,6 +73,7 @@ public:
   typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
   typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
   typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
+  typedef Dali::DevelWindow::InsetsChangedSignalType                 InsetsChangedSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -645,6 +646,16 @@ private:
    */
   bool IsOrientationAvailable(WindowOrientation orientation) const;
 
+  /**
+   * @brief Called when window insets are changed by appearing or disappearing indicator, virtual keyboard, or clipboard.
+   *
+   * @param[in] partType the type of the part that occurs the window insets change.
+   * @param[in] partState the state of the part that occurs the window insets change.
+   * @param[in] insets the extents value of window insets.
+   */
+  void OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets);
+
+
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
@@ -805,6 +816,14 @@ public: // Signals
     return mResizeCompletedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::InsetsChangedSignal()
+   */
+  InsetsChangedSignalType& InsetsChangedSignal()
+  {
+    return mInsetsChangedSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -838,6 +857,7 @@ private:
   MouseInOutEventSignalType               mMouseInOutEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
+  InsetsChangedSignalType                 mInsetsChangedSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;

@@ -78,6 +78,7 @@ public:
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
+  typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -571,6 +572,11 @@ public:
    */
   ResizeCompletedSignalType& ResizeCompletedSignal();
 
+  /**
+   * @brief This signal is emitted when window insets are changed by appearing or disappearing indicator, virtual keyboard, or clipboard.
+   */
+  InsetsChangedSignalType& InsetsChangedSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -599,6 +605,7 @@ protected:
   MouseInOutEventSignalType               mMouseInOutEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
+  InsetsChangedSignalType                 mInsetsChangedSignal;
 };
 
 } // namespace Adaptor

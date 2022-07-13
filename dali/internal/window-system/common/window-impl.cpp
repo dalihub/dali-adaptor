@@ -97,6 +97,7 @@ Window::Window()
   mMouseInOutEventSignal(),
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
+  mInsetsChangedSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -167,6 +168,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
+
+  mWindowBase->InsetsChangedSignal().Connect(this, &Window::OnInsetsChanged);
 
   AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
 
@@ -1099,6 +1102,11 @@ void Window::OnResume()
 void Window::OnAuxiliaryMessage(const std::string& key, const std::string& value, const Property::Array& options)
 {
   mAuxiliaryMessageSignal.Emit(key, value, options);
+}
+
+void Window::OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets)
+{
+  mInsetsChangedSignal.Emit(partType, partState, insets);
 }
 
 void Window::OnAccessibilityEnabled()

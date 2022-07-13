@@ -739,6 +739,19 @@ static Eina_Bool EcoreEventWindowResizeCompleted(void* data, int type, void* eve
   return ECORE_CALLBACK_RENEW;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Conformant Change Callback
+/////////////////////////////////////////////////////////////////////////////////////////////////
+static Eina_Bool EcoreEventConformantChange(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnEcoreEventConformantChange(event);
+  }
+  return ECORE_CALLBACK_RENEW;
+}
+
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -763,6 +776,11 @@ static void TizenPolicyConformant(void* data, struct tizen_policy* tizenPolicy, 
 
 static void TizenPolicyConformantArea(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t conformantPart, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h)
 {
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->TizenPolicyConformantArea(data, tizenPolicy, surface, conformantPart, state, x, y, w, h);
+  }
 }
 
 static void TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state)
@@ -983,6 +1001,9 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Window auxiliary event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_AUX_MESSAGE, EcoreEventWindowAuxiliaryMessage, this));
 
+  // Register Conformant change event
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_CONFORMANT_CHANGE, EcoreEventConformantChange, this));
+
 #if defined(VCONF_ENABLED)
   // Register Vconf notify - font name and size
   vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
@@ -1008,6 +1029,9 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
         wl_registry* registry = wl_display_get_registry(displayWrapper);
         wl_registry_add_listener(registry, &registryListener, this);
+
+        // To support ECORE_WL2_EVENT_CONFORMANT_CHANGE event handler
+        ecore_wl2_window_conformant_set(mEcoreWindow, true);
       }
 
       wl_proxy_wrapper_destroy(displayWrapper);
@@ -1573,6 +1597,106 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
   }
 }
 
+void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
+{
+  Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(event);
+  if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  {
+    WindowInsetsPartType partType = WindowInsetsPartType::STATUS_BAR;
+
+    int x = 0;
+    int y = 0;
+    int w = 0;
+    int h = 0;
+
+    switch (ev->part_type)
+    {
+      case ECORE_WL2_INDICATOR_PART:
+      {
+        partType = WindowInsetsPartType::STATUS_BAR;
+        ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+        break;
+      }
+      case ECORE_WL2_KEYBOARD_PART:
+      {
+        partType = WindowInsetsPartType::KEYBOARD;
+        ecore_wl2_window_keyboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+        break;
+      }
+      case ECORE_WL2_CLIPBOARD_PART:
+      {
+        partType = WindowInsetsPartType::CLIPBOARD;
+        ecore_wl2_window_clipboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+        break;
+      }
+      default:
+      {
+        break;
+      }
+    }
+
+    WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
+
+    int left = 0;
+    int right = 0;
+    int top = 0;
+    int bottom = 0;
+
+    // Insets are applied only if system UI(e.g. virtual keyboard) satisfies the following 2 conditions.
+    // 1. System UI fits to the window width or height.
+    // 2. System UI begins or ends from the edge of window.
+    // Otherwise, we should not resize window content because there would be empty space around system UI.
+    bool applyInsets = false;
+
+    // Zero insets are applied if state is invisible
+    if(!ev->state)
+    {
+      applyInsets = true;
+    }
+    else
+    {
+      partState = WindowInsetsPartState::VISIBLE;
+
+      int winX = mWindowPositionSize.x;
+      int winY = mWindowPositionSize.y;
+      int winW = mWindowPositionSize.width;
+      int winH = mWindowPositionSize.height;
+
+      if((x <= winX) && (x + w >= winX + winW))
+      {
+        if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
+        {
+          top = y + h - winY;
+          applyInsets = true;
+        }
+        else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
+        {
+          bottom = winY + winH - y;
+          applyInsets = true;
+        }
+      }
+      else if((y <= winY) && (y + h >= winY + winH))
+      {
+        if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
+        {
+          left = x + w - winX;
+          applyInsets = true;
+        }
+        else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
+        {
+          right = winX + winW - x;
+          applyInsets = true;
+        }
+      }
+    }
+
+    if(applyInsets)
+    {
+      mInsetsChangedSignal.Emit(partType, partState, Extents(left, right, top, bottom));
+    }
+  }
+}
+
 void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Seat_Keymap_Changed* changed = static_cast<Ecore_Wl2_Event_Seat_Keymap_Changed*>(event);
@@ -1646,6 +1770,95 @@ void WindowBaseEcoreWl2::RegistryGlobalCallbackRemove(void* data, struct wl_regi
 {
   mTizenPolicy        = NULL;
   mTizenDisplayPolicy = NULL;
+}
+
+void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t conformantPart, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h)
+{
+  int originalX, originalY, originalWidth, originalHeight;
+  bool changed = false;
+
+  if(!surface)
+  {
+    DALI_LOG_ERROR("Failed to get wayland surface in WindowBaseEcoreWl2::TizenPolicyConformantArea()\n");
+    return;
+  }
+
+  if(conformantPart == TIZEN_POLICY_CONFORMANT_PART_INDICATOR)
+  {
+    ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &originalX, &originalY, &originalWidth, &originalHeight);
+    if((originalX != x) || (originalY != y) || (originalWidth != w) || (originalHeight != h))
+    {
+      ecore_wl2_window_indicator_geometry_set(mEcoreWindow, x, y, w, h);
+      changed = true;
+    }
+
+    /**
+     * The given state is based on the visibility value of indicator.
+     * Thus we need to add 1 to it before comparing with indicator state.
+     */
+    Ecore_Wl2_Indicator_State indState =  ecore_wl2_window_indicator_state_get(mEcoreWindow);
+    if((state + 1) != indState)
+    {
+      ecore_wl2_window_indicator_state_set(mEcoreWindow, static_cast<Ecore_Wl2_Indicator_State>(state + 1));
+      changed = true;
+    }
+  }
+  else if(conformantPart == TIZEN_POLICY_CONFORMANT_PART_KEYBOARD)
+  {
+    ecore_wl2_window_keyboard_geometry_get(mEcoreWindow, &originalX, &originalY, &originalWidth, &originalHeight);
+    if((originalX != x) || (originalY != y) || (originalWidth != w) || (originalHeight != h))
+    {
+      ecore_wl2_window_keyboard_geometry_set(mEcoreWindow, x, y, w, h);
+      changed = true;
+    }
+
+    /**
+     * The given state is based on the visibility value of virtual keyboard window.
+     * Thus we need to add 1 to it before comparing with keyboard state.
+     */
+    Ecore_Wl2_Virtual_Keyboard_State kbdState = ecore_wl2_window_keyboard_state_get(mEcoreWindow);
+    if((state + 1) != (kbdState))
+    {
+      ecore_wl2_window_keyboard_state_set(mEcoreWindow, static_cast<Ecore_Wl2_Virtual_Keyboard_State>(state + 1));
+      changed = true;
+    }
+  }
+  else if(conformantPart == TIZEN_POLICY_CONFORMANT_PART_CLIPBOARD)
+  {
+    ecore_wl2_window_clipboard_geometry_get(mEcoreWindow, &originalX, &originalY, &originalWidth, &originalHeight);
+    if((originalX != x) || (originalY != y) || (originalWidth != w) || (originalHeight != h))
+    {
+      ecore_wl2_window_clipboard_geometry_set(mEcoreWindow, x, y, w, h);
+      changed = true;
+    }
+
+    /**
+     * The given state is based on the visibility value of clipboard window.
+     * Thus we need to add 1 to it before comparing with clipboard state.
+     */
+    Ecore_Wl2_Clipboard_State clipState = ecore_wl2_window_clipboard_state_get(mEcoreWindow);
+    if((state + 1) != clipState)
+    {
+      ecore_wl2_window_clipboard_state_set(mEcoreWindow, static_cast<Ecore_Wl2_Clipboard_State>(state + 1));
+      changed = true;
+    }
+  }
+
+  if(changed)
+  {
+    Ecore_Wl2_Event_Conformant_Change *ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
+
+    if(!ev)
+    {
+      return;
+    }
+    ev->win = GetNativeWindowId();
+    ev->part_type = static_cast<Ecore_Wl2_Conformant_Part_Type>(conformantPart);
+    ev->state = state;
+    ecore_event_add(ECORE_WL2_EVENT_CONFORMANT_CHANGE, ev, NULL, NULL);
+  }
+
+  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::TizenPolicyConformantArea: conformantPart = %u, state = %u, position = (%d, %d), size = (%d, %d)\n", conformantPart, state, x, y, w, h);
 }
 
 void WindowBaseEcoreWl2::TizenPolicyNotificationChangeDone(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, int32_t level, uint32_t state)
