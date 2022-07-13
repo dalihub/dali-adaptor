@@ -65,11 +65,11 @@ SET( adaptor_accessibility_atspi_bridge_src_files
     ${adaptor_accessibility_dir}/bridge/bridge-text.cpp
     ${adaptor_accessibility_dir}/bridge/bridge-value.cpp
     ${adaptor_accessibility_dir}/bridge/component.cpp
-    ${adaptor_accessibility_dir}/bridge/dbus-tizen.cpp
+    ${adaptor_accessibility_dir}/bridge/dbus/dbus-tizen.cpp
 )
 
 SET( adaptor_accessibility_atspi_dummy_src_files
-    ${adaptor_accessibility_dir}/bridge/dummy-atspi.cpp
+    ${adaptor_accessibility_dir}/bridge/dummy/dummy-atspi.cpp
 )
 
 # module: accessibility, backend: macos

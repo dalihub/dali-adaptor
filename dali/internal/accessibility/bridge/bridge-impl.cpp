@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/bridge-application.h>
-#include <dali/internal/accessibility/bridge/dummy-atspi.h>
+#include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 

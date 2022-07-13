@@ -16,7 +16,7 @@
 
 // CLASS HEADER
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
-#include <dali/internal/accessibility/bridge/dbus.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus.h>
 
 // EXTERNAL INCLUDES
 #include <iostream>
