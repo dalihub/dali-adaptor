@@ -127,7 +127,7 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
   using subtype = std::pair<std::string, ObjectPath>;
 
   static constexpr auto name_v = concat("AtspiAccessiblePtr");
-  static constexpr auto sig_v  = concat("(so)");
+  static constexpr auto sig_v  = signature<subtype>::sig_v; // "(so)"
 
   /**
    * @brief Marshals value address as marshalled type into message
@@ -173,25 +173,17 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
 template<typename T>
 struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
 {
-  using subtype = std::pair<std::string, ObjectPath>;
+  using subtype = Dali::Accessibility::Address;
 
-  static constexpr auto name_v = concat("AtspiAccessiblePtr");
-  static constexpr auto sig_v  = concat("(so)");
+  static constexpr auto name_v = signature<subtype>::name_v;
+  static constexpr auto sig_v  = signature<subtype>::sig_v;
 
   /**
    * @brief Marshals value address as marshalled type into message
    */
   static void set(const DBusWrapper::MessageIterPtr& iter, T* accessible)
   {
-    if(accessible)
-    {
-      auto address = accessible->GetAddress();
-      signature<subtype>::set(iter, {address.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + address.GetPath()}});
-    }
-    else
-    {
-      signature<subtype>::set(iter, {"", ObjectPath{ATSPI_NULL_PATH}});
-    }
+    signature<subtype>::set(iter, accessible ? accessible->GetAddress() : subtype{});
   }
 
   /**
@@ -199,30 +191,17 @@ struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
    */
   static bool get(const DBusWrapper::MessageIterPtr& iter, T*& path)
   {
-    subtype tmp;
-    if(!signature<subtype>::get(iter, tmp))
-    {
-      return false;
-    }
+    subtype address;
 
-    if(tmp.second.value == ATSPI_NULL_PATH)
-    {
-      path = nullptr;
-      return true;
-    }
-
-    if(tmp.second.value.substr(0, strlen(ATSPI_PREFIX_PATH)) != ATSPI_PREFIX_PATH)
-    {
-      return false;
-    }
+    signature<subtype>::get(iter, address);
 
     auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
-    if(currentBridge->GetBusName() != tmp.first)
+    if(currentBridge->GetBusName() != address.GetBus())
     {
       return false;
     }
 
-    path = currentBridge->FindByPath(tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH)));
+    path = currentBridge->FindByPath(address.GetPath());
     return path != nullptr;
   }
 };
