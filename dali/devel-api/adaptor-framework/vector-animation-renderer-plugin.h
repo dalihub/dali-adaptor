@@ -36,6 +36,7 @@ class VectorAnimationRendererPlugin
 {
 public:
   using UploadCompletedSignalType = Dali::VectorAnimationRenderer::UploadCompletedSignalType;
+  using VectorProperty            = Dali::VectorAnimationRenderer::VectorProperty;
 
   /**
    * @brief Constructor
@@ -136,6 +137,30 @@ public:
    * @note The upload completed signal will be emitted again.
    */
   virtual void InvalidateBuffer() = 0;
+
+  /**
+   * @brief Sets property value for the specified keyPath. This keyPath can resolve to multiple contents.
+   * In that case, the callback's value will apply to all of them.
+   *
+   * @param[in] keyPath The key path used to target a specific content or a set of contents that will be updated.
+   * @param[in] property The property to set.
+   * @param[in] callback The callback what gets called every time the animation is rendered.
+   * @param[in] id The Id to specify the callback. It should be unique and will be passed when the callback is called.
+   *
+   * @note A callback of the following type may be used:
+   * id  The id to specify the callback.
+   * property The property that represent what you are trying to change.
+   * frameNumber The current frame number.
+   * It returns a Property::Value to set according to the property type.
+   *
+   * @code
+   *   Property::Value MyFunction(int32_t id, VectorProperty property, uint32_t frameNumber);
+   * @endcode
+   *
+   * The keypath should conatin object names separated by (.) and can handle globe(**) or wildchar(*).
+   * Ownership of the callback is passed onto this class.
+   */
+  virtual void AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id) = 0;
 
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.

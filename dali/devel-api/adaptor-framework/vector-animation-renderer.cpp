@@ -108,6 +108,11 @@ void VectorAnimationRenderer::InvalidateBuffer()
   GetImplementation(*this).InvalidateBuffer();
 }
 
+void VectorAnimationRenderer::AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id)
+{
+  GetImplementation(*this).AddPropertyValueCallback(keyPath, property, callback, id);
+}
+
 VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return GetImplementation(*this).UploadCompletedSignal();

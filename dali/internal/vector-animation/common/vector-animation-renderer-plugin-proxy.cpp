@@ -195,6 +195,14 @@ void VectorAnimationRendererPluginProxy::InvalidateBuffer()
   }
 }
 
+void VectorAnimationRendererPluginProxy::AddPropertyValueCallback(const std::string& keyPath, Dali::VectorAnimationRenderer::VectorProperty property, CallbackBase* callback, int32_t id)
+{
+  if(mPlugin)
+  {
+    mPlugin->AddPropertyValueCallback(keyPath, property, callback, id);
+  }
+}
+
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if(mPlugin)
