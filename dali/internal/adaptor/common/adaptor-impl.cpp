@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -913,7 +913,15 @@ void Adaptor::ProcessCoreEvents()
       mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_START);
     }
 
+#ifndef DALI_PROFILE_UBUNTU
+    DALI_LOG_RELEASE_INFO("Start ProcessEvents\n");
+#endif
+
     mCore->ProcessEvents();
+
+#ifndef DALI_PROFILE_UBUNTU
+    DALI_LOG_RELEASE_INFO("End ProcessEvents\n");
+#endif
 
     if(mPerformanceInterface)
     {
