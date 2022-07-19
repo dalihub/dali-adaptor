@@ -65,12 +65,20 @@ DBus::ValueOrError<Accessible*> BridgeComponent::GetAccessibleAtPoint(int32_t x,
 DBus::ValueOrError<std::tuple<int32_t, int32_t, int32_t, int32_t> > BridgeComponent::GetExtents(uint32_t coordType)
 {
   auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+
+  rect.x += mData->mExtentsOffset.first;
+  rect.y += mData->mExtentsOffset.second;
+
   return std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height};
 }
 
 DBus::ValueOrError<int32_t, int32_t> BridgeComponent::GetPosition(uint32_t coordType)
 {
   auto rect = FindSelf()->GetExtents(static_cast<CoordinateType>(coordType));
+
+  rect.x += mData->mExtentsOffset.first;
+  rect.y += mData->mExtentsOffset.second;
+
   return {static_cast<int32_t>(rect.x), static_cast<int32_t>(rect.y)};
 }
 

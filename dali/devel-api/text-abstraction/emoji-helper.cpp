@@ -28,7 +28,8 @@ DALI_ADAPTOR_API bool IsSymbolScript(const TextAbstraction::Script& script)
           TextAbstraction::SYMBOLS2 == script ||
           TextAbstraction::SYMBOLS3 == script ||
           TextAbstraction::SYMBOLS4 == script ||
-          TextAbstraction::SYMBOLS5 == script);
+          TextAbstraction::SYMBOLS5 == script ||
+          TextAbstraction::SYMBOLS_NSLCL == script);
 }
 
 DALI_ADAPTOR_API bool IsEmojiScript(const TextAbstraction::Script& script)

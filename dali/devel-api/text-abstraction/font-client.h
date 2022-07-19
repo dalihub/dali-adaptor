@@ -138,16 +138,16 @@ public:
      */
     static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
 
-    uint8_t*        buffer;              ///< The glyph's bitmap buffer data.
-    uint32_t        width;               ///< The width of the bitmap.
-    uint32_t        height;              ///< The height of the bitmap.
-    int             outlineOffsetX;      ///< The additional horizontal offset to be added for the glyph's position for outline.
-    int             outlineOffsetY;      ///< The additional vertical offset to be added for the glyph's position for outline.
-    Pixel::Format   format;              ///< The pixel's format of the bitmap.
-    CompressionType compressionType : 3; ///< The type of buffer compression.
-    bool            isColorEmoji : 1;    ///< Whether the glyph is an emoji.
-    bool            isColorBitmap : 1;   ///< Whether the glyph is a color bitmap.
-    bool            isBufferOwned : 1;   ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
+    uint8_t*        buffer;            ///< The glyph's bitmap buffer data.
+    uint32_t        width;             ///< The width of the bitmap.
+    uint32_t        height;            ///< The height of the bitmap.
+    int             outlineOffsetX;    ///< The additional horizontal offset to be added for the glyph's position for outline.
+    int             outlineOffsetY;    ///< The additional vertical offset to be added for the glyph's position for outline.
+    Pixel::Format   format;            ///< The pixel's format of the bitmap.
+    CompressionType compressionType;   ///< The type of buffer compression.
+    bool            isColorEmoji : 1;  ///< Whether the glyph is an emoji.
+    bool            isColorBitmap : 1; ///< Whether the glyph is a color bitmap.
+    bool            isBufferOwned : 1; ///< Whether the glyph's bitmap buffer data owned by this class or not. Becareful when you use non-owned buffer data.
   };
 
   /**
@@ -262,21 +262,21 @@ public:
   void GetSystemFonts(FontList& systemFonts);
 
   /**
-   * @brief Retrieves the font description of a given font @p id.
+   * @brief Retrieves the font description of a given font @p fontId.
    *
-   * @param[in] id The font identifier.
+   * @param[in] fontId The font identifier.
    * @param[out] fontDescription The path, family & style (width, weight and slant) describing the font.
    */
-  void GetDescription(FontId id, FontDescription& fontDescription);
+  void GetDescription(FontId fontId, FontDescription& fontDescription);
 
   /**
-   * @brief Retrieves the font point size of a given font @p id.
+   * @brief Retrieves the font point size of a given font @p fontId.
    *
-   * @param[in] id The font identifier.
+   * @param[in] fontId The font identifier.
    *
    * @return The point size in 26.6 fractional points.
    */
-  PointSize26Dot6 GetPointSize(FontId id);
+  PointSize26Dot6 GetPointSize(FontId fontId);
 
   /**
    * @brief Whether the given @p character is supported by the font.

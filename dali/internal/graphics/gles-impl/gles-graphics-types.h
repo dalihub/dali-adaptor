@@ -210,35 +210,11 @@ struct GLTextureFormatType
 
       // BGR not supported in GLES
       case Graphics::Format::B8G8R8_UNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_SNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_USCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_SSCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::B8G8R8_SRGB:
       {
         Assign(0, 0);
@@ -349,35 +325,11 @@ struct GLTextureFormatType
 
       // ABGR not supported
       case Graphics::Format::A8B8G8R8_UNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_SNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_USCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_SSCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_UINT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_SINT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A8B8G8R8_SRGB_PACK32:
       {
         Assign(0, 0);
@@ -386,160 +338,40 @@ struct GLTextureFormatType
 
       // TBD which of the formats are supported
       case Graphics::Format::A2R10G10B10_UNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2R10G10B10_SNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2R10G10B10_USCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2R10G10B10_SSCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2R10G10B10_UINT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2R10G10B10_SINT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_UNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_SNORM_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_USCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_SSCALED_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_UINT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::A2B10G10R10_SINT_PACK32:
       {
         Assign(0, 0);
         break;
       }
       case Graphics::Format::R16_UNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_SNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_USCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_SSCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_UNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_SNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_USCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_SSCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_UNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_SNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_USCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_SSCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16_SINT:
       {
         Assign(0, 0);
@@ -552,75 +384,19 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::R16G16B16A16_UNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_SNORM:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_USCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_SSCALED:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R16G16B16A16_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32B32_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32B32_SINT:
       {
         Assign(0, 0);
@@ -632,75 +408,23 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::R32G32B32A32_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32B32A32_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R32G32B32A32_SFLOAT:
       {
         Assign(0, 0);
         break;
       }
       case Graphics::Format::R64_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64_SFLOAT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64A64_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64A64_SINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::R64G64B64A64_SFLOAT:
       {
         Assign(0, 0);
@@ -712,10 +436,6 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::B10G11R11_UFLOAT_PACK32:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::E5B9G9R9_UFLOAT_PACK32:
       {
         Assign(0, 0);
@@ -739,10 +459,6 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::S8_UINT:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::D16_UNORM_S8_UINT:
       {
         Assign(0, 0);
@@ -760,80 +476,20 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::BC1_RGB_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC1_RGB_SRGB_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC1_RGBA_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC1_RGBA_SRGB_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC2_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC2_SRGB_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC3_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC3_SRGB_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC4_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC4_SNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC5_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC5_SNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC6H_UFLOAT_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC6H_SFLOAT_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC7_UNORM_BLOCK:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::BC7_SRGB_BLOCK:
       {
         Assign(0, 0);
@@ -1078,30 +734,10 @@ struct GLTextureFormatType
         break;
       }
       case Graphics::Format::PVRTC2_2BPP_UNORM_BLOCK_IMG:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::PVRTC2_4BPP_UNORM_BLOCK_IMG:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::PVRTC1_2BPP_SRGB_BLOCK_IMG:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::PVRTC1_4BPP_SRGB_BLOCK_IMG:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::PVRTC2_2BPP_SRGB_BLOCK_IMG:
-      {
-        Assign(0, 0);
-        break;
-      }
       case Graphics::Format::PVRTC2_4BPP_SRGB_BLOCK_IMG:
       {
         Assign(0, 0);

@@ -23,6 +23,7 @@
 #include <dali/public-api/dali-adaptor-version.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <memory>
+#include <tuple>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/proxy-accessible.h>
@@ -30,18 +31,24 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/application.h>
 #include <dali/devel-api/atspi-interfaces/collection.h>
+#include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 
 /**
  * @brief The ApplicationAccessible class is to define Accessibility Application.
  */
-class ApplicationAccessible : public virtual Dali::Accessibility::Accessible, public virtual Dali::Accessibility::Collection, public virtual Dali::Accessibility::Application
+class ApplicationAccessible : public virtual Dali::Accessibility::Accessible,
+                              public virtual Dali::Accessibility::Application,
+                              public virtual Dali::Accessibility::Collection,
+                              public virtual Dali::Accessibility::Component,
+                              public virtual Dali::Accessibility::Socket
 {
 public:
   Dali::Accessibility::ProxyAccessible          mParent;
   std::vector<Dali::Accessibility::Accessible*> mChildren;
   std::string                                   mName;
   std::string                                   mToolkitName{"dali"};
+  bool                                          mIsEmbedded{false};
 
   std::string GetName() const override
   {
@@ -80,6 +87,11 @@ public:
 
   size_t GetIndexInParent() override
   {
+    if(mIsEmbedded)
+    {
+      return 0u;
+    }
+
     throw std::domain_error{"can't call GetIndexInParent on application object"};
   }
 
@@ -90,7 +102,14 @@ public:
 
   Dali::Accessibility::States GetStates() override
   {
-    return {};
+    Dali::Accessibility::States result;
+
+    for(auto* child : mChildren)
+    {
+      result = result | child->GetStates();
+    }
+
+    return result;
   }
 
   Dali::Accessibility::Attributes GetAttributes() const override
@@ -147,6 +166,8 @@ public:
     return {"", "root"};
   }
 
+  // Application
+
   std::string GetToolkitName() const override
   {
     return mToolkitName;
@@ -156,23 +177,119 @@ public:
   {
     return std::to_string(Dali::ADAPTOR_MAJOR_VERSION) + "." + std::to_string(Dali::ADAPTOR_MINOR_VERSION);
   }
+
+  // Socket
+
+  Dali::Accessibility::Address Embed(Dali::Accessibility::Address plug) override
+  {
+    mIsEmbedded = true;
+    mParent.SetAddress(plug);
+
+    return GetAddress();
+  }
+
+  void Unembed(Dali::Accessibility::Address plug) override
+  {
+    if(mParent.GetAddress() == plug)
+    {
+      mIsEmbedded = false;
+      mParent.SetAddress({});
+      Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(0, 0);
+    }
+  }
+
+  void SetOffset(std::int32_t x, std::int32_t y) override
+  {
+    if(!mIsEmbedded)
+    {
+      return;
+    }
+
+    Dali::Accessibility::Bridge::GetCurrentBridge()->SetExtentsOffset(x, y);
+  }
+
+  // Component
+
+  Dali::Rect<> GetExtents(Dali::Accessibility::CoordinateType type) const override
+  {
+    using limits = std::numeric_limits<float>;
+
+    float minX = limits::max();
+    float minY = limits::max();
+    float maxX = limits::min();
+    float maxY = limits::min();
+
+    for(Dali::Accessibility::Accessible* child : mChildren)
+    {
+      auto* component = Dali::Accessibility::Component::DownCast(child);
+      if(!component)
+      {
+        continue;
+      }
+
+      auto extents = component->GetExtents(type);
+
+      minX = std::min(minX, extents.x);
+      minY = std::min(minY, extents.y);
+      maxX = std::max(maxX, extents.x + extents.width);
+      maxY = std::max(maxY, extents.y + extents.height);
+    }
+
+    return {minX, minY, maxX - minX, maxY - minY};
+  }
+
+  Dali::Accessibility::ComponentLayer GetLayer() const override
+  {
+    return Dali::Accessibility::ComponentLayer::WINDOW;
+  }
+
+  std::int16_t GetMdiZOrder() const override
+  {
+    return 0;
+  }
+
+  bool GrabFocus() override
+  {
+    return false;
+  }
+
+  double GetAlpha() const override
+  {
+    return 0.0;
+  }
+
+  bool GrabHighlight() override
+  {
+    return false;
+  }
+
+  bool ClearHighlight() override
+  {
+    return false;
+  }
+
+  bool IsScrollable() const override
+  {
+    return false;
+  }
 };
 
 /**
- * @brief Enumeration for FilteredEvents.
+ * @brief Enumeration for CoalescableMessages.
  */
-enum class FilteredEvents
+enum class CoalescableMessages
 {
-  BOUNDS_CHANGED ///< Bounds changed
+  BOUNDS_CHANGED, ///< Bounds changed
+  SET_OFFSET, ///< Set offset
 };
 
 // Custom specialization of std::hash
 namespace std
 {
 template<>
-struct hash<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>>
+struct hash<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>>
 {
-  size_t operator()(std::pair<FilteredEvents, Dali::Accessibility::Accessible*> value) const
+  size_t operator()(std::pair<CoalescableMessages, Dali::Accessibility::Accessible*> value) const
   {
     return (static_cast<size_t>(value.first) * 131) ^ reinterpret_cast<size_t>(value.second);
   }
@@ -184,25 +301,25 @@ struct hash<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>>
  */
 class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
 {
-  std::unordered_map<std::pair<FilteredEvents, Dali::Accessibility::Accessible*>, std::pair<unsigned int, std::function<void()>>> mFilteredEvents;
+  std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::tuple<unsigned int, unsigned int, std::function<void()>>> mCoalescableMessages;
 
   /**
-   * @brief Removes all FilteredEvents using Tick signal.
+   * @brief Removes all CoalescableMessages using Tick signal.
    *
-   * @return False if mFilteredEvents is empty, otherwise true.
+   * @return False if mCoalescableMessages is empty, otherwise true.
    */
-  bool TickFilteredEvents();
+  bool TickCoalescableMessages();
 
 public:
   /**
-   * @brief Adds FilteredEvents, Accessible, and delay time to mFilteredEvents.
+   * @brief Adds CoalescableMessages, Accessible, and delay time to mCoalescableMessages.
    *
-   * @param[in] kind FilteredEvents enum value
+   * @param[in] kind CoalescableMessages enum value
    * @param[in] obj Accessible object
    * @param[in] delay The delay time
    * @param[in] functor The function to be called // NEED TO UPDATE!
    */
-  void AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
+  void AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor);
 
   /**
    * @brief Callback when the visibility of the window is changed.

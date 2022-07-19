@@ -884,6 +884,9 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
+    mWindowWidth   = newRect.width;
+    mWindowHeight  = newRect.height;
+
     SurfaceResized();
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);

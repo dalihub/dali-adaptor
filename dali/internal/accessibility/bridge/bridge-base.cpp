@@ -40,54 +40,65 @@ BridgeBase::~BridgeBase()
   mApplication.mChildren.clear();
 }
 
-void BridgeBase::AddFilteredEvent(FilteredEvents kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
+void BridgeBase::AddCoalescableMessage(CoalescableMessages kind, Dali::Accessibility::Accessible* obj, float delay, std::function<void()> functor)
 {
   if(delay < 0)
   {
     delay = 0;
   }
+  auto countdownBase = static_cast<unsigned int>(delay * 10);
 
-  auto it = mFilteredEvents.insert({{kind, obj}, {static_cast<unsigned int>(delay * 10), {}}});
+  auto it = mCoalescableMessages.insert({{kind, obj}, {countdownBase, countdownBase, {}}});
   if(it.second)
   {
     functor();
   }
   else
   {
-    it.first->second.second = std::move(functor);
+    std::get<1>(it.first->second) = countdownBase;
+    std::get<2>(it.first->second) = std::move(functor);
   }
 
   if(!tickTimer)
   {
     tickTimer = Dali::Timer::New(100);
-    tickTimer.TickSignal().Connect(this, &BridgeBase::TickFilteredEvents);
+    tickTimer.TickSignal().Connect(this, &BridgeBase::TickCoalescableMessages);
+  }
+
+  if(!tickTimer.IsRunning())
+  {
+    tickTimer.Start();
   }
 }
 
-bool BridgeBase::TickFilteredEvents()
+bool BridgeBase::TickCoalescableMessages()
 {
-  for(auto it = mFilteredEvents.begin(); it != mFilteredEvents.end();)
+  for(auto it = mCoalescableMessages.begin(); it != mCoalescableMessages.end();)
   {
-    if(it->second.first)
+    auto& countdown     = std::get<0>(it->second);
+    auto  countdownBase = std::get<1>(it->second);
+    auto& functor       = std::get<2>(it->second);
+    if(countdown)
     {
-      --it->second.first;
+      --countdown;
     }
     else
     {
-      if(it->second.second)
+      if(functor)
       {
-        it->second.second();
-        it->second.second = {};
+        functor();
+        functor = {};
+        countdown = countdownBase;
       }
       else
       {
-        it = mFilteredEvents.erase(it);
+        it = mCoalescableMessages.erase(it);
         continue;
       }
     }
     ++it;
   }
-  return !mFilteredEvents.empty();
+  return !mCoalescableMessages.empty();
 }
 
 void BridgeBase::UpdateRegisteredEvents()

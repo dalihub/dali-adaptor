@@ -36,6 +36,7 @@ namespace Dali
 namespace Accessibility
 {
 class Accessible;
+class ProxyAccessible;
 
 /**
  * @brief Base class for different accessibility bridges.
@@ -401,6 +402,48 @@ struct DALI_ADAPTOR_API Bridge
   virtual void UnembedSocket(const Address& plug, const Address& socket) = 0;
 
   /**
+   * @brief Calls socket.SetOffset(x, y) via D-Bus.
+   *
+   * The "SetOffset" D-Bus method is a DALi extension. It can be used to inform a DALi widget about
+   * its position on the screen.
+   *
+   * @param[in] socket The socket
+   * @param[in] x Horizontal offset
+   * @param[in] y Vertical offset
+   *
+   * @note Remote object pointed to by 'socket' must implement 'org.a11y.atspi.Socket'.
+   * @see EmbedSocket()
+   * @see SetExtentsOffset()
+   */
+  virtual void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) = 0;
+
+  /**
+   * @brief Sets the global extents offset.
+   *
+   * This offset will be added during serialization of GetExtents() return value to D-Bus.
+   * Local calls to GetExtents() are unaffected.
+   *
+   * @param[in] x Horizontal offset
+   * @param[in] y Vertical offset
+   *
+   * @see SetSocketOffset()
+   * @see Dali::Accessibility::Component::GetExtents()
+   */
+  virtual void SetExtentsOffset(std::int32_t x, std::int32_t y) = 0;
+
+  /**
+   * @brief Sets the preferred bus name.
+   *
+   * If the Bridge is enabled, it will immediately release the previous name and request the new one.
+   *
+   * Otherwise, the Bridge will request this name on AT-SPI activation (and release it on deactivation).
+   * It is up to the caller to determine whether a given name will be available in the system.
+   *
+   * @param preferredBusName The preferred bus name
+   */
+  virtual void SetPreferredBusName(std::string_view preferredBusName) = 0;
+
+  /**
    * @brief Returns instance of bridge singleton object.
    *
    * @return The current bridge object
@@ -435,6 +478,16 @@ struct DALI_ADAPTOR_API Bridge
    */
   static void EnableAutoInit();
 
+  /**
+   * @brief Encodes a widget ID as a usable bus name.
+   *
+   * @param widgetInstanceId The instance ID of a widget
+   * @return std::string Encoded bus name
+   *
+   * @see SetPreferredBusName
+   */
+  static std::string MakeBusNameForWidget(std::string_view widgetInstanceId);
+
   static Signal<void()>& EnabledSignal()
   {
     return mEnabledSignal;
@@ -463,6 +516,7 @@ protected:
     Bridge*                               mBridge = nullptr;
     Actor                                 mHighlightActor;
     Actor                                 mCurrentlyHighlightedActor;
+    std::pair<std::int32_t, std::int32_t> mExtentsOffset{0, 0};
   };
   std::shared_ptr<Data> mData;
   friend class Accessible;

@@ -19,8 +19,13 @@
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/actors/layer.h>
 #include <bundle.h>
 #include <widget_base.h>
+
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 
 namespace Dali
 {
@@ -65,8 +70,18 @@ void WidgetImplTizen::SetUsingKeyEvent(bool flag)
 
 void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
 {
+  using Dali::Accessibility::Bridge;
+
   mWindow = window;
   mWidgetId = widgetId;
+
+  auto preferredBusName = Bridge::MakeBusNameForWidget(widgetId);
+  Bridge::GetCurrentBridge()->SetPreferredBusName(preferredBusName);
+
+  // Widget should not send window events (which could narrow down the navigation context)
+  auto& suppressedEvents = Accessibility::Accessible::Get(window.GetRootLayer())->GetSuppressedEvents();
+  suppressedEvents[Accessibility::AtspiEvent::STATE_CHANGED] = true;
+  suppressedEvents[Accessibility::AtspiEvent::WINDOW_CHANGED] = true;
 }
 
 Dali::Window WidgetImplTizen::GetWindow() const

@@ -106,12 +106,12 @@ public: // API for Dali::TextAbstraction::FontClient used.
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDescription()
    */
-  void GetDescription(FontId id, FontDescription& fontDescription);
+  void GetDescription(FontId fontId, FontDescription& fontDescription);
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetPointSize()
    */
-  PointSize26Dot6 GetPointSize(FontId id);
+  PointSize26Dot6 GetPointSize(FontId fontId);
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::IsCharacterSupportedByFont()

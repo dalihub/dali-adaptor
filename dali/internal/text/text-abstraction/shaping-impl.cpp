@@ -114,7 +114,8 @@ const hb_script_t SCRIPT_TO_HARFBUZZ[] =
     HB_SCRIPT_UNKNOWN,  // SYMBOLS5
     HB_SCRIPT_UNKNOWN,  // UNKNOWN
     HB_SCRIPT_UNKNOWN,  // EMOJI_TEXT
-    HB_SCRIPT_UNKNOWN}; // EMOJI_COLOR
+    HB_SCRIPT_UNKNOWN,  // EMOJI_COLOR
+    HB_SCRIPT_UNKNOWN}; // SYMBOLS_NSLCL
 
 struct Shaping::Plugin
 {
@@ -186,6 +187,14 @@ struct Shaping::Plugin
         /* Layout the text */
         hb_buffer_add_utf32(harfBuzzBuffer, text, numberOfCharacters, 0u, numberOfCharacters);
 
+        /*
+         * This code has been stopped because the original issue was resolved by other modifications.
+         * Maybe the optimization code has resolved the original issue.
+
+         * The below code produce a noise (un-wanted glyph) when compine "Negative Squared Latin Capital Letter" with U+FE0E at the end of line.
+         * i.e: Like this text "&#x1f170;&#xfe0e;"
+         */
+        /*
         //The invisible unicodes like U+FE0F and U+FE0E should be replaced by zero width glyph
         //i.e: This text "&#x262a;&#xfe0f;&#xfe0f;&#xfe0f;&#x262a;&#xfe0f;" should be rendered as two adjacent glyphs.
         if(TextAbstraction::IsOneOfEmojiScripts(script))
@@ -194,6 +203,7 @@ struct Shaping::Plugin
           //Applied this only on EMOJI scripts to avoid compatibility issues with other scripts
           hb_buffer_set_invisible_glyph(harfBuzzBuffer, TextAbstraction::GetUnicodeForInvisibleGlyph());
         }
+        */
 
         hb_shape(harfBuzzFont, harfBuzzBuffer, NULL, 0u);
 

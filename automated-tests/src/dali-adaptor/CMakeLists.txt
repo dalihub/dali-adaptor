@@ -45,6 +45,7 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-render-controller.cpp
     dali-test-suite-utils/test-trace-call-stack.cpp
     dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
+    dali-test-suite-utils/adaptor-environment-variable.cpp
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED

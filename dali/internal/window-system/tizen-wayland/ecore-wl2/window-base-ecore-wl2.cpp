@@ -1184,12 +1184,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
   if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnKeyDown\n");
-
     std::string keyName(keyEvent->keyname);
     std::string logicalKey("");
     std::string keyString("");
     std::string compose("");
+
+    DALI_LOG_RELEASE_INFO("OnKeyDown Start [%s]\n", keyName.c_str());
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1237,6 +1237,8 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
 
     mKeyEventSignal.Emit(keyEvent);
+
+    DALI_LOG_RELEASE_INFO("OnKeyDown End [%s]\n", keyName.c_str());
   }
 }
 
@@ -1246,8 +1248,6 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
   if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnKeyUp\n");
-
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 23)
     // Cancel processing flag is sent because this key event will combine with the previous key. So, the event should not actually perform anything.
     if(keyEvent->event_flags & ECORE_EVENT_FLAG_CANCEL)
@@ -1261,6 +1261,8 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     std::string logicalKey("");
     std::string keyString("");
     std::string compose("");
+
+    DALI_LOG_RELEASE_INFO("OnKeyUp Start [%s]\n", keyName.c_str());
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1308,6 +1310,8 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
 
     mKeyEventSignal.Emit(keyEvent);
+
+    DALI_LOG_RELEASE_INFO("OnKeyUp End [%s]\n", keyName.c_str());
   }
 }
 

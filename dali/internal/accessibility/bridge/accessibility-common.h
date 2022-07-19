@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ATSPI_ACCESSIBILITY_COMMON_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/internal/accessibility/bridge/dbus-locators.h>
-#include <dali/internal/accessibility/bridge/dbus.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus-locators.h>
+#include <dali/internal/accessibility/bridge/dbus/dbus.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 // DBus names
@@ -121,75 +121,13 @@ public:
 // Templates for setting and getting Accessible values
 namespace detail
 {
-template<typename T>
-struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
-{
-  using subtype = std::pair<std::string, ObjectPath>;
-
-  static constexpr auto name_v = concat("AtspiAccessiblePtr");
-  static constexpr auto sig_v  = concat("(so)");
-
-  /**
-   * @brief Marshals value address as marshalled type into message
-   */
-  static void set(const DBusWrapper::MessageIterPtr& iter, T* accessible)
-  {
-    if(accessible)
-    {
-      auto address = accessible->GetAddress();
-      signature<subtype>::set(iter, {address.GetBus(), ObjectPath{std::string{ATSPI_PREFIX_PATH} + address.GetPath()}});
-    }
-    else
-    {
-      signature<subtype>::set(iter, {"", ObjectPath{ATSPI_NULL_PATH}});
-    }
-  }
-
-  /**
-   * @brief Marshals value from marshalled type into variable path
-   */
-  static bool get(const DBusWrapper::MessageIterPtr& iter, T*& path)
-  {
-    subtype tmp;
-    if(!signature<subtype>::get(iter, tmp))
-    {
-      return false;
-    }
-
-    if(tmp.second.value == ATSPI_NULL_PATH)
-    {
-      path = nullptr;
-      return true;
-    }
-
-    if(tmp.second.value.substr(0, strlen(ATSPI_PREFIX_PATH)) != ATSPI_PREFIX_PATH)
-    {
-      return false;
-    }
-
-    auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
-    if(currentBridge->GetBusName() != tmp.first)
-    {
-      return false;
-    }
-
-    path = currentBridge->FindByPath(tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH)));
-    return path != nullptr;
-  }
-};
-
-template<>
-struct signature<Dali::Accessibility::Accessible*> : public SignatureAccessibleImpl<Dali::Accessibility::Accessible>
-{
-};
-
 template<>
 struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali::Accessibility::Address>>
 {
   using subtype = std::pair<std::string, ObjectPath>;
 
   static constexpr auto name_v = concat("AtspiAccessiblePtr");
-  static constexpr auto sig_v  = concat("(so)");
+  static constexpr auto sig_v  = signature<subtype>::sig_v; // "(so)"
 
   /**
    * @brief Marshals value address as marshalled type into message
@@ -230,6 +168,47 @@ struct signature<Dali::Accessibility::Address> : signature_helper<signature<Dali
     address = {std::move(tmp.first), tmp.second.value.substr(strlen(ATSPI_PREFIX_PATH))};
     return true;
   }
+};
+
+template<typename T>
+struct SignatureAccessibleImpl : signature_helper<SignatureAccessibleImpl<T>>
+{
+  using subtype = Dali::Accessibility::Address;
+
+  static constexpr auto name_v = signature<subtype>::name_v;
+  static constexpr auto sig_v  = signature<subtype>::sig_v;
+
+  /**
+   * @brief Marshals value address as marshalled type into message
+   */
+  static void set(const DBusWrapper::MessageIterPtr& iter, T* accessible)
+  {
+    signature<subtype>::set(iter, accessible ? accessible->GetAddress() : subtype{});
+  }
+
+  /**
+   * @brief Marshals value from marshalled type into variable path
+   */
+  static bool get(const DBusWrapper::MessageIterPtr& iter, T*& path)
+  {
+    subtype address;
+
+    signature<subtype>::get(iter, address);
+
+    auto currentBridge = CurrentBridgePtr::GetCurrentBridge();
+    if(currentBridge->GetBusName() != address.GetBus())
+    {
+      return false;
+    }
+
+    path = currentBridge->FindByPath(address.GetPath());
+    return path != nullptr;
+  }
+};
+
+template<>
+struct signature<Dali::Accessibility::Accessible*> : public SignatureAccessibleImpl<Dali::Accessibility::Accessible>
+{
 };
 
 template<>

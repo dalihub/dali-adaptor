@@ -1,5 +1,5 @@
-#ifndef DALI_TEST_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
-#define DALI_TEST_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
+#ifndef DALI_TEXT_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
+#define DALI_TEXT_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
 
 /*
  * Copyright (c) 2022 Samsung Electronics Co., Ltd.
@@ -65,6 +65,40 @@ FcPattern* CreateFontFamilyPattern(const FontDescription& fontDescription);
  */
 FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description);
 
+/**
+ * @brief Gets the FontDescription which matches the given pattern.
+ *
+ * @note The reference counter of the @p characterSet has been increased. Call FcCharSetDestroy to decrease it.
+ *
+ * @param[in] pattern pattern to match against.
+ * @param[out] fontDescription the resultant fontDescription that matched.
+ * @param[out] characterSet The character set for that pattern.
+ * @return true if match found.
+ */
+bool MatchFontDescriptionToPattern(FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet);
+
+/**
+ * @brief Retrieves a font config object's value from a pattern.
+ *
+ * @param[in] pattern The font config pattern.
+ * @param[in] n The object.
+ * @param[out] string The object's value.
+ *
+ * @return @e true if the operation is successful.
+ */
+bool GetFcString(const FcPattern* const pattern, const char* const n, std::string& string);
+
+/**
+ * @brief Retrieves a font config object's value from a pattern.
+ *
+ * @param[in] pattern The font config pattern.
+ * @param[in] n The object.
+ * @param[out] intVal The object's value.
+ *
+ * @return @e true if the operation is successful.
+ */
+bool GetFcInt(const _FcPattern* const pattern, const char* const n, int& intVal);
+
 constexpr int ValueToIndex(int value, const int* const table, unsigned int maxIndex)
 {
   if(nullptr == table)
@@ -124,10 +158,11 @@ const FontWeight::Type IntToWeightType(int weight);
  */
 const FontSlant::Type IntToSlantType(int slant);
 
+const std::string_view DefaultFontFamily();
 const FontWidth::Type  DefaultFontWidth();
 const FontWeight::Type DefaultFontWeight();
 const FontSlant::Type  DefaultFontSlant();
 
 } // namespace Dali::TextAbstraction::Internal
 
-#endif // DALI_TEST_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H
+#endif // DALI_TEXT_ABSTRACTION_INTERNAL_FONT_CLIENT_UTILS_H

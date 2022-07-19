@@ -23,6 +23,33 @@
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
+
+#define FONT_LOG_DESCRIPTION(fontDescription, prefix)                                                                            \
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, #prefix "  description; family : [%s]\n", fontDescription.family.c_str()); \
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose,                                                                            \
+                "                 path : [%s]\n"                                                                                 \
+                "                width : [%s]\n"                                                                                 \
+                "               weight : [%s]\n"                                                                                 \
+                "                slant : [%s]\n\n",                                                                              \
+                fontDescription.path.c_str(),                                                                                    \
+                FontWidth::Name[fontDescription.width],                                                                          \
+                FontWeight::Name[fontDescription.weight],                                                                        \
+                FontSlant::Name[fontDescription.slant])
+
+#define FONT_LOG_REQUEST(charcode, requestedPointSize, preferColor) \
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::General,               \
+                "           character : %p\n"                       \
+                "  requestedPointSize : %d\n"                       \
+                "         preferColor : %s\n",                      \
+                charcode,                                           \
+                requestedPointSize,                                 \
+                (preferColor ? "true" : "false"))
+
+#else
+
+#define FONT_LOG_DESCRIPTION(fontDescription, prefix)
+#define FONT_LOG_REQUEST(charcode, requestedPointSize, preferColor)
+
 #endif
 
 namespace Dali::TextAbstraction::Internal
@@ -104,10 +131,15 @@ const FontSlant::Type IntToSlantType(int slant)
   return static_cast<FontSlant::Type>(ValueToIndex(slant, FONT_SLANT_TYPE_TO_INT, NUM_FONT_SLANT_TYPE - 1u));
 }
 
-const int DEFAULT_FONT_WIDTH(100);
-const int DEFAULT_FONT_WEIGHT(80);
-const int DEFAULT_FONT_SLANT(0);
+const std::string DEFAULT_FONT_FAMILY_NAME("Tizen");
+const int         DEFAULT_FONT_WIDTH(100);
+const int         DEFAULT_FONT_WEIGHT(80);
+const int         DEFAULT_FONT_SLANT(0);
 
+const std::string_view DefaultFontFamily()
+{
+  return DEFAULT_FONT_FAMILY_NAME;
+}
 const FontWidth::Type DefaultFontWidth()
 {
   return IntToWidthType(DEFAULT_FONT_WIDTH);
@@ -392,6 +424,69 @@ FcCharSet* CreateCharacterSetFromDescription(const FontDescription& description)
   }
 
   return characterSet;
+}
+
+bool MatchFontDescriptionToPattern(FcPattern* pattern, Dali::TextAbstraction::FontDescription& fontDescription, FcCharSet** characterSet)
+{
+  DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
+
+  FcResult   result = FcResultMatch;
+  FcPattern* match  = FcFontMatch(nullptr /* use default configure */, pattern, &result); // Creates a new font pattern that needs to be destroyed by calling FcPatternDestroy.
+
+  const bool matched = nullptr != match;
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  pattern matched : %s\n", (matched ? "true" : "false"));
+
+  if(matched)
+  {
+    int width  = 0;
+    int weight = 0;
+    int slant  = 0;
+    GetFcString(match, FC_FILE, fontDescription.path);
+    GetFcString(match, FC_FAMILY, fontDescription.family);
+    GetFcInt(match, FC_WIDTH, width);
+    GetFcInt(match, FC_WEIGHT, weight);
+    GetFcInt(match, FC_SLANT, slant);
+    fontDescription.width  = IntToWidthType(width);
+    fontDescription.weight = IntToWeightType(weight);
+    fontDescription.slant  = IntToSlantType(slant);
+
+    // Retrieve the character set and increase the reference counter.
+    FcPatternGetCharSet(match, FC_CHARSET, 0u, characterSet);
+    *characterSet = FcCharSetCopy(*characterSet);
+
+    // destroyed the matched pattern
+    FcPatternDestroy(match);
+    FONT_LOG_DESCRIPTION(fontDescription, "");
+  }
+  return matched;
+}
+
+bool GetFcString(const FcPattern* const pattern, const char* const n, std::string& string)
+{
+  FcChar8*       file   = nullptr;
+  const FcResult retVal = FcPatternGetString(pattern, n, 0u, &file);
+
+  if(FcResultMatch == retVal)
+  {
+    // Have to use reinterpret_cast because FcChar8 is unsigned char*, not a const char*.
+    string.assign(reinterpret_cast<const char*>(file));
+
+    return true;
+  }
+
+  return false;
+}
+
+bool GetFcInt(const _FcPattern* const pattern, const char* const n, int& intVal)
+{
+  const FcResult retVal = FcPatternGetInteger(pattern, n, 0u, &intVal);
+
+  if(FcResultMatch == retVal)
+  {
+    return true;
+  }
+
+  return false;
 }
 
 } // namespace Dali::TextAbstraction::Internal

@@ -183,6 +183,17 @@ DALI_ADAPTOR_API bool IsASCIIDigits(Character character);
  */
 DALI_ADAPTOR_API bool IsEmojiVariationSequences(Character character);
 
+/**
+ * @brief Whether the character is Negative Squared Latin Capital Letter.
+ * Read more at White on black squared Latin letters: https://unicode-table.com/en/blocks/enclosed-alphanumeric-supplement/
+ *
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is Negative Squared Latin Capital Letter.
+ */
+DALI_ADAPTOR_API bool IsNegativeSquaredLatinCapitalLetter(Character character);
+
 } // namespace TextAbstraction
 
 } // namespace Dali
