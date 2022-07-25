@@ -56,6 +56,18 @@ public:
   static WebEnginePtr New();
 
   /**
+   * @brief Get context of web engine
+   *
+   */
+  static Dali::WebEngineContext* GetContext();
+
+  /**
+   * @brief Get cookie manager of web engine
+   *
+   */
+  static Dali::WebEngineCookieManager* GetCookieManager();
+
+  /**
    * @copydoc Dali::WebEngine::Create()
    */
   void Create(uint32_t width, uint32_t height, const std::string& locale, const std::string& timezoneId);
@@ -79,16 +91,6 @@ public:
    * @copydoc Dali::WebEngine::GetSettings()
    */
   Dali::WebEngineSettings& GetSettings() const;
-
-  /**
-   * @copydoc Dali::WebEngine::GetContext()
-   */
-  Dali::WebEngineContext& GetContext() const;
-
-  /**
-   * @copydoc Dali::WebEngine::GetCookieManager()
-   */
-  Dali::WebEngineCookieManager& GetCookieManager() const;
 
   /**
    * @copydoc Dali::WebEngine::GetBackForwardList()
@@ -574,16 +576,22 @@ private:
    *
    * @return Whether the initialization succeed or not.
    */
-  bool InitializePluginHandle();
+  static bool InitializePluginHandle();
+
+  /**
+   * @brief Close library handle.
+   */
+  static void ClosePluginHandle();
 
 private:
-  typedef Dali::WebEnginePlugin* (*CreateWebEngineFunction)();
-  typedef void (*DestroyWebEngineFunction)(Dali::WebEnginePlugin* plugin);
+  using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
+  using DestroyWebEngineFunction = void (*)(Dali::WebEnginePlugin* plugin);
 
-  Dali::WebEnginePlugin*   mPlugin;              ///< WebEnginePlugin instance
-  void*                    mHandle;              ///< Handle for the loaded library
-  CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
-  DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
+  Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
+
+  static void*                    mHandle;              ///< Handle for the loaded library
+  static CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
+  static DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
 };
 
 } // namespace Adaptor

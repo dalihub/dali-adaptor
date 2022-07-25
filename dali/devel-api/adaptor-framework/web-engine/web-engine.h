@@ -62,6 +62,16 @@ public:
   static WebEngine New();
 
   /**
+   * @brief Get context of WebEngine.
+   */
+  static Dali::WebEngineContext* GetContext();
+
+  /**
+   * @brief Get cookie manager of WebEngine.
+   */
+  static Dali::WebEngineCookieManager* GetCookieManager();
+
+  /**
    * @brief Copy constructor.
    *
    * @param[in] WebEngine WebEngine to copy. The copied WebEngine will point at the same implementation
@@ -121,16 +131,6 @@ public:
    * @brief Get settings of WebEngine.
    */
   Dali::WebEngineSettings& GetSettings() const;
-
-  /**
-   * @brief Get context of WebEngine.
-   */
-  Dali::WebEngineContext& GetContext() const;
-
-  /**
-   * @brief Get cookie manager of WebEngine.
-   */
-  Dali::WebEngineCookieManager& GetCookieManager() const;
 
   /**
    * @brief Get back-forward list of WebEngine.

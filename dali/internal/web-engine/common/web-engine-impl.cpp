@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-certificate.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-console-message.h>
@@ -72,10 +73,13 @@ Dali::TypeRegistration type(typeid(Dali::WebEngine), typeid(Dali::BaseHandle), C
 
 } // unnamed namespace
 
+void*                               WebEngine::mHandle              = nullptr;
+WebEngine::CreateWebEngineFunction  WebEngine::mCreateWebEnginePtr  = nullptr;
+WebEngine::DestroyWebEngineFunction WebEngine::mDestroyWebEnginePtr = nullptr;
+
 WebEnginePtr WebEngine::New()
 {
   WebEngine* instance = new WebEngine();
-
   if(!instance->Initialize())
   {
     delete instance;
@@ -85,30 +89,48 @@ WebEnginePtr WebEngine::New()
   return instance;
 }
 
-WebEngine::WebEngine()
-: mPlugin(NULL),
-  mHandle(NULL),
-  mCreateWebEnginePtr(NULL),
-  mDestroyWebEnginePtr(NULL)
+Dali::WebEngineContext* WebEngine::GetContext()
 {
+  if(!InitializePluginHandle())
+  {
+    return nullptr;
+  }
+
+  using GetWebEngineContext                  = Dali::WebEngineContext* (*)();
+  GetWebEngineContext getWebEngineContextPtr = reinterpret_cast<GetWebEngineContext>(dlsym(mHandle, "GetWebEngineContext"));
+  if(getWebEngineContextPtr)
+  {
+    return getWebEngineContextPtr();
+  }
+
+  return nullptr;
 }
 
-WebEngine::~WebEngine()
+Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
 {
-  if(mHandle != NULL)
+  if(!InitializePluginHandle())
   {
-    if(mDestroyWebEnginePtr != NULL)
-    {
-      mPlugin->Destroy();
-      mDestroyWebEnginePtr(mPlugin);
-    }
-
-    dlclose(mHandle);
+    return nullptr;
   }
+
+  using GetWebEngineCookieManager                        = Dali::WebEngineCookieManager* (*)();
+  GetWebEngineCookieManager getWebEngineCookieManagerPtr = reinterpret_cast<GetWebEngineCookieManager>(dlsym(mHandle, "GetWebEngineCookieManager"));
+  if(getWebEngineCookieManagerPtr)
+  {
+    return getWebEngineCookieManagerPtr();
+  }
+
+  return nullptr;
 }
 
 bool WebEngine::InitializePluginHandle()
 {
+  if(mHandle)
+  {
+    DALI_LOG_ERROR("Plugin.so has been opened already.\n");
+    return true;
+  }
+
   if(pluginName.length() == 0)
   {
     // pluginName is not initialized yet.
@@ -116,13 +138,11 @@ bool WebEngine::InitializePluginHandle()
     if(name)
     {
       pluginName = MakePluginName(name);
-      mHandle    = dlopen(pluginName.c_str(), RTLD_LAZY);
-      if(mHandle)
-      {
-        return true;
-      }
     }
-    pluginName = std::string(kPluginFullNameDefault);
+    else
+    {
+      pluginName = std::string(kPluginFullNameDefault);
+    }
   }
 
   mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
@@ -132,36 +152,58 @@ bool WebEngine::InitializePluginHandle()
     return false;
   }
 
+  // Make sure that mHandle would be closed.
+  Dali::LifecycleController::Get().TerminateSignal().Connect(&WebEngine::ClosePluginHandle);
+
+  mCreateWebEnginePtr = reinterpret_cast<CreateWebEngineFunction>(dlsym(mHandle, "CreateWebEnginePlugin"));
+  if(mCreateWebEnginePtr == nullptr)
+  {
+    DALI_LOG_ERROR("Can't load symbol CreateWebEnginePlugin(), error: %s\n", dlerror());
+    return false;
+  }
+
+  mDestroyWebEnginePtr = reinterpret_cast<DestroyWebEngineFunction>(dlsym(mHandle, "DestroyWebEnginePlugin"));
+  if(mDestroyWebEnginePtr == nullptr)
+  {
+    DALI_LOG_ERROR("Can't load symbol DestroyWebEnginePlugin(), error: %s\n", dlerror());
+    return false;
+  }
+
   return true;
+}
+
+void WebEngine::ClosePluginHandle()
+{
+  if(mHandle)
+  {
+    dlclose(mHandle);
+    mHandle = nullptr;
+  }
+}
+
+WebEngine::WebEngine()
+: mPlugin(nullptr)
+{
+}
+
+WebEngine::~WebEngine()
+{
+  if(mPlugin != nullptr && mDestroyWebEnginePtr != nullptr)
+  {
+    mPlugin->Destroy();
+    mDestroyWebEnginePtr(mPlugin);
+  }
 }
 
 bool WebEngine::Initialize()
 {
-  char* error = NULL;
-
   if(!InitializePluginHandle())
   {
     return false;
   }
 
-  mCreateWebEnginePtr = reinterpret_cast<CreateWebEngineFunction>(dlsym(mHandle, "CreateWebEnginePlugin"));
-  if(mCreateWebEnginePtr == NULL)
-  {
-    DALI_LOG_ERROR("Can't load symbol CreateWebEnginePlugin(), error: %s\n", error);
-    return false;
-  }
-
-  mDestroyWebEnginePtr = reinterpret_cast<DestroyWebEngineFunction>(dlsym(mHandle, "DestroyWebEnginePlugin"));
-
-  if(mDestroyWebEnginePtr == NULL)
-  {
-    DALI_LOG_ERROR("Can't load symbol DestroyWebEnginePlugin(), error: %s\n", error);
-    return false;
-  }
-
   mPlugin = mCreateWebEnginePtr();
-
-  if(mPlugin == NULL)
+  if(mPlugin == nullptr)
   {
     DALI_LOG_ERROR("Can't create the WebEnginePlugin object\n");
     return false;
@@ -193,16 +235,6 @@ Dali::NativeImageSourcePtr WebEngine::GetNativeImageSource()
 Dali::WebEngineSettings& WebEngine::GetSettings() const
 {
   return mPlugin->GetSettings();
-}
-
-Dali::WebEngineContext& WebEngine::GetContext() const
-{
-  return mPlugin->GetContext();
-}
-
-Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
-{
-  return mPlugin->GetCookieManager();
 }
 
 Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const

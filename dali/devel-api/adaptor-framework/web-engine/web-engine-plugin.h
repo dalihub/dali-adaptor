@@ -251,16 +251,6 @@ public:
   virtual WebEngineSettings& GetSettings() const = 0;
 
   /**
-   * @brief Get context of WebEngine.
-   */
-  virtual WebEngineContext& GetContext() const = 0;
-
-  /**
-   * @brief Get cookie manager of WebEngine.
-   */
-  virtual WebEngineCookieManager& GetCookieManager() const = 0;
-
-  /**
    * @brief Get back-forward list of WebEngine.
    */
   virtual WebEngineBackForwardList& GetBackForwardList() const = 0;

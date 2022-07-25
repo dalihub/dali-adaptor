@@ -103,6 +103,11 @@ public:
   void InvalidateBuffer();
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::AddPropertyValueCallback()
+   */
+  void AddPropertyValueCallback(const std::string& keyPath, Dali::VectorAnimationRenderer::VectorProperty property, CallbackBase* callback, int32_t id);
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::UploadCompletedSignal()
    */
   Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();

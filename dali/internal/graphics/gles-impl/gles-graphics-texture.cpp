@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,18 +51,29 @@ struct ColorConversion
   void (*pConversionWriteFunc)(const void*, uint32_t, uint32_t, uint32_t, uint32_t, void*);
 };
 
-inline void WriteRGB32ToRGBA32(const void* pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* pOutput)
+inline void WriteRGB32ToRGBA32(const void* __restrict__ pData, uint32_t sizeInBytes, uint32_t width, uint32_t height, uint32_t rowStride, void* __restrict__ pOutput)
 {
-  auto inData  = reinterpret_cast<const uint8_t*>(pData);
-  auto outData = reinterpret_cast<uint8_t*>(pOutput);
-  auto outIdx  = 0u;
-  for(auto i = 0u; i < sizeInBytes; i += 3)
+  const uint8_t* __restrict__ inData = reinterpret_cast<const uint8_t*>(pData);
+  uint8_t* __restrict__ outData      = reinterpret_cast<uint8_t*>(pOutput);
+  if(rowStride == 0u)
   {
-    outData[outIdx]     = inData[i];
-    outData[outIdx + 1] = inData[i + 1];
-    outData[outIdx + 2] = inData[i + 2];
-    outData[outIdx + 3] = 0xff;
-    outIdx += 4;
+    rowStride = width;
+  }
+  for(auto y = 0u; y < height; ++y)
+  {
+    auto inIdx  = 0u;
+    auto outIdx = 0u;
+    for(auto x = 0u; x < width; ++x)
+    {
+      outData[outIdx]     = inData[inIdx];
+      outData[outIdx + 1] = inData[inIdx + 1];
+      outData[outIdx + 2] = inData[inIdx + 2];
+      outData[outIdx + 3] = 0xff;
+      outIdx += 4;
+      inIdx += 3;
+    }
+    inData += rowStride * 3u;
+    outData += width * 4u;
   }
 }
 
@@ -380,7 +391,7 @@ void Texture::Prepare()
  * This function tests whether format is supported by the driver. If possible it applies
  * format conversion to suitable supported pixel format.
  */
-bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer)
+bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat, Graphics::Format destFormat, uint32_t sizeInBytes, uint32_t inStride, uint32_t width, uint32_t height, std::vector<uint8_t>& outputBuffer)
 {
   // No need to convert
   if(srcFormat == destFormat)
@@ -399,7 +410,7 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
   }
   auto begin = reinterpret_cast<const uint8_t*>(pData);
 
-  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, 0u));
+  outputBuffer = std::move(it->pConversionFunc(begin, sizeInBytes, width, height, inStride));
   return !outputBuffer.empty();
 }
 

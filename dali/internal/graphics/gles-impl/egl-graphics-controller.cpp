@@ -659,14 +659,19 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                             info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
 
       auto*                sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
+      auto                 sourceStride = info.srcStride;
       std::vector<uint8_t> tempBuffer;
+
       if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
       {
         // Convert RGB to RGBA if necessary.
-        texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer);
-        sourceBuffer = &tempBuffer[0];
-        srcFormat    = destFormat;
-        srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+        if(texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+        {
+          sourceBuffer = &tempBuffer[0];
+          sourceStride = 0u; // Converted buffer compacted. make stride as 0.
+          srcFormat    = destFormat;
+          srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+        }
       }
 
       // Calculate the maximum mipmap level for the texture
@@ -682,7 +687,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
       }
 
       mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, info.srcStride);
+      mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
 
       mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
 
@@ -770,10 +775,11 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
         // TODO: using PBO with GLES3, this is just naive
         // oldschool way
 
-        char* stagingBuffer = reinterpret_cast<char*>(malloc(info.srcSize));
-        std::copy(&reinterpret_cast<char*>(source.memorySource.memory)[info.srcOffset],
-                  reinterpret_cast<char*>(source.memorySource.memory) + info.srcSize,
-                  stagingBuffer);
+        uint8_t* stagingBuffer = reinterpret_cast<uint8_t*>(malloc(info.srcSize));
+
+        uint8_t* srcMemory = &reinterpret_cast<uint8_t*>(source.memorySource.memory)[info.srcOffset];
+
+        std::copy(srcMemory, srcMemory + info.srcSize, stagingBuffer);
 
         mTextureUploadTotalCPUMemoryUsed += info.srcSize;
 
