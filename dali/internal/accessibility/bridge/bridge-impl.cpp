@@ -122,7 +122,14 @@ public:
       }
     }
 
-    return Consumed::NO;
+    auto methodObject = mRegistryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
+    auto result       = methodObject.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
+    if(!result)
+    {
+      LOG() << result.getError().message;
+      return Consumed::NO;
+    }
+    return std::get<0>(result) ? Consumed::YES : Consumed::NO;
   }
 
   /**
