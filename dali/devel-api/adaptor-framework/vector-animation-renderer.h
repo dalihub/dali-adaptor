@@ -51,7 +51,7 @@ public:
     FILL_COLOR,         ///< Fill color of the object, Type Property::VECTOR3
     FILL_OPACITY,       ///< Fill opacity of the object, Type Property::FLOAT
     STROKE_COLOR,       ///< Stroke color of the object, Type Property::VECTOR3
-    STROKE_OPACTY,      ///< Stroke opacity of the object, Type Property::FLOAT
+    STROKE_OPACITY,     ///< Stroke opacity of the object, Type Property::FLOAT
     STROKE_WIDTH,       ///< Stroke width of the object, Type Property::FLOAT
     TRANSFORM_ANCHOR,   ///< Transform anchor of the Layer and Group object, Type Property::VECTOR2
     TRANSFORM_POSITION, ///< Transform position of the Layer and Group object, Type Property::VECTOR2
