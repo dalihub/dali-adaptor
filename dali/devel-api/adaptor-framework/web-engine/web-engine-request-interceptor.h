@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/web-engine/web-engine-plugin.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/object/property-map.h>
 #include <dali/public-api/object/ref-object.h>
@@ -42,6 +43,13 @@ public:
    * @brief Destructor.
    */
   virtual ~WebEngineRequestInterceptor() = default;
+
+  /**
+   * @brief Gets web engine in which http request is intercepted.
+   *
+   * @return web engine if succeeded or null otherwise
+   */
+  virtual Dali::WebEnginePlugin* GetWebEngine() const = 0;
 
   /**
    * @brief Returns request url.

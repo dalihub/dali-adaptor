@@ -123,6 +123,11 @@ public:
   void Destroy();
 
   /**
+   * @brief Gets web engine plugin.
+   */
+  Dali::WebEnginePlugin* GetPlugin() const;
+
+  /**
    * @brief Get native image source to render.
    */
   NativeImageSourcePtr GetNativeImageSource();
