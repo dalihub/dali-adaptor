@@ -990,11 +990,9 @@ std::string BridgeAccessible::GetName()
 
 DBus::ValueOrError<Accessible*, uint32_t, std::unordered_map<std::string, std::string>> BridgeAccessible::GetDefaultLabelInfo()
 {
-  auto defaultLabel = GetDefaultLabel();
-  if(defaultLabel == nullptr)
-  {
-    defaultLabel = FindSelf();
-  }
+  auto* defaultLabel = GetDefaultLabel(FindSelf());
+  DALI_ASSERT_DEBUG(defaultLabel);
+
   // By default, the text is taken from navigation context root's accessibility properties name and description.
   return {defaultLabel, static_cast<uint32_t>(defaultLabel->GetRole()), defaultLabel->GetAttributes()};
 }

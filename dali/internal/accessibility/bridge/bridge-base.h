@@ -365,10 +365,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
    */
-  Dali::Accessibility::Accessible* GetDefaultLabel() const override
-  {
-    return mDefaultLabels.empty() ? nullptr : mDefaultLabels.back();
-  }
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetApplication()
