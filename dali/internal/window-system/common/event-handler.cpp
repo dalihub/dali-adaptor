@@ -321,6 +321,14 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   // Send touch event to accessibility adaptor.
   TouchPoint point( 0, touchPointState, static_cast< float >( info.startX ), static_cast< float >( info.startY ) );
 
+  // Forward the event to the application.
+  // This is a kind of backdoor to bypass the normal behaviour.
+  if( info.gestureValue == 15 && info.state == 3 )
+  {
+    accessibilityAdaptor->HandleActionForwardToAppEvent();
+    return;
+  }
+
   // Perform actions based on received gestures.
   // Note: This is seperated from the reading so we can have other input readers without changing the below code.
   switch( info.gestureValue )

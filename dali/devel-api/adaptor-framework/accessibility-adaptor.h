@@ -324,6 +324,15 @@ public:
    */
   bool HandleActionStartStopEvent();
 
+  /**
+   * @brief Handle the accessibility action to forward it to the application
+   * (by one finger double tap and hold).
+   *
+   * This is a kind of backdoor to bypass the normal behaviour.
+   * @return Whether the action is performed successfully or not.
+   */
+  bool HandleActionForwardToAppEvent();
+
 public: // Not intended for application developers
   /**
    * @brief Creates a handle using the Adaptor::Internal implementation.

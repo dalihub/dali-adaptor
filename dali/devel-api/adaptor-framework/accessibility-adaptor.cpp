@@ -209,6 +209,11 @@ bool AccessibilityAdaptor::HandleActionStartStopEvent()
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionStartStopEvent();
 }
 
+bool AccessibilityAdaptor::HandleActionForwardToAppEvent()
+{
+  return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).HandleActionForwardToAppEvent();
+}
+
 AccessibilityAdaptor::AccessibilityAdaptor(Internal::Adaptor::AccessibilityAdaptor& manager)
 : BaseHandle(&manager)
 {

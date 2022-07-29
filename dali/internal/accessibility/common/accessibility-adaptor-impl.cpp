@@ -512,6 +512,19 @@ bool AccessibilityAdaptor::HandleActionStartStopEvent()
   return ret;
 }
 
+bool AccessibilityAdaptor::HandleActionForwardToAppEvent()
+{
+  bool ret = false;
+  if( mActionHandler )
+  {
+    ret = mActionHandler->AccessibilityActionForwardToApp();
+  }
+
+  DALI_LOG_INFO(gAccessibilityAdaptorLogFilter, Debug::General, "[%s:%d] %s\n", __FUNCTION__, __LINE__, ret?"TRUE":"FALSE");
+
+  return ret;
+}
+
 AccessibilityAdaptor::~AccessibilityAdaptor()
 {
   // Do any platform specific clean-up in OnDestroy()

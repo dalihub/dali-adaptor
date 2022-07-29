@@ -196,6 +196,12 @@ public:
    */
   virtual bool AccessibilityActionStartStop() = 0;
 
+  /**
+   * Perform the accessibility action to forward the event to the application (by one finger double tap and hold).
+   * @return whether the accessibility action is performed or not.
+   */
+  virtual bool AccessibilityActionForwardToApp() = 0;
+
 }; // class AccessibilityActionHandler
 
 } // namespace Dali

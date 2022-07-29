@@ -244,6 +244,11 @@ public:
    */
   bool HandleActionStartStopEvent();
 
+  /**
+   * @copydoc Dali::AccessibilityAdaptor::HandleActionForwardToAppEvent()
+   */
+  bool HandleActionForwardToAppEvent();
+
 protected:
 
   /**
