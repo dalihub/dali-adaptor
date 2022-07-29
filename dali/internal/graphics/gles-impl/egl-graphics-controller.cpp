@@ -302,6 +302,21 @@ Graphics::UniquePtr<SyncObject> EglGraphicsController::CreateSyncObject(const Sy
   }
 }
 
+TextureProperties EglGraphicsController::GetTextureProperties(const Texture& texture)
+{
+  const GLES::Texture* glesTexture = static_cast<const GLES::Texture*>(&texture);
+  auto                 createInfo  = glesTexture->GetCreateInfo();
+
+  TextureProperties properties{};
+  properties.format       = createInfo.format;
+  properties.compressed   = glesTexture->IsCompressed();
+  properties.extent2D     = createInfo.size;
+  properties.nativeHandle = glesTexture->GetGLTexture();
+  //TODO: Skip format1, emulated, packed, directWriteAccessEnabled of TextureProperties for now
+
+  return properties;
+}
+
 const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
   return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();
