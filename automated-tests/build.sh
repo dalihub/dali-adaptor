@@ -32,7 +32,7 @@ function build
         (cd src/$1; ../../scripts/tcheadgen.sh tct-$1-core.h)
         if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
     fi
-    (cd build ; cmake .. -DCMAKE_VERBOSE_MAKEFILE=ON -DMODULE=$1 ; make -j7 )
+    (cd build ; cmake .. -DMODULE=$1 ; make -j7 )
 }
 
 if [ -n "$1" ] ; then

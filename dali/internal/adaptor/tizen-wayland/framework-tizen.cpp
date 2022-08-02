@@ -295,8 +295,7 @@ struct Framework::Impl
         mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnMemoryLow(task->mNewMemoryStatus);
@@ -312,8 +311,7 @@ struct Framework::Impl
         mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnBatteryLow(task->mNewBatteryStatus);
@@ -330,8 +328,7 @@ struct Framework::Impl
         mFramework->SetLanguage(mNewLanguage);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnLanguageChanged();
@@ -349,8 +346,7 @@ struct Framework::Impl
         mFramework->SetRegion(mNewRegion);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnRegionChanged();
@@ -802,7 +798,6 @@ struct Framework::Impl
   bool                          mUseUiThread;
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
-  app_event_handler_h            watchHandlers[5];
 #endif
 
   static void ProcessBundle(Framework* framework, bundle* bundleData)

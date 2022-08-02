@@ -614,11 +614,14 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
     // So set cacheDescription=false, that we don't call CacheFontPath().
     fontId = GetFontIdByPath(description.path, requestedPointSize, faceIndex, false);
 
-    fontCacheIndex                                              = mCacheHandler->mFontIdCache[fontId - 1u].index;
-    mCacheHandler->mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
+    if((fontId > 0u) && (fontId - 1u < mCacheHandler->mFontIdCache.size()))
+    {
+      fontCacheIndex                                              = mCacheHandler->mFontIdCache[fontId - 1u].index;
+      mCacheHandler->mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
 
-    // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
-    mCacheHandler->CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, fontCacheIndex);
+      // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
+      mCacheHandler->CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, fontCacheIndex);
+    }
   }
   else
   {
