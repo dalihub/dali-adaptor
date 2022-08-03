@@ -91,6 +91,11 @@ bool IsWidgetFeatureEnabled()
   return feature;
 }
 
+// Note : tizen appfw don't consider zero-arguments case.
+// If framework argc & argv is nullptr, We should add at least one argv.
+const int   gTizenDummyArgc    = 1;
+const char* gTizenDummyArgv[1] = {"dali-tizen-app"};
+
 } // anonymous namespace
 
 namespace AppCore
@@ -1162,7 +1167,6 @@ struct Framework::Impl
     callback.fini      = ComponentAppFinish;
 
     return component_based_app_base_main(*mFramework->mArgc, *mFramework->mArgv, &callback, mFramework);
-    ;
   }
 
   static void* ComponentAppCreate(void* data)
@@ -1219,6 +1223,12 @@ Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& tas
   mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
   mImpl(NULL)
 {
+  if(mArgc == nullptr || mArgv == nullptr)
+  {
+    mArgc = const_cast<int*>(&gTizenDummyArgc);
+    mArgv = const_cast<char***>(reinterpret_cast<const char***>(&gTizenDummyArgv));
+  }
+
   bool featureFlag = true;
   system_info_get_platform_bool("tizen.org/feature/opengles.version.2_0", &featureFlag);
 
