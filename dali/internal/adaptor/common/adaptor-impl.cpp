@@ -913,13 +913,13 @@ void Adaptor::ProcessCoreEvents()
       mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_START);
     }
 
-#ifndef DALI_PROFILE_UBUNTU
+#if !defined(DALI_PROFILE_UBUNTU) && !defined(DALI_PROFILE_LIBUV_X11)
     DALI_LOG_RELEASE_INFO("Start ProcessEvents\n");
 #endif
 
     mCore->ProcessEvents();
 
-#ifndef DALI_PROFILE_UBUNTU
+#if !defined(DALI_PROFILE_UBUNTU) && !defined(DALI_PROFILE_LIBUV_X11)
     DALI_LOG_RELEASE_INFO("End ProcessEvents\n");
 #endif
 

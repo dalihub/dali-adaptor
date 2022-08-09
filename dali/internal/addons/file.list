@@ -16,6 +16,12 @@ SET( adaptor_addons_ubuntu_src_files
     ${adaptor_addons_dir}/ubuntu/addon-manager-factory-ubuntu.cpp
 )
 
+# module: addons, backend: libuv-x11
+SET( adaptor_addons_ubuntu_src_files
+    ${adaptor_addons_dir}/linux/addon-manager-impl-linux.cpp
+    ${adaptor_addons_dir}/ubuntu/addon-manager-factory-ubuntu.cpp
+)
+
 # module: addons, backend: dummy
 SET( adaptor_addons_dummy_src_files
     ${adaptor_addons_dir}/dummy/addon-manager-factory-dummy.cpp

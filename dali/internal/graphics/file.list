@@ -18,8 +18,13 @@ SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
 )
 
-# module: graphics, backend: generic
+# module: graphics, backend: ubuntu
 SET( adaptor_graphics_ubuntu_src_files
+    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+)
+
+# module: graphics, backend: libuv-x11
+SET( adaptor_graphics_x11_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
 )
 

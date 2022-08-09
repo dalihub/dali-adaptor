@@ -40,6 +40,14 @@ SET( adaptor_imaging_ubuntu_x11_src_files
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
 )
 
+# module: imaging, backend: libuv-x11
+SET( adaptor_imaging_x11_src_files
+    ${adaptor_imaging_dir}/common/file-download.cpp
+    ${adaptor_imaging_dir}/x11/native-image-source-factory-x.cpp
+    ${adaptor_imaging_dir}/x11/native-image-source-impl-x.cpp
+    ${adaptor_imaging_dir}/x11/native-image-source-queue-impl-x.cpp
+)
+
 # module: imaging, backend: android
 SET( adaptor_imaging_android_src_files
     ${adaptor_imaging_dir}/common/file-download.cpp
@@ -62,4 +70,3 @@ SET( adaptor_imaging_macos_src_files
     ${adaptor_imaging_dir}/macos/native-image-source-factory-mac.cpp
     ${adaptor_imaging_dir}/macos/native-image-source-impl-mac.cpp
 )
-

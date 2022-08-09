@@ -177,7 +177,8 @@ const std::string& InputMethodContextGeneric::GetSurroundingText() const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::GetSurroundingText\n");
 
-  return "";
+  static const std::string  empty("");
+  return empty;
 }
 
 void InputMethodContextGeneric::NotifyTextInputMultiLine(bool multiLine)
