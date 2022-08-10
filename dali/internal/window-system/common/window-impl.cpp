@@ -92,6 +92,7 @@ Window::Window()
   mTransitionEffectEventSignal(),
   mKeyboardRepeatSettingsChangedSignal(),
   mAuxiliaryMessageSignal(),
+  mMovedSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -721,10 +722,17 @@ PositionSize Window::GetPositionSize() const
 void Window::SetPositionSize(PositionSize positionSize)
 {
   PositionSize oldRect = mSurface->GetPositionSize();
+  Dali::Window handle(this);
 
   mWindowSurface->MoveResize(positionSize);
 
   PositionSize newRect = mSurface->GetPositionSize();
+
+  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
+  {
+    Dali::Window::WindowPosition position(newRect.x, newRect.y);
+    mMovedSignal.Emit(handle, position);
+  }
 
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
   if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
@@ -739,7 +747,6 @@ void Window::SetPositionSize(PositionSize positionSize)
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
-    Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
@@ -873,14 +880,33 @@ void Window::OnWindowRedrawRequest()
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 {
+  bool resized = false;
+  bool moved = false;
+  Dali::Window handle(this);
   PositionSize oldRect = mSurface->GetPositionSize();
 
   mWindowSurface->UpdatePositionSize(positionSize);
 
   PositionSize newRect = positionSize;
 
-  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
+  {
+    moved = true;
+  }
+
   if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
+  {
+    resized = true;
+  }
+
+  if(moved)
+  {
+    Dali::Window::WindowPosition position(newRect.x, newRect.y);
+    mMovedSignal.Emit(handle, position);
+  }
+
+  // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
+  if(resized)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
@@ -892,7 +918,6 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Updated PositionSize by server :resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
-    Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }

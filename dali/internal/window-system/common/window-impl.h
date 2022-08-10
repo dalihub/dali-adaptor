@@ -67,6 +67,7 @@ public:
   typedef Dali::DevelWindow::KeyboardRepeatSettingsChangedSignalType KeyboardRepeatSettingsChangedSignalType;
   typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
+  typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -728,6 +729,14 @@ public: // Signals
     return mAccessibilityHighlightSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::MovedSignal()
+   */
+  MovedSignalType& MovedSignal()
+  {
+    return mMovedSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -756,6 +765,7 @@ private:
   KeyboardRepeatSettingsChangedSignalType mKeyboardRepeatSettingsChangedSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
+  MovedSignalType                         mMovedSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;
