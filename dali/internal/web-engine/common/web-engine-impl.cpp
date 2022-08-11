@@ -227,6 +227,11 @@ void WebEngine::Destroy()
   mPlugin->Destroy();
 }
 
+Dali::WebEnginePlugin* WebEngine::GetPlugin() const
+{
+  return mPlugin;
+}
+
 Dali::NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return mPlugin->GetNativeImageSource();

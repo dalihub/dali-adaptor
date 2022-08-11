@@ -101,6 +101,11 @@ void WebEngine::Destroy()
   GetImplementation(*this).Destroy();
 }
 
+Dali::WebEnginePlugin* WebEngine::GetPlugin() const
+{
+  return GetImplementation(*this).GetPlugin();
+}
+
 NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return GetImplementation(*this).GetNativeImageSource();
