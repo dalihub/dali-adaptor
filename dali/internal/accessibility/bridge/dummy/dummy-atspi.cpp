@@ -15,8 +15,8 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/component.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
@@ -138,14 +138,6 @@ void Accessibility::Accessible::EmitMovedOutOfScreen(Accessibility::ScreenRelati
 }
 
 void Accessibility::Accessible::EmitSocketAvailable()
-{
-}
-
-void Accessibility::Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
-{
-}
-
-void Accessibility::Accessible::FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
 {
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,6 +59,24 @@ void Segmentation::GetWordBreakPositions(const Character* const text,
   GetImplementation(*this).GetWordBreakPositions(text,
                                                  numberOfCharacters,
                                                  breakInfo);
+}
+
+void Segmentation::GetLineBreakPositionsUtf8(const uint8_t* const text,
+                                             Length               numberOfCharacters,
+                                             LineBreakInfo*       breakInfo)
+{
+  GetImplementation(*this).GetLineBreakPositionsUtf8(text,
+                                                     numberOfCharacters,
+                                                     breakInfo);
+}
+
+void Segmentation::GetWordBreakPositionsUtf8(const uint8_t* const text,
+                                             Length               numberOfCharacters,
+                                             WordBreakInfo*       breakInfo)
+{
+  GetImplementation(*this).GetWordBreakPositionsUtf8(text,
+                                                     numberOfCharacters,
+                                                     breakInfo);
 }
 
 } // namespace TextAbstraction

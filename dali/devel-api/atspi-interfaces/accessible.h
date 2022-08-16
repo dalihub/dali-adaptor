@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@
 #include <vector>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -38,32 +38,6 @@ class DALI_ADAPTOR_API Accessible
 {
 public:
   virtual ~Accessible() noexcept;
-
-  using utf8_t = unsigned char;
-
-  /**
-   * @brief Calculates and finds word boundaries in given utf8 text.
-   *
-   * @param[in] string The source text to find
-   * @param[in] length The length of text to find
-   * @param[in] language The language to use
-   * @param[out] breaks The word boundaries in given text
-   *
-   * @note Word boundaries are returned as non-zero values in table breaks, which must be of size at least length.
-   */
-  static void FindWordSeparationsUtf8(const utf8_t* string, std::size_t length, const char* language, char* breaks);
-
-  /**
-   * @brief Calculates and finds line boundaries in given utf8 text.
-   *
-   * @param[in] string The source text to find
-   * @param[in] length The length of text to find
-   * @param[in] language The language to use
-   * @param[out] breaks The line boundaries in given text
-   *
-   * @note Line boundaries are returned as non-zero values in table breaks, which must be of size at least length.
-   */
-  static void FindLineSeparationsUtf8(const utf8_t* string, std::size_t length, const char* language, char* breaks);
 
   /**
    * @brief Helper function for emiting active-descendant-changed event.
