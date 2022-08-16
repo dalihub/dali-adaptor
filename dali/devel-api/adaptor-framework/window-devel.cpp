@@ -111,6 +111,11 @@ AccessibilityHighlightSignalType& AccessibilityHighlightSignal(Window window)
   return GetImplementation(window).AccessibilityHighlightSignal();
 }
 
+MovedSignalType& MovedSignal(Window window)
+{
+  return GetImplementation(window).MovedSignal();
+}
+
 void SetParent(Window window, Window parent)
 {
   GetImplementation(window).SetParent(parent);

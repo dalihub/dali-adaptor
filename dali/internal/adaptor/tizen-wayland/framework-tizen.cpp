@@ -659,6 +659,7 @@ struct Framework::Impl
   Impl(void* data, Type type, bool useUiThread)
   : mAbortCallBack(NULL),
     mCallbackManager(NULL),
+    handlers{nullptr, nullptr, nullptr, nullptr, nullptr},
     mUseUiThread(useUiThread)
 #ifdef APPCORE_WATCH_AVAILABLE
     ,

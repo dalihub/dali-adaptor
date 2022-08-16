@@ -83,6 +83,11 @@ public:
   void Destroy();
 
   /**
+   * @copydoc Dali::WebEngine::GetPlugin()
+   */
+  Dali::WebEnginePlugin* GetPlugin() const;
+
+  /**
    * @copydoc Dali::WebEngine::GetNativeImageSource()
    */
   Dali::NativeImageSourcePtr GetNativeImageSource();

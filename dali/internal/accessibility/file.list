@@ -43,6 +43,12 @@ SET( adaptor_accessibility_android_src_files
     ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
 )
 
+# module: accessibility, backend: libuv_x11 profile
+SET( adaptor_accessibility_libuv_x11_src_files
+    ${adaptor_accessibility_dir}/generic/tts-player-factory-generic.cpp
+    ${adaptor_accessibility_dir}/generic/tts-player-impl-generic.cpp
+)
+
 # module: accessibility, backend: windows
 SET( adaptor_accessibility_windows_src_files
 )

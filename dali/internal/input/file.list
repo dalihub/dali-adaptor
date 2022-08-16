@@ -1,29 +1,37 @@
 
 # module: input, backend: common
-SET( adaptor_input_common_src_files 
-    ${adaptor_input_dir}/common/input-method-context-impl.cpp 
-    ${adaptor_input_dir}/common/key-grab.cpp 
-    ${adaptor_input_dir}/common/key-impl.cpp 
-    ${adaptor_input_dir}/common/keyboard.cpp 
-    ${adaptor_input_dir}/common/physical-keyboard-impl.cpp 
+SET( adaptor_input_common_src_files
+    ${adaptor_input_dir}/common/input-method-context-impl.cpp
+    ${adaptor_input_dir}/common/key-grab.cpp
+    ${adaptor_input_dir}/common/key-impl.cpp
+    ${adaptor_input_dir}/common/keyboard.cpp
+    ${adaptor_input_dir}/common/physical-keyboard-impl.cpp
 )
 
 # module: input, backend: tizen-wayland
-SET( adaptor_input_tizen_wayland_src_files 
+SET( adaptor_input_tizen_wayland_src_files
     ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp 
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp 
-    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp 
+    ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp
+    ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp
+    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp
     ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore-wl.cpp
 )
 
 # module: input, backend: ubuntu-x11
-SET( adaptor_input_ubuntu_x11_src_files 
+SET( adaptor_input_ubuntu_x11_src_files
     ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
-    ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp 
-    ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp 
-    ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp 
+    ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp
+    ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp
+    ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp
     ${adaptor_input_dir}/ubuntu-x11/virtual-keyboard-impl-x.cpp
+)
+
+# module: input, backend: libuv-x11
+SET( adaptor_input_libuv_x11_src_files
+    ${adaptor_input_dir}/generic/input-method-context-factory-generic.cpp
+    ${adaptor_input_dir}/generic/input-method-context-impl-generic.cpp
+    ${adaptor_input_dir}/generic/key-mapping-generic.cpp
+    ${adaptor_input_dir}/generic/virtual-keyboard-impl-generic.cpp
 )
 
 # module: input, backend: generic

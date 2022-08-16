@@ -46,6 +46,7 @@ typedef Signal<void()>                                                          
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;              ///< Auxiliary message signal type
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
 typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
+typedef Signal<void(Window, Window::WindowPosition)>                                 MovedSignalType;                         ///< Window Moved signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -531,6 +532,22 @@ DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the window is moved.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Uint16Pair position );
+ * @endcode
+ * The parameters are the moved x and y coordinates.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
+
 
 } // namespace DevelWindow
 

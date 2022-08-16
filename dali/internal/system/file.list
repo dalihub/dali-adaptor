@@ -1,4 +1,3 @@
-
 # module: system, backend: common
 SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/abort-handler.cpp
@@ -66,6 +65,24 @@ SET( adaptor_system_ubuntu_x11_src_files
     ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
 )
+
+
+# module: system, backend: libuv-x11
+SET( adaptor_system_libuv_src_files
+    ${adaptor_system_dir}/common/shared-file.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/common/trigger-event.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
+    ${adaptor_system_dir}/libuv/callback-manager-libuv.cpp
+    ${adaptor_system_dir}/libuv/file-descriptor-monitor-libuv.cpp
+    ${adaptor_system_dir}/libuv/timer-impl-libuv.cpp
+    ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
+)
+
 
 # module: system, backend: android
 SET( adaptor_system_android_src_files
