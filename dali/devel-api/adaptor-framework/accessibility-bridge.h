@@ -116,6 +116,8 @@ struct DALI_ADAPTOR_API Bridge
    * that could be read by screen-reader immediately after the navigation context has changed
    * (window activates, popup shows up, tab changes) and before first UI element is highlighted.
    *
+   * @param[in] root The root of the navigation context for which to retrieve the default label.
+   *
    * @return The handler to accessibility object
    * @note This is a Tizen only feature not present in upstream ATSPI.
    * Feature can be enabled/disabled for particular context root object
@@ -123,7 +125,7 @@ struct DALI_ADAPTOR_API Bridge
    * Following strings are valid values for "default_label" attribute: "enabled", "disabled".
    * Any other value will be interpreted as "enabled".
    */
-  virtual Accessible* GetDefaultLabel() const = 0;
+  virtual Accessible* GetDefaultLabel(Accessible* root) const = 0;
 
   /**
    * @brief Sets name of current application which will be visible on accessibility bus.

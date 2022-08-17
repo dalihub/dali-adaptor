@@ -54,7 +54,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  Dali::Accessibility::Accessible* GetDefaultLabel() const override
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override
   {
     return nullptr;
   }
