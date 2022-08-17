@@ -44,11 +44,20 @@ SET( SOURCES
         ${adaptor_window_system_common_src_files}
         ${adaptor_window_system_x11_src_files}
         ${devel_api_text_abstraction_src_files}
-        ${static_libraries_glyphy_src_files}
         ${static_libraries_libunibreak_src_files}
-        ${static_libraries_nanosvg_src_files}
 )
 
+IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
+    SET( SOURCES ${SOURCES}
+         ${static_libraries_glyphy_src_files}
+    )
+ENDIF()
+
+IF( NOT thorvg_support)
+    SET( SOURCES ${SOURCES}
+         ${static_libraries_nanosvg_src_files}
+    )
+ENDIF()
 
 IF( ENABLE_NETWORK_LOGGING )
     SET( SOURCES ${SOURCES}
