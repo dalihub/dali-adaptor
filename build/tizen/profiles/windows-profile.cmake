@@ -36,9 +36,7 @@ SET( SOURCES
         ${adaptor_trace_common_src_files}
         ${adaptor_thread_common_src_files}
         ${devel_api_text_abstraction_src_files}
-        ${static_libraries_glyphy_src_files}
         ${static_libraries_libunibreak_src_files}
-        ${static_libraries_nanosvg_src_files}
         ${adaptor_windows_platform_src_files}
         ${adaptor_adaptor_windows_src_files}
         ${adaptor_window_system_windows_src_files}
@@ -49,6 +47,18 @@ SET( SOURCES
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_dummy_src_files}
 )
+
+IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
+    SET( SOURCES ${SOURCES}
+         ${static_libraries_glyphy_src_files}
+    )
+ENDIF()
+
+IF( NOT thorvg_support)
+    SET( SOURCES ${SOURCES}
+         ${static_libraries_nanosvg_src_files}
+    )
+ENDIF()
 
 # Builds the c files as c++
 SET_SOURCE_FILES_PROPERTIES( ${static_libraries_libunibreak_src_files} PROPERTIES LANGUAGE CXX )
