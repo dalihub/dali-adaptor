@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,9 +70,9 @@ void MergeRects(Rect<int>& mergingRect, const std::vector<Rect<int>>& rects)
   }
 }
 
-void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const std::vector<Rect<int>>& damagedRects)
+void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const Rect<int>& damagedRects)
 {
-  damagedRectsList.push_front(damagedRects);
+  damagedRectsList.insert(damagedRectsList.begin(), damagedRects);
   if(damagedRectsList.size() > 4) // past triple buffers + current
   {
     damagedRectsList.pop_back();
@@ -117,6 +117,47 @@ Rect<int32_t> RecalculateRect270(Rect<int32_t>& rect, const Rect<int32_t>& surfa
 using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int32_t>&);
 
 RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
+
+void MergeIntersectingRects(std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+{
+  const int n = damagedRects.size();
+  for(int i = 0; i < n - 1; i++)
+  {
+    if(damagedRects[i].IsEmpty())
+    {
+      continue;
+    }
+
+    for(int j = i + 1; j < n; j++)
+    {
+      if(damagedRects[j].IsEmpty())
+      {
+        continue;
+      }
+
+      if(damagedRects[i].Intersects(damagedRects[j]))
+      {
+        damagedRects[i].Merge(damagedRects[j]);
+        damagedRects[j].width  = 0;
+        damagedRects[j].height = 0;
+      }
+    }
+  }
+
+  int j = 0;
+  for(int i = 0; i < n; i++)
+  {
+    if(!damagedRects[i].IsEmpty())
+    {
+      damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
+    }
+  }
+
+  if(j != 0)
+  {
+    damagedRects.resize(j);
+  }
+}
 
 } // unnamed namespace
 
@@ -216,7 +257,7 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
   if(!mPostRenderTrigger)
   {
     mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                                                      TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
   mPositionSize = positionSize;
@@ -466,8 +507,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 {
   InitializeGraphics();
 
-  mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
-
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
   Dali::Integration::Scene scene = mScene.GetHandle();
@@ -588,7 +627,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     mDefaultScreenRotationAvailable = false;
   }
 
-  SetBufferDamagedRects(mDamagedRects, clippingRect);
+  SetBufferDamagedRects(damagedRects, clippingRect);
 
   if(scene)
   {
@@ -831,17 +870,19 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
   {
     // If scene is not exist, just use stored mPositionSize.
     Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
+    int32_t   orientation = 0;
 
     Dali::Integration::Scene scene = mScene.GetHandle();
     if(scene)
     {
       surfaceRect = scene.GetCurrentSurfaceRect();
+      orientation = std::min(scene.GetCurrentSurfaceOrientation() / 90, 3);
     }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
     {
-      InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
+      InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
       return;
     }
@@ -853,20 +894,37 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     // Buffer age 0 means the back buffer in invalid and requires full swap
     if(bufferAge == 0)
     {
-      InsertRects(mBufferDamagedRects, std::vector<Rect<int>>(1, surfaceRect));
+      InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
       return;
     }
 
+    mDamagedRects.assign(damagedRects.begin(), damagedRects.end());
+
+    // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
+    // Could be optional and can be removed, needs to be checked with and without on platform
+    MergeIntersectingRects(mDamagedRects, orientation, surfaceRect);
+
+    // Make one clipping rect
+    MergeRects(clippingRect, mDamagedRects);
+
     // We push current frame damaged rects here, zero index for current frame
-    InsertRects(mBufferDamagedRects, damagedRects);
+    InsertRects(mBufferDamagedRects, clippingRect);
 
     // Merge damaged rects into clipping rect
-    auto bufferDamagedRects = mBufferDamagedRects.begin();
-    while(bufferAge-- >= 0 && bufferDamagedRects != mBufferDamagedRects.end())
+    if(bufferAge <= mBufferDamagedRects.size())
     {
-      const std::vector<Rect<int>>& rects = *bufferDamagedRects++;
-      MergeRects(clippingRect, rects);
+      // clippingRect is already the current frame's damaged rect. Merge from the second
+      for(int i = 1; i < bufferAge; i++)
+      {
+        clippingRect.Merge(mBufferDamagedRects[i]);
+      }
+    }
+    else
+    {
+      // The buffer age is too old. Need full update.
+      clippingRect = surfaceRect;
+      return;
     }
 
     if(!clippingRect.Intersect(surfaceRect) || clippingRect.Area() > surfaceRect.Area() * FULL_UPDATE_RATIO)
@@ -898,19 +956,9 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
-    Rect<int32_t> surfaceRect;
-    int32_t       orientation = 0;
-
-    Dali::Integration::Scene scene = mScene.GetHandle();
-    if(scene)
-    {
-      surfaceRect = scene.GetCurrentSurfaceRect();
-      orientation = std::min(scene.GetCurrentSurfaceOrientation() / 90, 3);
-    }
-
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
 
-    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame || (damagedRects.size() != 0 && damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
+    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
     {
       mFullSwapNextFrame = false;
       eglImpl.SwapBuffers(mEGLSurface);
@@ -919,49 +967,14 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
 
     mFullSwapNextFrame = false;
 
-    std::vector<Rect<int>> mergedRects = damagedRects;
-
-    // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
-    // Could be optional and can be removed, needs to be checked with and without on platform
-    const int n = mergedRects.size();
-    for(int i = 0; i < n - 1; i++)
+    Rect<int32_t>            surfaceRect;
+    Dali::Integration::Scene scene = mScene.GetHandle();
+    if(scene)
     {
-      if(mergedRects[i].IsEmpty())
-      {
-        continue;
-      }
-
-      for(int j = i + 1; j < n; j++)
-      {
-        if(mergedRects[j].IsEmpty())
-        {
-          continue;
-        }
-
-        if(mergedRects[i].Intersects(mergedRects[j]))
-        {
-          mergedRects[i].Merge(mergedRects[j]);
-          mergedRects[j].width  = 0;
-          mergedRects[j].height = 0;
-        }
-      }
+      surfaceRect = scene.GetCurrentSurfaceRect();
     }
 
-    int j = 0;
-    for(int i = 0; i < n; i++)
-    {
-      if(!mergedRects[i].IsEmpty())
-      {
-        mergedRects[j++] = RecalculateRect[orientation](mergedRects[i], surfaceRect);
-      }
-    }
-
-    if(j != 0)
-    {
-      mergedRects.resize(j);
-    }
-
-    if(!mergedRects.size() || (mergedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
+    if(!damagedRects.size() || (damagedRects[0].Area() > surfaceRect.Area() * FULL_UPDATE_RATIO))
     {
       // In normal cases, WindowRenderSurface::SwapBuffers() will not be called if mergedRects.size() is 0.
       // For exceptional cases, swap full area.
@@ -969,7 +982,7 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
     }
     else
     {
-      eglImpl.SwapBuffers(mEGLSurface, mergedRects);
+      eglImpl.SwapBuffers(mEGLSurface, damagedRects);
     }
   }
 }
