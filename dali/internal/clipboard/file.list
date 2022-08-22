@@ -33,3 +33,8 @@ SET( adaptor_clipboard_macos_src_files
 SET( adaptor_clipboard_libuv_x11_src_files
     ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
 )
+
+# module: clipboard, backend: glib-x11
+SET( adaptor_clipboard_glib_x11_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)
