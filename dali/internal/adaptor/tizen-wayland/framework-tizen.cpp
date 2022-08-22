@@ -800,8 +800,8 @@ struct Framework::Impl
 
   Framework*                    mFramework;
   AppCore::AppEventHandlerPtr   handlers[5];
-  std::unique_ptr<UiAppContext> mUiAppContext;
-  bool                          mUseUiThread;
+  std::unique_ptr<UiAppContext> mUiAppContext{nullptr};
+  bool                          mUseUiThread{false};
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
 #endif

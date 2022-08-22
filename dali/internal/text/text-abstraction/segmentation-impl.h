@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_SEGMENTATION_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,6 +65,20 @@ public:
   void GetWordBreakPositions(const Character* const text,
                              Length                 numberOfCharacters,
                              WordBreakInfo*         breakInfo);
+
+  /**
+   * @copydoc Dali::Segmentation::GetLineBreakPositionsUtf8()
+   */
+  void GetLineBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 LineBreakInfo*       breakInfo);
+
+  /**
+   * @copydoc Dali::Segmentation::GetWordBreakPositionsUtf8()
+   */
+  void GetWordBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 WordBreakInfo*       breakInfo);
 
 private:
   /**

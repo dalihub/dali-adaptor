@@ -213,14 +213,10 @@ void BridgeBase::AddTopLevelWindow(Accessible* windowAccessible)
   // Adds Window to a list of Windows.
   mApplication.mChildren.push_back(windowAccessible);
   SetIsOnRootLevel(windowAccessible);
-
-  RegisterDefaultLabel(windowAccessible);
 }
 
 void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
 {
-  UnregisterDefaultLabel(windowAccessible);
-
   for(auto i = 0u; i < mApplication.mChildren.size(); ++i)
   {
     if(mApplication.mChildren[i] == windowAccessible)
@@ -246,6 +242,13 @@ void BridgeBase::UnregisterDefaultLabel(Accessible* object)
   {
     mDefaultLabels.erase(it);
   }
+}
+
+Accessible* BridgeBase::GetDefaultLabel(Accessible* root) const
+{
+  // TODO (multi-window support): Change mDefaultLabels to a collection of vectors
+  // (one per window) and select the right one based on the window that 'root' belongs to.
+  return mDefaultLabels.empty() ? root : mDefaultLabels.back();
 }
 
 std::string BridgeBase::StripPrefix(const std::string& path)

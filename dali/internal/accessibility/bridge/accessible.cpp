@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 // CLASS HEADER
 
 //INTERNAL INCLUDES
-#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <third-party/libunibreak/linebreak.h>
@@ -220,14 +220,4 @@ void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States stat
       }
     }
   }
-}
-
-void Accessible::FindWordSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
-{
-  set_wordbreaks_utf8(string, length, language, breaks);
-}
-
-void Accessible::FindLineSeparationsUtf8(const utf8_t* string, size_t length, const char* language, char* breaks)
-{
-  set_linebreaks_utf8(string, length, language, breaks);
 }

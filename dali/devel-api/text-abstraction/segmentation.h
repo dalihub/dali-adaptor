@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SEGMENTATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,53 @@ public:
   void GetWordBreakPositions(const Character* const text,
                              Length                 numberOfCharacters,
                              WordBreakInfo*         breakInfo);
+
+  /**
+   * @brief Retrieves the line break info from utf8.
+   *
+   * @pre @p breakInfo must have enough space allocated for @p numberOfCharacters.
+   *
+   * Possible values for LineBreakInfo are:
+   *
+   *  - 0 is a LINE_MUST_BREAK.  Text must be broken into a new line.
+   *  - 1 is a LINE_ALLOW_BREAK. Is possible to break the text into a new line.
+   *  - 2 is a LINE_NO_BREAK.    Text can't be broken into a new line.
+   *
+     @verbatim
+     i.e. Hello big\nworld produces:
+          2222212220 22220
+     @endverbatim
+   *
+   * @param[in] text Pointer to the first character of the text coded in UTF8.
+   * @param[in] numberOfCharacters The number of characters.
+   * @param[out] breakInfo The line break info.
+   */
+  void GetLineBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 LineBreakInfo*       breakInfo);
+
+  /**
+   * @brief Retrieves the word break info from utf8.
+   *
+   * @pre @p breakInfo must have enough space allocated for @p numberOfCharacters.
+   *
+   * Possible values for WordBreakInfo are:
+   *
+   * - 0 is a WORD_BREAK.    Text can be broken into a new word.
+   * - 1 is a WORD_NO_BREAK. Text can't be broken into a new word.
+   *
+     @verbatim
+     i.e. Hello big\nworld produces:
+          1111001100 11110
+     @endverbatim
+   *
+   * @param[in] text Pointer to the first character of the text coded in UTF8.
+   * @param[in] numberOfCharacters The number of characters.
+   * @param[out] breakInfo The word break info.
+   */
+  void GetWordBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 WordBreakInfo*       breakInfo);
 };
 
 } // namespace TextAbstraction

@@ -31,18 +31,32 @@ namespace Internal
 {
 struct Segmentation::Plugin
 {
-  void GetLineBreakPositions(const Character* const text,
-                             Length                 numberOfCharacters,
-                             LineBreakInfo*         breakInfo)
+  void GetLineBreakPositionsUtf32(const Character* const text,
+                                  Length                 numberOfCharacters,
+                                  LineBreakInfo*         breakInfo)
   {
     set_linebreaks_utf32(text, numberOfCharacters, NULL, breakInfo);
   }
 
-  void GetWordBreakPositions(const Character* const text,
-                             Length                 numberOfCharacters,
-                             WordBreakInfo*         breakInfo)
+  void GetWordBreakPositionsUtf32(const Character* const text,
+                                  Length                 numberOfCharacters,
+                                  WordBreakInfo*         breakInfo)
   {
     set_wordbreaks_utf32(text, numberOfCharacters, NULL, breakInfo);
+  }
+
+  void GetLineBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 LineBreakInfo*       breakInfo)
+  {
+    set_linebreaks_utf8(text, numberOfCharacters, NULL, breakInfo);
+  }
+
+  void GetWordBreakPositionsUtf8(const uint8_t* const text,
+                                 Length               numberOfCharacters,
+                                 WordBreakInfo*       breakInfo)
+  {
+    set_wordbreaks_utf8(text, numberOfCharacters, NULL, breakInfo);
   }
 };
 
@@ -87,7 +101,7 @@ void Segmentation::GetLineBreakPositions(const Character* const text,
 {
   CreatePlugin();
 
-  mPlugin->GetLineBreakPositions(text, numberOfCharacters, breakInfo);
+  mPlugin->GetLineBreakPositionsUtf32(text, numberOfCharacters, breakInfo);
 }
 
 void Segmentation::GetWordBreakPositions(const Character* const text,
@@ -96,7 +110,25 @@ void Segmentation::GetWordBreakPositions(const Character* const text,
 {
   CreatePlugin();
 
-  mPlugin->GetWordBreakPositions(text, numberOfCharacters, breakInfo);
+  mPlugin->GetWordBreakPositionsUtf32(text, numberOfCharacters, breakInfo);
+}
+
+void Segmentation::GetLineBreakPositionsUtf8(const uint8_t* const text,
+                                             Length               numberOfCharacters,
+                                             LineBreakInfo*       breakInfo)
+{
+  CreatePlugin();
+
+  mPlugin->GetLineBreakPositionsUtf8(text, numberOfCharacters, breakInfo);
+}
+
+void Segmentation::GetWordBreakPositionsUtf8(const uint8_t* const text,
+                                             Length               numberOfCharacters,
+                                             WordBreakInfo*       breakInfo)
+{
+  CreatePlugin();
+
+  mPlugin->GetWordBreakPositionsUtf8(text, numberOfCharacters, breakInfo);
 }
 
 void Segmentation::CreatePlugin()
