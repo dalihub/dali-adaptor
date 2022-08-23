@@ -114,7 +114,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeWindowResourceId()
    */
-  std:string GetNativeWindowResourceId() override;
+  std::string GetNativeWindowResourceId() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
