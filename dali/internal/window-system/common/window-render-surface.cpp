@@ -912,7 +912,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     InsertRects(mBufferDamagedRects, clippingRect);
 
     // Merge damaged rects into clipping rect
-    if(bufferAge <= mBufferDamagedRects.size())
+    if(bufferAge <= static_cast<EGLint>(mBufferDamagedRects.size()))
     {
       // clippingRect is already the current frame's damaged rect. Merge from the second
       for(int i = 1; i < bufferAge; i++)
