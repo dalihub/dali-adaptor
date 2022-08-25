@@ -38,6 +38,10 @@
 #include <unordered_map>
 #include <vector>
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 namespace Dali
 {
 namespace Internal
@@ -440,7 +444,8 @@ struct WindowSystemX::Impl
     mXEventMonitor = new FileDescriptorMonitor(
       ConnectionNumber(mDisplay),
       MakeCallback(this, &WindowSystemX::Impl::XPollCallback),
-      (FileDescriptorMonitor::FD_READABLE | FileDescriptorMonitor::FD_WRITABLE));
+      FileDescriptorMonitor::FD_READABLE);
+    // libuv hacks: add FD_WRITABLE.
 
     InitializeAtoms();
     SetupEventHandlers();
