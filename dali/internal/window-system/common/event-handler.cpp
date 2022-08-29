@@ -186,6 +186,19 @@ void EventHandler::OnFocusChanged( bool focusIn )
     {
       clipboard.HideClipboard();
     }
+
+#ifdef DALI_ELDBUS_AVAILABLE
+    // When dali window gains the focus, Accessibility should be enabled.
+    if ( mAccessibilityAdaptor )
+    {
+      AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( mAccessibilityAdaptor ) );
+      if ( accessibilityAdaptor )
+      {
+        DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnFocusChanged: EnableAccessibility \n" );
+        accessibilityAdaptor->EnableAccessibility();
+      }
+    }
+#endif
   }
   else
   {
@@ -196,6 +209,19 @@ void EventHandler::OnFocusChanged( bool focusIn )
       Clipboard& clipBoardImpl( GetImplementation( clipboard ) );
       clipBoardImpl.HideClipboard(true);
     }
+
+#ifdef DALI_ELDBUS_AVAILABLE
+    // When dali window loses the focus, Accessibility should be disabled.
+    if ( mAccessibilityAdaptor )
+    {
+      AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( mAccessibilityAdaptor ) );
+      if ( accessibilityAdaptor && accessibilityAdaptor->IsEnabled() )
+      {
+        DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnFocusChanged: DisableAccessibility \n" );
+        accessibilityAdaptor->DisableAccessibility();
+      }
+    }
+#endif
   }
 }
 
