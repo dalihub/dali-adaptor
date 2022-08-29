@@ -636,12 +636,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     {
       mDamagedRects.assign(1, surfaceRect);
     }
-    else if(mDamagedRects.empty() && !clippingRect.IsEmpty())
-    {
-      // We will render clippingRect area but mDamagedRects is empty.
-      // So make mDamagedRects same with clippingRect to swap buffers.
-      mDamagedRects.assign(1, clippingRect);
-    }
   }
 
   // This is now done when the render pass for the render surface begins
@@ -884,6 +878,13 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     {
       InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
+      return;
+    }
+
+    if(damagedRects.empty())
+    {
+      // Empty damaged rect. We don't need rendering
+      clippingRect = Rect<int>();
       return;
     }
 
