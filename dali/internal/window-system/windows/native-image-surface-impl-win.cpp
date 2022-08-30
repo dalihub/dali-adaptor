@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/window-system/windows/native-image-surface-impl-win.cpp>
+#include <dali/internal/window-system/windows/native-image-surface-impl-win.h>
 
 using namespace Dali::Internal::Adaptor;
 

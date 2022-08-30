@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,13 @@ uint32_t ConfigurationManager::GetMaxTextureSize()
 
     if(!mMaxTextureSizeCached)
     {
+      if(!mGraphics->IsInitialized())
+      {
+        // Wait until Graphics Subsystem is initialised, but this will happen once.
+        // This method blocks until the render thread has initialised the graphics.
+        mThreadController->WaitForGraphicsInitialization();
+      }
+
       mMaxTextureSize       = mGraphics->GetMaxTextureSize();
       mMaxTextureSizeCached = true;
 

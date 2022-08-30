@@ -429,7 +429,7 @@ void EglImplementation::SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect
     EGLBoolean result = mEglSetDamageRegionKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(damagedRects.data()), 1);
     if(result == EGL_FALSE)
     {
-      DALI_LOG_ERROR("eglSetDamageRegionKHR(%d)\n", eglGetError());
+      DALI_LOG_ERROR("eglSetDamageRegionKHR(0x%x)\n", eglGetError());
     }
   }
 }
