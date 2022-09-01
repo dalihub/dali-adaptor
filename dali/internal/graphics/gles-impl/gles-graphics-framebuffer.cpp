@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,31 +109,54 @@ bool Framebuffer::InitializeResource()
     // @todo is this per framebuffer, or more immediate state that needs setting when framebuffer changed?
     context->DrawBuffers(mCreateInfo.colorAttachments.size(), COLOR_ATTACHMENTS);
 
-    if(mCreateInfo.depthStencilAttachment.depthTexture)
+    // @todo Currently, we don't assume that GL_EXT_PACKED_DEPTH_STENCIL valid.
+    // We will assume that stencilTexture / stencilBufferId always mean depth-stencil.
+    if(mCreateInfo.depthStencilAttachment.stencilTexture)
     {
-      // Create a depth or depth/stencil render target.
+      // bind depth 24 bits + stencil 8 bits texture, or 8 tencil texture.
+      auto stencilTexture = static_cast<const GLES::Texture*>(mCreateInfo.depthStencilAttachment.stencilTexture);
+      auto attachmentId   = DEPTH_STENCIL_ATTACHMENT_TYPE(stencilTexture->GetCreateInfo().format).attachment;
+
+      if(attachmentId != GL_DEPTH_STENCIL_ATTACHMENT)
+      {
+        DALI_LOG_ERROR("Current Depth/Stencil Texture Type doesn't support. Please check depth/stencil texture's pixel format");
+      }
+
+      AttachTexture(stencilTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.stencilLevel);
+    }
+    else if(mCreateInfo.depthStencilAttachment.depthTexture)
+    {
+      // bind depth texture.
       auto depthTexture = static_cast<const GLES::Texture*>(mCreateInfo.depthStencilAttachment.depthTexture);
       auto attachmentId = DEPTH_STENCIL_ATTACHMENT_TYPE(depthTexture->GetCreateInfo().format).attachment;
 
+      if(attachmentId != GL_DEPTH_STENCIL_ATTACHMENT && mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+      {
+        DALI_LOG_ERROR("Current Depth Texture Type doesn't support to store Stencil. Please check depth texture's pixel format");
+      }
+
       AttachTexture(depthTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.depthLevel);
+    }
+    else if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE &&
+            mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+    {
+      // Create depth+stencil renderbuffer
+      gl->GenRenderbuffers(1, &mStencilBufferId);
+      gl->BindRenderbuffer(GL_RENDERBUFFER, mStencilBufferId);
+      gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mCreateInfo.size.width, mCreateInfo.size.height);
+      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mStencilBufferId);
     }
     else if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
     {
+      // Create depth renderbuffer
       gl->GenRenderbuffers(1, &mDepthBufferId);
       gl->BindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
       gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mCreateInfo.size.width, mCreateInfo.size.height);
       gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBufferId);
     }
-
-    if(mCreateInfo.depthStencilAttachment.stencilTexture)
-    {
-      auto stencilTexture = static_cast<const GLES::Texture*>(mCreateInfo.depthStencilAttachment.stencilTexture);
-      auto attachmentId   = DEPTH_STENCIL_ATTACHMENT_TYPE(stencilTexture->GetCreateInfo().format).attachment;
-
-      AttachTexture(stencilTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.stencilLevel);
-    }
     else if(mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
     {
+      // Create stencil renderbuffer
       gl->GenRenderbuffers(1, &mStencilBufferId);
       gl->BindRenderbuffer(GL_RENDERBUFFER, mStencilBufferId);
       gl->RenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, mCreateInfo.size.width, mCreateInfo.size.height);

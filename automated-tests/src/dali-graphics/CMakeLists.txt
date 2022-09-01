@@ -5,10 +5,11 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 
 SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
-    utc-Dali-GraphicsSampler.cpp
+    utc-Dali-GraphicsFramebuffer.cpp
     utc-Dali-GraphicsGeometry.cpp
-    utc-Dali-GraphicsProgram.cpp
     utc-Dali-GraphicsNativeImage.cpp
+    utc-Dali-GraphicsProgram.cpp
+    utc-Dali-GraphicsSampler.cpp
 )
 
 LIST(APPEND TC_SOURCES
