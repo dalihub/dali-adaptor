@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/virtual-keyboard-impl.h>
 #include <dali/internal/input/linux/dali-ecore-imf.h>
-#include <dali/internal/input/tizen-wayland/ecore-virtual-keyboard.h>
 #include <dali/internal/input/ubuntu-x11/dali-ecore-input.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/linux/dali-ecore.h>
@@ -143,7 +142,6 @@ InputMethodContextPtr InputMethodContextX::New(Dali::Actor actor)
 void InputMethodContextX::Finalize()
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::Finalize\n");
-  VirtualKeyboard::DisconnectCallbacks(mIMFContext);
   DisconnectCallbacks();
   DeleteContext();
 }
@@ -171,7 +169,6 @@ void InputMethodContextX::Initialize()
 {
   CreateContext();
   ConnectCallbacks();
-  VirtualKeyboard::ConnectCallbacks(mIMFContext);
 }
 
 void InputMethodContextX::CreateContext()
