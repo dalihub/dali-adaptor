@@ -38,6 +38,8 @@
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-selection.h>
 #include <dali/internal/accessibility/bridge/bridge-socket.h>
+#include <dali/internal/accessibility/bridge/bridge-table.h>
+#include <dali/internal/accessibility/bridge/bridge-table-cell.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/bridge-application.h>
@@ -71,7 +73,9 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeApplication,
                    public BridgeHypertext,
                    public BridgeHyperlink,
-                   public BridgeSocket
+                   public BridgeSocket,
+                   public BridgeTable,
+                   public BridgeTableCell
 {
   DBus::DBusClient                                              mAccessibilityStatusClient;
   DBus::DBusClient                                              mRegistryClient;
@@ -331,6 +335,8 @@ public:
     BridgeHypertext::RegisterInterfaces();
     BridgeHyperlink::RegisterInterfaces();
     BridgeSocket::RegisterInterfaces();
+    BridgeTable::RegisterInterfaces();
+    BridgeTableCell::RegisterInterfaces();
 
     RegisterOnBridge(&mApplication);
 
