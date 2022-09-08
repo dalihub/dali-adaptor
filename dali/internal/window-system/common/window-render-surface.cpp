@@ -49,27 +49,6 @@ const float FULL_UPDATE_RATIO(0.8f);     ///< Force full update when the dirty a
 Debug::Filter* gWindowRenderSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_WINDOW_RENDER_SURFACE");
 #endif
 
-void MergeRects(Rect<int>& mergingRect, const std::vector<Rect<int>>& rects)
-{
-  uint32_t i = 0;
-  if(mergingRect.IsEmpty())
-  {
-    for(; i < rects.size(); i++)
-    {
-      if(!rects[i].IsEmpty())
-      {
-        mergingRect = rects[i];
-        break;
-      }
-    }
-  }
-
-  for(; i < rects.size(); i++)
-  {
-    mergingRect.Merge(rects[i]);
-  }
-}
-
 void InsertRects(WindowRenderSurface::DamagedRectsContainer& damagedRectsList, const Rect<int>& damagedRects)
 {
   damagedRectsList.insert(damagedRectsList.begin(), damagedRects);
@@ -118,7 +97,7 @@ using RecalculateRectFunction = Rect<int32_t> (*)(Rect<int32_t>&, const Rect<int
 
 RecalculateRectFunction RecalculateRect[4] = {RecalculateRect0, RecalculateRect90, RecalculateRect180, RecalculateRect270};
 
-void MergeIntersectingRects(std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
+void MergeIntersectingRectsAndRotate(Rect<int>& mergingRect, std::vector<Rect<int>>& damagedRects, int orientation, const Rect<int32_t>& surfaceRect)
 {
   const int n = damagedRects.size();
   for(int i = 0; i < n - 1; i++)
@@ -149,6 +128,16 @@ void MergeIntersectingRects(std::vector<Rect<int>>& damagedRects, int orientatio
   {
     if(!damagedRects[i].IsEmpty())
     {
+      // Merge rects before rotate
+      if(mergingRect.IsEmpty())
+      {
+        mergingRect = damagedRects[i];
+      }
+      else
+      {
+        mergingRect.Merge(damagedRects[i]);
+      }
+
       damagedRects[j++] = RecalculateRect[orientation](damagedRects[i], surfaceRect);
     }
   }
@@ -634,7 +623,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
     if(clippingRect == surfaceRect)
     {
-      mDamagedRects.assign(1, surfaceRect);
+      mDamagedRects.assign(1, RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](surfaceRect, surfaceRect));
     }
   }
 
@@ -885,6 +874,8 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     {
       // Empty damaged rect. We don't need rendering
       clippingRect = Rect<int>();
+      // Clean up current damanged rects.
+      mDamagedRects.clear();
       return;
     }
 
@@ -904,10 +895,8 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
     // Merge intersecting rects, form an array of non intersecting rects to help driver a bit
     // Could be optional and can be removed, needs to be checked with and without on platform
-    MergeIntersectingRects(mDamagedRects, orientation, surfaceRect);
-
-    // Make one clipping rect
-    MergeRects(clippingRect, mDamagedRects);
+    // And then, Make one clipping rect, and rotate rects by orientation.
+    MergeIntersectingRectsAndRotate(clippingRect, mDamagedRects, orientation, surfaceRect);
 
     // We push current frame damaged rects here, zero index for current frame
     InsertRects(mBufferDamagedRects, clippingRect);
@@ -940,7 +929,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
       std::vector<Rect<int>> damagedRegion;
       if(scene)
       {
-        damagedRegion.push_back(RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](clippingRect, scene.GetCurrentSurfaceRect()));
+        damagedRegion.push_back(RecalculateRect[orientation](clippingRect, surfaceRect));
       }
       else
       {
