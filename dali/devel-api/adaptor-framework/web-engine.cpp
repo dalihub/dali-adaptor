@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/devel-api/adaptor-framework/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine-context.h>
 #include <dali/devel-api/adaptor-framework/web-engine-cookie-manager.h>
+#include <dali/devel-api/adaptor-framework/web-engine-policy-decision.h>
 #include <dali/devel-api/adaptor-framework/web-engine-settings.h>
 #include <dali/internal/web-engine/common/web-engine-impl.h>
 
@@ -74,9 +75,9 @@ void WebEngine::Create(int width, int height, const std::string& locale, const s
   GetImplementation(*this).Create(width, height, locale, timezoneId);
 }
 
-void WebEngine::Create( int width, int height, int argc, char** argv )
+void WebEngine::Create(int width, int height, int argc, char** argv)
 {
-  GetImplementation( *this ).Create( width, height, argc, argv );
+  GetImplementation(*this).Create(width, height, argc, argv);
 }
 
 void WebEngine::Destroy()
@@ -91,22 +92,22 @@ NativeImageInterfacePtr WebEngine::GetNativeImageSource()
 
 Dali::WebEngineSettings& WebEngine::GetSettings() const
 {
-  return GetImplementation( *this ).GetSettings();
+  return GetImplementation(*this).GetSettings();
 }
 
 Dali::WebEngineContext& WebEngine::GetContext() const
 {
-  return GetImplementation( *this ).GetContext();
+  return GetImplementation(*this).GetContext();
 }
 
 Dali::WebEngineCookieManager& WebEngine::GetCookieManager() const
 {
-  return GetImplementation( *this ).GetCookieManager();
+  return GetImplementation(*this).GetCookieManager();
 }
 
 Dali::WebEngineBackForwardList& WebEngine::GetBackForwardList() const
 {
-  return GetImplementation( *this ).GetBackForwardList();
+  return GetImplementation(*this).GetBackForwardList();
 }
 
 void WebEngine::LoadUrl(const std::string& url)
@@ -116,12 +117,12 @@ void WebEngine::LoadUrl(const std::string& url)
 
 std::string WebEngine::GetTitle() const
 {
-  return GetImplementation( *this ).GetTitle();
+  return GetImplementation(*this).GetTitle();
 }
 
 Dali::PixelData WebEngine::GetFavicon() const
 {
-  return GetImplementation( *this ).GetFavicon();
+  return GetImplementation(*this).GetFavicon();
 }
 
 const std::string& WebEngine::GetUrl()
@@ -154,29 +155,29 @@ void WebEngine::Resume()
   GetImplementation(*this).Resume();
 }
 
-void WebEngine::ScrollBy( int deltaX, int deltaY )
+void WebEngine::ScrollBy(int deltaX, int deltaY)
 {
-  GetImplementation( *this ).ScrollBy( deltaX, deltaY );
+  GetImplementation(*this).ScrollBy(deltaX, deltaY);
 }
 
-void WebEngine::SetScrollPosition( int x, int y )
+void WebEngine::SetScrollPosition(int x, int y)
 {
-  GetImplementation( *this ).SetScrollPosition( x, y );
+  GetImplementation(*this).SetScrollPosition(x, y);
 }
 
-void WebEngine::GetScrollPosition( int& x, int& y ) const
+void WebEngine::GetScrollPosition(int& x, int& y) const
 {
-  GetImplementation( *this ).GetScrollPosition( x, y );
+  GetImplementation(*this).GetScrollPosition(x, y);
 }
 
-void WebEngine::GetScrollSize( int& width, int& height ) const
+void WebEngine::GetScrollSize(int& width, int& height) const
 {
-  GetImplementation( *this ).GetScrollSize( width, height );
+  GetImplementation(*this).GetScrollSize(width, height);
 }
 
-void WebEngine::GetContentSize( int& width, int& height ) const
+void WebEngine::GetContentSize(int& width, int& height) const
 {
-  GetImplementation( *this ).GetContentSize( width, height );
+  GetImplementation(*this).GetContentSize(width, height);
 }
 
 bool WebEngine::CanGoForward()
@@ -199,19 +200,19 @@ void WebEngine::GoBack()
   GetImplementation(*this).GoBack();
 }
 
-void WebEngine::EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler)
+void WebEngine::EvaluateJavaScript(const std::string& script, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback resultHandler)
 {
   GetImplementation(*this).EvaluateJavaScript(script, resultHandler);
 }
 
-void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler)
+void WebEngine::AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler)
 {
   GetImplementation(*this).AddJavaScriptMessageHandler(exposedObjectName, handler);
 }
 
 void WebEngine::ClearAllTilesResources()
 {
-  GetImplementation( *this ).ClearAllTilesResources();
+  GetImplementation(*this).ClearAllTilesResources();
 }
 
 void WebEngine::ClearHistory()
@@ -244,39 +245,44 @@ bool WebEngine::SendKeyEvent(const KeyEvent& event)
   return GetImplementation(*this).SendKeyEvent(event);
 }
 
-void WebEngine::SetFocus( bool focused )
+void WebEngine::SetFocus(bool focused)
 {
-  GetImplementation( *this ).SetFocus( focused );
+  GetImplementation(*this).SetFocus(focused);
 }
 
-void WebEngine::UpdateDisplayArea( Dali::Rect< int > displayArea )
+void WebEngine::UpdateDisplayArea(Dali::Rect<int> displayArea)
 {
-  GetImplementation( *this ).UpdateDisplayArea( displayArea );
+  GetImplementation(*this).UpdateDisplayArea(displayArea);
 }
 
-void WebEngine::EnableVideoHole( bool enabled )
+void WebEngine::EnableVideoHole(bool enabled)
 {
-  GetImplementation( *this ).EnableVideoHole( enabled );
+  GetImplementation(*this).EnableVideoHole(enabled);
 }
 
-Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadStartedSignal()
+void WebEngine::RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback)
 {
-  return GetImplementation(*this).PageLoadStartedSignal();
+  GetImplementation(*this).RegisterPageLoadStartedCallback(callback);
 }
 
-Dali::WebEnginePlugin::WebEnginePageLoadSignalType& WebEngine::PageLoadFinishedSignal()
+void WebEngine::RegisterPageLoadFinishedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback)
 {
-  return GetImplementation(*this).PageLoadFinishedSignal();
+  GetImplementation(*this).RegisterPageLoadFinishedCallback(callback);
 }
 
-Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& WebEngine::PageLoadErrorSignal()
+void WebEngine::RegisterPageLoadErrorCallback(Dali::WebEnginePlugin::WebEnginePageLoadErrorCallback callback)
 {
-  return GetImplementation(*this).PageLoadErrorSignal();
+  GetImplementation(*this).RegisterPageLoadErrorCallback(callback);
 }
 
-Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& WebEngine::ScrollEdgeReachedSignal()
+void WebEngine::RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback)
 {
-  return GetImplementation( *this ).ScrollEdgeReachedSignal();
+  GetImplementation(*this).RegisterScrollEdgeReachedCallback(callback);
+}
+
+void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
+{
+  GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)

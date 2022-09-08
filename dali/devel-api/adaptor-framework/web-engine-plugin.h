@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_PLUGIN_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/signals/dali-signal.h>
+
 #include <functional>
+#include <memory>
 
 namespace Dali
 {
@@ -32,6 +34,7 @@ class TouchEvent;
 class WebEngineBackForwardList;
 class WebEngineContext;
 class WebEngineCookieManager;
+class WebEnginePolicyDecision;
 class WebEngineSettings;
 
 /**
@@ -42,27 +45,37 @@ class WebEnginePlugin
 {
 public:
   /**
-   * @brief WebEngine signal type related with page loading.
+   * @brief WebEngine callback related with page loading.
    */
-  typedef Signal<void(const std::string&)> WebEnginePageLoadSignalType;
+  using WebEnginePageLoadCallback = std::function<void(const std::string&)>;
 
   /**
-   * @brief WebView signal type related with page loading error.
+   * @brief WebView callback related with page loading error.
    */
-  typedef Signal<void(const std::string&, int)> WebEnginePageLoadErrorSignalType;
+  using WebEnginePageLoadErrorCallback = std::function<void(const std::string&, int)>;
 
   // forward declaration.
   enum class ScrollEdge;
 
   /**
-   * @brief WebView signal type related with scroll edge reached.
+   * @brief WebView callback related with scroll edge reached.
    */
-  typedef Signal< void( const ScrollEdge )> WebEngineScrollEdgeReachedSignalType;
+  using WebEngineScrollEdgeReachedCallback = std::function<void(const ScrollEdge)>;
 
   /**
    * @brief The callback to be called when the web engine received a plain text of current web page.
    */
   using PlainTextReceivedCallback = std::function<void(const std::string&)>;
+
+  /**
+   * @brief Message result callback when JavaScript is executed with a message.
+   */
+  using JavaScriptMessageHandlerCallback = std::function<void(const std::string&)>;
+
+  /**
+   * @brief WebView callback related with navigation policy would be decided.
+   */
+  using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
    * @brief Enumeration for the scroll edge.
@@ -103,7 +116,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  virtual void Create( int width, int height, int argc, char** argv ) = 0;
+  virtual void Create(int width, int height, int argc, char** argv) = 0;
 
   /**
    * @brief Destroys WebEngine instance.
@@ -193,27 +206,27 @@ public:
   /**
    * @brief Scrolls the webpage of view by deltaX and deltaY.
    */
-  virtual void ScrollBy( int deltaX, int deltaY ) = 0;
+  virtual void ScrollBy(int deltaX, int deltaY) = 0;
 
   /**
    * @brief Scroll to the specified position of the given view.
    */
-  virtual void SetScrollPosition( int x, int y ) = 0;
+  virtual void SetScrollPosition(int x, int y) = 0;
 
   /**
    * @brief Gets the current scroll position of the given view.
    */
-  virtual void GetScrollPosition( int& x, int& y ) const = 0;
+  virtual void GetScrollPosition(int& x, int& y) const = 0;
 
   /**
    * @brief Gets the possible scroll size of the given view.
    */
-  virtual void GetScrollSize( int& width, int& height ) const = 0;
+  virtual void GetScrollSize(int& width, int& height) const = 0;
 
   /**
    * @brief Gets the last known content's size.
    */
-  virtual void GetContentSize( int& width, int& height ) const = 0;
+  virtual void GetContentSize(int& width, int& height) const = 0;
 
   /**
    * @brief Returns whether forward is possible.
@@ -245,7 +258,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  virtual void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler) = 0;
+  virtual void EvaluateJavaScript(const std::string& script, JavaScriptMessageHandlerCallback resultHandler) = 0;
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -253,7 +266,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler) = 0;
+  virtual void AddJavaScriptMessageHandler(const std::string& exposedObjectName, JavaScriptMessageHandlerCallback handler) = 0;
 
   /**
    * @brief Clears all tiles resources of Web.
@@ -297,47 +310,54 @@ public:
   /**
    * @brief Sets focus.
    */
-  virtual void SetFocus( bool focused ) = 0;
+  virtual void SetFocus(bool focused) = 0;
 
   /**
    * @brief Update display area.
    * @param[in] displayArea The display area need be updated.
    */
-  virtual void UpdateDisplayArea( Dali::Rect< int > displayArea ) = 0;
+  virtual void UpdateDisplayArea(Dali::Rect<int> displayArea) = 0;
 
   /**
    * @brief Enable video hole.
    * @param[in] enabled True if enabled, false othewise.
    */
-  virtual void EnableVideoHole( bool enabled ) = 0;
+  virtual void EnableVideoHole(bool enabled) = 0;
 
   /**
-   * @brief Connects to this signal to be notified when page loading is started.
+   * @brief Callback to be called when page loading is started.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEnginePageLoadSignalType& PageLoadStartedSignal() = 0;
+  virtual void RegisterPageLoadStartedCallback(WebEnginePageLoadCallback callback) = 0;
 
   /**
-   * @brief Connects to this signal to be notified when page loading is finished.
+   * @brief Callback to be called when page loading is finished.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEnginePageLoadSignalType& PageLoadFinishedSignal() = 0;
+  virtual void RegisterPageLoadFinishedCallback(WebEnginePageLoadCallback callback) = 0;
 
   /**
-   * @brief Connects to this signal to be notified when an error occurs in page loading.
+   * @brief Callback to be called when an error occurs in page loading.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEnginePageLoadErrorSignalType& PageLoadErrorSignal() = 0;
+  virtual void RegisterPageLoadErrorCallback(WebEnginePageLoadErrorCallback callback) = 0;
 
   /**
-   * @brief Connects to this signal to be notified when scroll edge is reached.
+   * @brief Callback to be called when scroll edge is reached.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal() = 0;
+  virtual void RegisterScrollEdgeReachedCallback(WebEngineScrollEdgeReachedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when navigation policy would be decided.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
 
   /**
    * @brief Get a plain text of current web page asynchronously.

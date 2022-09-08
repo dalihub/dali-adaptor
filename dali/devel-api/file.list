@@ -95,7 +95,9 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-back-forward-list.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-context.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-cookie-manager.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-frame.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-policy-decision.h
   ${adaptor_devel_api_dir}/adaptor-framework/web-engine-settings.h
   ${adaptor_devel_api_dir}/adaptor-framework/key-extension-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.h

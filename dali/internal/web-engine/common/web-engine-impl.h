@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_IMPL_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,11 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/web-engine.h>
 #include <dali/devel-api/adaptor-framework/web-engine-plugin.h>
+#include <dali/devel-api/adaptor-framework/web-engine.h>
 
 namespace Dali
 {
-
 // forward declaration
 class WebEngineBackForwardList;
 class WebEngineContext;
@@ -36,13 +35,11 @@ class WebEngineSettings;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 class WebEngine;
 
-typedef IntrusivePtr< WebEngine > WebEnginePtr;
+typedef IntrusivePtr<WebEngine> WebEnginePtr;
 
 /**
  * @brief WebEngine class is used for Web.
@@ -50,7 +47,6 @@ typedef IntrusivePtr< WebEngine > WebEnginePtr;
 class WebEngine : public Dali::BaseObject
 {
 public:
-
   /**
    * @brief Creates a new WebEngine handle
    *
@@ -61,12 +57,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::Create()
    */
-  void Create( int width, int height, const std::string& locale, const std::string& timezoneId );
+  void Create(int width, int height, const std::string& locale, const std::string& timezoneId);
 
   /**
    * @copydoc Dali::WebEngine::Create()
    */
-  void Create( int width, int height, int argc, char** argv );
+  void Create(int width, int height, int argc, char** argv);
 
   /**
    * @copydoc Dali::WebEngine::Destroy()
@@ -101,7 +97,7 @@ public:
   /**
    * @copydoc Dali::WebEngine::LoadUrl()
    */
-  void LoadUrl( const std::string& url );
+  void LoadUrl(const std::string& url);
 
   /**
    * @copydoc Dali::WebEngine::GetTitle()
@@ -126,12 +122,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::SetUserAgent()
    */
-  void SetUserAgent( const std::string& userAgent );
+  void SetUserAgent(const std::string& userAgent);
 
   /**
    * @copydoc Dali::WebEngine::LoadHtmlString()
    */
-  void LoadHtmlString( const std::string& htmlString );
+  void LoadHtmlString(const std::string& htmlString);
 
   /**
    * @copydoc Dali::WebEngine::Reload()
@@ -156,27 +152,27 @@ public:
   /**
    * @copydoc Dali::WebEngine::ScrollBy()
    */
-  void ScrollBy( int deltaX, int deltaY );
+  void ScrollBy(int deltaX, int deltaY);
 
   /**
    * @copydoc Dali::WebEngine::SetScrollPosition()
    */
-  void SetScrollPosition( int x, int y );
+  void SetScrollPosition(int x, int y);
 
   /**
    * @copydoc Dali::WebEngine::GetScrollPosition()
    */
-  void GetScrollPosition( int& x, int& y ) const;
+  void GetScrollPosition(int& x, int& y) const;
 
   /**
    * @copydoc Dali::WebEngine::GetScrollSize()
    */
-  void GetScrollSize( int& width, int& height ) const;
+  void GetScrollSize(int& width, int& height) const;
 
   /**
    * @copydoc Dali::WebEngine::GetContentSize()
    */
-  void GetContentSize( int& width, int& height ) const;
+  void GetContentSize(int& width, int& height) const;
 
   /**
    * @copydoc Dali::WebEngine::CanGoForward()
@@ -201,12 +197,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::EvaluateJavaScript()
    */
-  void EvaluateJavaScript( const std::string& script, std::function< void(const std::string&) > resultHandler );
+  void EvaluateJavaScript(const std::string& script, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback resultHandler);
 
   /**
    * @copydoc Dali::WebEngine::AddJavaScriptMessageHandler()
    */
-  void AddJavaScriptMessageHandler( const std::string& exposedObjectName, std::function< void(const std::string&) > handler );
+  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
    * @copydoc Dali::WebEngine::ClearAllTilesResources()
@@ -221,52 +217,57 @@ public:
   /**
    * @copydoc Dali::WebEngine::SetSize()
    */
-  void SetSize( int width, int height );
+  void SetSize(int width, int height);
 
   /**
    * @copydoc Dali::WebEngine::SendTouchEvent()
    */
-  bool SendTouchEvent( const Dali::TouchEvent& touch );
+  bool SendTouchEvent(const Dali::TouchEvent& touch);
 
   /**
    * @copydoc Dali::WebEngine::SendKeyEvent()
    */
-  bool SendKeyEvent( const Dali::KeyEvent& event );
+  bool SendKeyEvent(const Dali::KeyEvent& event);
 
   /**
    * @copydoc Dali::WebEngine::SetFocus()
    */
-  void SetFocus( bool focused );
+  void SetFocus(bool focused);
 
   /**
    * @copydoc Dali::WebEngine::UpdateDisplayArea()
    */
-  void UpdateDisplayArea( Dali::Rect< int > displayArea );
+  void UpdateDisplayArea(Dali::Rect<int> displayArea);
 
   /**
    * @copydoc Dali::WebEngine::EnableVideoHole()
    */
-  void EnableVideoHole( bool enabled );
+  void EnableVideoHole(bool enabled);
 
   /**
-   * @copydoc Dali::WebEngine::PageLoadStartedSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadStartedCallback()
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
+  void RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::PageLoadFinishedSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadFinishedCallback()
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
+  void RegisterPageLoadFinishedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::PageLoadErrorSignal()
+   * @copydoc Dali::WebEngine::RegisterPageLoadErrorCallback()
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+  void RegisterPageLoadErrorCallback(Dali::WebEnginePlugin::WebEnginePageLoadErrorCallback callback);
 
   /**
-   * @copydoc Dali::WebEngine::ScrollEdgeReachedSignal()
+   * @copydoc Dali::WebEngine::RegisterScrollEdgeReachedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
+  void RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback);
+
+  /**
+   @copydoc Dali::WebEngine::RegisterNavigationPolicyDecidedCallback()
+   */
+  void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()
@@ -274,7 +275,6 @@ public:
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
 
 private:
-
   /**
    * @brief Constructor.
    */
@@ -286,10 +286,10 @@ private:
   virtual ~WebEngine();
 
   // Undefined copy constructor
-  WebEngine( const WebEngine& WebEngine );
+  WebEngine(const WebEngine& WebEngine);
 
   // Undefined assignment operator
-  WebEngine& operator=( const WebEngine& WebEngine );
+  WebEngine& operator=(const WebEngine& WebEngine);
 
   /**
    * @brief Initializes member data.
@@ -306,38 +306,36 @@ private:
   bool InitializePluginHandle();
 
 private:
-
   typedef Dali::WebEnginePlugin* (*CreateWebEngineFunction)();
-  typedef void (*DestroyWebEngineFunction)( Dali::WebEnginePlugin* plugin );
+  typedef void (*DestroyWebEngineFunction)(Dali::WebEnginePlugin* plugin);
 
-  Dali::WebEnginePlugin*                                  mPlugin; ///< WebEnginePlugin instance
-  void*                                                   mHandle; ///< Handle for the loaded library
-  CreateWebEngineFunction                                 mCreateWebEnginePtr;  ///< Function to create plugin instance
-  DestroyWebEngineFunction                                mDestroyWebEnginePtr; ///< Function to destroy plugin instance
+  Dali::WebEnginePlugin*   mPlugin;              ///< WebEnginePlugin instance
+  void*                    mHandle;              ///< Handle for the loaded library
+  CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
+  DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
 };
 
 } // namespace Adaptor
 } // namespace Internal
 
-inline static Internal::Adaptor::WebEngine& GetImplementation( Dali::WebEngine& webEngine )
+inline static Internal::Adaptor::WebEngine& GetImplementation(Dali::WebEngine& webEngine)
 {
-  DALI_ASSERT_ALWAYS( webEngine && "WebEngine handle is empty." );
+  DALI_ASSERT_ALWAYS(webEngine && "WebEngine handle is empty.");
 
   BaseObject& handle = webEngine.GetBaseObject();
 
-  return static_cast< Internal::Adaptor::WebEngine& >( handle );
+  return static_cast<Internal::Adaptor::WebEngine&>(handle);
 }
 
-inline static const Internal::Adaptor::WebEngine& GetImplementation( const Dali::WebEngine& webEngine )
+inline static const Internal::Adaptor::WebEngine& GetImplementation(const Dali::WebEngine& webEngine)
 {
-  DALI_ASSERT_ALWAYS( webEngine && "WebEngine handle is empty." );
+  DALI_ASSERT_ALWAYS(webEngine && "WebEngine handle is empty.");
 
   const BaseObject& handle = webEngine.GetBaseObject();
 
-  return static_cast< const Internal::Adaptor::WebEngine& >( handle );
+  return static_cast<const Internal::Adaptor::WebEngine&>(handle);
 }
 
-} // namespace Dali;
+} // namespace Dali
 
 #endif
-

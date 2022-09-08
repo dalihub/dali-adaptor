@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ public:
    * @param [in] argc The count of application arguments
    * @param [in] argv The string array of application arguments
    */
-  void Create( int width, int height, int argc, char** argv );
+  void Create(int width, int height, int argc, char** argv);
 
   /**
    * @brief Destroys WebEngine instance.
@@ -192,27 +192,27 @@ public:
   /**
    * @brief Scrolls the webpage of view by deltaX and deltaY.
    */
-  void ScrollBy( int deltaX, int deltaY );
+  void ScrollBy(int deltaX, int deltaY);
 
   /**
    * @brief Sets an absolute scroll of the given view.
    */
-  void SetScrollPosition( int x, int y );
+  void SetScrollPosition(int x, int y);
 
   /**
    * @brief Gets the current scroll position of the given view.
    */
-  void GetScrollPosition( int& x, int& y ) const;
+  void GetScrollPosition(int& x, int& y) const;
 
   /**
    * @brief Gets the possible scroll size of the given view.
    */
-  void GetScrollSize( int& width, int& height ) const;
+  void GetScrollSize(int& width, int& height) const;
 
   /**
    * @brief Gets the last known content's size.
    */
-  void GetContentSize( int& width, int& height ) const;
+  void GetContentSize(int& width, int& height) const;
 
   /**
    * @brief Returns whether forward is possible.
@@ -244,7 +244,7 @@ public:
    * @param[in] script The JavaScript code
    * @param[in] resultHandler The callback function to be called by the JavaScript runtime. This carries evaluation result.
    */
-  void EvaluateJavaScript(const std::string& script, std::function<void(const std::string&)> resultHandler);
+  void EvaluateJavaScript(const std::string& script, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback resultHandler);
 
   /**
    * @brief Add a message handler into JavaScript.
@@ -252,7 +252,7 @@ public:
    * @param[in] exposedObjectName The name of exposed object
    * @param[in] handler The callback function
    */
-  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, std::function<void(const std::string&)> handler);
+  void AddJavaScriptMessageHandler(const std::string& exposedObjectName, Dali::WebEnginePlugin::JavaScriptMessageHandlerCallback handler);
 
   /**
    * @brief Clears all tiles resources of Web.
@@ -297,47 +297,54 @@ public:
    * @brief Set focus.
    * @param[in] focused True if web view is focused, false otherwise
    */
-  void SetFocus( bool focused );
+  void SetFocus(bool focused);
 
   /**
    * @brief Update display area.
    * @param[in] displayArea The area to display web page.
    */
-  void UpdateDisplayArea( Dali::Rect< int > displayArea );
+  void UpdateDisplayArea(Dali::Rect<int> displayArea);
 
   /**
    * @brief Enable video hole.
    * @param[in] enabled True if video hole is enabled, false otherwise
    */
-  void EnableVideoHole( bool enabled );
+  void EnableVideoHole(bool enabled);
 
   /**
-   * @brief Connects to this signal to be notified when page loading is started.
+   * @brief Callback to be called when page loading is started.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadStartedSignal();
+  void RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @brief Connects to this signal to be notified when page loading is finished.
+   * @brief Callback to be called when page loading is finished.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadSignalType& PageLoadFinishedSignal();
+  void RegisterPageLoadFinishedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback);
 
   /**
-   * @brief Connects to this signal to be notified when an error occurs in page loading.
+   * @brief Callback to be called when an error occurs in page loading.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEnginePageLoadErrorSignalType& PageLoadErrorSignal();
+  void RegisterPageLoadErrorCallback(Dali::WebEnginePlugin::WebEnginePageLoadErrorCallback callback);
 
   /**
-   * @brief Connects to this signal to be notified when scroll edge is reached.
+   * @brief Callback to be called when scroll edge is reached.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineScrollEdgeReachedSignalType& ScrollEdgeReachedSignal();
+  void RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback);
+
+  /**
+   * @brief Callback to be called when navigation policy would be decided.
+   *
+   * @param[in] callback
+   */
+  void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
 
   /**
    * @brief Get a plain text of current web page asynchronously.
