@@ -623,7 +623,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
     if(clippingRect == surfaceRect)
     {
-      mDamagedRects.assign(1, surfaceRect);
+      mDamagedRects.assign(1, RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](surfaceRect, surfaceRect));
     }
   }
 
@@ -867,7 +867,6 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     {
       InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
-      mDamagedRects.assign(1, RecalculateRect[orientation](surfaceRect, surfaceRect));
       return;
     }
 
@@ -875,6 +874,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     {
       // Empty damaged rect. We don't need rendering
       clippingRect = Rect<int>();
+      // Clean up current damanged rects.
       mDamagedRects.clear();
       return;
     }
@@ -888,7 +888,6 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     {
       InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
-      mDamagedRects.assign(1, RecalculateRect[orientation](surfaceRect, surfaceRect));
       return;
     }
 
