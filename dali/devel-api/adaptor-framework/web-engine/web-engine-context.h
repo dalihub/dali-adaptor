@@ -282,14 +282,17 @@ public:
   virtual void RegisterMimeOverriddenCallback(WebEngineMimeOverriddenCallback callback) = 0;
 
   /**
-   * @brief Callback to be called when http request need be intercepted.
+   * @brief Register callback for intercepting http request.
+   * @note This callback is not called on UI thread, so users should be cautious
+   * when accessing their data also used on UI thread.
+   * No other than WebEngineRequestInterceptor API should be used in the callback.
    *
    * @param[in] callback
    */
   virtual void RegisterRequestInterceptedCallback(WebEngineRequestInterceptedCallback callback) = 0;
 
   /**
-   * @brief Toggle the cache to be enabled or disabled
+   * @brief Toggle the cache to be enabled or disabled.
    * Function works asynchronously.
    *
    * @param[in] cacheEnabled enable or disable cache
