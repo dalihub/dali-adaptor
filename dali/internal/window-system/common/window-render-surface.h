@@ -338,7 +338,7 @@ private: // Data
   int                                    mScreenRotationAngle;
   uint32_t                               mDpiHorizontal;
   uint32_t                               mDpiVertical;
-  std::vector<Rect<int>>                 mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
+  std::vector<Rect<int>>                 mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass
   bool                                   mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
   bool                                   mWindowRotationFinished;
   bool                                   mScreenRotationFinished;
