@@ -643,7 +643,7 @@ void WindowBaseCocoa::GetDpi(
   dpiVertical = res.height;
 }
 
-int WindowBaseCocoa::GetOrientation() const
+int WindowBaseCocoa::GetWindowRotationAngle() const
 {
   return 0;
 }

@@ -683,8 +683,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       WindowContainer windows;
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
-      bool sceneSurfaceResized;
-
       for(auto&& window : windows)
       {
         Dali::Integration::Scene      scene         = window->GetScene();
@@ -694,9 +692,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         {
           Integration::RenderStatus windowRenderStatus;
 
-          // Get Surface Resized flag
-          sceneSurfaceResized = scene.IsSurfaceRectChanged();
-          windowSurface->SetIsResizing(sceneSurfaceResized);
+          const bool sceneSurfaceResized = scene.IsSurfaceRectChanged();
 
           // clear previous frame damaged render items rects, buffer history is tracked on surface level
           mDamagedRects.clear();

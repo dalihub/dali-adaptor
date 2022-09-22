@@ -164,6 +164,7 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mEGLContext(nullptr),
   mColorDepth(isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24),
   mOutputTransformedSignal(),
+  mWindowRotationFinishedSignal(),
   mFrameCallbackInfoContainer(),
   mBufferDamagedRects(),
   mMutex(),
@@ -172,12 +173,9 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mDpiHorizontal(0),
   mDpiVertical(0),
   mOwnSurface(false),
-  mWindowRotationFinished(true),
-  mScreenRotationFinished(true),
-  mResizeFinished(true),
-  mDefaultScreenRotationAvailable(false),
   mIsImeWindowSurface(false),
-  mNeedWindowRotationAcknowledgement(false)
+  mNeedWindowRotationAcknowledgement(false),
+  mIsWindowOrientationChanging(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -206,13 +204,11 @@ void WindowRenderSurface::Initialize(Any surface)
   mWindowBase->OutputTransformedSignal().Connect(this, &WindowRenderSurface::OutputTransformed);
 
   // Check screen rotation
-  mScreenRotationAngle = mWindowBase->GetScreenRotationAngle();
-  if(mScreenRotationAngle != 0)
+  int screenRotationAngle = mWindowBase->GetScreenRotationAngle();
+  if(screenRotationAngle != 0)
   {
-    mScreenRotationFinished         = false;
-    mResizeFinished                 = false;
-    mDefaultScreenRotationAvailable = true;
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", mScreenRotationAngle);
+    OutputTransformed();
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::Initialize, screen rotation is enabled, screen rotation angle:[%d]\n", screenRotationAngle);
   }
 }
 
@@ -249,15 +245,12 @@ void WindowRenderSurface::RequestRotation(int angle, PositionSize positionSize)
                                                                                                         TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 
-  mPositionSize = positionSize;
+  mPositionSize.x = positionSize.x;
+  mPositionSize.y = positionSize.y;
 
-  mWindowRotationAngle    = angle;
-  mWindowRotationFinished = false;
-  mResizeFinished         = false;
+  mWindowBase->SetWindowRotationAngle(angle);
 
-  mWindowBase->SetWindowRotationAngle(mWindowRotationAngle);
-
-  DALI_LOG_RELEASE_INFO("angle = %d screen rotation = %d, flag = %d\n", mWindowRotationAngle, mScreenRotationAngle, mWindowRotationFinished);
+  DALI_LOG_RELEASE_INFO("start window rotation angle = %d screen rotation = %d\n", angle, mScreenRotationAngle);
 }
 
 WindowBase* WindowRenderSurface::GetWindowBase()
@@ -268,6 +261,11 @@ WindowBase* WindowRenderSurface::GetWindowBase()
 WindowBase::OutputSignalType& WindowRenderSurface::OutputTransformedSignal()
 {
   return mOutputTransformedSignal;
+}
+
+WindowRenderSurface::RotationFinishedSignalType& WindowRenderSurface::RotationFinishedSignal()
+{
+  return mWindowRotationFinishedSignal;
 }
 
 PositionSize WindowRenderSurface::GetPositionSize() const
@@ -295,9 +293,14 @@ void WindowRenderSurface::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiV
   dpiVertical   = mDpiVertical;
 }
 
-int WindowRenderSurface::GetOrientation() const
+int WindowRenderSurface::GetSurfaceOrientation() const
 {
-  return mWindowBase->GetOrientation();
+  return mWindowBase->GetWindowRotationAngle();
+}
+
+int WindowRenderSurface::GetScreenOrientation() const
+{
+  return mWindowBase->GetScreenRotationAngle();
 }
 
 void WindowRenderSurface::InitializeGraphics()
@@ -398,9 +401,6 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
   // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
 
-  // Set screen rotation
-  mScreenRotationFinished = false;
-
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
@@ -409,83 +409,25 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
 
 void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
 {
-  bool needToMove   = false;
-  bool needToResize = false;
-
   // Check moving
   if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
      (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
   {
-    needToMove = true;
-  }
+    mPositionSize.x = positionSize.x;
+    mPositionSize.y = positionSize.y;
 
-  // Check resizing
-  if((fabs(positionSize.width - mPositionSize.width) >= MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.height - mPositionSize.height) >= MINIMUM_DIMENSION_CHANGE))
-  {
-    needToResize = true;
+    DALI_LOG_RELEASE_INFO("Update Position by server (%d, %d)\n", mPositionSize.x, mPositionSize.y);
   }
-
-  if(needToResize)
-  {
-    mResizeFinished = false;
-    mPositionSize   = positionSize;
-  }
-  else
-  {
-    if(needToMove)
-    {
-      mPositionSize = positionSize;
-    }
-  }
-
-  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
 }
 
 void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
 {
-  bool needToMove   = false;
-  bool needToResize = false;
+  mPositionSize.x = positionSize.x;
+  mPositionSize.y = positionSize.y;
 
-  // Check moving
-  if((fabs(positionSize.x - mPositionSize.x) >= MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.y - mPositionSize.y) >= MINIMUM_DIMENSION_CHANGE))
-  {
-    needToMove = true;
-  }
+  DALI_LOG_RELEASE_INFO("Update Position by client (%d, %d)\n", positionSize.x, positionSize.y);
 
-  // Check resizing
-  if((fabs(positionSize.width - mPositionSize.width) >= MINIMUM_DIMENSION_CHANGE) ||
-     (fabs(positionSize.height - mPositionSize.height) >= MINIMUM_DIMENSION_CHANGE))
-  {
-    needToResize = true;
-  }
-
-  if(needToResize)
-  {
-    if(needToMove)
-    {
-      mWindowBase->MoveResize(positionSize);
-    }
-    else
-    {
-      mWindowBase->Resize(positionSize);
-    }
-
-    mResizeFinished = false;
-    mPositionSize   = positionSize;
-  }
-  else
-  {
-    if(needToMove)
-    {
-      mWindowBase->Move(positionSize);
-
-      mPositionSize = positionSize;
-    }
-  }
-
-  DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::MoveResize: %d, %d, %d, %d\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
+  mWindowBase->MoveResize(positionSize);
 }
 
 void WindowRenderSurface::StartRender()
@@ -499,6 +441,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
   Dali::Integration::Scene::FrameCallbackContainer callbacks;
 
   Dali::Integration::Scene scene = mScene.GetHandle();
+
   if(scene)
   {
     bool needFrameRenderedTrigger = false;
@@ -568,52 +511,66 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     * Notice : PreRotation is not used in the latest tizen,
     *          because output transform event should be occured before egl window is not created.
     */
-
-  if(mIsResizing || mDefaultScreenRotationAvailable)
+  if(scene && resizingSurface)
   {
-    int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+    int totalAngle = 0;
+    bool isScreenOrientationChanging = false;
+
+    if(mWindowRotationAngle != scene.GetCurrentSurfaceOrientation())
+    {
+      mWindowRotationAngle = scene.GetCurrentSurfaceOrientation();
+      mIsWindowOrientationChanging = true;
+    }
+
+    if(mScreenRotationAngle != scene.GetCurrentScreenOrientation())
+    {
+      mScreenRotationAngle = scene.GetCurrentScreenOrientation();
+      isScreenOrientationChanging = true;
+    }
+    totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+
+    DALI_LOG_RELEASE_INFO("Window/Screen orientation ard changed, WinOrientation[%d],flag[%d], ScreenOrientation[%d],flag[%d], total[%d]\n", mWindowRotationAngle, mIsWindowOrientationChanging, mScreenRotationAngle, isScreenOrientationChanging, totalAngle);
+
+    Rect<int> surfaceSize = scene.GetCurrentSurfaceRect();
+    //update surface size
+    mPositionSize.width = surfaceSize.width;
+    mPositionSize.height = surfaceSize.height;
+
+    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
 
     // Window rotate or screen rotate
-    if(!mWindowRotationFinished || !mScreenRotationFinished)
+    if(mIsWindowOrientationChanging || isScreenOrientationChanging)
     {
       mWindowBase->SetEglWindowBufferTransform(totalAngle);
-
-      // Reset only screen rotation flag
-      mScreenRotationFinished = true;
-
-      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set rotation [%d] [%d]\n", mWindowRotationAngle, mScreenRotationAngle);
     }
 
     // Only window rotate
-    if(!mWindowRotationFinished)
+    if(mIsWindowOrientationChanging)
     {
       mWindowBase->SetEglWindowTransform(mWindowRotationAngle);
     }
 
     // Resize case
-    if(!mResizeFinished)
-    {
-      Dali::PositionSize positionSize;
-      positionSize.x = mPositionSize.x;
-      positionSize.y = mPositionSize.y;
-      if(totalAngle == 0 || totalAngle == 180)
-      {
-        positionSize.width  = mPositionSize.width;
-        positionSize.height = mPositionSize.height;
-      }
-      else
-      {
-        positionSize.width  = mPositionSize.height;
-        positionSize.height = mPositionSize.width;
-      }
-      mWindowBase->ResizeEglWindow(positionSize);
-      mResizeFinished = true;
+    Dali::PositionSize positionSize;
 
-      DALI_LOG_RELEASE_INFO("WindowRenderSurface::PreRender: Set resize, totalAngle: %d, x: %d, y: %d, w: %d, h:%d\n", totalAngle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+    // Some native resize API(wl_egl_window_resize) has the input parameters of x, y, width and height.
+    // So, position data should be set.
+    positionSize.x = mPositionSize.x;
+    positionSize.y = mPositionSize.y;
+    if(totalAngle == 0 || totalAngle == 180)
+    {
+      positionSize.width  = mPositionSize.width;
+      positionSize.height = mPositionSize.height;
+    }
+    else
+    {
+      positionSize.width  = mPositionSize.height;
+      positionSize.height = mPositionSize.width;
     }
 
+    mWindowBase->ResizeEglWindow(positionSize);
+
     SetFullSwapNextFrame();
-    mDefaultScreenRotationAvailable = false;
   }
 
   SetBufferDamagedRects(damagedRects, clippingRect);
@@ -644,7 +601,7 @@ void WindowRenderSurface::PostRender()
 
     bool needWindowRotationCompleted = false;
 
-    if(!mWindowRotationFinished)
+    if(mIsWindowOrientationChanging)
     {
       if(mNeedWindowRotationAcknowledgement)
       {
@@ -659,10 +616,7 @@ void WindowRenderSurface::PostRender()
       }
       else
       {
-        if(mIsResizing)
-        {
-          needWindowRotationCompleted = true;
-        }
+        needWindowRotationCompleted = true;
       }
     }
 
@@ -674,7 +628,7 @@ void WindowRenderSurface::PostRender()
         mThreadSynchronization->PostRenderStarted();
       }
 
-      if(!mWindowRotationFinished || mIsImeWindowSurface)
+      if(mIsWindowOrientationChanging || mIsImeWindowSurface)
       {
         mPostRenderTrigger->Trigger();
       }
@@ -755,13 +709,9 @@ void WindowRenderSurface::OutputTransformed()
 
   if(mScreenRotationAngle != screenRotationAngle)
   {
-    mScreenRotationAngle    = screenRotationAngle;
-    mScreenRotationFinished = false;
-    mResizeFinished         = false;
-
     mOutputTransformedSignal.Emit();
 
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: window = %d screen = %d\n", mWindowRotationAngle, mScreenRotationAngle);
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::OutputTransformed: window = %d new screen angle = %d\n", mWindowRotationAngle, screenRotationAngle);
   }
   else
   {
@@ -769,18 +719,14 @@ void WindowRenderSurface::OutputTransformed()
   }
 }
 
-bool WindowRenderSurface::IsWindowRotating() const
-{
-  return !(mWindowRotationFinished);
-}
-
 void WindowRenderSurface::ProcessPostRender()
 {
-  if(!mWindowRotationFinished)
+  if(mIsWindowOrientationChanging)
   {
+    mWindowRotationFinishedSignal.Emit();
     mWindowBase->WindowRotationCompleted(mWindowRotationAngle, mPositionSize.width, mPositionSize.height);
-    mWindowRotationFinished = true;
-    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done, flag = %d\n", mWindowRotationFinished);
+    mIsWindowOrientationChanging = false;
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessPostRender: Rotation Done, flag = %d\n", mIsWindowOrientationChanging);
   }
 
   if(mIsImeWindowSurface)
