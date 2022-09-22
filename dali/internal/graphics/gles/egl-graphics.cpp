@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/configuration-manager.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
@@ -249,6 +250,20 @@ void EglGraphics::CacheConfigurations(ConfigurationManager& configurationManager
   mGLES->SetIsAdvancedBlendEquationSupported(configurationManager.IsAdvancedBlendEquationSupported());
   mGLES->SetIsMultisampledRenderToTextureSupported(configurationManager.IsMultisampledRenderToTextureSupported());
   mGLES->SetShadingLanguageVersion(configurationManager.GetShadingLanguageVersion());
+}
+
+void EglGraphics::FrameStart()
+{
+  mGraphicsController.FrameStart();
+}
+
+void EglGraphics::LogMemoryPools()
+{
+  std::size_t graphicsCapacity = mGraphicsController.GetCapacity();
+  DALI_LOG_RELEASE_INFO(
+    "EglGraphics:\n"
+    "  GraphicsController Capacity: %lu\n",
+    graphicsCapacity);
 }
 
 } // namespace Adaptor

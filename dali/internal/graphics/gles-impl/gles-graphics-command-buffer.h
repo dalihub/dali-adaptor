@@ -438,6 +438,9 @@ public:
    */
   void DiscardResource() override;
 
+  // Get the total memory usage of this command buffer
+  std::size_t GetCapacity();
+
 private:
   std::unique_ptr<CommandPool> mCommandPool; ///< Pool of commands and transient memory
 };

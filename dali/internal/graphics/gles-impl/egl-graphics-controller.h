@@ -94,6 +94,13 @@ public:
   Internal::Adaptor::EglSyncImplementation& GetEglSyncImplementation();
 
   /**
+   * Mark the start of the frame.
+   *
+   * Note, this is used for logging & debugging, so is not part of the main Graphics API.
+   */
+  void FrameStart();
+
+  /**
    * @copydoc Dali::Graphics::SubmitCommandBuffers()
    */
   void SubmitCommandBuffers(const SubmitInfo& submitInfo) override;
@@ -775,6 +782,11 @@ public:
     return mSyncPool;
   }
 
+  std::size_t GetCapacity() const
+  {
+    return mCapacity;
+  }
+
 private:
   Integration::GlAbstraction*              mGlAbstraction{nullptr};
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
@@ -823,10 +835,11 @@ private:
 
   GLES::TextureDependencyChecker mTextureDependencyChecker; // Checks if FBO textures need syncing
   GLES::SyncPool                 mSyncPool;
+  std::size_t                    mCapacity; ///< Memory Usage (of command buffers)
 };
 
 } // namespace Graphics
 
 } // namespace Dali
 
-#endif //DALI_EGL_GRAPHICS_CONTROLLER_H
+#endif // DALI_EGL_GRAPHICS_CONTROLLER_H
