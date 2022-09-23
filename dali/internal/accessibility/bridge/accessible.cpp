@@ -22,8 +22,6 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
-#include <third-party/libunibreak/linebreak.h>
-#include <third-party/libunibreak/wordbreak.h>
 
 using namespace Dali::Accessibility;
 
