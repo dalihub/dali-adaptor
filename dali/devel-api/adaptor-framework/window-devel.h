@@ -46,7 +46,7 @@ typedef Signal<void()>                                                          
 typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;              ///< Auxiliary message signal type
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
 typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
-typedef Signal<void(Window, Window::WindowPosition)>                                 MovedSignalType;                         ///< Window Moved signal type
+typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -538,7 +538,7 @@ DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window win
  *
  * A callback of the following type may be connected:
  * @code
- *   void YourCallbackName( Window window, Uint16Pair position );
+ *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
  * @endcode
  * The parameters are the moved x and y coordinates.
  * and window means this signal was called from what window

@@ -2,7 +2,7 @@
 #define DALI_WINDOW_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
+#include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/math/vector2.h>
@@ -71,7 +72,7 @@ class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
   using WindowSize     = Uint16Pair; ///< Window size type @SINCE_1_2.60
-  using WindowPosition = Uint16Pair; ///< Window position type @SINCE_1_2.60
+  using WindowPosition = Int32Pair;  ///< Window position type @SINCE_2_1.45
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
