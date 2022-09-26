@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CAPTURE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,11 @@
 #include <string>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/capture/capture.h>
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/devel-api/adaptor-framework/pixel-buffer.h>
 
 namespace Dali
 {
@@ -209,6 +209,8 @@ private:
   Dali::NativeImageSourcePtr               mNativeImageSourcePtr; ///< pointer to surface image
   Dali::Devel::PixelBuffer                 mPixelBuffer;
   bool                                     mFileSave;
+  bool                                     mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
+  bool                                     mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
 };
 
 } // End of namespace Adaptor

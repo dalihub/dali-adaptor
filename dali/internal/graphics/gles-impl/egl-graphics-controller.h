@@ -126,13 +126,7 @@ public:
   void Shutdown() override
   {
     mIsShuttingDown = true;
-  }
 
-  /**
-   * @copydoc Dali::Graphics::Destroy()
-   */
-  void Destroy() override
-  {
     // Final flush
     Flush();
 
@@ -148,6 +142,13 @@ public:
         context.second->GlContextDestroyed();
       }
     }
+  }
+
+  /**
+   * @copydoc Dali::Graphics::Destroy()
+   */
+  void Destroy() override
+  {
   }
 
   /**

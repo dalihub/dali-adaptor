@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,9 @@ Capture::Capture()
   mTimer(),
   mPath(),
   mNativeImageSourcePtr(NULL),
-  mFileSave(false)
+  mFileSave(false),
+  mUseDefaultCamera(true),
+  mSceneOffCameraAfterCaptureFinished(false)
 {
 }
 
@@ -60,7 +62,9 @@ Capture::Capture(Dali::CameraActor cameraActor)
   mTimer(),
   mPath(),
   mNativeImageSourcePtr(NULL),
-  mFileSave(false)
+  mFileSave(false),
+  mUseDefaultCamera(!cameraActor),
+  mSceneOffCameraAfterCaptureFinished(false)
 {
 }
 
@@ -202,7 +206,8 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
 
   if(!mCameraActor)
   {
-    mCameraActor = Dali::CameraActor::New(size);
+    mUseDefaultCamera = true;
+    mCameraActor      = Dali::CameraActor::New(size);
     // Because input position and size are for 2 dimentional area,
     // default z-directional position of the camera is required to be used for the new camera position.
     float   cameraDefaultZPosition = mCameraActor.GetProperty<float>(Dali::Actor::Property::POSITION_Z);
@@ -212,7 +217,16 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     mCameraActor.SetProperty(Dali::Actor::Property::ANCHOR_POINT, AnchorPoint::CENTER);
   }
 
-  window.Add(mCameraActor);
+  // Camera must be scene on. Add camera to window.
+  if(!mCameraActor.GetProperty<bool>(Dali::Actor::Property::CONNECTED_TO_SCENE))
+  {
+    if(!mUseDefaultCamera)
+    {
+      DALI_LOG_ERROR("Camera must be on scene. Camera is connected to window now.\n");
+    }
+    window.Add(mCameraActor);
+    mSceneOffCameraAfterCaptureFinished = true;
+  }
 
   if(!mFrameBuffer)
   {
@@ -242,8 +256,13 @@ void Capture::UnsetRenderTask()
 {
   mTimer.Reset();
 
-  if(mCameraActor)
+  if(mSceneOffCameraAfterCaptureFinished && mCameraActor)
   {
+    if(!mUseDefaultCamera)
+    {
+      DALI_LOG_ERROR("Camera is disconnected from window now.\n");
+    }
+    mSceneOffCameraAfterCaptureFinished = false;
     mCameraActor.Unparent();
     mCameraActor.Reset();
   }
