@@ -70,8 +70,93 @@ class KeyEvent;
 class DALI_ADAPTOR_API Window : public BaseHandle
 {
 public:
+    /**
+     * @brief Simple class for window position pairs of integers.
+     *
+     * Use this for integer position with window coordinates.
+     * @SINCE_2_1.43
+     */
+    class IntPair
+    {
+    public:
+      /**
+       * @brief Default constructor, initialises to 0.
+       * @SINCE_2_1.43
+       */
+      IntPair()
+      : mX(0),
+        mY(0)
+      {
+      };
+
+      /**
+       * @brief Constructor taking separate x and y parameters.
+       * @SINCE_2_1.43
+       * @param[in] x The X coordinate of the window.
+       * @param[in] y The Y coordinate of the window.
+       */
+      IntPair(int32_t x, int32_t y)
+      {
+        mX = x;
+        mY = y;
+      }
+
+      /**
+       * @brief Returns the x coordinate.
+       * @SINCE_2_1.43
+       * @return Y
+       */
+      int32_t GetX() const
+      {
+        return mX;
+      }
+
+      /**
+       * @brief Returns the y coordinate.
+       * @SINCE_2_1.43
+       * @return Y
+       */
+      int32_t GetY() const
+      {
+        return mY;
+      }
+
+      /**
+       * @brief Sets the x coordinate
+       * @SINCE_2_1.43
+       * @param[in] x the x coordinate value
+       */
+      void SetX(int32_t x)
+      {
+        mX = x;
+      }
+
+      /**
+       * @brief Sets the y coordinate
+       * @SINCE_2_1.43
+       * @param[in] y the y coordinate value
+       */
+      void SetY(int32_t y)
+      {
+        mY = y;
+      }
+
+      // Default operation
+    public:
+      IntPair(const IntPair&) = default;            ///< Default copy constructor
+      IntPair(IntPair&&)      = default;            ///< Default move constructor
+      IntPair& operator=(const IntPair&) = default; ///< Default copy assignment operator
+      IntPair& operator=(IntPair&&) = default;      ///< Default move assignment operator
+
+      // member data
+    private:
+      int32_t mX;
+      int32_t mY;
+    };
+
+public:
   using WindowSize     = Uint16Pair; ///< Window size type @SINCE_1_2.60
-  using WindowPosition = Uint16Pair; ///< Window position type @SINCE_1_2.60
+  using WindowPosition = IntPair;    ///< Window position type @SINCE_2_1.43
 
   using FocusChangeSignalType = Signal<void(Window, bool)>;       ///< Window focus signal type @SINCE_1_4.35
   using ResizeSignalType      = Signal<void(Window, WindowSize)>; ///< Window resized signal type @SINCE_1_4.35
