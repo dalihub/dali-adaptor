@@ -303,12 +303,12 @@ Window::WindowSize Window::GetSize() const
   return GetImplementation(*this).GetSize();
 }
 
-void Window::SetPosition(Window::WindowPosition position)
+void Window::SetPosition(Dali::Window::WindowPosition position)
 {
   GetImplementation(*this).SetPosition(position);
 }
 
-Window::WindowPosition Window::GetPosition() const
+Dali::Window::WindowPosition Window::GetPosition() const
 {
   return GetImplementation(*this).GetPosition();
 }
