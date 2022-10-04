@@ -62,6 +62,7 @@ void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
   curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT, TIMEOUT_SECONDS);
   curl_easy_setopt(curlHandle, CURLOPT_HEADER, INCLUDE_HEADER);
   curl_easy_setopt(curlHandle, CURLOPT_NOBODY, EXCLUDE_BODY);
+  curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L);
   curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
   curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, 5L);
 
