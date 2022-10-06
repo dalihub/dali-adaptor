@@ -302,7 +302,6 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
     if(0 != dir_err && errno != EEXIST)
     {
       DALI_LOG_ERROR("Error creating system cache directory: %s!\n", systemCachePath.c_str());
-      exit(1);
     }
   }
 
