@@ -2289,19 +2289,19 @@ void Resample(const unsigned char* __restrict__ inPixels,
   }
 }
 
-void LanczosSample4BPP(const unsigned char* __restrict__ inPixels,
+void LanczosSample4BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
-                       unsigned int    inputStride,
-                       unsigned char* __restrict__ outPixels,
+                       uint32_t        inputStride,
+                       uint8_t* __restrict__ outPixels,
                        ImageDimensions desiredDimensions)
 {
   Resample(inPixels, inputDimensions, inputStride, outPixels, desiredDimensions, Resampler::LANCZOS4, 4, true);
 }
 
-void LanczosSample1BPP(const unsigned char* __restrict__ inPixels,
+void LanczosSample1BPP(const uint8_t* __restrict__ inPixels,
                        ImageDimensions inputDimensions,
-                       unsigned int    inputStride,
-                       unsigned char* __restrict__ outPixels,
+                       uint32_t        inputStride,
+                       uint8_t* __restrict__ outPixels,
                        ImageDimensions desiredDimensions)
 {
   // For L8 images
@@ -2309,11 +2309,11 @@ void LanczosSample1BPP(const unsigned char* __restrict__ inPixels,
 }
 
 // Dispatch to a format-appropriate third-party resampling function:
-void LanczosSample(const unsigned char* __restrict__ inPixels,
+void LanczosSample(const uint8_t* __restrict__ inPixels,
                    ImageDimensions inDimensions,
-                   unsigned int    inStride,
+                   uint32_t        inStride,
                    Pixel::Format   pixelFormat,
-                   unsigned char* __restrict__ outPixels,
+                   uint8_t* __restrict__ outPixels,
                    ImageDimensions outDimensions)
 {
   // Check the pixel format is one that is supported:
@@ -2341,25 +2341,25 @@ void LanczosSample(const unsigned char* __restrict__ inPixels,
   }
   else
   {
-    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", unsigned(pixelFormat));
+    DALI_LOG_INFO(gImageOpsLogFilter, Dali::Integration::Log::Verbose, "Bitmap was not lanczos sampled: unsupported pixel format: %u.\n", static_cast<uint32_t>(pixelFormat));
   }
 }
 
 void RotateByShear(const uint8_t* const pixelsIn,
-                   unsigned int         widthIn,
-                   unsigned int         heightIn,
-                   unsigned int         strideIn,
-                   unsigned int         pixelSize,
+                   uint32_t             widthIn,
+                   uint32_t             heightIn,
+                   uint32_t             strideIn,
+                   uint32_t             pixelSize,
                    float                radians,
                    uint8_t*&            pixelsOut,
-                   unsigned int&        widthOut,
-                   unsigned int&        heightOut)
+                   uint32_t&            widthOut,
+                   uint32_t&            heightOut)
 {
   // @note Code got from https://www.codeproject.com/Articles/202/High-quality-image-rotation-rotate-by-shear by Eran Yariv.
 
   // Do first the fast rotations to transform the angle into a (-45..45] range.
 
-  float fastRotationPerformed = false;
+  bool fastRotationPerformed = false;
   if((radians > Math::PI_4) && (radians <= RAD_135))
   {
     // Angle in (45.0 .. 135.0]
@@ -2447,7 +2447,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   const uint8_t* const                      firstHorizontalSkewPixelsIn = fastRotationPerformed ? pixelsOut : pixelsIn;
   std::unique_ptr<uint8_t, void (*)(void*)> tmpPixelsInPtr((fastRotationPerformed ? pixelsOut : nullptr), free);
 
-  unsigned int stride = fastRotationPerformed ? widthOut : strideIn;
+  uint32_t stride = fastRotationPerformed ? widthOut : strideIn;
 
   // Reset the input/output
   widthIn   = widthOut;
@@ -2464,7 +2464,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   // Calculate first shear (horizontal) destination image dimensions
 
-  widthOut  = widthIn + static_cast<unsigned int>(fabs(angleTangent) * static_cast<float>(heightIn));
+  widthOut  = widthIn + static_cast<uint32_t>(fabs(angleTangent) * static_cast<float>(heightIn));
   heightOut = heightIn;
 
   // Allocate the buffer for the 1st shear
@@ -2482,7 +2482,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  for(unsigned int y = 0u; y < heightOut; ++y)
+  for(uint32_t y = 0u; y < heightOut; ++y)
   {
     const float shear = angleTangent * ((angleTangent >= 0.f) ? (0.5f + static_cast<float>(y)) : (0.5f + static_cast<float>(y) - static_cast<float>(heightOut)));
 
@@ -2492,8 +2492,8 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   // Reset the 'pixel in' pointer with the output of the 'First Horizontal Skew' and free the memory allocated by the 'Fast Rotations'.
   tmpPixelsInPtr.reset(pixelsOut);
-  unsigned int tmpWidthIn  = widthOut;
-  unsigned int tmpHeightIn = heightOut;
+  uint32_t tmpWidthIn  = widthOut;
+  uint32_t tmpHeightIn = heightOut;
 
   // Reset the input/output
   pixelsOut = nullptr;
@@ -2503,7 +2503,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   ///////////////////////////////////////
 
   // Calc 2nd shear (vertical) destination image dimensions
-  heightOut = static_cast<unsigned int>(static_cast<float>(widthIn) * fabs(angleSinus) + static_cast<float>(heightIn) * angleCosinus);
+  heightOut = static_cast<uint32_t>(static_cast<float>(widthIn) * fabs(angleSinus) + static_cast<float>(heightIn) * angleCosinus);
 
   // Allocate the buffer for the 2nd shear
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
@@ -2522,10 +2522,10 @@ void RotateByShear(const uint8_t* const pixelsIn,
   // Variable skew offset
   float offset = angleSinus * ((angleSinus > 0.f) ? static_cast<float>(widthIn - 1u) : -(static_cast<float>(widthIn) - static_cast<float>(widthOut)));
 
-  unsigned int column = 0u;
+  uint32_t column = 0u;
   for(column = 0u; column < widthOut; ++column, offset -= angleSinus)
   {
-    const int shear = static_cast<int>(floor(offset));
+    const int32_t shear = static_cast<int32_t>(floor(offset));
     VerticalSkew(tmpPixelsInPtr.get(), tmpWidthIn, tmpHeightIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, heightOut, column, shear, offset - static_cast<float>(shear));
   }
   // Reset the 'pixel in' pointer with the output of the 'Vertical Skew' and free the memory allocated by the 'First Horizontal Skew'.
@@ -2540,7 +2540,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
   ///////////////////////////////////////
 
   // Calc 3rd shear (horizontal) destination image dimensions
-  widthOut = static_cast<unsigned int>(static_cast<float>(heightIn) * fabs(angleSinus) + static_cast<float>(widthIn) * angleCosinus) + 1u;
+  widthOut = static_cast<uint32_t>(static_cast<float>(heightIn) * fabs(angleSinus) + static_cast<float>(widthIn) * angleCosinus) + 1u;
 
   // Allocate the buffer for the 3rd shear
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
@@ -2558,9 +2558,9 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   offset = (angleSinus >= 0.f) ? -angleSinus * angleTangent * static_cast<float>(widthIn - 1u) : angleTangent * (static_cast<float>(widthIn - 1u) * -angleSinus + (1.f - static_cast<float>(heightOut)));
 
-  for(unsigned int y = 0u; y < heightOut; ++y, offset += angleTangent)
+  for(uint32_t y = 0u; y < heightOut; ++y, offset += angleTangent)
   {
-    const int shear = static_cast<int>(floor(offset));
+    const int32_t shear = static_cast<int32_t>(floor(offset));
     HorizontalSkew(tmpPixelsInPtr.get(), tmpWidthIn, tmpWidthIn, pixelSize, pixelsOut, widthOut, y, shear, offset - static_cast<float>(shear));
   }
 
@@ -2569,14 +2569,14 @@ void RotateByShear(const uint8_t* const pixelsIn,
 }
 
 void HorizontalShear(const uint8_t* const pixelsIn,
-                     unsigned int         widthIn,
-                     unsigned int         heightIn,
-                     unsigned int         strideIn,
-                     unsigned int         pixelSize,
+                     uint32_t             widthIn,
+                     uint32_t             heightIn,
+                     uint32_t             strideIn,
+                     uint32_t             pixelSize,
                      float                radians,
                      uint8_t*&            pixelsOut,
-                     unsigned int&        widthOut,
-                     unsigned int&        heightOut)
+                     uint32_t&            widthOut,
+                     uint32_t&            heightOut)
 {
   // Calculate the destination image dimensions.
 
@@ -2592,7 +2592,7 @@ void HorizontalShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  widthOut  = widthIn + static_cast<unsigned int>(ceil(absRadians * static_cast<float>(heightIn)));
+  widthOut  = widthIn + static_cast<uint32_t>(ceil(absRadians * static_cast<float>(heightIn)));
   heightOut = heightIn;
 
   // Allocate the buffer for the shear.
@@ -2607,11 +2607,11 @@ void HorizontalShear(const uint8_t* const pixelsIn,
     return;
   }
 
-  for(unsigned int y = 0u; y < heightOut; ++y)
+  for(uint32_t y = 0u; y < heightOut; ++y)
   {
     const float shear = radians * ((radians >= 0.f) ? (0.5f + static_cast<float>(y)) : (0.5f + static_cast<float>(y) - static_cast<float>(heightOut)));
 
-    const int intShear = static_cast<int>(floor(shear));
+    const int32_t intShear = static_cast<int32_t>(floor(shear));
     HorizontalSkew(pixelsIn, widthIn, strideIn, pixelSize, pixelsOut, widthOut, y, intShear, shear - static_cast<float>(intShear));
   }
 }

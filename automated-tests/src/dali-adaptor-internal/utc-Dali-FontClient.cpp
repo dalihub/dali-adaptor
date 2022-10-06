@@ -230,6 +230,20 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
   DALI_TEST_GREATER(1024u, glyphBufferData2000.width, TEST_LOCATION);  //924u
   DALI_TEST_GREATER(glyphBufferData2000.height, 1024u, TEST_LOCATION); //1148u
 
+  // Test GlyphBufferData move
+  TextAbstraction::FontClient::GlyphBufferData movedGlyphBufferData2000 = std::move(glyphBufferData2000);
+
+  for(int i = 0; i < 50; ++i)
+  {
+    TextAbstraction::FontClient::GlyphBufferData dummy = std::move(movedGlyphBufferData2000);
+    movedGlyphBufferData2000                           = std::move(dummy);
+
+    // Test moved GlyphBufferData destruct well
+  }
+
+  DALI_TEST_GREATER(1024u, movedGlyphBufferData2000.width, TEST_LOCATION);  //924u
+  DALI_TEST_GREATER(movedGlyphBufferData2000.height, 1024u, TEST_LOCATION); //1148u
+
   END_TEST;
 }
 

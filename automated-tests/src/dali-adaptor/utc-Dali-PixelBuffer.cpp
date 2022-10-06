@@ -196,6 +196,45 @@ int UtcDaliPixelBufferNew01P(void)
   END_TEST;
 }
 
+int UtcDaliPixelBufferConstructor01P(void)
+{
+  TestApplication    application;
+  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+
+  Devel::PixelBuffer copiedBuf = pixbuf;
+  DALI_TEST_CHECK(pixbuf);
+  DALI_TEST_CHECK(copiedBuf);
+  DALI_TEST_CHECK(pixbuf.GetBuffer() != NULL);
+  DALI_TEST_CHECK(copiedBuf.GetBuffer() != NULL);
+
+  Devel::PixelBuffer movedBuf = std::move(pixbuf);
+  DALI_TEST_CHECK(!pixbuf);
+  DALI_TEST_CHECK(movedBuf);
+  DALI_TEST_CHECK(movedBuf.GetBuffer() != NULL);
+  END_TEST;
+}
+
+int UtcDaliPixelBufferAssign01P(void)
+{
+  TestApplication    application;
+  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGBA8888);
+
+  Devel::PixelBuffer copiedBuf;
+  copiedBuf = pixbuf;
+  DALI_TEST_CHECK(pixbuf);
+  DALI_TEST_CHECK(copiedBuf);
+  DALI_TEST_CHECK(pixbuf.GetBuffer() != NULL);
+  DALI_TEST_CHECK(copiedBuf.GetBuffer() != NULL);
+
+  Devel::PixelBuffer movedBuf;
+  DALI_TEST_CHECK(!movedBuf);
+  movedBuf = std::move(pixbuf);
+  DALI_TEST_CHECK(!pixbuf);
+  DALI_TEST_CHECK(movedBuf);
+  DALI_TEST_CHECK(movedBuf.GetBuffer() != NULL);
+  END_TEST;
+}
+
 int UtcDaliPixelBufferNew01N(void)
 {
   TestApplication    application;

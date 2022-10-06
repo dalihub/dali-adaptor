@@ -87,6 +87,21 @@ public:
   WebEngine& operator=(const WebEngine& WebEngine);
 
   /**
+   * @brief Move constructor.
+   *
+   * @param[in] WebEngine WebEngine to move. The moved WebEngine will point at the same implementation
+   */
+  WebEngine(WebEngine&& WebEngine);
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @param[in] WebEngine The WebEngine to assign from.
+   * @return The updated WebEngine.
+   */
+  WebEngine& operator=(WebEngine&& WebEngine);
+
+  /**
    * @brief Downcast a handle to WebEngine handle.
    *
    * If handle points to a WebEngine the downcast produces valid

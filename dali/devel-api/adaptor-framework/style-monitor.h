@@ -2,7 +2,7 @@
 #define DALI_STYLE_MONITOR_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,6 +66,32 @@ public: // Creation & Destruction
    * @param[in]  monitor  The Style Monitor to copy from.
    */
   StyleMonitor(const StyleMonitor& monitor);
+
+  /**
+   * @brief Assignment operator.
+   *
+   * The handle points to the same implementation as the one being copied from.
+   * @param[in]  monitor  The Style Monitor to copy from.
+   * @return reference to this object
+   */
+  StyleMonitor& operator=(const StyleMonitor& monitor);
+
+  /**
+   * @brief Creates a move of the handle.
+   *
+   * The move will point to the same implementation as the original.
+   * @param[in]  monitor  The Style Monitor to move from.
+   */
+  StyleMonitor(StyleMonitor&& monitor);
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * The handle points to the same implementation as the one being moved from.
+   * @param[in]  monitor  The Style Monitor to move from.
+   * @return reference to this object
+   */
+  StyleMonitor& operator=(StyleMonitor&& monitor);
 
   /**
    * @brief Retrieve the initialized instance of the StyleMonitor.
@@ -144,16 +170,6 @@ public: // Signals
    * @return The signal to connect to.
    */
   StyleChangeSignalType& StyleChangeSignal();
-
-public: // Operators
-  /**
-   * @brief Assignment operator.
-   *
-   * The handle points to the same implementation as the one being copied from.
-   * @param[in]  monitor  The Style Monitor to copy from.
-   * @return reference to this object
-   */
-  StyleMonitor& operator=(const StyleMonitor& monitor);
 
 public: // Not intended for application developers
   /**

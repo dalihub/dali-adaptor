@@ -36,10 +36,13 @@ EncodedImageBuffer::EncodedImageBuffer(Internal::EncodedImageBuffer* internal)
 {
 }
 
-EncodedImageBuffer::EncodedImageBuffer(const EncodedImageBuffer& handle)
-: BaseHandle(handle)
-{
-}
+EncodedImageBuffer::EncodedImageBuffer(const EncodedImageBuffer& handle) = default;
+
+EncodedImageBuffer& EncodedImageBuffer::operator=(const EncodedImageBuffer& handle) = default;
+
+EncodedImageBuffer::EncodedImageBuffer(EncodedImageBuffer&& handle) = default;
+
+EncodedImageBuffer& EncodedImageBuffer::operator=(EncodedImageBuffer&& handle) = default;
 
 const EncodedImageBuffer::RawBufferType& EncodedImageBuffer::GetRawBuffer() const
 {
@@ -49,12 +52,6 @@ const EncodedImageBuffer::RawBufferType& EncodedImageBuffer::GetRawBuffer() cons
 const std::size_t EncodedImageBuffer::GetHash() const
 {
   return GetImplementation(*this).GetHash();
-}
-
-EncodedImageBuffer& EncodedImageBuffer::operator=(const EncodedImageBuffer& handle)
-{
-  BaseHandle::operator=(handle);
-  return *this;
 }
 
 EncodedImageBuffer EncodedImageBuffer::New(const RawBufferType& buffer)

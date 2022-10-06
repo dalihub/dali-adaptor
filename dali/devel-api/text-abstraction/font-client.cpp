@@ -58,7 +58,7 @@ FontClient::GlyphBufferData::GlyphBufferData()
   outlineOffsetX{0},
   outlineOffsetY{0},
   format{Pixel::A8},
-  compressionType(CompressionType::NO_COMPRESSION),
+  compressionType{CompressionType::NO_COMPRESSION},
   isColorEmoji{false},
   isColorBitmap{false},
   isBufferOwned{false}
@@ -71,6 +71,43 @@ FontClient::GlyphBufferData::~GlyphBufferData()
   {
     free(buffer);
   }
+}
+
+FontClient::GlyphBufferData::GlyphBufferData(FontClient::GlyphBufferData&& rhs) noexcept
+: buffer{rhs.buffer},
+  width{rhs.width},
+  height{rhs.height},
+  outlineOffsetX{rhs.outlineOffsetX},
+  outlineOffsetY{rhs.outlineOffsetY},
+  format{rhs.format},
+  compressionType{rhs.compressionType},
+  isColorEmoji{rhs.isColorEmoji},
+  isColorBitmap{rhs.isColorBitmap},
+  isBufferOwned{rhs.isBufferOwned}
+{
+  // Remove moved data
+  rhs.buffer        = nullptr;
+  rhs.isBufferOwned = false;
+}
+
+FontClient::GlyphBufferData& FontClient::GlyphBufferData::operator=(FontClient::GlyphBufferData&& rhs) noexcept
+{
+  buffer          = rhs.buffer;
+  width           = rhs.width;
+  height          = rhs.height;
+  outlineOffsetX  = rhs.outlineOffsetX;
+  outlineOffsetY  = rhs.outlineOffsetY;
+  format          = rhs.format;
+  compressionType = rhs.compressionType;
+  isColorEmoji    = rhs.isColorEmoji;
+  isColorBitmap   = rhs.isColorBitmap;
+  isBufferOwned   = rhs.isBufferOwned;
+
+  // Remove moved data
+  rhs.buffer        = nullptr;
+  rhs.isBufferOwned = false;
+
+  return *this;
 }
 
 size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, GlyphBufferData& __restrict__ outBufferData)
@@ -592,16 +629,13 @@ FontClient::~FontClient()
 {
 }
 
-FontClient::FontClient(const FontClient& handle)
-: BaseHandle(handle)
-{
-}
+FontClient::FontClient(const FontClient& handle) = default;
 
-FontClient& FontClient::operator=(const FontClient& handle)
-{
-  BaseHandle::operator=(handle);
-  return *this;
-}
+FontClient& FontClient::operator=(const FontClient& handle) = default;
+
+FontClient::FontClient(FontClient&& handle) = default;
+
+FontClient& FontClient::operator=(FontClient&& handle) = default;
 
 void FontClient::ClearCache()
 {

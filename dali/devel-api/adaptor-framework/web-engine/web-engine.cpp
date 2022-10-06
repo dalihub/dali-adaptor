@@ -67,19 +67,13 @@ Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
   return Internal::Adaptor::WebEngine::GetCookieManager();
 }
 
-WebEngine::WebEngine(const WebEngine& webEngine)
-: BaseHandle(webEngine)
-{
-}
+WebEngine::WebEngine(const WebEngine& webEngine) = default;
 
-WebEngine& WebEngine::operator=(const WebEngine& webEngine)
-{
-  if(*this != webEngine)
-  {
-    BaseHandle::operator=(webEngine);
-  }
-  return *this;
-}
+WebEngine& WebEngine::operator=(const WebEngine& webEngine) = default;
+
+WebEngine::WebEngine(WebEngine&& webEngine) = default;
+
+WebEngine& WebEngine::operator=(WebEngine&& webEngine) = default;
 
 WebEngine WebEngine::DownCast(BaseHandle handle)
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,13 @@ StyleMonitor::StyleMonitor()
 {
 }
 
-StyleMonitor::StyleMonitor(const StyleMonitor& monitor)
-: BaseHandle(monitor)
-{
-}
+StyleMonitor::StyleMonitor(const StyleMonitor& monitor) = default;
+
+StyleMonitor& StyleMonitor::operator=(const StyleMonitor& monitor) = default;
+
+StyleMonitor::StyleMonitor(StyleMonitor&& monitor) = default;
+
+StyleMonitor& StyleMonitor::operator=(StyleMonitor&& monitor) = default;
 
 StyleMonitor StyleMonitor::StyleMonitor::Get()
 {
@@ -79,15 +82,6 @@ bool StyleMonitor::LoadThemeFile(const std::string& filename, std::string& outpu
 StyleMonitor::StyleChangeSignalType& StyleMonitor::StyleChangeSignal()
 {
   return GetImplementation(*this).StyleChangeSignal();
-}
-
-StyleMonitor& StyleMonitor::operator=(const StyleMonitor& monitor)
-{
-  if(*this != monitor)
-  {
-    BaseHandle::operator=(monitor);
-  }
-  return *this;
 }
 
 StyleMonitor::StyleMonitor(Internal::Adaptor::StyleMonitor* internal)

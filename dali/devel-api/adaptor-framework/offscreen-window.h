@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_WINDOW_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,21 @@ public:
    * @return A reference to this
    */
   OffscreenWindow& operator=(const OffscreenWindow& window);
+
+  /**
+   * @brief Move constructor
+   *
+   * @param [in] window A reference to the moved handle
+   */
+  OffscreenWindow(OffscreenWindow&& window);
+
+  /**
+   * @brief Move assignment operator
+   *
+   * @param [in] window A reference to the moved handle
+   * @return A reference to this
+   */
+  OffscreenWindow& operator=(OffscreenWindow&& window);
 
   /**
    * @brief Destructor

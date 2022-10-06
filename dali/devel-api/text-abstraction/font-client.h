@@ -95,6 +95,21 @@ public:
      */
     ~GlyphBufferData();
 
+    /**
+     * @brief Move constructor.
+     *
+     * @param[in] rhs moved data.
+     */
+    GlyphBufferData(GlyphBufferData&& rhs) noexcept;
+
+    /**
+     * @brief Move assign operator.
+     *
+     * @param[in] rhs moved data.
+     * @return A reference to this.
+     */
+    GlyphBufferData& operator=(GlyphBufferData&& rhs) noexcept;
+
     // Compression method of buffer. Each buffer compressed line by line
     enum class CompressionType
     {
@@ -138,6 +153,12 @@ public:
      */
     static void DecompressScanline(const GlyphBufferData& inBufferData, uint8_t* outBuffer, uint32_t& offset);
 
+  private:
+    // Delete copy operation.
+    GlyphBufferData(const GlyphBufferData& rhs) = delete;
+    GlyphBufferData& operator=(const GlyphBufferData& rhs) = delete;
+
+  public:
     uint8_t*        buffer;            ///< The glyph's bitmap buffer data.
     uint32_t        width;             ///< The width of the bitmap.
     uint32_t        height;            ///< The height of the bitmap.
@@ -195,6 +216,21 @@ public:
    * @return A reference to this.
    */
   FontClient& operator=(const FontClient& handle);
+
+  /**
+   * @brief This move constructor is required for (smart) pointer semantics.
+   *
+   * @param[in] handle A reference to the moved handle.
+   */
+  FontClient(FontClient&& handle);
+
+  /**
+   * @brief This move assignment operator is required for (smart) pointer semantics.
+   *
+   * @param [in] handle  A reference to the moved handle.
+   * @return A reference to this.
+   */
+  FontClient& operator=(FontClient&& handle);
 
   ////////////////////////////////////////
   // Font management and validation.

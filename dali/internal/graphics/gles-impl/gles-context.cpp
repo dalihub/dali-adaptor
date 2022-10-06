@@ -20,6 +20,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/public-api/math/math-utils.h>
 
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
@@ -650,11 +651,11 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
     const auto clearValues = renderPassBegin.clearValues.Ptr();
 
-    if(!mImpl->mGlStateCache.mClearColorSet ||
-       mImpl->mGlStateCache.mClearColor.r != clearValues[0].color.r ||
-       mImpl->mGlStateCache.mClearColor.g != clearValues[0].color.g ||
-       mImpl->mGlStateCache.mClearColor.b != clearValues[0].color.b ||
-       mImpl->mGlStateCache.mClearColor.a != clearValues[0].color.a)
+    if(!Dali::Equals(mImpl->mGlStateCache.mClearColor.r, clearValues[0].color.r) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.g, clearValues[0].color.g) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.b, clearValues[0].color.b) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.a, clearValues[0].color.a) ||
+       !mImpl->mGlStateCache.mClearColorSet)
     {
       gl.ClearColor(clearValues[0].color.r,
                     clearValues[0].color.g,

@@ -45,6 +45,36 @@ void utc_dali_animated_image_loader_cleanup(void)
   test_return_value = TET_PASS;
 }
 
+int UtcDaliAnimatedImageLoadingCopyMoveP(void)
+{
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGif_100_None, true);
+
+  Dali::AnimatedImageLoading copied = animatedImageLoading;
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+
+  Dali::AnimatedImageLoading moved = std::move(animatedImageLoading);
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)moved, true, TEST_LOCATION);
+
+  Dali::AnimatedImageLoading copiedAssign;
+  copiedAssign = copied;
+
+  Dali::AnimatedImageLoading movedAssign;
+  movedAssign = std::move(moved);
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)moved, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copiedAssign, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)movedAssign, true, TEST_LOCATION);
+
+  END_TEST;
+}
+
 int UtcDaliAnimatedImageLoadingGetImageSizeP(void)
 {
   Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGif_100_None, true);
