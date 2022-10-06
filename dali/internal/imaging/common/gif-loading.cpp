@@ -1078,6 +1078,11 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
         }
       }
     }
+    else
+    {
+      success = false;
+      DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+    }
   }
   return success;
 }
@@ -1396,7 +1401,7 @@ public:
     mLoadSucceeded(false),
     mMutex()
   {
-    loaderInfo.gifAccessor = nullptr;
+    loaderInfo.gifAccessor              = nullptr;
     loaderInfo.fileData.fileName        = mUrl.c_str();
     loaderInfo.fileData.isLocalResource = isLocalResource;
   }
@@ -1411,6 +1416,10 @@ public:
     }
 
     mLoadSucceeded = ReadHeader(loaderInfo, imageProperties);
+    if(!mLoadSucceeded)
+    {
+      DALI_LOG_ERROR("ReadHeader is failed [%s]\n", mUrl.c_str());
+    }
     return mLoadSucceeded;
   }
 
