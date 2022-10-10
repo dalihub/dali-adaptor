@@ -104,6 +104,7 @@ EventHandler::EventHandler( WindowBase* windowBase, DamageObserver& damageObserv
   mAccessibilityAdaptor( AccessibilityAdaptor::Get() ),
   mClipboardEventNotifier( ClipboardEventNotifier::Get() ),
   mClipboard( Clipboard::Get() ),
+  mWindowBase( windowBase ),
   mPaused( false )
 {
   // Connect signals
@@ -294,6 +295,20 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   if( !accessibilityAdaptor )
   {
     DALI_LOG_ERROR( "Cannot access accessibility adaptor\n" );
+    return;
+  }
+
+  if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
+  {
+    if( !accessibilityAdaptor->IsEnabled() )
+    {
+      // Accessibility gesture was sent to this window, so enable accessibility
+      accessibilityAdaptor->EnableAccessibility();
+    }
+  }
+  else
+  {
+    // Ignore gesture
     return;
   }
 

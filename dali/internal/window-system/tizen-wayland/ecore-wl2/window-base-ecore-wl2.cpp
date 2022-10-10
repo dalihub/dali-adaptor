@@ -1319,7 +1319,7 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityNotification( void* context, 
 #ifdef DALI_ELDBUS_AVAILABLE
 
   // The string defines the arg-list's respective types.
-  if( !eldbus_message_arguments_get( message, "iiiiiiu", &mAccessibilityInfo.gestureValue, &mAccessibilityInfo.startX, &mAccessibilityInfo.startY, &mAccessibilityInfo.endX, &mAccessibilityInfo.endY, &mAccessibilityInfo.state, &mAccessibilityInfo.eventTime ) )
+  if( !eldbus_message_arguments_get( message, "iiiiiiuu", &mAccessibilityInfo.gestureValue, &mAccessibilityInfo.startX, &mAccessibilityInfo.startY, &mAccessibilityInfo.endX, &mAccessibilityInfo.endY, &mAccessibilityInfo.state, &mAccessibilityInfo.eventTime, &mAccessibilityInfo.resourceId ) )
   {
     DALI_LOG_ERROR( "OnEcoreElDBusAccessibilityNotification: Error getting arguments\n" );
   }

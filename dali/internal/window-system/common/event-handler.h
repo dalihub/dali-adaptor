@@ -234,6 +234,7 @@ private:
   using ObserverContainer = std::vector<Observer*>;
   ObserverContainer mObservers;   ///< A list of event observer pointers
 
+  WindowBase* mWindowBase;
   bool mPaused; ///< The paused state of the adaptor.
 };
 

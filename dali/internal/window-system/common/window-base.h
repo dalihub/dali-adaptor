@@ -65,6 +65,7 @@ public:
     int endY;
     int state;
     int eventTime;
+    std::uint32_t resourceId;
     unsigned char quickpanelInfo; // to retrieve quick panel information for Accessibility
     #ifdef DALI_ELDBUS_AVAILABLE
     Eldbus_Proxy* proxy;
