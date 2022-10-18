@@ -363,7 +363,6 @@ void Window::SetPreferredOrientation(WindowOrientation orientation)
 
 WindowOrientation Window::GetPreferredOrientation()
 {
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), GetPreferredOrientation: %d\n", this, mNativeWindowId, mPreferredAngle);
   WindowOrientation preferredOrientation = ConvertToOrientation(mPreferredAngle);
   return preferredOrientation;
 }
@@ -699,14 +698,14 @@ Dali::Window::WindowSize Window::GetSize() const
 void Window::SetPosition(Dali::Window::WindowPosition position)
 {
   PositionSize oldRect = mSurface->GetPositionSize();
-  int32_t newX = position.GetX();
-  int32_t newY = position.GetY();
+  int32_t      newX    = position.GetX();
+  int32_t      newY    = position.GetY();
 
   mWindowSurface->MoveResize(PositionSize(newX, newY, oldRect.width, oldRect.height));
 
   if((oldRect.x != newX) || (oldRect.y != newY))
   {
-    Dali::Window handle(this);
+    Dali::Window                 handle(this);
     Dali::Window::WindowPosition newPosition(newX, newY);
 
     DALI_LOG_RELEASE_INFO("send moved signal with new position: %d, %d\n", newPosition.GetX(), newPosition.GetY());
@@ -891,8 +890,8 @@ void Window::OnWindowRedrawRequest()
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 {
-  bool resized = false;
-  bool moved = false;
+  bool         resized = false;
+  bool         moved   = false;
   Dali::Window handle(this);
   PositionSize oldRect = mSurface->GetPositionSize();
 
@@ -921,8 +920,8 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
-    mWindowWidth   = newRect.width;
-    mWindowHeight  = newRect.height;
+    mWindowWidth  = newRect.width;
+    mWindowHeight = newRect.height;
 
     SurfaceResized();
 
@@ -1128,7 +1127,6 @@ Dali::Window Window::GetParent()
 
 WindowOrientation Window::GetCurrentOrientation() const
 {
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), GetCurrentOrientation(): %d\n", this, mNativeWindowId, mRotationAngle);
   return ConvertToOrientation(mRotationAngle);
 }
 

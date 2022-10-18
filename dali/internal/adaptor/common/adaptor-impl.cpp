@@ -34,6 +34,7 @@
 #include <dali/integration-api/input-options.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/object/any.h>
@@ -91,6 +92,7 @@ namespace
 {
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
@@ -912,15 +914,11 @@ void Adaptor::ProcessCoreEvents()
       mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_START);
     }
 
-#if !defined(DALI_PROFILE_UBUNTU) && !defined(DALI_PROFILE_LIBUV_X11) && !defined(DALI_PROFILE_GLIB_X11)
-    DALI_LOG_RELEASE_INFO("Start ProcessEvents\n");
-#endif
+    DALI_TRACE_BEGIN(gTraceFilter, "DALI_PROCESS_CORE_EVENTS");
 
     mCore->ProcessEvents();
 
-#if !defined(DALI_PROFILE_UBUNTU) && !defined(DALI_PROFILE_LIBUV_X11) && !defined(DALI_PROFILE_GLIB_X11)
-    DALI_LOG_RELEASE_INFO("End ProcessEvents\n");
-#endif
+    DALI_TRACE_END(gTraceFilter, "DALI_PROCESS_CORE_EVENTS");
 
     if(mPerformanceInterface)
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,15 @@
  *
  */
 
-// EXTERNAL INCLUDES
+// CLASS HEADER
 #include <dali/internal/trace/tizen/trace-manager-impl-tizen.h>
+
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <ttrace.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 
 namespace Dali
 {
@@ -27,9 +31,21 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+const char* DALI_TRACE_ENABLE_PRINT_LOG_ENV = "DALI_TRACE_ENABLE_PRINT_LOG";
+static bool gTraceManagerEnablePrintLog     = false;
+
+} // namespace
+
 TraceManagerTizen::TraceManagerTizen(PerformanceInterface* performanceInterface)
 : TraceManager(performanceInterface)
 {
+  const char* enablePrintLog = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_TRACE_ENABLE_PRINT_LOG_ENV);
+  if(enablePrintLog && std::atoi(enablePrintLog) != 0)
+  {
+    gTraceManagerEnablePrintLog = true;
+  }
 }
 
 Dali::Integration::Trace::LogContextFunction TraceManagerTizen::GetLogContextFunction()
@@ -42,10 +58,20 @@ void TraceManagerTizen::LogContext(bool start, const char* tag)
   if(start)
   {
     traceBegin(TTRACE_TAG_GRAPHICS, tag);
+
+    if(gTraceManagerEnablePrintLog)
+    {
+      DALI_LOG_RELEASE_INFO("BEGIN: %s\n", tag);
+    }
   }
   else
   {
     traceEnd(TTRACE_TAG_GRAPHICS);
+
+    if(gTraceManagerEnablePrintLog)
+    {
+      DALI_LOG_RELEASE_INFO("END: %s\n", tag);
+    }
   }
 }
 

@@ -31,6 +31,7 @@
 // EXTERNAL_HEADERS
 #include <Ecore_Input.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -53,6 +54,8 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
 const uint32_t     MAX_TIZEN_CLIENT_VERSION = 7;
 const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
@@ -1201,7 +1204,14 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-    DALI_LOG_RELEASE_INFO("OnKeyDown Start [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    std::ostringstream stream;
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      stream << "DALI_ON_KEY_DOWN [" << keyName << "]\n";
+      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
+    }
+#endif
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1250,7 +1260,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    DALI_LOG_RELEASE_INFO("OnKeyDown End [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
+    }
+#endif
   }
 }
 
@@ -1274,7 +1289,14 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-    DALI_LOG_RELEASE_INFO("OnKeyUp Start [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    std::ostringstream stream;
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      stream << "DALI_ON_KEY_UP [" << keyName << "]" << std::endl;
+      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
+    }
+#endif
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1323,7 +1345,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    DALI_LOG_RELEASE_INFO("OnKeyUp End [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
+    }
+#endif
   }
 }
 
