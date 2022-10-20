@@ -28,6 +28,7 @@
 #include "gles-graphics-program.h"
 #include "gles-graphics-render-pass.h"
 #include "gles-graphics-render-target.h"
+#include "gles-texture-dependency-checker.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -232,7 +233,7 @@ Context::~Context()
   }
 }
 
-void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
+void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::TextureDependencyChecker& dependencyChecker)
 {
   auto& gl = *mImpl->mController.GetGL();
 
@@ -286,9 +287,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
     {
       // Attempt to reinitialize
       // @todo need to put this somewhere else where it isn't const.
-      // Maybe post it back on end of initialize queue if initialization fails?
+      // Maybe post it bac/k on end of initialize queue if initialization fails?
       texture->InitializeResource();
     }
+
+    // Warning, this may cause glWaitSync to occur on the GPU.
+    dependencyChecker.CheckNeedsSync(this, texture);
 
     texture->Bind(binding);
 
@@ -355,6 +359,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
         mImpl->FlushVertexAttributeLocations();
       }
 
+      //@todo Wait if textures need syncing
       gl.DrawArrays(GLESTopology(ia->topology),
                     drawCall.draw.firstVertex,
                     drawCall.draw.vertexCount);
@@ -629,7 +634,8 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   else if(targetInfo.framebuffer)
   {
     // bind framebuffer and swap.
-    renderTarget.GetFramebuffer()->Bind();
+    auto framebuffer = renderTarget.GetFramebuffer();
+    framebuffer->Bind();
   }
 
   // clear (ideally cache the setup)
@@ -641,6 +647,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   const auto& attachments = *renderPass.GetCreateInfo().attachments;
   const auto& color0      = attachments[0];
   GLuint      mask        = 0;
+
   if(color0.loadOp == AttachmentLoadOp::CLEAR)
   {
     mask |= GL_COLOR_BUFFER_BIT;
@@ -703,14 +710,28 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   mImpl->mCurrentRenderTarget = &renderTarget;
 }
 
-void Context::EndRenderPass()
+void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
 {
   if(mImpl->mCurrentRenderTarget)
   {
-    if(mImpl->mCurrentRenderTarget->GetFramebuffer())
+    GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
+    if(framebuffer)
     {
       auto& gl = *mImpl->mController.GetGL();
       gl.Flush();
+
+      /* @todo Full dependency checking would need to store textures in Begin, and create
+       * fence objects here; but we're going to draw all fbos on shared context in serial,
+       * so no real need (yet). Might want to consider ensuring order of render passes,
+       * but that needs doing in the controller, and would need doing before ProcessCommandQueues.
+       *
+       * Currently up to the client to create render tasks in the right order.
+       */
+
+      /* Create fence sync objects. Other contexts can then wait on these fences before reading
+       * textures.
+       */
+      dependencyChecker.AddTextures(this, framebuffer);
     }
   }
 }

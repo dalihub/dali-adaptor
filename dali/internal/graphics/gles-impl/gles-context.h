@@ -31,6 +31,7 @@ class Pipeline;
 class RenderPass;
 class RenderTarget;
 class Texture;
+class TextureDependencyChecker;
 
 /**
  * @brief Context represents single GLES context
@@ -46,11 +47,14 @@ public:
    * @brief Flushes the context
    *
    * Flushes the context by issuing GL calls to set the required
-   * state.
+   * state. Causes a glWaitSync if any drawn textures are dependent
+   * on another context.
    *
    * @param[in] reset If true then state is reset unconditionally
+   * @param[in] drawCall the draws that need flushing
+   * @param[in] dependencyChecker The texture dependecy checker
    */
-  void Flush(bool reset, const GLES::DrawCallDescriptor& drawCall);
+  void Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::TextureDependencyChecker& dependencyChecker);
 
   /**
    * @brief Returns context Id
@@ -125,10 +129,9 @@ public:
   void ResolveStandaloneUniforms();
 
   /**
-   * @brief Begins render pass for sepcified render target
+   * @brief Begins render pass for specified render target
    *
    * @param[in] renderPass render pass object to begin
-   * @param[in] renderTarget render target to be drawn onto
    */
   void BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin);
 
@@ -136,9 +139,9 @@ public:
    * @brief Ends render pass
    *
    * Ending render pass is necessary in order to ensure
-   * proper implicit synchronization is in place
+   * proper explicit synchronization is in place
    */
-  void EndRenderPass();
+  void EndRenderPass(TextureDependencyChecker& checker);
 
   /**
    * @brief Returns the cache of GL state in the context
