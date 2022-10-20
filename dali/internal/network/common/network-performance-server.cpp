@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,7 +164,7 @@ void NetworkPerformanceServer::ClientThread(NetworkPerformanceClient* client)
       unsigned int bytesRead;
 
       bool ok = socket.Read(buffer, sizeof(buffer), bytesRead);
-      if(ok && (bytesRead > 0))
+      if(ok && (bytesRead > 0) && (bytesRead <= SOCKET_READ_BUFFER_SIZE))
       {
         client->ProcessCommand(buffer, bytesRead);
       }
