@@ -298,18 +298,22 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     return;
   }
 
-  if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
+  if( info.gestureValue == 15 ) // ONE_FINGER_SINGLE_TAP
   {
-    if( !accessibilityAdaptor->IsEnabled() )
+    if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
     {
-      // Accessibility gesture was sent to this window, so enable accessibility
-      accessibilityAdaptor->EnableAccessibility();
+      if( !accessibilityAdaptor->IsEnabled() )
+      {
+        // Accessibility gesture was sent to this window, so enable accessibility
+        accessibilityAdaptor->EnableAccessibility();
+      }
     }
-  }
-  else
-  {
-    // Ignore gesture
-    return;
+    else
+    {
+      // Ignore tap gesture - it should be handled by another window (possibly in another application),
+      // for which the resource ID matches with the one stored in AccessibilityInfo.
+      return;
+    }
   }
 
   if( !accessibilityAdaptor->IsEnabled() )
