@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/internal/imaging/common/native-image-source-impl.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -32,6 +32,7 @@ namespace Internal
 {
 namespace Adaptor
 {
+class EglGraphics;
 class EglImageExtensions;
 
 /**
@@ -209,15 +210,16 @@ private:
   void GetPixmapDetails();
 
 private:
-  uint32_t                             mWidth;                        ///< image width
-  uint32_t                             mHeight;                       ///< image heights
-  bool                                 mOwnPixmap;                    ///< Whether we created pixmap or not
-  Ecore_X_Pixmap                       mPixmap;                       ///< From Xlib
-  bool                                 mBlendingRequired;             ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth  mColorDepth;                   ///< color depth of image
-  void*                                mEglImageKHR;                  ///< From EGL extension
-  EglImageExtensions*                  mEglImageExtensions;           ///< The EGL Image Extensions
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;  ///< The Resource Destruction Callback
+  uint32_t                             mWidth;                       ///< image width
+  uint32_t                             mHeight;                      ///< image heights
+  bool                                 mOwnPixmap;                   ///< Whether we created pixmap or not
+  Ecore_X_Pixmap                       mPixmap;                      ///< From Xlib
+  bool                                 mBlendingRequired;            ///< Whether blending is required
+  Dali::NativeImageSource::ColorDepth  mColorDepth;                  ///< color depth of image
+  void*                                mEglImageKHR;                 ///< From EGL extension
+  EglGraphics*                         mEglGraphics;                 ///< EGL Graphics
+  EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
 };
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,25 +56,22 @@ NativeImageSourceAndroid* NativeImageSourceAndroid::New(uint32_t width, uint32_t
   return image;
 }
 
-NativeImageSourceAndroid::NativeImageSourceAndroid( uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource )
+NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 : mWidth(width),
-  mHeight(height ),
+  mHeight(height),
   mOwnPixmap(true),
   mPixmap(NULL),
   mBlendingRequired(false),
   mColorDepth(depth),
   mEglImageKHR(NULL),
+  mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  GraphicsInterface* graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
-
-  mEglImageExtensions = eglGraphics->GetImageExtensions();
-
-  DALI_ASSERT_DEBUG(mEglImageExtensions);
+  GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  mEglGraphics                = static_cast<EglGraphics*>(graphics);
 
   // assign the pixmap
   mPixmap = static_cast<AHardwareBuffer*>(GetPixmapFromAny(nativeImageSource));
@@ -239,6 +236,9 @@ bool NativeImageSourceAndroid::IsColorDepthSupported(Dali::NativeImageSource::Co
 
 bool NativeImageSourceAndroid::CreateResource()
 {
+  mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  DALI_ASSERT_DEBUG(mEglImageExtensions);
+
   // if the image existed previously delete it.
   if(mEglImageKHR != NULL)
   {
