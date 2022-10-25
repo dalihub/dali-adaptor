@@ -157,6 +157,15 @@ public:
   Window& operator=(Window&& rhs);
 
   /**
+   * @brief Downcast sceneHolder to window
+   *
+   * @SINCE_2_1.46
+   * @param[in] handle The handle need to downcast
+   * @return Whether it's a valid window or not
+   */
+  static Window DownCast(BaseHandle handle);
+
+  /**
    * @brief Adds a child Actor to the Window.
    *
    * The child will be referenced.

@@ -218,14 +218,6 @@ DALI_ADAPTOR_API void Unparent(Window window);
 DALI_ADAPTOR_API Window GetParent(Window window);
 
 /**
- * @brief Downcast sceneHolder to window
- *
- * @param[in] handle The handle need to downcast
- * @return The window cast from SceneHolder
- */
-DALI_ADAPTOR_API Window DownCast(BaseHandle handle);
-
-/**
  * @brief Gets current orientation of the window.
  *
  * @param[in] window The window instance
@@ -547,7 +539,6 @@ DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window win
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
-
 
 } // namespace DevelWindow
 
