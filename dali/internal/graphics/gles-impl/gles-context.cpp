@@ -1024,13 +1024,20 @@ void Context::PrepareForNativeRendering()
   if(!mImpl->mNativeDrawContext)
   {
     EGLint configId{0u};
-    EGLint size{0u};
-    eglGetConfigs(display, nullptr, 0, &size);
-    std::vector<EGLConfig> configs;
-    configs.resize(size);
-    eglGetConfigs(display, configs.data(), configs.size(), &size);
+    eglQueryContext(display, mImpl->mController.GetSharedContext(), EGL_CONFIG_ID, &configId);
 
-    eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+    EGLint configAttribs[3];
+    configAttribs[0] = EGL_CONFIG_ID;
+    configAttribs[1] = configId;
+    configAttribs[2] = EGL_NONE;
+
+    EGLConfig config;
+    EGLint    numConfigs;
+    if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE)
+    {
+      DALI_LOG_ERROR("eglChooseConfig failed!\n");
+      return;
+    }
 
     auto version = int(mImpl->mController.GetGLESVersion());
 
@@ -1041,7 +1048,12 @@ void Context::PrepareForNativeRendering()
     attribs.push_back(version % 10);
     attribs.push_back(EGL_NONE);
 
-    mImpl->mNativeDrawContext = eglCreateContext(display, configs[configId], mImpl->mController.GetSharedContext(), attribs.data());
+    mImpl->mNativeDrawContext = eglCreateContext(display, config, mImpl->mController.GetSharedContext(), attribs.data());
+    if(mImpl->mNativeDrawContext == EGL_NO_CONTEXT)
+    {
+      DALI_LOG_ERROR("eglCreateContext failed!\n");
+      return;
+    }
   }
 
   eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
