@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/pixmap-render-surface.h>
 #include <dali/public-api/dali-adaptor-common.h>
+#include <X11/X.h>
 
 namespace Dali
 {
