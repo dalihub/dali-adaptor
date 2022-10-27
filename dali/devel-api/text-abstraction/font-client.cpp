@@ -118,7 +118,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
   {
     case TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION:
     {
-      bufferSize = outBufferData.width * outBufferData.height * Pixel::GetBytesPerPixel(outBufferData.format);
+      bufferSize = static_cast<size_t>(outBufferData.width) * static_cast<size_t>(outBufferData.height) * static_cast<size_t>(Pixel::GetBytesPerPixel(outBufferData.format));
 
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
@@ -138,7 +138,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
       const bool     considerPadding = (widthByte & 1) ? true : false;
 
       // For BIT_PER_PIXEL_4 type, we can know final compressed buffer size immediatly.
-      bufferSize       = outBufferData.height * (componentCount + (considerPadding ? 1 : 0));
+      bufferSize       = static_cast<size_t>(outBufferData.height) * static_cast<size_t>(componentCount + (considerPadding ? 1 : 0));
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
       {

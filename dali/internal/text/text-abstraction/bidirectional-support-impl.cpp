@@ -224,8 +224,8 @@ struct BidirectionalSupport::Plugin
     }
 
     // Copy embedded levels as fribidi_reorder_line() may change them.
-    const uint32_t embeddedLevelsSize = numberOfCharacters * sizeof(FriBidiLevel);
-    FriBidiLevel*  embeddedLevels     = reinterpret_cast<FriBidiLevel*>(malloc(embeddedLevelsSize));
+    const size_t  embeddedLevelsSize = static_cast<std::size_t>(numberOfCharacters) * sizeof(FriBidiLevel);
+    FriBidiLevel* embeddedLevels     = reinterpret_cast<FriBidiLevel*>(malloc(embeddedLevelsSize));
     if(embeddedLevels)
     {
       memcpy(embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex, embeddedLevelsSize);
