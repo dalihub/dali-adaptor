@@ -268,6 +268,20 @@ struct DALI_ADAPTOR_API Bridge
   virtual void EmitSocketAvailable(Accessible* obj) = 0;
 
   /**
+   * @brief Emits ScrollStarted event on at-spi bus.
+   *
+   * @param obj Accessible Object
+   */
+  virtual void EmitScrollStarted(Accessible *obj) = 0;
+
+    /**
+   * @brief Emits ScrollFinished event on at-spi bus.
+   *
+   * @param obj Accessible Object
+   */
+  virtual void EmitScrollFinished(Accessible *obj) = 0;
+
+  /**
    * @brief Emits state-changed event on at-spi bus.
    *
    * @param[in] obj The accessible object

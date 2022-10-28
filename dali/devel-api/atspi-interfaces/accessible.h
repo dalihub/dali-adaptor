@@ -139,6 +139,18 @@ public:
   void EmitSocketAvailable();
 
   /**
+   * @brief Emits "ScrollStarted" event.
+   *
+   */
+  void EmitScrollStarted();
+
+  /**
+   * @brief Emits "ScrollFinished" event.
+   *
+   */
+  void EmitScrollFinished();
+
+  /**
    * @brief Emits "highlighted" event.
    *
    * @param[in] event The enumerated window event

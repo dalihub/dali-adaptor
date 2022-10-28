@@ -90,6 +90,16 @@ protected:
    */
   void EmitSocketAvailable(Dali::Accessibility::Accessible* obj) override;
 
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitScrollStarted()
+   */
+  void EmitScrollStarted(Dali::Accessibility::Accessible* obj) override;
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::EmitScrollFinished()
+   */
+  void EmitScrollFinished(Dali::Accessibility::Accessible* obj) override;
+
 protected:
   DBus::DBusInterfaceDescription::SignalId mStateChanged;
 };

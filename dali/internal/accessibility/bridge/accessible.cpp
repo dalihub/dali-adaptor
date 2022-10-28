@@ -125,6 +125,22 @@ void Accessible::EmitSocketAvailable()
   }
 }
 
+void Accessible::EmitScrollStarted()
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitScrollStarted(this);
+  }
+}
+
+void Accessible::EmitScrollFinished()
+{
+  if(auto bridgeData = GetBridgeData())
+  {
+    bridgeData->mBridge->EmitScrollFinished(this);
+  }
+}
+
 void Accessible::Emit(WindowEvent event, unsigned int detail)
 {
   if(auto bridgeData = GetBridgeData())
