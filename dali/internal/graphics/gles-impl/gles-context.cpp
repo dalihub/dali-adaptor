@@ -17,6 +17,7 @@
 
 #include "gles-context.h"
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
@@ -257,6 +258,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     newProgram = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
   }
 
+  if(!currentProgram && !newProgram)
+  {
+    // Early out if we have no program for this pipeline.
+    DALI_LOG_ERROR("No program defined for pipeline\n");
+    return;
+  }
+
   if(mImpl->mNewPipeline && mImpl->mCurrentPipeline != mImpl->mNewPipeline)
   {
     if(!currentProgram || currentProgram->GetImplementation()->GetGlProgram() != newProgram->GetImplementation()->GetGlProgram())
@@ -287,7 +295,7 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     {
       // Attempt to reinitialize
       // @todo need to put this somewhere else where it isn't const.
-      // Maybe post it bac/k on end of initialize queue if initialization fails?
+      // Maybe post it back on end of initialize queue if initialization fails?
       texture->InitializeResource();
     }
 
@@ -359,7 +367,6 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         mImpl->FlushVertexAttributeLocations();
       }
 
-      //@todo Wait if textures need syncing
       gl.DrawArrays(GLESTopology(ia->topology),
                     drawCall.draw.firstVertex,
                     drawCall.draw.vertexCount);
