@@ -1043,7 +1043,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       int             fixedSizeIndex  = 0;
       for(; fixedSizeIndex < ftFace->num_fixed_sizes; ++fixedSizeIndex)
       {
-        const PointSize26Dot6 fixedSize = ftFace->available_sizes[fixedSizeIndex].size;
+        const PointSize26Dot6 fixedSize = static_cast<PointSize26Dot6>(ftFace->available_sizes[fixedSizeIndex].size);
         DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  size index : %d, size : %d\n", fixedSizeIndex, fixedSize);
 
         if(fixedSize >= requestedPointSize)
@@ -1057,7 +1057,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       {
         // The requested point size is bigger than the bigest fixed size.
         fixedSizeIndex  = ftFace->num_fixed_sizes - 1;
-        actualPointSize = ftFace->available_sizes[fixedSizeIndex].size;
+        actualPointSize = static_cast<PointSize26Dot6>(ftFace->available_sizes[fixedSizeIndex].size);
       }
 
       DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  size index : %d, actual size : %d\n", fixedSizeIndex, actualPointSize);
