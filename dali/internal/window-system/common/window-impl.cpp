@@ -100,7 +100,8 @@ Window::Window()
   mIconified(false),
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
-  mFocused(false)
+  mFocused(false),
+  mIsWindowRotating(false)
 {
 }
 
@@ -158,6 +159,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
+  mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
 
   AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
 
@@ -176,6 +178,18 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   {
     mOrientationMode = Internal::Adaptor::Window::OrientationMode::PORTRAIT;
   }
+
+  if(positionSize.width <= 0 || positionSize.height <= 0)
+  {
+    mWindowWidth  = screenWidth;
+    mWindowHeight = screenHeight;
+  }
+  else
+  {
+    mWindowWidth  = positionSize.width;
+    mWindowHeight = positionSize.height;
+  }
+
   // For Debugging
   mNativeWindowId = mWindowBase->GetNativeWindowId();
 }
@@ -657,25 +671,27 @@ int Window::GetBrightness() const
 
 void Window::SetSize(Dali::Window::WindowSize size)
 {
-  PositionSize oldRect = mSurface->GetPositionSize();
+  PositionSize oldRect = GetPositionSize();
 
-  mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
-
-  PositionSize newRect = mSurface->GetPositionSize();
+  PositionSize newRect;
+  newRect.width  = size.GetWidth();
+  newRect.height = size.GetHeight();
 
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
   if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
   {
+    mWindowSurface->MoveResize(PositionSize(oldRect.x, oldRect.y, newRect.width, newRect.height));
+
     Uint16Pair newSize(newRect.width, newRect.height);
 
     mWindowWidth  = newRect.width;
     mWindowHeight = newRect.height;
 
-    SurfaceResized();
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): (%d, %d), [%d x %d]\n", this, mNativeWindowId, mRotationAngle, oldRect.x, oldRect.y, newRect.width, newRect.height);
+
+    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
-
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetSize(): resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
 
     Dali::Window handle(this);
     mResizeSignal.Emit(handle, newSize);
@@ -690,9 +706,7 @@ void Window::SetSize(Dali::Window::WindowSize size)
 
 Dali::Window::WindowSize Window::GetSize() const
 {
-  PositionSize positionSize = mSurface->GetPositionSize();
-
-  return Dali::Window::WindowSize(positionSize.width, positionSize.height);
+  return Dali::Window::WindowSize(mWindowWidth, mWindowHeight);
 }
 
 void Window::SetPosition(Dali::Window::WindowPosition position)
@@ -719,44 +733,63 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
 Dali::Window::WindowPosition Window::GetPosition() const
 {
-  PositionSize positionSize = mSurface->GetPositionSize();
-
+  PositionSize positionSize = GetPositionSize();
   return Dali::Window::WindowPosition(positionSize.x, positionSize.y);
 }
 
 PositionSize Window::GetPositionSize() const
 {
-  return mSurface->GetPositionSize();
+  PositionSize positionSize = mSurface->GetPositionSize();
+  positionSize.width        = mWindowWidth;
+  positionSize.height       = mWindowHeight;
+  return positionSize;
 }
 
 void Window::SetPositionSize(PositionSize positionSize)
 {
-  PositionSize oldRect = mSurface->GetPositionSize();
+  bool moved  = false;
+  bool resize = false;
+
+  PositionSize oldRect = GetPositionSize();
   Dali::Window handle(this);
 
-  mWindowSurface->MoveResize(positionSize);
-
-  PositionSize newRect = mSurface->GetPositionSize();
-
-  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
+  if((oldRect.x != positionSize.x) || (oldRect.y != positionSize.y))
   {
-    Dali::Window::WindowPosition position(newRect.x, newRect.y);
+    moved = true;
+  }
+
+  if((oldRect.width != positionSize.width) || (oldRect.height != positionSize.height))
+  {
+    resize = true;
+  }
+
+  if(moved || resize)
+  {
+    mWindowSurface->MoveResize(positionSize);
+  }
+
+  // When window is moved, emit Moved Signal
+  if(moved)
+  {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Moved signal emit (%d, %d)\n", this, mNativeWindowId, positionSize.x, positionSize.y);
+    Dali::Window::WindowPosition position(positionSize.x, positionSize.y);
     mMovedSignal.Emit(handle, position);
   }
 
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
+  if(resize)
   {
-    Uint16Pair newSize(newRect.width, newRect.height);
+    Uint16Pair newSize(positionSize.width, positionSize.height);
 
-    mWindowWidth  = newRect.width;
-    mWindowHeight = newRect.height;
+    mWindowWidth  = positionSize.width;
+    mWindowHeight = positionSize.height;
 
-    SurfaceResized();
+    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), SetPositionSize():resize signal [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resize signal emit [%d x %d]\n", this, mNativeWindowId, positionSize.width, positionSize.height);
+
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
@@ -857,10 +890,9 @@ void Window::OnFocusChanged(bool focusIn)
 
 void Window::OnOutputTransformed()
 {
-  PositionSize positionSize = mSurface->GetPositionSize();
+  PositionSize positionSize = GetPositionSize();
 
-  int orientation = (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
-  SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), orientation);
+  SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), mRotationAngle, mWindowBase->GetScreenRotationAngle());
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
@@ -890,13 +922,12 @@ void Window::OnWindowRedrawRequest()
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 {
-  bool         resized = false;
-  bool         moved   = false;
+  bool moved  = false;
+  bool resize = false;
+
   Dali::Window handle(this);
-  PositionSize oldRect = mSurface->GetPositionSize();
 
-  mWindowSurface->UpdatePositionSize(positionSize);
-
+  PositionSize oldRect = GetPositionSize();
   PositionSize newRect = positionSize;
 
   if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
@@ -906,28 +937,35 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
   if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
   {
-    resized = true;
+    resize = true;
   }
 
-  if(moved)
+  if(moved || resize)
   {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), current angle (%d), position or size is updated by server , (%d, %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newRect.x, newRect.y, newRect.width, newRect.height);
+    mWindowSurface->UpdatePositionSize(positionSize);
+  }
+
+  if((oldRect.x != newRect.x) || (oldRect.y != newRect.y))
+  {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Moved signal emit (%d, %d)\n", this, mNativeWindowId, newRect.x, newRect.y);
     Dali::Window::WindowPosition position(newRect.x, newRect.y);
     mMovedSignal.Emit(handle, position);
   }
 
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
-  if(resized)
+  if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
   {
     Uint16Pair newSize(newRect.width, newRect.height);
 
     mWindowWidth  = newRect.width;
     mWindowHeight = newRect.height;
 
-    SurfaceResized();
+    SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
 
     mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
 
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Updated PositionSize by server :resize signal [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
     mResizeSignal.Emit(handle, newSize);
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
@@ -962,22 +1000,28 @@ void Window::OnRotation(const RotationEvent& rotation)
   mWindowWidth   = rotation.width;
   mWindowHeight  = rotation.height;
 
+  mIsWindowRotating = true;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), angle(%d), Window Rotation (%d , %d) [%d x %d]\n", this, mNativeWindowId, mRotationAngle, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
+
   // Notify that the orientation is changed
   mOrientation->OnOrientationChange(rotation);
 
   mWindowSurface->RequestRotation(mRotationAngle, newPositionSize);
 
-  int orientation = (mRotationAngle + mWindowBase->GetScreenRotationAngle()) % 360;
-  SurfaceRotated(mWindowWidth, mWindowHeight, orientation);
+  SurfaceRotated(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight), mRotationAngle, mWindowBase->GetScreenRotationAngle());
 
   mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), OnRotation(): x[%d], y[%d], resize signal emit [%d x %d]\n", this, mNativeWindowId, newPositionSize.x, newPositionSize.y, mWindowWidth, mWindowHeight);
-  // Emit signal
   Dali::Window handle(this);
   mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
 
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
+}
+
+void Window::OnRotationFinished()
+{
+  mIsWindowRotating = false;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window rotation is finised\n", this, mNativeWindowId);
 }
 
 void Window::OnPause()
@@ -1259,7 +1303,7 @@ void Window::SendRotationCompletedAcknowledgement()
 
 bool Window::IsWindowRotating() const
 {
-  return mWindowSurface->IsWindowRotating();
+  return mIsWindowRotating;
 }
 
 const Dali::KeyEvent& Window::GetLastKeyEvent() const

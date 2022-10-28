@@ -386,7 +386,7 @@ int WindowBaseAndroid::CreateFramePresentedSyncFence()
   return -1;
 }
 
-int WindowBaseAndroid::GetOrientation() const
+int WindowBaseAndroid::GetWindowRotationAngle() const
 {
   return 0;
 }

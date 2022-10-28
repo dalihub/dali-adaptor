@@ -680,7 +680,6 @@ WindowOrientation GlWindow::ConvertToOrientation(int angle) const
 
 WindowOrientation GlWindow::GetCurrentOrientation() const
 {
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), GetCurrentOrientation(): %d\n", this, mNativeWindowId, mTotalRotationAngle);
   return ConvertToOrientation(mTotalRotationAngle);
 }
 

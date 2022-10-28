@@ -81,7 +81,6 @@ public:
     mDisplayConnection(nullptr),
     mScene(),
     mFullSwapNextFrame(true),
-    mIsResizing(false),
     mDepthBufferRequired(Integration::DepthBufferAvailable::FALSE),
     mStencilBufferRequired(Integration::StencilBufferAvailable::FALSE)
   {
@@ -112,7 +111,13 @@ public:
    * @brief Return the orientation of the surface.
    * @return The orientation
    */
-  virtual int GetOrientation() const = 0;
+  virtual int GetSurfaceOrientation() const = 0;
+
+  /**
+   * @brief Return the orientation of the screen.
+   * @return The screen orientation
+   */
+  virtual int GetScreenOrientation() const = 0;
 
   /**
    * @brief InitializeGraphics the platform specific graphics surface interfaces
@@ -233,14 +238,6 @@ public:
     mFullSwapNextFrame = true;
   }
 
-  /**
-   * @brief Sets whether this surface is being resized.
-   */
-  void SetIsResizing(bool isResizing)
-  {
-    mIsResizing = isResizing;
-  }
-
 private:
   /**
    * @brief Undefined copy constructor. RenderSurface cannot be copied
@@ -258,7 +255,6 @@ protected:
   Dali::DisplayConnection*                          mDisplayConnection;
   WeakHandle<Dali::Integration::Scene>              mScene;
   bool                                              mFullSwapNextFrame; ///< Whether the full surface swap is required
-  bool                                              mIsResizing;        ///< Whether the surface is being resized
 
 private:
   Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required

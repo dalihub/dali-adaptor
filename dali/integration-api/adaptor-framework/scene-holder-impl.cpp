@@ -153,7 +153,9 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
   mScene.SurfaceReplaced();
 
-  SurfaceResized();
+  PositionSize surfacePositionSize = surface->GetPositionSize();
+
+  SurfaceResized(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height));
 
   InitializeDpi();
 
@@ -166,10 +168,9 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
   OnSurfaceSet(surface);
 }
 
-void SceneHolder::SurfaceResized()
+void SceneHolder::SurfaceResized(float width, float height)
 {
-  PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  mScene.SurfaceResized(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height));
+  mScene.SurfaceResized(width, height);
 
   mSurface->SetFullSwapNextFrame();
 
@@ -211,8 +212,10 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create the scene
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  int          orientation         = mSurface->GetOrientation();
-  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), orientation);
+  int          windowOrientation         = mSurface->GetSurfaceOrientation();
+  int          screenOrientation         = mSurface->GetScreenOrientation();
+
+  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
@@ -256,9 +259,9 @@ void SceneHolder::Resume()
   OnResume();
 }
 
-void SceneHolder::SurfaceRotated(float width, float height, int orientation)
+void SceneHolder::SurfaceRotated(float width, float height, int32_t windowOrientation, int32_t screenOrientation)
 {
-  mScene.SurfaceRotated(width, height, orientation);
+  mScene.SurfaceRotated(width, height, windowOrientation, screenOrientation);
 }
 
 void SceneHolder::SetRotationCompletedAcknowledgement()

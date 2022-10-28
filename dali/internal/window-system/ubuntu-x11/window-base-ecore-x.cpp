@@ -867,7 +867,7 @@ void WindowBaseEcoreX::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVert
   dpiVertical   = ecore_x_dpi_get();
 }
 
-int WindowBaseEcoreX::GetOrientation() const
+int WindowBaseEcoreX::GetWindowRotationAngle() const
 {
   return 0;
 }

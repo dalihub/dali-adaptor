@@ -48,8 +48,10 @@ class AdaptorInternalServices;
 class WindowRenderSurface : public Dali::RenderSurfaceInterface, public ConnectionTracker
 {
 public:
-  using OutputSignalType      = Signal<void()>;
-  using DamagedRectsContainer = std::vector<Rect<int>>;
+
+  using RotationFinishedSignalType = Signal<void()>        ; ///<The signal of window rotation's finished.
+  using OutputSignalType           = Signal<void()>;
+  using DamagedRectsContainer      = std::vector<Rect<int>>;
 
   /**
     * Uses an window surface to render to.
@@ -138,16 +140,14 @@ public: // API
   void UpdatePositionSize(Dali::PositionSize positionSize);
 
   /**
-   * @brief Query whether window is rotating or not.
-   *
-   * @return true if window is rotating, false otherwise.
-   */
-  bool IsWindowRotating() const;
-
-  /**
    * @brief This signal is emitted when the output is transformed.
    */
   OutputSignalType& OutputTransformedSignal();
+
+  /**
+   * @brief This signal is emitted when a rotation job is finished.
+   */
+  RotationFinishedSignalType& RotationFinishedSignal();
 
 public: // from Dali::RenderSurfaceInterface
   /**
@@ -160,9 +160,14 @@ public: // from Dali::RenderSurfaceInterface
   void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetOrientation()
+   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceOrientation()
    */
-  int GetOrientation() const override;
+  int GetSurfaceOrientation() const override;
+
+  /**
+   * @copydoc Dali::RenderSurfaceInterface::GetScreenOrientation()
+   */
+  int GetScreenOrientation() const override;
 
   /**
    * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
@@ -330,7 +335,8 @@ private: // Data
   EGLSurface                             mEGLSurface;
   EGLContext                             mEGLContext;
   ColorDepth                             mColorDepth; ///< Color depth of surface (32 bit or 24 bit)
-  OutputSignalType                       mOutputTransformedSignal;
+  OutputSignalType                       mOutputTransformedSignal;       ///< The signal of screen rotation occurs
+  RotationFinishedSignalType             mWindowRotationFinishedSignal;  ///< The signal of window rotation's finished
   FrameCallbackInfoContainer             mFrameCallbackInfoContainer;
   DamagedRectsContainer                  mBufferDamagedRects;
   Dali::Mutex                            mMutex;
@@ -340,12 +346,9 @@ private: // Data
   uint32_t                               mDpiVertical;
   std::vector<Rect<int>>                 mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass. These rects are rotated by scene orientation.
   bool                                   mOwnSurface;     ///< Whether we own the surface (responsible for deleting it)
-  bool                                   mWindowRotationFinished;
-  bool                                   mScreenRotationFinished;
-  bool                                   mResizeFinished;
-  bool                                   mDefaultScreenRotationAvailable;
   bool                                   mIsImeWindowSurface;
   bool                                   mNeedWindowRotationAcknowledgement;
+  bool                                   mIsWindowOrientationChanging;
 
 }; // class WindowRenderSurface
 

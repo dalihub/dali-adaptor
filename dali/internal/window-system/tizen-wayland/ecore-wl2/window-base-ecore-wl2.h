@@ -459,9 +459,9 @@ public:
   void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::GetOrientation()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetWindowRotationAngle()
    */
-  int GetOrientation() const override;
+  int GetWindowRotationAngle() const override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()

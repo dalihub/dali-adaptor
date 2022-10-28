@@ -812,7 +812,7 @@ void WindowBaseX::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical)
   WindowSystem::GetImplementation().GetDPI(dpiHorizontal, dpiVertical);
 }
 
-int WindowBaseX::GetOrientation() const
+int WindowBaseX::GetWindowRotationAngle() const
 {
   return 0;
 }
