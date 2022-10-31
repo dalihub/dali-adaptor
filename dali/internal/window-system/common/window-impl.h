@@ -68,6 +68,7 @@ public:
   typedef Dali::DevelWindow::AuxiliaryMessageSignalType              AuxiliaryMessageSignalType;
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
   typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
+  typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -744,6 +745,14 @@ public: // Signals
     return mMovedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::OrientationChangedSignal()
+   */
+  OrientationChangedSignalType& OrientationChangedSignal()
+  {
+    return mOrientationChangedSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -773,6 +782,7 @@ private:
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
   MovedSignalType                         mMovedSignal;
+  OrientationChangedSignalType            mOrientationChangedSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;

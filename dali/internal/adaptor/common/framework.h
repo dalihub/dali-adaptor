@@ -161,6 +161,13 @@ public:
     }
 
     /**
+     * Invoked when the device orientation is changed.
+     */
+    virtual void OnDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
+    {
+    }
+
+    /**
      * Invoked when the platform surface is created.
      */
     virtual void OnSurfaceCreated(Any newSurface)
@@ -239,6 +246,17 @@ public:
      * Invoked when the memory level of the device is low.
      */
     virtual void OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status)
+    {
+    }
+
+    /**
+     * Invoked when the device orientation is changed.
+     *
+     * Device orientation changed event is from Application Framework(Sensor Framework), it means it is system event.
+     * If UIThreading is enable, DALI application has the main thread and UI thread.
+     * This event is emitted in main thread, then it is posted to the UI thread in this callback function.
+     */
+    virtual void OnTaskDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
     {
     }
   };

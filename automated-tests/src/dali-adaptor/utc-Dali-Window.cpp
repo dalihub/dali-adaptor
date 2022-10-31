@@ -202,7 +202,7 @@ int UtcDaliWindowMaximizeN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window instance;
     DevelWindow::Maximize(instance, true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
@@ -218,7 +218,7 @@ int UtcDaliWindowIsMaximizedN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window instance;
     DevelWindow::IsMaximized(instance);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
@@ -234,7 +234,7 @@ int UtcDaliWindowSetMaximumSizeN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
     DevelWindow::SetMaximumSize(instance, size);
     DALI_TEST_CHECK(false); // Should not reach here!
@@ -251,7 +251,7 @@ int UtcDaliWindowMinimizeN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window instance;
     DevelWindow::Minimize(instance, true);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
@@ -267,7 +267,7 @@ int UtcDaliWindowIsMinimizedN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window instance;
     DevelWindow::IsMinimized(instance);
     DALI_TEST_CHECK(false); // Should not reach here!
   }
@@ -283,7 +283,7 @@ int UtcDaliWindowSetMimimumSizeN(void)
 {
   try
   {
-    Dali::Window    instance;
+    Dali::Window             instance;
     Dali::Window::WindowSize size(100, 100);
     DevelWindow::SetMimimumSize(instance, size);
     DALI_TEST_CHECK(false); // Should not reach here!
@@ -1470,7 +1470,7 @@ int UtcDaliWindowAddInputRegion(void)
   Dali::Window instance;
   try
   {
-    Rect<int> includedInputRegion(0,0,720,640);
+    Rect<int> includedInputRegion(0, 0, 720, 640);
     DevelWindow::IncludeInputRegion(instance, includedInputRegion);
     DALI_TEST_CHECK(false); // Should not get here
   }
@@ -1486,10 +1486,10 @@ int UtcDaliWindowSubtractInputRegion(void)
   Dali::Window instance;
   try
   {
-    Rect<int> includedInputRegion(0,0,720,1280);
+    Rect<int> includedInputRegion(0, 0, 720, 1280);
     DevelWindow::IncludeInputRegion(instance, includedInputRegion);
 
-    Rect<int> excludedInputRegion(0,641,720,640);
+    Rect<int> excludedInputRegion(0, 641, 720, 640);
     DevelWindow::ExcludeInputRegion(instance, excludedInputRegion);
 
     DALI_TEST_CHECK(false); // Should not get here
@@ -1500,7 +1500,6 @@ int UtcDaliWindowSubtractInputRegion(void)
   }
   END_TEST;
 }
-
 
 int UtcDaliWindowSetNeedsRotationCompletedAcknowledgementNegative(void)
 {
@@ -1539,6 +1538,36 @@ int UtcDaliWindowSendRotationCompletedAcknowledgementNegative(void)
     Dali::Window arg1;
     DevelWindow::SendRotationCompletedAcknowledgement(arg1);
 
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowMovedSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    DevelWindow::MovedSignal(instance);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
+int UtcDaliWindowOrientationChangedSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    DevelWindow::OrientationChangedSignal(instance);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)
