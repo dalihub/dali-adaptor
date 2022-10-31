@@ -76,6 +76,10 @@ void LowMemorySignalCallback(Dali::DeviceStatus::Memory::Status status)
 {
 }
 
+void OnDeviceOrientationChangedSignalCallback(DeviceStatus::Orientation::Status status)
+{
+}
+
 int UtcDaliApplicationNew01(void)
 {
   Application application = Application::New();
@@ -526,6 +530,32 @@ int UtcDaliApplicationLowMemorySignalN(void)
   try
   {
     application.LowMemorySignal().Connect(&LowMemorySignalCallback);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationOrientationChangedSignalP(void)
+{
+  Application application = Application::New();
+  application.DeviceOrientationChangedSignal().Connect(&OnDeviceOrientationChangedSignalCallback);
+  DALI_TEST_CHECK(application);
+
+  END_TEST;
+}
+
+int UtcDaliApplicationOrientationChangedSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.DeviceOrientationChangedSignal().Connect(&OnDeviceOrientationChangedSignalCallback);
     DALI_TEST_CHECK(false); // Should not get here
   }
   catch(...)

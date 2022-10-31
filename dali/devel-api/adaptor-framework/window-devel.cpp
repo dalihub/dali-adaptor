@@ -116,6 +116,11 @@ MovedSignalType& MovedSignal(Window window)
   return GetImplementation(window).MovedSignal();
 }
 
+OrientationChangedSignalType& OrientationChangedSignal(Window window)
+{
+  return GetImplementation(window).OrientationChangedSignal();
+}
+
 void SetParent(Window window, Window parent)
 {
   GetImplementation(window).SetParent(parent);
