@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2020 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ static const char* gGif_100_None = TEST_RESOURCE_DIR "/canvas-none.gif";
 
 // this image if not exist, for negative test
 static const char* gGifNonExist = "non-exist.gif";
-
-// this image exists but it is not a gif file.
-static const char* gGifInvalid = TEST_RESOURCE_DIR "/invalid.gif";
 
 } // namespace
 
@@ -65,17 +62,6 @@ int UtcDaliAnimatedImageLoadingGetImageSizeN(void)
   // Check that it returns zero size when the animated image is not valid
   DALI_TEST_EQUALS(imageSize.GetWidth(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageSize.GetHeight(), 0u, TEST_LOCATION);
-
-  END_TEST;
-}
-
-int UtcDaliAnimatedImageLoadingInvalidGif(void)
-{
-  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGifInvalid, true);
-  Dali::Devel::PixelBuffer   pixelBuffer          = animatedImageLoading.LoadFrame(0);
-
-  // The pixel buffer should be empty.
-  DALI_TEST_CHECK(!pixelBuffer);
 
   END_TEST;
 }
