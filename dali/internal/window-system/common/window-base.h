@@ -64,6 +64,7 @@ public:
 
   // Window
   typedef Signal<void(bool)>                                IconifySignalType;
+  typedef Signal<void(bool)>                                MaximizeSignalType;
   typedef Signal<void(bool)>                                FocusSignalType;
   typedef Signal<void()>                                    OutputSignalType;
   typedef Signal<void()>                                    DeleteSignalType;
@@ -463,6 +464,11 @@ public:
   IconifySignalType& IconifyChangedSignal();
 
   /**
+   * @brief This signal is emitted when the window becomes maximized or unmaximized.
+   */
+  MaximizeSignalType& MaximizeChangedSignal();
+
+  /**
    * @brief This signal is emitted when the window focus is changed.
    */
   FocusSignalType& FocusChangedSignal();
@@ -551,6 +557,7 @@ protected:
 
 protected:
   IconifySignalType                       mIconifyChangedSignal;
+  MaximizeSignalType                      mMaximizeChangedSignal;
   FocusSignalType                         mFocusChangedSignal;
   OutputSignalType                        mOutputTransformedSignal;
   DeleteSignalType                        mDeleteRequestSignal;

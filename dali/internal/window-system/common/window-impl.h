@@ -517,6 +517,11 @@ private:
   void OnIconifyChanged(bool iconified);
 
   /**
+   * Called when the window becomes maximized or unmaximized.
+   */
+  void OnMaximizeChanged(bool maximized);
+
+  /**
    * Called when the window focus is changed.
    */
   void OnFocusChanged(bool focusIn);
@@ -790,6 +795,7 @@ private:
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;
   bool mIconified : 1;
+  bool mMaximized : 1;
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;

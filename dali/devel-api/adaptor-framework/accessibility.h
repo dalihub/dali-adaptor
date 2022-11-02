@@ -344,6 +344,16 @@ enum class WindowEvent
 };
 
 /**
+ * @brief Restored window state
+ * @see Accessibility::Accessible::Emit
+ */
+enum class WindowRestoreType
+{
+  RESTORE_FROM_ICONIFY,  // The Window is Deiconified.
+  RESTORE_FROM_MAXIMIZE  // The Window is Unmaximized.
+};
+
+/**
  * @brief Enumeration used to acquire bounded text from accessible object having textual content.
  * @see Accessibility::Text::GetTextAtOffset
  * @note Currently only TextBoundary::Character is supported
