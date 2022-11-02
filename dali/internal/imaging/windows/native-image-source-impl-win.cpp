@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,17 +58,14 @@ NativeImageSourceWin::NativeImageSourceWin(unsigned int width, unsigned int heig
   mBlendingRequired(false),
   mColorDepth(depth),
   mEglImageKHR(NULL),
+  mEglGraphics(NULL),
   mEglImageExtensions(NULL),
   mResourceDestructionCallback()
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
-  GraphicsInterface* graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
-
-  mEglImageExtensions = eglGraphics->GetImageExtensions();
-
-  DALI_ASSERT_DEBUG(mEglImageExtensions);
+  GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  mEglGraphics                = static_cast<EglGraphics*>(graphics);
 
   // assign the pixmap
   mPixmap = GetPixmapFromAny(nativeImageSource);
@@ -138,6 +135,9 @@ bool NativeImageSourceWin::IsColorDepthSupported(Dali::NativeImageSource::ColorD
 
 bool NativeImageSourceWin::CreateResource()
 {
+  mEglImageExtensions = mEglGraphics->GetImageExtensions();
+  DALI_ASSERT_DEBUG(mEglImageExtensions);
+
   // if the image existed previously delete it.
   if(mEglImageKHR != NULL)
   {

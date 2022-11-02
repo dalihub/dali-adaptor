@@ -31,6 +31,7 @@
 // EXTERNAL_HEADERS
 #include <Ecore_Input.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/events/mouse-button.h>
 #include <dali/public-api/object/any.h>
@@ -53,6 +54,8 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW_BASE");
 #endif
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
 const uint32_t     MAX_TIZEN_CLIENT_VERSION = 7;
 const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
@@ -1045,7 +1048,6 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
       ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
       Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
-      DALI_LOG_RELEASE_INFO("emit signal to update window's position and size, x[%d] y[%d] w[%d] h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
       mUpdatePositionSizeSignal.Emit(newPositionSize);
     }
 
@@ -1201,7 +1203,14 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-    DALI_LOG_RELEASE_INFO("OnKeyDown Start [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    std::ostringstream stream;
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      stream << "DALI_ON_KEY_DOWN [" << keyName << "]\n";
+      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
+    }
+#endif
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1250,7 +1259,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    DALI_LOG_RELEASE_INFO("OnKeyDown End [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
+    }
+#endif
   }
 }
 
@@ -1274,7 +1288,14 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-    DALI_LOG_RELEASE_INFO("OnKeyUp Start [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    std::ostringstream stream;
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      stream << "DALI_ON_KEY_UP [" << keyName << "]" << std::endl;
+      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
+    }
+#endif
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1323,7 +1344,12 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-    DALI_LOG_RELEASE_INFO("OnKeyUp End [%s]\n", keyName.c_str());
+#ifdef TRACE_ENABLED
+    if(gTraceFilter->IsTraceEnabled())
+    {
+      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
+    }
+#endif
   }
 }
 
@@ -1594,6 +1620,7 @@ void WindowBaseEcoreWl2::SetEglWindowBufferTransform(int angle)
     }
   }
 
+  DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_buffer_transform() with buffer Transform [%d]\n", bufferTransform);
   wl_egl_window_tizen_set_buffer_transform(mEglWindow, bufferTransform);
 }
 
@@ -1630,11 +1657,13 @@ void WindowBaseEcoreWl2::SetEglWindowTransform(int angle)
     }
   }
 
+  DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_window_transform() with window Transform [%d]\n", windowTransform);
   wl_egl_window_tizen_set_window_transform(mEglWindow, windowTransform);
 }
 
 void WindowBaseEcoreWl2::ResizeEglWindow(PositionSize positionSize)
 {
+  DALI_LOG_RELEASE_INFO("wl_egl_window_resize(), (%d, %d) [%d x %d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height);
   wl_egl_window_resize(mEglWindow, positionSize.width, positionSize.height, positionSize.x, positionSize.y);
 
   // Note: Both "Resize" and "MoveResize" cases can reach here, but only "MoveResize" needs to submit serial number
@@ -1691,9 +1720,6 @@ PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToSystem(PositionSize po
     newPositionSize.height = positionSize.height;
   }
 
-  DALI_LOG_RELEASE_INFO("input coord x[%d], y[%d], w{%d], h[%d], screen w[%d], h[%d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height, mScreenWidth, mScreenHeight);
-  DALI_LOG_RELEASE_INFO("recalc coord x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
-
   return newPositionSize;
 }
 
@@ -1729,9 +1755,6 @@ PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToCurrentOrientation(Pos
     newPositionSize.width  = positionSize.width;
     newPositionSize.height = positionSize.height;
   }
-
-  DALI_LOG_RELEASE_INFO("input coord x[%d], y[%d], w{%d], h[%d], screen w[%d], h[%d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height, mScreenWidth, mScreenHeight);
-  DALI_LOG_RELEASE_INFO("recalc by current orientation coord x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 
   return newPositionSize;
 }
@@ -2541,9 +2564,9 @@ void WindowBaseEcoreWl2::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVe
   dpiVertical   = int(yres + 0.5f);
 }
 
-int WindowBaseEcoreWl2::GetOrientation() const
+int WindowBaseEcoreWl2::GetWindowRotationAngle() const
 {
-  int orientation = (mScreenRotationAngle + mWindowRotationAngle) % 360;
+  int orientation = mWindowRotationAngle;
   if(mSupportedPreProtation)
   {
     orientation = 0;
@@ -2553,8 +2576,12 @@ int WindowBaseEcoreWl2::GetOrientation() const
 
 int WindowBaseEcoreWl2::GetScreenRotationAngle()
 {
-  int transform = 0;
-
+  if(mSupportedPreProtation)
+  {
+    DALI_LOG_RELEASE_INFO("Support PreRotation and return 0\n");
+    return 0;
+  }
+  int transform;
   if(ecore_wl2_window_ignore_output_transform_get(mEcoreWindow))
   {
     transform = 0;

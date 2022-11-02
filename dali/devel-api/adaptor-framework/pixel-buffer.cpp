@@ -28,8 +28,8 @@ namespace Dali
 {
 namespace Devel
 {
-PixelBuffer PixelBuffer::New(unsigned int        width,
-                             unsigned int        height,
+PixelBuffer PixelBuffer::New(uint32_t            width,
+                             uint32_t            height,
                              Dali::Pixel::Format pixelFormat)
 {
   Internal::Adaptor::PixelBufferPtr internal =
@@ -63,28 +63,25 @@ PixelBuffer::PixelBuffer(Internal::Adaptor::PixelBuffer* internal)
 {
 }
 
-PixelBuffer::PixelBuffer(const PixelBuffer& handle)
-: BaseHandle(handle)
-{
-}
+PixelBuffer::PixelBuffer(const PixelBuffer& handle) = default;
 
-PixelBuffer& PixelBuffer::operator=(const PixelBuffer& rhs)
-{
-  BaseHandle::operator=(rhs);
-  return *this;
-}
+PixelBuffer& PixelBuffer::operator=(const PixelBuffer& rhs) = default;
 
-unsigned int PixelBuffer::GetWidth() const
+PixelBuffer::PixelBuffer(PixelBuffer&& handle) = default;
+
+PixelBuffer& PixelBuffer::operator=(PixelBuffer&& rhs) = default;
+
+uint32_t PixelBuffer::GetWidth() const
 {
   return GetImplementation(*this).GetWidth();
 }
 
-unsigned int PixelBuffer::GetHeight() const
+uint32_t PixelBuffer::GetHeight() const
 {
   return GetImplementation(*this).GetHeight();
 }
 
-unsigned int PixelBuffer::GetStride() const
+uint32_t PixelBuffer::GetStride() const
 {
   return GetImplementation(*this).GetStride();
 }
@@ -94,12 +91,12 @@ Pixel::Format PixelBuffer::GetPixelFormat() const
   return GetImplementation(*this).GetPixelFormat();
 }
 
-unsigned char* PixelBuffer::GetBuffer()
+uint8_t* PixelBuffer::GetBuffer()
 {
   return GetImplementation(*this).GetBuffer();
 }
 
-const unsigned char* const PixelBuffer::GetBuffer() const
+const uint8_t* PixelBuffer::GetBuffer() const
 {
   return GetImplementation(*this).GetConstBuffer();
 }

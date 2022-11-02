@@ -2071,9 +2071,9 @@ void WindowBaseEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVer
   dpiVertical   = int(yres + 0.5f);
 }
 
-int WindowBaseEcoreWl::GetOrientation() const
+int WindowBaseEcoreWl::GetWindowRotationAngle() const
 {
-  int orientation = (mScreenRotationAngle + mWindowRotationAngle) % 360;
+  int orientation = mWindowRotationAngle;
   if(mSupportedPreProtation)
   {
     orientation = 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,19 +64,13 @@ VideoPlayer VideoPlayer::New(Dali::Actor actor, VideoSyncMode syncMode)
   return VideoPlayer(player.Get());
 }
 
-VideoPlayer::VideoPlayer(const VideoPlayer& player)
-: BaseHandle(player)
-{
-}
+VideoPlayer::VideoPlayer(const VideoPlayer& player) = default;
 
-VideoPlayer& VideoPlayer::operator=(const VideoPlayer& player)
-{
-  if(*this != player)
-  {
-    BaseHandle::operator=(player);
-  }
-  return *this;
-}
+VideoPlayer& VideoPlayer::operator=(const VideoPlayer& player) = default;
+
+VideoPlayer::VideoPlayer(VideoPlayer&& player) = default;
+
+VideoPlayer& VideoPlayer::operator=(VideoPlayer&& player) = default;
 
 VideoPlayer VideoPlayer::DownCast(BaseHandle handle)
 {

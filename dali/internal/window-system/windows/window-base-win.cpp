@@ -494,7 +494,7 @@ void WindowBaseWin::SetTransparency(bool transparent)
 {
 }
 
-int WindowBaseWin::GetOrientation() const
+int WindowBaseWin::GetWindowRotationAngle() const
 {
   return 0;
 }

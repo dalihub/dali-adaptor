@@ -58,7 +58,7 @@ FontClient::GlyphBufferData::GlyphBufferData()
   outlineOffsetX{0},
   outlineOffsetY{0},
   format{Pixel::A8},
-  compressionType(CompressionType::NO_COMPRESSION),
+  compressionType{CompressionType::NO_COMPRESSION},
   isColorEmoji{false},
   isColorBitmap{false},
   isBufferOwned{false}
@@ -73,6 +73,43 @@ FontClient::GlyphBufferData::~GlyphBufferData()
   }
 }
 
+FontClient::GlyphBufferData::GlyphBufferData(FontClient::GlyphBufferData&& rhs) noexcept
+: buffer{rhs.buffer},
+  width{rhs.width},
+  height{rhs.height},
+  outlineOffsetX{rhs.outlineOffsetX},
+  outlineOffsetY{rhs.outlineOffsetY},
+  format{rhs.format},
+  compressionType{rhs.compressionType},
+  isColorEmoji{rhs.isColorEmoji},
+  isColorBitmap{rhs.isColorBitmap},
+  isBufferOwned{rhs.isBufferOwned}
+{
+  // Remove moved data
+  rhs.buffer        = nullptr;
+  rhs.isBufferOwned = false;
+}
+
+FontClient::GlyphBufferData& FontClient::GlyphBufferData::operator=(FontClient::GlyphBufferData&& rhs) noexcept
+{
+  buffer          = rhs.buffer;
+  width           = rhs.width;
+  height          = rhs.height;
+  outlineOffsetX  = rhs.outlineOffsetX;
+  outlineOffsetY  = rhs.outlineOffsetY;
+  format          = rhs.format;
+  compressionType = rhs.compressionType;
+  isColorEmoji    = rhs.isColorEmoji;
+  isColorBitmap   = rhs.isColorBitmap;
+  isBufferOwned   = rhs.isBufferOwned;
+
+  // Remove moved data
+  rhs.buffer        = nullptr;
+  rhs.isBufferOwned = false;
+
+  return *this;
+}
+
 size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, GlyphBufferData& __restrict__ outBufferData)
 {
   size_t bufferSize                       = 0u;
@@ -81,7 +118,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
   {
     case TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION:
     {
-      bufferSize = outBufferData.width * outBufferData.height * Pixel::GetBytesPerPixel(outBufferData.format);
+      bufferSize = static_cast<size_t>(outBufferData.width) * static_cast<size_t>(outBufferData.height) * static_cast<size_t>(Pixel::GetBytesPerPixel(outBufferData.format));
 
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
@@ -101,7 +138,7 @@ size_t FontClient::GlyphBufferData::Compress(const uint8_t* const __restrict__ i
       const bool     considerPadding = (widthByte & 1) ? true : false;
 
       // For BIT_PER_PIXEL_4 type, we can know final compressed buffer size immediatly.
-      bufferSize       = outBufferData.height * (componentCount + (considerPadding ? 1 : 0));
+      bufferSize       = static_cast<size_t>(outBufferData.height) * static_cast<size_t>(componentCount + (considerPadding ? 1 : 0));
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
       {
@@ -592,16 +629,13 @@ FontClient::~FontClient()
 {
 }
 
-FontClient::FontClient(const FontClient& handle)
-: BaseHandle(handle)
-{
-}
+FontClient::FontClient(const FontClient& handle) = default;
 
-FontClient& FontClient::operator=(const FontClient& handle)
-{
-  BaseHandle::operator=(handle);
-  return *this;
-}
+FontClient& FontClient::operator=(const FontClient& handle) = default;
+
+FontClient::FontClient(FontClient&& handle) = default;
+
+FontClient& FontClient::operator=(FontClient&& handle) = default;
 
 void FontClient::ClearCache()
 {

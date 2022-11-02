@@ -82,6 +82,31 @@ int UtcDaliEncodedImageBufferAssignmentOperator(void)
   END_TEST;
 }
 
+int UtcDaliEncodedImageBufferMoveConstructor(void)
+{
+  EncodedImageBuffer buffer      = EncodedImageBuffer::New(tinybuffer());
+  EncodedImageBuffer bufferMoved = std::move(buffer);
+
+  DALI_TEST_EQUALS((bool)buffer, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)bufferMoved, true, TEST_LOCATION);
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferMoveAssignmentOperator(void)
+{
+  EncodedImageBuffer buffer = EncodedImageBuffer::New(tinybuffer());
+
+  EncodedImageBuffer buffer2;
+  DALI_TEST_EQUALS((bool)buffer, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)buffer2, false, TEST_LOCATION);
+
+  buffer2 = std::move(buffer);
+  DALI_TEST_EQUALS((bool)buffer, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)buffer2, true, TEST_LOCATION);
+
+  END_TEST;
+}
+
 int UtcDaliEncodedImageBufferGetRawBuffer(void)
 {
   EncodedImageBuffer::RawBufferType originBuffer = tinybuffer();

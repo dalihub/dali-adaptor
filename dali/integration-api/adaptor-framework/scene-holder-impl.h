@@ -115,8 +115,10 @@ public:
 
   /**
    * @brief Called when the surface set is resized.
+   * @param[in] width the resized window's width
+   * @param[in] height the resized window's height
    */
-  void SurfaceResized();
+  void SurfaceResized(float width, float height);
 
   /**
    * @brief Get the render surface
@@ -165,9 +167,10 @@ public:
    *
    * @param[in] width The width of rotated surface
    * @param[in] height The height of rotated surface
-   * @param[in] orientation The orientation of rotated surface
+   * @param[in] windowOrientation the current window orientation
+   * @param[in] screenOrientation the current screen orientation
    */
-  void SurfaceRotated(float width, float height, int orientation);
+  void SurfaceRotated(float width, float height, int32_t windowOrientation, int32_t screenOrientation);
 
   /**
    * @brief Send message to acknowledge window rotation with current window orientation.

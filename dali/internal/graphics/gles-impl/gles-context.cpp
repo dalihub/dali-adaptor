@@ -17,9 +17,11 @@
 
 #include "gles-context.h"
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/public-api/math/math-utils.h>
 
 #include "egl-graphics-controller.h"
 #include "gles-graphics-buffer.h"
@@ -27,6 +29,7 @@
 #include "gles-graphics-program.h"
 #include "gles-graphics-render-pass.h"
 #include "gles-graphics-render-target.h"
+#include "gles-texture-dependency-checker.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -231,7 +234,7 @@ Context::~Context()
   }
 }
 
-void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
+void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::TextureDependencyChecker& dependencyChecker)
 {
   auto& gl = *mImpl->mController.GetGL();
 
@@ -253,6 +256,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
   if(mImpl->mNewPipeline)
   {
     newProgram = static_cast<const GLES::Program*>(mImpl->mNewPipeline->GetCreateInfo().programState->program);
+  }
+
+  if(!currentProgram && !newProgram)
+  {
+    // Early out if we have no program for this pipeline.
+    DALI_LOG_ERROR("No program defined for pipeline\n");
+    return;
   }
 
   if(mImpl->mNewPipeline && mImpl->mCurrentPipeline != mImpl->mNewPipeline)
@@ -288,6 +298,9 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall)
       // Maybe post it back on end of initialize queue if initialization fails?
       texture->InitializeResource();
     }
+
+    // Warning, this may cause glWaitSync to occur on the GPU.
+    dependencyChecker.CheckNeedsSync(this, texture);
 
     texture->Bind(binding);
 
@@ -628,7 +641,8 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   else if(targetInfo.framebuffer)
   {
     // bind framebuffer and swap.
-    renderTarget.GetFramebuffer()->Bind();
+    auto framebuffer = renderTarget.GetFramebuffer();
+    framebuffer->Bind();
   }
 
   // clear (ideally cache the setup)
@@ -640,6 +654,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   const auto& attachments = *renderPass.GetCreateInfo().attachments;
   const auto& color0      = attachments[0];
   GLuint      mask        = 0;
+
   if(color0.loadOp == AttachmentLoadOp::CLEAR)
   {
     mask |= GL_COLOR_BUFFER_BIT;
@@ -650,11 +665,11 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
     const auto clearValues = renderPassBegin.clearValues.Ptr();
 
-    if(!mImpl->mGlStateCache.mClearColorSet ||
-       mImpl->mGlStateCache.mClearColor.r != clearValues[0].color.r ||
-       mImpl->mGlStateCache.mClearColor.g != clearValues[0].color.g ||
-       mImpl->mGlStateCache.mClearColor.b != clearValues[0].color.b ||
-       mImpl->mGlStateCache.mClearColor.a != clearValues[0].color.a)
+    if(!Dali::Equals(mImpl->mGlStateCache.mClearColor.r, clearValues[0].color.r) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.g, clearValues[0].color.g) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.b, clearValues[0].color.b) ||
+       !Dali::Equals(mImpl->mGlStateCache.mClearColor.a, clearValues[0].color.a) ||
+       !mImpl->mGlStateCache.mClearColorSet)
     {
       gl.ClearColor(clearValues[0].color.r,
                     clearValues[0].color.g,
@@ -702,14 +717,28 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
   mImpl->mCurrentRenderTarget = &renderTarget;
 }
 
-void Context::EndRenderPass()
+void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
 {
   if(mImpl->mCurrentRenderTarget)
   {
-    if(mImpl->mCurrentRenderTarget->GetFramebuffer())
+    GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
+    if(framebuffer)
     {
       auto& gl = *mImpl->mController.GetGL();
       gl.Flush();
+
+      /* @todo Full dependency checking would need to store textures in Begin, and create
+       * fence objects here; but we're going to draw all fbos on shared context in serial,
+       * so no real need (yet). Might want to consider ensuring order of render passes,
+       * but that needs doing in the controller, and would need doing before ProcessCommandQueues.
+       *
+       * Currently up to the client to create render tasks in the right order.
+       */
+
+      /* Create fence sync objects. Other contexts can then wait on these fences before reading
+       * textures.
+       */
+      dependencyChecker.AddTextures(this, framebuffer);
     }
   }
 }
@@ -1002,13 +1031,20 @@ void Context::PrepareForNativeRendering()
   if(!mImpl->mNativeDrawContext)
   {
     EGLint configId{0u};
-    EGLint size{0u};
-    eglGetConfigs(display, nullptr, 0, &size);
-    std::vector<EGLConfig> configs;
-    configs.resize(size);
-    eglGetConfigs(display, configs.data(), configs.size(), &size);
+    eglQueryContext(display, mImpl->mController.GetSharedContext(), EGL_CONFIG_ID, &configId);
 
-    eglQueryContext(display, context, EGL_CONFIG_ID, &configId);
+    EGLint configAttribs[3];
+    configAttribs[0] = EGL_CONFIG_ID;
+    configAttribs[1] = configId;
+    configAttribs[2] = EGL_NONE;
+
+    EGLConfig config;
+    EGLint    numConfigs;
+    if(eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) != EGL_TRUE)
+    {
+      DALI_LOG_ERROR("eglChooseConfig failed!\n");
+      return;
+    }
 
     auto version = int(mImpl->mController.GetGLESVersion());
 
@@ -1019,7 +1055,12 @@ void Context::PrepareForNativeRendering()
     attribs.push_back(version % 10);
     attribs.push_back(EGL_NONE);
 
-    mImpl->mNativeDrawContext = eglCreateContext(display, configs[configId], mImpl->mController.GetSharedContext(), attribs.data());
+    mImpl->mNativeDrawContext = eglCreateContext(display, config, mImpl->mController.GetSharedContext(), attribs.data());
+    if(mImpl->mNativeDrawContext == EGL_NO_CONTEXT)
+    {
+      DALI_LOG_ERROR("eglCreateContext failed!\n");
+      return;
+    }
   }
 
   eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);

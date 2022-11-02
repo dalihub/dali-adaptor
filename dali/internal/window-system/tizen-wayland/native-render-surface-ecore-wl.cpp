@@ -139,7 +139,12 @@ void NativeRenderSurfaceEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned in
   dpiVertical   = int(yres + 0.5f);
 }
 
-int NativeRenderSurfaceEcoreWl::GetOrientation() const
+int NativeRenderSurfaceEcoreWl::GetSurfaceOrientation() const
+{
+  return 0;
+}
+
+int NativeRenderSurfaceEcoreWl::GetScreenOrientation() const
 {
   return 0;
 }

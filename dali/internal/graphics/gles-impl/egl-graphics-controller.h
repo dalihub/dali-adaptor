@@ -35,6 +35,8 @@
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-texture.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-types.h>
+#include <dali/internal/graphics/gles-impl/gles-sync-pool.h>
+#include <dali/internal/graphics/gles-impl/gles-texture-dependency-checker.h>
 #include <dali/internal/graphics/gles-impl/gles2-graphics-memory.h>
 
 namespace Dali
@@ -51,6 +53,8 @@ namespace GLES
 {
 class CommandBuffer;
 class PipelineCache;
+class SyncPool;
+class TextureDependencyChecker;
 } // namespace GLES
 
 /**
@@ -62,9 +66,9 @@ class EglGraphicsController : public Graphics::Controller
 {
 public:
   /**
-   * @brief Deault constructor
+   * @brief Constructor
    */
-  EglGraphicsController() = default;
+  EglGraphicsController();
 
   /**
    * @brief Destructor
@@ -722,6 +726,11 @@ public:
   void ResolvePresentRenderTarget(GLES::RenderTarget* renderTarget);
 
   /**
+   * Invoked after all rendering has finished. Used to clean up sync resources
+   */
+  void PostRender();
+
+  /**
    * Creates a GLES context for the given render surface
    *
    * @param[in] surface The surface whose GLES context to be created.
@@ -765,6 +774,11 @@ public:
   void* GetSharedContext() const
   {
     return mSharedContext;
+  }
+
+  GLES::SyncPool& GetSyncPool()
+  {
+    return mSyncPool;
   }
 
 private:
@@ -812,6 +826,9 @@ private:
   std::queue<const GLES::CommandBuffer*> mPresentationCommandBuffers{}; ///< Queue of reusable command buffers used by presentation engine
 
   void* mSharedContext{nullptr}; ///< Shared EGL context
+
+  GLES::TextureDependencyChecker mTextureDependencyChecker; // Checks if FBO textures need syncing
+  GLES::SyncPool                 mSyncPool;
 };
 
 } // namespace Graphics

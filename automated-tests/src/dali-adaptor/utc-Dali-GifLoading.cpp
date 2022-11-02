@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ static const char* gGif_100_None = TEST_RESOURCE_DIR "/canvas-none.gif";
 // this image if not exist, for negative test
 static const char* gGifNonExist = "non-exist.gif";
 
+// this image exists but it is not a gif file.
+static const char* gGifInvalid = TEST_RESOURCE_DIR "/invalid.gif";
+
 } // namespace
 
 void utc_dali_animated_image_loader_startup(void)
@@ -40,6 +43,36 @@ void utc_dali_animated_image_loader_startup(void)
 void utc_dali_animated_image_loader_cleanup(void)
 {
   test_return_value = TET_PASS;
+}
+
+int UtcDaliAnimatedImageLoadingCopyMoveP(void)
+{
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGif_100_None, true);
+
+  Dali::AnimatedImageLoading copied = animatedImageLoading;
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+
+  Dali::AnimatedImageLoading moved = std::move(animatedImageLoading);
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)moved, true, TEST_LOCATION);
+
+  Dali::AnimatedImageLoading copiedAssign;
+  copiedAssign = copied;
+
+  Dali::AnimatedImageLoading movedAssign;
+  movedAssign = std::move(moved);
+
+  DALI_TEST_EQUALS((bool)animatedImageLoading, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copied, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)moved, false, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)copiedAssign, true, TEST_LOCATION);
+  DALI_TEST_EQUALS((bool)movedAssign, true, TEST_LOCATION);
+
+  END_TEST;
 }
 
 int UtcDaliAnimatedImageLoadingGetImageSizeP(void)
@@ -62,6 +95,17 @@ int UtcDaliAnimatedImageLoadingGetImageSizeN(void)
   // Check that it returns zero size when the animated image is not valid
   DALI_TEST_EQUALS(imageSize.GetWidth(), 0u, TEST_LOCATION);
   DALI_TEST_EQUALS(imageSize.GetHeight(), 0u, TEST_LOCATION);
+
+  END_TEST;
+}
+
+int UtcDaliAnimatedImageLoadingInvalidGif(void)
+{
+  Dali::AnimatedImageLoading animatedImageLoading = Dali::AnimatedImageLoading::New(gGifInvalid, true);
+  Dali::Devel::PixelBuffer   pixelBuffer          = animatedImageLoading.LoadFrame(0);
+
+  // The pixel buffer should be empty.
+  DALI_TEST_CHECK(!pixelBuffer);
 
   END_TEST;
 }

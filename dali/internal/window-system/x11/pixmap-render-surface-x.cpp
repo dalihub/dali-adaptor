@@ -139,7 +139,12 @@ void PixmapRenderSurfaceX::GetDpi(unsigned int& dpiHorizontal, unsigned int& dpi
   WindowSystem::GetImplementation().GetDPI(dpiHorizontal, dpiVertical);
 }
 
-int PixmapRenderSurfaceX::GetOrientation() const
+int PixmapRenderSurfaceX::GetSurfaceOrientation() const
+{
+  return 0;
+}
+
+int PixmapRenderSurfaceX::GetScreenOrientation() const
 {
   return 0;
 }

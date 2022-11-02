@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,10 @@ OffscreenWindow::OffscreenWindow() = default;
 OffscreenWindow::OffscreenWindow(const OffscreenWindow& window) = default;
 
 OffscreenWindow& OffscreenWindow::operator=(const OffscreenWindow& window) = default;
+
+OffscreenWindow::OffscreenWindow(OffscreenWindow&& window) = default;
+
+OffscreenWindow& OffscreenWindow::operator=(OffscreenWindow&& window) = default;
 
 OffscreenWindow::~OffscreenWindow() = default;
 

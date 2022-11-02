@@ -576,6 +576,13 @@ private:
   void OnAccessibilityDisabled();
 
   /**
+   * Called when the window rotation is finished.
+   *
+   * This signal is emmit when window rotation is finisehd and WindowRotationCompleted() is called.
+   */
+  void OnRotationFinished();
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
@@ -776,6 +783,7 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
+  bool mIsWindowRotating : 1; ///< The window rotating flag.
 };
 
 } // namespace Adaptor

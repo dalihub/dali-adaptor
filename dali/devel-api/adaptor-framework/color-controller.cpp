@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,13 @@ ColorController::ColorController()
 {
 }
 
-ColorController::ColorController(const ColorController& controller)
-: BaseHandle(controller)
-{
-}
+ColorController::ColorController(const ColorController& controller) = default;
 
-ColorController& ColorController::operator=(const ColorController& rhs)
-{
-  BaseHandle::operator=(rhs);
-  return *this;
-}
+ColorController& ColorController::operator=(const ColorController& rhs) = default;
+
+ColorController::ColorController(ColorController&& controller) = default;
+
+ColorController& ColorController::operator=(ColorController&& rhs) = default;
 
 ColorController ColorController::Get()
 {

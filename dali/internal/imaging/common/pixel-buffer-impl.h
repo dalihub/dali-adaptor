@@ -49,8 +49,8 @@ public:
    * @param [in] height           Buffer height in pixels
    * @param [in] pixelFormat      The pixel format
    */
-  static PixelBufferPtr New(unsigned int  width,
-                            unsigned int  height,
+  static PixelBufferPtr New(uint32_t      width,
+                            uint32_t      height,
                             Pixel::Format pixelFormat);
 
   /**
@@ -63,12 +63,12 @@ public:
    * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
    */
-  static PixelBufferPtr New(unsigned char* buffer,
-                            unsigned int   bufferSize,
-                            unsigned int   width,
-                            unsigned int   height,
-                            unsigned int   stride,
-                            Pixel::Format  pixelFormat);
+  static PixelBufferPtr New(uint8_t*      buffer,
+                            uint32_t      bufferSize,
+                            uint32_t      width,
+                            uint32_t      height,
+                            uint32_t      stride,
+                            Pixel::Format pixelFormat);
 
   /**
    * Convert a pixelBuffer object into a PixelData object.
@@ -89,12 +89,12 @@ public:
    * @param [in] stride           Buffer stride in pixels, 0 means the buffer is tightly packed
    * @param [in] pixelFormat      The pixel format
    */
-  PixelBuffer(unsigned char* buffer,
-              unsigned int   bufferSize,
-              unsigned int   width,
-              unsigned int   height,
-              unsigned int   stride,
-              Pixel::Format  pixelFormat);
+  PixelBuffer(uint8_t*      buffer,
+              uint32_t      bufferSize,
+              uint32_t      width,
+              uint32_t      height,
+              uint32_t      stride,
+              Pixel::Format pixelFormat);
 
 protected:
   /**
@@ -109,19 +109,19 @@ public:
    * Get the width of the buffer in pixels.
    * @return The width of the buffer in pixels
    */
-  unsigned int GetWidth() const;
+  uint32_t GetWidth() const;
 
   /**
    * Get the height of the buffer in pixels
    * @return The height of the buffer in pixels
    */
-  unsigned int GetHeight() const;
+  uint32_t GetHeight() const;
 
   /**
    * @brief Gets the stride of the buffer in pixels.
    * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
    */
-  unsigned int GetStride() const;
+  uint32_t GetStride() const;
 
   /**
    * Get the pixel format
@@ -133,18 +133,18 @@ public:
    * Get the pixel buffer if it's present.
    * @return The buffer if exists, or NULL if there is no pixel buffer.
    */
-  unsigned char* GetBuffer() const;
+  uint8_t* GetBuffer() const;
 
   /**
    * @copydoc Devel::PixelBuffer::GetBuffer()
    */
-  const unsigned char* const GetConstBuffer() const;
+  const uint8_t* GetConstBuffer() const;
 
   /**
    * Get the size of the buffer in bytes
    * @return The size of the buffer
    */
-  unsigned int GetBufferSize() const;
+  uint32_t GetBufferSize() const;
 
   /**
    * Copy the buffer into a new PixelData

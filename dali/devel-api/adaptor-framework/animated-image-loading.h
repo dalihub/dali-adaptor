@@ -2,7 +2,7 @@
 #define DALI_ANIMATED_IMAGE_LOADING_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,6 +93,21 @@ public:
    * @return A reference to this
    */
   AnimatedImageLoading& operator=(const AnimatedImageLoading& rhs) = default;
+
+  /**
+   * @brief Move constructor.
+   *
+   * @param[in] move The AnimatedImageLoading to move
+   */
+  AnimatedImageLoading(AnimatedImageLoading&& move) = default;
+
+  /**
+   * @brief Move assignment operator
+   *
+   * @param[in] rhs The AnimatedImageLoading to move
+   * @return A reference to this
+   */
+  AnimatedImageLoading& operator=(AnimatedImageLoading&& rhs) = default;
 
   /**
    * @brief Destructor

@@ -109,6 +109,12 @@ const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
 
 } // namespace
 
+EglGraphicsController::EglGraphicsController()
+: mTextureDependencyChecker(*this),
+  mSyncPool(*this)
+{
+}
+
 EglGraphicsController::~EglGraphicsController()
 {
   while(!mPresentationCommandBuffers.empty())
@@ -188,6 +194,12 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
   }
+}
+
+void EglGraphicsController::PostRender()
+{
+  mTextureDependencyChecker.Reset();
+  mSyncPool.AgeSyncObjects();
 }
 
 Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
@@ -451,17 +463,17 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
       case GLES::CommandType::DRAW:
       {
-        mCurrentContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw, mTextureDependencyChecker);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED:
       {
-        mCurrentContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw, mTextureDependencyChecker);
         break;
       }
       case GLES::CommandType::DRAW_INDEXED_INDIRECT:
       {
-        mCurrentContext->Flush(false, cmd.draw);
+        mCurrentContext->Flush(false, cmd.draw, mTextureDependencyChecker);
         break;
       }
       case GLES::CommandType::SET_SCISSOR: // @todo Consider correcting for orientation here?
@@ -557,12 +569,15 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
 
         mCurrentContext->BeginRenderPass(cmd.beginRenderPass);
+
         break;
       }
       case GLES::CommandType::END_RENDERPASS:
       {
-        mCurrentContext->EndRenderPass();
+        mCurrentContext->EndRenderPass(mTextureDependencyChecker);
 
+        // This sync object is to enable cpu to wait for rendering to complete, not gpu.
+        // It's only needed for reading the framebuffer texture in the client.
         auto syncObject = const_cast<GLES::SyncObject*>(static_cast<const GLES::SyncObject*>(cmd.endRenderPass.syncObject));
         if(syncObject)
         {

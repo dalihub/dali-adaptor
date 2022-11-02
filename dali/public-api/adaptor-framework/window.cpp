@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,11 @@ Window& Window::operator=(const Window& rhs) = default;
 Window::Window(Window&& rhs) = default;
 
 Window& Window::operator=(Window&& rhs) = default;
+
+Window Window::DownCast(BaseHandle handle)
+{
+  return Window(dynamic_cast<Dali::Internal::Adaptor::Window*>(handle.GetObjectPtr()));
+}
 
 void Window::Add(Dali::Actor actor)
 {
@@ -303,12 +308,12 @@ Window::WindowSize Window::GetSize() const
   return GetImplementation(*this).GetSize();
 }
 
-void Window::SetPosition(Window::WindowPosition position)
+void Window::SetPosition(Dali::Window::WindowPosition position)
 {
   GetImplementation(*this).SetPosition(position);
 }
 
-Window::WindowPosition Window::GetPosition() const
+Dali::Window::WindowPosition Window::GetPosition() const
 {
   return GetImplementation(*this).GetPosition();
 }

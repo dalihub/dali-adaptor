@@ -78,6 +78,21 @@ public:
   EncodedImageBuffer& operator=(const EncodedImageBuffer& handle);
 
   /**
+   * @brief This move constructor is required for (smart) pointer semantics.
+   *
+   * @param [in] handle A reference to the moved handle
+   */
+  EncodedImageBuffer(EncodedImageBuffer&& handle);
+
+  /**
+   * @brief This move assignment operator is required for (smart) pointer semantics.
+   *
+   * @param [in] handle  A reference to the moved handle
+   * @return A reference to this
+   */
+  EncodedImageBuffer& operator=(EncodedImageBuffer&& handle);
+
+  /**
    * @brief Get raw buffer data
    * @note this method return const value. Mean, you cannot change raw buffer
    * @return A RawBufferType this buffer have

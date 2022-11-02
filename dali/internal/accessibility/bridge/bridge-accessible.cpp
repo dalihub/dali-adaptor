@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/math/math-utils.h>
+
 #include <algorithm>
 #include <iostream>
 
@@ -60,7 +62,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
   // Find first with non-zero area
   auto first = std::find_if(children.begin(), children.end(), [](Component* child) -> bool {
     auto extents = child->GetExtents(CoordinateType::WINDOW);
-    return extents.height != 0.0f && extents.width != 0.0f;
+    return !Dali::EqualsZero(extents.height) && !Dali::EqualsZero(extents.width);
   });
 
   if(first == children.end())
@@ -78,7 +80,7 @@ std::vector<std::vector<Component*>> SplitLines(const std::vector<Component*>& c
     auto child = *it;
 
     rect = child->GetExtents(CoordinateType::WINDOW);
-    if(rect.height == 0.0f || rect.width == 0.0f)
+    if(Dali::EqualsZero(rect.height) || Dali::EqualsZero(rect.width))
     {
       // Zero area, ignore
       continue;
@@ -156,7 +158,7 @@ static bool IsObjectZeroSize(Component* obj)
     return false;
   }
   auto extents = obj->GetExtents(CoordinateType::WINDOW);
-  return extents.height == 0 || extents.width == 0;
+  return Dali::EqualsZero(extents.height) || Dali::EqualsZero(extents.width);
 }
 
 static bool IsObjectAcceptable(Component* obj)
@@ -265,7 +267,6 @@ static std::string MakeIndent(unsigned int maxRecursionDepth)
 {
   return std::string(GET_NAVIGABLE_AT_POINT_MAX_RECURSION_DEPTH - maxRecursionDepth, ' ');
 }
-
 
 static bool IsRoleAcceptableWhenNavigatingNextPrev(Accessible* obj)
 {

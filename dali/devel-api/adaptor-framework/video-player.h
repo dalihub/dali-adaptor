@@ -2,7 +2,7 @@
 #define DALI_VIDEO_PLAYER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,23 @@ public:
    * @return The updated VideoPlayer.
    */
   VideoPlayer& operator=(const VideoPlayer& player);
+
+  /**
+   * @brief Move constructor.
+   *
+   * @SINCE_2_1.45
+   * @param[in] player VideoPlayer to move. The moved player will point at the same implementation
+   */
+  VideoPlayer(VideoPlayer&& player);
+
+  /**
+   * @brief Move assignment operator.
+   *
+   * @SINCE_2_1.45
+   * @param[in] player The VideoPlayer to move assign from.
+   * @return The updated VideoPlayer.
+   */
+  VideoPlayer& operator=(VideoPlayer&& player);
 
   /**
    * @brief Downcast a handle to VideoPlayer handle.

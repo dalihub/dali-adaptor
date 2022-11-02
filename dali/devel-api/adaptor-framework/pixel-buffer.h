@@ -61,8 +61,8 @@ public:
   /**
    * Create a PixelBuffer with it's own data buffer.
    */
-  static PixelBuffer New(unsigned int        width,
-                         unsigned int        height,
+  static PixelBuffer New(uint32_t            width,
+                         uint32_t            height,
                          Dali::Pixel::Format pixelFormat);
 
   /**
@@ -98,6 +98,23 @@ public:
   PixelBuffer& operator=(const PixelBuffer& rhs);
 
   /**
+   * @brief This move constructor is required for (smart) pointer semantics.
+   *
+   * @SINCE_2_1.45
+   * @param[in] handle A reference to the moved handle
+   */
+  PixelBuffer(PixelBuffer&& handle);
+
+  /**
+   * @brief This move assignment operator is required for (smart) pointer semantics.
+   *
+   * @SINCE_2_1.45
+   * @param[in] rhs A reference to the moved handle
+   * @return A reference to this object
+   */
+  PixelBuffer& operator=(PixelBuffer&& rhs);
+
+  /**
    * Convert to a pixel data and release the pixelBuffer's object.
    * This handle is left empty.
    *
@@ -127,7 +144,7 @@ public:
    * @SINCE_1_2.46
    * @return The pixel buffer, or NULL.
    */
-  unsigned char* GetBuffer();
+  uint8_t* GetBuffer();
 
   /**
    * @brief Gets the pixel buffer. This is a pointer to the internal
@@ -138,7 +155,7 @@ public:
    *
    * @return The pixel buffer, or NULL.
    */
-  const unsigned char* const GetBuffer() const;
+  const uint8_t* GetBuffer() const;
 
   /**
    * @brief Gets the width of the buffer in pixels.
@@ -146,7 +163,7 @@ public:
    * @SINCE_1_2.46
    * @return The width of the buffer in pixels
    */
-  unsigned int GetWidth() const;
+  uint32_t GetWidth() const;
 
   /**
    * @brief Gets the height of the buffer in pixels.
@@ -154,7 +171,7 @@ public:
    * @SINCE_1_2.46
    * @return The height of the buffer in pixels
    */
-  unsigned int GetHeight() const;
+  uint32_t GetHeight() const;
 
   /**
    * @brief Gets the stride of the buffer in pixels.
@@ -162,7 +179,7 @@ public:
    * @SINCE_2_1.17
    * @return The stride of the buffer in pixels. 0 means the buffer is tightly packed.
    */
-  unsigned int GetStride() const;
+  uint32_t GetStride() const;
 
   /**
    * @brief Gets the pixel format.

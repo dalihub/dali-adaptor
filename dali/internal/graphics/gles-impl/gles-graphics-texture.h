@@ -151,6 +151,15 @@ public:
 
   void SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t value) const;
 
+  uint32_t GetDependencyIndex() const
+  {
+    return mDependencyIndex;
+  }
+  void SetDependencyIndex(uint32_t dependencyIndex)
+  {
+    mDependencyIndex = dependencyIndex;
+  }
+
 private:
   mutable struct SamplerStateCache
   {
@@ -166,6 +175,7 @@ private:
   uint32_t          mTextureId{0u};
   GLenum            mGlTarget{0u};
   uint32_t          mMaxMipMapLevel{0u};
+  uint32_t          mDependencyIndex{0xFFFFFFFF};
   void*             mGLOwnerContext{nullptr};
   bool              mIsCompressed{false};
 };

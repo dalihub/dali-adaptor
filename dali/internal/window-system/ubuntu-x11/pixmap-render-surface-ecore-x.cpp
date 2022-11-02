@@ -146,7 +146,12 @@ void PixmapRenderSurfaceEcoreX::GetDpi(unsigned int& dpiHorizontal, unsigned int
   dpiVertical   = int(yres + 0.5f);
 }
 
-int PixmapRenderSurfaceEcoreX::GetOrientation() const
+int PixmapRenderSurfaceEcoreX::GetSurfaceOrientation() const
+{
+  return 0;
+}
+
+int PixmapRenderSurfaceEcoreX::GetScreenOrientation() const
 {
   return 0;
 }
