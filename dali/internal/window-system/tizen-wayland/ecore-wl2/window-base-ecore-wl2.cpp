@@ -2043,6 +2043,11 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
         windowType = ECORE_WL2_WINDOW_TYPE_NONE;
         break;
       }
+      case Dali::WindowType::DESKTOP:
+      {
+        windowType = ECORE_WL2_WINDOW_TYPE_DESKTOP;
+        break;
+      }
       default:
       {
         windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
