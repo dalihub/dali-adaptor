@@ -699,19 +699,8 @@ Dali::Window::WindowSize Window::GetSize() const
 void Window::SetPosition(Dali::Window::WindowPosition position)
 {
   PositionSize oldRect = mSurface->GetPositionSize();
-  int32_t newX = position.GetX();
-  int32_t newY = position.GetY();
 
-  mWindowSurface->MoveResize(PositionSize(newX, newY, oldRect.width, oldRect.height));
-
-  if((oldRect.x != newX) || (oldRect.y != newY))
-  {
-    Dali::Window handle(this);
-    Dali::Window::WindowPosition newPosition(newX, newY);
-
-    DALI_LOG_RELEASE_INFO("send moved signal with new position: %d, %d\n", newPosition.GetX(), newPosition.GetY());
-    mMovedSignal.Emit(handle, newPosition);
-  }
+  mWindowSurface->MoveResize(PositionSize(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 
   mSurface->SetFullSwapNextFrame();
 

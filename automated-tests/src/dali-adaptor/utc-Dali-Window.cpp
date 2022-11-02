@@ -445,7 +445,7 @@ int UtcDaliWindowSetPositionNegative(void)
   Dali::Window instance;
   try
   {
-    Dali::Window::WindowPosition arg1;
+    Dali::Uint16Pair arg1;
     instance.SetPosition(arg1);
     DALI_TEST_CHECK(false); // Should not get here
   }
