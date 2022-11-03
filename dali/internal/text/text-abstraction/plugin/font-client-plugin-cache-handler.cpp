@@ -23,6 +23,7 @@
 #include <fontconfig/fontconfig.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
@@ -61,6 +62,28 @@ extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 
 namespace
 {
+/**
+ * @brief Maximum size of glyph cache per each font face.
+ */
+constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
+constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
+
+constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
+
+/**
+ * @brief Get maximum size of glyph cache size from environment.
+ * If not settuped, default as 128.
+ * @note This value fixed when we call it first time.
+ * @return The max size of glyph cache.
+ */
+inline size_t GetMaxNumberOfGlyphCache()
+{
+  using Dali::EnvironmentVariable::GetEnvironmentVariable;
+  static auto numberString = GetEnvironmentVariable(MAX_NUMBER_OF_GLYPH_CACHE_ENV);
+  static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_GLYPH_CACHE_MAX;
+  return (number < MINIMUM_SIZE_OF_GLYPH_CACHE_MAX) ? MINIMUM_SIZE_OF_GLYPH_CACHE_MAX : number;
+}
+
 } // namespace
 
 namespace Dali::TextAbstraction::Internal
@@ -249,6 +272,7 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mFontDescriptionSizeCache(),
   mEllipsisCache(),
   mEmbeddedItemCache(),
+  mGlyphCacheManager(new GlyphCacheManager(GetMaxNumberOfGlyphCache())),
   mLatestFoundFontDescription(),
   mLatestFoundFontDescriptionId(0u),
   mLatestFoundCacheKey(0, 0),
@@ -264,6 +288,9 @@ FontClient::Plugin::CacheHandler::~CacheHandler()
 
 void FontClient::Plugin::CacheHandler::ClearCache()
 {
+  // delete cached glyph informations before clear mFontFaceCache.
+  mGlyphCacheManager->ClearCache();
+
   mDefaultFontDescription = FontDescription();
 
   mSystemFonts.clear();

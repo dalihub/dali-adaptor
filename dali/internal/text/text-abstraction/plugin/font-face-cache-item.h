@@ -43,6 +43,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
 {
   FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                     FT_Face            ftFace,
+                    GlyphCacheManager* glyphCacheManager,
                     const FontPath&    path,
                     PointSize26Dot6    requestedPointSize,
                     FaceIndex          face,
@@ -50,6 +51,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
 
   FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                     FT_Face            ftFace,
+                    GlyphCacheManager* glyphCacheManager,
                     const FontPath&    path,
                     PointSize26Dot6    requestedPointSize,
                     FaceIndex          face,
@@ -132,7 +134,7 @@ public:
   const FT_Library& mFreeTypeLibrary; ///< A handle to a FreeType library instance.
   FT_Face           mFreeTypeFace;    ///< The FreeType face.
 
-  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
+  GlyphCacheManager*                 mGlyphCacheManager; ///< The reference of Glyph cache manager. Owned from font-client-plugin-cache-handler.
   std::unique_ptr<HarfBuzzProxyFont> mHarfBuzzProxyFont; ///< The harfbuzz font. It will store harfbuzz relate data.
 
   FontPath        mPath;                  ///< The path to the font file name.

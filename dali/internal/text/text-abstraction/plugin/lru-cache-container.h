@@ -46,7 +46,7 @@ class LRUCacheContainer
 {
 public:
   // Constructor
-  LRUCacheContainer(std::size_t maxNumberOfCache = std::numeric_limits<std::size_t>::max())
+  LRUCacheContainer(std::size_t maxNumberOfCache = std::numeric_limits<std::size_t>::max() - 2u)
   : mCacheMaxSize(maxNumberOfCache)
   {
   }
@@ -56,6 +56,9 @@ public:
 
   LRUCacheContainer(const LRUCacheContainer& rhs) = default;
   LRUCacheContainer(LRUCacheContainer&& rhs)      = default;
+
+  LRUCacheContainer& operator=(const LRUCacheContainer& rhs) = default;
+  LRUCacheContainer& operator=(LRUCacheContainer&& rhs) = default;
 
 public:
   // Public struct area.
@@ -71,24 +74,96 @@ public:
    */
   static constexpr CacheId CACHE_FOOTER_ID = std::numeric_limits<std::size_t>::max() - 1u;
 
+public:
+  // iterator.
   /**
-   * @brief Double linked CacheNode that this container used.
+   * @brief Iterator of this LRU cache.
+   *
+   * Add, Get and Clear invalidate the itertator's validation.
+   * Erase and Pop validate the iterator.
+   *
+   * Range based iteration doesn't supported.
    */
-  struct CacheNode
+  struct iterator
   {
-    CacheNode()  = default;
-    ~CacheNode() = default;
+  public:
+    iterator(LRUCacheContainer& owner, const CacheId& id)
+    : owner(owner),
+      id(id)
+    {
+    }
 
-    CacheId     prev{CACHE_FOOTER_ID};
-    CacheId     next{CACHE_HEADER_ID};
-    ElementType element;
+    // copy constructor & assign
+    iterator(const iterator& rhs)
+    : owner(rhs.owner),
+      id(rhs.id)
+    {
+    }
 
-    using CacheIdIterator = typename CacheIdContainer::iterator;
+    iterator& operator=(const iterator& rhs)
+    {
+      this->owner = rhs.owner;
+      this->id    = rhs.id;
+      return *this;
+    }
 
-    CacheIdIterator cacheIdIterator; ///< Note : It only validate until mCacheId rehashing.
+    // Move constructor & assign
+    iterator(iterator&& rhs)
+    : owner(std::move(rhs.owner)),
+      id(rhs.id)
+    {
+    }
+
+    iterator& operator=(iterator&& rhs)
+    {
+      this->owner = std::move(rhs.owner);
+      this->id    = rhs.id;
+      return *this;
+    }
+
+    // Prefix increment
+    iterator& operator++()
+    {
+      id = owner.mData[id].next;
+      return *this;
+    }
+
+    // Postfix increment
+    iterator operator++(int)
+    {
+      iterator temp = *this;
+      ++(*this);
+      return temp;
+    }
+
+    // Prefix decrement
+    iterator& operator--()
+    {
+      id = owner.mData[id].prev;
+      return *this;
+    }
+
+    // Postfix decrement
+    iterator operator--(int)
+    {
+      iterator temp = *this;
+      --(*this);
+      return temp;
+    }
+
+    bool operator==(const iterator& rhs)
+    {
+      return id == rhs.id && (&owner) == (&rhs.owner);
+    }
+    bool operator!=(const iterator& rhs)
+    {
+      return id != rhs.id || (&owner) != (&rhs.owner);
+    }
+
+  public:
+    LRUCacheContainer& owner; // The reference of owner of this iterator.
+    CacheId            id;
   };
-
-  using iterator = typename std::vector<CacheNode>::iterator;
 
 public:
   // Public API area.
@@ -191,7 +266,35 @@ public:
   }
 
   /**
-   * @brief Find an element by the key. It will be marked as recent
+   * @brief Get an key by iterator. It will not be marked as recent
+   *
+   * @param[in] iter The iterator of element
+   * @return A reference of the key
+   * @warning This method don't check iterator validation
+   */
+  const KeyType& GetKey(iterator iter)
+  {
+    const auto id = iter.id;
+
+    return mData[id].cacheIdIterator->first;
+  }
+
+  /**
+   * @brief Get an element by iterator. It will not be marked as recent
+   *
+   * @param[in] iter The iterator of element
+   * @return A reference of the element
+   * @warning This method don't check iterator validation
+   */
+  ElementType& GetElement(iterator iter)
+  {
+    const auto id = iter.id;
+
+    return mData[id].element;
+  }
+
+  /**
+   * @brief Find an element by the key. It will not be marked as recent
    *
    * @param[in] key The key of element
    * @return A iterator of cache node. If key not exist, return End()
@@ -205,11 +308,7 @@ public:
 
     const auto id = mCacheId[key];
 
-    // Mark as recently used.
-    InternalPop(id);
-    InternalInsertAfterHeader(id);
-
-    return Begin() + id;
+    return iterator(*this, id);
   }
 
   /**
@@ -250,12 +349,34 @@ public:
 
   iterator Begin()
   {
-    return mData.begin();
+    return iterator(*this, mLatestId);
   }
 
   iterator End()
   {
-    return mData.end();
+    return iterator(*this, CACHE_FOOTER_ID);
+  }
+
+  /**
+   * @brief Remove cache item by iterator.
+   *
+   * @param[in] iter The iterator what we want to remove.
+   * @return iterator The next iterator after remove
+   * @warning This method don't check iterator validation
+   */
+  iterator Erase(iterator iter)
+  {
+    const auto id     = iter.id;
+    const auto nextId = mData[id].next;
+    InternalPop(id);
+    InternalInsertAfterFooter(id);
+
+    --mNumberOfElements;
+
+    // Erase cache id.
+    mCacheId.erase(mData[id].cacheIdIterator);
+
+    return iterator(*this, nextId);
   }
 
   /**
@@ -267,9 +388,6 @@ public:
   {
     return mNumberOfElements;
   }
-
-private:
-  // Private struct area.
 
 private:
   // Private API area.
@@ -414,6 +532,25 @@ private:
     mData[id].prev = CACHE_FOOTER_ID;
     mData[id].next = next;
   }
+
+private:
+  // Private struct area.
+  /**
+   * @brief Double linked CacheNode that this container used.
+   */
+  struct CacheNode
+  {
+    CacheNode()  = default;
+    ~CacheNode() = default;
+
+    CacheId     prev{CACHE_FOOTER_ID};
+    CacheId     next{CACHE_HEADER_ID};
+    ElementType element;
+
+    using CacheIdIterator = typename CacheIdContainer::iterator;
+
+    CacheIdIterator cacheIdIterator; ///< Note : It only validate until mCacheId rehashing.
+  };
 
 private:
   // Private member value area.

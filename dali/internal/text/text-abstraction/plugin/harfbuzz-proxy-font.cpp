@@ -76,7 +76,7 @@ private:
 
 public:
   FT_Face            mFreeTypeFace;      ///< The FreeType face. Owned from font-face-cache-item.
-  GlyphCacheManager* mGlyphCacheManager; ///< Glyph caching system for this harfbuzz font. Owned from font-face-cache-item.
+  GlyphCacheManager* mGlyphCacheManager; ///< Glyph caching system for this harfbuzz font. Owned from font-client-plugin-cache-handler.
 
   hb_font_t* mHarfBuzzFont; ///< Harfbuzz font handle integrated with FT_Face.
 };
@@ -126,7 +126,7 @@ static bool GetGlyphCacheData(void* font_data, const GlyphIndex& glyphIndex, Gly
   if(DALI_LIKELY(impl && impl->mGlyphCacheManager))
   {
     FT_Error error;
-    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, glyphData, error);
+    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(impl->mFreeTypeFace, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, glyphData, error);
   }
   return false;
 }

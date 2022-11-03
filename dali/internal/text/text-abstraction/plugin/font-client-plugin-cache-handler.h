@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
+#include <dali/internal/text/text-abstraction/plugin/font-face-glyph-cache-manager.h>
 
 namespace Dali::TextAbstraction::Internal
 {
@@ -378,6 +379,12 @@ public: // Find & Cache
    */
   GlyphIndex CacheEmbeddedItem(EmbeddedItem&& embeddedItem);
 
+public: // Other public API
+  GlyphCacheManager* GetGlyphCacheManager() const
+  {
+    return mGlyphCacheManager.get();
+  }
+
 private:
   CacheHandler(const CacheHandler&) = delete;
   CacheHandler& operator=(const CacheHandler&) = delete;
@@ -404,7 +411,9 @@ public:                                    // Cache container list
   std::vector<PixelBufferCacheItem> mPixelBufferCache;  ///< Caches the pixel buffer of a url.
   std::vector<EmbeddedItem>         mEmbeddedItemCache; ///< Cache embedded items.
 
-private:                                         // Member value
+private:                                                 // Member value
+  std::unique_ptr<GlyphCacheManager> mGlyphCacheManager; ///< The glyph cache manager. It will cache this face's glyphs.
+
   FontDescription   mLatestFoundFontDescription; ///< Latest found font description and id in FindValidatedFont()
   FontDescriptionId mLatestFoundFontDescriptionId;
 
