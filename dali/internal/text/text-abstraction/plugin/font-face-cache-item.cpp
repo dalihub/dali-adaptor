@@ -41,28 +41,6 @@ const float POINTS_PER_INCH = 72.f;
 constexpr float MAXIMUM_RATE_OF_BITMAP_GLYPH_CACHE_RESIZE = 1.5f;
 
 /**
- * @brief Maximum size of glyph cache per each font face.
- */
-constexpr std::size_t DEFAULT_GLYPH_CACHE_MAX         = 128;
-constexpr std::size_t MINIMUM_SIZE_OF_GLYPH_CACHE_MAX = 3u;
-
-constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
-
-/**
- * @brief Get maximum size of glyph cache size from environment.
- * If not settuped, default as 128.
- * @note This value fixed when we call it first time.
- * @return The max size of glyph cache.
- */
-inline const size_t GetMaxNumberOfGlyphCache()
-{
-  using Dali::EnvironmentVariable::GetEnvironmentVariable;
-  static auto numberString = GetEnvironmentVariable(MAX_NUMBER_OF_GLYPH_CACHE_ENV);
-  static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_GLYPH_CACHE_MAX;
-  return (number < MINIMUM_SIZE_OF_GLYPH_CACHE_MAX) ? MINIMUM_SIZE_OF_GLYPH_CACHE_MAX : number;
-}
-
-/**
  * @brief Behavior about cache the rendered glyph cache.
  */
 constexpr bool DEFAULT_ENABLE_CACHE_RENDERED_GLYPH = true;
@@ -74,7 +52,7 @@ constexpr auto ENABLE_CACHE_RENDERED_GLYPH_ENV     = "DALI_ENABLE_CACHE_RENDERED
  * @note This value fixed when we call it first time.
  * @return True if we allow to cache rendered glyph.
  */
-inline const bool EnableCacheRenderedGlyph()
+inline bool EnableCacheRenderedGlyph()
 {
   using Dali::EnvironmentVariable::GetEnvironmentVariable;
   static auto numberString = GetEnvironmentVariable(ENABLE_CACHE_RENDERED_GLYPH_ENV);
@@ -100,7 +78,7 @@ constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRES
  * @note This value fixed when we call it first time.
  * @return SPEED if value start with 's' or 'S'. MEMORY if value start with 'm' or 'M'. otherwise, use default
  */
-inline const GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
+inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
   using Dali::EnvironmentVariable::GetEnvironmentVariable;
   static auto policyString = GetEnvironmentVariable(RENDERED_GLYPH_COMPRESS_POLICY_ENV);
@@ -115,13 +93,14 @@ inline const GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPo
 
 FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
+                                     GlyphCacheManager* glyphCacheManager,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,
                                      FaceIndex          face,
                                      const FontMetrics& metrics)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
-  mGlyphCacheManager(new GlyphCacheManager(mFreeTypeFace, GetMaxNumberOfGlyphCache())),
+  mGlyphCacheManager(glyphCacheManager),
   mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
@@ -140,6 +119,7 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
 
 FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      FT_Face            ftFace,
+                                     GlyphCacheManager* glyphCacheManager,
                                      const FontPath&    path,
                                      PointSize26Dot6    requestedPointSize,
                                      FaceIndex          face,
@@ -150,7 +130,7 @@ FontFaceCacheItem::FontFaceCacheItem(const FT_Library&  freeTypeLibrary,
                                      bool               hasColorTables)
 : mFreeTypeLibrary(freeTypeLibrary),
   mFreeTypeFace(ftFace),
-  mGlyphCacheManager(new GlyphCacheManager(mFreeTypeFace, GetMaxNumberOfGlyphCache())),
+  mGlyphCacheManager(glyphCacheManager),
   mHarfBuzzProxyFont(),
   mPath(path),
   mRequestedPointSize(requestedPointSize),
@@ -173,7 +153,7 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
 : mFreeTypeLibrary(rhs.mFreeTypeLibrary)
 {
   mFreeTypeFace       = rhs.mFreeTypeFace;
-  mGlyphCacheManager  = std::move(rhs.mGlyphCacheManager);
+  mGlyphCacheManager  = rhs.mGlyphCacheManager;
   mHarfBuzzProxyFont  = std::move(rhs.mHarfBuzzProxyFont);
   mPath               = std::move(rhs.mPath);
   mRequestedPointSize = rhs.mRequestedPointSize;
@@ -188,17 +168,19 @@ FontFaceCacheItem::FontFaceCacheItem(FontFaceCacheItem&& rhs)
   mIsFixedSizeBitmap  = rhs.mIsFixedSizeBitmap;
   mHasColorTables     = rhs.mHasColorTables;
 
-  rhs.mFreeTypeFace = nullptr;
+  rhs.mFreeTypeFace      = nullptr;
+  rhs.mGlyphCacheManager = nullptr;
 }
 
 FontFaceCacheItem::~FontFaceCacheItem()
 {
-  // delete glyph cache manager before free face.
+  // delete cached glyph informations before free face.
   if(mGlyphCacheManager)
   {
-    mGlyphCacheManager.reset();
+    mGlyphCacheManager->RemoveGlyphFromFace(mFreeTypeFace);
   }
 
+  // delete harfbuzz proxy font before free face.
   if(mHarfBuzzProxyFont)
   {
     mHarfBuzzProxyFont.reset();
@@ -245,7 +227,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
   if(mIsFixedSizeBitmap)
   {
     FT_Select_Size(mFreeTypeFace, mFixedSizeIndex); ///< @todo: needs to be investigated why it's needed to select the size again.
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphData, error);
 
     if(FT_Err_Ok == error)
     {
@@ -287,7 +269,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
 
           // TODO : If dpiVertical value changed, this resize feature will be break down.
           // Otherwise, this glyph will be resized only one times.
-          mGlyphCacheManager->ResizeBitmapGlyph(glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, static_cast<uint32_t>(glyphInfo.width), static_cast<uint32_t>(glyphInfo.height));
+          mGlyphCacheManager->ResizeBitmapGlyph(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, static_cast<uint32_t>(glyphInfo.width), static_cast<uint32_t>(glyphInfo.height));
         }
       }
     }
@@ -303,7 +285,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
     // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
     // i.e. with the SNum-3R font.
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, glyphData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, glyphData, error);
 
     // Keep the width of the glyph before doing the software emboldening.
     // It will be used to calculate a scale factor to be applied to the
@@ -332,7 +314,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
       {
         // Get dummy glyph data without embolden.
         GlyphCacheManager::GlyphCacheData dummyData;
-        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, dummyData, error))
+        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, dummyData, error))
         {
           // If the glyph is emboldened by software, the advance is multiplied by a
           // scale factor to make it slightly bigger.
@@ -397,7 +379,7 @@ void FontFaceCacheItem::CreateBitmap(
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
     loadFlag = FT_LOAD_NO_AUTOHINT;
   }
-  mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, loadFlag, isBoldRequired, glyphData, error);
+  mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, glyphData, error);
 
   if(FT_Err_Ok == error)
   {
@@ -502,10 +484,10 @@ void FontFaceCacheItem::CreateBitmap(
           // Note : We will call this API once per each glyph.
           if(ableUseCachedRenderedGlyph)
           {
-            mGlyphCacheManager->CacheRenderedGlyphBuffer(glyphIndex, loadFlag, isBoldRequired, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
+            mGlyphCacheManager->CacheRenderedGlyphBuffer(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
 
             GlyphCacheManager::GlyphCacheData dummyData;
-            mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, loadFlag, isBoldRequired, dummyData, error);
+            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, dummyData, error);
 
             if(DALI_LIKELY(FT_Err_Ok == error && dummyData.mRenderedBuffer))
             {
@@ -560,7 +542,7 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
   if(mHasColorTables)
   {
     GlyphCacheManager::GlyphCacheData dummyData;
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(glyphIndex, FT_LOAD_COLOR, false, dummyData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, FT_LOAD_COLOR, false, dummyData, error);
   }
 #endif
   return FT_Err_Ok == error;
@@ -615,7 +597,7 @@ HarfBuzzFontHandle FontFaceCacheItem::GetHarfBuzzFont(const uint32_t& horizontal
   // Create new harfbuzz font only first time or DPI changed.
   if(DALI_UNLIKELY(!mHarfBuzzProxyFont || mHarfBuzzProxyFont->mHorizontalDpi != horizontalDpi || mHarfBuzzProxyFont->mVerticalDpi != verticalDpi))
   {
-    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, horizontalDpi, verticalDpi, mGlyphCacheManager.get()));
+    mHarfBuzzProxyFont.reset(new HarfBuzzProxyFont(mFreeTypeFace, mRequestedPointSize, horizontalDpi, verticalDpi, mGlyphCacheManager));
   }
   return mHarfBuzzProxyFont->GetHarfBuzzFont();
 }
