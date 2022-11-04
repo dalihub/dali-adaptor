@@ -479,7 +479,7 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
         mFontDescriptionCache.push_back(tempFontDescription);
 
         // Set the index to the vector of paths to font file names.
-        const FontDescriptionId fontDescriptionId = mFontDescriptionCache.size();
+        const FontDescriptionId fontDescriptionId = static_cast<FontDescriptionId>(mFontDescriptionCache.size());
 
         FONT_LOG_DESCRIPTION(tempFontDescription, "default platform font");
         DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  default font fontDescriptionId : %d\n", fontDescriptionId);
@@ -514,7 +514,7 @@ bool FontClient::Plugin::CacheHandler::FindValidatedFont(const FontDescription& 
                                                          FontDescriptionId&     fontDescriptionId)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
-  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of validated fonts in the cache : %d\n", mValidatedFontCache.size());
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of validated fonts in the cache : %zu\n", mValidatedFontCache.size());
 
   fontDescriptionId = 0u;
 
@@ -580,7 +580,7 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
     mFontDescriptionCache.push_back(description);
 
     // Set the index to the vector of paths to font file names.
-    fontDescriptionId = mFontDescriptionCache.size();
+    fontDescriptionId = static_cast<FontDescriptionId>(mFontDescriptionCache.size());
 
     FONT_LOG_DESCRIPTION(description, "matched");
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  fontDescriptionId : %d\n", fontDescriptionId);
@@ -619,7 +619,7 @@ bool FontClient::Plugin::CacheHandler::FindFallbackFontList(const FontDescriptio
                                                             CharacterSetList*&     characterSetList) const
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
-  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of fallback font lists in the cache : %d\n", mFallbackCache.size());
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of fallback font lists in the cache : %zu\n", mFallbackCache.size());
 
   fontList = nullptr;
 
@@ -683,7 +683,7 @@ bool FontClient::Plugin::CacheHandler::FindFontByPath(const FontPath& path,
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "                path : [%s]\n", path.c_str());
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize);
-  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of fonts in the cache : %d\n", mFontFaceCache.size());
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  number of fonts in the cache : %zu\n", mFontFaceCache.size());
 
   fontId = 0u;
   for(const auto& cacheItem : mFontFaceCache)
@@ -800,7 +800,7 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
     mFontDescriptionCache.push_back(description);
 
     // Set the index to the vector of paths to font file names.
-    fontDescriptionId = mFontDescriptionCache.size();
+    fontDescriptionId = static_cast<FontDescriptionId>(mFontDescriptionCache.size());
 
     // Increase the reference counter and add the character set to the cache.
     mCharacterSetCache.PushBack(FcCharSetCopy(characterSet));
@@ -816,21 +816,21 @@ void FontClient::Plugin::CacheHandler::CacheFontPath(FT_Face ftFace, FontId font
 FontId FontClient::Plugin::CacheHandler::CacheFontFaceCacheItem(FontFaceCacheItem&& fontFaceCacheItem)
 {
   // Set the index to the font's id cache.
-  fontFaceCacheItem.mFontId = mFontIdCache.size();
+  fontFaceCacheItem.mFontId = static_cast<FontId>(mFontIdCache.size());
 
   // Create the font id item to cache.
   FontIdCacheItem fontIdCacheItem;
   fontIdCacheItem.type = FontDescription::FACE_FONT;
 
   // Set the index to the FreeType font face cache.
-  fontIdCacheItem.index = mFontFaceCache.size();
+  fontIdCacheItem.index = static_cast<FontCacheIndex>(mFontFaceCache.size());
 
   // Cache the items.
   mFontFaceCache.emplace_back(std::move(fontFaceCacheItem));
   mFontIdCache.emplace_back(std::move(fontIdCacheItem));
 
   // Set the font id to be returned.
-  FontId fontId = mFontIdCache.size();
+  FontId fontId = static_cast<FontId>(mFontIdCache.size());
 
   return fontId;
 }
@@ -861,7 +861,7 @@ bool FontClient::Plugin::CacheHandler::FindEllipsis(PointSize26Dot6 requestedPoi
 
 FontClient::Plugin::CacheHandler::EllipsisCacheIndex FontClient::Plugin::CacheHandler::CacheEllipsis(EllipsisItem&& ellipsisItem)
 {
-  EllipsisCacheIndex ellipsisCacheIndex = mEllipsisCache.size();
+  EllipsisCacheIndex ellipsisCacheIndex = static_cast<EllipsisCacheIndex>(mEllipsisCache.size());
 
   mEllipsisCache.emplace_back(std::move(ellipsisItem));
 
@@ -889,21 +889,21 @@ bool FontClient::Plugin::CacheHandler::FindBitmapFont(const FontFamily& bitmapFo
 FontId FontClient::Plugin::CacheHandler::CacheBitmapFontCacheItem(BitmapFontCacheItem&& bitmapFontCacheItem)
 {
   // Set the index to the font's id cache.
-  bitmapFontCacheItem.id = mFontIdCache.size();
+  bitmapFontCacheItem.id = static_cast<FontId>(mFontIdCache.size());
 
   // Create the font id item to cache.
   CacheHandler::FontIdCacheItem fontIdCacheItem;
   fontIdCacheItem.type = FontDescription::BITMAP_FONT;
 
   // Set the index to the Bitmap font face cache.
-  fontIdCacheItem.index = mBitmapFontCache.size();
+  fontIdCacheItem.index = static_cast<FontCacheIndex>(mBitmapFontCache.size());
 
   // Cache the items.
   mBitmapFontCache.emplace_back(std::move(bitmapFontCacheItem));
   mFontIdCache.emplace_back(std::move(fontIdCacheItem));
 
   // Set the font id to be returned.
-  FontId fontId = mFontIdCache.size();
+  FontId fontId = static_cast<FontId>(mFontIdCache.size());
 
   return fontId;
 }
@@ -939,13 +939,13 @@ PixelBufferId FontClient::Plugin::CacheHandler::CacheEmbeddedPixelBuffer(const s
     PixelBufferCacheItem pixelBufferCacheItem;
     pixelBufferCacheItem.pixelBuffer = pixelBuffer;
     pixelBufferCacheItem.url         = url;
-    pixelBufferCacheItem.id          = mPixelBufferCache.size() + 1u;
+    pixelBufferCacheItem.id          = static_cast<PixelBufferId>(mPixelBufferCache.size() + 1u);
 
     // Store the cache item in the cache.
     mPixelBufferCache.emplace_back(std::move(pixelBufferCacheItem));
 
     // Set the pixel buffer id to be returned.
-    pixelBufferId = mPixelBufferCache.size();
+    pixelBufferId = static_cast<PixelBufferId>(mPixelBufferCache.size());
   }
   return pixelBufferId;
 }
@@ -970,13 +970,13 @@ bool FontClient::Plugin::CacheHandler::FindEmbeddedItem(PixelBufferId pixelBuffe
 
 GlyphIndex FontClient::Plugin::CacheHandler::CacheEmbeddedItem(EmbeddedItem&& embeddedItem)
 {
-  embeddedItem.index = mEmbeddedItemCache.size() + 1u;
+  embeddedItem.index = static_cast<GlyphIndex>(mEmbeddedItemCache.size() + 1u);
 
   // Cache the embedded item.
   mEmbeddedItemCache.emplace_back(std::move(embeddedItem));
 
   // Set the font id to be returned.
-  GlyphIndex index = mEmbeddedItemCache.size();
+  GlyphIndex index = static_cast<GlyphIndex>(mEmbeddedItemCache.size());
 
   return index;
 }
