@@ -54,7 +54,7 @@ enum class WindowType
   UTILITY,      ///< A persistent utility window, like a toolbox or palette. @SINCE_2_0.0
   DIALOG,       ///< Used for simple dialog window. @SINCE_2_0.0
   IME,          ///< Used for Ime keyboard window. It should be set in application New function. @SINCE_2_0.33
-  DESKTOP       ///< Used for desktop windows. @SINCE_2_2.0
+  DESKTOP       ///< Used for desktop windows. @SINCE_2_2.1
 };
 
 /**
