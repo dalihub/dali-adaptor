@@ -78,6 +78,7 @@ bool WinCallbackManager::ProcessIdle()
 {
   const bool idleProcessed = !mCallbacks.empty();
 
+  // @todo : Need to consider callback with return & don't erase callback when it return true.
   for(CallbackBase* cb : mCallbacks)
   {
     Dali::CallbackBase::Execute(*cb);
