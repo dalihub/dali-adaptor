@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,6 +147,11 @@ public:
   virtual bool IsAdvancedBlendEquationSupported() = 0;
 
   /**
+   * @return true if multisampled render to texture is supported
+   */
+  virtual bool IsMultisampledRenderToTextureSupported() = 0;
+
+  /**
    * @return true if graphics subsystem is initialized
    */
   virtual bool IsInitialized() = 0;
@@ -160,6 +165,11 @@ public:
    * @return the maximum texture size
    */
   virtual uint32_t GetMaxTextureSize() = 0;
+
+  /**
+   * @return the maximum texture samples when we use multisampled texture
+   */
+  virtual uint8_t GetMaxTextureSamples() = 0;
 
   /**
    * @return the version number of the shader language

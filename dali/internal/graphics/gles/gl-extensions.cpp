@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,10 @@ GlExtensions::GlExtensions()
 #ifdef GL_KHR_blend_equation_advanced
   mBlendBarrierKHR(nullptr),
 #endif
+#ifdef GL_EXT_multisampled_render_to_texture
+  mGlRenderbufferStorageMultisampleEXT(nullptr),
+  mGlFramebufferTexture2DMultisampleEXT(nullptr),
+#endif
   mInitialized(false)
 {
 }
@@ -54,7 +58,7 @@ void GlExtensions::DiscardFrameBuffer(GLenum target, GLsizei numAttachments, con
 {
   // initialize extension on first use as on some hw platforms a context
   // has to be bound for the extensions to return correct pointer
-  if(!mInitialized)
+  if(DALI_UNLIKELY(!mInitialized))
   {
     Initialize();
   }
@@ -75,7 +79,7 @@ void GlExtensions::GetProgramBinaryOES(GLuint program, GLsizei bufSize, GLsizei*
 {
   // initialize extension on first use as on some hw platforms a context
   // has to be bound for the extensions to return correct pointer
-  if(!mInitialized)
+  if(DALI_UNLIKELY(!mInitialized))
   {
     Initialize();
   }
@@ -97,7 +101,7 @@ void GlExtensions::ProgramBinaryOES(GLuint program, GLenum binaryFormat, const G
 {
   // initialize extension on first use as on some hw platforms a context
   // has to be bound for the extensions to return correct pointer
-  if(!mInitialized)
+  if(DALI_UNLIKELY(!mInitialized))
   {
     Initialize();
   }
@@ -119,7 +123,7 @@ bool GlExtensions::BlendBarrierKHR()
 {
   // initialize extension on first use as on some hw platforms a context
   // has to be bound for the extensions to return correct pointer
-  if(!mInitialized)
+  if(DALI_UNLIKELY(!mInitialized))
   {
     Initialize();
   }
@@ -134,6 +138,50 @@ bool GlExtensions::BlendBarrierKHR()
 #endif
 
   return false;
+}
+
+void GlExtensions::RenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+{
+  // initialize extension on first use as on some hw platforms a context
+  // has to be bound for the extensions to return correct pointer
+  if(DALI_UNLIKELY(!mInitialized))
+  {
+    Initialize();
+  }
+
+#ifdef GL_EXT_multisampled_render_to_texture
+  if(mGlRenderbufferStorageMultisampleEXT)
+  {
+    mGlRenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error: glRenderbufferStorageMultisampleEXT extension is not available\n");
+    DALI_ASSERT_DEBUG(0);
+  }
+#endif
+}
+
+void GlExtensions::FramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples)
+{
+  // initialize extension on first use as on some hw platforms a context
+  // has to be bound for the extensions to return correct pointer
+  if(DALI_UNLIKELY(!mInitialized))
+  {
+    Initialize();
+  }
+
+#ifdef GL_EXT_multisampled_render_to_texture
+  if(mGlFramebufferTexture2DMultisampleEXT)
+  {
+    mGlFramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Error: glFramebufferTexture2DMultisampleEXT extension is not available\n");
+    DALI_ASSERT_DEBUG(0);
+  }
+#endif
 }
 
 void GlExtensions::Initialize()
@@ -151,6 +199,11 @@ void GlExtensions::Initialize()
 
 #ifdef GL_KHR_blend_equation_advanced
   mBlendBarrierKHR = reinterpret_cast<PFNGLBLENDBARRIERKHRPROC>(eglGetProcAddress("glBlendBarrierKHR"));
+#endif
+
+#ifdef GL_EXT_multisampled_render_to_texture
+  mGlRenderbufferStorageMultisampleEXT  = reinterpret_cast<PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC>(eglGetProcAddress("glRenderbufferStorageMultisampleEXT"));
+  mGlFramebufferTexture2DMultisampleEXT = reinterpret_cast<PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC>(eglGetProcAddress("glFramebufferTexture2DMultisampleEXT"));
 #endif
 }
 

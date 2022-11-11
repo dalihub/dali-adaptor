@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_EXTENSION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,32 @@ public:
    */
   bool BlendBarrierKHR();
 
+  /**
+   * GLES extension
+   * Establish data storage, format, dimensions and sample count of a renderbuffer object's image
+   *
+   * @param[in] target Specifies a binding to which the target of the allocation and must be GL_RENDERBUFFER.
+   * @param[in] samples Specifies the number of samples to be used for the renderbuffer object's storage. Must not bigger than MAX_SAMPLES_EXT.
+   * @param[in] internalformat Specifies the internal format to use for the renderbuffer object's image.
+   * @param[in] width Specifies the width of the renderbuffer, in pixels.
+   * @param[in] height Specifies the height of the renderbuffer, in pixels.
+   */
+  void RenderbufferStorageMultisampleEXT(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+
+  /**
+   * GLES extension
+   * Enables multisampled rendering into the images of a texture object.
+   * If samples as 0, same as FramebufferTexture2D
+   *
+   * @param[in] target Specifies the framebuffer target. The symbolic constant must be GL_FRAMEBUFFER.
+   * @param[in] attachment Specifies the attachment point to which an image from texture should be attached.
+   * @param[in] textarget Specifies the texture target.
+   * @param[in] texture Specifies the texture object whose image is to be attached.
+   * @param[in] level Specifies the mipmap level of the texture image to be attached, which must be 0.
+   * @param[in] samples The number of samples to the texture. Must not bigger than MAX_SAMPLES_EXT.
+   */
+  void FramebufferTexture2DMultisampleEXT(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples);
+
 private:
   /**
    * Lazy Initialize extensions on first use
@@ -104,6 +130,11 @@ private:
 
 #ifdef GL_KHR_blend_equation_advanced
   PFNGLBLENDBARRIERKHRPROC mBlendBarrierKHR;
+#endif
+
+#ifdef GL_EXT_multisampled_render_to_texture
+  PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC  mGlRenderbufferStorageMultisampleEXT;
+  PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC mGlFramebufferTexture2DMultisampleEXT;
 #endif
 
   bool mInitialized;

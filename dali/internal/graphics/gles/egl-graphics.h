@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -171,6 +171,11 @@ public:
     return mGLES->IsAdvancedBlendEquationSupported();
   }
 
+  bool IsMultisampledRenderToTextureSupported() override
+  {
+    return mGLES->IsMultisampledRenderToTextureSupported();
+  }
+
   /**
    * @return true if graphics subsystem is initialized
    */
@@ -187,6 +192,11 @@ public:
   uint32_t GetMaxTextureSize() override
   {
     return mGLES->GetMaxTextureSize();
+  }
+
+  uint8_t GetMaxTextureSamples() override
+  {
+    return mGLES->GetMaxTextureSamples();
   }
 
   uint32_t GetShaderLanguageVersion() override
