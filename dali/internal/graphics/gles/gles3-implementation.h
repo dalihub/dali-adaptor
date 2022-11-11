@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GLES3_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -164,7 +164,13 @@ public:
 
   void RenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height) override
   {
-    glRenderbufferStorageMultisample(target, samples, internalformat, width, height);
+    // @todo : If FramebufferTexture2DMultisampleEXT not supported gles 3.0 case, we should use glRenderbufferStorageMultisample.
+    mGlExtensions.RenderbufferStorageMultisampleEXT(target, samples, internalformat, width, height);
+  }
+
+  void FramebufferTexture2DMultisample(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples) override
+  {
+    mGlExtensions.FramebufferTexture2DMultisampleEXT(target, attachment, textarget, texture, level, samples);
   }
 
   void FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer) override

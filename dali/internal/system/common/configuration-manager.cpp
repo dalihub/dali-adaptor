@@ -37,10 +37,11 @@ namespace Adaptor
 {
 namespace
 {
-const std::string SYSTEM_CACHE_FILE                    = "gpu-environment.conf";
-const std::string DALI_ENV_MULTIPLE_WINDOW_SUPPORT     = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
-const std::string DALI_BLEND_EQUATION_ADVANCED_SUPPORT = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
-const std::string DALI_GLSL_VERSION                    = "DALI_GLSL_VERSION";
+const std::string SYSTEM_CACHE_FILE                           = "gpu-environment.conf";
+const std::string DALI_ENV_MULTIPLE_WINDOW_SUPPORT            = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
+const std::string DALI_BLEND_EQUATION_ADVANCED_SUPPORT        = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
+const std::string DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT = "DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT";
+const std::string DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
 
 } // unnamed namespace
 
@@ -52,9 +53,11 @@ ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics
   mShaderLanguageVersion(0u),
   mIsMultipleWindowSupported(true),
   mIsAdvancedBlendEquationSupported(true),
+  mIsMultisampledRenderToTextureSupported(true),
   mMaxTextureSizeCached(false),
   mIsMultipleWindowSupportedCached(false),
   mIsAdvancedBlendEquationSupportedCached(false),
+  mIsMultisampledRenderToTextureSupportedCached(false),
   mShaderLanguageVersionCached(false)
 {
 }
@@ -94,6 +97,12 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
         std::getline(subStream, value);
         mIsAdvancedBlendEquationSupported       = std::atoi(value.c_str());
         mIsAdvancedBlendEquationSupportedCached = true;
+      }
+      else if(!mIsMultisampledRenderToTextureSupportedCached && name == DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT)
+      {
+        std::getline(subStream, value);
+        mIsMultisampledRenderToTextureSupported       = std::atoi(value.c_str());
+        mIsMultisampledRenderToTextureSupportedCached = true;
       }
       else if(!mShaderLanguageVersionCached && name == DALI_GLSL_VERSION)
       {
@@ -248,6 +257,41 @@ bool ConfigurationManager::IsAdvancedBlendEquationSupported()
   }
 
   return mIsAdvancedBlendEquationSupported;
+}
+
+bool ConfigurationManager::IsMultisampledRenderToTextureSupported()
+{
+  if(!mIsMultisampledRenderToTextureSupportedCached)
+  {
+    RetrieveKeysFromConfigFile(mSystemCacheFilePath);
+
+    if(!mIsMultisampledRenderToTextureSupportedCached)
+    {
+      if(!mGraphics->IsInitialized())
+      {
+        // Wait until graphics subsystem is initialised, but this will happen once per factory reset.
+        // This method blocks until the render thread has initialised the graphics.
+        mThreadController->WaitForGraphicsInitialization();
+      }
+
+      // Query from Graphics Subsystem and save the cache
+      mIsMultisampledRenderToTextureSupported       = mGraphics->IsMultisampledRenderToTextureSupported();
+      mIsMultisampledRenderToTextureSupportedCached = true;
+
+      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
+      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
+      if(stream.is_open())
+      {
+        stream << DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT << " " << mIsMultisampledRenderToTextureSupported << std::endl;
+      }
+      else
+      {
+        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+      }
+    }
+  }
+
+  return mIsMultisampledRenderToTextureSupported;
 }
 
 } // namespace Adaptor

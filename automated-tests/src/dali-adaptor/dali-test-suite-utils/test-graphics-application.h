@@ -2,7 +2,7 @@
 #define DALI_TEST_GRAPHICS_APPLICATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,6 +148,14 @@ public:
   }
 
   /**
+   * @return true if multisampled render to texture is supported
+   */
+  bool IsMultisampledRenderToTextureSupported() override
+  {
+    return true;
+  }
+
+  /**
    * @return true if graphics subsystem is initialized
    */
   bool IsInitialized() override
@@ -169,6 +177,14 @@ public:
   uint32_t GetMaxTextureSize() override
   {
     return 32768u;
+  }
+
+  /**
+   * @return the maximum texture samples when we use multisampled texture
+   */
+  uint8_t GetMaxTextureSamples() override
+  {
+    return 8u;
   }
 
   /**

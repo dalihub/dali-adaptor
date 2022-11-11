@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_FRAMEBUFFER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ private:
   uint32_t mFramebufferId{0u};
   uint32_t mDepthBufferId{0u};
   uint32_t mStencilBufferId{0u};
+  uint32_t mMultisamples{1u};
   bool     mInitialized{false};
 };
 

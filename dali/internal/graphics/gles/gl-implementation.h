@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,13 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/public-api/common/vector-wrapper.h>
 #include <cstdlib>
 #include <cstring>
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/gles/gl-extensions-support.h>
 #include <dali/internal/graphics/gles/gles-abstraction.h>
 #include <dali/internal/graphics/gles/gles2-implementation.h>
 #include <dali/internal/graphics/gles/gles3-implementation.h>
@@ -44,7 +46,6 @@ namespace
 static constexpr int32_t     INITIAL_GLES_VERSION                         = 30;
 static constexpr int32_t     GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
 static constexpr const char* LEGACY_SHADING_LANGUAGE_VERSION              = "100";
-static constexpr const char* KHR_BLEND_EQUATION_ADVANCED                  = "GL_KHR_blend_equation_advanced";
 
 static constexpr const char* DEFAULT_SAMPLER_TYPE = "sampler2D";
 
@@ -63,6 +64,7 @@ static constexpr const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING = "#extension GL_OES_EGL_image_external:require\n";
 
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3 = "#extension GL_OES_EGL_image_external_essl3:require\n";
+
 } // namespace
 
 /**
@@ -74,15 +76,15 @@ class GlImplementation : public Dali::Integration::GlAbstraction
 {
 public:
   GlImplementation()
-  : mContextCreatedWaitCondition(),
+  : mGlExtensionSupportedCacheList(),
+    mContextCreatedWaitCondition(),
     mMaxTextureSize(0),
+    mMaxTextureSamples(0),
     mVertexShaderPrefix(""),
     mGlesVersion(INITIAL_GLES_VERSION),
     mShadingLanguageVersion(100),
     mShadingLanguageVersionCached(false),
     mIsSurfacelessContextSupported(false),
-    mIsAdvancedBlendEquationSupportedCached(false),
-    mIsAdvancedBlendEquationSupported(false),
     mIsContextCreated(false)
   {
     mImpl.reset(new Gles3Implementation());
@@ -117,25 +119,18 @@ public:
 
     if(mGlesVersion >= GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED)
     {
-      mIsAdvancedBlendEquationSupported = true;
+      SetIsAdvancedBlendEquationSupported(true);
     }
-    else
+
+    if(mGlExtensionSupportedCacheList.NeedFullCheck())
     {
-      // when mIsAdvancedBlendEquationSupported is cached, we don't need to check all the extensions.
-      if(!mIsAdvancedBlendEquationSupportedCached)
-      {
-        const char* const  extensionStr = reinterpret_cast<const char*>(glGetString(GL_EXTENSIONS));
-        std::istringstream stream(extensionStr);
-        std::string        currentExtension;
-        while(std::getline(stream, currentExtension, ' '))
-        {
-          if(currentExtension == KHR_BLEND_EQUATION_ADVANCED)
-          {
-            mIsAdvancedBlendEquationSupported = true;
-            break;
-          }
-        }
-      }
+      // fully check gl extensions if we miss some extension supported
+      mGlExtensionSupportedCacheList.EnsureGlExtensionSupportedCheck();
+    }
+
+    if(IsMultisampledRenderToTextureSupported())
+    {
+      glGetIntegerv(GL_MAX_SAMPLES_EXT, &mMaxTextureSamples);
     }
 
     if(!mShadingLanguageVersionCached)
@@ -193,18 +188,36 @@ public:
 
   void SetIsAdvancedBlendEquationSupported(const bool isSupported)
   {
-    mIsAdvancedBlendEquationSupported       = isSupported;
-    mIsAdvancedBlendEquationSupportedCached = true;
+    mGlExtensionSupportedCacheList.SetSupported(GlExtensionCache::GlExtensionCheckerType::BLEND_EQUATION_ADVANCED, isSupported);
   }
 
   bool IsAdvancedBlendEquationSupported()
   {
     ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
-    if(!mIsContextCreated && !mIsAdvancedBlendEquationSupportedCached)
+
+    const auto type = GlExtensionCache::GlExtensionCheckerType::BLEND_EQUATION_ADVANCED;
+    if(!mIsContextCreated && !mGlExtensionSupportedCacheList.GetCached(type))
     {
       mContextCreatedWaitCondition.Wait(lock);
     }
-    return mIsAdvancedBlendEquationSupported;
+    return mGlExtensionSupportedCacheList.GetSupported(type);
+  }
+
+  void SetIsMultisampledRenderToTextureSupported(const bool isSupported)
+  {
+    mGlExtensionSupportedCacheList.SetSupported(GlExtensionCache::GlExtensionCheckerType::MULTISAMPLED_RENDER_TO_TEXTURE, isSupported);
+  }
+
+  bool IsMultisampledRenderToTextureSupported()
+  {
+    ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
+
+    const auto type = GlExtensionCache::GlExtensionCheckerType::MULTISAMPLED_RENDER_TO_TEXTURE;
+    if(!mIsContextCreated && !mGlExtensionSupportedCacheList.GetCached(type))
+    {
+      mContextCreatedWaitCondition.Wait(lock);
+    }
+    return mGlExtensionSupportedCacheList.GetSupported(type);
   }
 
   bool IsBlendEquationSupported(DevelBlendEquation::Type blendEquation)
@@ -337,6 +350,16 @@ public:
     return mMaxTextureSize;
   }
 
+  int GetMaxTextureSamples()
+  {
+    ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
+    if(!mIsContextCreated)
+    {
+      mContextCreatedWaitCondition.Wait(lock);
+    }
+    return mMaxTextureSamples;
+  }
+
   int GetGlesVersion()
   {
     ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
@@ -371,7 +394,7 @@ public:
     if(versionPosition != std::string::npos)
     {
       std::string extensionString;
-      size_t shadingLanguageVersionPosition = shader.find_first_not_of(" \t", versionPosition + versionString.length());
+      size_t      shadingLanguageVersionPosition = shader.find_first_not_of(" \t", versionPosition + versionString.length());
       if(shadingLanguageVersionPosition != std::string::npos &&
          shader.substr(shadingLanguageVersionPosition, 3) == LEGACY_SHADING_LANGUAGE_VERSION)
       {
@@ -1250,6 +1273,11 @@ public:
     mImpl->RenderbufferStorageMultisample(target, samples, internalformat, width, height);
   }
 
+  void FramebufferTexture2DMultisample(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLsizei samples) override
+  {
+    mImpl->FramebufferTexture2DMultisample(target, attachment, textarget, texture, level, samples);
+  }
+
   void FramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer) override
   {
     mImpl->FramebufferTextureLayer(target, attachment, texture, level, layer);
@@ -1647,7 +1675,7 @@ public:
 
   void BlendBarrier(void)
   {
-    if(mIsAdvancedBlendEquationSupported)
+    if(mGlExtensionSupportedCacheList.GetSupported(GlExtensionCache::GlExtensionCheckerType::BLEND_EQUATION_ADVANCED))
     {
       mImpl->BlendBarrier();
     }
@@ -1656,8 +1684,11 @@ public:
 private:
   std::unique_ptr<GlesAbstraction> mImpl;
 
+  GlExtensionCache::GlExtensionSupportedCacheList mGlExtensionSupportedCacheList;
+
   ConditionalWait mContextCreatedWaitCondition;
   GLint           mMaxTextureSize;
+  GLint           mMaxTextureSamples;
   std::string     mShaderVersionPrefix;
   std::string     mVertexShaderPrefix;
   std::string     mFragmentShaderPrefix;
@@ -1665,8 +1696,6 @@ private:
   int32_t         mShadingLanguageVersion;
   bool            mShadingLanguageVersionCached;
   bool            mIsSurfacelessContextSupported;
-  bool            mIsAdvancedBlendEquationSupportedCached;
-  bool            mIsAdvancedBlendEquationSupported;
   bool            mIsContextCreated;
 };
 

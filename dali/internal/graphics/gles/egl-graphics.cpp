@@ -247,6 +247,7 @@ Graphics::Controller& EglGraphics::GetController()
 void EglGraphics::CacheConfigurations(ConfigurationManager& configurationManager)
 {
   mGLES->SetIsAdvancedBlendEquationSupported(configurationManager.IsAdvancedBlendEquationSupported());
+  mGLES->SetIsMultisampledRenderToTextureSupported(configurationManager.IsMultisampledRenderToTextureSupported());
   mGLES->SetShadingLanguageVersion(configurationManager.GetShadingLanguageVersion());
 }
 
