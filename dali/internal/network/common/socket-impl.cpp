@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -167,7 +167,7 @@ SocketInterface* Socket::Accept() const
 
   struct sockaddr clientAddress;
 
-  socklen_t addressLength(sizeof(sockaddr_in));
+  socklen_t addressLength(static_cast<socklen_t>(sizeof(sockaddr_in)));
 
   int clientFileDescriptor = accept(mSocketFileDescriptor, &clientAddress, &addressLength);
   if(clientFileDescriptor == -1)
@@ -316,7 +316,7 @@ bool Socket::Read(void* buffer, unsigned int bufferSizeInBytes, unsigned int& by
     return false;
   }
 
-  bytesRead = read(mSocketFileDescriptor, buffer, bufferSizeInBytes);
+  bytesRead = static_cast<unsigned int>(read(mSocketFileDescriptor, buffer, bufferSizeInBytes));
 
   return true;
 }

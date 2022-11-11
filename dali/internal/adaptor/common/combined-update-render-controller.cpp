@@ -593,8 +593,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // UPDATE
     //////////////////////////////
 
-    const unsigned int currentTime   = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
-    const unsigned int nextFrameTime = currentTime + mDefaultFrameDurationMilliseconds;
+    const uint32_t currentTime   = static_cast<uint32_t>(currentFrameStartTime / NANOSECONDS_PER_MILLISECOND);
+    const uint32_t nextFrameTime = currentTime + static_cast<uint32_t>(mDefaultFrameDurationMilliseconds);
 
     uint64_t noOfFramesSinceLastUpdate = 1;
     float    frameDelta                = 0.0f;
