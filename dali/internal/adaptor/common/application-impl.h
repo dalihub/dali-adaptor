@@ -67,11 +67,12 @@ typedef IntrusivePtr<Application> ApplicationPtr;
 class Application : public BaseObject, public Framework::Observer, public Framework::TaskObserver
 {
 public:
-  typedef Dali::Application::LowBatterySignalType LowBatterySignalType;
-  typedef Dali::Application::LowMemorySignalType  LowMemorySignalType;
-  typedef Dali::Application::AppSignalType        AppSignalType;
-  typedef Dali::Application::AppControlSignalType AppControlSignalType;
-  typedef Dali::Application::WINDOW_MODE          WINDOW_MODE;
+  typedef Dali::Application::LowBatterySignalType               LowBatterySignalType;
+  typedef Dali::Application::LowMemorySignalType                LowMemorySignalType;
+  typedef Dali::Application::DeviceOrientationChangedSignalType DeviceOrientationChangedSignalType;
+  typedef Dali::Application::AppSignalType                      AppSignalType;
+  typedef Dali::Application::AppControlSignalType               AppControlSignalType;
+  typedef Dali::Application::WINDOW_MODE                        WINDOW_MODE;
 
   /**
    * Create a new application
@@ -212,6 +213,11 @@ public: // From Framework::Observer
   void OnMemoryLow(Dali::DeviceStatus::Memory::Status status) override;
 
   /**
+   * Called when the framework informs the application that device orientation is changed.
+   */
+  void OnDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status) override;
+
+  /**
    * Called when the framework informs the application that the platform surface is created.
    */
   void OnSurfaceCreated(Any newSurface) override;
@@ -257,6 +263,15 @@ public: // From Framework::TaskObserver
    * Called when the framework informs the application that the memory level of the device is low.
    */
   void OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status) override;
+
+  /**
+   * Called when the framework informs the application that the device orientation is changed.
+   *
+   * Device orientation changed event is from Application Framework(Sensor Framework), it means it is system event.
+   * If UIThreading is enable, DALI application has the main thread and UI thread.
+   * This event is emitted in main thread, then it is posted to the UI thread in this callback function.
+   */
+  void OnTaskDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status) override;
 
 public:
   /**
@@ -363,6 +378,14 @@ public: // Signals
   }
 
   /**
+   * @copydoc Dali::Application:::DeviceOrientationChangedSignalType()
+   */
+  Dali::Application::DeviceOrientationChangedSignalType& DeviceOrientationChangedSignal()
+  {
+    return mDeviceOrientationChangedSignal;
+  }
+
+  /**
    * @copydoc Dali::Application::TaskInitSignal()
    */
   Dali::Application::AppSignalType& TaskInitSignal()
@@ -418,6 +441,14 @@ public: // Signals
     return mTaskLowMemorySignal;
   }
 
+  /**
+   * @copydoc Dali::Application::TaskDeviceOrientationChangedSignal()
+   */
+  Dali::Application::DeviceOrientationChangedSignalType& TaskDeviceOrientationChangedSignal()
+  {
+    return mTaskDeviceOrientationChangedSignal;
+  }
+
 protected:
   /**
    * Private Constructor
@@ -467,24 +498,26 @@ protected:
   void ChangePreInitializedWindowSize();
 
 private:
-  AppSignalType        mInitSignal;
-  AppSignalType        mTerminateSignal;
-  AppSignalType        mPauseSignal;
-  AppSignalType        mResumeSignal;
-  AppSignalType        mResetSignal;
-  AppControlSignalType mAppControlSignal;
-  AppSignalType        mLanguageChangedSignal;
-  AppSignalType        mRegionChangedSignal;
-  LowBatterySignalType mLowBatterySignal;
-  LowMemorySignalType  mLowMemorySignal;
+  AppSignalType                      mInitSignal;
+  AppSignalType                      mTerminateSignal;
+  AppSignalType                      mPauseSignal;
+  AppSignalType                      mResumeSignal;
+  AppSignalType                      mResetSignal;
+  AppControlSignalType               mAppControlSignal;
+  AppSignalType                      mLanguageChangedSignal;
+  AppSignalType                      mRegionChangedSignal;
+  LowBatterySignalType               mLowBatterySignal;
+  LowMemorySignalType                mLowMemorySignal;
+  DeviceOrientationChangedSignalType mDeviceOrientationChangedSignal;
 
-  AppSignalType        mTaskInitSignal;
-  AppSignalType        mTaskTerminateSignal;
-  AppControlSignalType mTaskAppControlSignal;
-  AppSignalType        mTaskLanguageChangedSignal;
-  AppSignalType        mTaskRegionChangedSignal;
-  LowBatterySignalType mTaskLowBatterySignal;
-  LowMemorySignalType  mTaskLowMemorySignal;
+  AppSignalType                      mTaskInitSignal;
+  AppSignalType                      mTaskTerminateSignal;
+  AppControlSignalType               mTaskAppControlSignal;
+  AppSignalType                      mTaskLanguageChangedSignal;
+  AppSignalType                      mTaskRegionChangedSignal;
+  LowBatterySignalType               mTaskLowBatterySignal;
+  LowMemorySignalType                mTaskLowMemorySignal;
+  DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
   EventLoop* mEventLoop;
   Framework* mFramework;

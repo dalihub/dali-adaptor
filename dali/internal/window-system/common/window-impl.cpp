@@ -93,6 +93,7 @@ Window::Window()
   mKeyboardRepeatSettingsChangedSignal(),
   mAuxiliaryMessageSignal(),
   mMovedSignal(),
+  mOrientationChangedSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -1014,6 +1015,7 @@ void Window::OnRotation(const RotationEvent& rotation)
 
   Dali::Window handle(this);
   mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
+  mOrientationChangedSignal.Emit(handle, GetCurrentOrientation());
 
   mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
 }

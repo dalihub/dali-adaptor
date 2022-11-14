@@ -390,6 +390,12 @@ void Application::OnMemoryLow(Dali::DeviceStatus::Memory::Status status)
   mLowMemorySignal.Emit(status);
 }
 
+void Application::OnDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
+{
+  Dali::Application application(this);
+  mDeviceOrientationChangedSignal.Emit(status);
+}
+
 void Application::OnSurfaceCreated(Any newSurface)
 {
   void* newWindow = AnyCast<void*>(newSurface);
@@ -447,6 +453,12 @@ void Application::OnTaskMemoryLow(Dali::DeviceStatus::Memory::Status status)
 {
   Dali::Application application(this);
   mTaskLowMemorySignal.Emit(status);
+}
+
+void Application::OnTaskDeviceOrientationChanged(Dali::DeviceStatus::Orientation::Status status)
+{
+  Dali::Application application(this);
+  mTaskDeviceOrientationChangedSignal.Emit(status);
 }
 
 bool Application::AddIdle(CallbackBase* callback, bool hasReturnValue)
