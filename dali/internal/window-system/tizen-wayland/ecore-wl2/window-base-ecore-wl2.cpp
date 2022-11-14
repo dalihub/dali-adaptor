@@ -1207,7 +1207,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     std::ostringstream stream;
     if(gTraceFilter->IsTraceEnabled())
     {
-      stream << "DALI_ON_KEY_DOWN [" << keyName << "]\n";
+      stream << "DALI_ON_KEY_DOWN [" << keyName << "]";
       DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
     }
 #endif
