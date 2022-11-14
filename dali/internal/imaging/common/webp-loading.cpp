@@ -124,6 +124,7 @@ public:
       {
         mIsAnimatedImage = true;
       }
+      WebPDemuxDelete(demuxer);
 
       if(!mIsAnimatedImage)
       {
