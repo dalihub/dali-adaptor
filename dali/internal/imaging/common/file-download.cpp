@@ -196,7 +196,7 @@ bool DownloadFile(CURL*                  curlHandle,
   // get the content length, -1 == size is not known
   curl_easy_getinfo(curlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &size);
 
-  if(static_cast<size_t>(size) >= maximumAllowedSizeBytes)
+  if(size >= static_cast<double>(maximumAllowedSizeBytes))
   {
     DALI_LOG_ERROR("File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
     return false;
