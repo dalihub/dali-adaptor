@@ -217,6 +217,33 @@ DeviceStatus::Battery::Status GetBatteryStatus(app_event_low_battery_status_e ba
   }
 }
 
+DeviceStatus::Orientation::Status GetOrientationStatus(app_device_orientation_e orientationStatus)
+{
+  switch(orientationStatus)
+  {
+    case APP_DEVICE_ORIENTATION_0:
+    {
+      return Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
+    }
+    case APP_DEVICE_ORIENTATION_90:
+    {
+      return Dali::DeviceStatus::Orientation::Status::ORIENTATION_90;
+    }
+    case APP_DEVICE_ORIENTATION_180:
+    {
+      return Dali::DeviceStatus::Orientation::Status::ORIENTATION_180;
+    }
+    case APP_DEVICE_ORIENTATION_270:
+    {
+      return Dali::DeviceStatus::Orientation::Status::ORIENTATION_270;
+    }
+    default:
+    {
+      return Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
+    }
+  }
+}
+
 } // namespace AppCore
 
 /**
@@ -233,7 +260,8 @@ struct Framework::Impl
       explicit Task(Framework* framework)
       : mFramework(framework),
         mNewBatteryStatus(Dali::DeviceStatus::Battery::Status::NORMAL),
-        mNewMemoryStatus(Dali::DeviceStatus::Memory::NORMAL)
+        mNewMemoryStatus(Dali::DeviceStatus::Memory::NORMAL),
+        mNewDeviceOrientationStatus(Dali::DeviceStatus::Orientation::ORIENTATION_0)
       {
       }
 
@@ -300,7 +328,8 @@ struct Framework::Impl
         mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
+          [](gpointer userData) -> gboolean
+          {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnMemoryLow(task->mNewMemoryStatus);
@@ -310,13 +339,33 @@ struct Framework::Impl
         AppCoreTaskBase::OnLowMemory(state);
       }
 
+      void OnDeviceOrientationChanged(AppCoreTaskBase::DeviceOrientationState state) override
+      {
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted, orientation :%d", __MODULE__, __func__, __LINE__, state);
+
+        mNewDeviceOrientationStatus = AppCore::GetOrientationStatus(static_cast<app_device_orientation_e>(state));
+
+        PostToUiThread(
+          [](gpointer userData) -> gboolean
+          {
+            auto* task      = static_cast<Task*>(userData);
+            auto* framework = static_cast<Framework*>(task->mFramework);
+            framework->mObserver.OnDeviceOrientationChanged(task->mNewDeviceOrientationStatus);
+            return G_SOURCE_REMOVE;
+          });
+
+        mFramework->mTaskObserver.OnTaskDeviceOrientationChanged(mNewDeviceOrientationStatus);
+
+        AppCoreTaskBase::OnDeviceOrientationChanged(state);
+      }
       void OnLowBattery(AppCoreTaskBase::LowBatteryState state) override
       {
         print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnLowBattery() emitted", __MODULE__, __func__, __LINE__);
         mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
+          [](gpointer userData) -> gboolean
+          {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnBatteryLow(task->mNewBatteryStatus);
@@ -333,7 +382,8 @@ struct Framework::Impl
         mFramework->SetLanguage(mNewLanguage);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
+          [](gpointer userData) -> gboolean
+          {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnLanguageChanged();
@@ -351,7 +401,8 @@ struct Framework::Impl
         mFramework->SetRegion(mNewRegion);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean {
+          [](gpointer userData) -> gboolean
+          {
             auto* task      = static_cast<Task*>(userData);
             auto* framework = static_cast<Framework*>(task->mFramework);
             framework->mObserver.OnRegionChanged();
@@ -360,13 +411,6 @@ struct Framework::Impl
 
         mFramework->mTaskObserver.OnTaskRegionChanged();
         AppCoreTaskBase::OnRegionChanged(mNewRegion);
-      }
-
-      void OnDeviceOrientationChanged(AppCoreTaskBase::DeviceOrientationState state) override
-      {
-        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > OnDeviceOrientationChanged() emitted", __MODULE__, __func__, __LINE__);
-        // Note: This isn't emitted to the App.
-        AppCoreTaskBase::OnDeviceOrientationChanged(state);
       }
 
     private:
@@ -395,11 +439,12 @@ struct Framework::Impl
       }
 
     private:
-      Framework*                          mFramework;
-      std::string                         mNewLanguage;
-      std::string                         mNewRegion;
-      Dali::DeviceStatus::Battery::Status mNewBatteryStatus;
-      Dali::DeviceStatus::Memory::Status  mNewMemoryStatus;
+      Framework*                              mFramework;
+      std::string                             mNewLanguage;
+      std::string                             mNewRegion;
+      Dali::DeviceStatus::Battery::Status     mNewBatteryStatus;
+      Dali::DeviceStatus::Memory::Status      mNewMemoryStatus;
+      Dali::DeviceStatus::Orientation::Status mNewDeviceOrientationStatus;
     };
 
     explicit UiAppContext(unsigned int hint, Framework* framework)
@@ -575,10 +620,6 @@ struct Framework::Impl
       }
     }
 
-    static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
-    {
-    }
-
     static void OnRegionFormatChanged(app_event_info_h event_info, void* user_data)
     {
       auto*     context   = static_cast<UiAppContext*>(user_data);
@@ -621,6 +662,18 @@ struct Framework::Impl
       app_event_get_low_memory_status(event_info, &status);
       Dali::DeviceStatus::Memory::Status result = AppCore::GetMemoryStatus(status);
       observer->OnMemoryLow(result);
+    }
+
+    static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
+    {
+      auto*     context   = static_cast<UiAppContext*>(user_data);
+      auto*     framework = context->mFramework;
+      Observer* observer  = &framework->mObserver;
+
+      app_device_orientation_e status;
+      app_event_get_device_orientation(event_info, &status);
+      Dali::DeviceStatus::Orientation::Status result = AppCore::GetOrientationStatus(status);
+      observer->OnDeviceOrientationChanged(result);
     }
 
     void ProcessBundle(Framework* framework, bundle* bundleData)
@@ -886,10 +939,6 @@ struct Framework::Impl
     }
   }
 
-  static void AppDeviceRotated(AppCore::AppEventInfoPtr event_info, void* data)
-  {
-  }
-
   static void AppRegionChanged(AppCore::AppEventInfoPtr event, void* data)
   {
     Framework* framework = static_cast<Framework*>(data);
@@ -910,7 +959,7 @@ struct Framework::Impl
   {
     Observer*                           observer = &static_cast<Framework*>(data)->mObserver;
     int                                 status   = *static_cast<int*>(event->value);
-    Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::NORMAL;
+    Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
 
     // convert to dali battery status
     switch(status)
@@ -935,7 +984,7 @@ struct Framework::Impl
   {
     Observer*                          observer = &static_cast<Framework*>(data)->mObserver;
     int                                status   = *static_cast<int*>(event->value);
-    Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::NORMAL;
+    Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
 
     // convert to dali memmory status
     switch(status)
@@ -959,6 +1008,41 @@ struct Framework::Impl
         break;
     }
     observer->OnMemoryLow(result);
+  }
+
+  static void AppDeviceOrientationChanged(AppCore::AppEventInfoPtr event, void* data)
+  {
+    Observer*                               observer = &static_cast<Framework*>(data)->mObserver;
+    int                                     status   = *static_cast<int*>(event->value);
+    Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
+
+    switch(status)
+    {
+      case APP_DEVICE_ORIENTATION_0:
+      {
+        result = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
+        break;
+      }
+      case APP_DEVICE_ORIENTATION_90:
+      {
+        result = Dali::DeviceStatus::Orientation::Status::ORIENTATION_90;
+        break;
+      }
+      case APP_DEVICE_ORIENTATION_180:
+      {
+        result = Dali::DeviceStatus::Orientation::Status::ORIENTATION_180;
+        break;
+      }
+      case APP_DEVICE_ORIENTATION_270:
+      {
+        result = Dali::DeviceStatus::Orientation::Status::ORIENTATION_270;
+        break;
+      }
+
+      default:
+        break;
+    }
+    observer->OnDeviceOrientationChanged(result);
   }
 
   int AppNormalMain()
@@ -1038,7 +1122,7 @@ struct Framework::Impl
 
     AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
     AppCore::AppAddEventHandler(&handlers[AppCore::LOW_MEMORY], AppCore::LOW_MEMORY, AppMemoryLow, mFramework);
-    AppCore::AppAddEventHandler(&handlers[AppCore::DEVICE_ORIENTATION_CHANGED], AppCore::DEVICE_ORIENTATION_CHANGED, AppDeviceRotated, mFramework);
+    AppCore::AppAddEventHandler(&handlers[AppCore::DEVICE_ORIENTATION_CHANGED], AppCore::DEVICE_ORIENTATION_CHANGED, AppDeviceOrientationChanged, mFramework);
     AppCore::AppAddEventHandler(&handlers[AppCore::LANGUAGE_CHANGED], AppCore::LANGUAGE_CHANGED, AppLanguageChanged, mFramework);
     AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
 

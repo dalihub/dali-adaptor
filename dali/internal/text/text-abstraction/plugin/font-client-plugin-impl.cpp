@@ -1082,7 +1082,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
         const float fixedHeight = static_cast<float>(ftFace->available_sizes[fixedSizeIndex].height);
 
         // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics, fixedSizeIndex, fixedWidth, fixedHeight, hasColorTables);
 
         fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
       }
@@ -1124,7 +1124,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
                             static_cast<float>(ftFace->underline_thickness) * FROM_266);
 
         // Create the FreeType font face item to cache.
-        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, path, requestedPointSize, faceIndex, metrics);
+        FontFaceCacheItem fontFaceCacheItem(mFreeTypeLibrary, ftFace, mCacheHandler->GetGlyphCacheManager(), path, requestedPointSize, faceIndex, metrics);
 
         fontId = mCacheHandler->CacheFontFaceCacheItem(std::move(fontFaceCacheItem));
       }

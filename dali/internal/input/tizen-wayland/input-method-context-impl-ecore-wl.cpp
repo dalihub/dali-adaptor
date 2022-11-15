@@ -532,8 +532,8 @@ void InputMethodContextEcoreWl::PreEditChanged(void*, ImfContext* imfContext, vo
       data.startIndex = 0;
       data.endIndex   = 0;
 
-      size_t visualCharacterIndex = 0;
-      size_t byteIndex            = 0;
+      uint32_t visualCharacterIndex = 0;
+      size_t   byteIndex            = 0;
 
       // iterate through null terminated string checking each character's position against the given byte position ( attr->end_index ).
       char leadByte = preEditString[byteIndex];
@@ -1203,7 +1203,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyDown(const Dali::KeyEvent& keyEve
     ecoreKeyDownEvent.key          = key.c_str();
     ecoreKeyDownEvent.string       = integKeyEvent.keyString.c_str();
     ecoreKeyDownEvent.compose      = compose.c_str();
-    ecoreKeyDownEvent.timestamp    = integKeyEvent.time;
+    ecoreKeyDownEvent.timestamp    = static_cast<uint32_t>(integKeyEvent.time);
     ecoreKeyDownEvent.modifiers    = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
     ecoreKeyDownEvent.locks        = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
     ecoreKeyDownEvent.dev_name     = deviceName.c_str();
@@ -1259,7 +1259,7 @@ bool InputMethodContextEcoreWl::ProcessEventKeyUp(const Dali::KeyEvent& keyEvent
     ecoreKeyUpEvent.key          = key.c_str();
     ecoreKeyUpEvent.string       = integKeyEvent.keyString.c_str();
     ecoreKeyUpEvent.compose      = compose.c_str();
-    ecoreKeyUpEvent.timestamp    = integKeyEvent.time;
+    ecoreKeyUpEvent.timestamp    = static_cast<uint32_t>(integKeyEvent.time);
     ecoreKeyUpEvent.modifiers    = EcoreInputModifierToEcoreIMFModifier(integKeyEvent.keyModifier);
     ecoreKeyUpEvent.locks        = EcoreInputModifierToEcoreIMFLock(integKeyEvent.keyModifier);
     ecoreKeyUpEvent.dev_name     = deviceName.c_str();

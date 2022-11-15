@@ -2,7 +2,7 @@
 #define DALI_WINDOW_ENUMERATIONS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,8 @@ enum class WindowType
   NOTIFICATION, ///< A notification window, like a warning about battery life or a new E-Mail received. @SINCE_2_0.0
   UTILITY,      ///< A persistent utility window, like a toolbox or palette. @SINCE_2_0.0
   DIALOG,       ///< Used for simple dialog window. @SINCE_2_0.0
-  IME           ///< Used for Ime keyboard window. It should be set in application New function. @SINCE_2_0.33
+  IME,          ///< Used for Ime keyboard window. It should be set in application New function. @SINCE_2_0.33
+  DESKTOP       ///< Used for desktop windows. @SINCE_2_2.1
 };
 
 /**
@@ -118,14 +119,14 @@ enum class WindowOperationResult
  */
 enum class WindowResizeDirection
 {
-  TOP_LEFT      = 1, ///< Start resizing window to the top-left edge.
-  TOP           = 2, ///< Start resizing window to the top side.
-  TOP_RIGHT     = 3, ///< Start resizing window to the top-right edge.
-  LEFT          = 4, ///< Start resizing window to the left side.
-  RIGHT         = 5, ///< Start resizing window to the right side.
-  BOTTOM_LEFT   = 6, ///< Start resizing window to the bottom-left edge.
-  BOTTOM        = 7, ///< Start resizing window to the bottom side.
-  BOTTOM_RIGHT  = 8  ///< Start resizing window to the bottom-right edge.
+  TOP_LEFT     = 1, ///< Start resizing window to the top-left edge.
+  TOP          = 2, ///< Start resizing window to the top side.
+  TOP_RIGHT    = 3, ///< Start resizing window to the top-right edge.
+  LEFT         = 4, ///< Start resizing window to the left side.
+  RIGHT        = 5, ///< Start resizing window to the right side.
+  BOTTOM_LEFT  = 6, ///< Start resizing window to the bottom-left edge.
+  BOTTOM       = 7, ///< Start resizing window to the bottom side.
+  BOTTOM_RIGHT = 8  ///< Start resizing window to the bottom-right edge.
 };
 
 } // namespace Dali

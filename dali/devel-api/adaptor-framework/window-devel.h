@@ -47,6 +47,7 @@ typedef Signal<void(const std::string&, const std::string&, const Property::Arra
 typedef Signal<void(Window, bool)>                                                   AccessibilityHighlightSignalType;        ///< Accessibility Highlight signal type
 typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
+typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -57,7 +58,7 @@ typedef Signal<void(Window, Dali::Window::WindowPosition)>                      
  * @param[in] isTransparent Whether Window is transparent
  * @return A new window
  * @note This creates an extra window in addition to the default main window
-*/
+ */
 DALI_ADAPTOR_API Window New(Any surface, PositionSize windowPosition, const std::string& name, bool isTransparent = false);
 
 /**
@@ -539,6 +540,24 @@ DALI_ADAPTOR_API InterceptKeyEventSignalType& InterceptKeyEventSignal(Window win
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the window orientation is changed.
+ *
+ * To emit Window Orientation signal, AddAvailableOrientation() or SetPreferredOrientation() should be called before device is rotated.
+ * Most of cases, AddAvailableOrientation() or SetPreferredOrientation() is callled in onCreate().
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::WindowOrientation orientation );
+ * @endcode
+ * The parameter is the changed window orientation.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window window);
 
 } // namespace DevelWindow
 

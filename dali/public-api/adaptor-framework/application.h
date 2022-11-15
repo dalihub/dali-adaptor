@@ -121,10 +121,11 @@ class Application;
 class DALI_ADAPTOR_API Application : public BaseHandle
 {
 public:
-  typedef Signal<void(DeviceStatus::Battery::Status)> LowBatterySignalType; ///< Application device signal type @SINCE_1_2.62
-  typedef Signal<void(DeviceStatus::Memory::Status)>  LowMemorySignalType;  ///< Application device signal type @SINCE_1_2.62
-  typedef Signal<void(Application&)>                  AppSignalType;        ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
-  typedef Signal<void(Application&, void*)>           AppControlSignalType; ///< Application control signal callback type @SINCE_1_0.0
+  typedef Signal<void(DeviceStatus::Battery::Status)>     LowBatterySignalType;               ///< Application device signal type @SINCE_1_2.62
+  typedef Signal<void(DeviceStatus::Memory::Status)>      LowMemorySignalType;                ///< Application device signal type @SINCE_1_2.62
+  typedef Signal<void(DeviceStatus::Orientation::Status)> DeviceOrientationChangedSignalType; ///< Application device orientation changed signal type @SINCE_2_2.1
+  typedef Signal<void(Application&)>                      AppSignalType;                      ///< Application lifecycle signal and system signal callback type @SINCE_1_0.0
+  typedef Signal<void(Application&, void*)>               AppControlSignalType;               ///< Application control signal callback type @SINCE_1_0.0
 
   /**
    * @brief Enumeration for deciding whether a Dali application window is opaque or transparent.
@@ -357,7 +358,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should initialize
    * their application.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -367,7 +368,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should terminate
    * their application.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -377,7 +378,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application is about to be paused.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -387,7 +388,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal if they need to perform any special
    * activities when the application has resumed.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -396,7 +397,7 @@ public: // Signals
 
   /**
    * @brief This signal is sent when the system requires the user to reinitialize itself.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -408,7 +409,7 @@ public: // Signals
    *
    * When the application is launched, this signal is emitted after the main loop of the application starts up.
    * The passed parameter describes the launch request and contains the information about why the application is launched.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -417,7 +418,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the language is changed on the device.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -426,7 +427,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the region of the device is changed.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_0.0
    * @return The signal to connect to
@@ -435,7 +436,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the battery level of the device is low.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_2.62
    * @return The signal to connect to
@@ -444,18 +445,29 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the memory level of the device is low.
-   * Only when the user uses the UiThread, this signal is emitted on the UI thread.
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
    * Otherwise, it is emitted on the main thread.
    * @SINCE_1_2.62
    * @return The signal to connect to
    */
   LowMemorySignalType& LowMemorySignal();
 
+  /**
+   * @brief This signal is emitted when the device orientation is changed
+   * Only when the user uses the UI thread, this signal is emitted on the UI thread.
+   * Otherwise, it is emitted on the main thread.
+   *
+   * This signal is only used in Application, it is different to Window's orientation signal.
+   * @SINCE_2_2.1
+   * @return The signal to connect to
+   */
+  DeviceOrientationChangedSignalType& DeviceOrientationChangedSignal();
+
   // TaskSignal
   /**
    * @brief The user should connect to this signal to determine when they should initialize
    * their application.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -464,7 +476,7 @@ public: // Signals
   /**
    * @brief The user should connect to this signal to determine when they should terminate
    * their application.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -475,7 +487,7 @@ public: // Signals
    *
    * When the application is launched, this signal is emitted after the main loop of the application starts up.
    * The passed parameter describes the launch request and contains the information about why the application is launched.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -483,7 +495,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the language is changed on the device.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -491,7 +503,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the region of the device is changed.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -499,7 +511,7 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the battery level of the device is low.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
@@ -507,11 +519,20 @@ public: // Signals
 
   /**
    * @brief This signal is emitted when the memory level of the device is low.
-   * Only when the user uses the UiThread, this signal is emitted on the main thread.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
    * Otherwise, it is not emitted at all.
    * @return The signal to connect to
    */
-  LowMemorySignalType&  TaskLowMemorySignal();
+  LowMemorySignalType& TaskLowMemorySignal();
+
+  /**
+   * @brief This signal is emitted when the device orientation is changed.
+   * Only when the user uses the UI thread, this signal is emitted on the main thread.
+   * Otherwise, it is not emitted at all.
+   * @SINCE_2_2.1
+   * @return The signal to connect to
+   */
+  DeviceOrientationChangedSignalType& TaskDeviceOrientationChangedSignal();
 
 public: // Not intended for application developers
   /// @cond internal

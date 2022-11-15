@@ -239,7 +239,7 @@ void CommandBuffer::BindVertexBuffers(uint32_t                                  
                                       const std::vector<uint32_t>&                offsets)
 {
   auto command                                         = mCommandPool->AllocateCommand(CommandType::BIND_VERTEX_BUFFERS);
-  command->bindVertexBuffers.vertexBufferBindingsCount = firstBinding + buffers.size();
+  command->bindVertexBuffers.vertexBufferBindingsCount = firstBinding + static_cast<uint32_t>(buffers.size());
   auto pBindings                                       = mCommandPool->Allocate<GLES::VertexBufferBindingDescriptor>(firstBinding + buffers.size());
 
   command->bindVertexBuffers.vertexBufferBindings = pBindings;

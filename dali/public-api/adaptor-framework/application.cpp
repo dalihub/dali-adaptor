@@ -254,6 +254,11 @@ Application::LowMemorySignalType& Application::LowMemorySignal()
   return Internal::Adaptor::GetImplementation(*this).LowMemorySignal();
 }
 
+Application::DeviceOrientationChangedSignalType& Application::DeviceOrientationChangedSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).DeviceOrientationChangedSignal();
+}
+
 Application::AppSignalType& Application::TaskInitSignal()
 {
   return Internal::Adaptor::GetImplementation(*this).TaskInitSignal();
@@ -287,6 +292,11 @@ Application::LowBatterySignalType& Application::TaskLowBatterySignal()
 Application::LowMemorySignalType& Application::TaskLowMemorySignal()
 {
   return Internal::Adaptor::GetImplementation(*this).TaskLowMemorySignal();
+}
+
+Application::DeviceOrientationChangedSignalType& Application::TaskDeviceOrientationChangedSignal()
+{
+  return Internal::Adaptor::GetImplementation(*this).TaskDeviceOrientationChangedSignal();
 }
 
 Application::Application(Internal::Adaptor::Application* application)

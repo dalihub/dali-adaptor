@@ -36,9 +36,8 @@ namespace
 constexpr uint32_t THRESHOLD_WIDTH_FOR_RLE4_COMPRESSION = 8; // The smallest width of glyph that we use RLE4 method.
 } // namespace
 
-GlyphCacheManager::GlyphCacheManager(FT_Face ftFace, std::size_t maxNumberOfGlyphCache)
-: mFreeTypeFace(ftFace),
-  mGlyphCacheMaxSize(maxNumberOfGlyphCache),
+GlyphCacheManager::GlyphCacheManager(std::size_t maxNumberOfGlyphCache)
+: mGlyphCacheMaxSize(maxNumberOfGlyphCache),
   mLRUGlyphCache(mGlyphCacheMaxSize)
 {
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager Create with maximum size : %d\n", static_cast<int>(mGlyphCacheMaxSize));
@@ -46,17 +45,11 @@ GlyphCacheManager::GlyphCacheManager(FT_Face ftFace, std::size_t maxNumberOfGlyp
 
 GlyphCacheManager::~GlyphCacheManager()
 {
-  while(!mLRUGlyphCache.IsEmpty())
-  {
-    auto removedData = mLRUGlyphCache.Pop();
-
-    // Release Glyph data resource
-    removedData.ReleaseGlyphData();
-  }
-  mLRUGlyphCache.Clear();
+  ClearCache();
 }
 
 bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
+  const FT_Face    freeTypeFace,
   const GlyphIndex index,
   const FT_Int32   flag,
   const bool       isBoldRequired,
@@ -66,7 +59,7 @@ bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
   // Append some error value here instead of FT_Err_Ok.
   error = static_cast<FT_Error>(-1);
 
-  const GlyphCacheKey key  = GlyphCacheKey(index, flag, isBoldRequired);
+  const GlyphCacheKey key  = GlyphCacheKey(freeTypeFace, index, flag, isBoldRequired);
   auto                iter = mLRUGlyphCache.Find(key);
 
   if(iter == mLRUGlyphCache.End())
@@ -82,13 +75,13 @@ bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
       removedData.ReleaseGlyphData();
     }
 
-    const bool loadSuccess = LoadGlyphDataFromIndex(index, flag, isBoldRequired, glyphData, error);
+    const bool loadSuccess = LoadGlyphDataFromIndex(freeTypeFace, index, flag, isBoldRequired, glyphData, error);
     if(loadSuccess)
     {
       // Copy and cached data.
       mLRUGlyphCache.Push(key, glyphData);
 
-      DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::GetGlyphCacheDataFromIndex. Create cache for index : %u flag : %d isBold : %d isBitmap : %d, glyph : %p\n", index, static_cast<int>(flag), isBoldRequired, glyphData.mIsBitmap, glyphData.mGlyph);
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::GetGlyphCacheDataFromIndex. Create cache for face : %p, index : %u flag : %d isBold : %d isBitmap : %d, glyph : %p\n", freeTypeFace, index, static_cast<int>(flag), isBoldRequired, glyphData.mIsBitmap, glyphData.mGlyph);
     }
 
     return loadSuccess;
@@ -98,36 +91,37 @@ bool GlyphCacheManager::GetGlyphCacheDataFromIndex(
     error = FT_Err_Ok;
 
     // We already notify that we use this glyph. And now, copy cached data.
-    glyphData = iter->element;
+    glyphData = mLRUGlyphCache.GetElement(iter);
 
-    DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::GetGlyphCacheDataFromIndex. Find cache for index : %u flag : %d isBold : %d isBitmap : %d, glyph : %p\n", index, static_cast<int>(flag), isBoldRequired, glyphData.mIsBitmap, glyphData.mGlyph);
+    DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::GetGlyphCacheDataFromIndex. Find cache for face : %p, index : %u flag : %d isBold : %d isBitmap : %d, glyph : %p\n", freeTypeFace, index, static_cast<int>(flag), isBoldRequired, glyphData.mIsBitmap, glyphData.mGlyph);
     return true;
   }
 }
 
 bool GlyphCacheManager::LoadGlyphDataFromIndex(
+  const FT_Face    freeTypeFace,
   const GlyphIndex index,
   const FT_Int32   flag,
   const bool       isBoldRequired,
   GlyphCacheData&  glyphData,
   FT_Error&        error)
 {
-  error = FT_Load_Glyph(mFreeTypeFace, index, flag);
+  error = FT_Load_Glyph(freeTypeFace, index, flag);
   if(FT_Err_Ok == error)
   {
-    glyphData.mStyleFlags = mFreeTypeFace->style_flags;
+    glyphData.mStyleFlags = freeTypeFace->style_flags;
 
     const bool isEmboldeningRequired = isBoldRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_BOLD);
     if(isEmboldeningRequired)
     {
       // Does the software bold.
-      FT_GlyphSlot_Embolden(mFreeTypeFace->glyph);
+      FT_GlyphSlot_Embolden(freeTypeFace->glyph);
     }
 
-    glyphData.mGlyphMetrics = mFreeTypeFace->glyph->metrics;
+    glyphData.mGlyphMetrics = freeTypeFace->glyph->metrics;
     glyphData.mIsBitmap     = false;
     // Load glyph
-    error = FT_Get_Glyph(mFreeTypeFace->glyph, &glyphData.mGlyph);
+    error = FT_Get_Glyph(freeTypeFace->glyph, &glyphData.mGlyph);
 
     if(glyphData.mGlyph->format == FT_GLYPH_FORMAT_BITMAP)
     {
@@ -137,7 +131,7 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
       // Copy rendered bitmap
       // TODO : Is there any way to keep bitmap buffer without copy?
       glyphData.mBitmap  = new FT_Bitmap();
-      *glyphData.mBitmap = mFreeTypeFace->glyph->bitmap;
+      *glyphData.mBitmap = freeTypeFace->glyph->bitmap;
 
       // New allocate buffer
       size_t bufferSize = 0;
@@ -172,7 +166,7 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
       {
         glyphData.mIsBitmap       = true;
         glyphData.mBitmap->buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
-        memcpy(glyphData.mBitmap->buffer, mFreeTypeFace->glyph->bitmap.buffer, bufferSize);
+        memcpy(glyphData.mBitmap->buffer, freeTypeFace->glyph->bitmap.buffer, bufferSize);
       }
       else
       {
@@ -195,6 +189,7 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
 }
 
 void GlyphCacheManager::ResizeBitmapGlyph(
+  const FT_Face    freeTypeFace,
   const GlyphIndex index,
   const FT_Int32   flag,
   const bool       isBoldRequired,
@@ -208,7 +203,7 @@ void GlyphCacheManager::ResizeBitmapGlyph(
   }
   FT_Error       error;
   GlyphCacheData originGlyphData;
-  if(GetGlyphCacheDataFromIndex(index, flag, isBoldRequired, originGlyphData, error))
+  if(GetGlyphCacheDataFromIndex(freeTypeFace, index, flag, isBoldRequired, originGlyphData, error))
   {
     if(DALI_LIKELY(originGlyphData.mIsBitmap && originGlyphData.mBitmap))
     {
@@ -216,10 +211,10 @@ void GlyphCacheManager::ResizeBitmapGlyph(
       if(requiredResize)
       {
         // originalGlyphData is copy data. For change cached information, we should access as iterator.
-        const GlyphCacheKey key  = GlyphCacheKey(index, flag, isBoldRequired);
+        const GlyphCacheKey key  = GlyphCacheKey(freeTypeFace, index, flag, isBoldRequired);
         auto                iter = mLRUGlyphCache.Find(key);
 
-        GlyphCacheData& destinationGlpyhData = iter->element;
+        GlyphCacheData& destinationGlpyhData = mLRUGlyphCache.GetElement(iter);
 
         const ImageDimensions inputDimensions(destinationGlpyhData.mBitmap->width, destinationGlpyhData.mBitmap->rows);
         const ImageDimensions desiredDimensions(desiredWidth, desiredHeight);
@@ -297,6 +292,7 @@ void GlyphCacheManager::ResizeBitmapGlyph(
 }
 
 void GlyphCacheManager::CacheRenderedGlyphBuffer(
+  const FT_Face               freeTypeFace,
   const GlyphIndex            index,
   const FT_Int32              flag,
   const bool                  isBoldRequired,
@@ -310,15 +306,15 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
   }
   FT_Error       error;
   GlyphCacheData originGlyphData;
-  if(GetGlyphCacheDataFromIndex(index, flag, isBoldRequired, originGlyphData, error))
+  if(GetGlyphCacheDataFromIndex(freeTypeFace, index, flag, isBoldRequired, originGlyphData, error))
   {
     if(DALI_LIKELY(!originGlyphData.mIsBitmap && originGlyphData.mRenderedBuffer == nullptr))
     {
       // originalGlyphData is copy data. For change cached information, we should access as iterator.
-      const GlyphCacheKey key  = GlyphCacheKey(index, flag, isBoldRequired);
+      const GlyphCacheKey key  = GlyphCacheKey(freeTypeFace, index, flag, isBoldRequired);
       auto                iter = mLRUGlyphCache.Find(key);
 
-      GlyphCacheData& destinationGlpyhData = iter->element;
+      GlyphCacheData& destinationGlpyhData = mLRUGlyphCache.GetElement(iter);
 
       destinationGlpyhData.mRenderedBuffer = new TextAbstraction::FontClient::GlyphBufferData();
       if(DALI_UNLIKELY(!destinationGlpyhData.mRenderedBuffer))
@@ -399,6 +395,60 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
   }
 }
 
+void GlyphCacheManager::RemoveGlyphFromFace(const FT_Face freeTypeFace)
+{
+  uint32_t removedItemCount = 0;
+
+  auto endIter = mLRUGlyphCache.End();
+  for(auto iter = mLRUGlyphCache.Begin(); iter != endIter;)
+  {
+    // Check whether this cached item has inputed freeTypeFace as key.
+    auto keyFace = mLRUGlyphCache.GetKey(iter).mFreeTypeFace;
+    if(keyFace == freeTypeFace)
+    {
+      ++removedItemCount;
+      iter = mLRUGlyphCache.Erase(iter);
+    }
+    else
+    {
+      ++iter;
+    }
+  }
+
+  DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::RemoveGlyphFromFace. Remove all cached glyph with face : %p, removed glyph count : %u\n", freeTypeFace, removedItemCount);
+}
+
+void GlyphCacheManager::ClearCache(const std::size_t remainCount)
+{
+  if(remainCount == 0u)
+  {
+    // Release all data memory first.
+    auto endIter = mLRUGlyphCache.End();
+    for(auto iter = mLRUGlyphCache.Begin(); iter != endIter; ++iter)
+    {
+      // Get the reference of data. and release it.
+      auto& removedData = mLRUGlyphCache.GetElement(iter);
+      removedData.ReleaseGlyphData();
+    }
+
+    // Clear all cache.
+    mLRUGlyphCache.Clear();
+  }
+  else
+  {
+    // While the cache count is bigger than remainCount, remove oldest glyph.
+    while(mLRUGlyphCache.Count() > remainCount)
+    {
+      auto removedData = mLRUGlyphCache.Pop();
+
+      DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "FontClient::Plugin::GlyphCacheManager::ClearCache[%zu / %zu]. Remove oldest cache for glyph : %p\n", mLRUGlyphCache.Count(), remainCount, removedData.mGlyph);
+
+      // Release Glyph data resource
+      removedData.ReleaseGlyphData();
+    }
+  }
+}
+
 void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()
 {
   if(mIsBitmap && mBitmap)
@@ -419,7 +469,10 @@ void GlyphCacheManager::GlyphCacheData::ReleaseGlyphData()
   if(mRenderedBuffer)
   {
     delete mRenderedBuffer;
+    mRenderedBuffer = nullptr;
   }
+
+  mStyleFlags = 0;
 }
 
 } // namespace Dali::TextAbstraction::Internal
