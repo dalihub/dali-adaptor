@@ -26,6 +26,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/lifecycle-controller.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-back-forward-list.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-certificate.h>
 #include <dali/devel-api/adaptor-framework/web-engine/web-engine-console-message.h>
@@ -68,83 +69,37 @@ Dali::TypeRegistration type(typeid(Dali::WebEngine), typeid(Dali::BaseHandle), C
 
 /**
  * @brief Control the WebEnginePlugin library lifecycle.
- * Hold the plugin library handle in static singletone.
- * It will makes library handle alives during all WebEngine resources create & destory.
  */
 struct WebEnginePluginObject
 {
 public:
-  static WebEnginePluginObject& GetInstance()
-  {
-    static WebEnginePluginObject gPluginHandle;
-    return gPluginHandle;
-  }
-
-  /**
-   * @brief Converts an handle to a bool.
-   *
-   * This is useful for checking whether the WebEnginePluginObject succes to load library.
-   * @note We don't check mHandle because it is possible that mHandle load is success but
-   * Create/Destroy API load failed.
-   */
-  explicit operator bool() const
-  {
-    return mLoadSuccess;
-  }
-
-  bool InitializeContextHandle()
-  {
-    if(!mHandle)
-    {
-      return false;
-    }
-
-    if(!mGetWebEngineContextPtr)
-    {
-      mGetWebEngineContextPtr = reinterpret_cast<GetWebEngineContext>(dlsym(mHandle, "GetWebEngineContext"));
-
-      if(!mGetWebEngineContextPtr)
-      {
-        DALI_LOG_ERROR("Can't load symbol GetWebEngineContext(), error: %s\n", dlerror());
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  bool InitializeCookieManagerHandle()
-  {
-    if(!mHandle)
-    {
-      return false;
-    }
-
-    if(!mGetWebEngineCookieManagerPtr)
-    {
-      mGetWebEngineCookieManagerPtr = reinterpret_cast<GetWebEngineCookieManager>(dlsym(mHandle, "GetWebEngineCookieManager"));
-
-      if(!mGetWebEngineCookieManagerPtr)
-      {
-        DALI_LOG_ERROR("Can't load symbol GetWebEngineCookieManager(), error: %s\n", dlerror());
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-private:
-  // Private constructor / destructor
   WebEnginePluginObject()
   : mPluginName{},
-    mLoadSuccess{false},
     mHandle{nullptr},
     mCreateWebEnginePtr{nullptr},
     mDestroyWebEnginePtr{nullptr},
     mGetWebEngineContextPtr{nullptr},
     mGetWebEngineCookieManagerPtr{nullptr}
   {
+  }
+
+  ~WebEnginePluginObject()
+  {
+    if(mHandle)
+    {
+      dlclose(mHandle);
+      mHandle = nullptr;
+    }
+  }
+
+  bool InitializePluginHandle()
+  {
+    if(mHandle)
+    {
+      DALI_LOG_ERROR("Plugin.so has been opened already.\n");
+      return true;
+    }
+
     if(mPluginName.length() == 0)
     {
       // mPluginName is not initialized yet.
@@ -163,36 +118,64 @@ private:
     if(!mHandle)
     {
       DALI_LOG_ERROR("Can't load %s : %s\n", mPluginName.c_str(), dlerror());
-      return;
+      return false;
     }
 
     mCreateWebEnginePtr = reinterpret_cast<CreateWebEngineFunction>(dlsym(mHandle, "CreateWebEnginePlugin"));
     if(mCreateWebEnginePtr == nullptr)
     {
       DALI_LOG_ERROR("Can't load symbol CreateWebEnginePlugin(), error: %s\n", dlerror());
-      return;
+
+      return false;
     }
 
     mDestroyWebEnginePtr = reinterpret_cast<DestroyWebEngineFunction>(dlsym(mHandle, "DestroyWebEnginePlugin"));
     if(mDestroyWebEnginePtr == nullptr)
     {
       DALI_LOG_ERROR("Can't load symbol DestroyWebEnginePlugin(), error: %s\n", dlerror());
-      return;
+      return false;
     }
 
-    mLoadSuccess = true;
+    return true;
   }
 
-  ~WebEnginePluginObject()
+  bool InitializeContextHandle()
   {
-    if(mHandle)
+    if(!InitializePluginHandle())
     {
-      dlclose(mHandle);
-      mHandle      = nullptr;
-      mLoadSuccess = false;
+      return false;
     }
+
+    mGetWebEngineContextPtr = reinterpret_cast<GetWebEngineContext>(dlsym(mHandle, "GetWebEngineContext"));
+
+    if(!mGetWebEngineContextPtr)
+    {
+      DALI_LOG_ERROR("Can't load symbol GetWebEngineContext(), error: %s\n", dlerror());
+      return false;
+    }
+
+    return true;
   }
 
+  bool InitializeCookieManagerHandle()
+  {
+    if(!InitializePluginHandle())
+    {
+      return false;
+    }
+
+    mGetWebEngineCookieManagerPtr = reinterpret_cast<GetWebEngineCookieManager>(dlsym(mHandle, "GetWebEngineCookieManager"));
+
+    if(!mGetWebEngineCookieManagerPtr)
+    {
+      DALI_LOG_ERROR("Can't load symbol GetWebEngineCookieManager(), error: %s\n", dlerror());
+      return false;
+    }
+
+    return true;
+  }
+
+private:
   WebEnginePluginObject(const WebEnginePluginObject&) = delete;
   WebEnginePluginObject(WebEnginePluginObject&&)      = delete;
   WebEnginePluginObject& operator=(const WebEnginePluginObject&) = delete;
@@ -202,8 +185,6 @@ private:
   std::string mPluginName; ///< Name of web engine plugin
                            /// Note: Dali WebView policy does not allow to use multiple web engines in an application.
                            /// So once pluginName is set to non-empty string, it will not change.
-
-  bool mLoadSuccess; ///< True if library loaded successfully. False otherwise.
 
 public:
   using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
@@ -219,6 +200,8 @@ public:
   GetWebEngineContext       mGetWebEngineContextPtr;       ///< Function to get WebEngineContext
   GetWebEngineCookieManager mGetWebEngineCookieManagerPtr; ///< Function to get WebEngineCookieManager
 };
+
+static WebEnginePluginObject gPluginHandle; // Keep this object as static, so Let we assume that library closed after all WebEngines are disposed.
 
 } // unnamed namespace
 
@@ -236,14 +219,14 @@ WebEnginePtr WebEngine::New()
 
 Dali::WebEngineContext* WebEngine::GetContext()
 {
-  if(!WebEnginePluginObject::GetInstance().InitializeContextHandle())
+  if(!gPluginHandle.InitializeContextHandle())
   {
     return nullptr;
   }
 
-  if(WebEnginePluginObject::GetInstance().mGetWebEngineContextPtr)
+  if(gPluginHandle.mGetWebEngineContextPtr)
   {
-    return WebEnginePluginObject::GetInstance().mGetWebEngineContextPtr();
+    return gPluginHandle.mGetWebEngineContextPtr();
   }
 
   return nullptr;
@@ -251,14 +234,14 @@ Dali::WebEngineContext* WebEngine::GetContext()
 
 Dali::WebEngineCookieManager* WebEngine::GetCookieManager()
 {
-  if(!WebEnginePluginObject::GetInstance().InitializeCookieManagerHandle())
+  if(!gPluginHandle.InitializeCookieManagerHandle())
   {
     return nullptr;
   }
 
-  if(WebEnginePluginObject::GetInstance().mGetWebEngineCookieManagerPtr)
+  if(gPluginHandle.mGetWebEngineCookieManagerPtr)
   {
-    return WebEnginePluginObject::GetInstance().mGetWebEngineCookieManagerPtr();
+    return gPluginHandle.mGetWebEngineCookieManagerPtr();
   }
 
   return nullptr;
@@ -274,10 +257,9 @@ WebEngine::~WebEngine()
   if(mPlugin != nullptr)
   {
     mPlugin->Destroy();
-    // Check whether plugin load sccess or not.
-    if(DALI_LIKELY(WebEnginePluginObject::GetInstance()))
+    if(gPluginHandle.mDestroyWebEnginePtr != nullptr)
     {
-      WebEnginePluginObject::GetInstance().mDestroyWebEnginePtr(mPlugin);
+      gPluginHandle.mDestroyWebEnginePtr(mPlugin);
     }
     mPlugin = nullptr;
   }
@@ -285,13 +267,12 @@ WebEngine::~WebEngine()
 
 bool WebEngine::Initialize()
 {
-  // Check whether plugin load sccess or not.
-  if(!WebEnginePluginObject::GetInstance())
+  if(!gPluginHandle.InitializePluginHandle())
   {
     return false;
   }
 
-  mPlugin = WebEnginePluginObject::GetInstance().mCreateWebEnginePtr();
+  mPlugin = gPluginHandle.mCreateWebEnginePtr();
   if(mPlugin == nullptr)
   {
     DALI_LOG_ERROR("Can't create the WebEnginePlugin object\n");
