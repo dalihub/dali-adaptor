@@ -576,8 +576,27 @@ private:
    */
   bool Initialize();
 
+  /**
+   * @brief Initialize library handle by loading web engine plugin.
+   *
+   * @return Whether the initialization succeed or not.
+   */
+  static bool InitializePluginHandle();
+
+  /**
+   * @brief Close library handle.
+   */
+  static void ClosePluginHandle();
+
 private:
+  using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
+  using DestroyWebEngineFunction = void (*)(Dali::WebEnginePlugin* plugin);
+
   Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
+
+  static void*                    mHandle;              ///< Handle for the loaded library
+  static CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
+  static DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
 };
 
 } // namespace Adaptor
