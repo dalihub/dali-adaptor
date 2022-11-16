@@ -190,11 +190,12 @@ bool NetworkPerformanceClient::TransmitMarker(const PerformanceMarker& marker, c
   if(mConsoleClient)
   {
     // write out the time stamp
-    char   buffer[64];
+    char   *buffer;
     double usec = marker.GetTimeStamp().microseconds;
-    int    size = snprintf(buffer, sizeof(buffer), "%.6f (seconds), %s\n", usec * MICROSECONDS_TO_SECOND, description);
-
-    return mSocket->Write(buffer, size);
+    int    size = asprintf(&buffer, "%.6f (seconds), %s\n", usec * MICROSECONDS_TO_SECOND, description);
+    auto retVal = mSocket->Write(buffer, size);
+    free(buffer);
+    return retVal;
   }
 
   // todo serialize the data
