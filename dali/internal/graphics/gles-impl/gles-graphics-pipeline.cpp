@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,6 @@ PipelineImpl::PipelineImpl(const Graphics::PipelineCreateInfo& createInfo, Graph
   CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);
   CopyStateIfSet(createInfo.colorBlendState, mPipelineState->colorBlendState, &mCreateInfo.colorBlendState);
   CopyStateIfSet(createInfo.depthStencilState, mPipelineState->depthStencilState, &mCreateInfo.depthStencilState);
-  CopyStateIfSet(createInfo.programState, mPipelineState->programState, &mCreateInfo.programState);
   CopyStateIfSet(createInfo.viewportState, mPipelineState->viewportState, &mCreateInfo.viewportState);
 
   // This program doesn't need custom deleter
