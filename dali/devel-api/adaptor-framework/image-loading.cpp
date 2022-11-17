@@ -118,7 +118,6 @@ Devel::PixelBuffer DownloadImageSynchronously(const std::string& url, ImageDimen
   if(succeeded)
   {
     size_t blobSize = dataBuffer.Size();
-
     DALI_ASSERT_DEBUG(blobSize > 0U);
 
     if(blobSize > 0U)

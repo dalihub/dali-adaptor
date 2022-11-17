@@ -36,6 +36,21 @@ namespace TizenPlatform
 {
 namespace // unnamed namespace
 {
+inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, std::string prefix)
+{
+  if(result != CURLE_OK)
+  {
+    if(errorBuffer != nullptr)
+    {
+      DALI_LOG_ERROR("%s \"%s\" with error code %d\n", prefix.c_str(), url.c_str(), result);
+    }
+    else
+    {
+      DALI_LOG_ERROR("$s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
+    }
+  }
+}
+
 const int  CONNECTION_TIMEOUT_SECONDS(30L);
 const int  TIMEOUT_SECONDS(120L);
 const long VERBOSE_MODE              = 0L; // 0 == off, 1 == on
@@ -106,6 +121,8 @@ CURLcode DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataB
   // create
   Dali::Internal::Platform::FileWriter fileWriter(dataBuffer, dataSize);
   FILE*                                dataBufferFilePointer = fileWriter.GetFile();
+  setbuf(dataBufferFilePointer, NULL); // Turn buffering off
+
   if(NULL != dataBufferFilePointer)
   {
     // we only want the body which contains the file data
@@ -167,7 +184,6 @@ bool DownloadFile(CURL*                  curlHandle,
                   char*                  errorBuffer)
 {
   CURLcode result(CURLE_OK);
-  double   size(0);
 
   // setup curl to download just the header so we can extract the content length
   ConfigureCurlOptions(curlHandle, url);
@@ -194,34 +210,36 @@ bool DownloadFile(CURL*                  curlHandle,
   }
 
   // get the content length, -1 == size is not known
-  curl_easy_getinfo(curlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &size);
+  curl_off_t size{0};
+  curl_easy_getinfo(curlHandle, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &size);
 
-  if(size >= static_cast<double>(maximumAllowedSizeBytes))
+  if(size == -1)
   {
-    DALI_LOG_ERROR("File content length %f > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
+    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize);
+  }
+  else if(size >= static_cast<curl_off_t>(maximumAllowedSizeBytes))
+  {
+    DALI_LOG_ERROR("File content length %" CURL_FORMAT_CURL_OFF_T " > max allowed %zu \"%s\" \n", size, maximumAllowedSizeBytes, url.c_str());
     return false;
   }
-  else if(size > 0)
+  else
   {
     // If we know the size up front, allocate once and avoid chunk copies.
     dataSize = static_cast<size_t>(size);
     result   = DownloadFileDataWithSize(curlHandle, dataBuffer, dataSize);
+    if(result != CURLE_OK)
+    {
+      LogCurlResult(result, errorBuffer, url, "Failed to download file, trying to load by chunk");
+      // In the case where the size is wrong (e.g. on a proxy server that rewrites data),
+      // the data buffer will be corrupt. In this case, try again using the chunk writer.
+      result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize);
+    }
   }
-  else
-  {
-    result = DownloadFileDataByChunk(curlHandle, dataBuffer, dataSize);
-  }
+
+  LogCurlResult(result, errorBuffer, url, "Failed to download image file");
 
   if(result != CURLE_OK)
   {
-    if(errorBuffer != nullptr)
-    {
-      DALI_LOG_ERROR("Failed to download image file \"%s\" with error code %d\n", url.c_str(), result);
-    }
-    else
-    {
-      DALI_LOG_ERROR("Failed to download image file \"%s\" with error code %d (%s)\n", url.c_str(), result, errorBuffer);
-    }
     return false;
   }
   return true;
