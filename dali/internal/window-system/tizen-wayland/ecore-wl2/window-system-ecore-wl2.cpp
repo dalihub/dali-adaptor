@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,12 @@ namespace Adaptor
 {
 namespace WindowSystem
 {
+namespace
+{
+static int32_t gScreenWidth  = 0;
+static int32_t gScreenHeight = 0;
+} // unnamed namespace
+
 void Initialize()
 {
   ecore_wl2_init();
@@ -40,14 +46,28 @@ void Shutdown()
   ecore_wl2_shutdown();
 }
 
-void GetScreenSize(int& width, int& height)
+void GetScreenSize(int32_t& width, int32_t& height)
+{
+  if(gScreenWidth == 0 || gScreenHeight == 0)
+  {
+    Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
+    if(display)
+    {
+      ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
+      DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
+      DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
+    }
+  }
+  width  = gScreenWidth;
+  height = gScreenHeight;
+}
+
+void UpdateScreenSize()
 {
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(display)
   {
-    ecore_wl2_display_screen_size_get(display, &width, &height);
-    DALI_ASSERT_ALWAYS((width > 0) && "screen width is 0");
-    DALI_ASSERT_ALWAYS((height > 0) && "screen height is 0");
+    ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
   }
 }
 

@@ -618,8 +618,6 @@ private:
   int        mWindowRotationAngle;
   int        mScreenRotationAngle;
   int        mSupportedPreProtation;
-  int        mScreenWidth;
-  int        mScreenHeight;
 
   uint32_t          mNotificationChangeState;
   uint32_t          mScreenOffModeChangeState;

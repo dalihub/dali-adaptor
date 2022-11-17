@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,13 @@ void Shutdown()
   ecore_wl_shutdown();
 }
 
-void GetScreenSize(int& width, int& height)
+void GetScreenSize(int32_t& width, int32_t& height)
 {
   ecore_wl_screen_size_get(&width, &height);
+}
+
+void UpdateScreenSize()
+{
 }
 
 bool SetKeyboardRepeatInfo(float rate, float delay)

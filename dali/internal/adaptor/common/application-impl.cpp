@@ -156,6 +156,9 @@ void Application::StoreWindowPositionSize(PositionSize positionSize)
 
 void Application::ChangePreInitializedWindowSize()
 {
+  // The real screen size may be different from the value of the preinitialized state. Update it.
+  Dali::Internal::Adaptor::WindowSystem::UpdateScreenSize();
+
   int screenWidth, screenHeight;
   Dali::Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
 
