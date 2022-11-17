@@ -718,8 +718,6 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mWindowRotationAngle(0),
   mScreenRotationAngle(0),
   mSupportedPreProtation(0),
-  mScreenWidth(0),
-  mScreenHeight(0),
   mNotificationChangeState(0),
   mScreenOffModeChangeState(0),
   mBrightnessChangeState(0),
@@ -1690,24 +1688,26 @@ bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
 PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToSystem(PositionSize positionSize)
 {
   PositionSize newPositionSize;
+  int32_t      screenWidth, screenHeight;
+  WindowSystem::GetScreenSize(screenWidth, screenHeight);
 
   if(mWindowRotationAngle == 90)
   {
     newPositionSize.x      = positionSize.y;
-    newPositionSize.y      = mScreenHeight - (positionSize.x + positionSize.width);
+    newPositionSize.y      = screenHeight - (positionSize.x + positionSize.width);
     newPositionSize.width  = positionSize.height;
     newPositionSize.height = positionSize.width;
   }
   else if(mWindowRotationAngle == 180)
   {
-    newPositionSize.x      = mScreenWidth - (positionSize.x + positionSize.width);
-    newPositionSize.y      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.x      = screenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.y      = screenHeight - (positionSize.y + positionSize.height);
     newPositionSize.width  = positionSize.width;
     newPositionSize.height = positionSize.height;
   }
   else if(mWindowRotationAngle == 270)
   {
-    newPositionSize.x      = mScreenWidth - (positionSize.y + positionSize.height);
+    newPositionSize.x      = screenWidth - (positionSize.y + positionSize.height);
     newPositionSize.y      = positionSize.x;
     newPositionSize.width  = positionSize.height;
     newPositionSize.height = positionSize.width;
@@ -1726,25 +1726,27 @@ PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToSystem(PositionSize po
 PositionSize WindowBaseEcoreWl2::RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize)
 {
   PositionSize newPositionSize;
+  int32_t      screenWidth, screenHeight;
+  WindowSystem::GetScreenSize(screenWidth, screenHeight);
 
   if(mWindowRotationAngle == 90)
   {
-    newPositionSize.x      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.x      = screenHeight - (positionSize.y + positionSize.height);
     newPositionSize.y      = positionSize.x;
     newPositionSize.width  = positionSize.height;
     newPositionSize.height = positionSize.width;
   }
   else if(mWindowRotationAngle == 180)
   {
-    newPositionSize.x      = mScreenWidth - (positionSize.x + positionSize.width);
-    newPositionSize.y      = mScreenHeight - (positionSize.y + positionSize.height);
+    newPositionSize.x      = screenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.y      = screenHeight - (positionSize.y + positionSize.height);
     newPositionSize.width  = positionSize.width;
     newPositionSize.height = positionSize.height;
   }
   else if(mWindowRotationAngle == 270)
   {
     newPositionSize.x      = positionSize.y;
-    newPositionSize.y      = mScreenWidth - (positionSize.x + positionSize.width);
+    newPositionSize.y      = screenWidth - (positionSize.x + positionSize.width);
     newPositionSize.width  = positionSize.height;
     newPositionSize.height = positionSize.width;
   }
@@ -2634,9 +2636,6 @@ void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
 
   // Set default type
   ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
-
-  // Get Screen width, height
-  ecore_wl2_display_screen_size_get(display, &mScreenWidth, &mScreenHeight);
 }
 
 void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
