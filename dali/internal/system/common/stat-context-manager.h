@@ -50,105 +50,112 @@ class StatContextManager
 {
 public:
   /**
-     * @brief Constructor
-     * @param[in] logInterface interface to log statistics to
-     */
-  StatContextManager(StatContextLogInterface& logInterface);
+   * @brief Constructor
+   * @param[in] logInterface interface to log statistics to
+   */
+    StatContextManager( StatContextLogInterface& logInterface );
 
   /**
-     * @brief destructor, not intended as a bass class
-     */
+   * @brief destructor, not intended as a bass class
+   */
   ~StatContextManager();
 
   /**
-     * @brief Add a context
-     * @param[in] name Name of the context to print in console
-     * @param[in] type the type of events to filter ( e.g. event, update, render or custom)
-     * @return The ID to give the context
-     */
-  PerformanceInterface::ContextId AddContext(const char* const name, PerformanceMarker::MarkerFilter type);
+   * @brief Add a context
+   * @param[in] name Name of the context to print in console
+   * @param[in] type the type of events to filter ( e.g. event, update, render or custom)
+   * @return The ID to give the context
+   */
+  PerformanceInterface::ContextId AddContext( const char* const name, PerformanceMarker::MarkerFilter type );
 
   /**
-     * @brief Remove a context
-     * @param[in] contextId id of the context to remove
-     */
-  void RemoveContext(PerformanceInterface::ContextId contextId);
+   * @brief Remove a context
+   * @param[in] contextId id of the context to remove
+   */
+  void RemoveContext(PerformanceInterface::ContextId contextId );
 
   /**
-     * @brief Add an internal marker (e.g. v-sync, update, render markers)
-     * @param[in] marker the marker to add
-     */
-  void AddInternalMarker(const PerformanceMarker& marker);
+   * @brief Add an internal marker (e.g. v-sync, update, render markers)
+   * @param[in] marker the marker to add
+   */
+  void AddInternalMarker( const PerformanceMarker& marker );
 
   /**
-     * @brief Add a custom marker defined by the application
-     * @param[in] marker the marker to add
-     * @param[in] contextId the context the custom marker is designed for
-     */
-  void AddCustomMarker(const PerformanceMarker& marker, PerformanceInterface::ContextId contextId);
+   * @brief Add a custom marker defined by the application
+   * @param[in] marker the marker to add
+   * @param[in] contextId the context the custom marker is designed for
+   */
+  void AddCustomMarker( const PerformanceMarker& marker , PerformanceInterface::ContextId contextId );
 
   /**
-     * @brief Get the nane of a context
-     * @param[in] contextId id of the context to get the name
-     * @return context name
-     */
-  const char* GetContextName(PerformanceInterface::ContextId contextId) const;
+   * @brief Get the name of a context
+   * @param[in] contextId id of the context to get the name
+   * @return context name
+   */
+  const char* GetContextName( PerformanceInterface::ContextId contextId ) const;
 
   /**
-     * @brief Get the full description of a marker for this context
-     * @param[in] type marker type, for a customer marker this will be either START or END
-     * @param[in] contextId id of the context to get the name
-     * @return marker description in relation to this context
-     */
-  const char* GetMarkerDescription(PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId) const;
+   * @brief Get the id of a context name
+   * @param[in] name Name of the context to retrieve
+   * @return context id, or 0 if not found
+   */
+  PerformanceInterface::ContextId GetContextId(const char* name) const;
 
   /**
-     * @brief enable / disable logging for a context
-     * @param[in] enable whether to enable logging
-     * @param[in] contextId the context to configure
-     */
-  void EnableLogging(bool enable, PerformanceInterface::ContextId contextId);
+   * @brief Get the full description of a marker for this context
+   * @param[in] type marker type, for a customer marker this will be either START or END
+   * @param[in] contextId id of the context to get the name
+   * @return marker description in relation to this context
+   */
+    const char* GetMarkerDescription( PerformanceInterface::MarkerType type, PerformanceInterface::ContextId contextId ) const;
 
   /**
-     * @brief set global logging level and frequency.
-     * @param[in] statisticsLogOptions  log options
-     * @param[in] logFrequency frequency in seconds
-     */
-  void SetLoggingLevel(unsigned int statisticsLogOptions, unsigned int logFrequency);
+   * @brief enable / disable logging for a context
+   * @param[in] enable whether to enable logging
+   * @param[in] contextId the context to configure
+   */
+  void EnableLogging( bool enable, PerformanceInterface::ContextId contextId );
 
   /**
-     * @brief Set the frequency of logging for an individual context
-     * @param[in] logFrequency log frequency in seconds
-     * @param[in] contextId the context to configure
-     */
-  void SetLoggingFrequency(unsigned int logFrequency, PerformanceInterface::ContextId contextId);
+   * @brief set global logging level and frequency.
+   * @param[in] statisticsLogOptions  log options
+   * @param[in] logFrequency frequency in seconds
+   */
+  void SetLoggingLevel( unsigned int statisticsLogOptions, unsigned int logFrequency);
+
+  /**
+   * @brief Set the frequency of logging for an individual context
+   * @param[in] logFrequency log frequency in seconds
+   * @param[in] contextId the context to configure
+   */
+  void SetLoggingFrequency( unsigned int logFrequency, PerformanceInterface::ContextId contextId  );
 
 private:
-  StatContextManager(const StatContextManager&);            ///< Undefined
-  StatContextManager& operator=(const StatContextManager&); ///< Undefined
+  StatContextManager( const StatContextManager& ); ///< Undefined
+  StatContextManager& operator=( const StatContextManager& ); ///< Undefined
 
-  typedef Dali::Vector<StatContext*> StatContexts;
+  typedef Dali::Vector< StatContext* > StatContexts;
 
   /**
-     * @brief helper
-     * @param[in] contextId the context to get
-     * @return context
-     */
-  StatContext* GetContext(PerformanceInterface::ContextId contextId) const;
+   * @brief helper
+   * @param[in] contextId the context to get
+   * @return context
+   */
+  StatContext* GetContext( PerformanceInterface::ContextId contextId ) const;
 
-  Dali::Mutex              mDataMutex;    ///< mutex
-  StatContexts             mStatContexts; ///< The list of stat contexts
-  StatContextLogInterface& mLogInterface; ///< Log interface
+  Dali::Mutex mDataMutex;                            ///< mutex
+  StatContexts mStatContexts;                        ///< The list of stat contexts
+  StatContextLogInterface& mLogInterface;            ///< Log interface
 
-  PerformanceInterface::ContextId mNextContextId; ///< The next valid context ID
+  PerformanceInterface::ContextId mNextContextId;    ///< The next valid context ID
 
   // Some defaults contexts
-  PerformanceInterface::ContextId mUpdateStats; ///< update time statistics
-  PerformanceInterface::ContextId mRenderStats; ///< render time statistics
-  PerformanceInterface::ContextId mEventStats;  ///< event time statistics
+  PerformanceInterface::ContextId mUpdateStats;    ///< update time statistics
+  PerformanceInterface::ContextId mRenderStats;    ///< render time statistics
+  PerformanceInterface::ContextId mEventStats;     ///< event time statistics
 
-  unsigned int mStatisticsLogBitmask; ///< statistics log bitmask
-  unsigned int mLogFrequency;         ///< log frequency
+  unsigned int mStatisticsLogBitmask;              ///< statistics log bitmask
+  unsigned int mLogFrequency;                      ///< log frequency
 };
 
 } // namespace Adaptor

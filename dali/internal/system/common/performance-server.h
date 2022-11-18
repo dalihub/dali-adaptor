@@ -64,6 +64,11 @@ public:
   ContextId AddContext(const char* name) override;
 
   /**
+   * @copydoc PerformanceLogger::GetContextId()
+   */
+  virtual ContextId GetContextId( const char* name );
+
+  /**
    * @copydoc PerformanceLogger::RemoveContext()
    */
   void RemoveContext(ContextId contextId) override;

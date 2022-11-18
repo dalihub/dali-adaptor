@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_PERFORMANCE_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +116,14 @@ public:
    * @return Return the unique id for this context
    */
   virtual ContextId AddContext(const char* name) = 0;
+
+  /**
+   * @brief Get the context for a custom name.
+   *
+   * @param[in] name The name of the context
+   * @return Return the unique id for this context
+   */
+  virtual ContextId GetContextId( const char* name ) = 0;
 
   /**
    * @brief Remove a context from use
