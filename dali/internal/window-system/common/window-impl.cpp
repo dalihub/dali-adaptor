@@ -58,7 +58,6 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_WINDOW");
 #endif
-
 } // unnamed namespace
 
 Window* Window::New(const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent)
@@ -99,6 +98,7 @@ Window::Window()
   mIsTransparent(false),
   mIsFocusAcceptable(true),
   mIconified(false),
+  mMaximized(false),
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
   mFocused(false),
@@ -151,6 +151,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // Connect signals
   mWindowBase->IconifyChangedSignal().Connect(this, &Window::OnIconifyChanged);
+  mWindowBase->MaximizeChangedSignal().Connect(this, &Window::OnMaximizeChanged);
   mWindowBase->FocusChangedSignal().Connect(this, &Window::OnFocusChanged);
   mWindowBase->DeleteRequestSignal().Connect(this, &Window::OnDeleteRequest);
   mWindowBase->TransitionEffectEventSignal().Connect(this, &Window::OnTransitionEffectEvent);
@@ -832,18 +833,26 @@ bool Window::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool
 
 void Window::OnIconifyChanged(bool iconified)
 {
+  const bool isActuallyChanged = (iconified != mIconified);
+  auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
+  Dali::Window handle(this);
+
   if(iconified)
   {
     mIconified = true;
 
     if(mVisible)
     {
-      Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, false);
-      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
+      bridge->WindowHidden(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowHidden();
+    }
+
+    if(isActuallyChanged)
+    {
+      bridge->WindowMinimized(handle);
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -854,12 +863,16 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(mVisible)
     {
-      Dali::Window handle(this);
       mVisibilityChangedSignal.Emit(handle, true);
-      Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
+      bridge->WindowShown(handle);
 
       WindowVisibilityObserver* observer(mAdaptor);
       observer->OnWindowShown();
+    }
+
+    if(isActuallyChanged)
+    {
+      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_ICONIFY);
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -868,24 +881,45 @@ void Window::OnIconifyChanged(bool iconified)
   mSurface->SetFullSwapNextFrame();
 }
 
+void Window::OnMaximizeChanged(bool maximized)
+{
+  const bool isActuallyChanged = (maximized != mMaximized);
+
+  if(isActuallyChanged)
+  {
+    auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
+    Dali::Window handle(this);
+
+    if(maximized)
+    {
+      mMaximized = true;
+      bridge->WindowMaximized(handle);
+    }
+    else
+    {
+      mMaximized = false;
+      bridge->WindowRestored(handle, Dali::Accessibility::WindowRestoreType::RESTORE_FROM_MAXIMIZE);
+    }
+  }
+}
+
 void Window::OnFocusChanged(bool focusIn)
 {
   Dali::Window handle(this);
   mFocusChangeSignal.Emit(handle, focusIn);
 
   mSurface->SetFullSwapNextFrame();
+  auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
 
-  if(auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge())
+  if(focusIn)
   {
-    if(focusIn)
-    {
-      bridge->WindowFocused(handle);
-    }
-    else
-    {
-      bridge->WindowUnfocused(handle);
-    }
+    bridge->WindowFocused(handle);
   }
+  else
+  {
+    bridge->WindowUnfocused(handle);
+  }
+
   mFocused = focusIn;
 }
 

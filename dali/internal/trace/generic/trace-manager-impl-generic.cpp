@@ -46,12 +46,16 @@ void TraceManagerGeneric::LogContext(bool start, const char* tag)
   {
     if(start)
     {
-      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext(tag);
+      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId( tag );
+      if( !contextId )
+      {
+        contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
+      }
       traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
     }
     else
     {
-      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->AddContext(tag);
+      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId( tag );
       traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
     }
   }

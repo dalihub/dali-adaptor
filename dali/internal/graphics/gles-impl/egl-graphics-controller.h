@@ -298,17 +298,11 @@ public:
   /**
    * @copydoc Dali::Graphics::GetTextureProperties()
    */
-  const TextureProperties& GetTextureProperties(const Texture& texture) override
-  {
-    // for compiler not to moan
-    static TextureProperties dummy{};
-    return dummy;
-  }
+  TextureProperties GetTextureProperties(const Texture& texture) override;
 
   /**
    * @copydoc Dali::Graphics::Controller::GetPipelineReflection()
    */
-
   [[nodiscard]] const Reflection& GetProgramReflection(const Graphics::Program& program) override;
 
   /**

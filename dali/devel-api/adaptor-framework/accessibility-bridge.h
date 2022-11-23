@@ -188,6 +188,28 @@ struct DALI_ADAPTOR_API Bridge
   virtual void WindowUnfocused(Window window) = 0;
 
   /**
+   * @brief Notifies accessibility dbus that window has just been minimized.
+   *
+   * @param[in] window The window to be minimized
+   */
+  virtual void WindowMinimized(Window window) = 0;
+
+  /**
+   * @brief Notifies accessibility dbus that window has just been restored.
+   *
+   * @param[in] window The window to be restored
+   * @param[in] detail Restored window state
+   */
+  virtual void WindowRestored(Window window, WindowRestoreType detail) = 0;
+
+  /**
+   * @brief Notifies accessibility dbus that window has just been maximized.
+   *
+   * @param[in] window The window to be maximized
+   */
+  virtual void WindowMaximized(Window window) = 0;
+
+  /**
    * @brief Initializes accessibility bus.
    */
   virtual void Initialize() = 0;

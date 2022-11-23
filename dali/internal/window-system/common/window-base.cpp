@@ -26,6 +26,7 @@ namespace Adaptor
 {
 WindowBase::WindowBase()
 : mIconifyChangedSignal(),
+  mMaximizeChangedSignal(),
   mFocusChangedSignal(),
   mOutputTransformedSignal(),
   mDeleteRequestSignal(),
@@ -51,6 +52,11 @@ WindowBase::~WindowBase()
 WindowBase::IconifySignalType& WindowBase::IconifyChangedSignal()
 {
   return mIconifyChangedSignal;
+}
+
+WindowBase::MaximizeSignalType& WindowBase::MaximizeChangedSignal()
+{
+  return mMaximizeChangedSignal;
 }
 
 WindowBase::FocusSignalType& WindowBase::FocusChangedSignal()

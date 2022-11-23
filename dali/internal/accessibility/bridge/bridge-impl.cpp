@@ -425,6 +425,52 @@ public:
   }
 
   /**
+   * @brief Sends a signal to dbus that the window is minimized.
+   *
+   * @param[in] window The window to be minimized
+   * @see BridgeObject::Emit()
+   */
+  void EmitMinimize(Dali::Window window)
+  {
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
+    {
+      windowAccessible->Emit(WindowEvent::MINIMIZE, 0);
+    }
+  }
+
+  /**
+   * @brief Sends a signal to dbus that the window is restored.
+   *
+   * @param[in] window The window to be restored
+   * @param[in] detail Restored window state
+   * @see BridgeObject::Emit()
+   */
+  void EmitRestore(Dali::Window window, Dali::Accessibility::WindowRestoreType detail)
+  {
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
+    {
+      windowAccessible->Emit(WindowEvent::RESTORE, static_cast<unsigned int>(detail));
+    }
+  }
+
+  /**
+   * @brief Sends a signal to dbus that the window is maximized.
+   *
+   * @param[in] window The window to be maximized
+   * @see BridgeObject::Emit()
+   */
+  void EmitMaximize(Dali::Window window)
+  {
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
+    {
+      windowAccessible->Emit(WindowEvent::MAXIMIZE, 0);
+    }
+  }
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::WindowShown()
    */
   void WindowShown(Dali::Window window) override
@@ -465,6 +511,39 @@ public:
     if(IsUp())
     {
       EmitDeactivate(window);
+    }
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowMinimized()
+   */
+  void WindowMinimized(Dali::Window window) override
+  {
+    if(IsUp())
+    {
+      EmitMinimize(window);
+    }
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowRestored()
+   */
+  void WindowRestored(Dali::Window window, WindowRestoreType detail) override
+  {
+    if(IsUp())
+    {
+      EmitRestore(window, detail);
+    }
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowMaximized()
+   */
+  void WindowMaximized(Dali::Window window) override
+  {
+    if(IsUp())
+    {
+      EmitMaximize(window);
     }
   }
 

@@ -144,7 +144,7 @@ public:
 
   Format ValidateFormat(Format sourceFormat);
 
-  bool IsCompressed()
+  bool IsCompressed() const
   {
     return mIsCompressed;
   }

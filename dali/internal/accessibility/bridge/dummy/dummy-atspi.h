@@ -93,6 +93,18 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void WindowMinimized(Window window) override
+  {
+  }
+
+  void WindowRestored(Window window, WindowRestoreType detail) override
+  {
+  }
+
+  void WindowMaximized(Window window) override
+  {
+  }
+
   void Initialize() override
   {
   }

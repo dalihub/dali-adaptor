@@ -1014,8 +1014,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
     // Note: To comply with the wayland protocol, Dali should make an ack_configure
     // by calling ecore_wl2_window_commit
 
-    int tempWidth  = static_cast<int>(ev->w);
-    int tempHeight = static_cast<int>(ev->h);
+    int tempWidth  = ev->w;
+    int tempHeight = ev->h;
 
     // Initialize with previous size for skip resize when new size is 0.
     // When window is just moved or window is resized by client application,
@@ -1050,6 +1050,8 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
       Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(mWindowPositionSize);
       mUpdatePositionSizeSignal.Emit(newPositionSize);
     }
+
+    mMaximizeChangedSignal.Emit(static_cast<bool>(ev->states & ECORE_WL2_WINDOW_STATE_MAXIMIZED));
 
     ecore_wl2_window_commit(mEcoreWindow, EINA_FALSE);
   }
@@ -1207,7 +1209,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     std::ostringstream stream;
     if(gTraceFilter->IsTraceEnabled())
     {
-      stream << "DALI_ON_KEY_DOWN [" << keyName << "]\n";
+      stream << "DALI_ON_KEY_DOWN [" << keyName << "]";
       DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
     }
 #endif
