@@ -1294,7 +1294,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     std::ostringstream stream;
     if(gTraceFilter->IsTraceEnabled())
     {
-      stream << "DALI_ON_KEY_UP [" << keyName << "]" << std::endl;
+      stream << "DALI_ON_KEY_UP [" << keyName << "]";
       DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
     }
 #endif
