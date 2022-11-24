@@ -208,6 +208,10 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
     auto rootLayer  = mScene.GetRootLayer();
     auto accessible = Accessibility::Accessible::Get(rootLayer);
     bridge->AddTopLevelWindow(accessible);
+
+    // Emit Window create event
+    // Create and Destory signal only emit in multi-window environment, so it does not emit on default layer.
+    bridge->Emit(accessible, Accessibility::WindowEvent::CREATE);
   }
 
   bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
