@@ -25,6 +25,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 
 using namespace Dali::Accessibility;
@@ -227,28 +228,68 @@ void BridgeBase::RemoveTopLevelWindow(Accessible* windowAccessible)
   }
 }
 
+void BridgeBase::CompressDefaultLabels()
+{
+  // Remove entries for objects which no longer exist
+  mDefaultLabels.remove_if([](const DefaultLabelType& label) {
+    return !label.first.GetBaseHandle(); // Check window's weak handle
+    // TODO: Once Accessible becomes a handle type, check its weak handle here as well
+  });
+}
+
 void BridgeBase::RegisterDefaultLabel(Accessible* object)
 {
-  if(std::find(mDefaultLabels.begin(), mDefaultLabels.end(), object) == mDefaultLabels.end())
+  CompressDefaultLabels();
+
+  Dali::WeakHandle<Dali::Window> window = GetWindow(object);
+  if(!window.GetBaseHandle()) // true also if `object` is null
   {
-    mDefaultLabels.push_back(object);
+    DALI_LOG_ERROR("Cannot register default label: object does not belong to any window");
+    return;
+  }
+
+  auto it = std::find_if(mDefaultLabels.begin(), mDefaultLabels.end(), [object](const DefaultLabelType& label) {
+    return object == label.second;
+  });
+
+  if(it == mDefaultLabels.end())
+  {
+    mDefaultLabels.push_back({window, object});
+  }
+  else if(it->first != window)
+  {
+    // TODO: Tentative implementation. It is yet to be specified what should happen
+    // when the same object is re-registered as a default label for another window.
+    *it = {window, object};
+  }
+  else // it->first == window && it->second == object
+  {
+    // Nothing to do
   }
 }
 
 void BridgeBase::UnregisterDefaultLabel(Accessible* object)
 {
-  auto it = std::find(mDefaultLabels.begin(), mDefaultLabels.end(), object);
-  if(it != mDefaultLabels.end())
-  {
-    mDefaultLabels.erase(it);
-  }
+  CompressDefaultLabels();
+
+  mDefaultLabels.remove_if([object](const DefaultLabelType& label) {
+    return object == label.second;
+  });
 }
 
 Accessible* BridgeBase::GetDefaultLabel(Accessible* root) const
 {
-  // TODO (multi-window support): Change mDefaultLabels to a collection of vectors
-  // (one per window) and select the right one based on the window that 'root' belongs to.
-  return mDefaultLabels.empty() ? root : mDefaultLabels.back();
+  Dali::WeakHandle<Dali::Window> window = GetWindow(root);
+  if(!window.GetBaseHandle())
+  {
+    return root;
+  }
+
+  auto it = std::find_if(mDefaultLabels.rbegin(), mDefaultLabels.rend(), [&window](const DefaultLabelType& label) {
+    return window == label.first;
+  });
+
+  return (it == mDefaultLabels.rend()) ? root : it->second;
 }
 
 std::string BridgeBase::StripPrefix(const std::string& path)
@@ -359,4 +400,18 @@ auto BridgeBase::CreateCacheElement(Accessible* item) -> CacheElementType
     item->GetRole(),
     item->GetDescription(),
     item->GetStates().GetRawData());
+}
+
+Dali::WeakHandle<Dali::Window> BridgeBase::GetWindow(Dali::Accessibility::Accessible* accessible)
+{
+  Dali::WeakHandle<Dali::Window> windowHandle;
+  Dali::Actor                    actor = accessible ? accessible->GetInternalActor() : Dali::Actor();
+
+  if(actor)
+  {
+    Dali::Window window = Dali::DevelWindow::Get(actor);
+    windowHandle        = {window};
+  }
+
+  return windowHandle;
 }
