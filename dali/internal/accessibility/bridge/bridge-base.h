@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/dali-adaptor-version.h>
+#include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <memory>
 #include <tuple>
@@ -612,9 +613,13 @@ public:
   }
 
 protected:
-  mutable ApplicationAccessible                 mApplication;
-  std::vector<Dali::Accessibility::Accessible*> mDefaultLabels;
-  bool                                          mIsScreenReaderSuppressed = false;
+  // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
+  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::Accessibility::Accessible*>;
+  using DefaultLabelsType = std::list<DefaultLabelType>;
+
+  mutable ApplicationAccessible mApplication;
+  DefaultLabelsType             mDefaultLabels;
+  bool                          mIsScreenReaderSuppressed = false;
 
 private:
   /**
@@ -663,6 +668,19 @@ private:
    * @return The elements to be cached
    */
   CacheElementType CreateCacheElement(Dali::Accessibility::Accessible* item);
+
+  /**
+   * @brief Removes expired elements from the default label collection.
+   */
+  void CompressDefaultLabels();
+
+  /**
+   * @brief Gets the window to which this accessible belongs (or an empty handle).
+   *
+   * @param accessible The accessible
+   * @return The window
+   */
+  static Dali::WeakHandle<Dali::Window> GetWindow(Dali::Accessibility::Accessible* accessible);
 
 protected:
   BridgeBase();
