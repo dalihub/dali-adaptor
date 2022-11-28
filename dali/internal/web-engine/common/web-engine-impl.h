@@ -265,6 +265,11 @@ public:
   void RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngineScrollEdgeReachedCallback callback);
 
   /**
+   * @copydoc Dali::WebEngine::RegisterUrlChangedCallback()
+   */
+  void RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback);
+
+  /**
    @copydoc Dali::WebEngine::RegisterNavigationPolicyDecidedCallback()
    */
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);

@@ -280,6 +280,11 @@ void WebEngine::RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngi
   GetImplementation(*this).RegisterScrollEdgeReachedCallback(callback);
 }
 
+void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback)
+{
+  GetImplementation(*this).RegisterUrlChangedCallback(callback);
+}
+
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);

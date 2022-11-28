@@ -73,6 +73,11 @@ public:
   using JavaScriptMessageHandlerCallback = std::function<void(const std::string&)>;
 
   /**
+   * @brief WebView callback related with page url changed.
+   */
+  using WebEngineUrlChangedCallback = std::function<void(const std::string&)>;
+
+  /**
    * @brief WebView callback related with navigation policy would be decided.
    */
   using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
@@ -351,6 +356,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterScrollEdgeReachedCallback(WebEngineScrollEdgeReachedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when url is changed.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterUrlChangedCallback(WebEngineUrlChangedCallback callback) = 0;
 
   /**
    * @brief Callback to be called when navigation policy would be decided.

@@ -375,6 +375,11 @@ void WebEngine::RegisterScrollEdgeReachedCallback(Dali::WebEnginePlugin::WebEngi
   mPlugin->RegisterScrollEdgeReachedCallback(callback);
 }
 
+void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlChangedCallback callback)
+{
+  mPlugin->RegisterUrlChangedCallback(callback);
+}
+
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   mPlugin->RegisterNavigationPolicyDecidedCallback(callback);
