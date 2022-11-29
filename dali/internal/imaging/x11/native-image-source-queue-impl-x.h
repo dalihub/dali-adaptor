@@ -80,6 +80,11 @@ public:
   bool EnqueueBuffer(uint8_t* buffer) override;
 
   /**
+   * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
+   */
+  void FreeReleasedBuffers() override;
+
+  /**
    * destructor
    */
   ~NativeImageSourceQueueX() override;

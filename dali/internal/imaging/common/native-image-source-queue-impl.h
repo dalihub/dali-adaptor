@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,11 @@ public:
    * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
    */
   virtual bool EnqueueBuffer(uint8_t* buffer) = 0;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::FreeReleasedBuffers
+   */
+  virtual void FreeReleasedBuffers() = 0;
 
   /**
    * destructor
