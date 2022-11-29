@@ -121,10 +121,11 @@ CURLcode DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataB
   // create
   Dali::Internal::Platform::FileWriter fileWriter(dataBuffer, dataSize);
   FILE*                                dataBufferFilePointer = fileWriter.GetFile();
-  setbuf(dataBufferFilePointer, NULL); // Turn buffering off
 
   if(NULL != dataBufferFilePointer)
   {
+    setbuf(dataBufferFilePointer, NULL); // Turn buffering off
+
     // we only want the body which contains the file data
     curl_easy_setopt(curlHandle, CURLOPT_HEADER, EXCLUDE_HEADER);
     curl_easy_setopt(curlHandle, CURLOPT_NOBODY, INCLUDE_BODY);
@@ -135,6 +136,12 @@ CURLcode DownloadFileDataWithSize(CURL* curlHandle, Dali::Vector<uint8_t>& dataB
 
     // synchronous request of the body data
     result = curl_easy_perform(curlHandle);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Fail to open buffer writter with size : %zu!\n", dataSize);
+    // @todo : Need to check that is it correct error code?
+    result = CURLE_READ_ERROR;
   }
   return result;
 }

@@ -445,8 +445,8 @@ class DALI_ADAPTOR_API EnumBitSet : public BitSet<Internal::BitSetSize<Enum, Enu
 public:
   // Types
 
-  using IndexType     = typename BitSet<N>::IndexType;     ///< @copydoc BitSet::IndexType
-  using ReferenceType = typename BitSet<N>::ReferenceType; ///< @copydoc BitSet::ReferenceType
+  using IndexType     = typename BitSet<N>::IndexType;     ///< @copydoc Dali::Accessibility::BitSet::IndexType
+  using ReferenceType = typename BitSet<N>::ReferenceType; ///< @copydoc Dali::Accessibility::BitSet::ReferenceType
 
   // Constructors
 
@@ -455,7 +455,7 @@ public:
   // Operators
 
   /**
-   * @copydoc BitSet::operator~() const
+   * @copydoc Dali::Accessibility::BitSet::operator~() const
    */
   EnumBitSet operator~() const
   {
@@ -463,7 +463,7 @@ public:
   }
 
   /**
-   * @copydoc BitSet::operator|(const BitSet&) const
+   * @copydoc Dali::Accessibility::BitSet::operator|(const BitSet&) const
    */
   EnumBitSet operator|(const EnumBitSet& other) const
   {
@@ -471,7 +471,7 @@ public:
   }
 
   /**
-   * @copydoc BitSet::operator&(const BitSet&) const
+   * @copydoc Dali::Accessibility::BitSet::operator&(const BitSet&) const
    */
   EnumBitSet operator&(const EnumBitSet& other) const
   {
@@ -479,7 +479,7 @@ public:
   }
 
   /**
-   * @copydoc BitSet::operator^(const BitSet&) const
+   * @copydoc Dali::Accessibility::BitSet::operator^(const BitSet&) const
    */
   EnumBitSet operator^(const EnumBitSet& other) const
   {
@@ -487,7 +487,7 @@ public:
   }
 
   /**
-   * @copydoc BitSet::operator[](IndexType) const
+   * @copydoc Dali::Accessibility::BitSet::operator[](IndexType) const
    */
   bool operator[](Enum index) const
   {
@@ -495,7 +495,7 @@ public:
   }
 
   /**
-   * @copydoc BitSet::operator[](IndexType)
+   * @copydoc Dali::Accessibility::BitSet::operator[](IndexType)
    */
   ReferenceType operator[](Enum index)
   {
