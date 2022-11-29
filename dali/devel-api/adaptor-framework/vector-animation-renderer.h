@@ -133,6 +133,11 @@ public:
   bool Render(uint32_t frameNumber);
 
   /**
+   * @brief Notify the Renderer that rendering is stopped.
+   */
+  void RenderStopped();
+
+  /**
    * @brief Gets the total number of frames of the file
    *
    * @return The total number of frames

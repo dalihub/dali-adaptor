@@ -89,6 +89,11 @@ public:
   virtual bool Render(uint32_t frameNumber) = 0;
 
   /**
+   * @brief Notify the Renderer that rendering is stopped.
+   */
+  virtual void RenderStopped() = 0;
+
+  /**
    * @brief Gets the total number of frames of the file.
    *
    * @return The total number of frames
