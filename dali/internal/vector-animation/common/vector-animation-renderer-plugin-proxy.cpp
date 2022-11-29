@@ -139,6 +139,14 @@ bool VectorAnimationRendererPluginProxy::Render(uint32_t frameNumber)
   return false;
 }
 
+void VectorAnimationRendererPluginProxy::RenderStopped()
+{
+  if(mPlugin)
+  {
+    mPlugin->RenderStopped();
+  }
+}
+
 uint32_t VectorAnimationRendererPluginProxy::GetTotalFrameNumber() const
 {
   if(mPlugin)

@@ -81,6 +81,11 @@ bool VectorAnimationRenderer::Render(uint32_t frameNumber)
   return mPlugin.Render(frameNumber);
 }
 
+void VectorAnimationRenderer::RenderStopped()
+{
+  mPlugin.RenderStopped();
+}
+
 uint32_t VectorAnimationRenderer::GetTotalFrameNumber() const
 {
   return mPlugin.GetTotalFrameNumber();
