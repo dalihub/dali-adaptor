@@ -634,3 +634,139 @@ int UtcDaliApplicationDownCastN(void)
   DALI_TEST_CHECK(!application);
   END_TEST;
 }
+
+int UtcDaliApplicationTaskInitSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskInitSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskTerminateSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskTerminateSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskAppControlSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskAppControlSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskLanguageChangedSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskLanguageChangedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskRegionChangedSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskRegionChangedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskLowBatterySignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskLowBatterySignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskLowMemorySignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskLowMemorySignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliApplicationTaskDeviceOrientationChangedSignalN(void)
+{
+  Application application;
+
+  try
+  {
+    application.TaskDeviceOrientationChangedSignal();
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}

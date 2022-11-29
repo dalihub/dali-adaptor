@@ -10,6 +10,7 @@ SET(TC_SOURCES
     utc-Dali-Capture.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
+    utc-Dali-Gl-Window.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
@@ -17,8 +18,9 @@ SET(TC_SOURCES
     utc-Dali-TextScript.cpp
     utc-Dali-Timer.cpp
     utc-Dali-TtsPlayer.cpp
+    utc-Dali-WidgetApplication.cpp
+    utc-Dali-Widget.cpp
     utc-Dali-Window.cpp
-    utc-Dali-Gl-Window.cpp
 )
 
 LIST(APPEND TC_SOURCES
