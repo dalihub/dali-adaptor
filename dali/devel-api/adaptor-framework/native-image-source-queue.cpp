@@ -76,6 +76,11 @@ bool NativeImageSourceQueue::EnqueueBuffer(uint8_t* buffer)
   return mImpl->EnqueueBuffer(buffer);
 }
 
+void NativeImageSourceQueue::FreeReleasedBuffers()
+{
+  mImpl->FreeReleasedBuffers();
+}
+
 bool NativeImageSourceQueue::CreateResource()
 {
   return mImpl->CreateResource();

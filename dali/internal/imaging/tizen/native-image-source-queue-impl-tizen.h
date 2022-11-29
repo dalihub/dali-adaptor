@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,6 +82,11 @@ public:
    * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
    */
   bool EnqueueBuffer(uint8_t* buffer) override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::EnqueueBuffer
+   */
+  void FreeReleasedBuffers() override;
 
   /**
    * destructor
@@ -199,6 +204,7 @@ private:
   bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
   bool                      mBlendingRequired;   ///< Whether blending is required
   bool                      mIsResized;          ///< Whether the size has changed
+  bool                      mFreeRequest;        ///< Whether it is requested to free the released buffers
 };
 
 } // namespace Adaptor

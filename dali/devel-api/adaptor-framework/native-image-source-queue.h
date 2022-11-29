@@ -145,6 +145,11 @@ public:
   bool EnqueueBuffer(uint8_t* buffer);
 
   /**
+   * @brief Free all released buffers.
+   */
+  void FreeReleasedBuffers();
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()
    */
   int GetTextureTarget() const override;
