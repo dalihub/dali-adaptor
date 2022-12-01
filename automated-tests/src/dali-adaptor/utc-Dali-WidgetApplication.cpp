@@ -78,3 +78,11 @@ int UtcDaliWidgetApplicationConstructorsPositive(void)
 
   END_TEST;
 }
+
+int UtcDaliWidgetApplicationNewP(void)
+{
+  WidgetApplication widget1 = WidgetApplication::New(nullptr, nullptr, std::string());
+  DALI_TEST_CHECK(widget1);
+
+  END_TEST;
+}
