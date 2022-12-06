@@ -24,6 +24,7 @@
 #include <tbm_surface_internal.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -36,10 +37,6 @@ namespace Adaptor
 {
 namespace
 {
-#define TBM_SURFACE_QUEUE_SIZE 3
-
-const char* SAMPLER_TYPE = "samplerExternalOES";
-
 // clang-format off
 int FORMATS_BLENDING_REQUIRED[] = {
   TBM_FORMAT_ARGB4444, TBM_FORMAT_ABGR4444,
@@ -54,7 +51,19 @@ int FORMATS_BLENDING_REQUIRED[] = {
 };
 // clang-format on
 
-const int NUM_FORMATS_BLENDING_REQUIRED = 18;
+const char* SAMPLER_TYPE = "samplerExternalOES";
+
+constexpr int32_t NUM_FORMATS_BLENDING_REQUIRED = 18;
+
+constexpr int32_t DEFAULT_TBM_SURFACE_QUEUE_SIZE = 3u;
+constexpr auto    TBM_SURFACE_QUEUE_SIZE         = "DALI_TBM_SURFACE_QUEUE_SIZE";
+
+int32_t GetTbmSurfaceQueueSize()
+{
+  static auto    queueSizeString = EnvironmentVariable::GetEnvironmentVariable(TBM_SURFACE_QUEUE_SIZE);
+  static int32_t queueSize       = queueSizeString ? std::atoi(queueSizeString) : DEFAULT_TBM_SURFACE_QUEUE_SIZE;
+  return queueSize;
+}
 
 } // namespace
 
@@ -152,7 +161,7 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
       }
     }
 
-    mTbmQueue = tbm_surface_queue_create(TBM_SURFACE_QUEUE_SIZE, mWidth, mHeight, tbmFormat, 0);
+    mTbmQueue = tbm_surface_queue_create(GetTbmSurfaceQueueSize(), mWidth, mHeight, tbmFormat, 0);
     if(!mTbmQueue)
     {
       DALI_LOG_ERROR("NativeImageSourceQueueTizen::Initialize: tbm_surface_queue_create is failed! [%p]\n", mTbmQueue);
@@ -418,7 +427,7 @@ void NativeImageSourceQueueTizen::ResetEglImageList(bool releaseConsumeSurface)
 
 bool NativeImageSourceQueueTizen::CheckBlending(int format)
 {
-  for(int i = 0; i < NUM_FORMATS_BLENDING_REQUIRED; ++i)
+  for(int32_t i = 0; i < NUM_FORMATS_BLENDING_REQUIRED; ++i)
   {
     if(format == FORMATS_BLENDING_REQUIRED[i])
     {
