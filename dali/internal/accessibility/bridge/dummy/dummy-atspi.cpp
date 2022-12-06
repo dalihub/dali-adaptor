@@ -141,6 +141,14 @@ void Accessibility::Accessible::EmitSocketAvailable()
 {
 }
 
+void Accessibility::Accessible::EmitScrollStarted()
+{
+}
+
+void Accessibility::Accessible::EmitScrollFinished()
+{
+}
+
 void Accessibility::Accessible::NotifyAccessibilityStateChange(Accessibility::States states, bool isRecursive)
 {
 }
