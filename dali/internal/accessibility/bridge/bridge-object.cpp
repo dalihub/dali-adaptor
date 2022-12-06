@@ -315,3 +315,31 @@ void BridgeObject::EmitSocketAvailable(Accessible* obj)
     obj->GetAddress(),
     {"", "root"});
 }
+
+void BridgeObject::EmitScrollStarted(Accessible* obj)
+{
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::SCROLL_STARTED])
+  {
+    return;
+  }
+
+  mDbusServer.emit2<Address>(
+    GetAccessiblePath(obj),
+    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    "ScrollStarted",
+    {"", "root"});
+}
+
+void BridgeObject::EmitScrollFinished(Accessible* obj)
+{
+  if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::SCROLL_FINISHED])
+  {
+    return;
+  }
+
+  mDbusServer.emit2<Address>(
+    GetAccessiblePath(obj),
+    Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+    "ScrollFinished",
+    {"", "root"});
+}

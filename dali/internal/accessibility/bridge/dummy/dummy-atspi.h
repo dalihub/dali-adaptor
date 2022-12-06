@@ -142,6 +142,14 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void EmitScrollStarted(Accessibility::Accessible* obj) override
+  {
+  }
+
+  void EmitScrollFinished(Accessibility::Accessible* obj) override
+  {
+  }
+
   void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int newValue, int reserved) override
   {
   }

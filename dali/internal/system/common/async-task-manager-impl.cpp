@@ -19,9 +19,9 @@
 #include "async-task-manager-impl.h"
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/common/singleton-service.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
+#include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
 
@@ -123,7 +123,7 @@ void AsyncTaskThread::Run()
 Dali::AsyncTaskManager AsyncTaskManager::Get()
 {
   Dali::AsyncTaskManager manager;
-  SingletonService singletonService(SingletonService::Get());
+  SingletonService       singletonService(SingletonService::Get());
   if(singletonService)
   {
     // Check whether the async task manager is already created
@@ -138,7 +138,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
     {
       // If not, create the async task manager and register it as a singleton
       Internal::Adaptor::AsyncTaskManager* internalAsyncTaskManager = new Internal::Adaptor::AsyncTaskManager();
-      manager = Dali::AsyncTaskManager(internalAsyncTaskManager);
+      manager                                                       = Dali::AsyncTaskManager(internalAsyncTaskManager);
       singletonService.Register(typeid(manager), manager);
     }
   }
@@ -154,7 +154,7 @@ AsyncTaskManager::AsyncTaskManager()
 
 AsyncTaskManager::~AsyncTaskManager()
 {
-  if(mProcessorRegistered)
+  if(mProcessorRegistered && Dali::Adaptor::IsAvailable())
   {
     Dali::Adaptor::Get().UnregisterProcessor(*this);
   }
@@ -189,7 +189,7 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
     // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
   }
 
-  if(!mProcessorRegistered)
+  if(!mProcessorRegistered && Dali::Adaptor::IsAvailable())
   {
     Dali::Adaptor::Get().RegisterProcessor(*this);
     mProcessorRegistered = true;
@@ -314,7 +314,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr task)
 
 void AsyncTaskManager::UnregisterProcessor()
 {
-  if(mProcessorRegistered)
+  if(mProcessorRegistered && Dali::Adaptor::IsAvailable())
   {
     Mutex::ScopedLock lock(mMutex);
     if(mWaitingTasks.empty() && mCompletedTasks.empty() && mRunningTasks.empty())
@@ -329,7 +329,7 @@ void AsyncTaskManager::TasksCompleted()
 {
   while(AsyncTaskPtr task = PopNextCompletedTask())
   {
-    CallbackBase::Execute(*(task->GetCompletedCallback()),task);
+    CallbackBase::Execute(*(task->GetCompletedCallback()), task);
   }
 
   UnregisterProcessor();

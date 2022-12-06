@@ -84,6 +84,12 @@ struct DEPTH_STENCIL_ATTACHMENT_TYPE
 Framebuffer::Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : FramebufferResource(createInfo, controller)
 {
+  // Check whether we need to consider multisampling
+  if(createInfo.multiSamplingLevel > 1u && controller.GetGraphicsInterface()->IsMultisampledRenderToTextureSupported())
+  {
+    mMultisamples = std::min(createInfo.multiSamplingLevel, controller.GetGraphicsInterface()->GetMaxTextureSamples());
+  }
+
   // Add framebuffer to the Resource queue
   mController.AddFramebuffer(*this);
 }
@@ -137,30 +143,32 @@ bool Framebuffer::InitializeResource()
 
       AttachTexture(depthTexture, attachmentId, 0, mCreateInfo.depthStencilAttachment.depthLevel);
     }
-    else if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE &&
-            mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
+    else
     {
-      // Create depth+stencil renderbuffer
-      gl->GenRenderbuffers(1, &mStencilBufferId);
-      gl->BindRenderbuffer(GL_RENDERBUFFER, mStencilBufferId);
-      gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, mCreateInfo.size.width, mCreateInfo.size.height);
-      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mStencilBufferId);
-    }
-    else if(mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
-    {
-      // Create depth renderbuffer
-      gl->GenRenderbuffers(1, &mDepthBufferId);
-      gl->BindRenderbuffer(GL_RENDERBUFFER, mDepthBufferId);
-      gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, mCreateInfo.size.width, mCreateInfo.size.height);
-      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mDepthBufferId);
-    }
-    else if(mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE)
-    {
-      // Create stencil renderbuffer
-      gl->GenRenderbuffers(1, &mStencilBufferId);
-      gl->BindRenderbuffer(GL_RENDERBUFFER, mStencilBufferId);
-      gl->RenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, mCreateInfo.size.width, mCreateInfo.size.height);
-      gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mStencilBufferId);
+      const bool depthWrite   = mCreateInfo.depthStencilAttachment.depthUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+      const bool stencilWrite = mCreateInfo.depthStencilAttachment.stencilUsage == Graphics::DepthStencilAttachment::Usage::WRITE;
+
+      // Check whether we need to use RenderBuffer
+      if(depthWrite || stencilWrite)
+      {
+        // if stencil is write, use renderbuffer as mStencilBufferId.
+        uint32_t&  bufferId       = stencilWrite ? mStencilBufferId : mDepthBufferId;
+        const auto internalFormat = depthWrite ? (stencilWrite ? GL_DEPTH24_STENCIL8 : GL_DEPTH_COMPONENT16) : GL_STENCIL_INDEX8;
+        const auto attachment     = depthWrite ? (stencilWrite ? GL_DEPTH_STENCIL_ATTACHMENT : GL_DEPTH_ATTACHMENT) : GL_STENCIL_ATTACHMENT;
+
+        gl->GenRenderbuffers(1, &bufferId);
+        gl->BindRenderbuffer(GL_RENDERBUFFER, bufferId);
+
+        if(mMultisamples <= 1u)
+        {
+          gl->RenderbufferStorage(GL_RENDERBUFFER, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
+        }
+        else
+        {
+          gl->RenderbufferStorageMultisample(GL_RENDERBUFFER, mMultisamples, internalFormat, mCreateInfo.size.width, mCreateInfo.size.height);
+        }
+        gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, bufferId);
+      }
     }
 
     context->BindFrameBuffer(GL_FRAMEBUFFER, 0);
@@ -213,13 +221,14 @@ void Framebuffer::AttachTexture(const Graphics::Texture* texture, uint32_t attac
   if(gl)
   {
     auto graphicsTexture = static_cast<const GLES::Texture*>(texture);
-    if(graphicsTexture->GetCreateInfo().textureType == Graphics::TextureType::TEXTURE_2D)
+    auto textarget       = (graphicsTexture->GetCreateInfo().textureType == Graphics::TextureType::TEXTURE_2D) ? graphicsTexture->GetGlTarget() : GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId;
+    if(mMultisamples <= 1u)
     {
-      gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, graphicsTexture->GetGlTarget(), graphicsTexture->GetGLTexture(), levelId);
+      gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, textarget, graphicsTexture->GetGLTexture(), levelId);
     }
     else
     {
-      gl->FramebufferTexture2D(GL_FRAMEBUFFER, attachmentId, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layerId, graphicsTexture->GetGLTexture(), levelId);
+      gl->FramebufferTexture2DMultisample(GL_FRAMEBUFFER, attachmentId, textarget, graphicsTexture->GetGLTexture(), levelId, mMultisamples);
     }
   }
 }
