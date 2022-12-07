@@ -85,6 +85,11 @@ void WebEngine::Destroy()
   GetImplementation(*this).Destroy();
 }
 
+WebEnginePlugin* WebEngine::GetPlugin() const
+{
+  return GetImplementation(*this).GetPlugin();
+}
+
 NativeImageInterfacePtr WebEngine::GetNativeImageSource()
 {
   return GetImplementation(*this).GetNativeImageSource();
@@ -125,7 +130,7 @@ Dali::PixelData WebEngine::GetFavicon() const
   return GetImplementation(*this).GetFavicon();
 }
 
-const std::string& WebEngine::GetUrl()
+std::string WebEngine::GetUrl() const
 {
   return GetImplementation(*this).GetUrl();
 }
@@ -220,7 +225,7 @@ void WebEngine::ClearHistory()
   return GetImplementation(*this).ClearHistory();
 }
 
-const std::string& WebEngine::GetUserAgent() const
+std::string WebEngine::GetUserAgent() const
 {
   return GetImplementation(*this).GetUserAgent();
 }
@@ -288,6 +293,11 @@ void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlCh
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
+}
+
+void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
+{
+  GetImplementation(*this).RegisterNewWindowCreatedCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)

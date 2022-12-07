@@ -83,6 +83,11 @@ public:
   using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
+   * @brief WebView callback related with a new window would be created.
+   */
+  using WebEngineNewWindowCreatedCallback = std::function<void(Dali::WebEnginePlugin*&)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -179,7 +184,7 @@ public:
    *
    * @return Url of string type
    */
-  virtual const std::string& GetUrl() = 0;
+  virtual std::string GetUrl() const = 0;
 
   /**
    * @brief Loads a given string as web contents.
@@ -288,7 +293,7 @@ public:
    *
    * @return The string value of user agent
    */
-  virtual const std::string& GetUserAgent() const = 0;
+  virtual std::string GetUserAgent() const = 0;
 
   /**
    * @brief Set user agent string.
@@ -370,6 +375,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when a new window would be created.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNewWindowCreatedCallback(WebEngineNewWindowCreatedCallback callback) = 0;
 
   /**
    * @brief Get a plain text of current web page asynchronously.

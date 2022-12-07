@@ -112,6 +112,11 @@ public:
   void Destroy();
 
   /**
+   * @brief Gets web engine plugin.
+   */
+  Dali::WebEnginePlugin* GetPlugin() const;
+
+  /**
    * @brief Gets native image source to render.
    */
   NativeImageInterfacePtr GetNativeImageSource();
@@ -160,7 +165,7 @@ public:
   /**
    * @brief Gets the url.
    */
-  const std::string& GetUrl();
+  std::string GetUrl() const;
 
   /**
    * @brief Loads a given string as web contents.
@@ -269,7 +274,7 @@ public:
    *
    * @return The string value of user agent
    */
-  const std::string& GetUserAgent() const;
+  std::string GetUserAgent() const;
 
   /**
    * @brief Set user agent string.
@@ -352,6 +357,13 @@ public:
    * @param[in] callback
    */
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
+
+  /**
+   * @brief Callback to be called when a new window would be created.
+   *
+   * @param[in] callback
+   */
+  void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
    * @brief Get a plain text of current web page asynchronously.

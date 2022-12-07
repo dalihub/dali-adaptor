@@ -70,6 +70,11 @@ public:
   void Destroy();
 
   /**
+   * @copydoc Dali::WebEngine::GetPlugin()
+   */
+  Dali::WebEnginePlugin* GetPlugin() const;
+
+  /**
    * @copydoc Dali::WebEngine::GetNativeImageSource()
    */
   Dali::NativeImageInterfacePtr GetNativeImageSource();
@@ -112,12 +117,12 @@ public:
   /**
    * @copydoc Dali::WebEngine::GetUrl()
    */
-  const std::string& GetUrl();
+  std::string GetUrl() const;
 
   /**
    * @copydoc Dali::WebEngine::GetUserAgent()
    */
-  const std::string& GetUserAgent() const;
+  std::string GetUserAgent() const;
 
   /**
    * @copydoc Dali::WebEngine::SetUserAgent()
@@ -273,6 +278,11 @@ public:
    @copydoc Dali::WebEngine::RegisterNavigationPolicyDecidedCallback()
    */
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
+
+  /**
+   @copydoc Dali::WebEngine::RegisterNewWindowCreatedCallback()
+   */
+  void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()

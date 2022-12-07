@@ -175,6 +175,11 @@ void WebEngine::Create(int width, int height, int argc, char** argv)
   mPlugin->Create(width, height, argc, argv);
 }
 
+Dali::WebEnginePlugin* WebEngine::GetPlugin() const
+{
+  return mPlugin;
+}
+
 void WebEngine::Destroy()
 {
   mPlugin->Destroy();
@@ -220,12 +225,12 @@ Dali::PixelData WebEngine::GetFavicon() const
   return mPlugin->GetFavicon();
 }
 
-const std::string& WebEngine::GetUrl()
+std::string WebEngine::GetUrl() const
 {
   return mPlugin->GetUrl();
 }
 
-const std::string& WebEngine::GetUserAgent() const
+std::string WebEngine::GetUserAgent() const
 {
   return mPlugin->GetUserAgent();
 }
@@ -383,6 +388,11 @@ void WebEngine::RegisterUrlChangedCallback(Dali::WebEnginePlugin::WebEngineUrlCh
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   mPlugin->RegisterNavigationPolicyDecidedCallback(callback);
+}
+
+void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
+{
+  mPlugin->RegisterNewWindowCreatedCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
