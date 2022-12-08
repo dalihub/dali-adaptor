@@ -28,7 +28,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-
 NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, colorFormat, nativeImageSourceQueue);
@@ -74,6 +73,10 @@ uint8_t* NativeImageSourceQueueX::DequeueBuffer(uint32_t& width, uint32_t& heigh
 bool NativeImageSourceQueueX::EnqueueBuffer(uint8_t* buffer)
 {
   return false;
+}
+
+void NativeImageSourceQueueX::FreeReleasedBuffers()
+{
 }
 
 bool NativeImageSourceQueueX::CreateResource()
