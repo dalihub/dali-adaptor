@@ -64,6 +64,12 @@ struct Context::Impl
         mProgramVAOCurrentState = iter->second;
         gl.BindVertexArray(iter->second);
       }
+
+      // We should re-check enable attribute usage because geometry might be changed.
+      for(const auto& attr : vertexInputState.attributes)
+      {
+        gl.EnableVertexAttribArray(attr.location);
+      }
       return;
     }
 
