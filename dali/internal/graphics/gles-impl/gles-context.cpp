@@ -64,13 +64,6 @@ struct Context::Impl
         mProgramVAOCurrentState = iter->second;
         gl.BindVertexArray(iter->second);
       }
-
-      // We should re-check enable attribute usage because geometry might be changed.
-      // @todo : We can remove this loop if we enable vertex attrib by shader's information.
-      for(const auto& attr : vertexInputState.attributes)
-      {
-        gl.EnableVertexAttribArray(attr.location);
-      }
       return;
     }
 
@@ -78,9 +71,6 @@ struct Context::Impl
     gl.GenVertexArrays(1, &vao);
     gl.BindVertexArray(vao);
     mProgramVAOMap[program] = vao;
-    
-    // @todo : Enable vertex attrib only by shader's information, not with Geometry.
-    // Currently, vertexInputState.attributes depend on Geometry's VertexBuffer.
     for(const auto& attr : vertexInputState.attributes)
     {
       gl.EnableVertexAttribArray(attr.location);

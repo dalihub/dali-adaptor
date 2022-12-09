@@ -220,8 +220,6 @@ void Reflection::BuildVertexAttributeReflection()
   mVertexInputAttributes.clear();
   mVertexInputAttributes.resize(nAttribs);
 
-  int maximumLocation = nAttribs - 1;
-
   name = new GLchar[maxLength];
   for(int i = 0; i < nAttribs; i++)
   {
@@ -230,21 +228,13 @@ void Reflection::BuildVertexAttributeReflection()
 
     if(location >= 0)
     {
-      if(maximumLocation < location)
-      {
-        maximumLocation = location;
-        // Increate continer size s.t. we can use maximumLocation as index.
-        mVertexInputAttributes.resize(maximumLocation + 1u);
-      }
-
       AttributeInfo attributeInfo;
       attributeInfo.location = location;
       attributeInfo.name     = name;
       attributeInfo.format   = GetVertexAttributeTypeFormat(type);
-      mVertexInputAttributes[location] = std::move(attributeInfo);
+      mVertexInputAttributes.insert(mVertexInputAttributes.begin() + location, attributeInfo);
     }
   }
-
   delete[] name;
 }
 
