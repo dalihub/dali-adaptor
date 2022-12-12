@@ -18,7 +18,9 @@
  *
  */
 
+// EXTERNAL_HEADERS
 #include <dali/public-api/object/any.h>
+#include <cstdint>
 
 namespace Dali
 {
@@ -41,7 +43,13 @@ void Shutdown();
 /**
  * @brief Get the screen size
  */
-void GetScreenSize(int& width, int& height);
+void GetScreenSize(int32_t& width, int32_t& height);
+
+/**
+ * @brief Update the screen size
+ * @note The screen size may be updated while application is running. So update the stored size.
+ */
+void UpdateScreenSize();
 
 /**
  * @copydoc Dali::Keyboard::SetRepeatInfo()
@@ -136,7 +144,7 @@ public:
    * @param[out] width The width of the screen
    * @param[out] height The height of the screen
    */
-  virtual void GetScreenSize(int& width, int& height) = 0;
+  virtual void GetScreenSize(int32_t& width, int32_t& height) = 0;
 };
 
 } // namespace Adaptor
