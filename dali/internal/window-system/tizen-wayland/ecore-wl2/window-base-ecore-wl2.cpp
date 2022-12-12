@@ -1201,14 +1201,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-#ifdef TRACE_ENABLED
-    std::ostringstream stream;
-    if(gTraceFilter->IsTraceEnabled())
-    {
-      stream << "DALI_ON_KEY_DOWN [" << keyName << "]";
-      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
-    }
-#endif
+    DALI_TRACE_BEGIN(gTraceFilter, "DALI_ON_KEY_DOWN");
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1257,12 +1250,7 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-#ifdef TRACE_ENABLED
-    if(gTraceFilter->IsTraceEnabled())
-    {
-      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
-    }
-#endif
+    DALI_TRACE_END(gTraceFilter, "DALI_ON_KEY_DOWN");
   }
 }
 
@@ -1286,14 +1274,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
     std::string keyString("");
     std::string compose("");
 
-#ifdef TRACE_ENABLED
-    std::ostringstream stream;
-    if(gTraceFilter->IsTraceEnabled())
-    {
-      stream << "DALI_ON_KEY_UP [" << keyName << "]";
-      DALI_TRACE_BEGIN(gTraceFilter, stream.str().c_str());
-    }
-#endif
+    DALI_TRACE_BEGIN(gTraceFilter, "DALI_ON_KEY_UP");
 
     // Ensure key compose string is not NULL as keys like SHIFT or arrow have a null string.
     if(keyEvent->compose)
@@ -1342,12 +1323,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
     mKeyEventSignal.Emit(keyEvent);
 
-#ifdef TRACE_ENABLED
-    if(gTraceFilter->IsTraceEnabled())
-    {
-      DALI_TRACE_END(gTraceFilter, stream.str().c_str());
-    }
-#endif
+    DALI_TRACE_END(gTraceFilter, "DALI_ON_KEY_UP");
   }
 }
 
