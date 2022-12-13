@@ -395,6 +395,11 @@ void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngin
   mPlugin->RegisterNewWindowCreatedCallback(callback);
 }
 
+void WebEngine::RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback)
+{
+  mPlugin->RegisterFrameRenderedCallback(callback);
+}
+
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
 {
   mPlugin->GetPlainTextAsynchronously(callback);

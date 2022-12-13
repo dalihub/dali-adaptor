@@ -300,6 +300,11 @@ void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngin
   GetImplementation(*this).RegisterNewWindowCreatedCallback(callback);
 }
 
+void WebEngine::RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback)
+{
+  GetImplementation(*this).RegisterFrameRenderedCallback(callback);
+}
+
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
 {
   GetImplementation(*this).GetPlainTextAsynchronously(callback);

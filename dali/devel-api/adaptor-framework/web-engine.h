@@ -366,6 +366,13 @@ public:
   void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
+   * @brief Callback to be called when frame would be rendered.
+   *
+   * @param[in] callback
+   */
+  void RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback);
+
+  /**
    * @brief Get a plain text of current web page asynchronously.
    *
    * @param[in] callback The callback function called asynchronously.

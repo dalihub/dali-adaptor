@@ -88,6 +88,11 @@ public:
   using WebEngineNewWindowCreatedCallback = std::function<void(Dali::WebEnginePlugin*&)>;
 
   /**
+   * @brief WebView callback related with frame would be rendered.
+   */
+  using WebEngineFrameRenderedCallback = std::function<void(void)>;
+
+  /**
    * @brief Enumeration for the scroll edge.
    */
   enum class ScrollEdge
@@ -382,6 +387,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterNewWindowCreatedCallback(WebEngineNewWindowCreatedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when frame would be rendered.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterFrameRenderedCallback(WebEngineFrameRenderedCallback callback) = 0;
 
   /**
    * @brief Get a plain text of current web page asynchronously.

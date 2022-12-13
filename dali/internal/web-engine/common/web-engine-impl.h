@@ -285,6 +285,11 @@ public:
   void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
+   @copydoc Dali::WebEngine::RegisterFrameRenderedCallback()
+   */
+  void RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback);
+
+  /**
    * @copydoc Dali::WebEngine::GetPlainTextAsynchronously()
    */
   void GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback);
