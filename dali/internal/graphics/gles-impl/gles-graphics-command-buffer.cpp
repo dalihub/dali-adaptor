@@ -266,7 +266,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   static thread_local UniformBufferBindingDescriptor sTempBindings[MAX_UNIFORM_BUFFER_BINDINGS];
 
   // reset temp bindings
-  memset(sTempBindings, 0, sizeof(UniformBufferBindingDescriptor) * MAX_UNIFORM_BUFFER_BINDINGS);
+  std::fill_n(sTempBindings, MAX_UNIFORM_BUFFER_BINDINGS, UniformBufferBindingDescriptor());
 
   auto maxBinding = 0u;
 
