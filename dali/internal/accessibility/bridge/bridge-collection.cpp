@@ -466,6 +466,11 @@ void BridgeCollection::VisitNodes(Accessible* obj, std::vector<Accessible*>& res
   if(comparer(obj))
   {
     result.emplace_back(obj);
+    // the code below will never return for maxCount equal 0
+    if(result.size() == maxCount)
+    {
+      return;
+    }
   }
 
   for(auto i = 0u; i < obj->GetChildCount(); ++i)
