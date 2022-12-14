@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -494,7 +494,9 @@ void GlWindow::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
     return;
   }
 
-  RecalculateTouchPosition(point);
+  Vector2 convertedPosition = RecalculatePosition(point.GetScreenPosition());
+  point.SetScreenPosition(convertedPosition);
+
   Dali::TouchEvent touchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
   Dali::GlWindow   handle(this);
   mTouchedSignal.Emit(touchEvent);
@@ -540,9 +542,8 @@ void GlWindow::OnRotation(const RotationEvent& rotation)
   }
 }
 
-void GlWindow::RecalculateTouchPosition(Integration::Point& point)
+Vector2 GlWindow::RecalculatePosition(const Vector2& position)
 {
-  Vector2 position = point.GetScreenPosition();
   Vector2 convertedPosition;
 
   switch(mTotalRotationAngle)
@@ -571,8 +572,7 @@ void GlWindow::RecalculateTouchPosition(Integration::Point& point)
       break;
     }
   }
-
-  point.SetScreenPosition(convertedPosition);
+  return convertedPosition;
 }
 
 void GlWindow::SetAvailableAnlges(const std::vector<int>& angles)

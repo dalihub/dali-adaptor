@@ -837,8 +837,8 @@ bool Window::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali::Vector<bool
 
 void Window::OnIconifyChanged(bool iconified)
 {
-  const bool isActuallyChanged = (iconified != mIconified);
-  auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
+  const bool   isActuallyChanged = (iconified != mIconified);
+  auto         bridge            = Dali::Accessibility::Bridge::GetCurrentBridge();
   Dali::Window handle(this);
 
   if(iconified)
@@ -891,7 +891,7 @@ void Window::OnMaximizeChanged(bool maximized)
 
   if(isActuallyChanged)
   {
-    auto bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
+    auto         bridge = Dali::Accessibility::Bridge::GetCurrentBridge();
     Dali::Window handle(this);
 
     if(maximized)
@@ -1116,9 +1116,8 @@ void Window::OnAccessibilityDisabled()
   bridge->RemoveTopLevelWindow(accessible);
 }
 
-void Window::RecalculateTouchPosition(Integration::Point& point)
+Vector2 Window::RecalculatePosition(const Vector2& position)
 {
-  Vector2 position = point.GetScreenPosition();
   Vector2 convertedPosition;
 
   switch(mRotationAngle)
@@ -1147,8 +1146,7 @@ void Window::RecalculateTouchPosition(Integration::Point& point)
       break;
     }
   }
-
-  point.SetScreenPosition(convertedPosition);
+  return convertedPosition;
 }
 
 Dali::Window Window::Get(Dali::Actor actor)

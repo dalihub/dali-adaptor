@@ -644,9 +644,9 @@ private: // Dali::Internal::Adaptor::SceneHolder
   void OnResume() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::SceneHolder::RecalculateTouchPosition
+   * @copydoc Dali::Internal::Adaptor::SceneHolder::RecalculatePosition
    */
-  void RecalculateTouchPosition(Integration::Point& point) override;
+  Vector2 RecalculatePosition(const Vector2& position) override;
 
 private: // Dali::Internal::Adaptor::EventHandler::Observer
   /**

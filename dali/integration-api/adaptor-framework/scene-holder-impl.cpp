@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,10 +212,10 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   // Create the scene
   PositionSize surfacePositionSize = mSurface->GetPositionSize();
-  int          windowOrientation         = mSurface->GetSurfaceOrientation();
-  int          screenOrientation         = mSurface->GetScreenOrientation();
+  int          windowOrientation   = mSurface->GetSurfaceOrientation();
+  int          screenOrientation   = mSurface->GetScreenOrientation();
 
-  mScene                           = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
+  mScene = Dali::Integration::Scene::New(Size(static_cast<float>(surfacePositionSize.width), static_cast<float>(surfacePositionSize.height)), windowOrientation, screenOrientation);
 
   Internal::Adaptor::Adaptor& adaptorImpl = Internal::Adaptor::Adaptor::GetImplementation(adaptor);
   mAdaptor                                = &adaptorImpl;
@@ -276,7 +276,8 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
     timeStamp = TimeService::GetMilliSeconds();
   }
 
-  RecalculateTouchPosition(point);
+  Vector2 convertedPosition = RecalculatePosition(point.GetScreenPosition());
+  point.SetScreenPosition(convertedPosition);
 
   Integration::TouchEvent                            touchEvent;
   Integration::HoverEvent                            hoverEvent;
@@ -310,6 +311,9 @@ void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
   // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
   // Keep the handle alive until the core events are processed.
   Dali::BaseHandle sceneHolder(this);
+
+  Vector2 convertedPosition = RecalculatePosition(wheelEvent.point);
+  wheelEvent.point          = convertedPosition;
 
   mScene.QueueEvent(wheelEvent);
   mAdaptor->ProcessCoreEvents();

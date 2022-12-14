@@ -335,10 +335,14 @@ private: // The following methods can be overridden if required
   virtual void OnResume(){};
 
   /**
-   * Recalculate the touch position if required
-   * @param[in,out] point The touch point
+   * Recalculate the position if required
+   * @param[in] position The screen position
+   * @return converted position by oriention
    */
-  virtual void RecalculateTouchPosition(Integration::Point& point){};
+  virtual Vector2 RecalculatePosition(const Vector2& position)
+  {
+    return position;
+  };
 
 private:
   /**
