@@ -1076,9 +1076,8 @@ void Window::OnAccessibilityDisabled()
   bridge->RemoveTopLevelWindow(accessible);
 }
 
-void Window::RecalculateTouchPosition(Integration::Point& point)
+Vector2 Window::RecalculatePosition(const Vector2& position)
 {
-  Vector2 position = point.GetScreenPosition();
   Vector2 convertedPosition;
 
   switch(mRotationAngle)
@@ -1107,8 +1106,7 @@ void Window::RecalculateTouchPosition(Integration::Point& point)
       break;
     }
   }
-
-  point.SetScreenPosition(convertedPosition);
+  return convertedPosition;
 }
 
 Dali::Window Window::Get(Dali::Actor actor)

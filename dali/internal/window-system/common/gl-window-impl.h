@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -293,9 +293,9 @@ private:
   void SetEventHandler();
 
   /**
-   * @brief calculate touch position for rotation.
+   * @brief calculate screen position for rotation.
    */
-  void RecalculateTouchPosition(Integration::Point& point);
+  Vector2 RecalculatePosition(const Vector2& position);
 
   /**
    * @brief Sets window and class name.
