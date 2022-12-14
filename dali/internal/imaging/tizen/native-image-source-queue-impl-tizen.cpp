@@ -92,7 +92,8 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_
   mEglImageExtensions(NULL),
   mOwnTbmQueue(false),
   mBlendingRequired(false),
-  mIsResized(false)
+  mIsResized(false),
+  mFreeRequest(false)
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
@@ -302,6 +303,12 @@ bool NativeImageSourceQueueTizen::EnqueueBuffer(uint8_t* buffer)
   return false;
 }
 
+void NativeImageSourceQueueTizen::FreeReleasedBuffers()
+{
+  Dali::Mutex::ScopedLock lock(mMutex);
+  mFreeRequest = true;
+}
+
 bool NativeImageSourceQueueTizen::CreateResource()
 {
   mEglImageExtensions = mEglGraphics->GetImageExtensions();
@@ -326,24 +333,37 @@ void NativeImageSourceQueueTizen::PrepareTexture()
 {
   Dali::Mutex::ScopedLock lock(mMutex);
 
-  tbm_surface_h oldSurface = mConsumeSurface;
+  bool updated = false;
 
-  if(tbm_surface_queue_can_acquire(mTbmQueue, 0))
+  do
   {
-    if(tbm_surface_queue_acquire(mTbmQueue, &mConsumeSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
-    {
-      DALI_LOG_ERROR("Failed to aquire a tbm_surface\n");
-      return;
-    }
+    tbm_surface_h oldSurface = mConsumeSurface;
 
-    if(oldSurface)
+    if(tbm_surface_queue_can_acquire(mTbmQueue, 0))
     {
-      if(tbm_surface_internal_is_valid(oldSurface))
+      if(tbm_surface_queue_acquire(mTbmQueue, &mConsumeSurface) != TBM_SURFACE_QUEUE_ERROR_NONE)
       {
-        tbm_surface_queue_release(mTbmQueue, oldSurface);
+        DALI_LOG_ERROR("Failed to aquire a tbm_surface\n");
+        return;
       }
-    }
 
+      if(oldSurface)
+      {
+        if(tbm_surface_internal_is_valid(oldSurface))
+        {
+          tbm_surface_queue_release(mTbmQueue, oldSurface);
+        }
+      }
+      updated = true;
+    }
+    else
+    {
+      break;
+    }
+  } while(mFreeRequest); // Get the last one if buffer free was requested
+
+  if(updated)
+  {
     if(mIsResized)
     {
       ResetEglImageList(false);
@@ -375,6 +395,19 @@ void NativeImageSourceQueueTizen::PrepareTexture()
         mEglImages.push_back(EglImagePair(mConsumeSurface, eglImageKHR));
       }
     }
+  }
+
+  if(mFreeRequest)
+  {
+    auto iter = std::remove_if(mEglImages.begin(), mEglImages.end(), [&](EglImagePair& eglImage) {
+        if(mConsumeSurface == eglImage.first) return false;
+        mEglImageExtensions->DestroyImageKHR(eglImage.second);
+        tbm_surface_internal_unref(eglImage.first);
+        return true; });
+    mEglImages.erase(iter, mEglImages.end());
+
+    tbm_surface_queue_free_flush(mTbmQueue);
+    mFreeRequest = false;
   }
 }
 

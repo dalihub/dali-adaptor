@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,15 @@ void Initialize()
 {
 }
 
-void GetScreenSize( int& width, int& height )
+void GetScreenSize( int32_t& width, int32_t& height )
 {
   NSRect r = [[NSScreen mainScreen] frame];
-  width = static_cast<int>(r.size.width);
-  height = static_cast<int>(r.size.height);
+  width = static_cast<int32_t>(r.size.width);
+  height = static_cast<int32_t>(r.size.height);
+}
+
+void UpdateScreenSize()
+{
 }
 
 bool SetKeyboardRepeatInfo( float rate, float delay )

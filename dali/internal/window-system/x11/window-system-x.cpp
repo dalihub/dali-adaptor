@@ -1044,6 +1044,10 @@ void GetScreenSize(int& width, int& height)
   }
 }
 
+void UpdateScreenSize()
+{
+}
+
 bool SetKeyboardRepeatInfo(float rate, float delay)
 {
   return false;

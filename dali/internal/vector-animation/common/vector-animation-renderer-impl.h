@@ -73,6 +73,11 @@ public:
   bool Render(uint32_t frameNumber);
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::RenderStopped()
+   */
+  void RenderStopped();
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::GetTotalFrameNumber()
    */
   uint32_t GetTotalFrameNumber() const;
