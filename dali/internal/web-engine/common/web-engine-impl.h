@@ -468,9 +468,9 @@ public:
   bool SendWheelEvent(const Dali::WheelEvent& event);
 
   /**
-   * @copydoc Dali::WebEngine::FrameRenderedSignal()
+   @copydoc Dali::WebEngine::RegisterFrameRenderedCallback()
    */
-  Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
+  void RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::RegisterPageLoadStartedCallback()
@@ -521,6 +521,11 @@ public:
    @copydoc Dali::WebEngine::RegisterNavigationPolicyDecidedCallback()
    */
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
+
+  /**
+   @copydoc Dali::WebEngine::RegisterNewWindowCreatedCallback()
+   */
+  void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
    * @copydoc Dali::WebEngine::RegisterCertificateConfirmedCallback()
