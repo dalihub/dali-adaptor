@@ -1148,7 +1148,7 @@ struct UniformBufferBindingDescriptor
   const GLES::Buffer* buffer{nullptr};
   uint32_t            binding{0u};
   uint32_t            offset{0u};
-  bool                emulated; ///<true if UBO is emulated for old gfx API
+  bool                emulated{false}; ///<true if UBO is emulated for old gfx API
 };
 
 /**
