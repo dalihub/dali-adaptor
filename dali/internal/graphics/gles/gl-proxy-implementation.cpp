@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -415,7 +415,7 @@ void GlProxyImplementation::AccumulateSamples()
 
 void GlProxyImplementation::LogResults()
 {
-  Debug::LogMessage(Debug::DebugInfo, "OpenGL ES statistics sampled over %d frames) operations per frame:\n", mTotalFrameCount);
+  Debug::LogMessage(Debug::INFO, "OpenGL ES statistics sampled over %d frames) operations per frame:\n", mTotalFrameCount);
   LogCalls(mActiveTextureSampler);
   LogCalls(mClearSampler);
   LogCalls(mBindBufferSampler);
@@ -423,7 +423,7 @@ void GlProxyImplementation::LogResults()
   LogCalls(mDrawSampler);
   LogCalls(mUniformSampler);
   LogCalls(mUseProgramSampler);
-  Debug::LogMessage(Debug::DebugInfo, "OpenGL ES Object Count:\n");
+  Debug::LogMessage(Debug::INFO, "OpenGL ES Object Count:\n");
   LogObjectCounter(mBufferCount);
   LogObjectCounter(mTextureCount);
   LogObjectCounter(mProgramCount);
@@ -431,12 +431,12 @@ void GlProxyImplementation::LogResults()
 
 void GlProxyImplementation::LogCalls(const Sampler& sampler)
 {
-  Debug::LogMessage(Debug::DebugInfo, "  %s : Mean %5.2f  (Min:%5.2f, Max:%5.2f, StdDev:%5.2f, Actual:%d)\n", sampler.GetDescription(), sampler.GetMeanValue(), sampler.GetMin(), sampler.GetMax(), sampler.GetStandardDeviation(), sampler.GetCount());
+  Debug::LogMessage(Debug::INFO, "  %s : Mean %5.2f  (Min:%5.2f, Max:%5.2f, StdDev:%5.2f, Actual:%d)\n", sampler.GetDescription(), sampler.GetMeanValue(), sampler.GetMin(), sampler.GetMax(), sampler.GetStandardDeviation(), sampler.GetCount());
 }
 
 void GlProxyImplementation::LogObjectCounter(const ObjectCounter& sampler)
 {
-  Debug::LogMessage(Debug::DebugInfo, "  %s : %u  (Peak:%u)\n", sampler.GetDescription(), sampler.GetCount(), sampler.GetPeak());
+  Debug::LogMessage(Debug::INFO, "  %s : %u  (Peak:%u)\n", sampler.GetDescription(), sampler.GetCount(), sampler.GetPeak());
 }
 
 void GlProxyImplementation::ResetSamplers()

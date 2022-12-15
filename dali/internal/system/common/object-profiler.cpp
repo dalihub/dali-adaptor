@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20217 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20227 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,14 +60,14 @@ void ObjectProfiler::DisplayInstanceCounts()
     std::size_t memorySize = GetMemorySize(element.first, element.second);
     if(memorySize > 0)
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
+      LogMessage(Debug::INFO, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
     }
     else
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d\n", element.first.c_str(), element.second);
+      LogMessage(Debug::INFO, "%-30s: % 4d\n", element.first.c_str(), element.second);
     }
   }
-  LogMessage(Debug::DebugInfo, "\n");
+  LogMessage(Debug::INFO, "\n");
 }
 
 bool ObjectProfiler::OnTimeout()

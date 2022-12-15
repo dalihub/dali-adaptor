@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,16 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
 
   switch(level)
   {
-    case Dali::Integration::Log::DebugInfo:
+    case Dali::Integration::Log::DEBUG:
+      print_log(DLOG_DEBUG, DALI_TAG, "%s", message.c_str());
+      break;
+    case Dali::Integration::Log::INFO:
       print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::DebugWarning:
+    case Dali::Integration::Log::WARNING:
       print_log(DLOG_WARN, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::DebugError:
+    case Dali::Integration::Log::ERROR:
       print_log(DLOG_ERROR, DALI_TAG, "%s", message.c_str());
       break;
     default:

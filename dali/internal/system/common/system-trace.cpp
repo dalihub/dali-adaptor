@@ -36,15 +36,15 @@ const int TTRACE_TAG_GRAPHICS = 1;
 
 void traceAsyncBegin(int tag, int cookie, const char* name, ...)
 {
-  Debug::LogMessage(Debug::DebugInfo, "AsyncBegin: %s : cookie %d\n", name, cookie);
+  Debug::LogMessage(Debug::INFO, "AsyncBegin: %s : cookie %d\n", name, cookie);
 }
 void traceAsyncEnd(int tag, int cookie, const char* name, ...)
 {
-  Debug::LogMessage(Debug::DebugInfo, "AsyncEnd: %s : cookie %d\n", name, cookie);
+  Debug::LogMessage(Debug::INFO, "AsyncEnd: %s : cookie %d\n", name, cookie);
 }
 void traceMark(int tag, const char* name, ...)
 {
-  Debug::LogMessage(Debug::DebugInfo, "Marker: %s \n", name);
+  Debug::LogMessage(Debug::INFO, "Marker: %s \n", name);
 }
 } // namespace
 #endif

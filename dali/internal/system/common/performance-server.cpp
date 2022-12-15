@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -185,7 +185,7 @@ void PerformanceServer::AddMarker(MarkerType markerType)
 
 void PerformanceServer::LogContextStatistics(const char* const text)
 {
-  Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, text);
+  Integration::Log::LogMessage(Dali::Integration::Log::INFO, text);
 }
 
 void PerformanceServer::LogMarker(const PerformanceMarker& marker, const char* const description)
@@ -219,7 +219,7 @@ void PerformanceServer::LogMarker(const PerformanceMarker& marker, const char* c
   // log to Dali log ( this is thread safe )
   if(mPerformanceOutputBitmask & OUTPUT_DALI_LOG)
   {
-    Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo,
+    Integration::Log::LogMessage(Dali::Integration::Log::INFO,
                                  "%.6f (seconds), %s\n",
                                  float(marker.GetTimeStamp().microseconds) * MICROSECONDS_TO_SECOND,
                                  description);
