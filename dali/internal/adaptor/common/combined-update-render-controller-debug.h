@@ -75,13 +75,13 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THR
 #define DEBUG_LEVEL_EVENT 0
 
 #define LOG_THREAD_SYNC(level, color, format, ...) \
-  Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s" format "%s\n", color, ##__VA_ARGS__, COLOR_CLEAR)
+  Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s" format "%s\n", color, ##__VA_ARGS__, COLOR_CLEAR)
 
 #define LOG_THREAD_SYNC_TRACE(color) \
-  Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s%s%s\n", color, __FUNCTION__, COLOR_CLEAR)
+  Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s%s%s\n", color, __FUNCTION__, COLOR_CLEAR)
 
 #define LOG_THREAD_SYNC_TRACE_FMT(color, format, ...) \
-  Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s%s: " format "%s\n", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR)
+  Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s%s: " format "%s\n", color, __FUNCTION__, ##__VA_ARGS__, COLOR_CLEAR)
 
 #else
 

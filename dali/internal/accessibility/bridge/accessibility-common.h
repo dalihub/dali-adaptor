@@ -82,7 +82,6 @@ enum class SortOrder : uint32_t
 
 namespace DBus
 {
-
 /**
  * @brief The CurrentBridgePtr class is to save the current Accessibility Bridge.
  */
@@ -116,7 +115,6 @@ public:
     return Get();
   }
 }; // CurrentBridgePtr
-
 
 // Templates for setting and getting Accessible values
 namespace detail
@@ -258,7 +256,7 @@ struct _Logger
 
   ~_Logger()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: %s", mFile, mLine, mTmp.str().c_str());
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: %s", mFile, mLine, mTmp.str().c_str());
   }
 
   template<typename T>
@@ -287,12 +285,12 @@ struct _LoggerScope
   : mFile(file),
     mLine(line)
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: +", mFile, mLine);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: +", mFile, mLine);
   }
 
   ~_LoggerScope()
   {
-    Dali::Integration::Log::LogMessage(Dali::Integration::Log::DebugInfo, "%s:%d: -", mFile, mLine);
+    Dali::Integration::Log::LogMessage(Dali::Integration::Log::INFO, "%s:%d: -", mFile, mLine);
   }
 };
 

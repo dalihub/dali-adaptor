@@ -182,7 +182,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
   mGlesInitialized = true;
 
   // We want to display this information all the time, so use the LogMessage directly
-  Integration::Log::LogMessage(Integration::Log::DebugInfo,
+  Integration::Log::LogMessage(Integration::Log::INFO,
                                "EGL Information\n"
                                "            PartialUpdate  %d\n"
                                "            Vendor:        %s\n"
@@ -597,7 +597,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
     return false;
   }
-  Integration::Log::LogMessage(Integration::Log::DebugInfo, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10);
+  Integration::Log::LogMessage(Integration::Log::INFO, "Using OpenGL es %d.%d.\n", mGlesVersion / 10, mGlesVersion % 10);
 
   mContextAttribs.Clear();
   if(mIsKhrCreateContextSupported)

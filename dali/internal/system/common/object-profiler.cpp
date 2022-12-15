@@ -63,22 +63,22 @@ void ObjectProfiler::DisplayInstanceCounts()
     std::size_t memorySize = GetMemorySize(element.first, element.second);
     if(memorySize > 0)
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
+      LogMessage(Debug::INFO, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
     }
     else
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d\n", element.first.c_str(), element.second);
+      LogMessage(Debug::INFO, "%-30s: % 4d\n", element.first.c_str(), element.second);
     }
   }
-  LogMessage(Debug::DebugInfo, "\n");
+  LogMessage(Debug::INFO, "\n");
 }
 
 bool ObjectProfiler::OnTimeout()
 {
   uint32_t pixelDataSize   = Dali::PixelData::GetTotalAllocatedSize();
   uint32_t pixelBufferSize = Dali::Internal::Adaptor::PixelBuffer::GetTotalAllocatedSize();
-  LogMessage(Debug::DebugInfo, "Total PixelData: %9.1fkb\n", ((float)pixelDataSize) / 1024.0f);
-  LogMessage(Debug::DebugInfo, "Total PixelBuffer: %9.1fkb\n", ((float)pixelBufferSize) / 1024.0f);
+  LogMessage(Debug::INFO, "Total PixelData: %9.1fkb\n", ((float)pixelDataSize) / 1024.0f);
+  LogMessage(Debug::INFO, "Total PixelBuffer: %9.1fkb\n", ((float)pixelBufferSize) / 1024.0f);
 
   DisplayInstanceCounts();
   return true;
@@ -125,8 +125,7 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
       {
         auto&& countIter = std::find_if(mInstanceCountContainer.begin(),
                                         mInstanceCountContainer.end(),
-                                        [theType](const InstanceCountPair& instance)
-                                        { return instance.first == theType; });
+                                        [theType](const InstanceCountPair& instance) { return instance.first == theType; });
         if(countIter != mInstanceCountContainer.end())
         {
           (*countIter).second--;

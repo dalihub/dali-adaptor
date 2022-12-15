@@ -390,7 +390,7 @@ extern "C" void WriteData(png_structp png_ptr, png_bytep data, png_size_t length
 extern "C" void FlushData(png_structp png_ptr)
 {
 #ifdef DEBUG_ENABLED
-  Debug::LogMessageWithFunctionLine(Debug::DebugInfo, "PNG Flush");
+  Debug::LogMessageWithFunctionLine(Debug::INFO, "PNG Flush");
 #endif // DEBUG_ENABLED
 }
 } // namespace
