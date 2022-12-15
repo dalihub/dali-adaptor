@@ -786,14 +786,14 @@ public:
   {
     auto client = CreateSocketClient(socket);
 
-    client.method<void(std::string)>("Embedded").call(ATSPI_PREFIX_PATH + plug.GetPath());
+    client.method<void(std::string)>("Embedded").asyncCall([](DBus::ValueOrError<void>) {}, ATSPI_PREFIX_PATH + plug.GetPath());
   }
 
   void UnembedSocket(const Address& plug, const Address& socket) override
   {
     auto client = CreateSocketClient(socket);
 
-    client.method<void(Address)>("Unembed").call(plug);
+    client.method<void(Address)>("Unembed").asyncCall([](DBus::ValueOrError<void>) {}, plug);
   }
 
   void SetSocketOffset(ProxyAccessible* socket, std::int32_t x, std::int32_t y) override
