@@ -127,7 +127,7 @@ EglGraphicsController::~EglGraphicsController()
 
 void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstraction)
 {
-  DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #1\n");
+  DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 1\n");
   mGlAbstraction  = &glAbstraction;
   mContext        = std::make_unique<GLES::Context>(*this);
   mCurrentContext = mContext.get();
@@ -137,7 +137,7 @@ void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction&    
                                        Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
                                        Internal::Adaptor::GraphicsInterface&    graphicsInterface)
 {
-  DALI_LOG_RELEASE_INFO("Initializing New Graphics Controller #2\n");
+  DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
   auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
 
   mEglSyncImplementation      = syncImplPtr;
@@ -145,12 +145,19 @@ void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction&    
   mGraphics                   = &graphicsInterface;
 }
 
+void EglGraphicsController::FrameStart()
+{
+  mCapacity = 0; // Reset the command buffer capacity at the start of the frame.
+}
+
 void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
   for(auto& cmdbuf : submitInfo.cmdBuffer)
   {
     // Push command buffers
-    mCommandQueue.push(static_cast<GLES::CommandBuffer*>(cmdbuf));
+    auto* commandBuffer = static_cast<GLES::CommandBuffer*>(cmdbuf);
+    mCapacity += commandBuffer->GetCapacity();
+    mCommandQueue.push(commandBuffer);
   }
 
   // If flush bit set, flush all pending tasks
@@ -312,7 +319,7 @@ TextureProperties EglGraphicsController::GetTextureProperties(const Texture& tex
   properties.compressed   = glesTexture->IsCompressed();
   properties.extent2D     = createInfo.size;
   properties.nativeHandle = glesTexture->GetGLTexture();
-  //TODO: Skip format1, emulated, packed, directWriteAccessEnabled of TextureProperties for now
+  // TODO: Skip format1, emulated, packed, directWriteAccessEnabled of TextureProperties for now
 
   return properties;
 }
@@ -331,7 +338,8 @@ void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* s
 void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
   mSurfaceContexts.erase(std::remove_if(
-                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
+                           { return surface == iter.first; }),
                          mSurfaceContexts.end());
 }
 
@@ -339,7 +347,6 @@ void EglGraphicsController::ActivateResourceContext()
 {
   mCurrentContext = mContext.get();
   mCurrentContext->GlContextCreated();
-
   if(!mSharedContext)
   {
     auto eglGraphics = dynamic_cast<Dali::Internal::Adaptor::EglGraphics*>(mGraphics);
@@ -354,9 +361,8 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface*
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) {
-      return (iter.first == surface);
-    });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
+                             { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {

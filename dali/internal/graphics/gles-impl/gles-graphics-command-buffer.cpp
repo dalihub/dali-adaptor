@@ -65,7 +65,7 @@ class CommandPool
     inline void resize(int newSize)
     {
       ptr      = reinterpret_cast<T*>(realloc(ptr, newSize * sizeof(T)));
-      capacity = newSize;
+      capacity = newSize * sizeof(T);
       dataSize = newSize;
     }
 
@@ -223,6 +223,11 @@ public:
   {
     size = commandPool.size;
     return commandPool.data.ptr;
+  }
+
+  std::size_t GetTotalCapacity() const
+  {
+    return commandPool.data.capacity + memoryPool.data.capacity;
   }
 };
 
@@ -556,6 +561,16 @@ bool CommandBuffer::InitializeResource()
 void CommandBuffer::DiscardResource()
 {
   GetController().DiscardResource(this);
+}
+
+std::size_t CommandBuffer::GetCapacity()
+{
+  std::size_t total{0u};
+  if(mCommandPool)
+  {
+    total = mCommandPool->GetTotalCapacity();
+  }
+  return total;
 }
 
 } // namespace Dali::Graphics::GLES

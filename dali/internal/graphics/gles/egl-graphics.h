@@ -211,9 +211,19 @@ public:
 
   void CacheConfigurations(ConfigurationManager& configurationManager) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::FrameStart()
+   */
+  void FrameStart() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::LogMemoryPools()
+   */
+  void LogMemoryPools() override;
+
 private:
   // Eliminate copy and assigned operations
-  EglGraphics(const EglGraphics& rhs) = delete;
+  EglGraphics(const EglGraphics& rhs)            = delete;
   EglGraphics& operator=(const EglGraphics& rhs) = delete;
 
   /**

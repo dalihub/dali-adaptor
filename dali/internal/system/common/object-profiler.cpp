@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20217 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20227 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/type-registry.h>
+
 #include <stdlib.h>
 
 using std::string;
@@ -72,6 +75,11 @@ void ObjectProfiler::DisplayInstanceCounts()
 
 bool ObjectProfiler::OnTimeout()
 {
+  uint32_t pixelDataSize   = Dali::PixelData::GetTotalAllocatedSize();
+  uint32_t pixelBufferSize = Dali::Internal::Adaptor::PixelBuffer::GetTotalAllocatedSize();
+  LogMessage(Debug::DebugInfo, "Total PixelData: %9.1fkb\n", ((float)pixelDataSize) / 1024.0f);
+  LogMessage(Debug::DebugInfo, "Total PixelBuffer: %9.1fkb\n", ((float)pixelBufferSize) / 1024.0f);
+
   DisplayInstanceCounts();
   return true;
 }
@@ -117,7 +125,8 @@ void ObjectProfiler::OnObjectDestroyed(const Dali::RefObject* object)
       {
         auto&& countIter = std::find_if(mInstanceCountContainer.begin(),
                                         mInstanceCountContainer.end(),
-                                        [theType](const InstanceCountPair& instance) { return instance.first == theType; });
+                                        [theType](const InstanceCountPair& instance)
+                                        { return instance.first == theType; });
         if(countIter != mInstanceCountContainer.end())
         {
           (*countIter).second--;

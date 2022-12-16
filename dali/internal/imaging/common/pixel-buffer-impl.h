@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/debug.h>
 #include <dali/public-api/images/image-operations.h> // For ImageDimensions
 #include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
@@ -105,6 +106,18 @@ protected:
   ~PixelBuffer() override;
 
 public:
+  /**
+   * Get the total allocated size of current pixel buffers
+   */
+  static uint32_t GetTotalAllocatedSize()
+  {
+#if defined(DEBUG_ENABLED)
+    return gPixelBufferAllocationTotal;
+#else
+    return 0;
+#endif
+  }
+
   /**
    * Get the width of the buffer in pixels.
    * @return The width of the buffer in pixels
@@ -297,6 +310,10 @@ private:
   uint32_t                       mStride;        ///< Buffer stride in bytes, 0 means the buffer is tightly packed
   Pixel::Format                  mPixelFormat;   ///< Pixel format
   bool                           mPreMultiplied; ///< PreMultiplied
+
+#if defined(DEBUG_ENABLED)
+  static uint32_t gPixelBufferAllocationTotal;
+#endif
 };
 
 } // namespace Adaptor

@@ -189,6 +189,14 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
     mObjectProfiler = new ObjectProfiler(mCore->GetObjectRegistry(), timeInterval);
   }
 
+  const uint32_t poolTimeInterval = mEnvironmentOptions->GetMemoryPoolInterval();
+  if(0u < poolTimeInterval)
+  {
+    mMemoryPoolTimer = Dali::Timer::New(poolTimeInterval * 1000);
+    mMemoryPoolTimer.TickSignal().Connect(mMemoryPoolTimerSlotDelegate, &Adaptor::MemoryPoolTimeout);
+    mMemoryPoolTimer.Start();
+  }
+
   mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
   mDisplayConnection = Dali::DisplayConnection::New(*mGraphics, defaultWindow->GetSurface()->GetSurfaceType());
@@ -1231,6 +1239,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mKernelTracer(),
   mSystemTracer(),
   mObjectProfiler(nullptr),
+  mMemoryPoolTimerSlotDelegate(this),
   mSocketFactory(),
   mMutex(),
   mThreadMode(threadMode),
@@ -1276,6 +1285,12 @@ bool Adaptor::AddIdleEnterer(CallbackBase* callback, bool forceAdd)
 void Adaptor::RemoveIdleEnterer(CallbackBase* callback)
 {
   mCallbackManager->RemoveIdleEntererCallback(callback);
+}
+
+bool Adaptor::MemoryPoolTimeout()
+{
+  mCore->LogMemoryPools();
+  return true; // Keep logging forever
 }
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,6 +206,7 @@ EnvironmentOptions::EnvironmentOptions()
   mFpsFrequency(0),
   mUpdateStatusFrequency(0),
   mObjectProfilerInterval(0),
+  mMemoryPoolInterval(0),
   mPerformanceStatsLevel(0),
   mPerformanceStatsFrequency(DEFAULT_STATISTICS_LOG_FREQUENCY),
   mPerformanceTimeStampOutput(0),
@@ -300,7 +301,10 @@ unsigned int EnvironmentOptions::GetObjectProfilerInterval() const
 {
   return mObjectProfilerInterval;
 }
-
+unsigned int EnvironmentOptions::GetMemoryPoolInterval() const
+{
+  return mMemoryPoolInterval;
+}
 unsigned int EnvironmentOptions::GetPerformanceStatsLoggingOptions() const
 {
   return mPerformanceStatsLevel;
@@ -522,6 +526,7 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   mFpsFrequency               = GetEnvironmentVariable(DALI_ENV_FPS_TRACKING, 0);
   mUpdateStatusFrequency      = GetEnvironmentVariable(DALI_ENV_UPDATE_STATUS_INTERVAL, 0);
   mObjectProfilerInterval     = GetEnvironmentVariable(DALI_ENV_OBJECT_PROFILER_INTERVAL, 0);
+  mMemoryPoolInterval         = GetEnvironmentVariable(DALI_ENV_MEMORY_POOL_INTERVAL, 0);
   mPerformanceStatsLevel      = GetEnvironmentVariable(DALI_ENV_LOG_PERFORMANCE_STATS, 0);
   mPerformanceStatsFrequency  = GetEnvironmentVariable(DALI_ENV_LOG_PERFORMANCE_STATS_FREQUENCY, 0);
   mPerformanceTimeStampOutput = GetEnvironmentVariable(DALI_ENV_PERFORMANCE_TIMESTAMP_OUTPUT, 0);

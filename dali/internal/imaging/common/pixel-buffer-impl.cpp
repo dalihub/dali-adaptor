@@ -23,6 +23,7 @@
 #include <cstring>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/internal/imaging/common/alpha-mask.h>
 #include <dali/internal/imaging/common/gaussian-blur.h>
 #include <dali/internal/imaging/common/image-operations.h>
@@ -36,12 +37,21 @@ namespace Adaptor
 {
 namespace
 {
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gPixelBufferFilter = Debug::Filter::New(Debug::NoLogging, false, "DALI_LOG_PIXEL_BUFFER_SIZE");
+#endif
+
 const float TWO_PI = 2.f * Math::PI; ///< 360 degrees in radians
 // based on W3C Recommendations (https://www.w3.org/TR/AERT/#color-contrast)
 constexpr uint32_t BRIGHTNESS_CONSTANT_R = 299;
 constexpr uint32_t BRIGHTNESS_CONSTANT_G = 587;
 constexpr uint32_t BRIGHTNESS_CONSTANT_B = 114;
 } // namespace
+
+#if defined(DEBUG_ENABLED)
+uint32_t PixelBuffer::gPixelBufferAllocationTotal{0};
+#endif
 
 PixelBuffer::PixelBuffer(uint8_t*            buffer,
                          uint32_t            bufferSize,
@@ -74,7 +84,12 @@ PixelBufferPtr PixelBuffer::New(uint32_t            width,
   if(bufferSize > 0)
   {
     buffer = static_cast<uint8_t*>(malloc(bufferSize));
+#if defined(DEBUG_ENABLED)
+    gPixelBufferAllocationTotal += bufferSize;
+#endif
   }
+  DALI_LOG_INFO(gPixelBufferFilter, Debug::Concise, "Allocated PixelBuffer of size %u\n", bufferSize);
+
   return new PixelBuffer(buffer, bufferSize, width, height, width, pixelFormat);
 }
 
@@ -90,6 +105,9 @@ PixelBufferPtr PixelBuffer::New(uint8_t*            buffer,
 
 Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
 {
+#if defined(DEBUG_ENABLED)
+  gPixelBufferAllocationTotal -= pixelBuffer.mBufferSize;
+#endif
   Dali::PixelData pixelData = Dali::PixelData::New(pixelBuffer.mBuffer,
                                                    pixelBuffer.mBufferSize,
                                                    pixelBuffer.mWidth,
@@ -219,6 +237,9 @@ void PixelBuffer::ReleaseBuffer()
 {
   if(mBuffer)
   {
+#if defined(DEBUG_ENABLED)
+    gPixelBufferAllocationTotal -= mBufferSize;
+#endif
     free(mBuffer);
   }
 }
@@ -228,6 +249,9 @@ void PixelBuffer::AllocateFixedSize(uint32_t size)
   ReleaseBuffer();
   mBuffer     = reinterpret_cast<unsigned char*>(malloc(size));
   mBufferSize = size;
+#if defined(DEBUG_ENABLED)
+  gPixelBufferAllocationTotal += size;
+#endif
 }
 
 bool PixelBuffer::Rotate(Degree angle)

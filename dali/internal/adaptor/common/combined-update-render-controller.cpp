@@ -31,7 +31,6 @@
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -528,6 +527,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Update time
   uint64_t lastFrameTime;
   TimeService::GetNanoseconds(lastFrameTime);
+  uint64_t lastMemPoolLogTime = lastFrameTime;
 
   LOG_UPDATE_RENDER("THREAD INITIALISED");
 
@@ -535,6 +535,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   bool     updateRequired     = true;
   uint64_t timeToSleepUntil   = 0;
   int      extraFramesDropped = 0;
+
+  const uint64_t memPoolInterval = mEnvironmentOptions.GetMemoryPoolInterval() * NANOSECONDS_PER_SECOND;
 
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
@@ -647,6 +649,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // RENDER
     //////////////////////////////
 
+    graphics.FrameStart();
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
     if(mPreRenderCallback != NULL)
@@ -745,6 +748,13 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     TRACE_UPDATE_RENDER_END("DALI_RENDER");
     AddPerformanceMarker(PerformanceInterface::RENDER_END);
+
+    // if the memory pool interval is set and has elapsed, log the graphics memory pools
+    if(0 < memPoolInterval && memPoolInterval < lastFrameTime - lastMemPoolLogTime)
+    {
+      lastMemPoolLogTime = lastFrameTime;
+      graphics.LogMemoryPools();
+    }
 
     mForceClear = false;
 
