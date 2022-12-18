@@ -33,6 +33,10 @@
 
 namespace
 {
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gGraphicsReflectionLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_REFLECTION");
+#endif
+
 struct StringSize
 {
   const char* const mString;
@@ -171,7 +175,7 @@ void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::U
 
             if(!found)
             {
-              DALI_LOG_ERROR("Sampler uniform %s declared but not used in the shader\n", token);
+              DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Sampler uniform %s declared but not used in the shader\n", token);
             }
             break;
           }
@@ -214,12 +218,14 @@ void Reflection::BuildVertexAttributeReflection()
     return;
   }
 
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build vertex attribute reflection for glProgram : %u\n", glProgram);
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 
   mVertexInputAttributes.clear();
   mVertexInputAttributes.resize(nAttribs);
-  
+
   int maxLocationValue = nAttribs - 1;
 
   name = new GLchar[maxLength];
@@ -262,6 +268,8 @@ void Reflection::BuildUniformReflection()
     // Do nothing during shutdown
     return;
   }
+
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform reflection for glProgram : %u\n", glProgram);
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
@@ -374,6 +382,8 @@ void Reflection::BuildUniformBlockReflection()
     return;
   }
 
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform block reflection for glProgram : %u\n", glProgram);
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 
   mUniformBlocks.clear();
@@ -429,6 +439,7 @@ void Reflection::BuildUniformBlockReflection()
 
 uint32_t Reflection::GetVertexAttributeLocation(const std::string& name) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "name : %s\n", name.c_str());
   for(auto&& attr : mVertexInputAttributes)
   {
     if(attr.name == name)
@@ -441,6 +452,7 @@ uint32_t Reflection::GetVertexAttributeLocation(const std::string& name) const
 
 Dali::Graphics::VertexInputAttributeFormat Reflection::GetVertexAttributeFormat(uint32_t location) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "location : %u\n", location);
   if(location >= mVertexInputAttributes.size())
   {
     return Dali::Graphics::VertexInputAttributeFormat::UNDEFINED;
@@ -451,6 +463,7 @@ Dali::Graphics::VertexInputAttributeFormat Reflection::GetVertexAttributeFormat(
 
 std::string Reflection::GetVertexAttributeName(uint32_t location) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "location : %u\n", location);
   if(location >= mVertexInputAttributes.size())
   {
     return std::string();
