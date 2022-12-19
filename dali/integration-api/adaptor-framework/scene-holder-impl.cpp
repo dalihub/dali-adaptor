@@ -170,7 +170,10 @@ void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
 
 void SceneHolder::SurfaceResized(float width, float height)
 {
-  mScene.SurfaceResized(width, height);
+  if(DALI_LIKELY(mScene))
+  {
+    mScene.SurfaceResized(width, height);
+  }
 
   mSurface->SetFullSwapNextFrame();
 
@@ -261,12 +264,18 @@ void SceneHolder::Resume()
 
 void SceneHolder::SurfaceRotated(float width, float height, int32_t windowOrientation, int32_t screenOrientation)
 {
-  mScene.SurfaceRotated(width, height, windowOrientation, screenOrientation);
+  if(DALI_LIKELY(mScene))
+  {
+    mScene.SurfaceRotated(width, height, windowOrientation, screenOrientation);
+  }
 }
 
 void SceneHolder::SetRotationCompletedAcknowledgement()
 {
-  mScene.SetRotationCompletedAcknowledgement();
+  if(DALI_LIKELY(mScene))
+  {
+    mScene.SetRotationCompletedAcknowledgement();
+  }
 }
 
 void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)

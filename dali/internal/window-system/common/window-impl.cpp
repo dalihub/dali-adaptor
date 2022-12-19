@@ -118,7 +118,7 @@ Window::~Window()
     bridge->Emit(accessible, Accessibility::WindowEvent::DESTROY);
   }
 
-  if(mAdaptor)
+  if(DALI_LIKELY(mAdaptor))
   {
     mAdaptor->RemoveWindow(this);
   }
@@ -842,8 +842,11 @@ void Window::OnIconifyChanged(bool iconified)
       mVisibilityChangedSignal.Emit(handle, false);
       Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
-      WindowVisibilityObserver* observer(mAdaptor);
-      observer->OnWindowHidden();
+      if(DALI_LIKELY(mAdaptor))
+      {
+        WindowVisibilityObserver* observer(mAdaptor);
+        observer->OnWindowHidden();
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Iconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -858,8 +861,11 @@ void Window::OnIconifyChanged(bool iconified)
       mVisibilityChangedSignal.Emit(handle, true);
       Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
-      WindowVisibilityObserver* observer(mAdaptor);
-      observer->OnWindowShown();
+      if(DALI_LIKELY(mAdaptor))
+      {
+        WindowVisibilityObserver* observer(mAdaptor);
+        observer->OnWindowShown();
+      }
     }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Deiconified: visible = %d\n", this, mNativeWindowId, mVisible);
@@ -895,8 +901,11 @@ void Window::OnOutputTransformed()
 
   SurfaceRotated(static_cast<float>(positionSize.width), static_cast<float>(positionSize.height), mRotationAngle, mWindowBase->GetScreenRotationAngle());
 
-  mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
-  mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
+  if(DALI_LIKELY(mAdaptor))
+  {
+    mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
+    mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(positionSize.width, positionSize.height));
+  }
 }
 
 void Window::OnDeleteRequest()
@@ -918,7 +927,10 @@ void Window::OnKeyboardRepeatSettingsChanged()
 
 void Window::OnWindowRedrawRequest()
 {
-  mAdaptor->RenderOnce();
+  if(DALI_LIKELY(mAdaptor))
+  {
+    mAdaptor->RenderOnce();
+  }
 }
 
 void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
@@ -964,16 +976,25 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
     SurfaceResized(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight));
 
-    mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
+    if(DALI_LIKELY(mAdaptor))
+    {
+      mAdaptor->SurfaceResizePrepare(mSurface.get(), newSize);
+    }
 
     DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Resized signal emit [%d x %d]\n", this, mNativeWindowId, newRect.width, newRect.height);
     mResizeSignal.Emit(handle, newSize);
-    mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+    if(DALI_LIKELY(mAdaptor))
+    {
+      mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+    }
   }
 
   mSurface->SetFullSwapNextFrame();
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  if(DALI_LIKELY(mScene))
+  {
+    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  }
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
@@ -1011,13 +1032,19 @@ void Window::OnRotation(const RotationEvent& rotation)
 
   SurfaceRotated(static_cast<float>(mWindowWidth), static_cast<float>(mWindowHeight), mRotationAngle, mWindowBase->GetScreenRotationAngle());
 
-  mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
+  if(DALI_LIKELY(mAdaptor))
+  {
+    mAdaptor->SurfaceResizePrepare(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
+  }
 
   Dali::Window handle(this);
   mResizeSignal.Emit(handle, Dali::Window::WindowSize(mWindowWidth, mWindowHeight));
   mOrientationChangedSignal.Emit(handle, GetCurrentOrientation());
 
-  mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
+  if(DALI_LIKELY(mAdaptor))
+  {
+    mAdaptor->SurfaceResizeComplete(mSurface.get(), Adaptor::SurfaceSize(mWindowWidth, mWindowHeight));
+  }
 }
 
 void Window::OnRotationFinished()
