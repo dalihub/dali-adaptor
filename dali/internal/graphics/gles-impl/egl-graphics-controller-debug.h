@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_EGL_GRAPHICS_CONTROLLER_DEBUG_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@
 
 namespace Dali::Graphics
 {
+#if defined(DEBUG_ENABLED)
 /**
- * Struct to manage dumping N command buffers. In this file, "frame" really 
+ * Struct to manage dumping N command buffers. In this file, "frame" really
  * means each call to EglGraphicsController::Flush(), and doesn't necessarily
- * correspond to a complete render frame. 
+ * correspond to a complete render frame.
  */
 struct GraphicsFrameDump
 {
@@ -46,6 +47,7 @@ struct GraphicsFrameDump
   void DumpCommandBuffer(const GLES::CommandBuffer* cmdBuf);
   bool IsDumpFrame();
 };
+#endif
 
 #if defined(DEBUG_ENABLED) && defined(ENABLE_COMMAND_BUFFER_FRAME_DUMP)
 #define DUMP_FRAME_INIT() std::unique_ptr<Dali::Graphics::GraphicsFrameDump> gGraphicsFrameDump(new Dali::Graphics::GraphicsFrameDump)

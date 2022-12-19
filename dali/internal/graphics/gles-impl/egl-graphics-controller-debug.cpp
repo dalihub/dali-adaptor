@@ -20,6 +20,7 @@
 
 namespace Dali::Graphics
 {
+#if defined(DEBUG_ENABLED)
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {
   switch(compareOp)
@@ -369,5 +370,5 @@ bool GraphicsFrameDump::IsDumpFrame()
 
   return dump;
 }
-
+#endif
 } // namespace Dali::Graphics
