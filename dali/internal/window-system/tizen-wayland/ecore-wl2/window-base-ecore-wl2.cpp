@@ -57,8 +57,25 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
-const uint32_t     MAX_TIZEN_CLIENT_VERSION = 7;
-const unsigned int PRIMARY_TOUCH_BUTTON_ID  = 1;
+/**
+ * @brief Enumeration of location for window resized by display server.
+ */
+enum class ResizeLocation
+{
+  INVALID      = 0,  ///< Invalid value
+  TOP_LEFT     = 5,  ///< Start resizing window to the top-left edge.
+  LEFT         = 4,  ///< Start resizing window to the left side.
+  BOTTOM_LEFT  = 6,  ///< Start resizing window to the bottom-left edge.
+  BOTTOM       = 2,  ///< Start resizing window to the bottom side.
+  BOTTOM_RIGHT = 10, ///< Start resizing window to the bottom-right edge.
+  RIGHT        = 8,  ///< Start resizing window to the right side.
+  TOP_RIGHT    = 9,  ///< Start resizing window to the top-right edge.
+  TOP          = 1   ///< Start resizing window to the top side.
+};
+
+const uint32_t       MAX_TIZEN_CLIENT_VERSION = 7;
+const unsigned int   PRIMARY_TOUCH_BUTTON_ID  = 1;
+const ResizeLocation RESIZE_LOCATIONS[]       = {ResizeLocation::TOP_LEFT, ResizeLocation::LEFT, ResizeLocation::BOTTOM_LEFT, ResizeLocation::BOTTOM, ResizeLocation::BOTTOM_RIGHT, ResizeLocation::RIGHT, ResizeLocation::TOP_RIGHT, ResizeLocation::TOP, ResizeLocation::INVALID};
 
 #if defined(VCONF_ENABLED)
 const char* DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME = "db/setting/accessibility/font_name"; // It will be update at vconf-key.h and replaced.
@@ -228,6 +245,69 @@ void FindKeyCode(struct xkb_keymap* keyMap, xkb_keycode_t key, void* data)
       foundKeyCode->isKeyCode = true;
     }
   }
+}
+
+/**
+ * Return the recalculated window resizing location according to the current orientation.
+ */
+ResizeLocation RecalculateLocationToCurrentOrientation(WindowResizeDirection direction, int windowRotationAngle)
+{
+  int index = 8;
+  switch(direction)
+  {
+    case WindowResizeDirection::TOP_LEFT:
+    {
+      index = 0;
+      break;
+    }
+    case WindowResizeDirection::LEFT:
+    {
+      index = 1;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM_LEFT:
+    {
+      index = 2;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM:
+    {
+      index = 3;
+      break;
+    }
+    case WindowResizeDirection::BOTTOM_RIGHT:
+    {
+      index = 4;
+      break;
+    }
+    case WindowResizeDirection::RIGHT:
+    {
+      index = 5;
+      break;
+    }
+    case WindowResizeDirection::TOP_RIGHT:
+    {
+      index = 6;
+      break;
+    }
+    case WindowResizeDirection::TOP:
+    {
+      index = 7;
+      break;
+    }
+    default:
+    {
+      index = 8;
+      break;
+    }
+  }
+
+  if(index != 8 && windowRotationAngle != 0)
+  {
+    index = (index + (windowRotationAngle / 90) * 2) % 8;
+  }
+
+  return RESIZE_LOCATIONS[index];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2791,58 +2871,10 @@ void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
     return;
   }
 
-  int location = 0;
-  switch(direction)
-  {
-    case WindowResizeDirection::TOP_LEFT:
-    {
-      location = 5;
-      break;
-    }
-    case WindowResizeDirection::TOP:
-    {
-      location = 1;
-      break;
-    }
-    case WindowResizeDirection::TOP_RIGHT:
-    {
-      location = 9;
-      break;
-    }
-    case WindowResizeDirection::LEFT:
-    {
-      location = 4;
-      break;
-    }
-    case WindowResizeDirection::RIGHT:
-    {
-      location = 8;
-      break;
-    }
-    case WindowResizeDirection::BOTTOM_LEFT:
-    {
-      location = 6;
-      break;
-    }
-    case WindowResizeDirection::BOTTOM:
-    {
-      location = 2;
-      break;
-    }
-    case WindowResizeDirection::BOTTOM_RIGHT:
-    {
-      location = 10;
-      break;
-    }
-    default:
-    {
-      location = 0;
-      break;
-    }
-  }
+  ResizeLocation location = RecalculateLocationToCurrentOrientation(direction, mWindowRotationAngle);
 
-  ecore_wl2_window_resize(mEcoreWindow, input, location);
-  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, mode:%d\n", mEcoreWindow, location);
+  ecore_wl2_window_resize(mEcoreWindow, input, static_cast<int>(location));
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, direction:%d oriention:%d mode:%d\n", mEcoreWindow, direction, mWindowRotationAngle, location);
 }
 
 void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
