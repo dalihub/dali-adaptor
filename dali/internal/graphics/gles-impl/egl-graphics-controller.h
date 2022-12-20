@@ -835,7 +835,7 @@ private:
 
   GLES::TextureDependencyChecker mTextureDependencyChecker; // Checks if FBO textures need syncing
   GLES::SyncPool                 mSyncPool;
-  std::size_t                    mCapacity; ///< Memory Usage (of command buffers)
+  std::size_t                    mCapacity{0u}; ///< Memory Usage (of command buffers)
 };
 
 } // namespace Graphics
