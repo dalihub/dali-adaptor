@@ -34,6 +34,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <map>
+#include <unordered_map>
 
 namespace Dali::Graphics::GLES
 {
@@ -53,30 +54,35 @@ struct Context::Impl
    * that VertexInputState has been set correctly for the pipeline.
    *
    */
-  void BindProgramVAO(GLES::ProgramImpl* program, const VertexInputState& vertexInputState)
+  void BindProgramVAO(const GLES::ProgramImpl* program, const VertexInputState& vertexInputState)
   {
+    // Calculate attributes location hash unordered.
+    std::size_t hash = 0;
+    for(const auto& attr : vertexInputState.attributes)
+    {
+      hash ^= std::hash<uint32_t>{}(attr.location);
+    }
+
     auto& gl   = *mController.GetGL();
     auto  iter = mProgramVAOMap.find(program);
     if(iter != mProgramVAOMap.end())
     {
-      if(mProgramVAOCurrentState != iter->second)
+      auto attributeIter = iter->second.find(hash);
+      if(attributeIter != iter->second.end())
       {
-        mProgramVAOCurrentState = iter->second;
-        gl.BindVertexArray(iter->second);
+        if(mProgramVAOCurrentState != attributeIter->second)
+        {
+          mProgramVAOCurrentState = attributeIter->second;
+          gl.BindVertexArray(attributeIter->second);
+        }
+        return;
       }
-
-      // We should re-check enable attribute usage because geometry might be changed.
-      for(const auto& attr : vertexInputState.attributes)
-      {
-        gl.EnableVertexAttribArray(attr.location);
-      }
-      return;
     }
 
     uint32_t vao;
     gl.GenVertexArrays(1, &vao);
     gl.BindVertexArray(vao);
-    mProgramVAOMap[program] = vao;
+    mProgramVAOMap[program][hash] = vao;
     for(const auto& attr : vertexInputState.attributes)
     {
       gl.EnableVertexAttribArray(attr.location);
@@ -212,9 +218,9 @@ struct Context::Impl
   const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 
   // Each context must have own VAOs as they cannot be shared
-  std::map<GLES::ProgramImpl*, uint32_t> mProgramVAOMap;              ///< GL program-VAO map
-  uint32_t                               mProgramVAOCurrentState{0u}; ///< Currently bound VAO
-  GLStateCache                           mGlStateCache{};             ///< GL status cache
+  std::unordered_map<const GLES::ProgramImpl*, std::map<std::size_t, uint32_t>> mProgramVAOMap;              ///< GL program-VAO map
+  uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
+  GLStateCache                                                                  mGlStateCache{};             ///< GL status cache
 
   bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
 
@@ -1014,6 +1020,34 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   if(mImpl->mCurrentPipeline == &pipeline->GetPipeline())
   {
     mImpl->mCurrentPipeline = nullptr;
+  }
+
+  // Remove cached VAO map
+  auto* gl = mImpl->mController.GetGL();
+  if(gl)
+  {
+    const auto* program = pipeline->GetCreateInfo().programState->program;
+    if(program)
+    {
+      const auto* programImpl = static_cast<const GLES::Program*>(program)->GetImplementation();
+      if(programImpl)
+      {
+        auto iter = mImpl->mProgramVAOMap.find(programImpl);
+        if(iter != mImpl->mProgramVAOMap.end())
+        {
+          for(auto& attributeHashPair : iter->second)
+          {
+            auto vao = attributeHashPair.second;
+            gl->DeleteVertexArrays(1, &vao);
+            if(mImpl->mProgramVAOCurrentState == vao)
+            {
+              mImpl->mProgramVAOCurrentState = 0u;
+            }
+          }
+          mImpl->mProgramVAOMap.erase(iter);
+        }
+      }
+    }
   }
 }
 
