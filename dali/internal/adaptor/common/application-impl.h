@@ -466,7 +466,7 @@ protected:
   /**
    * Destructor
    */
-  ~Application() override;
+  virtual ~Application() override;
 
   // Undefined
   Application(const Application&);
