@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/integration-api/render-controller.h>
+#include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
 #include <dali/public-api/math/uint-16-pair.h>
@@ -620,6 +621,11 @@ private:
    */
   void RemoveIdleEnterer(CallbackBase* callback);
 
+  /**
+   * Trigger to log the memory pools from Core and Adaptor
+   */
+  bool MemoryPoolTimeout();
+
 private:
   /**
    * Constructor
@@ -679,12 +685,14 @@ private:                                          // Data
   KernelTrace                 mKernelTracer;                          ///< Kernel tracer
   SystemTrace                 mSystemTracer;                          ///< System tracer
   ObjectProfiler*             mObjectProfiler;                        ///< Tracks object lifetime for profiling
-  SocketFactory               mSocketFactory;                         ///< Socket factory
-  Mutex                       mMutex;                                 ///< Mutex
-  ThreadMode                  mThreadMode;                            ///< The thread mode
-  const bool                  mEnvironmentOptionsOwned : 1;           ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
-  bool                        mUseRemoteSurface : 1;                  ///< whether the remoteSurface is used or not
-  Dali::LayoutDirection::Type mRootLayoutDirection;                   ///< LayoutDirection of window
+  Dali::Timer                 mMemoryPoolTimer;                       ///< Logs memory pool capacity
+  SlotDelegate<Adaptor>       mMemoryPoolTimerSlotDelegate;
+  SocketFactory               mSocketFactory;               ///< Socket factory
+  Mutex                       mMutex;                       ///< Mutex
+  ThreadMode                  mThreadMode;                  ///< The thread mode
+  const bool                  mEnvironmentOptionsOwned : 1; ///< Whether we own the EnvironmentOptions (and thus, need to delete it)
+  bool                        mUseRemoteSurface : 1;        ///< whether the remoteSurface is used or not
+  Dali::LayoutDirection::Type mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
 

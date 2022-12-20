@@ -104,7 +104,7 @@ void NetworkPerformanceServer::Start()
     int error = pthread_create(&mServerThread, NULL, ConnectionListenerFunc, this);
     DALI_ASSERT_ALWAYS(!error && "pthread create failed");
 
-    Dali::Integration::Log::LogMessage(Integration::Log::DebugInfo, "~~~ NetworkPerformanceServer started on port %d ~~~ \n", SERVER_PORT + basePort);
+    Dali::Integration::Log::LogMessage(Integration::Log::INFO, "~~~ NetworkPerformanceServer started on port %d ~~~ \n", SERVER_PORT + basePort);
   }
 }
 void NetworkPerformanceServer::Stop()

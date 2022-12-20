@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 20217 Samsung Electronics Co., Ltd.
+ * Copyright (c) 20227 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/profiling.h>
+#include <dali/internal/imaging/common/pixel-buffer-impl.h>
+#include <dali/public-api/images/pixel-data.h>
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
 #include <dali/public-api/object/type-registry.h>
+
 #include <stdlib.h>
 
 using std::string;
@@ -60,18 +63,23 @@ void ObjectProfiler::DisplayInstanceCounts()
     std::size_t memorySize = GetMemorySize(element.first, element.second);
     if(memorySize > 0)
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
+      LogMessage(Debug::INFO, "%-30s: % 4d  Memory MemorySize: ~% 6.1f kB\n", element.first.c_str(), element.second, memorySize / 1024.0f);
     }
     else
     {
-      LogMessage(Debug::DebugInfo, "%-30s: % 4d\n", element.first.c_str(), element.second);
+      LogMessage(Debug::INFO, "%-30s: % 4d\n", element.first.c_str(), element.second);
     }
   }
-  LogMessage(Debug::DebugInfo, "\n");
+  LogMessage(Debug::INFO, "\n");
 }
 
 bool ObjectProfiler::OnTimeout()
 {
+  uint32_t pixelDataSize   = Dali::PixelData::GetTotalAllocatedSize();
+  uint32_t pixelBufferSize = Dali::Internal::Adaptor::PixelBuffer::GetTotalAllocatedSize();
+  LogMessage(Debug::INFO, "Total PixelData: %9.1fkb\n", ((float)pixelDataSize) / 1024.0f);
+  LogMessage(Debug::INFO, "Total PixelBuffer: %9.1fkb\n", ((float)pixelBufferSize) / 1024.0f);
+
   DisplayInstanceCounts();
   return true;
 }

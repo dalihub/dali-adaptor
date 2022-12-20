@@ -65,7 +65,7 @@ class CommandPool
     inline void resize(int newSize)
     {
       ptr      = reinterpret_cast<T*>(realloc(ptr, newSize * sizeof(T)));
-      capacity = newSize;
+      capacity = newSize * sizeof(T);
       dataSize = newSize;
     }
 
@@ -224,6 +224,11 @@ public:
     size = commandPool.size;
     return commandPool.data.ptr;
   }
+
+  std::size_t GetTotalCapacity() const
+  {
+    return commandPool.data.capacity + memoryPool.data.capacity;
+  }
 };
 
 CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller)
@@ -266,7 +271,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   static thread_local UniformBufferBindingDescriptor sTempBindings[MAX_UNIFORM_BUFFER_BINDINGS];
 
   // reset temp bindings
-  memset(sTempBindings, 0, sizeof(UniformBufferBindingDescriptor) * MAX_UNIFORM_BUFFER_BINDINGS);
+  std::fill_n(sTempBindings, MAX_UNIFORM_BUFFER_BINDINGS, UniformBufferBindingDescriptor());
 
   auto maxBinding = 0u;
 
@@ -556,6 +561,16 @@ bool CommandBuffer::InitializeResource()
 void CommandBuffer::DiscardResource()
 {
   GetController().DiscardResource(this);
+}
+
+std::size_t CommandBuffer::GetCapacity()
+{
+  std::size_t total{0u};
+  if(mCommandPool)
+  {
+    total = mCommandPool->GetTotalCapacity();
+  }
+  return total;
 }
 
 } // namespace Dali::Graphics::GLES

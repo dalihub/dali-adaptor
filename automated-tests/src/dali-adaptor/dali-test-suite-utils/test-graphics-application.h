@@ -195,6 +195,14 @@ public:
     return 320;
   }
 
+  void FrameStart() override
+  {
+  }
+
+  void LogMemoryPools() override
+  {
+  }
+
   /**
    * Store cached configurations
    */

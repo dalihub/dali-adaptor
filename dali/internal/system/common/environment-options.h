@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,11 @@ public:
    * @return object profiler status interval ( 0 == off )
    */
   unsigned int GetObjectProfilerInterval() const;
+
+  /**
+   * @return memory pool status interval (0==off)
+   */
+  unsigned int GetMemoryPoolInterval() const;
 
   /**
    * @return performance statistics log level ( 0 == off )
@@ -354,6 +359,7 @@ private: // Data
   unsigned int mFpsFrequency;               ///< how often fps is logged out in seconds
   unsigned int mUpdateStatusFrequency;      ///< how often update status is logged out in frames
   unsigned int mObjectProfilerInterval;     ///< how often object counts are logged out in seconds
+  uint32_t     mMemoryPoolInterval;         ///< how often memory pool capacities are logged out in seconds
   unsigned int mPerformanceStatsLevel;      ///< performance statistics logging bitmask
   unsigned int mPerformanceStatsFrequency;  ///< performance statistics logging frequency (seconds)
   unsigned int mPerformanceTimeStampOutput; ///< performance time stamp output ( bitmask)

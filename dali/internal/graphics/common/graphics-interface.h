@@ -181,6 +181,16 @@ public:
    */
   virtual void CacheConfigurations(ConfigurationManager& configurationManager) = 0;
 
+  /**
+   * Initialize data for logging frame info
+   */
+  virtual void FrameStart() = 0;
+
+  /**
+   * Log total capacity of memory pools during this frame
+   */
+  virtual void LogMemoryPools() = 0;
+
 protected:
   Integration::DepthBufferAvailable   mDepthBufferRequired;   ///< Whether the depth buffer is required
   Integration::StencilBufferAvailable mStencilBufferRequired; ///< Whether the stencil buffer is required

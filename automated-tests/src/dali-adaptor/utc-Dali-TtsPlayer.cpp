@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,12 +50,32 @@ int UtcDaliTtsPlayerCopyConstructorP(void)
   END_TEST;
 }
 
+int UtcDaliTtsPlayerMoveConstructorP(void)
+{
+  Dali::TtsPlayer player;
+  Dali::TtsPlayer copy(std::move(player));
+  DALI_TEST_CHECK(player == copy);
+
+  END_TEST;
+}
+
 int UtcDaliTtsPlayerAssignmentOperatorP(void)
 {
   Dali::TtsPlayer player;
   Dali::TtsPlayer copy;
   DALI_TEST_CHECK(!copy);
   copy = player;
+  DALI_TEST_CHECK(copy == player);
+
+  END_TEST;
+}
+
+int UtcDaliTtsPlayerMoveAssignmentOperatorP(void)
+{
+  Dali::TtsPlayer player;
+  Dali::TtsPlayer copy;
+  DALI_TEST_CHECK(!copy);
+  copy = std::move(player);
   DALI_TEST_CHECK(copy == player);
 
   END_TEST;
@@ -162,6 +182,23 @@ int UtcDaliTtsPlayerGetStateN(void)
   {
     Dali::TtsPlayer::State state = player.GetState();
     tet_printf("Error: TtsPlayer state = %d, expected exception\n", (unsigned int)state);
+    DALI_TEST_CHECK(false); // Should not reach here!
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true);
+  }
+
+  END_TEST;
+}
+
+int UtcDaliTtsPlayerStateChangedSignalN(void)
+{
+  Dali::TtsPlayer player = Dali::TtsPlayer::Get();
+
+  try
+  {
+    player.StateChangedSignal();
     DALI_TEST_CHECK(false); // Should not reach here!
   }
   catch(...)

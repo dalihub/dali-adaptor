@@ -5,6 +5,7 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 
 SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
+    utc-Dali-GlesImplementation.cpp
     utc-Dali-GraphicsFramebuffer.cpp
     utc-Dali-GraphicsGeometry.cpp
     utc-Dali-GraphicsNativeImage.cpp
@@ -42,6 +43,7 @@ LIST(APPEND TC_SOURCES
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core
     dali2-adaptor
+    glesv2
     ecore
     ecore-x
 )

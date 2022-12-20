@@ -61,7 +61,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag)
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_RELEASE_INFO("BEGIN: %s\n", tag);
+      DALI_LOG_DEBUG_INFO("BEGIN: %s\n", tag);
     }
   }
   else
@@ -70,7 +70,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag)
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_RELEASE_INFO("END: %s\n", tag);
+      DALI_LOG_DEBUG_INFO("END: %s\n", tag);
     }
   }
 }

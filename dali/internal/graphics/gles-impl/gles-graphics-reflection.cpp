@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,10 @@
 
 namespace
 {
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gGraphicsReflectionLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_REFLECTION");
+#endif
+
 struct StringSize
 {
   const char* const mString;
@@ -171,7 +175,7 @@ void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::U
 
             if(!found)
             {
-              DALI_LOG_ERROR("Sampler uniform %s declared but not used in the shader\n", token);
+              DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Sampler uniform %s declared but not used in the shader\n", token);
             }
             break;
           }
@@ -214,11 +218,15 @@ void Reflection::BuildVertexAttributeReflection()
     return;
   }
 
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build vertex attribute reflection for glProgram : %u\n", glProgram);
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
   gl->GetProgramiv(glProgram, GL_ACTIVE_ATTRIBUTES, &nAttribs);
 
   mVertexInputAttributes.clear();
   mVertexInputAttributes.resize(nAttribs);
+
+  int maximumLocation = nAttribs - 1;
 
   name = new GLchar[maxLength];
   for(int i = 0; i < nAttribs; i++)
@@ -228,13 +236,21 @@ void Reflection::BuildVertexAttributeReflection()
 
     if(location >= 0)
     {
+      if(maximumLocation < location)
+      {
+        maximumLocation = location;
+        // Increate continer size s.t. we can use maximumLocation as index.
+        mVertexInputAttributes.resize(maximumLocation + 1u);
+      }
+
       AttributeInfo attributeInfo;
-      attributeInfo.location = location;
-      attributeInfo.name     = name;
-      attributeInfo.format   = GetVertexAttributeTypeFormat(type);
-      mVertexInputAttributes.insert(mVertexInputAttributes.begin() + location, attributeInfo);
+      attributeInfo.location           = location;
+      attributeInfo.name               = name;
+      attributeInfo.format             = GetVertexAttributeTypeFormat(type);
+      mVertexInputAttributes[location] = std::move(attributeInfo);
     }
   }
+
   delete[] name;
 }
 
@@ -253,6 +269,8 @@ void Reflection::BuildUniformReflection()
     // Do nothing during shutdown
     return;
   }
+
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform reflection for glProgram : %u\n", glProgram);
 
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
@@ -365,6 +383,8 @@ void Reflection::BuildUniformBlockReflection()
     return;
   }
 
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform block reflection for glProgram : %u\n", glProgram);
+
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
 
   mUniformBlocks.clear();
@@ -420,6 +440,7 @@ void Reflection::BuildUniformBlockReflection()
 
 uint32_t Reflection::GetVertexAttributeLocation(const std::string& name) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "name : %s\n", name.c_str());
   for(auto&& attr : mVertexInputAttributes)
   {
     if(attr.name == name)
@@ -432,6 +453,7 @@ uint32_t Reflection::GetVertexAttributeLocation(const std::string& name) const
 
 Dali::Graphics::VertexInputAttributeFormat Reflection::GetVertexAttributeFormat(uint32_t location) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "location : %u\n", location);
   if(location >= mVertexInputAttributes.size())
   {
     return Dali::Graphics::VertexInputAttributeFormat::UNDEFINED;
@@ -442,6 +464,7 @@ Dali::Graphics::VertexInputAttributeFormat Reflection::GetVertexAttributeFormat(
 
 std::string Reflection::GetVertexAttributeName(uint32_t location) const
 {
+  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::Verbose, "location : %u\n", location);
   if(location >= mVertexInputAttributes.size())
   {
     return std::string();

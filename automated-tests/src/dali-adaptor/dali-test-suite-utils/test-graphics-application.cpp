@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,13 +120,16 @@ void TestGraphicsApplication::LogMessage(Dali::Integration::Log::DebugPriority l
   {
     switch(level)
     {
-      case Dali::Integration::Log::DebugInfo:
+      case Dali::Integration::Log::DEBUG:
+        fprintf(stderr, "DEBUG: %s", message.c_str());
+        break;
+      case Dali::Integration::Log::INFO:
         fprintf(stderr, "INFO: %s", message.c_str());
         break;
-      case Dali::Integration::Log::DebugWarning:
+      case Dali::Integration::Log::WARNING:
         fprintf(stderr, "WARN: %s", message.c_str());
         break;
-      case Dali::Integration::Log::DebugError:
+      case Dali::Integration::Log::ERROR:
         fprintf(stderr, "ERROR: %s", message.c_str());
         break;
       default:
