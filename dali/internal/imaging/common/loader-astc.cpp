@@ -220,17 +220,17 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   }
 
   // allocate pixel data
-  bitmap = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+  auto* pixels = static_cast<uint8_t*>(malloc(imageByteCount));
 
-  // Compressed format won't allocate the buffer
-  auto pixels = bitmap.GetBuffer();
-  if(!pixels)
+  if(DALI_UNLIKELY(pixels == nullptr))
   {
-    // allocate buffer manually
-    auto& impl = GetImplementation(bitmap);
-    impl.AllocateFixedSize(imageByteCount);
-    pixels = bitmap.GetBuffer();
+    DALI_LOG_ERROR("Buffer allocation failed. (required memory : %zu byte)\n", imageByteCount);
+    return false;
   }
+
+  // Create bitmap who will use allocated buffer.
+  const auto& bitmapInternal = Internal::Adaptor::PixelBuffer::New(pixels, imageByteCount, width, height, 0, pixelFormat);
+  bitmap                     = Dali::Devel::PixelBuffer(bitmapInternal.Get());
 
   // Load the image data.
   const size_t bytesRead = fread(pixels, 1, imageByteCount, filePointer);
@@ -238,7 +238,7 @@ bool LoadBitmapFromAstc(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
   // Check the size of loaded data is what we expected.
   if(DALI_UNLIKELY(bytesRead != imageByteCount))
   {
-    DALI_LOG_ERROR("Read of image pixel data failed.\n");
+    DALI_LOG_ERROR("Read of image pixel data failed. (required image bytes : %zu, actual read from file : %zu\n", imageByteCount, bytesRead);
     return false;
   }
 
