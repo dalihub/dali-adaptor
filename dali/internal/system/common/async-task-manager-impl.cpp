@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -292,24 +292,36 @@ AsyncTaskPtr AsyncTaskManager::PopNextCompletedTask()
 void AsyncTaskManager::CompleteTask(AsyncTaskPtr task)
 {
   // Lock while adding task to the queue
-  Mutex::ScopedLock lock(mMutex);
-  for(auto iter = mRunningTasks.begin(), endIter = mRunningTasks.end(); iter != endIter; ++iter)
   {
-    if((*iter).first == task)
+    Mutex::ScopedLock lock(mMutex);
+    for(auto iter = mRunningTasks.begin(), endIter = mRunningTasks.end(); iter != endIter; ++iter)
     {
-      if(!(*iter).second)
+      if((*iter).first == task)
       {
-        mCompletedTasks.push_back(task);
-      }
+        if(!(*iter).second)
+        {
+          if(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD)
+          {
+            mCompletedTasks.push_back(task);
+          }
+        }
 
-      // Delete this task in running queue
-      mRunningTasks.erase(iter);
-      break;
+        // Delete this task in running queue
+        mRunningTasks.erase(iter);
+        break;
+      }
     }
   }
 
   // wake up the main thread
-  mTrigger->Trigger();
+  if(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD)
+  {
+    mTrigger->Trigger();
+  }
+  else
+  {
+    CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+  }
 }
 
 void AsyncTaskManager::UnregisterProcessor()
