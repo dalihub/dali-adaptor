@@ -25,7 +25,6 @@
 #include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/thread-settings.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
@@ -34,6 +33,7 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
+#include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 
 namespace Dali
@@ -106,6 +106,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mDefaultHalfFrameNanoseconds(0u),
   mUpdateRequestCount(0u),
   mRunning(FALSE),
+  mThreadId(0),
   mThreadMode(threadMode),
   mUpdateRenderRunCount(0),
   mDestroyUpdateRenderThread(FALSE),
@@ -408,6 +409,11 @@ void CombinedUpdateRenderController::AddSurface(Dali::RenderSurfaceInterface* su
   }
 }
 
+int32_t CombinedUpdateRenderController::GetThreadId() const
+{
+  return mThreadId;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // EVENT THREAD
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -498,7 +504,8 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
 
 void CombinedUpdateRenderController::UpdateRenderThread()
 {
-  SetThreadName("RenderThread\0");
+  ThreadSettings::SetThreadName("RenderThread\0");
+  mThreadId = ThreadSettings::GetThreadId();
 
   // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();

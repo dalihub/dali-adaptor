@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/thread/common/thread-settings-impl.h>
 
+// EXTERNAL INCLUDES
+#include <sys/prctl.h>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 

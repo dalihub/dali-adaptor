@@ -517,6 +517,15 @@ void Application::SetDefaultWindowType(WindowType type)
   mMainWindow.SetType(type);
 }
 
+int32_t Application::GetRenderThreadId() const
+{
+  if(mAdaptor)
+  {
+    return Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).GetRenderThreadId();
+  }
+  return 0;
+}
+
 ApplicationPtr Application::GetPreInitializedApplication()
 {
   // Reset the handle to decrease the reference count

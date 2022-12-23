@@ -35,6 +35,7 @@ SET( SOURCES
         ${adaptor_window_system_common_src_files}
         ${adaptor_trace_common_src_files}
         ${adaptor_thread_common_src_files}
+        ${adaptor_thread_windows_src_files}
         ${devel_api_text_abstraction_src_files}
         ${static_libraries_libunibreak_src_files}
         ${adaptor_windows_platform_src_files}

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,6 +153,11 @@ public:
    * @copydoc ThreadControllerInterface::AddSurface()
    */
   void AddSurface(Dali::RenderSurfaceInterface* surface) override;
+
+  /**
+   * @copydoc ThreadControllerInterface::GetThreadId()
+   */
+  int32_t GetThreadId() const override;
 
 private:
   // Undefined copy constructor.
@@ -352,8 +357,9 @@ private:
   uint64_t mDefaultFrameDurationNanoseconds;  ///< Default duration of a frame (used for sleeping if not enough time elapsed). Not protected by lock, but written to rarely so not worth adding a lock when reading.
   uint64_t mDefaultHalfFrameNanoseconds;      ///< Is half of mDefaultFrameDurationNanoseconds. Using a member variable avoids having to do the calculation every frame. Not protected by lock, but written to rarely so not worth adding a lock when reading.
 
-  unsigned int mUpdateRequestCount; ///< Count of update-requests we have received to ensure we do not go to sleep too early.
-  unsigned int mRunning;            ///< Read and set on the event-thread only to state whether we are running.
+  uint32_t mUpdateRequestCount; ///< Count of update-requests we have received to ensure we do not go to sleep too early.
+  uint32_t mRunning;            ///< Read and set on the event-thread only to state whether we are running.
+  int32_t  mThreadId;           ///< UpdateRender thread id
 
   ThreadMode mThreadMode; ///< Whether the thread runs continuously or runs when it is requested.
 

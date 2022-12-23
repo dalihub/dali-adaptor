@@ -159,6 +159,11 @@ public:
    */
   void StoreWindowPositionSize(PositionSize positionSize);
 
+  /**
+   * @copydoc Dali::DevelApplication::GetRenderThreadId()
+   */
+  int32_t GetRenderThreadId() const;
+
 public: // From Framework::Observer
   /**
    * Called when the framework is initialised.

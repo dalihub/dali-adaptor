@@ -44,6 +44,7 @@ SET( SOURCES
         ${adaptor_macos_platform_src_files}
         ${adaptor_trace_common_src_files}
         ${adaptor_thread_common_src_files}
+        ${adaptor_thread_linux_src_files}
         ${adaptor_window_system_macos_src_files}
         ${devel_api_text_abstraction_src_files}
         ${adaptor_addons_common_src_files}

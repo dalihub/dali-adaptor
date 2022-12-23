@@ -1134,6 +1134,15 @@ bool Adaptor::IsMultipleWindowSupported() const
   return mConfigurationManager->IsMultipleWindowSupported();
 }
 
+int32_t Adaptor::GetRenderThreadId() const
+{
+  if(mThreadController)
+  {
+    mThreadController->GetThreadId();
+  }
+  return 0;
+}
+
 void Adaptor::RequestUpdateOnce()
 {
   if(mThreadController)

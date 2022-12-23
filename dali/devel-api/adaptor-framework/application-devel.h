@@ -29,7 +29,6 @@ namespace Dali
 {
 namespace DevelApplication
 {
-
 using CustomCommandReceivedSignalType = Signal<void(const std::string&)>; ///< Signal signature for CustomCommandReceivedSignal
 
 /**
@@ -98,6 +97,13 @@ DALI_ADAPTOR_API Application DownCast(Dali::RefObject* refObject);
  * @return The signal when a custom command is received
  */
 DALI_ADAPTOR_API CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Application application);
+
+/**
+ * @brief Gets the render thread id of DALi.
+ * @param application A handle to the Application
+ * @return The render thread id.
+ */
+DALI_ADAPTOR_API int32_t GetRenderThreadId(Application application);
 
 } // namespace DevelApplication
 
