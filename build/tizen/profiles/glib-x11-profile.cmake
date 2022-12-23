@@ -36,6 +36,7 @@ SET( SOURCES
         ${adaptor_resampler_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_thread_common_src_files}
+        ${adaptor_thread_linux_src_files}
         ${adaptor_trace_common_src_files}
         ${adaptor_vector_animation_common_src_files}
         ${adaptor_vector_image_common_src_files}

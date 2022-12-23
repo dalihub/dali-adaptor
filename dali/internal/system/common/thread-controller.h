@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,6 +140,13 @@ public:
    * @param surface new surface
    */
   void AddSurface(Dali::RenderSurfaceInterface* surface);
+
+  /**
+   * @brief Gets the thread id.
+   * @note If thread id getter doesn't supported, it will return 0 as default.
+   * @return The thread id.
+   */
+  int32_t GetThreadId() const;
 
 private:
   // Undefined copy constructor.
