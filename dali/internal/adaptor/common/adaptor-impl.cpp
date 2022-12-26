@@ -1138,7 +1138,7 @@ int32_t Adaptor::GetRenderThreadId() const
 {
   if(mThreadController)
   {
-    mThreadController->GetThreadId();
+    return mThreadController->GetThreadId();
   }
   return 0;
 }
