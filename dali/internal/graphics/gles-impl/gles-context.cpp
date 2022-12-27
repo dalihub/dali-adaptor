@@ -55,8 +55,17 @@ struct Context::Impl
    */
   void BindProgramVAO(GLES::ProgramImpl* program, const VertexInputState& vertexInputState)
   {
+    // Calculate attributes location hash unordered.
+    std::size_t hash = 0;
+    for(const auto& attr : vertexInputState.attributes)
+    {
+      hash ^= std::hash<uint32_t>{}(attr.location);
+    }
+
+    auto key = std::make_pair(program, hash);
+
     auto& gl   = *mController.GetGL();
-    auto  iter = mProgramVAOMap.find(program);
+    auto  iter = mProgramVAOMap.find(key);
     if(iter != mProgramVAOMap.end())
     {
       if(mProgramVAOCurrentState != iter->second)
@@ -64,23 +73,13 @@ struct Context::Impl
         mProgramVAOCurrentState = iter->second;
         gl.BindVertexArray(iter->second);
       }
-
-      // We should re-check enable attribute usage because geometry might be changed.
-      // @todo : We can remove this loop if we enable vertex attrib by shader's information.
-      for(const auto& attr : vertexInputState.attributes)
-      {
-        gl.EnableVertexAttribArray(attr.location);
-      }
       return;
     }
 
     uint32_t vao;
     gl.GenVertexArrays(1, &vao);
     gl.BindVertexArray(vao);
-    mProgramVAOMap[program] = vao;
-
-    // @todo : Enable vertex attrib only by shader's information, not with Geometry.
-    // Currently, vertexInputState.attributes depend on Geometry's VertexBuffer.
+    mProgramVAOMap[key] = vao;
     for(const auto& attr : vertexInputState.attributes)
     {
       gl.EnableVertexAttribArray(attr.location);
@@ -216,9 +215,9 @@ struct Context::Impl
   const GLES::RenderPass*   mCurrentRenderPass{nullptr};
 
   // Each context must have own VAOs as they cannot be shared
-  std::map<GLES::ProgramImpl*, uint32_t> mProgramVAOMap;              ///< GL program-VAO map
-  uint32_t                               mProgramVAOCurrentState{0u}; ///< Currently bound VAO
-  GLStateCache                           mGlStateCache{};             ///< GL status cache
+  std::map<std::pair<GLES::ProgramImpl*, std::size_t>, uint32_t> mProgramVAOMap;              ///< GL program-VAO map
+  uint32_t                                                       mProgramVAOCurrentState{0u}; ///< Currently bound VAO
+  GLStateCache                                                   mGlStateCache{};             ///< GL status cache
 
   bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
 

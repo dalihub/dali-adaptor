@@ -536,7 +536,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   uint64_t timeToSleepUntil   = 0;
   int      extraFramesDropped = 0;
 
-  const uint64_t memPoolInterval = mEnvironmentOptions.GetMemoryPoolInterval() * NANOSECONDS_PER_SECOND;
+  const uint64_t memPoolInterval = 1e9 * float(mEnvironmentOptions.GetMemoryPoolInterval());
 
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
