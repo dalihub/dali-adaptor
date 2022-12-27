@@ -65,12 +65,107 @@ Dali::BaseHandle Create()
 
 Dali::TypeRegistration type(typeid(Dali::WebEngine), typeid(Dali::BaseHandle), Create);
 
+/**
+ * @brief Control the WebEnginePlugin library lifecycle.
+ * Hold the plugin library handle in static singletone.
+ * It will makes library handle alives during all WebEngine resources create & destory.
+ */
+struct WebEnginePluginObject
+{
+public:
+  static WebEnginePluginObject& GetInstance()
+  {
+    static WebEnginePluginObject gPluginHandle;
+    return gPluginHandle;
+  }
+
+  /**
+   * @brief Converts an handle to a bool.
+   *
+   * This is useful for checking whether the WebEnginePluginObject succes to load library.
+   * @note We don't check mHandle because it is possible that mHandle load is success but
+   * Create/Destroy API load failed.
+   */
+  explicit operator bool() const
+  {
+    return mLoadSuccess;
+  }
+
+private:
+  // Private constructor / destructor
+  WebEnginePluginObject()
+  : mLoadSuccess{false},
+    mHandle{nullptr},
+    mCreateWebEnginePtr{nullptr},
+    mDestroyWebEnginePtr{nullptr}
+  {
+    std::string pluginName;
+    const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
+    if(name)
+    {
+      pluginName = MakePluginName(name);
+    }
+    else
+    {
+      pluginName = std::string(kPluginFullNameDefault);
+    }
+
+    mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
+    if(!mHandle)
+    {
+      DALI_LOG_ERROR("Can't load %s : %s\n", pluginName.c_str(), dlerror());
+      return;
+    }
+
+    mCreateWebEnginePtr = reinterpret_cast<CreateWebEngineFunction>(dlsym(mHandle, "CreateWebEnginePlugin"));
+    if(mCreateWebEnginePtr == nullptr)
+    {
+      DALI_LOG_ERROR("Can't load symbol CreateWebEnginePlugin(), error: %s\n", dlerror());
+      return;
+    }
+
+    mDestroyWebEnginePtr = reinterpret_cast<DestroyWebEngineFunction>(dlsym(mHandle, "DestroyWebEnginePlugin"));
+    if(mDestroyWebEnginePtr == nullptr)
+    {
+      DALI_LOG_ERROR("Can't load symbol DestroyWebEnginePlugin(), error: %s\n", dlerror());
+      return;
+    }
+
+    mLoadSuccess = true;
+  }
+
+  ~WebEnginePluginObject()
+  {
+    if(mHandle)
+    {
+      dlclose(mHandle);
+      mHandle      = nullptr;
+      mLoadSuccess = false;
+    }
+  }
+
+  WebEnginePluginObject(const WebEnginePluginObject&) = delete;
+  WebEnginePluginObject(WebEnginePluginObject&&)      = delete;
+  WebEnginePluginObject& operator=(const WebEnginePluginObject&) = delete;
+  WebEnginePluginObject& operator=(WebEnginePluginObject&&) = delete;
+
+private:
+  bool mLoadSuccess; ///< True if library loaded successfully. False otherwise.
+
+public:
+  using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
+  using DestroyWebEngineFunction = void (*)(Dali::WebEnginePlugin* plugin);
+
+  void*                    mHandle;              ///< Handle for the loaded library
+  CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
+  DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
+};
+
 } // unnamed namespace
 
 WebEnginePtr WebEngine::New()
 {
   WebEngine* instance = new WebEngine();
-
   if(!instance->Initialize())
   {
     delete instance;
@@ -81,87 +176,38 @@ WebEnginePtr WebEngine::New()
 }
 
 WebEngine::WebEngine()
-: mPlugin(NULL),
-  mHandle(NULL),
-  mCreateWebEnginePtr(NULL),
-  mDestroyWebEnginePtr(NULL)
+: mPlugin(nullptr)
 {
 }
 
 WebEngine::~WebEngine()
 {
-  if(mHandle != NULL)
+  if(mPlugin != nullptr)
   {
-    if(mDestroyWebEnginePtr != NULL)
+    mPlugin->Destroy();
+    // Check whether plugin load sccess or not.
+    if(DALI_LIKELY(WebEnginePluginObject::GetInstance()))
     {
-      mPlugin->Destroy();
-      mDestroyWebEnginePtr(mPlugin);
+      WebEnginePluginObject::GetInstance().mDestroyWebEnginePtr(mPlugin);
     }
-
-    dlclose(mHandle);
+    mPlugin = nullptr;
   }
-}
-
-bool WebEngine::InitializePluginHandle()
-{
-  if(pluginName.length() == 0)
-  {
-    // pluginName is not initialized yet.
-    const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
-    if(name)
-    {
-      pluginName = MakePluginName(name);
-      mHandle    = dlopen(pluginName.c_str(), RTLD_LAZY);
-      if(mHandle)
-      {
-        return true;
-      }
-    }
-    pluginName = std::string(kPluginFullNameDefault);
-  }
-
-  mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
-  if(!mHandle)
-  {
-    DALI_LOG_ERROR("Can't load %s : %s\n", pluginName.c_str(), dlerror());
-    return false;
-  }
-
-  return true;
 }
 
 bool WebEngine::Initialize()
 {
-  char* error = NULL;
-
-  if(!InitializePluginHandle())
+  // Check whether plugin load sccess or not.
+  if(!WebEnginePluginObject::GetInstance())
   {
     return false;
   }
 
-  mCreateWebEnginePtr = reinterpret_cast<CreateWebEngineFunction>(dlsym(mHandle, "CreateWebEnginePlugin"));
-  if(mCreateWebEnginePtr == NULL)
-  {
-    DALI_LOG_ERROR("Can't load symbol CreateWebEnginePlugin(), error: %s\n", error);
-    return false;
-  }
-
-  mDestroyWebEnginePtr = reinterpret_cast<DestroyWebEngineFunction>(dlsym(mHandle, "DestroyWebEnginePlugin"));
-
-  if(mDestroyWebEnginePtr == NULL)
-  {
-    DALI_LOG_ERROR("Can't load symbol DestroyWebEnginePlugin(), error: %s\n", error);
-    return false;
-  }
-
-  mPlugin = mCreateWebEnginePtr();
-
-  if(mPlugin == NULL)
+  mPlugin = WebEnginePluginObject::GetInstance().mCreateWebEnginePtr();
+  if(mPlugin == nullptr)
   {
     DALI_LOG_ERROR("Can't create the WebEnginePlugin object\n");
     return false;
   }
-
   return true;
 }
 

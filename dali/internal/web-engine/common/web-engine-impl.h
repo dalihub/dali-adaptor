@@ -318,21 +318,11 @@ private:
    */
   bool Initialize();
 
-  /**
-   * @brief Initializes library handle by loading web engine plugin.
-   *
-   * @return Whether the initialization succeed or not.
-   */
-  bool InitializePluginHandle();
-
 private:
   typedef Dali::WebEnginePlugin* (*CreateWebEngineFunction)();
   typedef void (*DestroyWebEngineFunction)(Dali::WebEnginePlugin* plugin);
 
-  Dali::WebEnginePlugin*   mPlugin;              ///< WebEnginePlugin instance
-  void*                    mHandle;              ///< Handle for the loaded library
-  CreateWebEngineFunction  mCreateWebEnginePtr;  ///< Function to create plugin instance
-  DestroyWebEngineFunction mDestroyWebEnginePtr; ///< Function to destroy plugin instance
+  Dali::WebEnginePlugin* mPlugin; ///< WebEnginePlugin instance
 };
 
 } // namespace Adaptor
