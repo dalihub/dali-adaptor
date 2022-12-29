@@ -34,6 +34,7 @@ namespace Adaptor
 namespace
 {
 const char* DALI_TRACE_ENABLE_PRINT_LOG_ENV = "DALI_TRACE_ENABLE_PRINT_LOG";
+const char* EMPTY_TAG                       = "(null)";
 static bool gTraceManagerEnablePrintLog     = false;
 
 } // namespace
@@ -57,11 +58,11 @@ void TraceManagerTizen::LogContext(bool start, const char* tag)
 {
   if(start)
   {
-    traceBegin(TTRACE_TAG_GRAPHICS, tag);
+    traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_DEBUG_INFO("BEGIN: %s\n", tag);
+      DALI_LOG_DEBUG_INFO("BEGIN: %s\n", tag ? tag : EMPTY_TAG);
     }
   }
   else
@@ -70,7 +71,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag)
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_DEBUG_INFO("END: %s\n", tag);
+      DALI_LOG_DEBUG_INFO("END: %s\n", tag ? tag : EMPTY_TAG);
     }
   }
 }
