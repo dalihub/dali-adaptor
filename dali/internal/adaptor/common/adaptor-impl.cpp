@@ -917,16 +917,14 @@ void Adaptor::ProcessCoreEvents()
 {
   if(mCore)
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_PROCESS_CORE_EVENTS");
+
     if(mPerformanceInterface)
     {
       mPerformanceInterface->AddMarker(PerformanceInterface::PROCESS_EVENTS_START);
     }
 
-    DALI_TRACE_BEGIN(gTraceFilter, "DALI_PROCESS_CORE_EVENTS");
-
     mCore->ProcessEvents();
-
-    DALI_TRACE_END(gTraceFilter, "DALI_PROCESS_CORE_EVENTS");
 
     if(mPerformanceInterface)
     {
