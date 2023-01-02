@@ -126,6 +126,15 @@ private:
    */
   static void StateChangedCallback(tts_h tts, tts_state_e previous, tts_state_e current, void *userData);
 
+  /**
+   * Called when the utterance read by TTS has been completed.
+   *
+   * @param[in] tts The handle for TTS
+   * @param[in] ID of the completed utterance
+   * @param[in] userData The user data passed from the callback registration function.
+   */
+  static void UtteranceCompletedCallback(tts_h tts, int utteranceId, void *userData);
+
   // Undefined
   TtsPlayerTizen(const TtsPlayerTizen&);
 

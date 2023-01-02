@@ -92,8 +92,13 @@ TtsPlayerTizen::~TtsPlayerTizen()
   // If it is playing, stop it
   Stop();
 
-  // Unset the callback funtion for TTS state change
-  int retVal = tts_unset_state_changed_cb(mTtsHandle);
+  // Unset the callback funtions
+  int retVal = tts_unset_utterance_completed_cb(mTtsHandle);
+  if( retVal != TTS_ERROR_NONE )
+  {
+    LogErrorCode(static_cast<tts_error_e>(retVal));
+  }
+  retVal = tts_unset_state_changed_cb(mTtsHandle);
   if( retVal != TTS_ERROR_NONE )
   {
     LogErrorCode(static_cast<tts_error_e>(retVal));
@@ -118,6 +123,13 @@ void TtsPlayerTizen::Initialize()
   }
   else
   {
+    // Set the callback funtion for utterance completed
+    retVal = tts_set_utterance_completed_cb(mTtsHandle, &UtteranceCompletedCallback, this);
+    if(retVal != TTS_ERROR_NONE)
+    {
+      LogErrorCode(static_cast<tts_error_e>(retVal));
+    }
+
     // Set the callback funtion for TTS state change
     retVal = tts_set_state_changed_cb(mTtsHandle, &StateChangedCallback, this);
     if( retVal != TTS_ERROR_NONE )
@@ -310,6 +322,13 @@ void TtsPlayerTizen::StateChangedCallback(tts_h tts, tts_state_e previous, tts_s
       obj->mUnplayedString = "";
     }
   }
+}
+
+void TtsPlayerTizen::UtteranceCompletedCallback(tts_h tts, int utteranceId, void *userData)
+{
+  TtsPlayerTizen* obj = static_cast<TtsPlayerTizen*>(userData);
+  // We call Stop() and as a result the "state changed" callback will be called by tts
+  obj->Stop();
 }
 
 void TtsPlayerTizen::LogErrorCode(tts_error_e reason)
