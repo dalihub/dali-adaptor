@@ -46,7 +46,8 @@ Application New(int* argc, char** argv[], const std::string& stylesheet, Applica
 
     //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
-  } else
+  }
+  else
   {
     internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type, false);
   }
@@ -77,6 +78,11 @@ CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Application applica
   DALI_ASSERT_ALWAYS(networkService && "Network Service Unavailable");
 
   return networkService->CustomCommandReceivedSignal();
+}
+
+int32_t GetRenderThreadId(Application application)
+{
+  return Internal::Adaptor::GetImplementation(application).GetRenderThreadId();
 }
 
 } // namespace DevelApplication

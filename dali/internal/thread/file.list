@@ -1,6 +1,15 @@
-
-# module: trace, backend: common
-SET( adaptor_thread_common_src_files 
+# module: thread, backend: common
+SET( adaptor_thread_common_src_files
     ${adaptor_thread_dir}/common/thread-settings-impl.cpp
+)
+
+# module: thread, backend: linux
+SET( adaptor_thread_linux_src_files
+    ${adaptor_thread_dir}/linux/thread-settings-impl-linux.cpp
+)
+
+# module: thread, backend: windows
+SET( adaptor_thread_windows_src_files
+    ${adaptor_thread_dir}/windows/thread-settings-impl-win.cpp
 )
 
