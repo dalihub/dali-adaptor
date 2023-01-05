@@ -260,6 +260,15 @@ void DragAndDropEcoreWl::ResetDropTargets()
 {
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
+     if(mDropTargets[i].inside)
+     {
+       Dali::DragAndDrop::DragEvent dragEvent;
+       dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+       // -1 means the default position when dragging is cancelled
+       Dali::Vector2 position(-1, -1);
+       dragEvent.SetPosition(position);
+       mDropTargets[i].callback(dragEvent);
+     }
      mDropTargets[i].inside = false;
   }
 }
