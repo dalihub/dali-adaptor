@@ -21,7 +21,6 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/public-api/math/rect.h>
-#include <dali/public-api/signals/dali-signal.h>
 #include <functional>
 #include <memory>
 
@@ -39,9 +38,7 @@ class TouchEvent;
 class WebEngineBackForwardList;
 class WebEngineCertificate;
 class WebEngineConsoleMessage;
-class WebEngineContext;
 class WebEngineContextMenu;
-class WebEngineCookieManager;
 class WebEngineFormRepostDecision;
 class WebEngineHitTest;
 class WebEngineHttpAuthHandler;
@@ -58,11 +55,6 @@ class WheelEvent;
 class WebEnginePlugin
 {
 public:
-  /**
-   * @brief WebView signal type related with frame rendered.
-   */
-  using WebEngineFrameRenderedSignalType = Signal<void(void)>;
-
   /**
    * @brief WebEngine callback related with page loading.
    */
@@ -172,6 +164,11 @@ public:
    * @brief WebView callback related with navigation policy would be decided.
    */
   using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
+
+  /**
+   * @brief WebView callback related with a new window would be created.
+   */
+  using WebEngineNewWindowCreatedCallback = std::function<void(Dali::WebEnginePlugin*&)>;
 
   /**
    * @brief Hit test callback called after hit test is created asynchronously.
@@ -760,11 +757,11 @@ public:
   virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
-   * @brief Connect to this signal to be notified when frame is rendered.
+   * @brief Callback to be called when frame would be rendered.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  virtual WebEngineFrameRenderedSignalType& FrameRenderedSignal() = 0;
+  virtual void RegisterFrameRenderedCallback(WebEngineFrameRenderedCallback callback) = 0;
 
   /**
    * @brief Callback to be called when page loading is started.
@@ -835,6 +832,13 @@ public:
    * @param[in] callback
    */
   virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when a new window would be created.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNewWindowCreatedCallback(WebEngineNewWindowCreatedCallback callback) = 0;
 
   /**
    * @brief Callback to be called when certificate need be confirmed.
