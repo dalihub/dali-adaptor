@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,15 +22,20 @@
 
 namespace Dali
 {
-
-AsyncTask::AsyncTask(CallbackBase* callback)
-: mCompletedCallback(std::unique_ptr<CallbackBase>(callback))
+AsyncTask::AsyncTask(CallbackBase* callback, ThreadType threadType)
+: mCompletedCallback(std::unique_ptr<CallbackBase>(callback)),
+  mThreadType(threadType)
 {
 }
 
 CallbackBase* AsyncTask::GetCompletedCallback()
 {
   return mCompletedCallback.get();
+}
+
+AsyncTask::ThreadType AsyncTask::GetCallbackInvocationThread()
+{
+  return mThreadType;
 }
 
 AsyncTaskManager::AsyncTaskManager() = default;
