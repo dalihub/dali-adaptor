@@ -122,6 +122,11 @@ Dali::Layer SceneHolder::GetRootLayer() const
   return mScene ? mScene.GetRootLayer() : Dali::Layer();
 }
 
+Dali::Layer SceneHolder::GetOverlayLayer()
+{
+  return mScene ? mScene.GetOverlayLayer() : Dali::Layer();
+}
+
 uint32_t SceneHolder::GetId() const
 {
   return mId;
