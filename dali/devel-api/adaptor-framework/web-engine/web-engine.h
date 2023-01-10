@@ -28,6 +28,9 @@
 
 namespace Dali
 {
+class WebEngineContext;
+class WebEngineCookieManager;
+
 namespace Internal
 {
 namespace Adaptor
@@ -659,11 +662,11 @@ public:
   bool SendWheelEvent(const WheelEvent& event);
 
   /**
-   * @brief Connect to this signal to be notified when frame is rendered.
+   * @brief Callback to be called when frame would be rendered.
    *
-   * @return A signal object to connect with.
+   * @param[in] callback
    */
-  Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& FrameRenderedSignal();
+  void RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback);
 
   /**
    * @brief Callback to be called when page loading is started.
@@ -734,6 +737,13 @@ public:
    * @param[in] callback
    */
   void RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback);
+
+  /**
+   * @brief Callback to be called when a new window would be created.
+   *
+   * @param[in] callback
+   */
+  void RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback);
 
   /**
    * @brief Callback to be called when certificate need be confirmed.

@@ -580,7 +580,12 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     Rect<int> surfaceRect = scene.GetCurrentSurfaceRect();
     if(clippingRect == surfaceRect)
     {
-      mDamagedRects.assign(1, RecalculateRect[std::min(scene.GetCurrentSurfaceOrientation() / 90, 3)](surfaceRect, surfaceRect));
+      int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
+      if(totalAngle >= 360)
+      {
+        totalAngle -= 360;
+      }
+      mDamagedRects.assign(1, RecalculateRect[std::min(totalAngle / 90, 3)](surfaceRect, surfaceRect));
     }
   }
 
@@ -805,7 +810,12 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     if(scene)
     {
       surfaceRect = scene.GetCurrentSurfaceRect();
-      orientation = std::min(scene.GetCurrentSurfaceOrientation() / 90, 3);
+      int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
+      if(totalAngle >= 360)
+      {
+        totalAngle -= 360;
+      }
+      orientation = std::min(totalAngle / 90, 3);
     }
 
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();

@@ -2,7 +2,7 @@
 #define DALI_ASYNC_TASK_MANAGER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,18 +46,33 @@ using AsyncTaskPtr = IntrusivePtr<AsyncTask>;
 class DALI_ADAPTOR_API AsyncTask : public RefObject
 {
 public:
+  // The Type of invocation thread
+  enum class ThreadType
+  {
+    MAIN_THREAD,
+    WORKER_THREAD
+  };
+
   /**
    * Constructor
    * @SINCE_2_2.3
-   * @param[in] callback The callback to up the main thread. The ownership of callback is taken by this class
+   * @param[in] callback The callback to invoke on task completion, either on the main thread on the worker thread. The ownership of callback is taken by this class.
+   * @param[in] threadType The thread type of invocation callback.
    */
-  AsyncTask(CallbackBase* callback);
+  AsyncTask(CallbackBase* callback, ThreadType threadType = AsyncTask::ThreadType::MAIN_THREAD);
 
   /**
    * Get the complated callback
    * @SINCE_2_2.3
    */
   CallbackBase* GetCompletedCallback();
+
+  /**
+   * Get the thread of the invocation callback
+   * @SINCE_2_2.9
+   * @return the type of invocation callback.
+   */
+  ThreadType GetCallbackInvocationThread();
 
   /**
    * Destructor.
@@ -80,6 +95,7 @@ public:
 
 private:
   std::unique_ptr<CallbackBase> mCompletedCallback;
+  ThreadType                    mThreadType;
 
   // Undefined
   AsyncTask(const AsyncTask& task) = delete;

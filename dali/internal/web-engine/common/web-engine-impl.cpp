@@ -89,7 +89,7 @@ public:
    */
   explicit operator bool() const
   {
-    return mLoadSuccess;
+    return mLoadSucceeded;
   }
 
   bool InitializeContextHandle()
@@ -102,7 +102,6 @@ public:
     if(!mGetWebEngineContextPtr)
     {
       mGetWebEngineContextPtr = reinterpret_cast<GetWebEngineContext>(dlsym(mHandle, "GetWebEngineContext"));
-
       if(!mGetWebEngineContextPtr)
       {
         DALI_LOG_ERROR("Can't load symbol GetWebEngineContext(), error: %s\n", dlerror());
@@ -123,7 +122,6 @@ public:
     if(!mGetWebEngineCookieManagerPtr)
     {
       mGetWebEngineCookieManagerPtr = reinterpret_cast<GetWebEngineCookieManager>(dlsym(mHandle, "GetWebEngineCookieManager"));
-
       if(!mGetWebEngineCookieManagerPtr)
       {
         DALI_LOG_ERROR("Can't load symbol GetWebEngineCookieManager(), error: %s\n", dlerror());
@@ -137,32 +135,28 @@ public:
 private:
   // Private constructor / destructor
   WebEnginePluginObject()
-  : mPluginName{},
-    mLoadSuccess{false},
+  : mLoadSucceeded{false},
     mHandle{nullptr},
     mCreateWebEnginePtr{nullptr},
     mDestroyWebEnginePtr{nullptr},
     mGetWebEngineContextPtr{nullptr},
     mGetWebEngineCookieManagerPtr{nullptr}
   {
-    if(mPluginName.length() == 0)
+    std::string pluginName;
+    const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
+    if(name)
     {
-      // mPluginName is not initialized yet.
-      const char* name = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_WEB_ENGINE_NAME);
-      if(name)
-      {
-        mPluginName = MakePluginName(name);
-      }
-      else
-      {
-        mPluginName = std::string(kPluginFullNameDefault);
-      }
+      pluginName = MakePluginName(name);
+    }
+    else
+    {
+      pluginName = std::string(kPluginFullNameDefault);
     }
 
-    mHandle = dlopen(mPluginName.c_str(), RTLD_LAZY);
+    mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
     if(!mHandle)
     {
-      DALI_LOG_ERROR("Can't load %s : %s\n", mPluginName.c_str(), dlerror());
+      DALI_LOG_ERROR("Can't load %s : %s\n", pluginName.c_str(), dlerror());
       return;
     }
 
@@ -180,7 +174,7 @@ private:
       return;
     }
 
-    mLoadSuccess = true;
+    mLoadSucceeded = true;
   }
 
   ~WebEnginePluginObject()
@@ -188,8 +182,8 @@ private:
     if(mHandle)
     {
       dlclose(mHandle);
-      mHandle      = nullptr;
-      mLoadSuccess = false;
+      mHandle        = nullptr;
+      mLoadSucceeded = false;
     }
   }
 
@@ -199,11 +193,7 @@ private:
   WebEnginePluginObject& operator=(WebEnginePluginObject&&) = delete;
 
 private:
-  std::string mPluginName; ///< Name of web engine plugin
-                           /// Note: Dali WebView policy does not allow to use multiple web engines in an application.
-                           /// So once pluginName is set to non-empty string, it will not change.
-
-  bool mLoadSuccess; ///< True if library loaded successfully. False otherwise.
+  bool mLoadSucceeded; ///< True if library loaded successfully. False otherwise.
 
 public:
   using CreateWebEngineFunction  = Dali::WebEnginePlugin* (*)();
@@ -700,9 +690,9 @@ bool WebEngine::SendWheelEvent(const Dali::WheelEvent& event)
   return mPlugin->SendWheelEvent(event);
 }
 
-Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+void WebEngine::RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback)
 {
-  return mPlugin->FrameRenderedSignal();
+  mPlugin->RegisterFrameRenderedCallback(callback);
 }
 
 void WebEngine::RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback)
@@ -753,6 +743,11 @@ void WebEngine::RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::Web
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   mPlugin->RegisterNavigationPolicyDecidedCallback(callback);
+}
+
+void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
+{
+  mPlugin->RegisterNewWindowCreatedCallback(callback);
 }
 
 void WebEngine::RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback)

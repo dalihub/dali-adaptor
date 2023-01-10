@@ -480,9 +480,9 @@ void WebEngine::EnableVideoHole(bool enabled)
   GetImplementation(*this).EnableVideoHole(enabled);
 }
 
-Dali::WebEnginePlugin::WebEngineFrameRenderedSignalType& WebEngine::FrameRenderedSignal()
+void WebEngine::RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback)
 {
-  return GetImplementation(*this).FrameRenderedSignal();
+  GetImplementation(*this).RegisterFrameRenderedCallback(callback);
 }
 
 void WebEngine::RegisterPageLoadStartedCallback(Dali::WebEnginePlugin::WebEnginePageLoadCallback callback)
@@ -533,6 +533,11 @@ void WebEngine::RegisterResponsePolicyDecidedCallback(Dali::WebEnginePlugin::Web
 void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNavigationPolicyDecidedCallback callback)
 {
   GetImplementation(*this).RegisterNavigationPolicyDecidedCallback(callback);
+}
+
+void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
+{
+  GetImplementation(*this).RegisterNewWindowCreatedCallback(callback);
 }
 
 void WebEngine::RegisterCertificateConfirmedCallback(Dali::WebEnginePlugin::WebEngineCertificateCallback callback)
