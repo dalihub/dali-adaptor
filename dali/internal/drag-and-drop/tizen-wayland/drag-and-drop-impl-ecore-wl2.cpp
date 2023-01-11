@@ -34,6 +34,11 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+static constexpr int32_t DEFAULT_POSITION = -1;
+}
+
 static bool IsIntersection(int px, int py, int tx, int ty, int tw, int th)
 {
   if(px > tx && py > ty && px < (tx + tw) && py < (ty + th))
@@ -260,6 +265,14 @@ void DragAndDropEcoreWl::ResetDropTargets()
 {
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
+     if(mDropTargets[i].inside)
+     {
+       Dali::DragAndDrop::DragEvent dragEvent;
+       dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+       Dali::Vector2 position(DEFAULT_POSITION, DEFAULT_POSITION);
+       dragEvent.SetPosition(position);
+       mDropTargets[i].callback(dragEvent);
+     }
      mDropTargets[i].inside = false;
   }
 }
