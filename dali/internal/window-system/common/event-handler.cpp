@@ -52,7 +52,7 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 EventHandler::EventHandler(WindowBase* windowBase, DamageObserver& damageObserver)
 : mStyleMonitor(StyleMonitor::Get()),
   mDamageObserver(damageObserver),
-  mClipboardEventNotifier(ClipboardEventNotifier::Get()),
+  mClipboardEventNotifier(),
   mPaused(false)
 {
   // Connect signals
@@ -126,22 +126,25 @@ void EventHandler::OnKeyEvent(Integration::KeyEvent& keyEvent)
 void EventHandler::OnFocusChanged(bool focusIn)
 {
   // If the window gains focus and we hid the keyboard then show it again.
-  if(focusIn)
+  if(Clipboard::IsAvailable())
   {
-    Dali::Clipboard clipboard = Clipboard::Get();
-    if(clipboard)
+    if(focusIn)
     {
-      clipboard.HideClipboard();
+      Dali::Clipboard clipboard = Clipboard::Get();
+      if(clipboard)
+      {
+        clipboard.HideClipboard();
+      }
     }
-  }
-  else
-  {
-    // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
-    Dali::Clipboard clipboard = Clipboard::Get();
-    if(clipboard)
+    else
     {
-      Clipboard& clipBoardImpl(GetImplementation(clipboard));
-      clipBoardImpl.HideClipboard(true);
+      // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
+      Dali::Clipboard clipboard = Clipboard::Get();
+      if(clipboard)
+      {
+        Clipboard& clipBoardImpl(GetImplementation(clipboard));
+        clipBoardImpl.HideClipboard(true);
+      }
     }
   }
 }
