@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_CLIPBOARD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,14 @@ public:
   struct Impl;
 
   /**
-   * @copydoc Dali::ClipboardEventNotifier::Get()
+   * @copydoc Dali::Clipboard::Get()
    */
   static Dali::Clipboard Get();
+
+  /**
+   * @copydoc Dali::Clipboard::IsAvailable()
+   */
+  static bool IsAvailable();
 
   /**
    * Constructor
