@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,6 +108,21 @@ Dali::Clipboard Clipboard::Get()
 
   return clipboard;
 }
+
+bool Clipboard::IsAvailable()
+{
+  Dali::SingletonService service(SingletonService::Get());
+  if(service)
+  {
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    if(handle)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 bool Clipboard::SetItem(const std::string& itemData)
 {
   Ecore_X_Window cbhmWin      = ECore::WindowInterface::GetWindow();
