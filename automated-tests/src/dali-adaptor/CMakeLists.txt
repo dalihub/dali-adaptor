@@ -21,6 +21,7 @@ SET(TC_SOURCES
     utc-Dali-WidgetApplication.cpp
     utc-Dali-Widget.cpp
     utc-Dali-Window.cpp
+    utc-Dali-WindowSystem.cpp
 )
 
 LIST(APPEND TC_SOURCES
