@@ -18,6 +18,7 @@ SET(TC_SOURCES
     utc-Dali-TtsPlayer.cpp
     utc-Dali-Window.cpp
     utc-Dali-Gl-Window.cpp
+    utc-Dali-WindowSystem.cpp
 )
 
 LIST(APPEND TC_SOURCES
