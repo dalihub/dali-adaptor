@@ -113,6 +113,11 @@ Layer Window::GetRootLayer() const
   return GetImplementation(*this).GetRootLayer();
 }
 
+Layer Window::GetOverlayLayer()
+{
+  return GetImplementation(*this).GetOverlayLayer();
+}
+
 uint32_t Window::GetLayerCount() const
 {
   return GetImplementation(*this).GetLayerCount();

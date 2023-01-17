@@ -34,6 +34,11 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+static constexpr int32_t DEFAULT_POSITION = -1;
+}
+
 static bool IsIntersection(int px, int py, int tx, int ty, int tw, int th)
 {
   if(px > tx && py > ty && px < (tx + tw) && py < (ty + th))
@@ -264,8 +269,7 @@ void DragAndDropEcoreWl::ResetDropTargets()
      {
        Dali::DragAndDrop::DragEvent dragEvent;
        dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
-       // -1 means the default position when dragging is cancelled
-       Dali::Vector2 position(-1, -1);
+       Dali::Vector2 position(DEFAULT_POSITION, DEFAULT_POSITION);
        dragEvent.SetPosition(position);
        mDropTargets[i].callback(dragEvent);
      }

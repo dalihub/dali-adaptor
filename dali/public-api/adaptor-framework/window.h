@@ -213,6 +213,16 @@ public:
   Layer GetRootLayer() const;
 
   /**
+   * @brief Returns the overlay Layer of the Window.
+   * If there isn't overlay layer yet, this method create overlay layer and
+   * exclusive render task internally.
+   *
+   * @SINCE_2_2.10
+   * @return The root layer
+   */
+  Layer GetOverlayLayer();
+
+  /**
    * @brief Queries the number of on-scene layers in the Window.
    *
    * Note that a default layer is always provided (count >= 1).

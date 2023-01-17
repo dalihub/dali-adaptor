@@ -84,6 +84,11 @@ public:
   Dali::Layer GetRootLayer() const;
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::GetOverlayLayer
+   */
+  Dali::Layer GetOverlayLayer();
+
+  /**
    * @brief Gets the window name.
    * @return The name of the window
    */
