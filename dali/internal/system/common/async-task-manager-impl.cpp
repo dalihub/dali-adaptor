@@ -109,8 +109,11 @@ void AsyncTaskThread::Run()
     if(!task)
     {
       ConditionalWait::ScopedLock lock(mConditionalWait);
-      mIsThreadIdle = true;
-      mConditionalWait.Wait(lock);
+      if(!mDestroyThread)
+      {
+        mIsThreadIdle = true;
+        mConditionalWait.Wait(lock);
+      }
     }
     else
     {
