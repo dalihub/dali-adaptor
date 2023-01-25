@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,17 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Window Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+static Eina_Bool EcoreEventWindowConfigure(void* data, int type, void* event)
+{
+  WindowBaseEcoreX* windowBase = static_cast<WindowBaseEcoreX*>(data);
+  if(windowBase)
+  {
+    windowBase->OnWindowConfigure(event);
+  }
+
+  return ECORE_CALLBACK_PASS_ON;
+}
 
 static Eina_Bool EcoreEventWindowPropertyChanged(void* data, int type, void* event)
 {
@@ -313,6 +324,7 @@ void WindowBaseEcoreX::Initialize(PositionSize positionSize, Any surface, bool i
   // Enable Drag & Drop
   ecore_x_dnd_aware_set(mEcoreWindow, EINA_TRUE);
 
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_X_EVENT_WINDOW_CONFIGURE, EcoreEventWindowConfigure, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_X_EVENT_WINDOW_PROPERTY, EcoreEventWindowPropertyChanged, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_X_EVENT_WINDOW_DELETE_REQUEST, EcoreEventWindowDeleteRequest, this));
 
@@ -339,6 +351,20 @@ void WindowBaseEcoreX::Initialize(PositionSize positionSize, Any surface, bool i
   // Register Selection event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_X_EVENT_SELECTION_CLEAR, EcoreEventSelectionClear, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_X_EVENT_SELECTION_NOTIFY, EcoreEventSelectionNotify, this));
+}
+
+void WindowBaseEcoreX::OnWindowConfigure(void* event)
+{
+  auto configure = static_cast<Ecore_X_Event_Window_Configure*>(event);
+  if(configure->win == mEcoreWindow)
+  {
+    Dali::PositionSize positionSize;
+    positionSize.x      = configure->x;
+    positionSize.y      = configure->y;
+    positionSize.width  = configure->w;
+    positionSize.height = configure->h;
+    mUpdatePositionSizeSignal.Emit(positionSize);
+  }
 }
 
 Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged(void* data, int type, void* event)
