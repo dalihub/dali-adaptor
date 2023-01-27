@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,6 +201,20 @@ struct DeleteWindowRequest
 {
   ::Window* window;
 };
+
+void ConfigureNotifyEventHandler(const XEvent* xevent)
+{
+  WindowSystemX::X11ConfigureNotifyEvent configureNotify;
+  configureNotify.window = xevent->xconfigure.window;
+  configureNotify.event  = xevent;
+
+  configureNotify.x      = xevent->xconfigure.x;
+  configureNotify.y      = xevent->xconfigure.y;
+  configureNotify.width  = xevent->xconfigure.width;
+  configureNotify.height = xevent->xconfigure.height;
+
+  GetImplementation().TriggerEventHandler(WindowSystemBase::Event::CONFIGURE_NOTIFY, configureNotify);
+}
 
 void PropertyNotifyEventHandler(const XEvent* xevent)
 {
@@ -513,6 +527,7 @@ struct WindowSystemX::Impl
     mXEventHandlers[KeyRelease]      = &KeyReleaseEventHandler;
     mXEventHandlers[SelectionClear]  = &SelectionClearEventHandler;
     mXEventHandlers[SelectionNotify] = &SelectionNotifyEventHandler;
+    mXEventHandlers[ConfigureNotify] = &ConfigureNotifyEventHandler;
   }
 
   void InitializeInput()
@@ -718,6 +733,7 @@ void WindowSystemX::DeleteEventHandler(WindowSystemBase::EventHandler* eventHand
                            EnterWindowMask |
                            LeaveWindowMask |
                            PointerMotionMask |
+                           StructureNotifyMask |
                            ExposureMask |
                            VisibilityChangeMask |
                            StructureNotifyMask |

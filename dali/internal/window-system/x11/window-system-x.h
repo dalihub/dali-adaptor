@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_SYSTEM_H
 
 /*
- * COPYRIGHT (c) 2022 Samsung Electronics Co., Ltd.
+ * COPYRIGHT (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,6 +89,18 @@ public:
   {
     ::Window      window;
     const XEvent* event;
+  };
+
+  /**
+   * Event struct that is sent when a window is moved/resized/lowered/raised
+   */
+  struct X11ConfigureNotifyEvent : public X11Event
+  {
+    int      x; // Relative to parent window's origin.
+    int      y;
+    int      width;
+    int      height;
+    ::Window above; // The window that this is now above.
   };
 
   /**
