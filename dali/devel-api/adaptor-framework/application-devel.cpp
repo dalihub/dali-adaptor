@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,6 @@ Application New(int* argc, char** argv[], const std::string& stylesheet, Applica
 
     // pre-initialized application
     internal->SetCommandLineOptions(argc, argv);
-    if(argc && (*argc > 0))
-    {
-      internal->GetWindow().SetClass((*argv)[0], "");
-    }
     internal->SetStyleSheet(stylesheet);
 
     internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));

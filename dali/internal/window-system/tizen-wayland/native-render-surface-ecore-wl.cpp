@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,6 @@
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/common/trigger-event.h>
 #include <dali/internal/window-system/common/display-connection.h>
-#include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
 {
@@ -61,8 +60,6 @@ NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, 
   mTbmQueue(NULL),
   mThreadSynchronization(NULL)
 {
-  Dali::Internal::Adaptor::WindowSystem::Initialize();
-
   if(surface.Empty())
   {
     mSurfaceSize = surfaceSize;
@@ -101,8 +98,6 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
 
     DALI_LOG_INFO(gNativeSurfaceLogFilter, Debug::General, "Own tbm surface queue destroy\n");
   }
-
-  Dali::Internal::Adaptor::WindowSystem::Shutdown();
 }
 
 void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* renderNotification)

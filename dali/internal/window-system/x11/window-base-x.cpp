@@ -270,9 +270,6 @@ WindowBaseX::~WindowBaseX()
   if(mOwnSurface)
   {
     XDestroyWindow(WindowSystem::GetImplementation().GetXDisplay(), mWindow);
-
-    /**** @todo Should not be destroyed here! ****/
-    WindowSystem::Shutdown();
   }
 }
 
@@ -284,9 +281,6 @@ void WindowBaseX::Initialize(PositionSize positionSize, Any surface, bool isTran
   // if the surface is empty, create a new one.
   if(surfaceId == 0)
   {
-    /**** @todo Should be created from somewhere else! ****/
-    WindowSystem::Initialize();
-
     // we own the surface about to created
     mOwnSurface = true;
     CreateWindow(positionSize, isTransparent);

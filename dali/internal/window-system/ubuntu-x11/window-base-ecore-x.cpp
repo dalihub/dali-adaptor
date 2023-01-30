@@ -21,7 +21,6 @@
 // INTERNAL HEADERS
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
-#include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
 
 // EXTERNAL_HEADERS
@@ -272,8 +271,6 @@ WindowBaseEcoreX::~WindowBaseEcoreX()
   if(mOwnSurface)
   {
     ecore_x_window_free(mEcoreWindow);
-
-    WindowSystem::Shutdown();
   }
 }
 
@@ -285,8 +282,6 @@ void WindowBaseEcoreX::Initialize(PositionSize positionSize, Any surface, bool i
   // if the surface is empty, create a new one.
   if(surfaceId == 0)
   {
-    WindowSystem::Initialize();
-
     // we own the surface about to created
     mOwnSurface = true;
     CreateWindow(positionSize, isTransparent);
