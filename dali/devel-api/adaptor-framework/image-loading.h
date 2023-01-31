@@ -88,6 +88,28 @@ DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
   bool                         orientationCorrection = true);
 
 /**
+ * @brief Load an image synchronously from encoded buffer.
+ *
+ * @note This method is thread safe, i.e. can be called from any thread.
+ *
+ * @param [in] buffer The encoded buffer of the image to load.
+ *                    The buffer is not owned by FileStream and must be valid for entire lifetime of FileStream
+ * @param [in] bufferSize Size of the encoded buffer.
+ * @param [in] size The width and height to fit the loaded image to, 0.0 means whole image
+ * @param [in] fittingMode The method used to fit the shape of the image before loading to the shape defined by the size parameter.
+ * @param [in] samplingMode The filtering method used when sampling pixels from the input image while fitting it to desired size.
+ * @param [in] orientationCorrection Reorient the image to respect any orientation metadata in its header.
+ * @return handle to the loaded PixelBuffer object or an empty handle in case loading failed.
+ */
+DALI_ADAPTOR_API Devel::PixelBuffer LoadImageFromBuffer(
+  uint8_t*           buffer,
+  size_t             bufferSize,
+  ImageDimensions    size                  = ImageDimensions(0, 0),
+  FittingMode::Type  fittingMode           = FittingMode::DEFAULT,
+  SamplingMode::Type samplingMode          = SamplingMode::BOX_THEN_LINEAR,
+  bool               orientationCorrection = true);
+
+/**
  * @brief Determine the size of an image that LoadImageFromFile will provide when
  * given the same image loading parameters.
  *
