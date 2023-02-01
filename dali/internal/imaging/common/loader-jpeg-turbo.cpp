@@ -547,7 +547,7 @@ void GetJpegPixelFormat(int jpegColorspace, TJPF& pixelLibJpegType, Pixel::Forma
     case TJCS_YCCK:
     {
       pixelLibJpegType = TJPF_CMYK;
-      pixelFormat      = Pixel::RGBA8888;
+      pixelFormat      = Pixel::RGB888;
       break;
     }
     default:
@@ -710,6 +710,32 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
   return true;
 }
 
+/**
+ * @brief Helper function to convert from Turbo Jpeg Pixel Format as TJPF_CMYK to RGB888 by naive method.
+ *
+ * @param[in] cmykBuffer buffer of cmyk.
+ * @param[in] rgbBuffer buffer of Pixel::RGB888
+ * @param[in] width width of image.
+ * @param[in] height height of image.
+ */
+void ConvertTjpfCMYKToRGB888(PixelArray __restrict__ cmykBuffer, PixelArray __restrict__ rgbBuffer, int32_t width, int32_t height)
+{
+  const int32_t pixelCount = width * height;
+  const uint8_t cmykBpp    = 4u;
+  const uint8_t bpp        = 3u;
+
+  const PixelArray cmykBufferEnd = cmykBuffer + pixelCount * cmykBpp;
+  // Convert every pixel
+  while(cmykBuffer != cmykBufferEnd)
+  {
+    const uint8_t channelK = *(cmykBuffer + 3u);
+    *(rgbBuffer + 0u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 0u), channelK);
+    *(rgbBuffer + 1u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 1u), channelK);
+    *(rgbBuffer + 2u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 2u), channelK);
+    cmykBuffer += cmykBpp;
+    rgbBuffer += bpp;
+  }
+}
 } // namespace
 
 namespace Dali
@@ -939,10 +965,31 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
     auto      bitmapPixelBuffer = bitmap.GetBuffer();
     const int flags             = 0;
 
-    int decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
-    if(decodeResult == -1 && IsJpegDecodingFailed())
+    int decodeResult = -1;
+    if(pixelLibJpegType == TJPF_CMYK)
     {
-      return false;
+      // Currently we support only for 4 bytes per each CMYK pixel.
+      const uint8_t cmykBytesPerPixel = 4u;
+
+      uint8_t* cmykBuffer = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel));
+
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(cmykBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))
+      {
+        free(cmykBuffer);
+        return false;
+      }
+      ConvertTjpfCMYKToRGB888(cmykBuffer, bitmapPixelBuffer, scaledPostXformWidth, scaledPostXformHeight);
+
+      free(cmykBuffer);
+    }
+    else
+    {
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))
+      {
+        return false;
+      }
     }
     pixelBuffers.push_back(bitmap);
 
