@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -480,6 +480,32 @@ void Rotate270(PixelArray buffer, int width, int height)
   }
 }
 
+/**
+ * @brief Helper function to convert from Turbo Jpeg Pixel Format as TJPF_CMYK to RGB888 by naive method.
+ *
+ * @param[in] cmykBuffer buffer of cmyk.
+ * @param[in] rgbBuffer buffer of Pixel::RGB888
+ * @param[in] width width of image.
+ * @param[in] height height of image.
+ */
+void ConvertTjpfCMYKToRGB888(PixelArray __restrict__ cmykBuffer, PixelArray __restrict__ rgbBuffer, int32_t width, int32_t height)
+{
+  const int32_t pixelCount = width * height;
+  const uint8_t cmykBpp    = 4u;
+  const uint8_t bpp        = 3u;
+
+  const PixelArray cmykBufferEnd = cmykBuffer + pixelCount * cmykBpp;
+  // Convert every pixel
+  while(cmykBuffer != cmykBufferEnd)
+  {
+    const uint16_t channelK = static_cast<uint16_t>(*(cmykBuffer + 3u));
+    *(rgbBuffer + 0u)      = static_cast<uint8_t>(static_cast<uint16_t>(*(cmykBuffer + 0u)) * channelK / 255);
+    *(rgbBuffer + 1u)      = static_cast<uint8_t>(static_cast<uint16_t>(*(cmykBuffer + 1u)) * channelK / 255);
+    *(rgbBuffer + 2u)      = static_cast<uint8_t>(static_cast<uint16_t>(*(cmykBuffer + 2u)) * channelK / 255);
+    cmykBuffer += cmykBpp;
+    rgbBuffer += bpp;
+  }
+}
 } // namespace
 
 namespace Dali
@@ -689,7 +715,7 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
     case TJCS_YCCK:
     {
       pixelLibJpegType = TJPF_CMYK;
-      pixelFormat      = Pixel::RGBA8888;
+      pixelFormat      = Pixel::RGB888;
       break;
     }
     default:
@@ -708,18 +734,49 @@ bool LoadBitmapFromJpeg(const Dali::ImageLoader::Input& input, Dali::Devel::Pixe
 
   auto bitmapPixelBuffer = bitmap.GetBuffer();
 
-  if(tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags) == -1)
+  if(pixelLibJpegType == TJPF_CMYK)
   {
-    std::string errorString = tjGetErrorStr();
+    // Currently we support only for 4 bytes per each CMYK pixel.
+    const uint8_t cmykBytesPerPixel = 4u;
 
-    if(IsJpegErrorFatal(errorString))
+    uint8_t* cmykBuffer = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel));
+
+    int decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(cmykBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+    if(DALI_UNLIKELY(decodeResult == -1))
     {
-      DALI_LOG_ERROR("%s\n", errorString.c_str());
-      return false;
+      std::string errorString = tjGetErrorStr();
+
+      if(IsJpegErrorFatal(errorString))
+      {
+        DALI_LOG_ERROR("%s\n", errorString.c_str());
+        free(cmykBuffer);
+        return false;
+      }
+      else
+      {
+        DALI_LOG_WARNING("%s\n", errorString.c_str());
+      }
     }
-    else
+    ConvertTjpfCMYKToRGB888(cmykBuffer, bitmapPixelBuffer, scaledPostXformWidth, scaledPostXformHeight);
+
+    free(cmykBuffer);
+  }
+  else
+  {
+    int decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+    if(DALI_UNLIKELY(decodeResult == -1))
     {
-      DALI_LOG_WARNING("%s\n", errorString.c_str());
+      std::string errorString = tjGetErrorStr();
+
+      if(IsJpegErrorFatal(errorString))
+      {
+        DALI_LOG_ERROR("%s\n", errorString.c_str());
+        return false;
+      }
+      else
+      {
+        DALI_LOG_WARNING("%s\n", errorString.c_str());
+      }
     }
   }
 
@@ -1031,7 +1088,7 @@ bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali:
       case TJCS_YCCK:
       {
         pixelLibJpegType = TJPF_CMYK;
-        pixelFormat      = Pixel::RGBA8888;
+        pixelFormat      = Pixel::RGB888;
         break;
       }
       default:
@@ -1050,19 +1107,49 @@ bool LoadPlanesFromJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali:
 
     auto bitmapPixelBuffer = bitmap.GetBuffer();
 
-    decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
-    if(decodeResult == -1)
+    if(pixelLibJpegType == TJPF_CMYK)
     {
-      std::string errorString = tjGetErrorStr();
+      // Currently we support only for 4 bytes per each CMYK pixel.
+      const uint8_t cmykBytesPerPixel = 4u;
 
-      if(IsJpegErrorFatal(errorString))
+      uint8_t* cmykBuffer = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel));
+
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(cmykBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1))
       {
-        DALI_LOG_ERROR("%s\n", errorString.c_str());
-        return false;
+        std::string errorString = tjGetErrorStr();
+
+        if(IsJpegErrorFatal(errorString))
+        {
+          DALI_LOG_ERROR("%s\n", errorString.c_str());
+          free(cmykBuffer);
+          return false;
+        }
+        else
+        {
+          DALI_LOG_WARNING("%s\n", errorString.c_str());
+        }
       }
-      else
+      ConvertTjpfCMYKToRGB888(cmykBuffer, bitmapPixelBuffer, scaledPostXformWidth, scaledPostXformHeight);
+
+      free(cmykBuffer);
+    }
+    else
+    {
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1))
       {
-        DALI_LOG_WARNING("%s\n", errorString.c_str());
+        std::string errorString = tjGetErrorStr();
+
+        if(IsJpegErrorFatal(errorString))
+        {
+          DALI_LOG_ERROR("%s\n", errorString.c_str());
+          return false;
+        }
+        else
+        {
+          DALI_LOG_WARNING("%s\n", errorString.c_str());
+        }
       }
     }
     pixelBuffers.push_back(bitmap);
