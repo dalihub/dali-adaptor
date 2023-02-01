@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ namespace
 {
 using Dali::Vector;
 namespace Pixel                     = Dali::Pixel;
-using PixelArray                    = unsigned char*;
+using PixelArray                    = uint8_t*;
 const unsigned int DECODED_L8       = 1;
 const unsigned int DECODED_RGB888   = 3;
 const unsigned int DECODED_RGBA8888 = 4;
@@ -166,7 +166,7 @@ ExifHandle MakeNullExifData()
   return ExifHandle{nullptr, exif_data_free};
 }
 
-ExifHandle MakeExifDataFromData(unsigned char* data, unsigned int size)
+ExifHandle MakeExifDataFromData(uint8_t* data, unsigned int size)
 {
   return ExifHandle{exif_data_new_from_data(data, size), exif_data_free};
 }
@@ -184,7 +184,7 @@ JpegHandle MakeJpegDecompressor()
   return JpegHandle{tjInitDecompress(), tjDestroy};
 }
 
-using JpegMemoryHandle = std::unique_ptr<unsigned char, decltype(tjFree)*>;
+using JpegMemoryHandle = std::unique_ptr<uint8_t, decltype(tjFree)*>;
 
 JpegMemoryHandle MakeJpegMemory()
 {
@@ -547,7 +547,7 @@ void GetJpegPixelFormat(int jpegColorspace, TJPF& pixelLibJpegType, Pixel::Forma
     case TJCS_YCCK:
     {
       pixelLibJpegType = TJPF_CMYK;
-      pixelFormat      = Pixel::RGBA8888;
+      pixelFormat      = Pixel::RGB888;
       break;
     }
     default:
@@ -692,7 +692,7 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
     DALI_LOG_ERROR("Could not allocate temporary memory to hold JPEG file of size %uMB.\n", jpegBufferSize / 1048576U);
     return false;
   }
-  unsigned char* const jpegBufferPtr = jpegBuffer.Begin();
+  uint8_t* const jpegBufferPtr = jpegBuffer.Begin();
 
   // Pull the compressed JPEG image bytes out of a file and into memory:
   if(DALI_UNLIKELY(fread(jpegBufferPtr, 1, jpegBufferSize, fp) != jpegBufferSize))
@@ -710,6 +710,32 @@ bool LoadJpegFile(const Dali::ImageLoader::Input& input, Vector<uint8_t>& jpegBu
   return true;
 }
 
+/**
+ * @brief Helper function to convert from Turbo Jpeg Pixel Format as TJPF_CMYK to RGB888 by naive method.
+ *
+ * @param[in] cmykBuffer buffer of cmyk.
+ * @param[in] rgbBuffer buffer of Pixel::RGB888
+ * @param[in] width width of image.
+ * @param[in] height height of image.
+ */
+void ConvertTjpfCMYKToRGB888(PixelArray __restrict__ cmykBuffer, PixelArray __restrict__ rgbBuffer, int32_t width, int32_t height)
+{
+  const int32_t pixelCount = width * height;
+  const uint8_t cmykBpp    = 4u;
+  const uint8_t bpp        = 3u;
+
+  const PixelArray cmykBufferEnd = cmykBuffer + pixelCount * cmykBpp;
+  // Convert every pixel
+  while(cmykBuffer != cmykBufferEnd)
+  {
+    const uint8_t channelK = *(cmykBuffer + 3u);
+    *(rgbBuffer + 0u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 0u), channelK);
+    *(rgbBuffer + 1u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 1u), channelK);
+    *(rgbBuffer + 2u)      = Dali::Internal::Platform::MultiplyAndNormalizeColor(*(cmykBuffer + 2u), channelK);
+    cmykBuffer += cmykBpp;
+    rgbBuffer += bpp;
+  }
+}
 } // namespace
 
 namespace Dali
@@ -851,14 +877,14 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
   // Check decoding format
   if(decodeToYuv && IsSubsamplingFormatEnabled(chrominanceSubsampling) && transform == JpegTransform::NONE)
   {
-    unsigned char* planes[3];
+    uint8_t* planes[3];
 
     // Allocate buffers for each plane and decompress the jpeg buffer into the buffers
     for(int i = 0; i < 3; i++)
     {
       auto planeSize = tjPlaneSizeYUV(i, scaledPostXformWidth, 0, scaledPostXformHeight, chrominanceSubsampling);
 
-      unsigned char* buffer = static_cast<unsigned char*>(malloc(planeSize));
+      uint8_t* buffer = static_cast<uint8_t*>(malloc(planeSize));
       if(!buffer)
       {
         DALI_LOG_ERROR("Buffer allocation is failed [%d]\n", planeSize);
@@ -894,8 +920,8 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
 
     const int flags = 0;
 
-    int decodeResult = tjDecompressToYUVPlanes(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char**>(&planes), scaledPostXformWidth, nullptr, scaledPostXformHeight, flags);
-    if(decodeResult == -1 && IsJpegDecodingFailed())
+    int decodeResult = tjDecompressToYUVPlanes(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t**>(&planes), scaledPostXformWidth, nullptr, scaledPostXformHeight, flags);
+    if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))
     {
       pixelBuffers.clear();
       return false;
@@ -939,10 +965,31 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
     auto      bitmapPixelBuffer = bitmap.GetBuffer();
     const int flags             = 0;
 
-    int decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<unsigned char*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
-    if(decodeResult == -1 && IsJpegDecodingFailed())
+    int decodeResult = -1;
+    if(pixelLibJpegType == TJPF_CMYK)
     {
-      return false;
+      // Currently we support only for 4 bytes per each CMYK pixel.
+      const uint8_t cmykBytesPerPixel = 4u;
+
+      uint8_t* cmykBuffer = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel));
+
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(cmykBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))
+      {
+        free(cmykBuffer);
+        return false;
+      }
+      ConvertTjpfCMYKToRGB888(cmykBuffer, bitmapPixelBuffer, scaledPostXformWidth, scaledPostXformHeight);
+
+      free(cmykBuffer);
+    }
+    else
+    {
+      decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(bitmapPixelBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
+      if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))
+      {
+        return false;
+      }
     }
     pixelBuffers.push_back(bitmap);
 
@@ -953,9 +1000,9 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
   return result;
 }
 
-bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>& encodedPixels, const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality)
+bool EncodeToJpeg(const uint8_t* const pixelBuffer, Vector<uint8_t>& encodedPixels, const std::size_t width, const std::size_t height, const Pixel::Format pixelFormat, unsigned quality)
 {
-  if(!pixelBuffer)
+  if(DALI_UNLIKELY(!pixelBuffer))
   {
     DALI_LOG_ERROR("Null input buffer\n");
     return false;
@@ -1021,7 +1068,7 @@ bool EncodeToJpeg(const unsigned char* const pixelBuffer, Vector<unsigned char>&
     const int     flags         = 0;
 
     if(DALI_UNLIKELY(tjCompress2(jpeg.get(),
-                                 const_cast<unsigned char*>(pixelBuffer),
+                                 const_cast<uint8_t*>(pixelBuffer),
                                  width,
                                  0,
                                  height,
@@ -1215,8 +1262,8 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
 
 ExifHandle LoadExifData(FILE* fp)
 {
-  auto          exifData = MakeNullExifData();
-  unsigned char dataBuffer[1024];
+  auto    exifData = MakeNullExifData();
+  uint8_t dataBuffer[1024];
 
   if(DALI_UNLIKELY(fseek(fp, 0, SEEK_SET)))
   {
@@ -1286,7 +1333,7 @@ bool LoadJpegHeader(const Dali::ImageLoader::Input& input, unsigned int& width, 
       int postXformImageHeight = headerHeight;
 
       success = TransformSize(requiredWidth, requiredHeight, input.scalingParameters.scalingMode, input.scalingParameters.samplingMode, transform, preXformImageWidth, preXformImageHeight, postXformImageWidth, postXformImageHeight);
-      if(success)
+      if(DALI_LIKELY(success))
       {
         headerWidth  = postXformImageWidth;
         headerHeight = postXformImageHeight;
