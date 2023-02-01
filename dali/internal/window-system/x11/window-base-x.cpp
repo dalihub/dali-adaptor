@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,17 @@ Debug::Filter* gWindowBaseLogFilter = Debug::Filter::New(Debug::NoLogging, false
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // Window Callbacks
 /////////////////////////////////////////////////////////////////////////////////////////////////
+
+static bool EventWindowConfigureNotify(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
+{
+  WindowBaseX* windowBase = static_cast<WindowBaseX*>(data);
+  if(windowBase)
+  {
+    windowBase->OnConfigure(event);
+  }
+
+  return false;
+}
 
 static bool EventWindowPropertyChanged(void* data, WindowSystemBase::Event type, WindowSystemBase::EventBase* event)
 {
@@ -326,6 +337,7 @@ void WindowBaseX::EnableDragAndDrop()
 void WindowBaseX::SetupEvents()
 {
   auto& windowSystem = WindowSystem::GetImplementation();
+  windowSystem.AddEventHandler(WindowSystemBase::Event::CONFIGURE_NOTIFY, EventWindowConfigureNotify, this);
   windowSystem.AddEventHandler(WindowSystemBase::Event::PROPERTY_NOTIFY, EventWindowPropertyChanged, this);
   windowSystem.AddEventHandler(WindowSystemBase::Event::DELETE_REQUEST, EventWindowDeleteRequest, this);
   windowSystem.AddEventHandler(WindowSystemBase::Event::FOCUS_IN, EventWindowFocusIn, this);
@@ -387,6 +399,22 @@ bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemBase::Event ty
   }
 
   return handled;
+}
+
+void WindowBaseX::OnConfigure(WindowSystemBase::EventBase* event)
+{
+  auto configureEvent = static_cast<WindowSystemX::X11ConfigureNotifyEvent*>(event);
+  if(configureEvent->window == mWindow)
+  {
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::OnConfigureNotify\n");
+    Dali::PositionSize positionSize;
+    positionSize.x      = configureEvent->x;
+    positionSize.y      = configureEvent->y;
+    positionSize.width  = configureEvent->width;
+    positionSize.height = configureEvent->height;
+    /// @note Can also get the window below this one if raise/lower was called.
+    mUpdatePositionSizeSignal.Emit(positionSize);
+  }
 }
 
 void WindowBaseX::OnDeleteRequest()

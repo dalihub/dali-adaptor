@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_BASE_X_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,11 @@ public:
   virtual ~WindowBaseX();
 
 public:
+  /**
+   * @brief Called when the window has been moved/resized
+   */
+  void OnConfigure(WindowSystemBase::EventBase* event);
+
   /**
    * @brief Called when the window property is changed.
    */

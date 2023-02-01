@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,10 @@
 #include <sstream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/system/common/time-service.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
 // EGL constants use C style casts
@@ -43,7 +45,17 @@ const std::string EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_cont
 const std::string EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
 const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
 
+// Threshold time in miliseconds
+constexpr auto PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME";
+
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
+
+uint32_t GetPerformanceLogThresholdTime()
+{
+  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+  return time;
+}
 } // namespace
 
 namespace Dali
@@ -407,12 +419,30 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 
 EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
+  static uint32_t logThreshold = GetPerformanceLogThresholdTime();
+  static bool     logEnabled   = logThreshold > 0 ? true : false;
+
+  uint32_t startTime, endTime;
+  if(logEnabled)
+  {
+    startTime = TimeService::GetMilliSeconds();
+  }
+
   EGLint age = 0;
   eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
   if(age < 0)
   {
     DALI_LOG_ERROR("eglQuerySurface(%d)\n", eglGetError());
     age = 0;
+  }
+
+  if(logEnabled)
+  {
+    endTime = TimeService::GetMilliSeconds();
+    if(endTime - startTime > logThreshold)
+    {
+      DALI_LOG_DEBUG_INFO("eglQuerySurface takes long time! [%u ms]\n", endTime - startTime);
+    }
   }
   return age;
 }
