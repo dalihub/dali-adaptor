@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mEventThreadSemaphore(0),
   mSurfaceSemaphore(0),
   mUpdateRenderThreadWaitCondition(),
+  mPostRenderWaitCondition(),
   mAdaptorInterfaces(adaptorInterfaces),
   mPerformanceInterface(adaptorInterfaces.GetPerformanceInterface()),
   mCore(adaptorInterfaces.GetCore()),
@@ -308,8 +309,7 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
     // Start replacing the surface.
     {
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-      mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
-      mNewSurface    = newSurface;
+      mNewSurface = newSurface;
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -331,7 +331,6 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface*
     // Start replacing the surface.
     {
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-      mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
@@ -367,7 +366,6 @@ void CombinedUpdateRenderController::ResizeSurface()
 
   {
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
     mUpdateRenderThreadWaitCondition.Notify(lock);
@@ -956,9 +954,9 @@ void CombinedUpdateRenderController::AddPerformanceMarker(PerformanceInterface::
 
 void CombinedUpdateRenderController::PostRenderComplete()
 {
-  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
   mPostRendering = FALSE;
-  mUpdateRenderThreadWaitCondition.Notify(lock);
+  mPostRenderWaitCondition.Notify(lock);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -967,19 +965,19 @@ void CombinedUpdateRenderController::PostRenderComplete()
 
 void CombinedUpdateRenderController::PostRenderStarted()
 {
-  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
   mPostRendering = TRUE;
 }
 
 void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 {
-  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
   while(mPostRendering &&
         !mNewSurface &&     // We should NOT wait if we're replacing the surface
         !mDeletedSurface && // We should NOT wait if we're deleting the surface
         !mDestroyUpdateRenderThread)
   {
-    mUpdateRenderThreadWaitCondition.Wait(lock);
+    mPostRenderWaitCondition.Wait(lock);
   }
 }
 
