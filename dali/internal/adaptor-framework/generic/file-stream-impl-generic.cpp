@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ std::iostream& FileStream::Impl::GetStream()
   }
   else if(mBuffer)
   {
-    mBufferStream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(mBuffer), mDataSize);
+    mBufferStream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(mBuffer), static_cast<std::streamsize>(static_cast<size_t>(mDataSize)));
     if(!mBufferStream.rdbuf()->in_avail())
     {
       DALI_LOG_WARNING("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
