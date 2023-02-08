@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,7 +141,7 @@ bool DecodeRGB24V5(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB24V5 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB24V5 data\n");
     return false;
@@ -173,7 +173,7 @@ bool DecodeRGB24V5(FILE*          fp,
     if(padding)
     {
       // move past the padding.
-      if(DALI_UNLIKELY(fseek(fp, padding, SEEK_CUR)))
+      if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_RGB24V5 padding\n");
       }
@@ -208,7 +208,7 @@ bool DecodeBF32V4(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_BITFIELDS32V4 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32V4 data\n");
     return false;
@@ -239,7 +239,7 @@ bool DecodeBF32V4(FILE*          fp,
     if(padding)
     {
       // move past the padding.
-      if(DALI_UNLIKELY(fseek(fp, padding, SEEK_CUR)))
+      if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_BITFIELDS32V4 padding\n");
       }
@@ -274,7 +274,7 @@ bool DecodeBF32(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_BITFIELDS32 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS32 data\n");
     return false;
@@ -309,7 +309,7 @@ bool DecodeBF32(FILE*          fp,
     if(padding)
     {
       // move past the padding.
-      if(DALI_UNLIKELY(fseek(fp, padding, SEEK_CUR)))
+      if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR)))
       {
         DALI_LOG_ERROR("Error moving past BMP_BITFIELDS32 padding\n");
       }
@@ -340,7 +340,7 @@ bool DecodeBF565(FILE*          fp,
     DALI_LOG_ERROR("Error decoding RGB565 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking RGB565 data\n");
     return false;
@@ -394,7 +394,7 @@ bool DecodeBF555(FILE*          fp,
     return false;
   }
 
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_BITFIELDS555 data\n");
     return false;
@@ -463,7 +463,7 @@ bool DecodeRGB555(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB555 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB555 data\n");
     return false;
@@ -529,7 +529,7 @@ bool DecodeRGB1(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB1 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB1 data\n");
     return false;
@@ -621,7 +621,7 @@ bool DecodeRGB4(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB4 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB4 data\n");
     return false;
@@ -697,7 +697,7 @@ bool DecodeRGB8(FILE*          fp,
     DALI_LOG_ERROR("Error decoding BMP_RGB8 format\n");
     return false;
   }
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RGB8 data\n");
     return false;
@@ -779,7 +779,7 @@ bool DecodeRLE4(FILE*          fp,
 
   bool finish = false;
 
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RLE4 data\n");
     return false;
@@ -941,7 +941,7 @@ bool DecodeRLE8(FILE*          fp,
   std::uint8_t              cmd[2];
   std::vector<std::uint8_t> colorIndex(width * height);
 
-  if(DALI_UNLIKELY(fseek(fp, offset, SEEK_SET)))
+  if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(offset)), SEEK_SET)))
   {
     DALI_LOG_ERROR("Error seeking BMP_RLE8 data\n");
     return false;
@@ -1127,7 +1127,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     {
       if(infoHeader.bitsPerPixel == 16)
       {
-        if(DALI_UNLIKELY(fseek(fp, 14 + infoHeader.infoHeaderSize + 1, SEEK_SET)))
+        if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(14 + infoHeader.infoHeaderSize + 1)), SEEK_SET)))
         {
           return false;
         }
@@ -1342,7 +1342,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
 
           if(padding)
           {
-            if(DALI_UNLIKELY(fseek(fp, padding, SEEK_CUR))) // move past the padding.
+            if(DALI_UNLIKELY(fseek(fp, static_cast<long>(static_cast<size_t>(padding)), SEEK_CUR))) // move past the padding.
             {
               DALI_LOG_ERROR("Error moving past BMP padding\n");
             }

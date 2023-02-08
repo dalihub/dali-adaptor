@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -842,8 +842,6 @@ WindowBaseEcoreWl2::~WindowBaseEcoreWl2()
   if(mOwnSurface)
   {
     ecore_wl2_window_free(mEcoreWindow);
-
-    WindowSystem::Shutdown();
   }
 }
 
@@ -859,8 +857,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   else
   {
     // we own the surface about to created
-    WindowSystem::Initialize();
-
     mOwnSurface = true;
     CreateWindow(positionSize);
   }

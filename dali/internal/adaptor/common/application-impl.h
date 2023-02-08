@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_APPLICATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ enum State
 } // namespace Launchpad
 
 class CommandLineOptions;
-class EventLoop;
 
 typedef Dali::Rect<int> PositionSize;
 
@@ -498,9 +497,9 @@ protected:
   void QuitFromMainLoop();
 
   /**
-   * Changes size of preInitialized window
+   * Changes information of preInitialized window
    */
-  void ChangePreInitializedWindowSize();
+  void ChangePreInitializedWindowInfo();
 
 private:
   AppSignalType                      mInitSignal;
@@ -524,13 +523,13 @@ private:
   LowMemorySignalType                mTaskLowMemorySignal;
   DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
-  EventLoop* mEventLoop;
   Framework* mFramework;
 
   CommandLineOptions* mCommandLineOptions;
 
   Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder; ///< The adaptor builder
   Dali::Adaptor*                           mAdaptor;
+  std::unique_ptr<EnvironmentOptions>      mEnvironmentOptions;
 
   // The Main Window is that window created by the Application during initial startup
   // (previously this was the only window)
@@ -538,13 +537,12 @@ private:
   Dali::Application::WINDOW_MODE mMainWindowMode; ///< Window mode of the main window
   std::string                    mMainWindowName; ///< Name of the main window as obtained from environment options
 
-  std::string        mStylesheet;
-  EnvironmentOptions mEnvironmentOptions;
-  PositionSize       mWindowPositionSize;
-  Launchpad::State   mLaunchpadState;
-  bool               mUseRemoteSurface;
-  WindowType         mDefaultWindowType; ///< Default window's type. It is used when Application is created.
-  bool               mUseUiThread;
+  std::string      mStylesheet;
+  PositionSize     mWindowPositionSize;
+  Launchpad::State mLaunchpadState;
+  WindowType       mDefaultWindowType; ///< Default window's type. It is used when Application is created.
+  bool             mUseRemoteSurface;
+  bool             mUseUiThread;
 
   SlotDelegate<Application> mSlotDelegate;
 

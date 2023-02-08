@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,9 +83,9 @@ void Application::PreInitialize(int* argc, char** argv[])
   {
     Dali::TextAbstraction::FontClientPreInitialize();
 
-    gPreInitializedApplication = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
-    gPreInitializedApplication->CreateWindow(); // Only create window
+    gPreInitializedApplication                  = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
+    gPreInitializedApplication->CreateWindow(); // Only create window
   }
 }
 
@@ -98,27 +98,24 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mAppControlSignal(),
   mLanguageChangedSignal(),
   mRegionChangedSignal(),
-  mEventLoop(nullptr),
   mFramework(nullptr),
   mCommandLineOptions(nullptr),
   mAdaptorBuilder(nullptr),
   mAdaptor(nullptr),
+  mEnvironmentOptions(nullptr),
   mMainWindow(),
   mMainWindowMode(windowMode),
   mMainWindowName(),
   mStylesheet(stylesheet),
-  mEnvironmentOptions(),
   mWindowPositionSize(positionSize),
   mLaunchpadState(Launchpad::NONE),
   mDefaultWindowType(type),
   mUseUiThread(useUiThread),
   mSlotDelegate(this)
 {
-  // Get mName from environment options
-  mMainWindowName = mEnvironmentOptions.GetWindowName();
-  if(mMainWindowName.empty() && argc && (*argc > 0))
+  // Set mName from command-line args
+  if(argc && (*argc > 0))
   {
-    // Set mName from command-line args if environment option not set
     mMainWindowName = (*argv)[0];
   }
 
@@ -127,6 +124,8 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   {
     mUseUiThread = true;
   }
+
+  WindowSystem::Initialize();
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
   mFramework          = new Framework(*this, *this, argc, argv, applicationType, mUseUiThread);
@@ -147,6 +146,8 @@ Application::~Application()
   delete mAdaptorBuilder;
   delete mCommandLineOptions;
   delete mFramework;
+
+  WindowSystem::Shutdown();
 }
 
 void Application::StoreWindowPositionSize(PositionSize positionSize)
@@ -154,14 +155,24 @@ void Application::StoreWindowPositionSize(PositionSize positionSize)
   mWindowPositionSize = positionSize;
 }
 
-void Application::ChangePreInitializedWindowSize()
+void Application::ChangePreInitializedWindowInfo()
 {
+  // Set window name
+  auto windowClassName = mEnvironmentOptions->GetWindowClassName();
+  auto windowName      = mEnvironmentOptions->GetWindowName();
+  if(!windowName.empty())
+  {
+    mMainWindowName = windowName;
+  }
+  mMainWindow.SetClass(mMainWindowName, windowClassName);
+
   // The real screen size may be different from the value of the preinitialized state. Update it.
   Dali::Internal::Adaptor::WindowSystem::UpdateScreenSize();
 
   int screenWidth, screenHeight;
   Dali::Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
 
+  // Set window position / size
   if(mWindowPositionSize != PositionSize(0, 0, 0, 0))
   {
     Dali::DevelWindow::SetPositionSize(mMainWindow, mWindowPositionSize);
@@ -173,11 +184,11 @@ void Application::ChangePreInitializedWindowSize()
     mWindowPositionSize.height = mCommandLineOptions->stageHeight;
     mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
   }
-  else if(mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight())
+  else if(mEnvironmentOptions->GetWindowWidth() && mEnvironmentOptions->GetWindowHeight())
   {
     // Environment options override full screen functionality if command line arguments not provided
-    mWindowPositionSize.width  = mEnvironmentOptions.GetWindowWidth();
-    mWindowPositionSize.height = mEnvironmentOptions.GetWindowHeight();
+    mWindowPositionSize.width  = mEnvironmentOptions->GetWindowWidth();
+    mWindowPositionSize.height = mEnvironmentOptions->GetWindowHeight();
     mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
   }
   else if(screenWidth != mWindowPositionSize.width || screenHeight != mWindowPositionSize.height)
@@ -191,26 +202,43 @@ void Application::ChangePreInitializedWindowSize()
 
 void Application::CreateWindow()
 {
-  if(mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0)
+  Internal::Adaptor::Window* window;
+
+  if(mLaunchpadState != Launchpad::PRE_INITIALIZED)
   {
-    if(mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0)
+    if(mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0)
     {
-      // Command line options override environment options and full screen
-      mWindowPositionSize.width  = mCommandLineOptions->stageWidth;
-      mWindowPositionSize.height = mCommandLineOptions->stageHeight;
+      if(mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0)
+      {
+        // Command line options override environment options and full screen
+        mWindowPositionSize.width  = mCommandLineOptions->stageWidth;
+        mWindowPositionSize.height = mCommandLineOptions->stageHeight;
+      }
+      else if(mEnvironmentOptions->GetWindowWidth() && mEnvironmentOptions->GetWindowHeight())
+      {
+        // Environment options override full screen functionality if command line arguments not provided
+        mWindowPositionSize.width  = mEnvironmentOptions->GetWindowWidth();
+        mWindowPositionSize.height = mEnvironmentOptions->GetWindowHeight();
+      }
     }
-    else if(mEnvironmentOptions.GetWindowWidth() && mEnvironmentOptions.GetWindowHeight())
+
+    auto windowClassName = mEnvironmentOptions->GetWindowClassName();
+    auto windowName      = mEnvironmentOptions->GetWindowName();
+    if(!windowName.empty())
     {
-      // Environment options override full screen functionality if command line arguments not provided
-      mWindowPositionSize.width  = mEnvironmentOptions.GetWindowWidth();
-      mWindowPositionSize.height = mEnvironmentOptions.GetWindowHeight();
+      mMainWindowName = windowName;
     }
+
+    window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
+  }
+  else
+  {
+    // The position, size and the window name of the pre-initialized application will be updated in ChangePreInitializedWindowInfo()
+    // when the real application is launched.
+    window = Internal::Adaptor::Window::New(mWindowPositionSize, "", "", mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
   }
 
-  const std::string& windowClassName = mEnvironmentOptions.GetWindowClassName();
-
-  Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
-  mMainWindow                       = Dali::Window(window);
+  mMainWindow = Dali::Window(window);
 
   // Quit the application when the window is closed
   GetImplementation(mMainWindow).DeleteRequestSignal().Connect(mSlotDelegate, &Application::Quit);
@@ -224,14 +252,14 @@ void Application::CreateAdaptor()
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder(&Dali::GetImplementation(mMainWindow));
 
-  mAdaptor = Adaptor::New(graphicsFactory, sceneHolder, &mEnvironmentOptions);
+  mAdaptor = Adaptor::New(graphicsFactory, sceneHolder, mEnvironmentOptions.get());
 
   Adaptor::GetImplementation(*mAdaptor).SetUseRemoteSurface(mUseRemoteSurface);
 }
 
 void Application::CreateAdaptorBuilder()
 {
-  mAdaptorBuilder = new AdaptorBuilder(mEnvironmentOptions);
+  mAdaptorBuilder = new AdaptorBuilder(*mEnvironmentOptions);
 }
 
 void Application::MainLoop()
@@ -265,6 +293,8 @@ void Application::QuitFromMainLoop()
 
 void Application::OnInit()
 {
+  mEnvironmentOptions = std::unique_ptr<EnvironmentOptions>(new EnvironmentOptions());
+
   mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
 
   CreateAdaptorBuilder();
@@ -278,7 +308,7 @@ void Application::OnInit()
 
   if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
   {
-    ChangePreInitializedWindowSize();
+    ChangePreInitializedWindowInfo();
   }
 
   // Run the adaptor
@@ -521,6 +551,12 @@ void Application::SetCommandLineOptions(int* argc, char** argv[])
   mCommandLineOptions = new CommandLineOptions(argc, argv);
 
   mFramework->SetCommandLineOptions(argc, argv);
+
+  if(argc && (*argc > 0))
+  {
+    // Set mName from command-line args
+    mMainWindowName = (*argv)[0];
+  }
 }
 
 void Application::SetDefaultWindowType(WindowType type)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
 {
@@ -39,6 +40,8 @@ IntrusivePtr<OffscreenApplication> OffscreenApplication::New(uint16_t width, uin
 
 OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
 {
+  Dali::Internal::Adaptor::WindowSystem::Initialize();
+
   // Generate a default window
   IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
   mDefaultWindow                               = Dali::OffscreenWindow(impl.Get());
@@ -47,6 +50,11 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
 
   // Initialize default window
   impl->Initialize(true);
+}
+
+OffscreenApplication::~OffscreenApplication()
+{
+  Dali::Internal::Adaptor::WindowSystem::Shutdown();
 }
 
 void OffscreenApplication::Start()
