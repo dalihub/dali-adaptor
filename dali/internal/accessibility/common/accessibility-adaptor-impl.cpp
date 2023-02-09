@@ -52,7 +52,7 @@ Debug::Filter* gAccessibilityAdaptorLogFilter = Debug::Filter::New(Debug::NoLogg
 
 AccessibilityAdaptor::AccessibilityAdaptor()
 : mReadPosition(),
-  mFocusedActorPosition(),
+  mFocusedActorPosition(-1.0f, -1.0f),
   mActionHandler( NULL ),
   mIsEnabled( false ),
   mIsForced( false )
@@ -75,6 +75,8 @@ void AccessibilityAdaptor::EnableAccessibility()
   if(mIsEnabled == false)
   {
     mIsEnabled = true;
+
+    SetFocusedActorPosition(Dali::Vector2(-1.0f, -1.0f));
 
     if( mActionHandler )
     {
