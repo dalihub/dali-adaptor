@@ -621,15 +621,6 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
       accessibilityAdaptor->EnableAccessibility();
     }
   }
-  else
-  {
-    DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Nothing shows -> EnableAccessibility \n" );
-    if( !accessibilityAdaptor->IsForcedEnable() )
-    {
-      // dali app should be enabled.
-      accessibilityAdaptor->EnableAccessibility();
-    }
-  }
 
 #endif
 }
