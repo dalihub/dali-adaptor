@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,9 @@ const char* IMAGE_128_RGB = TEST_RESOURCE_DIR "/gallery-small-1.jpg";
 
 // resolution: 2000*2560, pixel format: RGB888
 const char* IMAGE_LARGE_EXIF3_RGB = TEST_RESOURCE_DIR "/f-large-exif-3.jpg";
+
+// resolution: 173*120, jpg color space: TJCS_CMYK, pixel format: RGB888
+const char* IMAGE_TJCS_CMYK = TEST_RESOURCE_DIR "/jpg_ycck_173x120.jpg";
 
 // resolution: 128*128, pixel format: RGB888, YUV411
 const char* IMAGE_128_YUV_411 = TEST_RESOURCE_DIR "/gallery-small-1-yuv411.jpg";
@@ -129,6 +132,12 @@ int UtcDaliLoadImageP(void)
   DALI_TEST_CHECK(pixelBufferJpeg);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 2000u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 2560u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromFile(IMAGE_TJCS_CMYK);
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 173u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 120u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
   Devel::PixelBuffer BufferJpeg1 = Dali::LoadImageFromFile(IMAGE_WIDTH_ODD_EXIF1_RGB);
@@ -270,6 +279,12 @@ int UtcDaliLoadImageFromBufferP(void)
   DALI_TEST_CHECK(pixelBufferJpeg);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 2000u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 2560u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
+
+  pixelBufferJpeg = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_TJCS_CMYK));
+  DALI_TEST_CHECK(pixelBufferJpeg);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetWidth(), 173u, TEST_LOCATION);
+  DALI_TEST_EQUALS(pixelBufferJpeg.GetHeight(), 120u, TEST_LOCATION);
   DALI_TEST_EQUALS(pixelBufferJpeg.GetPixelFormat(), Pixel::RGB888, TEST_LOCATION);
 
   Devel::PixelBuffer BufferJpeg1 = Dali::LoadImageFromBuffer(FileToMemory(IMAGE_WIDTH_ODD_EXIF1_RGB));
