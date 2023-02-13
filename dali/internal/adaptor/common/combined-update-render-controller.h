@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -340,6 +340,7 @@ private:
   Semaphore<>     mSurfaceSemaphore;       ///< Used by the event thread to ensure the surface has been deleted or replaced.
 
   ConditionalWait mUpdateRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
+  ConditionalWait mPostRenderWaitCondition;         ///< The wait condition for the post render.
 
   AdaptorInternalServices&  mAdaptorInterfaces;    ///< The adaptor internal interface
   PerformanceInterface*     mPerformanceInterface; ///< The performance logging interface
