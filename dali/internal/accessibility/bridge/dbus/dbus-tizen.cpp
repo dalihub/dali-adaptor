@@ -110,8 +110,7 @@ DBus::DBusClient::DBusClient(std::string busName, std::string pathName, std::str
   else
     connectionState->connection = conn;
 
-
-  if (!connectionState->connection)
+  if(!connectionState->connection)
   {
     DALI_LOG_ERROR("DBusClient connection is not ready\n");
     return;
@@ -525,7 +524,7 @@ struct DefaultDBusWrapper : public DBusWrapper
     }
 
     auto p = eldbus_connection_get(eldbusType);
-    if (!p)
+    if(!p)
     {
       DALI_LOG_ERROR("cannot get dbus connection\n");
       return NULL;
@@ -579,8 +578,42 @@ struct DefaultDBusWrapper : public DBusWrapper
     DBusWrapper::ConnectionWeakPtr connection;
   };
 
-  static std::unordered_map<const Eldbus_Service_Interface*, std::unique_ptr<Implementation>> globalEntries;
-  static std::mutex                                                                           globalEntriesMutex;
+  struct GlobalEntries
+  {
+    static GlobalEntries& Get()
+    {
+      static GlobalEntries instance;
+      return instance;
+    }
+
+    Implementation* Find(const Eldbus_Service_Interface* iface)
+    {
+      Implementation*             impl = nullptr;
+      std::lock_guard<std::mutex> lock(globalEntriesMutex);
+      auto                        it = globalEntries.find(iface);
+      if(it != globalEntries.end())
+      {
+        impl = it->second.get();
+      }
+      return impl;
+    }
+
+    void Add(const Eldbus_Service_Interface* iface, std::unique_ptr<Implementation> impl)
+    {
+      std::lock_guard<std::mutex> lock(globalEntriesMutex);
+      globalEntries[iface] = std::move(impl);
+    }
+
+    void Erase(const Eldbus_Service_Interface* iface)
+    {
+      std::lock_guard<std::mutex> lock(globalEntriesMutex);
+      globalEntries.erase(iface);
+    }
+
+  private:
+    std::unordered_map<const Eldbus_Service_Interface*, std::unique_ptr<Implementation>> globalEntries;
+    std::mutex                                                                           globalEntriesMutex;
+  };
 
 #undef EINA_FALSE
 #undef EINA_TRUE
@@ -589,15 +622,7 @@ struct DefaultDBusWrapper : public DBusWrapper
 
   static Eina_Bool property_get_callback(const Eldbus_Service_Interface* iface, const char* propertyName, Eldbus_Message_Iter* iter, const Eldbus_Message* message, Eldbus_Message** error)
   {
-    Implementation* impl = nullptr;
-    {
-      std::lock_guard<std::mutex> lock(globalEntriesMutex);
-      auto                        it = globalEntries.find(iface);
-      if(it != globalEntries.end())
-      {
-        impl = it->second.get();
-      }
-    }
+    Implementation* impl = GlobalEntries::Get().Find(iface);
     if(!impl)
     {
       return EINA_FALSE;
@@ -631,15 +656,7 @@ struct DefaultDBusWrapper : public DBusWrapper
 
   static Eldbus_Message* property_set_callback(const Eldbus_Service_Interface* iface, const char* propertyName, Eldbus_Message_Iter* iter, const Eldbus_Message* message)
   {
-    Implementation* impl = nullptr;
-    {
-      std::lock_guard<std::mutex> lock(globalEntriesMutex);
-      auto                        it = globalEntries.find(iface);
-      if(it != globalEntries.end())
-      {
-        impl = it->second.get();
-      }
-    }
+    Implementation* impl = GlobalEntries::Get().Find(iface);
     if(!impl)
     {
       auto ret = eldbus_message_error_new(message, "org.freedesktop.DBus.Error.Failed", "Unknown interface");
@@ -675,13 +692,7 @@ struct DefaultDBusWrapper : public DBusWrapper
 
   static Eldbus_Message* method_callback(const Eldbus_Service_Interface* iface, const Eldbus_Message* message)
   {
-    Implementation* impl = nullptr;
-    {
-      std::lock_guard<std::mutex> lock(globalEntriesMutex);
-      auto                        it = globalEntries.find(iface);
-      if(it != globalEntries.end())
-        impl = it->second.get();
-    }
+    Implementation* impl = GlobalEntries::Get().Find(iface);
     if(!impl)
     {
       auto ret = eldbus_message_error_new(message, "org.freedesktop.DBus.Error.Failed", "Unknown interface");
@@ -793,21 +804,15 @@ struct DefaultDBusWrapper : public DBusWrapper
       std::move(signalsMap),
       connection});
 
-    {
-      std::lock_guard<std::mutex> lock(globalEntriesMutex);
-      auto                        v = fallback ? eldbus_service_interface_fallback_register(get(connection), pathName.c_str(), &impl->dsc) : eldbus_service_interface_register(get(connection), pathName.c_str(), &impl->dsc);
-      assert(v);
-      globalEntries[v] = std::move(impl);
-      DBUS_DEBUG("registering interface %p (%d)", v, fallback ? 1 : 0);
-      destructors.push_back([=]() {
-        DBUS_DEBUG("unregistering interface %p", v);
-        {
-          std::lock_guard<std::mutex> lock(globalEntriesMutex);
-          globalEntries.erase(v);
-        }
-        eldbus_service_interface_unregister(v);
-      });
-    }
+    auto v = fallback ? eldbus_service_interface_fallback_register(get(connection), pathName.c_str(), &impl->dsc) : eldbus_service_interface_register(get(connection), pathName.c_str(), &impl->dsc);
+    DALI_ASSERT_ALWAYS(v && "Eldbus register failed!");
+    GlobalEntries::Get().Add(v, std::move(impl));
+    DBUS_DEBUG("registering interface %p (%d)", v, fallback ? 1 : 0);
+    destructors.push_back([=]() {
+      DBUS_DEBUG("unregistering interface %p", v);
+      GlobalEntries::Get().Erase(v);
+      eldbus_service_interface_unregister(v);
+    });
   }
 
   static void listenerEventChangedCallback(void* data, Eldbus_Proxy* proxy EINA_UNUSED, void* event)
@@ -837,9 +842,6 @@ struct DefaultDBusWrapper : public DBusWrapper
     eldbus_proxy_free_cb_add(p, ProxyEventCallbackDelCb, callbackLambdaPtr);
   }
 };
-
-std::unordered_map<const Eldbus_Service_Interface*, std::unique_ptr<DefaultDBusWrapper::Implementation>> DefaultDBusWrapper::globalEntries;
-std::mutex                                                                                               DefaultDBusWrapper::globalEntriesMutex;
 
 DBusWrapper* DBusWrapper::Installed()
 {
