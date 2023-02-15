@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,11 @@ namespace Adaptor
 {
 namespace
 {
-const std::string SYSTEM_CACHE_FILE                           = "gpu-environment.conf";
-const std::string DALI_ENV_MULTIPLE_WINDOW_SUPPORT            = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
-const std::string DALI_BLEND_EQUATION_ADVANCED_SUPPORT        = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
-const std::string DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT = "DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT";
-const std::string DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
+const char* SYSTEM_CACHE_FILE                           = "gpu-environment.conf";
+const char* DALI_ENV_MULTIPLE_WINDOW_SUPPORT            = "DALI_ENV_MULTIPLE_WINDOW_SUPPORT";
+const char* DALI_BLEND_EQUATION_ADVANCED_SUPPORT        = "DALI_BLEND_EQUATION_ADVANCED_SUPPORT";
+const char* DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT = "DALI_MULTISAMPLED_RENDER_TO_TEXTURE_SUPPORT";
+const char* DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
 
 } // unnamed namespace
 

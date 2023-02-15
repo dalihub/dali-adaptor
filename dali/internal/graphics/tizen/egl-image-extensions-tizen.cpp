@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,8 @@ PFNEGLCREATEIMAGEKHRPROC            eglCreateImageKHRProc            = 0;
 PFNEGLDESTROYIMAGEKHRPROC           eglDestroyImageKHRProc           = 0;
 PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOESProc = 0;
 
-const std::string EGL_TIZEN_IMAGE_NATIVE_SURFACE = "EGL_TIZEN_image_native_surface";
-const std::string EGL_EXT_IMAGE_DMA_BUF_IMPORT   = "EGL_EXT_image_dma_buf_import";
+const char* EGL_TIZEN_IMAGE_NATIVE_SURFACE = "EGL_TIZEN_image_native_surface";
+const char* EGL_EXT_IMAGE_DMA_BUF_IMPORT   = "EGL_EXT_image_dma_buf_import";
 
 } // unnamed namespace
 
