@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -131,10 +131,10 @@ const FontSlant::Type IntToSlantType(int slant)
   return static_cast<FontSlant::Type>(ValueToIndex(slant, FONT_SLANT_TYPE_TO_INT, NUM_FONT_SLANT_TYPE - 1u));
 }
 
-const std::string DEFAULT_FONT_FAMILY_NAME("Tizen");
-const int         DEFAULT_FONT_WIDTH(100);
-const int         DEFAULT_FONT_WEIGHT(80);
-const int         DEFAULT_FONT_SLANT(0);
+const char* DEFAULT_FONT_FAMILY_NAME("Tizen");
+const int   DEFAULT_FONT_WIDTH(100);
+const int   DEFAULT_FONT_WEIGHT(80);
+const int   DEFAULT_FONT_SLANT(0);
 
 const std::string_view DefaultFontFamily()
 {

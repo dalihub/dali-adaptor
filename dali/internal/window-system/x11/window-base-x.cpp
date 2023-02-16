@@ -39,7 +39,7 @@ namespace Adaptor
 {
 namespace
 {
-const std::string            DEFAULT_DEVICE_NAME     = "";
+const char*                  DEFAULT_DEVICE_NAME     = "";
 const Device::Class::Type    DEFAULT_DEVICE_CLASS    = Device::Class::NONE;
 const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
 
