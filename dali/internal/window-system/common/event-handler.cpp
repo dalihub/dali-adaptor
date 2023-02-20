@@ -195,7 +195,7 @@ void EventHandler::OnFocusChanged( bool focusIn )
       AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( mAccessibilityAdaptor ) );
       if ( accessibilityAdaptor )
       {
-        DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnFocusChanged: EnableAccessibility \n" );
+        DALI_LOG_ERROR("(Focus gained): EnableAccessibility \n");
         accessibilityAdaptor->EnableAccessibility();
       }
     }
@@ -218,7 +218,7 @@ void EventHandler::OnFocusChanged( bool focusIn )
       AccessibilityAdaptor* accessibilityAdaptor( &AccessibilityAdaptor::GetImplementation( mAccessibilityAdaptor ) );
       if ( accessibilityAdaptor && accessibilityAdaptor->IsEnabled() )
       {
-        DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnFocusChanged: DisableAccessibility \n" );
+        DALI_LOG_ERROR("(Focus lost): DisableAccessibility \n");
         accessibilityAdaptor->DisableAccessibility();
       }
     }
@@ -300,6 +300,7 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
 
   if( info.gestureValue == 15 ) // ONE_FINGER_SINGLE_TAP
   {
+    DALI_LOG_ERROR("[FYI] Native window resource ID : %s, Touched window resource ID : %d \n", mWindowBase->GetNativeWindowResourceId().c_str(), info.resourceId);
     if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
     {
       if( !accessibilityAdaptor->IsEnabled() )
