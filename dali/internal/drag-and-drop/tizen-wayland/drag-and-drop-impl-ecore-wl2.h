@@ -35,6 +35,7 @@ struct DropTarget
   Dali::Actor                            target;
   Dali::DragAndDrop::DragAndDropFunction callback;
   bool                                   inside;
+  int                                    parentWindowId;
 };
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -271,29 +271,33 @@ private:
   bool   mIsLookupTableInitialized;          ///< flag for basic lookup table initialization
   bool   mIsExtensionLookupTableInitialized; ///< flag for extension lookup table initialization
 };
-KeyMap globalKeyLookup;
 
+KeyMap& GetKeyMap()
+{
+  static KeyMap globalKeyLookup;
+  return globalKeyLookup;
+}
 } // namespace
 
 bool IsKey(const Dali::KeyEvent& keyEvent, Dali::KEY daliKey)
 {
-  int key = globalKeyLookup.GetDaliKeyEnum(keyEvent.GetKeyName().c_str());
+  int key = GetKeyMap().GetDaliKeyEnum(keyEvent.GetKeyName().c_str());
   return daliKey == key;
 }
 
 bool IsDeviceButton(const char* keyName)
 {
-  return globalKeyLookup.IsDeviceButton(keyName);
+  return GetKeyMap().IsDeviceButton(keyName);
 }
 
 const char* GetKeyName(Dali::KEY daliKey)
 {
-  return globalKeyLookup.GetKeyName(daliKey);
+  return GetKeyMap().GetKeyName(daliKey);
 }
 
 int GetDaliKeyCode(const char* keyName)
 {
-  return globalKeyLookup.GetDaliKeyEnum(keyName);
+  return GetKeyMap().GetDaliKeyEnum(keyName);
 }
 
 } // namespace KeyLookup

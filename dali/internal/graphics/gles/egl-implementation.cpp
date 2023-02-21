@@ -37,13 +37,13 @@
 
 namespace
 {
-const uint32_t    THRESHOLD_SWAPBUFFER_COUNT              = 5;
-const uint32_t    CHECK_EXTENSION_NUMBER                  = 4;
-const uint32_t    EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
-const std::string EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_context";
-const std::string EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_context";
-const std::string EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
-const std::string EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
+const uint32_t THRESHOLD_SWAPBUFFER_COUNT              = 5;
+const uint32_t CHECK_EXTENSION_NUMBER                  = 4;
+const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
+const char*    EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_context";
+const char*    EGL_KHR_CREATE_CONTEXT                  = "EGL_KHR_create_context";
+const char*    EGL_KHR_PARTIAL_UPDATE                  = "EGL_KHR_partial_update";
+const char*    EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE        = "EGL_KHR_swap_buffers_with_damage";
 
 // Threshold time in miliseconds
 constexpr auto PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME";

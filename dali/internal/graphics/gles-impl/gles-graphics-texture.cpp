@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,8 +91,12 @@ inline std::vector<uint8_t> ConvertRGB32ToRGBA32(const void* pData, uint32_t siz
 /**
  * Format conversion table
  */
-static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE = {
-  {Format::R8G8B8_UNORM, Format::R8G8B8A8_UNORM, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+const std::vector<ColorConversion>& GetColorConversionTable()
+{
+  static const std::vector<ColorConversion> COLOR_CONVERSION_TABLE = {
+    {Format::R8G8B8_UNORM, Format::R8G8B8A8_UNORM, ConvertRGB32ToRGBA32, WriteRGB32ToRGBA32}};
+  return COLOR_CONVERSION_TABLE;
+}
 
 /**
  * Constructor
@@ -399,12 +403,12 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
     return false;
   }
 
-  auto it = std::find_if(COLOR_CONVERSION_TABLE.begin(), COLOR_CONVERSION_TABLE.end(), [&](auto& item) {
+  auto it = std::find_if(GetColorConversionTable().begin(), GetColorConversionTable().end(), [&](auto& item) {
     return item.srcFormat == srcFormat && item.destFormat == destFormat;
   });
 
   // No suitable format, return empty array
-  if(it == COLOR_CONVERSION_TABLE.end())
+  if(it == GetColorConversionTable().end())
   {
     return false;
   }

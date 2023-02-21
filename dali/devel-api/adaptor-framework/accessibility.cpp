@@ -366,7 +366,7 @@ public:
       return false;
     }
 
-    auto self = Self();
+    auto self                = Self();
     auto oldHighlightedActor = GetCurrentlyHighlightedActor();
     if(self == oldHighlightedActor)
     {
@@ -385,7 +385,7 @@ public:
 
     SetCurrentlyHighlightedActor(self);
 
-    auto window                                 = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::DevelWindow::Get(self);
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(true);
 
@@ -413,7 +413,7 @@ public:
 
     SetCurrentlyHighlightedActor({});
 
-    auto window                                 = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::DevelWindow::Get(self);
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(false);
 
@@ -453,7 +453,7 @@ public:
 
     if(mRoot)
     {
-      Dali::Window window                         = Dali::DevelWindow::Get(Self());
+      Dali::Window                     window     = Dali::DevelWindow::Get(Self());
       Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
       attributes["resID"]                         = windowImpl.GetNativeResourceId();
     }
@@ -479,7 +479,11 @@ public:
 using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
 
 // Save RefObject from an Actor in Accessible::Get()
-AdaptorAccessiblesType gAdaptorAccessibles;
+AdaptorAccessiblesType& GetAdaptorAccessibles()
+{
+  static AdaptorAccessiblesType gAdaptorAccessibles;
+  return gAdaptorAccessibles;
+}
 
 std::function<Accessible*(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> Accessible* {
   return nullptr;
@@ -492,7 +496,7 @@ void Accessible::SetObjectRegistry(ObjectRegistry registry)
 {
   objectRegistry = registry;
   objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
-    gAdaptorAccessibles.erase(obj);
+    GetAdaptorAccessibles().erase(obj);
   });
 }
 
@@ -511,11 +515,11 @@ Accessible* Accessible::Get(Dali::Actor actor)
   auto accessible = convertingFunctor(actor);
   if(!accessible)
   {
-    auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
+    auto pair = GetAdaptorAccessibles().emplace(&actor.GetBaseObject(), nullptr);
     if(pair.second)
     {
-      bool isRoot                    = false;
-      Dali::Integration::Scene scene = Dali::Integration::Scene::Get(actor);
+      bool                     isRoot = false;
+      Dali::Integration::Scene scene  = Dali::Integration::Scene::Get(actor);
       if(scene)
       {
         isRoot = (actor == scene.GetRootLayer());
