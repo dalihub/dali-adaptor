@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,9 +43,12 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr int32_t     INITIAL_GLES_VERSION                         = 30;
-static constexpr int32_t     GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
-static constexpr const char* LEGACY_SHADING_LANGUAGE_VERSION              = "100";
+static constexpr int32_t INITIAL_GLES_VERSION                         = 30;
+static constexpr int32_t GLES_VERSION_SUPPORT_BLEND_EQUATION_ADVANCED = 32;
+
+static constexpr int32_t MINIMUM_GLES_VERSION_GET_MAXIMUM_MULTISAMPLES_TO_TEXTURE = 30;
+
+static constexpr const char* LEGACY_SHADING_LANGUAGE_VERSION = "100";
 
 static constexpr const char* DEFAULT_SAMPLER_TYPE = "sampler2D";
 
@@ -108,6 +111,7 @@ public:
   {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
 
+    // Since gles 2.0 didn't return well for GL_MAJOR_VERSION and GL_MINOR_VERSION,
     // Only change gles version for the device that support above gles 3.0.
     if(mGlesVersion >= INITIAL_GLES_VERSION)
     {
@@ -130,7 +134,18 @@ public:
 
     if(IsMultisampledRenderToTextureSupported())
     {
-      glGetIntegerv(GL_MAX_SAMPLES_EXT, &mMaxTextureSamples);
+      mMaxTextureSamples = 0;
+
+      if(mGlesVersion >= MINIMUM_GLES_VERSION_GET_MAXIMUM_MULTISAMPLES_TO_TEXTURE)
+      {
+        // Try to get maximum FBO MSAA sampling level from GL_RENDERBUFFER first.
+        // If false, than ask again to GL_MAX_SAMPLES_EXT.
+        GetInternalformativ(GL_RENDERBUFFER, GL_RGBA8, GL_SAMPLES, 1, &mMaxTextureSamples);
+      }
+      if(mMaxTextureSamples == 0)
+      {
+        glGetIntegerv(GL_MAX_SAMPLES_EXT, &mMaxTextureSamples);
+      }
     }
 
     if(!mShadingLanguageVersionCached)
@@ -360,7 +375,7 @@ public:
     return mMaxTextureSamples;
   }
 
-  int GetGlesVersion()
+  int32_t GetGlesVersion()
   {
     ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
     if(!mIsContextCreated)

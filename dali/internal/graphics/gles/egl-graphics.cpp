@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,18 +52,6 @@ EglGraphics::EglGraphics(EnvironmentOptions& environmentOptions)
 
 EglGraphics::~EglGraphics()
 {
-}
-
-void EglGraphics::SetGlesVersion(const int32_t glesVersion)
-{
-  if(mEglImplementation)
-  {
-    mEglImplementation->SetGlesVersion(glesVersion);
-  }
-
-  mGLES->SetGlesVersion(glesVersion);
-
-  mGraphicsController.SetGLESVersion(static_cast<Graphics::GLES::GLESVersion>(glesVersion));
 }
 
 void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
@@ -152,7 +140,12 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
   if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32))
   {
     // Retry to use OpenGL es 2.0
-    SetGlesVersion(20);
+    mEglImplementation->SetGlesVersion(20);
+
+    // Mark gles that we will use gles 2.0 version.
+    // After this call, we will not change mGLES version anymore.
+    mGLES->SetGlesVersion(20);
+
     mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32);
   }
 
@@ -176,8 +169,13 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
     }
   }
 
-  mGLES->ContextCreated();
-  SetGlesVersion(mGLES->GetGlesVersion());
+  mGLES->ContextCreated(); // After this call, we can know exact gles version.
+  auto glesVersion = mGLES->GetGlesVersion();
+
+  // Set more detail GLES version to egl and graphics controller.
+  // Note. usually we don't need EGL client's minor version. So don't need to choose config one more time.
+  mEglImplementation->SetGlesVersion(glesVersion);
+  mGraphicsController.SetGLESVersion(static_cast<Graphics::GLES::GLESVersion>(glesVersion));
 }
 
 void EglGraphics::Shutdown()

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,12 +65,6 @@ public:
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::ConfigureSurface()
    */
   void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
-
-  /**
-   * Set gles version
-   * Default version is gles 3.0
-   */
-  void SetGlesVersion(const int32_t glesVersion);
 
   /**
    * Set whether the surfaceless context is supported

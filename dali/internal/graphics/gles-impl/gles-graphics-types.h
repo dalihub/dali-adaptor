@@ -1283,6 +1283,11 @@ struct GLIndexFormat
         format = GL_UNSIGNED_SHORT;
         break;
       }
+      case Format::R32_UINT:
+      {
+        format = GL_UNSIGNED_INT;
+        break;
+      }
       default:
       {
         format = 0;
