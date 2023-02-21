@@ -223,10 +223,18 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, Dali::DragAndDrop::Drag
     }
   }
 
+  auto parent = Dali::DevelWindow::Get(target);
+  Ecore_Wl2_Window*  parentWindow = AnyCast<Ecore_Wl2_Window*>(parent.GetNativeHandle());
+  if(parentWindow == nullptr)
+  {
+    return false;
+  }
+
   DropTarget targetData;
   targetData.target   = target;
   targetData.callback = callback;
   targetData.inside   = false;
+  targetData.parentWindowId = ecore_wl2_window_id_get(parentWindow);
 
   mDropTargets.push_back(targetData);
 
@@ -330,6 +338,11 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
+    if(ev->win != mDropTargets[i].parentWindowId)
+    {
+      continue;
+    }
+
     Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
     Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
     bool    currentInside = IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height);
@@ -376,6 +389,11 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
+    if(ev->win != mDropTargets[i].parentWindowId)
+    {
+      continue;
+    }
+
     Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
     // If the drop position is in the target object region, request drop data to the source object
