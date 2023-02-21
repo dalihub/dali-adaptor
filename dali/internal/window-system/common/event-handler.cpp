@@ -313,6 +313,7 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     {
       // Ignore tap gesture - it should be handled by another window (possibly in another application),
       // for which the resource ID matches with the one stored in AccessibilityInfo.
+      DALI_LOG_ERROR("Ignore Single tap gesture because the gesture should be handled by other window. \n");
       return;
     }
   }
@@ -333,8 +334,11 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   {
     // When other apps, which are not implemented by DALi, are on top of Apps application,
     // no event should be occurred on Apps because it's disabled by force already.
+    DALI_LOG_ERROR("Currently, all DALi applications do not receive any events because another app, which is not implemented by DALi, is at the top of the layer. \n");
     return;
   }
+
+  DALI_LOG_ERROR("[FYI] Accessibility gesture value : %d, state : %d \n", info.gestureValue, info.state);
 
   // When gesture is ONE_FINGER_SINGLE_TAP, the gesture value is 15.
   // When the state is aborted, the state of accessibility info is 3.
@@ -606,19 +610,19 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
       ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) ) // QuickPanel is shown
   {
     // dali apps should be disabled.
-    DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Quickpanel show -> DisableAccessibility \n" );
+    DALI_LOG_ERROR("[FYI] Quickpanel show -> DisableAccessibility \n");
     accessibilityAdaptor->DisableAccessibility();
   }
   else if( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) // Only Apps menu (dali application) is shown
   {
     if( !accessibilityAdaptor->IsForcedEnable() ) // It is not in case of that an application controls the accessibility status itself
     {
-      DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Only Apps show, but not forced dali -> DisableAccessibility \n" );
+      DALI_LOG_ERROR("[FYI] Only Apps show, but not forced dali -> DisableAccessibility \n");
       accessibilityAdaptor->DisableAccessibility();
     }
     else
     {
-      DALI_LOG_INFO( gSelectionEventLogFilter, Debug::General, "OnAccessibilityQuickpanelChanged: Only Apps show and it is a forced dali -> EnableAccessibility \n" );
+      DALI_LOG_ERROR("[FYI] Only Apps show and it is a forced dali -> EnableAccessibility \n");
       accessibilityAdaptor->EnableAccessibility();
     }
   }

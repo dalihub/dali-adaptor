@@ -66,20 +66,21 @@ void AccessibilityAdaptor::EnableAccessibility()
 #ifndef DALI_PROFILE_UBUNTU
   system_settings_get_value_bool( SYSTEM_SETTINGS_KEY_ACCESSIBILITY_TTS, &accessibilityState );
 #endif
-  if(accessibilityState == false)
+  if (accessibilityState == false)
   {
     DALI_LOG_ERROR("The Current Accessibility system cannot run. \n");
     return;
   }
 
-  if(mIsEnabled == false)
+  if (mIsEnabled == false)
   {
     mIsEnabled = true;
 
     SetFocusedActorPosition(Dali::Vector2(-1.0f, -1.0f));
 
-    if( mActionHandler )
+    if (mActionHandler)
     {
+      DALI_LOG_ERROR("[FYI] AccessibilityAdaptor::EnableAccessibility() \n");
       mActionHandler->ChangeAccessibilityStatus();
     }
   }
@@ -87,17 +88,18 @@ void AccessibilityAdaptor::EnableAccessibility()
 
 void AccessibilityAdaptor::DisableAccessibility()
 {
-  if(mIsEnabled == true)
+  if (mIsEnabled == true)
   {
     mIsEnabled = false;
 
-    if( mActionHandler )
+    if (mActionHandler)
     {
+      DALI_LOG_ERROR("[FYI] AccessibilityAdaptor::DisableAccessibility() \n");
       mActionHandler->ChangeAccessibilityStatus();
     }
 
     // Destroy the TtsPlayer if exists.
-    if ( Adaptor::IsAvailable() )
+    if (Adaptor::IsAvailable())
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
       Adaptor& adaptorImpl = Adaptor::GetImplementation( adaptor );
