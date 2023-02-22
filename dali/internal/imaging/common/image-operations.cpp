@@ -748,15 +748,12 @@ void HorizontalSkew(const uint8_t* const srcBufferPtr,
   int32_t i = std::max(static_cast<int32_t>(srcWidth) + offset, -static_cast<int32_t>(dstWidth * row));
   if(i < static_cast<int32_t>(dstWidth))
   {
-    if(row * dstWidth + i >= 0)
-    {
-      // If still in image bounds, put leftovers there
-      const uint32_t dstIndex = pixelSize * (row * dstWidth + i);
+    // If still in image bounds, put leftovers there
+    const uint32_t dstIndex = pixelSize * (row * dstWidth + i);
 
-      for(uint32_t channel = 0u; channel < pixelSize; ++channel)
-      {
-        *(dstBufferPtr + dstIndex + channel) = oldLeft[channel];
-      }
+    for(uint32_t channel = 0u; channel < pixelSize; ++channel)
+    {
+      *(dstBufferPtr + dstIndex + channel) = oldLeft[channel];
     }
 
     // Clear to the right of the skewed line with background
