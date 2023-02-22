@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,11 +85,18 @@ SceneHolder::SceneHolder()
 
 SceneHolder::~SceneHolder()
 {
+  if(mScene)
+  {
+    // The scene graph object should be removed first.
+    mScene.RemoveSceneObject();
+  }
+
   if(mAdaptor)
   {
     mAdaptor->RemoveObserver(*mLifeCycleObserver.get());
     mAdaptor->RemoveWindow(this);
 
+    // The event queue is flushed and we wait for the completion of the surface removal
     mAdaptor->DeleteSurface(*mSurface.get());
 
     mAdaptor = nullptr;
@@ -97,6 +104,7 @@ SceneHolder::~SceneHolder()
 
   if(mScene)
   {
+    // We should remove the surface from the Core last
     mScene.Discard();
   }
 }
