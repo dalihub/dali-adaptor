@@ -2066,7 +2066,15 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
 
 void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
 {
-  ecore_wl2_window_input_region_set(mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
+  DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
+  Eina_Rectangle rect;
+  rect.x = inputRegion.x;
+  rect.y = inputRegion.y;
+  rect.w = inputRegion.width;
+  rect.h = inputRegion.height;
+
+  ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
+  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
 void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
@@ -2879,6 +2887,7 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
   rect.w = inputRegion.width;
   rect.h = inputRegion.height;
 
+  DALI_LOG_RELEASE_INFO("%p, Add input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
@@ -2891,6 +2900,7 @@ void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
   rect.w = inputRegion.width;
   rect.h = inputRegion.height;
 
+  DALI_LOG_RELEASE_INFO("%p, Subtract input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
