@@ -43,8 +43,8 @@ Vector2 AccessibilityAdaptor::GetReadPosition() const
 
 void AccessibilityAdaptor::EnableAccessibility(bool enabled)
 {
-  SetForcedEnable( true );
-  if(enabled)
+  SetForcedEnable(true);
+  if (enabled)
   {
     Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).EnableAccessibility();
   }
@@ -59,10 +59,22 @@ bool AccessibilityAdaptor::IsEnabled() const
   return Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).IsEnabled();
 }
 
-void AccessibilityAdaptor::SetForcedEnable( bool forced )
+void AccessibilityAdaptor::SetForcedEnable(bool forced)
 {
   Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).SetForcedEnable(forced);
 }
+
+void AccessibilityAdaptor::ShowInsideFridge(bool isShown)
+{
+  SetForcedShown(true);
+  Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).ShowInsideFridge(isShown);
+}
+
+void AccessibilityAdaptor::SetForcedShown(bool forced)
+{
+  Internal::Adaptor::AccessibilityAdaptor::GetImplementation(*this).SetForcedShown(forced);
+}
+
 
 void AccessibilityAdaptor::SetActionHandler(AccessibilityActionHandler& handler)
 {

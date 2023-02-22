@@ -89,6 +89,26 @@ public:
   bool IsForcedEnable() const;
 
   /**
+   * @copydoc Dali::AccessibilityAdaptor::ShowInsideFridge()
+   */
+  void ShowInsideFridge(bool isShown);
+
+  /**
+   * Whether Inside Fridge is shown.
+   */
+  bool IsInsideFridgeShown() const;
+
+  /**
+   * @copydoc Dali::AccessibilityAdaptor::SetForcedShown()
+   */
+  void SetForcedShown(bool forced);
+
+  /**
+   * Whether Inside Fridge shown forcibly or not.
+   */
+  bool IsForcedShown() const;
+
+  /**
    * @copydoc Dali::AccessibilityAdaptor::GetReadPosition() const
    */
   Vector2 GetReadPosition() const;
@@ -281,9 +301,10 @@ protected:
 
   AccessibilityGestureDetectorPtr mAccessibilityGestureDetector; ///< The accessibility gesture detector
 
-  bool mIsEnabled        : 1; ///< enable/disable the accessibility action
-
-  bool mIsForced         : 1; ///< Is the accessibility enabled forcibly
+  bool mIsEnabled           : 1; ///< enable/disable the accessibility action
+  bool mIsForced            : 1; ///< Is the accessibility enabled forcibly
+  bool mIsInsideFridgeShown : 1; ///< Is inside fridge shown
+  bool mIsForcedShown       : 1; ///< Is inside fridge shown forcibly
 
 public:
 

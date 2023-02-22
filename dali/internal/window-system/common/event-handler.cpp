@@ -318,6 +318,21 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     }
   }
 
+  if( accessibilityAdaptor->IsForcedShown() )
+  {
+    DALI_LOG_ERROR("InsideFridge app calls the API \n");
+    if( accessibilityAdaptor->IsInsideFridgeShown() )
+    {
+      DALI_LOG_ERROR("Is Inside Fridge shown [TRUE] -> Enable \n");
+      accessibilityAdaptor->EnableAccessibility();
+    }
+    else
+    {
+      DALI_LOG_ERROR("Is Inside Fridge shown [FALSE] -> Disable \n");
+      accessibilityAdaptor->DisableAccessibility();
+    }
+  }
+
   if( !accessibilityAdaptor->IsEnabled() )
   {
     DALI_LOG_ERROR( "The current dali accessibility is not available. \n" );
@@ -622,7 +637,7 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
     }
     else
     {
-      DALI_LOG_ERROR("[FYI] Only Apps show and it is a forced dali -> EnableAccessibility \n");
+      DALI_LOG_ERROR("[FYI] Only Apps show and it is a forced dali -> (Apps) EnableAccessibility \n");
       accessibilityAdaptor->EnableAccessibility();
     }
   }

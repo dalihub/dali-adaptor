@@ -89,7 +89,19 @@ public:
    * @brief Sets Accessibility enabled forcibly.
    * @param forced Whether accessibility sets enabled forcibly
    */
-  void SetForcedEnable( bool forced );
+  void SetForcedEnable(bool forced);
+
+  /**
+   * @brief Checks whether Inside Fridge is shown or not.
+   * @param[in] isShown True if Inside Fridge is shown.
+   */
+  void ShowInsideFridge(bool isShown);
+
+  /**
+   * @brief Sets Inside Fridge shown forcibly.
+   * @param[in] forced Whether Inside Fridge shown forcibly
+   */
+  void SetForcedShown(bool forced);
 
   /**
    * @brief Set the handler to handle accessibility actions.

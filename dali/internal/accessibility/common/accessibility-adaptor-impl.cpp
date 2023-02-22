@@ -55,7 +55,9 @@ AccessibilityAdaptor::AccessibilityAdaptor()
   mFocusedActorPosition(-1.0f, -1.0f),
   mActionHandler( NULL ),
   mIsEnabled( false ),
-  mIsForced( false )
+  mIsForced( false ),
+  mIsInsideFridgeShown( false ),
+  mIsForcedShown( false )
 {
   mAccessibilityGestureDetector = new AccessibilityGestureDetector();
 }
@@ -113,7 +115,7 @@ bool AccessibilityAdaptor::IsEnabled() const
   return mIsEnabled;
 }
 
-void AccessibilityAdaptor::SetForcedEnable( bool forced )
+void AccessibilityAdaptor::SetForcedEnable(bool forced)
 {
   mIsForced = forced;
 }
@@ -121,6 +123,26 @@ void AccessibilityAdaptor::SetForcedEnable( bool forced )
 bool AccessibilityAdaptor::IsForcedEnable() const
 {
   return mIsForced;
+}
+
+void AccessibilityAdaptor::ShowInsideFridge(bool isShown)
+{
+  mIsInsideFridgeShown = isShown;
+}
+
+bool AccessibilityAdaptor::IsInsideFridgeShown() const
+{
+  return mIsInsideFridgeShown;
+}
+
+void AccessibilityAdaptor::SetForcedShown(bool forced)
+{
+  mIsForcedShown = forced;
+}
+
+bool AccessibilityAdaptor::IsForcedShown() const
+{
+  return mIsForcedShown;
 }
 
 Vector2 AccessibilityAdaptor::GetReadPosition() const
