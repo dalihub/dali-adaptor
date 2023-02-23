@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@
 
 namespace Dali::Graphics::GLES
 {
-
 RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
 : RenderTargetResource(createInfo, controller)
 {
@@ -39,16 +38,18 @@ RenderTarget::~RenderTarget() = default;
 
 void RenderTarget::DestroyResource()
 {
-  // This is a proper destructor
-  if(mCreateInfo.surface)
-  {
-    mController.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
-  }
 }
 
 void RenderTarget::DiscardResource()
 {
   mController.DiscardResource(this);
+
+  // The surface context should be deleted now
+  if(mCreateInfo.surface)
+  {
+    mController.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
+    mCreateInfo.surface = nullptr;
+  }
 }
 
 GLES::Framebuffer* RenderTarget::GetFramebuffer() const
