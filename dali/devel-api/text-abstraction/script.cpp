@@ -26,6 +26,7 @@ namespace
 {
 //TODO: Move the below defined characters to "defined-characters.h"
 constexpr unsigned int WHITE_SPACE_THRESHOLD = 0x21;   ///< All characters below 0x21 are considered white spaces.
+constexpr unsigned int CHAR_SPACE            = 0x20;   ///< Space.
 constexpr unsigned int CHAR_LF               = 0x000A; ///< NL Line feed, new line.
 constexpr unsigned int CHAR_VT               = 0x000B; ///< Vertical tab.
 constexpr unsigned int CHAR_FF               = 0x000C; ///< NP Form feed, new page.
@@ -991,6 +992,11 @@ Script GetCharacterScript(Character character)
 bool IsWhiteSpace(Character character)
 {
   return character < WHITE_SPACE_THRESHOLD;
+}
+
+bool IsSpace(Character character)
+{
+  return CHAR_SPACE == character;
 }
 
 bool IsNewParagraph(Character character)

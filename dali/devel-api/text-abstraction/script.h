@@ -214,6 +214,15 @@ DALI_ADAPTOR_API Script GetCharacterScript(Character character);
 DALI_ADAPTOR_API bool IsWhiteSpace(Character character);
 
 /**
+ * @brief Whether the character is a space.
+ *
+ * @param[in] character The character.
+ *
+ * @return @e true if the character is a space.
+ */
+DALI_ADAPTOR_API bool IsSpace(Character character);
+
+/**
  * @brief Whether the character is a new paragraph character.
  *
  * @param[in] character The character.
