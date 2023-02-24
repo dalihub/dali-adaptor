@@ -621,25 +621,11 @@ void EventHandler::OnAccessibilityQuickpanelChanged( const unsigned char& info )
     return;
   }
 
-  if( ( ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) ) || // Both QuickPanel and Apps are shown
-      ( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) ) // QuickPanel is shown
+  if( info & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) // QuickPanel is shown
   {
     // dali apps should be disabled.
     DALI_LOG_ERROR("[FYI] Quickpanel show -> DisableAccessibility \n");
     accessibilityAdaptor->DisableAccessibility();
-  }
-  else if( info & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) // Only Apps menu (dali application) is shown
-  {
-    if( !accessibilityAdaptor->IsForcedEnable() ) // It is not in case of that an application controls the accessibility status itself
-    {
-      DALI_LOG_ERROR("[FYI] Only Apps show, but not forced dali -> DisableAccessibility \n");
-      accessibilityAdaptor->DisableAccessibility();
-    }
-    else
-    {
-      DALI_LOG_ERROR("[FYI] Only Apps show and it is a forced dali -> (Apps) EnableAccessibility \n");
-      accessibilityAdaptor->EnableAccessibility();
-    }
   }
 
 #endif
