@@ -349,8 +349,8 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
   {
     // When other apps, which are not implemented by DALi, are on top of Apps application,
     // no event should be occurred on Apps because it's disabled by force already.
-    DALI_LOG_ERROR("Currently, all DALi applications do not receive any events because another app, which is not implemented by DALi, is at the top of the layer. \n");
-    return;
+    DALI_LOG_ERROR("NO Effect! => Currently, all DALi applications do not receive any events because another app, which is not implemented by DALi, is at the top of the layer. \n");
+    //return;
   }
 
   DALI_LOG_ERROR("[FYI] Accessibility gesture value : %d, state : %d \n", info.gestureValue, info.state);
