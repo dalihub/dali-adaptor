@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -547,8 +547,8 @@ bool LoadBitmapFromKtx(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   }
 
   // Skip the key-values:
-  const long int imageSizeOffset = sizeof(KtxFileHeader) + fileHeader.bytesOfKeyValueData;
-  if(DALI_UNLIKELY(fseek(fp, imageSizeOffset, SEEK_SET)))
+  const auto imageSizeOffset = sizeof(KtxFileHeader) + fileHeader.bytesOfKeyValueData;
+  if(DALI_UNLIKELY(fseek(fp, (long int)(imageSizeOffset), SEEK_SET)))
   {
     DALI_LOG_ERROR("Seek past key/vals in KTX compressed bitmap file failed.\n");
     return false;

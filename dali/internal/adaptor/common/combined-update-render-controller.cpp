@@ -552,8 +552,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     LOG_UPDATE_RENDER_TRACE;
 
     // For thread safe
-    bool         uploadOnly     = mUploadWithoutRendering;
-    unsigned int surfaceResized = mSurfaceResized;
+    bool                          uploadOnly     = mUploadWithoutRendering;
+    unsigned int                  surfaceResized = mSurfaceResized;
+    Dali::RenderSurfaceInterface* deletedSurface = ShouldSurfaceBeDeleted();
 
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
     AddPerformanceMarker(PerformanceInterface::VSYNC);
@@ -740,8 +741,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     //////////////////////////////
     // DELETE SURFACE
     //////////////////////////////
-
-    Dali::RenderSurfaceInterface* deletedSurface = ShouldSurfaceBeDeleted();
     if(DALI_UNLIKELY(deletedSurface))
     {
       LOG_UPDATE_RENDER_TRACE_FMT("Deleting Surface");
