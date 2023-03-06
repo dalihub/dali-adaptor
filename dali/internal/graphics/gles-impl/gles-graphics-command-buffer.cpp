@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -265,10 +265,7 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   // TODO: could use vector?
   static thread_local UniformBufferBindingDescriptor sTempBindings[MAX_UNIFORM_BUFFER_BINDINGS];
 
-  // reset temp bindings
-  memset(sTempBindings, 0, sizeof(UniformBufferBindingDescriptor) * MAX_UNIFORM_BUFFER_BINDINGS);
-
-  auto maxBinding = 0u;
+  auto maxBindingCount = 0u;
 
   // find max binding and standalone UBO
   for(const auto& binding : bindings)
@@ -285,12 +282,18 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
       }
       else // Bind regular UBO
       {
+        if(DALI_UNLIKELY(maxBindingCount == 0u))
+        {
+          // We can assume here comes first time. Reset temp bindings
+          std::fill_n(sTempBindings, MAX_UNIFORM_BUFFER_BINDINGS, UniformBufferBindingDescriptor());
+        }
         auto& slot    = sTempBindings[binding.binding];
         slot.buffer   = glesBuffer;
         slot.offset   = binding.offset;
         slot.binding  = binding.binding;
         slot.emulated = false;
-        maxBinding    = std::max(maxBinding, binding.binding);
+
+        maxBindingCount = std::max(maxBindingCount, binding.binding + 1u);
       }
     }
   }
@@ -298,13 +301,13 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   bindCmd.uniformBufferBindingsCount = 0u;
 
   // copy data
-  if(maxBinding)
+  if(maxBindingCount)
   {
-    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding + 1);
+    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBindingCount);
     // copy
-    memcpy(destBindings.Ptr(), sTempBindings, sizeof(UniformBufferBindingDescriptor) * (maxBinding + 1));
+    memcpy(destBindings.Ptr(), sTempBindings, sizeof(UniformBufferBindingDescriptor) * (maxBindingCount));
     bindCmd.uniformBufferBindings      = destBindings;
-    bindCmd.uniformBufferBindingsCount = maxBinding + 1;
+    bindCmd.uniformBufferBindingsCount = maxBindingCount;
   }
 }
 
