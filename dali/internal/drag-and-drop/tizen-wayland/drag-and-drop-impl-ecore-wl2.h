@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_DRAG_AND_DROP_ECORE_WL2_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ struct DropTarget
 /**
  * DragAndDrop Implementation
  */
-class DragAndDropEcoreWl : public Dali::Internal::Adaptor::DragAndDrop
+class DragAndDropEcoreWl : public Dali::Internal::Adaptor::DragAndDrop,
+                           public Dali::ConnectionTracker
 {
 public:
   /**
@@ -100,6 +101,13 @@ public:
   void ResetDropTargets();
 
 private:
+  /**
+   * @brief Callback function to check whether listening target is scene on.
+   * Note that This signal will be called only if AddListener target is not scene on.
+   */
+  void DropTargetSceneOn(Dali::Actor target);
+
+private:
   DragAndDropEcoreWl(const DragAndDropEcoreWl&) = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&) = delete;
   DragAndDropEcoreWl(DragAndDropEcoreWl&&)           = delete;
@@ -122,7 +130,7 @@ private:
   int                               mDataSize{0};
   Dali::Vector2                     mPosition;
   Dali::DragAndDrop::SourceFunction mSourceCallback{nullptr};
-  std::vector<DropTarget> mDropTargets;
+  std::vector<DropTarget>           mDropTargets;
 }; // class DragAndDropEcoreWl
 
 } // namespace Adaptor

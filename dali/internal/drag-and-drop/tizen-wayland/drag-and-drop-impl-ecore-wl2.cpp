@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,9 @@ namespace Adaptor
 {
 namespace
 {
-static constexpr int32_t DEFAULT_POSITION = -1;
-}
+static constexpr int32_t DEFAULT_POSITION            = -1;
+static constexpr int32_t INVALID_ECORE_WL2_WINDOW_ID = -1;
+} // namespace
 
 static bool IsIntersection(int px, int py, int tx, int ty, int tw, int th)
 {
@@ -58,8 +59,8 @@ static Eina_Bool EcoreEventDataSend(void* data, int type, void* event)
 
 static Eina_Bool EcoreEventDataSourceEnd(void* data, int type, void* event)
 {
-  Ecore_Wl2_Event_Data_Source_End *ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_End*>(event);
-  DragAndDropEcoreWl* dndImpl = reinterpret_cast<DragAndDropEcoreWl*>(data);
+  Ecore_Wl2_Event_Data_Source_End* ev      = reinterpret_cast<Ecore_Wl2_Event_Data_Source_End*>(event);
+  DragAndDropEcoreWl*              dndImpl = reinterpret_cast<DragAndDropEcoreWl*>(data);
   if(ev->cancelled)
   {
     dndImpl->CallSourceEvent(Dali::DragAndDrop::SourceEventType::CANCEL);
@@ -155,11 +156,11 @@ DragAndDropEcoreWl::DragAndDropEcoreWl()
   mSourceDropHandler = ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_DROP, EcoreEventDataSourceDrop, this);
 
   // Target Events
-  mReceiveHandler    = ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventOfferDataReady, this);
-  mMotionHandler     = ecore_event_handler_add(ECORE_WL2_EVENT_DND_MOTION, EcoreEventDataMotion, this);
-  mDropHandler       = ecore_event_handler_add(ECORE_WL2_EVENT_DND_DROP, EcoreEventDataDrop, this);
-  mEnterHandler      = ecore_event_handler_add(ECORE_WL2_EVENT_DND_ENTER, EcoreEventDataEnter, this);
-  mLeaveHandler      = ecore_event_handler_add(ECORE_WL2_EVENT_DND_LEAVE, EcoreEventDataLeave, this);
+  mReceiveHandler = ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventOfferDataReady, this);
+  mMotionHandler  = ecore_event_handler_add(ECORE_WL2_EVENT_DND_MOTION, EcoreEventDataMotion, this);
+  mDropHandler    = ecore_event_handler_add(ECORE_WL2_EVENT_DND_DROP, EcoreEventDataDrop, this);
+  mEnterHandler   = ecore_event_handler_add(ECORE_WL2_EVENT_DND_ENTER, EcoreEventDataEnter, this);
+  mLeaveHandler   = ecore_event_handler_add(ECORE_WL2_EVENT_DND_LEAVE, EcoreEventDataLeave, this);
 }
 
 DragAndDropEcoreWl::~DragAndDropEcoreWl()
@@ -228,18 +229,31 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, Dali::DragAndDrop::Drag
     }
   }
 
-  auto parent = Dali::DevelWindow::Get(target);
-  Ecore_Wl2_Window*  parentWindow = AnyCast<Ecore_Wl2_Window*>(parent.GetNativeHandle());
-  if(parentWindow == nullptr)
+  auto window = Dali::DevelWindow::Get(target);
+
+  int parentWindowId = INVALID_ECORE_WL2_WINDOW_ID;
+
+  if(!window)
   {
-    return false;
+    // Target is stil not scene-on
+    // Add dummy target data, and wait until target is on scene.
+    target.OnSceneSignal().Connect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
+  }
+  else
+  {
+    Ecore_Wl2_Window* parentWindow = AnyCast<Ecore_Wl2_Window*>(window.GetNativeHandle());
+    if(parentWindow == nullptr)
+    {
+      return false;
+    }
+    parentWindowId = ecore_wl2_window_id_get(parentWindow);
   }
 
   DropTarget targetData;
-  targetData.target   = target;
-  targetData.callback = callback;
-  targetData.inside   = false;
-  targetData.parentWindowId = ecore_wl2_window_id_get(parentWindow);
+  targetData.target         = target;
+  targetData.callback       = callback;
+  targetData.inside         = false;
+  targetData.parentWindowId = parentWindowId;
 
   mDropTargets.push_back(targetData);
 
@@ -273,18 +287,17 @@ void DragAndDropEcoreWl::ResetDropTargets()
 {
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
-     if(mDropTargets[i].inside)
-     {
-       Dali::DragAndDrop::DragEvent dragEvent;
-       dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
-       Dali::Vector2 position(DEFAULT_POSITION, DEFAULT_POSITION);
-       dragEvent.SetPosition(position);
-       mDropTargets[i].callback(dragEvent);
-     }
-     mDropTargets[i].inside = false;
+    if(mDropTargets[i].inside)
+    {
+      Dali::DragAndDrop::DragEvent dragEvent;
+      dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+      Dali::Vector2 position(DEFAULT_POSITION, DEFAULT_POSITION);
+      dragEvent.SetPosition(position);
+      mDropTargets[i].callback(dragEvent);
+    }
+    mDropTargets[i].inside = false;
   }
 }
-
 
 void DragAndDropEcoreWl::SendData(void* event)
 {
@@ -429,6 +442,29 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   }
 
   return false;
+}
+
+void DragAndDropEcoreWl::DropTargetSceneOn(Dali::Actor target)
+{
+  // Disconnect scene on signal
+  target.OnSceneSignal().Disconnect(this, &DragAndDropEcoreWl::DropTargetSceneOn);
+
+  for(auto iter = mDropTargets.begin(), iterEnd = mDropTargets.end(); iter != iterEnd; iter++)
+  {
+    if((*iter).target == target)
+    {
+      auto window = Dali::DevelWindow::Get(target);
+
+      Ecore_Wl2_Window* parentWindow = AnyCast<Ecore_Wl2_Window*>(window.GetNativeHandle());
+      if(parentWindow == nullptr)
+      {
+        return;
+      }
+
+      (*iter).parentWindowId = ecore_wl2_window_id_get(parentWindow);
+      break;
+    }
+  }
 }
 
 } // namespace Adaptor
