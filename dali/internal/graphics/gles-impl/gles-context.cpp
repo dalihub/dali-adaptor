@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,9 @@ struct Context::Impl
         {
           mProgramVAOCurrentState = attributeIter->second;
           gl.BindVertexArray(attributeIter->second);
+
+          // Binding VAO seems to reset the index buffer binding so the cache must be reset
+          mGlStateCache.mBoundElementArrayBufferId = 0;
         }
         return;
       }
@@ -82,6 +85,10 @@ struct Context::Impl
     uint32_t vao;
     gl.GenVertexArrays(1, &vao);
     gl.BindVertexArray(vao);
+
+    // Binding VAO seems to reset the index buffer binding so the cache must be reset
+    mGlStateCache.mBoundElementArrayBufferId = 0;
+
     mProgramVAOMap[program][hash] = vao;
     for(const auto& attr : vertexInputState.attributes)
     {
