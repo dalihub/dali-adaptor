@@ -54,12 +54,37 @@ public:
   };
 
   /**
+   * @brief The priority of this task what user think.
+   * To avoid long term tasks (like remote image download) block whole threads,
+   * Let user set the priority type of this task.
+   *
+   * Low priority task means it doesn't need to process by FIFO logic.
+   * So we make that Low priority don't take whole threads.
+   *
+   * Task selection algorithm defined internally.
+   *
+   * @note Task cannot change the priority type after create.
+   *
+   * @SINCE_2_2.17
+   */
+  enum class PriorityType
+  {
+    HIGH = 0, ///< Highest priority to process task. @SINCE_2_2.17
+    LOW  = 1, ///< Lowest priority to process task. @SINCE_2_2.17
+
+    PRIORITY_COUNT, ///< The number of priority type. @SINCE_2_2.17
+
+    DEFAULT = HIGH, ///< Default priority value if nothing defined. @SINCE_2_2.17
+  };
+
+  /**
    * Constructor
    * @SINCE_2_2.3
    * @param[in] callback The callback to invoke on task completion, either on the main thread on the worker thread. The ownership of callback is taken by this class.
+   * @param[in] priority The proirity type of this task.
    * @param[in] threadType The thread type of invocation callback.
    */
-  AsyncTask(CallbackBase* callback, ThreadType threadType = AsyncTask::ThreadType::MAIN_THREAD);
+  AsyncTask(CallbackBase* callback, PriorityType priority = PriorityType::DEFAULT, ThreadType threadType = AsyncTask::ThreadType::MAIN_THREAD);
 
   /**
    * Get the complated callback
@@ -73,6 +98,13 @@ public:
    * @return the type of invocation callback.
    */
   ThreadType GetCallbackInvocationThread();
+
+  /**
+   * Get the priority of this task
+   * @SINCE_2_2.17
+   * @return the type of priority.
+   */
+  PriorityType GetPriorityType() const;
 
   /**
    * Destructor.
@@ -95,6 +127,7 @@ public:
 
 private:
   std::unique_ptr<CallbackBase> mCompletedCallback;
+  const PriorityType            mPriorityType;
   ThreadType                    mThreadType;
 
   // Undefined

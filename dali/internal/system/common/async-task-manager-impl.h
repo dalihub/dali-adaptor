@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ASYNC_TASK_MANAGER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -205,6 +205,9 @@ private:
   std::vector<AsyncTaskPair> mRunningTasks; ///< The queue of the running tasks
 
   RoundRobinContainerView<TaskHelper> mTasks;
+
+  uint32_t mAvaliableLowPriorityTaskCounts; ///< The number of tasks that can be processed for proirity type LOW.
+                                            ///< Be used to select next wating task determining algorithm.
 
   Dali::Mutex                          mMutex;
   std::unique_ptr<EventThreadCallback> mTrigger;
