@@ -950,13 +950,31 @@ void Context::GenerateMipmap(GLenum target)
 
 void Context::BindBuffer(GLenum target, uint32_t bufferId)
 {
-  if(mImpl->mGlStateCache.mBoundArrayBufferId != bufferId)
+  switch(target)
   {
-    mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
-
-    auto& gl = *mImpl->mController.GetGL();
-    gl.BindBuffer(target, bufferId);
+    case GL_ARRAY_BUFFER:
+    {
+      if(mImpl->mGlStateCache.mBoundArrayBufferId == bufferId)
+      {
+        return;
+      }
+      mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
+      break;
+    }
+    case GL_ELEMENT_ARRAY_BUFFER:
+    {
+      if(mImpl->mGlStateCache.mBoundElementArrayBufferId == bufferId)
+      {
+        return;
+      }
+      mImpl->mGlStateCache.mBoundElementArrayBufferId = bufferId;
+      break;
+    }
   }
+
+  // Cache miss. Bind buffer.
+  auto& gl = *mImpl->mController.GetGL();
+  gl.BindBuffer(target, bufferId);
 }
 
 void Context::DrawBuffers(uint32_t count, const GLenum* buffers)
