@@ -127,7 +127,7 @@ public: // API
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  TtsPlayer(TtsPlayer&& rhs);
+  TtsPlayer(TtsPlayer&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -136,7 +136,7 @@ public: // API
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  TtsPlayer& operator=(TtsPlayer&& rhs);
+  TtsPlayer& operator=(TtsPlayer&& rhs) noexcept;
 
   /**
    * @brief Starts playing the audio data synthesized from the specified text.

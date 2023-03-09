@@ -79,9 +79,9 @@ Window::Window(const Window& copy) = default;
 
 Window& Window::operator=(const Window& rhs) = default;
 
-Window::Window(Window&& rhs) = default;
+Window::Window(Window&& rhs) noexcept = default;
 
-Window& Window::operator=(Window&& rhs) = default;
+Window& Window::operator=(Window&& rhs) noexcept = default;
 
 Window Window::DownCast(BaseHandle handle)
 {

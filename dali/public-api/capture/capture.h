@@ -171,7 +171,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Capture(Capture&& rhs);
+  Capture(Capture&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -180,7 +180,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Capture& operator=(Capture&& rhs);
+  Capture& operator=(Capture&& rhs) noexcept;
 
   /**
    * @brief Start capture and save the image as a file.

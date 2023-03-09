@@ -101,7 +101,7 @@ public: // API
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Timer(Timer&& rhs);
+  Timer(Timer&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -110,7 +110,7 @@ public: // API
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Timer& operator=(Timer&& rhs);
+  Timer& operator=(Timer&& rhs) noexcept;
 
   /**
    * @brief Destructor.

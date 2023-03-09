@@ -54,9 +54,9 @@ Capture::Capture(const Capture& copy) = default;
 
 Capture& Capture::operator=(const Capture& rhs) = default;
 
-Capture::Capture(Capture&& rhs) = default;
+Capture::Capture(Capture&& rhs)noexcept = default;
 
-Capture& Capture::operator=(Capture&& rhs) = default;
+Capture& Capture::operator=(Capture&& rhs)noexcept = default;
 
 void Capture::Start(Actor source, const Vector2& position, const Vector2& size, const std::string& path, const Vector4& clearColor)
 {

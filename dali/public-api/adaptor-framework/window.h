@@ -145,7 +145,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  Window(Window&& rhs);
+  Window(Window&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -154,7 +154,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  Window& operator=(Window&& rhs);
+  Window& operator=(Window&& rhs) noexcept;
 
   /**
    * @brief Downcast sceneHolder to window
