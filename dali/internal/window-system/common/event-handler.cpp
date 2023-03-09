@@ -298,26 +298,6 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     return;
   }
 
-  if( info.gestureValue == 15 ) // ONE_FINGER_SINGLE_TAP
-  {
-    DALI_LOG_ERROR("[FYI] Native window resource ID : %s, Touched window resource ID : %d \n", mWindowBase->GetNativeWindowResourceId().c_str(), info.resourceId);
-    if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
-    {
-      if( !accessibilityAdaptor->IsEnabled() )
-      {
-        // Accessibility gesture was sent to this window, so enable accessibility
-        accessibilityAdaptor->EnableAccessibility();
-      }
-    }
-    else
-    {
-      // Ignore tap gesture - it should be handled by another window (possibly in another application),
-      // for which the resource ID matches with the one stored in AccessibilityInfo.
-      DALI_LOG_ERROR("Ignore Single tap gesture because the gesture should be handled by other window. \n");
-      return;
-    }
-  }
-
   if( accessibilityAdaptor->IsForcedShown() )
   {
     DALI_LOG_ERROR("InsideFridge app calls the API \n");
@@ -333,24 +313,27 @@ void EventHandler::OnAccessibilityNotification( const WindowBase::AccessibilityI
     }
   }
 
+  DALI_LOG_ERROR("[FYI] Native window resource ID : %s, Touched window resource ID : %d \n", mWindowBase->GetNativeWindowResourceId().c_str(), info.resourceId);
+  if( std::to_string( info.resourceId ) == mWindowBase->GetNativeWindowResourceId() )
+  {
+    if( !accessibilityAdaptor->IsEnabled() )
+    {
+      // Accessibility gesture was sent to this window, so enable accessibility
+      accessibilityAdaptor->EnableAccessibility();
+    }
+  }
+  else
+  {
+    // Ignore tap gesture - it should be handled by another window (possibly in another application),
+    // for which the resource ID matches with the one stored in AccessibilityInfo.
+    DALI_LOG_ERROR("Ignore Single tap gesture because the gesture should be handled by other window. \n");
+    return;
+  }
+
   if( !accessibilityAdaptor->IsEnabled() )
   {
     DALI_LOG_ERROR( "The current dali accessibility is not available. \n" );
     return;
-  }
-
-  if( ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_SYSTEM_DEFAULT ) ) && ( info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) )
-  {
-    DALI_LOG_ERROR("Quickpanel is top now, so all dali apps should be stopped \n");
-    return;
-  }
-
-  if( !(info.quickpanelInfo & ( 1 << QUICKPANEL_TYPE_APPS_MENU ) ) && accessibilityAdaptor->IsForcedEnable() )
-  {
-    // When other apps, which are not implemented by DALi, are on top of Apps application,
-    // no event should be occurred on Apps because it's disabled by force already.
-    DALI_LOG_ERROR("NO Effect! => Currently, all DALi applications do not receive any events because another app, which is not implemented by DALi, is at the top of the layer. \n");
-    //return;
   }
 
   DALI_LOG_ERROR("[FYI] Accessibility gesture value : %d, state : %d \n", info.gestureValue, info.state);

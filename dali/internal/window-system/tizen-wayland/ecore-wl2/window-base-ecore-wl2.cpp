@@ -1350,6 +1350,9 @@ void WindowBaseEcoreWl2::OnEcoreElDBusAccessibilityQuickpanelChanged( void* cont
     mAccessibilityInfo.quickpanelInfo &= ~( 1 << type );
   }
 
+  // info '0' is MenuScreen enabled / '2' and '10' is QuickPanel enabled / '8' is Apps enabled
+  DALI_LOG_ERROR("Quickpanel info is [ %d ]\n", mAccessibilityInfo.quickpanelInfo);
+
   mQuickPanelSignal.Emit( mAccessibilityInfo.quickpanelInfo );
 #endif
 }
