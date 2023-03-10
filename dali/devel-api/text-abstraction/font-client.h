@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_FONT_CLIENT_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,15 @@ public:
    * @return A handle to the FontClient
    */
   static FontClient Get();
+
+  /**
+   * @brief Create a handle to the new FontClient instance.
+   *
+   * @param[in] horizontalDpi The horizontal resolution in DPI.
+   * @param[in] verticalDpi The vertical resolution in DPI.
+   * @return A handle to the FontClient
+   */
+  static FontClient New(uint32_t horizontalDpi, uint32_t verticalDpi);
 
   /**
    * @brief Create an uninitialized TextAbstraction handle.
