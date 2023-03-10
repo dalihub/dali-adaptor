@@ -38,6 +38,16 @@ int UtcDaliBmp24bpp(void)
 
   END_TEST;
 }
+int UtcDaliBmp32bpp(void)
+{
+  ImageDetails image(TEST_IMAGE_DIR "/test_32bpp.bmp", 127u, 64u);
+
+  // Note : Currently we hard-overrite alpha channel as 255.
+  // Please fix UTC if we change current policy.
+  TestImageLoading(image, BmpLoaders);
+
+  END_TEST;
+}
 int UtcDaliBmpRGB8(void)
 {
   ImageDetails image(TEST_IMAGE_DIR "/w3c_home_256.bmp", 72u, 48u);

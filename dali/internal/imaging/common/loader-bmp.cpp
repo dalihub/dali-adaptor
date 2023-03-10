@@ -1070,13 +1070,17 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   switch(infoHeader.compression)
   {
     case 0:
+    {
       switch(infoHeader.bitsPerPixel)
       {
         case 32:
+        {
           pixelFormat = Pixel::BGR8888;
           break;
+        }
 
         case 24:
+        {
           if(fileHeader.offset == FileHeaderOffsetOfRGB24V5) //0x8A
           {
             customizedFormat = BMP_RGB24V5;
@@ -1086,27 +1090,40 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
             pixelFormat = Pixel::RGB888;
           }
           break;
+        }
 
         case 16:
+        {
           customizedFormat = BMP_RGB555;
           break;
+        }
 
         case 8:
+        {
           customizedFormat = BMP_RGB8;
           break;
+        }
 
         case 4: // RGB4
+        {
           customizedFormat = BMP_RGB4;
           break;
+        }
 
         case 1: //RGB1
+        {
           customizedFormat = BMP_RGB1;
           break;
+        }
+
         default:
+        {
           DALI_LOG_ERROR("%d bits per pixel not supported for BMP files\n", infoHeader.bitsPerPixel);
           return false;
+        }
       }
       break;
+    }
     case 1: //// RLE8
     {
       if(infoHeader.bitsPerPixel == 8)
@@ -1165,8 +1182,10 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       break;
     }
     default:
+    {
       DALI_LOG_ERROR("Compression not supported for BMP files\n");
       return false;
+    }
   }
 
   bool topDown = false;
@@ -1227,6 +1246,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       break;
     }
     default:
+    {
       if(pixelFormat == Pixel::RGB565)
       {
         pixelBufferW   = ((imageW & 3) != 0) ? imageW + 4 - (imageW & 3) : imageW;
@@ -1240,6 +1260,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
         newPixelFormat = pixelFormat;
       }
       break;
+    }
   }
 
   bitmap      = Dali::Devel::PixelBuffer::New(pixelBufferW, pixelBufferH, newPixelFormat);
@@ -1326,6 +1347,16 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
           {
             DALI_LOG_ERROR("Error reading the BMP image\n");
             break;
+          }
+
+          // If 32 bit mode then Alpha pixels must be ignored.
+          // BGR8888 format doesn't seem to be supported by graphics-api
+          if(infoHeader.bitsPerPixel == 32)
+          {
+            for(unsigned int i = 3; i < rowStride; i += 4)
+            {
+              pixelsIterator[i] = 255u;
+            }
           }
 
           // If 24 bit mode then swap Blue and Red pixels
