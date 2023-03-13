@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "async-task-manager-impl.h"
+#include <dali/internal/system/common/async-task-manager-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -36,6 +36,10 @@ namespace
 constexpr auto DEFAULT_NUMBER_OF_ASYNC_THREADS = size_t{8u};
 constexpr auto NUMBER_OF_ASYNC_THREADS_ENV     = "DALI_ASYNC_MANAGER_THREAD_POOL_SIZE";
 
+// The number of threads for low priority task.
+constexpr auto DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS = size_t{6u};
+constexpr auto NUMBER_OF_LOW_PRIORITY_THREADS_ENV     = "DALI_ASYNC_MANAGER_LOW_PRIORITY_THREAD_POOL_SIZE";
+
 size_t GetNumberOfThreads(const char* environmentVariable, size_t defaultValue)
 {
   auto           numberString          = EnvironmentVariable::GetEnvironmentVariable(environmentVariable);
@@ -43,6 +47,14 @@ size_t GetNumberOfThreads(const char* environmentVariable, size_t defaultValue)
   constexpr auto MAX_NUMBER_OF_THREADS = 10u;
   DALI_ASSERT_DEBUG(numberOfThreads < MAX_NUMBER_OF_THREADS);
   return (numberOfThreads > 0 && numberOfThreads < MAX_NUMBER_OF_THREADS) ? numberOfThreads : defaultValue;
+}
+
+size_t GetNumberOfLowPriorityThreads(const char* environmentVariable, size_t defaultValue, size_t maxValue)
+{
+  auto numberString    = EnvironmentVariable::GetEnvironmentVariable(environmentVariable);
+  auto numberOfThreads = numberString ? std::strtoul(numberString, nullptr, 10) : 0;
+  DALI_ASSERT_DEBUG(numberOfThreads <= maxValue);
+  return (numberOfThreads > 0 && numberOfThreads <= maxValue) ? numberOfThreads : std::min(defaultValue, maxValue);
 }
 
 #if defined(DEBUG_ENABLED)
@@ -150,6 +162,7 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
 
 AsyncTaskManager::AsyncTaskManager()
 : mTasks(GetNumberOfThreads(NUMBER_OF_ASYNC_THREADS_ENV, DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]() { return TaskHelper(*this); }),
+  mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(NUMBER_OF_LOW_PRIORITY_THREADS_ENV, DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),
   mProcessorRegistered(false)
 {
@@ -167,9 +180,11 @@ AsyncTaskManager::~AsyncTaskManager()
 
 void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 {
+  if(task)
   {
     // Lock while adding task to the queue
     Mutex::ScopedLock lock(mMutex);
+
     mWaitingTasks.push_back(task);
 
     // Finish all Running threads are working
@@ -203,9 +218,11 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 
 void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
 {
+  if(task)
   {
     // Lock while remove task from the queue
     Mutex::ScopedLock lock(mMutex);
+
     if(!mWaitingTasks.empty())
     {
       for(std::vector<AsyncTaskPtr>::iterator it = mWaitingTasks.begin(); it != mWaitingTasks.end();)
@@ -263,12 +280,25 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
   {
     if((*iter)->IsReady())
     {
-      nextTask = *iter;
+      const auto priorityType  = (*iter)->GetPriorityType();
+      const bool taskAvaliable = (priorityType == AsyncTask::PriorityType::HIGH) || // Task always valid if it's priority is high
+                                 (mAvaliableLowPriorityTaskCounts > 0u);            // or priority is low, but we can use it.
 
-      // Add Running queue
-      mRunningTasks.push_back(std::make_pair(nextTask, false));
-      mWaitingTasks.erase(iter);
-      break;
+      if(taskAvaliable)
+      {
+        nextTask = *iter;
+
+        // Add Running queue
+        mRunningTasks.push_back(std::make_pair(nextTask, false));
+        mWaitingTasks.erase(iter);
+
+        // Decrease avaliable task counts if it is low priority
+        if(priorityType == AsyncTask::PriorityType::LOW)
+        {
+          --mAvaliableLowPriorityTaskCounts;
+        }
+        break;
+      }
     }
   }
 
@@ -297,6 +327,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr task)
   // Lock while adding task to the queue
   {
     Mutex::ScopedLock lock(mMutex);
+
     for(auto iter = mRunningTasks.begin(), endIter = mRunningTasks.end(); iter != endIter; ++iter)
     {
       if((*iter).first == task)
@@ -311,6 +342,13 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr task)
 
         // Delete this task in running queue
         mRunningTasks.erase(iter);
+
+        // Increase avaliable task counts if it is low priority
+        const auto priorityType = task->GetPriorityType();
+        if(priorityType == AsyncTask::PriorityType::LOW)
+        {
+          ++mAvaliableLowPriorityTaskCounts;
+        }
         break;
       }
     }

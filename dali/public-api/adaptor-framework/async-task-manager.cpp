@@ -15,15 +15,16 @@
  */
 
 // CLASS HEADER
-#include "async-task-manager.h"
+#include <dali/public-api/adaptor-framework/async-task-manager.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/async-task-manager-impl.h>
 
 namespace Dali
 {
-AsyncTask::AsyncTask(CallbackBase* callback, ThreadType threadType)
+AsyncTask::AsyncTask(CallbackBase* callback, PriorityType priority, ThreadType threadType)
 : mCompletedCallback(std::unique_ptr<CallbackBase>(callback)),
+  mPriorityType(priority),
   mThreadType(threadType)
 {
 }
@@ -36,6 +37,11 @@ CallbackBase* AsyncTask::GetCompletedCallback()
 AsyncTask::ThreadType AsyncTask::GetCallbackInvocationThread()
 {
   return mThreadType;
+}
+
+AsyncTask::PriorityType AsyncTask::GetPriorityType() const
+{
+  return mPriorityType;
 }
 
 AsyncTaskManager::AsyncTaskManager() = default;

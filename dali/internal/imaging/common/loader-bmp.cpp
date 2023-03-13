@@ -730,7 +730,7 @@ bool DecodeRGB8(FILE*          fp,
       // the data in the file is bottom up, and we store the data top down
       pixelsPtr = pixels + (((height - 1) - index) * rowStride);
     }
-    for(std::uint8_t j = 0; j < width; ++j)
+    for(std::uint32_t j = 0; j < width; ++j)
     {
       ctIndex                = colorIndex[width * index + j];
       pixelsPtr[3 * j]       = colorTable[4 * ctIndex + 2];
