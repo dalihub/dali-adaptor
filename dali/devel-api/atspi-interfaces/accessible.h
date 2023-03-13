@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -326,6 +326,13 @@ public:
    * @return The internal Actor
    */
   virtual Dali::Actor GetInternalActor() = 0;
+
+  /**
+   * @brief Sets whether to listen for post render callback.
+   *
+   * @param[in] enabled If ture, registration post render callback, false otherwise
+   */
+  virtual void SetListenPostRender(bool enabled);
 
   /**
    * @brief Gets all implemented interfaces.
