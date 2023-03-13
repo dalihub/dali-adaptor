@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -420,6 +420,13 @@ public:
    * @param[in] highlight If window needs to grab or clear highlight.
    */
   void EmitAccessibilityHighlightSignal(bool highlight);
+
+  /**
+   * @brief Sets the render notification trigger to call when render thread is completed a frame
+   *
+   * @param[in] renderNotification to use
+   */
+  void SetRenderNotification(TriggerEventInterface *renderNotification);
 
 public: // Dali::Internal::Adaptor::SceneHolder
   /**

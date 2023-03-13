@@ -338,6 +338,9 @@ namespace
 {
 class AdaptorAccessible : public ActorAccessible
 {
+private:
+  std::unique_ptr<TriggerEventInterface> mRenderNotification = nullptr;
+
 protected:
   bool mRoot = false;
 
@@ -474,6 +477,39 @@ public:
   {
     return {};
   }
+
+  void SetListenPostRender(bool enabled) override
+  {
+    if (!mRoot)
+    {
+      return;
+    }
+
+    auto window                                 = Dali::DevelWindow::Get(Self());
+    Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
+
+    if(!mRenderNotification)
+    {
+      mRenderNotification = std::unique_ptr<TriggerEventInterface>(
+                                           TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
+                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    }
+
+    if (enabled)
+    {
+      windowImpl.SetRenderNotification(mRenderNotification.get());
+    }
+    else
+    {
+      windowImpl.SetRenderNotification(nullptr);
+    }
+  }
+
+  void OnPostRender()
+  {
+    Accessibility::Bridge::GetCurrentBridge()->Emit(Accessibility::Accessible::Get(Self()), Accessibility::WindowEvent::POST_RENDER);
+  }
+
 }; // AdaptorAccessible
 
 using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
