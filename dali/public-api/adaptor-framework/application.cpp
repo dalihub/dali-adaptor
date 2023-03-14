@@ -135,9 +135,9 @@ Application::Application(const Application& copy) = default;
 
 Application& Application::operator=(const Application& rhs) = default;
 
-Application::Application(Application&& rhs) = default;
+Application::Application(Application&& rhs) noexcept = default;
 
-Application& Application::operator=(Application&& rhs) = default;
+Application& Application::operator=(Application&& rhs) noexcept = default;
 
 void Application::MainLoop()
 {

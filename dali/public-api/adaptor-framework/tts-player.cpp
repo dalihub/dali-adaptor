@@ -48,9 +48,9 @@ TtsPlayer::TtsPlayer(const TtsPlayer& copy) = default;
 
 TtsPlayer& TtsPlayer::operator=(const TtsPlayer& rhs) = default;
 
-TtsPlayer::TtsPlayer(TtsPlayer&& rhs) = default;
+TtsPlayer::TtsPlayer(TtsPlayer&& rhs) noexcept = default;
 
-TtsPlayer& TtsPlayer::operator=(TtsPlayer&& rhs) = default;
+TtsPlayer& TtsPlayer::operator=(TtsPlayer&& rhs) noexcept = default;
 
 void TtsPlayer::Play(const std::string& text)
 {

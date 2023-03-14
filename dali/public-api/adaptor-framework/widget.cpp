@@ -41,9 +41,9 @@ Widget::Widget(const Widget& copy) = default;
 
 Widget& Widget::operator=(const Widget& rhs) = default;
 
-Widget::Widget(Widget&& rhs) = default;
+Widget::Widget(Widget&& rhs) noexcept = default;
 
-Widget& Widget::operator=(Widget&& rhs) = default;
+Widget& Widget::operator=(Widget&& rhs) noexcept = default;
 
 Widget::Widget(Internal::Adaptor::Widget* widget)
 : BaseHandle(widget)
