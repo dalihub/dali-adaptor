@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-operations.h>
@@ -75,6 +76,9 @@ Dali::Integration::Log::Filter* gFontClientLogFilter = Dali::Integration::Log::F
 
 namespace
 {
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
+
 /**
  * Conversion from Fractional26.6 to float
  */
@@ -482,6 +486,8 @@ FontId FontClient::Plugin::FindFallbackFont(Character              charcode,
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   FONT_LOG_REQUEST(charcode, requestedPointSize, preferColor);
 
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_FIND_FALLBACKFONT");
+
   // The font id to be returned.
   FontId fontId = 0u;
 
@@ -498,6 +504,13 @@ FontId FontClient::Plugin::FindFallbackFont(Character              charcode,
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontWeight::Name[preferredFontDescription.weight], FontWeight::Name[fontDescription.weight]);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontWidth::Name[preferredFontDescription.width], FontWidth::Name[fontDescription.width]);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontSlant::Name[preferredFontDescription.slant], FontSlant::Name[fontDescription.slant]);
+
+  #if defined(TRACE_ENABLED)
+  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+  {
+    DALI_LOG_DEBUG_INFO("DALI_TEXT_FIND_FALLBACKFONT : %s -> %s\n", preferredFontDescription.family.c_str(), fontDescription.family.c_str());
+  }
+  #endif
 
   // Check first if the font's description has been queried before.
   FontList*         fontList         = nullptr;
@@ -1016,7 +1029,15 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "                path : [%s]\n", path.c_str());
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize);
 
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_CREATE_FONT");
   FontId fontId = 0u;
+
+  #if defined(TRACE_ENABLED)
+  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+  {
+    DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Face : %s\n", path.c_str());
+  }
+  #endif
 
   // Create & cache new font face
   FT_Face ftFace;
