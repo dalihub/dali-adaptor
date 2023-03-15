@@ -357,7 +357,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
  * @param[in]  isBoldRequired    Whether the glyph requires bold style.
  */
 void FontFaceCacheItem::CreateBitmap(
-  GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
+  GlyphIndex glyphIndex, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
 {
   GlyphCacheManager::GlyphCacheData glyphData;
   FT_Error                          error;

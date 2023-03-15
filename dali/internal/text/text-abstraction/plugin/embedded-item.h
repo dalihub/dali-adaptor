@@ -48,8 +48,8 @@ struct EmbeddedItem
    * @param[in]  pixelBufferCache The pixel buffer cache
    * @param[out] data The bitmap data.
    */
-  void CreateBitmap(const std::vector<PixelBufferCacheItem>&            pixelBufferCache,
-                    Dali::TextAbstraction::FontClient::GlyphBufferData& data);
+  void CreateBitmap(const std::vector<PixelBufferCacheItem>& pixelBufferCache,
+                    Dali::TextAbstraction::GlyphBufferData&  data);
 
   PixelBufferId pixelBufferId{0u}; ///< Index to the vector of pixel buffers
   uint32_t      width{0u};         ///< The desired width.

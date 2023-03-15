@@ -139,9 +139,9 @@ int UtcDaliFontClientAtlasLimitationEnabled(void)
 
   // Block's width or height are less than 512
   tet_infoline("UtcDaliFontClientAtlasLimitationEnabled PointSize=200");
-  uint32_t                                     pointSize200 = 200 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
-  TextAbstraction::FontId                      fontId200    = fontClient.GetFontId(fontDescription, pointSize200);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData200;
+  uint32_t                         pointSize200 = 200 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  TextAbstraction::FontId          fontId200    = fontClient.GetFontId(fontDescription, pointSize200);
+  TextAbstraction::GlyphBufferData glyphBufferData200;
   glyphBufferData200.width  = 0;
   glyphBufferData200.height = 0;
   fontClient.CreateBitmap(fontId200, 68, false, false, glyphBufferData200, 0);
@@ -152,8 +152,8 @@ int UtcDaliFontClientAtlasLimitationEnabled(void)
   // Block's width or height are  greater than 512 and less than 1024
   uint32_t pointSize1000 = 1000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
   tet_infoline("UtcDaliFontClientAtlasLimitationEnabled PointSize=1000");
-  TextAbstraction::FontId                      fontId1000 = fontClient.GetFontId(fontDescription, pointSize1000);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData1000;
+  TextAbstraction::FontId          fontId1000 = fontClient.GetFontId(fontDescription, pointSize1000);
+  TextAbstraction::GlyphBufferData glyphBufferData1000;
   glyphBufferData1000.width  = 0;
   glyphBufferData1000.height = 0;
   fontClient.CreateBitmap(fontId1000, 68, false, false, glyphBufferData1000, 0);
@@ -164,8 +164,8 @@ int UtcDaliFontClientAtlasLimitationEnabled(void)
   // Block's width or height are greater than 1024 and less than 2048
   uint32_t pointSize2000 = 2000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
   tet_infoline("UtcDaliFontClientAtlasLimitationEnabled PointSize=2000");
-  TextAbstraction::FontId                      fontId2000 = fontClient.GetFontId(fontDescription, pointSize2000);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData2000;
+  TextAbstraction::FontId          fontId2000 = fontClient.GetFontId(fontDescription, pointSize2000);
+  TextAbstraction::GlyphBufferData glyphBufferData2000;
   glyphBufferData2000.width  = 0;
   glyphBufferData2000.height = 0;
   fontClient.CreateBitmap(fontId2000, 68, false, false, glyphBufferData2000, 0);
@@ -196,9 +196,9 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
 
   // Block's width or height are less than 512
   tet_infoline("UtcDaliFontClientAtlasLimitationDisabled PointSize=200");
-  uint32_t                                     pointSize200 = 200 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
-  TextAbstraction::FontId                      fontId200    = fontClient.GetFontId(fontDescription, pointSize200);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData200;
+  uint32_t                         pointSize200 = 200 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  TextAbstraction::FontId          fontId200    = fontClient.GetFontId(fontDescription, pointSize200);
+  TextAbstraction::GlyphBufferData glyphBufferData200;
   glyphBufferData200.width  = 0;
   glyphBufferData200.height = 0;
   fontClient.CreateBitmap(fontId200, 68, false, false, glyphBufferData200, 0);
@@ -208,9 +208,9 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
 
   // Block's width or height are  greater than 512 and less than 1024
   tet_infoline("UtcDaliFontClientAtlasLimitationDisabled PointSize=1000");
-  uint32_t                                     pointSize1000 = 1000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
-  TextAbstraction::FontId                      fontId1000    = fontClient.GetFontId(fontDescription, pointSize1000);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData1000;
+  uint32_t                         pointSize1000 = 1000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  TextAbstraction::FontId          fontId1000    = fontClient.GetFontId(fontDescription, pointSize1000);
+  TextAbstraction::GlyphBufferData glyphBufferData1000;
   glyphBufferData1000.width  = 0;
   glyphBufferData1000.height = 0;
   fontClient.CreateBitmap(fontId1000, 68, false, false, glyphBufferData1000, 0);
@@ -220,9 +220,9 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
 
   // Block's width or height are greater than 1024 and less than 2048
   tet_infoline("UtcDaliFontClientAtlasLimitationDisabled PointSize=2000");
-  uint32_t                                     pointSize2000 = 2000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
-  TextAbstraction::FontId                      fontId2000    = fontClient.GetFontId(fontDescription, pointSize2000);
-  TextAbstraction::FontClient::GlyphBufferData glyphBufferData2000;
+  uint32_t                         pointSize2000 = 2000 * TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
+  TextAbstraction::FontId          fontId2000    = fontClient.GetFontId(fontDescription, pointSize2000);
+  TextAbstraction::GlyphBufferData glyphBufferData2000;
   glyphBufferData2000.width  = 0;
   glyphBufferData2000.height = 0;
   fontClient.CreateBitmap(fontId2000, 68, false, false, glyphBufferData2000, 0);
@@ -231,11 +231,11 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
   DALI_TEST_GREATER(glyphBufferData2000.height, 1024u, TEST_LOCATION); //1148u
 
   // Test GlyphBufferData move
-  TextAbstraction::FontClient::GlyphBufferData movedGlyphBufferData2000 = std::move(glyphBufferData2000);
+  TextAbstraction::GlyphBufferData movedGlyphBufferData2000 = std::move(glyphBufferData2000);
 
   for(int i = 0; i < 50; ++i)
   {
-    TextAbstraction::FontClient::GlyphBufferData dummy = std::move(movedGlyphBufferData2000);
+    TextAbstraction::GlyphBufferData dummy = std::move(movedGlyphBufferData2000);
     movedGlyphBufferData2000                           = std::move(dummy);
 
     // Test moved GlyphBufferData destruct well

@@ -316,14 +316,14 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
 
       GlyphCacheData& destinationGlpyhData = mLRUGlyphCache.GetElement(iter);
 
-      destinationGlpyhData.mRenderedBuffer = new TextAbstraction::FontClient::GlyphBufferData();
+      destinationGlpyhData.mRenderedBuffer = new TextAbstraction::GlyphBufferData();
       if(DALI_UNLIKELY(!destinationGlpyhData.mRenderedBuffer))
       {
         DALI_LOG_ERROR("Allocate GlyphBufferData failed\n");
         return;
       }
 
-      TextAbstraction::FontClient::GlyphBufferData& renderBuffer = *destinationGlpyhData.mRenderedBuffer;
+      TextAbstraction::GlyphBufferData& renderBuffer = *destinationGlpyhData.mRenderedBuffer;
 
       // Set basic informations.
       renderBuffer.width  = srcBitmap.width;
@@ -338,22 +338,22 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
           if(policy == CompressionPolicyType::SPEED)
           {
             // If policy is SPEED, we will not compress bitmap.
-            renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+            renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
           }
           else
           {
             // If small enough glyph, compress as BPP4 method.
             if(srcBitmap.width < THRESHOLD_WIDTH_FOR_RLE4_COMPRESSION)
             {
-              renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::BPP_4;
+              renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::BPP_4;
             }
             else
             {
-              renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::RLE_4;
+              renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::RLE_4;
             }
           }
 
-          const auto compressedBufferSize = TextAbstraction::FontClient::GlyphBufferData::Compress(srcBitmap.buffer, renderBuffer);
+          const auto compressedBufferSize = TextAbstraction::GlyphBufferData::Compress(srcBitmap.buffer, renderBuffer);
           if(DALI_UNLIKELY(compressedBufferSize == 0u))
           {
             DALI_ASSERT_DEBUG(0 == "Compress failed at FT_PIXEL_MODE_GRAY");
@@ -368,10 +368,10 @@ void GlyphCacheManager::CacheRenderedGlyphBuffer(
         case FT_PIXEL_MODE_BGRA:
         {
           // Copy buffer without compress
-          renderBuffer.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+          renderBuffer.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
           renderBuffer.format          = Pixel::BGRA8888;
 
-          const auto compressedBufferSize = TextAbstraction::FontClient::GlyphBufferData::Compress(srcBitmap.buffer, renderBuffer);
+          const auto compressedBufferSize = TextAbstraction::GlyphBufferData::Compress(srcBitmap.buffer, renderBuffer);
           if(DALI_UNLIKELY(compressedBufferSize == 0u))
           {
             DALI_ASSERT_DEBUG(0 == "Compress failed at FT_PIXEL_MODE_BGRA");
