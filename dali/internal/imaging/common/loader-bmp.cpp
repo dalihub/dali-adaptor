@@ -1075,7 +1075,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
       {
         case 32:
         {
-          pixelFormat = Pixel::BGR8888;
+          pixelFormat = Pixel::RGBA8888;
           break;
         }
 
@@ -1237,7 +1237,7 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
     case BMP_BITFIELDS32V4:
     {
       pixelBufferH   = abs(infoHeader.height);
-      newPixelFormat = Pixel::RGB8888;
+      newPixelFormat = Pixel::RGBA8888;
       break;
     }
     case BMP_RGB24V5:
@@ -1349,13 +1349,18 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
             break;
           }
 
-          // If 32 bit mode then Alpha pixels must be ignored.
-          // BGR8888 format doesn't seem to be supported by graphics-api
+          // If 32 bit mode then swap Blue and Red pixels. And Alpha pixels must be ignored.
+          // Reference : https://users.cs.fiu.edu/~czhang/teaching/cop4225/project_files/bitmap_format.htm
+          // ... if the compression field of the bitmap is set to bi_rgb, ... the high byte in each dword is not used.
+          // RGB8888 format doesn't seem to be supported by graphics-api
           if(infoHeader.bitsPerPixel == 32)
           {
-            for(unsigned int i = 3; i < rowStride; i += 4)
+            for(uint32_t i = 0; i < rowStride; i += 4)
             {
-              pixelsIterator[i] = 255u;
+              uint8_t temp          = pixelsIterator[i];
+              pixelsIterator[i]     = pixelsIterator[i + 2];
+              pixelsIterator[i + 2] = temp;
+              pixelsIterator[i + 3] = 255u;
             }
           }
 
@@ -1363,9 +1368,9 @@ bool LoadBitmapFromBmp(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
           // BGR888 doesn't seem to be supported by dali-core
           if(infoHeader.bitsPerPixel == 24)
           {
-            for(unsigned int i = 0; i < rowStride; i += 3)
+            for(uint32_t i = 0; i < rowStride; i += 3)
             {
-              unsigned char temp    = pixelsIterator[i];
+              uint8_t temp          = pixelsIterator[i];
               pixelsIterator[i]     = pixelsIterator[i + 2];
               pixelsIterator[i + 2] = temp;
             }
