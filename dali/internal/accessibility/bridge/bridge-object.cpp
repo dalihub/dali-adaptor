@@ -238,6 +238,13 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
   });
 }
 
+void BridgeObject::EmitPostRender(Accessible *obj)
+{
+  AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj, 0.5f, [=]() {
+    Emit(obj, WindowEvent::POST_RENDER);
+  });
+}
+
 void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 {
   if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::TEXT_CARET_MOVED])

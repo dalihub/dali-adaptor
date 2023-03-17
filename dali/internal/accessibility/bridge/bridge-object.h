@@ -81,6 +81,11 @@ protected:
   void EmitBoundsChanged(Dali::Accessibility::Accessible* obj, Dali::Rect<> rect) override;
 
   /**
+   * @copydoc Dali::Accessibility::Bridge::EmitPostRender()
+   */
+  void EmitPostRender(Dali::Accessibility::Accessible* obj) override;
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()
    */
   void EmitMovedOutOfScreen(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ScreenRelativeMoveType type) override;
