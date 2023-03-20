@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,16 @@ int UtcDaliBmp24bpp(void)
 {
   ImageDetails image(TEST_IMAGE_DIR "/flag-24bpp.bmp", 32u, 32u);
 
+  TestImageLoading(image, BmpLoaders);
+
+  END_TEST;
+}
+int UtcDaliBmp32bpp(void)
+{
+  ImageDetails image(TEST_IMAGE_DIR "/test_32bpp.bmp", 127u, 64u);
+
+  // Note : Currently we hard-overrite alpha channel as 255.
+  // Please fix UTC if we change current policy.
   TestImageLoading(image, BmpLoaders);
 
   END_TEST;

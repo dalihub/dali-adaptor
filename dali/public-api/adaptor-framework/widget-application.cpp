@@ -48,9 +48,9 @@ WidgetApplication::WidgetApplication(const WidgetApplication& copy) = default;
 
 WidgetApplication& WidgetApplication::operator=(const WidgetApplication& rhs) = default;
 
-WidgetApplication::WidgetApplication(WidgetApplication&& rhs) = default;
+WidgetApplication::WidgetApplication(WidgetApplication&& rhs) noexcept = default;
 
-WidgetApplication& WidgetApplication::operator=(WidgetApplication&& rhs) = default;
+WidgetApplication& WidgetApplication::operator=(WidgetApplication&& rhs) noexcept = default;
 
 void WidgetApplication::RegisterWidgetCreatingFunction(const std::string& widgetName, CreateWidgetFunction createFunction)
 {

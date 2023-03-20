@@ -198,9 +198,6 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
   Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
 
-  // Disable Default Cursor
-  ecore_wl2_input_pointer_set(input, NULL, 0, 0);
-
   // Set mime type for drag and drop
   const char* mimeTypes[2];
   mimeTypes[0] = mMimeType.c_str();
@@ -369,7 +366,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
       continue;
     }
 
-    Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
+    Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
     bool    currentInside = IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height);
 
@@ -420,7 +417,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       continue;
     }
 
-    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::POSITION);
+    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
     // If the drop position is in the target object region, request drop data to the source object
     if(IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height))

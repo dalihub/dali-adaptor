@@ -156,7 +156,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  WatchApplication(WatchApplication&& rhs);
+  WatchApplication(WatchApplication&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -165,7 +165,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  WatchApplication& operator=(WatchApplication&& rhs);
+  WatchApplication& operator=(WatchApplication&& rhs) noexcept;
 
   /**
    * @brief Destructor

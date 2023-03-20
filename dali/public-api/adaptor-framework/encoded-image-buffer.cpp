@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include "encoded-image-buffer.h"
+#include <dali/public-api/adaptor-framework/encoded-image-buffer.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/encoded-image-buffer-impl.h>
@@ -40,9 +40,9 @@ EncodedImageBuffer::EncodedImageBuffer(const EncodedImageBuffer& handle) = defau
 
 EncodedImageBuffer& EncodedImageBuffer::operator=(const EncodedImageBuffer& handle) = default;
 
-EncodedImageBuffer::EncodedImageBuffer(EncodedImageBuffer&& handle) = default;
+EncodedImageBuffer::EncodedImageBuffer(EncodedImageBuffer&& handle) noexcept = default;
 
-EncodedImageBuffer& EncodedImageBuffer::operator=(EncodedImageBuffer&& handle) = default;
+EncodedImageBuffer& EncodedImageBuffer::operator=(EncodedImageBuffer&& handle) noexcept = default;
 
 const EncodedImageBuffer::RawBufferType& EncodedImageBuffer::GetRawBuffer() const
 {

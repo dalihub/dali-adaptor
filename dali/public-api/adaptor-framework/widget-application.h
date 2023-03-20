@@ -150,7 +150,7 @@ public:
    * @SINCE_1_9.24
    * @param[in] rhs A reference to the moved handle
    */
-  WidgetApplication(WidgetApplication&& rhs);
+  WidgetApplication(WidgetApplication&& rhs) noexcept;
 
   /**
    * @brief Move assignment operator.
@@ -159,7 +159,7 @@ public:
    * @param[in] rhs A reference to the moved handle
    * @return A reference to this handle
    */
-  WidgetApplication& operator=(WidgetApplication&& rhs);
+  WidgetApplication& operator=(WidgetApplication&& rhs) noexcept;
 
   /**
    * @brief Destructor

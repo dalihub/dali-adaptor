@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
     {WindowEvent::SHADE, "Shade"},
     {WindowEvent::UU_SHADE, "uUshade"},
     {WindowEvent::RESTYLE, "Restyle"},
+    {WindowEvent::POST_RENDER, "PostRender"},
   };
 
   if(!IsUp() || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::WINDOW_CHANGED])

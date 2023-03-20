@@ -1,7 +1,7 @@
 #ifndef DALI_ENCODED_IMAGE_BUFFER_H
 #define DALI_ENCODED_IMAGE_BUFFER_H
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ class EncodedImageBuffer;
 /**
  * @brief EncodedImageBuffer contains the large encoded raw buffer informations.
  *
+ * @SINCE_2_0.34
  * @note Object will copy raw buffer data.
  */
 class DALI_ADAPTOR_API EncodedImageBuffer : public BaseHandle
@@ -45,6 +46,7 @@ public:
   /**
    * @brief Create a new EncodedImageBuffer.
    *
+   * @SINCE_2_0.34
    * @param [in] buffer The encoded raw buffer
    * @return A handle to a new EncodedImageBuffer.
    */
@@ -53,18 +55,23 @@ public:
   /**
    * @brief Create an empty handle.
    *
+   * @SINCE_2_0.34
    * Calling member functions of an empty handle is not allowed.
    */
   EncodedImageBuffer();
 
   /**
    * @brief Destructor.
+   *
+   * This is non-virtual since derived Handle types must not contain data or virtual methods.
+   * @SINCE_2_0.34
    */
   ~EncodedImageBuffer();
 
   /**
    * @brief This copy constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_0.34
    * @param [in] handle A reference to the copied handle
    */
   EncodedImageBuffer(const EncodedImageBuffer& handle);
@@ -72,6 +79,7 @@ public:
   /**
    * @brief This assignment operator is required for (smart) pointer semantics.
    *
+   * @SINCE_2_0.34
    * @param [in] handle  A reference to the copied handle
    * @return A reference to this
    */
@@ -80,20 +88,24 @@ public:
   /**
    * @brief This move constructor is required for (smart) pointer semantics.
    *
+   * @SINCE_2_0.34
    * @param [in] handle A reference to the moved handle
    */
-  EncodedImageBuffer(EncodedImageBuffer&& handle);
+  EncodedImageBuffer(EncodedImageBuffer&& handle) noexcept;
 
   /**
    * @brief This move assignment operator is required for (smart) pointer semantics.
    *
+   * @SINCE_2_0.34
    * @param [in] handle  A reference to the moved handle
    * @return A reference to this
    */
-  EncodedImageBuffer& operator=(EncodedImageBuffer&& handle);
+  EncodedImageBuffer& operator=(EncodedImageBuffer&& handle) noexcept;
 
   /**
    * @brief Get raw buffer data
+   *
+   * @SINCE_2_0.34
    * @note this method return const value. Mean, you cannot change raw buffer
    * @return A RawBufferType this buffer have
    */
@@ -102,6 +114,7 @@ public:
   /**
    * @brief Get the hash value of raw buffer
    *
+   * @SINCE_2_1.20
    * @return A hash value of raw buffer.
    */
   const std::size_t GetHash() const;

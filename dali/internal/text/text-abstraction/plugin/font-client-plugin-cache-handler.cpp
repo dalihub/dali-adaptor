@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <fontconfig/fontconfig.h>
 
 // INTERNAL INCLUDES
@@ -62,6 +63,9 @@ extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 
 namespace
 {
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
+
 /**
  * @brief Maximum size of glyph cache per each font face.
  */
@@ -591,6 +595,8 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
   FONT_LOG_DESCRIPTION(fontDescription, "");
 
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_VALIDATE_FONT");
+
   // Create a font pattern.
   FcPattern* fontFamilyPattern = CreateFontFamilyPattern(fontDescription);
 
@@ -602,6 +608,13 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
 
   if(matched && (nullptr != characterSet))
   {
+    #if defined(TRACE_ENABLED)
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("DALI_TEXT_VALIDATE_FONT : FcFontMatch : %s, style : %s, %s, %s\n", fontDescription.family.c_str(), FontWidth::Name[fontDescription.width], FontWeight::Name[fontDescription.weight], FontSlant::Name[fontDescription.slant]);
+    }
+    #endif
+
     // Add the path to the cache.
     description.type = FontDescription::FACE_FONT;
     mFontDescriptionCache.push_back(description);
@@ -675,6 +688,15 @@ void FontClient::Plugin::CacheHandler::CacheFallbackFontList(FontDescription&&  
                                                              CharacterSetList*& characterSetList)
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);
+
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_FALLBACK_FONTLIST");
+
+  #if defined(TRACE_ENABLED)
+  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+  {
+    DALI_LOG_DEBUG_INFO("DALI_TEXT_FALLBACK_FONTLIST : FcFontSort : %s\n", fontDescription.family.c_str());
+  }
+  #endif
 
   fontList         = new FontList;
   characterSetList = new CharacterSetList;

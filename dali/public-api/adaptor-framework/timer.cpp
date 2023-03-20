@@ -38,9 +38,9 @@ Timer::Timer(const Timer& copy) = default;
 
 Timer& Timer::operator=(const Timer& rhs) = default;
 
-Timer::Timer(Timer&& rhs) = default;
+Timer::Timer(Timer&& rhs) noexcept = default;
 
-Timer& Timer::operator=(Timer&& rhs) = default;
+Timer& Timer::operator=(Timer&& rhs) noexcept = default;
 
 Timer::~Timer()
 {
