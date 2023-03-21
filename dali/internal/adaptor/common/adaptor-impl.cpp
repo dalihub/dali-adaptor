@@ -67,6 +67,7 @@
 #include <dali/internal/window-system/common/event-handler.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/internal/system/common/logging.h>
@@ -396,10 +397,7 @@ void Adaptor::Start()
   dpiHor = dpiVer = 0;
 
   defaultWindow->GetSurface()->GetDpi(dpiHor, dpiVer);
-
-  // set the DPI value for font rendering
-  FontClient fontClient = FontClient::Get();
-  fontClient.SetDpi(dpiHor, dpiVer);
+  Dali::Internal::Adaptor::WindowSystem::SetDpi(dpiHor, dpiVer);
 
   // Initialize the thread controller
   mThreadController->Initialize();

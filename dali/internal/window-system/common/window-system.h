@@ -41,6 +41,24 @@ void Initialize();
 void Shutdown();
 
 /**
+ * @brief Set the DPI of the target screen.
+ *
+ * @note Multiple screens are not currently supported.
+ * @param[in] horizontalDpi The horizontal resolution in DPI.
+ * @param[in] verticalDpi The vertical resolution in DPI.
+ */
+void SetDpi(uint32_t dpiHorizontal, uint32_t dpiVertical);
+
+/**
+ * @brief Retrieves the DPI previously set to the target screen.
+ *
+ * @note Multiple screens are not currently supported.
+ * @param[out] horizontalDpi The horizontal resolution in DPI.
+ * @param[out] verticalDpi The vertical resolution in DPI.
+ */
+void GetDpi(uint32_t& dpiHorizontal, uint32_t& dpiVertical);
+
+/**
  * @brief Get the screen size
  */
 void GetScreenSize(int32_t& width, int32_t& height);
