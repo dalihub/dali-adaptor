@@ -281,6 +281,7 @@ enum class CoalescableMessages
 {
   BOUNDS_CHANGED, ///< Bounds changed
   SET_OFFSET, ///< Set offset
+  POST_RENDER, ///< Post render
 };
 
 // Custom specialization of std::hash

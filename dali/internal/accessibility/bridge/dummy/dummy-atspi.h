@@ -166,6 +166,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void EmitPostRender(Accessibility::Accessible *obj) override
+  {
+  }
+
   Accessibility::Consumed Emit(Accessibility::KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
     return Accessibility::Consumed::YES;

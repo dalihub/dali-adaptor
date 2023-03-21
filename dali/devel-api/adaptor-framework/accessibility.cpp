@@ -507,9 +507,8 @@ public:
 
   void OnPostRender()
   {
-    Accessibility::Bridge::GetCurrentBridge()->Emit(Accessibility::Accessible::Get(Self()), Accessibility::WindowEvent::POST_RENDER);
+    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(this);
   }
-
 }; // AdaptorAccessible
 
 using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
