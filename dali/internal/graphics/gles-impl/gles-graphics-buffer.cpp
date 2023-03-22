@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,35 @@ Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphi
   controller.AddBuffer(*this);
 }
 
+bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+{
+  // Compare whether specs are same and the buffer is allocated
+  mSetForGLRecycling = false;
+
+  // if different buffer spec, we need new buffer
+  if(!(createInfo.size == mCreateInfo.size
+     && createInfo.allocationCallbacks == mCreateInfo.allocationCallbacks
+     && createInfo.propertiesFlags == mCreateInfo.propertiesFlags
+     && createInfo.usage == mCreateInfo.usage
+     && createInfo.nextExtension == mCreateInfo.nextExtension ))
+  {
+    return false;
+  }
+
+  // GL resource hasn't been allocated yet, we need new buffer
+  if(mBufferId == 0)
+  {
+    return false;
+  }
+
+  // Make sure the buffer will be reinitialized
+  controller.AddBuffer(*this);
+
+  mSetForGLRecycling = true;
+
+  return true;
+}
+
 bool Buffer::InitializeResource()
 {
   // CPU allocated uniform buffer is a special "compatibility" mode
@@ -63,6 +92,8 @@ bool Buffer::InitializeResource()
     InitializeGPUBuffer();
   }
 
+  // make sure recycling mode is disabled after (re)initializing resource
+  mSetForGLRecycling = false;
   return true;
 }
 
@@ -71,6 +102,13 @@ void Buffer::InitializeCPUBuffer()
   // Just allocate memory
   // @TODO put better CPU memory management in place
   const auto allocators = GetCreateInfo().allocationCallbacks;
+
+  // Early out if we recycle the buffer
+  if(mBufferPtr && mSetForGLRecycling)
+  {
+    return;
+  }
+
   if(allocators)
   {
     mBufferPtr = allocators->allocCallback(mCreateInfo.size, 0, allocators->userData);
@@ -90,7 +128,11 @@ void Buffer::InitializeGPUBuffer()
     return;
   }
 
-  gl->GenBuffers(1, &mBufferId);
+  // If mBufferId is already set and we recycling the buffer (orphaning)
+  if(!mSetForGLRecycling && !mBufferId)
+  {
+    gl->GenBuffers(1, &mBufferId);
+  }
   context->BindBuffer(GL_ARRAY_BUFFER, mBufferId);
   gl->BufferData(GL_ARRAY_BUFFER, GLsizeiptr(mCreateInfo.size), nullptr, GL_STATIC_DRAW);
 }
