@@ -140,6 +140,13 @@ public: // API
   void UpdatePositionSize(Dali::PositionSize positionSize);
 
   /**
+   * @brief Moves the window to the specified position.
+   *
+   * @param positionSize The new position of the window.
+   */
+  void Move(Dali::PositionSize positionSize);
+
+  /**
    * @brief This signal is emitted when the output is transformed.
    */
   OutputSignalType& OutputTransformedSignal();
