@@ -49,6 +49,11 @@ StyleMonitor StyleMonitor::DownCast(BaseHandle handle)
   return StyleMonitor(dynamic_cast<Internal::Adaptor::StyleMonitor*>(handle.GetObjectPtr()));
 }
 
+bool StyleMonitor::EnsureFontClientCreated()
+{
+  return GetImplementation(*this).EnsureFontClientCreated();
+}
+
 std::string StyleMonitor::GetDefaultFontFamily() const
 {
   return GetImplementation(*this).GetDefaultFontFamily();

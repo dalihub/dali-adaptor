@@ -118,6 +118,15 @@ public: // Creation & Destruction
   static StyleMonitor DownCast(BaseHandle handle);
 
 public: // Style Information
+
+  /**
+   * @brief Ensure the font client has been created.
+   *
+   * If font client doesn't exist, create it and set default values.
+   * @return true if the font client has been created.
+   */
+  bool EnsureFontClientCreated();
+
   /**
    * @brief Retrieves the default font family.
    * @return The default font family.
