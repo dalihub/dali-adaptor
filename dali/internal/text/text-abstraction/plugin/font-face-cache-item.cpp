@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,9 +83,9 @@ inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
   using Dali::EnvironmentVariable::GetEnvironmentVariable;
   static auto policyString = GetEnvironmentVariable(RENDERED_GLYPH_COMPRESS_POLICY_ENV);
 
-  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S' ? GlyphCacheManager::CompressionPolicyType::SPEED
-                                                                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
-                                                                                                                                          : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
+  static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S'   ? GlyphCacheManager::CompressionPolicyType::SPEED
+                                      : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
+                                                                                         : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY
                                     : DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY;
   return policy;
 }
@@ -219,18 +219,20 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
 {
   bool success(true);
 
-  GlyphCacheManager::GlyphCacheData glyphData;
-  FT_Error                          error;
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  FT_Error                             error;
 
 #ifdef FREETYPE_BITMAP_SUPPORT
   // Check to see if we should be loading a Fixed Size bitmap?
   if(mIsFixedSizeBitmap)
   {
     FT_Select_Size(mFreeTypeFace, mFixedSizeIndex); ///< @todo: needs to be investigated why it's needed to select the size again.
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_COLOR, glyphInfo.isBoldRequired, glyphDataPtr, error);
 
     if(FT_Err_Ok == error)
     {
+      GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
       glyphInfo.width    = mFixedWidthPixels;
       glyphInfo.height   = mFixedHeightPixels;
       glyphInfo.advance  = mFixedWidthPixels;
@@ -285,7 +287,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
     // FT_LOAD_DEFAULT causes some issues in the alignment of the glyph inside the bitmap.
     // i.e. with the SNum-3R font.
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, glyphData, error);
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, glyphInfo.isBoldRequired, glyphDataPtr, error);
 
     // Keep the width of the glyph before doing the software emboldening.
     // It will be used to calculate a scale factor to be applied to the
@@ -294,6 +296,8 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
 
     if(FT_Err_Ok == error)
     {
+      GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
       const auto& metrics = glyphData.mGlyphMetrics;
 
       glyphInfo.width  = static_cast<float>(metrics.width) * FROM_266;
@@ -313,12 +317,12 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
       if(isEmboldeningRequired)
       {
         // Get dummy glyph data without embolden.
-        GlyphCacheManager::GlyphCacheData dummyData;
-        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, dummyData, error))
+        GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
+        if(mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphInfo.index, FT_LOAD_NO_AUTOHINT, false, dummyDataPtr, error))
         {
           // If the glyph is emboldened by software, the advance is multiplied by a
           // scale factor to make it slightly bigger.
-          const float width = static_cast<float>(dummyData.mGlyphMetrics.width) * FROM_266;
+          const float width = static_cast<float>(dummyDataPtr->mGlyphMetrics.width) * FROM_266;
           if(!EqualsZero(width))
           {
             glyphInfo.advance *= (glyphInfo.width / width);
@@ -359,9 +363,9 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
 void FontFaceCacheItem::CreateBitmap(
   GlyphIndex glyphIndex, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
 {
-  GlyphCacheManager::GlyphCacheData glyphData;
-  FT_Error                          error;
-  FT_Int32                          loadFlag;
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  FT_Error                             error;
+  FT_Int32                             loadFlag;
   // For the software italics.
   bool isShearRequired = false;
 
@@ -379,10 +383,12 @@ void FontFaceCacheItem::CreateBitmap(
     // @todo: add an option to use the FT_LOAD_DEFAULT if required?
     loadFlag = FT_LOAD_NO_AUTOHINT;
   }
-  mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, glyphData, error);
+  mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, glyphDataPtr, error);
 
   if(FT_Err_Ok == error)
   {
+    GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
     if(isItalicRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_ITALIC))
     {
       // Will do the software italic.
@@ -486,16 +492,16 @@ void FontFaceCacheItem::CreateBitmap(
           {
             mGlyphCacheManager->CacheRenderedGlyphBuffer(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, bitmapGlyph->bitmap, GetRenderedGlyphCompressPolicy());
 
-            GlyphCacheManager::GlyphCacheData dummyData;
-            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, dummyData, error);
+            GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
+            mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, loadFlag, isBoldRequired, dummyDataPtr, error);
 
-            if(DALI_LIKELY(FT_Err_Ok == error && dummyData.mRenderedBuffer))
+            if(DALI_LIKELY(FT_Err_Ok == error && dummyDataPtr->mRenderedBuffer))
             {
-              data.buffer          = dummyData.mRenderedBuffer->buffer;
-              data.width           = dummyData.mRenderedBuffer->width;
-              data.height          = dummyData.mRenderedBuffer->height;
-              data.format          = dummyData.mRenderedBuffer->format;
-              data.compressionType = dummyData.mRenderedBuffer->compressionType;
+              data.buffer          = dummyDataPtr->mRenderedBuffer->buffer;
+              data.width           = dummyDataPtr->mRenderedBuffer->width;
+              data.height          = dummyDataPtr->mRenderedBuffer->height;
+              data.format          = dummyDataPtr->mRenderedBuffer->format;
+              data.compressionType = dummyDataPtr->mRenderedBuffer->compressionType;
               data.isBufferOwned   = false;
             }
             else
@@ -541,8 +547,8 @@ bool FontFaceCacheItem::IsColorGlyph(GlyphIndex glyphIndex) const
   // Check to see if this is fixed size bitmap
   if(mHasColorTables)
   {
-    GlyphCacheManager::GlyphCacheData dummyData;
-    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, FT_LOAD_COLOR, false, dummyData, error);
+    GlyphCacheManager::GlyphCacheDataPtr dummyDataPtr;
+    mGlyphCacheManager->GetGlyphCacheDataFromIndex(mFreeTypeFace, glyphIndex, FT_LOAD_COLOR, false, dummyDataPtr, error);
   }
 #endif
   return FT_Err_Ok == error;

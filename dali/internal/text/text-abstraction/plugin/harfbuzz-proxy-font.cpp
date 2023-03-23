@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,10 +115,10 @@ namespace
  *
  * @param[in] font_data HarfBuzzProxyFont::Impl pointer that register this callback as void* type.
  * @param[in] glyphIndex Index of glyph.
- * @param[out] glyphData The result of cached glyph data.
+ * @param[out] glyphDataPtr The result of cached glyph data pointer.
  * @return True if we success to get some glyph data. False otherwise.
  */
-static bool GetGlyphCacheData(void* font_data, const GlyphIndex& glyphIndex, GlyphCacheManager::GlyphCacheData& glyphData)
+static bool GetGlyphCacheData(void* font_data, const GlyphIndex& glyphIndex, GlyphCacheManager::GlyphCacheDataPtr& glyphDataPtr)
 {
   HarfBuzzProxyFont::Impl* impl = reinterpret_cast<HarfBuzzProxyFont::Impl*>(font_data);
 
@@ -126,7 +126,7 @@ static bool GetGlyphCacheData(void* font_data, const GlyphIndex& glyphIndex, Gly
   if(DALI_LIKELY(impl && impl->mGlyphCacheManager))
   {
     FT_Error error;
-    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(impl->mFreeTypeFace, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, glyphData, error);
+    return impl->mGlyphCacheManager->GetGlyphCacheDataFromIndex(impl->mFreeTypeFace, glyphIndex, FT_LOAD_DEFAULT | FT_LOAD_NO_HINTING, false, glyphDataPtr, error);
   }
   return false;
 }
@@ -214,9 +214,11 @@ static hb_bool_t GlyphVariantIndexConvertFunc(hb_font_t* font, void* font_data, 
 static hb_position_t GlyphHorizontalAdvanceFunc(hb_font_t* font, void* font_data, hb_codepoint_t glyphIndex, void* user_data)
 {
   // Output data stored here.
-  GlyphCacheManager::GlyphCacheData glyphData;
-  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
   {
+    GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
     // Note : It may return invalid value for fixed size bitmap glyph.
     // But, Harfbuzz library also return Undefined advanced value if it is fixed size font.
     // So we'll also ignore that case.
@@ -236,9 +238,11 @@ static hb_position_t GlyphHorizontalAdvanceFunc(hb_font_t* font, void* font_data
 static hb_position_t GlyphVerticalAdvanceFunc(hb_font_t* font, void* font_data, hb_codepoint_t glyphIndex, void* user_data)
 {
   // Output data stored here.
-  GlyphCacheManager::GlyphCacheData glyphData;
-  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
   {
+    GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
     // Note : It may return invalid value for fixed size bitmap glyph.
     // But, Harfbuzz library also return Undefined advanced value if it is fixed size font.
     // So we'll also ignore that case.
@@ -277,9 +281,11 @@ static hb_bool_t GlyphHorizontalOriginFunc(hb_font_t* font, void* font_data, hb_
 static hb_bool_t GlyphVerticalOriginFunc(hb_font_t* font, void* font_data, hb_codepoint_t glyphIndex, hb_position_t* x, hb_position_t* y, void* user_data)
 {
   // Output data stored here.
-  GlyphCacheManager::GlyphCacheData glyphData;
-  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
   {
+    GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
     *x = glyphData.mGlyphMetrics.horiBearingX - glyphData.mGlyphMetrics.vertBearingX;
     *y = glyphData.mGlyphMetrics.horiBearingY + glyphData.mGlyphMetrics.vertBearingY;
     return true;
@@ -343,9 +349,11 @@ static hb_position_t GlyphVerticalKerningFunc(hb_font_t* font, void* font_data, 
 static hb_bool_t GlyphExtentsFunc(hb_font_t* font, void* font_data, hb_codepoint_t glyphIndex, hb_glyph_extents_t* extents, void* user_data)
 {
   // Output data stored here.
-  GlyphCacheManager::GlyphCacheData glyphData;
-  if(!GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
+  GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
+  if(!GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
   {
+    GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
+
     extents->x_bearing = glyphData.mGlyphMetrics.horiBearingX;
     extents->y_bearing = glyphData.mGlyphMetrics.horiBearingY;
     extents->width     = glyphData.mGlyphMetrics.width;
