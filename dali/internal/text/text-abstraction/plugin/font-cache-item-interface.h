@@ -54,7 +54,7 @@ struct FontCacheItemInterface
    * @param[in] isItalicRequired
    * @param[in] isBoldRequired
    */
-  virtual void CreateBitmap(GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const = 0;
+  virtual void CreateBitmap(GlyphIndex glyphIndex, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const = 0;
 
   /**
    * Return true if the glyph is colored

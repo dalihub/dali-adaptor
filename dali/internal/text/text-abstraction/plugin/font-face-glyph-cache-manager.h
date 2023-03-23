@@ -18,7 +18,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/text-abstraction/font-client.h> // For GlyphBufferData
+#include <dali/devel-api/text-abstraction/glyph-buffer-data.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/internal/text/text-abstraction/plugin/lru-cache-container.h>
 
@@ -67,7 +67,7 @@ public:
     FT_Int32          mStyleFlags{0};  // Get from FT_Face
     bool              mIsBitmap{false};
 
-    TextAbstraction::FontClient::GlyphBufferData* mRenderedBuffer{nullptr}; // Rendered glyph buffer. Cached only if system allow to cache and we rendered it before. Otherwise, just nullptr
+    TextAbstraction::GlyphBufferData* mRenderedBuffer{nullptr}; // Rendered glyph buffer. Cached only if system allow to cache and we rendered it before. Otherwise, just nullptr
 
     /**
      * @brief Release the memory of loaded mGlyph / mBitmap.

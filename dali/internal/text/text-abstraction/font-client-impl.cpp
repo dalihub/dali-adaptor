@@ -298,7 +298,7 @@ bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type
   return mPlugin->GetGlyphMetrics(array, size, type, horizontal);
 }
 
-void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth)
+void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth)
 {
   CreatePlugin();
 

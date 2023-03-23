@@ -161,7 +161,7 @@ const FontSlant::Type DefaultFontSlant()
  * @param[in] srcHeight The height of the bitmap.
  * @param[in] srcBuffer The buffer of the bitmap.
  */
-void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer, const Pixel::Format srcFormat)
+void ConvertBitmap(TextAbstraction::GlyphBufferData& data, unsigned int srcWidth, unsigned int srcHeight, const unsigned char* const srcBuffer, const Pixel::Format srcFormat)
 {
   // Set the input dimensions.
   const ImageDimensions inputDimensions(srcWidth, srcHeight);
@@ -176,7 +176,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
   data.format = srcFormat;
 
   // Note we don't compress here
-  data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+  data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
   const uint32_t bytePerPixel = Dali::Pixel::GetBytesPerPixel(srcFormat);
 
@@ -211,7 +211,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, unsigned 
  * @param[in] moveBuffer Whether the bitmap buffer move. True if just copy buffer pointer. False if we use memcpy. (Default is false.)
  * @note If you set moveBuffer=true, the bitmap's buffer moved frome srcBitmap to data. So srcBitmap buffer changed as nullptr.
  */
-void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap& srcBitmap, bool isShearRequired, bool moveBuffer)
+void ConvertBitmap(TextAbstraction::GlyphBufferData& data, FT_Bitmap& srcBitmap, bool isShearRequired, bool moveBuffer)
 {
   data.buffer = nullptr;
   if(srcBitmap.width * srcBitmap.rows > 0)
@@ -305,7 +305,7 @@ void ConvertBitmap(TextAbstraction::FontClient::GlyphBufferData& data, FT_Bitmap
           data.format = Pixel::L8; // Sets the pixel format.
 
           // Note we don't compress here
-          data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+          data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
 
           if(moveBuffer)
           {

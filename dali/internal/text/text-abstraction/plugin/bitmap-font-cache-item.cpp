@@ -98,7 +98,7 @@ bool BitmapFontCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpi
 }
 
 void BitmapFontCacheItem::CreateBitmap(
-  GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
+  GlyphIndex glyphIndex, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const
 {
   unsigned int index = 0u;
   for(auto& item : font.glyphs)

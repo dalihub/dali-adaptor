@@ -79,7 +79,7 @@ struct FontFaceCacheItem : public FontCacheItemInterface
   /**
    * @copydoc FontCacheItemInterface::CreateBitmap()
    */
-  void CreateBitmap(GlyphIndex glyphIndex, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const override;
+  void CreateBitmap(GlyphIndex glyphIndex, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth, bool isItalicRequired, bool isBoldRequired) const override;
 
   /**
    * @copydoc FontCacheItemInterface::IsColorGlyph()
