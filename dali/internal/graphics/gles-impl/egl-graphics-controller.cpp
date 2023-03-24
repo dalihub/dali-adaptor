@@ -717,7 +717,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
         if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
         {
           // Convert RGB to RGBA if necessary.
-          if(texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+          if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
           {
             sourceBuffer = &tempBuffer[0];
             sourceStride = 0u; // Converted buffer compacted. make stride as 0.
