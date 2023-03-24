@@ -290,6 +290,11 @@ FontClient FontClientPreInitialize()
   return Internal::FontClient::PreInitialize();
 }
 
+void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
+{
+  Internal::FontClient::PreCache(fallbackFamilyList, extraFamilyList, localeFamily, useThread);
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali
