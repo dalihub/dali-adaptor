@@ -350,7 +350,7 @@ static hb_bool_t GlyphExtentsFunc(hb_font_t* font, void* font_data, hb_codepoint
 {
   // Output data stored here.
   GlyphCacheManager::GlyphCacheDataPtr glyphDataPtr;
-  if(!GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
+  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphDataPtr))
   {
     GlyphCacheManager::GlyphCacheData& glyphData = *glyphDataPtr.get();
 
