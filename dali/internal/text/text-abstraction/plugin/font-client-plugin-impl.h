@@ -313,6 +313,11 @@ public: // Dali::TextAbstraction::Internal::FontClient
    */
   HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId) const;
 
+  /**
+   * @copydoc Dali::TextAbstraction::Internal::FontClient::FontPreCache()
+   */
+  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const;
+
 private:
   /**
    * Get the cached font item for the given font

@@ -19,16 +19,33 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
+#include <thread>
 #if defined(VCONF_ENABLED)
 #include <vconf.h>
 #endif
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
+
+#define FONT_LOG_MESSAGE(level, format, ...)                                   \
+  do                                                                           \
+  {                                                                            \
+    char buffer[256];                                                          \
+    int result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
+    if (result >= static_cast<int>(sizeof(buffer)))                            \
+    {                                                                          \
+      std::string log("Font log message is too long to fit in the buffer.\n"); \
+      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);     \
+      break;                                                                   \
+    }                                                                          \
+    std::string log(buffer);                                                   \
+    Dali::TizenPlatform::LogMessage(level, log);                               \
+  } while(0)
 
 namespace Dali
 {
@@ -37,6 +54,12 @@ namespace TextAbstraction
 namespace Internal
 {
 Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient(NULL);
+Dali::TextAbstraction::FontClient FontClient::gPreCachedFontClient(NULL);
+std::thread gPreCacheThread;
+/* TODO: This is to prevent duplicate calls of font pre-cache.
+ * We may support this later, but currently we can't guarantee the behaviour
+ * if there is a pre-cache call from the user after the font client has been created. */
+bool gFontPreCacheAvailable = true;
 
 FontClient::FontClient()
 : mPlugin(nullptr),
@@ -67,15 +90,29 @@ Dali::TextAbstraction::FontClient FontClient::Get()
     }
     else // create and register the object
     {
+      if(gPreCacheThread.joinable())
+      {
+        gPreCacheThread.join();
+        FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache thread join\n");
+      }
+
       if(gPreInitializedFontClient)
       {
         fontClientHandle = gPreInitializedFontClient;
         gPreInitializedFontClient.Reset(); // No longer needed
       }
+      else if(gPreCachedFontClient)
+      {
+        // TODO: Currently font pre-caching is not available in the candidate process.
+        fontClientHandle = gPreCachedFontClient;
+        gPreCachedFontClient.Reset(); // No longer needed
+      }
       else
       {
         fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
       }
+
+      gFontPreCacheAvailable = false;
 
       uint32_t horizontalDpi, verticalDpi;
       fontClientHandle.GetDpi(horizontalDpi, verticalDpi);
@@ -102,6 +139,53 @@ Dali::TextAbstraction::FontClient FontClient::PreInitialize()
   gPreInitializedFontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
 
   return gPreInitializedFontClient;
+}
+
+void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
+{
+  if(!gPreCachedFontClient)
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
+    Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    GetImplementation(fontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+    gPreCachedFontClient = fontClient;
+    gFontPreCacheAvailable = false;
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
+  }
+  else
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache run failed, as a pre-cached font client already exists.\n");
+  }
+}
+
+void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
+{
+  if(!gFontPreCacheAvailable)
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache has been completed or the font client has already been created.\n");
+    return;
+  }
+
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache fallbackFamilyList : %zu\n", fallbackFamilyList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache extraFamilyList    : %zu\n", extraFamilyList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache localeFamily       : %s\n", localeFamily.c_str());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache useThread          : %d\n", useThread);
+
+  if(gPreCacheThread.joinable())
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache thread already running.\n");
+  }
+  else
+  {
+    if(useThread)
+    {
+      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily);
+    }
+    else
+    {
+      PreCacheRun(fallbackFamilyList, extraFamilyList, localeFamily);
+    }
+  }
 }
 
 void FontClient::ClearCache()
@@ -153,6 +237,13 @@ void FontClient::GetDefaultFonts(FontList& defaultFonts)
   CreatePlugin();
 
   mPlugin->GetDefaultFonts(defaultFonts);
+}
+
+void FontClient::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
+{
+  CreatePlugin();
+
+  mPlugin->FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
 }
 
 void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescription)
