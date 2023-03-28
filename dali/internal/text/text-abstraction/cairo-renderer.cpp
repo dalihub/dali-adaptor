@@ -92,7 +92,7 @@ struct GlyphBuffer
     DELETE
   };
 
-  GlyphBuffer(Dali::TextAbstraction::FontClient::GlyphBufferData& data, DestructorType type)
+  GlyphBuffer(Dali::TextAbstraction::GlyphBufferData& data, DestructorType type)
   : data(data),
     type(type)
   {
@@ -114,8 +114,8 @@ struct GlyphBuffer
     }
   }
 
-  Dali::TextAbstraction::FontClient::GlyphBufferData& data;
-  DestructorType                                      type;
+  Dali::TextAbstraction::GlyphBufferData& data;
+  DestructorType                          type;
 };
 
 /**
@@ -364,7 +364,7 @@ bool ConvertSizeForCairo(
 void CopyImageToSurface(
   const TextAbstraction::TextRenderer::Parameters& parameters,
   const Pixel::Format                              pixelFormat,
-  TextAbstraction::FontClient::GlyphBufferData&    data,
+  TextAbstraction::GlyphBufferData&                data,
   unsigned char*                                   buffer,
   const int                                        rgbaCase,
   const double                                     glyphX,
@@ -853,7 +853,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
           const cairo_glyph_t& glyph = *(cairoGlyphsBuffer + index);
 
           // Retrieve the image
-          TextAbstraction::FontClient::GlyphBufferData data;
+          TextAbstraction::GlyphBufferData data;
           if(isEmoji)
           {
             data.width  = parameters.glyphs[run.glyphIndex].width;
@@ -893,12 +893,12 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
             const unsigned int pixelSize = Pixel::GetBytesPerPixel(data.format);
 
             // If we need to decompress, create new memory and replace ownership.
-            if(data.compressionType != TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION)
+            if(data.compressionType != TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION)
             {
               uint8_t* newBuffer = (uint8_t*)malloc(widthOut * heightOut * pixelSize);
               if(DALI_LIKELY(newBuffer != nullptr))
               {
-                TextAbstraction::FontClient::GlyphBufferData::Decompress(data, newBuffer);
+                TextAbstraction::GlyphBufferData::Decompress(data, newBuffer);
                 if(data.isBufferOwned)
                 {
                   // Release previous buffer
@@ -906,7 +906,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                 }
                 data.isBufferOwned   = true;
                 data.buffer          = newBuffer;
-                data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+                data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
               }
             }
 
@@ -926,7 +926,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                 free(data.buffer);
               }
               data.isBufferOwned   = true;
-              data.compressionType = Dali::TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+              data.compressionType = Dali::TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
               data.buffer          = pixelsOut;
               data.width           = widthOut;
               data.height          = heightOut;

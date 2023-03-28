@@ -731,7 +731,7 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
   int32_t      newX    = position.GetX();
   int32_t      newY    = position.GetY();
 
-  mWindowSurface->MoveResize(PositionSize(newX, newY, oldRect.width, oldRect.height));
+  mWindowSurface->Move(PositionSize(newX, newY, oldRect.width, oldRect.height));
 
   if((oldRect.x != newX) || (oldRect.y != newY))
   {

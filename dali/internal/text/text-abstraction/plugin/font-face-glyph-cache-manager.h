@@ -2,7 +2,7 @@
 #define DALI_TEST_ABSTRACTION_INTERNAL_FONT_FACE_GLYPH_CACHE_MANAGER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,13 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/text-abstraction/font-client.h> // For GlyphBufferData
+#include <dali/devel-api/text-abstraction/glyph-buffer-data.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 #include <dali/internal/text/text-abstraction/plugin/lru-cache-container.h>
 
 // EXTERNAL INCLUDES
+#include <memory> // for std::shared_ptr
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
@@ -53,10 +55,12 @@ public:
    */
   struct GlyphCacheData
   {
-    GlyphCacheData()
-    : mGlyph{nullptr}
-    {
-    }
+    GlyphCacheData();
+    ~GlyphCacheData();
+
+    // Move operations
+    GlyphCacheData(GlyphCacheData&& rhs) noexcept;
+    GlyphCacheData& operator=(GlyphCacheData&& rhs) noexcept;
 
     union
     {
@@ -67,13 +71,20 @@ public:
     FT_Int32          mStyleFlags{0};  // Get from FT_Face
     bool              mIsBitmap{false};
 
-    TextAbstraction::FontClient::GlyphBufferData* mRenderedBuffer{nullptr}; // Rendered glyph buffer. Cached only if system allow to cache and we rendered it before. Otherwise, just nullptr
+    TextAbstraction::GlyphBufferData* mRenderedBuffer{nullptr}; // Rendered glyph buffer. Cached only if system allow to cache and we rendered it before. Otherwise, just nullptr
+
+  private:
+    // Delete copy operations
+    GlyphCacheData(const GlyphCacheData&) = delete;
+    GlyphCacheData& operator=(const GlyphCacheData&) = delete;
 
     /**
-     * @brief Release the memory of loaded mGlyph / mBitmap.
+     * @brief Release the memory of loaded mGlyph / mBitmap and mRenderedBuffer.
      */
     void ReleaseGlyphData();
   };
+
+  using GlyphCacheDataPtr = std::shared_ptr<GlyphCacheData>;
 
   // Compression priority of rendered glyph buffer.
   enum class CompressionPolicyType
@@ -87,32 +98,32 @@ public:
 
   /**
    * @brief Load GlyphCacheData from face. The result will be cached.
+   * @note Inputed glyph data pointer will be overwrited.
    *
    * @param[in] freeTypeFace The freetype face handle.
    * @param[in] index Index of glyph in this face.
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
-   * @param[out] data Result of glyph load.
+   * @param[out] glyphDataPtr Result of pointer of glyph load.
    * @param[out] error Error code during load glyph.
    * @return True if load successfully. False if something error occured.
    */
   bool GetGlyphCacheDataFromIndex(
-    const FT_Face    freeTypeFace,
-    const GlyphIndex index,
-    const FT_Int32   flag,
-    const bool       isBoldRequired,
-    GlyphCacheData&  data,
-    FT_Error&        error);
+    const FT_Face      freeTypeFace,
+    const GlyphIndex   index,
+    const FT_Int32     flag,
+    const bool         isBoldRequired,
+    GlyphCacheDataPtr& glyphDataPtr,
+    FT_Error&          error);
 
   /**
    * @brief Load GlyphCacheData from face. The result will not be cached.
-   * @note If we call this API, We should release GlyphCacheData manually.
    *
    * @param[in] freeTypeFace The freetype face handle.
    * @param[in] index Index of glyph in this face.
    * @param[in] flag Flag when we load the glyph.
    * @param[in] isBoldRequired True if we require some software bold.
-   * @param[out] data Result of glyph load.
+   * @param[in, out] glyphData Result of glyph load.
    * @param[out] error Error code during load glyph.
    * @return True if load successfully. False if something error occured.
    */
@@ -121,7 +132,7 @@ public:
     const GlyphIndex index,
     const FT_Int32   flag,
     const bool       isBoldRequired,
-    GlyphCacheData&  data,
+    GlyphCacheData&  glyphData,
     FT_Error&        error);
 
   /**
@@ -229,7 +240,7 @@ private:
   // Private member value area.
   std::size_t mGlyphCacheMaxSize; ///< The maximum capacity of glyph cache.
 
-  using CacheContainer = LRUCacheContainer<GlyphCacheKey, GlyphCacheData, GlyphCacheKeyHash>;
+  using CacheContainer = LRUCacheContainer<GlyphCacheKey, GlyphCacheDataPtr, GlyphCacheKeyHash>;
 
   CacheContainer mLRUGlyphCache; ///< LRU Cache container of glyph
 };

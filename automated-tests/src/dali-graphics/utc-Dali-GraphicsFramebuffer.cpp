@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,35 +226,44 @@ int UtcDaliGraphicsFramebufferAttachDepthStencilTexture(void)
 
   auto& gl = app.GetGlAbstraction();
 
-  uint32_t width  = 16u;
-  uint32_t height = 24u;
+  {
+    uint32_t width  = 16u;
+    uint32_t height = 24u;
 
-  FrameBuffer framebuffer = FrameBuffer::New(width, height, FrameBuffer::Attachment::STENCIL);
+    FrameBuffer framebuffer = FrameBuffer::New(width, height, FrameBuffer::Attachment::STENCIL);
 
-  DALI_TEST_CHECK(framebuffer);
+    DALI_TEST_CHECK(framebuffer);
 
-  Texture dummyColorTexture        = CreateTexture(TextureType::TEXTURE_2D, Pixel::RGBA8888, width, height);
-  Texture dummyDepthStencilTexture = CreateTexture(TextureType::TEXTURE_2D, Pixel::DEPTH_STENCIL, width, height);
-  Actor   dummyActor               = CreateRenderableActor(dummyColorTexture);
-  framebuffer.AttachColorTexture(dummyColorTexture);
-  DevelFrameBuffer::AttachDepthStencilTexture(framebuffer, dummyDepthStencilTexture);
+    Texture dummyColorTexture        = CreateTexture(TextureType::TEXTURE_2D, Pixel::RGBA8888, width, height);
+    Texture dummyDepthStencilTexture = CreateTexture(TextureType::TEXTURE_2D, Pixel::DEPTH_STENCIL, width, height);
+    Actor   dummyActor               = CreateRenderableActor(dummyColorTexture);
+    framebuffer.AttachColorTexture(dummyColorTexture);
+    DevelFrameBuffer::AttachDepthStencilTexture(framebuffer, dummyDepthStencilTexture);
 
-  app.GetScene().Add(dummyActor);
+    app.GetScene().Add(dummyActor);
 
-  auto renderTask = CreateRenderTask(app, framebuffer);
+    auto renderTask = CreateRenderTask(app, framebuffer);
 
-  DALI_TEST_CHECK(renderTask);
+    DALI_TEST_CHECK(renderTask);
 
+    app.SendNotification();
+    app.Render(16); // The above actor will get rendered and drawn once.
+
+    DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 1u, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 1u, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 1u, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
+    DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+
+    UnparentAndReset(dummyActor);
+  }
+  // Ensure some cleanup happens!
   app.SendNotification();
-  app.Render(16); // The above actor will get rendered and drawn once.
-
-  DALI_TEST_EQUALS(gl.CheckFramebufferColorAttachmentCount(), 1u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachmentCount(), 1u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachmentCount(), 1u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachmentCount(), 1u, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION);
-  DALI_TEST_EQUALS(gl.CheckFramebufferDepthStencilAttachment(), (GLenum)GL_FALSE, TEST_LOCATION); // Check whether renderbuffer attached by DEPTH_STENCIL.
+  app.Render(16);
+  app.SendNotification();
+  app.Render(16);
 
   END_TEST;
 }

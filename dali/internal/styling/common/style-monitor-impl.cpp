@@ -83,14 +83,23 @@ Dali::StyleMonitor StyleMonitor::Get()
 StyleMonitor::StyleMonitor()
 : mDefaultFontSize(-1)
 {
-  mFontClient = TextAbstraction::FontClient::Get();
-  GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
-  DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str());
-  mDefaultFontSize = mFontClient.GetDefaultFontSize();
 }
 
 StyleMonitor::~StyleMonitor()
 {
+}
+
+bool StyleMonitor::EnsureFontClientCreated()
+{
+  if(!mFontClient)
+  {
+    mFontClient = TextAbstraction::FontClient::Get();
+    GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
+    DALI_LOG_INFO(gLogFilter, Debug::Verbose, "StyleMonitor::StyleMonitor::DefaultFontFamily(%s)\n", mDefaultFontFamily.c_str());
+    mDefaultFontSize = mFontClient.GetDefaultFontSize();
+  }
+
+  return mFontClient != nullptr ? true : false;
 }
 
 void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
@@ -99,7 +108,7 @@ void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
   {
     case StyleChange::DEFAULT_FONT_CHANGE:
     {
-      if(mFontClient)
+      if(EnsureFontClientCreated())
       {
         mFontClient.ResetSystemDefaults();
         GetSystemDefaultFontFamily(mFontClient, mDefaultFontFamily);
@@ -110,7 +119,10 @@ void StyleMonitor::StyleChanged(StyleChange::Type styleChange)
 
     case StyleChange::DEFAULT_FONT_SIZE_CHANGE:
     {
-      mDefaultFontSize = mFontClient.GetDefaultFontSize();
+      if(EnsureFontClientCreated())
+      {
+        mDefaultFontSize = mFontClient.GetDefaultFontSize();
+      }
       break;
     }
 

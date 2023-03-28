@@ -778,7 +778,7 @@ bool FontClient::Plugin::GetVectorMetrics(GlyphInfo* array,
 #endif
 }
 
-void FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth) const
+void FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth) const
 {
   data.isColorBitmap                          = false;
   data.isColorEmoji                           = false;
@@ -796,15 +796,15 @@ void FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool
 
 PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, int outlineWidth) const
 {
-  TextAbstraction::FontClient::GlyphBufferData data;
+  TextAbstraction::GlyphBufferData data;
 
   CreateBitmap(fontId, glyphIndex, false, false, data, outlineWidth);
 
   // If data is compressed or not owned buffer, copy this.
-  if(!data.isBufferOwned || data.compressionType != TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION)
+  if(!data.isBufferOwned || data.compressionType != TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION)
   {
     uint8_t* newBuffer = (uint8_t*)malloc(data.width * data.height * Pixel::GetBytesPerPixel(data.format));
-    TextAbstraction::FontClient::GlyphBufferData::Decompress(data, newBuffer);
+    TextAbstraction::GlyphBufferData::Decompress(data, newBuffer);
     if(data.isBufferOwned)
     {
       free(data.buffer);
@@ -812,7 +812,7 @@ PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex,
 
     data.buffer          = newBuffer;
     data.isBufferOwned   = true;
-    data.compressionType = TextAbstraction::FontClient::GlyphBufferData::CompressionType::NO_COMPRESSION;
+    data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
   }
 
   return PixelData::New(data.buffer,

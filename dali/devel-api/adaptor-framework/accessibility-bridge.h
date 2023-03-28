@@ -339,6 +339,19 @@ struct DALI_ADAPTOR_API Bridge
   virtual void EmitBoundsChanged(Accessible* obj, Rect<> rect) = 0;
 
   /**
+   * @brief Emits org.a11y.atspi.Event.Window.PostRender on the AT-SPI bus.
+   *
+   * @param[in] obj The Accessible sender object
+   *
+   * The sender of this event is expected to be an Accessible object that
+   * represents a top-level window.
+   *
+   * The actual number of events emitted during a given time interval may be smaller
+   * than the number of calls to this method, but at least one is guaranteed.
+   */
+  virtual void EmitPostRender(Accessible *obj) = 0;
+
+  /**
    * @brief Emits key event on at-spi bus.
    *
    * Screen-reader might receive this event and reply, that given keycode is consumed. In that case

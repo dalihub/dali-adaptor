@@ -26,6 +26,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 
@@ -74,6 +75,15 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
+      }
+
+      uint32_t horizontalDpi, verticalDpi;
+      fontClientHandle.GetDpi(horizontalDpi, verticalDpi);
+      if(horizontalDpi == 0u || verticalDpi == 0u)
+      {
+        horizontalDpi = verticalDpi = 0u;
+        Dali::Internal::Adaptor::WindowSystem::GetDpi(horizontalDpi, verticalDpi);
+        fontClientHandle.SetDpi(horizontalDpi, verticalDpi);
       }
 
       service.Register(typeid(fontClientHandle), fontClientHandle);
@@ -298,7 +308,7 @@ bool FontClient::GetGlyphMetrics(GlyphInfo* array, uint32_t size, GlyphType type
   return mPlugin->GetGlyphMetrics(array, size, type, horizontal);
 }
 
-void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::FontClient::GlyphBufferData& data, int outlineWidth)
+void FontClient::CreateBitmap(FontId fontId, GlyphIndex glyphIndex, bool isItalicRequired, bool isBoldRequired, Dali::TextAbstraction::GlyphBufferData& data, int outlineWidth)
 {
   CreatePlugin();
 

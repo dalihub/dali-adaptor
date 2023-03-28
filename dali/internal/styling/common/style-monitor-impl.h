@@ -63,6 +63,11 @@ public:
   // Style Information
 
   /**
+   * @copydoc Dali::StyleMonitor::EnsureFontClientCreated()
+   */
+  bool EnsureFontClientCreated();
+
+  /**
    * @copydoc Dali::StyleMonitor::GetDefaultFontFamily() const
    */
   std::string GetDefaultFontFamily() const;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,16 @@
 // CLASS HEADER
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
+// EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-common.h>
+
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
 #include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/integration-api/pixel-data-integ.h>
 #include <dali/internal/graphics/gles-impl/egl-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-command-buffer.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-pipeline.h>
@@ -35,7 +39,6 @@
 #include <dali/internal/graphics/gles-impl/gles-sync-object.h>
 #include <dali/internal/graphics/gles-impl/gles3-graphics-memory.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
-#include <dali/public-api/common/dali-common.h>
 
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
@@ -338,8 +341,7 @@ void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* s
 void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
   mSurfaceContexts.erase(std::remove_if(
-                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
-                           { return surface == iter.first; }),
+                           mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
                          mSurfaceContexts.end());
 }
 
@@ -361,8 +363,7 @@ void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface*
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
-    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter)
-                             { return (iter.first == surface); });
+    auto iter = std::find_if(mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return (iter.first == surface); });
 
     if(iter != mSurfaceContexts.end())
     {
@@ -677,115 +678,137 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
     auto& info   = request.first;
     auto& source = request.second;
 
-    if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
+    switch(source.sourceType)
     {
-      // GPU memory must be already allocated.
-
-      // Check if it needs conversion
-      auto*       texture            = static_cast<GLES::Texture*>(info.dstTexture);
-      const auto& createInfo         = texture->GetCreateInfo();
-      auto        srcFormat          = GLES::GLTextureFormatType(info.srcFormat).format;
-      auto        srcType            = GLES::GLTextureFormatType(info.srcFormat).type;
-      auto        destInternalFormat = GLES::GLTextureFormatType(createInfo.format).internalFormat;
-      auto        destFormat         = GLES::GLTextureFormatType(createInfo.format).format;
-
-      // From render-texture.cpp
-      const bool isSubImage(info.dstOffset2D.x != 0 || info.dstOffset2D.y != 0 ||
-                            info.srcExtent2D.width != (createInfo.size.width / (1 << info.level)) ||
-                            info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
-
-      auto*                sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
-      auto                 sourceStride = info.srcStride;
-      std::vector<uint8_t> tempBuffer;
-
-      if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
+      case Graphics::TextureUpdateSourceInfo::Type::MEMORY:
+      case Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA:
       {
-        // Convert RGB to RGBA if necessary.
-        if(texture->TryConvertPixelData(source.memorySource.memory, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+        // GPU memory must be already allocated.
+
+        // Check if it needs conversion
+        auto*       texture            = static_cast<GLES::Texture*>(info.dstTexture);
+        const auto& createInfo         = texture->GetCreateInfo();
+        auto        srcFormat          = GLES::GLTextureFormatType(info.srcFormat).format;
+        auto        srcType            = GLES::GLTextureFormatType(info.srcFormat).type;
+        auto        destInternalFormat = GLES::GLTextureFormatType(createInfo.format).internalFormat;
+        auto        destFormat         = GLES::GLTextureFormatType(createInfo.format).format;
+
+        // From render-texture.cpp
+        const bool isSubImage(info.dstOffset2D.x != 0 || info.dstOffset2D.y != 0 ||
+                              info.srcExtent2D.width != (createInfo.size.width / (1 << info.level)) ||
+                              info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
+
+        uint8_t* sourceBuffer;
+        if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
         {
-          sourceBuffer = &tempBuffer[0];
-          sourceStride = 0u; // Converted buffer compacted. make stride as 0.
-          srcFormat    = destFormat;
-          srcType      = GLES::GLTextureFormatType(createInfo.format).type;
-        }
-      }
-
-      // Calculate the maximum mipmap level for the texture
-      texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
-
-      GLenum bindTarget{GL_TEXTURE_2D};
-      GLenum target{GL_TEXTURE_2D};
-
-      if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
-      {
-        bindTarget = GL_TEXTURE_CUBE_MAP;
-        target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
-      }
-
-      mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-      mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
-
-      mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
-
-      if(!isSubImage)
-      {
-        if(!texture->IsCompressed())
-        {
-          mGlAbstraction->TexImage2D(target,
-                                     info.level,
-                                     destInternalFormat,
-                                     info.srcExtent2D.width,
-                                     info.srcExtent2D.height,
-                                     0,
-                                     srcFormat,
-                                     srcType,
-                                     sourceBuffer);
+          sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
         }
         else
         {
-          mGlAbstraction->CompressedTexImage2D(target,
-                                               info.level,
-                                               destInternalFormat,
-                                               info.srcExtent2D.width,
-                                               info.srcExtent2D.height,
-                                               0,
-                                               info.srcSize,
-                                               sourceBuffer);
+          // Get buffer of PixelData
+          Dali::Integration::PixelDataBuffer pixelBufferData = Dali::Integration::GetPixelDataBuffer(source.pixelDataSource.pixelData);
+
+          sourceBuffer = pixelBufferData.buffer + info.srcOffset;
         }
-      }
-      else
-      {
-        if(!texture->IsCompressed())
+
+        auto                 sourceStride = info.srcStride;
+        std::vector<uint8_t> tempBuffer;
+
+        if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
         {
-          mGlAbstraction->TexSubImage2D(target,
-                                        info.level,
-                                        info.dstOffset2D.x,
-                                        info.dstOffset2D.y,
-                                        info.srcExtent2D.width,
-                                        info.srcExtent2D.height,
-                                        srcFormat,
-                                        srcType,
-                                        sourceBuffer);
+          // Convert RGB to RGBA if necessary.
+          if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+          {
+            sourceBuffer = &tempBuffer[0];
+            sourceStride = 0u; // Converted buffer compacted. make stride as 0.
+            srcFormat    = destFormat;
+            srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+          }
+        }
+
+        // Calculate the maximum mipmap level for the texture
+        texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
+
+        GLenum bindTarget{GL_TEXTURE_2D};
+        GLenum target{GL_TEXTURE_2D};
+
+        if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
+        {
+          bindTarget = GL_TEXTURE_CUBE_MAP;
+          target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
+        }
+
+        mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
+
+        mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
+
+        if(!isSubImage)
+        {
+          if(!texture->IsCompressed())
+          {
+            mGlAbstraction->TexImage2D(target,
+                                       info.level,
+                                       destInternalFormat,
+                                       info.srcExtent2D.width,
+                                       info.srcExtent2D.height,
+                                       0,
+                                       srcFormat,
+                                       srcType,
+                                       sourceBuffer);
+          }
+          else
+          {
+            mGlAbstraction->CompressedTexImage2D(target,
+                                                 info.level,
+                                                 destInternalFormat,
+                                                 info.srcExtent2D.width,
+                                                 info.srcExtent2D.height,
+                                                 0,
+                                                 info.srcSize,
+                                                 sourceBuffer);
+          }
         }
         else
         {
-          mGlAbstraction->CompressedTexSubImage2D(target,
-                                                  info.level,
-                                                  info.dstOffset2D.x,
-                                                  info.dstOffset2D.y,
-                                                  info.srcExtent2D.width,
-                                                  info.srcExtent2D.height,
-                                                  srcFormat,
-                                                  info.srcSize,
-                                                  sourceBuffer);
+          if(!texture->IsCompressed())
+          {
+            mGlAbstraction->TexSubImage2D(target,
+                                          info.level,
+                                          info.dstOffset2D.x,
+                                          info.dstOffset2D.y,
+                                          info.srcExtent2D.width,
+                                          info.srcExtent2D.height,
+                                          srcFormat,
+                                          srcType,
+                                          sourceBuffer);
+          }
+          else
+          {
+            mGlAbstraction->CompressedTexSubImage2D(target,
+                                                    info.level,
+                                                    info.dstOffset2D.x,
+                                                    info.dstOffset2D.y,
+                                                    info.srcExtent2D.width,
+                                                    info.srcExtent2D.height,
+                                                    srcFormat,
+                                                    info.srcSize,
+                                                    sourceBuffer);
+          }
         }
+
+        if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
+        {
+          // free staging memory
+          free(source.memorySource.memory);
+        }
+        break;
       }
-      // free staging memory
-      free(source.memorySource.memory);
-    }
-    else
-    {
-      // TODO: other sources
+      default:
+      {
+        // TODO: other sources
+        break;
+      }
     }
 
     mTextureUpdateRequests.pop();
@@ -821,6 +844,12 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
 
         // store staging buffer
         source.memorySource.memory = stagingBuffer;
+        break;
+      }
+      case Graphics::TextureUpdateSourceInfo::Type::PIXEL_DATA:
+      {
+        // Increase CPU memory usage since ownership of PixelData is now on mTextureUpdateRequests.
+        mTextureUploadTotalCPUMemoryUsed += info.srcSize;
         break;
       }
       case Graphics::TextureUpdateSourceInfo::Type::BUFFER:

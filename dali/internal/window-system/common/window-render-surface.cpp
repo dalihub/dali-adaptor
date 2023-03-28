@@ -420,6 +420,16 @@ void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
   }
 }
 
+void WindowRenderSurface::Move(Dali::PositionSize positionSize)
+{
+  mPositionSize.x = positionSize.x;
+  mPositionSize.y = positionSize.y;
+
+  DALI_LOG_RELEASE_INFO("Update Position by client (%d, %d)\n", positionSize.x, positionSize.y);
+
+  mWindowBase->Move(positionSize);
+}
+
 void WindowRenderSurface::MoveResize(Dali::PositionSize positionSize)
 {
   mPositionSize.x = positionSize.x;
