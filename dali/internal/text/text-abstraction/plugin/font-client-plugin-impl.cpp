@@ -265,6 +265,60 @@ void FontClient::Plugin::ResetSystemDefaults() const
   mCacheHandler->ResetSystemDefaults();
 }
 
+void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const
+{
+  mCacheHandler->InitDefaultFontDescription();
+
+  FontFamilyList familyList;
+  familyList.reserve(extraFamilyList.size() + 1);
+
+  for (const auto& fallbackFont : fallbackFamilyList)
+  {
+    FontList*         fontList         = nullptr;
+    CharacterSetList* characterSetList = nullptr;
+    FontDescriptionId fontDescriptionId = 0u;
+    FontDescription fontDescription;
+    fontDescription.family = FontFamily(fallbackFont);
+    fontDescription.weight = DefaultFontWeight();
+    fontDescription.width  = DefaultFontWidth();
+    fontDescription.slant  = DefaultFontSlant();
+
+    if(!mCacheHandler->FindFallbackFontList(fontDescription, fontList, characterSetList))
+    {
+      mCacheHandler->CacheFallbackFontList(std::move(fontDescription), fontList, characterSetList);
+    }
+    if(!mCacheHandler->FindValidatedFont(fontDescription, fontDescriptionId))
+    {
+      mCacheHandler->ValidateFont(fontDescription, fontDescriptionId);
+    }
+
+    if(extraFamilyList.empty() && localeFamily.empty())
+    {
+      continue;
+    }
+
+    familyList.clear();
+    familyList.insert(familyList.end(), extraFamilyList.begin(), extraFamilyList.end());
+    if(!localeFamily.empty())
+    {
+      familyList.push_back(localeFamily);
+    }
+
+    for(const auto& font : *fontList)
+    {
+      auto it = std::find(familyList.begin(), familyList.end(), font.family);
+      if(it != familyList.end())
+      {
+        if(!mCacheHandler->FindValidatedFont(font, fontDescriptionId))
+        {
+          mCacheHandler->ValidateFont(font, fontDescriptionId);
+        }
+        familyList.erase(it);
+      }
+    }
+  }
+}
+
 void FontClient::Plugin::GetDefaultPlatformFontDescription(FontDescription& fontDescription) const
 {
   DALI_LOG_TRACE_METHOD(gFontClientLogFilter);

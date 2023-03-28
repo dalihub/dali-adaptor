@@ -64,6 +64,18 @@ public: // API for Dali::TextAbstraction::FontClient used.
   static Dali::TextAbstraction::FontClient PreInitialize();
 
   /**
+   * @brief This is used to pre-cache fonts in order to improve the runtime performance of the application.
+   *
+   * @see Dali::TextAbstraction::FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
+   */
+  static void PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useUiThread);
+
+  /**
+   * @brief This is used to creates a global font client and pre-caches the fonts.
+   */
+  static void PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily);
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
    */
   void ClearCache();
@@ -293,6 +305,15 @@ public: // API for Dali::TextAbstraction::Internal::FontClient used.
    */
   HarfBuzzFontHandle GetHarfBuzzFont(FontId fontId);
 
+  /**
+   * @brief This is used to pre-cache fonts in order to improve the runtime performance of the application.
+   *
+   * @param[in] fallbackFamilyList A list of fallback font families to be pre-cached.
+   * @param[in] extraFamilyList A list of additional font families to be pre-cached.
+   * @param[in] localeFamily A locale font family to be pre-cached.
+   */
+  void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily);
+
 private:
   /**
    * Helper for lazy initialization.
@@ -314,6 +335,7 @@ private:
   unsigned int mDpiVertical;
 
   static Dali::TextAbstraction::FontClient gPreInitializedFontClient;
+  static Dali::TextAbstraction::FontClient gPreCachedFontClient;
 
 }; // class FontClient
 
