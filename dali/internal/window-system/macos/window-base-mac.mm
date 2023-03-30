@@ -456,6 +456,10 @@ void WindowBaseCocoa::MoveResize( PositionSize positionSize )
   [mImpl->mWindow.contentView setFrameSize:size];
 }
 
+void WindowBaseCocoa::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseCocoa::SetClass( const std::string& name, const std::string& className )
 {
 }

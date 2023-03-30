@@ -943,6 +943,22 @@ int UtcDaliWindowGetPositionNegative(void)
   END_TEST;
 }
 
+int UtcDaliWindowSetLayoutNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    unsigned int arg1(0);
+    instance.SetLayout(arg1, arg1, arg1, arg1, arg1, arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowGetRootLayerNegative(void)
 {
   Dali::Window instance;

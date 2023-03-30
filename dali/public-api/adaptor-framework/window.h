@@ -549,6 +549,22 @@ public:
   WindowPosition GetPosition() const;
 
   /**
+   * @brief Sets the layout of the window.
+   *
+   * This method sets the layout of the window based on the specified number of columns and rows,
+   * as well as the position and size of the window within that layout.
+   *
+   * @param numCols The number of columns in the layout.
+   * @param numRows The number of rows in the layout.
+   * @param column The column number of the window within the layout.
+   * @param row The row number of the window within the layout.
+   * @param colSpan The number of columns the window should span within the layout.
+   * @param rowSpan The number of rows the window should span within the layout.
+   * @SINCE_2_2.20
+   */
+  void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan);
+
+  /**
    * @brief Sets whether the window is transparent or not.
    *
    * @SINCE_1_2.60

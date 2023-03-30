@@ -332,6 +332,11 @@ public:
   PositionSize GetPositionSize() const;
 
   /**
+   * @copydoc Dali::Window::SetLayout()
+   */
+  void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan);
+
+  /**
    * @copydoc Dali::Window::GetRootLayer()
    */
   Dali::Layer GetRootLayer() const;

@@ -185,6 +185,11 @@ public:
   void MoveResize(PositionSize positionSize) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetLayout()
+   */
+  void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan) override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetClass()
    */
   void SetClass(const std::string& name, const std::string& className) override;

@@ -707,6 +707,10 @@ void WindowBaseEcoreX::MoveResize(PositionSize positionSize)
   ecore_x_window_move_resize(mEcoreWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 }
 
+void WindowBaseEcoreX::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseEcoreX::SetClass(const std::string& name, const std::string& className)
 {
   ecore_x_icccm_title_set(mEcoreWindow, name.c_str());

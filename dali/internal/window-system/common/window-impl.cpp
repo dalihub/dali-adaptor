@@ -815,6 +815,11 @@ void Window::SetPositionSize(PositionSize positionSize)
   Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
 }
 
+void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+    mWindowBase->SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
+}
+
 Dali::Layer Window::GetRootLayer() const
 {
   return mScene.GetRootLayer();

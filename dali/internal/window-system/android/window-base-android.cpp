@@ -176,6 +176,10 @@ void WindowBaseAndroid::MoveResize(PositionSize positionSize)
 {
 }
 
+void WindowBaseAndroid::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseAndroid::SetClass(const std::string& name, const std::string& className)
 {
 }

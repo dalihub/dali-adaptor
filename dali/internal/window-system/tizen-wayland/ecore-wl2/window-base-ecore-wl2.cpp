@@ -1838,6 +1838,12 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
+void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
+  ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
+}
+
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
 {
   ecore_wl2_window_title_set(mEcoreWindow, name.c_str());

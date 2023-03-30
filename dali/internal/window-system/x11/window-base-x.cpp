@@ -658,6 +658,10 @@ void WindowBaseX::MoveResize(PositionSize positionSize)
   WindowSystem::GetImplementation().MoveResize(mWindow, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 }
 
+void WindowBaseX::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseX::SetClass(const std::string& name, const std::string& className)
 {
   WindowSystem::GetImplementation().SetClass(mWindow, name, className);
