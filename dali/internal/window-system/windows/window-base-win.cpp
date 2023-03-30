@@ -298,6 +298,10 @@ void WindowBaseWin::MoveResize(PositionSize positionSize)
 {
 }
 
+void WindowBaseWin::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseWin::SetClass(const std::string& name, const std::string& className)
 {
 }

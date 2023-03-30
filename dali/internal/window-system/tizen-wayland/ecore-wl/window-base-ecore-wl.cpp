@@ -1317,6 +1317,10 @@ void WindowBaseEcoreWl::MoveResize(PositionSize positionSize)
   ecore_wl_window_update_size(mEcoreWindow, positionSize.width, positionSize.height);
 }
 
+void WindowBaseEcoreWl::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+}
+
 void WindowBaseEcoreWl::SetClass(const std::string& name, const std::string& className)
 {
   ecore_wl_window_title_set(mEcoreWindow, name.c_str());
