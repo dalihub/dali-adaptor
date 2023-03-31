@@ -556,6 +556,16 @@ public: // Not intended for application developers
  */
 DALI_ADAPTOR_API FontClient FontClientPreInitialize();
 
+/**
+ * @brief This is used to pre-cache fonts in order to improve the runtime performance of the application.
+ *
+ * @param[in] fallbackFamilyList A list of fallback font families to be pre-cached.
+ * @param[in] extraFamilyList A list of additional font families to be pre-cached.
+ * @param[in] localeFamily A locale font family to be pre-cached.
+ * @param[in] useThread True if the font client should create thread and perform pre-caching, false otherwise.
+ */
+DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
+
 } // namespace TextAbstraction
 
 } // namespace Dali
