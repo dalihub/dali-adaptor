@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/font-list.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/trace.h>
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/trace.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-operations.h>
 #include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
@@ -76,7 +76,6 @@ Dali::Integration::Log::Filter* gFontClientLogFilter = Dali::Integration::Log::F
 
 namespace
 {
-
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 
 /**
@@ -272,12 +271,12 @@ void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, 
   FontFamilyList familyList;
   familyList.reserve(extraFamilyList.size() + 1);
 
-  for (const auto& fallbackFont : fallbackFamilyList)
+  for(const auto& fallbackFont : fallbackFamilyList)
   {
-    FontList*         fontList         = nullptr;
-    CharacterSetList* characterSetList = nullptr;
+    FontList*         fontList          = nullptr;
+    CharacterSetList* characterSetList  = nullptr;
     FontDescriptionId fontDescriptionId = 0u;
-    FontDescription fontDescription;
+    FontDescription   fontDescription;
     fontDescription.family = FontFamily(fallbackFont);
     fontDescription.weight = DefaultFontWeight();
     fontDescription.width  = DefaultFontWidth();
@@ -559,12 +558,12 @@ FontId FontClient::Plugin::FindFallbackFont(Character              charcode,
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontWidth::Name[preferredFontDescription.width], FontWidth::Name[fontDescription.width]);
   DALI_LOG_INFO(gFontClientLogFilter, Debug::Verbose, "  [%s] --> [%s]\n", FontSlant::Name[preferredFontDescription.slant], FontSlant::Name[fontDescription.slant]);
 
-  #if defined(TRACE_ENABLED)
+#if defined(TRACE_ENABLED)
   if(gTraceFilter && gTraceFilter->IsTraceEnabled())
   {
     DALI_LOG_DEBUG_INFO("DALI_TEXT_FIND_FALLBACKFONT : %s -> %s\n", preferredFontDescription.family.c_str(), fontDescription.family.c_str());
   }
-  #endif
+#endif
 
   // Check first if the font's description has been queried before.
   FontList*         fontList         = nullptr;
@@ -1086,12 +1085,12 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_CREATE_FONT");
   FontId fontId = 0u;
 
-  #if defined(TRACE_ENABLED)
+#if defined(TRACE_ENABLED)
   if(gTraceFilter && gTraceFilter->IsTraceEnabled())
   {
     DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Face : %s\n", path.c_str());
   }
-  #endif
+#endif
 
   // Create & cache new font face
   FT_Face ftFace;

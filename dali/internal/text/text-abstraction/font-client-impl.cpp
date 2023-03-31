@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,19 +32,19 @@
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 
-#define FONT_LOG_MESSAGE(level, format, ...)                                   \
-  do                                                                           \
-  {                                                                            \
-    char buffer[256];                                                          \
-    int result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
-    if (result >= static_cast<int>(sizeof(buffer)))                            \
-    {                                                                          \
-      std::string log("Font log message is too long to fit in the buffer.\n"); \
-      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);     \
-      break;                                                                   \
-    }                                                                          \
-    std::string log(buffer);                                                   \
-    Dali::TizenPlatform::LogMessage(level, log);                               \
+#define FONT_LOG_MESSAGE(level, format, ...)                                    \
+  do                                                                            \
+  {                                                                             \
+    char buffer[256];                                                           \
+    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
+    if(result >= static_cast<int>(sizeof(buffer)))                              \
+    {                                                                           \
+      std::string log("Font log message is too long to fit in the buffer.\n");  \
+      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
+      break;                                                                    \
+    }                                                                           \
+    std::string log(buffer);                                                    \
+    Dali::TizenPlatform::LogMessage(level, log);                                \
   } while(0)
 
 namespace Dali
@@ -55,7 +55,7 @@ namespace Internal
 {
 Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient(NULL);
 Dali::TextAbstraction::FontClient FontClient::gPreCachedFontClient(NULL);
-std::thread gPreCacheThread;
+std::thread                       gPreCacheThread;
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
  * if there is a pre-cache call from the user after the font client has been created. */
@@ -110,6 +110,10 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
+
+        // Make DefaultFontDescription cached
+        Dali::TextAbstraction::FontDescription defaultFontDescription;
+        fontClientHandle.GetDefaultPlatformFontDescription(defaultFontDescription);
       }
 
       gFontPreCacheAvailable = false;
@@ -148,7 +152,7 @@ void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const Fon
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
     Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient(new FontClient);
     GetImplementation(fontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
-    gPreCachedFontClient = fontClient;
+    gPreCachedFontClient   = fontClient;
     gFontPreCacheAvailable = false;
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
   }

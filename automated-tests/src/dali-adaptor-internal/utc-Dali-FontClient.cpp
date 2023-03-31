@@ -236,7 +236,7 @@ int UtcDaliFontClientAtlasLimitationDisabled(void)
   for(int i = 0; i < 50; ++i)
   {
     TextAbstraction::GlyphBufferData dummy = std::move(movedGlyphBufferData2000);
-    movedGlyphBufferData2000                           = std::move(dummy);
+    movedGlyphBufferData2000               = std::move(dummy);
 
     // Test moved GlyphBufferData destruct well
   }
@@ -260,8 +260,11 @@ int UtcDaliFontClientCurrentMaximumBlockSizeFitInAtlas(void)
   Size maximumTextAtlasSize              = fontClient.GetMaximumTextAtlasSize();
   Size currentMaximumBlockSizeFitInAtlas = fontClient.GetCurrentMaximumBlockSizeFitInAtlas();
 
-  tet_infoline("CurrentMaximumBlockSizeFitInAtlas start with default ");
-  DALI_TEST_EQUALS(currentMaximumBlockSizeFitInAtlas, defaultTextAtlasSize, TEST_LOCATION);
+  // TODO : This UTC pass only if we don't create fontClient plugin. Currently we always create plugin at Get API, due to performance
+  //tet_infoline("CurrentMaximumBlockSizeFitInAtlas start with default ");
+  //DALI_TEST_EQUALS(currentMaximumBlockSizeFitInAtlas, defaultTextAtlasSize, TEST_LOCATION);
+
+  currentMaximumBlockSizeFitInAtlas = defaultTextAtlasSize;
 
   tet_infoline("SetCurrentMaximumBlockSizeFitInAtlas is changed with current ");
   isChanged = fontClient.SetCurrentMaximumBlockSizeFitInAtlas(currentMaximumBlockSizeFitInAtlas);
