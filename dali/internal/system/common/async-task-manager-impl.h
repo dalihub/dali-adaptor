@@ -24,7 +24,6 @@
 #include <dali/devel-api/threading/thread.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
 #include <dali/integration-api/processor-interface.h>
-#include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/object/base-object.h>
 #include <memory>
 
@@ -118,11 +117,25 @@ public:
   void RemoveTask(AsyncTaskPtr task);
 
   /**
+   * Pop the next task out from the queue.
+   *
+   * @return The next task to be processed.
+   */
+  AsyncTaskPtr PopNextTaskToProcess();
+
+  /**
    * Pop the next task out from the completed queue, called by main thread.
    *
    * @return The next task in the completed queue.
    */
   AsyncTaskPtr PopNextCompletedTask();
+
+  /**
+   * Pop the next task out from the running queue and add this task to the completed queue.
+   *
+   * @param[in] task The task added to the queue.
+   */
+  void CompleteTask(AsyncTaskPtr task);
 
   /**
    * @brief Unregister a previously registered processor
@@ -138,21 +151,6 @@ public:
    * @copydoc Dali::Integration::Processor::Process()
    */
   void Process(bool postProcessor) override;
-
-public: // Worker thread called method
-  /**
-   * Pop the next task out from the queue.
-   *
-   * @return The next task to be processed.
-   */
-  AsyncTaskPtr PopNextTaskToProcess();
-
-  /**
-   * Pop the next task out from the running queue and add this task to the completed queue.
-   *
-   * @param[in] task The task added to the queue.
-   */
-  void CompleteTask(AsyncTaskPtr task);
 
 private:
   /**
@@ -200,31 +198,18 @@ private:
   AsyncTaskManager& operator=(const AsyncTaskManager& manager);
 
 private:
-  using AsyncTaskContainer = std::list<AsyncTaskPtr>;
+  std::vector<AsyncTaskPtr> mWaitingTasks;   //The queue of the tasks waiting to async process
+  std::vector<AsyncTaskPtr> mCompletedTasks; //The queue of the tasks with the async process
 
-  using AsyncTaskPair             = std::pair<AsyncTaskPtr, bool>;
-  using AsyncRunningTaskContainer = std::list<AsyncTaskPair>;
-
-  AsyncTaskContainer        mWaitingTasks;   ///< The queue of the tasks waiting to async process. Must be locked under mWaitingTasksMutex.
-  AsyncRunningTaskContainer mRunningTasks;   ///< The queue of the running tasks. Must be locked under mRunningTasksMutex.
-  AsyncTaskContainer        mCompletedTasks; ///< The queue of the tasks with the async process. Must be locked under mCompletedTasksMutex.
+  using AsyncTaskPair = std::pair<AsyncTaskPtr, bool>;
+  std::vector<AsyncTaskPair> mRunningTasks; ///< The queue of the running tasks
 
   RoundRobinContainerView<TaskHelper> mTasks;
 
-  uint32_t mAvaliableLowPriorityTaskCounts; ///< The number of tasks that can be processed for priority type LOW.
+  uint32_t mAvaliableLowPriorityTaskCounts; ///< The number of tasks that can be processed for proirity type LOW.
                                             ///< Be used to select next wating task determining algorithm.
-                                            ///< Note : For thread safety, Please set/get this value under mRunningTasksMutex scope.
-  uint32_t mWaitingHighProirityTaskCounts;  ///< The number of tasks that waiting now for priority type HIGH.
-                                            ///< Be used to select next wating task determining algorithm.
-                                            ///< Note : For thread safety, Please set/get this value under mWaitingTasksMutex scope.
 
-  Dali::Mutex mWaitingTasksMutex;   ///< Mutex for mWaitingTasks. We can lock mRunningTasksMutex and mCompletedTasksMutex under this scope.
-  Dali::Mutex mRunningTasksMutex;   ///< Mutex for mRunningTasks. We can lock mCompletedTasksMutex under this scope.
-  Dali::Mutex mCompletedTasksMutex; ///< Mutex for mCompletedTasks. We cannot lock any mutex under this scope.
-
-  struct CacheImpl;
-  std::unique_ptr<CacheImpl> mCacheImpl; ///< Cache interface for AsyncTaskManager.
-
+  Dali::Mutex                          mMutex;
   std::unique_ptr<EventThreadCallback> mTrigger;
   bool                                 mProcessorRegistered;
 };
