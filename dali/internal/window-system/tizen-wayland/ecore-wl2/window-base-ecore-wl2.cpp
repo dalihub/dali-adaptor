@@ -2070,15 +2070,53 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
   return 0;
 }
 
+
+Rect<int> WindowBaseEcoreWl2::RecalculateInputRect(const Rect<int>& rect)
+{
+  Rect<int> newRect;
+
+  if(mWindowRotationAngle == 90)
+  {
+    newRect.x      = rect.y;
+    newRect.y      = mWindowPositionSize.height - (rect.x + rect.width);
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else if(mWindowRotationAngle == 180)
+  {
+    newRect.x      = mWindowPositionSize.width - (rect.x + rect.width);
+    newRect.y      = mWindowPositionSize.height - (rect.y + rect.height);
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  else if(mWindowRotationAngle == 270)
+  {
+    newRect.x      = mWindowPositionSize.width - (rect.y + rect.height);
+    newRect.y      = rect.x;
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else
+  {
+    newRect.x      = rect.x;
+    newRect.y      = rect.y;
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  return newRect;
+}
+
 void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
 {
-  DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
-  Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
 
+  Eina_Rectangle rect;
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
+
+  DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
@@ -2887,11 +2925,13 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
 
 void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 {
+  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Add input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
@@ -2900,11 +2940,13 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
+  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Subtract input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);

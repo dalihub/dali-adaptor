@@ -577,6 +577,21 @@ private:
    */
   PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
 
+
+  /**
+   * @brief Return the rect value to recalulate with the default system coordinates.
+   *
+   * Some native window APIs work the geometry value based on the default system coordinates.
+   * IncludeInputRegion() and ExcludeInputRegion() are one of them.
+   * When the window is rotated, current window's geometry already were set with the rotated angle.
+   * If IncludeInputRegion() or ExcludeInputRegion() are called with rotated angle by application,
+   * the rect's area should be re-calcuated on the default system coordinates.
+   *
+   * @param[in] rect the window's current position and size with current window rotation angle.
+   * @return the re-calculated rect on the default system coordinates.
+   */
+  Rect<int> RecalculateInputRect(const Rect<int>& rect);
+
 protected:
   // Undefined
   WindowBaseEcoreWl2(const WindowBaseEcoreWl2&) = delete;
