@@ -344,7 +344,7 @@ static hb_bool_t GlyphExtentsFunc(hb_font_t* font, void* font_data, hb_codepoint
 {
   // Output data stored here.
   GlyphCacheManager::GlyphCacheData glyphData;
-  if(!GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
+  if(GetGlyphCacheData(font_data, static_cast<GlyphIndex>(glyphIndex), glyphData))
   {
     extents->x_bearing = glyphData.mGlyphMetrics.horiBearingX;
     extents->y_bearing = glyphData.mGlyphMetrics.horiBearingY;

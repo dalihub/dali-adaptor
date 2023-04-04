@@ -110,6 +110,10 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
+
+        // Make DefaultFontDescription cached
+        Dali::TextAbstraction::FontDescription defaultFontDescription;
+        fontClientHandle.GetDefaultPlatformFontDescription(defaultFontDescription);
       }
 
       gFontPreCacheAvailable = false;
