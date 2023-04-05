@@ -1137,6 +1137,8 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_DOWN");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1177,6 +1179,8 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_UP");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1204,6 +1208,8 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_MOVE");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1230,6 +1236,8 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_CANCEL");
+
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
     point.SetState(PointState::INTERRUPTED);
@@ -1247,6 +1255,8 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
 
   if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_WHEEL");
+
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
@@ -1838,6 +1848,12 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
 }
 
+void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
+  ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
+}
+
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
 {
   ecore_wl2_window_title_set(mEcoreWindow, name.c_str());
@@ -2058,15 +2074,52 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
   return 0;
 }
 
+Rect<int> WindowBaseEcoreWl2::RecalculateInputRect(const Rect<int>& rect)
+{
+  Rect<int> newRect;
+
+  if(mWindowRotationAngle == 90)
+  {
+    newRect.x      = rect.y;
+    newRect.y      = mWindowPositionSize.height - (rect.x + rect.width);
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else if(mWindowRotationAngle == 180)
+  {
+    newRect.x      = mWindowPositionSize.width - (rect.x + rect.width);
+    newRect.y      = mWindowPositionSize.height - (rect.y + rect.height);
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  else if(mWindowRotationAngle == 270)
+  {
+    newRect.x      = mWindowPositionSize.width - (rect.y + rect.height);
+    newRect.y      = rect.x;
+    newRect.width  = rect.height;
+    newRect.height = rect.width;
+  }
+  else
+  {
+    newRect.x      = rect.x;
+    newRect.y      = rect.y;
+    newRect.width  = rect.width;
+    newRect.height = rect.height;
+  }
+  return newRect;
+}
+
 void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
 {
-  DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
-  Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
 
+  Eina_Rectangle rect;
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
+
+  DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
@@ -2875,11 +2928,13 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
 
 void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 {
+  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Add input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
@@ -2888,11 +2943,13 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
+  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
-  rect.x = inputRegion.x;
-  rect.y = inputRegion.y;
-  rect.w = inputRegion.width;
-  rect.h = inputRegion.height;
+
+  rect.x = convertRegion.x;
+  rect.y = convertRegion.y;
+  rect.w = convertRegion.width;
+  rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Subtract input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
   ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);

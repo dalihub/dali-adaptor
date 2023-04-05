@@ -167,6 +167,11 @@ public:
   virtual void MoveResize(Dali::PositionSize positionSize) = 0;
 
   /**
+   * @copydoc Dali::Window::SetLayout()
+   */
+  virtual void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan) = 0;
+
+  /**
    * @copydoc Dali::Window::SetClass()
    */
   virtual void SetClass(const std::string& name, const std::string& className) = 0;

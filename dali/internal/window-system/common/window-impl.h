@@ -332,6 +332,11 @@ public:
   PositionSize GetPositionSize() const;
 
   /**
+   * @copydoc Dali::Window::SetLayout()
+   */
+  void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan);
+
+  /**
    * @copydoc Dali::Window::GetRootLayer()
    */
   Dali::Layer GetRootLayer() const;
@@ -614,20 +619,6 @@ private:
    * @brief Check available window orientation for Available orientation.
    */
   bool IsOrientationAvailable(WindowOrientation orientation) const;
-
-  /**
-   * @brief Return the rect value to recalulate with the default system coordinates.
-   *
-   * Some native window APIs work the geometry value based on the default system coordinates.
-   * IncludeInputRegion() and ExcludeInputRegion() are one of them.
-   * When the window is rotated, current window's geometry already were set with the rotated angle.
-   * If IncludeInputRegion() or ExcludeInputRegion() are called with rotated angle by application,
-   * the rect's area should be re-calcuated on the default system coordinates.
-   *
-   * @param[in] rect the window's current position and size with current window rotation angle.
-   * @return the re-calculated rect on the default system coordinates.
-   */
-  Rect<int> RecalculateRect(const Rect<int>& rect);
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**

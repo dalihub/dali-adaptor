@@ -323,6 +323,11 @@ Dali::Window::WindowPosition Window::GetPosition() const
   return GetImplementation(*this).GetPosition();
 }
 
+void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
+{
+  return GetImplementation(*this).SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
+}
+
 void Window::SetTransparency(bool transparent)
 {
   GetImplementation(*this).SetTransparency(transparent);

@@ -134,11 +134,6 @@ public:
    */
   void TasksCompleted();
 
-  /**
-   * @copydoc Dali::Integration::Processor::Process()
-   */
-  void Process(bool postProcessor) override;
-
 public: // Worker thread called method
   /**
    * Pop the next task out from the queue.
@@ -153,6 +148,12 @@ public: // Worker thread called method
    * @param[in] task The task added to the queue.
    */
   void CompleteTask(AsyncTaskPtr task);
+
+protected: // Implementation of Processor
+  /**
+   * @copydoc Dali::Integration::Processor::Process()
+   */
+  void Process(bool postProcessor) override;
 
 private:
   /**
@@ -192,6 +193,15 @@ private:
     AsyncTaskManager&                mAsyncTaskManager;
   };
 
+  /**
+   * @brief State of running task
+   */
+  enum RunningTaskState
+  {
+    RUNNING  = 0, ///< Running task
+    CANCELED = 1, ///< Canceled by user
+  };
+
 private:
   // Undefined
   AsyncTaskManager(const AsyncTaskManager& manager);
@@ -200,9 +210,10 @@ private:
   AsyncTaskManager& operator=(const AsyncTaskManager& manager);
 
 private:
+  // Keep Task as list since we take tasks by FIFO as default.
   using AsyncTaskContainer = std::list<AsyncTaskPtr>;
 
-  using AsyncTaskPair             = std::pair<AsyncTaskPtr, bool>;
+  using AsyncTaskPair             = std::pair<AsyncTaskPtr, RunningTaskState>;
   using AsyncRunningTaskContainer = std::list<AsyncTaskPair>;
 
   AsyncTaskContainer        mWaitingTasks;   ///< The queue of the tasks waiting to async process. Must be locked under mWaitingTasksMutex.
@@ -226,7 +237,8 @@ private:
   std::unique_ptr<CacheImpl> mCacheImpl; ///< Cache interface for AsyncTaskManager.
 
   std::unique_ptr<EventThreadCallback> mTrigger;
-  bool                                 mProcessorRegistered;
+
+  bool mProcessorRegistered : 1;
 };
 
 } // namespace Adaptor
