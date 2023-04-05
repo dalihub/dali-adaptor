@@ -1139,6 +1139,8 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_DOWN");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1179,6 +1181,8 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_UP");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1206,6 +1210,8 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_MOVE");
+
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
 
@@ -1232,6 +1238,8 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_CANCEL");
+
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
     point.SetState(PointState::INTERRUPTED);
@@ -1249,6 +1257,8 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
 
   if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_WHEEL");
+
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
 
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
@@ -2069,7 +2079,6 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
 
   return 0;
 }
-
 
 Rect<int> WindowBaseEcoreWl2::RecalculateInputRect(const Rect<int>& rect)
 {
@@ -2925,7 +2934,7 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
 
 void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 {
-  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
+  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;
@@ -2940,7 +2949,7 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
-  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
+  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;
