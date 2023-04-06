@@ -285,7 +285,8 @@ void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, 
 
     if(!mCacheHandler->FindFallbackFontList(fontDescription, fontList, characterSetList))
     {
-      mCacheHandler->CacheFallbackFontList(std::move(fontDescription), fontList, characterSetList);
+      FontDescription copiedFontDescription = fontDescription;
+      mCacheHandler->CacheFallbackFontList(std::move(copiedFontDescription), fontList, characterSetList);
     }
     if(!mCacheHandler->FindValidatedFont(fontDescription, fontDescriptionId))
     {
