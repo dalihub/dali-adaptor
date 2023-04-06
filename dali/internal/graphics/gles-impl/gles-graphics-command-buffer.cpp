@@ -270,9 +270,14 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   // TODO: could use vector?
   static thread_local UniformBufferBindingDescriptor sTempBindings[MAX_UNIFORM_BUFFER_BINDINGS];
 
-  auto maxBindingCount = 0u;
+  // reset temp bindings
+  memset(sTempBindings, 0, sizeof(UniformBufferBindingDescriptor) * MAX_UNIFORM_BUFFER_BINDINGS);
+
+  auto maxBinding  = 0u;
+  bool hasBindings = false;
 
   // find max binding and standalone UBO
+  memset(&bindCmd.standaloneUniformsBufferBinding, 0, sizeof(UniformBufferBindingDescriptor));
   for(const auto& binding : bindings)
   {
     if(binding.buffer)
@@ -287,18 +292,16 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
       }
       else // Bind regular UBO
       {
-        if(DALI_UNLIKELY(maxBindingCount == 0u))
-        {
-          // We can assume here comes first time. Reset temp bindings
-          std::fill_n(sTempBindings, MAX_UNIFORM_BUFFER_BINDINGS, UniformBufferBindingDescriptor());
-        }
-        auto& slot    = sTempBindings[binding.binding];
-        slot.buffer   = glesBuffer;
-        slot.offset   = binding.offset;
-        slot.binding  = binding.binding;
-        slot.emulated = false;
-
-        maxBindingCount = std::max(maxBindingCount, binding.binding + 1u);
+        auto& slot      = sTempBindings[binding.binding];
+        slot.buffer     = glesBuffer;
+        slot.offset     = binding.offset;
+        slot.binding    = binding.binding;
+        slot.blockIndex = 0;
+        slot.binding    = binding.binding; // implicitly
+        slot.dataSize   = binding.dataSize;
+        slot.emulated   = false;
+        maxBinding      = std::max(maxBinding, binding.binding);
+        hasBindings     = true;
       }
     }
   }
@@ -306,13 +309,26 @@ void CommandBuffer::BindUniformBuffers(const std::vector<Graphics::UniformBuffer
   bindCmd.uniformBufferBindingsCount = 0u;
 
   // copy data
-  if(maxBindingCount)
+  if(hasBindings)
   {
-    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBindingCount);
+    auto destBindings = mCommandPool->Allocate<UniformBufferBindingDescriptor>(maxBinding + 1);
     // copy
-    memcpy(destBindings.Ptr(), sTempBindings, sizeof(UniformBufferBindingDescriptor) * (maxBindingCount));
+    auto size = sizeof(UniformBufferBindingDescriptor) * (maxBinding + 1);
+    if(!(size % sizeof(intptr_t)))
+    {
+      auto* srcPtr = reinterpret_cast<intptr_t*>(sTempBindings);
+      auto* dstPtr = reinterpret_cast<intptr_t*>(destBindings.Ptr());
+      for(auto i = 0u; i < size / sizeof(intptr_t); ++i)
+      {
+        *dstPtr++ = *srcPtr++;
+      }
+    }
+    else
+    {
+      memcpy(destBindings.Ptr(), sTempBindings, size);
+    }
     bindCmd.uniformBufferBindings      = destBindings;
-    bindCmd.uniformBufferBindingsCount = maxBindingCount;
+    bindCmd.uniformBufferBindingsCount = maxBinding + 1;
   }
 }
 

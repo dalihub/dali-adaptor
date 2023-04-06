@@ -79,7 +79,6 @@ public:
   }
 
 private:
-
   void InitializeCPUBuffer();
 
   void InitializeGPUBuffer();
@@ -89,20 +88,9 @@ private:
   bool     mCpuAllocated{false};
   bool     mTransient{false};
 
-  bool     mSetForGLRecycling{false}; ///< If flag set true the buffer will recycle
+  bool mSetForGLRecycling{false}; ///< If flag set true the buffer will recycle
 };
 } // namespace GLES
 } // namespace Dali::Graphics
-
-template<>
-struct std::default_delete<Dali::Graphics::Buffer>
-{
-  void operator()(Dali::Graphics::Buffer* object)
-  {
-    // Add to the queue
-    auto resource = static_cast<Dali::Graphics::GLES::Buffer*>(object);
-    resource->DiscardResource();
-  }
-};
 
 #endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/integration-api/gl-defines.h>
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
+#endif
 
 namespace Dali::Graphics::GLES
 {
@@ -160,8 +164,7 @@ bool ProgramImpl::Create()
     gl->GetProgramInfoLog(program, 4096, &size, output);
 
     // log on error
-    // TODO: un-printf-it
-    printf("Log: %s\n", output);
+    DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Log: %s\n", output);
     gl->DeleteProgram(program);
     return false;
   }
@@ -169,7 +172,7 @@ bool ProgramImpl::Create()
   mImpl->glProgram = program;
 
   // Initialize reflection
-  mImpl->reflection->BuildUniformReflection();
+  mImpl->reflection->BuildUniformBlockReflection();
   mImpl->reflection->BuildVertexAttributeReflection();
 
   // populate uniform cache memory for standalone uniforms (it's not needed
@@ -178,7 +181,7 @@ bool ProgramImpl::Create()
   if(!reflection->GetStandaloneUniformExtraInfo().empty())
   {
     UniformBlockInfo blockInfo;
-    mImpl->reflection->GetUniformBlock(0, blockInfo);
+    reflection->GetUniformBlock(0, blockInfo);
     auto uniformCacheSize = blockInfo.size;
     mImpl->uniformData.resize(uniformCacheSize);
 
@@ -186,6 +189,20 @@ bool ProgramImpl::Create()
 
     BuildStandaloneUniformCache();
   }
+
+  // Set up uniform block bindings
+  auto binding    = 0u;
+  auto blockCount = reflection->GetUniformBlockCount();
+  for(uint32_t i = 1; i < blockCount; ++i) // Ignore emulated block at #0
+  {
+    UniformBlockInfo uboInfo{};
+    reflection->GetUniformBlock(i, uboInfo);
+
+    // make binding point
+    auto blockIndex = gl->GetUniformBlockIndex(program, uboInfo.name.c_str());
+    gl->UniformBlockBinding(program, blockIndex, binding++);
+  }
+
   return true;
 }
 

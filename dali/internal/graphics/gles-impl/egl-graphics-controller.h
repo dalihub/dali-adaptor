@@ -295,10 +295,7 @@ public:
   /**
    * @copydoc Dali::Graphics::GetBufferMemoryRequirements()
    */
-  MemoryRequirements GetBufferMemoryRequirements(Buffer& buffer) const override
-  {
-    return {};
-  }
+  MemoryRequirements GetBufferMemoryRequirements(Buffer& buffer) const override;
 
   /**
    * @copydoc Dali::Graphics::GetTextureProperties()

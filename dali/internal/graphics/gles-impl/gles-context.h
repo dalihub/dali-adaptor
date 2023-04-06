@@ -129,6 +129,11 @@ public:
   void ResolveStandaloneUniforms();
 
   /**
+   * @brief Resolves GPU-based uniform buffers
+   */
+  void ResolveGpuUniformBuffers();
+
+  /**
    * @brief Begins render pass for specified render target
    *
    * @param[in] renderPass render pass object to begin
