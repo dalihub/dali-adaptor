@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,7 @@
 #include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/locale-utils.h>
 
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/system/common/configuration-manager.h>
 #include <dali/internal/system/common/environment-variables.h>
 
@@ -94,6 +95,8 @@ namespace
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+
+const char* ENABLE_IMAGE_LOADER_PLUGIN_ENV = "DALI_ENABLE_IMAGE_LOADER_PLUGIN";
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
@@ -419,7 +422,12 @@ void Adaptor::Start()
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   // Initialize the image loader plugin
-  Internal::Adaptor::ImageLoaderPluginProxy::Initialize();
+  auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(ENABLE_IMAGE_LOADER_PLUGIN_ENV);
+  bool enablePlugin       = enablePluginString ? std::atoi(enablePluginString) : false;
+  if(enablePlugin)
+  {
+    Internal::Adaptor::ImageLoaderPluginProxy::Initialize();
+  }
 
   for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
   {
@@ -538,7 +546,12 @@ void Adaptor::Stop()
     }
 
     // Destroy the image loader plugin
-    Internal::Adaptor::ImageLoaderPluginProxy::Destroy();
+    auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(ENABLE_IMAGE_LOADER_PLUGIN_ENV);
+    bool enablePlugin       = enablePluginString ? std::atoi(enablePluginString) : false;
+    if(enablePlugin)
+    {
+      Internal::Adaptor::ImageLoaderPluginProxy::Destroy();
+    }
 
     delete mNotificationTrigger;
     mNotificationTrigger = NULL;
