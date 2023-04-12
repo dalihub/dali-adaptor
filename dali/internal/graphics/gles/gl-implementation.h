@@ -82,6 +82,7 @@ public:
   : mGlExtensionSupportedCacheList(),
     mContextCreatedWaitCondition(),
     mMaxTextureSize(0),
+    mMaxCombinedTextureUnits(0),
     mMaxTextureSamples(0),
     mVertexShaderPrefix(""),
     mGlesVersion(INITIAL_GLES_VERSION),
@@ -110,6 +111,7 @@ public:
   void ContextCreated()
   {
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &mMaxTextureSize);
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &mMaxCombinedTextureUnits);
 
     // Since gles 2.0 didn't return well for GL_MAJOR_VERSION and GL_MINOR_VERSION,
     // Only change gles version for the device that support above gles 3.0.
@@ -363,6 +365,16 @@ public:
       mContextCreatedWaitCondition.Wait(lock);
     }
     return mMaxTextureSize;
+  }
+
+  int GetMaxCombinedTextureUnits()
+  {
+    ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
+    if(!mIsContextCreated)
+    {
+      mContextCreatedWaitCondition.Wait(lock);
+    }
+    return mMaxCombinedTextureUnits;
   }
 
   int GetMaxTextureSamples()
@@ -1703,6 +1715,7 @@ private:
 
   ConditionalWait mContextCreatedWaitCondition;
   GLint           mMaxTextureSize;
+  GLint           mMaxCombinedTextureUnits;
   GLint           mMaxTextureSamples;
   std::string     mShaderVersionPrefix;
   std::string     mVertexShaderPrefix;

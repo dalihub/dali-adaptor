@@ -139,6 +139,10 @@ struct Context::Impl
     memset(&mGlStateCache.mBoundTextureId, 0, sizeof(mGlStateCache.mBoundTextureId));
 
     mGlStateCache.mFrameBufferStateCache.Reset();
+
+    GLint maxTextures;
+    gl.GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
+    DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
   }
 
   /**

@@ -188,6 +188,11 @@ public:
     return mGLES->GetMaxTextureSize();
   }
 
+  uint32_t GetMaxCombinedTextureUnits() override
+  {
+    return mGLES->GetMaxCombinedTextureUnits();
+  }
+
   uint8_t GetMaxTextureSamples() override
   {
     return mGLES->GetMaxTextureSamples();
