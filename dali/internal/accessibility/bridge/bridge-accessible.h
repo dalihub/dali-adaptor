@@ -74,6 +74,7 @@ public:
     std::string,                      // localized name
     int32_t,                          // child count
     double,                           // current value
+    std::string,                      // formatted current value
     double,                           // minimum increment
     double,                           // maximum value
     double,                           // minimum value

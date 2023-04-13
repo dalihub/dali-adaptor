@@ -64,6 +64,11 @@ public:
   void SetCurrentValue(double newValue);
 
   /**
+   * @copydoc Dali::Accessibility::Value::GetValueText()
+   */
+  std::string GetCurrentValueText();
+
+  /**
    * @copydoc Dali::Accessibility::Value::GetMaximum()
    */
   double GetMaximumValue();

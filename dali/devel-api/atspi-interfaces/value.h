@@ -38,9 +38,35 @@ public:
   /**
    * @brief Gets the current value.
    *
+   * The application may set the "value_format" attribute to one of the
+   * following values in order to customize what is read by the Screen Reader:
+   * 1. "percent" (the default) - GetCurrent() normalized as a percentage
+   *    of the range [GetMinimum(), GetMaximum()],
+   * 2. "number" - GetCurrent() verbatim
+   * 3. "text" - GetValueText() is used instead of GetCurrent()
+   *
    * @return The current value
+   *
+   * @see Value::GetMinimum()
+   * @see Value::GetMaximum()
+   * @see Value::GetValueText()
+   * @see Dali::Toolkit::DevelControl::AppendAccessibilityAttribute()
   */
   virtual double GetCurrent() const = 0;
+
+  /**
+   * @brief Gets the formatted current value.
+   *
+   * This does not have to be GetCurrent() formatted in any particular way,
+   * i.e. it may be an arbitrary string, e.g. "small font size" for the
+   * numeric value 10.0.
+   *
+   * @return The current value as text
+   *
+   * @note Only used if the "value_format" attribute is "text"
+   * @see Value::GetCurrent()
+   */
+  virtual std::string GetValueText() const = 0;
 
   /**
    * @brief Gets the highest possible value.
