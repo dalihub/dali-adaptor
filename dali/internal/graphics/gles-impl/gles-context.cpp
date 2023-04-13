@@ -369,6 +369,21 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
                            GL_FALSE,
                            bufferBinding.stride,
                            reinterpret_cast<void*>(attr.offset));
+
+    switch(bufferBinding.inputRate)
+    {
+      case Graphics::VertexInputRate::PER_VERTEX:
+      {
+        gl.VertexAttribDivisor(attr.location, 0);
+        break;
+      }
+      case Graphics::VertexInputRate::PER_INSTANCE:
+      {
+        //@todo Get actual instance rate...
+        gl.VertexAttribDivisor(attr.location, 1);
+        break;
+      }
+    }
   }
 
   // Resolve topology
@@ -390,9 +405,19 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         mImpl->FlushVertexAttributeLocations();
       }
 
-      gl.DrawArrays(GLESTopology(ia->topology),
-                    drawCall.draw.firstVertex,
-                    drawCall.draw.vertexCount);
+      if(drawCall.draw.instanceCount == 0)
+      {
+        gl.DrawArrays(GLESTopology(ia->topology),
+                      drawCall.draw.firstVertex,
+                      drawCall.draw.vertexCount);
+      }
+      else
+      {
+        gl.DrawArraysInstanced(GLESTopology(ia->topology),
+                               drawCall.draw.firstVertex,
+                               drawCall.draw.vertexCount,
+                               drawCall.draw.instanceCount);
+      }
       break;
     }
     case DrawCallDescriptor::Type::DRAW_INDEXED:
@@ -411,10 +436,21 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       }
 
       auto indexBufferFormat = GLIndexFormat(binding.format).format;
-      gl.DrawElements(GLESTopology(ia->topology),
-                      drawCall.drawIndexed.indexCount,
-                      indexBufferFormat,
-                      reinterpret_cast<void*>(binding.offset));
+      if(drawCall.drawIndexed.instanceCount == 0)
+      {
+        gl.DrawElements(GLESTopology(ia->topology),
+                        drawCall.drawIndexed.indexCount,
+                        indexBufferFormat,
+                        reinterpret_cast<void*>(binding.offset));
+      }
+      else
+      {
+        gl.DrawElementsInstanced(GLESTopology(ia->topology),
+                                 drawCall.drawIndexed.indexCount,
+                                 indexBufferFormat,
+                                 reinterpret_cast<void*>(binding.offset),
+                                 drawCall.drawIndexed.instanceCount);
+      }
       break;
     }
     case DrawCallDescriptor::Type::DRAW_INDEXED_INDIRECT:
