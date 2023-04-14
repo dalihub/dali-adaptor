@@ -12,6 +12,7 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/widget-application.cpp
   ${adaptor_public_api_dir}/adaptor-framework/widget-impl.cpp
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.cpp
+  ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
   ${adaptor_public_api_dir}/capture/capture.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
 )
@@ -41,6 +42,7 @@ SET( public_api_adaptor_framework_header_files
   ${adaptor_public_api_dir}/adaptor-framework/window-enumerations.h
   ${adaptor_public_api_dir}/adaptor-framework/round-robin-container-view.h
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.h
+  ${adaptor_public_api_dir}/adaptor-framework/window-data.h
 )
 
 SET( public_dali_capture_header_files
