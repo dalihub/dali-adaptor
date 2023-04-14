@@ -277,6 +277,10 @@ void DragAndDropEcoreWl::CallSourceEvent(Dali::DragAndDrop::SourceEventType type
   if(mSourceCallback)
   {
     mSourceCallback(type);
+    if(type != Dali::DragAndDrop::SourceEventType::START)
+    {
+       mDragWindow.Reset();
+    }
   }
 }
 
