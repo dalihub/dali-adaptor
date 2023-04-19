@@ -488,14 +488,16 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
 
-  double currentValue     = 0.0;
-  double minimumIncrement = 0.0;
-  double maximumValue     = 0.0;
-  double minimumValue     = 0.0;
-  auto*  valueInterface   = Value::DownCast(self);
+  double      currentValue     = 0.0;
+  std::string currentValueText;
+  double      minimumIncrement = 0.0;
+  double      maximumValue     = 0.0;
+  double      minimumValue     = 0.0;
+  auto*       valueInterface   = Value::DownCast(self);
   if(valueInterface)
   {
     currentValue     = valueInterface->GetCurrent();
+    currentValueText = valueInterface->GetValueText();
     minimumIncrement = valueInterface->GetMinimumIncrement();
     maximumValue     = valueInterface->GetMaximum();
     minimumValue     = valueInterface->GetMinimum();
@@ -573,6 +575,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     localizedRoleName,
     childCount,
     currentValue,
+    currentValueText,
     minimumIncrement,
     maximumValue,
     minimumValue,

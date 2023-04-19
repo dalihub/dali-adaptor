@@ -28,6 +28,7 @@ void BridgeValue::RegisterInterfaces()
 {
   DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::VALUE)};
   AddGetSetPropertyToInterface(desc, "CurrentValue", &BridgeValue::GetCurrentValue, &BridgeValue::SetCurrentValue);
+  AddGetPropertyToInterface(desc, "Text", &BridgeValue::GetCurrentValueText);
   AddGetPropertyToInterface(desc, "MaximumValue", &BridgeValue::GetMaximumValue);
   AddGetPropertyToInterface(desc, "MinimumIncrement", &BridgeValue::GetMinimumIncrement);
   AddGetPropertyToInterface(desc, "MinimumValue", &BridgeValue::GetMinimumValue);
@@ -47,6 +48,11 @@ double BridgeValue::GetCurrentValue()
 void BridgeValue::SetCurrentValue(double newValue)
 {
   FindSelf()->SetCurrent(newValue);
+}
+
+std::string BridgeValue::GetCurrentValueText()
+{
+  return FindSelf()->GetValueText();
 }
 
 double BridgeValue::GetMaximumValue()
