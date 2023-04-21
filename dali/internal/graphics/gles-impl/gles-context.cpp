@@ -348,7 +348,6 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
   }
 
   // for each attribute bind vertices
-
   const auto& pipelineState    = mImpl->mNewPipeline ? mImpl->mNewPipeline->GetCreateInfo() : mImpl->mCurrentPipeline->GetCreateInfo();
   const auto& vertexInputState = pipelineState.vertexInputState;
 
@@ -373,12 +372,26 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Bind buffer
     BindBuffer(GL_ARRAY_BUFFER, glesBuffer);
 
-    gl.VertexAttribPointer(attr.location,
-                           GLVertexFormat(attr.format).size,
-                           GLVertexFormat(attr.format).format,
-                           GL_FALSE,
-                           bufferBinding.stride,
-                           reinterpret_cast<void*>(attr.offset));
+    if(attr.format == VertexInputFormat::FLOAT ||
+       attr.format == VertexInputFormat::FVECTOR2 ||
+       attr.format == VertexInputFormat::FVECTOR3 ||
+       attr.format == VertexInputFormat::FVECTOR4)
+    {
+      gl.VertexAttribPointer(attr.location,
+                             GLVertexFormat(attr.format).size,
+                             GLVertexFormat(attr.format).format,
+                             GL_FALSE,
+                             bufferBinding.stride,
+                             reinterpret_cast<void*>(attr.offset));
+    }
+    else
+    {
+      gl.VertexAttribIPointer(attr.location,
+                              GLVertexFormat(attr.format).size,
+                              GLVertexFormat(attr.format).format,
+                              bufferBinding.stride,
+                              reinterpret_cast<void*>(attr.offset));
+    }
 
     switch(bufferBinding.inputRate)
     {
