@@ -233,7 +233,8 @@ struct Context::Impl
   uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
   GLStateCache                                                                  mGlStateCache{};             ///< GL status cache
 
-  bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
+  bool mGlContextCreated{false};    ///< True if the OpenGL context has been created
+  bool mVertexBuffersChanged{true}; ///< True if BindVertexBuffers changed any buffer bindings
 
   EGLContext mNativeDrawContext{0u}; ///< Native rendering EGL context compatible with window context
 
@@ -288,11 +289,16 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     return;
   }
 
+  // If this draw uses a different pipeline _AND_ the pipeline has a different GL Program,
+  // Then bind the new program. Ensure vertex atrributes are set.
+
+  bool programChanged = false;
   if(mImpl->mNewPipeline && mImpl->mCurrentPipeline != mImpl->mNewPipeline)
   {
     if(!currentProgram || currentProgram->GetImplementation()->GetGlProgram() != newProgram->GetImplementation()->GetGlProgram())
     {
       mImpl->mNewPipeline->Bind(newProgram->GetImplementation()->GetGlProgram());
+      programChanged = true;
     }
 
     // Blend state
@@ -330,15 +336,18 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     texture->Bind(binding);
     texture->Prepare();
 
-    // @warning Assume that location of array elements is sequential.
-    // @warning GL does not guarantee this, but in practice, it is.
-    gl.Uniform1i(samplers[currentSampler].location + currentElement,
-                 samplers[currentSampler].offset + currentElement);
-    ++currentElement;
-    if(currentElement >= samplers[currentSampler].elementCount)
+    if(programChanged)
     {
-      ++currentSampler;
-      currentElement = 0;
+      // @warning Assume that location of array elements is sequential.
+      // @warning GL does not guarantee this, but in practice, it is.
+      gl.Uniform1i(samplers[currentSampler].location + currentElement,
+                   samplers[currentSampler].offset + currentElement);
+      ++currentElement;
+      if(currentElement >= samplers[currentSampler].elementCount)
+      {
+        ++currentSampler;
+        currentElement = 0;
+      }
     }
     if(currentSampler >= samplers.size())
     {
@@ -347,72 +356,72 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     }
   }
 
-  // for each attribute bind vertices
   const auto& pipelineState    = mImpl->mNewPipeline ? mImpl->mNewPipeline->GetCreateInfo() : mImpl->mCurrentPipeline->GetCreateInfo();
   const auto& vertexInputState = pipelineState.vertexInputState;
 
-  if(hasGLES3)
+  // for each attribute bind vertices, unless the pipeline+buffer is the same
+  if(programChanged || mImpl->mVertexBuffersChanged)
   {
-    mImpl->BindProgramVAO(static_cast<const GLES::Program*>(pipelineState.programState->program)->GetImplementation(), *vertexInputState);
-  }
-
-  for(const auto& attr : vertexInputState->attributes)
-  {
-    // Enable location
-    if(!hasGLES3)
+    if(hasGLES3)
     {
-      mImpl->SetVertexAttributeLocation(attr.location, true);
+      mImpl->BindProgramVAO(static_cast<const GLES::Program*>(pipelineState.programState->program)->GetImplementation(), *vertexInputState);
     }
 
-    const auto& bufferSlot    = mImpl->mCurrentVertexBufferBindings[attr.binding];
-    const auto& bufferBinding = vertexInputState->bufferBindings[attr.binding];
-
-    auto glesBuffer = bufferSlot.buffer->GetGLBuffer();
-
-    // Bind buffer
-    BindBuffer(GL_ARRAY_BUFFER, glesBuffer);
-
-    if(attr.format == VertexInputFormat::FLOAT ||
-       attr.format == VertexInputFormat::FVECTOR2 ||
-       attr.format == VertexInputFormat::FVECTOR3 ||
-       attr.format == VertexInputFormat::FVECTOR4)
+    for(const auto& attr : vertexInputState->attributes)
     {
-      gl.VertexAttribPointer(attr.location,
-                             GLVertexFormat(attr.format).size,
-                             GLVertexFormat(attr.format).format,
-                             GL_FALSE,
-                             bufferBinding.stride,
-                             reinterpret_cast<void*>(attr.offset));
-    }
-    else
-    {
-      gl.VertexAttribIPointer(attr.location,
-                              GLVertexFormat(attr.format).size,
-                              GLVertexFormat(attr.format).format,
-                              bufferBinding.stride,
-                              reinterpret_cast<void*>(attr.offset));
-    }
-
-    switch(bufferBinding.inputRate)
-    {
-      case Graphics::VertexInputRate::PER_VERTEX:
+      // Enable location
+      if(!hasGLES3)
       {
-        gl.VertexAttribDivisor(attr.location, 0);
-        break;
+        mImpl->SetVertexAttributeLocation(attr.location, true);
       }
-      case Graphics::VertexInputRate::PER_INSTANCE:
+
+      const auto& bufferSlot    = mImpl->mCurrentVertexBufferBindings[attr.binding];
+      const auto& bufferBinding = vertexInputState->bufferBindings[attr.binding];
+
+      auto glesBuffer = bufferSlot.buffer->GetGLBuffer();
+
+      BindBuffer(GL_ARRAY_BUFFER, glesBuffer); // Cached
+
+      if(attr.format == VertexInputFormat::FLOAT ||
+         attr.format == VertexInputFormat::FVECTOR2 ||
+         attr.format == VertexInputFormat::FVECTOR3 ||
+         attr.format == VertexInputFormat::FVECTOR4)
       {
-        //@todo Get actual instance rate...
-        gl.VertexAttribDivisor(attr.location, 1);
-        break;
+        gl.VertexAttribPointer(attr.location, // Not cached...
+                               GLVertexFormat(attr.format).size,
+                               GLVertexFormat(attr.format).format,
+                               GL_FALSE,
+                               bufferBinding.stride,
+                               reinterpret_cast<void*>(attr.offset));
+      }
+      else
+      {
+        gl.VertexAttribIPointer(attr.location,
+                                GLVertexFormat(attr.format).size,
+                                GLVertexFormat(attr.format).format,
+                                bufferBinding.stride,
+                                reinterpret_cast<void*>(attr.offset));
+      }
+
+      switch(bufferBinding.inputRate)
+      {
+        case Graphics::VertexInputRate::PER_VERTEX:
+        {
+          gl.VertexAttribDivisor(attr.location, 0);
+          break;
+        }
+        case Graphics::VertexInputRate::PER_INSTANCE:
+        {
+          //@todo Get actual instance rate...
+          gl.VertexAttribDivisor(attr.location, 1);
+          break;
+        }
       }
     }
   }
 
   // Resolve topology
   const auto& ia = pipelineState.inputAssemblyState;
-
-  // Bind uniforms
 
   // Resolve draw call
   switch(drawCall.type)
@@ -516,9 +525,19 @@ void Context::BindVertexBuffers(const GLES::VertexBufferBindingDescriptor* bindi
     mImpl->mCurrentVertexBufferBindings.resize(count);
   }
   // Copy only set slots
-  std::copy_if(bindings, bindings + count, mImpl->mCurrentVertexBufferBindings.begin(), [](auto& item) {
-    return (nullptr != item.buffer);
-  });
+  mImpl->mVertexBuffersChanged = false;
+  auto toIter                  = mImpl->mCurrentVertexBufferBindings.begin();
+  for(auto fromIter = bindings, end = bindings + count; fromIter != end; ++fromIter)
+  {
+    if(fromIter->buffer != nullptr)
+    {
+      if(toIter->buffer != fromIter->buffer || toIter->offset != fromIter->offset)
+      {
+        mImpl->mVertexBuffersChanged = true;
+      }
+      *toIter++ = *fromIter;
+    }
+  }
 }
 
 void Context::BindIndexBuffer(const IndexBufferBindingDescriptor& indexBufferBinding)
@@ -1018,7 +1037,7 @@ void Context::GenerateMipmap(GLenum target)
   gl.GenerateMipmap(target);
 }
 
-void Context::BindBuffer(GLenum target, uint32_t bufferId)
+bool Context::BindBuffer(GLenum target, uint32_t bufferId)
 {
   switch(target)
   {
@@ -1026,7 +1045,7 @@ void Context::BindBuffer(GLenum target, uint32_t bufferId)
     {
       if(mImpl->mGlStateCache.mBoundArrayBufferId == bufferId)
       {
-        return;
+        return false;
       }
       mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
       break;
@@ -1035,7 +1054,7 @@ void Context::BindBuffer(GLenum target, uint32_t bufferId)
     {
       if(mImpl->mGlStateCache.mBoundElementArrayBufferId == bufferId)
       {
-        return;
+        return false;
       }
       mImpl->mGlStateCache.mBoundElementArrayBufferId = bufferId;
       break;
@@ -1045,6 +1064,7 @@ void Context::BindBuffer(GLenum target, uint32_t bufferId)
   // Cache miss. Bind buffer.
   auto& gl = *mImpl->mController.GetGL();
   gl.BindBuffer(target, bufferId);
+  return true;
 }
 
 void Context::DrawBuffers(uint32_t count, const GLenum* buffers)
