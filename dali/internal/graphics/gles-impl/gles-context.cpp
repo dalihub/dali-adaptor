@@ -309,6 +309,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
   // Map binding# to sampler location
   const auto& reflection = !newProgram ? currentProgram->GetReflection() : newProgram->GetReflection();
   const auto& samplers   = reflection.GetSamplers();
+
+  uint32_t currentSampler = 0;
+  uint32_t currentElement = 0;
+
+  // @warning Assume that binding.binding is strictly linear in the same order as mCurrentTextureBindings
+  // elements. This avoids having to sort the bindings.
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
@@ -316,24 +322,28 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     // Texture may not have been initialized yet...(tbm_surface timing issue?)
     if(!texture->GetGLTexture())
     {
-      // Attempt to reinitialize
-      // @todo need to put this somewhere else where it isn't const.
-      // Maybe post it back on end of initialize queue if initialization fails?
       texture->InitializeResource();
     }
 
     // Warning, this may cause glWaitSync to occur on the GPU.
     dependencyChecker.CheckNeedsSync(this, texture);
-
     texture->Bind(binding);
+    texture->Prepare();
 
-    texture->Prepare(); // @todo also non-const.
-
-    if(binding.binding < samplers.size()) // binding maps to texture unit. (texture bindings should also be in binding order)
+    // @warning Assume that location of array elements is sequential.
+    // @warning GL does not guarantee this, but in practice, it is.
+    gl.Uniform1i(samplers[currentSampler].location + currentElement,
+                 samplers[currentSampler].offset + currentElement);
+    ++currentElement;
+    if(currentElement >= samplers[currentSampler].elementCount)
     {
-      // Offset is set to the lexical offset within the frag shader, map it to the texture unit
-      // @todo Explicitly set the texture unit through the graphics interface
-      gl.Uniform1i(samplers[binding.binding].location, samplers[binding.binding].offset);
+      ++currentSampler;
+      currentElement = 0;
+    }
+    if(currentSampler >= samplers.size())
+    {
+      // Don't bind more textures than there are active samplers.
+      break;
     }
   }
 
