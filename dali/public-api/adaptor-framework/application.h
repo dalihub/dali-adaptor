@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/public-api/adaptor-framework/device-status.h>
+#include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window.h>
 
 namespace Dali
@@ -222,6 +223,24 @@ public:
    * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
    */
   static Application New(int* argc, char** argv[], const std::string& stylesheet, Application::WINDOW_MODE windowMode, PositionSize positionSize, bool useUiThread);
+
+  /**
+   * @brief This is the constructor for applications.
+   *
+   * @SINCE_2_2.23
+   * @PRIVLEVEL_PUBLIC
+   * @PRIVILEGE_DISPLAY
+   * @param[in,out]  argc         A pointer to the number of arguments
+   * @param[in,out]  argv         A pointer to the argument list
+   * @param[in]      stylesheet   The path to user defined theme file
+   * @param[in]      useUiThread  True if the application would create a UI thread
+   * @param[in]      windowData   The window data for the application
+   * @return A handle to the Application
+   * @note If the stylesheet is not specified, then the library's default stylesheet will not be overridden.<BR>
+   * UI thread is an additional thread that DALi creates for UI events.
+   * The UI thread isn't blocked from the system events(AppControl, LanguageChanged, RegionChanged, LowMemory, LowBattery task signals).
+   */
+  static Application New(int* argc, char** argv[], const std::string& stylesheet, bool useUiThread, WindowData& windowData);
 
   /**
    * @brief Constructs an empty handle.

@@ -123,6 +123,34 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   return Application(internal.Get());
 }
 
+Application Application::New(int* argc, char** argv[], const std::string& stylesheet, bool useUiThread, WindowData& windowData)
+{
+  Internal::Adaptor::ApplicationPtr internal = Internal::Adaptor::Application::GetPreInitializedApplication();
+  if(internal)
+  {
+    // pre-initialized application
+    internal->SetCommandLineOptions(argc, argv);
+    internal->SetStyleSheet(stylesheet);
+
+    // Set defaut Window type
+    internal->SetDefaultWindowType(windowData.GetWindowType());
+    internal->GetWindow().SetTransparency(windowData.GetTransparency());
+
+    // Store only the value before adaptor is created
+    internal->StoreWindowPositionSize(windowData.GetPositionSize());
+  }
+  else
+  {
+    // clang-format off
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet,
+                  windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE,
+                  windowData.GetPositionSize(), Internal::Adaptor::Framework::NORMAL,
+                  windowData.GetWindowType(), useUiThread);
+    // clang-format on
+  }
+  return Application(internal.Get());
+}
+
 Application::~Application()
 {
 }

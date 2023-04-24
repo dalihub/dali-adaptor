@@ -8,6 +8,7 @@ SET(TC_SOURCES
     utc-Dali-Application.cpp
     utc-Dali-EncodedImageBuffer.cpp
     utc-Dali-Capture.cpp
+    utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
     utc-Dali-Gl-Window.cpp
