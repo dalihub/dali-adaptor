@@ -334,8 +334,7 @@ private:
   unsigned int mDpiHorizontal;
   unsigned int mDpiVertical;
 
-  static Dali::TextAbstraction::FontClient gPreInitializedFontClient;
-  static Dali::TextAbstraction::FontClient gPreCachedFontClient;
+  static Dali::TextAbstraction::FontClient gPreCreatedFontClient;
 
 }; // class FontClient
 
