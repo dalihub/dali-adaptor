@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -259,8 +259,9 @@ private:
   typedef std::vector<EGLSurface> EglWindowSurfaceContainer;
   EglWindowSurfaceContainer       mEglWindowSurfaces; ///< The EGL surface for the window
 
-  int32_t mMultiSamplingLevel;
-  int32_t mGlesVersion;
+  int32_t  mMultiSamplingLevel;
+  int32_t  mGlesVersion;
+  uint32_t mLogThreshold{0};
 
   ColorDepth mColorDepth;
 
@@ -272,6 +273,7 @@ private:
   bool mPartialUpdateRequired;
   bool mIsSurfacelessContextSupported;
   bool mIsKhrCreateContextSupported;
+  bool mLogEnabled{false};
 
   uint32_t                           mSwapBufferCountAfterResume;
   PFNEGLSETDAMAGEREGIONKHRPROC       mEglSetDamageRegionKHR;
