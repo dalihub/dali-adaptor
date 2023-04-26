@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,6 +173,22 @@ int UtcDaliApplicationNew07P(void)
   char**      argv       = const_cast<char**>(argList);
 
   Application application = Application::New(&argc, &argv, "stylesheet", Application::WINDOW_MODE::OPAQUE, PositionSize());
+
+  MyTestApp testApp(application);
+
+  DALI_TEST_CHECK(application);
+
+  END_TEST;
+}
+
+int UtcDaliApplicationNew08P(void)
+{
+  int         argc(1);
+  const char* argList[1] = {"program"};
+  char**      argv       = const_cast<char**>(argList);
+  WindowData  windowData;
+
+  Application application = Application::New(&argc, &argv, "stylesheet", false, windowData);
 
   MyTestApp testApp(application);
 

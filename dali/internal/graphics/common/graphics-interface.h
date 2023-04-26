@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,6 +165,11 @@ public:
    * @return the maximum texture size
    */
   virtual uint32_t GetMaxTextureSize() = 0;
+
+  /**
+   * @return the maximum number of combined texture units
+   */
+  virtual uint32_t GetMaxCombinedTextureUnits() = 0;
 
   /**
    * @return the maximum texture samples when we use multisampled texture

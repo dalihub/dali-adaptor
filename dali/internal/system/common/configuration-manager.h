@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,12 @@ public:
   uint32_t GetMaxTextureSize();
 
   /**
+   * @brief Get the maximum number of combined texture units (across all shaders in program)
+   * @return the number of combined texture units
+   */
+  uint32_t GetMaxCombinedTextureUnits();
+
+  /**
    * @brief Get the shader language version that the system supports
    * @return the shader language version.
    */
@@ -102,6 +108,7 @@ private:                                                                // Data
   GraphicsInterface* mGraphics;                                         ///< Graphics interface
   ThreadController*  mThreadController;                                 ///< The thread controller
   unsigned int       mMaxTextureSize;                                   ///< The largest texture that the GL can handle
+  unsigned int       mMaxCombinedTextureUnits;                          ///< The maximum number of combined texture units
   unsigned int       mShaderLanguageVersion;                            ///< The shader language version that the system supports.
   bool               mIsMultipleWindowSupported : 1;                    ///< Whether multiple window is supported by the GLES
   bool               mIsAdvancedBlendEquationSupported : 1;             ///< Whether blend equation advanced (extension) is supported by the GLES
@@ -111,6 +118,7 @@ private:                                                                // Data
   bool               mIsAdvancedBlendEquationSupportedCached : 1;       ///< Whether we have checked the support of blend equation advanced (extension)
   bool               mIsMultisampledRenderToTextureSupportedCached : 1; ///< Whether we have checked the support of multisampled render to texture (extension)
   bool               mShaderLanguageVersionCached : 1;                  ///< Whether we have checked the shader language version
+  bool               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
 };
 
 } // namespace Adaptor

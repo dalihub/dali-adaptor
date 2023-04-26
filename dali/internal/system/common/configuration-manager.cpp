@@ -50,6 +50,7 @@ ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics
   mGraphics(graphics),
   mThreadController(threadController),
   mMaxTextureSize(0u),
+  mMaxCombinedTextureUnits(0u),
   mShaderLanguageVersion(0u),
   mIsMultipleWindowSupported(true),
   mIsAdvancedBlendEquationSupported(true),
@@ -58,7 +59,8 @@ ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics
   mIsMultipleWindowSupportedCached(false),
   mIsAdvancedBlendEquationSupportedCached(false),
   mIsMultisampledRenderToTextureSupportedCached(false),
-  mShaderLanguageVersionCached(false)
+  mShaderLanguageVersionCached(false),
+  mMaxCombinedTextureUnitsCached(false)
 {
 }
 
@@ -91,6 +93,12 @@ void ConfigurationManager::RetrieveKeysFromConfigFile(const std::string& configF
         std::getline(subStream, value);
         mMaxTextureSize       = std::atoi(value.c_str());
         mMaxTextureSizeCached = true;
+      }
+      if(!mMaxCombinedTextureUnitsCached && name == DALI_ENV_MAX_COMBINED_TEXTURE_UNITS)
+      {
+        std::getline(subStream, value);
+        mMaxCombinedTextureUnits       = std::atoi(value.c_str());
+        mMaxCombinedTextureUnitsCached = true;
       }
       else if(!mIsAdvancedBlendEquationSupportedCached && name == DALI_BLEND_EQUATION_ADVANCED_SUPPORT)
       {
@@ -152,6 +160,41 @@ uint32_t ConfigurationManager::GetMaxTextureSize()
   }
 
   return mMaxTextureSize;
+}
+
+uint32_t ConfigurationManager::GetMaxCombinedTextureUnits()
+{
+  if(!mMaxCombinedTextureUnitsCached)
+  {
+    RetrieveKeysFromConfigFile(mSystemCacheFilePath);
+
+    if(!mMaxCombinedTextureUnitsCached)
+    {
+      if(!mGraphics->IsInitialized())
+      {
+        // Wait until Graphics Subsystem is initialised, but this will happen once.
+        // This method blocks until the render thread has initialised the graphics.
+        mThreadController->WaitForGraphicsInitialization();
+      }
+
+      mMaxCombinedTextureUnits       = mGraphics->GetMaxCombinedTextureUnits();
+      mMaxCombinedTextureUnitsCached = true;
+      DALI_LOG_RENDER_INFO("MaxCombinedTextureUnits = %d\n", mMaxCombinedTextureUnits);
+
+      Dali::FileStream configFile(mSystemCacheFilePath, Dali::FileStream::READ | Dali::FileStream::APPEND | Dali::FileStream::TEXT);
+      std::fstream&    stream = dynamic_cast<std::fstream&>(configFile.GetStream());
+      if(stream.is_open())
+      {
+        stream << DALI_ENV_MAX_COMBINED_TEXTURE_UNITS << " " << mMaxCombinedTextureUnits << std::endl;
+      }
+      else
+      {
+        DALI_LOG_ERROR("Fail to open file : %s\n", mSystemCacheFilePath.c_str());
+      }
+    }
+  }
+
+  return mMaxCombinedTextureUnits;
 }
 
 uint32_t ConfigurationManager::GetShadingLanguageVersion()

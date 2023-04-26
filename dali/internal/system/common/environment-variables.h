@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -122,6 +122,8 @@ namespace Adaptor
 #define DALI_ENV_MULTI_SAMPLING_LEVEL "DALI_MULTI_SAMPLING_LEVEL"
 
 #define DALI_ENV_MAX_TEXTURE_SIZE "DALI_MAX_TEXTURE_SIZE"
+
+#define DALI_ENV_MAX_COMBINED_TEXTURE_UNITS "DALI_MAX_COMBINED_TEXTURE_UNITS"
 
 #define DALI_RENDER_TO_FBO "DALI_RENDER_TO_FBO"
 

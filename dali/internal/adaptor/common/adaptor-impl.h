@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -513,6 +513,15 @@ public: //AdaptorInternalServices
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetWindowContainerInterface()
    */
   void GetWindowContainerInterface(WindowContainer& windows) override;
+
+  /**
+   * @brief Get the configuration manager
+   * @return The configuration manager, or null if it hasn't been created yet
+   */
+  const ConfigurationManager* GetConfigurationManager() const
+  {
+    return mConfigurationManager.get();
+  }
 
 public: // Signals
   /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,8 @@ bool operator==(const StringSize& lhs, const char* rhs)
   return strncmp(lhs.mString, rhs, lhs.mLength) == 0;
 }
 
-const char* const    DELIMITERS = " \t\n";
+const char* const    DELIMITERS           = " \t\n";
+const char* const    DELIMITERS_INC_INDEX = " \t\n[]";
 constexpr StringSize UNIFORM{"uniform"};
 constexpr StringSize SAMPLER_PREFIX{"sampler"};
 constexpr StringSize SAMPLER_TYPES[]   = {"2D", "Cube", "ExternalOES"};
@@ -148,27 +149,50 @@ void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::U
 
     while(uniform)
     {
+      // From "uniform" to ";", not ignoring comments.
       char* outerToken = strtok_r(uniform + UNIFORM.mLength, ";", &uniform);
 
       char* nextPtr = nullptr;
       char* token   = strtok_r(outerToken, DELIMITERS, &nextPtr);
       while(token)
       {
+        // Ignore any token up to "sampler"
         if(SAMPLER_PREFIX == token)
         {
           token += SAMPLER_PREFIX.mLength;
           if(std::find(SAMPLER_TYPES, END_SAMPLER_TYPES, token) != END_SAMPLER_TYPES)
           {
             bool found(false);
-            token = strtok_r(nullptr, DELIMITERS, &nextPtr);
+            // We now are at next token after "samplerxxx" in outerToken token "stream"
+
+            // Does it use array notation?
+            int  arraySize = 0; // 0 = No array
+            auto iter      = std::string(token).find("[", 0);
+            if(iter != std::string::npos)
+            {
+              // Get Array size from source. (Warning, may be higher than GetActiveUniform suggests)
+              iter++;
+              arraySize = int(strtol(token + iter, nullptr, 0));
+            }
+
+            token = strtok_r(nullptr, DELIMITERS_INC_INDEX, &nextPtr); // " ", "\t", "\n", "[", "]"
 
             for(uint32_t i = 0; i < static_cast<uint32_t>(uniformOpaques.size()); ++i)
             {
               if(samplerPositions[i] == -1 &&
                  strncmp(token, uniformOpaques[i].name.c_str(), uniformOpaques[i].name.size()) == 0)
               {
-                samplerPositions[i] = uniformOpaques[i].offset = samplerPosition++;
-                found                                          = true;
+                // We have found a matching name.
+                samplerPositions[i] = uniformOpaques[i].offset = samplerPosition;
+                if(arraySize == 0)
+                {
+                  ++samplerPosition;
+                }
+                else
+                {
+                  samplerPosition += arraySize;
+                }
+                found = true;
                 break;
               }
             }
@@ -289,6 +313,7 @@ void Reflection::BuildUniformReflection()
     GLenum type;
     int    written;
     gl->GetActiveUniform(glProgram, i, maxLen, &written, &elementCount, &type, name);
+
     int location = gl->GetUniformLocation(glProgram, name);
 
     Dali::Graphics::UniformInfo uniformInfo;
@@ -296,16 +321,21 @@ void Reflection::BuildUniformReflection()
     uniformInfo.name = name;
     if(elementCount > 1)
     {
+      // If we have an active uniform that refers to an array, only the first element
+      // is present in this list, and is referenced as "uniform[0]", but the element
+      // count is non-zero to indicate how many uniforms there are in the array.
+
+      // Strip off the array, but store the element count
       auto iter = std::string(uniformInfo.name).find("[", 0);
       if(iter != std::string::npos)
       {
-        uniformInfo.name = std::string(name).substr(0, iter);
+        uniformInfo.name         = std::string(name).substr(0, iter);
+        uniformInfo.elementCount = elementCount;
       }
     }
-
     uniformInfo.uniformClass = IsSampler(type) ? Dali::Graphics::UniformClass::COMBINED_IMAGE_SAMPLER : Dali::Graphics::UniformClass::UNIFORM;
-    uniformInfo.location     = location; //IsSampler(type) ? 0 : location;
-    uniformInfo.binding      = 0;        // IsSampler(type) ? location : 0;
+    uniformInfo.location     = location; // GL doesn't guarantee that consecutive array elements have sequential locations. But, we only store location of first element.
+    uniformInfo.binding      = 0;
     uniformInfo.bufferIndex  = 0;
     uniformInfo.offset       = 0;
 

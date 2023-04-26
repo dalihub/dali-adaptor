@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,8 +116,8 @@ bool Shader::Compile() const
         char    output[4096];
         GLsizei size{0u};
         gl->GetShaderInfoLog(shader, 4096, &size, output);
-        DALI_LOG_RELEASE_INFO("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
-        DALI_LOG_RELEASE_INFO("Log: %s\n", output);
+        DALI_LOG_RENDER_INFO("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
+        DALI_LOG_RENDER_INFO("Log: %s\n", output);
         gl->DeleteShader(shader);
         return false;
       }

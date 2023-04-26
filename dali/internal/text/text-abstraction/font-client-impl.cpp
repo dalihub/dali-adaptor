@@ -53,8 +53,7 @@ namespace TextAbstraction
 {
 namespace Internal
 {
-Dali::TextAbstraction::FontClient FontClient::gPreInitializedFontClient(NULL);
-Dali::TextAbstraction::FontClient FontClient::gPreCachedFontClient(NULL);
+Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 std::thread                       gPreCacheThread;
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
@@ -96,16 +95,10 @@ Dali::TextAbstraction::FontClient FontClient::Get()
         FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache thread join\n");
       }
 
-      if(gPreInitializedFontClient)
+      if(gPreCreatedFontClient)
       {
-        fontClientHandle = gPreInitializedFontClient;
-        gPreInitializedFontClient.Reset(); // No longer needed
-      }
-      else if(gPreCachedFontClient)
-      {
-        // TODO: Currently font pre-caching is not available in the candidate process.
-        fontClientHandle = gPreCachedFontClient;
-        gPreCachedFontClient.Reset(); // No longer needed
+        fontClientHandle = gPreCreatedFontClient;
+        gPreCreatedFontClient.Reset(); // No longer needed
       }
       else
       {
@@ -136,24 +129,34 @@ Dali::TextAbstraction::FontClient FontClient::Get()
 
 Dali::TextAbstraction::FontClient FontClient::PreInitialize()
 {
-  gPreInitializedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+  // Pre-cached font client already exists or pre-cache thread already running.
+  // Font client pre-cache includes caching of the default font description.
+  if((gPreCreatedFontClient && !gFontPreCacheAvailable) ||
+     (gPreCacheThread.joinable()))
+  {
+    return gPreCreatedFontClient;
+  }
+
+  gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
 
   // Make DefaultFontDescription cached
   Dali::TextAbstraction::FontDescription defaultFontDescription;
-  gPreInitializedFontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
+  gPreCreatedFontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
 
-  return gPreInitializedFontClient;
+  return gPreCreatedFontClient;
 }
 
 void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
 {
-  if(!gPreCachedFontClient)
+  if(gFontPreCacheAvailable)
   {
-    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
-    Dali::TextAbstraction::FontClient fontClient = Dali::TextAbstraction::FontClient(new FontClient);
-    GetImplementation(fontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
-    gPreCachedFontClient   = fontClient;
     gFontPreCacheAvailable = false;
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
+    if(!gPreCreatedFontClient)
+    {
+      gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+    }
+    GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
     FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
   }
   else
