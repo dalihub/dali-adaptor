@@ -30,10 +30,12 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/gles/gl-extensions-support.h>
 #include <dali/internal/graphics/gles/gles-abstraction.h>
 #include <dali/internal/graphics/gles/gles2-implementation.h>
 #include <dali/internal/graphics/gles/gles3-implementation.h>
+#include <dali/internal/system/common/time-service.h>
 
 namespace Dali
 {
@@ -67,6 +69,16 @@ static constexpr const char* FRAGMENT_SHADER_OUTPUT_COLOR_STRING =
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING = "#extension GL_OES_EGL_image_external:require\n";
 
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3 = "#extension GL_OES_EGL_image_external_essl3:require\n";
+
+// Threshold time in miliseconds
+constexpr auto PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME";
+
+uint32_t GetPerformanceLogThresholdTime()
+{
+  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+  return time;
+}
 
 } // namespace
 
@@ -167,6 +179,9 @@ public:
         tokenCount++;
       }
     }
+
+    mLogThreshold = GetPerformanceLogThresholdTime();
+    mLogEnabled   = mLogThreshold > 0 ? true : false;
 
     {
       ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
@@ -528,7 +543,22 @@ public:
 
   void Clear(GLbitfield mask) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glClear(mask);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("glClear takes long time! [%u ms]\n", endTime - startTime);
+      }
+    }
   }
 
   void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) override
@@ -1709,9 +1739,11 @@ private:
   std::string     mFragmentShaderPrefix;
   int32_t         mGlesVersion;
   int32_t         mShadingLanguageVersion;
+  uint32_t        mLogThreshold{0};
   bool            mShadingLanguageVersionCached;
   bool            mIsSurfacelessContextSupported;
   bool            mIsContextCreated;
+  bool            mLogEnabled{false};
 };
 
 } // namespace Adaptor

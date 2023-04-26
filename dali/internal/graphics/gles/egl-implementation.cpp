@@ -191,6 +191,9 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     mPartialUpdateRequired = false;
   }
 
+  mLogThreshold = GetPerformanceLogThresholdTime();
+  mLogEnabled   = mLogThreshold > 0 ? true : false;
+
   mGlesInitialized = true;
 
   // We want to display this information all the time, so use the LogMessage directly
@@ -395,6 +398,12 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 {
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
@@ -414,16 +423,22 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("eglSwapBuffers takes long time! [%u ms]\n", endTime - startTime);
+      }
+    }
   }
 }
 
 EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
-  static uint32_t logThreshold = GetPerformanceLogThresholdTime();
-  static bool     logEnabled   = logThreshold > 0 ? true : false;
-
-  uint32_t startTime, endTime;
-  if(logEnabled)
+  uint32_t startTime = 0, endTime = 0;
+  if(mLogEnabled)
   {
     startTime = TimeService::GetMilliSeconds();
   }
@@ -436,10 +451,10 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
     age = 0;
   }
 
-  if(logEnabled)
+  if(mLogEnabled)
   {
     endTime = TimeService::GetMilliSeconds();
-    if(endTime - startTime > logThreshold)
+    if(endTime - startTime > mLogThreshold)
     {
       DALI_LOG_DEBUG_INFO("eglQuerySurface takes long time! [%u ms]\n", endTime - startTime);
     }
@@ -474,6 +489,12 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       return;
     }
 
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
@@ -496,6 +517,15 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       mSwapBufferCountAfterResume++;
     }
 #endif //DALI_PROFILE_UBUNTU
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("eglSwapBuffersWithDamageKHR takes long time! [%u ms]\n", endTime - startTime);
+      }
+    }
   }
 }
 
