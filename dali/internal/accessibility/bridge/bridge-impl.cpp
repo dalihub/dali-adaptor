@@ -44,6 +44,7 @@
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <unistd.h>
 
 using namespace Dali::Accessibility;
 
@@ -792,6 +793,12 @@ std::shared_ptr<Bridge> CreateBridge()
     /* check environment variable first */
     const char* envAtspiDisabled = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_DISABLE_ATSPI);
     if(envAtspiDisabled && std::atoi(envAtspiDisabled) != 0)
+    {
+      return Dali::Accessibility::DummyBridge::GetInstance();
+    }
+
+    // check if debug mode
+    if(access("/etc/debug", F_OK) != 0)
     {
       return Dali::Accessibility::DummyBridge::GetInstance();
     }
