@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_CACHE_HANDLER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -152,6 +152,11 @@ private: // Clear cache private
    */
   void ClearCharacterSet();
 
+  /**
+   * @brief Free the resources allocated in FreeType face cache.
+   */
+  void ClearFTFaceFromFontFTFaceCache();
+
 private:
   /**
    * @brief Crate the charset resouces by default font and Fallback caches.
@@ -178,6 +183,65 @@ public: // Find & Cache
    * @brief Retrieve the active default font from the system.
    */
   void InitDefaultFontDescription();
+
+  // Font
+
+  /**
+   * @brief Checks if font data for the specified font path is cached.
+   *
+   * @param[in] fontPath The font path to check for cached data.
+   *
+   * @return @e true if the font data is cached, otherwise false.
+   */
+  bool FindFontData(const std::string& fontPath) const;
+
+  /**
+   * @brief Retrieves font data for the specified font path if it is cached.
+   *
+   * @param[in] fontPath The font path to retrieve the cached data for.
+   * @param[out] fontDataPtr A pointer to the cached font data.
+   * @param[out] dataSize The size of the cached font data.
+   *
+   * @return @e true if the font data is cached and retrieved successfully, otherwise false.
+   */
+  bool FindFontData(const std::string& fontPath, uint8_t*& fontDataPtr, std::streampos& dataSize) const;
+
+  /**
+   * @brief Loads font data from the specified file path.
+   *
+   * @param[in] fontPath The file path to load the font data from.
+   * @param[out] fontDataBuffer A vector containing the loaded font data.
+   * @param[out] dataSize The size of the loaded font data.
+   *
+   * @return @e true if the font data was loaded successfully, otherwise false.
+   */
+  bool LoadFontDataFromFile(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize) const;
+
+  /**
+   * @brief Caches font data for the specified font path.
+   *
+   * @param[in] fontPath The font path to cache the data for.
+   * @param[in] fontDataBuffer A vector containing the font data to cache.
+   * @param[in] dataSize The size of the font data to cache.
+   */
+  void CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize);
+
+  /**
+   * @brief Checks if FreeType face for the specified font path is cached.
+   *
+   * @param[in] fontPath The font path to check for cached face.
+   *
+   * @return @e true if the font face is cached, otherwise false.
+   */
+  bool FindFontFace(const std::string& fontPath) const;
+
+  /**
+   * @brief Caches FreeType face for the specified font path.
+   *
+   * @param[in] fontPath The font path to cache the face for.
+   * @param[in] ftFace The freetype font face to cache.
+   */
+  void CacheFontFace(const std::string& fontPath, FT_Face ftFace);
 
   // Validate
 
@@ -405,6 +469,9 @@ public:                                    // Cache container list
   CharacterSetList                      mCharacterSetCache;    ///< Caches character set lists for the validated font.
 
   FontDescriptionSizeCacheContainer mFontDescriptionSizeCache; ///< Caches font identifiers for the pairs of font point size and the index to the vector with font descriptions of the validated fonts.
+
+  std::unordered_map<std::string, std::pair<Dali::Vector<uint8_t>, std::streampos>> mFontDataCache; ///< Caches font data with each font path as the key, allowing faster loading of fonts later on.
+  std::unordered_map<std::string, FT_Face> mFontFTFaceCache; ///< Caches freetype font face for font pre-load.
 
   std::vector<EllipsisItem>         mEllipsisCache;     ///< Caches ellipsis glyphs for a particular point size.
   std::vector<BitmapFontCacheItem>  mBitmapFontCache;   ///< Stores bitmap fonts.

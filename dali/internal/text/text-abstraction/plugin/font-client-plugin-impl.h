@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_PLUGIN_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,6 +103,11 @@ public: // Dali::TextAbstraction::FontClient
    * @copydoc Dali::TextAbstraction::FontClient::ResetSystemDefaults()
    */
   void ResetSystemDefaults() const;
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::InitDefaultFontDescription()
+   */
+  void InitDefaultFontDescription() const;
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDefaultPlatformFontDescription()
@@ -318,6 +323,11 @@ public: // Dali::TextAbstraction::Internal::FontClient
    */
   void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const;
 
+  /**
+   * @copydoc Dali::TextAbstraction::Internal::FontClient::FontPreLoad()
+   */
+  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList) const;
+
 private:
   /**
    * Get the cached font item for the given font
@@ -357,6 +367,27 @@ private:
                     PointSize26Dot6 requestedPointSize,
                     FaceIndex       faceIndex,
                     bool            cacheDescription) const;
+
+
+  /**
+   * @brief Caches font data for the specified font path if it is not already cached.
+   *
+   * If the font data is not already cached, this function will load the font file
+   * from disk and cache the data for future use.
+   *
+   * @param[in] fontPath The font path to cache the data for.
+   */
+  void CacheFontDataFromFile(const std::string& fontPath) const;
+
+  /**
+   * @brief Caches FreeType face for the specified font path if it is not already cached.
+   *
+   * If the font face is not already cached, this function will perform the new face
+   * from font file and cache the face for future use.
+   *
+   * @param[in] fontPath The font path to cache the face for.
+   */
+  void CacheFontFaceFromFile(const std::string& fontPath) const;
 
 private:
   Plugin(const Plugin&) = delete;

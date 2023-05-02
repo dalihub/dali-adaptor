@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TEXT_ABSTRACTION_FONT_CLIENT_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,16 +64,28 @@ public: // API for Dali::TextAbstraction::FontClient used.
   static Dali::TextAbstraction::FontClient PreInitialize();
 
   /**
-   * @brief This is used to pre-cache fonts in order to improve the runtime performance of the application.
+   * @brief This is used to pre-cache FontConfig in order to improve the runtime performance of the application.
    *
    * @see Dali::TextAbstraction::FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
    */
-  static void PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useUiThread);
+  static void PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
 
   /**
-   * @brief This is used to creates a global font client and pre-caches the fonts.
+   * @brief This is used to creates a global font client and pre-caches the FontConfig.
    */
   static void PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily);
+
+  /**
+   * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
+   *
+   * @see Dali::TextAbstraction:FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread);
+   */
+  static void PreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread);
+
+  /**
+   * @brief This is used to creates a global font client and pre-loads the FreeType font face.
+   */
+  static void PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList);
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
@@ -104,6 +116,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
    * @copydoc Dali::TextAbstraction::FontClient::GetDefaultFonts()
    */
   void GetDefaultFonts(FontList& defaultFonts);
+
+  /**
+   * @copydoc Dali::TextAbstraction::FontClient::InitDefaultFontDescription()
+   */
+  void InitDefaultFontDescription();
 
   /**
    * @copydoc Dali::TextAbstraction::FontClient::GetDefaultPlatformFontDescription()
@@ -313,6 +330,16 @@ public: // API for Dali::TextAbstraction::Internal::FontClient used.
    * @param[in] localeFamily A locale font family to be pre-cached.
    */
   void FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily);
+
+  /**
+   * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
+   *
+   * @param[in] fontPathList A list of font paths to be pre-loaded.
+   * @param[in] memoryFontPathList A list of memory font paths to be pre-loaded.
+   * @param[in] useThread True if the font client should create thread and perform font pre-loading, false otherwise.
+   */
+  void FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList);
+
 
 private:
   /**

@@ -25,6 +25,7 @@
 #include <dali/integration-api/platform-abstraction.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/imaging/common/image-operations.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/plugin/bitmap-font-cache-item.h>
 #include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-cache-handler.h>
@@ -37,6 +38,22 @@
 #include <fontconfig/fontconfig.h>
 #include <algorithm>
 #include <iterator>
+
+// Use this macro only if need to log messages before the log function is set.
+#define FONT_LOG_MESSAGE(level, format, ...)                                    \
+  do                                                                            \
+  {                                                                             \
+    char buffer[256];                                                           \
+    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
+    if(result >= static_cast<int>(sizeof(buffer)))                              \
+    {                                                                           \
+      std::string log("Font log message is too long to fit in the buffer.\n");  \
+      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
+      break;                                                                    \
+    }                                                                           \
+    std::string log(buffer);                                                    \
+    Dali::TizenPlatform::LogMessage(level, log);                                \
+  } while(0)
 
 #if defined(DEBUG_ENABLED)
 
@@ -265,6 +282,71 @@ void FontClient::Plugin::ResetSystemDefaults() const
   mCacheHandler->ResetSystemDefaults();
 }
 
+void FontClient::Plugin::CacheFontDataFromFile(const std::string& fontPath) const
+{
+  if(fontPath.empty())
+  {
+    return;
+  }
+
+  if(mCacheHandler->FindFontData(fontPath))
+  {
+    // Font data is already cached, no need to reload
+    return;
+  }
+
+  Dali::Vector<uint8_t> fontDataBuffer;
+  std::streampos        dataSize = 0;
+  if(!mCacheHandler->LoadFontDataFromFile(fontPath, fontDataBuffer, dataSize))
+  {
+    fontDataBuffer.Clear();
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font data : %s\n", fontPath.c_str());
+    return;
+  }
+
+  // Cache font data
+  mCacheHandler->CacheFontData(fontPath, fontDataBuffer, dataSize);
+}
+
+void FontClient::Plugin::CacheFontFaceFromFile(const std::string& fontPath) const
+{
+  if(fontPath.empty())
+  {
+    return;
+  }
+
+  if(mCacheHandler->FindFontFace(fontPath))
+  {
+    // Font face is already cached, no need to reload
+    return;
+  }
+
+  FT_Face ftFace;
+  int error = FT_New_Face(mFreeTypeLibrary, fontPath.c_str(), 0, &ftFace);
+  if(FT_Err_Ok != error)
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font face : %s\n", fontPath.c_str());
+    return;
+  }
+
+  // Cache font face
+  mCacheHandler->CacheFontFace(fontPath, ftFace);
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font new face : %s\n", fontPath.c_str());
+}
+
+void FontClient::Plugin::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList) const
+{
+  for(const auto& fontPath : fontPathList)
+  {
+    CacheFontFaceFromFile(fontPath);
+  }
+
+  for(const auto& memoryFontPath : memoryFontPathList)
+  {
+    CacheFontDataFromFile(memoryFontPath);
+  }
+}
+
 void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily) const
 {
   mCacheHandler->InitDefaultFontDescription();
@@ -318,6 +400,11 @@ void FontClient::Plugin::FontPreCache(const FontFamilyList& fallbackFamilyList, 
       }
     }
   }
+}
+
+void FontClient::Plugin::InitDefaultFontDescription() const
+{
+  mCacheHandler->InitDefaultFontDescription();
 }
 
 void FontClient::Plugin::GetDefaultPlatformFontDescription(FontDescription& fontDescription) const
@@ -1072,7 +1159,6 @@ bool FontClient::Plugin::SetCurrentMaximumBlockSizeFitInAtlas(const Size& curren
 uint32_t FontClient::Plugin::GetNumberOfPointsPerOneUnitOfPointSize() const
 {
   return TextAbstraction::FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE;
-  ;
 }
 
 FontId FontClient::Plugin::CreateFont(const FontPath& path,
@@ -1085,21 +1171,37 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
   DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  requestedPointSize : %d\n", requestedPointSize);
 
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_CREATE_FONT");
-  FontId fontId = 0u;
 
-  #if defined(TRACE_ENABLED)
-  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+  FontId   fontId = 0u;
+  FT_Face  ftFace;
+  FT_Error error;
+
+  uint8_t*       fontDataPtr   = nullptr;
+  std::streampos dataSize      = 0;
+  bool           fontDataFound = mCacheHandler->FindFontData(path, fontDataPtr, dataSize);
+
+  if(fontDataFound)
   {
-    DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Face : %s\n", path.c_str());
+    // Create & cache new font face from pre-loaded font
+    error = FT_New_Memory_Face(mFreeTypeLibrary, reinterpret_cast<FT_Byte*>(fontDataPtr), static_cast<FT_Long>(dataSize), 0, &ftFace);
+#if defined(TRACE_ENABLED)
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Memory_Face : %s\n", path.c_str());
+    }
+#endif
   }
-  #endif
-
-  // Create & cache new font face
-  FT_Face ftFace;
-  int     error = FT_New_Face(mFreeTypeLibrary,
-                          path.c_str(),
-                          0,
-                          &ftFace);
+  else
+  {
+    // Create & cache new font face
+    error = FT_New_Face(mFreeTypeLibrary, path.c_str(), 0, &ftFace);
+#if defined(TRACE_ENABLED)
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("DALI_TEXT_CREATE_FONT : FT_New_Face : %s\n", path.c_str());
+    }
+#endif
+  }
 
   if(FT_Err_Ok == error)
   {

@@ -49,7 +49,11 @@ int ReadFile(const std::string& filename, Dali::Vector<uint8_t>& memblock, FileL
 int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, FileLoader::FileType fileType)
 {
   return Dali::Internal::Adaptor::ReadFile(filename, fileSize, memblock, fileType);
-  ;
+}
+
+int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<uint8_t>& memblock, FileLoader::FileType fileType)
+{
+  return Dali::Internal::Adaptor::ReadFile(filename, fileSize, memblock, fileType);
 }
 
 std::streampos GetFileSize(const std::string& filename)

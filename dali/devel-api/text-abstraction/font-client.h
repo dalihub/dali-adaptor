@@ -284,6 +284,11 @@ public:
   void GetDefaultFonts(FontList& defaultFonts);
 
   /**
+   * @brief Initializes and caches default font from the system.
+   */
+  void InitDefaultFontDescription();
+
+  /**
    * @brief Retrieve the active default font from the system.
    *
    * @param[out] fontDescription font structure describing the default font.
@@ -649,7 +654,7 @@ public: // Not intended for application developers
 DALI_ADAPTOR_API FontClient FontClientPreInitialize();
 
 /**
- * @brief This is used to pre-cache fonts in order to improve the runtime performance of the application.
+ * @brief This is used to pre-cache FontConfig in order to improve the runtime performance of the application.
  *
  * @param[in] fallbackFamilyList A list of fallback font families to be pre-cached.
  * @param[in] extraFamilyList A list of additional font families to be pre-cached.
@@ -657,6 +662,23 @@ DALI_ADAPTOR_API FontClient FontClientPreInitialize();
  * @param[in] useThread True if the font client should create thread and perform pre-caching, false otherwise.
  */
 DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
+
+/**
+ * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
+ *
+ * @param[in] fontPathList A list of font paths to be pre-loaded.
+ * @param[in] memoryFontPathList A list of memory font paths to be pre-loaded.
+ * @param[in] useThread True if the font client should create thread and perform font pre-loading, false otherwise.
+ *
+ * @note
+ * The fonts in the fontPathList perform FT_New_Face during pre-loading,
+ * which can provide some performace benefits.
+ *
+ * The fonts in the memoryFontPathList read the font file and cache the buffer in memory during pre-load.
+ * This enables the use of FT_New_Memory_Face during runtime and provides a performance boost.
+ * It requires memory equivalent to the size of each font file.
+ */
+DALI_ADAPTOR_API void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread);
 
 } // namespace TextAbstraction
 

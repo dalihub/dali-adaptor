@@ -34,6 +34,7 @@ typedef std::string FontPath;
 typedef std::string FontFamily;
 typedef std::string FontStyle;
 typedef std::vector<FontFamily> FontFamilyList;
+typedef std::vector<FontPath> FontPathList;
 
 namespace FontWidth
 {
