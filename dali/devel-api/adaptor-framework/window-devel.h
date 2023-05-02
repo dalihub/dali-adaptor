@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -48,6 +49,7 @@ typedef Signal<void(Window, bool)>                                              
 typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
+typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -558,6 +560,19 @@ DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the mouse in or out event is received.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::MouseInOutEvent event );
+ * @endcode
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window);
 
 } // namespace DevelWindow
 

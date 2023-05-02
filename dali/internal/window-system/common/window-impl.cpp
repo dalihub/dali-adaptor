@@ -94,6 +94,7 @@ Window::Window()
   mAuxiliaryMessageSignal(),
   mMovedSignal(),
   mOrientationChangedSignal(),
+  mMouseInOutEventSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -158,6 +159,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->WindowRedrawRequestSignal().Connect(this, &Window::OnWindowRedrawRequest);
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
+  mWindowBase->MouseInOutEventSignal().Connect(this, &Window::OnMouseInOutEvent);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
@@ -195,7 +197,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mNativeWindowId = mWindowBase->GetNativeWindowId();
 }
 
-void Window::SetRenderNotification(TriggerEventInterface *renderNotification)
+void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
 {
   if(!mWindowSurface)
   {
@@ -809,7 +811,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
-    mWindowBase->SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
+  mWindowBase->SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
 }
 
 Dali::Layer Window::GetRootLayer() const
@@ -1024,6 +1026,13 @@ void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
   FeedKeyEvent(keyEvent);
+}
+
+void Window::OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent)
+{
+  Dali::Window handle(this);
+
+  mMouseInOutEventSignal.Emit(handle, mouseInOutEvent);
 }
 
 void Window::OnRotation(const RotationEvent& rotation)
