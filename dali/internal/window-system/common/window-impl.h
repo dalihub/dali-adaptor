@@ -50,9 +50,10 @@ class WindowRenderSurface;
 class WindowBase;
 
 class Window;
-using WindowPtr       = IntrusivePtr<Window>;
-using OrientationPtr  = IntrusivePtr<Orientation>;
-using EventHandlerPtr = IntrusivePtr<EventHandler>;
+using WindowPtr          = IntrusivePtr<Window>;
+using OrientationPtr     = IntrusivePtr<Orientation>;
+using MouseInOutEventPtr = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
+using EventHandlerPtr    = IntrusivePtr<EventHandler>;
 
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
@@ -69,6 +70,7 @@ public:
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
   typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
   typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
+  typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -426,7 +428,7 @@ public:
    *
    * @param[in] renderNotification to use
    */
-  void SetRenderNotification(TriggerEventInterface *renderNotification);
+  void SetRenderNotification(TriggerEventInterface* renderNotification);
 
 public: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -601,6 +603,12 @@ private:
   void OnRotationFinished();
 
   /**
+   * @brief Called when the mouse in or out event is received.
+   * @param[in] mouseInOutEvent the mouse event
+   */
+  void OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent);
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
@@ -756,6 +764,14 @@ public: // Signals
     return mOrientationChangedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::MouseInOutEventSignal()
+   */
+  MouseInOutEventSignalType& MouseInOutEventSignal()
+  {
+    return mMouseInOutEventSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -786,6 +802,7 @@ private:
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
   MovedSignalType                         mMovedSignal;
   OrientationChangedSignalType            mOrientationChangedSignal;
+  MouseInOutEventSignalType               mMouseInOutEventSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;

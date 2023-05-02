@@ -86,6 +86,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.h
   ${adaptor_devel_api_dir}/adaptor-framework/keyboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.h
+  ${adaptor_devel_api_dir}/adaptor-framework/mouse-in-out-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.h
   ${adaptor_devel_api_dir}/adaptor-framework/orientation.h

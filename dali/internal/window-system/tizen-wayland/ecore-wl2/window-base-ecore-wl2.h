@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,11 @@ public:
    * @brief Called when a mouse wheel is received.
    */
   void OnMouseWheel(void* data, int type, void* event);
+
+  /**
+   * @brief Called when a mouse in or out is received.
+   */
+  void OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action);
 
   /**
    * @brief Called when a detent rotation event is recevied.
@@ -273,7 +278,7 @@ public:
    */
   void MoveResize(PositionSize positionSize) override;
 
- /**
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetLayout()
    */
   void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan) override;
@@ -576,7 +581,6 @@ private:
    * @return the re-calculated window's position and size on current oriented window's coordinates.
    */
   PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
-
 
   /**
    * @brief Return the rect value to recalulate with the default system coordinates.

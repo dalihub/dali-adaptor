@@ -471,6 +471,32 @@ static Eina_Bool EcoreEventMouseWheel(void* data, int type, void* event)
 }
 
 /**
+ * Called when a mouse in is received.
+ */
+static Eina_Bool EcoreEventMouseIn(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::IN);
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when a mouse out is received.
+ */
+static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
  * Called when a detent rotation event is recevied.
  */
 static Eina_Bool EcoreEventDetentRotation(void* data, int type, void* event)
@@ -886,6 +912,10 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Mouse wheel events
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_WHEEL, EcoreEventMouseWheel, this));
 
+  // Register Mouse IO events
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_IN, EcoreEventMouseIn, this));
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_OUT, EcoreEventMouseOut, this));
+
   // Register Detent event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_DETENT_ROTATE, EcoreEventDetentRotation, this));
 
@@ -1262,6 +1292,28 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
     Integration::WheelEvent wheelEvent(Integration::WheelEvent::MOUSE_WHEEL, mouseWheelEvent->direction, mouseWheelEvent->modifiers, Vector2(mouseWheelEvent->x, mouseWheelEvent->y), mouseWheelEvent->z, mouseWheelEvent->timestamp);
 
     mWheelEventSignal.Emit(wheelEvent);
+  }
+}
+
+void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action)
+{
+  Ecore_Event_Mouse_IO* mouseInOutEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
+
+  if(mouseInOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_IN_OUT");
+
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseInOut: timestamp: %d, modifiers: %d, x: %d, y: %d\n", mouseInOutEvent->timestamp, mouseInOutEvent->modifiers, mouseInOutEvent->x, mouseInOutEvent->y);
+
+    Device::Class::Type    deviceClass;
+    Device::Subclass::Type deviceSubclass;
+
+    GetDeviceClass(ecore_device_class_get(mouseInOutEvent->dev), deviceClass);
+    GetDeviceSubclass(ecore_device_subclass_get(mouseInOutEvent->dev), deviceSubclass);
+
+    Dali::DevelWindow::MouseInOutEvent inOutEvent(action, mouseInOutEvent->modifiers, Vector2(mouseInOutEvent->x, mouseInOutEvent->y), mouseInOutEvent->timestamp, deviceClass, deviceSubclass);
+
+    mMouseInOutEventSignal.Emit(inOutEvent);
   }
 }
 
