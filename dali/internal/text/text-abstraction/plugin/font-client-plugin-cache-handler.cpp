@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,28 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
+
+// Use this macro only if need to log messages before the log function is set.
+#define FONT_LOG_MESSAGE(level, format, ...)                                    \
+  do                                                                            \
+  {                                                                             \
+    char buffer[256];                                                           \
+    int  result = std::snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
+    if(result >= static_cast<int>(sizeof(buffer)))                              \
+    {                                                                           \
+      std::string log("Font log message is too long to fit in the buffer.\n");  \
+      Dali::TizenPlatform::LogMessage(Dali::Integration::Log::ERROR, log);      \
+      break;                                                                    \
+    }                                                                           \
+    std::string log(buffer);                                                    \
+    Dali::TizenPlatform::LogMessage(level, log);                                \
+  } while(0)
 
 #if defined(DEBUG_ENABLED)
 extern Dali::Integration::Log::Filter* gFontClientLogFilter;
@@ -274,6 +292,8 @@ FontClient::Plugin::CacheHandler::CacheHandler()
   mFontDescriptionCache(),
   mCharacterSetCache(),
   mFontDescriptionSizeCache(),
+  mFontDataCache(),
+  mFontFTFaceCache(),
   mEllipsisCache(),
   mEmbeddedItemCache(),
   mGlyphCacheManager(new GlyphCacheManager(GetMaxNumberOfGlyphCache())),
@@ -319,6 +339,13 @@ void FontClient::Plugin::CacheHandler::ClearCache()
 
   mFontDescriptionSizeCache.clear();
   mFontDescriptionSizeCache.rehash(0); // Note : unordered_map.clear() didn't deallocate memory
+
+  mFontDataCache.clear();
+  mFontDataCache.rehash(0);
+
+  ClearFTFaceFromFontFTFaceCache();
+  mFontFTFaceCache.clear();
+  mFontFTFaceCache.rehash(0);
 
   mEllipsisCache.clear();
   mPixelBufferCache.clear();
@@ -415,6 +442,14 @@ void FontClient::Plugin::CacheHandler::CreateCharacterSet()
   }
 }
 
+void FontClient::Plugin::CacheHandler::ClearFTFaceFromFontFTFaceCache()
+{
+  for(auto& item : mFontFTFaceCache)
+  {
+    FT_Done_Face(item.second);
+  }
+}
+
 // System / Default
 
 void FontClient::Plugin::CacheHandler::InitSystemFonts()
@@ -482,6 +517,8 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
 {
   if(!mDefaultFontDescriptionCached)
   {
+    mDefaultFontDescriptionCached = true;
+
     // Clear any font config stored info in the caches.
     ClearCharacterSet();
 
@@ -534,9 +571,65 @@ void FontClient::Plugin::CacheHandler::InitDefaultFontDescription()
 
     // Create again the character sets as they are not valid after FcInitReinitialize()
     CreateCharacterSet();
-
-    mDefaultFontDescriptionCached = true;
   }
+}
+
+// Font
+
+bool FontClient::Plugin::CacheHandler::FindFontData(const std::string& fontPath) const
+{
+  auto it = mFontDataCache.find(fontPath);
+  if(it != mFontDataCache.end())
+  {
+    return true;
+  }
+
+  return false;
+}
+
+bool FontClient::Plugin::CacheHandler::FindFontData(const std::string& fontPath, uint8_t*& fontDataPtr, std::streampos& dataSize) const
+{
+  auto it = mFontDataCache.find(fontPath);
+  if(it != mFontDataCache.end())
+  {
+    fontDataPtr = it->second.first.Begin();
+    dataSize    = it->second.second;
+    return true;
+  }
+
+  return false;
+}
+
+bool FontClient::Plugin::CacheHandler::LoadFontDataFromFile(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize) const
+{
+  if(Dali::FileLoader::ReadFile(fontPath, dataSize, fontDataBuffer, Dali::FileLoader::BINARY))
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %lu, size : %ld, path : %s\n", fontDataBuffer.Size(), static_cast<long>(dataSize), fontPath.c_str());
+    return true;
+  }
+
+  return false;
+}
+
+void FontClient::Plugin::CacheHandler::CacheFontData(const std::string& fontPath, Dali::Vector<uint8_t>& fontDataBuffer, std::streampos& dataSize)
+{
+  mFontDataCache[fontPath] = std::make_pair(std::move(fontDataBuffer), dataSize);
+}
+
+bool FontClient::Plugin::CacheHandler::FindFontFace(const std::string& fontPath) const
+{
+  auto it = mFontFTFaceCache.find(fontPath);
+  if(it != mFontFTFaceCache.end())
+  {
+    return true;
+  }
+
+  return false;
+}
+
+void FontClient::Plugin::CacheHandler::CacheFontFace(const std::string& fontPath, FT_Face ftFace)
+{
+  mFontFTFaceCache[fontPath] = std::move(ftFace);
 }
 
 // Validate

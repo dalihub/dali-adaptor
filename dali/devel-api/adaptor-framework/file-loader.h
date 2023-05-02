@@ -2,7 +2,7 @@
 #define DALI_FILE_LOADER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,6 +73,18 @@ DALI_ADAPTOR_API int ReadFile(const std::string& filename, Dali::Vector<uint8_t>
  *
  */
 DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<char>& memblock, FileLoader::FileType fileType = BINARY);
+
+/**
+ * @brief Load the file. It will load it either as a binary or as a text
+ *
+ * @param[in] filename  Filename of the file to load.
+ * @param[in] fileSize  Size of the loaded file
+ * @param[in] memblock  Dali::Vector containing the buffer loaded
+ * @param[in] fileType  How we want to load the file. Binary or Text. Binary default
+ * @return error code. 0 - Error, 1 - Ok
+ *
+ */
+DALI_ADAPTOR_API int ReadFile(const std::string& filename, std::streampos& fileSize, Dali::Vector<uint8_t>& memblock, FileLoader::FileType fileType = BINARY);
 
 /**
  * @brief Get the file size of a file
