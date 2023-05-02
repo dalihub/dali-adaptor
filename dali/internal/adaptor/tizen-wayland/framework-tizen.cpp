@@ -607,8 +607,8 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       char* lang = nullptr;
-      app_event_get_language(event_info, &lang);
-      if(lang)
+      auto appEventReturn = app_event_get_language(event_info, &lang);
+      if(appEventReturn == APP_ERROR_NONE && lang)
       {
         framework->SetLanguage(std::string(lang));
         observer->OnLanguageChanged();
@@ -616,7 +616,7 @@ struct Framework::Impl
       }
       else
       {
-        DALI_LOG_ERROR("NULL pointer in Language changed event\n");
+        DALI_LOG_ERROR("NULL pointer in Language changed event. Error code : %d\n", static_cast<int>(appEventReturn));
       }
     }
 
@@ -627,8 +627,8 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       char* region = nullptr;
-      app_event_get_region_format(event_info, &region);
-      if(region)
+      auto appEventReturn = app_event_get_region_format(event_info, &region);
+      if(appEventReturn == APP_ERROR_NONE && region)
       {
         framework->SetRegion(std::string(region));
         observer->OnRegionChanged();
@@ -636,7 +636,7 @@ struct Framework::Impl
       }
       else
       {
-        DALI_LOG_ERROR("NULL pointer in Region changed event\n");
+        DALI_LOG_ERROR("NULL pointer in Region changed event. Error code : %d\n", static_cast<int>(appEventReturn));
       }
     }
 
@@ -647,9 +647,16 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_event_low_battery_status_e status;
-      app_event_get_low_battery_status(event_info, &status);
-      Dali::DeviceStatus::Battery::Status result = AppCore::GetBatteryStatus(status);
-      observer->OnBatteryLow(result);
+      auto appEventReturn = app_event_get_low_battery_status(event_info, &status);
+      if(appEventReturn == APP_ERROR_NONE)
+      {
+        Dali::DeviceStatus::Battery::Status result = AppCore::GetBatteryStatus(status);
+        observer->OnBatteryLow(result);
+      }
+      else
+      {
+        DALI_LOG_ERROR("Fail to get low battery status event. Error code : %d\n", static_cast<int>(appEventReturn));
+      }
     }
 
     static void OnLowMemory(app_event_info_h event_info, void* user_data)
@@ -659,9 +666,16 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_event_low_memory_status_e status;
-      app_event_get_low_memory_status(event_info, &status);
-      Dali::DeviceStatus::Memory::Status result = AppCore::GetMemoryStatus(status);
-      observer->OnMemoryLow(result);
+      auto appEventReturn = app_event_get_low_memory_status(event_info, &status);
+      if(appEventReturn == APP_ERROR_NONE)
+      {
+        Dali::DeviceStatus::Memory::Status result = AppCore::GetMemoryStatus(status);
+        observer->OnMemoryLow(result);
+      }
+      else
+      {
+        DALI_LOG_ERROR("Fail to get low memory status event. Error code : %d\n", static_cast<int>(appEventReturn));
+      }
     }
 
     static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
@@ -671,9 +685,16 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_device_orientation_e status;
-      app_event_get_device_orientation(event_info, &status);
-      Dali::DeviceStatus::Orientation::Status result = AppCore::GetOrientationStatus(status);
-      observer->OnDeviceOrientationChanged(result);
+      auto appEventReturn = app_event_get_device_orientation(event_info, &status);
+      if(appEventReturn == APP_ERROR_NONE)
+      {
+        Dali::DeviceStatus::Orientation::Status result = AppCore::GetOrientationStatus(status);
+        observer->OnDeviceOrientationChanged(result);
+      }
+      else
+      {
+        DALI_LOG_ERROR("Fail to get device orientation event. Error code : %d\n", static_cast<int>(appEventReturn));
+      }
     }
 
     void ProcessBundle(Framework* framework, bundle* bundleData)

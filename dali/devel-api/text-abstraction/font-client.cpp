@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,15 @@ const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u; //
 FontClient FontClient::Get()
 {
   return Internal::FontClient::Get();
+}
+
+FontClient FontClient::New(uint32_t horizontalDpi, uint32_t verticalDpi)
+{
+  auto fontClientImpl = new Internal::FontClient();
+
+  fontClientImpl->SetDpi(horizontalDpi, verticalDpi);
+
+  return FontClient(fontClientImpl);
 }
 
 FontClient::FontClient()

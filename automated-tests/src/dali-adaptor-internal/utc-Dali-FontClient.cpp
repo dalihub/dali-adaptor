@@ -90,6 +90,31 @@ int UtcDaliFontClient(void)
   END_TEST;
 }
 
+int UtcDaliFontClientNew(void)
+{
+  TestApplication application;
+
+  TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
+  fontClient.SetDpi(30, 40);
+  TextAbstraction::FontClient anotherClient = TextAbstraction::FontClient::New(50, 60);
+
+  uint32_t horizontalDpi;
+  uint32_t verticalDpi;
+
+  tet_printf("Check default font client set dpi well\n");
+  fontClient.GetDpi(horizontalDpi, verticalDpi);
+
+  DALI_TEST_EQUALS(30, horizontalDpi, TEST_LOCATION);
+  DALI_TEST_EQUALS(40, verticalDpi, TEST_LOCATION);
+
+  tet_printf("Check another font client set dpi well\n");
+  anotherClient.GetDpi(horizontalDpi, verticalDpi);
+
+  DALI_TEST_EQUALS(50, horizontalDpi, TEST_LOCATION);
+  DALI_TEST_EQUALS(60, verticalDpi, TEST_LOCATION);
+
+  END_TEST;
+}
 int UtcDaliFontClientAtlasLimitation(void)
 {
   TestApplication             application;
