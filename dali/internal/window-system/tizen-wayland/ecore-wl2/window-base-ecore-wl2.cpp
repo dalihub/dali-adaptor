@@ -491,6 +491,8 @@ static Eina_Bool EcoreEventMouseOut(void* data, int type, void* event)
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
   if(windowBase)
   {
+    // When the mouse is out, the previous mouse must be canceled.
+    windowBase->OnMouseButtonCancel(data, type, event);
     windowBase->OnMouseInOut(data, type, event, Dali::DevelWindow::MouseInOutEvent::Type::OUT);
   }
   return ECORE_CALLBACK_PASS_ON;
