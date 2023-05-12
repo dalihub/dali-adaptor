@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -513,18 +513,18 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     */
   if(scene && resizingSurface)
   {
-    int totalAngle = 0;
+    int  totalAngle                  = 0;
     bool isScreenOrientationChanging = false;
 
     if(mWindowRotationAngle != scene.GetCurrentSurfaceOrientation())
     {
-      mWindowRotationAngle = scene.GetCurrentSurfaceOrientation();
+      mWindowRotationAngle         = scene.GetCurrentSurfaceOrientation();
       mIsWindowOrientationChanging = true;
     }
 
     if(mScreenRotationAngle != scene.GetCurrentScreenOrientation())
     {
-      mScreenRotationAngle = scene.GetCurrentScreenOrientation();
+      mScreenRotationAngle        = scene.GetCurrentScreenOrientation();
       isScreenOrientationChanging = true;
     }
     totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
@@ -533,7 +533,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     Rect<int> surfaceSize = scene.GetCurrentSurfaceRect();
     //update surface size
-    mPositionSize.width = surfaceSize.width;
+    mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
 
     DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
@@ -764,13 +764,6 @@ void WindowRenderSurface::ProcessFrameCallback()
 
 void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor)
 {
-  if(!(eventBitMask & FileDescriptorMonitor::FD_READABLE))
-  {
-    DALI_LOG_ERROR("WindowRenderSurface::OnFileDescriptorEventDispatched: file descriptor error [%d]\n", eventBitMask);
-    close(fileDescriptor);
-    return;
-  }
-
   DALI_LOG_RELEASE_INFO("WindowRenderSurface::OnFileDescriptorEventDispatched: Frame rendered [%d]\n", fileDescriptor);
 
   std::unique_ptr<FrameCallbackInfo> callbackInfo;
@@ -788,7 +781,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
   }
 
   // Call the connected callback
-  if(callbackInfo)
+  if(callbackInfo && (eventBitMask & FileDescriptorMonitor::FD_READABLE))
   {
     for(auto&& iter : (callbackInfo)->callbacks)
     {
@@ -809,7 +802,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
     Dali::Integration::Scene scene = mScene.GetHandle();
     if(scene)
     {
-      surfaceRect = scene.GetCurrentSurfaceRect();
+      surfaceRect        = scene.GetCurrentSurfaceRect();
       int32_t totalAngle = scene.GetCurrentSurfaceOrientation() + scene.GetCurrentScreenOrientation();
       if(totalAngle >= 360)
       {
