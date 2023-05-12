@@ -97,6 +97,24 @@ auto NewObject(const GfxCreateInfo& info, EglGraphicsController& controller, T&&
   }
   else // Use standard allocator
   {
+    // We are given all object for recycling
+    if(oldObject)
+    {
+      auto reusedObject = oldObject.release();
+      // If succeeded, attach the object to the unique_ptr and return it back
+      if(static_cast<GLESType*>(reusedObject)->TryRecycle(info, controller))
+      {
+        return UPtr(reusedObject, GLESDeleter<GLESType>());
+      }
+      else
+      {
+        // can't reuse so kill object by giving it back to original
+        // unique pointer.
+        oldObject.reset(reusedObject);
+      }
+    }
+
+    // Create brand new object
     return UPtr(new GLESType(info, controller), GLESDeleter<GLESType>());
   }
 }
@@ -168,6 +186,11 @@ void EglGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
   {
     Flush();
   }
+}
+
+void EglGraphicsController::WaitIdle()
+{
+  Flush();
 }
 
 void EglGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)

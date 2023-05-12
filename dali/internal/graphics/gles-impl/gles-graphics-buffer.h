@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_BUFFER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,8 @@ public:
 
   void Bind(Graphics::BufferUsage bindingTarget) const;
 
+  bool TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::EglGraphicsController& controller) override;
+
   [[nodiscard]] uint32_t GetGLBuffer() const
   {
     return mBufferId;
@@ -86,6 +88,8 @@ private:
   void*    mBufferPtr{nullptr}; // CPU allocated memory
   bool     mCpuAllocated{false};
   bool     mTransient{false};
+
+  bool     mSetForGLRecycling{false}; ///< If flag set true the buffer will recycle
 };
 } // namespace GLES
 } // namespace Dali::Graphics
