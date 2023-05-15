@@ -178,6 +178,24 @@ public:
   void OnEcoreEventWindowAuxiliaryMessage(void* event);
 
   /**
+   * @brief Called when window has been moved by then display server.
+   * To move the window by display server, RequestMoveToServer() should be called.
+   * After the moving job is completed, this function will be called.
+   *
+   * @param[in] the completed event's data. It has the latest window geometry data.
+   */
+  void OnMoveCompleted(void* event);
+
+  /**
+   * @brief Called when window has been resized by then display server.
+   * To resize the window by display server, RequestResizeToServer() should be called.
+   * After the resizing job is completed, this function will be called.
+   *
+   * @param[in] the completed event's data. It has the latest window geometry data.
+   */
+  void OnResizeCompleted(void* event);
+
+  /**
    * @brief Called when a keymap is changed.
    */
   void KeymapChanged(void* data, int type, void* event);

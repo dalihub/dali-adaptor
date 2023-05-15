@@ -50,6 +50,8 @@ typedef Signal<bool(const KeyEvent&)>                                           
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
+typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
+typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -573,6 +575,40 @@ DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window w
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window has been moved by the display server.
+ * To make the window move by display server, RequestMoveToServer() should be called.
+ * After the moving job is completed, this function will be called.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
+ * @endcode
+ * The parameters are the moved x and y coordinates.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MoveCompletedSignalType& MoveCompletedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window has been resized by the display server.
+ * To make the window move by display server, RequestResizeToServer() should be called.
+ * After the resizing job is completed, this function will be called.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
+ * @endcode
+ * The parameters are the resized width and height coordinates.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window);
 
 } // namespace DevelWindow
 

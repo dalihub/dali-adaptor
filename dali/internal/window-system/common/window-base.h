@@ -76,6 +76,8 @@ public:
   typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
   typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
+  typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
+  typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -540,7 +542,8 @@ public:
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
 
   /**
-   * @brief This signal is emitted when the window is resized or moved by display server.
+   * @brief This signal is emitted when the window's geometry data is changed by display server or client.
+   * It is based on configure noification event.
    */
   UpdatePositionSizeType& UpdatePositionSizeSignal();
 
@@ -553,6 +556,20 @@ public:
    * @brief This signal is emitted when a mouse in or out event is recevied.
    */
   MouseInOutEventSignalType& MouseInOutEventSignal();
+
+  /**
+   * @brief This signal is emitted when window has been moved by then display server.
+   * To be moved the window by display server, RequestMoveToServer() should be called.
+   * After the moving job is finished, this function will be called.
+   */
+  MoveCompletedSignalType& MoveCompletedSignal();
+
+  /**
+   * @brief This signal is emitted when window has been resized by then display server.
+   * To be resized the window by display server, RequestResizeToServer() should be called.
+   * After the resizing job is finished, this function will be called.
+   */
+  ResizeCompletedSignalType& ResizeCompletedSignal();
 
 protected:
   // Undefined
@@ -580,6 +597,8 @@ protected:
   UpdatePositionSizeType                  mUpdatePositionSizeSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   MouseInOutEventSignalType               mMouseInOutEventSignal;
+  MoveCompletedSignalType                 mMoveCompletedSignal;
+  ResizeCompletedSignalType               mResizeCompletedSignal;
 };
 
 } // namespace Adaptor

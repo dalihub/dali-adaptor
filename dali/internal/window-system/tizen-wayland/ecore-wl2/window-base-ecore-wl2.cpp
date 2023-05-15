@@ -716,6 +716,29 @@ static Eina_Bool EcoreEventWindowAuxiliaryMessage(void* data, int type, void* ev
   return ECORE_CALLBACK_RENEW;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// Window is Moved/Resized By Server Callbacks
+/////////////////////////////////////////////////////////////////////////////////////////////////
+static Eina_Bool EcoreEventWindowMoveCompleted(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnMoveCompleted(event);
+  }
+  return ECORE_CALLBACK_RENEW;
+}
+
+static Eina_Bool EcoreEventWindowResizeCompleted(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnResizeCompleted(event);
+  }
+  return ECORE_CALLBACK_RENEW;
+}
+
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -965,6 +988,10 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   vconf_notify_key_changed_for_ui_thread(DALI_VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_NAME, VconfNotifyFontNameChanged, this);
   vconf_notify_key_changed_for_ui_thread(VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, VconfNotifyFontSizeChanged, this);
 #endif
+
+  // Register Window is moved and resized done event.
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, EcoreEventWindowMoveCompleted, this));
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, EcoreEventWindowResizeCompleted, this));
 
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   mDisplay                   = ecore_wl2_display_get(display);
@@ -1554,6 +1581,32 @@ void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
   if(ecoreWlInput)
   {
     mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
+  }
+}
+
+void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
+{
+  Ecore_Wl2_Event_Window_Interactive_Move_Done* movedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Move_Done*>(event);
+  if(movedDoneEvent)
+  {
+    Dali::PositionSize orgPositionSize(movedDoneEvent->x, movedDoneEvent->y, movedDoneEvent->w, movedDoneEvent->h);
+    Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
+    Dali::Int32Pair    newPosition(newPositionSize.x, newPositionSize.y);
+    DALI_LOG_RELEASE_INFO("window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
+    mMoveCompletedSignal.Emit(newPosition);
+  }
+}
+
+void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
+{
+  Ecore_Wl2_Event_Window_Interactive_Resize_Done* resizedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Resize_Done*>(event);
+  if(resizedDoneEvent)
+  {
+    Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
+    Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
+    Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
+    DALI_LOG_RELEASE_INFO("window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
+    mResizeCompletedSignal.Emit(newSize);
   }
 }
 

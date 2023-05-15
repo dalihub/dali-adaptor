@@ -41,7 +41,9 @@ WindowBase::WindowBase()
   mKeyboardRepeatSettingsChangedSignal(),
   mUpdatePositionSizeSignal(),
   mAuxiliaryMessageSignal(),
-  mMouseInOutEventSignal()
+  mMouseInOutEventSignal(),
+  mMoveCompletedSignal(),
+  mResizeCompletedSignal()
 {
 }
 
@@ -137,6 +139,16 @@ WindowBase::AuxiliaryMessageSignalType& WindowBase::AuxiliaryMessageSignal()
 WindowBase::MouseInOutEventSignalType& WindowBase::MouseInOutEventSignal()
 {
   return mMouseInOutEventSignal;
+}
+
+WindowBase::MoveCompletedSignalType& WindowBase::MoveCompletedSignal()
+{
+  return mMoveCompletedSignal;
+}
+
+WindowBase::ResizeCompletedSignalType& WindowBase::ResizeCompletedSignal()
+{
+  return mResizeCompletedSignal;
 }
 
 } // namespace Adaptor

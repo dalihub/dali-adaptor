@@ -95,6 +95,8 @@ Window::Window()
   mMovedSignal(),
   mOrientationChangedSignal(),
   mMouseInOutEventSignal(),
+  mMoveCompletedSignal(),
+  mResizeCompletedSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -160,6 +162,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
   mWindowBase->MouseInOutEventSignal().Connect(this, &Window::OnMouseInOutEvent);
+  mWindowBase->MoveCompletedSignal().Connect(this, &Window::OnMoveCompleted);
+  mWindowBase->ResizeCompletedSignal().Connect(this, &Window::OnResizeCompleted);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
@@ -1124,6 +1128,18 @@ void Window::OnAccessibilityDisabled()
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->RemoveTopLevelWindow(accessible);
+}
+
+void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)
+{
+  Dali::Window handle(this);
+  mMoveCompletedSignal.Emit(handle, position);
+}
+
+void Window::OnResizeCompleted(Dali::Window::WindowSize& size)
+{
+  Dali::Window handle(this);
+  mResizeCompletedSignal.Emit(handle, size);
 }
 
 Vector2 Window::RecalculatePosition(const Vector2& position)
