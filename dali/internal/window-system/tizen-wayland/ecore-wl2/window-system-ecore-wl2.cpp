@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,25 @@
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-system.h>
 
 // EXTERNAL_HEADERS
 #include <Ecore_Wl2.h>
+#include <dali/integration-api/debug.h>
+
+#define START_DURATION_CHECK()                               \
+  uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
+  uint32_t startTime, endTime;                               \
+  startTime = TimeService::GetMilliSeconds();
+
+#define FINISH_DURATION_CHECK(functionName)                                             \
+  endTime              = TimeService::GetMilliSeconds();                                \
+  durationMilliSeconds = endTime - startTime;                                           \
+  if(durationMilliSeconds > 0)                                                          \
+  {                                                                                     \
+    DALI_LOG_DEBUG_INFO("%s : duration [%u ms]\n", functionName, durationMilliSeconds); \
+  }
 
 namespace Dali
 {
@@ -53,7 +68,10 @@ void GetScreenSize(int32_t& width, int32_t& height)
     Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
     if(display)
     {
+      START_DURATION_CHECK();
       ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
+      FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
+
       DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
       DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
     }
@@ -67,7 +85,9 @@ void UpdateScreenSize()
   Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
   if(display)
   {
+    START_DURATION_CHECK();
     ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
+    FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
   }
 }
 

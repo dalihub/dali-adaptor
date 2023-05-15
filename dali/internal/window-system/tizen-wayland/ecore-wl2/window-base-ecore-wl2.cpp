@@ -24,6 +24,7 @@
 
 // INTERNAL HEADERS
 #include <dali/internal/input/common/key-impl.h>
+#include <dali/internal/system/common/time-service.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -40,6 +41,19 @@
 #include <vconf-keys.h>
 #include <vconf.h>
 #endif
+
+#define START_DURATION_CHECK()                               \
+  uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
+  uint32_t startTime, endTime;                               \
+  startTime = TimeService::GetMilliSeconds();
+
+#define FINISH_DURATION_CHECK(functionName)                                             \
+  endTime              = TimeService::GetMilliSeconds();                                \
+  durationMilliSeconds = endTime - startTime;                                           \
+  if(durationMilliSeconds > 0)                                                          \
+  {                                                                                     \
+    DALI_LOG_DEBUG_INFO("%s : duration [%u ms]\n", functionName, durationMilliSeconds); \
+  }
 
 #include <wayland-egl-tizen.h>
 
@@ -1648,6 +1662,8 @@ std::string WindowBaseEcoreWl2::GetNativeWindowResourceId()
 EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow(int width, int height)
 {
   int totalAngle = (mWindowRotationAngle + mScreenRotationAngle) % 360;
+
+  START_DURATION_CHECK();
   if(totalAngle == 90 || totalAngle == 270)
   {
     mEglWindow = wl_egl_window_create(mWlSurface, height, width);
@@ -1656,6 +1672,7 @@ EGLNativeWindowType WindowBaseEcoreWl2::CreateEglWindow(int width, int height)
   {
     mEglWindow = wl_egl_window_create(mWlSurface, width, height);
   }
+  FINISH_DURATION_CHECK("wl_egl_window_create");
 
   return static_cast<EGLNativeWindowType>(mEglWindow);
 }
@@ -1664,7 +1681,10 @@ void WindowBaseEcoreWl2::DestroyEglWindow()
 {
   if(mEglWindow != NULL)
   {
+    START_DURATION_CHECK();
     wl_egl_window_destroy(mEglWindow);
+    FINISH_DURATION_CHECK("wl_egl_window_destroy");
+
     mEglWindow = NULL;
   }
 }
@@ -1702,7 +1722,9 @@ void WindowBaseEcoreWl2::SetEglWindowRotation(int angle)
     }
   }
 
+  START_DURATION_CHECK();
   wl_egl_window_tizen_set_rotation(mEglWindow, rotation);
+  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_rotation");
 }
 
 void WindowBaseEcoreWl2::SetEglWindowBufferTransform(int angle)
@@ -1739,7 +1761,9 @@ void WindowBaseEcoreWl2::SetEglWindowBufferTransform(int angle)
   }
 
   DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_buffer_transform() with buffer Transform [%d]\n", bufferTransform);
+  START_DURATION_CHECK();
   wl_egl_window_tizen_set_buffer_transform(mEglWindow, bufferTransform);
+  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_buffer_transform");
 }
 
 void WindowBaseEcoreWl2::SetEglWindowTransform(int angle)
@@ -1776,12 +1800,15 @@ void WindowBaseEcoreWl2::SetEglWindowTransform(int angle)
   }
 
   DALI_LOG_RELEASE_INFO("wl_egl_window_tizen_set_window_transform() with window Transform [%d]\n", windowTransform);
+  START_DURATION_CHECK();
   wl_egl_window_tizen_set_window_transform(mEglWindow, windowTransform);
+  FINISH_DURATION_CHECK("wl_egl_window_tizen_set_window_transform");
 }
 
 void WindowBaseEcoreWl2::ResizeEglWindow(PositionSize positionSize)
 {
   DALI_LOG_RELEASE_INFO("wl_egl_window_resize(), (%d, %d) [%d x %d]\n", positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  START_DURATION_CHECK();
   wl_egl_window_resize(mEglWindow, positionSize.width, positionSize.height, positionSize.x, positionSize.y);
 
   // Note: Both "Resize" and "MoveResize" cases can reach here, but only "MoveResize" needs to submit serial number
@@ -1790,12 +1817,16 @@ void WindowBaseEcoreWl2::ResizeEglWindow(PositionSize positionSize)
     wl_egl_window_tizen_set_window_serial(mEglWindow, mMoveResizeSerial);
     mLastSubmittedMoveResizeSerial = mMoveResizeSerial;
   }
+  FINISH_DURATION_CHECK("wl_egl_window functions");
 }
 
 bool WindowBaseEcoreWl2::IsEglWindowRotationSupported()
 {
+  START_DURATION_CHECK();
   // Check capability
   wl_egl_window_tizen_capability capability = static_cast<wl_egl_window_tizen_capability>(wl_egl_window_tizen_get_capabilities(mEglWindow));
+  FINISH_DURATION_CHECK("wl_egl_window_tizen_get_capabilities");
+
   if(capability == WL_EGL_WINDOW_TIZEN_CAPABILITY_ROTATION_SUPPORTED)
   {
     mSupportedPreProtation = true;
@@ -1887,7 +1918,9 @@ void WindowBaseEcoreWl2::Move(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_position_set x[%d], y[%d]\n", newPositionSize.x, newPositionSize.y);
+  START_DURATION_CHECK();
   ecore_wl2_window_position_set(mEcoreWindow, newPositionSize.x, newPositionSize.y);
+  FINISH_DURATION_CHECK("ecore_wl2_window_position_set");
 }
 
 void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
@@ -1896,7 +1929,9 @@ void WindowBaseEcoreWl2::Resize(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  START_DURATION_CHECK();
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  FINISH_DURATION_CHECK("ecore_wl2_window_sync_geometry_set");
 }
 
 void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
@@ -1905,13 +1940,17 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
 
   mWindowPositionSize = newPositionSize;
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_sync_geometry_set, x[%d], y[%d], w{%d], h[%d]\n", newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  START_DURATION_CHECK();
   ecore_wl2_window_sync_geometry_set(mEcoreWindow, ++mMoveResizeSerial, newPositionSize.x, newPositionSize.y, newPositionSize.width, newPositionSize.height);
+  FINISH_DURATION_CHECK("ecore_wl2_window_sync_geometry_set");
 }
 
 void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
+  START_DURATION_CHECK();
   ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
+  FINISH_DURATION_CHECK("ecore_wl2_window_layout_set");
 }
 
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
@@ -1922,23 +1961,31 @@ void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& cl
 
 void WindowBaseEcoreWl2::Raise()
 {
+  START_DURATION_CHECK();
   // Use ecore_wl2_window_activate to prevent the window shown without rendering
   ecore_wl2_window_activate(mEcoreWindow);
+  FINISH_DURATION_CHECK("ecore_wl2_window_activate");
 }
 
 void WindowBaseEcoreWl2::Lower()
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_lower(mEcoreWindow);
+  FINISH_DURATION_CHECK("ecore_wl2_window_lower");
 }
 
 void WindowBaseEcoreWl2::Activate()
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_activate(mEcoreWindow);
+  FINISH_DURATION_CHECK("ecore_wl2_window_activate");
 }
 
 void WindowBaseEcoreWl2::Maximize(bool maximize)
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_maximized_set(mEcoreWindow, maximize);
+  FINISH_DURATION_CHECK("ecore_wl2_window_maximized_set");
 }
 
 bool WindowBaseEcoreWl2::IsMaximized() const
@@ -1949,13 +1996,17 @@ bool WindowBaseEcoreWl2::IsMaximized() const
 void WindowBaseEcoreWl2::SetMaximumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_maximum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
+  START_DURATION_CHECK();
   ecore_wl2_window_maximum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
+  FINISH_DURATION_CHECK("ecore_wl2_window_maximum_size_set");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
 void WindowBaseEcoreWl2::Minimize(bool minimize)
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_iconified_set(mEcoreWindow, minimize);
+  FINISH_DURATION_CHECK("ecore_wl2_window_iconified_set");
 }
 
 bool WindowBaseEcoreWl2::IsMinimized() const
@@ -1966,7 +2017,9 @@ bool WindowBaseEcoreWl2::IsMinimized() const
 void WindowBaseEcoreWl2::SetMimimumSize(Dali::Window::WindowSize size)
 {
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_minimum_size_set, width: %d, height: %d\n", size.GetWidth(), size.GetHeight());
+  START_DURATION_CHECK();
   ecore_wl2_window_minimum_size_set(mEcoreWindow, size.GetWidth(), size.GetHeight());
+  FINISH_DURATION_CHECK("ecore_wl2_window_minimum_size_set");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
@@ -1979,25 +2032,34 @@ void WindowBaseEcoreWl2::SetAvailableAnlges(const std::vector<int>& angles)
     rotations[i] = static_cast<int>(angles[i]);
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "%d ", rotations[i]);
   }
+
+  START_DURATION_CHECK();
   ecore_wl2_window_available_rotations_set(mEcoreWindow, rotations, angles.size());
+  FINISH_DURATION_CHECK("ecore_wl2_window_available_rotations_set");
 }
 
 void WindowBaseEcoreWl2::SetPreferredAngle(int angle)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPreferredAngle, angle: %d\n", angle);
+  START_DURATION_CHECK();
   ecore_wl2_window_preferred_rotation_set(mEcoreWindow, angle);
+  FINISH_DURATION_CHECK("ecore_wl2_window_preferred_rotation_set");
 }
 
 void WindowBaseEcoreWl2::SetAcceptFocus(bool accept)
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_focus_skip_set(mEcoreWindow, !accept);
+  FINISH_DURATION_CHECK("ecore_wl2_window_focus_skip_set");
 }
 
 void WindowBaseEcoreWl2::Show()
 {
   if(!mVisible)
   {
+    START_DURATION_CHECK();
     ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+    FINISH_DURATION_CHECK("ecore_wl2_window_geometry_set");
   }
   mVisible = true;
 
@@ -2064,7 +2126,9 @@ unsigned int WindowBaseEcoreWl2::AddAuxiliaryHint(const std::string& hint, const
 
   unsigned int id = mAuxiliaryHints.size();
 
+  START_DURATION_CHECK();
   ecore_wl2_window_aux_hint_add(mEcoreWindow, static_cast<int>(id), hint.c_str(), value.c_str());
+  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_add");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::AddAuxiliaryHint: hint = %s, value = %s, id = %d\n", hint.c_str(), value.c_str(), id);
 
@@ -2081,7 +2145,9 @@ bool WindowBaseEcoreWl2::RemoveAuxiliaryHint(unsigned int id)
 
   mAuxiliaryHints[id - 1].second = std::string();
 
+  START_DURATION_CHECK();
   ecore_wl2_window_aux_hint_del(mEcoreWindow, static_cast<int>(id));
+  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_del");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::RemoveAuxiliaryHint: id = %d, hint = %s\n", id, mAuxiliaryHints[id - 1].first.c_str());
 
@@ -2098,7 +2164,9 @@ bool WindowBaseEcoreWl2::SetAuxiliaryHintValue(unsigned int id, const std::strin
 
   mAuxiliaryHints[id - 1].second = value;
 
+  START_DURATION_CHECK();
   ecore_wl2_window_aux_hint_change(mEcoreWindow, static_cast<int>(id), value.c_str());
+  FINISH_DURATION_CHECK("ecore_wl2_window_aux_hint_change");
 
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetAuxiliaryHintValue: id = %d, hint = %s, value = %s\n", id, mAuxiliaryHints[id - 1].first.c_str(), mAuxiliaryHints[id - 1].second.c_str());
 
@@ -2180,7 +2248,9 @@ void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Set input rect (%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
+  START_DURATION_CHECK();
   ecore_wl2_window_input_rect_set(mEcoreWindow, &rect);
+  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_set");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
@@ -2229,7 +2299,10 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
         break;
       }
     }
+
+    START_DURATION_CHECK();
     ecore_wl2_window_type_set(mEcoreWindow, windowType);
+    FINISH_DURATION_CHECK("ecore_wl2_window_type_set");
   }
 }
 
@@ -2240,6 +2313,7 @@ Dali::WindowType WindowBaseEcoreWl2::GetType() const
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::WindowNotificationLevel level)
 {
+  START_DURATION_CHECK();
   while(!mTizenPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2295,6 +2369,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
+  FINISH_DURATION_CHECK("ecore_wl2 & wl_display");
 
   if(!mNotificationLevelChangeDone)
   {
@@ -2484,6 +2559,7 @@ WindowScreenOffMode WindowBaseEcoreWl2::GetScreenOffMode() const
 
 Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 {
+  START_DURATION_CHECK();
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2502,6 +2578,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
+  FINISH_DURATION_CHECK("ecore_wl2_display_flush");
 
   if(!mBrightnessChangeDone)
   {
@@ -2521,6 +2598,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetBrightness(int brightness)
 
 int WindowBaseEcoreWl2::GetBrightness() const
 {
+  START_DURATION_CHECK();
   while(!mTizenDisplayPolicy)
   {
     wl_display_dispatch_queue(mDisplay, mEventQueue);
@@ -2534,6 +2612,7 @@ int WindowBaseEcoreWl2::GetBrightness() const
     wl_display_dispatch_queue(mDisplay, mEventQueue);
     count++;
   }
+  FINISH_DURATION_CHECK("ecore_wl2_display_flush");
 
   if(!mBrightnessChangeDone)
   {
@@ -2637,7 +2716,9 @@ bool WindowBaseEcoreWl2::GrabKeyList(const Dali::Vector<Dali::KEY>& key, const D
     keyList = eina_list_append(keyList, &info);
   }
 
+  START_DURATION_CHECK();
   Eina_List* grabList = ecore_wl2_window_keygrab_list_set(mEcoreWindow, keyList);
+  FINISH_DURATION_CHECK("ecore_wl2_window_keygrab_list_set");
 
   result.Resize(keyCount, true);
 
@@ -2695,7 +2776,9 @@ bool WindowBaseEcoreWl2::UngrabKeyList(const Dali::Vector<Dali::KEY>& key, Dali:
     keyList         = eina_list_append(keyList, &info);
   }
 
+  START_DURATION_CHECK();
   Eina_List* ungrabList = ecore_wl2_window_keygrab_list_unset(mEcoreWindow, keyList);
+  FINISH_DURATION_CHECK("ecore_wl2_window_keygrab_list_unset");
 
   result.Resize(keyCount, true);
 
@@ -2782,12 +2865,16 @@ void WindowBaseEcoreWl2::SetWindowRotationAngle(int degree)
 
 void WindowBaseEcoreWl2::WindowRotationCompleted(int degree, int width, int height)
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_rotation_change_done_send(mEcoreWindow, degree, width, height);
+  FINISH_DURATION_CHECK("ecore_wl2_window_rotation_change_done_send");
 }
 
 void WindowBaseEcoreWl2::SetTransparency(bool transparent)
 {
+  START_DURATION_CHECK();
   ecore_wl2_window_alpha_set(mEcoreWindow, transparent);
+  FINISH_DURATION_CHECK("ecore_wl2_window_alpha_set");
 }
 
 void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
@@ -2798,6 +2885,7 @@ void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
     DALI_ASSERT_ALWAYS(0 && "Failed to get display");
   }
 
+  START_DURATION_CHECK();
   ecore_wl2_display_sync(display);
 
   mEcoreWindow = ecore_wl2_window_new(display, NULL, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
@@ -2809,6 +2897,7 @@ void WindowBaseEcoreWl2::CreateWindow(PositionSize positionSize)
 
   // Set default type
   ecore_wl2_window_type_set(mEcoreWindow, ECORE_WL2_WINDOW_TYPE_TOPLEVEL);
+  FINISH_DURATION_CHECK("ecore_wl2 functions");
 }
 
 void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
@@ -2819,7 +2908,10 @@ void WindowBaseEcoreWl2::SetParent(WindowBase* parentWinBase, bool belowParent)
     WindowBaseEcoreWl2* winBaseEcore2 = static_cast<WindowBaseEcoreWl2*>(parentWinBase);
     ecoreParent                       = winBaseEcore2->mEcoreWindow;
   }
+
+  START_DURATION_CHECK();
   ecore_wl2_window_transient_parent_set(mEcoreWindow, ecoreParent, belowParent);
+  FINISH_DURATION_CHECK("ecore_wl2_window_transient_parent_set");
 }
 
 int WindowBaseEcoreWl2::CreateFrameRenderedSyncFence()
@@ -2835,7 +2927,9 @@ int WindowBaseEcoreWl2::CreateFramePresentedSyncFence()
 void WindowBaseEcoreWl2::SetPositionSizeWithAngle(PositionSize positionSize, int angle)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetPositionSizeWithAngle, angle: %d, x: %d, y: %d, w: %d, h: %d\n", angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  START_DURATION_CHECK();
   ecore_wl2_window_rotation_geometry_set(mEcoreWindow, angle, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  FINISH_DURATION_CHECK("ecore_wl2_window_rotation_geometry_set");
 }
 
 void WindowBaseEcoreWl2::InitializeIme()
@@ -2865,6 +2959,7 @@ void WindowBaseEcoreWl2::InitializeIme()
     return;
   }
 
+  START_DURATION_CHECK();
   EINA_ITERATOR_FOREACH(globals, global)
   {
 #ifdef OVER_TIZEN_VERSION_7
@@ -2910,6 +3005,7 @@ void WindowBaseEcoreWl2::InitializeIme()
 #else
   wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
 #endif
+  FINISH_DURATION_CHECK("zwp_input_panel_surface_v1_set_toplevel");
 }
 
 void WindowBaseEcoreWl2::ImeWindowReadyToRender()
@@ -2919,11 +3015,14 @@ void WindowBaseEcoreWl2::ImeWindowReadyToRender()
     DALI_LOG_ERROR("WindowBaseEcoreWl2::ImeWindowReadyToRender(), wayland input panel surface is null\n");
     return;
   }
+
+  START_DURATION_CHECK();
 #ifdef OVER_TIZEN_VERSION_7
   zwp_input_panel_surface_v1_set_ready(mWlInputPanelSurface, 1);
 #else
   wl_input_panel_surface_set_ready(mWlInputPanelSurface, 1);
 #endif
+  FINISH_DURATION_CHECK("zwp_input_panel_surface_v1_set_ready");
 }
 
 void WindowBaseEcoreWl2::RequestMoveToServer()
@@ -2942,7 +3041,9 @@ void WindowBaseEcoreWl2::RequestMoveToServer()
     return;
   }
 
+  START_DURATION_CHECK();
   ecore_wl2_window_move(mEcoreWindow, input);
+  FINISH_DURATION_CHECK("ecore_wl2_window_move");
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestMoveToServer, starts the window[%p] is moved by server\n", mEcoreWindow);
 }
 
@@ -2964,13 +3065,16 @@ void WindowBaseEcoreWl2::RequestResizeToServer(WindowResizeDirection direction)
 
   ResizeLocation location = RecalculateLocationToCurrentOrientation(direction, mWindowRotationAngle);
 
+  START_DURATION_CHECK();
   ecore_wl2_window_resize(mEcoreWindow, input, static_cast<int>(location));
+  FINISH_DURATION_CHECK("ecore_wl2_window_resize");
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::RequestResizeToServer, starts the window[%p] is resized by server, direction:%d oriention:%d mode:%d\n", mEcoreWindow, direction, mWindowRotationAngle, location);
 }
 
 void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::EnableFloatingMode, floating mode flag: [%p], enable [%d]\n", mEcoreWindow, enable);
+  START_DURATION_CHECK();
   if(enable == true)
   {
     ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_TRUE);
@@ -2979,6 +3083,7 @@ void WindowBaseEcoreWl2::EnableFloatingMode(bool enable)
   {
     ecore_wl2_window_floating_mode_set(mEcoreWindow, EINA_FALSE);
   }
+  FINISH_DURATION_CHECK("ecore_wl2_window_floating_mode_set");
 }
 
 bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
@@ -2997,7 +3102,9 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Add input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
+  START_DURATION_CHECK();
   ecore_wl2_window_input_rect_add(mEcoreWindow, &rect);
+  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_add");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
@@ -3012,7 +3119,9 @@ void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
   rect.h = convertRegion.height;
 
   DALI_LOG_RELEASE_INFO("%p, Subtract input_rect(%d, %d, %d x %d)\n", mEcoreWindow, rect.x, rect.y, rect.w, rect.h);
+  START_DURATION_CHECK();
   ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
+  FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_subtract");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
