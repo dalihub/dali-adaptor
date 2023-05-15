@@ -121,6 +121,16 @@ OrientationChangedSignalType& OrientationChangedSignal(Window window)
   return GetImplementation(window).OrientationChangedSignal();
 }
 
+MoveCompletedSignalType& MoveCompletedSignal(Window window)
+{
+  return GetImplementation(window).MoveCompletedSignal();
+}
+
+ResizeCompletedSignalType& ResizeCompletedSignal(Window window)
+{
+  return GetImplementation(window).ResizeCompletedSignal();
+}
+
 void SetParent(Window window, Window parent)
 {
   GetImplementation(window).SetParent(parent);
