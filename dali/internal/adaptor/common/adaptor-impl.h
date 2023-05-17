@@ -553,12 +553,12 @@ private: // From Dali::Integration::RenderController
   /**
    * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */
-  void RequestUpdate(bool forceUpdate) override;
+  void RequestUpdate() override;
 
   /**
    * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
-  void RequestProcessEventsOnIdle(bool forceProcess) override;
+  void RequestProcessEventsOnIdle() override;
 
 public: // From Dali::Internal::Adaptor::WindowVisibilityObserver
   /**

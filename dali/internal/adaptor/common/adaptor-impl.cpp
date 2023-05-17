@@ -938,7 +938,7 @@ void Adaptor::ProcessCoreEvents()
   }
 }
 
-void Adaptor::RequestUpdate(bool forceUpdate)
+void Adaptor::RequestUpdate()
 {
   switch(mState)
   {
@@ -950,11 +950,8 @@ void Adaptor::RequestUpdate(bool forceUpdate)
     case PAUSED:
     case PAUSED_WHILE_HIDDEN:
     {
-      if(forceUpdate)
-      {
-        // Update (and resource upload) without rendering
-        mThreadController->RequestUpdateOnce(UpdateMode::SKIP_RENDER);
-      }
+      // Update (and resource upload) without rendering
+      mThreadController->RequestUpdateOnce(UpdateMode::SKIP_RENDER);
       break;
     }
     default:
@@ -965,13 +962,13 @@ void Adaptor::RequestUpdate(bool forceUpdate)
   }
 }
 
-void Adaptor::RequestProcessEventsOnIdle(bool forceProcess)
+void Adaptor::RequestProcessEventsOnIdle()
 {
-  // Only request a notification if the Adaptor is actually running
-  // and we haven't installed the idle notification
-  if((!mNotificationOnIdleInstalled) && (RUNNING == mState || READY == mState || forceProcess))
+  // Only request a notification if we haven't installed the idle notification
+  // We want to run the processes even when paused
+  if(!mNotificationOnIdleInstalled && STOPPED != mState)
   {
-    mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), forceProcess);
+    mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), true);
   }
 }
 
@@ -1051,7 +1048,7 @@ void Adaptor::OnWindowHidden()
 void Adaptor::OnDamaged(const DamageArea& area)
 {
   // This is needed for the case where Dali window is partially obscured
-  RequestUpdate(false);
+  RequestUpdate();
 }
 
 void Adaptor::SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
