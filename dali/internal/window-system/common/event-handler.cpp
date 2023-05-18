@@ -168,7 +168,7 @@ void EventHandler::OnSelectionDataSend(void* event)
   if(clipboard)
   {
     Clipboard& clipBoardImpl(GetImplementation(clipboard));
-    clipBoardImpl.ExcuteBuffered(true, event);
+    clipBoardImpl.ExcuteSend(event);
   }
 }
 
@@ -177,10 +177,11 @@ void EventHandler::OnSelectionDataReceived(void* event)
   // We have got the selected content, inform the clipboard event listener (if we have one).
   Dali::Clipboard clipboard     = Clipboard::Get();
   char*           selectionData = NULL;
+  int             bufferLength  = 0;
   if(clipboard)
   {
     Clipboard& clipBoardImpl(GetImplementation(clipboard));
-    selectionData = clipBoardImpl.ExcuteBuffered(false, event);
+    clipBoardImpl.ExcuteReceive(event, selectionData, bufferLength);
   }
 
   if(!mClipboardEventNotifier)
@@ -188,15 +189,15 @@ void EventHandler::OnSelectionDataReceived(void* event)
     mClipboardEventNotifier = ClipboardEventNotifier::Get();
   }
 
-  if(selectionData && mClipboardEventNotifier)
+  if(selectionData && mClipboardEventNotifier && bufferLength > 0)
   {
     ClipboardEventNotifier& clipboardEventNotifier(ClipboardEventNotifier::GetImplementation(mClipboardEventNotifier));
-    std::string             content(selectionData, strlen(selectionData));
+    std::string             content(selectionData, bufferLength - 1);
 
     clipboardEventNotifier.SetContent(content);
     clipboardEventNotifier.EmitContentSelectedSignal();
 
-    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::General, "EcoreEventSelectionNotify: Content(%d): %s\n", strlen(selectionData), selectionData);
+    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::General, "EcoreEventSelectionNotify: Content(%s) strlen(%d) buffer(%d)\n", selectionData, strlen(selectionData), bufferLength);
   }
 }
 

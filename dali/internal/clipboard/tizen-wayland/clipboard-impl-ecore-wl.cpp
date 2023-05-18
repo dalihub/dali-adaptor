@@ -117,50 +117,48 @@ struct Clipboard::Impl
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     mSerial                = ecore_wl2_dnd_selection_set(input, types);
 #else
-    mSerial               = ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
+    mSerial                = ecore_wl_dnd_selection_set(ecore_wl_input_get(), types);
 #endif
   }
 
   void RequestItem()
   {
-#ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
-    ecore_wl2_dnd_selection_get(input);
-#else
     const char* types[10] = {
       0,
     };
     int i = -1;
 
     types[++i] = "text/plain;charset=utf-8";
+
+#ifdef ECORE_WAYLAND2
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+    Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+    Ecore_Wl2_Offer*   offer   = ecore_wl2_dnd_selection_get(input);
+
+    ecore_wl2_offer_receive(offer, const_cast<char*>(*types));
+    ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+#else
     ecore_wl_dnd_selection_get(ecore_wl_input_get(), *types);
 #endif
-
-    Dali::ClipboardEventNotifier clipboardEventNotifier(Dali::ClipboardEventNotifier::Get());
-    if(clipboardEventNotifier)
-    {
-      clipboardEventNotifier.SetContent(mSendBuffer);
-      clipboardEventNotifier.EmitContentSelectedSignal();
-    }
   }
 
-  char* ExcuteSend(void* event)
+  void ExcuteSend(void* event)
   {
 #ifdef ECORE_WAYLAND2
     Ecore_Wl2_Event_Data_Source_Send* ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send*>(event);
 #else
-    Ecore_Wl_Event_Data_Source_Send*     ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send*>(event);
+    Ecore_Wl_Event_Data_Source_Send*  ev = reinterpret_cast<Ecore_Wl_Event_Data_Source_Send*>(event);
 #endif
 
     if(ev->serial != mSerial)
     {
-      return NULL;
+      return;
     }
 
-    int         len_buf      = mSendBuffer.length();
+    int         len_buf      = mSendBuffer.length() + 1; // we should consider the char* buffer length
     int         len_remained = len_buf;
     int         len_written  = 0, ret;
-    const char* buf          = mSendBuffer.c_str();
+    const char* buf          = mSendBuffer.c_str(); // last char in the buffer must be \0
 
     while(len_written < len_buf)
     {
@@ -171,18 +169,17 @@ struct Clipboard::Impl
       len_remained -= ret;
     }
     close(ev->fd);
-    return NULL;
   }
 
-  char* ExcuteReceive(void* event)
+  void ExcuteReceive(void* event, char*& data, int& length)
   {
 #ifdef ECORE_WAYLAND2
-    Ecore_Wl2_Event_Selection_Data_Ready* ev = reinterpret_cast<Ecore_Wl2_Event_Selection_Data_Ready*>(event);
+    Ecore_Wl2_Event_Offer_Data_Ready* ev = reinterpret_cast<Ecore_Wl2_Event_Offer_Data_Ready*>(event);
 #else
     Ecore_Wl_Event_Selection_Data_Ready* ev = reinterpret_cast<Ecore_Wl_Event_Selection_Data_Ready*>(event);
 #endif
-
-    return reinterpret_cast<char*>(ev->data);
+    data   = reinterpret_cast<char*>(ev->data);
+    length = ev->len;
   }
 
   int GetCount()
@@ -362,9 +359,14 @@ bool Clipboard::IsVisible() const
   return mImpl->IsVisible();
 }
 
-char* Clipboard::ExcuteBuffered(bool type, void* event)
+void Clipboard::ExcuteSend(void* event)
 {
-  return (type ? mImpl->ExcuteSend(event) : mImpl->ExcuteReceive(event));
+  mImpl->ExcuteSend(event);
+}
+
+void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
+{
+  mImpl->ExcuteReceive(event, data, length);
 }
 
 } // namespace Adaptor
