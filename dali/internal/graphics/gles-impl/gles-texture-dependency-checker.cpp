@@ -50,8 +50,13 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
     switch(i)
     {
       case 0:
-        texture = static_cast<GLES::Texture*>(framebuffer->GetCreateInfo().colorAttachments[0].texture);
+      {
+        if(!framebuffer->GetCreateInfo().colorAttachments.empty())
+        {
+          texture = static_cast<GLES::Texture*>(framebuffer->GetCreateInfo().colorAttachments[0].texture);
+        }
         break;
+      }
       case 1:
         texture = static_cast<GLES::Texture*>(framebuffer->GetCreateInfo().depthStencilAttachment.depthTexture);
         break;
