@@ -2249,44 +2249,9 @@ unsigned int WindowBaseEcoreWl2::GetAuxiliaryHintId(const std::string& hint) con
   return 0;
 }
 
-Rect<int> WindowBaseEcoreWl2::RecalculateInputRect(const Rect<int>& rect)
-{
-  Rect<int> newRect;
-
-  if(mWindowRotationAngle == 90)
-  {
-    newRect.x      = rect.y;
-    newRect.y      = mWindowPositionSize.height - (rect.x + rect.width);
-    newRect.width  = rect.height;
-    newRect.height = rect.width;
-  }
-  else if(mWindowRotationAngle == 180)
-  {
-    newRect.x      = mWindowPositionSize.width - (rect.x + rect.width);
-    newRect.y      = mWindowPositionSize.height - (rect.y + rect.height);
-    newRect.width  = rect.width;
-    newRect.height = rect.height;
-  }
-  else if(mWindowRotationAngle == 270)
-  {
-    newRect.x      = mWindowPositionSize.width - (rect.y + rect.height);
-    newRect.y      = rect.x;
-    newRect.width  = rect.height;
-    newRect.height = rect.width;
-  }
-  else
-  {
-    newRect.x      = rect.x;
-    newRect.y      = rect.y;
-    newRect.width  = rect.width;
-    newRect.height = rect.height;
-  }
-  return newRect;
-}
-
 void WindowBaseEcoreWl2::SetInputRegion(const Rect<int>& inputRegion)
 {
-  Rect<int> convertRegion = RecalculateInputRect(inputRegion);
+  Rect<int> convertRegion = RecalculatePositionSizeToSystem(inputRegion);
 
   Eina_Rectangle rect;
   rect.x = convertRegion.x;
@@ -3140,7 +3105,7 @@ bool WindowBaseEcoreWl2::IsFloatingModeEnabled() const
 
 void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 {
-  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
+  Rect<int>      convertRegion = RecalculatePositionSizeToSystem(inputRegion);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;
@@ -3157,7 +3122,7 @@ void WindowBaseEcoreWl2::IncludeInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
-  Rect<int>      convertRegion = RecalculateInputRect(inputRegion);
+  Rect<int>      convertRegion = RecalculatePositionSizeToSystem(inputRegion);
   Eina_Rectangle rect;
 
   rect.x = convertRegion.x;
