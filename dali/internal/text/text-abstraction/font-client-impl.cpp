@@ -19,6 +19,7 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
+#include <mutex>
 #include <thread>
 #if defined(VCONF_ENABLED)
 #include <vconf.h>
@@ -32,6 +33,7 @@
 
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 
+// Use this macro only if need to log messages before the log function is set.
 #define FONT_LOG_MESSAGE(level, format, ...)                                    \
   do                                                                            \
   {                                                                             \
@@ -55,10 +57,14 @@ namespace Internal
 {
 Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 std::thread                       gPreCacheThread;
+std::thread                       gPreLoadThread;
+std::mutex                        gMutex;
+
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
  * if there is a pre-cache call from the user after the font client has been created. */
 bool gFontPreCacheAvailable = true;
+bool gFontPreLoadAvailable  = true;
 
 FontClient::FontClient()
 : mPlugin(nullptr),
@@ -95,6 +101,12 @@ Dali::TextAbstraction::FontClient FontClient::Get()
         FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache thread join\n");
       }
 
+      if(gPreLoadThread.joinable())
+      {
+        gPreLoadThread.join();
+        FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad thread join\n");
+      }
+
       if(gPreCreatedFontClient)
       {
         fontClientHandle = gPreCreatedFontClient;
@@ -103,13 +115,12 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       else
       {
         fontClientHandle = Dali::TextAbstraction::FontClient(new FontClient);
-
-        // Make DefaultFontDescription cached
-        Dali::TextAbstraction::FontDescription defaultFontDescription;
-        fontClientHandle.GetDefaultPlatformFontDescription(defaultFontDescription);
       }
 
+      fontClientHandle.InitDefaultFontDescription();
+
       gFontPreCacheAvailable = false;
+      gFontPreLoadAvailable  = false;
 
       uint32_t horizontalDpi, verticalDpi;
       fontClientHandle.GetDpi(horizontalDpi, verticalDpi);
@@ -131,67 +142,102 @@ Dali::TextAbstraction::FontClient FontClient::PreInitialize()
 {
   // Pre-cached font client already exists or pre-cache thread already running.
   // Font client pre-cache includes caching of the default font description.
-  if((gPreCreatedFontClient && !gFontPreCacheAvailable) ||
-     (gPreCacheThread.joinable()))
+  if(gPreCreatedFontClient && !gFontPreCacheAvailable)
   {
     return gPreCreatedFontClient;
   }
 
-  gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+  if(!gPreCreatedFontClient)
+  {
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+  }
 
-  // Make DefaultFontDescription cached
-  Dali::TextAbstraction::FontDescription defaultFontDescription;
-  gPreCreatedFontClient.GetDefaultPlatformFontDescription(defaultFontDescription);
+  gPreCreatedFontClient.InitDefaultFontDescription();
 
   return gPreCreatedFontClient;
 }
 
 void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
 {
-  if(gFontPreCacheAvailable)
-  {
-    gFontPreCacheAvailable = false;
-    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
-    if(!gPreCreatedFontClient)
-    {
-      gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
-    }
-    GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
-    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
-  }
-  else
-  {
-    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache run failed, as a pre-cached font client already exists.\n");
-  }
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
+  GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
+}
+
+void FontClient::PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList)
+{
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_RUN\n");
+  GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList);
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_RUN\n");
 }
 
 void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
 {
   if(!gFontPreCacheAvailable)
   {
-    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache has been completed or the font client has already been created.\n");
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache run failed, as a pre-cached font client already exists.\n");
     return;
   }
-
-  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache fallbackFamilyList : %zu\n", fallbackFamilyList.size());
-  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache extraFamilyList    : %zu\n", extraFamilyList.size());
-  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache localeFamily       : %s\n", localeFamily.c_str());
-  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache useThread          : %d\n", useThread);
 
   if(gPreCacheThread.joinable())
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache thread already running.\n");
   }
+
+  if(!gPreCreatedFontClient)
+  {
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+  }
+
+  gFontPreCacheAvailable = false;
+
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache fallbackFamilyList : %zu\n", fallbackFamilyList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache extraFamilyList    : %zu\n", extraFamilyList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache localeFamily       : %s\n", localeFamily.c_str());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient FontConfig PreCache useThread          : %d\n", useThread);
+
+  if(useThread)
+  {
+    gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily);
+  }
   else
   {
-    if(useThread)
-    {
-      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily);
-    }
-    else
-    {
-      PreCacheRun(fallbackFamilyList, extraFamilyList, localeFamily);
-    }
+    PreCacheRun(fallbackFamilyList, extraFamilyList, localeFamily);
+  }
+}
+
+void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread)
+{
+  if(!gFontPreLoadAvailable)
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient font pre-load run failed, as a pre-loaded font client already exists.\n");
+    return;
+  }
+
+  if(gPreLoadThread.joinable())
+  {
+    FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient font pre-load thread already running.\n");
+    return;
+  }
+
+  if(!gPreCreatedFontClient)
+  {
+    gPreCreatedFontClient = Dali::TextAbstraction::FontClient(new FontClient);
+  }
+
+  gFontPreLoadAvailable = false;
+
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient Font PreLoad fontPathList       : %zu\n", fontPathList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient Font PreLoad memoryFontPathList : %zu\n", memoryFontPathList.size());
+  FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient Font PreLoad useThread          : %d\n", useThread);
+
+  if(useThread)
+  {
+    gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList);
+  }
+  else
+  {
+    PreLoadRun(fontPathList, memoryFontPathList);
   }
 }
 
@@ -251,6 +297,20 @@ void FontClient::FontPreCache(const FontFamilyList& fallbackFamilyList, const Fo
   CreatePlugin();
 
   mPlugin->FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
+}
+
+void FontClient::FontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList)
+{
+  CreatePlugin();
+
+  mPlugin->FontPreLoad(fontPathList, memoryFontPathList);
+}
+
+void FontClient::InitDefaultFontDescription()
+{
+  CreatePlugin();
+
+  mPlugin->InitDefaultFontDescription();
 }
 
 void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescription)
@@ -536,6 +596,7 @@ HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)
 
 void FontClient::CreatePlugin()
 {
+  std::scoped_lock lock(gMutex);
   if(!mPlugin)
   {
     mPlugin = new Plugin(mDpiHorizontal, mDpiVertical);

@@ -50,9 +50,10 @@ class WindowRenderSurface;
 class WindowBase;
 
 class Window;
-using WindowPtr       = IntrusivePtr<Window>;
-using OrientationPtr  = IntrusivePtr<Orientation>;
-using EventHandlerPtr = IntrusivePtr<EventHandler>;
+using WindowPtr          = IntrusivePtr<Window>;
+using OrientationPtr     = IntrusivePtr<Orientation>;
+using MouseInOutEventPtr = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
+using EventHandlerPtr    = IntrusivePtr<EventHandler>;
 
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
@@ -69,6 +70,9 @@ public:
   typedef Dali::DevelWindow::AccessibilityHighlightSignalType        AccessibilityHighlightSignalType;
   typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
   typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
+  typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
+  typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
+  typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -426,7 +430,7 @@ public:
    *
    * @param[in] renderNotification to use
    */
-  void SetRenderNotification(TriggerEventInterface *renderNotification);
+  void SetRenderNotification(TriggerEventInterface* renderNotification);
 
 public: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -564,7 +568,8 @@ private:
   void OnWindowRedrawRequest();
 
   /**
-   * @brief Called when the window is resized or moved by display server.
+   * @brief Called when the window's geometry data is changed by display server or client.
+   * It is based on configure noification event.
    *
    * @param[in] positionSize the updated window's position and size.
    */
@@ -599,6 +604,26 @@ private:
    * This signal is emmit when window rotation is finisehd and WindowRotationCompleted() is called.
    */
   void OnRotationFinished();
+
+  /**
+   * @brief Called when the mouse in or out event is received.
+   * @param[in] mouseInOutEvent the mouse event
+   */
+  void OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent);
+
+  /**
+   * @brief Called when the window is moved by display server.
+   *
+   * @param[in] position the moved window's position.
+   */
+  void OnMoveCompleted(Dali::Window::WindowPosition& position);
+
+  /**
+   * @brief Called when the window is resized by display server.
+   *
+   * @param[in] positionSize the resized window's size.
+   */
+  void OnResizeCompleted(Dali::Window::WindowSize& size);
 
   /**
    * @brief Set available orientation to window base.
@@ -756,6 +781,30 @@ public: // Signals
     return mOrientationChangedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::MouseInOutEventSignal()
+   */
+  MouseInOutEventSignalType& MouseInOutEventSignal()
+  {
+    return mMouseInOutEventSignal;
+  }
+
+  /**
+   * @copydoc Dali::DevelWindow::MoveCompletedSignal()
+   */
+  MoveCompletedSignalType& MoveCompletedSignal()
+  {
+    return mMoveCompletedSignal;
+  }
+
+  /**
+   * @copydoc Dali::DevelWindow::ResizeCompletedSignal()
+   */
+  ResizeCompletedSignalType& ResizeCompletedSignal()
+  {
+    return mResizeCompletedSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -767,10 +816,10 @@ private:
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;  ///< The angle of the rotation
-  int mWindowWidth;    ///< The width of the window
-  int mWindowHeight;   ///< The height of the window
-  int mNativeWindowId; ///< The Native Window Id
+  int mRotationAngle;               ///< The angle of the rotation
+  int mWindowWidth;                 ///< The width of the window
+  int mWindowHeight;                ///< The height of the window
+  int mNativeWindowId;              ///< The Native Window Id
 
   EventHandlerPtr mEventHandler;    ///< The window events handler
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
@@ -786,6 +835,9 @@ private:
   AccessibilityHighlightSignalType        mAccessibilityHighlightSignal;
   MovedSignalType                         mMovedSignal;
   OrientationChangedSignalType            mOrientationChangedSignal;
+  MouseInOutEventSignalType               mMouseInOutEventSignal;
+  MoveCompletedSignalType                 mMoveCompletedSignal;
+  ResizeCompletedSignalType               mResizeCompletedSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;

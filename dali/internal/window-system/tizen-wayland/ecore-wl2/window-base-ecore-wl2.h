@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,6 +116,11 @@ public:
   void OnMouseWheel(void* data, int type, void* event);
 
   /**
+   * @brief Called when a mouse in or out is received.
+   */
+  void OnMouseInOut(void* data, int type, void* event, Dali::DevelWindow::MouseInOutEvent::Type action);
+
+  /**
    * @brief Called when a detent rotation event is recevied.
    */
   void OnDetentRotation(void* data, int type, void* event);
@@ -171,6 +176,24 @@ public:
    * @param[in] auxiliary's message data. It has key, value and integer list data.
    */
   void OnEcoreEventWindowAuxiliaryMessage(void* event);
+
+  /**
+   * @brief Called when window has been moved by then display server.
+   * To move the window by display server, RequestMoveToServer() should be called.
+   * After the moving job is completed, this function will be called.
+   *
+   * @param[in] the completed event's data. It has the latest window geometry data.
+   */
+  void OnMoveCompleted(void* event);
+
+  /**
+   * @brief Called when window has been resized by then display server.
+   * To resize the window by display server, RequestResizeToServer() should be called.
+   * After the resizing job is completed, this function will be called.
+   *
+   * @param[in] the completed event's data. It has the latest window geometry data.
+   */
+  void OnResizeCompleted(void* event);
 
   /**
    * @brief Called when a keymap is changed.
@@ -273,7 +296,7 @@ public:
    */
   void MoveResize(PositionSize positionSize) override;
 
- /**
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetLayout()
    */
   void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan) override;
@@ -576,7 +599,6 @@ private:
    * @return the re-calculated window's position and size on current oriented window's coordinates.
    */
   PositionSize RecalculatePositionSizeToCurrentOrientation(PositionSize positionSize);
-
 
   /**
    * @brief Return the rect value to recalulate with the default system coordinates.

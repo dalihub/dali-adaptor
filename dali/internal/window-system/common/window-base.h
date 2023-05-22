@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/damage-observer.h>
@@ -63,18 +64,21 @@ public:
   };
 
   // Window
-  typedef Signal<void(bool)>                                IconifySignalType;
-  typedef Signal<void(bool)>                                MaximizeSignalType;
-  typedef Signal<void(bool)>                                FocusSignalType;
-  typedef Signal<void()>                                    OutputSignalType;
-  typedef Signal<void()>                                    DeleteSignalType;
-  typedef Signal<void(const DamageArea&)>                   DamageSignalType;
-  typedef Signal<void(const RotationEvent&)>                RotationSignalType;
-  typedef Signal<void(WindowEffectState, WindowEffectType)> TransitionEffectEventSignalType;
-  typedef Signal<void()>                                    KeyboardRepeatSettingsChangedSignalType;
-  typedef Signal<void()>                                    WindowRedrawRequestSignalType;
-  typedef Signal<void(Dali::PositionSize&)>                 UpdatePositionSizeType;
-  typedef Signal<void(const std::string&, const std::string&, const Property::Array&)>             AuxiliaryMessageSignalType;
+  typedef Signal<void(bool)>                                                           IconifySignalType;
+  typedef Signal<void(bool)>                                                           MaximizeSignalType;
+  typedef Signal<void(bool)>                                                           FocusSignalType;
+  typedef Signal<void()>                                                               OutputSignalType;
+  typedef Signal<void()>                                                               DeleteSignalType;
+  typedef Signal<void(const DamageArea&)>                                              DamageSignalType;
+  typedef Signal<void(const RotationEvent&)>                                           RotationSignalType;
+  typedef Signal<void(WindowEffectState, WindowEffectType)>                            TransitionEffectEventSignalType;
+  typedef Signal<void()>                                                               KeyboardRepeatSettingsChangedSignalType;
+  typedef Signal<void()>                                                               WindowRedrawRequestSignalType;
+  typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
+  typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
+  typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
+  typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
+  typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -85,7 +89,7 @@ public:
   typedef Signal<void(void*)> SelectionSignalType;
 
   // Accessibility
-  typedef Signal<void(StyleChange::Type)>        StyleSignalType;
+  typedef Signal<void(StyleChange::Type)> StyleSignalType;
 
   /**
    * @brief Default constructor
@@ -544,7 +548,8 @@ public:
   WindowRedrawRequestSignalType& WindowRedrawRequestSignal();
 
   /**
-   * @brief This signal is emitted when the window is resized or moved by display server.
+   * @brief This signal is emitted when the window's geometry data is changed by display server or client.
+   * It is based on configure noification event.
    */
   UpdatePositionSizeType& UpdatePositionSizeSignal();
 
@@ -552,6 +557,25 @@ public:
    * @brief This signal is emitted when the window is received the auxiliary message from display server.
    */
   AuxiliaryMessageSignalType& AuxiliaryMessageSignal();
+
+  /**
+   * @brief This signal is emitted when a mouse in or out event is recevied.
+   */
+  MouseInOutEventSignalType& MouseInOutEventSignal();
+
+  /**
+   * @brief This signal is emitted when window has been moved by then display server.
+   * To be moved the window by display server, RequestMoveToServer() should be called.
+   * After the moving job is finished, this function will be called.
+   */
+  MoveCompletedSignalType& MoveCompletedSignal();
+
+  /**
+   * @brief This signal is emitted when window has been resized by then display server.
+   * To be resized the window by display server, RequestResizeToServer() should be called.
+   * After the resizing job is finished, this function will be called.
+   */
+  ResizeCompletedSignalType& ResizeCompletedSignal();
 
 protected:
   // Undefined
@@ -579,6 +603,9 @@ protected:
   WindowRedrawRequestSignalType           mWindowRedrawRequestSignal;
   UpdatePositionSizeType                  mUpdatePositionSizeSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
+  MouseInOutEventSignalType               mMouseInOutEventSignal;
+  MoveCompletedSignalType                 mMoveCompletedSignal;
+  ResizeCompletedSignalType               mResizeCompletedSignal;
 };
 
 } // namespace Adaptor

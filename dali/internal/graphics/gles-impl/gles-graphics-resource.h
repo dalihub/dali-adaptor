@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_RESOURCE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,22 @@ public:
   : mCreateInfo(createInfo),
     mController(controller)
   {
+  }
+
+  /**
+   * @brief Tries to recycle Graphics resource
+   *
+   * If False returned, the object must be initialized with use of constructor
+   *
+   * By default, all graphics resources are non-recyclable
+   *
+   * @param[in] createInfo CreateInfo structure of new object
+   * @param[in] controller Reference to the controller
+   * @return True on success, False otherwise
+   */
+  virtual bool TryRecycle(const CreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+  {
+    return false;
   }
 
   /**

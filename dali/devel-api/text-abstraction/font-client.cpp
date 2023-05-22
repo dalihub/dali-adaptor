@@ -112,6 +112,11 @@ void FontClient::GetDefaultFonts(FontList& defaultFonts)
   GetImplementation(*this).GetDefaultFonts(defaultFonts);
 }
 
+void FontClient::InitDefaultFontDescription()
+{
+  GetImplementation(*this).InitDefaultFontDescription();
+}
+
 void FontClient::GetDefaultPlatformFontDescription(FontDescription& fontDescription)
 {
   GetImplementation(*this).GetDefaultPlatformFontDescription(fontDescription);
@@ -302,6 +307,11 @@ FontClient FontClientPreInitialize()
 void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
 {
   Internal::FontClient::PreCache(fallbackFamilyList, extraFamilyList, localeFamily, useThread);
+}
+
+void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread)
+{
+  Internal::FontClient::PreLoad(fontPathList, memoryFontPathList, useThread);
 }
 
 } // namespace TextAbstraction

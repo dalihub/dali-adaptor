@@ -2,7 +2,7 @@
 #define DALI_WINDOW_DEVEL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -48,6 +49,9 @@ typedef Signal<void(Window, bool)>                                              
 typedef Signal<bool(const KeyEvent&)>                                                InterceptKeyEventSignalType;             ///< Intercept Key event signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
+typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
+typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
+typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -558,6 +562,53 @@ DALI_ADAPTOR_API MovedSignalType& MovedSignal(Window window);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the mouse in or out event is received.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::MouseInOutEvent event );
+ * @endcode
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window has been moved by the display server.
+ * To make the window move by display server, RequestMoveToServer() should be called.
+ * After the moving job is completed, this function will be called.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
+ * @endcode
+ * The parameters are the moved x and y coordinates.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MoveCompletedSignalType& MoveCompletedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when window has been resized by the display server.
+ * To make the window move by display server, RequestResizeToServer() should be called.
+ * After the resizing job is completed, this function will be called.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::Window::WindowPosition position );
+ * @endcode
+ * The parameters are the resized width and height coordinates.
+ * and window means this signal was called from what window
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window);
 
 } // namespace DevelWindow
 

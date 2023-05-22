@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,16 @@ MovedSignalType& MovedSignal(Window window)
 OrientationChangedSignalType& OrientationChangedSignal(Window window)
 {
   return GetImplementation(window).OrientationChangedSignal();
+}
+
+MoveCompletedSignalType& MoveCompletedSignal(Window window)
+{
+  return GetImplementation(window).MoveCompletedSignal();
+}
+
+ResizeCompletedSignalType& ResizeCompletedSignal(Window window)
+{
+  return GetImplementation(window).ResizeCompletedSignal();
 }
 
 void SetParent(Window window, Window parent)
@@ -277,6 +287,11 @@ const TouchEvent& GetLastTouchEvent(Window window)
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();
+}
+
+MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
+{
+  return GetImplementation(window).MouseInOutEventSignal();
 }
 
 } // namespace DevelWindow

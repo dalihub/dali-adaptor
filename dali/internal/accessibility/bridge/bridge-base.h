@@ -109,6 +109,9 @@ public:
       result = result | child->GetStates();
     }
 
+    // The Application object should never have the SENSITIVE state
+    result[Dali::Accessibility::State::SENSITIVE] = false;
+
     return result;
   }
 
