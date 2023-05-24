@@ -19,6 +19,7 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 #if defined(VCONF_ENABLED)
@@ -26,6 +27,7 @@
 #endif
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/thread-settings.h>
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
@@ -59,6 +61,10 @@ Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
 std::thread                       gPreCacheThread;
 std::thread                       gPreLoadThread;
 std::mutex                        gMutex;
+std::condition_variable           gPreCacheCond;
+std::condition_variable           gPreLoadCond;
+bool                              gPreCacheThreadReady;
+bool                              gPreLoadThreadReady;
 
 /* TODO: This is to prevent duplicate calls of font pre-cache.
  * We may support this later, but currently we can't guarantee the behaviour
@@ -157,21 +163,41 @@ Dali::TextAbstraction::FontClient FontClient::PreInitialize()
   return gPreCreatedFontClient;
 }
 
-void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily)
+void FontClient::PreCacheRun(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool syncCreation)
 {
+  SetThreadName("FontThread-fc");
+
+  if(syncCreation)
+  {
+    std::unique_lock<std::mutex> lock(gMutex);
+    gPreCacheThreadReady = true;
+    gPreCacheCond.notify_one();
+    lock.unlock();
+  }
+
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_RUN\n");
   GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_RUN\n");
 }
 
-void FontClient::PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList)
+void FontClient::PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool syncCreation)
 {
+  SetThreadName("FontThread-ft");
+
+  if(syncCreation)
+  {
+    std::unique_lock<std::mutex> lock(gMutex);
+    gPreLoadThreadReady = true;
+    gPreLoadCond.notify_one();
+    lock.unlock();
+  }
+
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_RUN\n");
   GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList);
   FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_RUN\n");
 }
 
-void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
+void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread, bool syncCreation)
 {
   if(!gFontPreCacheAvailable)
   {
@@ -198,15 +224,30 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
 
   if(useThread)
   {
-    gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily);
+    if(syncCreation)
+    {
+      // The main thread wakes up upon receiving a notification from the pre-cache thread.
+      // If it doesn't receive a notification within the specified time, it wakes up due to a timeout.
+      const std::chrono::milliseconds timeout(1000);
+      gPreCacheThreadReady = false;
+      std::unique_lock<std::mutex> lock(gMutex);
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
+      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
+      gPreCacheCond.wait_for(lock, timeout, []{return gPreCacheThreadReady;});
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
+    }
+    else
+    {
+      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
+    }
   }
   else
   {
-    PreCacheRun(fallbackFamilyList, extraFamilyList, localeFamily);
+    GetImplementation(gPreCreatedFontClient).FontPreCache(fallbackFamilyList, extraFamilyList, localeFamily);
   }
 }
 
-void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread)
+void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread, bool syncCreation)
 {
   if(!gFontPreLoadAvailable)
   {
@@ -233,11 +274,26 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
 
   if(useThread)
   {
-    gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList);
+    if(syncCreation)
+    {
+      // The main thread wakes up upon receiving a notification from the pre-load thread.
+      // If it doesn't receive a notification within the specified time, it wakes up due to a timeout.
+      const std::chrono::milliseconds timeout(1000);
+      gPreLoadThreadReady = false;
+      std::unique_lock<std::mutex> lock(gMutex);
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
+      gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
+      gPreLoadCond.wait_for(lock, timeout, []{return gPreLoadThreadReady;});
+      FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
+    }
+    else
+    {
+      gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
+    }
   }
   else
   {
-    PreLoadRun(fontPathList, memoryFontPathList);
+    GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList);
   }
 }
 
