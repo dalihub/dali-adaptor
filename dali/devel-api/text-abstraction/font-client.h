@@ -660,8 +660,9 @@ DALI_ADAPTOR_API FontClient FontClientPreInitialize();
  * @param[in] extraFamilyList A list of additional font families to be pre-cached.
  * @param[in] localeFamily A locale font family to be pre-cached.
  * @param[in] useThread True if the font client should create thread and perform pre-caching, false otherwise.
+ * @param[in] syncCreation True if thread creation guarantees syncronization with the main thread, false async creation.
  */
-DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread);
+DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread, bool syncCreation);
 
 /**
  * @brief This is used to pre-load FreeType font face in order to improve the runtime performance of the application.
@@ -669,6 +670,7 @@ DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyLis
  * @param[in] fontPathList A list of font paths to be pre-loaded.
  * @param[in] memoryFontPathList A list of memory font paths to be pre-loaded.
  * @param[in] useThread True if the font client should create thread and perform font pre-loading, false otherwise.
+ * @param[in] syncCreation True if thread creation guarantees syncronization with the main thread, false async creation.
  *
  * @note
  * The fonts in the fontPathList perform FT_New_Face during pre-loading,
@@ -678,7 +680,7 @@ DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyLis
  * This enables the use of FT_New_Memory_Face during runtime and provides a performance boost.
  * It requires memory equivalent to the size of each font file.
  */
-DALI_ADAPTOR_API void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread);
+DALI_ADAPTOR_API void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread, bool syncCreation);
 
 } // namespace TextAbstraction
 

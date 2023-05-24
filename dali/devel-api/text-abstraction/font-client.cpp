@@ -859,14 +859,14 @@ FontClient FontClientPreInitialize()
   return Internal::FontClient::PreInitialize();
 }
 
-void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread)
+void FontClientPreCache(const FontFamilyList& fallbackFamilyList, const FontFamilyList& extraFamilyList, const FontFamily& localeFamily, bool useThread, bool syncCreation)
 {
-  Internal::FontClient::PreCache(fallbackFamilyList, extraFamilyList, localeFamily, useThread);
+  Internal::FontClient::PreCache(fallbackFamilyList, extraFamilyList, localeFamily, useThread, syncCreation);
 }
 
-void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread)
+void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread, bool syncCreation)
 {
-  Internal::FontClient::PreLoad(fontPathList, memoryFontPathList, useThread);
+  Internal::FontClient::PreLoad(fontPathList, memoryFontPathList, useThread, syncCreation);
 }
 
 } // namespace TextAbstraction
