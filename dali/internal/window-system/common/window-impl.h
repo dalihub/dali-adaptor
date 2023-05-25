@@ -165,9 +165,14 @@ public:
   Dali::Layer GetLayer(uint32_t depth) const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetRenderTaskList()
+   * @copydoc Dali::Window::GetRenderTaskList()
    */
   Dali::RenderTaskList GetRenderTaskList() const;
+
+  /**
+   * @copydoc Dali::Window::KeepRendering()
+   */
+  void KeepRendering(float durationSeconds);
 
   /**
    * @brief Get window resource ID assigned by window manager
@@ -816,10 +821,10 @@ private:
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;               ///< The angle of the rotation
-  int mWindowWidth;                 ///< The width of the window
-  int mWindowHeight;                ///< The height of the window
-  int mNativeWindowId;              ///< The Native Window Id
+  int mRotationAngle;  ///< The angle of the rotation
+  int mWindowWidth;    ///< The width of the window
+  int mWindowHeight;   ///< The height of the window
+  int mNativeWindowId; ///< The Native Window Id
 
   EventHandlerPtr mEventHandler;    ///< The window events handler
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
