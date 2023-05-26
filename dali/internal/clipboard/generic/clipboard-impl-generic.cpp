@@ -106,12 +106,9 @@ bool Clipboard::IsVisible() const
   return false;
 }
 
-void Clipboard::ExcuteSend(void* event)
+char* Clipboard::ExcuteBuffered(bool type, void* event)
 {
-}
-
-void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
-{
+  return NULL;
 }
 
 } // namespace Adaptor

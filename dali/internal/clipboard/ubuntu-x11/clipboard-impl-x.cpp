@@ -222,26 +222,26 @@ bool Clipboard::IsVisible() const
   return false;
 }
 
-void Clipboard::ExcuteSend(void* event)
+char* Clipboard::ExcuteBuffered(bool type, void* event)
 {
-}
-
-void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
-{
-  // Receive
-  Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast<Ecore_X_Event_Selection_Notify*>(event);
-
-  Ecore_X_Selection_Data* selectionData = static_cast<Ecore_X_Selection_Data*>(selectionNotifyEvent->data);
-  if(selectionData->data)
+  if(!type)
   {
-    if(selectionNotifyEvent->selection == ECORE_X_SELECTION_SECONDARY)
+    // Receive
+    Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast<Ecore_X_Event_Selection_Notify*>(event);
+
+    Ecore_X_Selection_Data* selectionData = static_cast<Ecore_X_Selection_Data*>(selectionNotifyEvent->data);
+    if(selectionData->data)
     {
-      // Claim the ownership of the SECONDARY selection.
-      ecore_x_selection_secondary_set(mImpl->mApplicationWindow, "", 1);
-      data = reinterpret_cast<char*>(selectionData->data);
-      length = selectionData->length;
+      if(selectionNotifyEvent->selection == ECORE_X_SELECTION_SECONDARY)
+      {
+        // Claim the ownership of the SECONDARY selection.
+        ecore_x_selection_secondary_set(mImpl->mApplicationWindow, "", 1);
+
+        return (reinterpret_cast<char*>(selectionData->data));
+      }
     }
   }
+  return NULL;
 }
 
 } // namespace Adaptor
