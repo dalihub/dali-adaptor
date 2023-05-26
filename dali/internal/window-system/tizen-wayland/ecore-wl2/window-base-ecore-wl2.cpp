@@ -968,7 +968,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   // Register Selection event - clipboard selection
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this));
-  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventDataReceive, this));
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SELECTION_DATA_READY, EcoreEventDataReceive, this));
 
   // Register Effect Start/End event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_EFFECT_START, EcoreEventEffectStart, this));

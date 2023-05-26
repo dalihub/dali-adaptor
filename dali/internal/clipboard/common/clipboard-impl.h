@@ -92,20 +92,13 @@ public:
   bool IsVisible() const;
 
   /**
-  * @brief sending buffered data
+  * @brief exchange either sending or receiving buffered data
   *
+  * @param[in] type true for send buffered data, false for receive data to buffer
   * @param[in] event information pointer
+  * @return The buffer pointer for send or receive data
   */
-  void ExcuteSend(void* event);
-
-  /**
-  * @brief receiving buffered data
-  *
-  * @param[in] event information pointer
-  * @param[out] data The buffer pointer for receive data
-  * @param[out] length The buffer length for receive data
-  */
-  void ExcuteReceive(void* event, char*& data, int& length);
+  char* ExcuteBuffered(bool type, void* event);
 
 private:
   // Undefined
