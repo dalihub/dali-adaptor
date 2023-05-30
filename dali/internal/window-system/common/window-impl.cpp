@@ -331,6 +331,11 @@ Dali::RenderTaskList Window::GetRenderTaskList() const
   return mScene.GetRenderTaskList();
 }
 
+void Window::KeepRendering(float durationSeconds)
+{
+  mScene.KeepRendering(durationSeconds);
+}
+
 std::string Window::GetNativeResourceId() const
 {
   return mWindowBase->GetNativeWindowResourceId();
