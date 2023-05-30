@@ -1715,6 +1715,11 @@ struct GLTypeConversion
         type = GLType::FLOAT;
         break;
       }
+      case GL_INT:
+      {
+        type = GLType::INT;
+        break;
+      }
       default:
       {
         type = GLType::UNDEFINED;
