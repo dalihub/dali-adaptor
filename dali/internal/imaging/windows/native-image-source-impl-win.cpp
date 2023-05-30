@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -256,15 +256,15 @@ Any NativeImageSourceWin::GetNativeImageHandle() const
 
 bool NativeImageSourceWin::SourceChanged() const
 {
-  return false;
+  return true;
 }
 
-uint8_t* NativeImageSourceWin::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* NativeImageSourceWin::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   return NULL;
 }
 
-bool NativeImageSourceWin::ReleaseBuffer()
+bool NativeImageSourceWin::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
   return false;
 }
@@ -272,6 +272,10 @@ bool NativeImageSourceWin::ReleaseBuffer()
 void NativeImageSourceWin::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
+
+void NativeImageSourceWin::EnableBackBuffer(bool enable)
+{
 }
 
 } // namespace Adaptor

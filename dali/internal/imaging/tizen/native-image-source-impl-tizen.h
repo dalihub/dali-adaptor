@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <tbm_surface.h>
 #include <memory>
+#include <mutex>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-impl.h>
@@ -152,6 +152,11 @@ public:
   bool SourceChanged() const override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetUpdatedArea()
+   */
+  Rect<uint32_t> GetUpdatedArea() override;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
@@ -162,17 +167,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
    */
-  uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) override;
+  uint8_t* AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
    */
-  bool ReleaseBuffer() override;
+  bool ReleaseBuffer(const Rect<uint32_t>& updatedArea) override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
   void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
+  /**
+   * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
+   */
+  void EnableBackBuffer(bool enable) override;
 
 private:
   /**
@@ -195,21 +205,34 @@ private:
 
   void DestroySurface();
 
+  /**
+   * @brief Create back buffer
+   */
+  void CreateBackBuffer();
+
+  /**
+   * @brief Destroy back buffer
+   */
+  void DestroyBackBuffer();
+
 private:
-  uint32_t                             mWidth;                        ///< image width
-  uint32_t                             mHeight;                       ///< image height
-  bool                                 mOwnTbmSurface;                ///< Whether we created pixmap or not
-  tbm_surface_h                        mTbmSurface;
+  uint32_t                             mWidth;          ///< image width
+  uint32_t                             mHeight;         ///< image height
+  tbm_surface_h                        mTbmSurface;     ///< Tbm surface
+  tbm_surface_h                        mTbmBackSurface; ///< Back buffer
   tbm_format                           mTbmFormat;
-  bool                                 mBlendingRequired;             ///< Whether blending is required
-  Dali::NativeImageSource::ColorDepth  mColorDepth;                   ///< color depth of image
-  void*                                mEglImageKHR;                  ///< From EGL extension
-  EglGraphics*                         mEglGraphics;                  ///< EGL Graphics
-  EglImageExtensions*                  mEglImageExtensions;           ///< The EGL Image Extensions
-  bool                                 mSetSource;
-  mutable Dali::Mutex                  mMutex;
-  bool                                 mIsBufferAcquired;             ///< Whether AcquireBuffer is called
-  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback;  ///< The Resource Destruction Callback
+  Dali::NativeImageSource::ColorDepth  mColorDepth;    ///< color depth of image
+  Rect<uint32_t>                       mUpdatedArea{}; ///< Updated area
+  mutable std::mutex                   mMutex;
+  void*                                mEglImageKHR;                 ///< From EGL extension
+  EglGraphics*                         mEglGraphics;                 ///< EGL Graphics
+  EglImageExtensions*                  mEglImageExtensions;          ///< The EGL Image Extensions
+  std::unique_ptr<EventThreadCallback> mResourceDestructionCallback; ///< The Resource Destruction Callback
+  bool                                 mOwnTbmSurface : 1;           ///< Whether we created pixmap or not
+  bool                                 mBlendingRequired : 1;        ///< Whether blending is required
+  bool                                 mSetSource : 1;
+  bool                                 mIsBufferAcquired : 1;  ///< Whether AcquireBuffer is called
+  bool                                 mBackBufferEnabled : 1; ///< Whether the back buffer is enabled
 };
 
 } // namespace Adaptor

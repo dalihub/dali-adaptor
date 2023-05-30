@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,6 +149,14 @@ public:
   bool SourceChanged() const override;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetUpdatedArea()
+   */
+  Rect<uint32_t> GetUpdatedArea() override
+  {
+    return Rect<uint32_t>{0, 0, mWidth, mHeight};
+  }
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   NativeImageInterface::Extension* GetNativeImageInterfaceExtension() override
@@ -159,17 +167,22 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::AcquireBuffer()
    */
-  uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) override;
+  uint8_t* AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::NativeImageSource::ReleaseBuffer()
    */
-  bool ReleaseBuffer() override;
+  bool ReleaseBuffer(const Rect<uint32_t>& updatedArea) override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetResourceDestructionCallback()
    */
   void SetResourceDestructionCallback(EventThreadCallback* callback) override;
+
+  /**
+   * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
+   */
+  void EnableBackBuffer(bool enable) override;
 
 private:
   /**
