@@ -168,7 +168,7 @@ void EventHandler::OnSelectionDataSend(void* event)
   if(clipboard)
   {
     Clipboard& clipBoardImpl(GetImplementation(clipboard));
-    clipBoardImpl.ExcuteBuffered(true, event);
+    clipBoardImpl.ExcuteSend(event);
   }
 }
 
@@ -177,10 +177,14 @@ void EventHandler::OnSelectionDataReceived(void* event)
   // We have got the selected content, inform the clipboard event listener (if we have one).
   Dali::Clipboard clipboard     = Clipboard::Get();
   char*           selectionData = NULL;
+  size_t          dataLength    = 0u;
+
   if(clipboard)
   {
+    int len = 0;
     Clipboard& clipBoardImpl(GetImplementation(clipboard));
-    selectionData = clipBoardImpl.ExcuteBuffered(false, event);
+    clipBoardImpl.ExcuteReceive(event, selectionData, len);
+    dataLength = static_cast<size_t>(len);
   }
 
   if(!mClipboardEventNotifier)
@@ -188,15 +192,25 @@ void EventHandler::OnSelectionDataReceived(void* event)
     mClipboardEventNotifier = ClipboardEventNotifier::Get();
   }
 
-  if(selectionData && mClipboardEventNotifier)
+  if(selectionData && mClipboardEventNotifier && dataLength > 0)
   {
     ClipboardEventNotifier& clipboardEventNotifier(ClipboardEventNotifier::GetImplementation(mClipboardEventNotifier));
-    std::string             content(selectionData, strlen(selectionData));
+    std::string             content;
+    size_t                  stringLength = strlen(selectionData);
+
+    if(stringLength < dataLength)
+    {
+      content.append(selectionData, stringLength);
+    }
+    else
+    {
+      content.append(selectionData, dataLength);
+    }
 
     clipboardEventNotifier.SetContent(content);
     clipboardEventNotifier.EmitContentSelectedSignal();
 
-    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::General, "EcoreEventSelectionNotify: Content(%d): %s\n", strlen(selectionData), selectionData);
+    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::General, "EcoreEventSelectionNotify: Content(%s) strlen(%d) dataLength(%d)\n", selectionData, strlen(selectionData), dataLength);
   }
 }
 
