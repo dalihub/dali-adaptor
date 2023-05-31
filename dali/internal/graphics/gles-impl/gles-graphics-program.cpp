@@ -323,6 +323,12 @@ void ProgramImpl::BuildStandaloneUniformCache()
         mImpl->uniformSetters[index].type         = UniformSetter::Type::INT;
         break;
       }
+      case GLType::INT:
+      {
+        mImpl->uniformSetters[index].uniformiProc = &GlAbstraction::Uniform1iv;
+        mImpl->uniformSetters[index].type         = UniformSetter::Type::INT;
+        break;
+      }
       case GLType::BOOL:
       case GLType::BOOL_VEC2:
       case GLType::BOOL_VEC3:

@@ -2,7 +2,7 @@
 #define DALI_WINDOW_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -579,6 +579,17 @@ public:
    * @return A valid handle to a RenderTaskList
    */
   RenderTaskList GetRenderTaskList();
+
+  /**
+   * @brief Keep rendering for at least the given amount of time.
+   *
+   * By default, Dali will stop rendering when no Actor positions are being set, and when no animations are running etc.
+   * This method is useful to force screen refreshes.
+   *
+   * @SINCE_2_2.29
+   * @param[in] durationSeconds Time to keep rendering, 0 means render at least one more frame
+   */
+  void KeepRendering(float durationSeconds);
 
 public: // Signals
   /**

@@ -528,9 +528,16 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     }
   }
 
+  auto    attributes        = self->GetAttributes();
+  auto    itemCount         = attributes.find("item_count");
   auto    atspiRole         = self->GetRole();
   int32_t listChildrenCount = 0;
-  if(atspiRole == Role::DIALOG)
+  if(itemCount != attributes.end())
+  {
+    // "item_count" gives manual control to the application, so it has priority
+    listChildrenCount = std::atoi(itemCount->second.c_str());
+  }
+  else if(atspiRole == Role::DIALOG)
   {
     listChildrenCount = GetItemCountOfFirstDescendantContainer(self, Role::LIST, Role::LIST_ITEM, true);
   }
@@ -546,7 +553,6 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     nameFromTextInterface = textInterface->GetText(0, textInterface->GetCharacterCount());
   }
 
-  auto attributes        = self->GetAttributes();
   auto name              = self->GetName();
   auto role              = static_cast<uint32_t>(atspiRole);
   auto states            = self->GetStates();

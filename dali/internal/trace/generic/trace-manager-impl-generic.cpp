@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,22 +40,22 @@ Dali::Integration::Trace::LogContextFunction TraceManagerGeneric::GetLogContextF
   return LogContext;
 }
 
-void TraceManagerGeneric::LogContext(bool start, const char* tag)
+void TraceManagerGeneric::LogContext(bool start, const char* tag, const char* message)
 {
   if(traceManagerGeneric && traceManagerGeneric->mPerformanceInterface)
   {
     if(start)
     {
-      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId( tag );
-      if( !contextId )
+      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId(tag);
+      if(!contextId)
       {
-        contextId = traceManagerGeneric->mPerformanceInterface->AddContext( tag );
+        contextId = traceManagerGeneric->mPerformanceInterface->AddContext(tag);
       }
       traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::START, contextId);
     }
     else
     {
-      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId( tag );
+      unsigned short contextId = traceManagerGeneric->mPerformanceInterface->GetContextId(tag);
       traceManagerGeneric->mPerformanceInterface->AddMarker(PerformanceInterface::END, contextId);
     }
   }
