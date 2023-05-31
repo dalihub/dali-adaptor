@@ -403,18 +403,21 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
                                 reinterpret_cast<void*>(attr.offset));
       }
 
-      switch(bufferBinding.inputRate)
+      if(hasGLES3)
       {
-        case Graphics::VertexInputRate::PER_VERTEX:
+        switch(bufferBinding.inputRate)
         {
-          gl.VertexAttribDivisor(attr.location, 0);
-          break;
-        }
-        case Graphics::VertexInputRate::PER_INSTANCE:
-        {
-          //@todo Get actual instance rate...
-          gl.VertexAttribDivisor(attr.location, 1);
-          break;
+          case Graphics::VertexInputRate::PER_VERTEX:
+          {
+            gl.VertexAttribDivisor(attr.location, 0);
+            break;
+          }
+          case Graphics::VertexInputRate::PER_INSTANCE:
+          {
+            //@todo Get actual instance rate...
+            gl.VertexAttribDivisor(attr.location, 1);
+            break;
+          }
         }
       }
     }
