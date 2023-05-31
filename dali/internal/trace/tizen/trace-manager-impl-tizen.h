@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRACE_MANAGER_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ private:
   /**
    * LogContext method (Tizen specific) used for tracing
    */
-  static void LogContext(bool start, const char* tag, const char* message);
+  static void LogContext(bool start, const char* tag);
 };
 
 } // namespace Adaptor

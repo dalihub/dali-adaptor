@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ Dali::Integration::Trace::LogContextFunction TraceManagerTizen::GetLogContextFun
   return LogContext;
 }
 
-void TraceManagerTizen::LogContext(bool start, const char* tag, const char* message)
+void TraceManagerTizen::LogContext(bool start, const char* tag)
 {
   if(start)
   {
@@ -62,7 +62,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_DEBUG_INFO("BEGIN: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+      DALI_LOG_DEBUG_INFO("BEGIN: %s\n", tag ? tag : EMPTY_TAG);
     }
   }
   else
@@ -71,7 +71,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 
     if(gTraceManagerEnablePrintLog)
     {
-      DALI_LOG_DEBUG_INFO("END: %s%s%s\n", tag ? tag : EMPTY_TAG, message ? " " : "", message ? message : "");
+      DALI_LOG_DEBUG_INFO("END: %s\n", tag ? tag : EMPTY_TAG);
     }
   }
 }

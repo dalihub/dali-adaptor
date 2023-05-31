@@ -246,7 +246,7 @@ public:
   void InitializeCore();
   ~TestGraphicsApplication() override;
   static void              LogMessage(Dali::Integration::Log::DebugPriority level, std::string& message);
-  static void              LogContext(bool start, const char* tag, const char* message);
+  static void              LogContext(bool start, const char* tag);
   Dali::Integration::Core& GetCore();
   TestPlatformAbstraction& GetPlatform();
   TestRenderController&    GetRenderController();
