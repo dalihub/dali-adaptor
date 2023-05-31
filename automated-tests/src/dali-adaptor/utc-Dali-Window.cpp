@@ -1608,6 +1608,21 @@ int UtcDaliWindowMouseInOutSignalNegative(void)
   END_TEST;
 }
 
+int UtcDaliWindowMouseRelativeSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    DevelWindow::MouseRelativeEventSignal(instance);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
+
 int UtcDaliWindowMoveCompletedSignalNegative(void)
 {
   Dali::Window instance;

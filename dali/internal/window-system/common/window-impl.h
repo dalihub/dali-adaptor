@@ -49,10 +49,11 @@ class WindowRenderSurface;
 class WindowBase;
 
 class Window;
-using WindowPtr          = IntrusivePtr<Window>;
-using OrientationPtr     = IntrusivePtr<Orientation>;
-using MouseInOutEventPtr = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
-using EventHandlerPtr    = IntrusivePtr<EventHandler>;
+using WindowPtr             = IntrusivePtr<Window>;
+using OrientationPtr        = IntrusivePtr<Orientation>;
+using MouseInOutEventPtr    = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
+using MouseRelativeEventPtr = IntrusivePtr<Dali::DevelWindow::MouseRelativeEvent>;
+using EventHandlerPtr       = IntrusivePtr<EventHandler>;
 
 /**
  * Window provides a surface to render onto with orientation & indicator properties.
@@ -70,6 +71,7 @@ public:
   typedef Dali::DevelWindow::MovedSignalType                         MovedSignalType;
   typedef Dali::DevelWindow::OrientationChangedSignalType            OrientationChangedSignalType;
   typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
+  typedef Dali::DevelWindow::MouseRelativeEventSignalType            MouseRelativeEventSignalType;
   typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
   typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
   typedef Dali::DevelWindow::InsetsChangedSignalType                 InsetsChangedSignalType;
@@ -509,6 +511,31 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   const Dali::TouchEvent& GetLastTouchEvent() const;
 
+  /**
+   * @copydoc Dali::DevelWindow::PointerConstraintsLock()
+   */
+  bool PointerConstraintsLock();
+
+  /**
+   * @copydoc Dali::DevelWindow::PointerConstraintsUnlock()
+   */
+  bool PointerConstraintsUnlock();
+
+  /**
+   * @copydoc Dali::DevelWindow::LockedPointerRegionSet()
+   */
+  void LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height);
+
+  /**
+   * @copydoc Dali::DevelWindow::LockedPointerCursorPositionHintSet()
+   */
+  void LockedPointerCursorPositionHintSet(int32_t x, int32_t y);
+
+  /**
+   * @copydoc Dali::DevelWindow::PointerWarp()
+   */
+  bool PointerWarp(int32_t x, int32_t y);
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -623,6 +650,12 @@ private:
   void OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent);
 
   /**
+   * @brief Called when the mouse relative event is received.
+   * @param[in] MouseRelativeEvent the mouse event
+   */
+  void OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& MouseRelativeEvent);
+
+  /**
    * @brief Called when the window is moved by display server.
    *
    * @param[in] position the moved window's position.
@@ -672,7 +705,6 @@ private:
    * @param[in] insets the extents value of window insets.
    */
   void OnInsetsChanged(WindowInsetsPartType partType, WindowInsetsPartState partState, const Extents& insets);
-
 
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
@@ -819,6 +851,14 @@ public: // Signals
   }
 
   /**
+   * @copydoc Dali::DevelWindow::MouseRelativeEventSignal()
+   */
+  MouseRelativeEventSignalType& MouseRelativeEventSignal()
+  {
+    return mMouseRelativeEventSignal;
+  }
+
+  /**
    * @copydoc Dali::DevelWindow::MoveCompletedSignal()
    */
   MoveCompletedSignalType& MoveCompletedSignal()
@@ -873,6 +913,7 @@ private:
   MovedSignalType                         mMovedSignal;
   OrientationChangedSignalType            mOrientationChangedSignal;
   MouseInOutEventSignalType               mMouseInOutEventSignal;
+  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
   InsetsChangedSignalType                 mInsetsChangedSignal;

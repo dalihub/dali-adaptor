@@ -188,7 +188,7 @@ public:
    */
   void MoveResize(PositionSize positionSize) override;
 
-   /**
+  /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetLayout()
    */
   void SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan) override;
@@ -462,6 +462,31 @@ public:
    * @copydoc Dali::Internal::Adaptor::WindowBase::ExcludeInputRegion()
    */
   void ExcludeInputRegion(const Rect<int>& inputRegion) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()
+   */
+  bool PointerConstraintsLock() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsUnlock()
+   */
+  bool PointerConstraintsUnlock() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::LockedPointerRegionSet()
+   */
+  void LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::LockedPointerCursorPositionHintSet()
+   */
+  void LockedPointerCursorPositionHintSet(int32_t x, int32_t y) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerWarp()
+   */
+  bool PointerWarp(int32_t x, int32_t y) override;
 
 private:
   /**

@@ -955,6 +955,29 @@ void WindowBaseX::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
 }
 
+bool WindowBaseX::PointerConstraintsLock()
+{
+  return false;
+}
+
+bool WindowBaseX::PointerConstraintsUnlock()
+{
+  return false;
+}
+
+void WindowBaseX::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+}
+
+void WindowBaseX::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+}
+
+bool WindowBaseX::PointerWarp(int32_t x, int32_t y)
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

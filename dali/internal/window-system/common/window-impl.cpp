@@ -92,6 +92,7 @@ Window::Window()
   mMovedSignal(),
   mOrientationChangedSignal(),
   mMouseInOutEventSignal(),
+  mMouseRelativeEventSignal(),
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
   mInsetsChangedSignal(),
@@ -163,6 +164,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->UpdatePositionSizeSignal().Connect(this, &Window::OnUpdatePositionSize);
   mWindowBase->AuxiliaryMessageSignal().Connect(this, &Window::OnAuxiliaryMessage);
   mWindowBase->MouseInOutEventSignal().Connect(this, &Window::OnMouseInOutEvent);
+  mWindowBase->MouseRelativeEventSignal().Connect(this, &Window::OnMouseRelativeEvent);
   mWindowBase->MoveCompletedSignal().Connect(this, &Window::OnMoveCompleted);
   mWindowBase->ResizeCompletedSignal().Connect(this, &Window::OnResizeCompleted);
 
@@ -1079,6 +1081,13 @@ void Window::OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseIn
   mMouseInOutEventSignal.Emit(handle, mouseInOutEvent);
 }
 
+void Window::OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& MouseRelativeEvent)
+{
+  Dali::Window handle(this);
+
+  mMouseRelativeEventSignal.Emit(handle, MouseRelativeEvent);
+}
+
 void Window::OnRotation(const RotationEvent& rotation)
 {
   PositionSize newPositionSize(rotation.x, rotation.y, rotation.width, rotation.height);
@@ -1394,6 +1403,31 @@ void Window::SetUserGeometryPolicy()
   mIsEnabledUserGeometry = true;
   AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window user.geometry is changed\n", this, mNativeWindowId);
+}
+
+bool Window::PointerConstraintsLock()
+{
+  return mWindowBase->PointerConstraintsLock();
+}
+
+bool Window::PointerConstraintsUnlock()
+{
+  return mWindowBase->PointerConstraintsUnlock();
+}
+
+void Window::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+  mWindowBase->LockedPointerRegionSet(x, y, width, height);
+}
+
+void Window::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+  mWindowBase->LockedPointerCursorPositionHintSet(x, y);
+}
+
+bool Window::PointerWarp(int32_t x, int32_t y)
+{
+  return mWindowBase->PointerWarp(x, y);
 }
 
 } // namespace Adaptor

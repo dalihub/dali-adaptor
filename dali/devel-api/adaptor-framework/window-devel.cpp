@@ -299,6 +299,31 @@ const TouchEvent& GetLastTouchEvent(Window window)
   return GetImplementation(window).GetLastTouchEvent();
 }
 
+bool PointerConstraintsLock(Window window)
+{
+  return GetImplementation(window).PointerConstraintsLock();
+}
+
+bool PointerConstraintsUnlock(Window window)
+{
+  return GetImplementation(window).PointerConstraintsUnlock();
+}
+
+void LockedPointerRegionSet(Window window, int32_t x, int32_t y, int32_t width, int32_t height)
+{
+  GetImplementation(window).LockedPointerRegionSet(x, y, width, height);
+}
+
+void LockedPointerCursorPositionHintSet(Window window, int32_t x, int32_t y)
+{
+  GetImplementation(window).LockedPointerCursorPositionHintSet(x, y);
+}
+
+bool PointerWarp(Window window, int32_t x, int32_t y)
+{
+  return GetImplementation(window).PointerWarp(x, y);
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();
@@ -312,6 +337,11 @@ MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
 InsetsChangedSignalType& InsetsChangedSignal(Window window)
 {
   return GetImplementation(window).InsetsChangedSignal();
+}
+
+MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)
+{
+  return GetImplementation(window).MouseRelativeEventSignal();
 }
 
 } // namespace DevelWindow
