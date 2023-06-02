@@ -8,6 +8,7 @@ SET(TC_SOURCES
     utc-Dali-GlImplementation.cpp
     utc-Dali-GlesImplementation.cpp
     utc-Dali-GraphicsBuffer.cpp
+    utc-Dali-GraphicsDraw.cpp
     utc-Dali-GraphicsFramebuffer.cpp
     utc-Dali-GraphicsGeometry.cpp
     utc-Dali-GraphicsNativeImage.cpp
