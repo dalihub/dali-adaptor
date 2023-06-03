@@ -1581,7 +1581,7 @@ void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
 void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
 {
   Ecore_Wl2_Event_Window_Interactive_Move_Done* movedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Move_Done*>(event);
-  if(movedDoneEvent)
+  if(movedDoneEvent && movedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
     Dali::PositionSize orgPositionSize(movedDoneEvent->x, movedDoneEvent->y, movedDoneEvent->w, movedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
@@ -1594,7 +1594,7 @@ void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
 void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
 {
   Ecore_Wl2_Event_Window_Interactive_Resize_Done* resizedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Resize_Done*>(event);
-  if(resizedDoneEvent)
+  if(resizedDoneEvent && resizedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
     Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
