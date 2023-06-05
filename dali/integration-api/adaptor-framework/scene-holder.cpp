@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/public-api/events/wheel-event.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
@@ -102,6 +103,11 @@ void SceneHolder::FeedKeyEvent(Dali::KeyEvent& keyEvent)
 {
   Integration::KeyEvent event(keyEvent.GetKeyName(), keyEvent.GetLogicalKey(), keyEvent.GetKeyString(), keyEvent.GetKeyCode(), keyEvent.GetKeyModifier(), keyEvent.GetTime(), static_cast<Integration::KeyEvent::State>(keyEvent.GetState()), keyEvent.GetCompose(), keyEvent.GetDeviceName(), keyEvent.GetDeviceClass(), keyEvent.GetDeviceSubclass());
   GetImplementation(*this).FeedKeyEvent(event);
+}
+
+RenderTaskList SceneHolder::GetRenderTaskList()
+{
+  return GetImplementation(*this).GetRenderTaskList();
 }
 
 SceneHolder SceneHolder::Get(Actor actor)
