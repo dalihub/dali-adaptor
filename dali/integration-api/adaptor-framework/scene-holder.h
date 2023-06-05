@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ class TouchEvent;
 class WheelEvent;
 struct TouchPoint;
 class KeyEvent;
+class RenderTaskList;
 
 namespace Internal DALI_INTERNAL
 {
@@ -156,6 +157,12 @@ public:
    * @param[in] keyEvent The key event holding the key information.
    */
   void FeedKeyEvent(Dali::KeyEvent& keyEvent);
+
+  /**
+   * @brief Retrieves the list of render-tasks.
+   * @return A valid handle to a RenderTaskList
+   */
+  RenderTaskList GetRenderTaskList();
 
   /**
    * @brief Retrieve the SceneHolder that the given actor is added to.

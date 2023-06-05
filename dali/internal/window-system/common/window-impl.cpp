@@ -28,8 +28,6 @@
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
-#include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <thread>
 
@@ -322,11 +320,6 @@ uint32_t Window::GetLayerCount() const
 Dali::Layer Window::GetLayer(uint32_t depth) const
 {
   return mScene.GetLayer(depth);
-}
-
-Dali::RenderTaskList Window::GetRenderTaskList() const
-{
-  return mScene.GetRenderTaskList();
 }
 
 std::string Window::GetNativeResourceId() const

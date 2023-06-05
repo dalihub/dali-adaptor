@@ -27,6 +27,7 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -373,6 +374,11 @@ void SceneHolder::AddFramePresentedCallback(std::unique_ptr<CallbackBase> callba
   mScene.AddFramePresentedCallback(std::move(callback), frameId);
 
   DALI_LOG_RELEASE_INFO("SceneHolder::AddFramePresentedCallback:: Added [%d]\n", frameId);
+}
+
+Dali::RenderTaskList SceneHolder::GetRenderTaskList() const
+{
+  return mScene.GetRenderTaskList();
 }
 
 Dali::Integration::SceneHolder SceneHolder::Get(Dali::Actor actor)

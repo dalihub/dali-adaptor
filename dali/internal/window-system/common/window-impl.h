@@ -25,7 +25,6 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -164,11 +163,6 @@ public:
    * @copydoc Dali::Window::GetLayer()
    */
   Dali::Layer GetLayer(uint32_t depth) const;
-
-  /**
-   * @copydoc Dali::DevelWindow::GetRenderTaskList()
-   */
-  Dali::RenderTaskList GetRenderTaskList() const;
 
   /**
    * @brief Get window resource ID assigned by window manager
