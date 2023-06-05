@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/orientation-impl.h>

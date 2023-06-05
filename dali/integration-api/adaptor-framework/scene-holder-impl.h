@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,6 +234,11 @@ public:
    * @brief Creates the render target for the surface when the surface is created/resized/replaced.
    */
   void CreateRenderTarget();
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::GetRenderTaskList()
+   */
+  Dali::RenderTaskList GetRenderTaskList() const;
 
   /**
    * @copydoc Dali::Integration::SceneHolder::Get()
