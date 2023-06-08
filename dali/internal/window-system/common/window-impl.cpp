@@ -28,8 +28,6 @@
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
-#include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <thread>
 
@@ -105,7 +103,8 @@ Window::Window()
   mOpaqueState(false),
   mWindowRotationAcknowledgement(false),
   mFocused(false),
-  mIsWindowRotating(false)
+  mIsWindowRotating(false),
+  mIsEnabledUserGeometry(false)
 {
 }
 
@@ -169,8 +168,6 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
 
-  AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
-
   SetClass(name, className);
 
   mOrientation = Orientation::New(this);
@@ -187,15 +184,21 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
     mOrientationMode = Internal::Adaptor::Window::OrientationMode::PORTRAIT;
   }
 
-  if(positionSize.width <= 0 || positionSize.height <= 0)
+  mWindowWidth  = positionSize.width;
+  mWindowHeight = positionSize.height;
+
+  bool isSetWithScreenSize = false;
+  if(mWindowWidth <= 0 || mWindowHeight <= 0)
   {
-    mWindowWidth  = screenWidth;
-    mWindowHeight = screenHeight;
+    mWindowWidth         = screenWidth;
+    mWindowHeight        = screenHeight;
+    isSetWithScreenSize = true;
+    DALI_LOG_RELEASE_INFO("Window size is set with screen size(%d x %d)\n", mWindowWidth, mWindowHeight);
   }
-  else
+
+  if(isSetWithScreenSize == false || positionSize.x != 0 || positionSize.y != 0)
   {
-    mWindowWidth  = positionSize.width;
-    mWindowHeight = positionSize.height;
+    SetUserGeometryPolicy();
   }
 
   // For Debugging
@@ -324,11 +327,6 @@ uint32_t Window::GetLayerCount() const
 Dali::Layer Window::GetLayer(uint32_t depth) const
 {
   return mScene.GetLayer(depth);
-}
-
-Dali::RenderTaskList Window::GetRenderTaskList() const
-{
-  return mScene.GetRenderTaskList();
 }
 
 void Window::KeepRendering(float durationSeconds)
@@ -701,6 +699,8 @@ void Window::SetSize(Dali::Window::WindowSize size)
   newRect.width  = size.GetWidth();
   newRect.height = size.GetHeight();
 
+  SetUserGeometryPolicy();
+
   // When surface size is updated, inform adaptor of resizing and emit ResizeSignal
   if((oldRect.width != newRect.width) || (oldRect.height != newRect.height))
   {
@@ -739,6 +739,8 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
   int32_t      newX    = position.GetX();
   int32_t      newY    = position.GetY();
 
+  SetUserGeometryPolicy();
+
   mWindowSurface->Move(PositionSize(newX, newY, oldRect.width, oldRect.height));
 
   if((oldRect.x != newX) || (oldRect.y != newY))
@@ -776,6 +778,8 @@ void Window::SetPositionSize(PositionSize positionSize)
 
   PositionSize oldRect = GetPositionSize();
   Dali::Window handle(this);
+
+  SetUserGeometryPolicy();
 
   if((oldRect.x != positionSize.x) || (oldRect.y != positionSize.y))
   {
@@ -825,6 +829,7 @@ void Window::SetPositionSize(PositionSize positionSize)
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
+  SetUserGeometryPolicy();
   mWindowBase->SetLayout(numCols, numRows, column, row, colSpan, rowSpan);
 }
 
@@ -1298,11 +1303,13 @@ int32_t Window::GetNativeId() const
 
 void Window::RequestMoveToServer()
 {
+  SetUserGeometryPolicy();
   mWindowBase->RequestMoveToServer();
 }
 
 void Window::RequestResizeToServer(WindowResizeDirection direction)
 {
+  SetUserGeometryPolicy();
   mWindowBase->RequestResizeToServer(direction);
 }
 
@@ -1352,6 +1359,18 @@ const Dali::KeyEvent& Window::GetLastKeyEvent() const
 const Dali::TouchEvent& Window::GetLastTouchEvent() const
 {
   return mLastTouchEvent;
+}
+
+void Window::SetUserGeometryPolicy()
+{
+  if(mIsEnabledUserGeometry == true)
+  {
+    return;
+  }
+
+  mIsEnabledUserGeometry = true;
+  AddAuxiliaryHint("wm.policy.win.user.geometry", "1");
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), window user.geometry is changed\n", this, mNativeWindowId);
 }
 
 } // namespace Adaptor

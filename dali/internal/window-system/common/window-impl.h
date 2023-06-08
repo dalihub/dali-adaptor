@@ -25,7 +25,6 @@
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/property-array.h>
 #include <dali/public-api/object/ref-object.h>
-#include <dali/public-api/render-tasks/render-task-list.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -163,11 +162,6 @@ public:
    * @copydoc Dali::Window::GetLayer()
    */
   Dali::Layer GetLayer(uint32_t depth) const;
-
-  /**
-   * @copydoc Dali::Window::GetRenderTaskList()
-   */
-  Dali::RenderTaskList GetRenderTaskList() const;
 
   /**
    * @copydoc Dali::Window::KeepRendering()
@@ -650,6 +644,14 @@ private:
    */
   bool IsOrientationAvailable(WindowOrientation orientation) const;
 
+  /**
+   * @brief Sets user geometry flag when window's geometry is changed.
+   * Window is created with screen size or not.
+   * If window is created with screen size or the geometry is changed by user,
+   * client should inform to server setting user.geometry flag
+   */
+  void SetUserGeometryPolicy();
+
 private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnAdaptorSet
@@ -821,10 +823,10 @@ private:
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;  ///< The angle of the rotation
-  int mWindowWidth;    ///< The width of the window
-  int mWindowHeight;   ///< The height of the window
-  int mNativeWindowId; ///< The Native Window Id
+  int mRotationAngle;               ///< The angle of the rotation
+  int mWindowWidth;                 ///< The width of the window
+  int mWindowHeight;                ///< The height of the window
+  int mNativeWindowId;              ///< The Native Window Id
 
   EventHandlerPtr mEventHandler;    ///< The window events handler
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
@@ -854,7 +856,8 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1; ///< The window rotating flag.
+  bool mIsWindowRotating : 1;     ///< The window rotating flag.
+  bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
 };
 
 } // namespace Adaptor

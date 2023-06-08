@@ -596,7 +596,6 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
   configAttribs.PushBack(EGL_STENCIL_SIZE);
   configAttribs.PushBack(mStencilBufferRequired ? 8 : 0);
 
-#ifndef DALI_PROFILE_UBUNTU
   if(mMultiSamplingLevel != EGL_DONT_CARE)
   {
     configAttribs.PushBack(EGL_SAMPLES);
@@ -604,7 +603,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
     configAttribs.PushBack(EGL_SAMPLE_BUFFERS);
     configAttribs.PushBack(1);
   }
-#endif // DALI_PROFILE_UBUNTU
+
   configAttribs.PushBack(EGL_NONE);
 
   // Ensure number of configs is set to 1 as on some drivers,

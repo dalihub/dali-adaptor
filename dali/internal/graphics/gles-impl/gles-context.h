@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_CONTEXT_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,7 +189,13 @@ public:
   void ActiveTexture(uint32_t textureBindingIndex);
   void BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId);
   void GenerateMipmap(GLenum target);
-  void BindBuffer(GLenum target, uint32_t bufferId);
+
+  /**
+   * Binds the buffer.
+   * @return true if the buffer was actually bound, false if it's cached
+   */
+  bool BindBuffer(GLenum target, uint32_t bufferId);
+
   void DrawBuffers(uint32_t count, const GLenum* buffers);
   void BindFrameBuffer(GLenum target, uint32_t bufferId);
   void GenFramebuffers(uint32_t count, uint32_t* framebuffers);

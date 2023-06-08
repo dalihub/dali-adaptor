@@ -28,11 +28,11 @@ namespace
 {
 } // namespace
 
-void utc_dali_texture_startup(void)
+void utc_dali_graphics_draw_startup(void)
 {
   test_return_value = TET_UNDEF;
 }
-void utc_dali_texture_cleanup(void)
+void utc_dali_graphics_draw_cleanup(void)
 {
   test_return_value = TET_PASS;
 }
