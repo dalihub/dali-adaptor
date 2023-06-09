@@ -340,7 +340,6 @@ private:
   Semaphore<>     mSurfaceSemaphore;       ///< Used by the event thread to ensure the surface has been deleted or replaced.
 
   ConditionalWait mUpdateRenderThreadWaitCondition; ///< The wait condition for the update-render-thread.
-  ConditionalWait mPostRenderWaitCondition;         ///< The wait condition for the post render.
 
   AdaptorInternalServices&  mAdaptorInterfaces;    ///< The adaptor internal interface
   PerformanceInterface*     mPerformanceInterface; ///< The performance logging interface
