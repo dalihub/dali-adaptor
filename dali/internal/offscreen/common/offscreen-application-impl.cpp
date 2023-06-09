@@ -19,11 +19,13 @@
 #include <dali/internal/offscreen/common/offscreen-application-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/window-system/common/window-system.h>
 
 namespace Dali
@@ -40,6 +42,9 @@ IntrusivePtr<OffscreenApplication> OffscreenApplication::New(uint16_t width, uin
 
 OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
 {
+  // Disable partial update
+  EnvironmentVariable::SetEnvironmentVariable(DALI_ENV_DISABLE_PARTIAL_UPDATE, "1");
+
   Dali::Internal::Adaptor::WindowSystem::Initialize();
 
   // Generate a default window
