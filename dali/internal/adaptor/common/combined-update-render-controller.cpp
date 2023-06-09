@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -366,7 +366,6 @@ void CombinedUpdateRenderController::ResizeSurface()
 
   {
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-    mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will resize the surface now
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
     mUpdateRenderThreadWaitCondition.Notify(lock);
