@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/adaptor-framework/window-data.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/math/int-pair.h>
 #include <dali/public-api/math/rect.h>
@@ -104,6 +105,17 @@ public:
    * @return A new Window
    */
   static Window New(PositionSize windowPosition, const std::string& name, const std::string& className, bool isTransparent = false);
+
+  /**
+   * @brief Creates an initialized handle to a new Window.
+   * @SINCE_2_2.33
+   * @param[in] name The Window title
+   * @param[in] className The Window class name
+   * @param[in] windowData The window data
+   * @note This creates an extra window in addition to the default main window
+   * @return A new Window
+   */
+  static Window New(const std::string& name, const std::string& className, const WindowData& windowData);
 
   /**
    * @brief Creates an uninitialized handle.
