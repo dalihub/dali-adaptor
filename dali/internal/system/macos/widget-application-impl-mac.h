@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_WIN_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,13 @@ public:
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
+   * @param[in]  windowData   The window data
    */
   static WidgetApplicationPtr New(
     int*               argc,
     char**             argv[],
-    const std::string& stylesheet);
+    const std::string& stylesheet,
+    WindowData&        windowData);
 
 public:
   /**
@@ -69,8 +71,9 @@ protected:
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
+   * @param[in]  windowData   The window data
    */
-  WidgetApplicationCocoa(int* argc, char** argv[], const std::string& stylesheet);
+  WidgetApplicationCocoa(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData);
 
   /**
    * Destructor
