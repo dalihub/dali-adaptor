@@ -27,6 +27,7 @@
 #include <vector>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/device-info-event.h>
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
@@ -79,6 +80,7 @@ public:
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
+  typedef Signal<void(const Dali::DevelWindow::DeviceInfoEvent&)>                      DeviceInfoEventSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -577,6 +579,11 @@ public:
    */
   ResizeCompletedSignalType& ResizeCompletedSignal();
 
+  /**
+   * @brief This signal is emitted when a device info event is recevied.
+   */
+  DeviceInfoEventSignalType& DeviceInfoEventSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -606,6 +613,7 @@ protected:
   MouseInOutEventSignalType               mMouseInOutEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
+  DeviceInfoEventSignalType               mDeviceInfoEventSignal;
 };
 
 } // namespace Adaptor

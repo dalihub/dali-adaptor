@@ -68,6 +68,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
+  ${adaptor_devel_api_dir}/adaptor-framework/device-info-event.h
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.h

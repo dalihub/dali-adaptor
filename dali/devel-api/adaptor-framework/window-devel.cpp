@@ -294,6 +294,11 @@ MouseInOutEventSignalType& MouseInOutEventSignal(Window window)
   return GetImplementation(window).MouseInOutEventSignal();
 }
 
+DeviceInfoEventSignalType& DeviceInfoEventSignal(Window window)
+{
+  return GetImplementation(window).DeviceInfoEventSignal();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali

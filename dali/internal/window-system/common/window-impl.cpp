@@ -94,6 +94,7 @@ Window::Window()
   mMouseInOutEventSignal(),
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
+  mDeviceInfoEventSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -164,6 +165,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->MouseInOutEventSignal().Connect(this, &Window::OnMouseInOutEvent);
   mWindowBase->MoveCompletedSignal().Connect(this, &Window::OnMoveCompleted);
   mWindowBase->ResizeCompletedSignal().Connect(this, &Window::OnResizeCompleted);
+  mWindowBase->DeviceInfoEventSignal().Connect(this, &Window::OnDeviceInfoEvent);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
@@ -190,8 +192,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   bool isSetWithScreenSize = false;
   if(mWindowWidth <= 0 || mWindowHeight <= 0)
   {
-    mWindowWidth         = screenWidth;
-    mWindowHeight        = screenHeight;
+    mWindowWidth        = screenWidth;
+    mWindowHeight       = screenHeight;
     isSetWithScreenSize = true;
     DALI_LOG_RELEASE_INFO("Window size is set with screen size(%d x %d)\n", mWindowWidth, mWindowHeight);
   }
@@ -1155,6 +1157,13 @@ void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)
 {
   Dali::Window handle(this);
   mMoveCompletedSignal.Emit(handle, position);
+}
+
+void Window::OnDeviceInfoEvent(const Dali::DevelWindow::DeviceInfoEvent& deviceInfoEvent)
+{
+  Dali::Window handle(this);
+
+  mDeviceInfoEventSignal.Emit(handle, deviceInfoEvent);
 }
 
 void Window::OnResizeCompleted(Dali::Window::WindowSize& size)
