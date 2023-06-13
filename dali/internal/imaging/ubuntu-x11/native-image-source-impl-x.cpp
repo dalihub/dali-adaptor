@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -380,7 +380,7 @@ Any NativeImageSourceX::GetNativeImageHandle() const
 
 bool NativeImageSourceX::SourceChanged() const
 {
-  return false;
+  return true;
 }
 
 Ecore_X_Pixmap NativeImageSourceX::GetPixmapFromAny(Any pixmap) const
@@ -421,12 +421,12 @@ void NativeImageSourceX::GetPixmapDetails()
   mBlendingRequired = (depth == 32 || depth == 8);
 }
 
-uint8_t* NativeImageSourceX::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* NativeImageSourceX::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   return NULL;
 }
 
-bool NativeImageSourceX::ReleaseBuffer()
+bool NativeImageSourceX::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
   return false;
 }
@@ -434,6 +434,10 @@ bool NativeImageSourceX::ReleaseBuffer()
 void NativeImageSourceX::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
+
+void NativeImageSourceX::EnableBackBuffer(bool enable)
+{
 }
 
 } // namespace Adaptor

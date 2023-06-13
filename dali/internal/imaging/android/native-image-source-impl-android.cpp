@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -357,7 +357,7 @@ void NativeImageSourceAndroid::GetPixmapDetails()
   }
 }
 
-uint8_t* NativeImageSourceAndroid::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* NativeImageSourceAndroid::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   if(mPixmap)
   {
@@ -382,7 +382,7 @@ uint8_t* NativeImageSourceAndroid::AcquireBuffer(uint16_t& width, uint16_t& heig
   return NULL;
 }
 
-bool NativeImageSourceAndroid::ReleaseBuffer()
+bool NativeImageSourceAndroid::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
   if(mPixmap)
   {
@@ -399,6 +399,10 @@ bool NativeImageSourceAndroid::ReleaseBuffer()
 void NativeImageSourceAndroid::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
+
+void NativeImageSourceAndroid::EnableBackBuffer(bool enable)
+{
 }
 
 } // namespace Adaptor

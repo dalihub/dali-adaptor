@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,15 +193,15 @@ bool NativeImageSourceCocoa::RequiresBlending() const
 
 bool NativeImageSourceCocoa::SourceChanged() const
 {
-  return false;
+  return true;
 }
 
-uint8_t* NativeImageSourceCocoa::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* NativeImageSourceCocoa::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   return nullptr;
 }
 
-bool NativeImageSourceCocoa::ReleaseBuffer()
+bool NativeImageSourceCocoa::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
   return false;
 }
@@ -209,6 +209,10 @@ bool NativeImageSourceCocoa::ReleaseBuffer()
 void NativeImageSourceCocoa::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
+
+void NativeImageSourceCocoa::EnableBackBuffer(bool enable)
+{
 }
 
 } // namespace Dali::Internal::Adaptor

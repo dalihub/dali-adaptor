@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,19 +76,20 @@ NativeImageSourceTizen* NativeImageSourceTizen::New(uint32_t width, uint32_t hei
 NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 : mWidth(width),
   mHeight(height),
-  mOwnTbmSurface(false),
   mTbmSurface(NULL),
+  mTbmBackSurface(NULL),
   mTbmFormat(0),
-  mBlendingRequired(false),
   mColorDepth(depth),
+  mMutex(),
   mEglImageKHR(NULL),
   mEglGraphics(NULL),
   mEglImageExtensions(NULL),
+  mResourceDestructionCallback(),
+  mOwnTbmSurface(false),
+  mBlendingRequired(false),
   mSetSource(false),
-  mMutex(),
   mIsBufferAcquired(false),
-  mResourceDestructionCallback()
-
+  mBackBufferEnabled(false)
 {
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
 
@@ -189,7 +190,8 @@ void NativeImageSourceTizen::DestroySurface()
   {
     if(mIsBufferAcquired)
     {
-      ReleaseBuffer();
+      Rect<uint32_t> emptyRect{};
+      ReleaseBuffer(emptyRect);
     }
     if(mOwnTbmSurface)
     {
@@ -202,6 +204,9 @@ void NativeImageSourceTizen::DestroySurface()
     {
       tbm_surface_internal_unref(mTbmSurface);
     }
+    mTbmSurface = NULL;
+
+    DestroyBackBuffer();
   }
 }
 
@@ -217,7 +222,7 @@ Any NativeImageSourceTizen::GetNativeImageSource() const
 
 bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  std::scoped_lock lock(mMutex);
   if(mTbmSurface != NULL)
   {
     tbm_surface_info_s surface_info;
@@ -332,7 +337,7 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
 
 void NativeImageSourceTizen::SetSource(Any source)
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  std::scoped_lock lock(mMutex);
 
   DestroySurface();
 
@@ -346,6 +351,12 @@ void NativeImageSourceTizen::SetSource(Any source)
     mBlendingRequired = CheckBlending(tbm_surface_get_format(mTbmSurface));
     mWidth            = tbm_surface_get_width(mTbmSurface);
     mHeight           = tbm_surface_get_height(mTbmSurface);
+
+    if(mBackBufferEnabled)
+    {
+      DestroyBackBuffer();
+      CreateBackBuffer();
+    }
   }
 }
 
@@ -410,9 +421,10 @@ bool NativeImageSourceTizen::CreateResource()
 
   // casting from an unsigned int to a void *, which should then be cast back
   // to an unsigned int in the driver.
-  EGLClientBuffer eglBuffer = reinterpret_cast<EGLClientBuffer>(mTbmSurface);
+  EGLClientBuffer eglBuffer = mTbmBackSurface ? reinterpret_cast<EGLClientBuffer>(mTbmBackSurface) : reinterpret_cast<EGLClientBuffer>(mTbmSurface);
   if(!eglBuffer || !tbm_surface_internal_is_valid(mTbmSurface))
   {
+    DALI_LOG_ERROR("Invalid surface\n");
     return false;
   }
 
@@ -420,13 +432,17 @@ bool NativeImageSourceTizen::CreateResource()
   DALI_ASSERT_DEBUG(mEglImageExtensions);
 
   mEglImageKHR = mEglImageExtensions->CreateImageKHR(eglBuffer);
+  if(!mEglImageKHR)
+  {
+    DALI_LOG_ERROR("Fail to CreateImageKHR\n");
+  }
 
   return mEglImageKHR != NULL;
 }
 
 void NativeImageSourceTizen::DestroyResource()
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  std::scoped_lock lock(mMutex);
   if(mEglImageKHR)
   {
     mEglImageExtensions->DestroyImageKHR(mEglImageKHR);
@@ -449,7 +465,7 @@ uint32_t NativeImageSourceTizen::TargetTexture()
 
 void NativeImageSourceTizen::PrepareTexture()
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  std::scoped_lock lock(mMutex);
   if(mSetSource)
   {
     // Destroy previous eglImage because use for new one.
@@ -488,7 +504,60 @@ Any NativeImageSourceTizen::GetNativeImageHandle() const
 
 bool NativeImageSourceTizen::SourceChanged() const
 {
-  return false;
+  if(mTbmBackSurface)
+  {
+    return mUpdatedArea.IsEmpty() ? false : true;
+  }
+  return true;
+}
+
+Rect<uint32_t> NativeImageSourceTizen::GetUpdatedArea()
+{
+  std::scoped_lock lock(mMutex);
+  Rect<uint32_t>   updatedArea{0, 0, mWidth, mHeight};
+  if(!mUpdatedArea.IsEmpty() && mTbmSurface != NULL && mTbmBackSurface != NULL)
+  {
+    updatedArea = mUpdatedArea;
+
+    tbm_surface_info_s info;
+    if(tbm_surface_map(mTbmSurface, TBM_SURF_OPTION_READ | TBM_SURF_OPTION_WRITE, &info) != TBM_SURFACE_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("Fail to map tbm_surface\n");
+      return updatedArea;
+    }
+
+    tbm_surface_info_s backBufferInfo;
+    if(tbm_surface_map(mTbmBackSurface, TBM_SURF_OPTION_READ | TBM_SURF_OPTION_WRITE, &backBufferInfo) != TBM_SURFACE_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("Fail to map tbm_surface - backbuffer\n");
+      tbm_surface_unmap(mTbmSurface);
+      return updatedArea;
+    }
+
+    unsigned char* srcBuffer = info.planes[0].ptr;
+    unsigned char* dstBuffer = backBufferInfo.planes[0].ptr;
+
+    uint32_t stride        = info.planes[0].stride;
+    uint32_t bytesPerPixel = info.bpp >> 3;
+
+    srcBuffer += updatedArea.y * stride + updatedArea.x * bytesPerPixel;
+    dstBuffer += updatedArea.y * stride + updatedArea.x * bytesPerPixel;
+
+    // Copy to back buffer
+    for(uint32_t y = 0; y < updatedArea.height; y++)
+    {
+      memcpy(dstBuffer, srcBuffer, updatedArea.width * bytesPerPixel);
+      srcBuffer += stride;
+      dstBuffer += stride;
+    }
+
+    tbm_surface_unmap(mTbmSurface);
+    tbm_surface_unmap(mTbmBackSurface);
+
+    // Reset the updated area
+    mUpdatedArea.Set(0u, 0u, 0u, 0u);
+  }
+  return updatedArea;
 }
 
 bool NativeImageSourceTizen::CheckBlending(tbm_format format)
@@ -509,9 +578,9 @@ bool NativeImageSourceTizen::CheckBlending(tbm_format format)
   return mBlendingRequired;
 }
 
-uint8_t* NativeImageSourceTizen::AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* NativeImageSourceTizen::AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride)
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  mMutex.lock(); // We don't use std::scoped_lock here
   if(mTbmSurface != NULL)
   {
     tbm_surface_info_s info;
@@ -523,6 +592,7 @@ uint8_t* NativeImageSourceTizen::AcquireBuffer(uint16_t& width, uint16_t& height
       width  = 0;
       height = 0;
 
+      mMutex.unlock();
       return NULL;
     }
     tbm_surface_internal_ref(mTbmSurface);
@@ -532,17 +602,37 @@ uint8_t* NativeImageSourceTizen::AcquireBuffer(uint16_t& width, uint16_t& height
     width  = mWidth;
     height = mHeight;
 
+    // The lock is held until ReleaseBuffer is called
     return info.planes[0].ptr;
   }
+  mMutex.unlock();
   return NULL;
 }
 
-bool NativeImageSourceTizen::ReleaseBuffer()
+bool NativeImageSourceTizen::ReleaseBuffer(const Rect<uint32_t>& updatedArea)
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
-  bool                    ret = false;
+  bool ret = false;
   if(mTbmSurface != NULL)
   {
+    if(mTbmBackSurface)
+    {
+      if(updatedArea.IsEmpty())
+      {
+        mUpdatedArea.Set(0, 0, mWidth, mHeight);
+      }
+      else
+      {
+        if(mUpdatedArea.IsEmpty())
+        {
+          mUpdatedArea = updatedArea;
+        }
+        else
+        {
+          mUpdatedArea.Merge(updatedArea);
+        }
+      }
+    }
+
     ret = (tbm_surface_unmap(mTbmSurface) == TBM_SURFACE_ERROR_NONE);
     if(!ret)
     {
@@ -551,13 +641,52 @@ bool NativeImageSourceTizen::ReleaseBuffer()
     tbm_surface_internal_unref(mTbmSurface);
     mIsBufferAcquired = false;
   }
+  // Unlock the mutex locked by AcquireBuffer.
+  mMutex.unlock();
   return ret;
 }
 
 void NativeImageSourceTizen::SetResourceDestructionCallback(EventThreadCallback* callback)
 {
-  Dali::Mutex::ScopedLock lock(mMutex);
+  std::scoped_lock lock(mMutex);
   mResourceDestructionCallback = std::unique_ptr<EventThreadCallback>(callback);
+}
+
+void NativeImageSourceTizen::EnableBackBuffer(bool enable)
+{
+  if(enable != mBackBufferEnabled)
+  {
+    mBackBufferEnabled = enable;
+
+    if(mBackBufferEnabled)
+    {
+      CreateBackBuffer();
+    }
+    else
+    {
+      DestroyBackBuffer();
+    }
+  }
+}
+
+void NativeImageSourceTizen::CreateBackBuffer()
+{
+  if(!mTbmBackSurface && mTbmSurface)
+  {
+    mTbmBackSurface = tbm_surface_create(mWidth, mHeight, tbm_surface_get_format(mTbmSurface));
+  }
+}
+
+void NativeImageSourceTizen::DestroyBackBuffer()
+{
+  if(mTbmBackSurface)
+  {
+    if(tbm_surface_destroy(mTbmBackSurface) != TBM_SURFACE_ERROR_NONE)
+    {
+      DALI_LOG_ERROR("Failed to destroy tbm_surface\n");
+    }
+    mTbmBackSurface = NULL;
+  }
 }
 
 } // namespace Adaptor
