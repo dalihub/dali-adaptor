@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,17 @@ namespace Internal
 namespace Adaptor
 {
 ComponentApplicationPtr ComponentApplication::New(
-  int*               argc,
-  char**             argv[],
-  const std::string& stylesheet,
-  WindowData&        windowData)
+  int*                           argc,
+  char**                         argv[],
+  const std::string&             stylesheet,
+  Dali::Application::WINDOW_MODE windowMode)
 {
-  ComponentApplicationPtr application(new ComponentApplication(argc, argv, stylesheet, windowData));
+  ComponentApplicationPtr application(new ComponentApplication(argc, argv, stylesheet, windowMode));
   return application;
 }
 
-ComponentApplication::ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData)
-: Application(argc, argv, stylesheet, Framework::COMPONENT, false, windowData)
+ComponentApplication::ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode)
+: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::COMPONENT, WindowType::NORMAL, false)
 {
 }
 

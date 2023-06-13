@@ -42,10 +42,7 @@ Application Application::New(int* argc, char** argv[])
   }
   else
   {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, "", Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, "", OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -61,10 +58,7 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   }
   else
   {
-    WindowData windowData;
-    windowData.SetTransparency(false);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, OPAQUE, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -78,14 +72,11 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
   }
   else
   {
-    WindowData windowData;
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, PositionSize(), Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -99,18 +90,14 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
 
-    // Store only the value before adaptor is created
+    //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
   }
   else
   {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, false);
   }
   return Application(internal.Get());
 }
@@ -124,18 +111,14 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency(windowMode == Application::TRANSPARENT);
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
 
-    // Store only the value before adaptor is created
+    //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
   }
   else
   {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, WindowType::NORMAL, useUiThread);
   }
   return Application(internal.Get());
 }
@@ -158,7 +141,12 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
   }
   else
   {
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, useUiThread, windowData);
+    // clang-format off
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet,
+                  windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE,
+                  windowData.GetPositionSize(), Internal::Adaptor::Framework::NORMAL,
+                  windowData.GetWindowType(), useUiThread);
+    // clang-format on
   }
   return Application(internal.Get());
 }

@@ -64,14 +64,16 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_APPLICATION, true);
 ApplicationPtr Application::gPreInitializedApplication(NULL);
 
 ApplicationPtr Application::New(
-  int*               argc,
-  char**             argv[],
-  const std::string& stylesheet,
-  Framework::Type    applicationType,
-  bool               useUiThread,
-  WindowData&        windowData)
+  int*                           argc,
+  char**                         argv[],
+  const std::string&             stylesheet,
+  Dali::Application::WINDOW_MODE windowMode,
+  const PositionSize&            positionSize,
+  Framework::Type                applicationType,
+  WindowType                     type,
+  bool                           useUiThread)
 {
-  ApplicationPtr application(new Application(argc, argv, stylesheet, applicationType, useUiThread, windowData));
+  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type, useUiThread));
   return application;
 }
 
@@ -80,14 +82,14 @@ void Application::PreInitialize(int* argc, char** argv[])
   if(!gPreInitializedApplication)
   {
     Dali::TextAbstraction::FontClientPreInitialize();
-    WindowData windowData;
-    gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, false, windowData);
+
+    gPreInitializedApplication                  = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
     gPreInitializedApplication->CreateWindow(); // Only create window
   }
 }
 
-Application::Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, WindowData& windowData)
+Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread)
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -102,12 +104,12 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mAdaptor(nullptr),
   mEnvironmentOptions(nullptr),
   mMainWindow(),
-  mMainWindowMode(windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE),
+  mMainWindowMode(windowMode),
   mMainWindowName(),
   mStylesheet(stylesheet),
-  mWindowPositionSize(windowData.GetPositionSize()),
+  mWindowPositionSize(positionSize),
   mLaunchpadState(Launchpad::NONE),
-  mDefaultWindowType(windowData.GetWindowType()),
+  mDefaultWindowType(type),
   mUseUiThread(useUiThread),
   mSlotDelegate(this)
 {

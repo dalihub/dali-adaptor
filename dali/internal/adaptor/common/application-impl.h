@@ -78,12 +78,13 @@ public:
    * @param[in]  argc              A pointer to the number of arguments
    * @param[in]  argv              A pointer to the argument list
    * @param[in]  stylesheet        The path to user defined theme file
+   * @param[in]  windowMode        A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize      A position and a size of the window
    * @param[in]  applicationType   A member of Dali::Framework::Type
+   * @param[in]  type              It is window type for default window.
    * @param[in]  useUiThread       True if the application would create a UI thread
-   * @param[in]  windowData        The window data
-   *
    */
-  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, WindowData& windowData);
+  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
 
   /**
    * @copydoc Dali::DevelApplication::PreInitialize()
@@ -458,11 +459,13 @@ protected:
    * @param[in]  argc               A pointer to the number of arguments
    * @param[in]  argv               A pointer to the argument list
    * @param[in]  stylesheet         The path to user defined theme file
+   * @param[in]  windowMode         A member of Dali::Application::WINDOW_MODE
+   * @param[in]  positionSize       A position and a size of the window
    * @param[in]  applicationType    A member of Dali::Framework::Type
-   * @param[in]  useUiThread        True if the application would create UI thread
-   * @param[in]  windowData         The WindowData
+   * @param[in]  type               The default window's type.
+   * @param[in]  useUiThread         True if the application would create UI thread
    */
-  Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, WindowData& windowData);
+  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
 
   /**
    * Destructor

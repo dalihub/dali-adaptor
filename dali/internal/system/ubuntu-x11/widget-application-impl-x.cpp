@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,13 @@ namespace Adaptor
 WidgetApplicationPtr WidgetApplicationUbuntu::New(
   int*               argc,
   char**             argv[],
-  const std::string& stylesheet,
-  WindowData&        windowData)
+  const std::string& stylesheet)
 {
-  return new WidgetApplicationUbuntu(argc, argv, stylesheet, windowData);
+  return new WidgetApplicationUbuntu(argc, argv, stylesheet);
 }
 
-WidgetApplicationUbuntu::WidgetApplicationUbuntu(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData)
-: WidgetApplication(argc, argv, stylesheet, windowData)
+WidgetApplicationUbuntu::WidgetApplicationUbuntu(int* argc, char** argv[], const std::string& stylesheet)
+: WidgetApplication(argc, argv, stylesheet)
 {
   DALI_LOG_ERROR("WidgetApplication is not implemented in UBUNTU profile.\n");
 }
@@ -56,11 +55,10 @@ namespace WidgetApplicationFactory
  * @param[in]  argc         A pointer to the number of arguments
  * @param[in]  argv         A pointer to the argument list
  * @param[in]  stylesheet   The path to user defined theme file
- * @param[in]  windowData   The window data
  */
-WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData)
+WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet)
 {
-  return WidgetApplicationUbuntu::New(argc, argv, stylesheet, windowData);
+  return WidgetApplicationUbuntu::New(argc, argv, stylesheet);
 }
 
 } // namespace WidgetApplicationFactory

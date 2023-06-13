@@ -38,19 +38,14 @@ Application New(int* argc, char** argv[], const std::string& stylesheet, Applica
     internal->SetCommandLineOptions(argc, argv);
     internal->SetStyleSheet(stylesheet);
 
-    internal->GetWindow().SetTransparency((windowMode == Application::TRANSPARENT));
+    internal->GetWindow().SetTransparency((windowMode == Application::OPAQUE ? false : true));
 
-    // Store only the value before adaptor is created
+    //Store only the value before adaptor is created
     internal->StoreWindowPositionSize(positionSize);
   }
   else
   {
-    WindowData windowData;
-    windowData.SetPositionSize(positionSize);
-    windowData.SetTransparency(windowMode == Application::TRANSPARENT);
-    windowData.SetWindowType(type);
-
-    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, Internal::Adaptor::Framework::NORMAL, false, windowData);
+    internal = Internal::Adaptor::Application::New(argc, argv, stylesheet, windowMode, positionSize, Internal::Adaptor::Framework::NORMAL, type, false);
   }
   return Application(internal.Get());
 }

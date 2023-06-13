@@ -33,17 +33,13 @@ WatchApplication WatchApplication::New()
 
 WatchApplication WatchApplication::New(int* argc, char** argv[])
 {
-  WindowData windowData;
-  windowData.SetTransparency(false);
-  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, "", windowData);
+  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, "", OPAQUE);
   return WatchApplication(internal.Get());
 }
 
 WatchApplication WatchApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  WindowData windowData;
-  windowData.SetTransparency(false);
-  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, stylesheet, windowData);
+  Internal::Adaptor::WatchApplicationPtr internal = Internal::Adaptor::WatchApplication::New(argc, argv, stylesheet, OPAQUE);
   return WatchApplication(internal.Get());
 }
 

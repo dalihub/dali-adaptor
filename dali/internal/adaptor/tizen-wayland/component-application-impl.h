@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMPONENT_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,15 +47,15 @@ public:
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
-   * @param[in]  windowData   The window data
+   * @param[in]  windowMode   A member of WINDOW_MODE
    * @return A handle to the ComponentApplication
    */
-  static ComponentApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData);
+  static ComponentApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * @brief The default constructor.
    */
-  ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, WindowData& windowData);
+  ComponentApplication(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode);
 
   /**
    * @brief Undefined copy constructor.
