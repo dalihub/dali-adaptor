@@ -125,8 +125,6 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
     mUseUiThread = true;
   }
 
-  WindowSystem::Initialize();
-
   mCommandLineOptions = new CommandLineOptions(argc, argv);
   mFramework          = new Framework(*this, *this, argc, argv, applicationType, mUseUiThread);
   mUseRemoteSurface   = (applicationType == Framework::WATCH);
@@ -142,12 +140,19 @@ Application::~Application()
   }
 
   mMainWindow.Reset();
-  delete mAdaptor;
-  delete mAdaptorBuilder;
+
   delete mCommandLineOptions;
   delete mFramework;
 
-  WindowSystem::Shutdown();
+  // Application is created in Main thread whether UI Threading is enabled or not.
+  // But some resources are created in Main thread or UI thread.
+  // The below code is for the resource are created in Main thread.
+  if(!mUseUiThread)
+  {
+    delete mAdaptor;
+    delete mAdaptorBuilder;
+    WindowSystem::Shutdown();
+  }
 }
 
 void Application::StoreWindowPositionSize(PositionSize positionSize)
@@ -203,6 +208,8 @@ void Application::ChangePreInitializedWindowInfo()
 void Application::CreateWindow()
 {
   Internal::Adaptor::Window* window;
+
+  WindowSystem::Initialize();
 
   if(mLaunchpadState != Launchpad::PRE_INITIALIZED)
   {
@@ -356,6 +363,15 @@ void Application::OnTerminate()
   }
 
   mMainWindow.Reset(); // This only resets (clears) the default Window
+
+  // If DALi's UI Thread works, some resources are created in UI Thread, not Main thread.
+  // For that case, these resource should be deleted in UI Thread.
+  if(mUseUiThread)
+  {
+    delete mAdaptor;
+    delete mAdaptorBuilder;
+    WindowSystem::Shutdown();
+  }
 }
 
 void Application::OnPause()
