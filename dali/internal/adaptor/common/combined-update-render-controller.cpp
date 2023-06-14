@@ -91,7 +91,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mEventThreadSemaphore(0),
   mSurfaceSemaphore(0),
   mUpdateRenderThreadWaitCondition(),
-  mPostRenderWaitCondition(),
   mAdaptorInterfaces(adaptorInterfaces),
   mPerformanceInterface(adaptorInterfaces.GetPerformanceInterface()),
   mCore(adaptorInterfaces.GetCore()),
@@ -308,7 +307,8 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
     // Start replacing the surface.
     {
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-      mNewSurface = newSurface;
+      mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
+      mNewSurface    = newSurface;
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -330,6 +330,7 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface*
     // Start replacing the surface.
     {
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
+      mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
@@ -963,9 +964,9 @@ void CombinedUpdateRenderController::AddPerformanceMarker(PerformanceInterface::
 
 void CombinedUpdateRenderController::PostRenderComplete()
 {
-  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
-  mPostRenderWaitCondition.Notify(lock);
+  mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -974,19 +975,19 @@ void CombinedUpdateRenderController::PostRenderComplete()
 
 void CombinedUpdateRenderController::PostRenderStarted()
 {
-  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = TRUE;
 }
 
 void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 {
-  ConditionalWait::ScopedLock lock(mPostRenderWaitCondition);
+  ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   while(mPostRendering &&
         !mNewSurface &&     // We should NOT wait if we're replacing the surface
         !mDeletedSurface && // We should NOT wait if we're deleting the surface
         !mDestroyUpdateRenderThread)
   {
-    mPostRenderWaitCondition.Wait(lock);
+    mUpdateRenderThreadWaitCondition.Wait(lock);
   }
 }
 

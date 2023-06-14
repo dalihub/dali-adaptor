@@ -1,7 +1,7 @@
 #ifndef DALI_NATIVE_IMAGE_SOURCE_DEVEL_H
 #define DALI_NATIVE_IMAGE_SOURCE_DEVEL_H
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,11 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/adaptor-framework/native-image-source.h>
-#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
+#include <dali/public-api/math/rect.h>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -43,33 +45,45 @@ DALI_ADAPTOR_API bool EncodeToFile(NativeImageSource& image, const std::string& 
  * @brief Acquire buffer and information of an internal native image.
  *
  * AcquireBuffer() and ReleaseBuffer() are a pair.
- * It should be call ReleaseBuffer() after AcquireBuffer().
+ * ReleaseBuffer() MUST be called after AcquireBuffer().
  * @param[in] image The instance of NativeImageSource.
  * @param[out] width The width of image
  * @param[out] height The height of image
  * @param[out] stride The stride of image
  * @return     The buffer of an internal native image
+ * @note This locks a mutex until ReleaseBuffer is called.
  */
-DALI_ADAPTOR_API uint8_t* AcquireBuffer(NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride);
+DALI_ADAPTOR_API uint8_t* AcquireBuffer(NativeImageSource& image, uint32_t& width, uint32_t& height, uint32_t& stride);
 
 /**
  * @brief Release information of an internal native image.
  *
  * AcquireBuffer() and ReleaseBuffer() are a pair.
- * It should be call ReleaseBuffer() after AcquireBuffer().
+ * ReleaseBuffer() MUST be called after AcquireBuffer().
  * @param[in] image The instance of NativeImageSource.
- * @return     @c true If the buffer is released successfully, and @c false otherwise
+ * @param[in] updatedArea The updated area of the buffer.
+ * @return @c true If the buffer is released successfully, and @c false otherwise
+ * @note The empty updatedArea means that the entire area has been changed.
+ * @note This unlocks the mutex locked by AcquireBuffer.
  */
-DALI_ADAPTOR_API bool ReleaseBuffer(NativeImageSource& image);
+DALI_ADAPTOR_API bool ReleaseBuffer(NativeImageSource& image, const Rect<uint32_t>& updatedArea);
 
 /**
  * @brief Set the Resource Destruction Callback object
  *
- * @param image The instance of NativeImageSource.
- * @param callback The Resource Destruction callback
+ * @param[in] image The instance of NativeImageSource.
+ * @param[in] callback The Resource Destruction callback
  * @note Ownership of the callback is passed onto this class.
  */
 DALI_ADAPTOR_API void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback);
+
+/**
+ * @brief Enable a back buffer.
+ * @param[in] image The instance of NativeImageSource.
+ * @param[in] enable Whether a back buffer is enabled.
+ * @note The front buffer will be copied to the back buffer before rendering if the front buffer is updated by AcquireBuffer and ReleaseBuffer.
+ */
+DALI_ADAPTOR_API void EnableBackBuffer(NativeImageSource& image, bool enable);
 
 } // namespace DevelNativeImageSource
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,24 @@ bool EncodeToFile(NativeImageSource& image, const std::string& filename, const u
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).EncodeToFile(filename, quality);
 }
 
-uint8_t* AcquireBuffer(NativeImageSource& image, uint16_t& width, uint16_t& height, uint16_t& stride)
+uint8_t* AcquireBuffer(NativeImageSource& image, uint32_t& width, uint32_t& height, uint32_t& stride)
 {
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).AcquireBuffer(width, height, stride);
 }
 
-bool ReleaseBuffer(NativeImageSource& image)
+bool ReleaseBuffer(NativeImageSource& image, const Rect<uint32_t>& updatedArea)
 {
-  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).ReleaseBuffer();
+  return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).ReleaseBuffer(updatedArea);
 }
 
 void SetResourceDestructionCallback(NativeImageSource& image, EventThreadCallback* callback)
 {
   return Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).SetResourceDestructionCallback(callback);
+}
+
+void EnableBackBuffer(NativeImageSource& image, bool enable)
+{
+  Dali::Internal::Adaptor::NativeImageSource::GetImplementation(image).EnableBackBuffer(enable);
 }
 
 } // namespace DevelNativeImageSource

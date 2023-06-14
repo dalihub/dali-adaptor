@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/adaptor-framework/event-thread-callback.h>
-
+#include <dali/public-api/adaptor-framework/native-image-source.h>
 
 namespace Dali
 {
@@ -137,24 +136,34 @@ public:
   virtual bool SourceChanged() const = 0;
 
   /**
+   * @copydoc Dali::NativeImageInterface::GetUpdatedArea()
+   */
+  virtual Rect<uint32_t> GetUpdatedArea() = 0;
+
+  /**
    * @copydoc Dali::NativeImageInterface::GetExtension()
    */
   virtual NativeImageInterface::Extension* GetNativeImageInterfaceExtension() = 0;
 
   /**
-   * @brief Dali::DevelNativeImageSource::AcquireBuffer()
+   * @copydoc Dali::DevelNativeImageSource::AcquireBuffer()
    */
-  virtual uint8_t* AcquireBuffer(uint16_t& width, uint16_t& height, uint16_t& stride) = 0;
+  virtual uint8_t* AcquireBuffer(uint32_t& width, uint32_t& height, uint32_t& stride) = 0;
 
   /**
-   * @brief Dali::DevelNativeImageSource::ReleaseBuffer()
+   * @copydoc Dali::DevelNativeImageSource::ReleaseBuffer()
    */
-  virtual bool ReleaseBuffer() = 0;
+  virtual bool ReleaseBuffer(const Rect<uint32_t>& updatedArea) = 0;
 
   /**
-   * @brief Dali::DevelNativeImageSource::SetResourceDestructionCallback()
+   * @copydoc Dali::DevelNativeImageSource::SetResourceDestructionCallback()
    */
   virtual void SetResourceDestructionCallback(EventThreadCallback* callback) = 0;
+
+  /**
+   * @copydoc Dali::DevelNativeImageSource::EnableBackBuffer()
+   */
+  virtual void EnableBackBuffer(bool enable) = 0;
 
   /**
    * @copydoc Dali::NativeImageSource::EncodeToFile(const std::string& )

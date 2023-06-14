@@ -127,7 +127,7 @@ Any NativeBitmapBuffer::GetNativeImageHandle() const
 
 bool NativeBitmapBuffer::SourceChanged() const
 {
-  return false;
+  return true;
 }
 
 } // namespace Adaptor

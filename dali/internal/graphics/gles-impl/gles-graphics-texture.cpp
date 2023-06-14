@@ -379,14 +379,6 @@ void Texture::Prepare()
   NativeImageInterfacePtr nativeImage = mCreateInfo.nativeImagePtr;
   if(nativeImage)
   {
-    if(nativeImage->SourceChanged())
-    {
-      // Update size
-      uint32_t width  = mCreateInfo.nativeImagePtr->GetWidth();
-      uint32_t height = mCreateInfo.nativeImagePtr->GetHeight();
-      mCreateInfo.SetSize({width, height}); // Size may change
-    }
-
     nativeImage->PrepareTexture();
   }
 }
