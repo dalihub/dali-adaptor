@@ -48,6 +48,16 @@ namespace
 Debug::Filter* gNativeSurfaceLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_NATIVE_RENDER_SURFACE");
 #endif
 
+// The callback of tbm_surface_queue_add_acquirable_cb()
+static void TbmAcquirableCallback(tbm_surface_queue_h queue, void* data)
+{
+  NativeRenderSurfaceEcoreWl* surface = static_cast<NativeRenderSurfaceEcoreWl*>(data);
+  if(surface)
+  {
+    surface->TriggerFrameRenderedCallback();
+  }
+}
+
 } // unnamed namespace
 
 NativeRenderSurfaceEcoreWl::NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent)
@@ -108,6 +118,25 @@ void NativeRenderSurfaceEcoreWl::SetRenderNotification(TriggerEventInterface* re
 Any NativeRenderSurfaceEcoreWl::GetNativeRenderable()
 {
   return mTbmQueue;
+}
+
+void NativeRenderSurfaceEcoreWl::TriggerFrameRenderedCallback()
+{
+  if(mFrameRenderedCallback)
+  {
+    mFrameRenderedCallback->Trigger();
+  }
+}
+
+void NativeRenderSurfaceEcoreWl::SetFrameRenderedCallback(CallbackBase* callback)
+{
+  mFrameRenderedCallback = std::unique_ptr<EventThreadCallback>(new EventThreadCallback(callback));
+
+  tbm_surface_queue_error_e result = tbm_surface_queue_add_acquirable_cb(mTbmQueue, TbmAcquirableCallback, this);
+  if(result != TBM_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("Failed calling tbm_surface_queue_add_acquirable_cb(), error : %x", result);
+  }
 }
 
 PositionSize NativeRenderSurfaceEcoreWl::GetPositionSize() const
@@ -229,9 +258,9 @@ bool NativeRenderSurfaceEcoreWl::PreRender(bool resizingSurface, const std::vect
     mDamagedRects.clear();
   }
 
-  //TODO: Need to support partial update
-  // This is now done when the render pass for the render surface begins
-  //  MakeContextCurrent();
+  // TODO: Need to support partial update
+  //  This is now done when the render pass for the render surface begins
+  //   MakeContextCurrent();
   return true;
 }
 

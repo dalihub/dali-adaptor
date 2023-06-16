@@ -2,7 +2,7 @@
 #define DALI_NATIVE_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,12 @@ public: // API
    * @return The native renderable handle
    */
   virtual Any GetNativeRenderable() = 0;
+
+  /**
+   * @brief Sets a callback that is called when the frame rendering is done by the graphics driver.
+   * @param callback The function to call
+   */
+  virtual void SetFrameRenderedCallback(CallbackBase* callback) = 0;
 
 private: // from NativeRenderSurface
   /**
