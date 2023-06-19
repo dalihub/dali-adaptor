@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_WINDOW_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -201,6 +201,20 @@ public:
    *
    */
   void SetPostRenderCallback(CallbackBase* callback);
+
+  /**
+   * @brief Sets a callback that is called when the frame rendering is done by the graphics driver.
+   *
+   * @param[in] callback The function to call
+   *
+   * @note A callback of the following type may be used:
+   * @code
+   *   void MyFunction();
+   * @endcode
+   *
+   * @note Ownership of the callback is passed onto this class.
+   */
+  void SetFrameRenderedCallback(CallbackBase* callback);
 
 public: // Not intended for application developers
   /**
