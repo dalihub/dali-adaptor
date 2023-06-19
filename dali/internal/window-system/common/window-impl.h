@@ -52,6 +52,7 @@ class Window;
 using WindowPtr          = IntrusivePtr<Window>;
 using OrientationPtr     = IntrusivePtr<Orientation>;
 using MouseInOutEventPtr = IntrusivePtr<Dali::DevelWindow::MouseInOutEvent>;
+using DeviceInfoEventPtr = IntrusivePtr<Dali::DevelWindow::DeviceInfoEvent>;
 using EventHandlerPtr    = IntrusivePtr<EventHandler>;
 
 /**
@@ -72,6 +73,7 @@ public:
   typedef Dali::DevelWindow::MouseInOutEventSignalType               MouseInOutEventSignalType;
   typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
   typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
+  typedef Dali::DevelWindow::DeviceInfoEventSignalType               DeviceInfoEventSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -625,6 +627,12 @@ private:
   void OnResizeCompleted(Dali::Window::WindowSize& size);
 
   /**
+   * @brief Called when a device such as a mouse or keyboard is connected or disconnected.
+   * @param[in] deviceInfoEvent the device info event
+   */
+  void OnDeviceInfoEvent(const Dali::DevelWindow::DeviceInfoEvent& deviceInfoEvent);
+
+  /**
    * @brief Set available orientation to window base.
    */
   void SetAvailableAnlges(const std::vector<int>& angles);
@@ -812,6 +820,14 @@ public: // Signals
     return mResizeCompletedSignal;
   }
 
+  /**
+   * @copydoc Dali::DevelWindow::DeviceInfoEventSignal()
+   */
+  DeviceInfoEventSignalType& DeviceInfoEventSignal()
+  {
+    return mDeviceInfoEventSignal;
+  }
+
 private:
   WindowRenderSurface* mWindowSurface; ///< The window rendering surface
   WindowBase*          mWindowBase;
@@ -823,10 +839,10 @@ private:
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;               ///< The angle of the rotation
-  int mWindowWidth;                 ///< The width of the window
-  int mWindowHeight;                ///< The height of the window
-  int mNativeWindowId;              ///< The Native Window Id
+  int mRotationAngle;  ///< The angle of the rotation
+  int mWindowWidth;    ///< The width of the window
+  int mWindowHeight;   ///< The height of the window
+  int mNativeWindowId; ///< The Native Window Id
 
   EventHandlerPtr mEventHandler;    ///< The window events handler
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
@@ -845,6 +861,7 @@ private:
   MouseInOutEventSignalType               mMouseInOutEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
+  DeviceInfoEventSignalType               mDeviceInfoEventSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;
@@ -856,7 +873,7 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1;     ///< The window rotating flag.
+  bool mIsWindowRotating : 1;      ///< The window rotating flag.
   bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
 };
 

@@ -44,7 +44,8 @@ WindowBase::WindowBase()
   mAuxiliaryMessageSignal(),
   mMouseInOutEventSignal(),
   mMoveCompletedSignal(),
-  mResizeCompletedSignal()
+  mResizeCompletedSignal(),
+  mDeviceInfoEventSignal()
 {
 }
 
@@ -155,6 +156,11 @@ WindowBase::MoveCompletedSignalType& WindowBase::MoveCompletedSignal()
 WindowBase::ResizeCompletedSignalType& WindowBase::ResizeCompletedSignal()
 {
   return mResizeCompletedSignal;
+}
+
+WindowBase::DeviceInfoEventSignalType& WindowBase::DeviceInfoEventSignal()
+{
+  return mDeviceInfoEventSignal;
 }
 
 } // namespace Adaptor
