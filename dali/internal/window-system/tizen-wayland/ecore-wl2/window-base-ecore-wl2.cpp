@@ -739,35 +739,6 @@ static Eina_Bool EcoreEventWindowResizeCompleted(void* data, int type, void* eve
   return ECORE_CALLBACK_RENEW;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-// Window Device Info Callbacks
-/////////////////////////////////////////////////////////////////////////////////////////////////
-/**
- * Called when a device is added.
- */
-static Eina_Bool EcoreEventDeviceAdd(void* data, int type, void* event)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
-  if(windowBase)
-  {
-    windowBase->OnDeviceInfo(data, type, event, Dali::DevelWindow::DeviceInfoEvent::Type::CONNECTED);
-  }
-  return ECORE_CALLBACK_PASS_ON;
-}
-
-/**
- * Called when a device is removed
- */
-static Eina_Bool EcoreEventDeviceDel(void* data, int type, void* event)
-{
-  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
-  if(windowBase)
-  {
-    windowBase->OnDeviceInfo(data, type, event, Dali::DevelWindow::DeviceInfoEvent::Type::DISCONNECTED);
-  }
-  return ECORE_CALLBACK_PASS_ON;
-}
-
 static void RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -1017,10 +988,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   // Register Window is moved and resized done event.
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, EcoreEventWindowMoveCompleted, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, EcoreEventWindowResizeCompleted, this));
-
-  // Register Device Info
-  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_DEVICE_ADD, EcoreEventDeviceAdd, this));
-  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_DEVICE_DEL, EcoreEventDeviceDel, this));
 
   Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
   mDisplay                   = ecore_wl2_display_get(display);
@@ -1634,32 +1601,6 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
     Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
     DALI_LOG_RELEASE_INFO("window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
     mResizeCompletedSignal.Emit(newSize);
-  }
-}
-
-void WindowBaseEcoreWl2::OnDeviceInfo(void* data, int type, void* event, Dali::DevelWindow::DeviceInfoEvent::Type action)
-{
-  Ecore_Event_Device_Info* deviceInfo = static_cast<Ecore_Event_Device_Info*>(event);
-
-  if(deviceInfo->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
-  {
-    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_DEVICE_INFO");
-
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnDeviceInfo: name: %s, identifier: %s, seatname: %s\n", deviceInfo->name, deviceInfo->identifier, deviceInfo->seatname);
-
-    std::string name(deviceInfo->name);
-    std::string identifier(deviceInfo->identifier);
-    std::string seatname(deviceInfo->seatname);
-
-    Device::Class::Type    deviceClass;
-    Device::Subclass::Type deviceSubclass;
-
-    GetDeviceClass(deviceInfo->clas, deviceClass);
-    GetDeviceSubclass(deviceInfo->subclas, deviceSubclass);
-
-    Dali::DevelWindow::DeviceInfoEvent deviceInfoEvent(action, name, identifier, seatname, deviceClass, deviceSubclass);
-
-    mDeviceInfoEventSignal.Emit(deviceInfoEvent);
   }
 }
 

@@ -22,7 +22,6 @@
 #include <memory>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/device-info-event.h>
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
@@ -53,7 +52,6 @@ typedef Signal<void(Window, Dali::WindowOrientation)>                           
 typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
 typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
-typedef Signal<void(Window, const Dali::DevelWindow::DeviceInfoEvent&)>              DeviceInfoEventSignalType;               ///< DeviceInfoEvent signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -611,19 +609,6 @@ DALI_ADAPTOR_API MoveCompletedSignalType& MoveCompletedSignal(Window window);
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window);
-
-/**
- * @brief This signal is emitted when the device info event is received.
- *
- * A callback of the following type may be connected:
- * @code
- *   void YourCallbackName( Window window, Dali::DeviceInfoEvent event );
- * @endcode
- *
- * @param[in] window The window instance.
- * @return The signal to connect to
- */
-DALI_ADAPTOR_API DeviceInfoEventSignalType& DeviceInfoEventSignal(Window window);
 
 } // namespace DevelWindow
 
