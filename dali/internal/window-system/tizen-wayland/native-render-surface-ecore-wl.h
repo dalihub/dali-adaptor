@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
@@ -41,11 +42,11 @@ class NativeRenderSurfaceEcoreWl : public Dali::NativeRenderSurface
 {
 public:
   /**
-    * Uses an Wayland surface to render to.
-    * @param [in] surfaceSize the size of the surface
-    * @param [in] surface the native surface handle
-    * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
-    */
+   * Uses an Wayland surface to render to.
+   * @param [in] surfaceSize the size of the surface
+   * @param [in] surface the native surface handle
+   * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
+   */
   NativeRenderSurfaceEcoreWl(SurfaceSize surfaceSize, Any surface, bool isTransparent = false);
 
   /**
@@ -53,7 +54,13 @@ public:
    */
   virtual ~NativeRenderSurfaceEcoreWl();
 
-public: // from WindowRenderSurface
+public:
+  /**
+   * @brief Triggers the FrameRenderedCallback
+   */
+  void TriggerFrameRenderedCallback();
+
+public: // from NativeRenderSurface
   /**
    * @copydoc Dali::NativeRenderSurface::SetRenderNotification()
    */
@@ -63,6 +70,11 @@ public: // from WindowRenderSurface
    * @copydoc Dali::NativeRenderSurface::GetNativeRenderable()
    */
   virtual Any GetNativeRenderable() override;
+
+  /**
+   * @copydoc Dali::NativeRenderSurface::SetFrameRenderedCallback()
+   */
+  void SetFrameRenderedCallback(CallbackBase* callback) override;
 
 public: // from Dali::RenderSurfaceInterface
   /**
@@ -178,8 +190,9 @@ private: // Data
   bool                                  mOwnSurface;
   std::vector<Rect<int>>                mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass
 
-  tbm_surface_queue_h             mTbmQueue;
-  ThreadSynchronizationInterface* mThreadSynchronization; ///< A pointer to the thread-synchronization
+  tbm_surface_queue_h                  mTbmQueue;
+  ThreadSynchronizationInterface*      mThreadSynchronization; ///< A pointer to the thread-synchronization
+  std::unique_ptr<EventThreadCallback> mFrameRenderedCallback; ///< The FrameRendredCallback called from graphics driver
 };
 
 } // namespace Dali

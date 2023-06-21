@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,11 @@ Uint16Pair OffscreenWindow::GetDpi() const
 void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
 {
   Internal::GetImplementation(*this).SetPostRenderCallback(callback);
+}
+
+void OffscreenWindow::SetFrameRenderedCallback(CallbackBase* callback)
+{
+  Internal::GetImplementation(*this).SetFrameRenderedCallback(callback);
 }
 
 OffscreenWindow::OffscreenWindow(Internal::OffscreenWindow* window)

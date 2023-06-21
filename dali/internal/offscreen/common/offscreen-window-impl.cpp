@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,6 +113,19 @@ void OffscreenWindow::SetPostRenderCallback(CallbackBase* callback)
   }
 
   surface->SetRenderNotification(mRenderNotification.get());
+}
+
+void OffscreenWindow::SetFrameRenderedCallback(CallbackBase* callback)
+{
+  NativeRenderSurface* surface = GetNativeRenderSurface();
+
+  if(!surface)
+  {
+    DALI_LOG_ERROR("NativeRenderSurface is null.");
+    return;
+  }
+
+  surface->SetFrameRenderedCallback(callback);
 }
 
 NativeRenderSurface* OffscreenWindow::GetNativeRenderSurface() const

@@ -323,6 +323,12 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
   // elements. This avoids having to sort the bindings.
   for(const auto& binding : mImpl->mCurrentTextureBindings)
   {
+    if(currentSampler >= samplers.size())
+    {
+      // Don't bind more textures than there are active samplers.
+      break;
+    }
+
     auto texture = const_cast<GLES::Texture*>(static_cast<const GLES::Texture*>(binding.texture));
 
     // Texture may not have been initialized yet...(tbm_surface timing issue?)
@@ -348,11 +354,6 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         ++currentSampler;
         currentElement = 0;
       }
-    }
-    if(currentSampler >= samplers.size())
-    {
-      // Don't bind more textures than there are active samplers.
-      break;
     }
   }
 
