@@ -190,8 +190,8 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   bool isSetWithScreenSize = false;
   if(mWindowWidth <= 0 || mWindowHeight <= 0)
   {
-    mWindowWidth         = screenWidth;
-    mWindowHeight        = screenHeight;
+    mWindowWidth        = screenWidth;
+    mWindowHeight       = screenHeight;
     isSetWithScreenSize = true;
     DALI_LOG_RELEASE_INFO("Window size is set with screen size(%d x %d)\n", mWindowWidth, mWindowHeight);
   }
@@ -332,6 +332,16 @@ Dali::Layer Window::GetLayer(uint32_t depth) const
 void Window::KeepRendering(float durationSeconds)
 {
   mScene.KeepRendering(durationSeconds);
+}
+
+void Window::SetPartialUpdateEnabled(bool enabled)
+{
+  mScene.SetPartialUpdateEnabled(enabled);
+}
+
+bool Window::IsPartialUpdateEnabled() const
+{
+  return mScene.IsPartialUpdateEnabled();
 }
 
 std::string Window::GetNativeResourceId() const

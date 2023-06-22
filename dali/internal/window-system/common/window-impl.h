@@ -169,6 +169,16 @@ public:
   void KeepRendering(float durationSeconds);
 
   /**
+   * @copydoc Dali::Window::SetPartialUpdateEnabled()
+   */
+  void SetPartialUpdateEnabled(bool enabled);
+
+  /**
+   * @copydoc Dali::Window::IsPartialUpdateEnabled()
+   */
+  bool IsPartialUpdateEnabled() const;
+
+  /**
    * @brief Get window resource ID assigned by window manager
    * @return The resource ID of the window
    */
@@ -823,10 +833,10 @@ private:
   std::vector<int> mAvailableAngles;
   int              mPreferredAngle;
 
-  int mRotationAngle;               ///< The angle of the rotation
-  int mWindowWidth;                 ///< The width of the window
-  int mWindowHeight;                ///< The height of the window
-  int mNativeWindowId;              ///< The Native Window Id
+  int mRotationAngle;  ///< The angle of the rotation
+  int mWindowWidth;    ///< The width of the window
+  int mWindowHeight;   ///< The height of the window
+  int mNativeWindowId; ///< The Native Window Id
 
   EventHandlerPtr mEventHandler;    ///< The window events handler
   OrientationMode mOrientationMode; ///< The physical screen mode is portrait or landscape
@@ -856,7 +866,7 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1;     ///< The window rotating flag.
+  bool mIsWindowRotating : 1;      ///< The window rotating flag.
   bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
 };
 
