@@ -88,6 +88,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
   static void PreLoadRun(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool syncCreation);
 
   /**
+   * @brief Joins font threads, waiting for their execution to complete.
+   */
+  static void JoinFontThreads();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::ClearCache()
    */
   void ClearCache();

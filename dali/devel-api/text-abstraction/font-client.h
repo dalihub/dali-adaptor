@@ -682,6 +682,11 @@ DALI_ADAPTOR_API void FontClientPreCache(const FontFamilyList& fallbackFamilyLis
  */
 DALI_ADAPTOR_API void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList& memoryFontPathList, bool useThread, bool syncCreation);
 
+/**
+  * @brief Joins font threads, waiting for their execution to complete.
+  */
+DALI_ADAPTOR_API void FontClientJoinFontThreads();
+
 } // namespace TextAbstraction
 
 } // namespace Dali

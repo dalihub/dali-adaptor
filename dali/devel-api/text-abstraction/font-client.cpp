@@ -869,6 +869,11 @@ void FontClientFontPreLoad(const FontPathList& fontPathList, const FontPathList&
   Internal::FontClient::PreLoad(fontPathList, memoryFontPathList, useThread, syncCreation);
 }
 
+void FontClientJoinFontThreads()
+{
+  Internal::FontClient::JoinFontThreads();
+}
+
 } // namespace TextAbstraction
 
 } // namespace Dali
