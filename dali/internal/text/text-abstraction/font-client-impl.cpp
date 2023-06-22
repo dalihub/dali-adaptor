@@ -57,9 +57,32 @@ namespace TextAbstraction
 {
 namespace Internal
 {
+class FontThread
+{
+/*
+ * There are cases in the candidate process where the font thread is
+ * no UI or when the font client is not used.
+ * In such cases, we can ensure the join of the font thread
+ * by calling the join method in the destructor of this class.
+ */
+public:
+  FontThread()
+  {
+  }
+  ~FontThread()
+  {
+    if(mThread.joinable())
+    {
+      mThread.join();
+    }
+  }
+  std::thread mThread;
+};
+
 Dali::TextAbstraction::FontClient FontClient::gPreCreatedFontClient(NULL);
-std::thread                       gPreCacheThread;
-std::thread                       gPreLoadThread;
+
+FontThread                        gPreCacheThread;
+FontThread                        gPreLoadThread;
 std::mutex                        gMutex;
 std::condition_variable           gPreCacheCond;
 std::condition_variable           gPreLoadCond;
@@ -101,17 +124,8 @@ Dali::TextAbstraction::FontClient FontClient::Get()
     }
     else // create and register the object
     {
-      if(gPreCacheThread.joinable())
-      {
-        gPreCacheThread.join();
-        FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache thread join\n");
-      }
-
-      if(gPreLoadThread.joinable())
-      {
-        gPreLoadThread.join();
-        FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad thread join\n");
-      }
+      // Check the joinable status of PreCahe and PreLoad thread, and join them
+      JoinFontThreads();
 
       if(gPreCreatedFontClient)
       {
@@ -205,9 +219,10 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
     return;
   }
 
-  if(gPreCacheThread.joinable())
+  if(gPreCacheThread.mThread.joinable())
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient pre-cache thread already running.\n");
+    return;
   }
 
   if(!gPreCreatedFontClient)
@@ -232,13 +247,13 @@ void FontClient::PreCache(const FontFamilyList& fallbackFamilyList, const FontFa
       gPreCacheThreadReady = false;
       std::unique_lock<std::mutex> lock(gMutex);
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
-      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
+      gPreCacheThread.mThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
       gPreCacheCond.wait_for(lock, timeout, []{return gPreCacheThreadReady;});
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_PRECACHE_THREAD_SYNC_CREATION\n");
     }
     else
     {
-      gPreCacheThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
+      gPreCacheThread.mThread = std::thread(PreCacheRun, fallbackFamilyList, extraFamilyList, localeFamily, syncCreation);
     }
   }
   else
@@ -255,7 +270,7 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
     return;
   }
 
-  if(gPreLoadThread.joinable())
+  if(gPreLoadThread.mThread.joinable())
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "FontClient font pre-load thread already running.\n");
     return;
@@ -282,18 +297,33 @@ void FontClient::PreLoad(const FontPathList& fontPathList, const FontPathList& m
       gPreLoadThreadReady = false;
       std::unique_lock<std::mutex> lock(gMutex);
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "BEGIN: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
-      gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
+      gPreLoadThread.mThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
       gPreLoadCond.wait_for(lock, timeout, []{return gPreLoadThreadReady;});
       FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "END: DALI_TEXT_FONT_PRELOAD_THREAD_SYNC_CREATION\n");
     }
     else
     {
-      gPreLoadThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
+      gPreLoadThread.mThread = std::thread(PreLoadRun, fontPathList, memoryFontPathList, syncCreation);
     }
   }
   else
   {
     GetImplementation(gPreCreatedFontClient).FontPreLoad(fontPathList, memoryFontPathList);
+  }
+}
+
+void FontClient::JoinFontThreads()
+{
+  if(gPreCacheThread.mThread.joinable())
+  {
+    gPreCacheThread.mThread.join();
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreCache thread join\n");
+  }
+
+  if(gPreLoadThread.mThread.joinable())
+  {
+    gPreLoadThread.mThread.join();
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "FontClient PreLoad thread join\n");
   }
 }
 
