@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,9 @@ static bool gMaxTextureSizeUpdated = false;
  */
 enum FileFormats
 {
+  // Unsupported file format that we should not process image loader.
+  FORMAT_UNSUPPORTED = -2,
+
   // Unknown file format
   FORMAT_UNKNOWN = -1,
 
@@ -99,12 +102,12 @@ const unsigned int MAGIC_LENGTH = 2;
  */
 struct FormatExtension
 {
-  const std::string extension;
-  FileFormats       format;
+  const std::string_view extension;
+  FileFormats            format;
 };
 
 // clang-format off
-const FormatExtension FORMAT_EXTENSIONS[] =
+constexpr FormatExtension FORMAT_EXTENSIONS[] =
   {
     {".png",  FORMAT_PNG },
     {".jpg",  FORMAT_JPEG},
@@ -114,7 +117,10 @@ const FormatExtension FORMAT_EXTENSIONS[] =
     {".ktx",  FORMAT_KTX },
     {".astc", FORMAT_ASTC},
     {".ico",  FORMAT_ICO },
-    {".wbmp", FORMAT_WBMP}
+    {".wbmp", FORMAT_WBMP},
+    {".svg",  FORMAT_UNSUPPORTED}, // SVG
+    {".tvg",  FORMAT_UNSUPPORTED}, // ThorVG
+    {".json", FORMAT_UNSUPPORTED}, // Lottie
   };
 // clang-format on
 
@@ -156,6 +162,12 @@ bool GetBitmapLoaderFunctions(FILE*                                        fp,
                               Bitmap::Profile&                             profile,
                               const std::string&                           filename)
 {
+  // Fast out if image loader doesn't support the format.
+  if(DALI_UNLIKELY(format == FORMAT_UNSUPPORTED))
+  {
+    return false;
+  }
+
   unsigned char magic[MAGIC_LENGTH];
   size_t        read = fread(magic, sizeof(unsigned char), MAGIC_LENGTH, fp);
 
@@ -415,6 +427,14 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
   unsigned int width  = 0;
   unsigned int height = 0;
 
+  const FileFormats formatHint = GetFormatHint(filename);
+
+  // Fast out if image loader doesn't support the format.
+  if(formatHint == FileFormats::FORMAT_UNSUPPORTED)
+  {
+    return ImageDimensions(width, height);
+  }
+
   Internal::Platform::FileReader fileReader(filename);
   FILE*                          fp = fileReader.GetFile();
   if(fp != NULL)
@@ -425,7 +445,7 @@ ImageDimensions GetClosestImageSize(const std::string& filename,
     Bitmap::Profile                             profile;
 
     if(GetBitmapLoaderFunctions(fp,
-                                GetFormatHint(filename),
+                                formatHint,
                                 loaderFunction,
                                 planeLoader,
                                 headerFunction,
