@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ struct CallbackData
       mSource = g_idle_source_new();
       g_source_set_priority(mSource, G_PRIORITY_HIGH_IDLE);
       g_source_set_callback(mSource, &CallbackData::IdleCallback, this, nullptr); // No destroyNotify
-      guint id = g_source_attach(mSource, context);
+      g_source_attach(mSource, context);
     }
   }
 

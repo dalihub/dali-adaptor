@@ -1,6 +1,3 @@
-#ifndef DALI_INTERNAL_SYSTEM_SETTINGS_H
-#define DALI_INTERNAL_SYSTEM_SETTINGS_H
-
 /*
  * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
@@ -18,8 +15,12 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
+// CLASS HEADER
+#include <dali/internal/adaptor/macos/framework-factory-mac.h>
+
+// INTERNAL HEADERS
+#include <dali/internal/adaptor/macos/framework-mac.h>
+#include <dali/internal/window-system/common/display-utils.h>
 
 namespace Dali
 {
@@ -27,24 +28,16 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace SystemSettings
+std::unique_ptr<Framework> FrameworkFactoryMac::CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
-/**
- *  Gets the path at which application resources are stored.
- */
-std::string GetResourcePath();
+  return Utils::MakeUnique<FrameworkMac>(observer, taskObserver, argc, argv, type, useUiThread);
+}
 
-/**
- *  Gets the path at which application data are stored.
- */
-std::string GetDataPath();
-
-} // namespace SystemSettings
+std::unique_ptr<FrameworkFactory> GetFrameworkFactory()
+{
+  return Utils::MakeUnique<FrameworkFactoryMac>();
+}
 
 } // namespace Adaptor
-
 } // namespace Internal
-
 } // namespace Dali
-
-#endif // DALI_INTERNAL_SYSTEM_SETTINGS_H

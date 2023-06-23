@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
  *
  */
 
-// EXTERNAL INCLUDES
-
-// INTERNAL INCLUDES
+// CLASS HEADER
 #include <dali/internal/system/common/system-settings.h>
 
 namespace Dali
@@ -26,15 +24,19 @@ namespace Internal
 {
 namespace Adaptor
 {
-int GetElmAccessActionOver()
+namespace SystemSettings
 {
-  return 0;
+std::string GetResourcePath()
+{
+  return DALI_DATA_RO_DIR;
 }
 
-int GetLongPressTime(int defaultTime)
+std::string GetDataPath()
 {
-  return defaultTime;
+  return "";
 }
+
+} // namespace SystemSettings
 
 } // namespace Adaptor
 

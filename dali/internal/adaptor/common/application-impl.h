@@ -520,7 +520,7 @@ private:
   LowMemorySignalType                mTaskLowMemorySignal;
   DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
-  Framework* mFramework;
+  std::unique_ptr<Framework> mFramework;
 
   CommandLineOptions* mCommandLineOptions;
 

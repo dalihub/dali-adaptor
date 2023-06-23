@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
 
 // EXTERNAL INCLUDES
 #include <app_common.h>
@@ -39,10 +38,6 @@
 #include <Eldbus.h>
 #endif // DALI_ELDBUS_AVAILABLE
 
-#if defined(TIZEN_PLATFORM_CONFIG_SUPPORTED) && TIZEN_PLATFORM_CONFIG_SUPPORTED
-#include <tzplatform_config.h>
-#endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
-
 #ifdef COMPONENT_APPLICATION_SUPPORT
 #include <component_based_app_base.h>
 #endif
@@ -51,7 +46,6 @@
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/system/linux/dali-ecore.h>
 
 using namespace tizen_cpp;
@@ -249,7 +243,7 @@ DeviceStatus::Orientation::Status GetOrientationStatus(app_device_orientation_e 
 /**
  * Impl to hide EFL data members
  */
-struct Framework::Impl
+struct FrameworkTizen::Impl
 {
   class UiAppContext : public AppCoreUiBase
   {
@@ -257,7 +251,7 @@ struct Framework::Impl
     class Task : public AppCoreTaskBase
     {
     public:
-      explicit Task(Framework* framework)
+      explicit Task(FrameworkTizen* framework)
       : mFramework(framework),
         mNewBatteryStatus(Dali::DeviceStatus::Battery::Status::NORMAL),
         mNewMemoryStatus(Dali::DeviceStatus::Memory::NORMAL),
@@ -328,10 +322,9 @@ struct Framework::Impl
         mNewMemoryStatus = AppCore::GetMemoryStatus(static_cast<app_event_low_memory_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<Framework*>(task->mFramework);
+            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
             framework->mObserver.OnMemoryLow(task->mNewMemoryStatus);
             return G_SOURCE_REMOVE;
           });
@@ -346,10 +339,9 @@ struct Framework::Impl
         mNewDeviceOrientationStatus = AppCore::GetOrientationStatus(static_cast<app_device_orientation_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<Framework*>(task->mFramework);
+            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
             framework->mObserver.OnDeviceOrientationChanged(task->mNewDeviceOrientationStatus);
             return G_SOURCE_REMOVE;
           });
@@ -364,10 +356,9 @@ struct Framework::Impl
         mNewBatteryStatus = AppCore::GetBatteryStatus(static_cast<app_event_low_battery_status_e>(state));
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<Framework*>(task->mFramework);
+            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
             framework->mObserver.OnBatteryLow(task->mNewBatteryStatus);
             return G_SOURCE_REMOVE;
           });
@@ -382,10 +373,9 @@ struct Framework::Impl
         mFramework->SetLanguage(mNewLanguage);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<Framework*>(task->mFramework);
+            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
             framework->mObserver.OnLanguageChanged();
             return G_SOURCE_REMOVE;
           });
@@ -401,10 +391,9 @@ struct Framework::Impl
         mFramework->SetRegion(mNewRegion);
 
         PostToUiThread(
-          [](gpointer userData) -> gboolean
-          {
+          [](gpointer userData) -> gboolean {
             auto* task      = static_cast<Task*>(userData);
-            auto* framework = static_cast<Framework*>(task->mFramework);
+            auto* framework = static_cast<FrameworkTizen*>(task->mFramework);
             framework->mObserver.OnRegionChanged();
             return G_SOURCE_REMOVE;
           });
@@ -439,7 +428,7 @@ struct Framework::Impl
       }
 
     private:
-      Framework*                              mFramework;
+      FrameworkTizen*                         mFramework;
       std::string                             mNewLanguage;
       std::string                             mNewRegion;
       Dali::DeviceStatus::Battery::Status     mNewBatteryStatus;
@@ -447,7 +436,7 @@ struct Framework::Impl
       Dali::DeviceStatus::Orientation::Status mNewDeviceOrientationStatus;
     };
 
-    explicit UiAppContext(unsigned int hint, Framework* framework)
+    explicit UiAppContext(unsigned int hint, FrameworkTizen* framework)
     : AppCoreUiBase(hint),
       mFramework(framework),
       mUseUiThread(false)
@@ -606,8 +595,8 @@ struct Framework::Impl
       auto*     framework = context->mFramework;
       Observer* observer  = &framework->mObserver;
 
-      char* lang = nullptr;
-      auto appEventReturn = app_event_get_language(event_info, &lang);
+      char* lang           = nullptr;
+      auto  appEventReturn = app_event_get_language(event_info, &lang);
       if(appEventReturn == APP_ERROR_NONE && lang)
       {
         framework->SetLanguage(std::string(lang));
@@ -626,8 +615,8 @@ struct Framework::Impl
       auto*     framework = context->mFramework;
       Observer* observer  = &framework->mObserver;
 
-      char* region = nullptr;
-      auto appEventReturn = app_event_get_region_format(event_info, &region);
+      char* region         = nullptr;
+      auto  appEventReturn = app_event_get_region_format(event_info, &region);
       if(appEventReturn == APP_ERROR_NONE && region)
       {
         framework->SetRegion(std::string(region));
@@ -647,7 +636,7 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_event_low_battery_status_e status;
-      auto appEventReturn = app_event_get_low_battery_status(event_info, &status);
+      auto                           appEventReturn = app_event_get_low_battery_status(event_info, &status);
       if(appEventReturn == APP_ERROR_NONE)
       {
         Dali::DeviceStatus::Battery::Status result = AppCore::GetBatteryStatus(status);
@@ -666,7 +655,7 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_event_low_memory_status_e status;
-      auto appEventReturn = app_event_get_low_memory_status(event_info, &status);
+      auto                          appEventReturn = app_event_get_low_memory_status(event_info, &status);
       if(appEventReturn == APP_ERROR_NONE)
       {
         Dali::DeviceStatus::Memory::Status result = AppCore::GetMemoryStatus(status);
@@ -685,7 +674,7 @@ struct Framework::Impl
       Observer* observer  = &framework->mObserver;
 
       app_device_orientation_e status;
-      auto appEventReturn = app_event_get_device_orientation(event_info, &status);
+      auto                     appEventReturn = app_event_get_device_orientation(event_info, &status);
       if(appEventReturn == APP_ERROR_NONE)
       {
         Dali::DeviceStatus::Orientation::Status result = AppCore::GetOrientationStatus(status);
@@ -697,7 +686,7 @@ struct Framework::Impl
       }
     }
 
-    void ProcessBundle(Framework* framework, bundle* bundleData)
+    void ProcessBundle(FrameworkTizen* framework, bundle* bundleData)
     {
       if(bundleData == nullptr)
       {
@@ -720,7 +709,7 @@ struct Framework::Impl
     }
 
   private:
-    Framework*                mFramework;
+    FrameworkTizen*           mFramework;
     std::shared_ptr<AppEvent> mLanguageChanged;
     std::shared_ptr<AppEvent> mDeviceOrientationChanged;
     std::shared_ptr<AppEvent> mRegionFormatChanged;
@@ -731,16 +720,14 @@ struct Framework::Impl
 
   // Constructor
   Impl(void* data, Type type, bool useUiThread)
-  : mAbortCallBack(NULL),
-    mCallbackManager(NULL),
-    handlers{nullptr, nullptr, nullptr, nullptr, nullptr},
+  : handlers{nullptr, nullptr, nullptr, nullptr, nullptr},
     mUseUiThread(useUiThread)
 #ifdef APPCORE_WATCH_AVAILABLE
     ,
     mWatchCallback()
 #endif
   {
-    mFramework = static_cast<Framework*>(data);
+    mFramework = static_cast<FrameworkTizen*>(data);
 
 #ifndef APPCORE_WATCH_AVAILABLE
     if(type == WATCH)
@@ -749,17 +736,10 @@ struct Framework::Impl
     }
 #endif
     mApplicationType = type;
-    mCallbackManager = CallbackManager::New();
   }
 
   ~Impl()
   {
-    delete mAbortCallBack;
-
-    // we're quiting the main loop so
-    // mCallbackManager->RemoveAllCallBacks() does not need to be called
-    // to delete our abort handler
-    delete mCallbackManager;
   }
 
   int AppMain()
@@ -866,13 +846,11 @@ struct Framework::Impl
   }
 
   // Data
-  Type             mApplicationType;
-  CallbackBase*    mAbortCallBack;
-  CallbackManager* mCallbackManager;
-  std::string      mLanguage{};
-  std::string      mRegion{};
+  Type        mApplicationType;
+  std::string mLanguage{};
+  std::string mRegion{};
 
-  Framework*                    mFramework;
+  FrameworkTizen*               mFramework;
   AppCore::AppEventHandlerPtr   handlers[5];
   std::unique_ptr<UiAppContext> mUiAppContext{nullptr};
   bool                          mUseUiThread{false};
@@ -880,7 +858,7 @@ struct Framework::Impl
   watch_app_lifecycle_callback_s mWatchCallback;
 #endif
 
-  static void ProcessBundle(Framework* framework, bundle* bundleData)
+  static void ProcessBundle(FrameworkTizen* framework, bundle* bundleData)
   {
     if(bundleData == NULL)
     {
@@ -946,8 +924,8 @@ struct Framework::Impl
 
   static void AppLanguageChanged(AppCore::AppEventInfoPtr event, void* data)
   {
-    Framework* framework = static_cast<Framework*>(data);
-    Observer*  observer  = &framework->mObserver;
+    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
+    Observer*       observer  = &framework->mObserver;
 
     if(event && event->value)
     {
@@ -962,8 +940,8 @@ struct Framework::Impl
 
   static void AppRegionChanged(AppCore::AppEventInfoPtr event, void* data)
   {
-    Framework* framework = static_cast<Framework*>(data);
-    Observer*  observer  = &framework->mObserver;
+    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
+    Observer*       observer  = &framework->mObserver;
 
     if(event && event->value)
     {
@@ -978,7 +956,7 @@ struct Framework::Impl
 
   static void AppBatteryLow(AppCore::AppEventInfoPtr event, void* data)
   {
-    Observer*                           observer = &static_cast<Framework*>(data)->mObserver;
+    Observer*                           observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     int                                 status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
 
@@ -1003,7 +981,7 @@ struct Framework::Impl
 
   static void AppMemoryLow(AppCore::AppEventInfoPtr event, void* data)
   {
-    Observer*                          observer = &static_cast<Framework*>(data)->mObserver;
+    Observer*                          observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     int                                status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
 
@@ -1033,7 +1011,7 @@ struct Framework::Impl
 
   static void AppDeviceOrientationChanged(AppCore::AppEventInfoPtr event, void* data)
   {
-    Observer*                               observer = &static_cast<Framework*>(data)->mObserver;
+    Observer*                               observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     int                                     status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
 
@@ -1121,12 +1099,12 @@ struct Framework::Impl
   static int WidgetAppCreate(void* data)
   {
     widget_base_on_create();
-    return static_cast<int>(static_cast<Framework*>(data)->Create());
+    return static_cast<int>(static_cast<FrameworkTizen*>(data)->Create());
   }
 
   static int WidgetAppTerminate(void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     observer->OnTerminate();
 
     widget_base_on_terminate();
@@ -1167,12 +1145,12 @@ struct Framework::Impl
 #ifdef APPCORE_WATCH_AVAILABLE
   static bool WatchAppCreate(int width, int height, void* data)
   {
-    return static_cast<Framework*>(data)->Create();
+    return static_cast<FrameworkTizen*>(data)->Create();
   }
 
   static void WatchAppTimeTick(watch_time_h time, void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     WatchTime curTime(time);
 
     observer->OnTimeTick(curTime);
@@ -1180,7 +1158,7 @@ struct Framework::Impl
 
   static void WatchAppAmbientTick(watch_time_h time, void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     WatchTime curTime(time);
 
     observer->OnAmbientTick(curTime);
@@ -1188,16 +1166,16 @@ struct Framework::Impl
 
   static void WatchAppAmbientChanged(bool ambient, void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
 
     observer->OnAmbientChanged(ambient);
   }
 
   static void WatchAppControl(app_control_h app_control, void* data)
   {
-    Framework* framework  = static_cast<Framework*>(data);
-    Observer*  observer   = &framework->mObserver;
-    bundle*    bundleData = NULL;
+    FrameworkTizen* framework  = static_cast<FrameworkTizen*>(data);
+    Observer*       observer   = &framework->mObserver;
+    bundle*         bundleData = NULL;
 
     app_control_to_bundle(app_control, &bundleData);
     ProcessBundle(framework, bundleData);
@@ -1208,21 +1186,21 @@ struct Framework::Impl
 
   static void WatchAppTerminate(void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
 
     observer->OnTerminate();
   }
 
   static void WatchAppPause(void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
 
     observer->OnPause();
   }
 
   static void WatchAppResume(void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
 
     observer->OnResume();
   }
@@ -1277,8 +1255,8 @@ struct Framework::Impl
 
   static void* ComponentAppCreate(void* data)
   {
-    Framework* framework = static_cast<Framework*>(data);
-    Observer*  observer  = &framework->mObserver;
+    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
+    Observer*       observer  = &framework->mObserver;
     observer->OnInit();
 
     return Dali::AnyCast<void*>(observer->OnCreate());
@@ -1286,7 +1264,7 @@ struct Framework::Impl
 
   static void ComponentAppTerminate(void* data)
   {
-    Observer* observer = &static_cast<Framework*>(data)->mObserver;
+    Observer* observer = &static_cast<FrameworkTizen*>(data)->mObserver;
     observer->OnTerminate();
   }
 
@@ -1316,17 +1294,12 @@ private:
   Impl& operator=(const Impl& impl);
 };
 
-Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
-: mObserver(observer),
-  mTaskObserver(taskObserver),
+FrameworkTizen::FrameworkTizen(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
+: Framework(observer, taskObserver, argc, argv, type, useUiThread),
   mInitialised(false),
   mPaused(false),
-  mRunning(false),
-  mArgc(argc),
-  mArgv(argv),
   mBundleName(""),
   mBundleId(""),
-  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
   mImpl(NULL)
 {
   if(mArgc == nullptr || mArgv == nullptr)
@@ -1343,12 +1316,10 @@ Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& tas
     set_last_result(TIZEN_ERROR_NOT_SUPPORTED);
   }
 
-  InitThreads();
-
   mImpl = new Impl(this, type, useUiThread);
 }
 
-Framework::~Framework()
+FrameworkTizen::~FrameworkTizen()
 {
   if(mRunning)
   {
@@ -1358,14 +1329,14 @@ Framework::~Framework()
   delete mImpl;
 }
 
-bool Framework::Create()
+bool FrameworkTizen::Create()
 {
   mInitialised = true;
   mObserver.OnInit();
   return true;
 }
 
-void Framework::Run()
+void FrameworkTizen::Run()
 {
   mRunning = true;
   int ret;
@@ -1380,116 +1351,47 @@ void Framework::Run()
   mRunning = false;
 }
 
-void Framework::Quit()
+void FrameworkTizen::Quit()
 {
   mImpl->AppExit();
 }
 
-bool Framework::IsMainLoopRunning()
-{
-  return mRunning;
-}
-
-void Framework::AddAbortCallback(CallbackBase* callback)
-{
-  mImpl->mAbortCallBack = callback;
-}
-
-std::string Framework::GetBundleName() const
+std::string FrameworkTizen::GetBundleName() const
 {
   return mBundleName;
 }
 
-void Framework::SetBundleName(const std::string& name)
+void FrameworkTizen::SetBundleName(const std::string& name)
 {
   mBundleName = name;
 }
 
-std::string Framework::GetBundleId() const
+std::string FrameworkTizen::GetBundleId() const
 {
   return mBundleId;
 }
 
-std::string Framework::GetResourcePath()
-{
-  std::string resourcePath = "";
-#if defined(TIZEN_PLATFORM_CONFIG_SUPPORTED) && TIZEN_PLATFORM_CONFIG_SUPPORTED
-  char* app_rsc_path = app_get_resource_path();
-  if(app_rsc_path)
-  {
-    resourcePath = app_rsc_path;
-    free(app_rsc_path);
-  }
-#else // For backwards compatibility with older Tizen versions
-
-  // "DALI_APPLICATION_PACKAGE" is used to get the already configured Application package path.
-  const char* environmentVariable = "DALI_APPLICATION_PACKAGE";
-  char*       value               = getenv(environmentVariable);
-  if(value != NULL)
-  {
-    resourcePath = value;
-  }
-
-  if(resourcePath.back() != '/')
-  {
-    resourcePath += "/";
-  }
-
-#endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
-
-  return resourcePath;
-}
-
-std::string Framework::GetDataPath()
-{
-  std::string result;
-  char*       dataPath = app_get_data_path();
-  if(dataPath)
-  {
-    result = dataPath;
-    free(dataPath);
-  }
-  return result;
-}
-
-void Framework::SetBundleId(const std::string& id)
+void FrameworkTizen::SetBundleId(const std::string& id)
 {
   mBundleId = id;
 }
 
-void Framework::AbortCallback()
-{
-  // if an abort call back has been installed run it.
-  if(mImpl->mAbortCallBack)
-  {
-    CallbackBase::Execute(*mImpl->mAbortCallBack);
-  }
-  else
-  {
-    Quit();
-  }
-}
-
-void Framework::InitThreads()
-{
-}
-
-void Framework::SetLanguage(const std::string& language)
+void FrameworkTizen::SetLanguage(const std::string& language)
 {
   mImpl->SetLanguage(language);
 }
 
-void Framework::SetRegion(const std::string& region)
+void FrameworkTizen::SetRegion(const std::string& region)
 {
   mImpl->SetRegion(region);
 }
 
-std::string Framework::GetLanguage() const
+std::string FrameworkTizen::GetLanguage() const
 {
   return mImpl->GetLanguage();
 }
 
-std::string Framework::GetRegion() const
+std::string FrameworkTizen::GetRegion() const
 {
   return mImpl->GetRegion();
 }

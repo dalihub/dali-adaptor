@@ -19,11 +19,7 @@
 #include <dali/internal/system/common/system-settings.h>
 
 // EXTERNAL INCLUDES
-#include <app_common.h>
-
-#if defined(TIZEN_PLATFORM_CONFIG_SUPPORTED) && TIZEN_PLATFORM_CONFIG_SUPPORTED
-#include <tzplatform_config.h>
-#endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
+#include <stdlib.h>
 
 namespace Dali
 {
@@ -35,19 +31,10 @@ namespace SystemSettings
 {
 std::string GetResourcePath()
 {
-  std::string resourcePath = "";
-#if defined(TIZEN_PLATFORM_CONFIG_SUPPORTED) && TIZEN_PLATFORM_CONFIG_SUPPORTED
-  char* app_rsc_path = app_get_resource_path();
-  if(app_rsc_path)
-  {
-    resourcePath = app_rsc_path;
-    free(app_rsc_path);
-  }
-#else // For backwards compatibility with older Tizen versions
-
-  // "DALI_APPLICATION_PACKAGE" is used to get the already configured Application package path.
-  const char* environmentVariable = "DALI_APPLICATION_PACKAGE";
-  char*       value               = getenv(environmentVariable);
+  // "DALI_APPLICATION_PACKAGE" is used by macOS specifically to get the already configured Application package path.
+  const char* macEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
+  char*       value                  = getenv(macEnvironmentVariable);
+  std::string resourcePath;
   if(value != NULL)
   {
     resourcePath = value;
@@ -58,21 +45,20 @@ std::string GetResourcePath()
     resourcePath += "/";
   }
 
-#endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
-
   return resourcePath;
 }
 
 std::string GetDataPath()
 {
-  std::string result;
-  char*       dataPath = app_get_data_path();
-  if(dataPath)
+  const char* macEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
+  char*       value                  = getenv(macEnvironmentVariable);
+  std::string dataPath;
+  if(value != NULL)
   {
-    result = dataPath;
-    free(dataPath);
+    dataPath = value;
   }
-  return result;
+
+  return dataPath;
 }
 
 } // namespace SystemSettings

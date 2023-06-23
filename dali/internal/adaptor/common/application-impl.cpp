@@ -31,10 +31,12 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/system-settings.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -124,8 +126,9 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   }
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-  mFramework          = new Framework(*this, *this, argc, argv, applicationType, mUseUiThread);
-  mUseRemoteSurface   = (applicationType == Framework::WATCH);
+  mFramework          = Dali::Internal::Adaptor::GetFrameworkFactory()->CreateFramework(*this, *this, argc, argv, applicationType, mUseUiThread);
+
+  mUseRemoteSurface = (applicationType == Framework::WATCH);
 }
 
 Application::~Application()
@@ -140,7 +143,6 @@ Application::~Application()
   mMainWindow.Reset();
 
   delete mCommandLineOptions;
-  delete mFramework;
 
   // Application is created in Main thread whether UI Threading is enabled or not.
   // But some resources are created in Main thread or UI thread.
@@ -553,12 +555,12 @@ Dali::Window Application::GetWindow()
 
 std::string Application::GetResourcePath()
 {
-  return Internal::Adaptor::Framework::GetResourcePath();
+  return SystemSettings::GetResourcePath();
 }
 
 std::string Application::GetDataPath()
 {
-  return Internal::Adaptor::Framework::GetDataPath();
+  return SystemSettings::GetDataPath();
 }
 
 void Application::SetStyleSheet(const std::string& stylesheet)

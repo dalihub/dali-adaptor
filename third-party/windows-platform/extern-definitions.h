@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@
 #define DALI_ADAPTOR_EXTERN_DEFINITIONS_H
 
 #include <xlocale>
-
-const char* app_get_data_path();
 
 static int strncasecmp(const char *s1, const char *s2, register int n)
 {

@@ -133,6 +133,7 @@ SET( adaptor_system_windows_src_files
 SET( adaptor_system_macos_src_files
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/macos/file-descriptor-monitor-macos.cpp
+    ${adaptor_system_dir}/macos/system-settings-mac.cpp
     ${adaptor_system_dir}/macos/timer-impl-mac.cpp
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp

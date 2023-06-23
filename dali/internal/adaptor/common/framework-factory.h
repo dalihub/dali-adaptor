@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_SYSTEM_SETTINGS_H
-#define DALI_INTERNAL_SYSTEM_SETTINGS_H
+#ifndef DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_FACTORY_H
+#define DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_FACTORY_H
 
 /*
  * Copyright (c) 2023 Samsung Electronics Co., Ltd.
@@ -18,8 +18,8 @@
  *
  */
 
-// EXTERNAL INCLUDES
-#include <string>
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/common/framework.h>
 
 namespace Dali
 {
@@ -27,24 +27,19 @@ namespace Internal
 {
 namespace Adaptor
 {
-namespace SystemSettings
+class FrameworkFactory
 {
-/**
- *  Gets the path at which application resources are stored.
- */
-std::string GetResourcePath();
+public:
+  FrameworkFactory()          = default;
+  virtual ~FrameworkFactory() = default;
 
-/**
- *  Gets the path at which application data are stored.
- */
-std::string GetDataPath();
+  virtual std::unique_ptr<Framework> CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) = 0;
+};
 
-} // namespace SystemSettings
+extern std::unique_ptr<FrameworkFactory> GetFrameworkFactory();
 
 } // namespace Adaptor
-
 } // namespace Internal
-
 } // namespace Dali
 
-#endif // DALI_INTERNAL_SYSTEM_SETTINGS_H
+#endif // DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_FACTORY_H
