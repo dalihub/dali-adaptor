@@ -335,6 +335,20 @@ Graphics::UniquePtr<SyncObject> EglGraphicsController::CreateSyncObject(const Sy
   }
 }
 
+MemoryRequirements EglGraphicsController::GetBufferMemoryRequirements(Buffer& buffer) const
+{
+  MemoryRequirements requirements{};
+
+  auto gl = GetGL();
+  if(gl)
+  {
+    GLint align;
+    gl->GetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &align);
+    requirements.alignment = align;
+  }
+  return requirements;
+}
+
 TextureProperties EglGraphicsController::GetTextureProperties(const Texture& texture)
 {
   const GLES::Texture* glesTexture = static_cast<const GLES::Texture*>(&texture);
@@ -916,12 +930,14 @@ void EglGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& text
 
 Graphics::UniquePtr<Memory> EglGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
 {
-  mGraphics->ActivateResourceContext();
-
   // Mapping buffer requires the object to be created NOW
   // Workaround - flush now, otherwise there will be given a staging buffer
   // in case when the buffer is not there yet
-  ProcessCreateQueues();
+  if(!mCreateBufferQueue.empty())
+  {
+    mGraphics->ActivateResourceContext();
+    ProcessCreateQueues();
+  }
 
   if(GetGLESVersion() < GLES::GLESVersion::GLES_30)
   {

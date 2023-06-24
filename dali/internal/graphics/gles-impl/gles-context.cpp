@@ -564,9 +564,9 @@ void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindin
     mImpl->mCurrentStandaloneUBOBinding = standaloneBindings;
   }
 
-  if(uboCount >= mImpl->mCurrentUBOBindings.size())
+  if(uboCount && uboCount > mImpl->mCurrentUBOBindings.size())
   {
-    mImpl->mCurrentUBOBindings.resize(uboCount + 1);
+    mImpl->mCurrentUBOBindings.resize(uboCount);
   }
 
   auto it = uboBindings;
@@ -576,6 +576,7 @@ void Context::BindUniformBuffers(const UniformBufferBindingDescriptor* uboBindin
     {
       mImpl->mCurrentUBOBindings[i] = *it;
     }
+    ++it;
   }
 }
 
@@ -704,6 +705,20 @@ void Context::ResolveUniformBuffers()
   if(mImpl->mCurrentStandaloneUBOBinding.buffer)
   {
     ResolveStandaloneUniforms();
+  }
+  if(!mImpl->mCurrentUBOBindings.empty())
+  {
+    ResolveGpuUniformBuffers();
+  }
+}
+
+void Context::ResolveGpuUniformBuffers()
+{
+  auto& gl = *mImpl->mController.GetGL();
+  auto  i  = 0u;
+  for(auto& binding : mImpl->mCurrentUBOBindings)
+  {
+    gl.BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), binding.offset, binding.dataSize);
   }
 }
 
@@ -851,6 +866,7 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
 void Context::ClearState()
 {
   mImpl->mCurrentTextureBindings.clear();
+  mImpl->mCurrentUBOBindings.clear();
 }
 
 void Context::ColorMask(bool enabled)
