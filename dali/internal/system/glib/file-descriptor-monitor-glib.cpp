@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/glib/file-descriptor-monitor-glib.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -34,7 +34,7 @@ extern GMainContext* GetMainLoopContext();
 /**
  * Using Impl to hide away framework specific members
  */
-struct FileDescriptorMonitor::Impl
+struct FileDescriptorMonitorGlib::Impl
 {
 public:
   // Constructor
@@ -62,7 +62,7 @@ public:
   {
     if(userData)
     {
-      FileDescriptorMonitor::Impl* impl = static_cast<FileDescriptorMonitor::Impl*>(userData);
+      FileDescriptorMonitorGlib::Impl* impl = static_cast<FileDescriptorMonitorGlib::Impl*>(userData);
 
       // filter the events that have occured based on what we are monitoring
       int eventType = FileDescriptorMonitor::FD_NO_EVENT;
@@ -91,7 +91,8 @@ public:
   GSource*      mPollSource;
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorGlib::FileDescriptorMonitorGlib(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   if(fileDescriptor < 1)
   {
@@ -114,7 +115,7 @@ FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* c
   mImpl = new Impl(fileDescriptor, callback, static_cast<GIOCondition>(events));
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorGlib::~FileDescriptorMonitorGlib()
 {
   delete mImpl;
 }

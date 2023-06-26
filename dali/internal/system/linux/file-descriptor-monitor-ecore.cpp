@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/linux/file-descriptor-monitor-ecore.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore.h>
@@ -33,7 +33,7 @@ namespace Adaptor
 /**
  * Using Impl to hide away EFL specific members
  */
-struct FileDescriptorMonitor::Impl
+struct FileDescriptorMonitorEcore::Impl
 {
   // Construction
   Impl(int fileDescriptor, CallbackBase* callback, int eventsToMonitor)
@@ -101,7 +101,8 @@ struct FileDescriptorMonitor::Impl
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorEcore::FileDescriptorMonitorEcore(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   mImpl = new Impl(fileDescriptor, callback, eventBitmask);
 
@@ -124,7 +125,7 @@ FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* c
   mImpl->mHandler         = ecore_main_fd_handler_add(fileDescriptor, static_cast<Ecore_Fd_Handler_Flags>(events), &Impl::EventDispatch, mImpl, NULL, NULL);
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorEcore::~FileDescriptorMonitorEcore()
 {
   if(mImpl->mHandler)
   {

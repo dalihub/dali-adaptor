@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/android/timer-impl-android.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
@@ -36,7 +36,7 @@ namespace Adaptor
 namespace
 {
 // Copied from x server
-static unsigned int GetCurrentMilliSeconds()
+static uint32_t GetCurrentMilliSeconds()
 {
   struct timeval tv;
 
@@ -73,9 +73,9 @@ static unsigned int GetCurrentMilliSeconds()
 
 } // namespace
 
-struct Timer::Impl
+struct TimerAndroid::Impl
 {
-  Impl(unsigned int milliSec)
+  Impl(uint32_t milliSec)
   : mInterval(milliSec),
     mStartTimestamp(0),
     mPauseTimestamp(0),
@@ -84,25 +84,25 @@ struct Timer::Impl
   {
   }
 
-  unsigned int mInterval;
-  unsigned int mStartTimestamp;
-  unsigned int mPauseTimestamp;
-  bool         mRunning;
-  unsigned int mId;
+  uint32_t mInterval;
+  uint32_t mStartTimestamp;
+  uint32_t mPauseTimestamp;
+  bool     mRunning;
+  uint32_t mId;
 };
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerAndroidPtr TimerAndroid::New(uint32_t milliSec)
 {
-  TimerPtr timer(new Timer(milliSec));
+  TimerAndroidPtr timer(new TimerAndroid(milliSec));
   return timer;
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerAndroid::TimerAndroid(uint32_t milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
 
-Timer::~Timer()
+TimerAndroid::~TimerAndroid()
 {
   Stop();
   delete mImpl;
@@ -110,7 +110,7 @@ Timer::~Timer()
 
 bool TimerCallback(void* data)
 {
-  Timer* timer = static_cast<Timer*>(data);
+  TimerAndroid* timer = static_cast<TimerAndroid*>(data);
   if(timer->IsRunning())
   {
     return timer->Tick();
@@ -119,7 +119,7 @@ bool TimerCallback(void* data)
   return false;
 }
 
-void Timer::Start()
+void TimerAndroid::Start()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG(Adaptor::IsAvailable());
@@ -134,7 +134,7 @@ void Timer::Start()
   mImpl->mStartTimestamp = GetCurrentMilliSeconds();
 }
 
-void Timer::Stop()
+void TimerAndroid::Stop()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG(Adaptor::IsAvailable());
@@ -149,7 +149,7 @@ void Timer::Stop()
   ResetTimerData();
 }
 
-void Timer::Pause()
+void TimerAndroid::Pause()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG(Adaptor::IsAvailable());
@@ -162,15 +162,15 @@ void Timer::Pause()
   }
 }
 
-void Timer::Resume()
+void TimerAndroid::Resume()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_DEBUG(Adaptor::IsAvailable());
 
   if(mImpl->mRunning && mImpl->mId == 0)
   {
-    unsigned int newInterval = 0;
-    unsigned int runningTime = mImpl->mPauseTimestamp - mImpl->mStartTimestamp;
+    uint32_t newInterval = 0;
+    uint32_t runningTime = mImpl->mPauseTimestamp - mImpl->mStartTimestamp;
     if(mImpl->mInterval > runningTime)
     {
       newInterval = mImpl->mInterval - runningTime;
@@ -182,7 +182,7 @@ void Timer::Resume()
   }
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerAndroid::SetInterval(uint32_t interval, bool restart)
 {
   // stop existing timer
   Stop();
@@ -195,12 +195,12 @@ void Timer::SetInterval(unsigned int interval, bool restart)
   }
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerAndroid::GetInterval() const
 {
   return mImpl->mInterval;
 }
 
-bool Timer::Tick()
+bool TimerAndroid::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -231,18 +231,13 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-void Timer::ResetTimerData()
+void TimerAndroid::ResetTimerData()
 {
   mImpl->mRunning = false;
   mImpl->mId      = 0;
 }
 
-bool Timer::IsRunning() const
+bool TimerAndroid::IsRunning() const
 {
   return mImpl->mRunning;
 }

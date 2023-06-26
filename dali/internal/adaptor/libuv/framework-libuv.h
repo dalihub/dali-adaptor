@@ -55,8 +55,8 @@ public:
 
 private:
   // Undefined
-  FrameworkLibuv(const FrameworkLibuv&);
-  FrameworkLibuv& operator=(FrameworkLibuv&);
+  FrameworkLibuv(const FrameworkLibuv&) = delete;
+  FrameworkLibuv& operator=(FrameworkLibuv&) = delete;
 
 private: // impl members
   struct Impl;

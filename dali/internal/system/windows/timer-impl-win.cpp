@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/windows/timer-impl-win.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/windows/platform-implement-win.h>
@@ -32,7 +32,7 @@ namespace
 {
 bool TimerSourceFunc(void* data)
 {
-  Timer* timer = static_cast<Timer*>(data);
+  TimerWin* timer = static_cast<TimerWin*>(data);
   return timer->Tick();
 }
 } // namespace
@@ -40,9 +40,9 @@ bool TimerSourceFunc(void* data)
 /**
  * Struct to hide away Windows implementation details
  */
-struct Timer::Impl
+struct TimerWin::Impl
 {
-  Impl(unsigned int milliSec)
+  Impl(uint32_t milliSec)
   : mId(-1),
     mInterval(milliSec)
   {
@@ -50,21 +50,21 @@ struct Timer::Impl
 
   intptr_t mId;
 
-  unsigned int mInterval;
+  uint32_t mInterval;
 };
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerWinPtr TimerWin::New(uint32_t milliSec)
 {
-  TimerPtr timer(new Timer(milliSec));
+  TimerWinPtr timer(new TimerWin(milliSec));
   return timer;
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerWin::TimerWin(uint32_t milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
 
-Timer::~Timer()
+TimerWin::~TimerWin()
 {
   // stop timers
   Stop();
@@ -73,7 +73,7 @@ Timer::~Timer()
   mImpl = NULL;
 }
 
-void Timer::Start()
+void TimerWin::Start()
 {
   if(0 > mImpl->mId)
   {
@@ -81,7 +81,7 @@ void Timer::Start()
   }
 }
 
-void Timer::Stop()
+void TimerWin::Stop()
 {
   if(0 <= mImpl->mId)
   {
@@ -90,15 +90,15 @@ void Timer::Stop()
   }
 }
 
-void Timer::Pause()
+void TimerWin::Pause()
 {
 }
 
-void Timer::Resume()
+void TimerWin::Resume()
 {
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerWin::SetInterval(uint32_t interval, bool restart)
 {
   if(true == restart)
   {
@@ -114,12 +114,12 @@ void Timer::SetInterval(unsigned int interval, bool restart)
   }
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerWin::GetInterval() const
 {
   return mImpl->mInterval;
 }
 
-bool Timer::Tick()
+bool TimerWin::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -150,12 +150,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-bool Timer::IsRunning() const
+bool TimerWin::IsRunning() const
 {
   return 0 <= mImpl->mId;
 }

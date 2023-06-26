@@ -55,8 +55,8 @@ public:
 
 private:
   // Undefined
-  FrameworkUbuntu(const FrameworkUbuntu&);
-  FrameworkUbuntu& operator=(FrameworkUbuntu&);
+  FrameworkUbuntu(const FrameworkUbuntu&) = delete;
+  FrameworkUbuntu& operator=(FrameworkUbuntu&) = delete;
 
 private:
   /**

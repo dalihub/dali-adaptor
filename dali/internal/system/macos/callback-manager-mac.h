@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@
  *
  */
 
-#include <dali/internal/system/common/callback-manager.h>
+// EXTERNAL INCLUDES
 #include <memory>
+
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/callback-manager.h>
 
 namespace Dali::Internal::Adaptor
 {
@@ -28,10 +31,18 @@ namespace Dali::Internal::Adaptor
 class CocoaCallbackManager : public CallbackManager
 {
 public:
+  /**
+   * @brief constructor
+   */
   CocoaCallbackManager();
 
   /**
-     * @copydoc CallbackManager::AddIdleCallback()
+   * @brief destructor
+   */
+  ~CocoaCallbackManager();
+
+  /**
+   * @copydoc CallbackManager::AddIdleCallback()
    */
   bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
@@ -70,7 +81,13 @@ public:
    */
   void Stop() override;
 
+  /// Implementation structure
   struct Impl;
+
+private:
+  // Undefined
+  CocoaCallbackManager(const CocoaCallbackManager&) = delete;
+  CocoaCallbackManager& operator=(CocoaCallbackManager&) = delete;
 
 private:
   std::unique_ptr<Impl> mImpl;

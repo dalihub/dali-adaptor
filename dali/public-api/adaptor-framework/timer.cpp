@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/public-api/adaptor-framework/timer.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/system/common/timer-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -28,9 +29,9 @@ Timer::Timer()
 {
 }
 
-Timer Timer::New(unsigned int milliSec)
+Timer Timer::New(uint32_t milliSec)
 {
-  Internal::Adaptor::TimerPtr internal = Internal::Adaptor::Timer::New(milliSec);
+  Internal::Adaptor::TimerPtr internal = Dali::Internal::Adaptor::GetSystemFactory()->CreateTimer(milliSec);
   return Timer(internal.Get());
 }
 

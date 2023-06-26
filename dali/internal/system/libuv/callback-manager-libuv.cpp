@@ -236,12 +236,6 @@ void UvCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData)
   mCallbackContainer.remove(callbackData);
 }
 
-// Creates a concrete interface for CallbackManager
-CallbackManager* CallbackManager::New()
-{
-  return new UvCallbackManager;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

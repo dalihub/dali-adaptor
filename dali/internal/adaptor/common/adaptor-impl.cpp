@@ -62,6 +62,7 @@
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/system/common/object-profiler.h>
+#include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>
@@ -162,7 +163,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   mEnvironmentOptions->CreateTraceManager(mPerformanceInterface);
   mEnvironmentOptions->InstallTraceFunction(); // install tracing for main thread
 
-  mCallbackManager = CallbackManager::New();
+  mCallbackManager = Dali::Internal::Adaptor::GetSystemFactory()->CreateCallbackManager();
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 
@@ -365,7 +366,9 @@ Adaptor::~Adaptor()
 
   delete mDisplayConnection;
   delete mPlatformAbstraction;
-  delete mCallbackManager;
+
+  mCallbackManager.reset();
+
   delete mPerformanceInterface;
 
   mGraphics->Destroy();

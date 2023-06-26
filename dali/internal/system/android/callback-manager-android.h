@@ -1,8 +1,8 @@
-#ifndef __DALI_ANDROID_CALLBACK_MANAGER_H__
-#define __DALI_ANDROID_CALLBACK_MANAGER_H__
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_ANDROID_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_ANDROID_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,77 +39,82 @@ class AndroidCallbackManager : public CallbackManager
 {
 public:
   /**
-     * @brief constructor
-     */
+   * @brief constructor
+   */
   AndroidCallbackManager();
 
   /**
-     * @brief destructor
-     */
+   * @brief destructor
+   */
   ~AndroidCallbackManager() = default;
 
   /**
-     * @copydoc CallbackManager::AddIdleCallback()
-     */
+   * @copydoc CallbackManager::AddIdleCallback()
+   */
   bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
   /**
-     * @copydoc CallbackManager::RemoveIdleCallback()
-     */
+   * @copydoc CallbackManager::RemoveIdleCallback()
+   */
   void RemoveIdleCallback(CallbackBase* callback) override;
 
   /**
-     * @copydoc CallbackManager::ProcessIdle()
-     */
+   * @copydoc CallbackManager::ProcessIdle()
+   */
   bool ProcessIdle() override;
 
   /**
-     * @copydoc CallbackManager::ProcessIdle()
-     */
+   * @copydoc CallbackManager::ProcessIdle()
+   */
   void ClearIdleCallbacks() override;
 
   /**
-     * @copydoc CallbackManager::AddIdleEntererCallback()
-     */
+   * @copydoc CallbackManager::AddIdleEntererCallback()
+   */
   bool AddIdleEntererCallback(CallbackBase* callback) override;
 
   /**
-     * @copydoc CallbackManager::RemoveIdleEntererCallback()
-     */
+   * @copydoc CallbackManager::RemoveIdleEntererCallback()
+   */
   void RemoveIdleEntererCallback(CallbackBase* callback) override;
 
   /**
-     * @copydoc CallbackManager::Start()
-     */
+   * @copydoc CallbackManager::Start()
+   */
   void Start() override;
 
   /**
-     * @copydoc CallbackManager::Stop()
-     */
+   * @copydoc CallbackManager::Stop()
+   */
   void Stop() override;
 
 private:
   /**
-     * @brief Remove all idle call backs that are pending
-     * Called by Stop()
-     * Always called from the main thread
-     */
+   * @brief Remove all idle call backs that are pending
+   * Called by Stop()
+   * Always called from the main thread
+   */
   void RemoveAllCallbacks();
 
   /**
-     * @brief Removes a single call back from the container
-     * Always called from main thread
-     * @param callbackData callback data
-     */
+   * @brief Removes a single call back from the container
+   * Always called from main thread
+   * @param callbackData callback data
+   */
   void RemoveCallbackFromContainer(CallbackData* callbackData);
 
   /**
-     * @brief Remove a standard call back from ecore
-     * Always called from main thread
-     * @param callbackData callback data
-     */
+   * @brief Remove a standard call back from ecore
+   * Always called from main thread
+   * @param callbackData callback data
+   */
   void RemoveStandardCallback(CallbackData* callbackData);
 
+  // Undefined
+  AndroidCallbackManager(const AndroidCallbackManager&) = delete;
+  AndroidCallbackManager& operator=(AndroidCallbackManager&) = delete;
+
+private:
   typedef std::list<CallbackData*> CallbackList;
 
   bool         mRunning;           ///< flag is set to true if when running
@@ -122,4 +127,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_ANDROID_CALLBACK_MANAGER_H__
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_ANDROID_CALLBACK_MANAGER_H

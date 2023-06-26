@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/linux/timer-impl-ecore.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -35,7 +35,7 @@ namespace
 {
 Eina_Bool TimerSourceFunc(void* data)
 {
-  Timer* timer = static_cast<Timer*>(data);
+  TimerEcore* timer = static_cast<TimerEcore*>(data);
 
   bool keepRunning = timer->Tick();
 
@@ -46,36 +46,36 @@ Eina_Bool TimerSourceFunc(void* data)
 /**
  * Struct to hide away Ecore implementation details
  */
-struct Timer::Impl
+struct TimerEcore::Impl
 {
-  Impl(unsigned int milliSec)
+  Impl(uint32_t milliSec)
   : mId(NULL),
     mInterval(milliSec)
   {
   }
 
   Ecore_Timer* mId;
-  unsigned int mInterval;
+  uint32_t     mInterval;
 };
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerEcorePtr TimerEcore::New(uint32_t milliSec)
 {
-  TimerPtr timer(new Timer(milliSec));
+  TimerEcorePtr timer(new TimerEcore(milliSec));
   return timer;
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerEcore::TimerEcore(uint32_t milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
 
-Timer::~Timer()
+TimerEcore::~TimerEcore()
 {
   ResetTimerData();
   delete mImpl;
 }
 
-void Timer::Start()
+void TimerEcore::Start()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
@@ -88,7 +88,7 @@ void Timer::Start()
   mImpl->mId      = ecore_timer_add(interval, reinterpret_cast<Ecore_Task_Cb>(TimerSourceFunc), this);
 }
 
-void Timer::Stop()
+void TimerEcore::Stop()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
@@ -96,7 +96,7 @@ void Timer::Stop()
   ResetTimerData();
 }
 
-void Timer::Pause()
+void TimerEcore::Pause()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
@@ -107,7 +107,7 @@ void Timer::Pause()
   }
 }
 
-void Timer::Resume()
+void TimerEcore::Resume()
 {
   // Timer should be used in the event thread
   DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
@@ -118,7 +118,7 @@ void Timer::Resume()
   }
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerEcore::SetInterval(uint32_t interval, bool restart)
 {
   // stop existing timer
   Stop();
@@ -131,12 +131,12 @@ void Timer::SetInterval(unsigned int interval, bool restart)
   }
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerEcore::GetInterval() const
 {
   return mImpl->mInterval;
 }
 
-bool Timer::Tick()
+bool TimerEcore::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -167,12 +167,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-void Timer::ResetTimerData()
+void TimerEcore::ResetTimerData()
 {
   if(mImpl->mId != NULL)
   {
@@ -181,7 +176,7 @@ void Timer::ResetTimerData()
   }
 }
 
-bool Timer::IsRunning() const
+bool TimerEcore::IsRunning() const
 {
   return mImpl->mId != NULL;
 }

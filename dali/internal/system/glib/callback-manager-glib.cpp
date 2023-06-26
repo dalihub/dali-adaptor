@@ -228,12 +228,6 @@ void GlibCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData
   mCallbackContainer.remove(callbackData);
 }
 
-// Creates a concrete interface for CallbackManager
-CallbackManager* CallbackManager::New()
-{
-  return new GlibCallbackManager;
-}
-
 } // namespace Adaptor
 
 } // namespace Internal

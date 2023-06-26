@@ -55,8 +55,8 @@ public:
 
 private:
   // Undefined
-  FrameworkWin(const FrameworkWin&);
-  FrameworkWin& operator=(FrameworkWin&);
+  FrameworkWin(const FrameworkWin&) = delete;
+  FrameworkWin& operator=(FrameworkWin&) = delete;
 
 private: // impl members
   struct Impl;

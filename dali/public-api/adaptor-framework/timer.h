@@ -2,7 +2,7 @@
 #define DALI_TIMER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,7 +75,7 @@ public: // API
    * @param[in] milliSec Interval in milliseconds
    * @return A new timer
    */
-  static Timer New(unsigned int milliSec);
+  static Timer New(uint32_t milliSec);
 
   /**
    * @brief Copy constructor.
@@ -165,7 +165,7 @@ public: // API
    * @SINCE_1_0.0
    * @param[in] milliSec Interval in milliseconds
    */
-  void SetInterval(unsigned int milliSec);
+  void SetInterval(uint32_t milliSec);
 
   /**
    * @brief Sets a new interval on the timer with option to restart the timer.
@@ -175,7 +175,7 @@ public: // API
    * @param[in] milliSec Interval in milliseconds
    * @param[in] restart Flag to set enabled to restart or not.
    */
-  void SetInterval(unsigned int milliSec, bool restart);
+  void SetInterval(uint32_t milliSec, bool restart);
 
   /**
    * @brief Gets the interval of timer.
@@ -183,7 +183,7 @@ public: // API
    * @SINCE_1_0.0
    * @return Interval in milliseconds
    */
-  unsigned int GetInterval() const;
+  uint32_t GetInterval() const;
 
   /**
    * @brief Tells whether timer is running.

@@ -1,8 +1,8 @@
-#ifndef DALI_WIN_CALLBACK_MANAGER_H
-#define DALI_WIN_CALLBACK_MANAGER_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_WINDOWS_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_WINDOWS_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,72 +38,77 @@ class WinCallbackManager : public CallbackManager
 {
 public:
   /**
-     * @brief constructor
-     */
+   * @brief constructor
+   */
   WinCallbackManager();
 
   /**
-     * @brief destructor
-     */
+   * @brief destructor
+   */
   ~WinCallbackManager()
   {
   }
 
   /**
-     * @copydoc CallbackManager::AddIdleCallback()
-     */
+   * @copydoc CallbackManager::AddIdleCallback()
+   */
   bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) override;
 
   /**
-     * @copydoc CallbackManager::RemoveIdleCallback()
-     */
+   * @copydoc CallbackManager::RemoveIdleCallback()
+   */
   void RemoveIdleCallback(CallbackBase* callback) override;
 
   /**
-     * @copydoc CallbackManager::ProcessIdle()
-     */
+   * @copydoc CallbackManager::ProcessIdle()
+   */
   bool ProcessIdle() override;
 
   /**
-     * @copydoc CallbackManager::ClearIdleCallbacks()
-     */
+   * @copydoc CallbackManager::ClearIdleCallbacks()
+   */
   void ClearIdleCallbacks() override;
 
   /**
-    * @brief Adds a @p callback to be run when entering an idle state.
-    * @note Must be called from the main thread only.
-    *
-    * A callback of the following type should be used:
-    * @code
-    *   bool MyFunction();
-    * @endcode
-    * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
-    *
-    * @param[in] callback custom callback function.
-    *
-    * @return true on success
-    */
+   * @brief Adds a @p callback to be run when entering an idle state.
+   * @note Must be called from the main thread only.
+   *
+   * A callback of the following type should be used:
+   * @code
+   *   bool MyFunction();
+   * @endcode
+   * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
+   *
+   * @param[in] callback custom callback function.
+   *
+   * @return true on success
+   */
   bool AddIdleEntererCallback(CallbackBase* callback) override;
 
   /**
-    * @brief Removes a previously added the idle enterer callback.
-    * @note Must be called from main thread only.
-    *
-    * Does nothing if the @p callback doesn't exist.
-    *
-    * @param[in] callback The callback to be removed.
-    */
+   * @brief Removes a previously added the idle enterer callback.
+   * @note Must be called from main thread only.
+   *
+   * Does nothing if the @p callback doesn't exist.
+   *
+   * @param[in] callback The callback to be removed.
+   */
   void RemoveIdleEntererCallback(CallbackBase* callback) override;
 
   /**
-     * @copydoc CallbackManager::Start()
-     */
+   * @copydoc CallbackManager::Start()
+   */
   void Start() override;
 
   /**
-     * @copydoc CallbackManager::Stop()
-     */
+   * @copydoc CallbackManager::Stop()
+   */
   void Stop() override;
+
+private:
+  // Undefined
+  WinCallbackManager(const WinCallbackManager&) = delete;
+  WinCallbackManager& operator=(WinCallbackManager&) = delete;
 
 private:
   std::set<CallbackBase*> mCallbacks;
@@ -116,4 +121,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_WIN_CALLBACK_MANAGER_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_WINDOWS_CALLBACK_MANAGER_H

@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H
-#define DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,6 @@
 
 namespace Dali
 {
-namespace Integration
-{
-class Core;
-}
-
 namespace Internal
 {
 namespace Adaptor
@@ -83,12 +78,14 @@ public:
    * readable or writable even when it isn’t. The developer should check for handle EAGAIN or equivalent
    * when reading from or write to the fd.
    */
-  FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask);
+  FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+  {
+  }
 
   /**
    * Destructor
    */
-  ~FileDescriptorMonitor();
+  virtual ~FileDescriptorMonitor() = default;
 
 private:
   // Undefined
@@ -96,10 +93,6 @@ private:
 
   // Undefined
   FileDescriptorMonitor& operator=(const FileDescriptorMonitor& fileDescriptorMonitor);
-
-private:
-  struct Impl;
-  Impl* mImpl;
 };
 
 } // namespace Adaptor
@@ -108,4 +101,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H

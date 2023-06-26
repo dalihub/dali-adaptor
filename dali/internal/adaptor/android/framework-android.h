@@ -71,8 +71,8 @@ public:
 
 private:
   // Undefined
-  FrameworkAndroid(const FrameworkAndroid&);
-  FrameworkAndroid& operator=(FrameworkAndroid&);
+  FrameworkAndroid(const FrameworkAndroid&) = delete;
+  FrameworkAndroid& operator=(FrameworkAndroid&) = delete;
 
 private:
   bool mInitialised;

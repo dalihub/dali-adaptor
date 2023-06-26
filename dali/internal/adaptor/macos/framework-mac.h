@@ -62,8 +62,8 @@ public:
 
 private:
   // Undefined
-  FrameworkMac(const FrameworkMac&);
-  FrameworkMac& operator=(FrameworkMac&);
+  FrameworkMac(const FrameworkMac&) = delete;
+  FrameworkMac& operator=(FrameworkMac&) = delete;
 };
 
 } // namespace Adaptor

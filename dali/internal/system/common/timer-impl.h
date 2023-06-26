@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_TIMER_H
-#define DALI_INTERNAL_TIMER_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/timer-interface.h>
 #include <dali/public-api/adaptor-framework/timer.h>
-#include <dali/public-api/dali-adaptor-common.h>
 
 namespace Dali
 {
@@ -42,79 +41,29 @@ typedef IntrusivePtr<Timer> TimerPtr;
 class Timer : public BaseObject, public TimerInterface
 {
 public:
-  static TimerPtr New(unsigned int milliSec);
-
   /**
    * Constructor
-   * @param[in]  milliSec  Interval in milliseconds.
    */
-  Timer(unsigned int milliSec);
+  Timer() = default;
 
   /**
    * Destructor.
    */
-  virtual ~Timer();
-
-public:
-  /**
-   * @copydoc Dali::Timer::Start()
-   */
-  void Start() override;
-
-  /**
-   * @copydoc Dali::Timer::Stop()
-   */
-  void Stop() override;
-
-  /**
-   * @copydoc Dali::Timer::Pause()
-   */
-  void Pause() override;
-
-  /**
-   * @copydoc Dali::Timer::Resume()
-   */
-  void Resume() override;
-
-  /**
-   * @copydoc Dali::Timer::SetInterval()
-   */
-  void SetInterval(unsigned int interval, bool restart) override;
-
-  /**
-   * @copydoc Dali::Timer::GetInterval()
-   */
-  unsigned int GetInterval() const override;
-
-  /**
-   * @copydoc Dali::Timer::IsRunning()
-   */
-  bool IsRunning() const override;
-
-  /**
-   * Tick
-   */
-  bool Tick();
+  virtual ~Timer() = default;
 
 public: // Signals
-  Dali::Timer::TimerSignalType& TickSignal();
+  Dali::Timer::TimerSignalType& TickSignal()
+  {
+    return mTickSignal;
+  }
 
 private: // Implementation
   // not implemented
-  Timer(const Timer&);
-  Timer& operator=(const Timer&);
+  Timer(const Timer&) = delete;
+  Timer& operator=(const Timer&) = delete;
 
-  /**
-   * Resets any stored timer data.
-   */
-  void ResetTimerData();
-
-private: // Data
+protected: // Data
   Dali::Timer::TimerSignalType mTickSignal;
-
-  // To hide away implementation details
-  struct Impl;
-  Impl* mImpl;
 };
 
 inline Timer& GetImplementation(Dali::Timer& timer)
@@ -141,4 +90,4 @@ inline const Timer& GetImplementation(const Dali::Timer& timer)
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_TIMER_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_H

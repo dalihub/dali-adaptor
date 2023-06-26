@@ -71,8 +71,8 @@ public:
 
 private:
   // Undefined
-  FrameworkAndroidJni(const FrameworkAndroidJni&);
-  FrameworkAndroidJni& operator=(FrameworkAndroidJni&);
+  FrameworkAndroidJni(const FrameworkAndroidJni&) = delete;
+  FrameworkAndroidJni& operator=(FrameworkAndroidJni&) = delete;
 
 private:
   bool mInitialised;

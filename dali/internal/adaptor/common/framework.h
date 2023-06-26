@@ -332,8 +332,8 @@ private:
 
 private:
   // Undefined
-  Framework(const Framework&);
-  Framework& operator=(Framework&);
+  Framework(const Framework&) = delete;
+  Framework& operator=(Framework&) = delete;
 
 protected:
   Observer&                     mObserver;

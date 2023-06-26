@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/windows/file-descriptor-monitor-windows.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -27,12 +27,13 @@ namespace Internal
 {
 namespace Adaptor
 {
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorWin::FileDescriptorMonitorWin(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   DALI_LOG_WARNING("Implementation missing for MS Windows");
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorWin::~FileDescriptorMonitorWin()
 {
 }
 

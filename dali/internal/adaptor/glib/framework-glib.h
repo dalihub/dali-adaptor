@@ -55,8 +55,8 @@ public:
 
 private:
   // Undefined
-  FrameworkGlib(const FrameworkGlib&);
-  FrameworkGlib& operator=(FrameworkGlib&);
+  FrameworkGlib(const FrameworkGlib&) = delete;
+  FrameworkGlib& operator=(FrameworkGlib&) = delete;
 
 private: // impl members
   struct Impl;

@@ -85,8 +85,8 @@ public:
 
 private:
   // Undefined
-  FrameworkTizen(const FrameworkTizen&);
-  FrameworkTizen& operator=(FrameworkTizen&);
+  FrameworkTizen(const FrameworkTizen&) = delete;
+  FrameworkTizen& operator=(FrameworkTizen&) = delete;
 
 private:
   /**

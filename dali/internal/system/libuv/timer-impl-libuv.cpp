@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/libuv/timer-impl-libuv.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -36,7 +36,7 @@ namespace
 {
 void TimerSourceFunc(uv_timer_t* handle)
 {
-  Timer* timer = static_cast<Timer*>(handle->data);
+  TimerLibuv* timer = static_cast<TimerLibuv*>(handle->data);
 
   bool keepRunning = timer->Tick();
   if(!keepRunning)
@@ -54,9 +54,9 @@ void FreeHandleCallback(uv_handle_t* handle)
 /**
  * Struct to hide away libuv implementation details
  */
-struct Timer::Impl
+struct TimerLibuv::Impl
 {
-  Impl(unsigned int milliSec)
+  Impl(uint32_t milliSec)
   : mTimerHandle(NULL),
     mInterval(milliSec),
     mRunning(false)
@@ -117,24 +117,24 @@ struct Timer::Impl
     uv_timer_start(mTimerHandle, TimerSourceFunc, mInterval, mInterval);
   }
 
-  uv_timer_t*  mTimerHandle;
-  unsigned int mInterval;
-  bool         mRunning;
+  uv_timer_t* mTimerHandle;
+  uint32_t    mInterval;
+  bool        mRunning;
 };
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerLibuvPtr TimerLibuv::New(uint32_t milliSec)
 {
   DALI_LOG_ERROR(" new timer\n");
-  TimerPtr timer(new Timer(milliSec));
+  TimerLibuvPtr timer(new TimerLibuv(milliSec));
   return timer;
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerLibuv::TimerLibuv(uint32_t milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
 
-Timer::~Timer()
+TimerLibuv::~TimerLibuv()
 {
   // stop timers
   Stop();
@@ -142,27 +142,27 @@ Timer::~Timer()
   delete mImpl;
 }
 
-void Timer::Start()
+void TimerLibuv::Start()
 {
   mImpl->Start(this);
 }
 
-void Timer::Stop()
+void TimerLibuv::Stop()
 {
   mImpl->Stop();
 }
 
-void Timer::Pause()
+void TimerLibuv::Pause()
 {
   mImpl->Pause();
 }
 
-void Timer::Resume()
+void TimerLibuv::Resume()
 {
   mImpl->Resume();
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerLibuv::SetInterval(uint32_t interval, bool restart)
 {
   // stop existing timer
   Stop();
@@ -176,12 +176,12 @@ void Timer::SetInterval(unsigned int interval, bool restart)
   }
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerLibuv::GetInterval() const
 {
   return mImpl->mInterval;
 }
 
-bool Timer::Tick()
+bool TimerLibuv::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -212,12 +212,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-bool Timer::IsRunning() const
+bool TimerLibuv::IsRunning() const
 {
   return mImpl->mRunning;
 }
