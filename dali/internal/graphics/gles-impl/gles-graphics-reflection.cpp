@@ -318,8 +318,6 @@ void Reflection::BuildUniformBlockReflection()
   auto activeUniformOffset     = getActiveUniformParams(GL_UNIFORM_OFFSET);
 
   // Extract only uniform blocks and collect data
-  std::string uniformName;
-
   // collect samplers into separate array
   std::vector<UniformInfo> samplers;
 
@@ -333,7 +331,6 @@ void Reflection::BuildUniformBlockReflection()
     gl->GetActiveUniform(glProgram, i, maxUniformNameLength, &written, &elementCount, &type, name);
 
     auto location = gl->GetUniformLocation(glProgram, name);
-    uniformName   = name;
 
     UniformInfo* uniformInfo{nullptr};
     if(IsSampler(activeUniformType[i]))
@@ -357,17 +354,20 @@ void Reflection::BuildUniformBlockReflection()
 
     uniformInfo->location = location; // location must be set later and sorted by offset
     uniformInfo->name     = name;
+
     // Strip off array index from name, use element count instead
     if(elementCount > 1)
     {
-      auto iter = std::string(uniformName).find('[', 0);
+      std::string uniformName = name;
+      auto        iter        = uniformName.find('[', 0);
       if(iter != std::string::npos)
       {
-        uniformInfo->name         = std::string(name).substr(0, iter);
+        uniformInfo->name         = uniformName.substr(0, iter);
         uniformInfo->elementCount = elementCount;
       }
     }
   }
+  delete[] name;
 
   // Sort by offset
   uint32_t blockIndex = 0;

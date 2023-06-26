@@ -718,7 +718,7 @@ void Context::ResolveGpuUniformBuffers()
   auto  i  = 0u;
   for(auto& binding : mImpl->mCurrentUBOBindings)
   {
-    gl.BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), binding.offset, binding.dataSize);
+    gl.BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), binding.dataSize);
   }
 }
 
