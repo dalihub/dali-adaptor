@@ -604,7 +604,7 @@ bool FontClient::Plugin::CacheHandler::LoadFontDataFromFile(const std::string& f
 {
   if(Dali::FileLoader::ReadFile(fontPath, dataSize, fontDataBuffer, Dali::FileLoader::BINARY))
   {
-    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %lu, size : %ld, path : %s\n", fontDataBuffer.Size(), static_cast<long>(dataSize), fontPath.c_str());
+    FONT_LOG_MESSAGE(Dali::Integration::Log::INFO, "PreLoad font file buffer : %zu, size : %ld, path : %s\n", fontDataBuffer.Size(), static_cast<long>(dataSize), fontPath.c_str());
     return true;
   }
 
