@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-event-notifier-impl.h>
 #include <dali/internal/window-system/ubuntu-x11/window-interface-ecore-x.h>
 
 namespace //unnamed namespace
@@ -43,7 +43,7 @@ const char* const HIDE        = "cbhm_hide";
 } // namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Clipboard
+// TextClipboard
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Dali
@@ -52,7 +52,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct Clipboard::Impl
+struct TextClipboard::Impl
 {
   Impl(Ecore_X_Window ecoreXwin)
   {
@@ -62,29 +62,29 @@ struct Clipboard::Impl
   Ecore_X_Window mApplicationWindow;
 };
 
-Clipboard::Clipboard(Impl* impl)
+TextClipboard::TextClipboard(Impl* impl)
 : mImpl(impl)
 {
 }
 
-Clipboard::~Clipboard()
+TextClipboard::~TextClipboard()
 {
   delete mImpl;
 }
 
-Dali::Clipboard Clipboard::Get()
+Dali::TextClipboard TextClipboard::Get()
 {
-  Dali::Clipboard clipboard;
+  Dali::TextClipboard clipboard;
 
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      clipboard = Dali::TextClipboard(dynamic_cast<TextClipboard*>(handle.GetObjectPtr()));
     }
     else
     {
@@ -99,8 +99,8 @@ Dali::Clipboard Clipboard::Get()
         // If we fail to get Ecore_X_Window, we can't use the Clipboard correctly.
         // Thus you have to call "ecore_imf_context_client_window_set" somewhere.
         // In EvasPlugIn, this function is called in EvasPlugin::ConnectEcoreEvent().
-        Clipboard::Impl* impl(new Clipboard::Impl(ecoreXwin));
-        clipboard = Dali::Clipboard(new Clipboard(impl));
+        TextClipboard::Impl* impl(new TextClipboard::Impl(ecoreXwin));
+        clipboard = Dali::TextClipboard(new TextClipboard(impl));
         service.Register(typeid(clipboard), clipboard);
       }
     }
@@ -109,12 +109,12 @@ Dali::Clipboard Clipboard::Get()
   return clipboard;
 }
 
-bool Clipboard::IsAvailable()
+bool TextClipboard::IsAvailable()
 {
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       return true;
@@ -123,7 +123,7 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-bool Clipboard::SetItem(const std::string& itemData)
+bool TextClipboard::SetItem(const std::string& itemData)
 {
   Ecore_X_Window cbhmWin      = ECore::WindowInterface::GetWindow();
   Ecore_X_Atom   atomCbhmItem = ecore_x_atom_get(CBHM_ITEM);
@@ -142,7 +142,7 @@ bool Clipboard::SetItem(const std::string& itemData)
 /*
  * Request clipboard service to retrieve an item
  */
-void Clipboard::RequestItem()
+void TextClipboard::RequestItem()
 {
   int  index = 0;
   char sendBuf[20];
@@ -159,11 +159,11 @@ void Clipboard::RequestItem()
     Ecore_X_Atom xAtomCbhmError = ecore_x_atom_get(CBHM_ERROR);
     if(xAtomItemType != xAtomCbhmError)
     {
-      // Call ClipboardEventNotifier to notify event observe of retrieved string
-      Dali::ClipboardEventNotifier clipboardEventNotifier(ClipboardEventNotifier::Get());
+      // Call TextClipboardEventNotifier to notify event observe of retrieved string
+      Dali::TextClipboardEventNotifier clipboardEventNotifier(TextClipboardEventNotifier::Get());
       if(clipboardEventNotifier)
       {
-        ClipboardEventNotifier& notifierImpl(ClipboardEventNotifier::GetImplementation(clipboardEventNotifier));
+        TextClipboardEventNotifier& notifierImpl(TextClipboardEventNotifier::GetImplementation(clipboardEventNotifier));
 
         notifierImpl.SetContent(clipboardString);
         notifierImpl.EmitContentSelectedSignal();
@@ -175,7 +175,7 @@ void Clipboard::RequestItem()
 /*
  * Get number of items in clipboard
  */
-unsigned int Clipboard::NumberOfItems()
+unsigned int TextClipboard::NumberOfItems()
 {
   Ecore_X_Atom xAtomCbhmCountGet = ecore_x_atom_get(CBHM_cCOUNT);
 
@@ -195,7 +195,7 @@ unsigned int Clipboard::NumberOfItems()
  * Function to send message to show the Clipboard (cbhm) as no direct API available
  * Reference elementary/src/modules/ctxpopup_copypasteUI/cbhm_helper.c
  */
-void Clipboard::ShowClipboard()
+void TextClipboard::ShowClipboard()
 {
   // Claim the ownership of the SECONDARY selection.
   ecore_x_selection_secondary_set(mImpl->mApplicationWindow, "", 1);
@@ -206,7 +206,7 @@ void Clipboard::ShowClipboard()
   ECore::WindowInterface::SendXEvent(ecore_x_display_get(), cbhmWin, False, NoEventMask, atomCbhmMsg, 8, SHOW);
 }
 
-void Clipboard::HideClipboard(bool skipFirstHide)
+void TextClipboard::HideClipboard(bool skipFirstHide)
 {
   Ecore_X_Window cbhmWin = ECore::WindowInterface::GetWindow();
   // Launch the clipboard window
@@ -217,16 +217,16 @@ void Clipboard::HideClipboard(bool skipFirstHide)
   ecore_x_selection_secondary_clear();
 }
 
-bool Clipboard::IsVisible() const
+bool TextClipboard::IsVisible() const
 {
   return false;
 }
 
-void Clipboard::ExcuteSend(void* event)
+void TextClipboard::ExcuteSend(void* event)
 {
 }
 
-void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
+void TextClipboard::ExcuteReceive(void* event, char*& data, int& length)
 {
   // Receive
   Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast<Ecore_X_Event_Selection_Notify*>(event);

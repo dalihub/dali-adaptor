@@ -16,8 +16,8 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/clipboard-event-notifier.h>
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/devel-api/adaptor-framework/text-clipboard-event-notifier.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore.h>
@@ -45,7 +45,7 @@
 #define CBHM_COUNT_ALL 0 // ATOM_INDEX_CBHM_COUNT_ALL
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Clipboard
+// TextClipboard
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace Dali
@@ -54,7 +54,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct Clipboard::Impl
+struct TextClipboard::Impl
 {
   Impl()
   {
@@ -259,7 +259,7 @@ struct Clipboard::Impl
 #ifdef DALI_ELDBUS_AVAILABLE
   static void _on_item_clicked(void* data, const Eldbus_Message* msg EINA_UNUSED)
   {
-    static_cast<Clipboard::Impl*>(data)->RequestItem();
+    static_cast<TextClipboard::Impl*>(data)->RequestItem();
   }
 
   Eldbus_Proxy*      eldbus_proxy;
@@ -272,47 +272,47 @@ struct Clipboard::Impl
   uint32_t    mSerial{0u};
 };
 
-Clipboard::Clipboard(Impl* impl)
+TextClipboard::TextClipboard(Impl* impl)
 : mImpl(impl)
 {
 }
 
-Clipboard::~Clipboard()
+TextClipboard::~TextClipboard()
 {
   delete mImpl;
 }
 
-Dali::Clipboard Clipboard::Get()
+Dali::TextClipboard TextClipboard::Get()
 {
-  Dali::Clipboard clipboard;
+  Dali::TextClipboard clipboard;
 
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      clipboard = Dali::TextClipboard(dynamic_cast<TextClipboard*>(handle.GetObjectPtr()));
     }
     else
     {
-      Clipboard::Impl* impl(new Clipboard::Impl());
-      clipboard = Dali::Clipboard(new Clipboard(impl));
-      service.Register(typeid(Dali::Clipboard), clipboard);
+      TextClipboard::Impl* impl(new TextClipboard::Impl());
+      clipboard = Dali::TextClipboard(new TextClipboard(impl));
+      service.Register(typeid(Dali::TextClipboard), clipboard);
     }
   }
 
   return clipboard;
 }
 
-bool Clipboard::IsAvailable()
+bool TextClipboard::IsAvailable()
 {
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       return true;
@@ -321,7 +321,7 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-bool Clipboard::SetItem(const std::string& itemData)
+bool TextClipboard::SetItem(const std::string& itemData)
 {
   mImpl->SetItem(itemData);
   return true;
@@ -330,7 +330,7 @@ bool Clipboard::SetItem(const std::string& itemData)
 /*
  * Request clipboard service to give an item
  */
-void Clipboard::RequestItem()
+void TextClipboard::RequestItem()
 {
   mImpl->RequestItem();
 }
@@ -338,33 +338,33 @@ void Clipboard::RequestItem()
 /*
  * Get number of items in clipboard
  */
-unsigned int Clipboard::NumberOfItems()
+unsigned int TextClipboard::NumberOfItems()
 {
   int count = mImpl->GetCount();
   return (count < 0 ? 0 : count);
 }
 
-void Clipboard::ShowClipboard()
+void TextClipboard::ShowClipboard()
 {
   mImpl->ShowClipboard();
 }
 
-void Clipboard::HideClipboard(bool skipFirstHide)
+void TextClipboard::HideClipboard(bool skipFirstHide)
 {
   mImpl->HideClipboard(skipFirstHide);
 }
 
-bool Clipboard::IsVisible() const
+bool TextClipboard::IsVisible() const
 {
   return mImpl->IsVisible();
 }
 
-void Clipboard::ExcuteSend(void* event)
+void TextClipboard::ExcuteSend(void* event)
 {
   mImpl->ExcuteSend(event);
 }
 
-void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
+void TextClipboard::ExcuteReceive(void* event, char*& data, int& length)
 {
   mImpl->ExcuteReceive(event, data, length);
 }

@@ -1,8 +1,8 @@
-#ifndef DALI_CLIPBOARD_EVENT_NOTIFIER_H
-#define DALI_CLIPBOARD_EVENT_NOTIFIER_H
+#ifndef DALI_TEXT_CLIPBOARD_EVENT_NOTIFIER_H
+#define DALI_TEXT_CLIPBOARD_EVENT_NOTIFIER_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,43 +31,43 @@ namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
-class ClipboardEventNotifier;
+class TextClipboardEventNotifier;
 }
 } // namespace DALI_INTERNAL
 
 /**
- * @brief The ClipboardEventNotifier provides signals when clipboard events are received from the device.
+ * @brief The TextClipboardEventNotifier provides signals when clipboard events are received from the device.
  */
-class DALI_ADAPTOR_API ClipboardEventNotifier : public BaseHandle
+class DALI_ADAPTOR_API TextClipboardEventNotifier : public BaseHandle
 {
 public:
   // Typedefs
 
   /**
-   * @brief Clipboard event
+   * @brief TextClipboard event
    */
-  typedef Signal<void(ClipboardEventNotifier&)> ClipboardEventSignalType;
+  typedef Signal<void(TextClipboardEventNotifier&)> TextClipboardEventSignalType;
 
   /**
    * @brief Create an uninitialized handle.
    *
    * This can be initialized by getting the notifier from Dali::Adaptor.
    */
-  ClipboardEventNotifier();
+  TextClipboardEventNotifier();
 
   /**
-   * @brief Retrieve a handle to the ClipboardEventNotifier instance.
+   * @brief Retrieve a handle to the TextClipboardEventNotifier instance.
    *
-   * @return A handle to the ClipboardEventNotifier
+   * @return A handle to the TextClipboardEventNotifier
    */
-  static ClipboardEventNotifier Get();
+  static TextClipboardEventNotifier Get();
 
   /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  ~ClipboardEventNotifier();
+  ~TextClipboardEventNotifier();
 
   /**
    * @brief Returns the selected content.
@@ -97,21 +97,21 @@ public: // Signals
    *
    * A callback of the following type may be connected:
    * @code
-   *   void YourCallback( ClipboardEventNotifier& notifier );
+   *   void YourCallback( TextClipboardEventNotifier& notifier );
    * @endcode
    * @return The signal to connect to.
    */
-  ClipboardEventSignalType& ContentSelectedSignal();
+  TextClipboardEventSignalType& ContentSelectedSignal();
 
 public: // Not intended for application developers
   /**
-   * @brief This constructor is used by ClipboardEventNotifier::Get().
+   * @brief This constructor is used by TextClipboardEventNotifier::Get().
    *
    * @param[in] notifier A pointer to the drag and drop notifier.
    */
-  explicit DALI_INTERNAL ClipboardEventNotifier(Internal::Adaptor::ClipboardEventNotifier* notifier);
+  explicit DALI_INTERNAL TextClipboardEventNotifier(Internal::Adaptor::TextClipboardEventNotifier* notifier);
 };
 
 } // namespace Dali
 
-#endif // DALI_CLIPBOARD_EVENT_NOTIFIER_H
+#endif // DALI_TEXT_CLIPBOARD_EVENT_NOTIFIER_H

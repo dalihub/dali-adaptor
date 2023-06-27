@@ -10,8 +10,6 @@ SET( SOURCES
     ${adaptor_adaptor_tizen_wearable_src_files}
     ${adaptor_drag_and_drop_tizen_wayland_src_files}
     ${adaptor_canvas_renderer_tizen_src_files}
-    ${adaptor_clipboard_common_src_files}
-    ${adaptor_clipboard_tizen_wayland_src_files}
     ${adaptor_framework_generic_src_files}
     ${devel_api_src_files}
     ${adaptor_devel_api_text_abstraction_src_files}
@@ -35,6 +33,8 @@ SET( SOURCES
     ${adaptor_system_linux_src_files}
     ${adaptor_system_tizen_wayland_src_files}
     ${adaptor_system_tizen_wearable_src_files}
+    ${adaptor_text_clipboard_common_src_files}
+    ${adaptor_text_clipboard_tizen_wayland_src_files}
     ${adaptor_text_common_src_files}
     ${adaptor_resampler_src_files}
     ${adaptor_vector_animation_common_src_files}

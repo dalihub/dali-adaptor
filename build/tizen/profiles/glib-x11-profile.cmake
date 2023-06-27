@@ -10,8 +10,6 @@ SET( SOURCES
         ${adaptor_addons_ubuntu_src_files}
         ${adaptor_camera_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
-        ${adaptor_clipboard_common_src_files}
-        ${adaptor_clipboard_glib_x11_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
         ${devel_api_src_files}
@@ -34,6 +32,8 @@ SET( SOURCES
         ${adaptor_system_common_src_files}
         ${adaptor_system_glib_src_files}
         ${adaptor_resampler_src_files}
+        ${adaptor_text_clipboard_common_src_files}
+        ${adaptor_text_clipboard_glib_x11_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_thread_common_src_files}
         ${adaptor_thread_linux_src_files}
