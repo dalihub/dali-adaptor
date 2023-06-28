@@ -1,0 +1,35 @@
+
+# module: clipboard, backend: tizen-wayland
+SET( adaptor_clipboard_tizen_wayland_src_files
+    ${adaptor_clipboard_dir}/tizen-wayland/clipboard-impl-ecore-wl.cpp
+)
+
+# module: clipboard, backend: ubuntu-x11
+SET( adaptor_clipboard_ubuntu_x11_src_files
+    ${adaptor_clipboard_dir}/ubuntu-x11/clipboard-impl-x.cpp
+)
+
+# module: clipboard, backend: android
+SET( adaptor_clipboard_android_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)
+
+# module: clipboard, backend: windows
+SET( adaptor_clipboard_windows_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)
+
+# module: clipboard, backend: macos
+SET( adaptor_clipboard_macos_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)
+
+# module: clipboard, backend: libuv-x11
+SET( adaptor_clipboard_libuv_x11_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)
+
+# module: clipboard, backend: glib-x11
+SET( adaptor_clipboard_glib_x11_src_files
+    ${adaptor_clipboard_dir}/generic/clipboard-impl-generic.cpp
+)

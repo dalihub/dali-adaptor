@@ -19,7 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-editable-text.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
+#include <dali/internal/clipboard/common/clipboard-impl.h>
 
 using namespace Dali::Accessibility;
 

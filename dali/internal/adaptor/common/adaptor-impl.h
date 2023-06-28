@@ -28,7 +28,6 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/text-clipboard.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
