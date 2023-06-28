@@ -427,6 +427,13 @@ DALI_ADAPTOR_API void FeedWheelEvent(Window window, const Dali::WheelEvent& whee
 DALI_ADAPTOR_API void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent);
 
 /**
+ * @brief Feed (Send) hover event to window
+ * @param[in] window The window instance
+ * @param[in] point The touch point that create a hover event
+ */
+DALI_ADAPTOR_API void FeedHoverEvent(Window window, const Dali::TouchPoint& point);
+
+/**
  * @brief Maximizes window's size.
  * If this function is called with true, window will be resized with screen size.
  * Otherwise window will be resized with previous size.
