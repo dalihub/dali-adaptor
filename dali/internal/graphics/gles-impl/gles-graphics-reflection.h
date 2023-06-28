@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_REFLECTION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,6 +203,7 @@ public:
    */
   struct UniformExtraInfo
   {
+    UniformExtraInfo() = default;
     UniformExtraInfo(uint32_t location, uint32_t size, uint32_t offset, uint32_t arraySize, GLenum type)
     : location(location),
       size(size),
@@ -260,9 +261,8 @@ private:
   };
 
   std::vector<AttributeInfo>              mVertexInputAttributes;       ///< List of vertex attributes
-  Graphics::UniformBlockInfo              mDefaultUniformBlock{};       ///< The emulated UBO containing all the standalone uniforms
   std::vector<Graphics::UniformInfo>      mUniformOpaques{};            ///< List of opaque uniforms (i.e. samplers)
-  std::vector<Graphics::UniformBlockInfo> mUniformBlocks{};             ///< List of uniform blocks
+  std::vector<Graphics::UniformBlockInfo> mUniformBlocks{};             ///< List of uniform blocks (First is for standalone uniforms)
   std::vector<UniformExtraInfo>           mStandaloneUniformExtraInfos; ///< List of extra information for standalone uniforms
 };
 

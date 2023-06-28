@@ -346,6 +346,9 @@ void Application::OnInit()
   DALI_TRACE_END(gTraceFilter, "DALI_APP_EMIT_INIT_SIGNAL");
 
   mAdaptor->NotifySceneCreated();
+
+  // Ensure the join of Font thread at this point
+  Dali::TextAbstraction::FontClientJoinFontThreads();
 }
 
 void Application::OnTerminate()

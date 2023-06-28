@@ -8,8 +8,6 @@ SET( SOURCES
         ${adaptor_accessibility_android_src_files}
         ${adaptor_adaptor_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
-        ${adaptor_clipboard_common_src_files}
-        ${adaptor_clipboard_android_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_android_src_files}
         ${devel_api_src_files}
@@ -33,6 +31,8 @@ SET( SOURCES
         ${adaptor_styling_common_src_files}
         ${adaptor_system_common_src_files}
         ${adaptor_system_android_src_files}
+        ${adaptor_text_clipboard_common_src_files}
+        ${adaptor_text_clipboard_android_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_resampler_src_files}
         ${adaptor_vector_animation_common_src_files}

@@ -581,7 +581,7 @@ public:
   RenderTaskList GetRenderTaskList();
 
   /**
-   * @brief Keep rendering for at least the given amount of time.
+   * @brief Keeps rendering for at least the given amount of time.
    *
    * By default, Dali will stop rendering when no Actor positions are being set, and when no animations are running etc.
    * This method is useful to force screen refreshes.
@@ -590,6 +590,24 @@ public:
    * @param[in] durationSeconds Time to keep rendering, 0 means render at least one more frame
    */
   void KeepRendering(float durationSeconds);
+
+  /**
+   * @brief Sets whether the window will update partial area or full area.
+   *
+   * @SINCE_2_2.33
+   * @param[in] enabled True if the window should update partial area
+   * @note This doesn't change the global value which is set by the environment variable.
+   * This works when partial update is enabled by the environment variable. If the partial update is disabled by the environment variable, it changes nothing.
+   */
+  void SetPartialUpdateEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the window will update partial area.
+   *
+   * @SINCE_2_2.33
+   * @return True if the window should update partial area
+   */
+  bool IsPartialUpdateEnabled() const;
 
 public: // Signals
   /**

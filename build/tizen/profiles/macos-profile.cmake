@@ -7,8 +7,6 @@ SET( SOURCES
         ${adaptor_adaptor_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
         ${adaptor_adaptor_macos_src_files}
-        ${adaptor_clipboard_common_src_files}
-        ${adaptor_clipboard_macos_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
         ${devel_api_src_files}
@@ -32,6 +30,8 @@ SET( SOURCES
         ${adaptor_system_common_src_files}
         ${adaptor_system_macos_src_files}
         ${adaptor_system_macos_src_files}
+        ${adaptor_text_clipboard_common_src_files}
+        ${adaptor_text_clipboard_macos_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_text_macos_src_files}
         ${adaptor_resampler_src_files}

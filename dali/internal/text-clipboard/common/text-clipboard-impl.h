@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_CLIPBOARD_H
-#define DALI_INTERNAL_CLIPBOARD_H
+#ifndef DALI_INTERNAL_TEXT_CLIPBOARD_H
+#define DALI_INTERNAL_TEXT_CLIPBOARD_H
 
 /*
  * Copyright (c) 2023 Samsung Electronics Co., Ltd.
@@ -22,7 +22,7 @@
 #include <dali/public-api/object/base-object.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/devel-api/adaptor-framework/text-clipboard.h>
 
 namespace Dali
 {
@@ -34,19 +34,19 @@ namespace Adaptor
  * Implementation of the Clip Board
  */
 
-class Clipboard : public Dali::BaseObject
+class TextClipboard : public Dali::BaseObject
 {
 public:
   // Hide the specific windowing system
   struct Impl;
 
   /**
-   * @copydoc Dali::Clipboard::Get()
+   * @copydoc Dali::TextClipboard::Get()
    */
-  static Dali::Clipboard Get();
+  static Dali::TextClipboard Get();
 
   /**
-   * @copydoc Dali::Clipboard::IsAvailable()
+   * @copydoc Dali::TextClipboard::IsAvailable()
    */
   static bool IsAvailable();
 
@@ -54,40 +54,40 @@ public:
    * Constructor
    * @param[in] impl Some data from a specific windowing system.
    */
-  Clipboard(Impl* impl);
+  TextClipboard(Impl* impl);
 
   /**
    * Destructor
    */
-  ~Clipboard() override;
+  ~TextClipboard() override;
 
   /**
-   * @copydoc Dali::Clipboard::SetItem()
+   * @copydoc Dali::TextClipboard::SetItem()
    */
   bool SetItem(const std::string& itemData);
 
   /**
-   * @copydoc Dali::Clipboard::RequestItem()
+   * @copydoc Dali::TextClipboard::RequestItem()
    */
   void RequestItem();
 
   /**
-   * @copydoc Dali::Clipboard::NumberOfClipboardItems()
+   * @copydoc Dali::TextClipboard::NumberOfClipboardItems()
    */
   unsigned int NumberOfItems();
 
   /**
-   * @copydoc Dali::Clipboard::ShowClipboard()
+   * @copydoc Dali::TextClipboard::ShowClipboard()
    */
   void ShowClipboard();
 
   /**
-   * @copydoc Dali::Clipboard::HideClipboard()
+   * @copydoc Dali::TextClipboard::HideClipboard()
    */
   void HideClipboard(bool skipFirstHide);
 
   /**
-  * @copydoc Dali::Clipboard::IsVisible()
+  * @copydoc Dali::TextClipboard::IsVisible()
   */
   bool IsVisible() const;
 
@@ -109,33 +109,33 @@ public:
 
 private:
   // Undefined
-  Clipboard(const Clipboard&);
-  Clipboard& operator=(Clipboard&);
+  TextClipboard(const TextClipboard&);
+  TextClipboard& operator=(TextClipboard&);
 
 private:
   Impl* mImpl;
 
 public:
-}; // class clipboard
+}; // class TextClipboard
 
 } // namespace Adaptor
 
 } // namespace Internal
 
-inline static Internal::Adaptor::Clipboard& GetImplementation(Dali::Clipboard& clipboard)
+inline static Internal::Adaptor::TextClipboard& GetImplementation(Dali::TextClipboard& clipboard)
 {
-  DALI_ASSERT_ALWAYS(clipboard && "Clipboard handle is empty");
+  DALI_ASSERT_ALWAYS(clipboard && "TextClipboard handle is empty");
   BaseObject& handle = clipboard.GetBaseObject();
-  return static_cast<Internal::Adaptor::Clipboard&>(handle);
+  return static_cast<Internal::Adaptor::TextClipboard&>(handle);
 }
 
-inline static const Internal::Adaptor::Clipboard& GetImplementation(const Dali::Clipboard& clipboard)
+inline static const Internal::Adaptor::TextClipboard& GetImplementation(const Dali::TextClipboard& clipboard)
 {
-  DALI_ASSERT_ALWAYS(clipboard && "Clipboard handle is empty");
+  DALI_ASSERT_ALWAYS(clipboard && "TextClipboard handle is empty");
   const BaseObject& handle = clipboard.GetBaseObject();
-  return static_cast<const Internal::Adaptor::Clipboard&>(handle);
+  return static_cast<const Internal::Adaptor::TextClipboard&>(handle);
 }
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_CLIPBOARD_H
+#endif // DALI_INTERNAL_TEXT_CLIPBOARD_H

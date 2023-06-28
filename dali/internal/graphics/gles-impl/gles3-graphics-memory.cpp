@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,10 +62,9 @@ void* Memory3::LockRegion(uint32_t offset, uint32_t size)
     }
     else
     {
-      // @TODO: trashing vertex binding, better find target that is rarely used
-      buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
+      gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
       void* ptr      = nullptr;
-      ptr            = gl->MapBufferRange(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
+      ptr            = gl->MapBufferRange(GL_COPY_WRITE_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
       mMappedPointer = ptr;
     }
     return mMappedPointer;
@@ -83,8 +82,8 @@ void Memory3::Unlock(bool flush)
     auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
     if(!buffer->IsCPUAllocated())
     {
-      buffer->Bind(Graphics::BufferUsage::VERTEX_BUFFER);
-      gl->UnmapBuffer(GL_ARRAY_BUFFER);
+      gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
+      gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
     }
   }
 

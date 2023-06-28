@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,22 +32,31 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
   const char* format = NULL;
   switch(level)
   {
-    case Dali::Integration::Log::DEBUG:
-      format = "\e[1;32mDEBUG:\e[21m %s: %s\e[0m";
+    case Dali::Integration::Log::DEBUG: ///< Gray color
+      format = "\e[1;38;5;243mDEBUG:\e[21m %s: %s\e[0m";
       break;
-    case Dali::Integration::Log::INFO:
+    case Dali::Integration::Log::INFO: ///< Green color
       format = "\e[1;32mINFO:\e[21m %s: %s\e[0m";
       break;
-    case Dali::Integration::Log::WARNING:
+    case Dali::Integration::Log::WARNING: ///< Yellow color
       format = "\e[1;33mWARN:\e[21m %s: %s\e[0m";
       break;
-    case Dali::Integration::Log::ERROR:
+    case Dali::Integration::Log::ERROR: ///< Bright Red color
       format = "\e[1;91mERROR:\e[21m %s: %s\e[0m";
       break;
     default:
       format = ":\e[21m %s: %s\e[0m";
       break;
   }
+
+  // Append line feed if message is not end with line feed.
+  if(message.size() == 0u || message.back() != '\n')
+  {
+    // Reserve to avoid doubled memory reallocation.
+    message.reserve(message.size() + 1u);
+    message.push_back('\n');
+  }
+
   printf(format, DALI_TAG, message.c_str());
 }
 

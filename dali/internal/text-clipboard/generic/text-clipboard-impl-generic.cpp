@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
@@ -27,50 +27,50 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct Clipboard::Impl
+struct TextClipboard::Impl
 {
 };
 
-Clipboard::Clipboard(Impl* impl)
+TextClipboard::TextClipboard(Impl* impl)
 : mImpl(impl)
 {
 }
 
-Clipboard::~Clipboard()
+TextClipboard::~TextClipboard()
 {
 }
 
-Dali::Clipboard Clipboard::Get()
+Dali::TextClipboard TextClipboard::Get()
 {
-  Dali::Clipboard clipboard;
+  Dali::TextClipboard clipboard;
 
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       // If so, downcast the handle
-      clipboard = Dali::Clipboard(dynamic_cast<Clipboard*>(handle.GetObjectPtr()));
+      clipboard = Dali::TextClipboard(dynamic_cast<TextClipboard*>(handle.GetObjectPtr()));
     }
     else
     {
-      Clipboard::Impl* impl(new Clipboard::Impl());
-      clipboard = Dali::Clipboard(new Clipboard(impl));
-      service.Register(typeid(Dali::Clipboard), clipboard);
+      TextClipboard::Impl* impl(new TextClipboard::Impl());
+      clipboard = Dali::TextClipboard(new TextClipboard(impl));
+      service.Register(typeid(Dali::TextClipboard), clipboard);
     }
   }
 
   return clipboard;
 }
 
-bool Clipboard::IsAvailable()
+bool TextClipboard::IsAvailable()
 {
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::Clipboard));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboard));
     if(handle)
     {
       return true;
@@ -79,38 +79,38 @@ bool Clipboard::IsAvailable()
   return false;
 }
 
-bool Clipboard::SetItem(const std::string& itemData)
+bool TextClipboard::SetItem(const std::string& itemData)
 {
   return true;
 }
 
-void Clipboard::RequestItem()
+void TextClipboard::RequestItem()
 {
 }
 
-unsigned int Clipboard::NumberOfItems()
+unsigned int TextClipboard::NumberOfItems()
 {
   return 0u;
 }
 
-void Clipboard::ShowClipboard()
+void TextClipboard::ShowClipboard()
 {
 }
 
-void Clipboard::HideClipboard(bool skipFirstHide)
+void TextClipboard::HideClipboard(bool skipFirstHide)
 {
 }
 
-bool Clipboard::IsVisible() const
+bool TextClipboard::IsVisible() const
 {
   return false;
 }
 
-void Clipboard::ExcuteSend(void* event)
+void TextClipboard::ExcuteSend(void* event)
 {
 }
 
-void Clipboard::ExcuteReceive(void* event, char*& data, int& length)
+void TextClipboard::ExcuteReceive(void* event, char*& data, int& length)
 {
 }
 

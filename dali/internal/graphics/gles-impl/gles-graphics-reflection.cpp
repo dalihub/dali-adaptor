@@ -118,16 +118,6 @@ bool IsSampler(GLenum type)
   return type == GL_SAMPLER_2D || type == GL_SAMPLER_3D || type == GL_SAMPLER_CUBE || type == GL_SAMPLER_EXTERNAL_OES;
 }
 
-bool SortUniformInfoByLocation(Dali::Graphics::UniformInfo a, Dali::Graphics::UniformInfo b)
-{
-  return a.location < b.location;
-}
-
-bool SortUniformExtraInfoByLocation(Dali::Graphics::GLES::Reflection::UniformExtraInfo a, Dali::Graphics::GLES::Reflection::UniformExtraInfo b)
-{
-  return a.location < b.location;
-}
-
 std::string GetShaderSource(Dali::Graphics::ShaderState shaderState)
 {
   std::vector<uint8_t> data;
@@ -278,134 +268,12 @@ void Reflection::BuildVertexAttributeReflection()
   delete[] name;
 }
 
-void Reflection::BuildUniformReflection()
-{
-  auto glProgram = mProgram.GetGlProgram();
-
-  int   maxLen;
-  char* name;
-
-  int numUniforms = 0;
-
-  auto gl = mController.GetGL();
-  if(!gl)
-  {
-    // Do nothing during shutdown
-    return;
-  }
-
-  DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform reflection for glProgram : %u\n", glProgram);
-
-  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLen);
-  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-
-  mUniformBlocks.clear();
-  mDefaultUniformBlock.members.clear();
-  mUniformOpaques.clear();
-
-  name = new char[maxLen];
-
-  mStandaloneUniformExtraInfos.clear();
-
-  for(int i = 0; i < numUniforms; ++i)
-  {
-    int    elementCount;
-    GLenum type;
-    int    written;
-    gl->GetActiveUniform(glProgram, i, maxLen, &written, &elementCount, &type, name);
-
-    int location = gl->GetUniformLocation(glProgram, name);
-
-    Dali::Graphics::UniformInfo uniformInfo;
-
-    uniformInfo.name = name;
-    if(elementCount > 1)
-    {
-      // If we have an active uniform that refers to an array, only the first element
-      // is present in this list, and is referenced as "uniform[0]", but the element
-      // count is non-zero to indicate how many uniforms there are in the array.
-
-      // Strip off the array, but store the element count
-      auto iter = std::string(uniformInfo.name).find("[", 0);
-      if(iter != std::string::npos)
-      {
-        uniformInfo.name         = std::string(name).substr(0, iter);
-        uniformInfo.elementCount = elementCount;
-      }
-    }
-    uniformInfo.uniformClass = IsSampler(type) ? Dali::Graphics::UniformClass::COMBINED_IMAGE_SAMPLER : Dali::Graphics::UniformClass::UNIFORM;
-    uniformInfo.location     = location; // GL doesn't guarantee that consecutive array elements have sequential locations. But, we only store location of first element.
-    uniformInfo.binding      = 0;
-    uniformInfo.bufferIndex  = 0;
-    uniformInfo.offset       = 0;
-
-    if(IsSampler(type))
-    {
-      mUniformOpaques.push_back(uniformInfo);
-    }
-    else
-    {
-      mDefaultUniformBlock.members.push_back(uniformInfo);
-      mStandaloneUniformExtraInfos.emplace_back(location, GetGLDataTypeSize(type), uniformInfo.offset, elementCount, type);
-    }
-  }
-
-  // Re-order according to uniform locations.
-
-  if(mDefaultUniformBlock.members.size() > 1)
-  {
-    std::sort(mDefaultUniformBlock.members.begin(), mDefaultUniformBlock.members.end(), SortUniformInfoByLocation);
-    std::sort(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), SortUniformExtraInfoByLocation);
-  }
-
-  if(mUniformOpaques.size() > 1)
-  {
-    SortOpaques();
-  }
-
-  // Calculate the uniform offset
-  for(unsigned int i = 0; i < mDefaultUniformBlock.members.size(); ++i)
-  {
-    if(i == 0)
-    {
-      mDefaultUniformBlock.members[i].offset = 0;
-    }
-    else
-    {
-      uint32_t previousUniformLocation = mDefaultUniformBlock.members[i - 1].location;
-      auto     previousUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&previousUniformLocation](const UniformExtraInfo& iter) { return iter.location == previousUniformLocation; });
-      if(previousUniform != mStandaloneUniformExtraInfos.end())
-      {
-        mDefaultUniformBlock.members[i].offset = mDefaultUniformBlock.members[i - 1].offset + (previousUniform->size * previousUniform->arraySize);
-        mStandaloneUniformExtraInfos[i].offset = mDefaultUniformBlock.members[i].offset;
-      }
-    }
-  }
-
-  if(mDefaultUniformBlock.members.size() > 0)
-  {
-    uint32_t lastUniformLocation = mDefaultUniformBlock.members.back().location;
-    auto     lastUniform         = std::find_if(mStandaloneUniformExtraInfos.begin(), mStandaloneUniformExtraInfos.end(), [&lastUniformLocation](const UniformExtraInfo& iter) { return iter.location == lastUniformLocation; });
-    if(lastUniform != mStandaloneUniformExtraInfos.end())
-    {
-      mDefaultUniformBlock.size = mDefaultUniformBlock.members.back().offset + (lastUniform->size * lastUniform->arraySize);
-      mUniformBlocks.push_back(mDefaultUniformBlock);
-    }
-  }
-  else
-  {
-    mDefaultUniformBlock.size = 0;
-  }
-
-  delete[] name;
-}
-
-// TODO: Maybe this is not needed if uniform block is not support by dali shaders?
 void Reflection::BuildUniformBlockReflection()
 {
-  auto gl               = mController.GetGL();
-  auto glProgram        = mProgram.GetGlProgram();
-  int  numUniformBlocks = 0;
+  auto  gl        = mController.GetGL();
+  auto  glProgram = mProgram.GetGlProgram();
+  char* name;
+  int   numUniformBlocks = 0;
 
   if(!gl)
   {
@@ -415,57 +283,146 @@ void Reflection::BuildUniformBlockReflection()
 
   DALI_LOG_INFO(gGraphicsReflectionLogFilter, Debug::General, "Build uniform block reflection for glProgram : %u\n", glProgram);
 
+  int   maxUniformNameLength;
+  GLint activeUniformCount = 0;
   gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCKS, &numUniformBlocks);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORMS, &activeUniformCount);
+  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
 
-  mUniformBlocks.clear();
+  numUniformBlocks++; // add block 0 for standalone UBO block
+
   mUniformBlocks.resize(numUniformBlocks);
+  mUniformOpaques.clear();
 
-  int uniformBlockMaxLength = 0;
-  gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_BLOCK_MAX_NAME_LENGTH, &uniformBlockMaxLength);
+  mStandaloneUniformExtraInfos.clear();
 
-  char* uniformBlockName = new char[uniformBlockMaxLength];
-  for(int i = 0; i < numUniformBlocks; i++)
+  std::vector<GLuint> uniformIndices;
+  uniformIndices.reserve(activeUniformCount);
+  for(auto i = 0; i < activeUniformCount; ++i)
   {
-    int length;
-    int blockBinding;
-    int blockDataSize;
-    gl->GetActiveUniformBlockName(glProgram, i, uniformBlockMaxLength, &length, uniformBlockName);
-    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_BINDING, &blockBinding);
-    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_DATA_SIZE, &blockDataSize);
+    uniformIndices.emplace_back(i);
+  }
 
-    Dali::Graphics::UniformBlockInfo uniformBlockInfo;
-    uniformBlockInfo.name    = uniformBlockName;
-    uniformBlockInfo.size    = blockDataSize;
-    uniformBlockInfo.binding = blockBinding;
+  // Obtain all parameters for active uniforms
+  auto getActiveUniformParams = [gl, glProgram, uniformIndices](GLenum param) {
+    std::vector<GLint> params;
+    params.resize(uniformIndices.size());
+    gl->GetActiveUniformsiv(glProgram, uniformIndices.size(), uniformIndices.data(), param, params.data());
+    return params;
+  };
 
-    int nUnis;
-    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORMS, &nUnis);
-    int* unifIndexes = new GLint[nUnis];
-    gl->GetActiveUniformBlockiv(glProgram, i, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, unifIndexes);
-    char* uniformName{};
-    int   maxUniLen;
-    gl->GetProgramiv(glProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniLen);
+  auto activeUniformType       = getActiveUniformParams(GL_UNIFORM_TYPE);
+  auto activeUniformSize       = getActiveUniformParams(GL_UNIFORM_SIZE);
+  auto activeUniformNameLength = getActiveUniformParams(GL_UNIFORM_NAME_LENGTH);
+  auto activeUniformBlockIndex = getActiveUniformParams(GL_UNIFORM_BLOCK_INDEX);
+  auto activeUniformOffset     = getActiveUniformParams(GL_UNIFORM_OFFSET);
 
-    for(int unif = 0; unif < nUnis; ++unif)
+  // Extract only uniform blocks and collect data
+  // collect samplers into separate array
+  std::vector<UniformInfo> samplers;
+
+  name = new char[maxUniformNameLength + 1];
+
+  for(auto i = 0u; i < activeUniformBlockIndex.size(); ++i)
+  {
+    GLenum type;
+    GLint  elementCount;
+    GLint  written;
+    gl->GetActiveUniform(glProgram, i, maxUniformNameLength, &written, &elementCount, &type, name);
+
+    auto location = gl->GetUniformLocation(glProgram, name);
+
+    UniformInfo* uniformInfo{nullptr};
+    if(IsSampler(activeUniformType[i]))
     {
-      int    uniIndex = unifIndexes[unif];
-      int    size;
-      GLenum type;
-
-      gl->GetActiveUniform(glProgram, uniIndex, maxUniLen, &length, &size, &type, uniformName);
-      int location = gl->GetUniformLocation(glProgram, uniformName);
-
-      Dali::Graphics::UniformInfo uniform;
-      uniform.name     = uniformName;
-      uniform.location = location;
-      uniformBlockInfo.members.push_back(uniform);
+      samplers.emplace_back();
+      uniformInfo               = &samplers.back();
+      uniformInfo->uniformClass = UniformClass::COMBINED_IMAGE_SAMPLER;
+    }
+    else
+    {
+      auto  blockIndex = activeUniformBlockIndex[i] + 1;
+      auto& members    = mUniformBlocks[blockIndex].members;
+      members.emplace_back();
+      uniformInfo               = &members.back();
+      uniformInfo->uniformClass = UniformClass::UNIFORM;
+      uniformInfo->binding      = 0;
+      uniformInfo->bufferIndex  = blockIndex;
+      uniformInfo->binding      = blockIndex == 0 ? i : 0; // this will be reset later
+      uniformInfo->offset       = activeUniformOffset[i];
     }
 
-    delete[] unifIndexes;
+    uniformInfo->location = location; // location must be set later and sorted by offset
+    uniformInfo->name     = name;
 
-    mUniformBlocks.push_back(uniformBlockInfo);
+    // Strip off array index from name, use element count instead
+    if(elementCount > 1)
+    {
+      std::string uniformName = name;
+      auto        iter        = uniformName.find('[', 0);
+      if(iter != std::string::npos)
+      {
+        uniformInfo->name         = uniformName.substr(0, iter);
+        uniformInfo->elementCount = elementCount;
+      }
+    }
   }
-  delete[] uniformBlockName;
+  delete[] name;
+
+  // Sort by offset
+  uint32_t blockIndex = 0;
+  for(auto& ubo : mUniformBlocks)
+  {
+    std::sort(ubo.members.begin(), ubo.members.end(), [](auto& lhs, auto& rhs) {
+      return lhs.offset < rhs.offset;
+    });
+
+    if(blockIndex > 0)
+    {
+      GLint uboSize;
+      GLint blockNameLength;
+      gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_DATA_SIZE, &uboSize);
+      gl->GetActiveUniformBlockiv(glProgram, blockIndex - 1, GL_UNIFORM_BLOCK_NAME_LENGTH, &blockNameLength);
+      char* blockName = new char[blockNameLength];
+      gl->GetActiveUniformBlockName(glProgram, blockIndex - 1, blockNameLength, nullptr, blockName);
+      ubo.name = blockName;
+      ubo.size = uboSize;
+      delete[] blockName;
+    }
+    else
+    {
+      ubo.name = "";
+      ubo.size = 0; // to compute later
+    }
+    ubo.binding       = 0;
+    ubo.descriptorSet = 0;
+    blockIndex++;
+  }
+
+  // count uniform size
+  auto& defaultUniformBlock = mUniformBlocks[0]; // Standalone block
+  defaultUniformBlock.size  = 0;
+
+  mStandaloneUniformExtraInfos.reserve(defaultUniformBlock.members.size());
+  for(auto& member : defaultUniformBlock.members)
+  {
+    auto& type         = activeUniformType[member.binding];
+    auto  dataTypeSize = GetGLDataTypeSize(type);
+    member.offset      = defaultUniformBlock.size;
+    defaultUniformBlock.size += (dataTypeSize * activeUniformSize[member.binding]);
+
+    UniformExtraInfo extraInfo{};
+    extraInfo.location  = member.location;
+    extraInfo.size      = (dataTypeSize);
+    extraInfo.offset    = member.offset;
+    extraInfo.arraySize = activeUniformSize[member.binding];
+    extraInfo.type      = activeUniformType[member.binding];
+    member.binding      = 0;
+    mStandaloneUniformExtraInfos.emplace_back(extraInfo);
+  }
+
+  mUniformOpaques = samplers;
+  SortOpaques();
 }
 
 uint32_t Reflection::GetVertexAttributeLocation(const std::string& name) const

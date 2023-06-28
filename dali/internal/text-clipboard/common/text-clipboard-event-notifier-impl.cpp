@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/clipboard/common/clipboard-event-notifier-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-event-notifier-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
@@ -28,30 +28,30 @@ namespace Internal
 {
 namespace Adaptor
 {
-Dali::ClipboardEventNotifier ClipboardEventNotifier::New()
+Dali::TextClipboardEventNotifier TextClipboardEventNotifier::New()
 {
-  Dali::ClipboardEventNotifier notifier = Dali::ClipboardEventNotifier(new ClipboardEventNotifier());
+  Dali::TextClipboardEventNotifier notifier = Dali::TextClipboardEventNotifier(new TextClipboardEventNotifier());
 
   return notifier;
 }
 
-Dali::ClipboardEventNotifier ClipboardEventNotifier::Get()
+Dali::TextClipboardEventNotifier TextClipboardEventNotifier::Get()
 {
-  Dali::ClipboardEventNotifier notifier;
+  Dali::TextClipboardEventNotifier notifier;
 
   Dali::SingletonService service(SingletonService::Get());
   if(service)
   {
     // Check whether the singleton is already created
-    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::ClipboardEventNotifier));
+    Dali::BaseHandle handle = service.GetSingleton(typeid(Dali::TextClipboardEventNotifier));
     if(handle)
     {
       // If so, downcast the handle
-      notifier = Dali::ClipboardEventNotifier(dynamic_cast<ClipboardEventNotifier*>(handle.GetObjectPtr()));
+      notifier = Dali::TextClipboardEventNotifier(dynamic_cast<TextClipboardEventNotifier*>(handle.GetObjectPtr()));
     }
     else
     {
-      notifier = Dali::ClipboardEventNotifier(ClipboardEventNotifier::New());
+      notifier = Dali::TextClipboardEventNotifier(TextClipboardEventNotifier::New());
       service.Register(typeid(notifier), notifier);
     }
   }
@@ -59,36 +59,36 @@ Dali::ClipboardEventNotifier ClipboardEventNotifier::Get()
   return notifier;
 }
 
-const std::string& ClipboardEventNotifier::GetContent() const
+const std::string& TextClipboardEventNotifier::GetContent() const
 {
   return mContent;
 }
 
-void ClipboardEventNotifier::SetContent(const std::string& content)
+void TextClipboardEventNotifier::SetContent(const std::string& content)
 {
   mContent = content;
 }
 
-void ClipboardEventNotifier::ClearContent()
+void TextClipboardEventNotifier::ClearContent()
 {
   mContent.clear();
 }
 
-void ClipboardEventNotifier::EmitContentSelectedSignal()
+void TextClipboardEventNotifier::EmitContentSelectedSignal()
 {
   if(!mContentSelectedSignal.Empty())
   {
-    Dali::ClipboardEventNotifier handle(this);
+    Dali::TextClipboardEventNotifier handle(this);
     mContentSelectedSignal.Emit(handle);
   }
 }
 
-ClipboardEventNotifier::ClipboardEventNotifier()
+TextClipboardEventNotifier::TextClipboardEventNotifier()
 : mContent()
 {
 }
 
-ClipboardEventNotifier::~ClipboardEventNotifier()
+TextClipboardEventNotifier::~TextClipboardEventNotifier()
 {
 }
 

@@ -344,6 +344,16 @@ void Window::KeepRendering(float durationSeconds)
   GetImplementation(*this).KeepRendering(durationSeconds);
 }
 
+void Window::SetPartialUpdateEnabled(bool enabled)
+{
+  GetImplementation(*this).SetPartialUpdateEnabled(enabled);
+}
+
+bool Window::IsPartialUpdateEnabled() const
+{
+  return GetImplementation(*this).IsPartialUpdateEnabled();
+}
+
 Window::KeyEventSignalType& Window::KeyEventSignal()
 {
   return GetImplementation(*this).KeyEventSignal();
