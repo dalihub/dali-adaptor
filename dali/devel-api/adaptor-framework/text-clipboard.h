@@ -1,5 +1,5 @@
-#ifndef DALI_CLIPBOARD_H
-#define DALI_CLIPBOARD_H
+#ifndef DALI_TEXT_CLIPBOARD_H
+#define DALI_TEXT_CLIPBOARD_H
 
 /*
  * Copyright (c) 2023 Samsung Electronics Co., Ltd.
@@ -31,7 +31,7 @@ namespace Internal DALI_INTERNAL
 {
 namespace Adaptor
 {
-class Clipboard;
+class TextClipboard;
 }
 } // namespace DALI_INTERNAL
 
@@ -41,7 +41,7 @@ class Clipboard;
  * Clipboard can manage it's item and set show / hide status.
  */
 
-class DALI_ADAPTOR_API Clipboard : public BaseHandle
+class DALI_ADAPTOR_API TextClipboard : public BaseHandle
 {
 public:
   /**
@@ -49,28 +49,28 @@ public:
    *
    * this can be initialized with one of the derived Clipboard' New() methods
    */
-  Clipboard();
+  TextClipboard();
 
   /**
    * @brief Destructor
    *
    * This is non-virtual since derived Handle types must not contain data or virtual methods.
    */
-  ~Clipboard();
+  ~TextClipboard();
 
   /**
    * @brief This constructor is used by Adaptor::GetClipboard().
    *
    * @param[in] clipboard A pointer to the clipboard.
    */
-  explicit DALI_INTERNAL Clipboard(Internal::Adaptor::Clipboard* clipboard);
+  explicit DALI_INTERNAL TextClipboard(Internal::Adaptor::TextClipboard* clipboard);
 
   /**
-   * @brief Retrieve a handle to the ClipboardEventNotifier instance.
+   * @brief Retrieve a handle to the TextClipboardEventNotifier instance.
    *
-   * @return A handle to the Clipboard
+   * @return A handle to the TextClipboard
    */
-  static Clipboard Get();
+  static TextClipboard Get();
 
   /**
    * @brief Checks whether the clipboard is available.
@@ -91,7 +91,7 @@ public:
    * @brief Request clipboard service to retrieve an item
    *
    * Calling this method will trigger a signal from the clipboard event notifier.
-   * @see Dali::ClipboardEventNotifier::ContentSelectedSignal()
+   * @see Dali::TextClipboardEventNotifier::ContentSelectedSignal()
    */
   void RequestItem();
 
@@ -120,4 +120,4 @@ public:
 };
 } // namespace Dali
 
-#endif // DALI_CLIPBOARD_H
+#endif // DALI_TEXT_CLIPBOARD_H

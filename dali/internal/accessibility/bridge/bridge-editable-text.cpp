@@ -19,7 +19,7 @@
 #include <dali/internal/accessibility/bridge/bridge-editable-text.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 
 using namespace Dali::Accessibility;
 
@@ -64,7 +64,7 @@ DBus::ValueOrError<bool> BridgeEditableText::PasteText(int32_t position)
 {
   // auto imfManager = Dali::Internal::Adaptor::ImfManager::Get();
   // imfManager.SetCursorPosition( position );
-  // auto clipboard = Dali::Internal::Adaptor::Clipboard::Get();
+  // auto clipboard = Dali::Internal::Adaptor::TextClipboard::Get();
   // clipboard.RequestItem();
   // return true;
   return false;

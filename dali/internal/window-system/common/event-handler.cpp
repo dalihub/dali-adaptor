@@ -32,7 +32,7 @@
 #include <dali/public-api/events/wheel-event.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 #include <dali/internal/styling/common/style-monitor-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -126,11 +126,11 @@ void EventHandler::OnKeyEvent(Integration::KeyEvent& keyEvent)
 void EventHandler::OnFocusChanged(bool focusIn)
 {
   // If the window gains focus and we hid the keyboard then show it again.
-  if(Clipboard::IsAvailable())
+  if(TextClipboard::IsAvailable())
   {
     if(focusIn)
     {
-      Dali::Clipboard clipboard = Clipboard::Get();
+      Dali::TextClipboard clipboard = TextClipboard::Get();
       if(clipboard)
       {
         clipboard.HideClipboard();
@@ -139,10 +139,10 @@ void EventHandler::OnFocusChanged(bool focusIn)
     else
     {
       // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
-      Dali::Clipboard clipboard = Clipboard::Get();
+      Dali::TextClipboard clipboard = TextClipboard::Get();
       if(clipboard)
       {
-        Clipboard& clipBoardImpl(GetImplementation(clipboard));
+        TextClipboard& clipBoardImpl(GetImplementation(clipboard));
         clipBoardImpl.HideClipboard(true);
       }
     }
@@ -164,10 +164,10 @@ void EventHandler::OnWindowDamaged(const DamageArea& area)
 
 void EventHandler::OnSelectionDataSend(void* event)
 {
-  Dali::Clipboard clipboard = Clipboard::Get();
+  Dali::TextClipboard clipboard = TextClipboard::Get();
   if(clipboard)
   {
-    Clipboard& clipBoardImpl(GetImplementation(clipboard));
+    TextClipboard& clipBoardImpl(GetImplementation(clipboard));
     clipBoardImpl.ExcuteSend(event);
   }
 }
@@ -175,26 +175,26 @@ void EventHandler::OnSelectionDataSend(void* event)
 void EventHandler::OnSelectionDataReceived(void* event)
 {
   // We have got the selected content, inform the clipboard event listener (if we have one).
-  Dali::Clipboard clipboard     = Clipboard::Get();
-  char*           selectionData = NULL;
-  size_t          dataLength    = 0u;
+  Dali::TextClipboard clipboard     = TextClipboard::Get();
+  char*               selectionData = NULL;
+  size_t              dataLength    = 0u;
 
   if(clipboard)
   {
     int len = 0;
-    Clipboard& clipBoardImpl(GetImplementation(clipboard));
+    TextClipboard& clipBoardImpl(GetImplementation(clipboard));
     clipBoardImpl.ExcuteReceive(event, selectionData, len);
     dataLength = static_cast<size_t>(len);
   }
 
   if(!mClipboardEventNotifier)
   {
-    mClipboardEventNotifier = ClipboardEventNotifier::Get();
+    mClipboardEventNotifier = TextClipboardEventNotifier::Get();
   }
 
   if(selectionData && mClipboardEventNotifier && dataLength > 0)
   {
-    ClipboardEventNotifier& clipboardEventNotifier(ClipboardEventNotifier::GetImplementation(mClipboardEventNotifier));
+    TextClipboardEventNotifier& clipboardEventNotifier(TextClipboardEventNotifier::GetImplementation(mClipboardEventNotifier));
     std::string             content;
     size_t                  stringLength = strlen(selectionData);
 

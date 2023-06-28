@@ -16,60 +16,60 @@
  */
 
 // CLASS HEADER
-#include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/devel-api/adaptor-framework/text-clipboard.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/clipboard/common/clipboard-impl.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 
 namespace Dali
 {
-Clipboard::Clipboard()
+TextClipboard::TextClipboard()
 {
 }
-Clipboard::~Clipboard()
+TextClipboard::~TextClipboard()
 {
 }
-Clipboard::Clipboard(Internal::Adaptor::Clipboard* impl)
+TextClipboard::TextClipboard(Internal::Adaptor::TextClipboard* impl)
 : BaseHandle(impl)
 {
 }
 
-Clipboard Clipboard::Get()
+TextClipboard TextClipboard::Get()
 {
-  return Internal::Adaptor::Clipboard::Get();
+  return Internal::Adaptor::TextClipboard::Get();
 }
 
-bool Clipboard::IsAvailable()
+bool TextClipboard::IsAvailable()
 {
-  return Internal::Adaptor::Clipboard::IsAvailable();
+  return Internal::Adaptor::TextClipboard::IsAvailable();
 }
 
-bool Clipboard::SetItem(const std::string& itemData)
+bool TextClipboard::SetItem(const std::string& itemData)
 {
   return GetImplementation(*this).SetItem(itemData);
 }
 
-void Clipboard::RequestItem()
+void TextClipboard::RequestItem()
 {
   GetImplementation(*this).RequestItem();
 }
 
-unsigned int Clipboard::NumberOfItems()
+unsigned int TextClipboard::NumberOfItems()
 {
   return GetImplementation(*this).NumberOfItems();
 }
 
-void Clipboard::ShowClipboard()
+void TextClipboard::ShowClipboard()
 {
   GetImplementation(*this).ShowClipboard();
 }
 
-void Clipboard::HideClipboard()
+void TextClipboard::HideClipboard()
 {
   GetImplementation(*this).HideClipboard(false);
 }
 
-bool Clipboard::IsVisible() const
+bool TextClipboard::IsVisible() const
 {
   return GetImplementation(*this).IsVisible();
 }
