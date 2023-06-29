@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,14 +50,14 @@ OffscreenApplication& OffscreenApplication::operator=(const OffscreenApplication
 
 OffscreenApplication::~OffscreenApplication() = default;
 
-void OffscreenApplication::Start()
+void OffscreenApplication::MainLoop()
 {
-  Internal::GetImplementation(*this).Start();
+  Internal::GetImplementation(*this).MainLoop();
 }
 
-void OffscreenApplication::Stop()
+void OffscreenApplication::Quit()
 {
-  Internal::GetImplementation(*this).Stop();
+  Internal::GetImplementation(*this).Quit();
 }
 
 Dali::OffscreenWindow OffscreenApplication::GetWindow()

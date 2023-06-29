@@ -13,6 +13,7 @@ SET( adaptor_adaptor_common_src_files
 
 # module: adaptor, backend: tizen-wayland
 SET( adaptor_adaptor_tizen_wayland_src_files
+    ${adaptor_adaptor_dir}/glib/framework-glib.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/adaptor-impl-tizen.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/framework-factory-tizen.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/framework-tizen.cpp
@@ -41,6 +42,7 @@ SET( adaptor_adaptor_tizen_wearable_src_files
 # module: adaptor, backend: ubuntu
 SET( adaptor_adaptor_ubuntu_src_files
     ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
+    ${adaptor_adaptor_dir}/glib/framework-glib.cpp
     ${adaptor_adaptor_dir}/ubuntu/framework-factory-ubuntu.cpp
     ${adaptor_adaptor_dir}/ubuntu/framework-ubuntu.cpp
 )

@@ -47,8 +47,8 @@ struct FrameworkGlib::Impl
   // Constructor
   Impl(void* data)
   {
-    // In future, may need to change this to have own context or use Tizen context
-    gMainLoop = mMainLoop = g_main_loop_new(nullptr, false);
+    GMainContext* context = g_main_context_new();
+    gMainLoop = mMainLoop = g_main_loop_new(context, false);
   }
 
   ~Impl()

@@ -30,7 +30,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct CallbackData;
+struct EcoreCallbackData;
 
 /**
  * Ecore interface to install call backs in the applications main loop.
@@ -103,21 +103,21 @@ private:
    * Always called from main thread
    * @param callbackData callback data
    */
-  void RemoveCallbackFromContainer(CallbackData* callbackData);
+  void RemoveCallbackFromContainer(EcoreCallbackData* callbackData);
 
   /**
    * @brief Remove a standard call back from ecore
    * Always called from main thread
    * @param callbackData callback data
    */
-  void RemoveStandardCallback(CallbackData* callbackData);
+  void RemoveStandardCallback(EcoreCallbackData* callbackData);
 
   // Undefined
   EcoreCallbackManager(const EcoreCallbackManager&) = delete;
   EcoreCallbackManager& operator=(EcoreCallbackManager&) = delete;
 
 private:
-  typedef std::list<CallbackData*> CallbackList;
+  typedef std::list<EcoreCallbackData*> CallbackList;
 
   bool         mRunning;           ///< flag is set to true if when running
   CallbackList mCallbackContainer; ///< container of live idle callbacks

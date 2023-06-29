@@ -27,16 +27,26 @@ namespace Internal
 {
 namespace Adaptor
 {
+enum class FrameworkBackend
+{
+  DEFAULT,
+  GLIB
+};
+
 class FrameworkFactory
 {
 public:
   FrameworkFactory()          = default;
   virtual ~FrameworkFactory() = default;
 
-  virtual std::unique_ptr<Framework> CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) = 0;
+  virtual std::unique_ptr<Framework> CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) = 0;
+  virtual FrameworkBackend           GetFrameworkBackend() const
+  {
+    return FrameworkBackend::DEFAULT;
+  }
 };
 
-extern std::unique_ptr<FrameworkFactory> GetFrameworkFactory();
+extern FrameworkFactory* GetFrameworkFactory();
 
 } // namespace Adaptor
 } // namespace Internal

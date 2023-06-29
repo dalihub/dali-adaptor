@@ -28,14 +28,20 @@ namespace Internal
 {
 namespace Adaptor
 {
-std::unique_ptr<Framework> FrameworkFactoryLibuv::CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
+std::unique_ptr<Framework> FrameworkFactoryLibuv::CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
   return Utils::MakeUnique<FrameworkLibuv>(observer, taskObserver, argc, argv, type, useUiThread);
 }
 
-std::unique_ptr<FrameworkFactory> GetFrameworkFactory()
+FrameworkFactory* GetFrameworkFactory()
 {
-  return Utils::MakeUnique<FrameworkFactoryLibuv>();
+  static std::unique_ptr<FrameworkFactory> frameworkFactory = nullptr;
+
+  if(!frameworkFactory)
+  {
+    frameworkFactory = Utils::MakeUnique<FrameworkFactoryLibuv>();
+  }
+  return frameworkFactory.get();
 }
 
 } // namespace Adaptor
