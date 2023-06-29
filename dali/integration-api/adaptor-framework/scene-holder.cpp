@@ -105,6 +105,12 @@ void SceneHolder::FeedKeyEvent(Dali::KeyEvent& keyEvent)
   GetImplementation(*this).FeedKeyEvent(event);
 }
 
+void SceneHolder::FeedHoverEvent(Dali::TouchPoint& point)
+{
+  Integration::Point convertedPoint(point);
+  GetImplementation(*this).FeedHoverEvent(convertedPoint);
+}
+
 RenderTaskList SceneHolder::GetRenderTaskList()
 {
   return GetImplementation(*this).GetRenderTaskList();

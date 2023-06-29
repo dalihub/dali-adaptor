@@ -159,6 +159,12 @@ public:
   void FeedKeyEvent(Dali::KeyEvent& keyEvent);
 
   /**
+   * @brief Feed (Send) hover event to core
+   * @param[in] point The touch point that create a hover event
+   */
+  void FeedHoverEvent(Dali::TouchPoint& point);
+
+  /**
    * @brief Retrieves the list of render-tasks.
    * @return A valid handle to a RenderTaskList
    */

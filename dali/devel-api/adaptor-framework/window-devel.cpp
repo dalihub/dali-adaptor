@@ -243,6 +243,12 @@ void FeedKeyEvent(Window window, const Dali::KeyEvent& keyEvent)
   GetImplementation(window).FeedKeyEvent(convertedEvent);
 }
 
+void FeedHoverEvent(Window window, const Dali::TouchPoint& point)
+{
+  Integration::Point convertedPoint(point);
+  GetImplementation(window).FeedHoverEvent(convertedPoint);
+}
+
 void Maximize(Window window, bool maximize)
 {
   GetImplementation(window).Maximize(maximize);

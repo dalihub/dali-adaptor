@@ -199,6 +199,11 @@ public:
   void FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent);
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::FeedHoverEvent
+   */
+  void FeedHoverEvent(Dali::Integration::Point& point);
+
+  /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
    * @param[in] callback The function to call
