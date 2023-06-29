@@ -64,16 +64,14 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_APPLICATION, true);
 ApplicationPtr Application::gPreInitializedApplication(NULL);
 
 ApplicationPtr Application::New(
-  int*                           argc,
-  char**                         argv[],
-  const std::string&             stylesheet,
-  Dali::Application::WINDOW_MODE windowMode,
-  const PositionSize&            positionSize,
-  Framework::Type                applicationType,
-  WindowType                     type,
-  bool                           useUiThread)
+  int*               argc,
+  char**             argv[],
+  const std::string& stylesheet,
+  Framework::Type    applicationType,
+  bool               useUiThread,
+  const WindowData&  windowData)
 {
-  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type, useUiThread));
+  ApplicationPtr application(new Application(argc, argv, stylesheet, applicationType, useUiThread, windowData));
   return application;
 }
 
@@ -82,14 +80,14 @@ void Application::PreInitialize(int* argc, char** argv[])
   if(!gPreInitializedApplication)
   {
     Dali::TextAbstraction::FontClientPreInitialize();
-
-    gPreInitializedApplication                  = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
+    WindowData windowData;
+    gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, false, windowData);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
     gPreInitializedApplication->CreateWindow(); // Only create window
   }
 }
 
-Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread)
+Application::Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData)
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -104,12 +102,12 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mAdaptor(nullptr),
   mEnvironmentOptions(nullptr),
   mMainWindow(),
-  mMainWindowMode(windowMode),
+  mMainWindowMode(windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE),
   mMainWindowName(),
   mStylesheet(stylesheet),
-  mWindowPositionSize(positionSize),
+  mWindowPositionSize(windowData.GetPositionSize()),
   mLaunchpadState(Launchpad::NONE),
-  mDefaultWindowType(type),
+  mDefaultWindowType(windowData.GetWindowType()),
   mUseUiThread(useUiThread),
   mSlotDelegate(this)
 {
@@ -208,6 +206,9 @@ void Application::ChangePreInitializedWindowInfo()
 void Application::CreateWindow()
 {
   Internal::Adaptor::Window* window;
+  WindowData                 windowData;
+  windowData.SetTransparency(mMainWindowMode);
+  windowData.SetWindowType(mDefaultWindowType);
 
   WindowSystem::Initialize();
 
@@ -236,13 +237,15 @@ void Application::CreateWindow()
       mMainWindowName = windowName;
     }
 
-    window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
+    windowData.SetPositionSize(mWindowPositionSize);
+    window = Internal::Adaptor::Window::New(mMainWindowName, windowClassName, windowData);
   }
   else
   {
     // The position, size and the window name of the pre-initialized application will be updated in ChangePreInitializedWindowInfo()
     // when the real application is launched.
-    window = Internal::Adaptor::Window::New(mWindowPositionSize, "", "", mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
+    windowData.SetPositionSize(mWindowPositionSize);
+    window = Internal::Adaptor::Window::New("", "", windowData);
   }
 
   mMainWindow = Dali::Window(window);

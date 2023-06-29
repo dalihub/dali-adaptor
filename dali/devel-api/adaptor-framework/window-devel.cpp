@@ -48,7 +48,11 @@ Window New(Any surface, PositionSize windowPosition, const std::string& name, co
 
   if(isNewWindowAllowed)
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, windowPosition, name, className, WindowType::NORMAL, isTransparent);
+    WindowData windowData;
+    windowData.SetPositionSize(windowPosition);
+    windowData.SetTransparency(isTransparent);
+    windowData.SetWindowType(WindowType::NORMAL);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(surface, name, className, windowData);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
     if(isAdaptorAvailable)

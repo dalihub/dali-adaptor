@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,17 +40,17 @@ unsigned int GetEnvWatchRenderRefreshRate()
 } // unnamed namespace
 
 WatchApplicationPtr WatchApplication::New(
-  int*                                argc,
-  char**                              argv[],
-  const std::string&                  stylesheet,
-  Dali::WatchApplication::WINDOW_MODE windowMode)
+  int*               argc,
+  char**             argv[],
+  const std::string& stylesheet,
+  const WindowData&  windowData)
 {
-  WatchApplicationPtr watch(new WatchApplication(argc, argv, stylesheet, windowMode));
+  WatchApplicationPtr watch(new WatchApplication(argc, argv, stylesheet, windowData));
   return watch;
 }
 
-WatchApplication::WatchApplication(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode)
-: Application(argc, argv, stylesheet, windowMode, PositionSize(), Framework::WATCH, WindowType::NORMAL, false),
+WatchApplication::WatchApplication(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData)
+: Application(argc, argv, stylesheet, Framework::WATCH, false, windowData),
   mState(UNINITIALIZED)
 {
 }

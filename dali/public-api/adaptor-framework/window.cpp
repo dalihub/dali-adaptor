@@ -36,6 +36,15 @@ Window Window::New(PositionSize posSize, const std::string& name, bool isTranspa
 
 Window Window::New(PositionSize posSize, const std::string& name, const std::string& className, bool isTransparent)
 {
+  WindowData windowData;
+  windowData.SetPositionSize(posSize);
+  windowData.SetTransparency(isTransparent);
+  windowData.SetWindowType(WindowType::NORMAL);
+  return Dali::Window::New(name, "", windowData);
+}
+
+Window Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
+{
   Window newWindow;
 
   const bool isAdaptorAvailable = Dali::Adaptor::IsAvailable();
@@ -49,7 +58,7 @@ Window Window::New(PositionSize posSize, const std::string& name, const std::str
 
   if(isNewWindowAllowed)
   {
-    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(posSize, name, className, WindowType::NORMAL, isTransparent);
+    Internal::Adaptor::Window* window = Internal::Adaptor::Window::New(name, className, windowData);
 
     Integration::SceneHolder sceneHolder = Integration::SceneHolder(window);
 
