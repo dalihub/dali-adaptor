@@ -18,6 +18,10 @@
 #include <dali/internal/system/linux/system-factory-ecore.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/adaptor/common/framework-factory.h>
+#include <dali/internal/system/glib/callback-manager-glib.h>
+#include <dali/internal/system/glib/file-descriptor-monitor-glib.h>
+#include <dali/internal/system/glib/timer-impl-glib.h>
 #include <dali/internal/system/linux/callback-manager-ecore.h>
 #include <dali/internal/system/linux/file-descriptor-monitor-ecore.h>
 #include <dali/internal/system/linux/timer-impl-ecore.h>
@@ -31,17 +35,41 @@ namespace Adaptor
 {
 std::unique_ptr<CallbackManager> SystemFactoryEcore::CreateCallbackManager()
 {
-  return Utils::MakeUnique<EcoreCallbackManager>();
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
+  {
+    return Utils::MakeUnique<GlibCallbackManager>();
+  }
+  else
+  {
+    return Utils::MakeUnique<EcoreCallbackManager>();
+  }
 }
 
 std::unique_ptr<FileDescriptorMonitor> SystemFactoryEcore::CreateFileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
 {
-  return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
+  {
+    return Utils::MakeUnique<FileDescriptorMonitorGlib>(fileDescriptor, callback, eventBitmask);
+  }
+  else
+  {
+    return Utils::MakeUnique<FileDescriptorMonitorEcore>(fileDescriptor, callback, eventBitmask);
+  }
 }
 
 TimerPtr SystemFactoryEcore::CreateTimer(uint32_t milliSec)
 {
-  return TimerEcore::New(milliSec);
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::GLIB)
+  {
+    return TimerGlib::New(milliSec);
+  }
+  else
+  {
+    return TimerEcore::New(milliSec);
+  }
 }
 
 std::unique_ptr<SystemFactory> GetSystemFactory()

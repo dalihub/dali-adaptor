@@ -19,10 +19,12 @@
 #include <dali/internal/offscreen/common/offscreen-application-impl.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -45,7 +47,11 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
   // Disable partial update
   EnvironmentVariable::SetEnvironmentVariable(DALI_ENV_DISABLE_PARTIAL_UPDATE, "1");
 
-  Dali::Internal::Adaptor::WindowSystem::Initialize();
+  // Disable ATSPI
+  Dali::Accessibility::Bridge::DisableAutoInit();
+
+  // Now we assume separated main loop for the offscreen application
+  mFramework = Internal::Adaptor::GetFrameworkFactory()->CreateFramework(Internal::Adaptor::FrameworkBackend::GLIB, *this, *this, nullptr, nullptr, Adaptor::Framework::NORMAL, false);
 
   // Generate a default window
   IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
@@ -59,26 +65,18 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
 
 OffscreenApplication::~OffscreenApplication()
 {
-  Dali::Internal::Adaptor::WindowSystem::Shutdown();
 }
 
-void OffscreenApplication::Start()
+void OffscreenApplication::MainLoop()
 {
-  // Start the adaptor
-  mAdaptor->Start();
-
-  Dali::OffscreenApplication handle(this);
-  mInitSignal.Emit();
-  mAdaptor->NotifySceneCreated();
+  mFramework->Run();
 }
 
-void OffscreenApplication::Stop()
+void OffscreenApplication::Quit()
 {
-  // Stop the adaptor
-  mAdaptor->Stop();
-
-  Dali::OffscreenApplication handle(this);
-  mTerminateSignal.Emit();
+  // Actually quit the application.
+  // Force a call to Quit even if adaptor is not running.
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &OffscreenApplication::QuitFromMainLoop), false, true);
 }
 
 Dali::OffscreenWindow OffscreenApplication::GetWindow()
@@ -89,6 +87,34 @@ Dali::OffscreenWindow OffscreenApplication::GetWindow()
 void OffscreenApplication::RenderOnce()
 {
   mAdaptor->RenderOnce();
+}
+
+void OffscreenApplication::OnInit()
+{
+  // Start the adaptor
+  mAdaptor->Start();
+
+  mInitSignal.Emit();
+
+  mAdaptor->NotifySceneCreated();
+}
+
+void OffscreenApplication::OnTerminate()
+{
+  mTerminateSignal.Emit();
+
+  // Stop the adaptor
+  mAdaptor->Stop();
+
+  mDefaultWindow.Reset();
+}
+
+void OffscreenApplication::QuitFromMainLoop()
+{
+  mAdaptor->Stop();
+
+  mFramework->Quit();
+  // This will trigger OnTerminate(), below, after the main loop has completed.
 }
 
 } // namespace Internal

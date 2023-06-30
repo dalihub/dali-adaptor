@@ -126,7 +126,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   }
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-  mFramework          = Dali::Internal::Adaptor::GetFrameworkFactory()->CreateFramework(*this, *this, argc, argv, applicationType, mUseUiThread);
+  mFramework          = Dali::Internal::Adaptor::GetFrameworkFactory()->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
 
   mUseRemoteSurface = (applicationType == Framework::WATCH);
 }

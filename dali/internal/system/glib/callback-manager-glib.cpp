@@ -35,14 +35,14 @@ extern GMainContext* GetMainLoopContext();
 /**
  * Structure contains the callback function and control options
  */
-struct CallbackData
+struct GlibCallbackData
 {
   typedef gboolean (*CallbackFunction)(gpointer userData);
 
   /**
    * Constructor
    */
-  CallbackData(CallbackBase* callback, bool hasReturnValue)
+  GlibCallbackData(CallbackBase* callback, bool hasReturnValue)
   : mCallback(callback),
     mHasReturnValue(hasReturnValue)
   {
@@ -58,7 +58,7 @@ struct CallbackData
     {
       mSource = g_idle_source_new();
       g_source_set_priority(mSource, G_PRIORITY_HIGH_IDLE);
-      g_source_set_callback(mSource, &CallbackData::IdleCallback, this, nullptr); // No destroyNotify
+      g_source_set_callback(mSource, &GlibCallbackData::IdleCallback, this, nullptr); // No destroyNotify
       g_source_attach(mSource, context);
     }
   }
@@ -66,7 +66,7 @@ struct CallbackData
   /**
    * Destructor
    */
-  ~CallbackData()
+  ~GlibCallbackData()
   {
     g_source_destroy(mSource);
     g_source_unref(mSource);
@@ -78,8 +78,8 @@ struct CallbackData
 
   static gboolean IdleCallback(gpointer userData)
   {
-    gboolean      retValue     = G_SOURCE_REMOVE;
-    CallbackData* callbackData = static_cast<CallbackData*>(userData);
+    gboolean          retValue     = G_SOURCE_REMOVE;
+    GlibCallbackData* callbackData = static_cast<GlibCallbackData*>(userData);
 
     if(callbackData->mHasReturnValue)
     {
@@ -139,7 +139,7 @@ void GlibCallbackManager::Stop()
 
   for(CallbackList::iterator iter = mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter)
   {
-    CallbackData* data = (*iter);
+    GlibCallbackData* data = (*iter);
 
     delete data;
   }
@@ -153,7 +153,7 @@ bool GlibCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasReturn
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData(callback, hasReturnValue);
+  GlibCallbackData* callbackData = new GlibCallbackData(callback, hasReturnValue);
 
   // To inform the manager a callback has finished, we get it to call RemoveCallbackFromContainer
   callbackData->mRemoveFromContainerFunction = MakeCallback(this, &GlibCallbackManager::RemoveCallbackFromContainer);
@@ -174,7 +174,7 @@ void GlibCallbackManager::RemoveIdleCallback(CallbackBase* callback)
       it != endIt;
       ++it)
   {
-    CallbackData* data = *it;
+    GlibCallbackData* data = *it;
 
     if(data->mCallback == callback)
     {
@@ -204,7 +204,7 @@ bool GlibCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData(callback, true);
+  GlibCallbackData* callbackData = new GlibCallbackData(callback, true);
 
   // To inform the manager a callback has finished, we get it to call RemoveCallbackFromContainer
   callbackData->mRemoveFromContainerFunction = MakeCallback(this, &GlibCallbackManager::RemoveCallbackFromContainer);
@@ -223,7 +223,7 @@ void GlibCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
   RemoveIdleCallback(callback);
 }
 
-void GlibCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData)
+void GlibCallbackManager::RemoveCallbackFromContainer(GlibCallbackData* callbackData)
 {
   mCallbackContainer.remove(callbackData);
 }

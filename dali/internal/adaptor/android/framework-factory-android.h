@@ -29,7 +29,7 @@ namespace Adaptor
 class FrameworkFactoryAndroid : public FrameworkFactory
 {
 public:
-  std::unique_ptr<Framework> CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
+  std::unique_ptr<Framework> CreateFramework(FrameworkBackend frameworkType, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
 };
 
 } // namespace Adaptor

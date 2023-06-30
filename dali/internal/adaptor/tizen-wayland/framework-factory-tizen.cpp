@@ -19,6 +19,7 @@
 #include <dali/internal/adaptor/tizen-wayland/framework-factory-tizen.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/adaptor/glib/framework-glib.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
 #include <dali/internal/window-system/common/display-utils.h>
 
@@ -28,14 +29,28 @@ namespace Internal
 {
 namespace Adaptor
 {
-std::unique_ptr<Framework> FrameworkFactoryTizen::CreateFramework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
+std::unique_ptr<Framework> FrameworkFactoryTizen::CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
-  return Utils::MakeUnique<FrameworkTizen>(observer, taskObserver, argc, argv, type, useUiThread);
+  mBackend = backend;
+  if(mBackend == FrameworkBackend::GLIB)
+  {
+    return Utils::MakeUnique<FrameworkGlib>(observer, taskObserver, argc, argv, type, useUiThread);
+  }
+  else
+  {
+    return Utils::MakeUnique<FrameworkTizen>(observer, taskObserver, argc, argv, type, useUiThread);
+  }
 }
 
-std::unique_ptr<FrameworkFactory> GetFrameworkFactory()
+FrameworkFactory* GetFrameworkFactory()
 {
-  return Utils::MakeUnique<FrameworkFactoryTizen>();
+  static std::unique_ptr<FrameworkFactory> frameworkFactory = nullptr;
+
+  if(!frameworkFactory)
+  {
+    frameworkFactory = Utils::MakeUnique<FrameworkFactoryTizen>();
+  }
+  return frameworkFactory.get();
 }
 
 } // namespace Adaptor

@@ -2,7 +2,7 @@
 #define DALI_OFFSCREEN_APPLICATION_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,14 +104,14 @@ public:
 
 public:
   /**
-   * @brief Starts the OffscreenApplication (rendering, event handling, etc)
+   * @brief This starts the application.
    */
-  void Start();
+  void MainLoop();
 
   /**
-   * @brief Stops the OffscreenApplication
+   * @brief This quits the application.
    */
-  void Stop();
+  void Quit();
 
   /**
    * @brief Get the default OffscreenWindow handle

@@ -30,7 +30,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct CallbackData;
+struct GlibCallbackData;
 
 /**
  * @brief Glib callback manager used to install call backs in the applications main loop.
@@ -95,14 +95,14 @@ private:
    * Always called from main thread
    * @param callbackData callback data
    */
-  void RemoveCallbackFromContainer(CallbackData* callbackData);
+  void RemoveCallbackFromContainer(GlibCallbackData* callbackData);
 
   // Undefined
   GlibCallbackManager(const GlibCallbackManager&) = delete;
   GlibCallbackManager& operator=(GlibCallbackManager&) = delete;
 
 private:
-  typedef std::list<CallbackData*> CallbackList; ///< list of callbacks installed
+  typedef std::list<GlibCallbackData*> CallbackList; ///< list of callbacks installed
 
   bool         mRunning;           ///< flag is set to true if when running
   CallbackList mCallbackContainer; ///< container of live callbacks

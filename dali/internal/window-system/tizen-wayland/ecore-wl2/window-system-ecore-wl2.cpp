@@ -15,14 +15,15 @@
  *
  */
 
-// INTERNAL HEADERS
-#include <dali/devel-api/adaptor-framework/keyboard.h>
-#include <dali/internal/system/common/time-service.h>
-#include <dali/internal/window-system/common/window-system.h>
-
 // EXTERNAL_HEADERS
 #include <Ecore_Wl2.h>
 #include <dali/integration-api/debug.h>
+
+// INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/internal/adaptor/common/framework-factory.h>
+#include <dali/internal/system/common/time-service.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 #define START_DURATION_CHECK()                               \
   uint32_t durationMilliSeconds = static_cast<uint32_t>(-1); \
@@ -53,27 +54,39 @@ static int32_t gScreenHeight = 0;
 
 void Initialize()
 {
-  ecore_wl2_init();
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
+  {
+    ecore_wl2_init();
+  }
 }
 
 void Shutdown()
 {
-  ecore_wl2_shutdown();
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
+  {
+    ecore_wl2_shutdown();
+  }
 }
 
 void GetScreenSize(int32_t& width, int32_t& height)
 {
-  if(gScreenWidth == 0 || gScreenHeight == 0)
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
   {
-    Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
-    if(display)
+    if(gScreenWidth == 0 || gScreenHeight == 0)
     {
-      START_DURATION_CHECK();
-      ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
-      FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
+      Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
+      if(display)
+      {
+        START_DURATION_CHECK();
+        ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
+        FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
 
-      DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
-      DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
+        DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
+        DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
+      }
     }
   }
   width  = gScreenWidth;
@@ -82,30 +95,43 @@ void GetScreenSize(int32_t& width, int32_t& height)
 
 void UpdateScreenSize()
 {
-  Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
-  if(display)
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
   {
-    START_DURATION_CHECK();
-    ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
-    FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
+    Ecore_Wl2_Display* display = ecore_wl2_display_connect(NULL);
+    if(display)
+    {
+      START_DURATION_CHECK();
+      ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
+      FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
+    }
   }
 }
 
 bool SetKeyboardRepeatInfo(float rate, float delay)
 {
-  Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
-  return ecore_wl2_input_keyboard_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    return ecore_wl2_input_keyboard_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
+  }
 }
 
 bool GetKeyboardRepeatInfo(float& rate, float& delay)
 {
-  Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
-  double           rateVal, delayVal;
-  bool             ret = ecore_wl2_input_keyboard_repeat_get(input, &rateVal, &delayVal);
-  rate                 = static_cast<float>(rateVal);
-  delay                = static_cast<float>(delayVal);
+  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
+  if(backend == FrameworkBackend::DEFAULT)
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    double           rateVal, delayVal;
+    bool             ret = ecore_wl2_input_keyboard_repeat_get(input, &rateVal, &delayVal);
+    rate                 = static_cast<float>(rateVal);
+    delay                = static_cast<float>(delayVal);
 
-  return ret;
+    return ret;
+  }
+  return false;
 }
 
 } // namespace WindowSystem
