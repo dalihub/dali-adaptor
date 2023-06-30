@@ -332,7 +332,7 @@ private:
 
 private:
   // Undefined
-  Framework(const Framework&) = delete;
+  Framework(const Framework&)      = delete;
   Framework& operator=(Framework&) = delete;
 
 protected:
@@ -343,6 +343,43 @@ protected:
   char***                       mArgv;
   std::unique_ptr<CallbackBase> mAbortCallBack;
   bool                          mRunning;
+};
+
+class UIThreadLoader
+{
+public:
+  using Runner = std::function<void()>;
+
+  /**
+   * Constructor
+   * @param[in] argc A pointer to the number of arguments.
+   * @param[in] argv A pointer the the argument list.
+   */
+  UIThreadLoader(int* argc, char*** argv);
+
+  /**
+   * Destructor
+   */
+  ~UIThreadLoader();
+
+public:
+  /**
+   * Runs the main loop of framework
+   */
+  void Run(Runner runner);
+
+private:
+  // Undefined
+  UIThreadLoader(const UIThreadLoader&);
+  UIThreadLoader& operator=(UIThreadLoader&);
+
+private:
+  int*    mArgc;
+  char*** mArgv;
+
+private: // impl members
+  struct Impl;
+  Impl* mImpl;
 };
 
 } // namespace Adaptor

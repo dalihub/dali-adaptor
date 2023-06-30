@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,49 @@ void FrameworkLibuv::Quit()
 {
   mObserver.OnTerminate();
   mImpl->Quit();
+}
+
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+
+  Impl(void *data)
+  {
+  }
+
+  ~Impl()
+  {
+  }
+
+  void Run(Runner runner)
+  {
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
+{
+}
+
+UIThreadLoader::~UIThreadLoader()
+{
+}
+
+void UIThreadLoader::Run(Runner runner)
+{
 }
 
 } // namespace Adaptor

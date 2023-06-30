@@ -668,6 +668,49 @@ bool FrameworkAndroid::AppStatusHandler(int type, void* data)
   return true;
 }
 
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+
+  Impl(void *data)
+  {
+  }
+
+  ~Impl()
+  {
+  }
+
+  void Run(Runner runner)
+  {
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
+{
+}
+
+UIThreadLoader::~UIThreadLoader()
+{
+}
+
+void UIThreadLoader::Run(Runner runner)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

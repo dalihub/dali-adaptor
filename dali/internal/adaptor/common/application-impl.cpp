@@ -81,11 +81,35 @@ void Application::PreInitialize(int* argc, char** argv[])
 {
   if(!gPreInitializedApplication)
   {
+    char* retEnv = std::getenv("TIZEN_UI_THREAD");
+    bool isUseUIThread = false;
+    if(retEnv)
+    {
+      std::string uiThreadEnv = retEnv;
+      std::string enabledString = "true";
+      if(uiThreadEnv == enabledString)
+      {
+        isUseUIThread = true;
+      }
+    }
+
     Dali::TextAbstraction::FontClientPreInitialize();
     WindowData windowData;
-    gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, false, windowData);
+    gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, isUseUIThread, windowData);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
-    gPreInitializedApplication->CreateWindow(); // Only create window
+    if(isUseUIThread)
+    {
+      DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading");
+      gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
+      gPreInitializedApplication->mUIThreadLoader->Run([&](){gPreInitializedApplication->CreateWindow();});
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED");
+      gPreInitializedApplication->CreateWindow(); // Only create window
+    }
+
+
   }
 }
 
@@ -112,7 +136,8 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mDefaultWindowType(windowData.GetWindowType()),
   mUseUiThread(useUiThread),
   mIsSystemInitialized(false),
-  mSlotDelegate(this)
+  mSlotDelegate(this),
+  mUIThreadLoader(nullptr)
 {
   // Set mName from command-line args
   if(argc && (*argc > 0))
@@ -155,6 +180,13 @@ Application::~Application()
     if(mIsSystemInitialized)
     {
       WindowSystem::Shutdown();
+    }
+  }
+  else
+  {
+    if(mUIThreadLoader)
+    {
+      delete mUIThreadLoader;
     }
   }
 }
@@ -215,6 +247,8 @@ void Application::CreateWindow()
   WindowData                 windowData;
   windowData.SetTransparency(mMainWindowMode);
   windowData.SetWindowType(mDefaultWindowType);
+
+  DALI_LOG_RELEASE_INFO("Create Default Window");
 
   WindowSystem::Initialize();
   mIsSystemInitialized = true;
@@ -318,6 +352,7 @@ void Application::OnInit()
   // If an application was pre-initialized, a window was made in advance
   if(mLaunchpadState == Launchpad::NONE)
   {
+    DALI_LOG_RELEASE_INFO("default Window is created in standalone");
     CreateWindow();
   }
 

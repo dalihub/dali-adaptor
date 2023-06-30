@@ -29,6 +29,7 @@
 #include <widget_base.h>
 #include <app_core_ui_base.hh>
 #include <app_event_internal.hh>
+#include <app_core_ui_thread_base.hh>
 
 // CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
@@ -1394,6 +1395,81 @@ std::string FrameworkTizen::GetLanguage() const
 std::string FrameworkTizen::GetRegion() const
 {
   return mImpl->GetRegion();
+}
+
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+  Impl(void *data)
+  {
+    mUIThreadLoader = static_cast<UIThreadLoader*>(data);
+    mAppCoreUiThreadBase = new AppCoreUiThreadBase();
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Create mAppCoreUiThreadBase(%p)", __MODULE__, __func__, __LINE__, mAppCoreUiThreadBase);
+  }
+
+  // Destructor
+  ~Impl()
+  {
+    if(mAppCoreUiThreadBase)
+    {
+      mAppCoreUiThreadBase->Exit();
+      delete mAppCoreUiThreadBase;
+    }
+  }
+
+  /**
+   * Runs to work create window in UI thread when application is pre-initialized.
+   */
+  void Run(Runner runner)
+  {
+    mAppCoreUiThreadBase->Post(runner);
+    mAppCoreUiThreadBase->Run(*(mUIThreadLoader->mArgc), *(mUIThreadLoader->mArgv));
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+
+  // Data
+  AppCoreUiThreadBase* mAppCoreUiThreadBase;
+  UIThreadLoader*      mUIThreadLoader;
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
+{
+  if(mArgc == nullptr || mArgv == nullptr)
+  {
+    mArgc = const_cast<int*>(&gTizenDummyArgc);
+    mArgv = const_cast<char***>(reinterpret_cast<const char***>(&gTizenDummyArgv));
+  }
+
+  mImpl = new Impl(this);
+}
+
+UIThreadLoader::~UIThreadLoader()
+{
+  if(mImpl)
+  {
+    delete mImpl;
+  }
+}
+
+/**
+ * Runs to work create window in UI thread when application is pre-initialized.
+ */
+void UIThreadLoader::Run(Runner runner)
+{
+  mImpl->Run(runner);
 }
 
 } // namespace Adaptor

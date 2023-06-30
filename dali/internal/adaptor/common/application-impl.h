@@ -544,6 +544,7 @@ private:
 
   SlotDelegate<Application> mSlotDelegate;
 
+  UIThreadLoader* mUIThreadLoader;
   static ApplicationPtr gPreInitializedApplication;
 };
 
