@@ -111,6 +111,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mLaunchpadState(Launchpad::NONE),
   mDefaultWindowType(windowData.GetWindowType()),
   mUseUiThread(useUiThread),
+  mIsSystemInitialized(false),
   mSlotDelegate(this)
 {
   // Set mName from command-line args
@@ -151,7 +152,10 @@ Application::~Application()
   {
     delete mAdaptor;
     delete mAdaptorBuilder;
-    WindowSystem::Shutdown();
+    if(mIsSystemInitialized)
+    {
+      WindowSystem::Shutdown();
+    }
   }
 }
 
@@ -213,6 +217,7 @@ void Application::CreateWindow()
   windowData.SetWindowType(mDefaultWindowType);
 
   WindowSystem::Initialize();
+  mIsSystemInitialized = true;
 
   if(mLaunchpadState != Launchpad::PRE_INITIALIZED)
   {

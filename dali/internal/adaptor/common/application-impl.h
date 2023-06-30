@@ -540,6 +540,7 @@ private:
   WindowType       mDefaultWindowType; ///< Default window's type. It is used when Application is created.
   bool             mUseRemoteSurface;
   bool             mUseUiThread;
+  bool             mIsSystemInitialized;
 
   SlotDelegate<Application> mSlotDelegate;
 
