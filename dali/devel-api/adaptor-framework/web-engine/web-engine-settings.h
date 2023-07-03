@@ -2,7 +2,7 @@
 #define DALI_WEB_ENGINE_SETTINGS_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint>
 
 namespace Dali
 {
@@ -82,7 +83,7 @@ public:
    * @param[in] enabled if true, to enable cache builder
    *        otherwise to disable
    */
-  virtual void EnableCacheBuilder( bool enabled ) = 0;
+  virtual void EnableCacheBuilder(bool enabled) = 0;
 
   /**
    * @brief Used/Unused scrollbar thumb focus notifications
@@ -90,7 +91,7 @@ public:
    * @param[in] used if true, to use scrollbar thumb focus notifications
    *          otherwise to unused
    */
-  virtual void UseScrollbarThumbFocusNotifications( bool used ) = 0;
+  virtual void UseScrollbarThumbFocusNotifications(bool used) = 0;
 
   /**
    * @brief Enable/Disable do not track
@@ -98,7 +99,7 @@ public:
    * @param[in] enabled if true, to enable do not track
    *        otherwise to disable
    */
-  virtual void EnableDoNotTrack( bool enabled ) = 0;
+  virtual void EnableDoNotTrack(bool enabled) = 0;
 
   /**
    * @brief Allow/Disallow file access from external url
@@ -136,7 +137,7 @@ public:
    * @param[in] enabled if true, to enable auto fitting
    *       otherwise to disable
    */
-  virtual void EnableAutoFitting( bool enabled ) = 0;
+  virtual void EnableAutoFitting(bool enabled) = 0;
 
   /**
    * @brief Check if plugins are enabled or not.
@@ -151,7 +152,7 @@ public:
    * @param[in] enabled if true, to enable plugins
    *       otherwise to disable
    */
-  virtual void EnablePlugins( bool enabled ) = 0;
+  virtual void EnablePlugins(bool enabled) = 0;
 
   /**
    * @brief Check if private browsing is enabled or not.
@@ -166,7 +167,7 @@ public:
    * @param[in] enabled if true, to enable private browsing
    *       otherwise to disable
    */
-  virtual void EnablePrivateBrowsing( bool enabled ) = 0;
+  virtual void EnablePrivateBrowsing(bool enabled) = 0;
 
   /**
    * @brief Check if link magnifier is enabled or not.
@@ -181,7 +182,7 @@ public:
    * @param[in] enabled if true, to enable link magnifier
    *        otherwise to disable
    */
-  virtual void EnableLinkMagnifier( bool enabled ) = 0;
+  virtual void EnableLinkMagnifier(bool enabled) = 0;
 
   /**
    * @brief Check if uses keypad without user action is used or not.
@@ -196,7 +197,7 @@ public:
    * @param[in] used if true, to use keypad without user action
    *       otherwise to unused
    */
-  virtual void UseKeypadWithoutUserAction( bool used ) = 0;
+  virtual void UseKeypadWithoutUserAction(bool used) = 0;
 
   /**
    * @brief Check if autofill password form is enabled or not.
@@ -211,7 +212,7 @@ public:
    * @param[in] enabled if true, to enable autofill_password_form
    *       otherwise to disable
    */
-  virtual void EnableAutofillPasswordForm( bool enabled ) = 0;
+  virtual void EnableAutofillPasswordForm(bool enabled) = 0;
 
   /**
    * @brief check if form candidate data is enabled or not.
@@ -226,7 +227,7 @@ public:
    * @param[in] enabled if true, to enable form candidate data
    *        otherwise to disable
    */
-  virtual void EnableFormCandidateData( bool enabled ) = 0;
+  virtual void EnableFormCandidateData(bool enabled) = 0;
 
   /**
    * @brief check if text selection is enabled or not.
@@ -241,7 +242,7 @@ public:
    * @param[in] enabled if true, to enable text selection
    *        otherwise to disable
    */
-  virtual void EnableTextSelection( bool enabled ) = 0;
+  virtual void EnableTextSelection(bool enabled) = 0;
 
   /**
    * @brief check if text autosizing is enabled or not.
@@ -256,14 +257,14 @@ public:
    * @param[in] enabled if true, to enable text autosizing
    *        otherwise to disable
    */
-  virtual void EnableTextAutosizing( bool enabled ) = 0;
+  virtual void EnableTextAutosizing(bool enabled) = 0;
 
   /**
    * @brief check if arrow scroll is enabled or not.
    *
    * @return true if enabled, false is disabled.
    */
-   virtual bool IsArrowScrollEnabled() const = 0;
+  virtual bool IsArrowScrollEnabled() const = 0;
 
   /**
    * @brief Enable/Disable arrow scroll
@@ -271,7 +272,7 @@ public:
    * @param[in] enable if true, to enable arrow scroll
    *        otherwise to disable
    */
-  virtual void EnableArrowScroll( bool enable ) = 0;
+  virtual void EnableArrowScroll(bool enable) = 0;
 
   /**
    * @brief check if clipboard is enabled or not.
@@ -286,7 +287,7 @@ public:
    * @param[in] enabled if true, to enable clipboard
    *          otherwise to disable
    */
-  virtual void EnableClipboard( bool enabled ) = 0;
+  virtual void EnableClipboard(bool enabled) = 0;
 
   /**
    * @brief check if ime panel is enabled or not.
@@ -301,7 +302,7 @@ public:
    * @param[in] enabled if true, to enable ime panel
    *          otherwise to disable
    */
-  virtual void EnableImePanel( bool enabled ) = 0;
+  virtual void EnableImePanel(bool enabled) = 0;
 
   /**
    * @brief Allow if the scripts can open new windows.

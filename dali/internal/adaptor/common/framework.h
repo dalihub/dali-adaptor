@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
+#include <functional>
 #include <string>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <dali/public-api/watch/watch-application.h>
@@ -332,7 +333,7 @@ private:
 
 private:
   // Undefined
-  Framework(const Framework&)      = delete;
+  Framework(const Framework&) = delete;
   Framework& operator=(Framework&) = delete;
 
 protected:
@@ -370,8 +371,8 @@ public:
 
 private:
   // Undefined
-  UIThreadLoader(const UIThreadLoader&);
-  UIThreadLoader& operator=(UIThreadLoader&);
+  UIThreadLoader(const UIThreadLoader&) = delete;
+  UIThreadLoader& operator=(UIThreadLoader&) = delete;
 
 private:
   int*    mArgc;
