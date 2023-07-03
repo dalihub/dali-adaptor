@@ -116,6 +116,7 @@ bool SetKeyboardRepeatInfo(float rate, float delay)
     Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
     return ecore_wl2_input_keyboard_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
   }
+  return false;
 }
 
 bool GetKeyboardRepeatInfo(float& rate, float& delay)
