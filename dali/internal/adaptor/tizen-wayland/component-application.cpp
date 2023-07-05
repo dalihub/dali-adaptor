@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,10 @@ ComponentApplication ComponentApplication::New(int* argc, char** argv[])
 
 ComponentApplication ComponentApplication::New(int* argc, char** argv[], const std::string& stylesheet)
 {
-  Internal::Adaptor::ComponentApplicationPtr internal = Internal::Adaptor::ComponentApplication::New(argc, argv, stylesheet, TRANSPARENT);
+  WindowData windowData;
+  windowData.SetTransparency(true);
+
+  Internal::Adaptor::ComponentApplicationPtr internal = Internal::Adaptor::ComponentApplication::New(argc, argv, stylesheet, windowData);
   return ComponentApplication(internal.Get());
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/macos/timer-impl-mac.h>
+
+// EXTERNAL INCLUDES
 #include "extern-definitions.h"
 
 namespace Dali::Internal::Adaptor
@@ -24,9 +26,9 @@ namespace Dali::Internal::Adaptor
 /**
  * Struct to hide away macOS implementation details
  */
-struct Timer::Impl
+struct TimerMac::Impl
 {
-  Impl(Timer* parent, unsigned int milliSec)
+  Impl(TimerMac* parent, uint32_t milliSec)
   : mTimer(CreateTimer(parent, milliSec))
   {
   }
@@ -40,9 +42,9 @@ struct Timer::Impl
 
   void Start();
   void Stop();
-  void Reset(Timer* parent, unsigned int milliSec);
+  void Reset(TimerMac* parent, uint32_t milliSec);
 
-  unsigned int GetInterval() const noexcept
+  uint32_t GetInterval() const noexcept
   {
     return CFRunLoopTimerGetInterval(mTimer.get()) * 1000.0;
   }
@@ -53,18 +55,18 @@ struct Timer::Impl
   }
 
 private:
-  CFRef<CFRunLoopTimerRef> CreateTimer(Timer* parent, unsigned int milliSec);
+  CFRef<CFRunLoopTimerRef> CreateTimer(TimerMac* parent, uint32_t milliSec);
 
   CFRef<CFRunLoopTimerRef> mTimer;
 };
 
-void Timer::Impl::TimerProc(CFRunLoopTimerRef timer, void* info)
+void TimerMac::Impl::TimerProc(CFRunLoopTimerRef timer, void* info)
 {
-  auto* pTimer = static_cast<Timer*>(info);
+  auto* pTimer = static_cast<TimerMac*>(info);
   pTimer->Tick();
 }
 
-void Timer::Impl::Start()
+void TimerMac::Impl::Start()
 {
   if(!IsRunning())
   {
@@ -73,7 +75,7 @@ void Timer::Impl::Start()
   }
 }
 
-void Timer::Impl::Stop()
+void TimerMac::Impl::Stop()
 {
   if(IsRunning())
   {
@@ -96,7 +98,7 @@ void Timer::Impl::Stop()
   }
 }
 
-void Timer::Impl::Reset(Timer* parent, unsigned int milliSec)
+void TimerMac::Impl::Reset(TimerMac* parent, uint32_t milliSec)
 {
   Stop();
   mTimer = CreateTimer(parent, milliSec);
@@ -104,7 +106,7 @@ void Timer::Impl::Reset(Timer* parent, unsigned int milliSec)
 }
 
 CFRef<CFRunLoopTimerRef>
-Timer::Impl::CreateTimer(Timer* parent, unsigned int milliSec)
+TimerMac::Impl::CreateTimer(TimerMac* parent, uint32_t milliSec)
 {
   const auto            interval = static_cast<CFAbsoluteTime>(milliSec) / 1000;
   const auto            fireDate = CFAbsoluteTimeGetCurrent() + interval;
@@ -126,17 +128,17 @@ Timer::Impl::CreateTimer(Timer* parent, unsigned int milliSec)
     &context));
 }
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerMacPtr TimerMac::New(uint32_t milliSec)
 {
-  return new Timer(milliSec);
+  return new TimerMac(milliSec);
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerMac::TimerMac(uint32_t milliSec)
 : mImpl(new Impl(this, milliSec))
 {
 }
 
-Timer::~Timer()
+TimerMac::~TimerMac()
 {
   // stop timers
   Stop();
@@ -145,35 +147,35 @@ Timer::~Timer()
   mImpl = NULL;
 }
 
-void Timer::Start()
+void TimerMac::Start()
 {
   mImpl->Start();
 }
 
-void Timer::Stop()
+void TimerMac::Stop()
 {
   mImpl->Stop();
 }
 
-void Timer::Pause()
+void TimerMac::Pause()
 {
 }
 
-void Timer::Resume()
+void TimerMac::Resume()
 {
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerMac::SetInterval(uint32_t interval, bool restart)
 {
   mImpl->Reset(this, interval);
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerMac::GetInterval() const
 {
   return mImpl->GetInterval();
 }
 
-bool Timer::Tick()
+bool TimerMac::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -204,12 +206,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-bool Timer::IsRunning() const
+bool TimerMac::IsRunning() const
 {
   return mImpl->IsRunning();
 }

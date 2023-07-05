@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,11 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/adaptor/android/framework-android.h>
 
 // EXTERNAL INCLUDES
 #include <android_native_app_glue.h>
@@ -35,7 +34,6 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/android/android-framework-impl.h>
-#include <dali/internal/system/common/callback-manager.h>
 
 namespace Dali
 {
@@ -110,7 +108,7 @@ void RemoveAllConstraints(const Dali::WindowContainer& windows)
 /**
  * Impl to hide android data members
  */
-struct Framework::Impl
+struct FrameworkAndroid::Impl
 {
   struct IdleCallback
   {
@@ -142,12 +140,8 @@ struct Framework::Impl
 
   // Constructor
 
-  Impl(Framework* framework)
-  : mAbortCallBack(nullptr),
-    mCallbackManager(CallbackManager::New()),
-    mLanguage("NOT_SUPPORTED"),
-    mRegion("NOT_SUPPORTED"),
-    mFinishRequested(false),
+  Impl(FrameworkAndroid* framework)
+  : mFinishRequested(false),
     mIdleId(0),
     mIdleReadPipe(-1),
     mIdleWritePipe(-1)
@@ -159,25 +153,6 @@ struct Framework::Impl
   ~Impl()
   {
     AndroidFramework::GetImplementation(AndroidFramework::Get()).SetFramework(nullptr);
-
-    delete mAbortCallBack;
-    mAbortCallBack = nullptr;
-
-    // we're quiting the main loop so
-    // mCallbackManager->RemoveAllCallBacks() does not need to be called
-    // to delete our abort handler
-    delete mCallbackManager;
-    mCallbackManager = nullptr;
-  }
-
-  std::string GetLanguage() const
-  {
-    return mLanguage;
-  }
-
-  std::string GetRegion() const
-  {
-    return mRegion;
   }
 
   void OnIdle()
@@ -271,11 +246,7 @@ struct Framework::Impl
   }
 
   // Data
-  CallbackBase*    mAbortCallBack;
-  CallbackManager* mCallbackManager;
-  std::string      mLanguage;
-  std::string      mRegion;
-  bool             mFinishRequested;
+  bool mFinishRequested;
 
   int                               mIdleReadPipe;
   int                               mIdleWritePipe;
@@ -288,7 +259,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application APP_CMD_INIT_WINDOW event is processed.
    */
-  static void NativeWindowCreated(Framework* framework, ANativeWindow* window)
+  static void NativeWindowCreated(FrameworkAndroid* framework, ANativeWindow* window)
   {
     if(framework)
     {
@@ -299,7 +270,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application APP_CMD_DESTROY event is processed.
    */
-  static void NativeWindowDestroyed(Framework* framework, ANativeWindow* window)
+  static void NativeWindowDestroyed(FrameworkAndroid* framework, ANativeWindow* window)
   {
     if(framework)
     {
@@ -310,7 +281,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application APP_CMD_INIT_WINDOW event is processed.
    */
-  static void NativeAppPaused(Framework* framework)
+  static void NativeAppPaused(FrameworkAndroid* framework)
   {
     if(framework)
     {
@@ -321,7 +292,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application APP_CMD_TERM_WINDOW event is processed.
    */
-  static void NativeAppResumed(Framework* framework)
+  static void NativeAppResumed(FrameworkAndroid* framework)
   {
     if(framework)
     {
@@ -332,7 +303,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application input touch event is processed.
    */
-  static void NativeAppTouchEvent(Framework* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp)
+  static void NativeAppTouchEvent(FrameworkAndroid* framework, Dali::TouchPoint& touchPoint, int64_t timeStamp)
   {
     Dali::Adaptor::Get().FeedTouchPoint(touchPoint, timeStamp);
   }
@@ -340,7 +311,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application input key event is processed.
    */
-  static void NativeAppKeyEvent(Framework* framework, Dali::KeyEvent& keyEvent)
+  static void NativeAppKeyEvent(FrameworkAndroid* framework, Dali::KeyEvent& keyEvent)
   {
     Dali::Adaptor::Get().FeedKeyEvent(keyEvent);
   }
@@ -348,7 +319,7 @@ struct Framework::Impl
   /**
    * Called by the native activity loop when the application APP_CMD_DESTROY event is processed.
    */
-  static void NativeAppDestroyed(Framework* framework)
+  static void NativeAppDestroyed(FrameworkAndroid* framework)
   {
     if(framework)
     {
@@ -373,7 +344,7 @@ struct Framework::Impl
 
   static void HandleAppCmd(struct android_app* app, int32_t cmd)
   {
-    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
+    FrameworkAndroid* framework = static_cast<FrameworkAndroid*>(AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework());
     switch(cmd)
     {
       case APP_CMD_SAVE_STATE:
@@ -389,29 +360,29 @@ struct Framework::Impl
       case APP_CMD_INIT_WINDOW:
         // The window is being shown, get it ready.
         AndroidFramework::Get().SetApplicationWindow(app->window);
-        Dali::Internal::Adaptor::Framework::Impl::NativeWindowCreated(framework, app->window);
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppResumed(framework);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeWindowCreated(framework, app->window);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppResumed(framework);
         break;
       case APP_CMD_TERM_WINDOW:
         // The window is being hidden or closed, clean it up.
         AndroidFramework::Get().SetApplicationWindow(nullptr);
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused(framework);
-        Dali::Internal::Adaptor::Framework::Impl::NativeWindowDestroyed(framework, app->window);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppPaused(framework);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeWindowDestroyed(framework, app->window);
         break;
       case APP_CMD_GAINED_FOCUS:
         break;
       case APP_CMD_LOST_FOCUS:
         break;
       case APP_CMD_DESTROY:
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppPaused(framework);
-        Dali::Internal::Adaptor::Framework::Impl::NativeAppDestroyed(framework);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppPaused(framework);
+        Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppDestroyed(framework);
         break;
     }
   }
 
   static int32_t HandleAppInput(struct android_app* app, AInputEvent* event)
   {
-    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
+    FrameworkAndroid* framework = static_cast<FrameworkAndroid*>(AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework());
 
     if(AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION)
     {
@@ -441,7 +412,7 @@ struct Framework::Impl
       }
 
       Dali::TouchPoint point(deviceId, state, x, y);
-      Dali::Internal::Adaptor::Framework::Impl::NativeAppTouchEvent(framework, point, timeStamp);
+      Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppTouchEvent(framework, point, timeStamp);
       return 1;
     }
     else if(AInputEvent_getType(event) == AINPUT_EVENT_TYPE_KEY)
@@ -471,7 +442,7 @@ struct Framework::Impl
           break;
       }
       Dali::KeyEvent keyEvent = Dali::DevelKeyEvent::New(keyName, "", "", keyCode, 0, timeStamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
-      Dali::Internal::Adaptor::Framework::Impl::NativeAppKeyEvent(framework, keyEvent);
+      Dali::Internal::Adaptor::FrameworkAndroid::Impl::NativeAppKeyEvent(framework, keyEvent);
       return 1;
     }
 
@@ -480,7 +451,7 @@ struct Framework::Impl
 
   static void HandleAppIdle(struct android_app* app, struct android_poll_source* source)
   {
-    Framework* framework = AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework();
+    FrameworkAndroid* framework = static_cast<FrameworkAndroid*>(AndroidFramework::GetImplementation(AndroidFramework::Get()).GetFramework());
     if(framework && framework->mImpl)
     {
       framework->mImpl->OnIdle();
@@ -488,23 +459,15 @@ struct Framework::Impl
   }
 };
 
-Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
-: mObserver(observer),
-  mTaskObserver(taskObserver),
+FrameworkAndroid::FrameworkAndroid(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
+: Framework(observer, taskObserver, argc, argv, type, useUiThread),
   mInitialised(false),
-  mPaused(false),
-  mRunning(false),
-  mArgc(argc),
-  mArgv(argv),
-  mBundleName(""),
-  mBundleId(""),
-  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
   mImpl(NULL)
 {
   mImpl = new Impl(this);
 }
 
-Framework::~Framework()
+FrameworkAndroid::~FrameworkAndroid()
 {
   if(mRunning)
   {
@@ -515,11 +478,11 @@ Framework::~Framework()
   mImpl = nullptr;
 }
 
-void Framework::Run()
+void FrameworkAndroid::Run()
 {
   struct android_app* app = AndroidFramework::Get().GetNativeApplication();
-  app->onAppCmd           = Framework::Impl::HandleAppCmd;
-  app->onInputEvent       = Framework::Impl::HandleAppInput;
+  app->onAppCmd           = FrameworkAndroid::Impl::HandleAppCmd;
+  app->onInputEvent       = FrameworkAndroid::Impl::HandleAppInput;
 
   struct android_poll_source* source;
   struct android_poll_source  idlePollSource;
@@ -606,7 +569,7 @@ void Framework::Run()
   mRunning = false;
 }
 
-unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* data))
+unsigned int FrameworkAndroid::AddIdle(int timeout, void* data, bool (*callback)(void* data))
 {
   if(mImpl)
   {
@@ -615,7 +578,8 @@ unsigned int Framework::AddIdle(int timeout, void* data, bool (*callback)(void* 
 
   return 0;
 }
-void Framework::RemoveIdle(unsigned int id)
+
+void FrameworkAndroid::RemoveIdle(unsigned int id)
 {
   if(mImpl)
   {
@@ -623,7 +587,7 @@ void Framework::RemoveIdle(unsigned int id)
   }
 }
 
-void Framework::Quit()
+void FrameworkAndroid::Quit()
 {
   struct android_app* app = AndroidFramework::Get().GetNativeApplication();
   if(app && !app->destroyRequested && !mImpl->mFinishRequested)
@@ -633,60 +597,7 @@ void Framework::Quit()
   }
 }
 
-bool Framework::IsMainLoopRunning()
-{
-  return mRunning;
-}
-
-void Framework::AddAbortCallback(CallbackBase* callback)
-{
-  mImpl->mAbortCallBack = callback;
-}
-
-std::string Framework::GetBundleName() const
-{
-  return mBundleName;
-}
-
-void Framework::SetBundleName(const std::string& name)
-{
-  mBundleName = name;
-}
-
-std::string Framework::GetBundleId() const
-{
-  return mBundleId;
-}
-
-std::string Framework::GetResourcePath()
-{
-  return DALI_DATA_RO_DIR;
-}
-
-std::string Framework::GetDataPath()
-{
-  return "";
-}
-
-void Framework::SetBundleId(const std::string& id)
-{
-  mBundleId = id;
-}
-
-void Framework::AbortCallback()
-{
-  // if an abort call back has been installed run it.
-  if(mImpl->mAbortCallBack)
-  {
-    CallbackBase::Execute(*mImpl->mAbortCallBack);
-  }
-  else
-  {
-    Quit();
-  }
-}
-
-bool Framework::AppStatusHandler(int type, void* data)
+bool FrameworkAndroid::AppStatusHandler(int type, void* data)
 {
   Dali::Adaptor* adaptor = nullptr;
   switch(type)
@@ -757,18 +668,47 @@ bool Framework::AppStatusHandler(int type, void* data)
   return true;
 }
 
-void Framework::InitThreads()
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+
+  Impl(void *data)
+  {
+  }
+
+  ~Impl()
+  {
+  }
+
+  void Run(Runner runner)
+  {
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
 {
 }
 
-std::string Framework::GetLanguage() const
+UIThreadLoader::~UIThreadLoader()
 {
-  return mImpl->GetLanguage();
 }
 
-std::string Framework::GetRegion() const
+void UIThreadLoader::Run(Runner runner)
 {
-  return mImpl->GetRegion();
 }
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 #import <Cocoa/Cocoa.h>
@@ -20,13 +19,10 @@
 #include "extern-definitions.h"
 
 // CLASS HEADER
-#include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/adaptor/macos/framework-mac.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/callback-manager.h>
 
 namespace Dali
 {
@@ -53,102 +49,28 @@ enum
 
 } // Unnamed namespace
 
-/**
- * Impl to hide WindowsSystem data members
- */
-struct Framework::Impl
+FrameworkMac::FrameworkMac(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
+: Framework(observer, taskObserver, argc, argv, type, useUiThread)
 {
-  // Constructor
+  // ensures the NSApp global object is initialized
+  [NSApplication sharedApplication];
 
-  Impl(void* data)
-  : mAbortCallBack( nullptr ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" )
-  {
-  }
+  // this is needed for applications without a bundle
+  [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-  ~Impl()
-  {
-    delete mAbortCallBack;
-  }
-
-  std::string GetLanguage() const
-  {
-    return mLanguage;
-  }
-
-  std::string GetRegion() const
-  {
-    return mRegion;
-  }
-
-  void SetAbortCallback( CallbackBase *base )
-  {
-    mAbortCallBack = base;
-  }
-
-  bool ExecuteCallback()
-  {
-    if( nullptr != mAbortCallBack )
-    {
-      CallbackBase::Execute( *mAbortCallBack );
-      return true;
-    }
-
-    return false;
-  }
-
-private:
-  // Undefined
-  Impl( const Impl& impl ) = delete;
-
-  // Undefined
-  Impl& operator=( const Impl& impl ) = delete;
-
-private:
-  // Data
-  CallbackBase* mAbortCallBack;
-  std::string mLanguage;
-  std::string mRegion;
-};
-
-Framework::Framework(Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
-: mObserver(observer),
-  mTaskObserver(taskObserver),
-  mInitialised(false),
-  mPaused(false),
-  mRunning(false),
-  mArgc(argc),
-  mArgv(argv),
-  mBundleName(""),
-  mBundleId(""),
-  mAbortHandler( MakeCallback( this, &Framework::AbortCallback ) ),
-  mImpl(NULL)
-{
-    InitThreads();
-    mImpl = new Impl(this);
-
-    // ensures the NSApp global object is initialized
-    [NSApplication sharedApplication];
-
-    // this is needed for applications without a bundle
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-
-    // make sure we can become the key window
-    [NSApp activateIgnoringOtherApps:YES];
+  // make sure we can become the key window
+  [NSApp activateIgnoringOtherApps:YES];
 }
 
-Framework::~Framework()
+FrameworkMac::~FrameworkMac()
 {
   if (mRunning)
   {
     Quit();
   }
-
-  delete mImpl;
 }
 
-void Framework::Run()
+void FrameworkMac::Run()
 {
   mRunning = true;
   AppStatusHandler(APP_CREATE, nullptr);
@@ -156,82 +78,17 @@ void Framework::Run()
   mRunning = false;
 }
 
-void Framework::Quit()
+void FrameworkMac::Quit()
 {
   AppStatusHandler(APP_TERMINATE, nullptr);
 }
 
-bool Framework::IsMainLoopRunning()
-{
-  return mRunning;
-}
-
-void Framework::AddAbortCallback( CallbackBase* callback )
-{
-  mImpl->SetAbortCallback( callback );
-}
-
-std::string Framework::GetBundleName() const
-{
-  return mBundleName;
-}
-
-void Framework::SetBundleName(const std::string& name)
-{
-  mBundleName = name;
-}
-
-std::string Framework::GetBundleId() const
-{
-  return mBundleId;
-}
-
-std::string Framework::GetResourcePath()
-{
-  // "DALI_APPLICATION_PACKAGE" is used by macOS specifically to get the already configured Application package path.
-  const char* macEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
-  char* value = getenv( macEnvironmentVariable );
-
-  std::string resourcePath;
-  if ( value != NULL )
-  {
-    resourcePath = value;
-  }
-
-  if( resourcePath.back() != '/' )
-  {
-    resourcePath+="/";
-  }
-
-  return resourcePath;
-}
-
-std::string Framework::GetDataPath()
-{
-  return app_get_data_path();
-}
-
-void Framework::SetBundleId(const std::string& id)
-{
-  mBundleId = id;
-}
-
-void Framework::AbortCallback( )
-{
-  // if an abort call back has been installed run it.
-  if( false == mImpl->ExecuteCallback() )
-  {
-    Quit();
-  }
-}
-
-bool Framework::AppStatusHandler(int type, void *)
+bool FrameworkMac::AppStatusHandler(int type, void *)
 {
   switch (type)
   {
     case APP_CREATE:
     {
-      mInitialised = true;
       mObserver.OnInit();
       break;
     }
@@ -263,18 +120,47 @@ bool Framework::AppStatusHandler(int type, void *)
   return true;
 }
 
-void Framework::InitThreads()
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+
+  Impl(void *data)
+  {
+  }
+
+  ~Impl()
+  {
+  }
+
+  void Run(Runner runner)
+  {
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
 {
 }
 
-std::string Framework::GetLanguage() const
+UIThreadLoader::~UIThreadLoader()
 {
-  return mImpl->GetLanguage();
 }
 
-std::string Framework::GetRegion() const
+void UIThreadLoader::Run(Runner runner)
 {
-  return mImpl->GetRegion();
 }
 
 } // namespace Adaptor

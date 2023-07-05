@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_CALLBACK_MANAGER_H
-#define DALI_INTERNAL_CALLBACK_MANAGER_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,11 +36,6 @@ namespace Adaptor
 class CallbackManager
 {
 public:
-  /**
-     * Create a new call back interface
-     */
-  static CallbackManager* New();
-
   /**
      * Virtual destructor
      */
@@ -152,4 +147,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_CALLBACK_MANAGER_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H

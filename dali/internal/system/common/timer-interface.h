@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H
-#define DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_INTERFACE_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
  * limitations under the License.
  *
  */
+
+// EXTERNAL INCLUDES
+#include <cstdint>
 
 namespace Dali
 {
@@ -53,12 +56,12 @@ public:
   /**
    * @copydoc Dali::Timer::SetInterval()
    */
-  virtual void SetInterval(unsigned int intervalInMilliseconds, bool restart) = 0;
+  virtual void SetInterval(uint32_t intervalInMilliseconds, bool restart) = 0;
 
   /**
    * @copydoc Dali::Timer::GetInterval()
    */
-  virtual unsigned int GetInterval() const = 0;
+  virtual uint32_t GetInterval() const = 0;
 
   /**
    * @copydoc Dali::Timer::IsRunning()
@@ -78,4 +81,4 @@ protected:
 } // namespace Internal
 } // namespace Dali
 
-#endif // DALI_INTERNAL_ADAPTOR_BASE_TIMER_INTERFACE_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_TIMER_INTERFACE_H

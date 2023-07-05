@@ -31,10 +31,12 @@
 #include <dali/devel-api/atspi-interfaces/accessible.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/system-settings.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -64,16 +66,14 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_APPLICATION, true);
 ApplicationPtr Application::gPreInitializedApplication(NULL);
 
 ApplicationPtr Application::New(
-  int*                           argc,
-  char**                         argv[],
-  const std::string&             stylesheet,
-  Dali::Application::WINDOW_MODE windowMode,
-  const PositionSize&            positionSize,
-  Framework::Type                applicationType,
-  WindowType                     type,
-  bool                           useUiThread)
+  int*               argc,
+  char**             argv[],
+  const std::string& stylesheet,
+  Framework::Type    applicationType,
+  bool               useUiThread,
+  const WindowData&  windowData)
 {
-  ApplicationPtr application(new Application(argc, argv, stylesheet, windowMode, positionSize, applicationType, type, useUiThread));
+  ApplicationPtr application(new Application(argc, argv, stylesheet, applicationType, useUiThread, windowData));
   return application;
 }
 
@@ -81,15 +81,39 @@ void Application::PreInitialize(int* argc, char** argv[])
 {
   if(!gPreInitializedApplication)
   {
-    Dali::TextAbstraction::FontClientPreInitialize();
+    char* retEnv = std::getenv("TIZEN_UI_THREAD");
+    bool isUseUIThread = false;
+    if(retEnv)
+    {
+      std::string uiThreadEnv = retEnv;
+      std::string enabledString = "true";
+      if(uiThreadEnv == enabledString)
+      {
+        isUseUIThread = true;
+      }
+    }
 
-    gPreInitializedApplication                  = new Application(argc, argv, "", Dali::Application::OPAQUE, PositionSize(), Framework::NORMAL, WindowType::NORMAL, false);
+    Dali::TextAbstraction::FontClientPreInitialize();
+    WindowData windowData;
+    gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, isUseUIThread, windowData);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
-    gPreInitializedApplication->CreateWindow(); // Only create window
+    if(isUseUIThread)
+    {
+      DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading");
+      gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
+      gPreInitializedApplication->mUIThreadLoader->Run([&](){gPreInitializedApplication->CreateWindow();});
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED");
+      gPreInitializedApplication->CreateWindow(); // Only create window
+    }
+
+
   }
 }
 
-Application::Application(int* argc, char** argv[], const std::string& stylesheet, Dali::Application::WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread)
+Application::Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData)
 : mInitSignal(),
   mTerminateSignal(),
   mPauseSignal(),
@@ -104,14 +128,16 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mAdaptor(nullptr),
   mEnvironmentOptions(nullptr),
   mMainWindow(),
-  mMainWindowMode(windowMode),
+  mMainWindowMode(windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE),
   mMainWindowName(),
   mStylesheet(stylesheet),
-  mWindowPositionSize(positionSize),
+  mWindowPositionSize(windowData.GetPositionSize()),
   mLaunchpadState(Launchpad::NONE),
-  mDefaultWindowType(type),
+  mDefaultWindowType(windowData.GetWindowType()),
   mUseUiThread(useUiThread),
-  mSlotDelegate(this)
+  mIsSystemInitialized(false),
+  mSlotDelegate(this),
+  mUIThreadLoader(nullptr)
 {
   // Set mName from command-line args
   if(argc && (*argc > 0))
@@ -126,8 +152,9 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   }
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-  mFramework          = new Framework(*this, *this, argc, argv, applicationType, mUseUiThread);
-  mUseRemoteSurface   = (applicationType == Framework::WATCH);
+  mFramework          = Dali::Internal::Adaptor::GetFrameworkFactory()->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
+
+  mUseRemoteSurface = (applicationType == Framework::WATCH);
 }
 
 Application::~Application()
@@ -142,7 +169,6 @@ Application::~Application()
   mMainWindow.Reset();
 
   delete mCommandLineOptions;
-  delete mFramework;
 
   // Application is created in Main thread whether UI Threading is enabled or not.
   // But some resources are created in Main thread or UI thread.
@@ -151,7 +177,17 @@ Application::~Application()
   {
     delete mAdaptor;
     delete mAdaptorBuilder;
-    WindowSystem::Shutdown();
+    if(mIsSystemInitialized)
+    {
+      WindowSystem::Shutdown();
+    }
+  }
+  else
+  {
+    if(mUIThreadLoader)
+    {
+      delete mUIThreadLoader;
+    }
   }
 }
 
@@ -208,8 +244,14 @@ void Application::ChangePreInitializedWindowInfo()
 void Application::CreateWindow()
 {
   Internal::Adaptor::Window* window;
+  WindowData                 windowData;
+  windowData.SetTransparency(mMainWindowMode);
+  windowData.SetWindowType(mDefaultWindowType);
+
+  DALI_LOG_RELEASE_INFO("Create Default Window");
 
   WindowSystem::Initialize();
+  mIsSystemInitialized = true;
 
   if(mLaunchpadState != Launchpad::PRE_INITIALIZED)
   {
@@ -236,13 +278,15 @@ void Application::CreateWindow()
       mMainWindowName = windowName;
     }
 
-    window = Internal::Adaptor::Window::New(mWindowPositionSize, mMainWindowName, windowClassName, mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
+    windowData.SetPositionSize(mWindowPositionSize);
+    window = Internal::Adaptor::Window::New(mMainWindowName, windowClassName, windowData);
   }
   else
   {
     // The position, size and the window name of the pre-initialized application will be updated in ChangePreInitializedWindowInfo()
     // when the real application is launched.
-    window = Internal::Adaptor::Window::New(mWindowPositionSize, "", "", mDefaultWindowType, mMainWindowMode == Dali::Application::TRANSPARENT);
+    windowData.SetPositionSize(mWindowPositionSize);
+    window = Internal::Adaptor::Window::New("", "", windowData);
   }
 
   mMainWindow = Dali::Window(window);
@@ -308,6 +352,7 @@ void Application::OnInit()
   // If an application was pre-initialized, a window was made in advance
   if(mLaunchpadState == Launchpad::NONE)
   {
+    DALI_LOG_RELEASE_INFO("default Window is created in standalone");
     CreateWindow();
   }
 
@@ -550,12 +595,12 @@ Dali::Window Application::GetWindow()
 
 std::string Application::GetResourcePath()
 {
-  return Internal::Adaptor::Framework::GetResourcePath();
+  return SystemSettings::GetResourcePath();
 }
 
 std::string Application::GetDataPath()
 {
-  return Internal::Adaptor::Framework::GetDataPath();
+  return SystemSettings::GetDataPath();
 }
 
 void Application::SetStyleSheet(const std::string& stylesheet)

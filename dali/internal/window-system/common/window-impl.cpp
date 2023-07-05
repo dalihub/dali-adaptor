@@ -58,17 +58,17 @@ Debug::Filter* gWindowLogFilter = Debug::Filter::New(Debug::NoLogging, false, "L
 #endif
 } // unnamed namespace
 
-Window* Window::New(const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent)
+Window* Window::New(const std::string& name, const std::string& className, const WindowData& windowData)
 {
   Any surface;
-  return Window::New(surface, positionSize, name, className, type, isTransparent);
+  return Window::New(surface, name, className, windowData);
 }
 
-Window* Window::New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent)
+Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData)
 {
   Window* window         = new Window();
-  window->mIsTransparent = isTransparent;
-  window->Initialize(surface, positionSize, name, className, type);
+  window->mIsTransparent = windowData.GetTransparency();
+  window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType());
   return window;
 }
 

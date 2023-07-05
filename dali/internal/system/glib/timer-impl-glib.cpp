@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/timer-impl.h>
+#include <dali/internal/system/glib/timer-impl-glib.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -34,7 +34,7 @@ namespace
 {
 gboolean TimerSourceFunc(gpointer userData)
 {
-  Timer* timer = static_cast<Timer*>(userData);
+  TimerGlib* timer = static_cast<TimerGlib*>(userData);
 
   bool keepRunning = timer->Tick();
   return keepRunning ? G_SOURCE_CONTINUE : G_SOURCE_REMOVE;
@@ -42,39 +42,39 @@ gboolean TimerSourceFunc(gpointer userData)
 
 } // unnamed namespace
 
-struct Timer::Impl
+struct TimerGlib::Impl
 {
-  Impl(unsigned int milliSec)
+  Impl(uint32_t milliSec)
   : mInterval(milliSec)
   {
   }
 
-  GSource*     mTimerHandle{nullptr};
-  unsigned int mInterval{0};
-  uint32_t     mStartTimestamp{0};
-  uint32_t     mPauseTimestamp{0};
-  bool         mRunning{false};
-  bool         mRestartAfterExpiry{false}; // Restart at full interval after pause/resume/expiry
+  GSource* mTimerHandle{nullptr};
+  uint32_t mInterval{0};
+  uint32_t mStartTimestamp{0};
+  uint32_t mPauseTimestamp{0};
+  bool     mRunning{false};
+  bool     mRestartAfterExpiry{false}; // Restart at full interval after pause/resume/expiry
 };
 
-TimerPtr Timer::New(unsigned int milliSec)
+TimerGlibPtr TimerGlib::New(uint32_t milliSec)
 {
-  TimerPtr timer(new Timer(milliSec));
+  TimerGlibPtr timer(new TimerGlib(milliSec));
   return timer;
 }
 
-Timer::Timer(unsigned int milliSec)
+TimerGlib::TimerGlib(uint32_t milliSec)
 : mImpl(new Impl(milliSec))
 {
 }
 
-Timer::~Timer()
+TimerGlib::~TimerGlib()
 {
   Stop();
   delete mImpl;
 }
 
-void Timer::Start()
+void TimerGlib::Start()
 {
   if(mImpl->mRunning && mImpl->mTimerHandle)
   {
@@ -89,7 +89,7 @@ void Timer::Start()
   mImpl->mStartTimestamp = TimeService::GetMilliSeconds();
 }
 
-void Timer::Stop()
+void TimerGlib::Stop()
 {
   if(mImpl->mTimerHandle != nullptr)
   {
@@ -104,7 +104,7 @@ void Timer::Stop()
   ResetTimerData();
 }
 
-void Timer::Pause()
+void TimerGlib::Pause()
 {
   if(mImpl->mRunning)
   {
@@ -115,7 +115,7 @@ void Timer::Pause()
   }
 }
 
-void Timer::Resume()
+void TimerGlib::Resume()
 {
   if(mImpl->mRunning && mImpl->mTimerHandle == nullptr)
   {
@@ -137,7 +137,7 @@ void Timer::Resume()
   }
 }
 
-void Timer::SetInterval(unsigned int interval, bool restart)
+void TimerGlib::SetInterval(uint32_t interval, bool restart)
 {
   // stop existing timer
   Stop();
@@ -150,12 +150,12 @@ void Timer::SetInterval(unsigned int interval, bool restart)
   }
 }
 
-unsigned int Timer::GetInterval() const
+uint32_t TimerGlib::GetInterval() const
 {
   return mImpl->mInterval;
 }
 
-bool Timer::Tick()
+bool TimerGlib::Tick()
 {
   // Guard against destruction during signal emission
   Dali::Timer handle(this);
@@ -195,12 +195,7 @@ bool Timer::Tick()
   return retVal;
 }
 
-Dali::Timer::TimerSignalType& Timer::TickSignal()
-{
-  return mTickSignal;
-}
-
-void Timer::ResetTimerData()
+void TimerGlib::ResetTimerData()
 {
   mImpl->mRunning = false;
   if(mImpl->mTimerHandle)
@@ -210,7 +205,7 @@ void Timer::ResetTimerData()
   mImpl->mTimerHandle = nullptr;
 }
 
-bool Timer::IsRunning() const
+bool TimerGlib::IsRunning() const
 {
   return mImpl->mRunning;
 }

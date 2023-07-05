@@ -22,12 +22,6 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-abstraction.h>
 
-#ifdef ECORE_WAYLAND2
-#include <Ecore_Wl2.h>
-#else
-#include <Ecore_Wayland.h>
-#endif
-
 #include <tbm_bufmgr.h>
 #include <tbm_surface_internal.h>
 
@@ -150,14 +144,8 @@ void NativeRenderSurfaceEcoreWl::GetDpi(unsigned int& dpiHorizontal, unsigned in
   float xres, yres;
 
   // 1 inch = 25.4 millimeters
-#ifdef ECORE_WAYLAND2
-  // TODO: Application should set dpi value in wayland2
   xres = 96;
   yres = 96;
-#else
-  xres = ecore_wl_dpi_get();
-  yres = ecore_wl_dpi_get();
-#endif
 
   dpiHorizontal = int(xres + 0.5f); // rounding
   dpiVertical   = int(yres + 0.5f);

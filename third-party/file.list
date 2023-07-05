@@ -25,7 +25,6 @@ SET( adaptor_resampler_src_files
 
 SET( adaptor_windows_platform_src_files
     ${adaptor_thirdparty_dir}/windows-platform/dlfcn.cpp
-    ${adaptor_thirdparty_dir}/windows-platform/environment.cpp
     ${adaptor_thirdparty_dir}/windows-platform/network.cpp
     ${adaptor_thirdparty_dir}/windows-platform/thread.cpp
     ${adaptor_thirdparty_dir}/windows-platform/Win32File/CustomFile.cpp
@@ -39,6 +38,5 @@ SET( static_libraries_nanosvg_src_files
 )
 
 SET( adaptor_macos_platform_src_files
-    ${adaptor_thirdparty_dir}/macos-platform/environment.cpp
     ${adaptor_thirdparty_dir}/macos-platform/thread.cpp
 )

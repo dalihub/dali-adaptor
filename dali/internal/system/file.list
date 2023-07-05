@@ -31,10 +31,14 @@ SET( adaptor_system_linux_src_files
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
+    ${adaptor_system_dir}/glib/callback-manager-glib.cpp
+    ${adaptor_system_dir}/glib/file-descriptor-monitor-glib.cpp
+    ${adaptor_system_dir}/glib/timer-impl-glib.cpp
     ${adaptor_system_dir}/linux/callback-manager-ecore.cpp
     ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp
-    ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
-    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/linux/system-factory-ecore.cpp
     ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
 )
 
@@ -77,6 +81,7 @@ SET( adaptor_system_libuv_src_files
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/libuv/callback-manager-libuv.cpp
     ${adaptor_system_dir}/libuv/file-descriptor-monitor-libuv.cpp
+    ${adaptor_system_dir}/linuv/system-factory-libuv.cpp
     ${adaptor_system_dir}/libuv/timer-impl-libuv.cpp
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
@@ -93,6 +98,7 @@ SET( adaptor_system_glib_src_files
     ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
     ${adaptor_system_dir}/glib/callback-manager-glib.cpp
     ${adaptor_system_dir}/glib/file-descriptor-monitor-glib.cpp
+    ${adaptor_system_dir}/glib/system-factory-glib.cpp
     ${adaptor_system_dir}/glib/timer-impl-glib.cpp
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
@@ -109,6 +115,7 @@ SET( adaptor_system_android_src_files
     ${adaptor_system_dir}/android/file-descriptor-monitor-android.cpp
     ${adaptor_system_dir}/android/logging-android.cpp
     ${adaptor_system_dir}/android/shared-file-operations-android.cpp
+    ${adaptor_system_dir}/android/system-factory-android.cpp
     ${adaptor_system_dir}/android/system-settings-android.cpp
     ${adaptor_system_dir}/android/timer-impl-android.cpp
     ${adaptor_system_dir}/common/time-service.cpp
@@ -119,6 +126,7 @@ SET( adaptor_system_android_src_files
 SET( adaptor_system_windows_src_files
     ${adaptor_system_dir}/windows/callback-manager-win.cpp
     ${adaptor_system_dir}/windows/file-descriptor-monitor-windows.cpp
+    ${adaptor_system_dir}/windows/system-factory-win.cpp
     ${adaptor_system_dir}/windows/system-settings-win.cpp
     ${adaptor_system_dir}/windows/timer-impl-win.cpp
     ${adaptor_system_dir}/windows/trigger-event.cpp
@@ -133,6 +141,8 @@ SET( adaptor_system_windows_src_files
 SET( adaptor_system_macos_src_files
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/macos/file-descriptor-monitor-macos.cpp
+    ${adaptor_system_dir}/macos/system-factory-mac.cpp
+    ${adaptor_system_dir}/macos/system-settings-mac.cpp
     ${adaptor_system_dir}/macos/timer-impl-mac.cpp
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp

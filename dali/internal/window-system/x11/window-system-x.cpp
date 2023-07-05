@@ -21,6 +21,7 @@
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
 
 // EXTERNAL_HEADERS
@@ -455,7 +456,7 @@ struct WindowSystemX::Impl
     XInitThreads();
     mDisplay = XOpenDisplay(nullptr); // Note, DisplayConnection now reads this var.
 
-    mXEventMonitor = new FileDescriptorMonitor(
+    mXEventMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(
       ConnectionNumber(mDisplay),
       MakeCallback(this, &WindowSystemX::Impl::XPollCallback),
       FileDescriptorMonitor::FD_READABLE);
@@ -470,7 +471,6 @@ struct WindowSystemX::Impl
   {
     // @todo Flush events, delete fd handlers, shutdown other X subsystems
     XCloseDisplay(mDisplay);
-    delete mXEventMonitor;
   }
 
   ::Display* GetXDisplay()
@@ -663,7 +663,7 @@ struct WindowSystemX::Impl
   using EventHandlerFunctionPointer = void (*)(const XEvent*);
   std::unordered_map<int, EventHandlerFunctionPointer> mXEventHandlers;
   std::vector<WindowSystemBase::EventHandler>          mHandlers;
-  FileDescriptorMonitor*                               mXEventMonitor;
+  std::unique_ptr<FileDescriptorMonitor>               mXEventMonitor;
   XIDeviceInfo*                                        mXi2Devices{nullptr};
   int                                                  mXi2NumberOfDevices{0};
   int                                                  mXi2OpCode{-1};

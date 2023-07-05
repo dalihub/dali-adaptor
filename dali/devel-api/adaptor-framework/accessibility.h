@@ -18,6 +18,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <cstdint>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -350,8 +351,8 @@ enum class WindowEvent
  */
 enum class WindowRestoreType
 {
-  RESTORE_FROM_ICONIFY,  // The Window is Deiconified.
-  RESTORE_FROM_MAXIMIZE  // The Window is Unmaximized.
+  RESTORE_FROM_ICONIFY, // The Window is Deiconified.
+  RESTORE_FROM_MAXIMIZE // The Window is Unmaximized.
 };
 
 /**
@@ -512,11 +513,11 @@ enum class AtspiEvent
   MAX_COUNT
 };
 
-using AtspiInterfaces   = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
-using AtspiEvents       = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
-using ReadingInfoTypes  = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
-using States            = EnumBitSet<State, State::MAX_COUNT>;
-using Attributes        = std::unordered_map<std::string, std::string>;
+using AtspiInterfaces  = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
+using AtspiEvents      = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
+using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
+using States           = EnumBitSet<State, State::MAX_COUNT>;
+using Attributes       = std::unordered_map<std::string, std::string>;
 
 namespace Internal
 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/android/file-descriptor-monitor-android.h>
 
 // EXTERNAL INCLUDES
 #include <looper.h>
@@ -33,7 +33,7 @@ namespace Adaptor
 /**
  * Using Impl to hide away Android specific members
  */
-struct FileDescriptorMonitor::Impl
+struct FileDescriptorMonitorAndroid::Impl
 {
   // Construction
   Impl(int fileDescriptor, CallbackBase* callback, int eventBitmask)
@@ -85,7 +85,8 @@ struct FileDescriptorMonitor::Impl
   }
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorAndroid::FileDescriptorMonitorAndroid(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   mImpl = new Impl(fileDescriptor, callback, eventBitmask);
 
@@ -111,7 +112,7 @@ FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* c
   }
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorAndroid::~FileDescriptorMonitorAndroid()
 {
   if(mImpl->mFileDescriptor)
   {

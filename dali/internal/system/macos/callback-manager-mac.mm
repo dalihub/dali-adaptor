@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,17 +234,13 @@ bool CocoaCallbackManager::Impl::AddIdleCallback(
   return false;
 }
 
-// Creates a concrete interface for CallbackManager
-CallbackManager* CallbackManager::New()
-{
-  return new CocoaCallbackManager;
-}
-
 CocoaCallbackManager::CocoaCallbackManager()
   : mImpl(std::make_unique<CocoaCallbackManager::Impl>())
   , mRunning(false)
 {
 }
+
+CocoaCallbackManager::~CocoaCallbackManager() = default;
 
 bool CocoaCallbackManager::AddIdleCallback(CallbackBase *callback, bool hasReturnValue)
 {

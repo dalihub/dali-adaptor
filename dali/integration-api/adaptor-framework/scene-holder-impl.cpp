@@ -353,6 +353,22 @@ void SceneHolder::FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent)
   mAdaptor->ProcessCoreEvents();
 }
 
+void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
+{
+  Integration::HoverEvent hoverEvent;
+
+  // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
+  // Keep the handle alive until the core events are processed.
+  Dali::BaseHandle sceneHolder(this);
+
+  // Create send HoverEvent to Core.
+  hoverEvent.time = TimeService::GetMilliSeconds();
+  hoverEvent.AddPoint(point);
+
+  mScene.QueueEvent(hoverEvent);
+  mAdaptor->ProcessCoreEvents();
+}
+
 void SceneHolder::AddFrameRenderedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
   mScene.AddFrameRenderedCallback(std::move(callback), frameId);

@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ANDROID_FRAMEWORK_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/adaptor/android/framework-android.h>
 
 namespace Dali
 {
@@ -154,7 +154,7 @@ public:
   /**
    * @brief Sets an internal framework.
    */
-  void SetFramework(Framework* framework)
+  void SetFramework(FrameworkAndroidInterface* framework)
   {
     mFramework = framework;
   }
@@ -164,7 +164,7 @@ public:
    *
    * @return a pointer to the internal framework
    */
-  Framework* GetFramework()
+  FrameworkAndroidInterface* GetFramework()
   {
     return mFramework;
   }
@@ -183,7 +183,7 @@ public:
 private:
   AndroidFramework(Dali::Integration::AndroidFramework* androidFramework);
   Dali::Integration::AndroidFramework* mAndroidFramework;
-  Framework*                           mFramework;
+  FrameworkAndroidInterface*           mFramework;
 
   android_app*    mNativeApplication;
   ANativeWindow*  mWindow;
@@ -197,7 +197,7 @@ public:
   {
     return *androidFramework.mImpl;
   }
-  static Framework& GetFramework(Dali::Integration::AndroidFramework& androidFramework)
+  static FrameworkAndroidInterface& GetFramework(Dali::Integration::AndroidFramework& androidFramework)
   {
     return *androidFramework.mImpl->mFramework;
   }

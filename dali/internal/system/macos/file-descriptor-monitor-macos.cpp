@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/macos/file-descriptor-monitor-macos.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 
 namespace Dali::Internal::Adaptor
 {
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorMac::FileDescriptorMonitorMac(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   DALI_LOG_WARNING("Implementation missing for macOS");
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorMac::~FileDescriptorMonitorMac()
 {
 }
 

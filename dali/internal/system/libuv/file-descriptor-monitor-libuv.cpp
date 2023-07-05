@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/libuv/file-descriptor-monitor-libuv.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -42,7 +42,7 @@ void FreeHandleCallback(uv_handle_t* handle)
 /**
  * Using Impl to hide away UV specific members
  */
-struct FileDescriptorMonitor::Impl
+struct FileDescriptorMonitorLibuv::Impl
 {
 public:
   // Constructor
@@ -79,7 +79,7 @@ public:
   {
     if(handle->data)
     {
-      FileDescriptorMonitor::Impl* impl = static_cast<FileDescriptorMonitor::Impl*>(handle->data);
+      FileDescriptorMonitorLibuv::Impl* impl = static_cast<FileDescriptorMonitorLibuv::Impl*>(handle->data);
 
       if(status < 0)
       {
@@ -114,7 +114,8 @@ public:
   uv_poll_t*    pollHandle;
 };
 
-FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+FileDescriptorMonitorLibuv::FileDescriptorMonitorLibuv(int fileDescriptor, CallbackBase* callback, int eventBitmask)
+: FileDescriptorMonitor(fileDescriptor, callback, eventBitmask)
 {
   if(fileDescriptor < 1)
   {
@@ -137,7 +138,7 @@ FileDescriptorMonitor::FileDescriptorMonitor(int fileDescriptor, CallbackBase* c
   mImpl = new Impl(fileDescriptor, callback, static_cast<uv_poll_event>(events));
 }
 
-FileDescriptorMonitor::~FileDescriptorMonitor()
+FileDescriptorMonitorLibuv::~FileDescriptorMonitorLibuv()
 {
   delete mImpl;
 }

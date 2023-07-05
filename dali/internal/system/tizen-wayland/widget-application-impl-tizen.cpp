@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
 #include <dali/internal/system/tizen-wayland/widget-application-impl-tizen.h>
 
 // INTERNAL INCLUDE
+#include <dali/devel-api/events/key-event-devel.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/tizen-wayland/widget-controller-tizen.h>
 #include <dali/public-api/adaptor-framework/widget-impl.h>
 #include <dali/public-api/adaptor-framework/widget.h>
-#include <dali/devel-api/events/key-event-devel.h>
 
 // EXTERNAL INCLUDES
 #include <bundle.h>
@@ -42,7 +42,7 @@ namespace
  * Finally widget framework receive feedback from widget.
  */
 #ifdef OVER_TIZEN_VERSION_7
-bool OnKeyEventCallback(const char *id, screen_connector_event_type_e eventType, int keyCode, const char *keyName, long long cls, long long subcls, const char* identifier, long long timestamp, void *userData)
+bool OnKeyEventCallback(const char* id, screen_connector_event_type_e eventType, int keyCode, const char* keyName, long long cls, long long subcls, const char* identifier, long long timestamp, void* userData)
 {
   Dali::Internal::Adaptor::WidgetApplicationTizen* application = static_cast<Dali::Internal::Adaptor::WidgetApplicationTizen*>(userData);
 
@@ -57,13 +57,13 @@ bool OnKeyEventCallback(const char *id, screen_connector_event_type_e eventType,
     state = Dali::KeyEvent::UP;
   }
 
-  bool consumed = true;
-  std::string keyEventName = std::string(keyName);
-  Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEventName, "", "", keyCode, 0, timestamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
+  bool           consumed     = true;
+  std::string    keyEventName = std::string(keyName);
+  Dali::KeyEvent event        = Dali::DevelKeyEvent::New(keyEventName, "", "", keyCode, 0, timestamp, state, "", "", Device::Class::NONE, Device::Subclass::NONE);
 
   if(application)
   {
-    std::string widgetId = std::string(id);
+    std::string            widgetId       = std::string(id);
     widget_base_instance_h instanceHandle = application->GetWidgetInstanceFromWidgetId(widgetId);
     if(instanceHandle)
     {
@@ -265,13 +265,14 @@ namespace Adaptor
 WidgetApplicationPtr WidgetApplicationTizen::New(
   int*               argc,
   char**             argv[],
-  const std::string& stylesheet)
+  const std::string& stylesheet,
+  const WindowData&  windowData)
 {
-  return new WidgetApplicationTizen(argc, argv, stylesheet);
+  return new WidgetApplicationTizen(argc, argv, stylesheet, windowData);
 }
 
-WidgetApplicationTizen::WidgetApplicationTizen(int* argc, char** argv[], const std::string& stylesheet)
-: WidgetApplication(argc, argv, stylesheet),
+WidgetApplicationTizen::WidgetApplicationTizen(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData)
+: WidgetApplication(argc, argv, stylesheet, windowData),
   mConnectedKeyEvent(false),
   mReceivedKeyEvent(false)
 {
@@ -390,7 +391,7 @@ void WidgetApplicationTizen::ConnectKeyEvent(Dali::Window window)
 
 void WidgetApplicationTizen::OnWindowKeyEvent(const Dali::KeyEvent& event)
 {
-  //If Widget Application consume key event, this api is not called.
+  // If Widget Application consume key event, this api is not called.
   mReceivedKeyEvent = true;
 }
 
@@ -436,10 +437,11 @@ namespace WidgetApplicationFactory
  * @param[in]  argc         A pointer to the number of arguments
  * @param[in]  argv         A pointer to the argument list
  * @param[in]  stylesheet   The path to user defined theme file
+ * @param[in]  windowData   The window data
  */
-Dali::Internal::Adaptor::WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet)
+Dali::Internal::Adaptor::WidgetApplicationPtr Create(int* argc, char** argv[], const std::string& stylesheet, const WindowData& windowData)
 {
-  return WidgetApplicationTizen::New(argc, argv, stylesheet);
+  return WidgetApplicationTizen::New(argc, argv, stylesheet, windowData);
 }
 
 } // namespace WidgetApplicationFactory

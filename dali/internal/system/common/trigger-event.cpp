@@ -25,8 +25,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-
 #include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <dali/internal/system/common/system-factory.h>
 
 namespace Dali
 {
@@ -35,7 +35,7 @@ namespace Internal
 namespace Adaptor
 {
 TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
-: mFileDescriptorMonitor(NULL),
+: mFileDescriptorMonitor(),
   mCallback(callback),
   mFileDescriptor(-1),
   mOptions(options)
@@ -45,7 +45,7 @@ TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Option
   if(mFileDescriptor >= 0)
   {
     // Now Monitor the created event file descriptor
-    mFileDescriptorMonitor = new FileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
+    mFileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(mFileDescriptor, MakeCallback(this, &TriggerEvent::Triggered), FileDescriptorMonitor::FD_READABLE);
   }
   else
   {
@@ -55,7 +55,6 @@ TriggerEvent::TriggerEvent(CallbackBase* callback, TriggerEventInterface::Option
 
 TriggerEvent::~TriggerEvent()
 {
-  delete mFileDescriptorMonitor;
   delete mCallback;
 
   if(mFileDescriptor >= 0)

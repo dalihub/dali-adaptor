@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_FRAMEWORK_H
-#define DALI_INTERNAL_FRAMEWORK_H
+#ifndef DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_H
+#define DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
+#include <functional>
 #include <string>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <dali/public-api/watch/watch-application.h>
@@ -45,7 +46,6 @@ namespace Adaptor
  * The class is also used to register callbacks with the TIZEN platform so that
  * we know when any of the application lifecycle events occur.  This includes events
  * like when our application is to be initialised, terminated, paused, resumed etc.
- *
  */
 class Framework
 {
@@ -276,18 +276,28 @@ public:
   /**
    * Destructor
    */
-  ~Framework();
+  virtual ~Framework();
 
 public:
   /**
    * Runs the main loop of framework
    */
-  void Run();
+  virtual void Run() = 0;
 
   /**
    * Quits the main loop
    */
-  void Quit();
+  virtual void Quit() = 0;
+
+  /**
+   * Gets system language.
+   */
+  virtual std::string GetLanguage() const;
+
+  /**
+   * Gets system region.
+   */
+  virtual std::string GetRegion() const;
 
   /**
    * Checks whether the main loop of the framework is running.
@@ -304,16 +314,6 @@ public:
   void AddAbortCallback(CallbackBase* callback);
 
   /**
-   * Gets bundle name which was passed in app_reset callback.
-   */
-  std::string GetBundleName() const;
-
-  /**
-   * Gets bundle id which was passed in app_reset callback.
-   */
-  std::string GetBundleId() const;
-
-  /**
    * Sets a command line options.
    * This is used in case of the preinitialized application.
    * @param[in] argc A pointer to the number of arguments
@@ -325,100 +325,58 @@ public:
     mArgv = argv;
   }
 
-  /**
-   *  Gets the path at which application resources are stored.
-   */
-  static std::string GetResourcePath();
-
-  /**
-   *  Gets the path at which application data are stored.
-   */
-  static std::string GetDataPath();
-
-  /**
-   * Sets system language.
-   */
-  void SetLanguage(const std::string& language);
-
-  /**
-   * Sets system region.
-   */
-  void SetRegion(const std::string& region);
-
-  /**
-   * Gets system language.
-   */
-  std::string GetLanguage() const;
-
-  /**
-   * Gets system region.
-   */
-  std::string GetRegion() const;
-
-  /**
-   * Called by the App framework when an application lifecycle event occurs.
-   * @param[in] type The type of event occurred.
-   * @param[in] data The data of event occurred.
-   */
-  bool AppStatusHandler(int type, void* data);
-
-  /**
-   * Called by the adaptor when an idle callback is added.
-   * @param[in] timeout The timeout of the callback.
-   * @param[in] data The data of of the callback.
-   * @param[in] callback The callback.
-   * @return The callback id.
-   */
-  unsigned int AddIdle(int timeout, void* data, bool (*callback)(void* data));
-
-  /**
-   * Called by the adaptor when an idle callback is removed.
-   * @param[in] id The callback id.
-   */
-  void RemoveIdle(unsigned int id);
-
 private:
-  // Undefined
-  Framework(const Framework&);
-  Framework& operator=(Framework&);
-
-private:
-  /**
-   * Called when the application is created.
-   */
-  bool Create();
-
-  /**
-   * Called app_reset callback was called with bundle.
-   */
-  void SetBundleName(const std::string& name);
-
-  /**
-   * Called app_reset callback was called with bundle.
-   */
-  void SetBundleId(const std::string& id);
-
   /**
    * Called if the application is aborted.
    */
   void AbortCallback();
 
+private:
+  // Undefined
+  Framework(const Framework&) = delete;
+  Framework& operator=(Framework&) = delete;
+
+protected:
+  Observer&                     mObserver;
+  TaskObserver&                 mTaskObserver;
+  AbortHandler                  mAbortHandler;
+  int*                          mArgc;
+  char***                       mArgv;
+  std::unique_ptr<CallbackBase> mAbortCallBack;
+  bool                          mRunning;
+};
+
+class UIThreadLoader
+{
+public:
+  using Runner = std::function<void()>;
+
   /**
-   * Called for initializing on specified backend. (X11 or Wayland)
+   * Constructor
+   * @param[in] argc A pointer to the number of arguments.
+   * @param[in] argv A pointer the the argument list.
    */
-  void InitThreads();
+  UIThreadLoader(int* argc, char*** argv);
+
+  /**
+   * Destructor
+   */
+  ~UIThreadLoader();
+
+public:
+  /**
+   * Runs the main loop of framework
+   */
+  void Run(Runner runner);
 
 private:
-  Observer&     mObserver;
-  TaskObserver& mTaskObserver;
-  bool          mInitialised;
-  bool          mPaused;
-  bool          mRunning;
-  int*          mArgc;
-  char***       mArgv;
-  std::string   mBundleName;
-  std::string   mBundleId;
-  AbortHandler  mAbortHandler;
+  // Undefined
+  UIThreadLoader(const UIThreadLoader&) = delete;
+  UIThreadLoader& operator=(UIThreadLoader&) = delete;
+
+private:
+  int*    mArgc;
+  char*** mArgv;
 
 private: // impl members
   struct Impl;
@@ -431,4 +389,4 @@ private: // impl members
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_FRAMEWORK_H
+#endif // DALI_INTERNAL_ADAPTOR_COMMON_FRAMEWORK_H

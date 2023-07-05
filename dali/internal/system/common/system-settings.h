@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_SYSTEM_SETTINGS_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,28 @@
  *
  */
 
+// EXTERNAL INCLUDES
+#include <string>
+
 namespace Dali
 {
 namespace Internal
 {
 namespace Adaptor
 {
-// Get SYSTEM_SETTINGS_KEY_TAP_AND_HOLD_DELAY from system setting if available
-int GetLongPressTime(int defaultTime);
+namespace SystemSettings
+{
+/**
+ *  Gets the path at which application resources are stored.
+ */
+std::string GetResourcePath();
 
-// Get ELM_ACCESS_ACTION_OVER from Elementary if available
-int GetElmAccessActionOver();
+/**
+ *  Gets the path at which application data are stored.
+ */
+std::string GetDataPath();
+
+} // namespace SystemSettings
 
 } // namespace Adaptor
 

@@ -27,6 +27,7 @@
 #include <dali/devel-api/adaptor-framework/offscreen-application.h>
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/internal/adaptor/common/framework.h>
 
 namespace Dali
 {
@@ -37,7 +38,7 @@ namespace Internal
 /**
  * Implementation of the OffscreenApplication class.
  */
-class OffscreenApplication : public BaseObject
+class OffscreenApplication : public BaseObject, public Adaptor::Framework::Observer, public Adaptor::Framework::TaskObserver
 {
 public:
   using OffscreenApplicationSignalType = Dali::OffscreenApplication::OffscreenApplicationSignalType;
@@ -59,14 +60,14 @@ public:
   virtual ~OffscreenApplication();
 
   /**
-   * @copydoc Dali::OffscreenApplication::Start()
+   * @copydoc Dali::OffscreenApplication::MainLoop()
    */
-  void Start();
+  void MainLoop();
 
   /**
-   * @copydoc Dali::OffscreenApplication::Stop()
+   * @copydoc Dali::OffscreenApplication::Quit()
    */
-  void Stop();
+  void Quit();
 
   /**
    * @copydoc Dali::OffscreenApplication::GetDefaultWindow()
@@ -95,6 +96,17 @@ public: // Signals
     return mTerminateSignal;
   }
 
+public: // From Framework::Observer
+  /**
+   * Called when the framework is initialised.
+   */
+  void OnInit() override;
+
+  /**
+   * Called when the framework is terminated.
+   */
+  void OnTerminate() override;
+
 private:
   /**
    * Private constructor
@@ -106,6 +118,11 @@ private:
    */
   OffscreenApplication(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, Dali::OffscreenApplication::RenderMode renderMode);
 
+  /**
+   * Quits from the main loop
+   */
+  void QuitFromMainLoop();
+
   // Undefined
   OffscreenApplication(const OffscreenApplication&) = delete;
   OffscreenApplication& operator=(OffscreenApplication&) = delete;
@@ -115,6 +132,8 @@ private:
 private:
   std::unique_ptr<Dali::Adaptor> mAdaptor;
   Dali::OffscreenWindow          mDefaultWindow;
+
+  std::unique_ptr<Internal::Adaptor::Framework> mFramework;
 
   OffscreenApplicationSignalType mInitSignal;
   OffscreenApplicationSignalType mTerminateSignal;

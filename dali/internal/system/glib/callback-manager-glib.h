@@ -1,8 +1,8 @@
-#ifndef DALI_ADAPTOR_GLIB_CALLBACK_MANAGER_H
-#define DALI_ADAPTOR_GLIB_CALLBACK_MANAGER_H
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-struct CallbackData;
+struct GlibCallbackData;
 
 /**
  * @brief Glib callback manager used to install call backs in the applications main loop.
@@ -95,9 +95,14 @@ private:
    * Always called from main thread
    * @param callbackData callback data
    */
-  void RemoveCallbackFromContainer(CallbackData* callbackData);
+  void RemoveCallbackFromContainer(GlibCallbackData* callbackData);
 
-  typedef std::list<CallbackData*> CallbackList; ///< list of callbacks installed
+  // Undefined
+  GlibCallbackManager(const GlibCallbackManager&) = delete;
+  GlibCallbackManager& operator=(GlibCallbackManager&) = delete;
+
+private:
+  typedef std::list<GlibCallbackData*> CallbackList; ///< list of callbacks installed
 
   bool         mRunning;           ///< flag is set to true if when running
   CallbackList mCallbackContainer; ///< container of live callbacks
@@ -109,4 +114,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_ADAPTOR_GLIB_CALLBACK_MANAGER_H
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_GLIB_CALLBACK_MANAGER_H

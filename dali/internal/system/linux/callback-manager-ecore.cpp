@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,12 @@ namespace Adaptor
 /**
  * Structure contains the callback function and control options
  */
-struct CallbackData
+struct EcoreCallbackData
 {
   /**
    * Constructor
    */
-  CallbackData(CallbackBase* callback, bool hasReturnValue)
+  EcoreCallbackData(CallbackBase* callback, bool hasReturnValue)
   : mCallback(callback),
     mRemoveFromContainerFunction(NULL),
     mIdler(NULL),
@@ -50,7 +50,7 @@ struct CallbackData
   /**
    * Destructor
    */
-  ~CallbackData()
+  ~EcoreCallbackData()
   {
     delete mCallback;
     delete mRemoveFromContainerFunction;
@@ -70,8 +70,8 @@ namespace
  */
 Eina_Bool IdleCallback(void* data)
 {
-  Eina_Bool     ret          = ECORE_CALLBACK_CANCEL; // CALLBACK Cancel will delete the idler so we don't need to call ecore_idler_del
-  CallbackData* callbackData = static_cast<CallbackData*>(data);
+  Eina_Bool          ret          = ECORE_CALLBACK_CANCEL; // CALLBACK Cancel will delete the idler so we don't need to call ecore_idler_del
+  EcoreCallbackData* callbackData = static_cast<EcoreCallbackData*>(data);
 
   if(callbackData->mHasReturnValue)
   {
@@ -137,7 +137,7 @@ bool EcoreCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasRetur
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData(callback, hasReturnValue);
+  EcoreCallbackData* callbackData = new EcoreCallbackData(callback, hasReturnValue);
 
   callbackData->mRemoveFromContainerFunction = MakeCallback(this, &EcoreCallbackManager::RemoveCallbackFromContainer);
 
@@ -159,7 +159,7 @@ void EcoreCallbackManager::RemoveIdleCallback(CallbackBase* callback)
       it != endIt;
       ++it)
   {
-    CallbackData* data = *it;
+    EcoreCallbackData* data = *it;
 
     if(data->mCallback == callback)
     {
@@ -194,7 +194,7 @@ bool EcoreCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
     return false;
   }
 
-  CallbackData* callbackData = new CallbackData(callback, true);
+  EcoreCallbackData* callbackData = new EcoreCallbackData(callback, true);
 
   callbackData->mRemoveFromContainerFunction = MakeCallback(this, &EcoreCallbackManager::RemoveCallbackFromContainer);
 
@@ -216,7 +216,7 @@ void EcoreCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
       it != endIt;
       ++it)
   {
-    CallbackData* data = *it;
+    EcoreCallbackData* data = *it;
 
     if(data->mCallback == callback)
     {
@@ -233,7 +233,7 @@ void EcoreCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
   }
 }
 
-void EcoreCallbackManager::RemoveCallbackFromContainer(CallbackData* callbackData)
+void EcoreCallbackManager::RemoveCallbackFromContainer(EcoreCallbackData* callbackData)
 {
   mCallbackContainer.remove(callbackData);
 }
@@ -243,7 +243,7 @@ void EcoreCallbackManager::RemoveAllCallbacks()
   // always called from main thread
   for(CallbackList::iterator iter = mCallbackContainer.begin(); iter != mCallbackContainer.end(); ++iter)
   {
-    CallbackData* data = (*iter);
+    EcoreCallbackData* data = (*iter);
 
     if(data->mIdler)
     {
@@ -257,12 +257,6 @@ void EcoreCallbackManager::RemoveAllCallbacks()
     delete data;
   }
   mCallbackContainer.clear();
-}
-
-// Creates a concrete interface for CallbackManager
-CallbackManager* CallbackManager::New()
-{
-  return new EcoreCallbackManager;
 }
 
 } // namespace Adaptor

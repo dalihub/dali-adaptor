@@ -76,26 +76,22 @@ public:
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
-   * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
-   * @param[in] type Window type.
-   * @param[in] isTransparent Whether window is transparent
+   * @param[in] windowData The window data
    * @return A newly allocated Window
    */
-  static Window* New(const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent = false);
+  static Window* New(const std::string& name, const std::string& className, const WindowData& windowData);
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
    * @param[in] surface The surface used to render on.
-   * @param[in] positionSize The position and size of the window
    * @param[in] name The window title
    * @param[in] className The window class name
-   * @param[in] type Window type.
-   * @param[in] isTransparent Whether window is transparent
+   * @param[in] windowData The window data
    * @return A newly allocated Window
    */
-  static Window* New(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, Dali::WindowType type, bool isTransparent = false);
+  static Window* New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData);
 
   /**
    * @copydoc Dali::Window::SetClass()

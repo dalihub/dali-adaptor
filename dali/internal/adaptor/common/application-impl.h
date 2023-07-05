@@ -78,13 +78,12 @@ public:
    * @param[in]  argc              A pointer to the number of arguments
    * @param[in]  argv              A pointer to the argument list
    * @param[in]  stylesheet        The path to user defined theme file
-   * @param[in]  windowMode        A member of Dali::Application::WINDOW_MODE
-   * @param[in]  positionSize      A position and a size of the window
    * @param[in]  applicationType   A member of Dali::Framework::Type
-   * @param[in]  type              It is window type for default window.
    * @param[in]  useUiThread       True if the application would create a UI thread
+   * @param[in]  windowData        The window data
+   *
    */
-  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
+  static ApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData);
 
   /**
    * @copydoc Dali::DevelApplication::PreInitialize()
@@ -459,13 +458,11 @@ protected:
    * @param[in]  argc               A pointer to the number of arguments
    * @param[in]  argv               A pointer to the argument list
    * @param[in]  stylesheet         The path to user defined theme file
-   * @param[in]  windowMode         A member of Dali::Application::WINDOW_MODE
-   * @param[in]  positionSize       A position and a size of the window
    * @param[in]  applicationType    A member of Dali::Framework::Type
-   * @param[in]  type               The default window's type.
-   * @param[in]  useUiThread         True if the application would create UI thread
+   * @param[in]  useUiThread        True if the application would create UI thread
+   * @param[in]  windowData         The WindowData
    */
-  Application(int* argc, char** argv[], const std::string& stylesheet, WINDOW_MODE windowMode, const PositionSize& positionSize, Framework::Type applicationType, WindowType type, bool useUiThread);
+  Application(int* argc, char** argv[], const std::string& stylesheet, Framework::Type applicationType, bool useUiThread, const WindowData& windowData);
 
   /**
    * Destructor
@@ -523,7 +520,7 @@ private:
   LowMemorySignalType                mTaskLowMemorySignal;
   DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
-  Framework* mFramework;
+  std::unique_ptr<Framework> mFramework;
 
   CommandLineOptions* mCommandLineOptions;
 
@@ -543,9 +540,11 @@ private:
   WindowType       mDefaultWindowType; ///< Default window's type. It is used when Application is created.
   bool             mUseRemoteSurface;
   bool             mUseUiThread;
+  bool             mIsSystemInitialized;
 
   SlotDelegate<Application> mSlotDelegate;
 
+  UIThreadLoader* mUIThreadLoader;
   static ApplicationPtr gPreInitializedApplication;
 };
 

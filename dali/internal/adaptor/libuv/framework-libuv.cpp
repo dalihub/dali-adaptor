@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,22 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 // CLASS HEADER
-#include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/adaptor/libuv/framework-libuv.h>
 
 // EXTERNAL INCLUDES
 #include <X11/Xlib.h>
 #include <uv.h>
 #include <cstdio>
 #include <cstring>
-
-#include <dali/integration-api/debug.h>
-
-// INTERNAL INCLUDES
-#include <dali/internal/system/common/callback-manager.h>
 
 namespace Dali
 {
@@ -48,31 +42,19 @@ uv_loop_t* GetUVMainLoop()
 /**
  * Impl to hide LibUV data members
  */
-struct Framework::Impl
+struct FrameworkLibuv::Impl
 {
   // Constructor
   Impl(void* data)
-  : mAbortCallBack(nullptr),
-    mCallbackManager(nullptr),
-    mLanguage("NOT_SUPPORTED"),
-    mRegion("NOT_SUPPORTED")
   {
-    mCallbackManager = CallbackManager::New();
-    mMainLoop        = new uv_loop_t;
-    gUVLoop          = mMainLoop; // "There can be only one!"
+    mMainLoop = new uv_loop_t;
+    gUVLoop   = mMainLoop; // "There can be only one!"
 
     uv_loop_init(mMainLoop);
   }
 
   ~Impl()
   {
-    delete mAbortCallBack;
-
-    // we're quiting the main loop so
-    // mCallbackManager->RemoveAllCallBacks() does not need to be called
-    // to delete our abort handler
-    delete mCallbackManager;
-
     delete mMainLoop;
   }
 
@@ -88,35 +70,21 @@ struct Framework::Impl
   }
 
   // Data
-
-  CallbackBase*    mAbortCallBack;
-  CallbackManager* mCallbackManager;
-  uv_loop_t*       mMainLoop;
-
-  std::string mLanguage;
-  std::string mRegion;
+  uv_loop_t* mMainLoop;
 
 private:
   Impl(const Impl& impl) = delete;
   Impl& operator=(const Impl& impl) = delete;
 };
 
-Framework::Framework(Framework::Observer& observer, TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
-: mObserver(observer),
-  mTaskObserver(taskObserver),
-  mInitialised(false),
-  mRunning(false),
-  mArgc(argc),
-  mArgv(argv),
-  mBundleName(""),
-  mBundleId(""),
-  mAbortHandler(MakeCallback(this, &Framework::AbortCallback)),
+FrameworkLibuv::FrameworkLibuv(Framework::Observer& observer, TaskObserver& taskObserver, int* argc, char*** argv, Type type, bool useUiThread)
+: Framework(observer, taskObserver, argc, argv, type, useUiThread),
   mImpl(NULL)
 {
   mImpl = new Impl(this);
 }
 
-Framework::~Framework()
+FrameworkLibuv::~FrameworkLibuv()
 {
   if(mRunning)
   {
@@ -126,7 +94,7 @@ Framework::~Framework()
   delete mImpl;
 }
 
-void Framework::Run()
+void FrameworkLibuv::Run()
 {
   mRunning = true;
   mObserver.OnInit();
@@ -135,98 +103,53 @@ void Framework::Run()
   mRunning = false;
 }
 
-void Framework::Quit()
+void FrameworkLibuv::Quit()
 {
   mObserver.OnTerminate();
   mImpl->Quit();
 }
 
-bool Framework::IsMainLoopRunning()
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
 {
-  return mRunning;
-}
+  // Constructor
 
-void Framework::AddAbortCallback(CallbackBase* callback)
-{
-  mImpl->mAbortCallBack = callback;
-}
-
-std::string Framework::GetBundleName() const
-{
-  return mBundleName;
-}
-
-void Framework::SetBundleName(const std::string& name)
-{
-}
-
-std::string Framework::GetBundleId() const
-{
-  return "";
-}
-
-std::string Framework::GetResourcePath()
-{
-  // "DALI_APPLICATION_PACKAGE" is used by Ubuntu specifically to get the already configured Application package path.
-  const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
-  char*       value                     = getenv(ubuntuEnvironmentVariable);
-  std::string resourcePath;
-  if(value != NULL)
+  Impl(void *data)
   {
-    resourcePath = value;
   }
 
-  if(resourcePath.back() != '/')
+  ~Impl()
   {
-    resourcePath += "/";
   }
 
-  return resourcePath;
-}
-
-void Framework::SetBundleId(const std::string& id)
-{
-}
-
-void Framework::AbortCallback()
-{
-  // if an abort call back has been installed run it.
-  if(mImpl->mAbortCallBack)
+  void Run(Runner runner)
   {
-    CallbackBase::Execute(*mImpl->mAbortCallBack);
-  }
-  else
-  {
-    Quit();
-  }
-}
-
-bool Framework::AppStatusHandler(int type, void* bundleData)
-{
-  return true;
-}
-
-std::string Framework::GetLanguage() const
-{
-  return mImpl->mLanguage;
-}
-
-std::string Framework::GetRegion() const
-{
-  return mImpl->mRegion;
-}
-
-std::string Framework::GetDataPath()
-{
-  const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
-  char*       value                     = getenv(ubuntuEnvironmentVariable);
-  std::string dataPath;
-  if(value != NULL)
-  {
-    dataPath = value;
   }
 
-  return dataPath;
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
+{
+}
+
+UIThreadLoader::~UIThreadLoader()
+{
+}
+
+void UIThreadLoader::Run(Runner runner)
+{
 }
 
 } // namespace Adaptor

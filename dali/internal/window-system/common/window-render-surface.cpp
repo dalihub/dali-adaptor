@@ -30,6 +30,7 @@
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -763,9 +764,7 @@ void WindowRenderSurface::ProcessFrameCallback()
   {
     if(!iter->fileDescriptorMonitor)
     {
-      iter->fileDescriptorMonitor = std::unique_ptr<FileDescriptorMonitor>(new FileDescriptorMonitor(iter->fileDescriptor,
-                                                                                                     MakeCallback(this, &WindowRenderSurface::OnFileDescriptorEventDispatched),
-                                                                                                     FileDescriptorMonitor::FD_READABLE));
+      iter->fileDescriptorMonitor = Dali::Internal::Adaptor::GetSystemFactory()->CreateFileDescriptorMonitor(iter->fileDescriptor, MakeCallback(this, &WindowRenderSurface::OnFileDescriptorEventDispatched), FileDescriptorMonitor::FD_READABLE);
 
       DALI_LOG_RELEASE_INFO("WindowRenderSurface::ProcessFrameCallback: Add handler [%d]\n", iter->fileDescriptor);
     }

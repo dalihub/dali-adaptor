@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_TRIGGER_EVENT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
@@ -81,10 +82,10 @@ private:
   struct Source;
 
 private:
-  FileDescriptorMonitor*         mFileDescriptorMonitor;
-  CallbackBase*                  mCallback;
-  int                            mFileDescriptor;
-  TriggerEventInterface::Options mOptions;
+  std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;
+  CallbackBase*                          mCallback;
+  int                                    mFileDescriptor;
+  TriggerEventInterface::Options         mOptions;
 };
 
 } // namespace Adaptor

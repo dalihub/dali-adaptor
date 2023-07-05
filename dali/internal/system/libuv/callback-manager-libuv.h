@@ -1,5 +1,5 @@
-#ifndef __DALI_UV_CALLBACK_MANAGER_H__
-#define __DALI_UV_CALLBACK_MANAGER_H__
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_LIBUV_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_LIBUV_CALLBACK_MANAGER_H
 
 /*
  * Copyright (c) 2016 Samsung Electronics Co., Ltd.
@@ -97,6 +97,11 @@ private:
      */
   void RemoveCallbackFromContainer(CallbackData* callbackData);
 
+  // Undefined
+  UvCallbackManager(const UvCallbackManager&) = delete;
+  UvCallbackManager& operator=(UvCallbackManager&) = delete;
+
+private:
   typedef std::list<CallbackData*> CallbackList; ///< list of callbacks installed
 
   bool         mRunning;           ///< flag is set to true if when running
@@ -109,4 +114,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_UV_CALLBACK_MANAGER_H__
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_LIBUV_CALLBACK_MANAGER_H
