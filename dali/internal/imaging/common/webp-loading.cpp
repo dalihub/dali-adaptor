@@ -217,11 +217,8 @@ public:
   void ReleaseResource()
   {
 #ifdef DALI_WEBP_AVAILABLE
-    if(&mWebPData != nullptr)
-    {
-      mWebPData.bytes = nullptr;
-      WebPDataInit(&mWebPData);
-    }
+    mWebPData.bytes = nullptr;
+    WebPDataInit(&mWebPData);
 #endif
 #ifdef DALI_ANIMATED_WEBP_ENABLED
     if(mIsAnimatedImage)
