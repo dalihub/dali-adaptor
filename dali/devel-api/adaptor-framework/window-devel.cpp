@@ -205,6 +205,11 @@ void EnableFloatingMode(Window window, bool enable)
   GetImplementation(window).EnableFloatingMode(enable);
 }
 
+bool IsFloatingModeEnabled(Window window)
+{
+  return GetImplementation(window).IsFloatingModeEnabled();
+}
+
 void IncludeInputRegion(Window window, const Rect<int>& inputRegion)
 {
   GetImplementation(window).IncludeInputRegion(inputRegion);
