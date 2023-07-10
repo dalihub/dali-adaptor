@@ -349,6 +349,14 @@ DALI_ADAPTOR_API void RequestResizeToServer(Window window, WindowResizeDirection
 DALI_ADAPTOR_API void EnableFloatingMode(Window window, bool enable);
 
 /**
+ * @brief Returns whether the window is floating mode or not.
+ *
+ * @param[in] window The window instance.
+ * @return True if the window is enabled floating mode, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsFloatingModeEnabled(Window window);
+
+/**
  * @brief Includes input region.
  *
  * This function inlcudes input regions.

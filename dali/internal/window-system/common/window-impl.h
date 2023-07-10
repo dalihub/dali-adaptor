@@ -464,6 +464,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
   void EnableFloatingMode(bool enable);
 
   /**
+   * @copydoc Dali::DevelWindow::IsFloatingModeEnabled()
+   */
+  bool IsFloatingModeEnabled();
+
+  /**
    * @copydoc Dali::DevelWindow::IncludeInputRegion()
    */
   void IncludeInputRegion(const Rect<int>& inputRegion);

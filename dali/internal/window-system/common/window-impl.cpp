@@ -1295,6 +1295,11 @@ void Window::EnableFloatingMode(bool enable)
   mWindowBase->EnableFloatingMode(enable);
 }
 
+bool Window::IsFloatingModeEnabled()
+{
+  return mWindowBase->IsFloatingModeEnabled();
+}
+
 void Window::IncludeInputRegion(const Rect<int>& inputRegion)
 {
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), IncludeInputRegion, (%d,%d), (%d x %d)\n", this, mNativeWindowId, inputRegion.x, inputRegion.y, inputRegion.width, inputRegion.height);
