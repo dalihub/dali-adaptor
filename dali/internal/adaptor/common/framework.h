@@ -300,6 +300,12 @@ public:
   virtual std::string GetRegion() const;
 
   /**
+   * Gets the context of the main loop
+   * @return Platform dependent context handle
+   */
+  virtual Any GetMainLoopContext() const;
+
+  /**
    * Checks whether the main loop of the framework is running.
    * @return true, if the main loop is running, false otherwise.
    */

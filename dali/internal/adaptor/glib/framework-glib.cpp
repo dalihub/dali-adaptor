@@ -28,15 +28,11 @@ namespace Internal
 {
 namespace Adaptor
 {
-thread_local GMainLoop* gMainLoop{nullptr};
+thread_local GMainContext* gContext{nullptr};
 
 GMainContext* GetMainLoopContext()
 {
-  if(gMainLoop != nullptr)
-  {
-    return g_main_loop_get_context(gMainLoop);
-  }
-  return nullptr;
+  return gContext;
 }
 
 /**
@@ -47,14 +43,16 @@ struct FrameworkGlib::Impl
   // Constructor
   Impl(void* data)
   {
-    GMainContext* context = g_main_context_new();
-    gMainLoop = mMainLoop = g_main_loop_new(context, false);
+    gContext = mContext = g_main_context_new();
+    mMainLoop           = g_main_loop_new(mContext, false);
   }
 
   ~Impl()
   {
     g_main_loop_unref(mMainLoop);
-    gMainLoop = nullptr;
+    g_main_context_unref(mContext);
+
+    gContext = nullptr;
   }
 
   void Run()
@@ -106,6 +104,11 @@ void FrameworkGlib::Quit()
 {
   mObserver.OnTerminate();
   mImpl->Quit();
+}
+
+Any FrameworkGlib::GetMainLoopContext() const
+{
+  return mImpl->mContext;
 }
 
 } // namespace Adaptor

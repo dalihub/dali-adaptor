@@ -53,6 +53,11 @@ std::string Framework::GetRegion() const
   return NOT_SUPPORTED;
 }
 
+Any Framework::GetMainLoopContext() const
+{
+  return nullptr;
+}
+
 bool Framework::IsMainLoopRunning()
 {
   return mRunning;
