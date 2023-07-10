@@ -79,6 +79,11 @@ public:
    */
   void RenderOnce();
 
+  /**
+   * @copydoc Dali::OffscreenApplication::GetFrameworkContext()
+   */
+  Any GetFrameworkContext() const;
+
 public: // Signals
   /**
    * @copydoc Dali::OffscreenApplication::InitSignal()
