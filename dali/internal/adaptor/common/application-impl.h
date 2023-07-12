@@ -54,6 +54,7 @@ enum State
 } // namespace Launchpad
 
 class CommandLineOptions;
+class FrameworkFactory;
 
 typedef Dali::Rect<int> PositionSize;
 
@@ -520,7 +521,8 @@ private:
   LowMemorySignalType                mTaskLowMemorySignal;
   DeviceOrientationChangedSignalType mTaskDeviceOrientationChangedSignal;
 
-  std::unique_ptr<Framework> mFramework;
+  std::unique_ptr<Framework>        mFramework;
+  std::unique_ptr<FrameworkFactory> mFrameworkFactory;
 
   CommandLineOptions* mCommandLineOptions;
 
@@ -544,7 +546,7 @@ private:
 
   SlotDelegate<Application> mSlotDelegate;
 
-  UIThreadLoader* mUIThreadLoader;
+  UIThreadLoader*       mUIThreadLoader;
   static ApplicationPtr gPreInitializedApplication;
 };
 
