@@ -188,7 +188,6 @@ private: // Data
   ColorDepth                            mColorDepth;
   tbm_format                            mTbmFormat;
   bool                                  mOwnSurface;
-  std::vector<Rect<int>>                mDamagedRects{}; ///< Keeps collected damaged render items rects for one render pass
 
   tbm_surface_queue_h                  mTbmQueue;
   ThreadSynchronizationInterface*      mThreadSynchronization; ///< A pointer to the thread-synchronization
