@@ -16,7 +16,7 @@
  */
 
 // INTERNAL INCLUDES
-#include "addon-manager.h"
+#include <dali/internal/addons/common/addon-manager.h>
 #include <dali/internal/addons/common/addon-manager-impl.h>
 
 namespace Dali
@@ -60,7 +60,7 @@ bool AddOnManager::GetAddOnInfo(const std::string& name, AddOnInfo& info)
 
 std::vector<Dali::AddOnLibrary> AddOnManager::LoadAddOns(const std::vector<std::string>& addonNames)
 {
-  return std::move(mImpl->LoadAddOns(addonNames));
+  return mImpl->LoadAddOns(addonNames);
 }
 
 void* AddOnManager::GetGlobalProc(const Dali::AddOnLibrary& addonHandle, const char* procName)
