@@ -29,6 +29,18 @@ namespace Internal
 {
 namespace Adaptor
 {
+FrameworkFactory* gFrameworkFactory = nullptr;
+
+FrameworkFactoryTizen::FrameworkFactoryTizen()
+{
+  gFrameworkFactory = this;
+}
+
+FrameworkFactoryTizen::~FrameworkFactoryTizen()
+{
+  gFrameworkFactory = nullptr;
+}
+
 std::unique_ptr<Framework> FrameworkFactoryTizen::CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
   mBackend = backend;
@@ -42,15 +54,14 @@ std::unique_ptr<Framework> FrameworkFactoryTizen::CreateFramework(FrameworkBacke
   }
 }
 
+FrameworkFactory* CreateFrameworkFactory()
+{
+  return (new FrameworkFactoryTizen());
+}
+
 FrameworkFactory* GetFrameworkFactory()
 {
-  static std::unique_ptr<FrameworkFactory> frameworkFactory = nullptr;
-
-  if(!frameworkFactory)
-  {
-    frameworkFactory = Utils::MakeUnique<FrameworkFactoryTizen>();
-  }
-  return frameworkFactory.get();
+  return gFrameworkFactory;
 }
 
 } // namespace Adaptor
