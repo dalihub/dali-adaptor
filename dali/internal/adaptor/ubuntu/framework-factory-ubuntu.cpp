@@ -28,31 +28,20 @@ namespace Internal
 {
 namespace Adaptor
 {
-FrameworkFactory* gFrameworkFactory = nullptr;
-
-FrameworkFactoryUbuntu::FrameworkFactoryUbuntu()
-{
-  gFrameworkFactory = this;
-}
-
-FrameworkFactoryUbuntu::~FrameworkFactoryUbuntu()
-{
-  gFrameworkFactory = nullptr;
-}
-
 std::unique_ptr<Framework> FrameworkFactoryUbuntu::CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
   return Utils::MakeUnique<FrameworkUbuntu>(observer, taskObserver, argc, argv, type, useUiThread);
 }
 
-FrameworkFactory* CreateFrameworkFactory()
-{
-  return (new FrameworkFactoryUbuntu());
-}
-
 FrameworkFactory* GetFrameworkFactory()
 {
-  return gFrameworkFactory;
+  static std::unique_ptr<FrameworkFactory> frameworkFactory = nullptr;
+
+  if(!frameworkFactory)
+  {
+    frameworkFactory = Utils::MakeUnique<FrameworkFactoryUbuntu>();
+  }
+  return frameworkFactory.get();
 }
 
 } // namespace Adaptor

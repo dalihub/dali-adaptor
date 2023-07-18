@@ -29,9 +29,6 @@ namespace Adaptor
 class FrameworkFactoryUbuntu : public FrameworkFactory
 {
 public:
-  FrameworkFactoryUbuntu();
-  ~FrameworkFactoryUbuntu();
-
   std::unique_ptr<Framework> CreateFramework(FrameworkBackend frameworkType, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
 };
 

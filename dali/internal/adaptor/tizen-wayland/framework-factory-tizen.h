@@ -29,9 +29,6 @@ namespace Adaptor
 class FrameworkFactoryTizen : public FrameworkFactory
 {
 public:
-  FrameworkFactoryTizen();
-  ~FrameworkFactoryTizen();
-
   std::unique_ptr<Framework> CreateFramework(FrameworkBackend frameworkType, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
 
   FrameworkBackend GetFrameworkBackend() const override
@@ -40,7 +37,7 @@ public:
   }
 
 private:
-  FrameworkBackend mBackend{FrameworkBackend::DEFAULT};
+  FrameworkBackend mBackend;
 };
 
 } // namespace Adaptor

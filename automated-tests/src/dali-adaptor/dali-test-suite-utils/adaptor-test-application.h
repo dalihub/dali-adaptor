@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_TEST_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2019 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/framework-factory.h>
 #include "adaptor-test-adaptor-impl.h"
 #include "test-application.h"
 
@@ -38,14 +37,11 @@ public:
   : TestApplication(surfaceWidth, surfaceHeight, horizontalDpi, verticalDpi)
   {
     Internal::Adaptor::Adaptor::SetAvailable();
-    mFrameworkFactory = std::unique_ptr<Internal::Adaptor::FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
   }
 
   ~AdaptorTestApplication()
   {
   }
-
-  std::unique_ptr<Internal::Adaptor::FrameworkFactory> mFrameworkFactory;
 };
 
 } // namespace Dali

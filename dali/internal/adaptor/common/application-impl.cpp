@@ -81,11 +81,11 @@ void Application::PreInitialize(int* argc, char** argv[])
 {
   if(!gPreInitializedApplication)
   {
-    char* retEnv        = std::getenv("TIZEN_UI_THREAD");
-    bool  isUseUIThread = false;
+    char* retEnv = std::getenv("TIZEN_UI_THREAD");
+    bool isUseUIThread = false;
     if(retEnv)
     {
-      std::string uiThreadEnv   = retEnv;
+      std::string uiThreadEnv = retEnv;
       std::string enabledString = "true";
       if(uiThreadEnv == enabledString)
       {
@@ -101,13 +101,15 @@ void Application::PreInitialize(int* argc, char** argv[])
     {
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
-      gPreInitializedApplication->mUIThreadLoader->Run([&]() { gPreInitializedApplication->CreateWindow(); });
+      gPreInitializedApplication->mUIThreadLoader->Run([&](){gPreInitializedApplication->CreateWindow();});
     }
     else
     {
       DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED");
       gPreInitializedApplication->CreateWindow(); // Only create window
     }
+
+
   }
 }
 
@@ -121,7 +123,6 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mLanguageChangedSignal(),
   mRegionChangedSignal(),
   mFramework(nullptr),
-  mFrameworkFactory(nullptr),
   mCommandLineOptions(nullptr),
   mAdaptorBuilder(nullptr),
   mAdaptor(nullptr),
@@ -151,9 +152,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   }
 
   mCommandLineOptions = new CommandLineOptions(argc, argv);
-
-  mFrameworkFactory = std::unique_ptr<FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
-  mFramework        = mFrameworkFactory->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
+  mFramework          = Dali::Internal::Adaptor::GetFrameworkFactory()->CreateFramework(FrameworkBackend::DEFAULT, *this, *this, argc, argv, applicationType, mUseUiThread);
 
   mUseRemoteSurface = (applicationType == Framework::WATCH);
 }

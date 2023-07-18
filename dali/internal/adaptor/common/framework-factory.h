@@ -46,15 +46,7 @@ public:
   }
 };
 
-/**
- * @brief Creates a framework factory
- */
-FrameworkFactory* CreateFrameworkFactory();
-
-/**
- * @brief Gets a framework factory
- */
-FrameworkFactory* GetFrameworkFactory();
+extern FrameworkFactory* GetFrameworkFactory();
 
 } // namespace Adaptor
 } // namespace Internal

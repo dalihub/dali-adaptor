@@ -28,31 +28,20 @@ namespace Internal
 {
 namespace Adaptor
 {
-FrameworkFactory* gFrameworkFactory = nullptr;
-
-FrameworkFactoryGlib::FrameworkFactoryGlib()
-{
-  gFrameworkFactory = this;
-}
-
-FrameworkFactoryGlib::~FrameworkFactoryGlib()
-{
-  gFrameworkFactory = nullptr;
-}
-
 std::unique_ptr<Framework> FrameworkFactoryGlib::CreateFramework(FrameworkBackend backend, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread)
 {
   return Utils::MakeUnique<FrameworkGlib>(observer, taskObserver, argc, argv, type, useUiThread);
 }
 
-FrameworkFactory* CreateFrameworkFactory()
-{
-  return (new FrameworkFactoryGlib());
-}
-
 FrameworkFactory* GetFrameworkFactory()
 {
-  return gFrameworkFactory;
+  static std::unique_ptr<FrameworkFactory> frameworkFactory = nullptr;
+
+  if(!frameworkFactory)
+  {
+    frameworkFactory = Utils::MakeUnique<FrameworkFactoryGlib>();
+  }
+  return frameworkFactory.get();
 }
 
 } // namespace Adaptor
