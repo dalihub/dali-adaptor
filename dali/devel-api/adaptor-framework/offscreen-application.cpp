@@ -70,6 +70,11 @@ void OffscreenApplication::RenderOnce()
   Internal::GetImplementation(*this).RenderOnce();
 }
 
+Any OffscreenApplication::GetFrameworkContext() const
+{
+  return Internal::GetImplementation(*this).GetFrameworkContext();
+}
+
 OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::InitSignal()
 {
   return Internal::GetImplementation(*this).InitSignal();

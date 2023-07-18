@@ -55,7 +55,6 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -63,6 +62,7 @@
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>
@@ -973,11 +973,20 @@ void Adaptor::RequestUpdate()
 
 void Adaptor::RequestProcessEventsOnIdle()
 {
-  // Only request a notification if we haven't installed the idle notification
   // We want to run the processes even when paused
-  if(!mNotificationOnIdleInstalled && STOPPED != mState)
+  if(STOPPED != mState)
   {
-    mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), true);
+    if(!mNotificationOnIdleInstalled)
+    {
+      // If we haven't installed the idle notification, install it idle enterer.
+      mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), true);
+    }
+    else
+    {
+      // Request comes during ProcessCoreEventsFromIdle running.
+      // Mark as we need to call ProcessEvents in next idle events.
+      mRequiredIdleRepeat = true;
+    }
   }
 }
 
@@ -1127,6 +1136,13 @@ void Adaptor::RenderOnce()
 
       ProcessCoreEvents();
     }
+
+    // Force rendering
+    for(auto&& iter : mWindows)
+    {
+      iter->GetSurface()->SetFullSwapNextFrame();
+    }
+
     mThreadController->RequestUpdateOnce(updateMode);
   }
 }
@@ -1170,12 +1186,20 @@ void Adaptor::RequestUpdateOnce()
 
 bool Adaptor::ProcessCoreEventsFromIdle()
 {
+  // Reset repeat idler flag.
+  mRequiredIdleRepeat = false;
   ProcessCoreEvents();
 
-  // the idle handle automatically un-installs itself
-  mNotificationOnIdleInstalled = false;
+  // If someone request ProcessCoreEvents during above ProcessCoreEvents call, we might need to run idle one more times.
+  // Else, the idle handle automatically un-installs itself
+  mNotificationOnIdleInstalled = mRequiredIdleRepeat;
 
-  return false;
+  if(mRequiredIdleRepeat)
+  {
+    DALI_LOG_DEBUG_INFO("Required ProcessCoreEvents one more times\n");
+  }
+
+  return mRequiredIdleRepeat;
 }
 
 Dali::Internal::Adaptor::SceneHolder* Adaptor::GetWindow(Dali::Actor& actor)
@@ -1247,6 +1271,7 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mPlatformAbstraction(nullptr),
   mCallbackManager(nullptr),
   mNotificationOnIdleInstalled(false),
+  mRequiredIdleRepeat(false),
   mNotificationTrigger(nullptr),
   mDaliFeedbackPlugin(),
   mFeedbackController(nullptr),

@@ -111,6 +111,9 @@ void IdleCallback(uv_idle_t* handle)
     {
       // remove callback data from the container
       CallbackBase::Execute(*callbackData->mRemoveFromContainerFunction, callbackData);
+
+      // will clear up the handle
+      delete callbackData;
     }
   }
   else
@@ -120,10 +123,10 @@ void IdleCallback(uv_idle_t* handle)
 
     // run the function
     CallbackBase::Execute(*callbackData->mCallback);
-  }
 
-  // will clear up the handle
-  delete callbackData;
+    // will clear up the handle
+    delete callbackData;
+  }
 }
 } // namespace
 

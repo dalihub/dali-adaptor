@@ -35,6 +35,11 @@ class Adaptor;
 
 namespace Internal
 {
+namespace Adaptor
+{
+class FrameworkFactory;
+} // namespace Adaptor
+
 /**
  * Implementation of the OffscreenApplication class.
  */
@@ -78,6 +83,11 @@ public:
    * @copydoc Dali::OffscreenApplication::RenderOnce()
    */
   void RenderOnce();
+
+  /**
+   * @copydoc Dali::OffscreenApplication::GetFrameworkContext()
+   */
+  Any GetFrameworkContext() const;
 
 public: // Signals
   /**
@@ -133,7 +143,8 @@ private:
   std::unique_ptr<Dali::Adaptor> mAdaptor;
   Dali::OffscreenWindow          mDefaultWindow;
 
-  std::unique_ptr<Internal::Adaptor::Framework> mFramework;
+  std::unique_ptr<Internal::Adaptor::Framework>        mFramework;
+  std::unique_ptr<Internal::Adaptor::FrameworkFactory> mFrameworkFactory;
 
   OffscreenApplicationSignalType mInitSignal;
   OffscreenApplicationSignalType mTerminateSignal;

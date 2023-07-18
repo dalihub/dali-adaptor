@@ -691,6 +691,7 @@ private:                                          // Data
 
   std::unique_ptr<CallbackManager> mCallbackManager;                       ///< Used to install callbacks
   bool                             mNotificationOnIdleInstalled;           ///< whether the idle handler is installed to send an notification event
+  bool                             mRequiredIdleRepeat;                    ///< whether we need to repeat installed notification event in idle handler
   TriggerEventInterface*           mNotificationTrigger;                   ///< Notification event trigger
   FeedbackPluginProxy*             mDaliFeedbackPlugin;                    ///< Used to access feedback support
   FeedbackController*              mFeedbackController;                    ///< Plays feedback effects for Dali-Toolkit UI Controls.

@@ -29,6 +29,9 @@ namespace Adaptor
 class FrameworkFactoryAndroidJni : public FrameworkFactory
 {
 public:
+  FrameworkFactoryAndroidJni();
+  ~FrameworkFactoryAndroidJni();
+
   std::unique_ptr<Framework> CreateFramework(FrameworkBackend frameworkType, Framework::Observer& observer, Framework::TaskObserver& taskObserver, int* argc, char*** argv, Framework::Type type, bool useUiThread) override;
 };
 

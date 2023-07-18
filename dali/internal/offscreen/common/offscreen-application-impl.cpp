@@ -51,7 +51,8 @@ OffscreenApplication::OffscreenApplication(uint16_t width, uint16_t height, Dali
   Dali::Accessibility::Bridge::DisableAutoInit();
 
   // Now we assume separated main loop for the offscreen application
-  mFramework = Internal::Adaptor::GetFrameworkFactory()->CreateFramework(Internal::Adaptor::FrameworkBackend::GLIB, *this, *this, nullptr, nullptr, Adaptor::Framework::NORMAL, false);
+  mFrameworkFactory = std::unique_ptr<Adaptor::FrameworkFactory>(Dali::Internal::Adaptor::CreateFrameworkFactory());
+  mFramework        = mFrameworkFactory->CreateFramework(Internal::Adaptor::FrameworkBackend::GLIB, *this, *this, nullptr, nullptr, Adaptor::Framework::NORMAL, false);
 
   // Generate a default window
   IntrusivePtr<Internal::OffscreenWindow> impl = Internal::OffscreenWindow::New(width, height, surface, isTranslucent);
@@ -87,6 +88,11 @@ Dali::OffscreenWindow OffscreenApplication::GetWindow()
 void OffscreenApplication::RenderOnce()
 {
   mAdaptor->RenderOnce();
+}
+
+Any OffscreenApplication::GetFrameworkContext() const
+{
+  return mFramework->GetMainLoopContext();
 }
 
 void OffscreenApplication::OnInit()
