@@ -53,11 +53,6 @@ public:
    */
   void Quit() override;
 
-  /**
-   * @copydoc Dali::Internal::Adaptor::Framework::GetMainLoopContext()
-   */
-  Any GetMainLoopContext() const override;
-
 private:
   // Undefined
   FrameworkGlib(const FrameworkGlib&) = delete;

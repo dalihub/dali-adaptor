@@ -89,11 +89,6 @@ void OffscreenApplication::RenderOnce()
   mAdaptor->RenderOnce();
 }
 
-Any OffscreenApplication::GetFrameworkContext() const
-{
-  return mFramework->GetMainLoopContext();
-}
-
 void OffscreenApplication::OnInit()
 {
   // Start the adaptor

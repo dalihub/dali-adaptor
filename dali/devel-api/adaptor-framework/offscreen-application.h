@@ -124,12 +124,6 @@ public:
    */
   void RenderOnce();
 
-  /**
-   * @brief Gets the context of the framwork
-   * @return Platform dependent context handle
-   */
-  Any GetFrameworkContext() const;
-
 public: // Signals
         /**
    * @brief Signal to notify the client when the application is ready to be initialized
