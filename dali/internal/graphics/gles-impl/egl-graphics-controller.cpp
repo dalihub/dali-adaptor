@@ -959,4 +959,57 @@ GLES::PipelineCache& EglGraphicsController::GetPipelineCache() const
   return *mPipelineCache;
 }
 
+Graphics::Texture* EglGraphicsController::CreateTextureByResourceId(uint32_t resourceId, const Graphics::TextureCreateInfo& createInfo)
+{
+  Graphics::Texture*                     ret = nullptr;
+  Graphics::UniquePtr<Graphics::Texture> texture;
+
+  auto iter = mExternalTextureResources.find(resourceId);
+  DALI_ASSERT_ALWAYS(iter == mExternalTextureResources.end());
+
+  texture = CreateTexture(createInfo, std::move(texture));
+
+  ret = texture.get();
+
+  mExternalTextureResources.insert(std::make_pair(resourceId, std::move(texture)));
+
+  return ret;
+}
+
+void EglGraphicsController::DiscardTextureFromResourceId(uint32_t resourceId)
+{
+  auto iter = mExternalTextureResources.find(resourceId);
+  if(iter != mExternalTextureResources.end())
+  {
+    mExternalTextureResources.erase(iter);
+  }
+}
+
+Graphics::Texture* EglGraphicsController::GetTextureFromResourceId(uint32_t resourceId)
+{
+  Graphics::Texture* ret = nullptr;
+
+  auto iter = mExternalTextureResources.find(resourceId);
+  if(iter != mExternalTextureResources.end())
+  {
+    ret = iter->second.get();
+  }
+
+  return ret;
+}
+
+Graphics::UniquePtr<Graphics::Texture> EglGraphicsController::ReleaseTextureFromResourceId(uint32_t resourceId)
+{
+  Graphics::UniquePtr<Graphics::Texture> texture;
+
+  auto iter = mExternalTextureResources.find(resourceId);
+  if(iter != mExternalTextureResources.end())
+  {
+    texture = std::move(iter->second);
+    mExternalTextureResources.erase(iter);
+  }
+
+  return texture;
+}
+
 } // namespace Dali::Graphics
