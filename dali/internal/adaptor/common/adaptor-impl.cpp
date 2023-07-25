@@ -182,9 +182,6 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
                                  mGraphics->GetStencilBufferRequired(),
                                  mGraphics->GetPartialUpdateRequired());
 
-  // Create TextureUploadManager after mCore created
-  mTextureUploadManager = Dali::Devel::TextureUploadManager::Get();
-
   defaultWindow->SetAdaptor(Get());
 
   Dali::Integration::SceneHolder defaultSceneHolder(defaultWindow);
@@ -850,11 +847,6 @@ void Adaptor::GetWindowContainerInterface(WindowContainer& windows)
   windows = mWindows;
 }
 
-Devel::TextureUploadManager& Adaptor::GetTextureUploadManager()
-{
-  return mTextureUploadManager;
-}
-
 void Adaptor::DestroyTtsPlayer(Dali::TtsPlayer::Mode mode)
 {
   if(mTtsPlayers[mode])
@@ -1289,7 +1281,6 @@ Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, 
   mPerformanceInterface(nullptr),
   mKernelTracer(),
   mSystemTracer(),
-  mTextureUploadManager(),
   mObjectProfiler(nullptr),
   mMemoryPoolTimerSlotDelegate(this),
   mSocketFactory(),
