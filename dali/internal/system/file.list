@@ -24,6 +24,7 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/update-status-logger.cpp
     ${adaptor_system_dir}/common/widget-application-impl.cpp
     ${adaptor_system_dir}/common/async-task-manager-impl.cpp
+    ${adaptor_system_dir}/common/texture-upload-manager-impl.cpp
 )
 
 # module: system, backend: linux

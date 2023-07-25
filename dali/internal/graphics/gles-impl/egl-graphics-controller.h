@@ -18,8 +18,10 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/map-wrapper.h>
 #include <dali/graphics-api/graphics-controller.h>
 #include <queue>
+#include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/graphics-sync-abstraction.h>
@@ -315,6 +317,28 @@ public:
     return {};
   }
 
+public: // ResourceId relative API.
+  /**
+   * @copydoc Dali::Graphics::CreateTextureByResourceId()
+   */
+  Graphics::Texture* CreateTextureByResourceId(uint32_t resourceId, const Graphics::TextureCreateInfo& createInfo) override;
+
+  /**
+   * @copydoc Dali::Graphics::DiscardTextureFromResourceId()
+   */
+  void DiscardTextureFromResourceId(uint32_t resourceId) override;
+
+  /**
+   * @copydoc Dali::Graphics::GetTextureFromResourceId()
+   */
+  Graphics::Texture* GetTextureFromResourceId(uint32_t resourceId) override;
+
+  /**
+   * @copydoc Dali::Graphics::ReleaseTextureFromResourceId()
+   */
+  Graphics::UniquePtr<Graphics::Texture> ReleaseTextureFromResourceId(uint32_t resourceId) override;
+
+public:
   [[nodiscard]] Integration::GlAbstraction* GetGL() const
   {
     if(mIsShuttingDown)
@@ -809,6 +833,8 @@ private:
 
   using TextureUpdateRequest = std::pair<TextureUpdateInfo, TextureUpdateSourceInfo>;
   std::queue<TextureUpdateRequest> mTextureUpdateRequests;
+
+  std::unordered_map<uint32_t, Graphics::UniquePtr<Graphics::Texture>> mExternalTextureResources; ///< Used for ResourceId.
 
   std::queue<const GLES::Texture*> mTextureMipmapGenerationRequests; ///< Queue for texture mipmap generation requests
 
