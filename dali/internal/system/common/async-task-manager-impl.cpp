@@ -349,7 +349,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
       auto mapIter = mCacheImpl->mWaitingTasksCache.find(task.Get());
       if(mapIter != mCacheImpl->mWaitingTasksCache.end())
       {
-        for(auto iterator : mapIter->second)
+        for(auto& iterator : mapIter->second)
         {
           DALI_ASSERT_DEBUG((*iterator) == task);
           if((*iterator)->GetPriorityType() == AsyncTask::PriorityType::HIGH)
@@ -375,7 +375,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
       auto mapIter = mCacheImpl->mRunningTasksCache.find(task.Get());
       if(mapIter != mCacheImpl->mRunningTasksCache.end())
       {
-        for(auto iterator : mapIter->second)
+        for(auto& iterator : mapIter->second)
         {
           DALI_ASSERT_DEBUG((*iterator).first == task);
           // We cannot erase container. Just mark as canceled.
@@ -397,7 +397,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
       auto mapIter = mCacheImpl->mCompletedTasksCache.find(task.Get());
       if(mapIter != mCacheImpl->mCompletedTasksCache.end())
       {
-        for(auto iterator : mapIter->second)
+        for(auto& iterator : mapIter->second)
         {
           DALI_ASSERT_DEBUG((*iterator) == task);
           mCompletedTasks.erase(iterator);

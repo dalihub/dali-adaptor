@@ -107,6 +107,16 @@ private:
    */
   void DropTargetSceneOn(Dali::Actor target);
 
+  /**
+   * @brief Recalculate cursor position by orientation.
+   *
+   * @param[in] x The x value of given position
+   * @param[in] y The y value of given position
+   * @param[in] window The window instance
+   * @return The recalculated position by orientation
+   */
+  Vector2 RecalculatePositionByOrientation(int x, int y, Dali::Window window);
+
 private:
   DragAndDropEcoreWl(const DragAndDropEcoreWl&) = delete;
   DragAndDropEcoreWl& operator=(DragAndDropEcoreWl&) = delete;

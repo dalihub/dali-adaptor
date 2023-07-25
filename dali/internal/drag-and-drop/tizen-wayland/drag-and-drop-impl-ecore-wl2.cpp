@@ -21,8 +21,12 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/debug.h>
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <unistd.h>
+
+// INTERNAL INCLUDES
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
+#include <dali/internal/window-system/common/window-system.h>
+#include <dali/internal/window-system/common/window-impl.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DragAndDrop
@@ -356,6 +360,42 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
   mTargetIndex = -1;
 }
 
+Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali::Window window)
+{
+  int screenWidth, screenHeight;
+  Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
+  int angle = DevelWindow::GetPhysicalOrientation(window);
+
+  int newX, newY;
+  Dali::Vector2 newPosition;
+
+  if(angle == 90)
+  {
+    newX = screenHeight - y;
+    newY = x;
+  }
+  else if(angle == 180)
+  {
+    newX = screenWidth - x;
+    newY = screenHeight - y;
+  }
+  else if(angle == 270)
+  {
+    newX = y;
+    newY = screenWidth - x;
+  }
+  else
+  {
+    newX = x;
+    newY = y;
+  }
+
+  newPosition.x = newX;
+  newPosition.y = newY;
+
+  return newPosition;
+}
+
 bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 {
   Ecore_Wl2_Event_Dnd_Motion* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
@@ -372,7 +412,12 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
     Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-    bool    currentInside = IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height);
+
+    // Recalculate Cursor by Orientation
+    Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
+
+    bool currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
 
     // Calculate Drag Enter, Leave, Move Event
     if(currentInside && !mDropTargets[i].inside)
@@ -423,8 +468,13 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
     Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+
+    // Recalculate Cursor by Orientation
+    Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
+
     // If the drop position is in the target object region, request drop data to the source object
-    if(IsIntersection(ev->x, ev->y, position.x, position.y, size.width, size.height))
+    if(IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height))
     {
       mTargetIndex        = i;
       mPosition           = position;
