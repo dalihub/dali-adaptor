@@ -31,7 +31,6 @@
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/system/common/texture-upload-manager-impl.h>
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/thread/common/thread-settings-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
@@ -99,7 +98,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mNotificationTrigger(adaptorInterfaces.GetProcessCoreEventsTrigger()),
   mSleepTrigger(NULL),
   mPreRenderCallback(NULL),
-  mTextureUploadManager(adaptorInterfaces.GetTextureUploadManager()),
   mUpdateRenderThread(NULL),
   mDefaultFrameDelta(0.0f),
   mDefaultFrameDurationMilliseconds(0u),
@@ -522,9 +520,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
   displayConnection.Initialize(); //@todo Move InitializeGraphics code into graphics implementation
 
-  // Setup graphics controller into upload manager.
-  GetImplementation(mTextureUploadManager).InitalizeGraphicsController(graphics.GetController());
-
   NotifyGraphicsInitialised();
 
   //@todo Vk swaps this around, but we need to support surfaceless context for multi-window
@@ -599,18 +594,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
-
-    //////////////////////////////
-    // TextureUploadRequest
-    //////////////////////////////
-
-    // Upload requested resources after resource context activated.
-    graphics.ActivateResourceContext();
-
-    const bool textureUploaded = mTextureUploadManager.ResourceUpload();
-
-    // Update & Render forcely if there exist some uploaded texture.
-    uploadOnly = textureUploaded ? false : uploadOnly;
 
     const bool isRenderingToFbo = renderToFboEnabled && ((0u == frameCount) || (0u != frameCount % renderToFboInterval));
     ++frameCount;
