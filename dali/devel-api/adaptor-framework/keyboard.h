@@ -51,6 +51,42 @@ DALI_ADAPTOR_API bool SetRepeatInfo(float rate, float delay);
  */
 DALI_ADAPTOR_API bool GetRepeatInfo(float& rate, float& delay);
 
+/**
+ * @brief Sets keyboard repeat information of horizontal way.
+ *
+ * @param[in] rate The key repeat rate value in seconds
+ * @param[in] delay The key repeat delay value in seconds
+ * @return true if setting the keyboard repeat succeeds
+ */
+DALI_ADAPTOR_API bool SetHorizontalRepeatInfo(float rate, float delay);
+
+/**
+ * @brief Gets keyboard repeat information of horizontal way.
+ *
+ * @param[in] rate The key repeat rate value in seconds
+ * @param[in] delay The key repeat delay value in seconds
+ * @return true if getting the keyboard repeat succeeds, false otherwise
+ */
+DALI_ADAPTOR_API bool GetHorizontalRepeatInfo(float& rate, float& delay);
+
+/**
+ * @brief Sets keyboard repeat information of vertical way.
+ *
+ * @param[in] rate The key repeat rate value in seconds
+ * @param[in] delay The key repeat delay value in seconds
+ * @return true if setting the keyboard repeat succeeds
+ */
+DALI_ADAPTOR_API bool SetVerticalRepeatInfo(float rate, float delay);
+
+/**
+ * @brief Gets keyboard repeat information of vertical way.
+ *
+ * @param[in] rate The key repeat rate value in seconds
+ * @param[in] delay The key repeat delay value in seconds
+ * @return true if getting the keyboard repeat succeeds, false otherwise
+ */
+DALI_ADAPTOR_API bool GetVerticalRepeatInfo(float& rate, float& delay);
+
 } // namespace Keyboard
 
 /**
