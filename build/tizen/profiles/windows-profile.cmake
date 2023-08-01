@@ -6,6 +6,7 @@ SET( SOURCES
         ${adaptor_accessibility_windows_src_files}
         ${adaptor_adaptor_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
+        ${adaptor_clipboard_windows_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
         ${devel_api_src_files}
@@ -42,8 +43,6 @@ SET( SOURCES
         ${adaptor_window_system_windows_src_files}
         ${adaptor_graphics_windows_src_files}
         ${adaptor_input_windows_src_files}
-        ${adaptor_text_clipboard_common_src_files}
-        ${adaptor_text_clipboard_windows_src_files}
         ${adaptor_imaging_windows_src_files}
         ${adaptor_addons_common_src_files}
         ${adaptor_addons_dummy_src_files}

@@ -404,12 +404,42 @@ public:
 
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glCompressedTexImage2D(target, level, internalformat, width, height, border, imageSize, data);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("glCompressedTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+      }
+    }
   }
 
   void CompressedTexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glCompressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, data);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("glCompressedTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+      }
+    }
   }
 
   void CopyTexImage2D(GLenum target, GLint level, GLenum internalformat, GLint x, GLint y, GLsizei width, GLsizei height, GLint border) override
@@ -824,7 +854,22 @@ public:
 
   void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("glTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+      }
+    }
   }
 
   void TexParameterf(GLenum target, GLenum pname, GLfloat param) override
@@ -849,7 +894,22 @@ public:
 
   void TexSubImage2D(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* pixels) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_DEBUG_INFO("glTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+      }
+    }
   }
 
   void Uniform1f(GLint location, GLfloat x) override

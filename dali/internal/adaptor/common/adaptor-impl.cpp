@@ -62,7 +62,6 @@
 #include <dali/internal/system/common/callback-manager.h>
 #include <dali/internal/system/common/object-profiler.h>
 #include <dali/internal/system/common/system-factory.h>
-#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>

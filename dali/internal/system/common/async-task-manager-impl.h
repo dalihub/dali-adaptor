@@ -144,10 +144,11 @@ public: // Worker thread called method
 
   /**
    * Pop the next task out from the running queue and add this task to the completed queue.
+   * @note After this function, task is invalidate.
    *
    * @param[in] task The task added to the queue.
    */
-  void CompleteTask(AsyncTaskPtr task);
+  void CompleteTask(AsyncTaskPtr&& task);
 
 protected: // Implementation of Processor
   /**
@@ -196,10 +197,19 @@ private:
   /**
    * @brief State of running task
    */
-  enum RunningTaskState
+  enum class RunningTaskState
   {
     RUNNING  = 0, ///< Running task
     CANCELED = 1, ///< Canceled by user
+  };
+
+  /**
+   * @brief State of complete task
+   */
+  enum class CompletedTaskState
+  {
+    REQUIRE_CALLBACK = 0, ///< Need to execute callback when completed task process.
+    SKIP_CALLBACK    = 1, ///< Do not execute callback
   };
 
 private:
@@ -213,12 +223,15 @@ private:
   // Keep Task as list since we take tasks by FIFO as default.
   using AsyncTaskContainer = std::list<AsyncTaskPtr>;
 
-  using AsyncTaskPair             = std::pair<AsyncTaskPtr, RunningTaskState>;
-  using AsyncRunningTaskContainer = std::list<AsyncTaskPair>;
+  using AsyncRunningTaskPair      = std::pair<AsyncTaskPtr, RunningTaskState>;
+  using AsyncRunningTaskContainer = std::list<AsyncRunningTaskPair>;
 
-  AsyncTaskContainer        mWaitingTasks;   ///< The queue of the tasks waiting to async process. Must be locked under mWaitingTasksMutex.
-  AsyncRunningTaskContainer mRunningTasks;   ///< The queue of the running tasks. Must be locked under mRunningTasksMutex.
-  AsyncTaskContainer        mCompletedTasks; ///< The queue of the tasks with the async process. Must be locked under mCompletedTasksMutex.
+  using AsyncCompletedTaskPair      = std::pair<AsyncTaskPtr, CompletedTaskState>;
+  using AsyncCompletedTaskContainer = std::list<AsyncCompletedTaskPair>;
+
+  AsyncTaskContainer          mWaitingTasks;   ///< The queue of the tasks waiting to async process. Must be locked under mWaitingTasksMutex.
+  AsyncRunningTaskContainer   mRunningTasks;   ///< The queue of the running tasks. Must be locked under mRunningTasksMutex.
+  AsyncCompletedTaskContainer mCompletedTasks; ///< The queue of the tasks with the async process. Must be locked under mCompletedTasksMutex.
 
   RoundRobinContainerView<TaskHelper> mTasks;
 
