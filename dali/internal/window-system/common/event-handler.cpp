@@ -32,7 +32,7 @@
 #include <dali/public-api/events/wheel-event.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/text-clipboard/common/text-clipboard-impl.h>
+#include <dali/internal/clipboard/common/clipboard-impl.h>
 #include <dali/internal/styling/common/style-monitor-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -52,7 +52,6 @@ Integration::Log::Filter* gSelectionEventLogFilter = Integration::Log::Filter::N
 EventHandler::EventHandler(WindowBase* windowBase, DamageObserver& damageObserver)
 : mStyleMonitor(StyleMonitor::Get()),
   mDamageObserver(damageObserver),
-  mClipboardEventNotifier(),
   mPaused(false)
 {
   // Connect signals
@@ -126,11 +125,11 @@ void EventHandler::OnKeyEvent(Integration::KeyEvent& keyEvent)
 void EventHandler::OnFocusChanged(bool focusIn)
 {
   // If the window gains focus and we hid the keyboard then show it again.
-  if(TextClipboard::IsAvailable())
+  if(Clipboard::IsAvailable())
   {
     if(focusIn)
     {
-      Dali::TextClipboard clipboard = TextClipboard::Get();
+      Dali::Clipboard clipboard = Clipboard::Get();
       if(clipboard)
       {
         clipboard.HideClipboard();
@@ -139,10 +138,10 @@ void EventHandler::OnFocusChanged(bool focusIn)
     else
     {
       // Hiding clipboard event will be ignored once because window focus out event is always received on showing clipboard
-      Dali::TextClipboard clipboard = TextClipboard::Get();
+      Dali::Clipboard clipboard = Clipboard::Get();
       if(clipboard)
       {
-        TextClipboard& clipBoardImpl(GetImplementation(clipboard));
+        Clipboard& clipBoardImpl(GetImplementation(clipboard));
         clipBoardImpl.HideClipboard(true);
       }
     }
@@ -164,54 +163,18 @@ void EventHandler::OnWindowDamaged(const DamageArea& area)
 
 void EventHandler::OnSelectionDataSend(void* event)
 {
-  Dali::TextClipboard clipboard = TextClipboard::Get();
-  if(clipboard)
-  {
-    TextClipboard& clipBoardImpl(GetImplementation(clipboard));
-    clipBoardImpl.ExcuteSend(event);
-  }
+  // Note that the clipboard-related operstions previously available have been moved to Clipboard class.
+  // It is advised not to handle any clipboard-specific works within this context.
+  // There are currently no immediate works required in this callback.
+  // But this function is retained for the purpose of handling the event at the window level, if needed.
 }
 
 void EventHandler::OnSelectionDataReceived(void* event)
 {
-  // We have got the selected content, inform the clipboard event listener (if we have one).
-  Dali::TextClipboard clipboard     = TextClipboard::Get();
-  char*               selectionData = NULL;
-  size_t              dataLength    = 0u;
-
-  if(clipboard)
-  {
-    int len = 0;
-    TextClipboard& clipBoardImpl(GetImplementation(clipboard));
-    clipBoardImpl.ExcuteReceive(event, selectionData, len);
-    dataLength = static_cast<size_t>(len);
-  }
-
-  if(!mClipboardEventNotifier)
-  {
-    mClipboardEventNotifier = TextClipboardEventNotifier::Get();
-  }
-
-  if(selectionData && mClipboardEventNotifier && dataLength > 0)
-  {
-    TextClipboardEventNotifier& clipboardEventNotifier(TextClipboardEventNotifier::GetImplementation(mClipboardEventNotifier));
-    std::string             content;
-    size_t                  stringLength = strlen(selectionData);
-
-    if(stringLength < dataLength)
-    {
-      content.append(selectionData, stringLength);
-    }
-    else
-    {
-      content.append(selectionData, dataLength);
-    }
-
-    clipboardEventNotifier.SetContent(content);
-    clipboardEventNotifier.EmitContentSelectedSignal();
-
-    DALI_LOG_INFO(gSelectionEventLogFilter, Debug::General, "EcoreEventSelectionNotify: Content(%s) strlen(%d) dataLength(%d)\n", selectionData, strlen(selectionData), dataLength);
-  }
+  // Note that the clipboard-related operstions previously available have been moved to Clipboard class.
+  // It is advised not to handle any clipboard-specific works within this context.
+  // There are currently no immediate works required in this callback.
+  // But this function is retained for the purpose of handling the event at the window level, if needed.
 }
 
 void EventHandler::OnStyleChanged(StyleChange::Type styleChange)

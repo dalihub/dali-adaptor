@@ -22,11 +22,10 @@
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <cstdint> // uint32_t
 
-#include <dali/devel-api/adaptor-framework/text-clipboard.h>
+#include <dali/devel-api/adaptor-framework/clipboard.h>
 #include <dali/devel-api/adaptor-framework/style-monitor.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/text-clipboard/common/text-clipboard-event-notifier-impl.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/window-base.h>
 
@@ -208,8 +207,6 @@ private:
 private:
   Dali::StyleMonitor mStyleMonitor;   ///< Handle to the style monitor, set on construction, to send font size and font change events to.
   DamageObserver&    mDamageObserver; ///< Reference to the DamageObserver, set on construction, to sent damage events to.
-
-  Dali::TextClipboardEventNotifier mClipboardEventNotifier; ///< Pointer to the clipboard event notifier
 
   using ObserverContainer = std::vector<Observer*>;
   ObserverContainer mObservers; ///< A list of event observer pointers
