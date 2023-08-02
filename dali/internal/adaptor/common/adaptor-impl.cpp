@@ -934,6 +934,16 @@ void Adaptor::QueueCoreEvent(const Dali::Integration::Event& event)
   }
 }
 
+void Adaptor::FlushUpdateMessages()
+{
+  if(mCore)
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_FLUSH_UPDATE_MESSAGES");
+
+    mCore->ForceRelayout();
+  }
+}
+
 void Adaptor::ProcessCoreEvents()
 {
   if(mCore)

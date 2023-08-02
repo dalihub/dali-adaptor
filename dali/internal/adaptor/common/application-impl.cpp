@@ -604,6 +604,11 @@ std::string Application::GetDataPath()
   return SystemSettings::GetDataPath();
 }
 
+void Application::FlushUpdateMessages()
+{
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).FlushUpdateMessages();
+}
+
 void Application::SetStyleSheet(const std::string& stylesheet)
 {
   mStylesheet = stylesheet;

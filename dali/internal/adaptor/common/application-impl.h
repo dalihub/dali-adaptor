@@ -300,6 +300,11 @@ public:
    */
   void SetDefaultWindowType(WindowType type);
 
+  /**
+   * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
+   */
+  void FlushUpdateMessages();
+
 public: // Signals
   /**
    * @copydoc Dali::Application::InitSignal()

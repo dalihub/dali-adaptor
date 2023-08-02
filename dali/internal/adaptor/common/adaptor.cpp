@@ -225,6 +225,11 @@ void Adaptor::RenderOnce()
   mImpl->RenderOnce();
 }
 
+void Adaptor::FlushUpdateMessages()
+{
+  mImpl->FlushUpdateMessages();
+}
+
 const LogFactoryInterface& Adaptor::GetLogFactory()
 {
   return mImpl->GetLogFactory();
