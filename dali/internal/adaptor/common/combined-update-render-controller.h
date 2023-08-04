@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_COMBINED_UPDATE_RENDER_CONTROLLER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <atomic>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/texture-upload-manager.h>
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/system/common/fps-tracker.h>
@@ -348,6 +349,8 @@ private:
   TriggerEventInterface&    mNotificationTrigger;  ///< Reference to notification event trigger
   TriggerEventInterface*    mSleepTrigger;         ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
   CallbackBase*             mPreRenderCallback;    ///< Used by Update/Render thread when PreRender is about to be called on graphics.
+
+  Dali::Devel::TextureUploadManager& mTextureUploadManager; ///< TextureUploadManager
 
   pthread_t* mUpdateRenderThread; ///< The Update/Render thread.
 
