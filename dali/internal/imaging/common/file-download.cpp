@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,13 @@
 #include <pthread.h>
 #include <cstdlib>
 #include <cstring>
+#include <sstream>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/file-writer.h>
+#include <dali/public-api/common/dali-common.h>
 
 using namespace Dali::Integration;
 
@@ -51,14 +55,107 @@ inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, s
   }
 }
 
+std::string ConvertDataReadable(uint8_t* data, const size_t size, const size_t width)
+{
+  std::ostringstream oss;
+
+  for(size_t i = 0u; i < size; ++i)
+  {
+    if(i > 0u && (i % width) == 0u)
+    {
+      oss << '\n';
+    }
+    oss << ((data[i] >= 0x20 && data[i] < 0x80) ? static_cast<char>(data[i]) : '.');
+  }
+
+  return oss.str();
+}
+
+int CurloptVerboseLogTrace(CURL* handle, curl_infotype type, char* data, size_t size, void* clientp)
+{
+  std::ostringstream oss;
+  (void)handle; /* prevent compiler warning */
+  (void)clientp;
+
+  switch(type)
+  {
+    case CURLINFO_TEXT:
+    {
+      oss << "== Info: " << std::string(data, size) << "\n";
+
+      DALI_FALLTHROUGH;
+    }
+    default: /* in case a new one is introduced to shock us */
+    {
+      return 0;
+    }
+
+    case CURLINFO_HEADER_OUT:
+    {
+      oss << "=> Send header\n";
+      break;
+    }
+    case CURLINFO_DATA_OUT:
+    {
+      oss << "=> Send data\n";
+      break;
+    }
+    case CURLINFO_SSL_DATA_OUT:
+    {
+      oss << "=> Send SSL data\n";
+      break;
+    }
+    case CURLINFO_HEADER_IN:
+    {
+      oss << "<= Recv header\n";
+      break;
+    }
+    case CURLINFO_DATA_IN:
+    {
+      oss << "<= Recv data\n";
+      break;
+    }
+    case CURLINFO_SSL_DATA_IN:
+    {
+      oss << "<= Recv SSL data\n";
+      break;
+    }
+  }
+
+  oss << "data size : " << size << " bytes\n";
+  oss << "data : \n";
+  oss << ConvertDataReadable(reinterpret_cast<uint8_t*>(data), size, 0x40);
+
+  DALI_LOG_DEBUG_INFO("Verbose curl log : %s", oss.str().c_str());
+
+  return 0;
+}
+
 const int  CONNECTION_TIMEOUT_SECONDS(30L);
 const int  TIMEOUT_SECONDS(120L);
-const long VERBOSE_MODE              = 0L; // 0 == off, 1 == on
 const long CLOSE_CONNECTION_ON_ERROR = 1L; // 0 == off, 1 == on
 const long EXCLUDE_HEADER            = 0L;
 const long INCLUDE_HEADER            = 1L;
 const long INCLUDE_BODY              = 0L;
 const long EXCLUDE_BODY              = 1L;
+
+/**
+ * @brief Get the Curlopt Verbose Mode value from environment.
+ *
+ * @return 0 if verbose mode off. 1 if verbose mode on.
+ */
+long GetCurloptVerboseMode()
+{
+  static long verboseMode       = 0;
+  static bool verboseModeSetted = false;
+  if(DALI_UNLIKELY(!verboseModeSetted))
+  {
+    auto verboseModeString = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_CURLOPT_VERBOSE_MODE);
+    verboseMode            = verboseModeString ? (std::strtol(verboseModeString, nullptr, 10) > 0 ? 1 : 0) : 0;
+  }
+
+  return verboseMode;
+}
 
 /**
  * Curl library environment. Direct initialize ensures it's constructed before adaptor
@@ -68,8 +165,10 @@ static Dali::TizenPlatform::Network::CurlEnvironment gCurlEnvironment;
 
 void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
 {
+  auto verboseMode = GetCurloptVerboseMode(); // 0 : off, 1 : on
+
   curl_easy_setopt(curlHandle, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, VERBOSE_MODE);
+  curl_easy_setopt(curlHandle, CURLOPT_VERBOSE, verboseMode);
 
   // CURLOPT_FAILONERROR is not fail-safe especially when authentication is involved ( see manual )
   // Removed CURLOPT_FAILONERROR option
@@ -80,6 +179,11 @@ void ConfigureCurlOptions(CURL* curlHandle, const std::string& url)
   curl_easy_setopt(curlHandle, CURLOPT_NOSIGNAL, 1L);
   curl_easy_setopt(curlHandle, CURLOPT_FOLLOWLOCATION, 1L);
   curl_easy_setopt(curlHandle, CURLOPT_MAXREDIRS, 5L);
+
+  if(verboseMode != 0)
+  {
+    curl_easy_setopt(curlHandle, CURLOPT_DEBUGFUNCTION, CurloptVerboseLogTrace);
+  }
 
   // If the proxy variable is set, ensure it's also used.
   // In theory, this variable should be used by the curl library; however, something
