@@ -146,6 +146,9 @@ namespace Adaptor
 
 #define DALI_ENV_ENABLE_UI_THREAD "DALI_ENABLE_UI_THREAD"
 
+// Debug relative environments
+#define DALI_ENV_CURLOPT_VERBOSE_MODE "DALI_CURLOPT_VERBOSE_MODE"
+
 } // namespace Adaptor
 
 } // namespace Internal
