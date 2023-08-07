@@ -72,52 +72,54 @@ struct Clipboard::Impl
   uint32_t GetData(const std::string &mimeType)
   {
     const char* type = mimeType.c_str();
-    if(type)
+    if(!type)
     {
-      Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-      Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
-      Ecore_Wl2_Offer*   offer   = ecore_wl2_dnd_selection_get(input);
+      DALI_LOG_ERROR("no request type, type is null.\n");
+      return 0u;
+    }
 
-      if(!offer)
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+    Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+    Ecore_Wl2_Offer*   offer   = ecore_wl2_dnd_selection_get(input);
+
+    if(!offer)
+    {
+      DALI_LOG_ERROR("selection_get fail, request type:%s\n", mimeType.c_str());
+      return 0u;
+    }
+
+    Eina_Array*  availableTypes = ecore_wl2_offer_mimes_get(offer);
+    char*        selectedType   = nullptr;
+    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array *)availableTypes);
+
+    for(unsigned int i = 0; i < typeCount && !selectedType; ++i)
+    {
+      char* availableType = (char*)eina_array_data_get((Eina_Array *)availableTypes, i);
+      if(!mimeType.compare(availableType))
       {
-        DALI_LOG_ERROR("selection_get fail, request type:%s\n", mimeType.c_str());
-        return 0u;
-      }
-      else
-      {
-        Eina_Array* availableTypes = ecore_wl2_offer_mimes_get(offer);
-        char*       selectedType = nullptr;
-
-        for(unsigned int i = 0; i < (unsigned int)eina_array_count((Eina_Array *)availableTypes) && !selectedType; ++i)
-        {
-          char* availableType = (char*)eina_array_data_get((Eina_Array *)availableTypes, i);
-          if(!mimeType.compare(availableType))
-          {
-            selectedType = availableType;
-            break;
-          }
-        }
-
-        if(selectedType)
-        {
-          mDataId++;
-          mDataRequestIds.push_back(mDataId);
-          mDataRequestItems[mDataId] = std::make_pair(mimeType, offer);
-          ecore_wl2_offer_receive(offer, const_cast<char*>(type));
-          ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
-          DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", mDataId, mimeType.c_str());
-          return mDataId;
-        }
-        else
-        {
-          DALI_LOG_ERROR("no matching type, request type:%s\n", mimeType.c_str());
-          return 0u;
-        }
+        selectedType = availableType;
+        break;
       }
     }
 
-    DALI_LOG_ERROR("no request type, type is null.\n");
-    return 0u;
+    if(!selectedType)
+    {
+      DALI_LOG_ERROR("no matching type, num of available types:%u, request type:%s\n", typeCount, mimeType.c_str());
+      for(unsigned int i = 0; i < typeCount && !selectedType; ++i)
+      {
+        DALI_LOG_ERROR("available type[%u]:%s\n", i, (char*)eina_array_data_get((Eina_Array *)availableTypes, i));
+      }
+      return 0u;
+    }
+
+    mDataId++;
+    mDataRequestIds.push_back(mDataId);
+    mDataRequestItems[mDataId] = std::make_pair(mimeType, offer);
+
+    ecore_wl2_offer_receive(offer, const_cast<char*>(type));
+    ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+    DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", mDataId, mimeType.c_str());
+    return mDataId;
   }
 
   void SendData(void* event)
