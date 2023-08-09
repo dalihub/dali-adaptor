@@ -129,6 +129,25 @@ enum class WindowResizeDirection
   BOTTOM_RIGHT = 8  ///< Start resizing window to the bottom-right edge.
 };
 
+/**
+ * @brief Enumeration of window insets part type.
+ */
+enum class WindowInsetsPartType
+{
+  STATUS_BAR = 0, ///< Status bar
+  KEYBOARD,       ///< Keyboard
+  CLIPBOARD,      ///< Clipboard
+};
+
+/**
+ * @brief Enumeration of window insets part state.
+ */
+enum class WindowInsetsPartState
+{
+  INVISIBLE = 0, ///< Invisible
+  VISIBLE,       ///< Visible
+};
+
 } // namespace Dali
 
 #endif // DALI_WINDOW_ENUMERATIONS_H
