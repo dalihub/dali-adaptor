@@ -437,7 +437,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextCompletedTask()
     CacheImpl::EraseTaskCache(mCacheImpl->mCompletedTasksCache, nextTask, next);
     mCompletedTasks.erase(next);
 
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p] (callback required? : %d)\n", nextCompletedTask.Get(), taskState == CompletedTaskState::REQUIRE_CALLBACK);
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p] (callback required? : %d)\n", nextTask.Get(), taskState == CompletedTaskState::REQUIRE_CALLBACK);
 
     if(taskState == CompletedTaskState::REQUIRE_CALLBACK)
     {
