@@ -204,29 +204,32 @@ bool Texture::InitializeTexture()
         gl->GenTextures(1, &texture);
         context->BindTexture(GL_TEXTURE_2D, GetTextureTypeId(), texture);
 
-        // Allocate memory for the texture
-        if(!mIsCompressed)
+        if(mCreateInfo.allocationPolicy == Graphics::TextureAllocationPolicy::CREATION || mCreateInfo.data)
         {
-          gl->TexImage2D(GL_TEXTURE_2D,
-                         0,
-                         format.internalFormat,
-                         mCreateInfo.size.width,
-                         mCreateInfo.size.height,
-                         0,
-                         format.format,
-                         format.type,
-                         (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
-        }
-        else
-        {
-          gl->CompressedTexImage2D(GL_TEXTURE_2D,
-                                   0,
-                                   format.internalFormat,
-                                   mCreateInfo.size.width,
-                                   mCreateInfo.size.height,
-                                   0,
-                                   mCreateInfo.dataSize,
-                                   (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          // Allocate memory for the texture
+          if(!mIsCompressed)
+          {
+            gl->TexImage2D(GL_TEXTURE_2D,
+                           0,
+                           format.internalFormat,
+                           mCreateInfo.size.width,
+                           mCreateInfo.size.height,
+                           0,
+                           format.format,
+                           format.type,
+                           (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
+          else
+          {
+            gl->CompressedTexImage2D(GL_TEXTURE_2D,
+                                     0,
+                                     format.internalFormat,
+                                     mCreateInfo.size.width,
+                                     mCreateInfo.size.height,
+                                     0,
+                                     mCreateInfo.dataSize,
+                                     (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+          }
         }
 
         // Clear staging buffer if there was any
@@ -257,31 +260,34 @@ bool Texture::InitializeTexture()
         SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GL_WRAP_DEFAULT);
         SetSamplerParameter(GL_TEXTURE_WRAP_T, mDefaultSamplerState.wrapT, GL_WRAP_DEFAULT);
 
-        // Allocate memory for the texture
-        for(uint32_t i = 0; i < 6; ++i)
+        if(mCreateInfo.allocationPolicy == Graphics::TextureAllocationPolicy::CREATION || mCreateInfo.data)
         {
-          if(!mIsCompressed)
+          // Allocate memory for the texture
+          for(uint32_t i = 0; i < 6; ++i)
           {
-            gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                           0,
-                           format.internalFormat,
-                           mCreateInfo.size.width,
-                           mCreateInfo.size.height,
-                           0,
-                           format.format,
-                           format.type,
-                           (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
-          }
-          else
-          {
-            gl->CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                     0,
-                                     format.internalFormat,
-                                     mCreateInfo.size.width,
-                                     mCreateInfo.size.height,
-                                     0,
-                                     mCreateInfo.dataSize,
-                                     (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+            if(!mIsCompressed)
+            {
+              gl->TexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                             0,
+                             format.internalFormat,
+                             mCreateInfo.size.width,
+                             mCreateInfo.size.height,
+                             0,
+                             format.format,
+                             format.type,
+                             (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+            }
+            else
+            {
+              gl->CompressedTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                                       0,
+                                       format.internalFormat,
+                                       mCreateInfo.size.width,
+                                       mCreateInfo.size.height,
+                                       0,
+                                       mCreateInfo.dataSize,
+                                       (mCreateInfo.data ? mStagingBuffer.data() : nullptr));
+            }
           }
         }
 

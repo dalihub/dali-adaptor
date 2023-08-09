@@ -79,6 +79,10 @@ public:
 
   static const uint32_t NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE; ///< Factor multiply point-size in toolkit.
 
+  // For Debug
+  static uint32_t GetPerformanceLogThresholdTime(); ///< Return performance log threshold time in miliseconds for debug.
+  static bool     IsPerformanceLogEnabled();        ///< Whether performance log is enabled.
+
   /**
    * @brief Used to load an embedded item into the font client.
    */

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #include <dali/integration-api/gl-abstraction.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/texture-upload-manager.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
@@ -103,6 +104,11 @@ public:
    * @return system trace interface, e.g. for using Tizen Trace (ttrace) or Android Trace (atrace)
    */
   virtual TraceInterface& GetSystemTraceInterface() = 0;
+
+  /**
+   * @return texture upload manager
+   */
+  virtual Devel::TextureUploadManager& GetTextureUploadManager() = 0;
 
   /**
    * Used to access the list of windows from the Render thread

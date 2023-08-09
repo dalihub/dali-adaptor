@@ -19,6 +19,7 @@
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 namespace Dali
@@ -49,6 +50,30 @@ const uint16_t FontClient::PADDING_TEXT_ATLAS_BLOCK = 5u; // 2 * DOUBLE_PIXEL_PA
 const Size FontClient::MAX_SIZE_FIT_IN_ATLAS(MAX_TEXT_ATLAS_WIDTH - PADDING_TEXT_ATLAS_BLOCK, MAX_TEXT_ATLAS_HEIGHT - PADDING_TEXT_ATLAS_BLOCK);
 
 const uint32_t FontClient::NUMBER_OF_POINTS_PER_ONE_UNIT_OF_POINT_SIZE = 64u; //Found this value from toolkit
+
+// For Debug
+static    bool     TEXT_PERFORMANCE_LOG_SET                = false;
+static    uint32_t TEXT_PERFORMANCE_LOG_THRESHOLD_TIME     = 0u;
+constexpr auto     TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_TEXT_PERFORMANCE_LOG_THRESHOLD_TIME";
+
+uint32_t FontClient::GetPerformanceLogThresholdTime()
+{
+  uint32_t time = TEXT_PERFORMANCE_LOG_THRESHOLD_TIME;
+  if(!TEXT_PERFORMANCE_LOG_SET)
+  {
+    // Threshold time in miliseconds.
+    auto timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(TEXT_PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
+    time = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+    TEXT_PERFORMANCE_LOG_THRESHOLD_TIME = time;
+    TEXT_PERFORMANCE_LOG_SET = true;
+  }
+  return time;
+}
+
+bool FontClient::IsPerformanceLogEnabled()
+{
+  return GetPerformanceLogThresholdTime() > 0 ? true : false;
+}
 
 // FontClient
 

@@ -173,6 +173,9 @@ public:
    */
   void SceneCreated();
 
+  /**
+   * Get the application package name
+   */
   static std::string GetApplicationPackageName();
 
 public: // AdaptorInternalServices implementation
@@ -514,6 +517,11 @@ public: //AdaptorInternalServices
   void GetWindowContainerInterface(WindowContainer& windows) override;
 
   /**
+   * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTextureUploadManager()
+   */
+  Devel::TextureUploadManager& GetTextureUploadManager() override;
+
+  /**
    * @brief Get the configuration manager
    * @return The configuration manager, or null if it hasn't been created yet
    */
@@ -700,6 +708,7 @@ private:                                          // Data
   PerformanceInterface*            mPerformanceInterface;                  ///< Performance interface
   KernelTrace                      mKernelTracer;                          ///< Kernel tracer
   SystemTrace                      mSystemTracer;                          ///< System tracer
+  Devel::TextureUploadManager      mTextureUploadManager;                  ///< TextureUploadManager
   ObjectProfiler*                  mObjectProfiler;                        ///< Tracks object lifetime for profiling
   Dali::Timer                      mMemoryPoolTimer;                       ///< Logs memory pool capacity
   SlotDelegate<Adaptor>            mMemoryPoolTimerSlotDelegate;
