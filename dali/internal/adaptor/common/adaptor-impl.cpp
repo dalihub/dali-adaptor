@@ -1159,6 +1159,11 @@ const LogFactoryInterface& Adaptor::GetLogFactory()
   return *mEnvironmentOptions;
 }
 
+const TraceFactoryInterface& Adaptor::GetTraceFactory()
+{
+  return *mEnvironmentOptions;
+}
+
 void Adaptor::RegisterProcessor(Integration::Processor& processor, bool postProcessor)
 {
   GetCore().RegisterProcessor(processor, postProcessor);

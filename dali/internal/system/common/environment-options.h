@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/internal/adaptor/common/threading-mode.h>
 
 namespace Dali
@@ -40,7 +41,7 @@ class PerformanceInterface;
  * the ability to install a log function.
  *
  */
-class EnvironmentOptions : public Dali::LogFactoryInterface
+class EnvironmentOptions : public Dali::LogFactoryInterface, public Dali::TraceFactoryInterface
 {
 public:
   /**
@@ -60,9 +61,9 @@ public:
   void CreateTraceManager(PerformanceInterface* performanceInterface);
 
   /**
-   * Initialize TraceManager by installing Trace function.
+   * Install the TraceManager's trace function for the current thread.
    */
-  void InstallTraceFunction() const;
+  void InstallTraceFunction() const override;
 
   /**
    * @param logFunction logging function

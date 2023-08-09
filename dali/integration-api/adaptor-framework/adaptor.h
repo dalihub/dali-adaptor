@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ADAPTOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
@@ -402,6 +403,12 @@ public:
    * @return An interface to a logging factory
    */
   const LogFactoryInterface& GetLogFactory();
+
+  /**
+   * @brief The trace factory allows installation of a trace function in worker threads.
+   * @return An interface to a tracing factory
+   */
+  const TraceFactoryInterface& GetTraceFactory();
 
   /**
    * @brief Register a processor implementing the Integration::Processor interface with dali-core.

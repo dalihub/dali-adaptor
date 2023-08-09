@@ -444,6 +444,11 @@ public:
   const LogFactoryInterface& GetLogFactory();
 
   /**
+   * @copydoc Dali::Adaptor::GetTraceFactory
+   */
+  const TraceFactoryInterface& GetTraceFactory();
+
+  /**
    * @copydoc Dali::Adaptor::RegisterProcessor
    */
   void RegisterProcessor(Integration::Processor& processor, bool postProcessor);

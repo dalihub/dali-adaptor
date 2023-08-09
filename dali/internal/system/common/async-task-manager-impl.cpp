@@ -73,6 +73,7 @@ AsyncTaskThread::AsyncTaskThread(AsyncTaskManager& asyncTaskManager)
 : mConditionalWait(),
   mAsyncTaskManager(asyncTaskManager),
   mLogFactory(Dali::Adaptor::Get().GetLogFactory()),
+  mTraceFactory(Dali::Adaptor::Get().GetTraceFactory()),
   mDestroyThread(false),
   mIsThreadStarted(false),
   mIsThreadIdle(true)
@@ -129,6 +130,7 @@ void AsyncTaskThread::Run()
   SetThreadName("AsyncTaskThread");
 #endif
   mLogFactory.InstallLogFunction();
+  mTraceFactory.InstallTraceFunction();
 
   while(!mDestroyThread)
   {

@@ -17,6 +17,7 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.h
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.h
   ${adaptor_integration_api_dir}/adaptor-framework/thread-synchronization-interface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/trace-factory-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.h
