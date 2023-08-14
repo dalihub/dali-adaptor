@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -723,6 +723,29 @@ void WindowBaseCocoa::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
 }
 
+bool WindowBaseCocoa::PointerConstraintsLock()
+{
+  return false;
+}
+
+bool WindowBaseCocoa::PointerConstraintsUnlock()
+{
+  return false;
+}
+
+void WindowBaseCocoa::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+}
+
+void WindowBaseCocoa::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+}
+
+bool WindowBaseCocoa::PointerWarp(int32_t x, int32_t y)
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView
@@ -841,4 +864,3 @@ void WindowBaseCocoa::ExcludeInputRegion(const Rect<int>& inputRegion)
   [NSApp stop:nil];
 }
 @end
-

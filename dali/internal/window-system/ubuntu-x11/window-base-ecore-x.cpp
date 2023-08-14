@@ -1019,6 +1019,29 @@ void WindowBaseEcoreX::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
 }
 
+bool WindowBaseEcoreX::PointerConstraintsLock()
+{
+  return false;
+}
+
+bool WindowBaseEcoreX::PointerConstraintsUnlock()
+{
+  return false;
+}
+
+void WindowBaseEcoreX::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+}
+
+void WindowBaseEcoreX::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+}
+
+bool WindowBaseEcoreX::PointerWarp(int32_t x, int32_t y)
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

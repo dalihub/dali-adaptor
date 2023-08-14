@@ -43,6 +43,7 @@ WindowBase::WindowBase()
   mUpdatePositionSizeSignal(),
   mAuxiliaryMessageSignal(),
   mMouseInOutEventSignal(),
+  mMouseRelativeEventSignal(),
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
   mInsetsChangedSignal()
@@ -146,6 +147,11 @@ WindowBase::AuxiliaryMessageSignalType& WindowBase::AuxiliaryMessageSignal()
 WindowBase::MouseInOutEventSignalType& WindowBase::MouseInOutEventSignal()
 {
   return mMouseInOutEventSignal;
+}
+
+WindowBase::MouseRelativeEventSignalType& WindowBase::MouseRelativeEventSignal()
+{
+  return mMouseRelativeEventSignal;
 }
 
 WindowBase::MoveCompletedSignalType& WindowBase::MoveCompletedSignal()

@@ -77,6 +77,7 @@ public:
   typedef Signal<void(Dali::PositionSize&)>                                            UpdatePositionSizeType;
   typedef Signal<void(const std::string&, const std::string&, const Property::Array&)> AuxiliaryMessageSignalType;
   typedef Signal<void(const Dali::DevelWindow::MouseInOutEvent&)>                      MouseInOutEventSignalType;
+  typedef Signal<void(const Dali::DevelWindow::MouseRelativeEvent&)>                   MouseRelativeEventSignalType;
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
   typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
@@ -466,6 +467,45 @@ public:
    */
   virtual void ExcludeInputRegion(const Rect<int>& inputRegion) = 0;
 
+  /**
+   * @brief Sets the pointer constraints lock.
+   * @return Returns true if PointerConstraintsLock succeeds.
+   */
+  virtual bool PointerConstraintsLock() = 0;
+
+  /**
+   * @brief Sets the pointer constraints unlock.
+   * @return Returns true if PointerConstraintsUnlock succeeds.
+   */
+  virtual bool PointerConstraintsUnlock() = 0;
+
+  /**
+   * @brief Sets the locked pointer region
+   *
+   * @param[in] x The x position.
+   * @param[in] y The y position.
+   * @param[in] width The width.
+   * @param[in] height The height
+   */
+  virtual void LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height) = 0;
+
+  /**
+   * @brief Sets the locked pointer cursor position hintset
+   *
+   * @param[in] x The x position.
+   * @param[in] y The y position.
+   */
+  virtual void LockedPointerCursorPositionHintSet(int32_t x, int32_t y) = 0;
+
+  /**
+   * @brief Sets the pointer warp. The pointer moves to the set coordinates.
+   *
+   * @param[in] x The x position.
+   * @param[in] y The y position.
+   * @return Returns true if PointerWarp succeeds.
+   */
+  virtual bool PointerWarp(int32_t x, int32_t y) = 0;
+
   // Signals
 
   /**
@@ -565,6 +605,11 @@ public:
   MouseInOutEventSignalType& MouseInOutEventSignal();
 
   /**
+   * @brief This signal is emitted when a mouse relative event is recevied.
+   */
+  MouseRelativeEventSignalType& MouseRelativeEventSignal();
+
+  /**
    * @brief This signal is emitted when window has been moved by then display server.
    * To be moved the window by display server, RequestMoveToServer() should be called.
    * After the moving job is finished, this function will be called.
@@ -610,6 +655,7 @@ protected:
   UpdatePositionSizeType                  mUpdatePositionSizeSignal;
   AuxiliaryMessageSignalType              mAuxiliaryMessageSignal;
   MouseInOutEventSignalType               mMouseInOutEventSignal;
+  MouseRelativeEventSignalType            mMouseRelativeEventSignal;
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
   InsetsChangedSignalType                 mInsetsChangedSignal;

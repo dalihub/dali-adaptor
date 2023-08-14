@@ -459,6 +459,19 @@ static Eina_Bool EcoreEventMouseButtonMove(void* data, int type, void* event)
 }
 
 /**
+ * Called when a touch motion is received.
+ */
+static Eina_Bool EcoreEventMouseButtonRelativeMove(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnMouseButtonRelativeMove(data, type, event);
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
  * Called when a touch is canceled.
  */
 static Eina_Bool EcoreEventMouseButtonCancel(void* data, int type, void* event)
@@ -965,6 +978,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP, EcoreEventMouseButtonUp, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_MOVE, EcoreEventMouseButtonMove, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, this));
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_RELATIVE_MOVE, EcoreEventMouseButtonRelativeMove, this));
 
   // Register Mouse wheel events
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_WHEEL, EcoreEventMouseWheel, this));
@@ -1327,6 +1341,26 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
   }
 }
 
+void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* event)
+{
+  Ecore_Event_Mouse_Relative_Move* relativeMoveEvent = static_cast<Ecore_Event_Mouse_Relative_Move*>(event);
+
+  if(relativeMoveEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_RELATIVE_MOVE");
+
+    Device::Class::Type    deviceClass;
+    Device::Subclass::Type deviceSubclass;
+
+    GetDeviceClass(ecore_device_class_get(relativeMoveEvent->dev), deviceClass);
+    GetDeviceSubclass(ecore_device_subclass_get(relativeMoveEvent->dev), deviceSubclass);
+
+    Dali::DevelWindow::MouseRelativeEvent MouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, relativeMoveEvent->modifiers, relativeMoveEvent->timestamp, Vector2(relativeMoveEvent->dx, relativeMoveEvent->dy), Vector2(relativeMoveEvent->dx_unaccel, relativeMoveEvent->dy_unaccel), deviceClass, deviceSubclass);
+
+    mMouseRelativeEventSignal.Emit(MouseRelativeEvent);
+  }
+}
+
 void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
@@ -1603,7 +1637,7 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
     int w = 0;
     int h = 0;
 
-    switch (ev->part_type)
+    switch(ev->part_type)
     {
       case ECORE_WL2_INDICATOR_PART:
       {
@@ -1631,9 +1665,9 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 
     WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
 
-    int left = 0;
-    int right = 0;
-    int top = 0;
+    int left   = 0;
+    int right  = 0;
+    int top    = 0;
     int bottom = 0;
 
     // Insets are applied only if system UI(e.g. virtual keyboard) satisfies the following 2 conditions.
@@ -1660,12 +1694,12 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
       {
         if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
         {
-          top = y + h - winY;
+          top         = y + h - winY;
           applyInsets = true;
         }
         else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
         {
-          bottom = winY + winH - y;
+          bottom      = winY + winH - y;
           applyInsets = true;
         }
       }
@@ -1673,12 +1707,12 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
       {
         if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
         {
-          left = x + w - winX;
+          left        = x + w - winX;
           applyInsets = true;
         }
         else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
         {
-          right = winX + winW - x;
+          right       = winX + winW - x;
           applyInsets = true;
         }
       }
@@ -1768,7 +1802,7 @@ void WindowBaseEcoreWl2::RegistryGlobalCallbackRemove(void* data, struct wl_regi
 
 void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t conformantPart, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h)
 {
-  int originalX, originalY, originalWidth, originalHeight;
+  int  originalX, originalY, originalWidth, originalHeight;
   bool changed = false;
 
   if(!surface)
@@ -1790,7 +1824,7 @@ void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_poli
      * The given state is based on the visibility value of indicator.
      * Thus we need to add 1 to it before comparing with indicator state.
      */
-    Ecore_Wl2_Indicator_State indState =  ecore_wl2_window_indicator_state_get(mEcoreWindow);
+    Ecore_Wl2_Indicator_State indState = ecore_wl2_window_indicator_state_get(mEcoreWindow);
     if((state + 1) != indState)
     {
       ecore_wl2_window_indicator_state_set(mEcoreWindow, static_cast<Ecore_Wl2_Indicator_State>(state + 1));
@@ -1840,15 +1874,15 @@ void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_poli
 
   if(changed)
   {
-    Ecore_Wl2_Event_Conformant_Change *ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
+    Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
 
     if(!ev)
     {
       return;
     }
-    ev->win = GetNativeWindowId();
+    ev->win       = GetNativeWindowId();
     ev->part_type = static_cast<Ecore_Wl2_Conformant_Part_Type>(conformantPart);
-    ev->state = state;
+    ev->state     = state;
     ecore_event_add(ECORE_WL2_EVENT_CONFORMANT_CHANGE, ev, NULL, NULL);
   }
 
@@ -3348,6 +3382,31 @@ void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
   ecore_wl2_window_input_rect_subtract(mEcoreWindow, &rect);
   FINISH_DURATION_CHECK("ecore_wl2_window_input_rect_subtract");
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+}
+
+bool WindowBaseEcoreWl2::PointerConstraintsLock()
+{
+  return ecore_wl2_window_pointer_constraints_lock_pointer(mEcoreWindow);
+}
+
+bool WindowBaseEcoreWl2::PointerConstraintsUnlock()
+{
+  return ecore_wl2_window_pointer_constraints_unlock_pointer(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+  ecore_wl2_window_locked_pointer_region_set(mEcoreWindow, x, y, width, height);
+}
+
+void WindowBaseEcoreWl2::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+  ecore_wl2_window_locked_pointer_cursor_position_hint_set(mEcoreWindow, x, y);
+}
+
+bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
+{
+  return ecore_wl2_window_pointer_warp(mEcoreWindow, x, y);
 }
 
 } // namespace Adaptor

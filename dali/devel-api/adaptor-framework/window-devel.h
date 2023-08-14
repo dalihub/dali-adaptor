@@ -23,6 +23,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
+#include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -50,6 +51,7 @@ typedef Signal<bool(const KeyEvent&)>                                           
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MovedSignalType;                         ///< Window Moved signal type
 typedef Signal<void(Window, Dali::WindowOrientation)>                                OrientationChangedSignalType;            ///< Window orientation changed signal type
 typedef Signal<void(Window, const Dali::DevelWindow::MouseInOutEvent&)>              MouseInOutEventSignalType;               ///< MouseInOutEvent signal type
+typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>           MouseRelativeEventSignalType;            ///< MouseRelativeEvent signal type
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
 typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
 typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;                 ///< InsetsChanged signal type
@@ -536,6 +538,52 @@ DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
 DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
 
 /**
+ * @brief Sets the pointer constraints lock.
+ *
+ * @param[in] window The window instance.
+ * @return Returns true if PointerConstraintsLock succeeds.
+ */
+DALI_ADAPTOR_API bool PointerConstraintsLock(Window window);
+
+/**
+ * @brief Sets the pointer constraints unlock.
+ *
+ * @param[in] window The window instance.
+ * @return Returns true if PointerConstraintsUnlock succeeds.
+ */
+DALI_ADAPTOR_API bool PointerConstraintsUnlock(Window window);
+
+/**
+ * @brief Sets the locked pointer region
+ *
+ * @param[in] window The window instance.
+ * @param[in] x The x position.
+ * @param[in] y The y position.
+ * @param[in] width The width.
+ * @param[in] height The height
+ */
+DALI_ADAPTOR_API void LockedPointerRegionSet(Window window, int32_t x, int32_t y, int32_t width, int32_t height);
+
+/**
+ * @brief Sets the locked pointer cursor position hintset
+ *
+ * @param[in] window The window instance.
+ * @param[in] x The x position.
+ * @param[in] y The y position.
+ */
+DALI_ADAPTOR_API void LockedPointerCursorPositionHintSet(Window window, int32_t x, int32_t y);
+
+/**
+ * @brief Sets the pointer warp. The pointer moves to the set coordinates.
+ *
+ * @param[in] window The window instance.
+ * @param[in] x The x position.
+ * @param[in] y The y position.
+ * @return Returns true if PointerWarp succeeds.
+ */
+DALI_ADAPTOR_API bool PointerWarp(Window window, int32_t x, int32_t y);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.
@@ -591,6 +639,19 @@ DALI_ADAPTOR_API OrientationChangedSignalType& OrientationChangedSignal(Window w
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API MouseInOutEventSignalType& MouseInOutEventSignal(Window window);
+
+/**
+ * @brief This signal is emitted when the mouse relative event is received.
+ *
+ * A callback of the following type may be connected:
+ * @code
+ *   void YourCallbackName( Window window, Dali::MouseRelativeEvent event );
+ * @endcode
+ *
+ * @param[in] window The window instance.
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window);
 
 /**
  * @brief This signal is emitted when window has been moved by the display server.
