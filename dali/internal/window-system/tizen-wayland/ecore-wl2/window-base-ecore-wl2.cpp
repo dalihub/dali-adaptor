@@ -948,6 +948,16 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   SetTransparency(isTransparent);
 
+  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Input*   ecoreWlInput = ecore_wl2_input_default_input_get(display);
+
+  if(ecoreWlInput)
+  {
+    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
+
+    mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this));
+  }
+
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this));
@@ -1010,9 +1020,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, EcoreEventWindowMoveCompleted, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, EcoreEventWindowResizeCompleted, this));
 
-  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-  mDisplay                   = ecore_wl2_display_get(display);
-
+  mDisplay = ecore_wl2_display_get(display);
   if(mDisplay)
   {
     wl_display* displayWrapper = static_cast<wl_display*>(wl_proxy_create_wrapper(mDisplay));
@@ -1032,15 +1040,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
       wl_proxy_wrapper_destroy(displayWrapper);
     }
-  }
-
-  Ecore_Wl2_Input* ecoreWlInput = ecore_wl2_input_default_input_get(display);
-
-  if(ecoreWlInput)
-  {
-    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
-
-    mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this));
   }
 
   // get auxiliary hint
@@ -1603,7 +1602,7 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
     int w = 0;
     int h = 0;
 
-    switch (ev->part_type)
+    switch(ev->part_type)
     {
       case ECORE_WL2_INDICATOR_PART:
       {
@@ -1631,9 +1630,9 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 
     WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
 
-    int left = 0;
-    int right = 0;
-    int top = 0;
+    int left   = 0;
+    int right  = 0;
+    int top    = 0;
     int bottom = 0;
 
     // Insets are applied only if system UI(e.g. virtual keyboard) satisfies the following 2 conditions.
@@ -1660,12 +1659,12 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
       {
         if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
         {
-          top = y + h - winY;
+          top         = y + h - winY;
           applyInsets = true;
         }
         else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
         {
-          bottom = winY + winH - y;
+          bottom      = winY + winH - y;
           applyInsets = true;
         }
       }
@@ -1673,12 +1672,12 @@ void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
       {
         if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
         {
-          left = x + w - winX;
+          left        = x + w - winX;
           applyInsets = true;
         }
         else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
         {
-          right = winX + winW - x;
+          right       = winX + winW - x;
           applyInsets = true;
         }
       }
@@ -1768,7 +1767,7 @@ void WindowBaseEcoreWl2::RegistryGlobalCallbackRemove(void* data, struct wl_regi
 
 void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_policy* tizenPolicy, struct wl_surface* surface, uint32_t conformantPart, uint32_t state, int32_t x, int32_t y, int32_t w, int32_t h)
 {
-  int originalX, originalY, originalWidth, originalHeight;
+  int  originalX, originalY, originalWidth, originalHeight;
   bool changed = false;
 
   if(!surface)
@@ -1790,7 +1789,7 @@ void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_poli
      * The given state is based on the visibility value of indicator.
      * Thus we need to add 1 to it before comparing with indicator state.
      */
-    Ecore_Wl2_Indicator_State indState =  ecore_wl2_window_indicator_state_get(mEcoreWindow);
+    Ecore_Wl2_Indicator_State indState = ecore_wl2_window_indicator_state_get(mEcoreWindow);
     if((state + 1) != indState)
     {
       ecore_wl2_window_indicator_state_set(mEcoreWindow, static_cast<Ecore_Wl2_Indicator_State>(state + 1));
@@ -1840,15 +1839,15 @@ void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_poli
 
   if(changed)
   {
-    Ecore_Wl2_Event_Conformant_Change *ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
+    Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
 
     if(!ev)
     {
       return;
     }
-    ev->win = GetNativeWindowId();
+    ev->win       = GetNativeWindowId();
     ev->part_type = static_cast<Ecore_Wl2_Conformant_Part_Type>(conformantPart);
-    ev->state = state;
+    ev->state     = state;
     ecore_event_add(ECORE_WL2_EVENT_CONFORMANT_CHANGE, ev, NULL, NULL);
   }
 
