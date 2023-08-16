@@ -28,6 +28,7 @@
 #include <dali/internal/imaging/common/loader-ico.h>
 #include <dali/internal/imaging/common/loader-jpeg.h>
 #include <dali/internal/imaging/common/loader-ktx.h>
+#include <dali/internal/imaging/common/loader-pkm.h>
 #include <dali/internal/imaging/common/loader-png.h>
 #include <dali/internal/imaging/common/loader-wbmp.h>
 #include <dali/internal/imaging/common/loader-webp.h>
@@ -68,6 +69,7 @@ enum FileFormats
   FORMAT_WEBP,
   FORMAT_KTX,
   FORMAT_ASTC,
+  FORMAT_PKM,
   FORMAT_ICO,
   FORMAT_MAGIC_BYTE_COUNT,
 
@@ -90,6 +92,7 @@ const Dali::ImageLoader::BitmapLoader BITMAP_LOADER_LOOKUP_TABLE[FORMAT_TOTAL_CO
     {Webp::MAGIC_BYTE_1, Webp::MAGIC_BYTE_2, LoadBitmapFromWebp, nullptr, LoadWebpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
     {Ktx::MAGIC_BYTE_1,  Ktx::MAGIC_BYTE_2,  LoadBitmapFromKtx,  nullptr, LoadKtxHeader,  Bitmap::BITMAP_COMPRESSED      },
     {Astc::MAGIC_BYTE_1, Astc::MAGIC_BYTE_2, LoadBitmapFromAstc, nullptr, LoadAstcHeader, Bitmap::BITMAP_COMPRESSED      },
+    {Pkm::MAGIC_BYTE_1,  Pkm::MAGIC_BYTE_2,  LoadBitmapFromPkm,  nullptr, LoadPkmHeader,  Bitmap::BITMAP_COMPRESSED      },
     {Ico::MAGIC_BYTE_1,  Ico::MAGIC_BYTE_2,  LoadBitmapFromIco,  nullptr, LoadIcoHeader,  Bitmap::BITMAP_2D_PACKED_PIXELS},
     {0x0,                0x0,                LoadBitmapFromWbmp, nullptr, LoadWbmpHeader, Bitmap::BITMAP_2D_PACKED_PIXELS},
   };
@@ -116,6 +119,7 @@ constexpr FormatExtension FORMAT_EXTENSIONS[] =
     {".webp", FORMAT_WEBP },
     {".ktx",  FORMAT_KTX },
     {".astc", FORMAT_ASTC},
+    {".pkm",  FORMAT_PKM},
     {".ico",  FORMAT_ICO },
     {".wbmp", FORMAT_WBMP},
     {".svg",  FORMAT_UNSUPPORTED}, // SVG
