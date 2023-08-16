@@ -961,6 +961,16 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   SetTransparency(isTransparent);
 
+  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Input*   ecoreWlInput = ecore_wl2_input_default_input_get(display);
+
+  if(ecoreWlInput)
+  {
+    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
+
+    mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this));
+  }
+
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_ICONIFY_STATE_CHANGE, EcoreEventWindowIconifyStateChanged, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_FOCUS_IN, EcoreEventWindowFocusIn, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_FOCUS_OUT, EcoreEventWindowFocusOut, this));
@@ -1024,9 +1034,7 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_MOVE_DONE, EcoreEventWindowMoveCompleted, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_WINDOW_INTERACTIVE_RESIZE_DONE, EcoreEventWindowResizeCompleted, this));
 
-  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-  mDisplay                   = ecore_wl2_display_get(display);
-
+  mDisplay = ecore_wl2_display_get(display);
   if(mDisplay)
   {
     wl_display* displayWrapper = static_cast<wl_display*>(wl_proxy_create_wrapper(mDisplay));
@@ -1046,15 +1054,6 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
       wl_proxy_wrapper_destroy(displayWrapper);
     }
-  }
-
-  Ecore_Wl2_Input* ecoreWlInput = ecore_wl2_input_default_input_get(display);
-
-  if(ecoreWlInput)
-  {
-    mKeyMap = ecore_wl2_input_keymap_get(ecoreWlInput);
-
-    mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_KEYMAP_CHANGED, EcoreEventSeatKeymapChanged, this));
   }
 
   // get auxiliary hint
