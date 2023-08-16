@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -652,6 +652,29 @@ void WindowBaseWin::IncludeInputRegion(const Rect<int>& inputRegion)
 
 void WindowBaseWin::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
+}
+
+bool WindowBaseWin::PointerConstraintsLock()
+{
+  return false;
+}
+
+bool WindowBaseWin::PointerConstraintsUnlock()
+{
+  return false;
+}
+
+void WindowBaseWin::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
+{
+}
+
+void WindowBaseWin::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
+{
+}
+
+bool WindowBaseWin::PointerWarp(int32_t x, int32_t y)
+{
+  return false;
 }
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ GlWindowRenderThread::GlWindowRenderThread(PositionSize positionSize, ColorDepth
   mWindowBase(nullptr),
   mWindowRotationTrigger(),
   mLogFactory(Dali::Adaptor::Get().GetLogFactory()),
+  mTraceFactory(Dali::Adaptor::Get().GetTraceFactory()),
   mPositionSize(positionSize),
   mColorDepth(colorDepth),
   mGLInitCallback(),
@@ -215,6 +216,7 @@ void GlWindowRenderThread::Run()
 {
   Dali::SetThreadName("GlWindowRenderThread");
   mLogFactory.InstallLogFunction();
+  mTraceFactory.InstallTraceFunction();
 
   int          renderFrameResult = 0;
   unsigned int isSurfaceChanged  = 0;

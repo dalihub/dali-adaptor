@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_GL_WINDOW_RENDER_THREAD_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/devel-api/threading/thread.h>
+#include <dali/integration-api/adaptor-framework/log-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-graphics.h>
@@ -245,7 +247,8 @@ private:
   WindowBase*                            mWindowBase;
   std::unique_ptr<TriggerEventInterface> mWindowRotationTrigger;
 
-  const Dali::LogFactoryInterface& mLogFactory;
+  const Dali::LogFactoryInterface&   mLogFactory;
+  const Dali::TraceFactoryInterface& mTraceFactory;
 
   PositionSize mPositionSize; ///< Position
   ColorDepth   mColorDepth;

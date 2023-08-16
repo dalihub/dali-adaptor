@@ -459,6 +459,31 @@ public:
    */
   void ExcludeInputRegion(const Rect<int>& inputRegion) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsLock()
+   */
+  bool PointerConstraintsLock() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerConstraintsUnlock()
+   */
+  bool PointerConstraintsUnlock() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::LockedPointerRegionSet()
+   */
+  void LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::LockedPointerCursorPositionHintSet()
+   */
+  void LockedPointerCursorPositionHintSet(int32_t x, int32_t y) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::PointerWarp()
+   */
+  bool PointerWarp(int32_t x, int32_t y) override;
+
 private:
   /**
    * Second stage initialization

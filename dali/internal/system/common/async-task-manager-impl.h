@@ -23,6 +23,7 @@
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/devel-api/threading/thread.h>
 #include <dali/integration-api/adaptor-framework/log-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/trace-factory-interface.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/public-api/common/list-wrapper.h>
 #include <dali/public-api/object/base-object.h>
@@ -76,12 +77,13 @@ private:
   AsyncTaskThread& operator=(const AsyncTaskThread& thread) = delete;
 
 private:
-  ConditionalWait                  mConditionalWait;
-  AsyncTaskManager&                mAsyncTaskManager;
-  const Dali::LogFactoryInterface& mLogFactory; ///< The log factory
-  bool                             mDestroyThread;
-  bool                             mIsThreadStarted;
-  bool                             mIsThreadIdle;
+  ConditionalWait                    mConditionalWait;
+  AsyncTaskManager&                  mAsyncTaskManager;
+  const Dali::LogFactoryInterface&   mLogFactory;   ///< The log factory
+  const Dali::TraceFactoryInterface& mTraceFactory; ///< The trace factory
+  bool                               mDestroyThread;
+  bool                               mIsThreadStarted;
+  bool                               mIsThreadIdle;
 };
 
 /**
