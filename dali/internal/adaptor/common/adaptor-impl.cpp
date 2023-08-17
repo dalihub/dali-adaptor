@@ -671,6 +671,12 @@ bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue, bool forceAdd
     idleAdded = mCallbackManager->AddIdleCallback(callback, hasReturnValue);
   }
 
+  if(!idleAdded)
+  {
+    // Delete callback
+    delete callback;
+  }
+
   return idleAdded;
 }
 
