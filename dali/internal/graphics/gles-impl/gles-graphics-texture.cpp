@@ -342,6 +342,12 @@ void Texture::Bind(const TextureBinding& binding) const
 
     auto mipMapMode = samplerCreateInfo.mipMapMode;
 
+    // @todo : Should we always ignore mipmap mode when it is compressed, and never bind higher level mipmap?
+    if(mMaxMipMapLevel == 0u && mIsCompressed)
+    {
+      mipMapMode = Graphics::SamplerMipmapMode::NONE;
+    }
+
     SetSamplerParameter(GL_TEXTURE_MIN_FILTER, mDefaultSamplerState.minFilter, GLSamplerFilterAndMipMapMode(samplerCreateInfo.minFilter, mipMapMode).glFilter);
     SetSamplerParameter(GL_TEXTURE_MAG_FILTER, mDefaultSamplerState.magFilter, GLSamplerFilter(samplerCreateInfo.magFilter).glFilter);
     SetSamplerParameter(GL_TEXTURE_WRAP_S, mDefaultSamplerState.wrapS, GLAddressMode(samplerCreateInfo.addressModeU).texParameter);
