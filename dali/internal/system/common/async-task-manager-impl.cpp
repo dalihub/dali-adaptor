@@ -549,6 +549,9 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           auto runningIter = mRunningTasks.insert(mRunningTasks.end(), std::make_pair(nextTask, RunningTaskState::RUNNING));
           CacheImpl::InsertTaskCache(mCacheImpl->mRunningTasksCache, nextTask, runningIter);
 
+          CacheImpl::EraseTaskCache(mCacheImpl->mWaitingTasksCache, nextTask, iter);
+          mWaitingTasks.erase(iter);
+
           // Decrease avaliable task counts if it is low priority
           if(priorityType == AsyncTask::PriorityType::LOW)
           {
@@ -562,9 +565,6 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           // Decrease the number of waiting tasks for high priority.
           --mWaitingHighProirityTaskCounts;
         }
-
-        CacheImpl::EraseTaskCache(mCacheImpl->mWaitingTasksCache, nextTask, iter);
-        mWaitingTasks.erase(iter);
         break;
       }
     }
@@ -582,7 +582,9 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
   if(task)
   {
-    // Lock while adding task to the queue
+    const bool needTrigger = task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD;
+
+    // Lock while check validation of task.
     {
       Mutex::ScopedLock lock(mRunningTasksMutex);
 
@@ -599,16 +601,6 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
           // This task is valid.
           notify = true;
         }
-
-        const auto priorityType = iter->first->GetPriorityType();
-        // Increase avaliable task counts if it is low priority
-        if(priorityType == AsyncTask::PriorityType::LOW)
-        {
-          // We are under running task mutex. We can increase it.
-          ++mAvaliableLowPriorityTaskCounts;
-        }
-        CacheImpl::EraseTaskCache(mCacheImpl->mRunningTasksCache, task, iter);
-        mRunningTasks.erase(iter);
       }
 
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompleteTask [%p] (is notify? : %d)\n", task.Get(), notify);
@@ -621,21 +613,43 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
       CallbackBase::Execute(*(task->GetCompletedCallback()), task);
     }
 
-    const bool needTrigger = task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD;
-
-    // Move task into completed, for ensure that AsyncTask destroy at main thread.
+    // Lock while adding task to the queue
     {
-      Mutex::ScopedLock lock(mCompletedTasksMutex);
+      Mutex::ScopedLock lock(mRunningTasksMutex);
 
-      const bool callbackRequired = notify && (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
+      auto mapIter = mCacheImpl->mRunningTasksCache.find(task.Get());
+      if(mapIter != mCacheImpl->mRunningTasksCache.end())
+      {
+        const auto cacheIter = mapIter->second.begin();
+        DALI_ASSERT_ALWAYS(cacheIter != mapIter->second.end());
 
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p] (callback required? : %d)\n", task.Get(), callbackRequired);
+        const auto iter         = *cacheIter;
+        const auto priorityType = iter->first->GetPriorityType();
+        // Increase avaliable task counts if it is low priority
+        if(priorityType == AsyncTask::PriorityType::LOW)
+        {
+          // We are under running task mutex. We can increase it.
+          ++mAvaliableLowPriorityTaskCounts;
+        }
 
-      auto completedIter = mCompletedTasks.insert(mCompletedTasks.end(), std::make_pair(task, callbackRequired ? CompletedTaskState::REQUIRE_CALLBACK : CompletedTaskState::SKIP_CALLBACK));
-      CacheImpl::InsertTaskCache(mCacheImpl->mCompletedTasksCache, task, completedIter);
+        // Move task into completed, for ensure that AsyncTask destroy at main thread.
+        {
+          Mutex::ScopedLock lock(mCompletedTasksMutex); // We can lock this mutex under mRunningTasksMutex.
 
-      // Now, task is invalidate.
-      task.Reset();
+          const bool callbackRequired = notify && (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
+
+          DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p] (callback required? : %d)\n", task.Get(), callbackRequired);
+
+          auto completedIter = mCompletedTasks.insert(mCompletedTasks.end(), std::make_pair(task, callbackRequired ? CompletedTaskState::REQUIRE_CALLBACK : CompletedTaskState::SKIP_CALLBACK));
+          CacheImpl::InsertTaskCache(mCacheImpl->mCompletedTasksCache, task, completedIter);
+
+          CacheImpl::EraseTaskCache(mCacheImpl->mRunningTasksCache, task, iter);
+          mRunningTasks.erase(iter);
+
+          // Now, task is invalidate.
+          task.Reset();
+        }
+      }
     }
 
     // Wake up the main thread
