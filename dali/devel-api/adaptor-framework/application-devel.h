@@ -2,7 +2,7 @@
 #define DALI_APPLICATION_DEVEL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,6 +105,12 @@ DALI_ADAPTOR_API CustomCommandReceivedSignalType& CustomCommandReceivedSignal(Ap
  * @return The render thread id.
  */
 DALI_ADAPTOR_API int32_t GetRenderThreadId(Application application);
+
+/**
+ * @brief Relayout the application and ensure all pending operations are flushed to the update thread.
+ * @param application A handle to the Application
+ */
+DALI_ADAPTOR_API void FlushUpdateMessages(Application application);
 
 } // namespace DevelApplication
 

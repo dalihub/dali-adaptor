@@ -399,6 +399,11 @@ public:
   void RenderOnce();
 
   /**
+   * @brief Relayout and ensure all pending operations are flushed to the update thread.
+   */
+  void FlushUpdateMessages();
+
+  /**
    * @brief The log factory allows installation of a logger function in worker threads.
    * @return An interface to a logging factory
    */

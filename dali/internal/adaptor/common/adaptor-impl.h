@@ -562,7 +562,12 @@ public: // Signals
 
 public: // From Dali::Internal::Adaptor::CoreEventInterface
   /**
-   * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
+   * @copydoc Dali::Internal::Adaptor::CoreEventInterface:::FlushUpdateMessages()
+   */
+  void FlushUpdateMessages() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::CoreEventInterface:::ProcessCoreEvents()
    */
   void ProcessCoreEvents() override;
 
