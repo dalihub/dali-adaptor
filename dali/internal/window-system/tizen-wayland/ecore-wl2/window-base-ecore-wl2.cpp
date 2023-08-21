@@ -1921,9 +1921,9 @@ void WindowBaseEcoreWl2::GetKeyCode(std::string keyName, int32_t& keyCode)
   KeyCodeMap   foundKeyCode;
 
   sym = xkb_keysym_from_name(keyName.c_str(), XKB_KEYSYM_NO_FLAGS);
-  if(sym == XKB_KEY_NoSymbol)
+  if(sym == XKB_KEY_NoSymbol || !mKeyMap)
   {
-    DALI_LOG_ERROR("Failed to get keysym in WindowBaseEcoreWl2\n");
+    DALI_LOG_ERROR("Failed to get keysym or keymap in WindowBaseEcoreWl2\n");
     return;
   }
 
