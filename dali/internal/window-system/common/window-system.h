@@ -79,6 +79,26 @@ bool SetKeyboardRepeatInfo(float rate, float delay);
  */
 bool GetKeyboardRepeatInfo(float& rate, float& delay);
 
+/**
+ * @copydoc Dali::Keyboard::SetHorizontalRepeatInfo()
+ */
+bool SetKeyboardHorizontalRepeatInfo(float rate, float delay);
+
+/**
+ * @copydoc Dali::Keyboard::GetHorizontalRepeatInfo()
+ */
+bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay);
+
+/**
+ * @copydoc Dali::Keyboard::SetVerticalRepeatInfo()
+ */
+bool SetKeyboardVerticalRepeatInfo(float rate, float delay);
+
+/**
+ * @copydoc Dali::Keyboard::GetVerticalRepeatInfo()
+ */
+bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay);
+
 } // namespace WindowSystem
 
 /**
