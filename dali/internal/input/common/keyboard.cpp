@@ -35,6 +35,26 @@ bool GetRepeatInfo(float& rate, float& delay)
   return Dali::Internal::Adaptor::WindowSystem::GetKeyboardRepeatInfo(rate, delay);
 }
 
+bool SetHorizontalRepeatInfo(float rate, float delay)
+{
+  return Dali::Internal::Adaptor::WindowSystem::SetKeyboardHorizontalRepeatInfo(rate, delay);
+}
+
+bool GetHorizontalRepeatInfo(float& rate, float& delay)
+{
+  return Dali::Internal::Adaptor::WindowSystem::GetKeyboardHorizontalRepeatInfo(rate, delay);
+}
+
+bool SetVerticalRepeatInfo(float rate, float delay)
+{
+  return Dali::Internal::Adaptor::WindowSystem::SetKeyboardVerticalRepeatInfo(rate, delay);
+}
+
+bool GetVerticalRepeatInfo(float& rate, float& delay)
+{
+  return Dali::Internal::Adaptor::WindowSystem::GetKeyboardVerticalRepeatInfo(rate, delay);
+}
+
 } // namespace Keyboard
 
 } // namespace Dali

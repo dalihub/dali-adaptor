@@ -671,6 +671,12 @@ bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue, bool forceAdd
     idleAdded = mCallbackManager->AddIdleCallback(callback, hasReturnValue);
   }
 
+  if(!idleAdded)
+  {
+    // Delete callback
+    delete callback;
+  }
+
   return idleAdded;
 }
 
@@ -931,6 +937,16 @@ void Adaptor::QueueCoreEvent(const Dali::Integration::Event& event)
   if(mCore)
   {
     mCore->QueueEvent(event);
+  }
+}
+
+void Adaptor::FlushUpdateMessages()
+{
+  if(mCore)
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_FLUSH_UPDATE_MESSAGES");
+
+    mCore->ForceRelayout();
   }
 }
 

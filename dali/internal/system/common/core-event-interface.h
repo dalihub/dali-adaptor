@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_CORE_EVENT_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,11 @@ public:
    * @param[in] event The new event.
    */
   virtual void QueueCoreEvent(const Dali::Integration::Event& event) = 0;
+
+  /**
+   * Relayout and ensure all pending operations are flushed to the update thread.
+   */
+  virtual void FlushUpdateMessages() = 0;
 
   /**
    * Process the events queued with QueueEvent().

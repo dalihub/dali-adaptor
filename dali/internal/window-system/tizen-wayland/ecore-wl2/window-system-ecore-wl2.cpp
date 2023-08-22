@@ -135,6 +135,61 @@ bool GetKeyboardRepeatInfo(float& rate, float& delay)
   return false;
 }
 
+
+bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
+{
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    return ecore_wl2_input_keyboard_horizontal_way_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
+  }
+  return false;
+}
+
+bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
+{
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    double           rateVal, delayVal;
+    bool             ret = ecore_wl2_input_keyboard_horizontal_way_repeat_get(input, &rateVal, &delayVal);
+    rate                 = static_cast<float>(rateVal);
+    delay                = static_cast<float>(delayVal);
+
+    return ret;
+  }
+  return false;
+}
+
+bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
+{
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    return ecore_wl2_input_keyboard_vertical_way_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
+  }
+  return false;
+}
+
+bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
+{
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
+  {
+    Ecore_Wl2_Input* input = ecore_wl2_input_default_input_get(ecore_wl2_connected_display_get(NULL));
+    double           rateVal, delayVal;
+    bool             ret = ecore_wl2_input_keyboard_vertical_way_repeat_get(input, &rateVal, &delayVal);
+    rate                 = static_cast<float>(rateVal);
+    delay                = static_cast<float>(delayVal);
+
+    return ret;
+  }
+  return false;
+}
+
 } // namespace WindowSystem
 
 } // namespace Adaptor

@@ -86,6 +86,11 @@ int32_t GetRenderThreadId(Application application)
   return Internal::Adaptor::GetImplementation(application).GetRenderThreadId();
 }
 
+void FlushUpdateMessages(Application application)
+{
+  Internal::Adaptor::GetImplementation(application).FlushUpdateMessages();
+}
+
 } // namespace DevelApplication
 
 } // namespace Dali

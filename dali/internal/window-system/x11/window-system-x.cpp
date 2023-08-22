@@ -1074,6 +1074,26 @@ bool GetKeyboardRepeatInfo(float& rate, float& delay)
   return false;
 }
 
+bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
+{
+  return false;
+}
+
+bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
+{
+  return false;
+}
+
+bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
+{
+  return false;
+}
+
+bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
+{
+  return false;
+}
+
 } // namespace WindowSystem
 
 } // namespace Adaptor

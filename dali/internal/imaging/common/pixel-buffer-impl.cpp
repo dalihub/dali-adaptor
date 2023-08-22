@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ namespace Adaptor
 {
 namespace
 {
-
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gPixelBufferFilter = Debug::Filter::New(Debug::NoLogging, false, "DALI_LOG_PIXEL_BUFFER_SIZE");
 #endif
@@ -474,12 +473,12 @@ void PixelBuffer::ApplyGaussianBlur(const float blurRadius)
 
 void PixelBuffer::MultiplyColorByAlpha()
 {
-  auto bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
-
   // Compressed textures have unknown size of the pixel. Alpha premultiplication
   // must be skipped in such case
-  if(Pixel::GetBytesPerPixel(mPixelFormat) && Pixel::HasAlpha(mPixelFormat))
+  if(!Pixel::IsCompressed(mPixelFormat) && Pixel::HasAlpha(mPixelFormat))
   {
+    auto bytesPerPixel = Pixel::GetBytesPerPixel(mPixelFormat);
+
     uint8_t*       pixel       = mBuffer;
     const uint32_t strideBytes = mStride * bytesPerPixel;
     const uint32_t widthBytes  = mWidth * bytesPerPixel;
