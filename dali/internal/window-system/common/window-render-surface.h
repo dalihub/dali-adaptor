@@ -318,7 +318,7 @@ private:
     ~FrameCallbackInfo()
     {
       // Delete FileDescriptorMonitor before close fd.
-      fileDescriptorMonitor.release();
+      fileDescriptorMonitor.reset();
       close(fileDescriptor);
     }
 
