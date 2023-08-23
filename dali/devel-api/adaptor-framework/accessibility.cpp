@@ -445,11 +445,16 @@ public:
       state[State::VISIBLE]   = true;
       state[State::ACTIVE]    = visible;
     }
-    else
+    else if (GetParent())
     {
       auto parentState      = GetParent()->GetStates();
       state[State::SHOWING] = parentState[State::SHOWING];
       state[State::VISIBLE] = parentState[State::VISIBLE];
+    }
+    else
+    {
+      state[State::SHOWING] = false; 
+      state[State::VISIBLE] = false; 
     }
     return state;
   }
