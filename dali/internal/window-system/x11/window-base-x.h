@@ -488,6 +488,11 @@ public:
    */
   bool PointerWarp(int32_t x, int32_t y) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::CursorVisibleSet()
+   */
+  void CursorVisibleSet(bool visible) override;
+
 private:
   /**
    * Second stage initialization

@@ -1430,6 +1430,11 @@ bool Window::PointerWarp(int32_t x, int32_t y)
   return mWindowBase->PointerWarp(x, y);
 }
 
+void Window::CursorVisibleSet(bool visible)
+{
+  mWindowBase->CursorVisibleSet(visible);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

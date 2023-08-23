@@ -455,6 +455,10 @@ bool WindowBaseAndroid::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseAndroid::CursorVisibleSet(bool visible)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -3408,6 +3408,11 @@ bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
   return ecore_wl2_window_pointer_warp(mEcoreWindow, x, y);
 }
 
+void WindowBaseEcoreWl2::CursorVisibleSet(bool visible)
+{
+  ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
