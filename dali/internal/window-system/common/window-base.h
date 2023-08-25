@@ -513,6 +513,22 @@ public:
    */
   virtual void CursorVisibleSet(bool visible) = 0;
 
+  /**
+   * @brief Requests grab key events according to the requested device subtype
+   *
+   * @param[in] deviceSubclass The deviceSubclass type.
+   * @return Returns true if KeyboardGrab succeeds.
+   */
+  virtual bool KeyboardGrab(Device::Subclass::Type deviceSubclass) = 0;
+
+  /**
+   * @brief Requests ungrab key events
+   *
+   * @param[in] window The window instance.
+   * @return Returns true if KeyboardUnGrab succeeds.
+   */
+  virtual bool KeyboardUnGrab() = 0;
+
   // Signals
 
   /**

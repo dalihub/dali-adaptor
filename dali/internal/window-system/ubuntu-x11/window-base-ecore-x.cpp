@@ -1046,6 +1046,16 @@ void WindowBaseEcoreX::CursorVisibleSet(bool visible)
 {
 }
 
+bool WindowBaseEcoreX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseEcoreX::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

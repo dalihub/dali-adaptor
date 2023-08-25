@@ -417,6 +417,16 @@ public:
    */
   void CursorVisibleSet(bool visible) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::KeyboardGrab()
+   */
+  bool KeyboardGrab(Device::Subclass::Type deviceSubclass) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::KeyboardUnGrab()
+   */
+  bool KeyboardUnGrab() override;
+
 private:
   // Undefined
   WindowBaseCocoa(const WindowBaseCocoa&) = delete;

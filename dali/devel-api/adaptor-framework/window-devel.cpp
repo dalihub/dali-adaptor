@@ -329,6 +329,16 @@ void CursorVisibleSet(Window window, bool visible)
   GetImplementation(window).CursorVisibleSet(visible);
 }
 
+bool KeyboardGrab(Window window, Device::Subclass::Type deviceSubclass)
+{
+  return GetImplementation(window).KeyboardGrab(deviceSubclass);
+}
+
+bool KeyboardUnGrab(Window window)
+{
+  return GetImplementation(window).KeyboardUnGrab();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();
