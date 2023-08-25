@@ -746,6 +746,10 @@ bool WindowBaseCocoa::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseCocoa::CursorVisibleSet(bool visible)
+{
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

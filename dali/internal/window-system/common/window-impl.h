@@ -536,6 +536,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool PointerWarp(int32_t x, int32_t y);
 
+  /**
+   * @copydoc Dali::DevelWindow::CursorVisibleSet()
+   */
+  void CursorVisibleSet(bool visible);
+
 private:
   /**
    * @brief Enumeration for orietation mode.

@@ -584,6 +584,14 @@ DALI_ADAPTOR_API void LockedPointerCursorPositionHintSet(Window window, int32_t 
 DALI_ADAPTOR_API bool PointerWarp(Window window, int32_t x, int32_t y);
 
 /**
+ * @brief Sets visibility on/off of cursor
+ *
+ * @param[in] window The window instance.
+ * @param[in] visible The visibility of cursor
+ */
+DALI_ADAPTOR_API void CursorVisibleSet(Window window, bool visible);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

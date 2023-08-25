@@ -506,6 +506,13 @@ public:
    */
   virtual bool PointerWarp(int32_t x, int32_t y) = 0;
 
+  /**
+   * @brief Sets visibility on/off of cursor
+   *
+   * @param[in] visible The visibility of cursor
+   */
+  virtual void CursorVisibleSet(bool visible) = 0;
+
   // Signals
 
   /**

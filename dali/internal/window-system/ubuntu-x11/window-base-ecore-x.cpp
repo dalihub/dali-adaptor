@@ -1042,6 +1042,10 @@ bool WindowBaseEcoreX::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseEcoreX::CursorVisibleSet(bool visible)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

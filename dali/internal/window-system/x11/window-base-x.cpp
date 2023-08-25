@@ -978,6 +978,10 @@ bool WindowBaseX::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseX::CursorVisibleSet(bool visible)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
