@@ -681,6 +681,16 @@ void WindowBaseWin::CursorVisibleSet(bool visible)
 {
 }
 
+bool WindowBaseWin::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseWin::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

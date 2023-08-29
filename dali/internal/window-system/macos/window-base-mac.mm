@@ -750,6 +750,16 @@ void WindowBaseCocoa::CursorVisibleSet(bool visible)
 {
 }
 
+bool WindowBaseCocoa::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseCocoa::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

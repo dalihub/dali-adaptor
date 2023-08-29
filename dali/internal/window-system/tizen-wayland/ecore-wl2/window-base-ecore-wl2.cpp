@@ -3413,6 +3413,43 @@ void WindowBaseEcoreWl2::CursorVisibleSet(bool visible)
   ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
 }
 
+// Request grab key events according to the requested device subtype
+//(For now, subtype could be '0'/'11'/'12' which equals to ECORE_DEVICE_SUBCLASS_NONE/REMOCON/VIRTUAL_KEYBOARD)
+bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  Ecore_Device_Subclass ecoreDeviceSubclass;
+  switch(deviceSubclass)
+  {
+    case Device::Subclass::NONE:
+    {
+      ecoreDeviceSubclass = ECORE_DEVICE_SUBCLASS_NONE;
+      break;
+    }
+    case Device::Subclass::REMOCON:
+    {
+      ecoreDeviceSubclass = ECORE_DEVICE_SUBCLASS_REMOCON;
+      break;
+    }
+    case Device::Subclass::VIRTUAL_KEYBOARD:
+    {
+      ecoreDeviceSubclass = ECORE_DEVICE_SUBCLASS_VIRTUAL_KEYBOARD;
+      break;
+    }
+    default:
+    {
+      DALI_LOG_ERROR("deviceSubclass : %d type is not support, subtype could be 'NONE', 'REMOCON', 'VIRTUAL_KEYBOARD'\n");
+      return false;
+    }
+  }
+  return ecore_wl2_window_keyboard_grab(mEcoreWindow, ecoreDeviceSubclass);
+}
+
+// Request ungrab key events
+bool WindowBaseEcoreWl2::KeyboardUnGrab()
+{
+  return ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
