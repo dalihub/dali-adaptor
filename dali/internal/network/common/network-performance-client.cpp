@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,12 +132,7 @@ void TriggerOnMainThread(unsigned int clientId, ClientSendDataInterface& sendDat
   // this needs to be run on the main thread, use the trigger event....
   AutomationCallback* callback = new AutomationCallback(clientId, sendDataInterface);
   lambda(callback);
-
-  // create a trigger event that automatically deletes itself after the callback has run in the main thread
-  TriggerEventInterface* interface = TriggerEventFactory::CreateTriggerEvent(callback, TriggerEventInterface::DELETE_AFTER_TRIGGER);
-
-  // asynchronous call, the call back will be run sometime later on the main thread
-  interface->Trigger();
+  sendDataInterface.TriggerMainThreadAutomation(callback);
 }
 
 } // unnamed namespace
@@ -190,10 +185,10 @@ bool NetworkPerformanceClient::TransmitMarker(const PerformanceMarker& marker, c
   if(mConsoleClient)
   {
     // write out the time stamp
-    char   *buffer;
-    double usec = marker.GetTimeStamp().microseconds;
-    int    size = asprintf(&buffer, "%.6f (seconds), %s\n", usec * MICROSECONDS_TO_SECOND, description);
-    auto retVal = mSocket->Write(buffer, size);
+    char*  buffer;
+    double usec   = marker.GetTimeStamp().microseconds;
+    int    size   = asprintf(&buffer, "%.6f (seconds), %s\n", usec * MICROSECONDS_TO_SECOND, description);
+    auto   retVal = mSocket->Write(buffer, size);
     free(buffer);
     return retVal;
   }
@@ -249,20 +244,20 @@ void NetworkPerformanceClient::ProcessCommand(char* buffer, unsigned int bufferS
 
     case PerformanceProtocol::DUMP_SCENE_GRAPH:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignDumpSceneCommand();});
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignDumpSceneCommand(); });
       break;
     }
 
     case PerformanceProtocol::SET_PROPERTIES:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignSetPropertyCommand(stringParam);});
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignSetPropertyCommand(stringParam); });
       response = "Completed";
       break;
     }
 
     case PerformanceProtocol::CUSTOM_COMMAND:
     {
-      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback){callback->AssignCustomCommand(std::move(stringParam));});
+      TriggerOnMainThread(mClientId, mSendDataInterface, [&](AutomationCallback* callback) { callback->AssignCustomCommand(std::move(stringParam)); });
       response = "Completed";
       break;
     }

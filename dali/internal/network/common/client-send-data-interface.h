@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_CLIENT_SEND_DATA_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
  *
  */
 
+#include <dali/public-api/signals/callback.h>
+
 namespace Dali
 {
 namespace Internal
@@ -30,6 +32,11 @@ namespace Adaptor
 class ClientSendDataInterface
 {
 public:
+  /**
+   * Trigger the main thread automation callback
+   */
+  virtual void TriggerMainThreadAutomation(CallbackBase* callback) = 0;
+
   /**
    * @brief Sends data to the client
    * @param[in] data pointer to some data
