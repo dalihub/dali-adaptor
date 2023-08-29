@@ -455,6 +455,20 @@ bool WindowBaseAndroid::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseAndroid::CursorVisibleSet(bool visible)
+{
+}
+
+bool WindowBaseAndroid::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseAndroid::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

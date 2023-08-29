@@ -1430,6 +1430,21 @@ bool Window::PointerWarp(int32_t x, int32_t y)
   return mWindowBase->PointerWarp(x, y);
 }
 
+void Window::CursorVisibleSet(bool visible)
+{
+  mWindowBase->CursorVisibleSet(visible);
+}
+
+bool Window::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return mWindowBase->KeyboardGrab(deviceSubclass);
+}
+
+bool Window::KeyboardUnGrab()
+{
+  return mWindowBase->KeyboardUnGrab();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

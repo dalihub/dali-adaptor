@@ -536,6 +536,21 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool PointerWarp(int32_t x, int32_t y);
 
+  /**
+   * @copydoc Dali::DevelWindow::CursorVisibleSet()
+   */
+  void CursorVisibleSet(bool visible);
+
+  /**
+   * @copydoc Dali::DevelWindow::KeyboardGrab()
+   */
+  bool KeyboardGrab(Device::Subclass::Type deviceSubclass);
+
+  /**
+   * @copydoc Dali::DevelWindow::KeyboardUnGrab()
+   */
+  bool KeyboardUnGrab();
+
 private:
   /**
    * @brief Enumeration for orietation mode.

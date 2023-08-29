@@ -978,6 +978,20 @@ bool WindowBaseX::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseX::CursorVisibleSet(bool visible)
+{
+}
+
+bool WindowBaseX::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseX::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

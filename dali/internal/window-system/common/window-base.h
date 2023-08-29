@@ -506,6 +506,29 @@ public:
    */
   virtual bool PointerWarp(int32_t x, int32_t y) = 0;
 
+  /**
+   * @brief Sets visibility on/off of cursor
+   *
+   * @param[in] visible The visibility of cursor
+   */
+  virtual void CursorVisibleSet(bool visible) = 0;
+
+  /**
+   * @brief Requests grab key events according to the requested device subtype
+   *
+   * @param[in] deviceSubclass The deviceSubclass type.
+   * @return Returns true if KeyboardGrab succeeds.
+   */
+  virtual bool KeyboardGrab(Device::Subclass::Type deviceSubclass) = 0;
+
+  /**
+   * @brief Requests ungrab key events
+   *
+   * @param[in] window The window instance.
+   * @return Returns true if KeyboardUnGrab succeeds.
+   */
+  virtual bool KeyboardUnGrab() = 0;
+
   // Signals
 
   /**

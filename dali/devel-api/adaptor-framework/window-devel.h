@@ -584,6 +584,31 @@ DALI_ADAPTOR_API void LockedPointerCursorPositionHintSet(Window window, int32_t 
 DALI_ADAPTOR_API bool PointerWarp(Window window, int32_t x, int32_t y);
 
 /**
+ * @brief Sets visibility on/off of cursor
+ *
+ * @param[in] window The window instance.
+ * @param[in] visible The visibility of cursor
+ */
+DALI_ADAPTOR_API void CursorVisibleSet(Window window, bool visible);
+
+/**
+ * @brief Requests grab key events according to the requested device subtype
+ *
+ * @param[in] window The window instance.
+ * @param[in] deviceSubclass The deviceSubclass type.
+ * @return Returns true if KeyboardGrab succeeds.
+ */
+DALI_ADAPTOR_API bool KeyboardGrab(Window window, Device::Subclass::Type deviceSubclass);
+
+/**
+ * @brief Requests ungrab key events
+ *
+ * @param[in] window The window instance.
+ * @return Returns true if KeyboardUnGrab succeeds.
+ */
+DALI_ADAPTOR_API bool KeyboardUnGrab(Window window);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

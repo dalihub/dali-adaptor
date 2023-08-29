@@ -746,6 +746,20 @@ bool WindowBaseCocoa::PointerWarp(int32_t x, int32_t y)
   return false;
 }
 
+void WindowBaseCocoa::CursorVisibleSet(bool visible)
+{
+}
+
+bool WindowBaseCocoa::KeyboardGrab(Device::Subclass::Type deviceSubclass)
+{
+  return false;
+}
+
+bool WindowBaseCocoa::KeyboardUnGrab()
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView
