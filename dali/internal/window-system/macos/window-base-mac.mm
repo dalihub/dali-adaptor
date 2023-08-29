@@ -408,7 +408,9 @@ void WindowBaseCocoa::SetEglWindowTransform( int angle )
 
 void WindowBaseCocoa::ResizeEglWindow( PositionSize positionSize )
 {
-  Resize(positionSize);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    Resize(positionSize);
+  });
 }
 
 bool WindowBaseCocoa::IsEglWindowRotationSupported()
