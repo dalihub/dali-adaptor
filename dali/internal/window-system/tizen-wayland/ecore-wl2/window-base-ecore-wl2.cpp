@@ -3396,11 +3396,13 @@ bool WindowBaseEcoreWl2::PointerConstraintsUnlock()
 void WindowBaseEcoreWl2::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
 {
   ecore_wl2_window_locked_pointer_region_set(mEcoreWindow, x, y, width, height);
+  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
 void WindowBaseEcoreWl2::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
 {
   ecore_wl2_window_locked_pointer_cursor_position_hint_set(mEcoreWindow, x, y);
+  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
 }
 
 bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
