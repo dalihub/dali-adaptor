@@ -32,18 +32,21 @@ namespace Adaptor
 {
 static Eina_Bool EcoreEventDataSend(void* data, int type, void* event);
 static Eina_Bool EcoreEventOfferDataReady(void* data, int type, void* event);
+static Eina_Bool EcoreEventSelectionOffer(void* data, int type, void* event);
 
 struct Clipboard::Impl
 {
   Impl()
   {
-    mSendHandler    = ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this);
-    mReceiveHandler = ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventOfferDataReady, this);
+    mSendHandler      = ecore_event_handler_add(ECORE_WL2_EVENT_DATA_SOURCE_SEND, EcoreEventDataSend, this);
+    mReceiveHandler   = ecore_event_handler_add(ECORE_WL2_EVENT_OFFER_DATA_READY, EcoreEventOfferDataReady, this);
+    mSelectionHanlder = ecore_event_handler_add(ECORE_WL2_EVENT_SEAT_SELECTION, EcoreEventSelectionOffer, this);
   }
   ~Impl()
   {
     ecore_event_handler_del(mSendHandler);
     ecore_event_handler_del(mReceiveHandler);
+    ecore_event_handler_del(mSelectionHanlder);
   }
 
   bool SetData(const Dali::Clipboard::ClipData& clipData)
@@ -116,9 +119,9 @@ struct Clipboard::Impl
     mDataRequestIds.push_back(mDataId);
     mDataRequestItems[mDataId] = std::make_pair(mimeType, offer);
 
+    DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", mDataId, mimeType.c_str());
     ecore_wl2_offer_receive(offer, const_cast<char*>(type));
     ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
-    DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", mDataId, mimeType.c_str());
     return mDataId;
   }
 
@@ -187,6 +190,18 @@ struct Clipboard::Impl
   {
     Ecore_Wl2_Event_Offer_Data_Ready* ev = reinterpret_cast<Ecore_Wl2_Event_Offer_Data_Ready*>(event);
 
+    if(ev == nullptr)
+    {
+      DALI_LOG_ERROR("ev is nullptr.\n");
+      return;
+    }
+
+    if(ev->data == nullptr || ev->len < 1)
+    {
+      DALI_LOG_ERROR("no selection data.\n");
+      return;
+    }
+
     size_t      dataLength = strlen(ev->data);
     size_t      bufferSize = static_cast<size_t>(ev->len);
     std::string content;
@@ -226,14 +241,65 @@ struct Clipboard::Impl
     }
   }
 
+  void SelectionOffer(void* event)
+  {
+    Ecore_Wl2_Event_Seat_Selection *ev = reinterpret_cast<Ecore_Wl2_Event_Seat_Selection*>(event);
+
+    if(ev == nullptr)
+    {
+      DALI_LOG_ERROR("ev is nullptr.\n");
+      return;
+    }
+
+    if(ev->num_types < 1)
+    {
+      DALI_LOG_ERROR("num type is 0.\n");
+      return;
+    }
+
+    if(ev->types == nullptr)
+    {
+      DALI_LOG_ERROR("types is nullptr.\n");
+      return;
+    }
+
+    const char* selectedType = nullptr;
+    std::string formatMarkup("application/x-elementary-markup");
+
+    for(int i = 0; i < ev->num_types; i++)
+    {
+      DALI_LOG_RELEASE_INFO("mime type(%s)", ev->types[i]);
+      if(!formatMarkup.compare(ev->types[i]))
+      {
+        continue;
+      }
+
+      if(!selectedType)
+      {
+        selectedType = ev->types[i];
+      }
+    }
+
+    if(!selectedType)
+    {
+      DALI_LOG_ERROR("mime type is invalid.\n");
+      return;
+    }
+
+    DALI_LOG_RELEASE_INFO("data selected signal emit, type:%s\n", selectedType);
+    mDataSelectedSignal.Emit(selectedType);
+  }
+
   uint32_t             mSerial{0u};
   std::string          mMimeType;
   std::string          mData;
   Ecore_Event_Handler* mSendHandler{nullptr};
   Ecore_Event_Handler* mReceiveHandler{nullptr};
+  Ecore_Event_Handler* mSelectionHanlder{nullptr};
 
   Dali::Clipboard::DataSentSignalType     mDataSentSignal;
   Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
 
   uint32_t mDataId{0};
   std::vector<uint32_t> mDataRequestIds;
@@ -252,6 +318,14 @@ static Eina_Bool EcoreEventOfferDataReady(void* data, int type, void* event)
 {
   Clipboard::Impl* impl = reinterpret_cast<Clipboard::Impl*>(data);
   impl->ReceiveData(event);
+
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool EcoreEventSelectionOffer(void* data, int type, void* event)
+{
+  Clipboard::Impl* impl = reinterpret_cast<Clipboard::Impl*>(data);
+  impl->SelectionOffer(event);
 
   return ECORE_CALLBACK_PASS_ON;
 }
@@ -313,6 +387,11 @@ Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
+}
+
+Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+{
+  return mImpl->mDataSelectedSignal;
 }
 
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)

@@ -70,6 +70,11 @@ public:
   Dali::Clipboard::DataReceivedSignalType& DataReceivedSignal();
 
   /**
+   * @copydoc Dali::Clipboard::DataSelectedSignal()
+   */
+  Dali::Clipboard::DataSelectedSignalType& DataSelectedSignal();
+
+  /**
    * @copydoc Dali::Clipboard::SetData()
    */
   bool SetData(const Dali::Clipboard::ClipData& clipData);
