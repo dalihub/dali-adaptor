@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_NETWORK_PERFORMANCE_SERVER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <pthread.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/event-thread-callback.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/network/common/network-performance-client.h>
 #include <dali/internal/system/common/environment-options.h>
@@ -98,9 +99,16 @@ public:
 
 protected: // ClientSendDataInterface
   /**
+   * @copydoc ClientSendDataInterface::TriggerMainThreadAutomation()
+   */
+  void TriggerMainThreadAutomation(CallbackBase* callback) override;
+
+  /**
    * @copydoc ClientSendDataInterface::ClientSendDataInterface()
    */
   void SendData(const char* const data, unsigned int bufferSizeInBytes, unsigned int clientId) override;
+
+  void AutomationCallback();
 
 private:
   /**
@@ -152,7 +160,10 @@ private:
   NetworkPerformanceServer(const NetworkPerformanceServer&);            ///< undefined copy constructor
   NetworkPerformanceServer& operator=(const NetworkPerformanceServer&); ///< undefined assignment operator
 
-  SocketFactoryInterface&                 mSocketFactory;        ///< used to create sockets
+  SocketFactoryInterface&              mSocketFactory;  ///< used to create sockets
+  std::unique_ptr<EventThreadCallback> mTrigger;        ///< For waking up main thread
+  CallbackBase*                        mClientCallback; ///< Wrong thread callback!
+
   const EnvironmentOptions&               mLogOptions;           ///< log options
   Dali::Vector<NetworkPerformanceClient*> mClients;              ///< list of connected clients
   pthread_t                               mServerThread;         ///< thread that listens for new connections

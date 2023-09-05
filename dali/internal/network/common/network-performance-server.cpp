@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ struct ClientThreadInfo
 NetworkPerformanceServer::NetworkPerformanceServer(AdaptorInternalServices&  adaptorServices,
                                                    const EnvironmentOptions& logOptions)
 : mSocketFactory(adaptorServices.GetSocketFactoryInterface()),
+  mTrigger(new EventThreadCallback(MakeCallback(this, &NetworkPerformanceServer::AutomationCallback))),
   mLogOptions(logOptions),
   mServerThread(0),
   mListeningSocket(NULL),
@@ -301,6 +302,21 @@ void NetworkPerformanceServer::TransmitMarker(const PerformanceMarker& marker, c
   {
     NetworkPerformanceClient* client = (*iter);
     client->TransmitMarker(marker, description);
+  }
+}
+
+void NetworkPerformanceServer::TriggerMainThreadAutomation(CallbackBase* callback)
+{
+  // Called from client thread.
+  mClientCallback = callback;
+  mTrigger->Trigger();
+}
+
+void NetworkPerformanceServer::AutomationCallback()
+{
+  if(mClientCallback)
+  {
+    Dali::CallbackBase::Execute(*mClientCallback);
   }
 }
 
