@@ -116,6 +116,11 @@ public:
   void OnMouseButtonCancel(void* data, int type, void* event);
 
   /**
+   * @brief Called when a pointer is locked or unlocked.
+   */
+  void OnPointerConstraints(void* data, int type, void* event);
+
+  /**
    * @brief Called when a mouse wheel is received.
    */
   void OnMouseWheel(void* data, int type, void* event);

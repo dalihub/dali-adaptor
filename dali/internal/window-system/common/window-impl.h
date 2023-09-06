@@ -75,6 +75,7 @@ public:
   typedef Dali::DevelWindow::MoveCompletedSignalType                 MoveCompletedSignalType;
   typedef Dali::DevelWindow::ResizeCompletedSignalType               ResizeCompletedSignalType;
   typedef Dali::DevelWindow::InsetsChangedSignalType                 InsetsChangedSignalType;
+  typedef Dali::DevelWindow::PointerConstraintsSignalType            PointerConstraintsSignalType;
   typedef Signal<void()>                                             SignalType;
 
   /**
@@ -666,9 +667,18 @@ private:
 
   /**
    * @brief Called when the mouse relative event is received.
-   * @param[in] MouseRelativeEvent the mouse event
+   * @param[in] mouseRelativeEvent the mouse event
    */
-  void OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& MouseRelativeEvent);
+  void OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& mouseRelativeEvent);
+
+  /**
+   * @brief Called when the pointer is locked/unlocked
+   *
+   * @param[in] position The x, y coordinate relative to window where event happened
+   * @param[in] locked The status whether pointer is locked/unlocked
+   * @param[in] confined The status whether pointer is confined/unconfined
+   */
+  void OnPointerConstraints(const Dali::Int32Pair& position, bool locked, bool confined);
 
   /**
    * @brief Called when the window is moved by display server.
@@ -874,6 +884,14 @@ public: // Signals
   }
 
   /**
+   * @copydoc Dali::DevelWindow::PointerConstraintsSignal()
+   */
+  PointerConstraintsSignalType& PointerConstraintsSignal()
+  {
+    return mPointerConstraintsSignal;
+  }
+
+  /**
    * @copydoc Dali::DevelWindow::MoveCompletedSignal()
    */
   MoveCompletedSignalType& MoveCompletedSignal()
@@ -932,6 +950,7 @@ private:
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
   InsetsChangedSignalType                 mInsetsChangedSignal;
+  PointerConstraintsSignalType            mPointerConstraintsSignal;
 
   Dali::KeyEvent   mLastKeyEvent;
   Dali::TouchEvent mLastTouchEvent;
