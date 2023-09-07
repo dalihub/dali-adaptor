@@ -160,6 +160,13 @@ struct DALI_ADAPTOR_API Bridge
   virtual Accessible* FindByPath(const std::string& path) const = 0;
 
   /**
+   * @brief Notifies accessibility dbus that window has just been created.
+   *
+   * @param[in] window The window to be created
+   */
+  virtual void WindowCreated(Window window) = 0;
+
+  /**
    * @brief Notifies accessibility dbus that window has just been shown.
    *
    * @param[in] window The window to be shown
