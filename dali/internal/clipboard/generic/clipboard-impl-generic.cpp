@@ -31,6 +31,7 @@ struct Clipboard::Impl
 {
   Dali::Clipboard::DataSentSignalType     mDataSentSignal;
   Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -89,6 +90,11 @@ Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
+}
+
+Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+{
+  return mImpl->mDataSelectedSignal;
 }
 
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)

@@ -82,6 +82,9 @@ public:
   /// @brief Data receive completed signal.
   typedef Signal<void(uint32_t, const char*, const char*)> DataReceivedSignalType;
 
+  /// @brief To catch data selection event.
+  typedef Signal<void(const char*)> DataSelectedSignalType;
+
   /**
    * @brief Create an uninitialized Clipboard.
    * this can be initialized with one of the derived Clipboard's New() methods
@@ -129,6 +132,11 @@ public:
    * GetData() -> EcoreEventOfferDataReady() -> ReceiveData() -> DataReceivedSignal() Emit
    */
   DataReceivedSignalType& DataReceivedSignal();
+
+  /**
+   * @brief This signal is emitted when the data seleted.
+   */
+  DataSelectedSignalType& DataSelectedSignal();
 
   /**
    * @brief Send the given data to the clipboard.
