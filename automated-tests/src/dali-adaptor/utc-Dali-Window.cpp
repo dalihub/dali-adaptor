@@ -1652,3 +1652,18 @@ int UtcDaliWindowResizeCompletedSignalNegative(void)
   }
   END_TEST;
 }
+
+int UtcDaliWindowPointerConstraintsSignalNegative(void)
+{
+  Dali::Window instance;
+  try
+  {
+    DevelWindow::PointerConstraintsSignal(instance);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}

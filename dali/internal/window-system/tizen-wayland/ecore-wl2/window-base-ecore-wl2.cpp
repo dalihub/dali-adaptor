@@ -485,6 +485,19 @@ static Eina_Bool EcoreEventMouseButtonCancel(void* data, int type, void* event)
 }
 
 /**
+ * Called when pointer constraints event is recevied.
+ */
+static Eina_Bool EcoreEventPointerConstraints(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnPointerConstraints(data, type, event);
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
  * Called when a mouse wheel is received.
  */
 static Eina_Bool EcoreEventMouseWheel(void* data, int type, void* event)
@@ -990,6 +1003,9 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_RELATIVE_MOVE, EcoreEventMouseButtonRelativeMove, this));
 
+  // Register pointer lock/unlock event
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_POINTER_CONSTRAINTS, EcoreEventPointerConstraints, this));
+
   // Register Mouse wheel events
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_WHEEL, EcoreEventMouseWheel, this));
 
@@ -1354,9 +1370,9 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
     GetDeviceClass(ecore_device_class_get(relativeMoveEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(relativeMoveEvent->dev), deviceSubclass);
 
-    Dali::DevelWindow::MouseRelativeEvent MouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, relativeMoveEvent->modifiers, relativeMoveEvent->timestamp, Vector2(relativeMoveEvent->dx, relativeMoveEvent->dy), Vector2(relativeMoveEvent->dx_unaccel, relativeMoveEvent->dy_unaccel), deviceClass, deviceSubclass);
+    Dali::DevelWindow::MouseRelativeEvent mouseRelativeEvent(Dali::DevelWindow::MouseRelativeEvent::Type::RELATIVE_MOVE, relativeMoveEvent->modifiers, relativeMoveEvent->timestamp, Vector2(relativeMoveEvent->dx, relativeMoveEvent->dy), Vector2(relativeMoveEvent->dx_unaccel, relativeMoveEvent->dy_unaccel), deviceClass, deviceSubclass);
 
-    mMouseRelativeEventSignal.Emit(MouseRelativeEvent);
+    mMouseRelativeEventSignal.Emit(mouseRelativeEvent);
   }
 }
 
@@ -1376,6 +1392,20 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseButtonCancel\n");
+  }
+}
+
+void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
+{
+  Ecore_Wl2_Event_Pointer_Constraints* constraintsEvent = static_cast<Ecore_Wl2_Event_Pointer_Constraints*>(event);
+
+  if(constraintsEvent && constraintsEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_POINTER_CONSTRAINTS");
+    Dali::Int32Pair position(constraintsEvent->x, constraintsEvent->y);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnPointerConstraints[%d, %d]\n", position.GetX(), position.GetY());
+
+    mPointerConstraintsSignal.Emit(position, constraintsEvent->locked, constraintsEvent->confined);
   }
 }
 

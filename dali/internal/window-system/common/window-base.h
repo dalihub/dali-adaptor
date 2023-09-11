@@ -81,6 +81,7 @@ public:
   typedef Signal<void(Dali::Int32Pair&)>                                               MoveCompletedSignalType;
   typedef Signal<void(Dali::Uint16Pair&)>                                              ResizeCompletedSignalType;
   typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;
+  typedef Signal<void(const Dali::Int32Pair&, bool, bool)>                             PointerConstraintsSignalType;
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
@@ -651,6 +652,11 @@ public:
    */
   InsetsChangedSignalType& InsetsChangedSignal();
 
+  /**
+   * @brief This signal is emitted when window pointer is locked/unlocked
+   */
+  PointerConstraintsSignalType& PointerConstraintsSignal();
+
 protected:
   // Undefined
   WindowBase(const WindowBase&) = delete;
@@ -682,6 +688,7 @@ protected:
   MoveCompletedSignalType                 mMoveCompletedSignal;
   ResizeCompletedSignalType               mResizeCompletedSignal;
   InsetsChangedSignalType                 mInsetsChangedSignal;
+  PointerConstraintsSignalType            mPointerConstraintsSignal;
 };
 
 } // namespace Adaptor
