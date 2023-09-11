@@ -278,7 +278,16 @@ AsyncTaskManager::~AsyncTaskManager()
     Dali::Adaptor::Get().UnregisterProcessor(*this);
   }
 
+  // Join all threads.
   mTasks.Clear();
+
+  // Remove cache impl after all threads are join.
+  mCacheImpl.reset();
+
+  // Remove tasks after CacheImpl removed
+  mWaitingTasks.clear();
+  mRunningTasks.clear();
+  mCompletedTasks.clear();
 }
 
 void AsyncTaskManager::AddTask(AsyncTaskPtr task)

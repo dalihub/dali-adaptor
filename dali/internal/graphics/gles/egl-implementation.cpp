@@ -408,17 +408,17 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers started. eglSurface(%p)\n", eglSurface);
-      DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
     }
+    DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
 #endif //DALI_PROFILE_UBUNTU
 
     // DALI_LOG_ERROR("EglImplementation::SwapBuffers()\n");
     eglSwapBuffers(mEglDisplay, eglSurface);
 
 #ifndef DALI_PROFILE_UBUNTU
+    DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffers finished.\n");
       mSwapBufferCountAfterResume++;
     }
@@ -499,8 +499,8 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR started. eglSurface(%p)\n", eglSurface);
-      DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
     }
+    DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
 #endif //DALI_PROFILE_UBUNTU
 
     EGLBoolean result = mEglSwapBuffersWithDamageKHR(mEglDisplay, eglSurface, reinterpret_cast<int*>(const_cast<std::vector<Rect<int>>&>(damagedRects).data()), damagedRects.size());
@@ -510,9 +510,9 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     }
 
 #ifndef DALI_PROFILE_UBUNTU
+    DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
     {
-      DALI_TRACE_END(gTraceFilter, "DALI_EGL_SWAP_BUFFERS_KHR");
       DALI_LOG_RELEASE_INFO("EglImplementation::eglSwapBuffersWithDamageKHR finished.\n");
       mSwapBufferCountAfterResume++;
     }

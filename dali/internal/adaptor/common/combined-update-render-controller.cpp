@@ -702,7 +702,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
     // Upload shared resources
+    TRACE_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
     mCore.PreRender(renderStatus, mForceClear);
+    TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
 
     if(!uploadOnly || surfaceResized)
     {
@@ -717,6 +719,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
         if(scene && windowSurface)
         {
+          TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_SCENE");
           Integration::RenderStatus windowRenderStatus;
 
           const bool sceneSurfaceResized = scene.IsSurfaceRectChanged();
@@ -745,16 +748,19 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           {
             SurfaceResized();
           }
+          TRACE_UPDATE_RENDER_END("DALI_RENDER_SCENE");
         }
       }
     }
 
+    TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
     if(!uploadOnly)
     {
       graphics.PostRender();
     }
 
     mCore.PostRender();
+    TRACE_UPDATE_RENDER_END("DALI_POST_RENDER");
 
     //////////////////////////////
     // DELETE SURFACE

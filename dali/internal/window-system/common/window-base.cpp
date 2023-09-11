@@ -46,7 +46,8 @@ WindowBase::WindowBase()
   mMouseRelativeEventSignal(),
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
-  mInsetsChangedSignal()
+  mInsetsChangedSignal(),
+  mPointerConstraintsSignal()
 {
 }
 
@@ -167,6 +168,11 @@ WindowBase::ResizeCompletedSignalType& WindowBase::ResizeCompletedSignal()
 WindowBase::InsetsChangedSignalType& WindowBase::InsetsChangedSignal()
 {
   return mInsetsChangedSignal;
+}
+
+WindowBase::PointerConstraintsSignalType& WindowBase::PointerConstraintsSignal()
+{
+  return mPointerConstraintsSignal;
 }
 
 } // namespace Adaptor

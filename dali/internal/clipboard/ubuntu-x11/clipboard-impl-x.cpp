@@ -54,6 +54,7 @@ struct Clipboard::Impl
     }
 
     mDataSentSignal.Emit(mMimeType.c_str(), mData.c_str());
+    mDataSelectedSignal.Emit(mMimeType.c_str());
 
     return true;
   }
@@ -89,6 +90,7 @@ struct Clipboard::Impl
 
   Dali::Clipboard::DataSentSignalType     mDataSentSignal;
   Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
 
   Dali::Timer mDataReceiveTimer;
 };
@@ -164,6 +166,11 @@ Dali::Clipboard::DataSentSignalType& Clipboard::DataSentSignal()
 Dali::Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
 {
   return mImpl->mDataReceivedSignal;
+}
+
+Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+{
+  return mImpl->mDataSelectedSignal;
 }
 
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)

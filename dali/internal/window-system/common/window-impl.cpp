@@ -96,6 +96,7 @@ Window::Window()
   mMoveCompletedSignal(),
   mResizeCompletedSignal(),
   mInsetsChangedSignal(),
+  mPointerConstraintsSignal(),
   mLastKeyEvent(),
   mLastTouchEvent(),
   mIsTransparent(false),
@@ -167,6 +168,7 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
   mWindowBase->MouseRelativeEventSignal().Connect(this, &Window::OnMouseRelativeEvent);
   mWindowBase->MoveCompletedSignal().Connect(this, &Window::OnMoveCompleted);
   mWindowBase->ResizeCompletedSignal().Connect(this, &Window::OnResizeCompleted);
+  mWindowBase->PointerConstraintsSignal().Connect(this, &Window::OnPointerConstraints);
 
   mWindowSurface->OutputTransformedSignal().Connect(this, &Window::OnOutputTransformed);
   mWindowSurface->RotationFinishedSignal().Connect(this, &Window::OnRotationFinished);
@@ -1081,11 +1083,21 @@ void Window::OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseIn
   mMouseInOutEventSignal.Emit(handle, mouseInOutEvent);
 }
 
-void Window::OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& MouseRelativeEvent)
+void Window::OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& mouseRelativeEvent)
 {
   Dali::Window handle(this);
 
-  mMouseRelativeEventSignal.Emit(handle, MouseRelativeEvent);
+  mMouseRelativeEventSignal.Emit(handle, mouseRelativeEvent);
+}
+
+void Window::OnPointerConstraints(const Dali::Int32Pair& position, bool locked, bool confined)
+{
+  Dali::Window handle(this);
+
+  Vector2                                    newPosition = RecalculatePosition(Vector2(position.GetX(), position.GetY()));
+  Dali::DevelWindow::PointerConstraintsEvent pointerConstraintsEvent(static_cast<int32_t>(newPosition.x), static_cast<int32_t>(newPosition.y), locked, confined);
+
+  mPointerConstraintsSignal.Emit(handle, pointerConstraintsEvent);
 }
 
 void Window::OnRotation(const RotationEvent& rotation)

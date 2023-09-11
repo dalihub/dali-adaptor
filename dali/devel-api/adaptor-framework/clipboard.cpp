@@ -56,6 +56,11 @@ Clipboard::DataReceivedSignalType& Clipboard::DataReceivedSignal()
   return GetImplementation(*this).DataReceivedSignal();
 }
 
+Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
+{
+  return GetImplementation(*this).DataSelectedSignal();
+}
+
 bool Clipboard::SetData(const ClipData& clipData)
 {
   return GetImplementation(*this).SetData(clipData);

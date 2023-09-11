@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/mouse-relative-event.h>
+#include <dali/devel-api/adaptor-framework/pointer-constraints-event.h>
 #include <dali/public-api/adaptor-framework/window-enumerations.h>
 #include <dali/public-api/adaptor-framework/window.h>
 #include <dali/public-api/common/vector-wrapper.h>
@@ -55,6 +56,7 @@ typedef Signal<void(Window, const Dali::DevelWindow::MouseRelativeEvent&)>      
 typedef Signal<void(Window, Dali::Window::WindowPosition)>                           MoveCompletedSignalType;                 ///< Window Moved by Server signal type
 typedef Signal<void(Window, Dali::Window::WindowSize)>                               ResizeCompletedSignalType;               ///< Window Resized by Server signal type
 typedef Signal<void(WindowInsetsPartType, WindowInsetsPartState, const Extents&)>    InsetsChangedSignalType;                 ///< InsetsChanged signal type
+typedef Signal<void(Window, const Dali::DevelWindow::PointerConstraintsEvent&)>      PointerConstraintsSignalType;            ///< PointerConstraintsEvent signal type
 
 /**
  * @brief Creates an initialized handle to a new Window.
@@ -719,6 +721,14 @@ DALI_ADAPTOR_API ResizeCompletedSignalType& ResizeCompletedSignal(Window window)
  * @return The signal to connect to
  */
 DALI_ADAPTOR_API InsetsChangedSignalType& InsetsChangedSignal(Window window);
+
+/**
+ * @brief This signal is emitted when pointer is locked/unlocked
+ *
+ * @param[in] window The window instance
+ * @return The signal to connect to
+ */
+DALI_ADAPTOR_API PointerConstraintsSignalType& PointerConstraintsSignal(Window window);
 
 } // namespace DevelWindow
 

@@ -359,6 +359,11 @@ MouseRelativeEventSignalType& MouseRelativeEventSignal(Window window)
   return GetImplementation(window).MouseRelativeEventSignal();
 }
 
+PointerConstraintsSignalType& PointerConstraintsSignal(Window window)
+{
+  return GetImplementation(window).PointerConstraintsSignal();
+}
+
 } // namespace DevelWindow
 
 } // namespace Dali
