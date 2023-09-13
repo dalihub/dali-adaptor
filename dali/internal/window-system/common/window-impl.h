@@ -508,11 +508,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
   const Dali::KeyEvent& GetLastKeyEvent() const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetLastTouchEvent()
-   */
-  const Dali::TouchEvent& GetLastTouchEvent() const;
-
-  /**
    * @copydoc Dali::DevelWindow::PointerConstraintsLock()
    */
   bool PointerConstraintsLock();
@@ -952,8 +947,7 @@ private:
   InsetsChangedSignalType                 mInsetsChangedSignal;
   PointerConstraintsSignalType            mPointerConstraintsSignal;
 
-  Dali::KeyEvent   mLastKeyEvent;
-  Dali::TouchEvent mLastTouchEvent;
+  Dali::KeyEvent mLastKeyEvent;
 
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;

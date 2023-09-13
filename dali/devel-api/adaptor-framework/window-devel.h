@@ -33,6 +33,7 @@ namespace Dali
 {
 class KeyEvent;
 class TouchEvent;
+class HoverEvent;
 class WheelEvent;
 class RenderTaskList;
 struct TouchPoint;
@@ -538,6 +539,15 @@ DALI_ADAPTOR_API const KeyEvent& GetLastKeyEvent(Window window);
  * @note It returns the raw event the window gets. There is no hit-actor and local position information.
  */
 DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
+
+/**
+ * @brief Gets the last hover event the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last hover event the window gets.
+ * @note It returns the raw event the window gets. There is no hit-actor and local position information.
+ */
+DALI_ADAPTOR_API const HoverEvent& GetLastHoverEvent(Window window);
 
 /**
  * @brief Sets the pointer constraints lock.

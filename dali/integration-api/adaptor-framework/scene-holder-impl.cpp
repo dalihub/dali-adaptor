@@ -23,6 +23,7 @@
 #include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/touch-event-integ.h>
+#include <dali/integration-api/events/touch-integ.h>
 #include <dali/integration-api/events/wheel-event-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -74,6 +75,8 @@ private:
 
 SceneHolder::SceneHolder()
 : mLifeCycleObserver(new SceneHolderLifeCycleObserver(mAdaptor)),
+  mLastTouchEvent(),
+  mLastHoverEvent(),
   mId(mSceneHolderCounter++),
   mSurface(nullptr),
   mAdaptor(nullptr),
@@ -307,17 +310,29 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
     // First the touch and/or hover event & related gesture events are queued
     if(type == Integration::TouchEventCombiner::DISPATCH_TOUCH || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
     {
+      mLastTouchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
       mScene.QueueEvent(touchEvent);
     }
 
     if(type == Integration::TouchEventCombiner::DISPATCH_HOVER || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
     {
+      mLastHoverEvent = Dali::Integration::NewHoverEvent(timeStamp, point);
       mScene.QueueEvent(hoverEvent);
     }
 
     // Next the events are processed with a single call into Core
     mAdaptor->ProcessCoreEvents();
   }
+}
+
+const Dali::TouchEvent& SceneHolder::GetLastTouchEvent() const
+{
+  return mLastTouchEvent;
+}
+
+const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
+{
+  return mLastHoverEvent;
 }
 
 void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)

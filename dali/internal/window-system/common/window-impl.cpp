@@ -23,7 +23,6 @@
 #include <dali/devel-api/events/key-event-devel.h>
 #include <dali/integration-api/core.h>
 #include <dali/integration-api/events/touch-event-integ.h>
-#include <dali/integration-api/events/touch-integ.h>
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/camera-actor.h>
 #include <dali/public-api/actors/layer.h>
@@ -98,7 +97,6 @@ Window::Window()
   mInsetsChangedSignal(),
   mPointerConstraintsSignal(),
   mLastKeyEvent(),
-  mLastTouchEvent(),
   mIsTransparent(false),
   mIsFocusAcceptable(true),
   mIconified(false),
@@ -1061,7 +1059,6 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
-  mLastTouchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
   FeedTouchPoint(point, timeStamp);
 }
 
@@ -1398,11 +1395,6 @@ bool Window::IsWindowRotating() const
 const Dali::KeyEvent& Window::GetLastKeyEvent() const
 {
   return mLastKeyEvent;
-}
-
-const Dali::TouchEvent& Window::GetLastTouchEvent() const
-{
-  return mLastTouchEvent;
 }
 
 void Window::SetUserGeometryPolicy()
