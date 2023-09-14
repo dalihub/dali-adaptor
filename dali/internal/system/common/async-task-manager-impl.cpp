@@ -35,6 +35,8 @@ namespace Adaptor
 {
 namespace
 {
+constexpr auto FORCE_TRIGGER_THRESHOLD = 128u; ///< Trigger TasksCompleted() forcely if the number of completed task contain too much.
+
 constexpr auto DEFAULT_NUMBER_OF_ASYNC_THREADS = size_t{8u};
 constexpr auto NUMBER_OF_ASYNC_THREADS_ENV     = "DALI_ASYNC_MANAGER_THREAD_POOL_SIZE";
 
@@ -591,7 +593,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
   if(task)
   {
-    const bool needTrigger = task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD;
+    bool needTrigger = (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
 
     // Lock while check validation of task.
     {
@@ -654,6 +656,11 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
           CacheImpl::EraseTaskCache(mCacheImpl->mRunningTasksCache, task, iter);
           mRunningTasks.erase(iter);
+
+          if(!needTrigger)
+          {
+            needTrigger |= (mCompletedTasks.size() >= FORCE_TRIGGER_THRESHOLD);
+          }
 
           // Now, task is invalidate.
           task.Reset();

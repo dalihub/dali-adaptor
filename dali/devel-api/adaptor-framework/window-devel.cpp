@@ -299,6 +299,11 @@ const TouchEvent& GetLastTouchEvent(Window window)
   return GetImplementation(window).GetLastTouchEvent();
 }
 
+const HoverEvent& GetLastHoverEvent(Window window)
+{
+  return GetImplementation(window).GetLastHoverEvent();
+}
+
 bool PointerConstraintsLock(Window window)
 {
   return GetImplementation(window).PointerConstraintsLock();

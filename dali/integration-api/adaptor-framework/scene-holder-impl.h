@@ -20,11 +20,14 @@
 
 // EXTERNAL INCLUDES
 #include <dali/graphics-api/graphics-controller.h>
+#include <dali/integration-api/events/hover-event-integ.h>
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
 #include <dali/integration-api/scene.h>
 #include <dali/public-api/common/intrusive-ptr.h>
+#include <dali/public-api/events/hover-event.h>
+#include <dali/public-api/events/touch-event.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/base-object.h>
 #include <atomic>
@@ -187,6 +190,20 @@ public:
    * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
    */
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);
+
+  /**
+   * @brief Get the Last Touch Event
+   *
+   * @return Dali::TouchEvent
+   */
+  const Dali::TouchEvent& GetLastTouchEvent() const;
+
+  /**
+   * @brief Get the Last Hover Event
+   *
+   * @return Dali::HoverEvent
+   */
+  const Dali::HoverEvent& GetLastHoverEvent() const;
 
   /**
    * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent
@@ -375,6 +392,8 @@ private:
 
   class SceneHolderLifeCycleObserver;
   std::unique_ptr<SceneHolderLifeCycleObserver> mLifeCycleObserver; ///< The adaptor life cycle observer
+  Dali::TouchEvent                              mLastTouchEvent;
+  Dali::HoverEvent                              mLastHoverEvent;
 
 protected:
   uint32_t                 mId;    ///< A unique ID to identify the SceneHolder starting from 0

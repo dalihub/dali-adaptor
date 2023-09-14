@@ -508,11 +508,6 @@ public: // Dali::Internal::Adaptor::SceneHolder
   const Dali::KeyEvent& GetLastKeyEvent() const;
 
   /**
-   * @copydoc Dali::DevelWindow::GetLastTouchEvent()
-   */
-  const Dali::TouchEvent& GetLastTouchEvent() const;
-
-  /**
    * @copydoc Dali::DevelWindow::PointerConstraintsLock()
    */
   bool PointerConstraintsLock();
@@ -952,8 +947,7 @@ private:
   InsetsChangedSignalType                 mInsetsChangedSignal;
   PointerConstraintsSignalType            mPointerConstraintsSignal;
 
-  Dali::KeyEvent   mLastKeyEvent;
-  Dali::TouchEvent mLastTouchEvent;
+  Dali::KeyEvent mLastKeyEvent;
 
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;
@@ -964,6 +958,7 @@ private:
   bool mFocused : 1;
   bool mIsWindowRotating : 1;      ///< The window rotating flag.
   bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
+  bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
 };
 
 } // namespace Adaptor

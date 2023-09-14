@@ -368,6 +368,21 @@ public:
   }
 
   /**
+   * @brief Sends a signal to dbus that the window is created.
+   *
+   * @param[in] window The window to be created
+   * @see BridgeObject::Emit()
+   */
+  void EmitCreated(Dali::Window window)
+  {
+    auto windowAccessible = mApplication.GetWindowAccessible(window);
+    if(windowAccessible)
+    {
+      windowAccessible->Emit(WindowEvent::CREATE, 0);
+    }
+  }
+
+  /**
    * @brief Sends a signal to dbus that the window is shown.
    *
    * @param[in] window The window to be shown
@@ -470,6 +485,17 @@ public:
     if(windowAccessible)
     {
       windowAccessible->Emit(WindowEvent::MAXIMIZE, 0);
+    }
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::WindowCreated()
+   */
+  void WindowCreated(Dali::Window window) override
+  {
+    if(IsUp())
+    {
+      EmitCreated(window);
     }
   }
 
