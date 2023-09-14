@@ -76,6 +76,16 @@ bool DragAndDropGeneric::RemoveListener(Dali::Actor target)
   return true;
 }
 
+bool DragAndDropGeneric::AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback)
+{
+  return true;
+}
+
+bool DragAndDropGeneric::RemoveListener(Dali::Window target)
+{
+  return true;
+}
+
 void DragAndDropGeneric::SendData(void* event)
 {
   return;

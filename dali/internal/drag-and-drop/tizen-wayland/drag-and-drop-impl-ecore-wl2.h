@@ -38,6 +38,14 @@ struct DropTarget
   int                                    parentWindowId;
 };
 
+struct DropWindowTarget
+{
+  Dali::Window                            target;
+  Dali::DragAndDrop::DragAndDropFunction  callback;
+  bool                                    inside;
+  int                                     windowId;
+};
+
 /**
  * DragAndDrop Implementation
  */
@@ -66,9 +74,19 @@ public:
   bool AddListener(Dali::Actor target, Dali::DragAndDrop::DragAndDropFunction callback) override;
 
   /**
+   * @copydoc Dali::DragAndDrop::AddListener()
+   */
+  bool AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+
+  /**
    * @copydoc Dali::DragAndDrop::RemoveListener()
    */
   bool RemoveListener(Dali::Actor target) override;
+
+  /**
+   * @copydoc Dali::DragAndDrop::RemoveListener()
+   */
+  bool RemoveListener(Dali::Window target) override;
 
   /**
    * @copydoc Dali::DragAndDrop::SendData()
@@ -135,12 +153,15 @@ private:
   Ecore_Event_Handler*              mEnterHandler{nullptr};
   Ecore_Event_Handler*              mLeaveHandler{nullptr};
   int                               mTargetIndex{0};
+  int                               mWindowTargetIndex{0};
   std::string                       mMimeType;
   std::string                       mData;
   int                               mDataSize{0};
   Dali::Vector2                     mPosition;
+  Dali::Vector2                     mWindowPosition;
   Dali::DragAndDrop::SourceFunction mSourceCallback{nullptr};
   std::vector<DropTarget>           mDropTargets;
+  std::vector<DropWindowTarget>     mDropWindowTargets;
 }; // class DragAndDropEcoreWl
 
 } // namespace Adaptor

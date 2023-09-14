@@ -54,4 +54,14 @@ bool DragAndDrop::RemoveListener(Dali::Actor target)
   return GetImplementation(*this).RemoveListener(target);
 }
 
+bool DragAndDrop::AddListener(Dali::Window target, DragAndDropFunction callback)
+{
+  return GetImplementation(*this).AddListener(target, callback);
+}
+
+bool DragAndDrop::RemoveListener(Dali::Window target)
+{
+  return GetImplementation(*this).RemoveListener(target);
+}
+
 } // namespace Dali

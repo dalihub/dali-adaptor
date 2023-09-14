@@ -63,6 +63,16 @@ public:
   virtual bool RemoveListener(Dali::Actor target) = 0;
 
   /**
+   * @copydoc Dali::DragAndDrop::AddListener()
+   */
+  virtual bool AddListener(Dali::Window window, Dali::DragAndDrop::DragAndDropFunction callback) = 0;
+
+  /**
+   * @copydoc Dali::DragAndDrop::RemoveListener()
+   */
+  virtual bool RemoveListener(Dali::Window target) = 0;
+
+  /**
    * @copydoc Dali::DragAndDrop::SendData()
    */
   virtual void SendData(void* event) = 0;

@@ -211,6 +211,23 @@ public:
    */
   bool RemoveListener(Dali::Actor target);
 
+  /**
+   * @brief Add the listener for receiving the drag and drop events.
+   *
+   * @param[in] target The drop target object.
+   * @param[in] callback A drag and drop event callback.
+   * @return bool true if the listener is added successfully.
+   */
+  bool AddListener(Dali::Window target, DragAndDropFunction callback);
+
+  /**
+   * @brief Remove the listener.
+   *
+   * @param[in] target The drop target object.
+   * @return bool true if the listener is removed successfully.
+   */
+  bool RemoveListener(Dali::Window target);
+
 public:
   /**
    * @brief This constructor is used by Adaptor::GetDragAndDrop().
