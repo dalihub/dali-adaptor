@@ -105,7 +105,8 @@ Window::Window()
   mWindowRotationAcknowledgement(false),
   mFocused(false),
   mIsWindowRotating(false),
-  mIsEnabledUserGeometry(false)
+  mIsEnabledUserGeometry(false),
+  mIsEmittedWindowCreatedEvent(false)
 {
 }
 
@@ -227,19 +228,18 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 
   // Add Window to bridge for ATSPI
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
-  if(bridge->IsUp())
-  {
-    auto rootLayer  = mScene.GetRootLayer();
-    auto accessible = Accessibility::Accessible::Get(rootLayer);
-    bridge->AddTopLevelWindow(accessible);
-
-    // Emit Window create event
-    // Create and Destory signal only emit in multi-window environment, so it does not emit on default layer.
-    bridge->Emit(accessible, Accessibility::WindowEvent::CREATE);
-  }
 
   bridge->EnabledSignal().Connect(this, &Window::OnAccessibilityEnabled);
   bridge->DisabledSignal().Connect(this, &Window::OnAccessibilityDisabled);
+
+  if(bridge->IsUp())
+  {
+    OnAccessibilityEnabled();
+  }
+  else
+  {
+    OnAccessibilityDisabled();
+  }
 
   // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
   // The show must be called after the adaptor is initialized.
@@ -1165,16 +1165,26 @@ void Window::OnAccessibilityEnabled()
   auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->AddTopLevelWindow(accessible);
 
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
+
+  Dali::Window handle(this);
+  if(!mIsEmittedWindowCreatedEvent)
+  {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Created Event\n", this, mNativeWindowId);
+    bridge->WindowCreated(handle);
+    mIsEmittedWindowCreatedEvent = true;
+  }
+
   if(!mVisible || mIconified)
   {
     return;
   }
 
-  Dali::Window handle(this);
   bridge->WindowShown(handle);
 
   if(mFocused)
   {
+    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
     bridge->WindowFocused(handle);
   }
 }
@@ -1185,6 +1195,7 @@ void Window::OnAccessibilityDisabled()
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer);
   bridge->RemoveTopLevelWindow(accessible);
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
 }
 
 void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)

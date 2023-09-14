@@ -958,6 +958,7 @@ private:
   bool mFocused : 1;
   bool mIsWindowRotating : 1;      ///< The window rotating flag.
   bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
+  bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
 };
 
 } // namespace Adaptor

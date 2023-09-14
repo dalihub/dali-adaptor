@@ -77,6 +77,10 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return nullptr;
   }
 
+  void WindowCreated(Window window) override
+  {
+  }
+
   void WindowShown(Window window) override
   {
   }
