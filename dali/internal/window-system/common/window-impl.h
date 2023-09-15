@@ -863,6 +863,7 @@ private:
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
   bool mIsWindowRotating : 1; ///< The window rotating flag.
+  bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
 };
 
 } // namespace Adaptor
