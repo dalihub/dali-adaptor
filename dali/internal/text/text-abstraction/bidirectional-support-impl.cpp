@@ -63,6 +63,30 @@ bool GetBidiParagraphDirection(FriBidiParType paragraphDirection)
 
   return false;
 }
+
+BidiDirection GetBidiCharacterDirection(FriBidiCharType characterDirection)
+{
+  switch(characterDirection)
+  {
+    case FRIBIDI_TYPE_LTR: // Left-To-Right letter.
+    {
+      return LEFT_TO_RIGHT;
+    }
+    case FRIBIDI_TYPE_AL:  // Arabic Letter.
+    case FRIBIDI_TYPE_RTL: // Right-To-Left letter.
+    {
+      return RIGHT_TO_LEFT;
+    }
+    case FRIBIDI_TYPE_AN: // Arabic Numeral.
+    case FRIBIDI_TYPE_ES: // European number Separator.
+    case FRIBIDI_TYPE_ET: // European number Terminator.
+    case FRIBIDI_TYPE_EN: // European Numeral.
+    default:
+    {
+      return NEUTRAL;
+    }
+  }
+}
 } // namespace
 
 struct BidirectionalSupport::Plugin
@@ -72,10 +96,9 @@ struct BidirectionalSupport::Plugin
    */
   struct BidirectionalInfo
   {
-    FriBidiCharType*    characterTypes;     ///< The type of each character (right, left, neutral, ...)
-    FriBidiBracketType* bracketTypes;       ///< Input list of bracket types as returned by fribidi_get_bracket_types().
-    FriBidiLevel*       embeddedLevels;     ///< Embedded levels.
-    FriBidiParType      paragraphDirection; ///< The paragraph's direction.
+    FriBidiCharType* characterTypes;     ///< The type of each character (right, left, neutral, ...)
+    FriBidiLevel*    embeddedLevels;     ///< Embedded levels.
+    FriBidiParType   paragraphDirection; ///< The paragraph's direction.
   };
 
   Plugin()
@@ -96,7 +119,6 @@ struct BidirectionalSupport::Plugin
 
       free(info->embeddedLevels);
       free(info->characterTypes);
-      free(info->bracketTypes);
       delete info;
     }
   }
@@ -130,21 +152,10 @@ struct BidirectionalSupport::Plugin
     // Retrieve the paragraph's direction.
     bidirectionalInfo->paragraphDirection = matchLayoutDirection == true ? (layoutDirection == LayoutDirection::RIGHT_TO_LEFT ? FRIBIDI_PAR_RTL : FRIBIDI_PAR_LTR) : (fribidi_get_par_direction(bidirectionalInfo->characterTypes, numberOfCharacters));
 
-    bidirectionalInfo->bracketTypes = reinterpret_cast<FriBidiBracketType*>(malloc(numberOfCharacters * sizeof(FriBidiBracketType)));
-    if(!bidirectionalInfo->bracketTypes)
-    {
-      free(bidirectionalInfo->bracketTypes);
-      delete bidirectionalInfo;
-      return 0;
-    }
-
-    fribidi_get_bracket_types(paragraph, numberOfCharacters, bidirectionalInfo->characterTypes, bidirectionalInfo->bracketTypes);
-
     // Retrieve the embedding levels.
-    if(fribidi_get_par_embedding_levels_ex(bidirectionalInfo->characterTypes, bidirectionalInfo->bracketTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels) == 0)
+    if(fribidi_get_par_embedding_levels(bidirectionalInfo->characterTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels) == 0)
     {
       free(bidirectionalInfo->characterTypes);
-      free(bidirectionalInfo->bracketTypes);
       delete bidirectionalInfo;
       return 0;
     }
@@ -187,7 +198,6 @@ struct BidirectionalSupport::Plugin
       // Free resources and destroy the container.
       free(bidirectionalInfo->embeddedLevels);
       free(bidirectionalInfo->characterTypes);
-      free(bidirectionalInfo->bracketTypes);
       delete bidirectionalInfo;
 
       *it = NULL;
@@ -279,24 +289,64 @@ struct BidirectionalSupport::Plugin
   {
     const BidirectionalInfo* const bidirectionalInfo = *(mParagraphBidirectionalInfo.Begin() + bidiInfoIndex);
 
+    const CharacterDirection paragraphDirection = GetBidiParagraphDirection(bidirectionalInfo->paragraphDirection);
+    CharacterDirection       previousDirection  = paragraphDirection;
+
     for(CharacterIndex index = 0u; index < numberOfCharacters; ++index)
     {
       CharacterDirection& characterDirection = *(directions + index);
+      CharacterDirection  nextDirection      = false;
 
-      // Checks if the character is rtl oriented.
-      // I.e even a neutral character can become rtl if surrounded by rtl characters.
-      characterDirection = FRIBIDI_IS_RTL(*(bidirectionalInfo->embeddedLevels + index));
+      characterDirection = false;
 
-      // NOTE
-      // We are discontinuing the previous character direction determination logic.
-      // The previous logic was too heuristic and had many shortcomings in handling various RTL cases.
-      // The key change in this update is that character direction is determined based on embedding levels,
-      // including bracket information.
-      // The character direction determined here will affect the behavior of the GetMirroredText() function.
-      // BTW, Harfbuzz(hb_shape) also supports text mirroring.
-      // To use this, we need to pass the character direction at the embedding level to hb_buffer_set_direction,
-      // which is currently challenging for us.
-      // If this is implemented, we will no longer need to perform GetMirroredText().
+      // Get the bidi direction.
+      const BidiDirection bidiDirection = GetBidiCharacterDirection(*(bidirectionalInfo->characterTypes + index));
+
+      if(RIGHT_TO_LEFT == bidiDirection)
+      {
+        characterDirection = true;
+        nextDirection      = true;
+      }
+      else if(NEUTRAL == bidiDirection)
+      {
+        // For neutral characters it check's the next and previous directions.
+        // If they are equals set that direction. If they are not, sets the paragraph's direction.
+        // If there is no next, sets the paragraph's direction.
+        nextDirection = paragraphDirection;
+
+        // Look for the next non-neutral character.
+        Length nextIndex = index + 1u;
+        for(; nextIndex < numberOfCharacters; ++nextIndex)
+        {
+          BidiDirection nextBidiDirection = GetBidiCharacterDirection(*(bidirectionalInfo->characterTypes + nextIndex));
+          if(nextBidiDirection != NEUTRAL)
+          {
+            nextDirection = RIGHT_TO_LEFT == nextBidiDirection;
+            break;
+          }
+        }
+
+        // Calculate the direction for all the neutral characters.
+        characterDirection = previousDirection == nextDirection ? previousDirection : paragraphDirection;
+
+        // Set the direction to all the neutral characters.
+        // The indices from currentIndex + 1u to nextIndex - 1u are neutral characters.
+        ++index;
+
+        for(; index < nextIndex; ++index)
+        {
+          CharacterDirection& nextCharacterDirection = *(directions + index);
+          nextCharacterDirection                     = characterDirection;
+        }
+
+        // Set the direction of the next non-neutral character.
+        if(nextIndex < numberOfCharacters)
+        {
+          *(directions + nextIndex) = nextDirection;
+        }
+      }
+
+      previousDirection = nextDirection;
     }
   }
 
