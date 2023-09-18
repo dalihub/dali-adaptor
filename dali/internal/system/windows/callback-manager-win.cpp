@@ -36,9 +36,40 @@ namespace Internal
 {
 namespace Adaptor
 {
+/**
+ * Structure contains the callback function and control options
+ */
+struct WindowsCallbackData
+{
+  /**
+   * Constructor
+   */
+  WindowsCallbackData(CallbackBase* callback, bool hasReturnValue)
+  : mCallback(callback),
+    mHasReturnValue(hasReturnValue)
+  {
+  }
+  /**
+   * Destructor
+   */
+  ~WindowsCallbackData()
+  {
+    delete mCallback;
+  }
+
+  CallbackBase* mCallback;       ///< call back
+  bool          mHasReturnValue; ///< true if the callback function has a return value.
+};
+
 WinCallbackManager::WinCallbackManager()
 : mRunning(false)
 {
+  mSelfCallback = MakeCallback(this, &WinCallbackManager::ProcessIdleFromFramework);
+}
+
+WinCallbackManager::~WinCallbackManager()
+{
+  delete mSelfCallback;
 }
 
 void WinCallbackManager::Start()
@@ -52,6 +83,8 @@ void WinCallbackManager::Stop()
   // make sure we're not called twice
   DALI_ASSERT_DEBUG(mRunning == true);
 
+  ClearIdleCallbacks();
+
   mRunning = false;
 }
 
@@ -62,35 +95,97 @@ bool WinCallbackManager::AddIdleCallback(CallbackBase* callback, bool hasReturnV
     return false;
   }
 
-  mCallbacks.insert(callback);
+  WindowsCallbackData* callbackData = new WindowsCallbackData(callback, hasReturnValue);
 
-  WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(callback), 0);
+  mCallbackContainer.push_back(callbackData);
+
+  if(!mSelfCallbackRegistered)
+  {
+    // Post only one times.
+    mSelfCallbackRegistered = true;
+    WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0);
+  }
 
   return true;
 }
 
 void WinCallbackManager::RemoveIdleCallback(CallbackBase* callback)
 {
-  //Wait for deal
+  for(auto iter = mCallbackContainer.begin(), endIter = mCallbackContainer.end(); iter != endIter; ++iter)
+  {
+    auto* callbackData = *iter;
+
+    if(callbackData->mCallback == callback)
+    {
+      // delete our data
+      delete callbackData;
+
+      // Set stored value as nullptr. It will be removed from container after ProcessIdle()
+      (*iter) = nullptr;
+
+      return;
+    }
+  }
 }
 
 bool WinCallbackManager::ProcessIdle()
 {
-  const bool idleProcessed = !mCallbacks.empty();
+  mSelfCallbackRegistered = false;
 
-  // @todo : Need to consider callback with return & don't erase callback when it return true.
-  for(CallbackBase* cb : mCallbacks)
+  const bool idleProcessed = !mCallbackContainer.empty();
+
+  for(auto iter = mCallbackContainer.begin(); iter != mCallbackContainer.end();)
   {
-    Dali::CallbackBase::Execute(*cb);
+    auto* callbackData = *iter;
+    bool  removed      = true;
+    if(callbackData)
+    {
+      if(callbackData->mHasReturnValue)
+      {
+        const bool retValue = Dali::CallbackBase::ExecuteReturn<bool>(*(callbackData->mCallback));
+
+        // Do not remove callback if return value is true.
+        removed = !retValue;
+      }
+      else
+      {
+        Dali::CallbackBase::Execute(*(callbackData->mCallback));
+      }
+    }
+
+    if(removed)
+    {
+      delete (*iter);
+      iter = mCallbackContainer.erase(iter);
+    }
+    else
+    {
+      ++iter;
+    }
   }
-  mCallbacks.clear();
+
+  // Re-register WIN_CALLBACK_EVENT when some idle callback remained.
+  if(!mCallbackContainer.empty())
+  {
+    if(!mSelfCallbackRegistered)
+    {
+      // Post only one times.
+      mSelfCallbackRegistered = true;
+      WindowsPlatform::PostWinThreadMessage(WIN_CALLBACK_EVENT, reinterpret_cast<uint64_t>(mSelfCallback), 0);
+    }
+  }
 
   return idleProcessed;
 }
 
 void WinCallbackManager::ClearIdleCallbacks()
 {
-  mCallbacks.clear();
+  for(auto iter = mCallbackContainer.begin(), endIter = mCallbackContainer.end(); iter != endIter; ++iter)
+  {
+    auto* callbackData = *iter;
+    delete callbackData;
+  }
+  mCallbackContainer.clear();
 }
 
 bool WinCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
@@ -100,6 +195,12 @@ bool WinCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
 
 void WinCallbackManager::RemoveIdleEntererCallback(CallbackBase* callback)
 {
+  RemoveIdleCallback(callback);
+}
+
+void WinCallbackManager::ProcessIdleFromFramework()
+{
+  ProcessIdle();
 }
 
 } // namespace Adaptor
