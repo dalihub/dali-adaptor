@@ -1516,7 +1516,16 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     GetDeviceClass(ecore_device_class_get(keyEvent->dev), deviceClass);
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
+    bool isRepeat = false;
+#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 25)
+    if(keyEvent->event_flags & ECORE_EVENT_FLAG_REPEAT)
+    {
+      isRepeat = true;
+    }
+#endif // Since ecore 1.25 version
+
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.isRepeat = isRepeat;
 
     mKeyEventSignal.Emit(keyEvent);
   }

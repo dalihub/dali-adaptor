@@ -601,7 +601,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
 
     //////////////////////////////
-    // TextureUploadRequest
+    // TextureUploadRequest (phase #1)
     //////////////////////////////
 
     // Upload requested resources after resource context activated.
@@ -686,7 +686,15 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       }
     }
 
+    //////////////////////////////
+    // TextureUploadRequest (phase #2)
+    //////////////////////////////
+
+    // Upload requested resources after resource context activated.
     graphics.ActivateResourceContext();
+
+    // Since uploadOnly value used at Update side, we should not change uploadOnly value now even some textures are uploaded.
+    mTextureUploadManager.ResourceUpload();
 
     if(mFirstFrameAfterResume)
     {

@@ -261,6 +261,37 @@ bool DragAndDropEcoreWl::AddListener(Dali::Actor target, Dali::DragAndDrop::Drag
   return true;
 }
 
+bool DragAndDropEcoreWl::AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback)
+{
+  std::vector<DropWindowTarget>::iterator itr;
+  for(itr = mDropWindowTargets.begin(); itr < mDropWindowTargets.end(); itr++)
+  {
+    if((*itr).target == target)
+    {
+      return false;
+    }
+  }
+
+  int windowId = INVALID_ECORE_WL2_WINDOW_ID;
+
+  Ecore_Wl2_Window* window = AnyCast<Ecore_Wl2_Window*>(target.GetNativeHandle());
+  if(window == nullptr)
+  {
+    return false;
+  }
+  windowId = ecore_wl2_window_id_get(window);
+
+  DropWindowTarget targetData;
+  targetData.target   = target;
+  targetData.callback = callback;
+  targetData.inside   = false;
+  targetData.windowId = windowId;
+
+  mDropWindowTargets.push_back(targetData);
+
+  return true;
+}
+
 bool DragAndDropEcoreWl::RemoveListener(Dali::Actor target)
 {
   std::vector<DropTarget>::iterator itr;
@@ -269,6 +300,21 @@ bool DragAndDropEcoreWl::RemoveListener(Dali::Actor target)
     if((*itr).target == target)
     {
       mDropTargets.erase(itr);
+      break;
+    }
+  }
+
+  return true;
+}
+
+bool DragAndDropEcoreWl::RemoveListener(Dali::Window target)
+{
+  std::vector<DropWindowTarget>::iterator itr;
+  for(itr = mDropWindowTargets.begin(); itr < mDropWindowTargets.end(); itr++)
+  {
+    if((*itr).target == target)
+    {
+      mDropWindowTargets.erase(itr);
       break;
     }
   }
@@ -301,6 +347,19 @@ void DragAndDropEcoreWl::ResetDropTargets()
       mDropTargets[i].callback(dragEvent);
     }
     mDropTargets[i].inside = false;
+  }
+
+  for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
+  {
+    if(mDropWindowTargets[i].inside)
+    {
+      Dali::DragAndDrop::DragEvent dragEvent;
+      dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+      Dali::Vector2 position(DEFAULT_POSITION, DEFAULT_POSITION);
+      dragEvent.SetPosition(position);
+      mDropWindowTargets[i].callback(dragEvent);
+    }
+    mDropWindowTargets[i].inside = false;
   }
 }
 
@@ -355,9 +414,17 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
     Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, ev->mimetype, ev->data);
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
-    ecore_wl2_offer_finish(ev->offer);
   }
   mTargetIndex = -1;
+
+  if(mWindowTargetIndex != -1)
+  {
+    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
+    mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
+    mDropWindowTargets[mWindowTargetIndex].inside = false;
+  }
+  mWindowTargetIndex = -1;
+
 }
 
 Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali::Window window)
@@ -449,6 +516,50 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
     }
   }
 
+  for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
+  {
+    if(ev->win != mDropWindowTargets[i].windowId)
+    {
+      continue;
+    }
+
+    // Recalculate Cursor by Orientation
+    Dali::Window window = mDropWindowTargets[i].target;
+    Dali::Window::WindowPosition position = window.GetPosition();
+    Dali::Window::WindowSize size = window.GetSize();
+
+    bool currentInside = IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
+
+    // Calculate Drag Enter, Leave, Move Event
+    if(currentInside && !mDropWindowTargets[i].inside)
+    {
+      mDropWindowTargets[i].inside = true;
+      // Call Enter Event
+      dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
+      dragEvent.SetPosition(curPosition);
+      mDropWindowTargets[i].callback(dragEvent);
+      // Accept Offer
+      ecore_wl2_offer_mimes_set(ev->offer, ecore_wl2_offer_mimes_get(ev->offer));
+    }
+    else if(!currentInside && mDropWindowTargets[i].inside)
+    {
+      mDropWindowTargets[i].inside = false;
+      // Call Leave Event
+      dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+      dragEvent.SetPosition(curPosition);
+      mDropWindowTargets[i].callback(dragEvent);
+      // Reject Offer
+      ecore_wl2_offer_accept(ev->offer, NULL);
+    }
+    else if(currentInside && mDropWindowTargets[i].inside)
+    {
+      // Call Move Event
+      dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
+      dragEvent.SetPosition(curPosition);
+      mDropWindowTargets[i].callback(dragEvent);
+    }
+  }
+
   return true;
 }
 
@@ -458,6 +569,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
   // Check the target object region
   mTargetIndex = -1;
+  mWindowTargetIndex = -1;
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
@@ -479,6 +591,36 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       mTargetIndex        = i;
       mPosition           = position;
       Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+
+      char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
+      if(mimetype)
+      {
+        ecore_wl2_offer_receive(ev->offer, mimetype);
+        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+        Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+        ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+      }
+      return true;
+    }
+  }
+
+  for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
+  {
+    if(ev->win != mDropWindowTargets[i].windowId)
+    {
+      continue;
+    }
+
+    // Recalculate Cursor by Orientation
+    Dali::Window window = mDropWindowTargets[i].target;
+    Dali::Window::WindowPosition position = window.GetPosition();
+    Dali::Window::WindowSize size = window.GetSize();
+
+    // If the drop position is in the target object region, request drop data to the source object
+    if(IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
+    {
+      mWindowTargetIndex = i;
+      mWindowPosition  = Dali::Vector2(position.GetX(), position.GetY());
 
       char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
       if(mimetype)

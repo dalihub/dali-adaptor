@@ -62,6 +62,16 @@ public:
   bool RemoveListener(Dali::Actor target) override;
 
   /**
+   * @copydoc Dali::DragAndDrop::AddListener()
+   */
+  bool AddListener(Dali::Window target, Dali::DragAndDrop::DragAndDropFunction callback) override;
+
+  /**
+   * @copydoc Dali::DragAndDrop::RemoveListener()
+   */
+  bool RemoveListener(Dali::Window target) override;
+
+  /**
    * @copydoc Dali::DragAndDrop::SendData()
    */
   void SendData(void* event) override;
