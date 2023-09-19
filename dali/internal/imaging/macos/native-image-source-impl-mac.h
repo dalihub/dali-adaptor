@@ -44,8 +44,8 @@ public:
    * @return A smart-pointer to a newly allocated image.
    */
   static NativeImageSourceCocoa* New(
-    unsigned int                        width,
-    unsigned int                        height,
+    uint32_t                            width,
+    uint32_t                            height,
     Dali::NativeImageSource::ColorDepth depth,
     Any                                 nativeImageSource);
 
@@ -58,10 +58,10 @@ public:
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
   bool GetPixels(
-    std::vector<unsigned char>& pixbuf,
-    unsigned int&               width,
-    unsigned int&               height,
-    Pixel::Format&              pixelFormat) const override;
+    std::vector<uint8_t>& pixbuf,
+    uint32_t&             width,
+    uint32_t&             height,
+    Pixel::Format&        pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
@@ -91,7 +91,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -101,12 +101,12 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  unsigned int GetWidth() const override;
+  uint32_t GetWidth() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  unsigned int GetHeight() const override;
+  uint32_t GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageSource::RequiresBlending()
@@ -183,8 +183,8 @@ private:
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    */
   NativeImageSourceCocoa(
-    unsigned int                        width,
-    unsigned int                        height,
+    uint32_t                            width,
+    uint32_t                            height,
     Dali::NativeImageSource::ColorDepth depth,
     Any                                 nativeImageSource);
 

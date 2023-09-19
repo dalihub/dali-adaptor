@@ -197,8 +197,8 @@ private:
   bool CheckBlending(int format);
 
 private:
-  typedef std::pair<tbm_surface_h, void*> EglImagePair;
-  typedef std::pair<tbm_surface_h, void*> BufferPair;
+  typedef std::pair<tbm_surface_h, void*>    EglImagePair;
+  typedef std::pair<tbm_surface_h, uint8_t*> BufferPair;
 
   Dali::Mutex               mMutex;              ///< Mutex
   uint32_t                  mWidth;              ///< image width

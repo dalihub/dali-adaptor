@@ -266,7 +266,7 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
     return NULL;
   }
 
-  unsigned char* buffer = info.planes[0].ptr;
+  uint8_t* buffer = info.planes[0].ptr;
   if(!buffer)
   {
     DALI_LOG_ERROR("tbm buffer pointer is null! [%p]\n", tbmSurface);
