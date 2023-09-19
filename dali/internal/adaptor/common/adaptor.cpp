@@ -230,6 +230,11 @@ void Adaptor::FlushUpdateMessages()
   mImpl->FlushUpdateMessages();
 }
 
+void Adaptor::RequestProcessEventsOnIdle()
+{
+  mImpl->RequestProcessEventsOnIdle();
+}
+
 const LogFactoryInterface& Adaptor::GetLogFactory()
 {
   return mImpl->GetLogFactory();
