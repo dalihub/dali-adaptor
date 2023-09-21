@@ -25,6 +25,7 @@
 #include "dali/public-api/common/dali-common.h"
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/shader-precompiler.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
@@ -80,6 +81,15 @@ const uint64_t DEFAULT_FRAME_DURATION_IN_NANOSECONDS(DEFAULT_FRAME_DURATION_IN_S
  *  3) MAIN THREAD:           Sleep Request:  COUNTER = 0 -> Go to sleep
  */
 const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
+
+inline std::vector<char> StringToVector(const std::string& str)
+{
+  auto retval = std::vector<char>{};
+  retval.insert(retval.begin(), str.begin(), str.end());
+  retval.push_back('\0');
+  return retval;
+}
+
 } // unnamed namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -114,6 +124,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mUpdateRenderThreadCanSleep(FALSE),
   mPendingRequestUpdate(FALSE),
   mUseElapsedTimeAfterWait(FALSE),
+  mIsPreCompileCancelled(FALSE),
   mNewSurface(NULL),
   mDeletedSurface(nullptr),
   mPostRendering(FALSE),
@@ -311,6 +322,7 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
       mNewSurface    = newSurface;
+      CancelPreCompile();
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -334,6 +346,7 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface*
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
+      CancelPreCompile();
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -370,6 +383,7 @@ void CombinedUpdateRenderController::ResizeSurface()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
+    CancelPreCompile();
     mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
@@ -448,6 +462,7 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
   mUpdateRenderThreadCanSleep = FALSE;
   mUploadWithoutRendering     = (updateMode == UpdateMode::SKIP_RENDER);
   LOG_COUNTER_EVENT("mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait);
+  CancelPreCompile();
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -461,6 +476,7 @@ void CombinedUpdateRenderController::StopUpdateRenderThread()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mDestroyUpdateRenderThread = TRUE;
+  CancelPreCompile();
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -537,6 +553,21 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   NotifyThreadInitialised();
 
+  // Initialize and create graphics resource for the shared context.
+  WindowContainer windows;
+  mAdaptorInterfaces.GetWindowContainerInterface(windows);
+
+  for(auto&& window : windows)
+  {
+    Dali::Integration::Scene      scene         = window->GetScene();
+    Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
+
+    if(scene && windowSurface)
+    {
+      windowSurface->InitializeGraphics();
+    }
+  }
+
   // Update time
   uint64_t lastFrameTime;
   TimeService::GetNanoseconds(lastFrameTime);
@@ -556,6 +587,38 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   unsigned int       frameCount          = 0u;
 
   TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_INIT");
+  if(!mDestroyUpdateRenderThread)
+  {
+    ShaderPreCompiler::Get().Wait();
+    if(ShaderPreCompiler::Get().IsEnable())
+    {
+      std::vector<RawShaderData> precompiledShaderList;
+      ShaderPreCompiler::Get().GetPreCompileShaderList(precompiledShaderList);
+      DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], list size:%d \n", precompiledShaderList.size());
+      for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
+      {
+        if(mIsPreCompileCancelled == TRUE)
+        {
+          ShaderPreCompiler::Get().Awake();
+          DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], but stop precompile");
+          break;
+        }
+
+        auto numberOfPrecompiledShader = precompiledShader->shaderCount;
+        for(int i = 0; i < numberOfPrecompiledShader; ++i)
+        {
+          auto vertexShader =  graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
+          auto fragmentShader = graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+          PreCompileShader(std::move(vertexShader), std::move(fragmentShader));
+        }
+        DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
+      }
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("ShaderPreCompiler[DISABLE] \n");
+    }
+  }
 
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
@@ -722,7 +785,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if(!uploadOnly || surfaceResized)
     {
       // Go through each window
-      WindowContainer windows;
+      windows.clear();
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
       for(auto&& window : windows)
@@ -859,7 +922,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Inform core of context destruction
   mCore.ContextDestroyed();
 
-  WindowContainer windows;
+  windows.clear();
   mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
   // Destroy surfaces
@@ -976,6 +1039,50 @@ void CombinedUpdateRenderController::SurfaceResized()
   }
 }
 
+void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader)
+{
+  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
+
+  Graphics::ShaderCreateInfo vertexShaderCreateInfo;
+  vertexShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::VERTEX_SHADER);
+  vertexShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
+  const std::vector<char>& vertexShaderSrc = StringToVector(std::move(vertexShader));
+  vertexShaderCreateInfo.SetSourceSize(vertexShaderSrc.size());
+  vertexShaderCreateInfo.SetSourceData(static_cast<const void*>(vertexShaderSrc.data()));
+  auto vertexGraphicsShader = graphics.GetController().CreateShader(vertexShaderCreateInfo, nullptr);
+
+  Graphics::ShaderCreateInfo fragmentShaderCreateInfo;
+  fragmentShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::FRAGMENT_SHADER);
+  fragmentShaderCreateInfo.SetSourceMode(Graphics::ShaderSourceMode::TEXT);
+  const std::vector<char>& fragmentShaderSrc = StringToVector(std::move(fragmentShader));
+  fragmentShaderCreateInfo.SetSourceSize(fragmentShaderSrc.size());
+  fragmentShaderCreateInfo.SetSourceData(static_cast<const void*>(fragmentShaderSrc.data()));
+  auto fragmentGraphicsShader = graphics.GetController().CreateShader(fragmentShaderCreateInfo, nullptr);
+
+  std::vector<Graphics::ShaderState> shaderStates{
+    Graphics::ShaderState()
+      .SetShader(*vertexGraphicsShader.get())
+      .SetPipelineStage(Graphics::PipelineStage::VERTEX_SHADER),
+    Graphics::ShaderState()
+      .SetShader(*fragmentGraphicsShader.get())
+      .SetPipelineStage(Graphics::PipelineStage::FRAGMENT_SHADER)};
+
+  auto createInfo = Graphics::ProgramCreateInfo();
+  createInfo.SetShaderState(shaderStates);
+
+  auto graphicsProgram = graphics.GetController().CreateProgram(createInfo, nullptr);
+  ShaderPreCompiler::Get().AddPreCompiledProgram(std::move(graphicsProgram));
+}
+
+void CombinedUpdateRenderController::CancelPreCompile()
+{
+  if(mIsPreCompileCancelled == FALSE)
+  {
+    mIsPreCompileCancelled = TRUE;
+    ShaderPreCompiler::Get().Awake();
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // ALL THREADS
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1007,6 +1114,7 @@ void CombinedUpdateRenderController::PostRenderComplete()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
+  CancelPreCompile();
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 

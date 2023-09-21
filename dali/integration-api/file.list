@@ -4,6 +4,7 @@ SET( adaptor_integration_api_src_files
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/scene-holder-impl.cpp
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.cpp
+  ${adaptor_integration_api_dir}/adaptor-framework/shader-precompiler.cpp
 )
 
 
@@ -21,5 +22,6 @@ SET( adaptor_integration_api_header_files
   ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-interface.h
   ${adaptor_integration_api_dir}/adaptor-framework/trigger-event-factory.h
   ${adaptor_integration_api_dir}/adaptor-framework/native-image-surface.h
+  ${adaptor_integration_api_dir}/adaptor-framework/shader-precompiler.h
 )
 
