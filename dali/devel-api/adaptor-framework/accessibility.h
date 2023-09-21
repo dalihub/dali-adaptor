@@ -688,7 +688,7 @@ struct DALI_ADAPTOR_API Range
   Range(size_t start, size_t end, std::string content)
   : startOffset(start),
     endOffset(end),
-    content(content)
+    content(std::move(content))
   {
   }
 };

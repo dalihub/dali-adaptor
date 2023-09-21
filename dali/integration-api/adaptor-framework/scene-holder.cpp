@@ -41,20 +41,17 @@ SceneHolder::~SceneHolder()
 {
 }
 
-SceneHolder::SceneHolder(const SceneHolder& handle)
-: BaseHandle(handle)
-{
-}
+SceneHolder::SceneHolder(const SceneHolder& copy) = default;
+
+SceneHolder& SceneHolder::operator=(const SceneHolder& rhs) = default;
+
+SceneHolder::SceneHolder(SceneHolder&& rhs) noexcept = default;
+
+SceneHolder& SceneHolder::operator=(SceneHolder&& rhs) noexcept = default;
 
 SceneHolder::SceneHolder(Internal::Adaptor::SceneHolder* internal)
 : BaseHandle(internal)
 {
-}
-
-SceneHolder& SceneHolder::operator=(const SceneHolder& rhs)
-{
-  BaseHandle::operator=(rhs);
-  return *this;
 }
 
 void SceneHolder::Add(Actor actor)
