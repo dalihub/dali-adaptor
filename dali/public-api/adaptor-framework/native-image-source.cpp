@@ -27,7 +27,7 @@
 
 namespace Dali
 {
-NativeImageSourcePtr NativeImageSource::New(unsigned int width, unsigned int height, ColorDepth depth)
+NativeImageSourcePtr NativeImageSource::New(uint32_t width, uint32_t height, ColorDepth depth)
 {
   Any                  empty;
   NativeImageSourcePtr image = new NativeImageSource(width, height, depth, empty);
@@ -45,7 +45,7 @@ NativeImageSourcePtr NativeImageSource::New(Any nativeImageSource)
   return image;
 }
 
-bool NativeImageSource::GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const
+bool NativeImageSource::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   return mImpl->GetPixels(pixbuf, width, height, pixelFormat);
 }
@@ -75,7 +75,7 @@ void NativeImageSource::DestroyResource()
   mImpl->DestroyResource();
 }
 
-unsigned int NativeImageSource::TargetTexture()
+uint32_t NativeImageSource::TargetTexture()
 {
   return mImpl->TargetTexture();
 }
@@ -85,12 +85,12 @@ void NativeImageSource::PrepareTexture()
   mImpl->PrepareTexture();
 }
 
-unsigned int NativeImageSource::GetWidth() const
+uint32_t NativeImageSource::GetWidth() const
 {
   return mImpl->GetWidth();
 }
 
-unsigned int NativeImageSource::GetHeight() const
+uint32_t NativeImageSource::GetHeight() const
 {
   return mImpl->GetHeight();
 }
@@ -135,7 +135,7 @@ NativeImageInterface::Extension* NativeImageSource::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSource::NativeImageSource(unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource)
+NativeImageSource::NativeImageSource(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSource)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
   mImpl        = factory->CreateNativeImageSource(width, height, depth, nativeImageSource).release();

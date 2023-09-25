@@ -32,7 +32,7 @@ namespace Internal
 {
 namespace Adaptor
 {
-NativeBitmapBuffer::NativeBitmapBuffer(Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pFormat)
+NativeBitmapBuffer::NativeBitmapBuffer(Adaptor* adaptor, uint32_t width, uint32_t height, Pixel::Format pFormat)
 : mGlAbstraction(nullptr),
   mWidth(width),
   mHeight(height),
@@ -60,7 +60,7 @@ void NativeBitmapBuffer::PrepareTexture()
 
   Integration::ConvertToGlFormat(mPixelFormat, pixelDataType, pixelFormat);
 
-  const unsigned char* buf = mBuffer->Read();
+  const uint8_t* buf = mBuffer->Read();
 
   if(buf && buf != mLastReadBuffer) // Prevent same buffer being uploaded multiple times
   {
@@ -71,7 +71,7 @@ void NativeBitmapBuffer::PrepareTexture()
   }
 }
 
-void NativeBitmapBuffer::Write(const unsigned char* src, size_t size)
+void NativeBitmapBuffer::Write(const uint8_t* src, size_t size)
 {
   mBuffer->Write(src, size); // Write will cause LocklessBuffer to switch to the other buffer
 }
@@ -85,17 +85,17 @@ void NativeBitmapBuffer::DestroyResource()
 {
 }
 
-unsigned int NativeBitmapBuffer::TargetTexture()
+uint32_t NativeBitmapBuffer::TargetTexture()
 {
   return 0;
 }
 
-unsigned int NativeBitmapBuffer::GetWidth() const
+uint32_t NativeBitmapBuffer::GetWidth() const
 {
   return mWidth;
 }
 
-unsigned int NativeBitmapBuffer::GetHeight() const
+uint32_t NativeBitmapBuffer::GetHeight() const
 {
   return mHeight;
 }

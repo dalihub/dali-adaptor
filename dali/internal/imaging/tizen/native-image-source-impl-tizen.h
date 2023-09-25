@@ -65,7 +65,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const override;
+  bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )

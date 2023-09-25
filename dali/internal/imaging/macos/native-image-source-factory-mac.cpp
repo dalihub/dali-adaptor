@@ -26,8 +26,8 @@ namespace Dali::Internal::Adaptor
 {
 std::unique_ptr<NativeImageSource>
 NativeImageSourceFactoryCocoa::CreateNativeImageSource(
-  unsigned int                        width,
-  unsigned int                        height,
+  uint32_t                            width,
+  uint32_t                            height,
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
 {
@@ -40,8 +40,8 @@ NativeImageSourceFactoryCocoa::CreateNativeImageSource(
 
 std::unique_ptr<NativeImageSourceQueue>
 NativeImageSourceFactoryCocoa::CreateNativeImageSourceQueue(
-  unsigned int                              width,
-  unsigned int                              height,
+  uint32_t                                  width,
+  uint32_t                                  height,
   Dali::NativeImageSourceQueue::ColorFormat colorFormat,
   Any                                       nativeImageSourceQueue)
 {

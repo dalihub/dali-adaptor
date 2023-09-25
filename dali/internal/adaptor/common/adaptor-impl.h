@@ -577,7 +577,7 @@ private: // From Dali::Internal::Adaptor::CoreEventInterface
    */
   void QueueCoreEvent(const Dali::Integration::Event& event) override;
 
-private: // From Dali::Integration::RenderController
+public: // From Dali::Integration::RenderController
   /**
    * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */

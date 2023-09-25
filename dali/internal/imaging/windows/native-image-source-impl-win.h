@@ -22,6 +22,7 @@
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 
 #include <dali/internal/imaging/common/native-image-source-impl.h>
+#include <cstdint>
 
 namespace Dali
 {
@@ -47,8 +48,8 @@ public:
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceWin* New(unsigned int                        width,
-                                   unsigned int                        height,
+  static NativeImageSourceWin* New(uint32_t                            width,
+                                   uint32_t                            height,
                                    Dali::NativeImageSource::ColorDepth depth,
                                    Any                                 nativeImageSource);
   /**
@@ -59,7 +60,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetPixels()
    */
-  bool GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const override;
+  bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const override;
 
   /**
    * @copydoc Dali::NativeImageSource::SetSource( Any source )
@@ -89,7 +90,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageSource::PrepareTexture()
@@ -99,7 +100,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetWidth()
    */
-  unsigned int GetWidth() const override
+  uint32_t GetWidth() const override
   {
     return mWidth;
   }
@@ -107,7 +108,7 @@ public:
   /**
    * @copydoc Dali::NativeImageSource::GetHeight()
    */
-  unsigned int GetHeight() const override
+  uint32_t GetHeight() const override
   {
     return mHeight;
   }
@@ -189,8 +190,8 @@ private:
    * @param[in] colour depth of the image.
    * @param[in] nativeImageSource contains either: pixmap of type Win32 Pixmap , a WinPixmap or is empty
    */
-  NativeImageSourceWin(unsigned int                        width,
-                       unsigned int                        height,
+  NativeImageSourceWin(uint32_t                            width,
+                       uint32_t                            height,
                        Dali::NativeImageSource::ColorDepth depth,
                        Any                                 nativeImageSource);
 
@@ -220,8 +221,8 @@ private:
   void GetPixmapDetails();
 
 private:
-  unsigned int                         mWidth;                       ///< image width
-  unsigned int                         mHeight;                      ///< image heights
+  uint32_t                             mWidth;                       ///< image width
+  uint32_t                             mHeight;                      ///< image heights
   bool                                 mOwnPixmap;                   ///< Whether we created pixmap or not
   unsigned int                         mPixmap;                      ///< From Windows
   bool                                 mBlendingRequired;            ///< Whether blending is required

@@ -220,7 +220,7 @@ Any NativeImageSourceTizen::GetNativeImageSource() const
   return Any(mTbmSurface);
 }
 
-bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceTizen::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
   std::scoped_lock lock(mMutex);
   if(mTbmSurface != NULL)
@@ -237,9 +237,9 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
       return false;
     }
 
-    tbm_format     format = surface_info.format;
-    uint32_t       stride = surface_info.planes[0].stride;
-    unsigned char* ptr    = surface_info.planes[0].ptr;
+    tbm_format format = surface_info.format;
+    uint32_t   stride = surface_info.planes[0].stride;
+    uint8_t*   ptr    = surface_info.planes[0].ptr;
 
     width  = mWidth;
     height = mHeight;
@@ -254,11 +254,11 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
         lineSize    = width * 3;
         pixelFormat = Pixel::RGB888;
         pixbuf.resize(lineSize * height);
-        unsigned char* bufptr = &pixbuf[0];
+        uint8_t* bufptr = &pixbuf[0];
 
-        for(unsigned int r = 0; r < height; ++r, bufptr += lineSize)
+        for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
         {
-          for(unsigned int c = 0; c < width; ++c)
+          for(uint32_t c = 0; c < width; ++c)
           {
             cOffset                 = c * 3;
             offset                  = cOffset + r * stride;
@@ -274,11 +274,11 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
         pixbuf.resize(lineSize * height);
-        unsigned char* bufptr = &pixbuf[0];
+        uint8_t* bufptr = &pixbuf[0];
 
-        for(unsigned int r = 0; r < height; ++r, bufptr += lineSize)
+        for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
         {
-          for(unsigned int c = 0; c < width; ++c)
+          for(uint32_t c = 0; c < width; ++c)
           {
             cOffset                 = c * 4;
             offset                  = cOffset + r * stride;
@@ -295,11 +295,11 @@ bool NativeImageSourceTizen::GetPixels(std::vector<unsigned char>& pixbuf, unsig
         lineSize    = width * 4;
         pixelFormat = Pixel::RGBA8888;
         pixbuf.resize(lineSize * height);
-        unsigned char* bufptr = &pixbuf[0];
+        uint8_t* bufptr = &pixbuf[0];
 
-        for(unsigned int r = 0; r < height; ++r, bufptr += lineSize)
+        for(uint32_t r = 0; r < height; ++r, bufptr += lineSize)
         {
-          for(unsigned int c = 0; c < width; ++c)
+          for(uint32_t c = 0; c < width; ++c)
           {
             cOffset                 = c * 4;
             offset                  = cOffset + r * stride;
@@ -397,7 +397,7 @@ bool NativeImageSourceTizen::IsColorDepthSupported(Dali::NativeImageSource::Colo
 
   if(tbm_surface_query_formats(&formats, &formatNum))
   {
-    for(unsigned int i = 0; i < formatNum; i++)
+    for(uint32_t i = 0; i < formatNum; i++)
     {
       if(formats[i] == format)
       {
@@ -534,8 +534,8 @@ Rect<uint32_t> NativeImageSourceTizen::GetUpdatedArea()
       return updatedArea;
     }
 
-    unsigned char* srcBuffer = info.planes[0].ptr;
-    unsigned char* dstBuffer = backBufferInfo.planes[0].ptr;
+    uint8_t* srcBuffer = info.planes[0].ptr;
+    uint8_t* dstBuffer = backBufferInfo.planes[0].ptr;
 
     uint32_t stride        = info.planes[0].stride;
     uint32_t bytesPerPixel = info.bpp >> 3;

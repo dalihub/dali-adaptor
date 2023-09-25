@@ -32,8 +32,8 @@ namespace Dali::Internal::Adaptor
 using Dali::Integration::PixelBuffer;
 
 NativeImageSourceCocoa* NativeImageSourceCocoa::New(
-  unsigned int                        width,
-  unsigned int                        height,
+  uint32_t                            width,
+  uint32_t                            height,
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
 {
@@ -41,8 +41,8 @@ NativeImageSourceCocoa* NativeImageSourceCocoa::New(
 }
 
 NativeImageSourceCocoa::NativeImageSourceCocoa(
-  unsigned int                        width,
-  unsigned int                        height,
+  uint32_t                            width,
+  uint32_t                            height,
   Dali::NativeImageSource::ColorDepth depth,
   Any                                 nativeImageSource)
 : mImage(MakeRef<CGImageRef>(nullptr)),
@@ -119,12 +119,12 @@ Any NativeImageSourceCocoa::GetNativeImageSource() const
 
 bool NativeImageSourceCocoa::GetPixels(
   std::vector<uint8_t>& pixbuf,
-  unsigned&             width,
-  unsigned&             height,
+  uint32_t&             width,
+  uint32_t&             height,
   Pixel::Format&        pixelFormat) const
 {
-  width  = CGImageGetWidth(mImage.get());
-  height = CGImageGetHeight(mImage.get());
+  width  = static_cast<uint32_t>(CGImageGetWidth(mImage.get()));
+  height = static_cast<uint32_t>(CGImageGetHeight(mImage.get()));
   return true;
 }
 
@@ -146,7 +146,7 @@ void NativeImageSourceCocoa::DestroyResource()
 {
 }
 
-unsigned int NativeImageSourceCocoa::TargetTexture()
+uint32_t NativeImageSourceCocoa::TargetTexture()
 {
   return 0;
 }
@@ -175,14 +175,14 @@ Any NativeImageSourceCocoa::GetNativeImageHandle() const
   return Any(mImage.get());
 }
 
-unsigned int NativeImageSourceCocoa::GetWidth() const
+uint32_t NativeImageSourceCocoa::GetWidth() const
 {
-  return CGImageGetWidth(mImage.get());
+  return static_cast<uint32_t>(CGImageGetWidth(mImage.get()));
 }
 
-unsigned int NativeImageSourceCocoa::GetHeight() const
+uint32_t NativeImageSourceCocoa::GetHeight() const
 {
-  return CGImageGetHeight(mImage.get());
+  return static_cast<uint32_t>(CGImageGetHeight(mImage.get()));
 }
 
 bool NativeImageSourceCocoa::RequiresBlending() const
