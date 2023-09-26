@@ -91,6 +91,21 @@ public:
   SceneHolder& operator=(const SceneHolder& rhs);
 
   /**
+   * @brief This move constructor is required for (smart) pointer semantics.
+   *
+   * @param [in] handle A reference to the moved handle
+   */
+  SceneHolder(SceneHolder&& handle) noexcept;
+
+  /**
+   * @brief This move assignment operator is required for (smart) pointer semantics.
+   *
+   * @param [in] rhs  A reference to the moved handle
+   * @return A reference to this
+   */
+  SceneHolder& operator=(SceneHolder&& rhs) noexcept;
+
+  /**
    * @brief Adds a child Actor to the SceneHolder.
    *
    * The child will be referenced.
