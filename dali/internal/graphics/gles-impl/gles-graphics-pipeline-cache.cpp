@@ -480,10 +480,20 @@ void PipelineCache::FlushCache()
   // Unused pipelines will be deleted automatically
   mImpl->entries = std::move(newEntries);
 
-  // TODO: program cache may require similar action. However,
-  //       since there is always one wrapper for Program object
-  //       kept in the pipeline, then death of pipeline will result
-  //       killing the program (if program isn't in use anymore)
+  // Program cache require similar action.
+  decltype(mImpl->programEntries) newProgramEntries;
+  newProgramEntries.reserve(mImpl->programEntries.size());
+
+  for(auto& entry : mImpl->programEntries)
+  {
+    // Move items which are still in use into the new array
+    if(entry.program->GetRefCount() != 0)
+    {
+      newProgramEntries.emplace_back(std::move(entry));
+    }
+  }
+
+  mImpl->programEntries = std::move(newProgramEntries);
 }
 
 } // namespace Dali::Graphics::GLES
