@@ -1,6 +1,20 @@
 #!/bin/bash
 
-( cd ../build/tizen ; make cov_data )
+opt_genhtml=true
+if [ $1 == -n ] ; then
+  opt_genhtml=false
+fi
+
+BUILD_DIR_NAME=tizen
+
+BUILDSYSTEM=make
+
+if [ -e ../build/tizen/build.ninja ] ; then
+    BUILDSYSTEM=ninja
+fi
+
+(  cd ../build/$BUILD_DIR_NAME ; $BUILDSYSTEM cov_data )
+
 
 # From lcov version 1.10 onwards, branch coverage is off by default and earlier versions do not support the rc option
 LCOV_OPTS=`if [ \`printf "\\\`lcov --version | cut -d' ' -f4\\\`\n1.10\n" | sort -V | head -n 1\` = 1.10 ] ; then echo "--rc lcov_branch_coverage=1" ; fi`
@@ -23,8 +37,9 @@ for i in `find . -name "*.dir"` ; do
 done
 
 (
-    cd .. ;
-    genhtml $LCOV_OPTS -o build/tizen/doc/coverage `find . -name dali.info`
+    if [ $opt_genhtml == true ] ; then
+        cd .. ;
+        genhtml $LCOV_OPTS -o build/$BUILD_DIR_NAME/doc/coverage `find . -name dali.info`
+        echo "Coverage output: ../build/$BUILD_DIR_NAME/doc/coverage/index.html"
+    fi
 )
-
-echo "Coverage output: ../build/tizen/doc/coverage/index.html"
