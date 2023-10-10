@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -641,6 +641,191 @@ FrameInfo* NewFrame(GifAnimationData& animated, int transparent, int dispose, in
   return &(animated.frames.back().info);
 }
 
+/// FILL (overwrite with transparency kept)
+void FillOverwriteWithTransparencyKept(
+  const std::uint32_t*& cachedColorPtr,
+  int& xx, int& yy,
+  const int x, const int y,
+  const int w, const int h,
+  const int xin, const int yin,
+  const int rowpix,
+  const int transparent,
+  const uint32_t fillColor,
+  int& pix,
+  uint32_t*& p,
+  uint32_t*& data,
+  GifRowType*& rows,
+  ColorMapObject*& colorMap)
+{
+  // if we use cachedColor, use it
+  if(cachedColorPtr)
+  {
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        if(pix != transparent)
+        {
+          *p = cachedColorPtr[pix];
+        }
+        else
+        {
+          *p = fillColor;
+        }
+        p++;
+      }
+    }
+  }
+    // we don't have cachedColor. use PixelLookup function.
+  else
+  {
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        if(pix != transparent)
+        {
+          *p = PixelLookup(colorMap, pix);
+        }
+        else
+        {
+          *p = fillColor;
+        }
+        p++;
+      }
+    }
+  }
+}
+
+/// Paste on top with transparent pixels untouched
+void PasteOnTopWithTransparentPixelsUntouched(
+  const std::uint32_t*& cachedColorPtr,
+  int& xx, int& yy,
+  const int x, const int y,
+  const int w, const int h,
+  const int xin, const int yin,
+  const int rowpix,
+  const int transparent,
+  const uint32_t fillColor,
+  int& pix,
+  uint32_t*& p,
+  uint32_t*& data,
+  GifRowType*& rows,
+  ColorMapObject*& colorMap)
+{
+  // if we use cachedColor, use it
+  if(cachedColorPtr)
+  {
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        if(pix != transparent)
+        {
+          *p = cachedColorPtr[pix];
+        }
+        p++;
+      }
+    }
+  }
+    // we don't have cachedColor. use PixelLookup function.
+  else
+  {
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        if(pix != transparent)
+        {
+          *p = PixelLookup(colorMap, pix);
+        }
+        p++;
+      }
+    }
+  }
+}
+
+void HandleTransparentPixels(
+  const bool fill,
+  const std::uint32_t*& cachedColorPtr,
+  int& xx, int& yy,
+  const int x, const int y,
+  const int w, const int h,
+  const int xin, const int yin,
+  const int rowpix,
+  const int transparent,
+  const uint32_t fillColor,
+  int& pix,
+  uint32_t*& p,
+  uint32_t*& data,
+  GifRowType*& rows,
+  ColorMapObject*& colorMap)
+{
+  if(fill)
+  {
+    FillOverwriteWithTransparencyKept(cachedColorPtr, xx, yy, x, y, w, h, xin, yin, rowpix, transparent, fillColor, pix, p, data, rows, colorMap);
+  }
+  else
+  {
+    PasteOnTopWithTransparentPixelsUntouched(cachedColorPtr, xx, yy, x, y, w, h, xin, yin, rowpix, transparent, fillColor, pix, p, data, rows, colorMap);
+  }
+}
+
+void HandleNonTransparentPixels(
+  const std::uint32_t*& cachedColorPtr,
+  int& xx, int& yy,
+  const int x, const int y,
+  const int w, const int h,
+  const int xin, const int yin,
+  const int rowpix,
+  const int transparent,
+  const uint32_t fillColor,
+  int& pix,
+  uint32_t*& p,
+  uint32_t*& data,
+  GifRowType*& rows,
+  ColorMapObject*& colorMap)
+{
+  // if we use cachedColor, use it
+  if(cachedColorPtr)
+  {
+    // walk pixels without worring about transparency at all
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        *p  = cachedColorPtr[pix];
+        p++;
+      }
+    }
+  }
+    // we don't have cachedColor. use PixelLookup function.
+  else
+  {
+    // walk pixels without worring about transparency at all
+    for(yy = 0; yy < h; yy++)
+    {
+      p = data + ((y + yy) * rowpix) + x;
+      for(xx = 0; xx < w; xx++)
+      {
+        pix = rows[yin + yy][xin + xx];
+        *p  = PixelLookup(colorMap, pix);
+        p++;
+      }
+    }
+  }
+}
+
 /**
  * @brief Decode a gif image into rows then expand to 32bit into the destination
  * data pointer.
@@ -738,123 +923,11 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   // if we need to deal with transparent pixels at all...
   if(transparent >= 0)
   {
-    // if we are told to FILL (overwrite with transparency kept)
-    if(fill)
-    {
-      // if we use cachedColor, use it
-      if(cachedColorPtr)
-      {
-        for(yy = 0; yy < h; yy++)
-        {
-          p = data + ((y + yy) * rowpix) + x;
-          for(xx = 0; xx < w; xx++)
-          {
-            pix = rows[yin + yy][xin + xx];
-            if(pix != transparent)
-            {
-              *p = cachedColorPtr[pix];
-            }
-            else
-            {
-              *p = fillColor;
-            }
-            p++;
-          }
-        }
-      }
-      // we don't have cachedColor. use PixelLookup function.
-      else
-      {
-        for(yy = 0; yy < h; yy++)
-        {
-          p = data + ((y + yy) * rowpix) + x;
-          for(xx = 0; xx < w; xx++)
-          {
-            pix = rows[yin + yy][xin + xx];
-            if(pix != transparent)
-            {
-              *p = PixelLookup(colorMap, pix);
-            }
-            else
-            {
-              *p = fillColor;
-            }
-            p++;
-          }
-        }
-      }
-    }
-    // paste on top with transparent pixels untouched
-    else
-    {
-      // if we use cachedColor, use it
-      if(cachedColorPtr)
-      {
-        for(yy = 0; yy < h; yy++)
-        {
-          p = data + ((y + yy) * rowpix) + x;
-          for(xx = 0; xx < w; xx++)
-          {
-            pix = rows[yin + yy][xin + xx];
-            if(pix != transparent)
-            {
-              *p = cachedColorPtr[pix];
-            }
-            p++;
-          }
-        }
-      }
-      // we don't have cachedColor. use PixelLookup function.
-      else
-      {
-        for(yy = 0; yy < h; yy++)
-        {
-          p = data + ((y + yy) * rowpix) + x;
-          for(xx = 0; xx < w; xx++)
-          {
-            pix = rows[yin + yy][xin + xx];
-            if(pix != transparent)
-            {
-              *p = PixelLookup(colorMap, pix);
-            }
-            p++;
-          }
-        }
-      }
-    }
+    HandleTransparentPixels(fill, cachedColorPtr, xx, yy, x, y, w, h, xin, yin, rowpix, transparent, fillColor, pix, p, data, rows, colorMap);
   }
   else
   {
-    // if we use cachedColor, use it
-    if(cachedColorPtr)
-    {
-      // walk pixels without worring about transparency at all
-      for(yy = 0; yy < h; yy++)
-      {
-        p = data + ((y + yy) * rowpix) + x;
-        for(xx = 0; xx < w; xx++)
-        {
-          pix = rows[yin + yy][xin + xx];
-          *p  = cachedColorPtr[pix];
-          p++;
-        }
-      }
-    }
-    // we don't have cachedColor. use PixelLookup function.
-    else
-    {
-      // walk pixels without worring about transparency at all
-      for(yy = 0; yy < h; yy++)
-      {
-        p = data + ((y + yy) * rowpix) + x;
-        for(xx = 0; xx < w; xx++)
-        {
-          pix = rows[yin + yy][xin + xx];
-          *p  = PixelLookup(colorMap, pix);
-          p++;
-        }
-      }
-    }
+    HandleNonTransparentPixels(cachedColorPtr, xx, yy, x, y, w, h, xin, yin, rowpix, transparent, fillColor, pix, p, data, rows, colorMap);
   }
   ret = true;
 
@@ -864,6 +937,139 @@ on_error:
     free(rows);
   }
   return ret;
+}
+
+/// Walk through gif records in file to figure out info while reading the header
+void WalkThroughGifRecordsWhileReadingHeader(
+  const GifAccessor& gifAccessor,
+  GifRecordType& rec,
+  int& imageNumber,
+  FrameInfo*& frameInfo,
+  bool& full,
+  const ImageProperties& prop,
+  GifAnimationData& animated,
+  int& loopCount,
+  bool& success)
+{
+  do
+  {
+    if(DGifGetRecordType(gifAccessor.gif, &rec) == GIF_ERROR)
+    {
+      // if we have a gif that ends part way through a sequence
+      // (or animation) consider it valid and just break - no error
+      if(imageNumber <= 1)
+      {
+        success = true;
+      }
+      else
+      {
+        success = false;
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+      }
+      break;
+    }
+
+    // get image description section
+    if(rec == IMAGE_DESC_RECORD_TYPE)
+    {
+      int          img_code;
+      GifByteType* img;
+
+      // get image desc
+      if(DALI_UNLIKELY(DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR))
+      {
+        success = false;
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+        break;
+      }
+      // skip decoding and just walk image to next
+      if(DALI_UNLIKELY(DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR))
+      {
+        success = false;
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+        break;
+      }
+      // skip till next...
+      while(img)
+      {
+        img = NULL;
+        DGifGetCodeNext(gifAccessor.gif, &img);
+      }
+      // store geometry in the last frame info data
+      if(frameInfo)
+      {
+        StoreFrameInfo(gifAccessor.gif, frameInfo);
+        CheckTransparency(full, frameInfo, prop.w, prop.h);
+      }
+        // or if we dont have a frameInfo entry - create one even for stills
+      else
+      {
+        // allocate and save frame with field data
+        frameInfo = NewFrame(animated, -1, 0, 0, imageNumber + 1);
+        if(DALI_UNLIKELY(!frameInfo))
+        {
+          success = false;
+          DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+          break;
+        }
+        // store geometry info from gif image
+        StoreFrameInfo(gifAccessor.gif, frameInfo);
+        // check for transparency/alpha
+        CheckTransparency(full, frameInfo, prop.w, prop.h);
+      }
+      imageNumber++;
+    }
+      // we have an extension code block - for animated gifs for sure
+    else if(rec == EXTENSION_RECORD_TYPE)
+    {
+      int          ext_code;
+      GifByteType* ext = NULL;
+
+      // get the first extension entry
+      DGifGetExtension(gifAccessor.gif, &ext_code, &ext);
+      while(ext)
+      {
+        // graphic control extension - for animated gif data
+        // and transparent index + flag
+        if(ext_code == 0xf9)
+        {
+          // create frame and store it in image
+          int transparencyIndex = (ext[1] & 1) ? ext[4] : -1;
+          int disposeMode       = (ext[1] >> 2) & 0x7;
+          int delay             = (int(ext[3]) << 8) | int(ext[2]);
+          frameInfo             = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
+          if(DALI_UNLIKELY(!frameInfo))
+          {
+            success = false;
+            DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+            break;
+          }
+        }
+          // netscape extension indicating loop count.
+        else if(ext_code == 0xff) /* application extension */
+        {
+          if(!strncmp(reinterpret_cast<char*>(&ext[1]), "NETSCAPE2.0", 11) ||
+             !strncmp(reinterpret_cast<char*>(&ext[1]), "ANIMEXTS1.0", 11))
+          {
+            ext = NULL;
+            DGifGetExtensionNext(gifAccessor.gif, &ext);
+            if(ext[1] == 0x01)
+            {
+              loopCount = (int(ext[3]) << 8) | int(ext[2]);
+              if(loopCount > 0)
+              {
+                loopCount++;
+              }
+            }
+          }
+        }
+
+        // and continue onto the next extension entry
+        ext = NULL;
+        DGifGetExtensionNext(gifAccessor.gif, &ext);
+      }
+    }
+  } while(rec != TERMINATE_RECORD_TYPE && success);
 }
 
 /**
@@ -925,127 +1131,8 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
       }
       else
       {
-        // walk through gif records in file to figure out info
         success = true;
-        do
-        {
-          if(DGifGetRecordType(gifAccessor.gif, &rec) == GIF_ERROR)
-          {
-            // if we have a gif that ends part way through a sequence
-            // (or animation) consider it valid and just break - no error
-            if(imageNumber <= 1)
-            {
-              success = true;
-            }
-            else
-            {
-              success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-            }
-            break;
-          }
-
-          // get image description section
-          if(rec == IMAGE_DESC_RECORD_TYPE)
-          {
-            int          img_code;
-            GifByteType* img;
-
-            // get image desc
-            if(DALI_UNLIKELY(DGifGetImageDesc(gifAccessor.gif) == GIF_ERROR))
-            {
-              success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-              break;
-            }
-            // skip decoding and just walk image to next
-            if(DALI_UNLIKELY(DGifGetCode(gifAccessor.gif, &img_code, &img) == GIF_ERROR))
-            {
-              success = false;
-              DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-              break;
-            }
-            // skip till next...
-            while(img)
-            {
-              img = NULL;
-              DGifGetCodeNext(gifAccessor.gif, &img);
-            }
-            // store geometry in the last frame info data
-            if(frameInfo)
-            {
-              StoreFrameInfo(gifAccessor.gif, frameInfo);
-              CheckTransparency(full, frameInfo, prop.w, prop.h);
-            }
-            // or if we dont have a frameInfo entry - create one even for stills
-            else
-            {
-              // allocate and save frame with field data
-              frameInfo = NewFrame(animated, -1, 0, 0, imageNumber + 1);
-              if(DALI_UNLIKELY(!frameInfo))
-              {
-                success = false;
-                DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-                break;
-              }
-              // store geometry info from gif image
-              StoreFrameInfo(gifAccessor.gif, frameInfo);
-              // check for transparency/alpha
-              CheckTransparency(full, frameInfo, prop.w, prop.h);
-            }
-            imageNumber++;
-          }
-          // we have an extension code block - for animated gifs for sure
-          else if(rec == EXTENSION_RECORD_TYPE)
-          {
-            int          ext_code;
-            GifByteType* ext = NULL;
-
-            // get the first extension entry
-            DGifGetExtension(gifAccessor.gif, &ext_code, &ext);
-            while(ext)
-            {
-              // graphic control extension - for animated gif data
-              // and transparent index + flag
-              if(ext_code == 0xf9)
-              {
-                // create frame and store it in image
-                int transparencyIndex = (ext[1] & 1) ? ext[4] : -1;
-                int disposeMode       = (ext[1] >> 2) & 0x7;
-                int delay             = (int(ext[3]) << 8) | int(ext[2]);
-                frameInfo             = NewFrame(animated, transparencyIndex, disposeMode, delay, imageNumber + 1);
-                if(DALI_UNLIKELY(!frameInfo))
-                {
-                  success = false;
-                  DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-                  break;
-                }
-              }
-              // netscape extension indicating loop count.
-              else if(ext_code == 0xff) /* application extension */
-              {
-                if(!strncmp(reinterpret_cast<char*>(&ext[1]), "NETSCAPE2.0", 11) ||
-                   !strncmp(reinterpret_cast<char*>(&ext[1]), "ANIMEXTS1.0", 11))
-                {
-                  ext = NULL;
-                  DGifGetExtensionNext(gifAccessor.gif, &ext);
-                  if(ext[1] == 0x01)
-                  {
-                    loopCount = (int(ext[3]) << 8) | int(ext[2]);
-                    if(loopCount > 0)
-                    {
-                      loopCount++;
-                    }
-                  }
-                }
-              }
-
-              // and continue onto the next extension entry
-              ext = NULL;
-              DGifGetExtensionNext(gifAccessor.gif, &ext);
-            }
-          }
-        } while(rec != TERMINATE_RECORD_TYPE && success);
+        WalkThroughGifRecordsWhileReadingHeader(gifAccessor, rec, imageNumber, frameInfo, full, prop, animated, loopCount, success);
 
         if(success)
         {
@@ -1086,6 +1173,226 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
   }
   return success;
 }
+
+/// Walk through gif records in file to figure out info
+bool WalkThroughGifRecords(
+  GifRecordType& rec,
+  LoaderInfo& loaderInfo,
+  GifAnimationData& animated,
+  int& imageNumber,
+  const int& index,
+  FrameInfo*& frameInfo,
+  const ImageProperties& prop,
+  ImageFrame*& lastPreservedFrame,
+  unsigned char*& pixels)
+{
+  do
+  {
+    if(DALI_UNLIKELY(DGifGetRecordType(loaderInfo.gifAccessor->gif, &rec) == GIF_ERROR))
+    {
+      DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+      return false;
+    }
+
+    if(rec == EXTENSION_RECORD_TYPE)
+    {
+      int          ext_code;
+      GifByteType* ext = NULL;
+      DGifGetExtension(loaderInfo.gifAccessor->gif, &ext_code, &ext);
+
+      while(ext)
+      {
+        ext = NULL;
+        DGifGetExtensionNext(loaderInfo.gifAccessor->gif, &ext);
+      }
+    }
+      // get image description section
+    else if(rec == IMAGE_DESC_RECORD_TYPE)
+    {
+      int          xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
+      int          img_code;
+      GifByteType* img;
+      ImageFrame*  previousFrame = NULL;
+      ImageFrame*  thisFrame     = NULL;
+
+      // get image desc
+      if(DALI_UNLIKELY(DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR))
+      {
+        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+        return false;
+      }
+
+      // get the previous frame entry AND the current one to fill in
+      previousFrame = FindFrame(animated, imageNumber - 1);
+      thisFrame     = FindFrame(animated, imageNumber);
+
+      // if we have a frame AND we're animated AND we have no data...
+      if((thisFrame) && (!thisFrame->data) && (animated.animated))
+      {
+        bool first = false;
+
+        // allocate it
+        thisFrame->data = new uint32_t[prop.w * prop.h];
+
+        if(DALI_UNLIKELY(!thisFrame->data))
+        {
+          DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
+          return false;
+        }
+
+        // Lazy fill background color feature.
+        // DecodeImage function draw range is EQUAL with previous FillImage range,
+        // We don't need to fill background that time.
+        // It will try to reduce the number of FillImage API call
+        // Note : We might check overlapping. But that operation looks expensive
+        // So, just optimize only if EQUAL case.
+        bool     updateBackgroundColorLazy = false;
+        uint32_t backgroundColor           = 0u;
+        int      prevX                     = 0;
+        int      prevY                     = 0;
+        int      prevW                     = 0;
+        int      prevH                     = 0;
+
+        // if we have no prior frame OR prior frame data... empty
+        if((!previousFrame) || (!previousFrame->data))
+        {
+          first                     = true;
+          frameInfo                 = &(thisFrame->info);
+          updateBackgroundColorLazy = true;
+          backgroundColor           = 0u;
+          prevX                     = 0;
+          prevY                     = 0;
+          prevW                     = prop.w;
+          prevH                     = prop.h;
+        }
+          // we have a prior frame to copy data from...
+        else
+        {
+          frameInfo = &(previousFrame->info);
+
+          // fix coords of sub image in case it goes out...
+          ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
+
+          // if dispose mode is not restore - then copy pre frame
+          if(frameInfo->dispose != DISPOSE_PREVIOUS)
+          {
+            memcpy(thisFrame->data, previousFrame->data, prop.w * prop.h * sizeof(uint32_t));
+          }
+
+          // if dispose mode is "background" then fill with bg
+          if(frameInfo->dispose == DISPOSE_BACKGROUND)
+          {
+            updateBackgroundColorLazy = true;
+            backgroundColor           = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
+            prevX                     = x;
+            prevY                     = y;
+            prevW                     = w;
+            prevH                     = h;
+          }
+          else if(frameInfo->dispose == DISPOSE_PREVIOUS) // GIF_DISPOSE_RESTORE
+          {
+            int prevIndex = 2;
+            do
+            {
+              // Find last preserved frame.
+              lastPreservedFrame = FindFrame(animated, imageNumber - prevIndex);
+              if(DALI_UNLIKELY(!lastPreservedFrame))
+              {
+                DALI_LOG_ERROR("LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND");
+                return false;
+              }
+              prevIndex++;
+            } while(lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS);
+
+            if(lastPreservedFrame)
+            {
+              memcpy(thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t));
+            }
+          }
+        }
+        // now draw this frame on top
+        frameInfo = &(thisFrame->info);
+        ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
+
+        if(updateBackgroundColorLazy)
+        {
+          // If this frame's x,y,w,h is not equal with previous x,y,w,h, FillImage. else, don't fill
+          if(prevX != x || prevY != y || prevW != w || prevH != h)
+          {
+            FillImage(thisFrame->data, prop.w, backgroundColor, prevX, prevY, prevW, prevH);
+            // Don't send background color information to DecodeImage function.
+            updateBackgroundColorLazy = false;
+          }
+        }
+        if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first || updateBackgroundColorLazy, backgroundColor)))
+        {
+          DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+          return false;
+        }
+
+        // mark as loaded and done
+        thisFrame->loaded = true;
+
+        FlushFrames(animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame);
+      }
+        // if we have a frame BUT the image is not animated. different
+        // path
+      else if((thisFrame) && (!thisFrame->data) && (!animated.animated))
+      {
+        // if we don't have the data decoded yet - decode it
+        if((!thisFrame->loaded) || (!thisFrame->data))
+        {
+          // use frame info but we WONT allocate frame pixels
+          frameInfo = &(thisFrame->info);
+          ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
+
+          // clear out all pixels only if x,y,w,h is not whole image.
+          if(x != 0 || y != 0 || w != static_cast<int>(prop.w) || h != static_cast<int>(prop.h))
+          {
+            const std::uint32_t backgroundColor = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
+            FillImage(reinterpret_cast<uint32_t*>(pixels), prop.w, backgroundColor, 0, 0, prop.w, prop.h);
+          }
+
+          // and decode the gif with overwriting
+          if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true, 0u)))
+          {
+            DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
+            return false;
+          }
+
+          // mark as loaded and done
+          thisFrame->loaded = true;
+        }
+        // flush mem we don't need (at expense of decode cpu)
+      }
+      else
+      {
+        // skip decoding and just walk image to next
+        if(DALI_UNLIKELY(DGifGetCode(loaderInfo.gifAccessor->gif, &img_code, &img) == GIF_ERROR))
+        {
+          DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
+          return false;
+        }
+
+        while(img)
+        {
+          img = NULL;
+          DGifGetCodeNext(loaderInfo.gifAccessor->gif, &img);
+        }
+      }
+
+      imageNumber++;
+      // if we found the image we wanted - get out of here
+      if(imageNumber > index)
+      {
+        break;
+      }
+    }
+  } while(rec != TERMINATE_RECORD_TYPE);
+
+  return true;
+}
+
 
 /**
  * @brief Reader next frame of the gif file and populates structures accordingly.
@@ -1163,210 +1470,10 @@ bool ReadNextFrame(LoaderInfo& loaderInfo, ImageProperties& prop, //  use for w 
     // our current position is the previous frame we decoded from the file
     imageNumber = loaderInfo.imageNumber;
 
-    // walk through gif records in file to figure out info
-    do
+    if(!WalkThroughGifRecords(rec, loaderInfo, animated, imageNumber, index, frameInfo, prop, lastPreservedFrame, pixels))
     {
-      if(DALI_UNLIKELY(DGifGetRecordType(loaderInfo.gifAccessor->gif, &rec) == GIF_ERROR))
-      {
-        DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-        return false;
-      }
-
-      if(rec == EXTENSION_RECORD_TYPE)
-      {
-        int          ext_code;
-        GifByteType* ext = NULL;
-        DGifGetExtension(loaderInfo.gifAccessor->gif, &ext_code, &ext);
-
-        while(ext)
-        {
-          ext = NULL;
-          DGifGetExtensionNext(loaderInfo.gifAccessor->gif, &ext);
-        }
-      }
-      // get image description section
-      else if(rec == IMAGE_DESC_RECORD_TYPE)
-      {
-        int          xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
-        int          img_code;
-        GifByteType* img;
-        ImageFrame*  previousFrame = NULL;
-        ImageFrame*  thisFrame     = NULL;
-
-        // get image desc
-        if(DALI_UNLIKELY(DGifGetImageDesc(loaderInfo.gifAccessor->gif) == GIF_ERROR))
-        {
-          DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-          return false;
-        }
-
-        // get the previous frame entry AND the current one to fill in
-        previousFrame = FindFrame(animated, imageNumber - 1);
-        thisFrame     = FindFrame(animated, imageNumber);
-
-        // if we have a frame AND we're animated AND we have no data...
-        if((thisFrame) && (!thisFrame->data) && (animated.animated))
-        {
-          bool first = false;
-
-          // allocate it
-          thisFrame->data = new uint32_t[prop.w * prop.h];
-
-          if(DALI_UNLIKELY(!thisFrame->data))
-          {
-            DALI_LOG_ERROR("LOAD_ERROR_RESOURCE_ALLOCATION_FAILED");
-            return false;
-          }
-
-          // Lazy fill background color feature.
-          // DecodeImage function draw range is EQUAL with previous FillImage range,
-          // We don't need to fill background that time.
-          // It will try to reduce the number of FillImage API call
-          // Note : We might check overlapping. But that operation looks expensive
-          // So, just optimize only if EQUAL case.
-          bool     updateBackgroundColorLazy = false;
-          uint32_t backgroundColor           = 0u;
-          int      prevX                     = 0;
-          int      prevY                     = 0;
-          int      prevW                     = 0;
-          int      prevH                     = 0;
-
-          // if we have no prior frame OR prior frame data... empty
-          if((!previousFrame) || (!previousFrame->data))
-          {
-            first                     = true;
-            frameInfo                 = &(thisFrame->info);
-            updateBackgroundColorLazy = true;
-            backgroundColor           = 0u;
-            prevX                     = 0;
-            prevY                     = 0;
-            prevW                     = prop.w;
-            prevH                     = prop.h;
-          }
-          // we have a prior frame to copy data from...
-          else
-          {
-            frameInfo = &(previousFrame->info);
-
-            // fix coords of sub image in case it goes out...
-            ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-
-            // if dispose mode is not restore - then copy pre frame
-            if(frameInfo->dispose != DISPOSE_PREVIOUS)
-            {
-              memcpy(thisFrame->data, previousFrame->data, prop.w * prop.h * sizeof(uint32_t));
-            }
-
-            // if dispose mode is "background" then fill with bg
-            if(frameInfo->dispose == DISPOSE_BACKGROUND)
-            {
-              updateBackgroundColorLazy = true;
-              backgroundColor           = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
-              prevX                     = x;
-              prevY                     = y;
-              prevW                     = w;
-              prevH                     = h;
-            }
-            else if(frameInfo->dispose == DISPOSE_PREVIOUS) // GIF_DISPOSE_RESTORE
-            {
-              int prevIndex = 2;
-              do
-              {
-                // Find last preserved frame.
-                lastPreservedFrame = FindFrame(animated, imageNumber - prevIndex);
-                if(DALI_UNLIKELY(!lastPreservedFrame))
-                {
-                  DALI_LOG_ERROR("LOAD_ERROR_LAST_PRESERVED_FRAME_NOT_FOUND");
-                  return false;
-                }
-                prevIndex++;
-              } while(lastPreservedFrame && lastPreservedFrame->info.dispose == DISPOSE_PREVIOUS);
-
-              if(lastPreservedFrame)
-              {
-                memcpy(thisFrame->data, lastPreservedFrame->data, prop.w * prop.h * sizeof(uint32_t));
-              }
-            }
-          }
-          // now draw this frame on top
-          frameInfo = &(thisFrame->info);
-          ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-
-          if(updateBackgroundColorLazy)
-          {
-            // If this frame's x,y,w,h is not equal with previous x,y,w,h, FillImage. else, don't fill
-            if(prevX != x || prevY != y || prevW != w || prevH != h)
-            {
-              FillImage(thisFrame->data, prop.w, backgroundColor, prevX, prevY, prevW, prevH);
-              // Don't send background color information to DecodeImage function.
-              updateBackgroundColorLazy = false;
-            }
-          }
-          if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, thisFrame->data, prop.w, xin, yin, frameInfo->transparent, x, y, w, h, first || updateBackgroundColorLazy, backgroundColor)))
-          {
-            DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
-            return false;
-          }
-
-          // mark as loaded and done
-          thisFrame->loaded = true;
-
-          FlushFrames(animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame);
-        }
-        // if we have a frame BUT the image is not animated. different
-        // path
-        else if((thisFrame) && (!thisFrame->data) && (!animated.animated))
-        {
-          // if we don't have the data decoded yet - decode it
-          if((!thisFrame->loaded) || (!thisFrame->data))
-          {
-            // use frame info but we WONT allocate frame pixels
-            frameInfo = &(thisFrame->info);
-            ClipCoordinates(prop.w, prop.h, &xin, &yin, frameInfo->x, frameInfo->y, frameInfo->w, frameInfo->h, &x, &y, &w, &h);
-
-            // clear out all pixels only if x,y,w,h is not whole image.
-            if(x != 0 || y != 0 || w != static_cast<int>(prop.w) || h != static_cast<int>(prop.h))
-            {
-              const std::uint32_t backgroundColor = GetBackgroundColor(loaderInfo.gifAccessor->gif, frameInfo);
-              FillImage(reinterpret_cast<uint32_t*>(pixels), prop.w, backgroundColor, 0, 0, prop.w, prop.h);
-            }
-
-            // and decode the gif with overwriting
-            if(DALI_UNLIKELY(!DecodeImage(loaderInfo.gifAccessor->gif, loaderInfo.cachedColor, reinterpret_cast<uint32_t*>(pixels), prop.w, xin, yin, frameInfo->transparent, x, y, w, h, true, 0u)))
-            {
-              DALI_LOG_ERROR("LOAD_ERROR_CORRUPT_FILE\n");
-              return false;
-            }
-
-            // mark as loaded and done
-            thisFrame->loaded = true;
-          }
-          // flush mem we don't need (at expense of decode cpu)
-        }
-        else
-        {
-          // skip decoding and just walk image to next
-          if(DALI_UNLIKELY(DGifGetCode(loaderInfo.gifAccessor->gif, &img_code, &img) == GIF_ERROR))
-          {
-            DALI_LOG_ERROR("LOAD_ERROR_UNKNOWN_FORMAT\n");
-            return false;
-          }
-
-          while(img)
-          {
-            img = NULL;
-            DGifGetCodeNext(loaderInfo.gifAccessor->gif, &img);
-          }
-        }
-
-        imageNumber++;
-        // if we found the image we wanted - get out of here
-        if(imageNumber > index)
-        {
-          break;
-        }
-      }
-    } while(rec != TERMINATE_RECORD_TYPE);
+      return false;
+    }
 
     // if we are at the end of the animation or not animated, close file
     loaderInfo.imageNumber = imageNumber;
