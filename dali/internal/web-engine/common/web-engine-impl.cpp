@@ -690,6 +690,11 @@ bool WebEngine::SendWheelEvent(const Dali::WheelEvent& event)
   return mPlugin->SendWheelEvent(event);
 }
 
+void WebEngine::ExitFullscreen()
+{
+  mPlugin->ExitFullscreen();
+}
+
 void WebEngine::RegisterFrameRenderedCallback(Dali::WebEnginePlugin::WebEngineFrameRenderedCallback callback)
 {
   mPlugin->RegisterFrameRenderedCallback(callback);
@@ -745,6 +750,11 @@ void WebEngine::RegisterNavigationPolicyDecidedCallback(Dali::WebEnginePlugin::W
   mPlugin->RegisterNavigationPolicyDecidedCallback(callback);
 }
 
+void WebEngine::RegisterNewWindowPolicyDecidedCallback(Dali::WebEnginePlugin::WebEngineNewWindowPolicyDecidedCallback callback)
+{
+  mPlugin->RegisterNewWindowPolicyDecidedCallback(callback);
+}
+
 void WebEngine::RegisterNewWindowCreatedCallback(Dali::WebEnginePlugin::WebEngineNewWindowCreatedCallback callback)
 {
   mPlugin->RegisterNewWindowCreatedCallback(callback);
@@ -773,6 +783,21 @@ void WebEngine::RegisterContextMenuShownCallback(Dali::WebEnginePlugin::WebEngin
 void WebEngine::RegisterContextMenuHiddenCallback(Dali::WebEnginePlugin::WebEngineContextMenuHiddenCallback callback)
 {
   mPlugin->RegisterContextMenuHiddenCallback(callback);
+}
+
+void WebEngine::RegisterFullscreenEnteredCallback(Dali::WebEnginePlugin::WebEngineFullscreenEnteredCallback callback)
+{
+  mPlugin->RegisterFullscreenEnteredCallback(callback);
+}
+
+void WebEngine::RegisterFullscreenExitedCallback(Dali::WebEnginePlugin::WebEngineFullscreenExitedCallback callback)
+{
+  mPlugin->RegisterFullscreenExitedCallback(callback);
+}
+
+void WebEngine::RegisterTextFoundCallback(Dali::WebEnginePlugin::WebEngineTextFoundCallback callback)
+{
+  mPlugin->RegisterTextFoundCallback(callback);
 }
 
 void WebEngine::GetPlainTextAsynchronously(Dali::WebEnginePlugin::PlainTextReceivedCallback callback)
