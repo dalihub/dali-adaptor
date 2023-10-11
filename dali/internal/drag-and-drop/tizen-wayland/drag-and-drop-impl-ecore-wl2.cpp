@@ -397,11 +397,6 @@ void DragAndDropEcoreWl::SendData(void* event)
 
   close(ev->fd);
 
-  if(mDragWindow)
-  {
-    mDragWindow.Hide();
-  }
-
   delete[] buffer;
 }
 
@@ -417,14 +412,29 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
   }
   mTargetIndex = -1;
 
+  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
+
   if(mWindowTargetIndex != -1)
   {
     Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
     mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
     mDropWindowTargets[mWindowTargetIndex].inside = false;
   }
-  mWindowTargetIndex = -1;
+  else if(ev->offer != ecore_wl2_dnd_selection_get(input))
+  {
+    for (std::size_t i = 0; i< mDropWindowTargets.size(); i++)
+    {
+      if (ev->win == mDropWindowTargets[i].windowId)
+      {
+        Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
+        mDropWindowTargets[i].callback(dragEvent);
+        break;
+      }
+    }
+  }
 
+  mWindowTargetIndex = -1;
 }
 
 Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali::Window window)
