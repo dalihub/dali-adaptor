@@ -37,7 +37,11 @@
 
 namespace
 {
-const uint32_t THRESHOLD_SWAPBUFFER_COUNT              = 5;
+#ifndef DALI_PROFILE_UBUNTU
+const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 20;
+#else
+const uint32_t THRESHOLD_SWAPBUFFER_COUNT = 5;
+#endif
 const uint32_t CHECK_EXTENSION_NUMBER                  = 4;
 const uint32_t EGL_VERSION_SUPPORT_SURFACELESS_CONTEXT = 15;
 const char*    EGL_KHR_SURFACELESS_CONTEXT             = "EGL_KHR_surfaceless_context";
@@ -429,7 +433,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_DEBUG_INFO("eglSwapBuffers takes long time! [%u ms]\n", endTime - startTime);
+        DALI_LOG_RELEASE_INFO("eglSwapBuffers takes long time! [%u ms]\n", endTime - startTime);
       }
     }
   }
@@ -456,7 +460,7 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
     endTime = TimeService::GetMilliSeconds();
     if(endTime - startTime > mLogThreshold)
     {
-      DALI_LOG_DEBUG_INFO("eglQuerySurface takes long time! [%u ms]\n", endTime - startTime);
+      DALI_LOG_RELEASE_INFO("eglQuerySurface takes long time! [%u ms]\n", endTime - startTime);
     }
   }
   return age;
@@ -523,7 +527,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_DEBUG_INFO("eglSwapBuffersWithDamageKHR takes long time! [%u ms]\n", endTime - startTime);
+        DALI_LOG_RELEASE_INFO("eglSwapBuffersWithDamageKHR takes long time! [%u ms]\n", endTime - startTime);
       }
     }
   }
