@@ -226,6 +226,12 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   mEventHandler = EventHandlerPtr(new EventHandler(mWindowSurface->GetWindowBase(), *mAdaptor));
   mEventHandler->AddObserver(*this);
 
+  if(mWindowBase->GetType() == WindowType::IME)
+  {
+    mWindowBase->InitializeIme();
+    mWindowSurface->InitializeImeSurface();
+  }
+
   // Add Window to bridge for ATSPI
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
 
