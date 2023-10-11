@@ -172,7 +172,7 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
     }
 
     // Destroy mPicture and make it as nullptr, so we can notify that we fail to load svg file.
-    if(mParsedImage)
+    if(mPicture)
     {
       delete(mPicture);
       mPicture = nullptr;
