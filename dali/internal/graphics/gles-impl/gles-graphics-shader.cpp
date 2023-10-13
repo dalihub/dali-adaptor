@@ -116,13 +116,11 @@ bool Shader::Compile() const
         char    output[4096];
         GLsizei size{0u};
         gl->GetShaderInfoLog(shader, 4096, &size, output);
-        DALI_LOG_RENDER_INFO("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
-        DALI_LOG_RENDER_INFO("Log: %s\n", output);
+        DALI_LOG_ERROR("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
+        DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
         gl->DeleteShader(shader);
         return false;
       }
-
-      // TODO: check error
       mImpl->glShader = shader;
     }
     return true;

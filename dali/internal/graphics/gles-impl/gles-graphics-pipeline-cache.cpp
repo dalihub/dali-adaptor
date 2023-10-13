@@ -442,7 +442,7 @@ Graphics::UniquePtr<Graphics::Program> PipelineCache::GetProgram(const ProgramCr
     // create new pipeline
     auto program = MakeUnique<GLES::ProgramImpl>(programCreateInfo, mImpl->controller);
 
-    program->Create();
+    program->Create(); // Don't currently handle failure.
 
     cachedProgram = program.get();
 
