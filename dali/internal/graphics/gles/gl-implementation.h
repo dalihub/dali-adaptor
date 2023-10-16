@@ -399,7 +399,22 @@ public:
 
   void CompileShader(GLuint shader) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glCompileShader(shader);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_RELEASE_INFO("glCompileShader takes long time! [%u ms] shader id : %u\n", endTime - startTime, shader);
+      }
+    }
   }
 
   void CompressedTexImage2D(GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const void* data) override
@@ -774,7 +789,22 @@ public:
 
   void LinkProgram(GLuint program) override
   {
+    uint32_t startTime = 0, endTime = 0;
+    if(mLogEnabled)
+    {
+      startTime = TimeService::GetMilliSeconds();
+    }
+
     glLinkProgram(program);
+
+    if(mLogEnabled)
+    {
+      endTime = TimeService::GetMilliSeconds();
+      if(endTime - startTime > mLogThreshold)
+      {
+        DALI_LOG_RELEASE_INFO("glLinkProgram takes long time! [%u ms] program id : %u\n", endTime - startTime, program);
+      }
+    }
   }
 
   void PixelStorei(GLenum pname, GLint param) override
