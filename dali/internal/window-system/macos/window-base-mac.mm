@@ -762,6 +762,16 @@ bool WindowBaseCocoa::KeyboardUnGrab()
   return false;
 }
 
+void WindowBaseCocoa::SetFullScreen(bool fullscreen)
+{
+  return;
+}
+
+bool WindowBaseCocoa::GetFullScreen()
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

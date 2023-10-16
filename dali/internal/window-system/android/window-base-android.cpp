@@ -469,6 +469,16 @@ bool WindowBaseAndroid::KeyboardUnGrab()
   return false;
 }
 
+void WindowBaseAndroid::SetFullScreen(bool fullscreen)
+{
+  return;
+}
+
+bool WindowBaseAndroid::GetFullScreen()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

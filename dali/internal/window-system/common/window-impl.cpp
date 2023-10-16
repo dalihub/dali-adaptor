@@ -1460,6 +1460,16 @@ bool Window::KeyboardUnGrab()
   return mWindowBase->KeyboardUnGrab();
 }
 
+void Window::SetFullScreen(bool fullscreen)
+{
+  mWindowBase->SetFullScreen(fullscreen);
+}
+
+bool Window::GetFullScreen()
+{
+  return mWindowBase->GetFullScreen();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
