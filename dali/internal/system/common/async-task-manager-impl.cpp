@@ -435,31 +435,36 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
 
 AsyncTaskPtr AsyncTaskManager::PopNextCompletedTask()
 {
-  // Lock while popping task out from the queue
-  Mutex::ScopedLock lock(mCompletedTasksMutex);
+  std::vector<AsyncTaskPtr> ignoredTaskList; ///< To keep asyncTask reference so we can ensure that destructor called out of mutex.
 
   AsyncTaskPtr nextCompletedTask = nullptr;
-
-  while(!mCompletedTasks.empty())
   {
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "PopNextCompletedTask, completed task count : [%zu]\n", mCompletedTasks.size());
+    // Lock while popping task out from the queue
+    Mutex::ScopedLock lock(mCompletedTasksMutex);
 
-    auto               next      = mCompletedTasks.begin();
-    AsyncTaskPtr       nextTask  = next->first;
-    CompletedTaskState taskState = next->second;
-    CacheImpl::EraseTaskCache(mCacheImpl->mCompletedTasksCache, nextTask, next);
-    mCompletedTasks.erase(next);
-
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p] (callback required? : %d)\n", nextTask.Get(), taskState == CompletedTaskState::REQUIRE_CALLBACK);
-
-    if(taskState == CompletedTaskState::REQUIRE_CALLBACK)
+    while(!mCompletedTasks.empty())
     {
-      nextCompletedTask = nextTask;
-      break;
-    }
-  }
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "PopNextCompletedTask, completed task count : [%zu]\n", mCompletedTasks.size());
 
-  DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup completed [%p]\n", nextCompletedTask.Get());
+      auto               next      = mCompletedTasks.begin();
+      AsyncTaskPtr       nextTask  = next->first;
+      CompletedTaskState taskState = next->second;
+      CacheImpl::EraseTaskCache(mCacheImpl->mCompletedTasksCache, nextTask, next);
+      mCompletedTasks.erase(next);
+
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p] (callback required? : %d)\n", nextTask.Get(), taskState == CompletedTaskState::REQUIRE_CALLBACK);
+
+      if(taskState == CompletedTaskState::REQUIRE_CALLBACK)
+      {
+        nextCompletedTask = nextTask;
+        break;
+      }
+
+      ignoredTaskList.push_back(nextTask);
+    }
+
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup completed [%p]\n", nextCompletedTask.Get());
+  }
 
   return nextCompletedTask;
 }
