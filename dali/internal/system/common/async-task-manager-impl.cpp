@@ -598,7 +598,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
   if(task)
   {
-    bool needTrigger = (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
+    bool needTrigger = false;
 
     // Lock while check validation of task.
     {
@@ -653,6 +653,8 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
           Mutex::ScopedLock lock(mCompletedTasksMutex); // We can lock this mutex under mRunningTasksMutex.
 
           const bool callbackRequired = notify && (task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD);
+
+          needTrigger |= callbackRequired;
 
           DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p] (callback required? : %d)\n", task.Get(), callbackRequired);
 
