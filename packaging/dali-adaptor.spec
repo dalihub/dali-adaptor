@@ -287,6 +287,11 @@ cmake_flags+=" -DENABLE_ECORE_WAYLAND2=ON"
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
 %endif
 
+# Use this conditional when Tizen version is 8.x or greater
+%if 0%{?tizen_version_major} >= 8
+CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
+%endif
+
 %if 0%{?enable_debug}
 cmake_flags+=" -DCMAKE_BUILD_TYPE=Debug"
 %endif

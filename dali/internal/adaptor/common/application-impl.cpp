@@ -81,8 +81,10 @@ void Application::PreInitialize(int* argc, char** argv[])
 {
   if(!gPreInitializedApplication)
   {
-    char* retEnv        = std::getenv("TIZEN_UI_THREAD");
-    bool  isUseUIThread = false;
+    bool isUseUIThread = false;
+
+#ifdef UI_THREAD_AVAILABLE
+    char* retEnv = std::getenv("TIZEN_UI_THREAD");
     if(retEnv)
     {
       std::string uiThreadEnv   = retEnv;
@@ -92,11 +94,14 @@ void Application::PreInitialize(int* argc, char** argv[])
         isUseUIThread = true;
       }
     }
+#endif
 
     Dali::TextAbstraction::FontClientPreInitialize();
     WindowData windowData;
     gPreInitializedApplication                  = new Application(argc, argv, "", Framework::NORMAL, isUseUIThread, windowData);
     gPreInitializedApplication->mLaunchpadState = Launchpad::PRE_INITIALIZED;
+
+#ifdef UI_THREAD_AVAILABLE
     if(isUseUIThread)
     {
       DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading");
@@ -104,6 +109,7 @@ void Application::PreInitialize(int* argc, char** argv[])
       gPreInitializedApplication->mUIThreadLoader->Run([&]() { gPreInitializedApplication->CreateWindow(); });
     }
     else
+#endif
     {
       DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED");
       gPreInitializedApplication->CreateWindow(); // Only create window
