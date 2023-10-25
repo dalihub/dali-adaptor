@@ -621,6 +621,25 @@ DALI_ADAPTOR_API bool KeyboardGrab(Window window, Device::Subclass::Type deviceS
 DALI_ADAPTOR_API bool KeyboardUnGrab(Window window);
 
 /**
+ * @brief Sets full screen sized window.
+ * If full screen size is set for the window,
+ * window will be resized with full screen size.
+ * In addition, the full screen sized window's z-order is the highest.
+ *
+ * @param[in] window The window instance.
+ * @param[in] fullscreen true to set fullscreen, false to unset.
+ */
+DALI_ADAPTOR_API void SetFullScreen(Window window, bool fullscreen);
+
+/**
+ * @brief Gets whether the full screen sized window or not
+ *
+ * @param[in] window The window instance.
+ * @return Returns true if the full screen sized window is.
+ */
+DALI_ADAPTOR_API bool GetFullScreen(Window window);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

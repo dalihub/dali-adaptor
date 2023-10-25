@@ -691,6 +691,16 @@ bool WindowBaseWin::KeyboardUnGrab()
   return false;
 }
 
+void WindowBaseWin::SetFullScreen(bool fullscreen)
+{
+  return;
+}
+
+bool WindowBaseWin::GetFullScreen()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

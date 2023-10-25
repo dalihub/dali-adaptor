@@ -3491,6 +3491,20 @@ bool WindowBaseEcoreWl2::KeyboardUnGrab()
   return ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
 }
 
+void WindowBaseEcoreWl2::SetFullScreen(bool fullscreen)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_fullscreen_set, window: [%p], fullscreen [%d]\n", mEcoreWindow, fullscreen);
+  START_DURATION_CHECK();
+  ecore_wl2_window_fullscreen_set(mEcoreWindow, fullscreen);
+  ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+  FINISH_DURATION_CHECK("ecore_wl2_window_fullscreen_set");
+}
+
+bool WindowBaseEcoreWl2::GetFullScreen()
+{
+  return ecore_wl2_window_fullscreen_get(mEcoreWindow);
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
