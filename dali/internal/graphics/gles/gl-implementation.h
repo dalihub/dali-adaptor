@@ -372,7 +372,7 @@ public:
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_RELEASE_INFO("glClear takes long time! [%u ms]\n", endTime - startTime);
+        DALI_LOG_DEBUG_INFO("glClear takes long time! [%u ms]\n", endTime - startTime);
       }
     }
   }
@@ -417,7 +417,7 @@ public:
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_RELEASE_INFO("glCompressedTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+        DALI_LOG_DEBUG_INFO("glCompressedTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
       }
     }
   }
@@ -437,7 +437,7 @@ public:
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_RELEASE_INFO("glCompressedTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+        DALI_LOG_DEBUG_INFO("glCompressedTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
       }
     }
   }
@@ -867,7 +867,7 @@ public:
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_RELEASE_INFO("glTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+        DALI_LOG_DEBUG_INFO("glTexImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
       }
     }
   }
@@ -907,7 +907,7 @@ public:
       endTime = TimeService::GetMilliSeconds();
       if(endTime - startTime > mLogThreshold)
       {
-        DALI_LOG_RELEASE_INFO("glTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
+        DALI_LOG_DEBUG_INFO("glTexSubImage2D takes long time! [%u ms] size : %u x %u\n", endTime - startTime, width, height);
       }
     }
   }
