@@ -161,6 +161,16 @@ public:
   void Resume();
 
   /**
+   * @brief Checks whether this scene holder is being deleted in the event thread.
+   *
+   * @return true if this scene holder is being deleted in the event thread, or false if not.
+   */
+  bool IsBeingDeleted() const
+  {
+    return mIsBeingDeleted;
+  }
+
+  /**
    * @brief Informs the scene that the set surface has been rotated.
    *
    * @param[in] width The width of rotated surface
@@ -397,8 +407,10 @@ protected:
 
   Uint16Pair mDpi; ///< The DPI for this SceneHolder.
 
-  bool mAdaptorStarted; ///< Whether the adaptor has started or not
-  bool mVisible : 1;    ///< Whether the scene is visible or not
+  std::atomic<bool> mIsBeingDeleted; ///< This is set only from the event thread and read only from the render thread
+
+  bool mAdaptorStarted : 1; ///< Whether the adaptor has started or not
+  bool mVisible : 1;        ///< Whether the scene is visible or not
 };
 
 } // namespace Adaptor

@@ -56,24 +56,14 @@ uint32_t SceneHolder::mSceneHolderCounter = 0;
 class SceneHolder::SceneHolderLifeCycleObserver : public LifeCycleObserver
 {
 public:
-  SceneHolderLifeCycleObserver(Adaptor*& adaptor, bool& adaptorStarted)
-  : mAdaptor(adaptor),
-    mAdaptorStarted(adaptorStarted)
-  {
-  }
+  SceneHolderLifeCycleObserver(Adaptor*& adaptor)
+  : mAdaptor(adaptor){};
 
 private: // Adaptor::LifeCycleObserver interface
-  void OnStart() override
-  {
-    mAdaptorStarted = true;
-  };
+  void OnStart() override{};
   void OnPause() override{};
   void OnResume() override{};
-  void OnStop() override
-  {
-    // Mark adaptor as stopped;
-    mAdaptorStarted = false;
-  };
+  void OnStop() override{};
   void OnDestroy() override
   {
     mAdaptor = nullptr;
@@ -81,17 +71,17 @@ private: // Adaptor::LifeCycleObserver interface
 
 private:
   Adaptor*& mAdaptor;
-  bool&     mAdaptorStarted;
 };
 
 SceneHolder::SceneHolder()
-: mLifeCycleObserver(new SceneHolderLifeCycleObserver(mAdaptor, mAdaptorStarted)),
+: mLifeCycleObserver(new SceneHolderLifeCycleObserver(mAdaptor)),
   mLastTouchEvent(),
   mLastHoverEvent(),
   mId(mSceneHolderCounter++),
   mSurface(nullptr),
   mAdaptor(nullptr),
   mDpi(),
+  mIsBeingDeleted(false),
   mAdaptorStarted(false),
   mVisible(true)
 {
@@ -110,12 +100,8 @@ SceneHolder::~SceneHolder()
     mAdaptor->RemoveObserver(*mLifeCycleObserver.get());
     mAdaptor->RemoveWindow(this);
 
-    if(mAdaptorStarted)
-    {
-      // The event queue is flushed and we wait for the completion of the surface removal
-      // Note : we don't need to delete surface when adaptor is stopped now.
-      mAdaptor->DeleteSurface(*mSurface.get());
-    }
+    // The event queue is flushed and we wait for the completion of the surface removal
+    mAdaptor->DeleteSurface(*mSurface.get());
 
     mAdaptor = nullptr;
   }
@@ -239,7 +225,6 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
 
   DALI_ASSERT_DEBUG(mSurface && "Surface needs to be set before calling this method\n");
 
-  // We can assume that current adaptor is already started now.
   mAdaptorStarted = true;
 
   // Create the scene
@@ -303,12 +288,6 @@ void SceneHolder::SetRotationCompletedAcknowledgement()
 
 void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
 {
-  if(DALI_UNLIKELY(!mAdaptorStarted))
-  {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
-    return;
-  }
-
   if(timeStamp < 1)
   {
     timeStamp = TimeService::GetMilliSeconds();
@@ -358,12 +337,6 @@ const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
 
 void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 {
-  if(DALI_UNLIKELY(!mAdaptorStarted))
-  {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
-    return;
-  }
-
   // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
   // Keep the handle alive until the core events are processed.
   Dali::BaseHandle sceneHolder(this);
@@ -377,12 +350,6 @@ void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 
 void SceneHolder::FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
-  if(DALI_UNLIKELY(!mAdaptorStarted))
-  {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
-    return;
-  }
-
   Dali::PhysicalKeyboard physicalKeyboard = PhysicalKeyboard::Get();
   if(physicalKeyboard)
   {
@@ -403,12 +370,6 @@ void SceneHolder::FeedKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 
 void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
 {
-  if(DALI_UNLIKELY(!mAdaptorStarted))
-  {
-    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
-    return;
-  }
-
   Integration::HoverEvent hoverEvent;
 
   // Signals can be emitted while processing core events, and the scene holder could be deleted in the signal callback.
@@ -457,8 +418,6 @@ Dali::Integration::SceneHolder SceneHolder::Get(Dali::Actor actor)
 
 void SceneHolder::Reset()
 {
-  DALI_ASSERT_ALWAYS(mAdaptorStarted && "Adaptor is stopped, or not be started yet!");
-
   mCombiner.Reset();
 
   // Any touch listeners should be told of the interruption.
