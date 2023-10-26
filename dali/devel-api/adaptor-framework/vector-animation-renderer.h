@@ -211,6 +211,8 @@ public:
    */
   void AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id);
 
+  void KeepRasterizedBuffer();
+
 public: // Signals
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.

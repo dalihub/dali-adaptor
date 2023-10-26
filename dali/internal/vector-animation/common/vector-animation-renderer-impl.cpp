@@ -121,6 +121,11 @@ void VectorAnimationRenderer::AddPropertyValueCallback(const std::string& keyPat
   mPlugin.AddPropertyValueCallback(keyPath, property, callback, id);
 }
 
+void VectorAnimationRenderer::KeepRasterizedBuffer()
+{
+  mPlugin.KeepRasterizedBuffer();
+}
+
 Dali::VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return mPlugin.UploadCompletedSignal();

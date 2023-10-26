@@ -108,6 +108,8 @@ public:
    */
   void AddPropertyValueCallback(const std::string& keyPath, Dali::VectorAnimationRenderer::VectorProperty property, CallbackBase* callback, int32_t id);
 
+  void KeepRasterizedBuffer();
+
   /**
    * @copydoc Dali::VectorAnimationRendererPlugin::UploadCompletedSignal()
    */

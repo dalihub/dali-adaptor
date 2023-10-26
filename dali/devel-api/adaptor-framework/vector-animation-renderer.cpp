@@ -118,6 +118,11 @@ void VectorAnimationRenderer::AddPropertyValueCallback(const std::string& keyPat
   GetImplementation(*this).AddPropertyValueCallback(keyPath, property, callback, id);
 }
 
+void VectorAnimationRenderer::KeepRasterizedBuffer()
+{
+  GetImplementation(*this).KeepRasterizedBuffer();
+}
+
 VectorAnimationRenderer::UploadCompletedSignalType& VectorAnimationRenderer::UploadCompletedSignal()
 {
   return GetImplementation(*this).UploadCompletedSignal();
