@@ -227,6 +227,15 @@ public:
    */
   void AddPropertyValueCallback(const std::string& keyPath, VectorProperty property, CallbackBase* callback, int32_t id);
 
+  /**
+   * @brief Keep the rasterized buffer to use the frame cache.
+   *
+   * By default, only as much as needed is kept in the rasterized buffer and not kept after use.
+   * tis API is efficient in terms of memory, but has the disadvantage of having to load the necessary buffer each time.
+   * therefore, if there are cases in which you want to improve the performance even if the app sacrifices a lot of memory, this API is useful.
+   */
+  void KeepRasterizedBuffer();
+
 public: // Signals
   /**
    * @brief Connect to this signal to be notified when the texture upload is completed.
