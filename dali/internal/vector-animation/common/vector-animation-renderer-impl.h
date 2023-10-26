@@ -123,6 +123,11 @@ public:
   void AddPropertyValueCallback(const std::string& keyPath, Dali::VectorAnimationRenderer::VectorProperty property, CallbackBase* callback, int32_t id);
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::KeepRasterizedBuffer()
+   */
+  void KeepRasterizedBuffer();
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::UploadCompletedSignal()
    */
   Dali::VectorAnimationRenderer::UploadCompletedSignalType& UploadCompletedSignal();

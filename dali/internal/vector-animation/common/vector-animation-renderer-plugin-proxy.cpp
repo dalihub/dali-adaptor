@@ -228,6 +228,14 @@ void VectorAnimationRendererPluginProxy::AddPropertyValueCallback(const std::str
   }
 }
 
+void VectorAnimationRendererPluginProxy::KeepRasterizedBuffer()
+{
+  if(mPlugin)
+  {
+    mPlugin->KeepRasterizedBuffer();
+  }
+}
+
 VectorAnimationRendererPlugin::UploadCompletedSignalType& VectorAnimationRendererPluginProxy::UploadCompletedSignal()
 {
   if(mPlugin)
