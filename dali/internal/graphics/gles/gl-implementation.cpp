@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/graphics/gles/gl-implementation.h>
 
+// EXTERNAL INCLUDES
+#include <limits>
+
 namespace Dali
 {
 namespace Internal
@@ -57,7 +60,7 @@ constexpr auto PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_EGL_PERFORMANCE_LOG_TH
 static uint32_t GetPerformanceLogThresholdTime()
 {
   auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
-  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
   return time;
 }
 } // namespace
@@ -141,7 +144,7 @@ void GlImplementation::ContextCreated()
   }
 
   mLogThreshold = GetPerformanceLogThresholdTime();
-  mLogEnabled   = mLogThreshold > 0 ? true : false;
+  mLogEnabled   = mLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
 
   {
     ConditionalWait::ScopedLock lock(mContextCreatedWaitCondition);
