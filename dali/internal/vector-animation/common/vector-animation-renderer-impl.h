@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_VECTOR_ANIMATION_RENDERER_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,11 @@ public:
    * @copydoc Dali::VectorAnimationRenderer::Load()
    */
   bool Load(const std::string& url);
+
+  /**
+   * @copydoc Dali::VectorAnimationRenderer::Load()
+   */
+  bool Load(const Vector<uint8_t>& data);
 
   /**
    * @copydoc Dali::VectorAnimationRenderer::SetRenderer()

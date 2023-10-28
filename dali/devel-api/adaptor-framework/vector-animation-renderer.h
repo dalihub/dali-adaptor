@@ -2,7 +2,7 @@
 #define DALI_VECTOR_ANIMATION_RENDERER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/rendering/renderer.h>
+#include <dali/public-api/common/dali-vector.h>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -108,6 +109,14 @@ public:
    * @return True if loading success, false otherwise.
    */
   bool Load(const std::string& url);
+
+  /**
+   * @brief Loads the animation file by buffer.
+   *
+   * @param[in] data The raw buffer of the vector animation file
+   * @return True if loading success, false otherwise.
+   */
+  bool Load(const Dali::Vector<uint8_t>& data);
 
   /**
    * @brief Sets the renderer used to display the result image.
