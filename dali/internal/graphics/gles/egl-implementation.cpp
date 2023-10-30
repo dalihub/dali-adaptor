@@ -22,6 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-vector.h>
+#include <limits>
 #include <sstream>
 
 // INTERNAL INCLUDES
@@ -57,9 +58,28 @@ DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, true);
 static uint32_t GetPerformanceLogThresholdTime()
 {
   auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
-  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : 0u;
+  uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
   return time;
 }
+
+#define START_DURATION_CHECK()                         \
+  uint64_t startTimeNanoSeconds = 0ull;                \
+  uint64_t endTimeNanoSeconds   = 0ull;                \
+  if(mLogEnabled)                                      \
+  {                                                    \
+    TimeService::GetNanoseconds(startTimeNanoSeconds); \
+  }
+
+#define FINISH_DURATION_CHECK(functionName)                                                                                                                \
+  if(mLogEnabled)                                                                                                                                          \
+  {                                                                                                                                                        \
+    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                       \
+    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                   \
+    {                                                                                                                                                      \
+      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms]\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0); \
+    }                                                                                                                                                      \
+  }
+
 } // namespace
 
 namespace Dali
@@ -196,7 +216,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
   }
 
   mLogThreshold = GetPerformanceLogThresholdTime();
-  mLogEnabled   = mLogThreshold > 0 ? true : false;
+  mLogEnabled   = mLogThreshold < std::numeric_limits<uint32_t>::max() ? true : false;
 
   mGlesInitialized = true;
 
@@ -402,11 +422,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 {
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
-    uint32_t startTime = 0, endTime = 0;
-    if(mLogEnabled)
-    {
-      startTime = TimeService::GetMilliSeconds();
-    }
+    START_DURATION_CHECK();
 
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
@@ -428,24 +444,13 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
     }
 #endif //DALI_PROFILE_UBUNTU
 
-    if(mLogEnabled)
-    {
-      endTime = TimeService::GetMilliSeconds();
-      if(endTime - startTime > mLogThreshold)
-      {
-        DALI_LOG_RELEASE_INFO("eglSwapBuffers takes long time! [%u ms]\n", endTime - startTime);
-      }
-    }
+    FINISH_DURATION_CHECK("eglSwapBuffers");
   }
 }
 
 EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
-  uint32_t startTime = 0, endTime = 0;
-  if(mLogEnabled)
-  {
-    startTime = TimeService::GetMilliSeconds();
-  }
+  START_DURATION_CHECK();
 
   EGLint age = 0;
   eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
@@ -455,14 +460,8 @@ EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
     age = 0;
   }
 
-  if(mLogEnabled)
-  {
-    endTime = TimeService::GetMilliSeconds();
-    if(endTime - startTime > mLogThreshold)
-    {
-      DALI_LOG_RELEASE_INFO("eglQuerySurface takes long time! [%u ms]\n", endTime - startTime);
-    }
-  }
+  FINISH_DURATION_CHECK("eglQuerySurface");
+
   return age;
 }
 
@@ -493,11 +492,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
       return;
     }
 
-    uint32_t startTime = 0, endTime = 0;
-    if(mLogEnabled)
-    {
-      startTime = TimeService::GetMilliSeconds();
-    }
+    START_DURATION_CHECK();
 
 #ifndef DALI_PROFILE_UBUNTU
     if(mSwapBufferCountAfterResume < THRESHOLD_SWAPBUFFER_COUNT)
@@ -522,14 +517,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface, const std::vector<Re
     }
 #endif //DALI_PROFILE_UBUNTU
 
-    if(mLogEnabled)
-    {
-      endTime = TimeService::GetMilliSeconds();
-      if(endTime - startTime > mLogThreshold)
-      {
-        DALI_LOG_RELEASE_INFO("eglSwapBuffersWithDamageKHR takes long time! [%u ms]\n", endTime - startTime);
-      }
-    }
+    FINISH_DURATION_CHECK("eglSwapBuffersWithDamageKHR");
   }
 }
 
