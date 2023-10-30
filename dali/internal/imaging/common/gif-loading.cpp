@@ -39,11 +39,15 @@
   ((static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h)) >= \
    ((1ULL << (29 * (sizeof(void*) / 4))) - 2048))
 
-#define LOADERR(x)     \
-  do                   \
-  {                    \
-    DALI_LOG_ERROR(x); \
-    goto on_error;     \
+#define PRINT_ERR_AND_EXIT(args...) \
+  do                                \
+  {                                 \
+    DALI_LOG_ERROR(args);           \
+    if(rows)                        \
+    {                               \
+      free(rows);                   \
+    }                               \
+    return ret;                     \
   } while(0)
 
 namespace Dali
@@ -644,18 +648,22 @@ FrameInfo* NewFrame(GifAnimationData& animated, int transparent, int dispose, in
 /// FILL (overwrite with transparency kept)
 void FillOverwriteWithTransparencyKept(
   const std::uint32_t*& cachedColorPtr,
-  int& xx, int& yy,
-  const int x, const int y,
-  const int w, const int h,
-  const int xin, const int yin,
-  const int rowpix,
-  const int transparent,
-  const uint32_t fillColor,
-  int& pix,
-  uint32_t*& p,
-  uint32_t*& data,
-  GifRowType*& rows,
-  ColorMapObject*& colorMap)
+  int&                  xx,
+  int&                  yy,
+  const int             x,
+  const int             y,
+  const int             w,
+  const int             h,
+  const int             xin,
+  const int             yin,
+  const int             rowpix,
+  const int             transparent,
+  const uint32_t        fillColor,
+  int&                  pix,
+  uint32_t*&            p,
+  uint32_t*&            data,
+  GifRowType*&          rows,
+  ColorMapObject*&      colorMap)
 {
   // if we use cachedColor, use it
   if(cachedColorPtr)
@@ -678,7 +686,7 @@ void FillOverwriteWithTransparencyKept(
       }
     }
   }
-    // we don't have cachedColor. use PixelLookup function.
+  // we don't have cachedColor. use PixelLookup function.
   else
   {
     for(yy = 0; yy < h; yy++)
@@ -704,18 +712,22 @@ void FillOverwriteWithTransparencyKept(
 /// Paste on top with transparent pixels untouched
 void PasteOnTopWithTransparentPixelsUntouched(
   const std::uint32_t*& cachedColorPtr,
-  int& xx, int& yy,
-  const int x, const int y,
-  const int w, const int h,
-  const int xin, const int yin,
-  const int rowpix,
-  const int transparent,
-  const uint32_t fillColor,
-  int& pix,
-  uint32_t*& p,
-  uint32_t*& data,
-  GifRowType*& rows,
-  ColorMapObject*& colorMap)
+  int&                  xx,
+  int&                  yy,
+  const int             x,
+  const int             y,
+  const int             w,
+  const int             h,
+  const int             xin,
+  const int             yin,
+  const int             rowpix,
+  const int             transparent,
+  const uint32_t        fillColor,
+  int&                  pix,
+  uint32_t*&            p,
+  uint32_t*&            data,
+  GifRowType*&          rows,
+  ColorMapObject*&      colorMap)
 {
   // if we use cachedColor, use it
   if(cachedColorPtr)
@@ -734,7 +746,7 @@ void PasteOnTopWithTransparentPixelsUntouched(
       }
     }
   }
-    // we don't have cachedColor. use PixelLookup function.
+  // we don't have cachedColor. use PixelLookup function.
   else
   {
     for(yy = 0; yy < h; yy++)
@@ -754,20 +766,24 @@ void PasteOnTopWithTransparentPixelsUntouched(
 }
 
 void HandleTransparentPixels(
-  const bool fill,
+  const bool            fill,
   const std::uint32_t*& cachedColorPtr,
-  int& xx, int& yy,
-  const int x, const int y,
-  const int w, const int h,
-  const int xin, const int yin,
-  const int rowpix,
-  const int transparent,
-  const uint32_t fillColor,
-  int& pix,
-  uint32_t*& p,
-  uint32_t*& data,
-  GifRowType*& rows,
-  ColorMapObject*& colorMap)
+  int&                  xx,
+  int&                  yy,
+  const int             x,
+  const int             y,
+  const int             w,
+  const int             h,
+  const int             xin,
+  const int             yin,
+  const int             rowpix,
+  const int             transparent,
+  const uint32_t        fillColor,
+  int&                  pix,
+  uint32_t*&            p,
+  uint32_t*&            data,
+  GifRowType*&          rows,
+  ColorMapObject*&      colorMap)
 {
   if(fill)
   {
@@ -781,18 +797,22 @@ void HandleTransparentPixels(
 
 void HandleNonTransparentPixels(
   const std::uint32_t*& cachedColorPtr,
-  int& xx, int& yy,
-  const int x, const int y,
-  const int w, const int h,
-  const int xin, const int yin,
-  const int rowpix,
-  const int transparent,
-  const uint32_t fillColor,
-  int& pix,
-  uint32_t*& p,
-  uint32_t*& data,
-  GifRowType*& rows,
-  ColorMapObject*& colorMap)
+  int&                  xx,
+  int&                  yy,
+  const int             x,
+  const int             y,
+  const int             w,
+  const int             h,
+  const int             xin,
+  const int             yin,
+  const int             rowpix,
+  const int             transparent,
+  const uint32_t        fillColor,
+  int&                  pix,
+  uint32_t*&            p,
+  uint32_t*&            data,
+  GifRowType*&          rows,
+  ColorMapObject*&      colorMap)
 {
   // if we use cachedColor, use it
   if(cachedColorPtr)
@@ -809,7 +829,7 @@ void HandleNonTransparentPixels(
       }
     }
   }
-    // we don't have cachedColor. use PixelLookup function.
+  // we don't have cachedColor. use PixelLookup function.
   else
   {
     // walk pixels without worring about transparency at all
@@ -854,7 +874,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   {
     DALI_LOG_ERROR("gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
     DALI_ASSERT_DEBUG(false && "Dimensions are bigger than the Gif image size");
-    goto on_error;
+    PRINT_ERR_AND_EXIT("GIF Loader: Dimensions are bigger than the Gif image size! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
   }
 
   // build a blob of memory to have pointers to rows of pixels
@@ -862,7 +882,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   rows = static_cast<GifRowType*>(malloc((gifH * sizeof(GifRowType)) + (gifW * gifH * sizeof(GifPixelType))));
   if(DALI_UNLIKELY(!rows))
   {
-    goto on_error;
+    PRINT_ERR_AND_EXIT("GIF Loader: malloc failed! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
   }
 
   // fill in the pointers at the start
@@ -880,7 +900,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
       {
         if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
         {
-          goto on_error;
+          PRINT_ERR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d, i : %d, intoffset[i] : %d, intjump[i] : %d\n", yy, gifW, gifH, rows[yy], i, intoffset[i], intjump[i]);
         }
       }
     }
@@ -892,7 +912,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
     {
       if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
       {
-        goto on_error;
+        PRINT_ERR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d\n", yy, gifW, gifH, rows[yy]);
       }
     }
   }
@@ -931,7 +951,6 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   }
   ret = true;
 
-on_error:
   if(rows)
   {
     free(rows);
@@ -941,15 +960,15 @@ on_error:
 
 /// Walk through gif records in file to figure out info while reading the header
 void WalkThroughGifRecordsWhileReadingHeader(
-  const GifAccessor& gifAccessor,
-  GifRecordType& rec,
-  int& imageNumber,
-  FrameInfo*& frameInfo,
-  bool& full,
+  const GifAccessor&     gifAccessor,
+  GifRecordType&         rec,
+  int&                   imageNumber,
+  FrameInfo*&            frameInfo,
+  bool&                  full,
   const ImageProperties& prop,
-  GifAnimationData& animated,
-  int& loopCount,
-  bool& success)
+  GifAnimationData&      animated,
+  int&                   loopCount,
+  bool&                  success)
 {
   do
   {
@@ -1001,7 +1020,7 @@ void WalkThroughGifRecordsWhileReadingHeader(
         StoreFrameInfo(gifAccessor.gif, frameInfo);
         CheckTransparency(full, frameInfo, prop.w, prop.h);
       }
-        // or if we dont have a frameInfo entry - create one even for stills
+      // or if we dont have a frameInfo entry - create one even for stills
       else
       {
         // allocate and save frame with field data
@@ -1019,7 +1038,7 @@ void WalkThroughGifRecordsWhileReadingHeader(
       }
       imageNumber++;
     }
-      // we have an extension code block - for animated gifs for sure
+    // we have an extension code block - for animated gifs for sure
     else if(rec == EXTENSION_RECORD_TYPE)
     {
       int          ext_code;
@@ -1045,7 +1064,7 @@ void WalkThroughGifRecordsWhileReadingHeader(
             break;
           }
         }
-          // netscape extension indicating loop count.
+        // netscape extension indicating loop count.
         else if(ext_code == 0xff) /* application extension */
         {
           if(!strncmp(reinterpret_cast<char*>(&ext[1]), "NETSCAPE2.0", 11) ||
@@ -1176,15 +1195,15 @@ bool ReadHeader(LoaderInfo&      loaderInfo,
 
 /// Walk through gif records in file to figure out info
 bool WalkThroughGifRecords(
-  GifRecordType& rec,
-  LoaderInfo& loaderInfo,
-  GifAnimationData& animated,
-  int& imageNumber,
-  const int& index,
-  FrameInfo*& frameInfo,
+  GifRecordType&         rec,
+  LoaderInfo&            loaderInfo,
+  GifAnimationData&      animated,
+  int&                   imageNumber,
+  const int&             index,
+  FrameInfo*&            frameInfo,
   const ImageProperties& prop,
-  ImageFrame*& lastPreservedFrame,
-  unsigned char*& pixels)
+  ImageFrame*&           lastPreservedFrame,
+  unsigned char*&        pixels)
 {
   do
   {
@@ -1206,7 +1225,7 @@ bool WalkThroughGifRecords(
         DGifGetExtensionNext(loaderInfo.gifAccessor->gif, &ext);
       }
     }
-      // get image description section
+    // get image description section
     else if(rec == IMAGE_DESC_RECORD_TYPE)
     {
       int          xin = 0, yin = 0, x = 0, y = 0, w = 0, h = 0;
@@ -1265,7 +1284,7 @@ bool WalkThroughGifRecords(
           prevW                     = prop.w;
           prevH                     = prop.h;
         }
-          // we have a prior frame to copy data from...
+        // we have a prior frame to copy data from...
         else
         {
           frameInfo = &(previousFrame->info);
@@ -1335,8 +1354,8 @@ bool WalkThroughGifRecords(
 
         FlushFrames(animated, prop.w, prop.h, thisFrame, previousFrame, lastPreservedFrame);
       }
-        // if we have a frame BUT the image is not animated. different
-        // path
+      // if we have a frame BUT the image is not animated. different
+      // path
       else if((thisFrame) && (!thisFrame->data) && (!animated.animated))
       {
         // if we don't have the data decoded yet - decode it
@@ -1392,7 +1411,6 @@ bool WalkThroughGifRecords(
 
   return true;
 }
-
 
 /**
  * @brief Reader next frame of the gif file and populates structures accordingly.
