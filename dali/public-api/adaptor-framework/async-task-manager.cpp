@@ -34,7 +34,7 @@ CallbackBase* AsyncTask::GetCompletedCallback()
   return mCompletedCallback.get();
 }
 
-AsyncTask::ThreadType AsyncTask::GetCallbackInvocationThread() const
+AsyncTask::ThreadType AsyncTask::GetCallbackInvocationThread()
 {
   return mThreadType;
 }
@@ -61,16 +61,6 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
 {
   GetImplementation(*this).RemoveTask(task);
-}
-
-AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(CallbackBase* callback, AsyncTaskManager::CompletedCallbackTraceMask mask)
-{
-  return GetImplementation(*this).SetCompletedCallback(callback, mask);
-}
-
-bool AsyncTaskManager::RemoveCompletedCallback(AsyncTaskManager::TasksCompletedId tasksCompletedId)
-{
-  return GetImplementation(*this).RemoveCompletedCallback(tasksCompletedId);
 }
 
 AsyncTaskManager::AsyncTaskManager(Internal::Adaptor::AsyncTaskManager* impl)

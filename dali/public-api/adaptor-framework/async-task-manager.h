@@ -97,7 +97,7 @@ public:
    * @SINCE_2_2.9
    * @return the type of invocation callback.
    */
-  ThreadType GetCallbackInvocationThread() const;
+  ThreadType GetCallbackInvocationThread();
 
   /**
    * Get the priority of this task
@@ -179,71 +179,6 @@ public:
    * @param[in] task The task pointer.
    */
   void RemoveTask(AsyncTaskPtr task);
-
-public:
-  using TasksCompletedId = uint32_t;
-
-  enum CompletedCallbackTraceMask
-  {
-    THREAD_MASK_MAIN   = 1u << 0, ///< Trace only main thread tasks.
-    THREAD_MASK_WORKER = 1u << 1, ///< Trace only worker thread tasks.
-
-    PRIORITY_MASK_HIGH = 1u << 2, ///< Trace only high priority tasks.
-    PRIORITY_MASK_LOW  = 1u << 3, ///< Trace only low priority tasks.
-
-    THREAD_MASK_ALL   = THREAD_MASK_MAIN | THREAD_MASK_WORKER,
-    PRIORITY_MASK_ALL = PRIORITY_MASK_HIGH | PRIORITY_MASK_LOW,
-
-    MASK_ALL = THREAD_MASK_ALL | PRIORITY_MASK_ALL,
-
-    DEFAULT = MASK_ALL,
-  };
-
-  /**
-   * @brief Set the async tasks completed callback.
-   * Inputed callback will be emitted after all tasks what user added are completed.
-   *
-   * Usage example:
-   *
-   *   void OnTasksCompleted(TasksCompletedId id);
-   *   auto id0 = AsyncTaskManager::Get().SetCompletedCallback(MakeCallback(OnTasksCompleted), CompletedCallbackTraceMask::MASK_ALL);
-   *   // OnTasksCompleted(id0); called at next Idler.
-   *
-   *   AsyncTaskManager::Get().AddTask(task1);
-   *   auto id1 = AsyncTaskManager::Get().SetCompletedCallback(MakeCallback(OnTasksCompleted), CompletedCallbackTraceMask::MASK_ALL);
-   *   // OnTasksCompleted(id1); called after task1 completed.
-   *
-   *   AsyncTaskManager::Get().AddTask(task2WhichIsLowPriority);
-   *   AsyncTaskManager::Get().AddTask(task3WhichIsWorkerThread);
-   *   AsyncTaskManager::Get().AddTask(task4);
-   *   auto id2 = AsyncTaskManager::Get().SetCompletedCallback(MakeCallback(OnTasksCompleted), CompletedCallbackTraceMask::THREAD_MASK_MAIN | CompletedCallbackTraceMask::PRIORITY_MASK_HIGH);
-   *   // OnTasksCompleted(id2); called after task1 and task4 completed.
-   *
-   *   AsyncTaskManager::Get().RemoveCompletedCallback(id1);
-   *   // OnTasksCompleted(id1); will not be called.
-   *
-   * @note The ownership of callback will be hold AsyncTaskManager itself.
-   * @note The callback will be emmited at Process() timming.
-   *
-   * @SINCE_2_2.50
-   * @param[in] callback The callback base when all AsyncTasks completed.
-   *                     This callback will be void return, and single input argument ; TasksCompletedId.
-   * @param[in] mask Mask info s.t. what kind of async task we want to detact.
-   *                 For example, if we set this value as MASK_ALL & ~PRIORITY_MASK_LOW, we will ignore low priority tasks.
-   *                 Default is MASK_ALL.
-   * @return The unique id for callback. It can be used when we want to remove callback.
-   */
-  TasksCompletedId SetCompletedCallback(CallbackBase* callback, CompletedCallbackTraceMask mask = CompletedCallbackTraceMask::DEFAULT);
-
-  /**
-   * @brief Remove the async tasks completed callback.
-   * @note It will not execute setted callback.
-   *
-   * @SINCE_2_2.50
-   * @param[in] tasksCompletedId The id for callback that want to remove.
-   * @return True if we success to removed. False if it already removed, or callback already emitted.
-   */
-  bool RemoveCompletedCallback(TasksCompletedId tasksCompletedId);
 
 public:
   /// @cond internal
