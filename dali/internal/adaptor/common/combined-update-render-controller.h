@@ -377,7 +377,6 @@ private:
                                                      ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
 
   volatile unsigned int mUseElapsedTimeAfterWait; ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
-  volatile unsigned int mIsQuitedPreCompile;      ///< Whether we need to do precompile shader.
 
   Dali::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
   Dali::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
