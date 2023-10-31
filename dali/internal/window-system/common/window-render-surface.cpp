@@ -344,11 +344,6 @@ void WindowRenderSurface::CreateSurface()
   // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
 
-  if(mWindowBase->GetType() == WindowType::IME)
-  {
-    InitializeImeSurface();
-  }
-
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
@@ -552,7 +547,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
 
-    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d], IMEWindow [%d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, mIsImeWindowSurface);
+    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
 
     // Window rotate or screen rotate
     if(mIsWindowOrientationChanging || isScreenOrientationChanging)
@@ -711,15 +706,11 @@ Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequire
 
 void WindowRenderSurface::InitializeImeSurface()
 {
-  if(!mIsImeWindowSurface)
+  mIsImeWindowSurface = true;
+  if(!mPostRenderTrigger)
   {
-    mIsImeWindowSurface = true;
-    if(!mPostRenderTrigger)
-    {
-      mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                                                          TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-
-    }
+    mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
+                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
   }
 }
 
