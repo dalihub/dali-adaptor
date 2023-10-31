@@ -47,7 +47,7 @@ inline constexpr std::size_t BitSetSize = (static_cast<std::size_t>(EnumMax) + 3
  *
  * @see Accessibility::BitSet
  */
-class DALI_ADAPTOR_API BitReference
+class BitReference
 {
   template<std::size_t>
   friend class Accessibility::BitSet;
@@ -121,7 +121,7 @@ private:
  * @tparam N Number of 32-bit chunks (the capacity of this BitSet is 32*N).
  */
 template<std::size_t N>
-class DALI_ADAPTOR_API BitSet
+class BitSet
 {
 public:
   // Types
@@ -438,7 +438,7 @@ private:
  * @see Dali::Accessibility::Accessible::GetRoles
  */
 template<typename Enum, Enum EnumMax>
-class DALI_ADAPTOR_API EnumBitSet : public BitSet<Internal::BitSetSize<Enum, EnumMax>>
+class EnumBitSet : public BitSet<Internal::BitSetSize<Enum, EnumMax>>
 {
   static constexpr std::size_t N = Internal::BitSetSize<Enum, EnumMax>;
 
