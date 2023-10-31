@@ -1056,6 +1056,16 @@ bool WindowBaseEcoreX::KeyboardUnGrab()
   return false;
 }
 
+void WindowBaseEcoreX::SetFullScreen(bool fullscreen)
+{
+  return;
+}
+
+bool WindowBaseEcoreX::GetFullScreen()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

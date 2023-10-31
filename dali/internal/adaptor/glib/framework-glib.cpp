@@ -111,6 +111,56 @@ Any FrameworkGlib::GetMainLoopContext() const
   return mImpl->mContext;
 }
 
+// If the GLIB profile is being used on desktop, define the UIThreadLoader methods.
+// Note that it shouldn't be defined normally, as GLIB framework can be used in
+// conjunction with ECORE framework.
+#if defined(DALI_PROFILE_GLIB_X11)
+
+/**
+ * Impl for Pre-Initailized using UI Thread.
+ */
+struct UIThreadLoader::Impl
+{
+  // Constructor
+
+  Impl(void* data)
+  {
+  }
+
+  ~Impl()
+  {
+  }
+
+  void Run(Runner runner)
+  {
+  }
+
+private:
+  // Undefined
+  Impl(const Impl& impl);
+  Impl& operator=(const Impl& impl);
+};
+
+/**
+ * UI Thread loader to support Pre-Initailized using UI Thread.
+ */
+UIThreadLoader::UIThreadLoader(int* argc, char*** argv)
+: mArgc(argc),
+  mArgv(argv),
+  mImpl(nullptr)
+{
+}
+
+UIThreadLoader::~UIThreadLoader()
+{
+}
+
+void UIThreadLoader::Run(Runner runner)
+{
+}
+
+#endif
+
 } // namespace Adaptor
 
 } // namespace Internal

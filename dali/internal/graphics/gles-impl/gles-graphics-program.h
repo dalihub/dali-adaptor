@@ -87,6 +87,12 @@ public:
   uint32_t Release();
 
   /**
+   * @brief Retrieves ref count
+   * @return Refcount value
+   */
+  [[nodiscard]] uint32_t GetRefCount() const;
+
+  /**
    * @brief Returns reflection
    *
    * @return Valid reflection associated with the Program

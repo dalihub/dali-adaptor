@@ -88,7 +88,7 @@ public:
    * @param[in] depth color depth of the image
    * @return A smart-pointer to a newly allocated image
    */
-  static NativeImageSourcePtr New(unsigned int width, unsigned int height, ColorDepth depth);
+  static NativeImageSourcePtr New(uint32_t width, uint32_t height, ColorDepth depth);
 
   /**
    * @brief Creates a new NativeImageSource from an existing native image source.
@@ -120,7 +120,7 @@ public:
    * @param[out] pixelFormat pixel format used by image
    * @return     @c true if the pixels were gotten, and @c false otherwise
    */
-  bool GetPixels(std::vector<unsigned char>& pixbuf, unsigned int& width, unsigned int& height, Pixel::Format& pixelFormat) const;
+  bool GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const;
 
   /**
    * @brief Converts the current pixel contents to either a JPEG or PNG format
@@ -151,6 +151,17 @@ public:
    */
   bool IsColorDepthSupported(ColorDepth colorDepth);
 
+public: // native image
+  /**
+   * @copydoc Dali::NativeImageInterface::GetWidth()
+   */
+  uint32_t GetWidth() const override;
+
+  /**
+   * @copydoc Dali::NativeImageInterface::GetHeight()
+   */
+  uint32_t GetHeight() const override;
+
   /**
    * @copydoc Dali::NativeImageInterface::GetTextureTarget()
    */
@@ -180,22 +191,12 @@ private: // native image
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   void PrepareTexture() override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetWidth()
-   */
-  unsigned int GetWidth() const override;
-
-  /**
-   * @copydoc Dali::NativeImageInterface::GetHeight()
-   */
-  unsigned int GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
@@ -232,7 +233,7 @@ private:
    * @param[in] depth color depth of the image
    * @param[in] nativeImageSource contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSource(unsigned int width, unsigned int height, ColorDepth depth, Any nativeImageSource);
+  DALI_INTERNAL NativeImageSource(uint32_t width, uint32_t height, ColorDepth depth, Any nativeImageSource);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().

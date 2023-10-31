@@ -221,6 +221,11 @@ uint32_t ProgramImpl::Release()
   return --mImpl->refCount;
 }
 
+uint32_t ProgramImpl::GetRefCount() const
+{
+  return mImpl->refCount;
+}
+
 const GLES::Reflection& ProgramImpl::GetReflection() const
 {
   return *mImpl->reflection;

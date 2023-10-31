@@ -404,6 +404,11 @@ public:
   void FlushUpdateMessages();
 
   /**
+   * @brief Requests a future call to Dali::Integration::Core::ProcessEvents(), when the application is idle.
+   */
+  void RequestProcessEventsOnIdle();
+
+  /**
    * @brief The log factory allows installation of a logger function in worker threads.
    * @return An interface to a logging factory
    */

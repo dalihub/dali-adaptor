@@ -547,6 +547,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool KeyboardUnGrab();
 
+  /**
+   * @copydoc Dali::DevelWindow::SetFullScreen()
+   */
+  void SetFullScreen(bool fullscreen);
+
+  /**
+   * @copydoc Dali::DevelWindow::GetFullScreen()
+   */
+  bool GetFullScreen();
+
 private:
   /**
    * @brief Enumeration for orietation mode.

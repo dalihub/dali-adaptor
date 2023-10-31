@@ -36,7 +36,7 @@ namespace Adaptor
 {
 using Dali::Integration::PixelBuffer;
 
-NativeImageSourceWin* NativeImageSourceWin::New(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+NativeImageSourceWin* NativeImageSourceWin::New(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
   NativeImageSourceWin* image = new NativeImageSourceWin(width, height, depth, nativeImageSource);
   DALI_ASSERT_DEBUG(image && "NativeImageSource allocation failed.");
@@ -50,7 +50,7 @@ NativeImageSourceWin* NativeImageSourceWin::New(unsigned int width, unsigned int
   return image;
 }
 
-NativeImageSourceWin::NativeImageSourceWin(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+NativeImageSourceWin::NativeImageSourceWin(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 : mWidth(width),
   mHeight(height),
   mOwnPixmap(true),
@@ -104,9 +104,9 @@ Any NativeImageSourceWin::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceWin::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
-  DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
+  DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;
   width        = mWidth;
   height       = mHeight;
@@ -165,7 +165,7 @@ void NativeImageSourceWin::DestroyResource()
   }
 }
 
-unsigned int NativeImageSourceWin::TargetTexture()
+uint32_t NativeImageSourceWin::TargetTexture()
 {
   mEglImageExtensions->TargetTextureKHR(mEglImageKHR);
 

@@ -530,6 +530,23 @@ public:
    */
   virtual bool KeyboardUnGrab() = 0;
 
+  /**
+   * @brief Sets full screen sized window.
+   * If full screen size is set for the window,
+   * window will be resized with full screen size.
+   * In addition, the full screen sized window's z-order is the highest.
+   *
+   * @param[in] fullscreen true to set fullscreen, false to unset.
+   */
+  virtual void SetFullScreen(bool fullscreen) = 0;
+
+  /**
+   * @brief Gets whether the full screen sized window or not
+   *
+   * @return Returns true if the full screen sized window is.
+   */
+  virtual bool GetFullScreen() = 0;
+
   // Signals
 
   /**

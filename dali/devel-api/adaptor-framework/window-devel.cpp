@@ -344,6 +344,16 @@ bool KeyboardUnGrab(Window window)
   return GetImplementation(window).KeyboardUnGrab();
 }
 
+void SetFullScreen(Window window, bool fullscreen)
+{
+  GetImplementation(window).SetFullScreen(fullscreen);
+}
+
+bool GetFullScreen(Window window)
+{
+  return GetImplementation(window).GetFullScreen();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

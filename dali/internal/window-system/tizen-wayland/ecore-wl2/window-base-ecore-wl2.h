@@ -631,6 +631,16 @@ public:
    */
   bool KeyboardUnGrab() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFullScreen()
+   */
+  void SetFullScreen(bool fullscreen) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFullScreen()
+   */
+  bool GetFullScreen() override;
+
 private:
   /**
    * Second stage initialization

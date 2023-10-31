@@ -51,7 +51,7 @@ public:
    * @param height height of image
    * @param pixelFormat pixel format for image
    */
-  NativeBitmapBuffer(Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pixelFormat);
+  NativeBitmapBuffer(Adaptor* adaptor, uint32_t width, uint32_t height, Pixel::Format pixelFormat);
 
   /**
    * virtual destructor
@@ -64,7 +64,7 @@ public:
    * @param[in] size size of data in bytes
    * @return true if successful, false if currently reading from buffer in render thread
    */
-  void Write(const unsigned char* src, size_t size);
+  void Write(const uint8_t* src, size_t size);
 
 public:
   /**
@@ -80,7 +80,7 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::TargetTexture()
    */
-  unsigned int TargetTexture() override;
+  uint32_t TargetTexture() override;
 
   /**
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
@@ -90,12 +90,12 @@ public:
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
    */
-  unsigned int GetWidth() const override;
+  uint32_t GetWidth() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::GetHeight()
    */
-  unsigned int GetHeight() const override;
+  uint32_t GetHeight() const override;
 
   /**
    * @copydoc Dali::NativeImageInterface::RequiresBlending()
@@ -144,10 +144,10 @@ private:
   Integration::GlAbstraction* mGlAbstraction; ///< GlAbstraction used
 
   Integration::LocklessBuffer* mBuffer;         ///< bitmap data double buffered
-  unsigned int                 mWidth;          ///< Image width
-  unsigned int                 mHeight;         ///< Image height
+  uint32_t                     mWidth;          ///< Image width
+  uint32_t                     mHeight;         ///< Image height
   Pixel::Format                mPixelFormat;    ///< Image pixelformat
-  const unsigned char*         mLastReadBuffer; ///< last buffer that was read
+  const uint8_t*               mLastReadBuffer; ///< last buffer that was read
 };
 
 } // namespace Adaptor

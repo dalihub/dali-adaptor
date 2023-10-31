@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
+#include <dali/integration-api/shader-precompiler.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dali/public-api/common/dali-common.h"
@@ -44,6 +45,7 @@ namespace Adaptor
 {
 namespace
 {
+
 const unsigned int CREATED_THREAD_COUNT = 1u;
 
 const int CONTINUOUS = -1;
@@ -114,6 +116,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mUpdateRenderThreadCanSleep(FALSE),
   mPendingRequestUpdate(FALSE),
   mUseElapsedTimeAfterWait(FALSE),
+  mIsQuitedPreCompile(FALSE),
   mNewSurface(NULL),
   mDeletedSurface(nullptr),
   mPostRendering(FALSE),
@@ -311,6 +314,11 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
       mNewSurface    = newSurface;
+      if(mIsQuitedPreCompile == FALSE)
+      {
+        mIsQuitedPreCompile = TRUE;
+        Integration::ShaderPrecompiler::Get().StopPrecompile();
+      }
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -334,6 +342,11 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface*
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
+      if(mIsQuitedPreCompile == FALSE)
+      {
+        mIsQuitedPreCompile = TRUE;
+        Integration::ShaderPrecompiler::Get().StopPrecompile();
+      }
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -370,6 +383,11 @@ void CombinedUpdateRenderController::ResizeSurface()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
+    if(mIsQuitedPreCompile == FALSE)
+    {
+      mIsQuitedPreCompile = TRUE;
+      Integration::ShaderPrecompiler::Get().StopPrecompile();
+    }
     mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
@@ -448,6 +466,11 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
   mUpdateRenderThreadCanSleep = FALSE;
   mUploadWithoutRendering     = (updateMode == UpdateMode::SKIP_RENDER);
   LOG_COUNTER_EVENT("mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait);
+  if(mIsQuitedPreCompile == FALSE)
+  {
+    mIsQuitedPreCompile = TRUE;
+    Integration::ShaderPrecompiler::Get().StopPrecompile();
+  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -461,6 +484,11 @@ void CombinedUpdateRenderController::StopUpdateRenderThread()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mDestroyUpdateRenderThread = TRUE;
+  if(mIsQuitedPreCompile == FALSE)
+  {
+    mIsQuitedPreCompile = TRUE;
+    Integration::ShaderPrecompiler::Get().StopPrecompile();
+  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -535,6 +563,21 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   NotifyThreadInitialised();
 
+  // Initialize and create graphics resource for the shared context.
+  WindowContainer windows;
+  mAdaptorInterfaces.GetWindowContainerInterface(windows);
+
+  for(auto&& window : windows)
+  {
+    Dali::Integration::Scene      scene         = window->GetScene();
+    Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
+
+    if(scene && windowSurface)
+    {
+      windowSurface->InitializeGraphics();
+    }
+  }
+
   // Update time
   uint64_t lastFrameTime;
   TimeService::GetNanoseconds(lastFrameTime);
@@ -552,6 +595,39 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   const unsigned int renderToFboInterval = mEnvironmentOptions.GetRenderToFboInterval();
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
   unsigned int       frameCount          = 0u;
+
+  if(!mDestroyUpdateRenderThread)
+  {
+    Integration::ShaderPrecompiler::Get().WaitPrecompileList();
+    if(Integration::ShaderPrecompiler::Get().IsEnable())
+    {
+      std::vector<RawShaderData> precompiledShaderList;
+      Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShaderList);
+      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], list size:%d \n", precompiledShaderList.size());
+      for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
+      {
+        if(mIsQuitedPreCompile == TRUE)
+        {
+          Integration::ShaderPrecompiler::Get().StopPrecompile();
+          DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], but stop precompile");
+          break;
+        }
+
+        auto numberOfPrecomipledShader = precompiledShader->shaderCount;
+        for(int i = 0; i < numberOfPrecomipledShader; ++i)
+        {
+          auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader->vertexPrefix[i].data() + precompiledShader->vertexShader.data());
+          auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader->fragmentPrefix[i].data() + precompiledShader->fragmentShader.data());
+          mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
+        }
+        DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader count :%d \n", numberOfPrecomipledShader);
+      }
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[DISABLE] \n");
+    }
+  }
 
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
@@ -717,7 +793,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if(!uploadOnly || surfaceResized)
     {
       // Go through each window
-      WindowContainer windows;
+      windows.clear();
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
       for(auto&& window : windows)
@@ -853,7 +929,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Inform core of context destruction
   mCore.ContextDestroyed();
 
-  WindowContainer windows;
+  windows.clear();
   mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
   // Destroy surfaces
@@ -997,6 +1073,11 @@ void CombinedUpdateRenderController::PostRenderComplete()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
+  if(mIsQuitedPreCompile == FALSE)
+  {
+    mIsQuitedPreCompile = TRUE;
+    Integration::ShaderPrecompiler::Get().StopPrecompile();
+  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 

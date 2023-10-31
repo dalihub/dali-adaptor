@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ VectorImageRenderer::~VectorImageRenderer()
   if(mPicture)
   {
     delete(mPicture);
+    mPicture = nullptr;
   }
 
   tvg::Initializer::term(tvg::CanvasEngine::Sw);
@@ -93,11 +94,13 @@ VectorImageRenderer::~VectorImageRenderer()
   if(mParsedImage)
   {
     nsvgDelete(mParsedImage);
+    mParsedImage = nullptr;
   }
 
   if(mRasterizer)
   {
     nsvgDeleteRasterizer(mRasterizer);
+    mRasterizer = nullptr;
   }
 #endif
 }
@@ -118,6 +121,7 @@ void VectorImageRenderer::Initialize()
 bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
 {
   Mutex::ScopedLock lock(mMutex);
+
 #ifdef THORVG_SUPPORT
   if(!mSwCanvas)
   {
@@ -166,6 +170,14 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
         break;
       }
     }
+
+    // Destroy mPicture and make it as nullptr, so we can notify that we fail to load svg file.
+    if(mPicture)
+    {
+      delete(mPicture);
+      mPicture = nullptr;
+    }
+
     return false;
   }
 
@@ -185,6 +197,14 @@ bool VectorImageRenderer::Load(const Vector<uint8_t>& data, float dpi)
   if(!mParsedImage || !mParsedImage->shapes)
   {
     DALI_LOG_ERROR("VectorImageRenderer::Load: nsvgParse failed\n");
+
+    // Destroy mParsedImage and make it as nullptr, so we can notify that we fail to load svg file.
+    if(mParsedImage)
+    {
+      nsvgDelete(mParsedImage);
+      mParsedImage = nullptr;
+    }
+
     return false;
   }
 

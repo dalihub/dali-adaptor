@@ -19,7 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
-#include <set>
+#include <dali/public-api/common/list-wrapper.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/callback-manager.h>
@@ -30,8 +30,10 @@ namespace Internal
 {
 namespace Adaptor
 {
+struct WindowsCallbackData;
+
 /**
- * @brief LibUV callback manager used to install call backs in the applications main loop.
+ * @brief Windows callback manager used to install call backs in the applications main loop.
  * The manager keeps track of all callbacks, so that if Stop() is called it can remove them.
  */
 class WinCallbackManager : public CallbackManager
@@ -45,9 +47,7 @@ public:
   /**
    * @brief destructor
    */
-  ~WinCallbackManager()
-  {
-  }
+  ~WinCallbackManager();
 
   /**
    * @copydoc CallbackManager::AddIdleCallback()
@@ -110,9 +110,20 @@ private:
   WinCallbackManager(const WinCallbackManager&) = delete;
   WinCallbackManager& operator=(WinCallbackManager&) = delete;
 
+  /**
+   * @brief Callback function comes from framework.
+   * It will be self callback.
+   */
+  void ProcessIdleFromFramework();
+
 private:
-  std::set<CallbackBase*> mCallbacks;
-  bool                    mRunning; ///< flag is set to true if when running
+  CallbackBase* mSelfCallback{nullptr};
+  bool          mSelfCallbackRegistered{false}; ///< flag is set to true if we send processIdle callback register.
+
+  typedef std::list<WindowsCallbackData*> CallbackList;
+
+  CallbackList mCallbackContainer;
+  bool         mRunning; ///< flag is set to true if when running
 };
 
 } // namespace Adaptor

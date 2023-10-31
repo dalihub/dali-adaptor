@@ -147,9 +147,9 @@ Any NativeImageSourceX::GetNativeImageSource() const
   return Any(mPixmap);
 }
 
-bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned& width, unsigned& height, Pixel::Format& pixelFormat) const
+bool NativeImageSourceX::GetPixels(std::vector<uint8_t>& pixbuf, uint32_t& width, uint32_t& height, Pixel::Format& pixelFormat) const
 {
-  DALI_ASSERT_DEBUG(sizeof(unsigned) == 4);
+  DALI_ASSERT_DEBUG(sizeof(uint32_t) == 4);
   bool success = false;
   width        = mWidth;
   height       = mHeight;
@@ -184,18 +184,18 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
       {
         pixelFormat = Pixel::RGB888;
         pixbuf.resize(width * height * 3);
-        unsigned char* bufPtr = &pixbuf[0];
+        uint8_t* bufPtr = &pixbuf[0];
 
-        for(unsigned y = 0; y < height; ++y)
+        for(uint32_t y = 0; y < height; ++y)
         {
-          for(unsigned x = 0; x < width; ++x, bufPtr += 3)
+          for(uint32_t x = 0; x < width; ++x, bufPtr += 3)
           {
-            const unsigned pixel = XGetPixel(pXImage, x, y);
+            const uint32_t pixel = XGetPixel(pXImage, x, y);
 
             // store as RGB
-            const unsigned blue  = pixel & 0xFFU;
-            const unsigned green = (pixel >> 8) & 0xFFU;
-            const unsigned red   = (pixel >> 16) & 0xFFU;
+            const uint32_t blue  = pixel & 0xFFU;
+            const uint32_t green = (pixel >> 8) & 0xFFU;
+            const uint32_t red   = (pixel >> 16) & 0xFFU;
 
             *bufPtr       = red;
             *(bufPtr + 1) = green;
@@ -212,12 +212,12 @@ bool NativeImageSourceX::GetPixels(std::vector<unsigned char>& pixbuf, unsigned&
           // Sweep through the image, doing a vertical flip, but handling each scanline as
           // an inlined intrinsic/builtin memcpy (should be fast):
           pixbuf.resize(width * height * 4);
-          unsigned*      bufPtr        = reinterpret_cast<unsigned*>(&pixbuf[0]);
-          const unsigned xDataLineSkip = pXImage->bytes_per_line;
+          uint32_t*      bufPtr        = reinterpret_cast<uint32_t*>(&pixbuf[0]);
+          const uint32_t xDataLineSkip = pXImage->bytes_per_line;
           const size_t   copy_count    = static_cast<size_t>(width) * 4;
           pixelFormat                  = Pixel::BGRA8888;
 
-          for(unsigned y = 0; y < height; ++y, bufPtr += width)
+          for(uint32_t y = 0; y < height; ++y, bufPtr += width)
           {
             const char* const in = pXImage->data + xDataLineSkip * y;
 

@@ -28,12 +28,12 @@ namespace Internal
 {
 namespace Adaptor
 {
-std::unique_ptr<NativeImageSource> NativeImageSourceFactoryWin::CreateNativeImageSource(unsigned int width, unsigned int height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
+std::unique_ptr<NativeImageSource> NativeImageSourceFactoryWin::CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource)
 {
   return std::unique_ptr<NativeImageSource>(NativeImageSourceWin::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryWin::CreateNativeImageSourceQueue(unsigned int width, unsigned int height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryWin::CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   return std::unique_ptr<NativeImageSourceQueue>(nullptr);
 }
