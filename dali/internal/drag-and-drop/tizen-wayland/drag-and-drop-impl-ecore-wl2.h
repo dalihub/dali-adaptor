@@ -143,7 +143,7 @@ private:
 
 private:
   Dali::Window                      mDragWindow;
-  uint32_t                          mSerial{std::numeric_limits<uint32_t>::max()};
+  uint32_t                          mSerial{0u};
   Ecore_Event_Handler*              mSendHandler{nullptr};
   Ecore_Event_Handler*              mSourceEndHandler{nullptr};
   Ecore_Event_Handler*              mSourceDropHandler{nullptr};
@@ -152,8 +152,8 @@ private:
   Ecore_Event_Handler*              mDropHandler{nullptr};
   Ecore_Event_Handler*              mEnterHandler{nullptr};
   Ecore_Event_Handler*              mLeaveHandler{nullptr};
-  int                               mTargetIndex{-1};
-  int                               mWindowTargetIndex{-1};
+  int                               mTargetIndex{0};
+  int                               mWindowTargetIndex{0};
   std::string                       mMimeType;
   std::string                       mData;
   int                               mDataSize{0};
