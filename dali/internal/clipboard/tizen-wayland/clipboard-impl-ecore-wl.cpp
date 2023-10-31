@@ -290,7 +290,7 @@ struct Clipboard::Impl
     mDataSelectedSignal.Emit(selectedType);
   }
 
-  uint32_t             mSerial{0u};
+  uint32_t             mSerial{std::numeric_limits<uint32_t>::max()};
   std::string          mMimeType;
   std::string          mData;
   Ecore_Event_Handler* mSendHandler{nullptr};
