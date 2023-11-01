@@ -42,15 +42,39 @@ class DALI_ADAPTOR_API EncodedImageBuffer : public BaseHandle
 public:
   using RawBufferType = Dali::Vector<uint8_t>;
 
+  /**
+   * @brief The list of type of encoded image buffer.
+   *
+   * @SINCE_2_2.51
+   */
+  enum class ImageType
+  {
+    REGULAR_IMAGE,
+    VECTOR_IMAGE, ///< svg format.
+    ANIMATED_VECTOR_IMAGE, ///< lottie format.
+
+    DEFAULT = REGULAR_IMAGE,
+  };
+
 public:
   /**
-   * @brief Create a new EncodedImageBuffer.
+   * @brief Create a new EncodedImageBuffer. ImageType will be setted as DEFAULT.
    *
    * @SINCE_2_0.34
    * @param [in] buffer The encoded raw buffer
    * @return A handle to a new EncodedImageBuffer.
    */
   static EncodedImageBuffer New(const RawBufferType& buffer);
+
+  /**
+   * @brief Create a new EncodedImageBuffer with ImageType.
+   *
+   * @SINCE_2_2.51
+   * @param [in] buffer The encoded raw buffer
+   * @param [in] type The type hint of encoded raw buffer
+   * @return A handle to a new EncodedImageBuffer.
+   */
+  static EncodedImageBuffer New(const RawBufferType& buffer, ImageType type);
 
   /**
    * @brief Create an empty handle.
@@ -117,7 +141,23 @@ public:
    * @SINCE_2_1.20
    * @return A hash value of raw buffer.
    */
-  const std::size_t GetHash() const;
+  std::size_t GetHash() const;
+
+  /**
+   * @brief Set type of raw buffer.
+   *
+   * @SINCE_2_2.51
+   * @param[in] type A ImageType for this buffer
+   */
+  void SetImageType(ImageType type);
+
+  /**
+   * @brief Get type of raw buffer.
+   *
+   * @SINCE_2_2.51
+   * @return A ImageType this buffer have
+   */
+  ImageType GetImageType() const;
 
 public: // Not intended for developer use
   explicit DALI_INTERNAL EncodedImageBuffer(Internal::EncodedImageBuffer* impl);
