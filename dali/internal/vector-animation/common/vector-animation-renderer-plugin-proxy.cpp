@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,15 @@ bool VectorAnimationRendererPluginProxy::Load(const std::string& url)
   if(mPlugin)
   {
     return mPlugin->Load(url);
+  }
+  return false;
+}
+
+bool VectorAnimationRendererPluginProxy::Load(const Vector<uint8_t>& data)
+{
+  if(mPlugin)
+  {
+    return mPlugin->Load(data);
   }
   return false;
 }
