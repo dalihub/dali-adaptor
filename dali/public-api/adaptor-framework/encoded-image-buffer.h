@@ -50,7 +50,7 @@ public:
   enum class ImageType
   {
     REGULAR_IMAGE,
-    VECTOR_IMAGE, ///< svg format.
+    VECTOR_IMAGE,          ///< svg format.
     ANIMATED_VECTOR_IMAGE, ///< lottie format.
 
     DEFAULT = REGULAR_IMAGE,
@@ -67,6 +67,15 @@ public:
   static EncodedImageBuffer New(const RawBufferType& buffer);
 
   /**
+   * @brief Create a new EncodedImageBuffer. ImageType will be setted as DEFAULT.
+   *
+   * @SINCE_2_0.34
+   * @param [in] buffer The encoded raw buffer as moved
+   * @return A handle to a new EncodedImageBuffer.
+   */
+  static EncodedImageBuffer New(RawBufferType&& buffer);
+
+  /**
    * @brief Create a new EncodedImageBuffer with ImageType.
    *
    * @SINCE_2_2.51
@@ -75,6 +84,16 @@ public:
    * @return A handle to a new EncodedImageBuffer.
    */
   static EncodedImageBuffer New(const RawBufferType& buffer, ImageType type);
+
+  /**
+   * @brief Create a new EncodedImageBuffer with ImageType.
+   *
+   * @SINCE_2_2.51
+   * @param [in] buffer The encoded raw buffer as moved
+   * @param [in] type The type hint of encoded raw buffer
+   * @return A handle to a new EncodedImageBuffer.
+   */
+  static EncodedImageBuffer New(RawBufferType&& buffer, ImageType type);
 
   /**
    * @brief Create an empty handle.

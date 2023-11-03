@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,20 @@ int UtcDaliEncodedImageBufferNew02(void)
 
   // initialise handle
   buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE);
+
+  DALI_TEST_CHECK(buffer);
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferNew03(void)
+{
+  // invoke default handle constructor
+  EncodedImageBuffer buffer;
+
+  DALI_TEST_CHECK(!buffer);
+
+  // initialise handle by move operator
+  buffer = EncodedImageBuffer::New(std::move(tinybuffer()), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE);
 
   DALI_TEST_CHECK(buffer);
   END_TEST;
@@ -158,7 +172,6 @@ int UtcDaliEncodedImageBufferGetHash(void)
 
   END_TEST;
 }
-
 
 int UtcDaliEncodedImageBufferSetGetType(void)
 {

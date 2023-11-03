@@ -37,16 +37,14 @@ public:
   using ImageType     = Dali::EncodedImageBuffer::ImageType;
 
   /**
-   * Constructor
-   * @param[in] buffer The raw buffer of image.
-   * @param[in] type The type of image.
+   * @copydoc Dali::EncodedImageBuffer::New
    */
-  EncodedImageBuffer(const RawBufferType& buffer, ImageType type);
+  static IntrusivePtr<EncodedImageBuffer> New(const RawBufferType& buffer, ImageType type);
 
   /**
    * @copydoc Dali::EncodedImageBuffer::New
    */
-  static IntrusivePtr<EncodedImageBuffer> New(const RawBufferType& buffer, ImageType type);
+  static IntrusivePtr<EncodedImageBuffer> New(RawBufferType&& buffer, ImageType type);
 
   /**
    * @copydoc Dali::EncodedImageBuffer::GetRawBuffer
@@ -69,6 +67,20 @@ public:
   ImageType GetImageType() const;
 
 protected:
+  /**
+   * Constructor
+   * @param[in] buffer The raw buffer of image.
+   * @param[in] type The type of image.
+   */
+  EncodedImageBuffer(const RawBufferType& buffer, ImageType type);
+
+  /**
+   * Constructor as moved buffer
+   * @param[in] buffer The raw buffer of image as moved.
+   * @param[in] type The type of image.
+   */
+  EncodedImageBuffer(RawBufferType&& buffer, ImageType type);
+
   /**
    * Destructor
    */

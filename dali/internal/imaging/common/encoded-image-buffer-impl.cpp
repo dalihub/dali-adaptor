@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,13 @@ EncodedImageBuffer::EncodedImageBuffer(const RawBufferType& buffer, ImageType ty
   mBufferHash = CalculateHash(mBuffer);
 }
 
+EncodedImageBuffer::EncodedImageBuffer(RawBufferType&& buffer, ImageType type)
+: mBuffer(std::move(buffer)),
+  mType(type)
+{
+  mBufferHash = CalculateHash(mBuffer);
+}
+
 EncodedImageBuffer::~EncodedImageBuffer()
 {
 }
@@ -39,6 +46,13 @@ EncodedImageBuffer::~EncodedImageBuffer()
 IntrusivePtr<EncodedImageBuffer> EncodedImageBuffer::New(const RawBufferType& buffer, ImageType type)
 {
   IntrusivePtr<EncodedImageBuffer> internal = new EncodedImageBuffer(buffer, type);
+
+  return internal;
+}
+
+IntrusivePtr<EncodedImageBuffer> EncodedImageBuffer::New(RawBufferType&& buffer, ImageType type)
+{
+  IntrusivePtr<EncodedImageBuffer> internal = new EncodedImageBuffer(std::move(buffer), type);
 
   return internal;
 }

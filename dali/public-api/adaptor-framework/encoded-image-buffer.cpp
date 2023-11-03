@@ -69,9 +69,20 @@ EncodedImageBuffer EncodedImageBuffer::New(const RawBufferType& buffer)
   return EncodedImageBuffer::New(buffer, ImageType::DEFAULT);
 }
 
+EncodedImageBuffer EncodedImageBuffer::New(RawBufferType&& buffer)
+{
+  return EncodedImageBuffer::New(std::move(buffer), ImageType::DEFAULT);
+}
+
 EncodedImageBuffer EncodedImageBuffer::New(const RawBufferType& buffer, ImageType type)
 {
   IntrusivePtr<Internal::EncodedImageBuffer> internal = Internal::EncodedImageBuffer::New(buffer, type);
+  return EncodedImageBuffer(internal.Get());
+}
+
+EncodedImageBuffer EncodedImageBuffer::New(RawBufferType&& buffer, ImageType type)
+{
+  IntrusivePtr<Internal::EncodedImageBuffer> internal = Internal::EncodedImageBuffer::New(std::move(buffer), type);
   return EncodedImageBuffer(internal.Get());
 }
 
