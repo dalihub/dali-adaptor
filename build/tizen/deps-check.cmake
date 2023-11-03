@@ -246,6 +246,10 @@ ELSE()
   SET( cachePath /home/owner )
 ENDIF()
 
+IF( enable_appfw AND (enable_tizen_major_version GREATER_EQUAL 8) )
+  ADD_DEFINITIONS( -DUI_THREAD_AVAILABLE )
+ENDIF()
+
 IF( enable_appfw )
   ADD_DEFINITIONS( -DUSE_APPFW -DCOMPONENT_APPLICATION_SUPPORT)
 ENDIF()
