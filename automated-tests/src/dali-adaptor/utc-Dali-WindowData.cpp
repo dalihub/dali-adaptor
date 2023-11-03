@@ -71,3 +71,14 @@ int UtcDaliWindowData04(void)
 
   END_TEST;
 }
+
+int UtcDaliWindowData05(void)
+{
+  // Test SetFrontBufferRendering and GetFrontBufferRendering
+  WindowData windowData;
+  windowData.SetFrontBufferRendering(true);
+
+  DALI_TEST_CHECK(windowData.GetFrontBufferRendering() == true);
+
+  END_TEST;
+}

@@ -25,13 +25,15 @@ struct WindowData::Impl
   Impl()
   : mPositionSize(0, 0, 0, 0),
     mIsTransparent(true),
-    mWindowType(WindowType::NORMAL)
+    mWindowType(WindowType::NORMAL),
+    mIsFrontBufferRendering(false)
   {
   }
 
-  Dali::Rect<int> mPositionSize;  ///< The position and size of the Window
-  bool            mIsTransparent; ///< The transparency of the Window
-  WindowType      mWindowType;    ///< The window type of the Window
+  Dali::Rect<int> mPositionSize;            ///< The position and size of the Window
+  bool            mIsTransparent;           ///< The transparency of the Window
+  WindowType      mWindowType;              ///< The window type of the Window
+  bool            mIsFrontBufferRendering;  ///< The front buffer rendering of the Window
 };
 
 WindowData::WindowData()
@@ -69,6 +71,16 @@ void WindowData::SetWindowType(WindowType type)
 WindowType WindowData::GetWindowType() const
 {
   return mImpl->mWindowType;
+}
+
+void WindowData::SetFrontBufferRendering(bool enable)
+{
+  mImpl->mIsFrontBufferRendering = enable;
+}
+
+bool WindowData::GetFrontBufferRendering() const
+{
+  return mImpl->mIsFrontBufferRendering;
 }
 
 } // namespace Dali
