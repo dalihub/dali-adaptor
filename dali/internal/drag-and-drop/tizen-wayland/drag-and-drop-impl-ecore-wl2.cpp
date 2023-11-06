@@ -25,8 +25,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
-#include <dali/internal/window-system/common/window-system.h>
 #include <dali/internal/window-system/common/window-impl.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // DragAndDrop
@@ -329,7 +329,7 @@ void DragAndDropEcoreWl::CallSourceEvent(Dali::DragAndDrop::SourceEventType type
     mSourceCallback(type);
     if(type != Dali::DragAndDrop::SourceEventType::START)
     {
-       mDragWindow.Reset();
+      mDragWindow.Reset();
     }
   }
 }
@@ -412,8 +412,10 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
   }
   mTargetIndex = -1;
 
-  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
-  Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
+#ifdef OVER_TIZEN_VERSION_8
+  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+#endif
 
   if(mWindowTargetIndex != -1)
   {
@@ -421,11 +423,12 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
     mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
     mDropWindowTargets[mWindowTargetIndex].inside = false;
   }
+#ifdef OVER_TIZEN_VERSION_8
   else if(ev->offer != ecore_wl2_dnd_selection_get(input))
   {
-    for (std::size_t i = 0; i< mDropWindowTargets.size(); i++)
+    for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
     {
-      if (ev->win == mDropWindowTargets[i].windowId)
+      if(ev->win == mDropWindowTargets[i].windowId)
       {
         Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
         mDropWindowTargets[i].callback(dragEvent);
@@ -433,6 +436,7 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
       }
     }
   }
+#endif
 
   mWindowTargetIndex = -1;
 }
@@ -443,7 +447,7 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
   Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
   int angle = DevelWindow::GetPhysicalOrientation(window);
 
-  int newX, newY;
+  int           newX, newY;
   Dali::Vector2 newPosition;
 
   if(angle == 90)
@@ -487,11 +491,11 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
       continue;
     }
 
-    Vector2 position      = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
-    Vector2 size          = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
+    Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
     // Recalculate Cursor by Orientation
-    Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
     Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
 
     bool currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
@@ -534,9 +538,9 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
     }
 
     // Recalculate Cursor by Orientation
-    Dali::Window window = mDropWindowTargets[i].target;
+    Dali::Window                 window   = mDropWindowTargets[i].target;
     Dali::Window::WindowPosition position = window.GetPosition();
-    Dali::Window::WindowSize size = window.GetSize();
+    Dali::Window::WindowSize     size     = window.GetSize();
 
     bool currentInside = IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
 
@@ -578,7 +582,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   Ecore_Wl2_Event_Dnd_Drop* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Drop*>(event);
 
   // Check the target object region
-  mTargetIndex = -1;
+  mTargetIndex       = -1;
   mWindowTargetIndex = -1;
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
@@ -592,7 +596,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
     Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
 
     // Recalculate Cursor by Orientation
-    Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
+    Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
     Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
 
     // If the drop position is in the target object region, request drop data to the source object
@@ -622,15 +626,15 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
     }
 
     // Recalculate Cursor by Orientation
-    Dali::Window window = mDropWindowTargets[i].target;
+    Dali::Window                 window   = mDropWindowTargets[i].target;
     Dali::Window::WindowPosition position = window.GetPosition();
-    Dali::Window::WindowSize size = window.GetSize();
+    Dali::Window::WindowSize     size     = window.GetSize();
 
     // If the drop position is in the target object region, request drop data to the source object
     if(IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
     {
       mWindowTargetIndex = i;
-      mWindowPosition  = Dali::Vector2(position.GetX(), position.GetY());
+      mWindowPosition    = Dali::Vector2(position.GetX(), position.GetY());
 
       char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
       if(mimetype)

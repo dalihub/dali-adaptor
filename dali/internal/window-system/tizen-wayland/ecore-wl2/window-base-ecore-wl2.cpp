@@ -458,6 +458,7 @@ static Eina_Bool EcoreEventMouseButtonMove(void* data, int type, void* event)
   return ECORE_CALLBACK_PASS_ON;
 }
 
+#ifdef OVER_TIZEN_VERSION_8
 /**
  * Called when a touch motion is received.
  */
@@ -470,6 +471,7 @@ static Eina_Bool EcoreEventMouseButtonRelativeMove(void* data, int type, void* e
   }
   return ECORE_CALLBACK_PASS_ON;
 }
+#endif
 
 /**
  * Called when a touch is canceled.
@@ -484,6 +486,7 @@ static Eina_Bool EcoreEventMouseButtonCancel(void* data, int type, void* event)
   return ECORE_CALLBACK_PASS_ON;
 }
 
+#ifdef OVER_TIZEN_VERSION_8
 /**
  * Called when pointer constraints event is recevied.
  */
@@ -496,6 +499,7 @@ static Eina_Bool EcoreEventPointerConstraints(void* data, int type, void* event)
   }
   return ECORE_CALLBACK_PASS_ON;
 }
+#endif
 
 /**
  * Called when a mouse wheel is received.
@@ -1001,10 +1005,12 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP, EcoreEventMouseButtonUp, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_MOVE, EcoreEventMouseButtonMove, this));
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_CANCEL, EcoreEventMouseButtonCancel, this));
+#ifdef OVER_TIZEN_VERSION_8
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_RELATIVE_MOVE, EcoreEventMouseButtonRelativeMove, this));
 
   // Register pointer lock/unlock event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_POINTER_CONSTRAINTS, EcoreEventPointerConstraints, this));
+#endif
 
   // Register Mouse wheel events
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_WHEEL, EcoreEventMouseWheel, this));
@@ -1356,6 +1362,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
   }
 }
 
+#ifdef OVER_TIZEN_VERSION_8
 void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Relative_Move* relativeMoveEvent = static_cast<Ecore_Event_Mouse_Relative_Move*>(event);
@@ -1375,6 +1382,7 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
     mMouseRelativeEventSignal.Emit(mouseRelativeEvent);
   }
 }
+#endif
 
 void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 {
@@ -1395,6 +1403,7 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
   }
 }
 
+#ifdef OVER_TIZEN_VERSION_8
 void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Pointer_Constraints* constraintsEvent = static_cast<Ecore_Wl2_Event_Pointer_Constraints*>(event);
@@ -1408,6 +1417,7 @@ void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
     mPointerConstraintsSignal.Emit(position, constraintsEvent->locked, constraintsEvent->confined);
   }
 }
+#endif
 
 void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
 {
@@ -1517,12 +1527,12 @@ void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     bool isRepeat = false;
-#if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 25)
+#ifdef OVER_TIZEN_VERSION_8
     if(keyEvent->event_flags & ECORE_EVENT_FLAG_REPEAT)
     {
       isRepeat = true;
     }
-#endif // Since ecore 1.25 version
+#endif
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
     keyEvent.isRepeat = isRepeat;
@@ -2279,10 +2289,12 @@ void WindowBaseEcoreWl2::MoveResize(PositionSize positionSize)
 
 void WindowBaseEcoreWl2::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
 {
+#ifdef OVER_TIZEN_VERSION_8
   DALI_LOG_RELEASE_INFO("ecore_wl2_window_layout_set, numCols[%d], numRows[%d], column[%d], row[%d], colSpan[%d], rowSpan[%d]\n", numCols, numRows, column, row, colSpan, rowSpan);
   START_DURATION_CHECK();
   ecore_wl2_window_layout_set(mEcoreWindow, numCols, numRows, column, row, colSpan, rowSpan);
   FINISH_DURATION_CHECK("ecore_wl2_window_layout_set");
+#endif
 }
 
 void WindowBaseEcoreWl2::SetClass(const std::string& name, const std::string& className)
@@ -3424,24 +3436,36 @@ void WindowBaseEcoreWl2::ExcludeInputRegion(const Rect<int>& inputRegion)
 
 bool WindowBaseEcoreWl2::PointerConstraintsLock()
 {
+#ifdef OVER_TIZEN_VERSION_8
   return ecore_wl2_window_pointer_constraints_lock_pointer(mEcoreWindow);
+#else
+  return false;
+#endif
 }
 
 bool WindowBaseEcoreWl2::PointerConstraintsUnlock()
 {
+#ifdef OVER_TIZEN_VERSION_8
   return ecore_wl2_window_pointer_constraints_unlock_pointer(mEcoreWindow);
+#else
+  return false;
+#endif
 }
 
 void WindowBaseEcoreWl2::LockedPointerRegionSet(int32_t x, int32_t y, int32_t width, int32_t height)
 {
+#ifdef OVER_TIZEN_VERSION_8
   ecore_wl2_window_locked_pointer_region_set(mEcoreWindow, x, y, width, height);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+#endif
 }
 
 void WindowBaseEcoreWl2::LockedPointerCursorPositionHintSet(int32_t x, int32_t y)
 {
+#ifdef OVER_TIZEN_VERSION_8
   ecore_wl2_window_locked_pointer_cursor_position_hint_set(mEcoreWindow, x, y);
   ecore_wl2_window_commit(mEcoreWindow, EINA_TRUE);
+#endif
 }
 
 bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
@@ -3451,13 +3475,16 @@ bool WindowBaseEcoreWl2::PointerWarp(int32_t x, int32_t y)
 
 void WindowBaseEcoreWl2::CursorVisibleSet(bool visible)
 {
+#ifdef OVER_TIZEN_VERSION_8
   ecore_wl2_window_cursor_visible_set(mEcoreWindow, visible);
+#endif
 }
 
 // Request grab key events according to the requested device subtype
 //(For now, subtype could be '0'/'11'/'12' which equals to ECORE_DEVICE_SUBCLASS_NONE/REMOCON/VIRTUAL_KEYBOARD)
 bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
 {
+#ifdef OVER_TIZEN_VERSION_8
   Ecore_Device_Subclass ecoreDeviceSubclass;
   switch(deviceSubclass)
   {
@@ -3483,12 +3510,19 @@ bool WindowBaseEcoreWl2::KeyboardGrab(Device::Subclass::Type deviceSubclass)
     }
   }
   return ecore_wl2_window_keyboard_grab(mEcoreWindow, ecoreDeviceSubclass);
+#else
+  return false;
+#endif
 }
 
 // Request ungrab key events
 bool WindowBaseEcoreWl2::KeyboardUnGrab()
 {
+#ifdef OVER_TIZEN_VERSION_8
   return ecore_wl2_window_keyboard_ungrab(mEcoreWindow);
+#else
+  return false;
+#endif
 }
 
 void WindowBaseEcoreWl2::SetFullScreen(bool fullscreen)

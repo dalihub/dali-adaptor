@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,14 +49,40 @@ const EncodedImageBuffer::RawBufferType& EncodedImageBuffer::GetRawBuffer() cons
   return GetImplementation(*this).GetRawBuffer();
 }
 
-const std::size_t EncodedImageBuffer::GetHash() const
+std::size_t EncodedImageBuffer::GetHash() const
 {
   return GetImplementation(*this).GetHash();
 }
 
+void EncodedImageBuffer::SetImageType(ImageType type)
+{
+  GetImplementation(*this).SetImageType(type);
+}
+
+EncodedImageBuffer::ImageType EncodedImageBuffer::GetImageType() const
+{
+  return GetImplementation(*this).GetImageType();
+}
+
 EncodedImageBuffer EncodedImageBuffer::New(const RawBufferType& buffer)
 {
-  IntrusivePtr<Internal::EncodedImageBuffer> internal = Internal::EncodedImageBuffer::New(buffer);
+  return EncodedImageBuffer::New(buffer, ImageType::DEFAULT);
+}
+
+EncodedImageBuffer EncodedImageBuffer::New(RawBufferType&& buffer)
+{
+  return EncodedImageBuffer::New(std::move(buffer), ImageType::DEFAULT);
+}
+
+EncodedImageBuffer EncodedImageBuffer::New(const RawBufferType& buffer, ImageType type)
+{
+  IntrusivePtr<Internal::EncodedImageBuffer> internal = Internal::EncodedImageBuffer::New(buffer, type);
+  return EncodedImageBuffer(internal.Get());
+}
+
+EncodedImageBuffer EncodedImageBuffer::New(RawBufferType&& buffer, ImageType type)
+{
+  IntrusivePtr<Internal::EncodedImageBuffer> internal = Internal::EncodedImageBuffer::New(std::move(buffer), type);
   return EncodedImageBuffer(internal.Get());
 }
 
