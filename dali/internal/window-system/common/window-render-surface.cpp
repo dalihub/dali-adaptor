@@ -176,7 +176,9 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mOwnSurface(false),
   mIsImeWindowSurface(false),
   mNeedWindowRotationAcknowledgement(false),
-  mIsWindowOrientationChanging(false)
+  mIsWindowOrientationChanging(false),
+  mIsFrontBufferRendering(false),
+  mIsFrontBufferRenderingChanged(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -589,6 +591,14 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     SetFullSwapNextFrame();
   }
 
+  // When mIsFrontBufferRendering is not equal to mWindowBase's
+  if(mIsFrontBufferRenderingChanged)
+  {
+    mIsFrontBufferRenderingChanged = false;
+    mWindowBase->SetEglWindowFrontBufferMode(mIsFrontBufferRendering);
+    SetFullSwapNextFrame();
+  }
+
   SetBufferDamagedRects(damagedRects, clippingRect);
 
   if(scene)
@@ -941,6 +951,15 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
     {
       eglImpl.SwapBuffers(mEGLSurface, damagedRects);
     }
+  }
+}
+
+void WindowRenderSurface::SetFrontBufferRendering(bool enable)
+{
+  if(mIsFrontBufferRendering != enable)
+  {
+    mIsFrontBufferRendering = enable;
+    mIsFrontBufferRenderingChanged = !mIsFrontBufferRenderingChanged;
   }
 }
 

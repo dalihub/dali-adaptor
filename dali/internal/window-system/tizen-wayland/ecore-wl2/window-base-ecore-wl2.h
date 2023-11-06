@@ -641,6 +641,21 @@ public:
    */
   bool GetFullScreen() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   */
+  void SetFrontBufferRendering(bool enable) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   */
+  bool GetFrontBufferRendering() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowFrontBufferMode()
+   */
+  void SetEglWindowFrontBufferMode(bool enable) override;
+
 private:
   /**
    * Second stage initialization
@@ -728,6 +743,7 @@ private:
   bool mVisible : 1;
   bool mOwnSurface;
   bool mBrightnessChangeDone;
+  bool mIsFrontBufferRendering;
   bool mIsIMEWindowInitialized;
 };
 

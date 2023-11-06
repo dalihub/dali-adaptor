@@ -1476,6 +1476,17 @@ bool Window::GetFullScreen()
   return mWindowBase->GetFullScreen();
 }
 
+void Window::SetFrontBufferRendering(bool enable)
+{
+  mWindowBase->SetFrontBufferRendering(enable);
+  mWindowSurface->SetFrontBufferRendering(enable);
+}
+
+bool Window::GetFrontBufferRendering()
+{
+  return mWindowBase->GetFrontBufferRendering();
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

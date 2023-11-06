@@ -921,6 +921,7 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mVisible(true),
   mOwnSurface(false),
   mBrightnessChangeDone(true),
+  mIsFrontBufferRendering(false),
   mIsIMEWindowInitialized(false)
 {
   Initialize(positionSize, surface, isTransparent);
@@ -3553,6 +3554,21 @@ void WindowBaseEcoreWl2::SetFullScreen(bool fullscreen)
 bool WindowBaseEcoreWl2::GetFullScreen()
 {
   return ecore_wl2_window_fullscreen_get(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::SetFrontBufferRendering(bool enable)
+{
+  mIsFrontBufferRendering = enable;
+}
+
+bool WindowBaseEcoreWl2::GetFrontBufferRendering()
+{
+  return mIsFrontBufferRendering;
+}
+
+void WindowBaseEcoreWl2::SetEglWindowFrontBufferMode(bool enable)
+{
+  wl_egl_window_tizen_set_frontbuffer_mode(mEglWindow, enable);
 }
 
 } // namespace Adaptor

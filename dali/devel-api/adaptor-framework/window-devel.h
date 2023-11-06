@@ -640,6 +640,22 @@ DALI_ADAPTOR_API void SetFullScreen(Window window, bool fullscreen);
 DALI_ADAPTOR_API bool GetFullScreen(Window window);
 
 /**
+ * @brief Enables or disables front buffer rendering.
+ *
+ * @param[in] window The window instance.
+ * @param[in] enable true to enable front buffer rendering, false to disable.
+ */
+DALI_ADAPTOR_API void SetFrontBufferRendering(Window window, bool enable);
+
+/**
+ * @brief Gets whether front buffer rendering is enabled.
+ *
+ * @param[in] window The window instance.
+ * @return Whether front buffer rendering has been enabled or not.
+ */
+DALI_ADAPTOR_API bool GetFrontBufferRendering(Window window);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

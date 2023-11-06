@@ -772,6 +772,19 @@ bool WindowBaseCocoa::GetFullScreen()
   return false;
 }
 
+void WindowBaseCocoa::SetFrontBufferRendering(bool enable)
+{
+}
+
+bool WindowBaseCocoa::GetFrontBufferRendering()
+{
+  return false;
+}
+
+void WindowBaseCocoa::SetEglWindowFrontBufferMode(bool enable)
+{
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

@@ -1066,6 +1066,19 @@ bool WindowBaseEcoreX::GetFullScreen()
   return false;
 }
 
+void WindowBaseEcoreX::SetFrontBufferRendering(bool enable)
+{
+}
+
+bool WindowBaseEcoreX::GetFrontBufferRendering()
+{
+  return false;
+}
+
+void WindowBaseEcoreX::SetEglWindowFrontBufferMode(bool enable)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

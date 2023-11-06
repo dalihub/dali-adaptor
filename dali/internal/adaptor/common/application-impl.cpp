@@ -135,6 +135,7 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mMainWindow(),
   mMainWindowMode(windowData.GetTransparency() ? WINDOW_MODE::TRANSPARENT : WINDOW_MODE::OPAQUE),
   mMainWindowName(),
+  mIsMainWindowFrontBufferRendering(windowData.GetFrontBufferRendering()),
   mStylesheet(stylesheet),
   mWindowPositionSize(windowData.GetPositionSize()),
   mLaunchpadState(Launchpad::NONE),
@@ -203,6 +204,11 @@ void Application::StoreWindowPositionSize(PositionSize positionSize)
   mWindowPositionSize = positionSize;
 }
 
+void Application::StoreFrontBufferRendering(bool enable)
+{
+  mIsMainWindowFrontBufferRendering = enable;
+}
+
 void Application::ChangePreInitializedWindowInfo()
 {
   // Set window name
@@ -246,6 +252,9 @@ void Application::ChangePreInitializedWindowInfo()
     mWindowPositionSize.height = screenHeight;
     mMainWindow.SetSize(Dali::Window::WindowSize(mWindowPositionSize.width, mWindowPositionSize.height));
   }
+
+  // Set front buffer rendering
+  Dali::DevelWindow::SetFrontBufferRendering(mMainWindow, mIsMainWindowFrontBufferRendering);
 }
 
 void Application::CreateWindow()
@@ -254,6 +263,7 @@ void Application::CreateWindow()
   WindowData                 windowData;
   windowData.SetTransparency(mMainWindowMode);
   windowData.SetWindowType(mDefaultWindowType);
+  windowData.SetFrontBufferRendering(mIsMainWindowFrontBufferRendering);
 
   DALI_LOG_RELEASE_INFO("Create Default Window");
 
@@ -290,8 +300,8 @@ void Application::CreateWindow()
   }
   else
   {
-    // The position, size and the window name of the pre-initialized application will be updated in ChangePreInitializedWindowInfo()
-    // when the real application is launched.
+    // The position, size, window name, and frontbuffering of the pre-initialized application
+    // will be updated in ChangePreInitializedWindowInfo() when the real application is launched.
     windowData.SetPositionSize(mWindowPositionSize);
     window = Internal::Adaptor::Window::New("", "", windowData);
   }

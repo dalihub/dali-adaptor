@@ -161,6 +161,13 @@ public: // API
    */
   RotationFinishedSignalType& RotationFinishedSignal();
 
+  /**
+   * @brief Sets front buffer rendering flag
+   *
+   * @param[in] enable The flag for front buffer rendering
+   */
+  void SetFrontBufferRendering(bool enable);
+
 public: // from Dali::RenderSurfaceInterface
   /**
    * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
@@ -365,6 +372,8 @@ private: // Data
   bool                                   mIsImeWindowSurface;
   bool                                   mNeedWindowRotationAcknowledgement;
   bool                                   mIsWindowOrientationChanging;
+  bool                                   mIsFrontBufferRendering;
+  bool                                   mIsFrontBufferRenderingChanged;
 
 }; // class WindowRenderSurface
 

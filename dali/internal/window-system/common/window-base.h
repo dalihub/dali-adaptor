@@ -547,6 +547,24 @@ public:
    */
   virtual bool GetFullScreen() = 0;
 
+  /**
+   * @brief Enables or disables front buffer rendering.
+   * @param[in] enable true to enable front buffer rendering, false to disable.
+   */
+  virtual void SetFrontBufferRendering(bool enable) = 0;
+
+    /**
+   * @brief Enables or disables front buffer rendering.
+   * @return Returns whether front buffer rendering has been enabled or not.
+   */
+  virtual bool GetFrontBufferRendering() = 0;
+
+  /**
+   * @brief Sets front buffer rendering to the egl window.
+   * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
+   */
+  virtual void SetEglWindowFrontBufferMode(bool enable) = 0;
+
   // Signals
 
   /**

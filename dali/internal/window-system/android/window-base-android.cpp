@@ -479,6 +479,19 @@ bool WindowBaseAndroid::GetFullScreen()
   return false;
 }
 
+void WindowBaseAndroid::SetFrontBufferRendering(bool enable)
+{
+}
+
+bool WindowBaseAndroid::GetFrontBufferRendering()
+{
+  return false;
+}
+
+void WindowBaseAndroid::SetEglWindowFrontBufferMode(bool enable)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

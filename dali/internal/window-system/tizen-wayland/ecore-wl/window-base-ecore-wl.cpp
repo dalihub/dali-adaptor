@@ -2181,6 +2181,19 @@ void WindowBaseEcoreWl::ExcludeInputRegion(const Rect<int>& inputRegion)
 {
 }
 
+void WindowBaseEcoreWl::SetFrontBufferRendering(bool enable)
+{
+}
+
+bool WindowBaseEcoreWl::GetFrontBufferRendering()
+{
+  return false;
+}
+
+void WindowBaseEcoreWl::SetEglWindowFrontBufferMode(bool enable)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

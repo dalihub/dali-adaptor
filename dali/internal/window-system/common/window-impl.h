@@ -562,6 +562,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool GetFullScreen();
 
+  /**
+   * @copydoc Dali::DevelWindow::SetFrontBufferRendering()
+   */
+  void SetFrontBufferRendering(bool enable);
+
+  /**
+   * @copydoc Dali::DevelWindow::GetFrontBufferRendering()
+   */
+  bool GetFrontBufferRendering();
+
 private:
   /**
    * @brief Enumeration for orietation mode.
