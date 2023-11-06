@@ -29,7 +29,10 @@
 #include <widget_base.h>
 #include <app_core_ui_base.hh>
 #include <app_event_internal.hh>
+
+#ifdef UI_THREAD_AVAILABLE
 #include <app_core_ui_thread_base.hh>
+#endif
 
 // CONDITIONAL INCLUDES
 #ifdef APPCORE_WATCH_AVAILABLE
@@ -1055,6 +1058,7 @@ struct FrameworkTizen::Impl
                           AppCoreUiBase::HINT_HW_ACC_CONTROL |
                           AppCoreUiBase::HINT_WINDOW_AUTO_CONTROL;
 
+#ifdef UI_THREAD_AVAILABLE
       // For testing UIThread model, This code turns on the UI Thread feature forcibly.
       //  ex) app_launcher -e [APPID] __K_UI_THREAD enable
       // This code doesn't change mUseUiThread in Internal::Application
@@ -1074,6 +1078,7 @@ struct FrameworkTizen::Impl
       {
         hint |= AppCoreUiBase::HINT_DUAL_THREAD;
       }
+#endif
 
       mUiAppContext = std::make_unique<UiAppContext>(hint, mFramework);
     }
@@ -1403,21 +1408,25 @@ std::string FrameworkTizen::GetRegion() const
 struct UIThreadLoader::Impl
 {
   // Constructor
-  Impl(void *data)
+  Impl(void* data)
   {
-    mUIThreadLoader = static_cast<UIThreadLoader*>(data);
+#ifdef UI_THREAD_AVAILABLE
+    mUIThreadLoader      = static_cast<UIThreadLoader*>(data);
     mAppCoreUiThreadBase = new AppCoreUiThreadBase();
     print_log(DLOG_INFO, "DALI", "%s: %s(%d) > Create mAppCoreUiThreadBase(%p)", __MODULE__, __func__, __LINE__, mAppCoreUiThreadBase);
+#endif
   }
 
   // Destructor
   ~Impl()
   {
+#ifdef UI_THREAD_AVAILABLE
     if(mAppCoreUiThreadBase)
     {
       mAppCoreUiThreadBase->Exit();
       delete mAppCoreUiThreadBase;
     }
+#endif
   }
 
   /**
@@ -1425,8 +1434,10 @@ struct UIThreadLoader::Impl
    */
   void Run(Runner runner)
   {
+#ifdef UI_THREAD_AVAILABLE
     mAppCoreUiThreadBase->Post(runner);
     mAppCoreUiThreadBase->Run(*(mUIThreadLoader->mArgc), *(mUIThreadLoader->mArgv));
+#endif
   }
 
 private:
@@ -1434,9 +1445,11 @@ private:
   Impl(const Impl& impl);
   Impl& operator=(const Impl& impl);
 
+#ifdef UI_THREAD_AVAILABLE
   // Data
   AppCoreUiThreadBase* mAppCoreUiThreadBase;
   UIThreadLoader*      mUIThreadLoader;
+#endif
 };
 
 /**

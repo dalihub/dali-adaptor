@@ -68,14 +68,14 @@ namespace
 #endif
 
 #ifndef FINISH_DURATION_CHECK_WITH_FORMAT
-#define FINISH_DURATION_CHECK_WITH_FORMAT(functionName, format, args...)                                                                                                    \
-  if(mLogEnabled)                                                                                                                                                           \
-  {                                                                                                                                                                         \
-    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                                        \
-    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                                    \
-    {                                                                                                                                                                       \
-      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms] " format "\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0, args); \
-    }                                                                                                                                                                       \
+#define FINISH_DURATION_CHECK_WITH_FORMAT(functionName, format, ...)                                                                                                                 \
+  if(mLogEnabled)                                                                                                                                                                    \
+  {                                                                                                                                                                                  \
+    TimeService::GetNanoseconds(endTimeNanoSeconds);                                                                                                                                 \
+    if(static_cast<uint32_t>((endTimeNanoSeconds - startTimeNanoSeconds) / 1000000ull) >= mLogThreshold)                                                                             \
+    {                                                                                                                                                                                \
+      DALI_LOG_RELEASE_INFO("%s takes long time! [%.6lf ms] " format "\n", functionName, static_cast<double>(endTimeNanoSeconds - startTimeNanoSeconds) / 1000000.0, ##__VA_ARGS__); \
+    }                                                                                                                                                                                \
   }
 #endif
 } // namespace

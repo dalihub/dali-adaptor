@@ -80,6 +80,7 @@ public:
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
+   *
    * @param[in] name The window title
    * @param[in] className The window class name
    * @param[in] windowData The window data
@@ -89,6 +90,7 @@ public:
 
   /**
    * @brief Create a new Window. This should only be called once by the Application class
+   *
    * @param[in] surface The surface used to render on.
    * @param[in] name The window title
    * @param[in] className The window class name
@@ -104,6 +106,7 @@ public:
 
   /**
    * @brief Gets the window class name.
+   *
    * @return The class of the window
    */
   std::string GetClassName() const;
@@ -180,6 +183,7 @@ public:
 
   /**
    * @brief Get window resource ID assigned by window manager
+   *
    * @return The resource ID of the window
    */
   std::string GetNativeResourceId() const;
@@ -426,6 +430,7 @@ public:
 
   /**
    * @brief Emit the accessibility highlight signal.
+   *
    * The highlight indicates that it is an object to interact with the user regardless of focus.
    * After setting the highlight on the object, you can do things that the object can do, such as
    * giving or losing focus.
@@ -560,6 +565,7 @@ public: // Dali::Internal::Adaptor::SceneHolder
 private:
   /**
    * @brief Enumeration for orietation mode.
+   *
    * The Orientation Mode is related to screen size.
    * If screen width is longer than height, the Orientation Mode will have LANDSCAPE.
    * Otherwise screen width is shorter than height or same, the Orientation Mode will have PORTRAIT.
@@ -582,37 +588,54 @@ private:
   ~Window() override;
 
   /**
-   * Second stage initialization
+   * @brief Second stage initialization
+   *
+   * @param[in] surface The surface used to render on.
+   * @param[in] positionSize The window's position and size in initailized time.
+   * @param[in] name The window title
+   * @param[in] className The window class name
+   * @param[in] type window's type. Refer the WindowType in window-enumerations.h.
    */
   void Initialize(Any surface, const PositionSize& positionSize, const std::string& name, const std::string& className, WindowType type);
 
   /**
-   * Called when the window becomes iconified or deiconified.
+   * @brief Called when the window becomes iconified or deiconified.
+   *
+   * @param[in] iconified true If the window is iconified, othewise false.
    */
   void OnIconifyChanged(bool iconified);
 
   /**
-   * Called when the window becomes maximized or unmaximized.
+   * @brief Called when the window becomes maximized or unmaximized.
+   *
+   * @param[in] maximized true If the window is maximized, othewise false.
    */
   void OnMaximizeChanged(bool maximized);
 
   /**
-   * Called when the window focus is changed.
+   * @brief Called when the window focus is changed.
+   *
+   * @param[in] focusIn true If the window is focused, othewise false.
    */
   void OnFocusChanged(bool focusIn);
 
   /**
-   * Called when the output is transformed.
+   * @brief Called when the output is transformed.
    */
   void OnOutputTransformed();
 
   /**
-   * Called when the window receives a delete request.
+   * @brief Called when the window receives a delete request.
    */
   void OnDeleteRequest();
 
   /**
-   * Called when the window receives a Transition effect-start/end event.
+   * @brief Called when the window receives a Transition effect-start/end event.
+   *
+   * This event is emitted by display server.
+   *
+   * @param[in] state current window transition effect state, refer the WindowEffectState in window-enumerations.h.
+   * @param[in] type current window transition effect type, refer the WindowEffectType in window-enumerations.h.
    */
   void OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type);
 
@@ -658,7 +681,7 @@ private:
   void OnAccessibilityDisabled();
 
   /**
-   * Called when the window rotation is finished.
+   * @brief Called when the window rotation is finished.
    *
    * This signal is emmit when window rotation is finisehd and WindowRotationCompleted() is called.
    */
@@ -666,12 +689,14 @@ private:
 
   /**
    * @brief Called when the mouse in or out event is received.
+   *
    * @param[in] mouseInOutEvent the mouse event
    */
   void OnMouseInOutEvent(const Dali::DevelWindow::MouseInOutEvent& mouseInOutEvent);
 
   /**
    * @brief Called when the mouse relative event is received.
+   *
    * @param[in] mouseRelativeEvent the mouse event
    */
   void OnMouseRelativeEvent(const Dali::DevelWindow::MouseRelativeEvent& mouseRelativeEvent);
@@ -721,6 +746,7 @@ private:
 
   /**
    * @brief Sets user geometry flag when window's geometry is changed.
+   *
    * Window is created with screen size or not.
    * If window is created with screen size or the geometry is changed by user,
    * client should inform to server setting user.geometry flag
@@ -801,7 +827,9 @@ public: // Signals
   }
 
   /**
-   * This signal is emitted when the window is requesting to be deleted
+   * @brief This signal is emitted when the window is requesting to be deleted
+   *
+   * It is internal signal in Dali-adaptor.
    */
   SignalType& DeleteRequestSignal()
   {

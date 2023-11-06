@@ -2,7 +2,7 @@
 #define DALI_ENCODED_IMAGE_BUFFER_IMPL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,17 +34,17 @@ class EncodedImageBuffer : public BaseObject
 {
 public:
   using RawBufferType = Dali::EncodedImageBuffer::RawBufferType;
-
-  /**
-   * Constructor
-   * @param [in] buffer The raw buffer of image.
-   */
-  EncodedImageBuffer(const RawBufferType& buffer);
+  using ImageType     = Dali::EncodedImageBuffer::ImageType;
 
   /**
    * @copydoc Dali::EncodedImageBuffer::New
    */
-  static IntrusivePtr<EncodedImageBuffer> New(const RawBufferType& buffer);
+  static IntrusivePtr<EncodedImageBuffer> New(const RawBufferType& buffer, ImageType type);
+
+  /**
+   * @copydoc Dali::EncodedImageBuffer::New
+   */
+  static IntrusivePtr<EncodedImageBuffer> New(RawBufferType&& buffer, ImageType type);
 
   /**
    * @copydoc Dali::EncodedImageBuffer::GetRawBuffer
@@ -54,9 +54,33 @@ public:
   /**
    * @copydoc Dali::EncodedImageBuffer::GetHash
    */
-  const std::size_t GetHash() const;
+  std::size_t GetHash() const;
+
+  /**
+   * @copydoc Dali::EncodedImageBuffer::SetImageType
+   */
+  void SetImageType(ImageType type);
+
+  /**
+   * @copydoc Dali::EncodedImageBuffer::GetImageType
+   */
+  ImageType GetImageType() const;
 
 protected:
+  /**
+   * Constructor
+   * @param[in] buffer The raw buffer of image.
+   * @param[in] type The type of image.
+   */
+  EncodedImageBuffer(const RawBufferType& buffer, ImageType type);
+
+  /**
+   * Constructor as moved buffer
+   * @param[in] buffer The raw buffer of image as moved.
+   * @param[in] type The type of image.
+   */
+  EncodedImageBuffer(RawBufferType&& buffer, ImageType type);
+
   /**
    * Destructor
    */
@@ -72,6 +96,7 @@ private:
 private:
   Dali::Vector<uint8_t> mBuffer;
   std::size_t           mBufferHash;
+  ImageType             mType;
 };
 
 } // namespace Internal

@@ -54,7 +54,8 @@ public:
   using DamagedRectsContainer      = std::vector<Rect<int>>;
 
   /**
-    * Uses an window surface to render to.
+    * @brief Uses an window surface to render to.
+    *
     * @param [in] positionSize the position and size of the surface
     * @param [in] surface can be a window or pixmap.
     * @param [in] isTransparent if it is true, surface has 32 bit color depth, otherwise, 24 bit
@@ -69,12 +70,14 @@ public:
 public: // API
   /**
    * @brief Get the native window handle
+   *
    * @return The native window handle
    */
   Any GetNativeWindow();
 
   /**
    * @brief Get the native window id
+   *
    * @return The native window id
    */
   int GetNativeWindowId();
@@ -86,18 +89,21 @@ public: // API
 
   /**
    * @brief Sets the render notification trigger to call when render thread is completed a frame
+   *
    * @param renderNotification to use
    */
   void SetRenderNotification(TriggerEventInterface* renderNotification);
 
   /**
    * @brief Sets whether the surface is transparent or not.
+   *
    * @param[in] transparent Whether the surface is transparent
    */
   void SetTransparency(bool transparent);
 
   /**
-   * Request surface rotation
+   * @brief Request surface rotation
+   *
    * @param[in] angle A new angle of the surface
    * @param[in] positionSize A new position and size of the surface
    */
@@ -105,13 +111,13 @@ public: // API
 
   /**
    * @brief Gets the window base object
+   *
    * @return The window base object
    */
   WindowBase* GetWindowBase();
 
   /**
    * @brief Intiailize Ime Surface for Ime window rendering.
-   *
    * It sets one flag and callback function for Ime window rendering
    * This callback function calls one special native window function for ready to commit buffer.
    * The special function notify to display server.
@@ -122,7 +128,6 @@ public: // API
   /**
    * @brief Sets the necessary for window rotation acknowledge.
    * After this function called, SendRotationCompletedAcknowledgement() should be called to complete window rotation.
-   *
    * More detail description is written in DevelWindow::SetNeedsRotationCompletedAcknowledgement().
    *
    * @param[in] window The window instance.
@@ -163,6 +168,7 @@ public: // from Dali::RenderSurfaceInterface
   PositionSize GetPositionSize() const override;
 
   /**
+   * @copydoc Dali::RenderSurfaceInterface::GetDpi()
    */
   void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
@@ -258,7 +264,7 @@ private:
   void Initialize(Any surface);
 
   /**
-   * Notify output is transformed.
+   * @brief Notify output is transformed.
    */
   void OutputTransformed();
 
@@ -275,6 +281,7 @@ private:
 
   /**
    * @brief Called when our event file descriptor has been written to.
+   *
    * @param[in] eventBitMask bit mask of events that occured on the file descriptor
    * @param[in] fileDescriptor The file descriptor
    */
@@ -282,6 +289,7 @@ private:
 
   /**
    * @brief Set the buffer damage rects.
+   *
    * @param[in] damagedRects List of damaged rects
    * @param[in] clippingRect The rect to clip rendered scene
    */
@@ -289,6 +297,7 @@ private:
 
   /**
    * @brief Swap buffers.
+   *
    * @param[in] damagedRects List of damaged rects
    */
   void SwapBuffers(const std::vector<Rect<int>>& damagedRects);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ void dali_encoded_image_buffer_cleanup(void)
   test_return_value = TET_PASS;
 }
 
-int UtcDaliEncodedImageBufferNew(void)
+int UtcDaliEncodedImageBufferNew01(void)
 {
   // invoke default handle constructor
   EncodedImageBuffer buffer;
@@ -55,6 +55,34 @@ int UtcDaliEncodedImageBufferNew(void)
 
   // initialise handle
   buffer = EncodedImageBuffer::New(tinybuffer());
+
+  DALI_TEST_CHECK(buffer);
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferNew02(void)
+{
+  // invoke default handle constructor
+  EncodedImageBuffer buffer;
+
+  DALI_TEST_CHECK(!buffer);
+
+  // initialise handle
+  buffer = EncodedImageBuffer::New(tinybuffer(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE);
+
+  DALI_TEST_CHECK(buffer);
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferNew03(void)
+{
+  // invoke default handle constructor
+  EncodedImageBuffer buffer;
+
+  DALI_TEST_CHECK(!buffer);
+
+  // initialise handle by move operator
+  buffer = EncodedImageBuffer::New(std::move(tinybuffer()), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE);
 
   DALI_TEST_CHECK(buffer);
   END_TEST;
@@ -141,6 +169,32 @@ int UtcDaliEncodedImageBufferGetHash(void)
   tet_infoline("Test hash with empty buffer.");
   DALI_TEST_CHECK(buffer1.GetHash() != buffer3.GetHash());
   DALI_TEST_CHECK(buffer2.GetHash() != buffer3.GetHash());
+
+  END_TEST;
+}
+
+int UtcDaliEncodedImageBufferSetGetType(void)
+{
+  EncodedImageBuffer buffer1 = EncodedImageBuffer::New(tinybuffer());
+  EncodedImageBuffer buffer2 = buffer1; ///< Copy handle
+
+  DALI_TEST_CHECK(buffer1);
+  DALI_TEST_CHECK(buffer2);
+  DALI_TEST_CHECK(buffer1 == buffer2);
+  DALI_TEST_CHECK(buffer1.GetHash() == buffer2.GetHash());
+
+  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::DEFAULT, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::DEFAULT, TEST_LOCATION);
+
+  buffer1.SetImageType(Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE);
+
+  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::VECTOR_IMAGE, TEST_LOCATION);
+
+  buffer2.SetImageType(Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE);
+
+  DALI_TEST_EQUALS(buffer1.GetImageType(), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE, TEST_LOCATION);
+  DALI_TEST_EQUALS(buffer2.GetImageType(), Dali::EncodedImageBuffer::ImageType::ANIMATED_VECTOR_IMAGE, TEST_LOCATION);
 
   END_TEST;
 }

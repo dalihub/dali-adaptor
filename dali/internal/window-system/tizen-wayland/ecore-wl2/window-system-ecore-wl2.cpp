@@ -54,8 +54,8 @@ static int32_t gScreenHeight = 0;
 
 void Initialize()
 {
-  auto backend = Dali::Internal::Adaptor::GetFrameworkFactory()->GetFrameworkBackend();
-  if(backend == FrameworkBackend::DEFAULT)
+  auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
+  if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
     ecore_wl2_init();
   }
@@ -135,9 +135,9 @@ bool GetKeyboardRepeatInfo(float& rate, float& delay)
   return false;
 }
 
-
 bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
 {
+#ifdef OVER_TIZEN_VERSION_8
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
@@ -145,10 +145,14 @@ bool SetKeyboardHorizontalRepeatInfo(float rate, float delay)
     return ecore_wl2_input_keyboard_horizontal_way_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
   }
   return false;
+#else
+  return SetKeyboardRepeatInfo(rate, delay);
+#endif
 }
 
 bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
 {
+#ifdef OVER_TIZEN_VERSION_8
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
@@ -161,10 +165,14 @@ bool GetKeyboardHorizontalRepeatInfo(float& rate, float& delay)
     return ret;
   }
   return false;
+#else
+  return GetKeyboardRepeatInfo(rate, delay);
+#endif
 }
 
 bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
 {
+#ifdef OVER_TIZEN_VERSION_8
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
@@ -172,10 +180,14 @@ bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
     return ecore_wl2_input_keyboard_vertical_way_repeat_set(input, static_cast<double>(rate), static_cast<double>(delay));
   }
   return false;
+#else
+  return SetKeyboardRepeatInfo(rate, delay);
+#endif
 }
 
 bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 {
+#ifdef OVER_TIZEN_VERSION_8
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
@@ -188,6 +200,9 @@ bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
     return ret;
   }
   return false;
+#else
+  return GetKeyboardRepeatInfo(rate, delay);
+#endif
 }
 
 } // namespace WindowSystem

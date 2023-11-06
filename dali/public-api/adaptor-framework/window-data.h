@@ -34,6 +34,7 @@ namespace Dali
  * PositionSize : x:0, y:0, w:0, h:0 (full-screen window)
  * Transparency : true (Window is created with 32-bit color depth)
  * WindowType : NORMAL
+ * mIsFrontBufferRendering : false
  *
  * If you want to customize the window, you can modify the values of the WindowData object as needed.
  * @SINCE_2_2.23
@@ -98,6 +99,22 @@ public:
    * @return the window type
    */
   WindowType GetWindowType() const;
+
+  /**
+   * @brief Sets the front buffer rendering
+   *
+   * @SINCE_2_2.51
+   * @param[in] enable whether to use front buffer rendering
+   */
+  void SetFrontBufferRendering(bool enable);
+
+  /**
+   * @brief Gets the front buffer rendering
+   *
+   * @SINCE_2_2.51
+   * @return whether front buffer rendering is enabled
+   */
+  bool GetFrontBufferRendering() const;
 
 private:
   struct Impl;
