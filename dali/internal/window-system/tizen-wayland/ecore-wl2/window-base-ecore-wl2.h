@@ -728,6 +728,7 @@ private:
   bool mVisible : 1;
   bool mOwnSurface;
   bool mBrightnessChangeDone;
+  bool mIsIMEWindowInitialized;
 };
 
 } // namespace Adaptor
