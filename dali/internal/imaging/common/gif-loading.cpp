@@ -39,15 +39,15 @@
   ((static_cast<unsigned long long>(w) * static_cast<unsigned long long>(h)) >= \
    ((1ULL << (29 * (sizeof(void*) / 4))) - 2048))
 
-#define PRINT_ERR_AND_EXIT(args...) \
-  do                                \
-  {                                 \
-    DALI_LOG_ERROR(args);           \
-    if(rows)                        \
-    {                               \
-      free(rows);                   \
-    }                               \
-    return ret;                     \
+#define PRINT_ERROR_AND_EXIT(errorFormat, ...)  \
+  do                                            \
+  {                                             \
+    DALI_LOG_ERROR(errorFormat, ##__VA_ARGS__); \
+    if(rows)                                    \
+    {                                           \
+      free(rows);                               \
+    }                                           \
+    return ret;                                 \
   } while(0)
 
 namespace Dali
@@ -874,7 +874,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   {
     DALI_LOG_ERROR("gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
     DALI_ASSERT_DEBUG(false && "Dimensions are bigger than the Gif image size");
-    PRINT_ERR_AND_EXIT("GIF Loader: Dimensions are bigger than the Gif image size! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
+    PRINT_ERROR_AND_EXIT("GIF Loader: Dimensions are bigger than the Gif image size! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
   }
 
   // build a blob of memory to have pointers to rows of pixels
@@ -882,7 +882,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
   rows = static_cast<GifRowType*>(malloc((gifH * sizeof(GifRowType)) + (gifW * gifH * sizeof(GifPixelType))));
   if(DALI_UNLIKELY(!rows))
   {
-    PRINT_ERR_AND_EXIT("GIF Loader: malloc failed! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
+    PRINT_ERROR_AND_EXIT("GIF Loader: malloc failed! gifW : %d, w : %d, gifH : %d, h : %d\n", gifW, w, gifH, h);
   }
 
   // fill in the pointers at the start
@@ -900,7 +900,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
       {
         if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
         {
-          PRINT_ERR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d, i : %d, intoffset[i] : %d, intjump[i] : %d\n", yy, gifW, gifH, rows[yy], i, intoffset[i], intjump[i]);
+          PRINT_ERROR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d, i : %d, intoffset[i] : %d, intjump[i] : %d\n", yy, gifW, gifH, rows[yy], i, intoffset[i], intjump[i]);
         }
       }
     }
@@ -912,7 +912,7 @@ bool DecodeImage(GifFileType* gif, GifCachedColorData& gifCachedColor, uint32_t*
     {
       if(DALI_UNLIKELY(DGifGetLine(gif, rows[yy], gifW) != GIF_OK))
       {
-        PRINT_ERR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d\n", yy, gifW, gifH, rows[yy]);
+        PRINT_ERROR_AND_EXIT("GIF Loader: Decode failed at line %d! gifW : %d, gifH : %d, rows[yy] : %d\n", yy, gifW, gifH, rows[yy]);
       }
     }
   }
