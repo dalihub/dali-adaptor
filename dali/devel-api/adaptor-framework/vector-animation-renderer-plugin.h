@@ -138,6 +138,13 @@ public:
   virtual bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const = 0;
 
   /**
+   * @brief Gets the all composition marker informations.
+   *
+   * @param[out] map The marker information
+   */
+  virtual void GetMarkerInfo(Property::Map& map) const = 0;
+
+  /**
    * @brief Invalidates the rendered buffer.
    * @note The upload completed signal will be emitted again.
    */

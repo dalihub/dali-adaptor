@@ -19,6 +19,7 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/rendering/renderer.h>
 
@@ -180,6 +181,13 @@ public:
    * start frame and duration of that segment.
    */
   bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const;
+
+  /**
+   * @brief Gets the all composition marker informations.
+   *
+   * @param[out] map The marker information
+   */
+  void GetMarkerInfo(Property::Map& map) const;
 
   /**
    * @brief Invalidates the rendered buffer.

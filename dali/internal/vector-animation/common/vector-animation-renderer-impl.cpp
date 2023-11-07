@@ -111,6 +111,11 @@ bool VectorAnimationRenderer::GetMarkerInfo(const std::string& marker, uint32_t&
   return mPlugin.GetMarkerInfo(marker, startFrame, endFrame);
 }
 
+void VectorAnimationRenderer::GetMarkerInfo(Property::Map& map) const
+{
+  mPlugin.GetMarkerInfo(map);
+}
+
 void VectorAnimationRenderer::InvalidateBuffer()
 {
   mPlugin.InvalidateBuffer();

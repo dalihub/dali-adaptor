@@ -103,6 +103,11 @@ public:
   bool GetMarkerInfo(const std::string& marker, uint32_t& startFrame, uint32_t& endFrame) const;
 
   /**
+   * @copydoc Dali::VectorAnimationRenderer::GetMarkerInfo()
+   */
+  void GetMarkerInfo(Property::Map& map) const;
+
+  /**
    * @copydoc Dali::VectorAnimationRenderer::InvalidateBuffer()
    */
   void InvalidateBuffer();
