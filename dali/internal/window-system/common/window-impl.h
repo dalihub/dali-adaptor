@@ -1007,6 +1007,7 @@ private:
   bool mIsWindowRotating : 1;      ///< The window rotating flag.
   bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
+  bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
 };
 
 } // namespace Adaptor
