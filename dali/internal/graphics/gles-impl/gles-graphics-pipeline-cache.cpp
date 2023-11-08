@@ -245,7 +245,9 @@ struct PipelineCache::Impl
    * @brief Constructor
    */
   explicit Impl(EglGraphicsController& _controller)
-  : controller(_controller)
+  : controller(_controller),
+    pipelineEntriesFlushRequired(false),
+    programEntriesFlushRequired(false)
   {
     // Initialise lookup table
     InitialiseStateCompareLookupTable();
@@ -299,6 +301,9 @@ struct PipelineCache::Impl
   };
 
   std::vector<ProgramCacheEntry> programEntries;
+
+  bool pipelineEntriesFlushRequired : 1;
+  bool programEntriesFlushRequired : 1;
 };
 
 PipelineCache::PipelineCache(EglGraphicsController& controller)
@@ -464,36 +469,56 @@ Graphics::UniquePtr<Graphics::Program> PipelineCache::GetProgram(const ProgramCr
 
 void PipelineCache::FlushCache()
 {
-  decltype(mImpl->entries) newEntries;
-  newEntries.reserve(mImpl->entries.size());
-
-  for(auto& entry : mImpl->entries)
+  if(mImpl->pipelineEntriesFlushRequired)
   {
-    // Move items which are still in use into the new array
-    if(entry.pipeline->GetRefCount() != 0)
+    decltype(mImpl->entries) newEntries;
+    newEntries.reserve(mImpl->entries.size());
+
+    for(auto& entry : mImpl->entries)
     {
-      newEntries.emplace_back(std::move(entry));
+      // Move items which are still in use into the new array
+      if(entry.pipeline->GetRefCount() != 0)
+      {
+        newEntries.emplace_back(std::move(entry));
+      }
     }
+
+    // Move temporary array in place of stored cache
+    // Unused pipelines will be deleted automatically
+    mImpl->entries = std::move(newEntries);
+
+    mImpl->pipelineEntriesFlushRequired = false;
   }
 
-  // Move temporary array in place of stored cache
-  // Unused pipelines will be deleted automatically
-  mImpl->entries = std::move(newEntries);
-
-  // Program cache require similar action.
-  decltype(mImpl->programEntries) newProgramEntries;
-  newProgramEntries.reserve(mImpl->programEntries.size());
-
-  for(auto& entry : mImpl->programEntries)
+  if(mImpl->programEntriesFlushRequired)
   {
-    // Move items which are still in use into the new array
-    if(entry.program->GetRefCount() != 0)
-    {
-      newProgramEntries.emplace_back(std::move(entry));
-    }
-  }
+    // Program cache require similar action.
+    decltype(mImpl->programEntries) newProgramEntries;
+    newProgramEntries.reserve(mImpl->programEntries.size());
 
-  mImpl->programEntries = std::move(newProgramEntries);
+    for(auto& entry : mImpl->programEntries)
+    {
+      // Move items which are still in use into the new array
+      if(entry.program->GetRefCount() != 0)
+      {
+        newProgramEntries.emplace_back(std::move(entry));
+      }
+    }
+
+    mImpl->programEntries = std::move(newProgramEntries);
+
+    mImpl->programEntriesFlushRequired = false;
+  }
+}
+
+void PipelineCache::MarkPipelineCacheFlushRequired()
+{
+  mImpl->pipelineEntriesFlushRequired = true;
+}
+
+void PipelineCache::MarkProgramCacheFlushRequired()
+{
+  mImpl->programEntriesFlushRequired = true;
 }
 
 } // namespace Dali::Graphics::GLES

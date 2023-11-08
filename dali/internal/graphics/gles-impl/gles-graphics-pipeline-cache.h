@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_PIPELINE_CACHE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,6 +84,16 @@ public:
    * should be called at the very end of Controller render loop iteration.
    */
   void FlushCache();
+
+  /**
+   * @brief Notify that we need to flush pipeline cache next FlushCache API.
+   */
+  void MarkPipelineCacheFlushRequired();
+
+  /**
+   * @brief Notify that we need to flush program cache next FlushCache API.
+   */
+  void MarkProgramCacheFlushRequired();
 
 private:
   /**
