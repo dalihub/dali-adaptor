@@ -30,6 +30,12 @@ namespace Internal
 {
 namespace Adaptor
 {
+
+struct DelayedWritingData{
+   Eina_Rw_Slice slice;
+   unsigned int writtenBytes;
+};
+
 struct DropTarget
 {
   Dali::Actor                            target;
