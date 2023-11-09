@@ -164,7 +164,7 @@ bool ProgramImpl::Create()
     gl->GetProgramInfoLog(program, 4096, &size, output);
 
     // log on error
-    DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Log: %s\n", output);
+    DALI_LOG_ERROR("glLinkProgam failed:\n%s\n", output);
     gl->DeleteProgram(program);
     return false;
   }
@@ -172,8 +172,8 @@ bool ProgramImpl::Create()
   mImpl->glProgram = program;
 
   // Initialize reflection
-  mImpl->reflection->BuildUniformBlockReflection();
   mImpl->reflection->BuildVertexAttributeReflection();
+  mImpl->reflection->BuildUniformBlockReflection();
 
   // populate uniform cache memory for standalone uniforms (it's not needed
   // for real UBOs as real UBOs work with whole memory blocks)
