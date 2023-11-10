@@ -363,6 +363,39 @@ void DragAndDropEcoreWl::ResetDropTargets()
   }
 }
 
+static Eina_Bool WriteDelayedDataTofd(void *data, Ecore_Fd_Handler *fd_handler)
+{
+   int fd;
+   size_t len;
+   DelayedWritingData *slice = (DelayedWritingData*)data;
+
+   fd = ecore_main_fd_handler_fd_get(fd_handler);
+   if(fd < 0)
+   {
+     ecore_main_fd_handler_del(fd_handler);
+     free(slice->slice.mem);
+     free(slice);
+     return EINA_FALSE;
+   }
+
+   len = write(fd, (char*)slice->slice.mem + slice->writtenBytes,
+               slice->slice.len - slice->writtenBytes);
+
+   slice->writtenBytes += len;
+   if(slice->writtenBytes != slice->slice.len)
+   {
+     return EINA_TRUE;
+   }
+   else
+   {
+     ecore_main_fd_handler_del(fd_handler);
+     free(slice->slice.mem);
+     free(slice);
+     if (fd > -1) close(fd);
+     return EINA_FALSE;
+   }
+}
+
 void DragAndDropEcoreWl::SendData(void* event)
 {
   Ecore_Wl2_Event_Data_Source_Send* ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send*>(event);
@@ -380,24 +413,13 @@ void DragAndDropEcoreWl::SendData(void* event)
     bufferSize += 1;
   }
 
-  char* buffer = new char[bufferSize];
-  if(!buffer)
-  {
-    return;
-  }
+  DelayedWritingData *data = (DelayedWritingData*)calloc(1, sizeof(DelayedWritingData));
+  data->slice.mem = new char[bufferSize];
+  data->slice.len = bufferSize;
+  memcpy(data->slice.mem, mData.c_str(), dataLength);
+  ((char*)data->slice.mem)[dataLength] = '\0';
 
-  memcpy(buffer, mData.c_str(), dataLength);
-  buffer[dataLength] = '\0';
-
-  auto ret = write(ev->fd, buffer, bufferSize);
-  if(DALI_UNLIKELY(ret != bufferSize))
-  {
-    DALI_LOG_ERROR("write(ev->fd) return %d! Pleacse check it\n", static_cast<int>(ret));
-  }
-
-  close(ev->fd);
-
-  delete[] buffer;
+  ecore_main_fd_handler_add(ev->fd, ECORE_FD_WRITE, WriteDelayedDataTofd, data, NULL, NULL);
 }
 
 void DragAndDropEcoreWl::ReceiveData(void* event)
