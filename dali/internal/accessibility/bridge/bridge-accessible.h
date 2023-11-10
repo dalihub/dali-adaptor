@@ -92,6 +92,20 @@ public:
     Dali::Accessibility::Accessible*  // describedByObject
     >;
 
+  using NodeInfoType = DBus::ValueOrError<
+    std::string,                                    // role name
+    std::string,                                    // name
+    std::string,                                    // toolkit name
+    std::unordered_map<std::string, std::string>,   // attributes
+    Dali::Accessibility::States,                    // states
+    std::tuple<int32_t, int32_t, int32_t, int32_t>, // screen extents
+    std::tuple<int32_t, int32_t, int32_t, int32_t>, // window extents
+    double,                                         // current value
+    double,                                         // minimum increment
+    double,                                         // maximum value
+    double                                          // minimum value
+    >;
+
   using Relation = std::tuple<uint32_t, std::vector<Dali::Accessibility::Accessible*>>;
 
   /**
@@ -212,6 +226,12 @@ public:
    * @copydoc Dali::Accessibility::Accessible::SetListenPostRender()
    */
   DBus::ValueOrError<void> SetListenPostRender(bool enabled);
+
+  /**
+   * @brief Gets Node information of the self object.
+   * @return Node information
+   */
+  NodeInfoType GetNodeInfo();
 
 private:
   /**
