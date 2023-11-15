@@ -120,11 +120,26 @@ public:
   void RemoveTask(AsyncTaskPtr task);
 
   /**
+   * @copydoc Dali::AsyncTaskManager::SetCompletedCallback()
+   */
+  Dali::AsyncTaskManager::TasksCompletedId SetCompletedCallback(CallbackBase* callback, Dali::AsyncTaskManager::CompletedCallbackTraceMask mask);
+
+  /**
+   * @copydoc Dali::AsyncTaskManager::RemoveCompletedCallback()
+   */
+  bool RemoveCompletedCallback(Dali::AsyncTaskManager::TasksCompletedId tasksCompletedId);
+
+  /**
    * Pop the next task out from the completed queue, called by main thread.
    *
    * @return The next task in the completed queue.
    */
   AsyncTaskPtr PopNextCompletedTask();
+
+  /**
+   * @brief Register processor if we don't registered before.
+   */
+  void RegisterProcessor();
 
   /**
    * @brief Unregister a previously registered processor
@@ -248,10 +263,13 @@ private:
   Dali::Mutex mRunningTasksMutex;   ///< Mutex for mRunningTasks. We can lock mCompletedTasksMutex under this scope.
   Dali::Mutex mCompletedTasksMutex; ///< Mutex for mCompletedTasks. We cannot lock any mutex under this scope.
 
+  std::unique_ptr<EventThreadCallback> mTrigger;
+
+  struct TasksCompletedImpl;
+  std::unique_ptr<TasksCompletedImpl> mTasksCompletedImpl; ///< TaskS completed signal interface for AsyncTaskManager.
+
   struct CacheImpl;
   std::unique_ptr<CacheImpl> mCacheImpl; ///< Cache interface for AsyncTaskManager.
-
-  std::unique_ptr<EventThreadCallback> mTrigger;
 
   bool mProcessorRegistered : 1;
 };

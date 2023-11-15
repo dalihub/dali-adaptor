@@ -49,7 +49,7 @@ struct ObjectPath
   std::string value;
 };
 
-struct DALI_ADAPTOR_API DBusWrapper
+struct DBusWrapper
 {
   virtual ~DBusWrapper() = default;
 
@@ -138,6 +138,7 @@ struct DALI_ADAPTOR_API DBusWrapper
         free(p);
       }
     };
+
     std::vector<std::unique_ptr<char, char_ptr_deleter>> storage;
 
     const char* add(const char* txt)

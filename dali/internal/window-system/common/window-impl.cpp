@@ -67,6 +67,7 @@ Window* Window::New(Any surface, const std::string& name, const std::string& cla
 {
   Window* window         = new Window();
   window->mIsTransparent = windowData.GetTransparency();
+  window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType());
   return window;
 }
@@ -106,7 +107,8 @@ Window::Window()
   mFocused(false),
   mIsWindowRotating(false),
   mIsEnabledUserGeometry(false),
-  mIsEmittedWindowCreatedEvent(false)
+  mIsEmittedWindowCreatedEvent(false),
+  mIsFrontBufferRendering(false)
 {
 }
 
@@ -209,6 +211,11 @@ void Window::Initialize(Any surface, const PositionSize& positionSize, const std
 
   // For Debugging
   mNativeWindowId = mWindowBase->GetNativeWindowId();
+
+  if(mIsFrontBufferRendering)
+  {
+    SetFrontBufferRendering(mIsFrontBufferRendering);
+  }
 }
 
 void Window::SetRenderNotification(TriggerEventInterface* renderNotification)
@@ -225,6 +232,12 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
 {
   mEventHandler = EventHandlerPtr(new EventHandler(mWindowSurface->GetWindowBase(), *mAdaptor));
   mEventHandler->AddObserver(*this);
+
+  if(mWindowBase->GetType() == WindowType::IME)
+  {
+    mWindowBase->InitializeIme();
+    mWindowSurface->InitializeImeSurface();
+  }
 
   // Add Window to bridge for ATSPI
   auto bridge = Accessibility::Bridge::GetCurrentBridge();
@@ -1468,6 +1481,17 @@ void Window::SetFullScreen(bool fullscreen)
 bool Window::GetFullScreen()
 {
   return mWindowBase->GetFullScreen();
+}
+
+void Window::SetFrontBufferRendering(bool enable)
+{
+  mWindowBase->SetFrontBufferRendering(enable);
+  mWindowSurface->SetFrontBufferRendering(enable);
+}
+
+bool Window::GetFrontBufferRendering()
+{
+  return mWindowBase->GetFrontBufferRendering();
 }
 
 } // namespace Adaptor

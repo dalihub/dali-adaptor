@@ -160,6 +160,11 @@ public:
   void StoreWindowPositionSize(PositionSize positionSize);
 
   /**
+   * Stores the front buffer rendering status of the window.
+   */
+  void StoreFrontBufferRendering(bool enable);
+
+  /**
    * @copydoc Dali::DevelApplication::GetRenderThreadId()
    */
   int32_t GetRenderThreadId() const;
@@ -537,9 +542,10 @@ private:
 
   // The Main Window is that window created by the Application during initial startup
   // (previously this was the only window)
-  Dali::Window                   mMainWindow;     ///< Main Window instance
-  Dali::Application::WINDOW_MODE mMainWindowMode; ///< Window mode of the main window
-  std::string                    mMainWindowName; ///< Name of the main window as obtained from environment options
+  Dali::Window                   mMainWindow;                       ///< Main Window instance
+  Dali::Application::WINDOW_MODE mMainWindowMode;                   ///< Window mode of the main window
+  std::string                    mMainWindowName;                   ///< Name of the main window as obtained from environment options
+  bool                           mIsMainWindowFrontBufferRendering; ///< Whether front buffer rendering of the main window is enabled
 
   std::string      mStylesheet;
   PositionSize     mWindowPositionSize;

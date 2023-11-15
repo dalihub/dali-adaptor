@@ -155,6 +155,9 @@ Application Application::New(int* argc, char** argv[], const std::string& styles
 
     // Store only the value before adaptor is created
     internal->StoreWindowPositionSize(windowData.GetPositionSize());
+
+    // Set front buffer rendering
+    internal->StoreFrontBufferRendering(windowData.GetFrontBufferRendering());
   }
   else
   {

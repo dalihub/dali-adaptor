@@ -67,9 +67,11 @@ struct TimerLibuv::Impl
   {
     // the handle will still be alive for a short period after calling uv_close
     // set the data to NULL to avoid a dangling pointer
-    mTimerHandle->data = NULL;
-
-    uv_close(reinterpret_cast<uv_handle_t*>(mTimerHandle), FreeHandleCallback);
+    if(mTimerHandle)
+    {
+      mTimerHandle->data = NULL;
+      uv_close(reinterpret_cast<uv_handle_t*>(mTimerHandle), FreeHandleCallback);
+    }
   }
 
   bool Running()

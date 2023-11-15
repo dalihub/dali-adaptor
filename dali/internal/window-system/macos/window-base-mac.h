@@ -437,6 +437,22 @@ public:
    */
   bool GetFullScreen() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   */
+  void SetFrontBufferRendering(bool enable) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   */
+  bool GetFrontBufferRendering() override;
+
+  /**
+   * @brief Sets front buffer rendering to the egl window.
+   * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
+   */
+  void SetEglWindowFrontBufferMode(bool enable) override;
+
 private:
   // Undefined
   WindowBaseCocoa(const WindowBaseCocoa&) = delete;

@@ -446,9 +446,17 @@ void EglGraphicsController::ProcessDiscardQueues()
   ProcessDiscardQueue<GLES::RenderTarget>(mDiscardRenderTargetQueue);
 
   // Process pipelines
+  if(mPipelineCache && !mDiscardPipelineQueue.empty())
+  {
+    mPipelineCache->MarkPipelineCacheFlushRequired();
+  }
   ProcessDiscardQueue(mDiscardPipelineQueue);
 
   // Process programs
+  if(mPipelineCache && !mDiscardProgramQueue.empty())
+  {
+    mPipelineCache->MarkProgramCacheFlushRequired();
+  }
   ProcessDiscardQueue<GLES::Program>(mDiscardProgramQueue);
 
   // Process shaders

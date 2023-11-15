@@ -920,7 +920,9 @@ WindowBaseEcoreWl2::WindowBaseEcoreWl2(Dali::PositionSize positionSize, Any surf
   mScreenOffModeChangeDone(true),
   mVisible(true),
   mOwnSurface(false),
-  mBrightnessChangeDone(true)
+  mBrightnessChangeDone(true),
+  mIsFrontBufferRendering(false),
+  mIsIMEWindowInitialized(false)
 {
   Initialize(positionSize, surface, isTransparent);
 }
@@ -2574,36 +2576,43 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
     {
       case Dali::WindowType::NORMAL:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::NORMAL\n");
         windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
         break;
       }
       case Dali::WindowType::NOTIFICATION:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::NOTIFICATION\n");
         windowType = ECORE_WL2_WINDOW_TYPE_NOTIFICATION;
         break;
       }
       case Dali::WindowType::UTILITY:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::UTILITY\n");
         windowType = ECORE_WL2_WINDOW_TYPE_UTILITY;
         break;
       }
       case Dali::WindowType::DIALOG:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::DIALOG\n");
         windowType = ECORE_WL2_WINDOW_TYPE_DIALOG;
         break;
       }
       case Dali::WindowType::IME:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::IME\n");
         windowType = ECORE_WL2_WINDOW_TYPE_NONE;
         break;
       }
       case Dali::WindowType::DESKTOP:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, Dali::WindowType::DESKTOP\n");
         windowType = ECORE_WL2_WINDOW_TYPE_DESKTOP;
         break;
       }
       default:
       {
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetType, default window type\n");
         windowType = ECORE_WL2_WINDOW_TYPE_TOPLEVEL;
         break;
       }
@@ -2617,6 +2626,7 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
 
 Dali::WindowType WindowBaseEcoreWl2::GetType() const
 {
+  DALI_LOG_RELEASE_INFO("GetType, DALI WindType: %d, mIsIMEWindowInitialized: %d\n", mType, mIsIMEWindowInitialized);
   return mType;
 }
 
@@ -3248,13 +3258,19 @@ void WindowBaseEcoreWl2::InitializeIme()
   Ecore_Wl2_Global*   global;
   Ecore_Wl2_Display*  ecoreWl2Display;
 
+  if(mIsIMEWindowInitialized)
+  {
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::InitializeIme, IME Window is already initialized\n");
+    return;
+  }
+
   if(!(ecoreWl2Display = ecore_wl2_connected_display_get(NULL)))
   {
     DALI_LOG_ERROR("WindowBaseEcoreWl2::InitializeIme(), fail to get ecore_wl2 connected display\n");
     return;
   }
 
-  DALI_LOG_RELEASE_INFO("InitializeIme:  Ecore_Wl2_Display: %p, ecore wl window: %p\n", ecoreWl2Display, mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("InitializeIme:  Ecore_Wl2_Display: %p, ecore wl window: %p, mIsIMEWindowInitialized: %d\n", ecoreWl2Display, mEcoreWindow, mIsIMEWindowInitialized);
 
   if(!(registry = ecore_wl2_display_registry_get(ecoreWl2Display)))
   {
@@ -3315,6 +3331,7 @@ void WindowBaseEcoreWl2::InitializeIme()
   wl_input_panel_surface_set_toplevel(mWlInputPanelSurface, mWlOutput, WL_INPUT_PANEL_SURFACE_POSITION_CENTER_BOTTOM);
 #endif
   FINISH_DURATION_CHECK("zwp_input_panel_surface_v1_set_toplevel");
+  mIsIMEWindowInitialized = true;
 }
 
 void WindowBaseEcoreWl2::ImeWindowReadyToRender()
@@ -3537,6 +3554,21 @@ void WindowBaseEcoreWl2::SetFullScreen(bool fullscreen)
 bool WindowBaseEcoreWl2::GetFullScreen()
 {
   return ecore_wl2_window_fullscreen_get(mEcoreWindow);
+}
+
+void WindowBaseEcoreWl2::SetFrontBufferRendering(bool enable)
+{
+  mIsFrontBufferRendering = enable;
+}
+
+bool WindowBaseEcoreWl2::GetFrontBufferRendering()
+{
+  return mIsFrontBufferRendering;
+}
+
+void WindowBaseEcoreWl2::SetEglWindowFrontBufferMode(bool enable)
+{
+  wl_egl_window_tizen_set_frontbuffer_mode(mEglWindow, enable);
 }
 
 } // namespace Adaptor

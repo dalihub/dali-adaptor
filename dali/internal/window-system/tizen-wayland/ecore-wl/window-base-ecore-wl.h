@@ -559,6 +559,21 @@ public:
    */
   bool GetFullScreen() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetFrontBufferRendering()
+   */
+  void SetFrontBufferRendering(bool enable) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetFrontBufferRendering()
+   */
+  bool GetFrontBufferRendering() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowFrontBufferMode()
+   */
+  void SetEglWindowFrontBufferMode(bool enable) override;
+
 private:
   /**
    * Second stage initialization

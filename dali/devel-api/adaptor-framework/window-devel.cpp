@@ -354,6 +354,16 @@ bool GetFullScreen(Window window)
   return GetImplementation(window).GetFullScreen();
 }
 
+void SetFrontBufferRendering(Window window, bool enable)
+{
+  GetImplementation(window).SetFrontBufferRendering(enable);
+}
+
+bool GetFrontBufferRendering(Window window)
+{
+  return GetImplementation(window).GetFrontBufferRendering();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

@@ -204,6 +204,14 @@ bool VectorAnimationRendererPluginProxy::GetMarkerInfo(const std::string& marker
   return false;
 }
 
+void VectorAnimationRendererPluginProxy::GetMarkerInfo(Property::Map& map) const
+{
+  if(mPlugin)
+  {
+    mPlugin->GetMarkerInfo(map);
+  }
+}
+
 void VectorAnimationRendererPluginProxy::InvalidateBuffer()
 {
   if(mPlugin)

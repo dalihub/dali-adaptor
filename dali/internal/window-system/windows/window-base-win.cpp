@@ -701,6 +701,19 @@ bool WindowBaseWin::GetFullScreen()
   return false;
 }
 
+void WindowBaseWin::SetFrontBufferRendering(bool enable)
+{
+}
+
+bool WindowBaseWin::GetFrontBufferRendering()
+{
+  return false;
+}
+
+void WindowBaseWin::SetEglWindowFrontBufferMode(bool enable)
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

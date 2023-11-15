@@ -176,7 +176,9 @@ WindowRenderSurface::WindowRenderSurface(Dali::PositionSize positionSize, Any su
   mOwnSurface(false),
   mIsImeWindowSurface(false),
   mNeedWindowRotationAcknowledgement(false),
-  mIsWindowOrientationChanging(false)
+  mIsWindowOrientationChanging(false),
+  mIsFrontBufferRendering(false),
+  mIsFrontBufferRenderingChanged(false)
 {
   DALI_LOG_INFO(gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n");
   Initialize(surface);
@@ -343,6 +345,11 @@ void WindowRenderSurface::CreateSurface()
 
   // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
+
+  if(mWindowBase->GetType() == WindowType::IME)
+  {
+    InitializeImeSurface();
+  }
 
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
 
@@ -547,7 +554,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     mPositionSize.width  = surfaceSize.width;
     mPositionSize.height = surfaceSize.height;
 
-    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height);
+    DALI_LOG_RELEASE_INFO("Window is resizing, (%d, %d), [%d x %d], IMEWindow [%d]\n", mPositionSize.x, mPositionSize.y, mPositionSize.width, mPositionSize.height, mIsImeWindowSurface);
 
     // Window rotate or screen rotate
     if(mIsWindowOrientationChanging || isScreenOrientationChanging)
@@ -581,6 +588,14 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
 
     mWindowBase->ResizeEglWindow(positionSize);
 
+    SetFullSwapNextFrame();
+  }
+
+  // When mIsFrontBufferRendering is not equal to mWindowBase's
+  if(mIsFrontBufferRenderingChanged)
+  {
+    mIsFrontBufferRenderingChanged = false;
+    mWindowBase->SetEglWindowFrontBufferMode(mIsFrontBufferRendering);
     SetFullSwapNextFrame();
   }
 
@@ -706,11 +721,15 @@ Integration::StencilBufferAvailable WindowRenderSurface::GetStencilBufferRequire
 
 void WindowRenderSurface::InitializeImeSurface()
 {
-  mIsImeWindowSurface = true;
-  if(!mPostRenderTrigger)
+  if(!mIsImeWindowSurface)
   {
-    mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
-                                                                                                        TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+    mIsImeWindowSurface = true;
+    if(!mPostRenderTrigger)
+    {
+      mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
+                                                                                                          TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+
+    }
   }
 }
 
@@ -932,6 +951,15 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
     {
       eglImpl.SwapBuffers(mEGLSurface, damagedRects);
     }
+  }
+}
+
+void WindowRenderSurface::SetFrontBufferRendering(bool enable)
+{
+  if(mIsFrontBufferRendering != enable)
+  {
+    mIsFrontBufferRendering = enable;
+    mIsFrontBufferRenderingChanged = !mIsFrontBufferRenderingChanged;
   }
 }
 
