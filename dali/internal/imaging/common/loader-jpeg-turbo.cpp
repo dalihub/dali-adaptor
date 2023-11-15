@@ -1032,7 +1032,7 @@ bool EncodeToJpeg(const uint8_t* const pixelBuffer, Vector<uint8_t>& encodedPixe
     }
     default:
     {
-      DALI_LOG_ERROR("Unsupported pixel format for encoding to JPEG.\n");
+      DALI_LOG_ERROR("Unsupported pixel format for encoding to JPEG. Format enum : [%d]\n", pixelFormat);
       return false;
     }
   }
