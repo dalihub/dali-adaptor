@@ -17,6 +17,8 @@
 
 // EXTERNAL_HEADERS
 #include <Ecore_Wl2.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
@@ -48,8 +50,9 @@ namespace WindowSystem
 {
 namespace
 {
-static int32_t gScreenWidth  = 0;
-static int32_t gScreenHeight = 0;
+static int32_t gScreenWidth     = 0;
+static int32_t gScreenHeight    = 0;
+static bool    gGeometryHittest = false;
 } // unnamed namespace
 
 void Initialize()
@@ -203,6 +206,28 @@ bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 #else
   return GetKeyboardRepeatInfo(rate, delay);
 #endif
+}
+
+void SetGeometryHittestEnabled(bool enable)
+{
+  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
+  gGeometryHittest = enable;
+  if(gGeometryHittest)
+  {
+    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
+    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
+    {
+      if(*iter)
+      {
+        (*iter).SetGeometryHittestEnabled(enable);
+      }
+    }
+  }
+}
+
+bool IsGeometryHittestEnabled()
+{
+  return gGeometryHittest;
 }
 
 } // namespace WindowSystem

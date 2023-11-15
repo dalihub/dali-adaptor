@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace DevelWindowSystem
 {
-
 /**
  * @brief Get the screen size.
  *
@@ -39,6 +37,20 @@ namespace DevelWindowSystem
  * @param[out] height The height of the screen
  */
 DALI_ADAPTOR_API void GetScreenSize(int32_t& width, int32_t& height);
+
+/**
+ * @brief Sets the processes using geometry event propagation touch and hover events.
+ *
+ * @param[in] enabled True if the processes using geometry event propagation touch and hover events.
+ */
+DALI_ADAPTOR_API void SetGeometryHittestEnabled(bool enabled);
+
+/**
+ * @brief Queries whether the scene using geometry event propagation touch and hover events.
+ *
+ * @return True if the scene using geometry event propagation touch and hover events.
+ */
+DALI_ADAPTOR_API bool IsGeometryHittestEnabled();
 
 } // namespace DevelWindowSystem
 

@@ -99,6 +99,20 @@ bool SetKeyboardVerticalRepeatInfo(float rate, float delay);
  */
 bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay);
 
+/**
+ * @brief Sets whether the processes using geometry event propagation touch and hover events.
+ *
+ * @param[in] enabled True if the processes using geometry event propagation touch and hover events.
+ */
+void SetGeometryHittestEnabled(bool enabled);
+
+/**
+ * @brief Queries whether the scene using geometry event propagation touch and hover events.
+ *
+ * @return True if the scene using geometry event propagation touch and hover events.
+ */
+bool IsGeometryHittestEnabled();
+
 } // namespace WindowSystem
 
 /**
