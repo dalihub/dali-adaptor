@@ -211,6 +211,16 @@ public:
   void FeedHoverEvent(Dali::Integration::Point& point);
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::SetGeometryHittestEnabled
+   */
+  void SetGeometryHittestEnabled(bool enabled);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::IsGeometryHittestEnabled
+   */
+  bool IsGeometryHittestEnabled();
+
+  /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
    * @param[in] callback The function to call
