@@ -873,10 +873,16 @@ TextAbstraction::FontId SetupBitmapFont()
     GlyphDesc(const std::string& url, const std::string& utf8)
     {
       this->url = url;
+
+      DALI_ASSERT_ALWAYS(utf8.size() <= 6u);
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
       std::copy(utf8.begin(), utf8.end(), this->utf8);
+#pragma GCC diagnostic pop
     }
     std::string url;
-    uint8_t     utf8[4];
+    uint8_t     utf8[6];
   };
   std::vector<GlyphDesc> glyphs;
 
