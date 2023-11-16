@@ -271,14 +271,23 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
     }
     else
     {
-      const int bufferLength = 128;
-      char      buffer[bufferLength];
-
-      // Return type of stderror_r is different between system type. We should not use return value.
-      [[maybe_unused]] auto ret = strerror_r(errno, buffer, bufferLength - 1);
-
-      DALI_LOG_ERROR("Can't write to %s: buffer length : %d, error message : [%s]\n", filename.c_str(), length, buffer);
+      DALI_LOG_ERROR("std::ostream.write failed!\n");
     }
+  }
+  else
+  {
+    DALI_LOG_ERROR("std::filebuf.open failed!\n");
+  }
+
+  if(!result)
+  {
+    const int errorMessageMaxLength               = 128;
+    char      errorMessage[errorMessageMaxLength] = {}; // Initailze as null.
+
+    // Return type of stderror_r is different between system type. We should not use return value.
+    [[maybe_unused]] auto ret = strerror_r(errno, errorMessage, errorMessageMaxLength - 1);
+
+    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u, error message : [%s]\n", filename.c_str(), buffer, numBytes, errorMessage);
   }
 
   return result;
