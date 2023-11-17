@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_SHADER_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,7 @@
 
 namespace Dali::Graphics::GLES
 {
-using ShaderResource = Resource<Graphics::Shader, Graphics::ShaderCreateInfo>;
-
-class Shader : public ShaderResource
+class ShaderImpl
 {
 public:
   /**
@@ -37,29 +35,28 @@ public:
    * @param[in] createInfo Valid createInfo structure
    * @param[in] controller Reference to the controller
    */
-  Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+  ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+  ~ShaderImpl();
+
+  uint32_t Retain();
+
+  uint32_t Release();
+
+  [[nodiscard]] uint32_t GetRefCount() const;
 
   /**
-   * @brief Destructor
-   */
-  ~Shader() override;
-
-  /**
-   * @brief Called when GL resources are destroyed
-   */
-  void DestroyResource() override;
-
-  /**
-   * @brief Called when initializing the resource
+   * Whilst unreferenced, increase the flush count and return it
    *
-   * @return True on success
+   * @return The new flush count
    */
-  bool InitializeResource() override
-  {
-    // The Shader has instant initialization, hence no need to initialize GL resource
-    // here
-    return true;
-  }
+  [[nodiscard]] uint32_t IncreaseFlushCount();
+
+  /**
+   * Get the flush count whilst unreferenced
+   *
+   * @return the flush count
+   */
+  [[nodiscard]] uint32_t GetFlushCount() const;
 
   /**
    * @brief Compiles shader
@@ -69,15 +66,81 @@ public:
   [[nodiscard]] bool Compile() const;
 
   /**
-   * @brief Called when UniquePtr<> on client-side dies
+   * @brief Destroys GL shader
    */
-  void DiscardResource() override;
+  void Destroy();
 
   uint32_t GetGLShader() const;
 
+  [[nodiscard]] const ShaderCreateInfo& GetCreateInfo() const;
+
+  [[nodiscard]] EglGraphicsController& GetController() const;
+
 private:
+  friend class Shader;
   struct Impl;
   std::unique_ptr<Impl> mImpl{nullptr};
+};
+
+class Shader : public Graphics::Shader
+{
+public:
+  /**
+   * @brief Constructor
+   *
+   * @param[in] impl Pointer to valid implementation
+   */
+  explicit Shader(ShaderImpl* impl)
+  : mShader(impl)
+  {
+    mShader->Retain();
+  }
+
+  /**
+   * @brief Destructor
+   */
+  ~Shader() override;
+
+  [[nodiscard]] ShaderImpl* GetImplementation() const
+  {
+    return mShader;
+  }
+
+  [[nodiscard]] const ShaderCreateInfo& GetCreateInfo() const;
+
+  bool operator==(const GLES::Shader& shader) const
+  {
+    return (shader.mShader == mShader);
+  }
+
+  bool operator==(const GLES::ShaderImpl* shaderImpl) const
+  {
+    return (shaderImpl == mShader);
+  }
+
+  bool operator!=(const GLES::Shader& shader) const
+  {
+    return (shader.mShader != mShader);
+  }
+
+  /**
+   * @brief Called when UniquePtr<> on client-side dies.
+   */
+  void DiscardResource();
+
+  /**
+   * @brief Destroying GL resources
+   *
+   * This function is kept for compatibility with Resource<> class
+   * so can the object can be use with templated functions.
+   */
+  void DestroyResource()
+  {
+    // nothing to do here
+  }
+
+private:
+  ShaderImpl* mShader{nullptr};
 };
 
 } // namespace Dali::Graphics::GLES

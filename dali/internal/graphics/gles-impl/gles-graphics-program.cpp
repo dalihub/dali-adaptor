@@ -148,9 +148,9 @@ bool ProgramImpl::Create()
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);
 
     // Compile shader first (ignored when compiled)
-    if(shader->Compile())
+    if(shader->GetImplementation()->Compile())
     {
-      gl->AttachShader(program, shader->GetGLShader());
+      gl->AttachShader(program, shader->GetImplementation()->GetGLShader());
     }
   }
   gl->LinkProgram(program);

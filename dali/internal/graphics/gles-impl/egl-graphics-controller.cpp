@@ -298,7 +298,7 @@ Graphics::UniquePtr<Pipeline> EglGraphicsController::CreatePipeline(
 Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(
   const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
 {
-  // Create program cache if needed
+  // Create pipeline cache if needed
   if(!mPipelineCache)
   {
     mPipelineCache = std::make_unique<GLES::PipelineCache>(*this);
@@ -309,7 +309,12 @@ Graphics::UniquePtr<Program> EglGraphicsController::CreateProgram(
 
 Graphics::UniquePtr<Shader> EglGraphicsController::CreateShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Shader>&& oldShader)
 {
-  return NewObject<GLES::Shader>(shaderCreateInfo, *this, std::move(oldShader));
+  // Create pipeline cache if needed
+  if(!mPipelineCache)
+  {
+    mPipelineCache = std::make_unique<GLES::PipelineCache>(*this);
+  }
+  return mPipelineCache->GetShader(shaderCreateInfo, std::move(oldShader));
 }
 
 Graphics::UniquePtr<Sampler> EglGraphicsController::CreateSampler(const SamplerCreateInfo& samplerCreateInfo, Graphics::UniquePtr<Sampler>&& oldSampler)

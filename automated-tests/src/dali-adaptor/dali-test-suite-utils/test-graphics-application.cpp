@@ -98,6 +98,7 @@ void TestGraphicsApplication::InitializeCore()
 
 TestGraphicsApplication::~TestGraphicsApplication()
 {
+  mGraphicsController.Shutdown();
   Dali::Integration::Log::UninstallLogFunction();
   delete mCore;
 }
