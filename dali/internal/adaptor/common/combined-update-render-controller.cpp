@@ -513,6 +513,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Install a function for tracing
   mEnvironmentOptions.InstallTraceFunction();
 
+  TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_THREAD_INIT");
+
   LOG_UPDATE_RENDER("THREAD CREATED");
 
   // Initialize graphics
@@ -553,9 +555,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   const bool         renderToFboEnabled  = 0u != renderToFboInterval;
   unsigned int       frameCount          = 0u;
 
+  TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_INIT");
+
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
     LOG_UPDATE_RENDER_TRACE;
+    TRACE_UPDATE_RENDER_SCOPE("DALI_UPDATE_RENDER");
 
     // For thread safe
     bool                          uploadOnly     = mUploadWithoutRendering;
@@ -727,7 +732,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
         if(scene && windowSurface)
         {
-          TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_SCENE");
+          TRACE_UPDATE_RENDER_SCOPE("DALI_RENDER_SCENE");
           Integration::RenderStatus windowRenderStatus;
 
           const bool sceneSurfaceResized = scene.IsSurfaceRectChanged();
@@ -756,7 +761,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           {
             SurfaceResized();
           }
-          TRACE_UPDATE_RENDER_END("DALI_RENDER_SCENE");
         }
       }
     }
@@ -845,10 +849,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
     if(0u == renderToFboInterval)
     {
+      TRACE_UPDATE_RENDER_SCOPE("DALI_UPDATE_RENDER_SLEEP");
       // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
       TimeService::SleepUntil(timeToSleepUntil);
     }
   }
+  TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER_THREAD_FINISH");
 
   // Inform core of context destruction
   mCore.ContextDestroyed();
@@ -866,6 +872,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   graphics.Shutdown();
 
   LOG_UPDATE_RENDER("THREAD DESTROYED");
+
+  TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_FINISH");
 
   // Uninstall the logging function
   mEnvironmentOptions.UnInstallLogFunction();
@@ -895,7 +903,9 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
     // of the first frame.
     timeToSleepUntil = 0;
 
+    TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
     mUpdateRenderThreadWaitCondition.Wait(updateLock);
+    TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER_THREAD_WAIT_CONDITION");
 
     if(!mUseElapsedTimeAfterWait)
     {

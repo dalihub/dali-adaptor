@@ -136,6 +136,7 @@ Debug::Filter* gLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_THR
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_COMBINED, false);
 #define TRACE_UPDATE_RENDER_BEGIN(tag) DALI_TRACE_BEGIN(gTraceFilter, tag)
 #define TRACE_UPDATE_RENDER_END(tag) DALI_TRACE_END(gTraceFilter, tag)
+#define TRACE_UPDATE_RENDER_SCOPE(tag) DALI_TRACE_SCOPE(gTraceFilter, tag)
 
 } // unnamed namespace
 
