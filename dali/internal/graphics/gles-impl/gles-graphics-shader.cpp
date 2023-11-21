@@ -36,8 +36,8 @@ struct ShaderImpl::Impl
 
     // Make a copy of source code
     source.resize(_createInfo.sourceSize);
-    std::copy(reinterpret_cast<const char*>(_createInfo.sourceData),
-              reinterpret_cast<const char*>(_createInfo.sourceData) + _createInfo.sourceSize,
+    std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData),
+              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + _createInfo.sourceSize,
               source.data());
 
     // Substitute pointer
@@ -109,9 +109,9 @@ struct ShaderImpl::Impl
         if(status != GL_TRUE)
         {
           char    output[4096];
-          GLsizei size{0u};
-          gl->GetShaderInfoLog(shader, 4096, &size, output);
-          DALI_LOG_ERROR("Code: %s\n", reinterpret_cast<const char*>(createInfo.sourceData));
+          GLsizei outputSize{0u};
+          gl->GetShaderInfoLog(shader, 4096, &outputSize, output);
+          DALI_LOG_ERROR("Code: %.*s\n", size, reinterpret_cast<const char*>(createInfo.sourceData));
           DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
           gl->DeleteShader(shader);
           return false;
@@ -136,7 +136,7 @@ struct ShaderImpl::Impl
 
   EglGraphicsController& controller;
   ShaderCreateInfo       createInfo;
-  std::vector<char>      source{};
+  std::vector<uint8_t>   source{};
 
   uint32_t glShader{};
   uint32_t refCount{0u};
