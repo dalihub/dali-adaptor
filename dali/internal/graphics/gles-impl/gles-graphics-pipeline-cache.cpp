@@ -20,6 +20,7 @@
 #include "egl-graphics-controller.h"
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
+#include "gles-graphics-shader.h"
 
 namespace
 {
@@ -251,6 +252,7 @@ struct PipelineCache::Impl
    */
   explicit Impl(EglGraphicsController& _controller)
   : controller(_controller),
+    flushEnabled(true),
     pipelineEntriesFlushRequired(false),
     programEntriesFlushRequired(false),
     shaderEntriesFlushRequired(false)
@@ -298,8 +300,14 @@ struct PipelineCache::Impl
    */
   struct ProgramCacheEntry
   {
-    // sorted array of shaders
-    std::vector<const Graphics::Shader*> shaders;
+    // for maintaining correct lifecycle, the shader
+    // wrapper must be created
+    // TODO : We can remove shader after glLinkProgram completed.
+    //        But now, if we remove GLES::ShaderImpl, it will be re-compile and re-link
+    //        even if we use same shader code.
+    //        So let we keep life of GLES::ShaderImpl here,
+    //        until we found good way to remove shader + program cache hit successfully.
+    std::vector<UniquePtr<GLES::Shader>> shaderWrappers;
     UniquePtr<ProgramImpl>               program{nullptr};
   };
 
@@ -313,6 +321,7 @@ struct PipelineCache::Impl
   std::vector<ProgramCacheEntry> programEntries;
   std::vector<ShaderCacheEntry>  shaderEntries;
 
+  bool flushEnabled : 1;
   bool pipelineEntriesFlushRequired : 1;
   bool programEntriesFlushRequired : 1;
   bool shaderEntriesFlushRequired : 1;
@@ -387,26 +396,30 @@ ProgramImpl* PipelineCache::FindProgramImpl(const ProgramCreateInfo& info)
   }
 
   // assert if no shaders given
-  std::vector<const Graphics::Shader*> shaders;
-  shaders.reserve(info.shaderState->size());
+  std::vector<const GLES::ShaderImpl*> shaderImpls;
+  shaderImpls.reserve(info.shaderState->size());
 
   for(auto& state : *info.shaderState)
   {
-    shaders.push_back(state.shader);
+    auto* glesShader = static_cast<const GLES::Shader*>(state.shader);
+    shaderImpls.push_back(glesShader->GetImplementation());
   }
 
   // sort
-  std::sort(shaders.begin(), shaders.end());
+  std::sort(shaderImpls.begin(), shaderImpls.end());
+
+  const auto shaderImplsSize = shaderImpls.size();
 
   for(auto& item : mImpl->programEntries)
   {
-    if(item.shaders.size() != shaders.size())
+    if(item.shaderWrappers.size() != shaderImplsSize)
     {
       continue;
     }
 
-    int k = shaders.size();
-    while(--k >= 0 && item.shaders[k] == shaders[k])
+    int k = shaderImplsSize;
+
+    while(--k >= 0 && item.shaderWrappers[k]->GetImplementation() == shaderImpls[k])
       ;
 
     if(k < 0)
@@ -469,10 +482,13 @@ Graphics::UniquePtr<Graphics::Program> PipelineCache::GetProgram(const ProgramCr
     item.program = std::move(program);
     for(auto& state : *programCreateInfo.shaderState)
     {
-      item.shaders.push_back(state.shader);
+      auto* glesShader = static_cast<const GLES::Shader*>(state.shader);
+      // This shader doesn't need custom deleter
+      item.shaderWrappers.emplace_back(MakeUnique<GLES::Shader>(glesShader->GetImplementation()));
     }
 
-    std::sort(item.shaders.begin(), item.shaders.end());
+    // Sort ordered by GLES::ShaderImpl*.
+    std::sort(item.shaderWrappers.begin(), item.shaderWrappers.end(), [](const UniquePtr<GLES::Shader>& lhs, const UniquePtr<GLES::Shader>& rhs) { return lhs->GetImplementation() < rhs->GetImplementation(); });
   }
 
   auto wrapper = MakeUnique<GLES::Program, CachedObjectDeleter<GLES::Program>>(cachedProgram);
@@ -530,6 +546,8 @@ void PipelineCache::FlushCache()
 {
   if(mImpl->pipelineEntriesFlushRequired)
   {
+    mImpl->pipelineEntriesFlushRequired = false;
+
     decltype(mImpl->entries) newEntries;
     newEntries.reserve(mImpl->entries.size());
 
@@ -545,19 +563,17 @@ void PipelineCache::FlushCache()
     // Move temporary array in place of stored cache
     // Unused pipelines will be deleted automatically
     mImpl->entries = std::move(newEntries);
-
-    mImpl->pipelineEntriesFlushRequired = false;
   }
 
   if(mImpl->programEntriesFlushRequired)
   {
-    // Program cache require similar action.
+    mImpl->programEntriesFlushRequired = false;
+
     decltype(mImpl->programEntries) newProgramEntries;
     newProgramEntries.reserve(mImpl->programEntries.size());
 
     for(auto& entry : mImpl->programEntries)
     {
-      // Move items which are still in use into the new array
       if(entry.program->GetRefCount() != 0)
       {
         newProgramEntries.emplace_back(std::move(entry));
@@ -565,8 +581,6 @@ void PipelineCache::FlushCache()
     }
 
     mImpl->programEntries = std::move(newProgramEntries);
-
-    mImpl->programEntriesFlushRequired = false;
   }
 
   if(mImpl->shaderEntriesFlushRequired)
@@ -578,7 +592,7 @@ void PipelineCache::FlushCache()
     {
       if(entry.shaderImpl->GetRefCount() == 0)
       {
-        mImpl->shaderEntriesFlushRequired = true;
+        mImpl->shaderEntriesFlushRequired = mImpl->flushEnabled;
         auto frameCount                   = entry.shaderImpl->IncreaseFlushCount();
         if(frameCount > CACHE_CLEAN_FLUSH_COUNT)
         {
@@ -603,19 +617,35 @@ void PipelineCache::FlushCache()
   }
 }
 
+void PipelineCache::EnableCacheFlush(bool enabled)
+{
+  if(mImpl->flushEnabled != enabled)
+  {
+    mImpl->flushEnabled = enabled;
+
+    // If inputed enable ws false, let we reset flags what we set as true before.
+    if(!enabled)
+    {
+      mImpl->pipelineEntriesFlushRequired = false;
+      mImpl->programEntriesFlushRequired  = false;
+      mImpl->shaderEntriesFlushRequired   = false;
+    }
+  }
+}
+
 void PipelineCache::MarkPipelineCacheFlushRequired()
 {
-  mImpl->pipelineEntriesFlushRequired = true;
+  mImpl->pipelineEntriesFlushRequired = mImpl->flushEnabled;
 }
 
 void PipelineCache::MarkProgramCacheFlushRequired()
 {
-  mImpl->programEntriesFlushRequired = true;
+  mImpl->programEntriesFlushRequired = mImpl->flushEnabled;
 }
 
 void PipelineCache::MarkShaderCacheFlushRequired()
 {
-  mImpl->shaderEntriesFlushRequired = true;
+  mImpl->shaderEntriesFlushRequired = mImpl->flushEnabled;
 }
 
 } // namespace Dali::Graphics::GLES
