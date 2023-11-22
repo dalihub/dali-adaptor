@@ -38,6 +38,14 @@ namespace Internal
 {
 namespace Adaptor
 {
+// Note : The real Ecore_Window type is uintptr_t.
+// But a lots of Ecore_Wl2_Event_Dnd_XXX type use window as 'unsigned int' type.
+// And ecore_wl2_window_id_get() API return it as 'int' type.
+// So dali just keep window id as int type now.
+//
+// To avoid compile warning, we should convert the type by it.
+using EcoreWl2EventDragAndDropWindowIdType = unsigned int;
+
 namespace
 {
 static constexpr int32_t DEFAULT_POSITION            = -1;
@@ -363,37 +371,36 @@ void DragAndDropEcoreWl::ResetDropTargets()
   }
 }
 
-static Eina_Bool WriteDelayedDataTofd(void *data, Ecore_Fd_Handler *fd_handler)
+static Eina_Bool WriteDelayedDataTofd(void* data, Ecore_Fd_Handler* fd_handler)
 {
-   int fd;
-   size_t len;
-   DelayedWritingData *slice = (DelayedWritingData*)data;
+  int                 fd;
+  size_t              len;
+  DelayedWritingData* slice = (DelayedWritingData*)data;
 
-   fd = ecore_main_fd_handler_fd_get(fd_handler);
-   if(fd < 0)
-   {
-     ecore_main_fd_handler_del(fd_handler);
-     free(slice->slice.mem);
-     free(slice);
-     return EINA_FALSE;
-   }
+  fd = ecore_main_fd_handler_fd_get(fd_handler);
+  if(fd < 0)
+  {
+    ecore_main_fd_handler_del(fd_handler);
+    free(slice->slice.mem);
+    free(slice);
+    return EINA_FALSE;
+  }
 
-   len = write(fd, (char*)slice->slice.mem + slice->writtenBytes,
-               slice->slice.len - slice->writtenBytes);
+  len = write(fd, (char*)slice->slice.mem + slice->writtenBytes, slice->slice.len - slice->writtenBytes);
 
-   slice->writtenBytes += len;
-   if(slice->writtenBytes != slice->slice.len)
-   {
-     return EINA_TRUE;
-   }
-   else
-   {
-     ecore_main_fd_handler_del(fd_handler);
-     free(slice->slice.mem);
-     free(slice);
-     if (fd > -1) close(fd);
-     return EINA_FALSE;
-   }
+  slice->writtenBytes += len;
+  if(slice->writtenBytes != slice->slice.len)
+  {
+    return EINA_TRUE;
+  }
+  else
+  {
+    ecore_main_fd_handler_del(fd_handler);
+    free(slice->slice.mem);
+    free(slice);
+    if(fd > -1) close(fd);
+    return EINA_FALSE;
+  }
 }
 
 void DragAndDropEcoreWl::SendData(void* event)
@@ -413,9 +420,9 @@ void DragAndDropEcoreWl::SendData(void* event)
     bufferSize += 1;
   }
 
-  DelayedWritingData *data = (DelayedWritingData*)calloc(1, sizeof(DelayedWritingData));
-  data->slice.mem = new char[bufferSize];
-  data->slice.len = bufferSize;
+  DelayedWritingData* data = (DelayedWritingData*)calloc(1, sizeof(DelayedWritingData));
+  data->slice.mem          = new char[bufferSize];
+  data->slice.len          = bufferSize;
   memcpy(data->slice.mem, mData.c_str(), dataLength);
   ((char*)data->slice.mem)[dataLength] = '\0';
 
@@ -450,7 +457,7 @@ void DragAndDropEcoreWl::ReceiveData(void* event)
   {
     for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
     {
-      if(ev->win == mDropWindowTargets[i].windowId)
+      if(ev->win == static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
       {
         Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
         mDropWindowTargets[i].callback(dragEvent);
@@ -508,7 +515,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
-    if(ev->win != mDropTargets[i].parentWindowId)
+    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
     {
       continue;
     }
@@ -554,7 +561,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
   for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
   {
-    if(ev->win != mDropWindowTargets[i].windowId)
+    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
     {
       continue;
     }
@@ -609,7 +616,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
-    if(ev->win != mDropTargets[i].parentWindowId)
+    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
     {
       continue;
     }
@@ -642,7 +649,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
   for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
   {
-    if(ev->win != mDropWindowTargets[i].windowId)
+    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
     {
       continue;
     }

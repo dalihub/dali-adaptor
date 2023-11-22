@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -269,6 +269,25 @@ bool SaveFile(const std::string& filename, const unsigned char* buffer, unsigned
     {
       result = true;
     }
+    else
+    {
+      DALI_LOG_ERROR("std::ostream.write failed!\n");
+    }
+  }
+  else
+  {
+    DALI_LOG_ERROR("std::filebuf.open failed!\n");
+  }
+
+  if(!result)
+  {
+    const int errorMessageMaxLength               = 128;
+    char      errorMessage[errorMessageMaxLength] = {}; // Initailze as null.
+
+    // Return type of stderror_r is different between system type. We should not use return value.
+    [[maybe_unused]] auto ret = strerror_r(errno, errorMessage, errorMessageMaxLength - 1);
+
+    DALI_LOG_ERROR("Can't write to %s. buffer pointer : %p, length : %u, error message : [%s]\n", filename.c_str(), buffer, numBytes, errorMessage);
   }
 
   return result;

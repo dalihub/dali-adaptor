@@ -774,6 +774,11 @@ struct FrameworkTizen::Impl
         break;
       }
 #endif
+      default:
+      {
+        DALI_LOG_ERROR("Invalid app type : %d\n", static_cast<int>(mApplicationType));
+        ret = APP_ERROR_NOT_SUPPORTED;
+      }
     }
     return ret;
   }
@@ -804,6 +809,10 @@ struct FrameworkTizen::Impl
         break;
       }
 #endif
+      default:
+      {
+        DALI_LOG_ERROR("Invalid app type : %d\n", static_cast<int>(mApplicationType));
+      }
     }
   }
 
@@ -1084,7 +1093,7 @@ struct FrameworkTizen::Impl
     }
 
     mUiAppContext->Run(*mFramework->mArgc, *mFramework->mArgv);
-    return TIZEN_ERROR_NONE;
+    return APP_ERROR_NONE;
   }
 
   void AppNormalExit()
@@ -1122,7 +1131,7 @@ struct FrameworkTizen::Impl
     if(!IsWidgetFeatureEnabled())
     {
       DALI_LOG_ERROR("widget feature is not supported");
-      return 0;
+      return APP_ERROR_NOT_SUPPORTED;
     }
 
     AppCore::AppAddEventHandler(&handlers[AppCore::LOW_BATTERY], AppCore::LOW_BATTERY, AppBatteryLow, mFramework);
@@ -1215,7 +1224,7 @@ struct FrameworkTizen::Impl
 
   int AppWatchMain()
   {
-    int ret = true;
+    int ret = APP_ERROR_NOT_SUPPORTED;
 
 #ifdef APPCORE_WATCH_AVAILABLE
     mWatchCallback.create          = WatchAppCreate;
@@ -1233,6 +1242,8 @@ struct FrameworkTizen::Impl
     AppCore::AppAddEventHandler(&handlers[AppCore::REGION_FORMAT_CHANGED], AppCore::REGION_FORMAT_CHANGED, AppRegionChanged, mFramework);
 
     ret = watch_app_main(*mFramework->mArgc, *mFramework->mArgv, &mWatchCallback, mFramework);
+#else
+    DALI_LOG_ERROR("watch feature is not supported");
 #endif
     return ret;
   }

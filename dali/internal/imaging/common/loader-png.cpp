@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -436,7 +436,7 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
     }
     default:
     {
-      DALI_LOG_ERROR("Unsupported pixel format for encoding to PNG.\n");
+      DALI_LOG_ERROR("Unsupported pixel format for encoding to PNG. Format enum : [%d]\n", pixelFormat);
       return false;
     }
   }
@@ -444,14 +444,16 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
   const int interlace = PNG_INTERLACE_NONE;
 
   png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  if(!png_ptr)
+  if(DALI_UNLIKELY(!png_ptr))
   {
+    DALI_LOG_ERROR("Fail to create png_structp for png version" PNG_LIBPNG_VER_STRING "\n");
     return false;
   }
   /* Allocate/initialize the image information data.  REQUIRED */
   png_infop info_ptr = png_create_info_struct(png_ptr);
-  if(!info_ptr)
+  if(DALI_UNLIKELY(!info_ptr))
   {
+    DALI_LOG_ERROR("Fail to create png_infop\n");
     png_destroy_write_struct(&png_ptr, NULL);
     return false;
   }
@@ -459,8 +461,9 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
   /* Set error handling.  REQUIRED if you aren't supplying your own
    * error handling functions in the png_create_write_struct() call.
    */
-  if(setjmp(png_jmpbuf(png_ptr)))
+  if(DALI_UNLIKELY(setjmp(png_jmpbuf(png_ptr))))
   {
+    DALI_LOG_ERROR("Fail to png_jmpbuf\n");
     png_destroy_write_struct(&png_ptr, &info_ptr);
     return false;
   }

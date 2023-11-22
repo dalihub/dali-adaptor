@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -540,7 +540,7 @@ void CanvasRendererTizen::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& dr
         }
       }
 
-      if(tvgDuplicatedObject->composite(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject)), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
+      if(tvgDuplicatedObject->composite(std::unique_ptr<tvg::Paint>(tvgDuplicatedCompositeObject), static_cast<tvg::CompositeMethod>(drawableImpl.GetCompositionType())) != tvg::Result::Success)
       {
         DALI_LOG_ERROR("Tvg composite fail [%p]\n", this);
         return;
@@ -548,7 +548,7 @@ void CanvasRendererTizen::PushDrawableToGroup(Dali::CanvasRenderer::Drawable& dr
     }
   }
 
-  if(parent->push(std::move(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject))) != tvg::Result::Success)
+  if(parent->push(std::unique_ptr<tvg::Paint>(tvgDuplicatedObject)) != tvg::Result::Success)
   {
     DALI_LOG_ERROR("Tvg push fail [%p]\n", this);
     return;
