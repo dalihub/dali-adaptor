@@ -47,6 +47,10 @@ void Adaptor::SetupSystemInformation()
 {
 }
 
+void Adaptor::RemoveSystemInformation()
+{
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

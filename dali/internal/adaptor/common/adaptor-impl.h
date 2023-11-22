@@ -639,6 +639,11 @@ private:
   void SetupSystemInformation();
 
   /**
+   * Remove system information if needs
+   */
+  void RemoveSystemInformation();
+
+  /**
    * Adds a callback to be run when entering an idle state.
    *
    * A callback of the following type should be used:
