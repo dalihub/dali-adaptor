@@ -23,8 +23,6 @@
 #include <dali/graphics-api/graphics-pipeline.h>
 #include <dali/graphics-api/graphics-program-create-info.h>
 #include <dali/graphics-api/graphics-program.h>
-#include <dali/graphics-api/graphics-shader-create-info.h>
-#include <dali/graphics-api/graphics-shader.h>
 
 // INTERNAL INCLUDES
 #include "gles-graphics-resource.h"
@@ -38,9 +36,6 @@ class Pipeline;
 class PipelineImpl;
 class Program;
 class ProgramImpl;
-class Shader;
-class ShaderImpl;
-
 /**
  * @brief PipelineCache manages pipeline and program
  * objects so there are no duplicates created.
@@ -83,18 +78,6 @@ public:
   Graphics::UniquePtr<Graphics::Program> GetProgram(const ProgramCreateInfo& pipelineCreateInfo, Graphics::UniquePtr<Graphics::Program>&& oldProgram);
 
   /**
-   * @brief Retrieves shader matching the spec
-   *
-   * Function returns either existing shader if one is found
-   * in the cache or creates new one.
-   *
-   * @param[in] shaderCreateInfo Valid ShaderCreateInfo structure
-   * @param[in] oldShader previous shader object
-   * @return Shader object
-   */
-  Graphics::UniquePtr<Graphics::Shader> GetShader(const ShaderCreateInfo& shaderCreateInfo, Graphics::UniquePtr<Graphics::Shader>&& oldShader);
-
-  /**
    * @brief Flushes pipeline and program cache
    *
    * Removes cached items when they are no longer needed. This function
@@ -112,11 +95,6 @@ public:
    */
   void MarkProgramCacheFlushRequired();
 
-  /**
-   * @brief Notify that we need to flush shader cache next FlushCache API.
-   */
-  void MarkShaderCacheFlushRequired();
-
 private:
   /**
    * @brief Finds pipeline implementation based on the spec
@@ -126,19 +104,11 @@ private:
   PipelineImpl* FindPipelineImpl(const PipelineCreateInfo& info);
 
   /**
-   * @brief Finds program implementation based on the spec
-   * @param[in] info Valid create info structure
-   * @return Returns pointer to program or nullptr
-   */
+ * @brief Finds program implementation based on the spec
+ * @param[in] info Valid create info structure
+ * @return Returns pointer to program or nullptr
+ */
   ProgramImpl* FindProgramImpl(const ProgramCreateInfo& info);
-
-  /**
-   * @brief Finds shader implementation based on create info
-   *
-   * @param[in] shadercreateinfo Valid create info structure
-   * @return Returns pointer to shader or nullptr
-   */
-  ShaderImpl* FindShaderImpl(const ShaderCreateInfo& shaderCreateInfo);
 
 private:
   struct Impl;

@@ -21,11 +21,6 @@
 #include "gles-graphics-pipeline.h"
 #include "gles-graphics-program.h"
 
-namespace
-{
-constexpr uint32_t CACHE_CLEAN_FLUSH_COUNT = 3600u; // 60fps * 60sec / ~3 flushes per frame
-}
-
 namespace Dali::Graphics::GLES
 {
 /**
@@ -252,8 +247,7 @@ struct PipelineCache::Impl
   explicit Impl(EglGraphicsController& _controller)
   : controller(_controller),
     pipelineEntriesFlushRequired(false),
-    programEntriesFlushRequired(false),
-    shaderEntriesFlushRequired(false)
+    programEntriesFlushRequired(false)
   {
     // Initialise lookup table
     InitialiseStateCompareLookupTable();
@@ -293,6 +287,9 @@ struct PipelineCache::Impl
     uint32_t                stateBitmask{0u};
   };
 
+  EglGraphicsController&  controller;
+  std::vector<CacheEntry> entries;
+
   /**
    * @brief Sorted array of shaders used to create program
    */
@@ -303,19 +300,10 @@ struct PipelineCache::Impl
     UniquePtr<ProgramImpl>               program{nullptr};
   };
 
-  struct ShaderCacheEntry
-  {
-    UniquePtr<ShaderImpl> shaderImpl{nullptr};
-  };
-
-  EglGraphicsController&         controller;
-  std::vector<CacheEntry>        entries;
   std::vector<ProgramCacheEntry> programEntries;
-  std::vector<ShaderCacheEntry>  shaderEntries;
 
   bool pipelineEntriesFlushRequired : 1;
   bool programEntriesFlushRequired : 1;
-  bool shaderEntriesFlushRequired : 1;
 };
 
 PipelineCache::PipelineCache(EglGraphicsController& controller)
@@ -479,53 +467,6 @@ Graphics::UniquePtr<Graphics::Program> PipelineCache::GetProgram(const ProgramCr
   return std::move(wrapper);
 }
 
-ShaderImpl* PipelineCache::FindShaderImpl(const ShaderCreateInfo& shaderCreateInfo)
-{
-  if(!mImpl->shaderEntries.empty())
-  {
-    for(auto& item : mImpl->shaderEntries)
-    {
-      auto& itemInfo = item.shaderImpl->GetCreateInfo();
-      if(itemInfo.pipelineStage != shaderCreateInfo.pipelineStage ||
-         itemInfo.shaderlanguage != shaderCreateInfo.shaderlanguage ||
-         itemInfo.sourceMode != shaderCreateInfo.sourceMode ||
-         itemInfo.sourceSize != shaderCreateInfo.sourceSize)
-      {
-        continue;
-      }
-
-      if(memcmp(itemInfo.sourceData, shaderCreateInfo.sourceData, itemInfo.sourceSize) == 0)
-      {
-        return item.shaderImpl.get();
-      }
-    }
-  }
-  return nullptr;
-}
-
-Graphics::UniquePtr<Graphics::Shader> PipelineCache::GetShader(const ShaderCreateInfo&                 shaderCreateInfo,
-                                                               Graphics::UniquePtr<Graphics::Shader>&& oldShader)
-{
-  ShaderImpl* cachedShader = FindShaderImpl(shaderCreateInfo);
-
-  // Return same pointer if nothing changed
-  if(oldShader && *static_cast<GLES::Shader*>(oldShader.get()) == cachedShader)
-  {
-    return std::move(oldShader);
-  }
-
-  if(!cachedShader)
-  {
-    auto shader  = MakeUnique<GLES::ShaderImpl>(shaderCreateInfo, mImpl->controller);
-    cachedShader = shader.get();
-
-    mImpl->shaderEntries.emplace_back();
-    mImpl->shaderEntries.back().shaderImpl = std::move(shader);
-  }
-  auto wrapper = MakeUnique<GLES::Shader, CachedObjectDeleter<GLES::Shader>>(cachedShader);
-  return std::move(wrapper);
-}
-
 void PipelineCache::FlushCache()
 {
   if(mImpl->pipelineEntriesFlushRequired)
@@ -568,39 +509,6 @@ void PipelineCache::FlushCache()
 
     mImpl->programEntriesFlushRequired = false;
   }
-
-  if(mImpl->shaderEntriesFlushRequired)
-  {
-    // There is at least 1 unused shader
-    mImpl->shaderEntriesFlushRequired = false;
-    bool deleteRequired{false};
-    for(auto& entry : mImpl->shaderEntries)
-    {
-      if(entry.shaderImpl->GetRefCount() == 0)
-      {
-        mImpl->shaderEntriesFlushRequired = true;
-        auto frameCount                   = entry.shaderImpl->IncreaseFlushCount();
-        if(frameCount > CACHE_CLEAN_FLUSH_COUNT)
-        {
-          deleteRequired = true;
-        }
-      }
-    }
-    if(deleteRequired)
-    {
-      decltype(mImpl->shaderEntries) newShaderEntries;
-      newShaderEntries.reserve(mImpl->shaderEntries.size());
-      for(auto& entry : mImpl->shaderEntries)
-      {
-        if(entry.shaderImpl->GetRefCount() > 0 ||
-           entry.shaderImpl->GetFlushCount() <= CACHE_CLEAN_FLUSH_COUNT)
-        {
-          newShaderEntries.emplace_back(std::move(entry));
-        }
-      }
-      mImpl->shaderEntries = std::move(newShaderEntries);
-    }
-  }
 }
 
 void PipelineCache::MarkPipelineCacheFlushRequired()
@@ -611,11 +519,6 @@ void PipelineCache::MarkPipelineCacheFlushRequired()
 void PipelineCache::MarkProgramCacheFlushRequired()
 {
   mImpl->programEntriesFlushRequired = true;
-}
-
-void PipelineCache::MarkShaderCacheFlushRequired()
-{
-  mImpl->shaderEntriesFlushRequired = true;
 }
 
 } // namespace Dali::Graphics::GLES
