@@ -23,7 +23,6 @@
 #include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/integration-api/debug.h>
 #include <unistd.h>
-#include <unordered_map>
 
 namespace Dali
 {
