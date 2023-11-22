@@ -576,16 +576,20 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   if(Integration::ShaderPrecompiler::Get().IsEnable())
   {
-    RawShaderData precompiledShader;
-    Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShader);
-    auto numberOfPrecomipledShader = precompiledShader.shaderCount;
-    for(int i= 0; i<numberOfPrecomipledShader; ++i)
+    std::vector<RawShaderData> precompiledShaderList;
+    Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShaderList);
+    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], list size:%d \n",precompiledShaderList.size());
+    for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
     {
-      auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader.vertexPrefix[i].data() + precompiledShader.vertexShader.data());
-      auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader.fragmentPrefix[i].data() + precompiledShader.fragmentShader.data());
-      mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
+      auto numberOfPrecomipledShader = precompiledShader->shaderCount;
+      for(int i= 0; i<numberOfPrecomipledShader; ++i)
+      {
+        auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader->vertexPrefix[i].data() + precompiledShader->vertexShader.data());
+        auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader->fragmentPrefix[i].data() + precompiledShader->fragmentShader.data());
+        mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
+      }
+      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader count :%d \n",numberOfPrecomipledShader);
     }
-    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader :%d \n",numberOfPrecomipledShader);
   }
   else
   {
