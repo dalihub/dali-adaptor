@@ -573,6 +573,8 @@ void Adaptor::Stop()
 
     mState = STOPPED;
 
+    RemoveSystemInformation();
+
     DALI_LOG_RELEASE_INFO("Adaptor::Stop\n");
   }
 }

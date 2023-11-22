@@ -167,6 +167,15 @@ void Adaptor::SetupSystemInformation()
   free(locale);
 }
 
+void Adaptor::RemoveSystemInformation()
+{
+  if(system_settings_remove_changed_cb(SYSTEM_SETTINGS_KEY_LOCALE_LANGUAGE, OnSystemLanguageChanged) != SYSTEM_SETTINGS_ERROR_NONE)
+  {
+    DALI_LOG_ERROR("DALI system_settings_remove_changed_cb failed.\n");
+    return;
+  }
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
