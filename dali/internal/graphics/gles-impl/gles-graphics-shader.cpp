@@ -24,211 +24,131 @@
 
 namespace Dali::Graphics::GLES
 {
-struct ShaderImpl::Impl
+struct Shader::Impl
 {
-  explicit Impl(Graphics::EglGraphicsController& _controller, const Graphics::ShaderCreateInfo& _createInfo)
-  : controller(_controller)
+  Impl()  = default;
+  ~Impl() = default;
+
+  std::vector<char> source{};
+  uint32_t          glShader{};
+};
+
+Shader::Shader(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+: ShaderResource(createInfo, controller)
+{
+  // push shader to the create queue
+  mImpl = std::make_unique<Impl>();
+
+  // Make a copy of source code
+  mImpl->source.resize(createInfo.sourceSize);
+  std::copy(reinterpret_cast<const char*>(mCreateInfo.sourceData),
+            reinterpret_cast<const char*>(mCreateInfo.sourceData) + mCreateInfo.sourceSize,
+            mImpl->source.begin());
+
+  // Substitute pointer
+  mCreateInfo.sourceData = mImpl->source.data();
+}
+
+Shader::~Shader() = default;
+
+bool Shader::Compile() const
+{
+  auto gl = GetController().GetGL();
+
+  if(!gl)
   {
-    createInfo.pipelineStage  = _createInfo.pipelineStage;
-    createInfo.shaderlanguage = _createInfo.shaderlanguage;
-    createInfo.sourceMode     = _createInfo.sourceMode;
-    createInfo.sourceSize     = _createInfo.sourceSize;
-
-    // Make a copy of source code
-    source.resize(_createInfo.sourceSize);
-    std::copy(reinterpret_cast<const char*>(_createInfo.sourceData),
-              reinterpret_cast<const char*>(_createInfo.sourceData) + _createInfo.sourceSize,
-              source.data());
-
-    // Substitute pointer
-    createInfo.sourceData = source.data();
+    return false;
   }
 
-  ~Impl(){};
-
-  bool Compile()
+  if(!mImpl->glShader)
   {
-    auto gl = controller.GetGL();
-
-    if(!gl)
+    GLenum pipelineStage{0u};
+    switch(GetCreateInfo().pipelineStage)
     {
-      return false;
+      case Graphics::PipelineStage::TOP_OF_PIPELINE:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::VERTEX_SHADER:
+      {
+        pipelineStage = GL_VERTEX_SHADER;
+        break;
+      }
+      case Graphics::PipelineStage::GEOMETRY_SHADER:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::FRAGMENT_SHADER:
+      {
+        pipelineStage = GL_FRAGMENT_SHADER;
+        break;
+      }
+      case Graphics::PipelineStage::COMPUTE_SHADER:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::TESSELATION_CONTROL:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::TESSELATION_EVALUATION:
+      {
+        break;
+      }
+      case Graphics::PipelineStage::BOTTOM_OF_PIPELINE:
+      {
+        break;
+      }
     }
 
-    if(!glShader)
+    if(pipelineStage)
     {
-      GLenum pipelineStage{0u};
-      switch(createInfo.pipelineStage)
-      {
-        case Graphics::PipelineStage::TOP_OF_PIPELINE:
-        {
-          break;
-        }
-        case Graphics::PipelineStage::VERTEX_SHADER:
-        {
-          pipelineStage = GL_VERTEX_SHADER;
-          break;
-        }
-        case Graphics::PipelineStage::GEOMETRY_SHADER:
-        {
-          break;
-        }
-        case Graphics::PipelineStage::FRAGMENT_SHADER:
-        {
-          pipelineStage = GL_FRAGMENT_SHADER;
-          break;
-        }
-        case Graphics::PipelineStage::COMPUTE_SHADER:
-        {
-          break;
-        }
-        case Graphics::PipelineStage::TESSELATION_CONTROL:
-        {
-          break;
-        }
-        case Graphics::PipelineStage::TESSELATION_EVALUATION:
-        {
-          break;
-        }
-        case Graphics::PipelineStage::BOTTOM_OF_PIPELINE:
-        {
-          break;
-        }
-      }
+      auto       shader = gl->CreateShader(pipelineStage);
+      const auto src    = reinterpret_cast<const char*>(GetCreateInfo().sourceData);
+      GLint      size   = GetCreateInfo().sourceSize;
+      gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
+      gl->CompileShader(shader);
 
-      if(pipelineStage)
+      GLint status{0};
+      gl->GetShaderiv(shader, GL_COMPILE_STATUS, &status);
+      if(status != GL_TRUE)
       {
-        auto       shader = gl->CreateShader(pipelineStage);
-        const auto src    = reinterpret_cast<const char*>(createInfo.sourceData);
-        GLint      size   = createInfo.sourceSize;
-        gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
-        gl->CompileShader(shader);
-
-        GLint status{0};
-        gl->GetShaderiv(shader, GL_COMPILE_STATUS, &status);
-        if(status != GL_TRUE)
-        {
-          char    output[4096];
-          GLsizei size{0u};
-          gl->GetShaderInfoLog(shader, 4096, &size, output);
-          DALI_LOG_ERROR("Code: %s\n", reinterpret_cast<const char*>(createInfo.sourceData));
-          DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
-          gl->DeleteShader(shader);
-          return false;
-        }
-        glShader = shader;
+        char    output[4096];
+        GLsizei size{0u};
+        gl->GetShaderInfoLog(shader, 4096, &size, output);
+        DALI_LOG_ERROR("Code: %s\n", reinterpret_cast<const char*>(GetCreateInfo().sourceData));
+        DALI_LOG_ERROR("glCompileShader() failed: \n%s\n", output);
+        gl->DeleteShader(shader);
+        return false;
       }
-      return true;
+      mImpl->glShader = shader;
     }
     return true;
   }
-
-  void Destroy()
-  {
-    auto gl = controller.GetGL();
-
-    if(gl && glShader)
-    {
-      gl->DeleteShader(glShader);
-      glShader = 0;
-    }
-  }
-
-  EglGraphicsController& controller;
-  ShaderCreateInfo       createInfo;
-  std::vector<char>      source{};
-
-  uint32_t glShader{};
-  uint32_t refCount{0u};
-  uint32_t flushCount{0u}; ///< Number of frames at refCount=0
-};
-
-ShaderImpl::ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
-{
-  mImpl = std::make_unique<Impl>(controller, createInfo);
+  return true;
 }
 
-ShaderImpl::~ShaderImpl()
-{
-  if(!mImpl->controller.IsShuttingDown())
-  {
-    mImpl->Destroy();
-  }
-}
-
-uint32_t ShaderImpl::Retain()
-{
-  mImpl->flushCount = 0;
-  return ++mImpl->refCount;
-}
-
-uint32_t ShaderImpl::Release()
-{
-  uint32_t remainingCount = --mImpl->refCount;
-  mImpl->flushCount       = 0;
-  return remainingCount;
-}
-
-[[nodiscard]] uint32_t ShaderImpl::GetRefCount() const
-{
-  return mImpl->refCount;
-}
-
-[[nodiscard]] uint32_t ShaderImpl::IncreaseFlushCount()
-{
-  return ++mImpl->flushCount;
-}
-
-[[nodiscard]] uint32_t ShaderImpl::GetFlushCount() const
-{
-  return mImpl->flushCount;
-}
-
-/**
- * @brief Compiles shader
- *
- * @return True on success
- */
-[[nodiscard]] bool ShaderImpl::Compile() const
-{
-  return mImpl->Compile();
-}
-
-[[nodiscard]] uint32_t ShaderImpl::GetGLShader() const
+uint32_t Shader::GetGLShader() const
 {
   return mImpl->glShader;
 }
 
-const ShaderCreateInfo& ShaderImpl::GetCreateInfo() const
+void Shader::DestroyResource()
 {
-  return mImpl->createInfo;
-}
-
-[[nodiscard]] EglGraphicsController& ShaderImpl::GetController() const
-{
-  return mImpl->controller;
-}
-
-Shader::~Shader()
-{
-  if(!mShader->Release())
+  if(mImpl->glShader)
   {
-    GetImplementation()->GetController().GetPipelineCache().MarkShaderCacheFlushRequired();
+    auto gl = GetController().GetGL();
+    if(!gl)
+    {
+      return;
+    }
+    gl->DeleteShader(mImpl->glShader);
   }
-}
-
-[[nodiscard]] const ShaderCreateInfo& Shader::GetCreateInfo() const
-{
-  return GetImplementation()->GetCreateInfo();
 }
 
 void Shader::DiscardResource()
 {
-  auto& controller = GetImplementation()->GetController();
-  if(!controller.IsShuttingDown())
-  {
-    controller.DiscardResource(this);
-  }
+  GetController().DiscardResource(this);
 }
 
 } // namespace Dali::Graphics::GLES
