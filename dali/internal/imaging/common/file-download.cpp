@@ -50,7 +50,7 @@ inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, s
     }
     else
     {
-      DALI_LOG_ERROR("$s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
+      DALI_LOG_ERROR("%s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
     }
   }
 }
