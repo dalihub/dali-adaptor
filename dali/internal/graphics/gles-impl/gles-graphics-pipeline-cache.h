@@ -103,6 +103,16 @@ public:
   void FlushCache();
 
   /**
+   * @brief Set true if we can flush cached pipeline / program / shader.
+   * If we make it false, we can keep shader / program instance during app running.
+   * But it might have sightly panalty for memory.
+   * Default is True.
+   *
+   * @param enabled True if we can flush the caches. False when we don't want to flush caches.
+   */
+  void EnableCacheFlush(bool enabled);
+
+  /**
    * @brief Notify that we need to flush pipeline cache next FlushCache API.
    */
   void MarkPipelineCacheFlushRequired();
