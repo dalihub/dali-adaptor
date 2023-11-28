@@ -43,6 +43,7 @@ class TriggerEventInterface;
 
 namespace Internal
 {
+
 namespace Adaptor
 {
 class AdaptorInternalServices;
@@ -274,6 +275,19 @@ private:
   void SurfaceResized();
 
   /**
+   * PreCompile shaders for launching time
+   *
+   * @param[in] vertexShader vertexShader need to precompile
+   * @param[in] fragmentShader fragmentShader need to precompile
+  */
+  void PreCompileShader(std::string vertexShader, std::string fragmentShader);
+
+  /**
+   * Cancel the precompile
+  */
+  void CancelPreCompile();
+
+  /**
    * Helper for the thread calling the entry function
    * @param[in] This A pointer to the current object
    */
@@ -377,6 +391,7 @@ private:
                                                      ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
 
   volatile unsigned int mUseElapsedTimeAfterWait; ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
+  volatile unsigned int mIsPreCompileCancelled;      ///< Whether we need to do precompile shader.
 
   Dali::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
   Dali::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
