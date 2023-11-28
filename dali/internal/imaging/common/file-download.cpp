@@ -353,6 +353,10 @@ bool DownloadFile(CURL*                  curlHandle,
   {
     return false;
   }
+  else if(DALI_UNLIKELY(dataSize == 0u))
+  {
+    DALI_LOG_WARNING("Warning : Download data size is 0! url : %s\n", url.c_str());
+  }
   return true;
 }
 
