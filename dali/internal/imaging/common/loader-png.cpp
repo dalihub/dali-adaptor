@@ -417,18 +417,6 @@ bool EncodeToPng(const unsigned char* const pixelBuffer, Vector<unsigned char>& 
   // Account for RGB versus BGR and presence of alpha in input pixels:
   switch(pixelFormat)
   {
-    case Pixel::L8:
-    {
-      pngPixelFormat = PNG_COLOR_TYPE_GRAY;
-      pixelBytes     = 1;
-      break;
-    }
-    case Pixel::LA88:
-    {
-      pngPixelFormat = PNG_COLOR_TYPE_GRAY_ALPHA;
-      pixelBytes     = 2;
-      break;
-    }
     case Pixel::RGB888:
     {
       pngPixelFormat = PNG_COLOR_TYPE_RGB;

@@ -1013,11 +1013,6 @@ bool EncodeToJpeg(const uint8_t* const pixelBuffer, Vector<uint8_t>& encodedPixe
 
   switch(pixelFormat)
   {
-    case Pixel::L8:
-    {
-      jpegPixelFormat = TJPF_GRAY;
-      break;
-    }
     case Pixel::RGB888:
     {
       jpegPixelFormat = TJPF_RGB;
