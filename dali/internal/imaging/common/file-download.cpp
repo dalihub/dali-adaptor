@@ -50,7 +50,7 @@ inline void LogCurlResult(CURLcode result, char* errorBuffer, std::string url, s
     }
     else
     {
-      DALI_LOG_ERROR("$s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
+      DALI_LOG_ERROR("%s \"%s\" with error code %d (%s)\n", prefix.c_str(), url.c_str(), result, errorBuffer);
     }
   }
 }
@@ -352,6 +352,10 @@ bool DownloadFile(CURL*                  curlHandle,
   if(result != CURLE_OK)
   {
     return false;
+  }
+  else if(DALI_UNLIKELY(dataSize == 0u))
+  {
+    DALI_LOG_WARNING("Warning : Download data size is 0! url : %s\n", url.c_str());
   }
   return true;
 }
