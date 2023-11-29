@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/platform-abstraction.h>
-#include <dali/integration-api/shader-precompiler.h>
 #include <errno.h>
 #include <unistd.h>
 #include "dali/public-api/common/dali-common.h"
@@ -45,7 +44,6 @@ namespace Adaptor
 {
 namespace
 {
-
 const unsigned int CREATED_THREAD_COUNT = 1u;
 
 const int CONTINUOUS = -1;
@@ -539,21 +537,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   NotifyThreadInitialised();
 
-  // Initialize and create graphics resource for the shared context.
-  WindowContainer windows;
-  mAdaptorInterfaces.GetWindowContainerInterface(windows);
-
-  for(auto&& window : windows)
-  {
-    Dali::Integration::Scene      scene         = window->GetScene();
-    Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
-
-    if(scene && windowSurface)
-    {
-      windowSurface->InitializeGraphics();
-    }
-  }
-
   // Update time
   uint64_t lastFrameTime;
   TimeService::GetNanoseconds(lastFrameTime);
@@ -573,24 +556,6 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   unsigned int       frameCount          = 0u;
 
   TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_INIT");
-
-  if(Integration::ShaderPrecompiler::Get().IsEnable())
-  {
-    RawShaderData precompiledShader;
-    Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShader);
-    auto numberOfPrecomipledShader = precompiledShader.shaderCount;
-    for(int i= 0; i<numberOfPrecomipledShader; ++i)
-    {
-      auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader.vertexPrefix[i].data() + precompiledShader.vertexShader.data());
-      auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader.fragmentPrefix[i].data() + precompiledShader.fragmentShader.data());
-      mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
-    }
-    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader :%d \n",numberOfPrecomipledShader);
-  }
-  else
-  {
-    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[DISABLE] \n");
-  }
 
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
@@ -757,7 +722,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     if(!uploadOnly || surfaceResized)
     {
       // Go through each window
-      windows.clear();
+      WindowContainer windows;
       mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
       for(auto&& window : windows)
@@ -894,7 +859,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Inform core of context destruction
   mCore.ContextDestroyed();
 
-  windows.clear();
+  WindowContainer windows;
   mAdaptorInterfaces.GetWindowContainerInterface(windows);
 
   // Destroy surfaces
