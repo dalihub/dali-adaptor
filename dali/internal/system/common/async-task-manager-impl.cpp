@@ -727,11 +727,8 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
           DALI_ASSERT_DEBUG((*iterator).first == task);
           // We cannot erase container. Just mark as canceled.
           // Note : mAvaliableLowPriorityTaskCounts will be increased after process finished.
-          if((*iterator).second == RunningTaskState::RUNNING)
-          {
-            (*iterator).second = RunningTaskState::CANCELED;
-            ++removedCount;
-          }
+          (*iterator).second = RunningTaskState::CANCELED;
+          ++removedCount;
         }
       }
 
@@ -750,12 +747,9 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
       {
         for(auto& iterator : mapIter->second)
         {
-          DALI_ASSERT_DEBUG((*iterator).first == task);
-          if((*iterator).second == CompletedTaskState::REQUIRE_CALLBACK)
-          {
-            ++removedCount;
-          }
+          DALI_ASSERT_DEBUG(iterator->first == task);
           mCompletedTasks.erase(iterator);
+          ++removedCount;
         }
         CacheImpl::EraseAllTaskCache(mCacheImpl->mCompletedTasksCache, task);
       }
@@ -767,7 +761,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
     }
 
     // Remove TasksCompleted callback trace
-    if(removedCount > 0u && mTasksCompletedImpl->IsTasksCompletedCallbackExist())
+    if(mTasksCompletedImpl->IsTasksCompletedCallbackExist() && removedCount > 0u)
     {
       mTasksCompletedImpl->RemoveTaskTrace(task, removedCount);
     }
@@ -813,40 +807,28 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
         // Collect all tasks from running tasks
         for(auto& taskPair : mRunningTasks)
         {
-          // Trace only if it is running now.
-          if(taskPair.second == RunningTaskState::RUNNING)
-          {
-            auto& task      = taskPair.first;
-            auto  checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
-                             (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
+          auto& task      = taskPair.first;
+          auto  checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
+                           (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
 
-            if((checkMask & mask) == checkMask)
-            {
-              taskAdded = true;
-              mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
-            }
+          if((checkMask & mask) == checkMask)
+          {
+            taskAdded = true;
+            mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
           }
         }
 
         // Collect all tasks from complete tasks
         for(auto& taskPair : mCompletedTasks)
         {
-          // Trace only if it is need callback.
-          // Note : There are two CompletedTaskState::SKIP_CALLBACK cases, worker thread invocation and canceled cases.
-          //        If worker thread invocation, than it already remove trace at completed timing.
-          //        If canceled cases, we don't append trace at running tasks already.
-          //        So, we don't need to trace for SKIP_CALLBACK cases.
-          if(taskPair.second == CompletedTaskState::REQUIRE_CALLBACK)
-          {
-            auto& task      = taskPair.first;
-            auto  checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
-                             (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
+          auto& task      = taskPair.first;
+          auto  checkMask = (task->GetCallbackInvocationThread() == Dali::AsyncTask::ThreadType::MAIN_THREAD ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_MAIN : Dali::AsyncTaskManager::CompletedCallbackTraceMask::THREAD_MASK_WORKER) |
+                           (task->GetPriorityType() == Dali::AsyncTask::PriorityType::HIGH ? Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_HIGH : Dali::AsyncTaskManager::CompletedCallbackTraceMask::PRIORITY_MASK_LOW);
 
-            if((checkMask & mask) == checkMask)
-            {
-              taskAdded = true;
-              mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
-            }
+          if((checkMask & mask) == checkMask)
+          {
+            taskAdded = true;
+            mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
           }
         }
       }
