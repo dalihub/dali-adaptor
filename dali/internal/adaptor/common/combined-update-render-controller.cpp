@@ -116,7 +116,6 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mUpdateRenderThreadCanSleep(FALSE),
   mPendingRequestUpdate(FALSE),
   mUseElapsedTimeAfterWait(FALSE),
-  mIsQuitedPreCompile(FALSE),
   mNewSurface(NULL),
   mDeletedSurface(nullptr),
   mPostRendering(FALSE),
@@ -314,11 +313,6 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering = FALSE; // Clear the post-rendering flag as Update/Render thread will replace the surface now
       mNewSurface    = newSurface;
-      if(mIsQuitedPreCompile == FALSE)
-      {
-        mIsQuitedPreCompile = TRUE;
-        Integration::ShaderPrecompiler::Get().StopPrecompile();
-      }
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -342,11 +336,6 @@ void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface*
       ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
       mPostRendering  = FALSE; // Clear the post-rendering flag as Update/Render thread will delete the surface now
       mDeletedSurface = surface;
-      if(mIsQuitedPreCompile == FALSE)
-      {
-        mIsQuitedPreCompile = TRUE;
-        Integration::ShaderPrecompiler::Get().StopPrecompile();
-      }
       mUpdateRenderThreadWaitCondition.Notify(lock);
     }
 
@@ -383,11 +372,6 @@ void CombinedUpdateRenderController::ResizeSurface()
     ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
     // Surface is resized and the surface resized count is increased.
     mSurfaceResized++;
-    if(mIsQuitedPreCompile == FALSE)
-    {
-      mIsQuitedPreCompile = TRUE;
-      Integration::ShaderPrecompiler::Get().StopPrecompile();
-    }
     mUpdateRenderThreadWaitCondition.Notify(lock);
   }
 }
@@ -466,11 +450,6 @@ void CombinedUpdateRenderController::RunUpdateRenderThread(int numberOfCycles, A
   mUpdateRenderThreadCanSleep = FALSE;
   mUploadWithoutRendering     = (updateMode == UpdateMode::SKIP_RENDER);
   LOG_COUNTER_EVENT("mUpdateRenderRunCount: %d, mUseElapsedTimeAfterWait: %d", mUpdateRenderRunCount, mUseElapsedTimeAfterWait);
-  if(mIsQuitedPreCompile == FALSE)
-  {
-    mIsQuitedPreCompile = TRUE;
-    Integration::ShaderPrecompiler::Get().StopPrecompile();
-  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -484,11 +463,6 @@ void CombinedUpdateRenderController::StopUpdateRenderThread()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mDestroyUpdateRenderThread = TRUE;
-  if(mIsQuitedPreCompile == FALSE)
-  {
-    mIsQuitedPreCompile = TRUE;
-    Integration::ShaderPrecompiler::Get().StopPrecompile();
-  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
@@ -600,37 +574,26 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   TRACE_UPDATE_RENDER_END("DALI_RENDER_THREAD_INIT");
 
-  if(Integration::ShaderPrecompiler::Get().IsEnable() && !mDestroyUpdateRenderThread)
+  if(Integration::ShaderPrecompiler::Get().IsEnable())
   {
-    Integration::ShaderPrecompiler::Get().WaitPrecompileList();
-    if(Integration::ShaderPrecompiler::Get().IsEnable())
+    std::vector<RawShaderData> precompiledShaderList;
+    Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShaderList);
+    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], list size:%d \n",precompiledShaderList.size());
+    for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
     {
-      std::vector<RawShaderData> precompiledShaderList;
-      Integration::ShaderPrecompiler::Get().GetPrecompileShaderList(precompiledShaderList);
-      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], list size:%d \n", precompiledShaderList.size());
-      for(auto precompiledShader = precompiledShaderList.begin(); precompiledShader != precompiledShaderList.end(); ++precompiledShader)
+      auto numberOfPrecomipledShader = precompiledShader->shaderCount;
+      for(int i= 0; i<numberOfPrecomipledShader; ++i)
       {
-        if(mIsQuitedPreCompile == TRUE)
-        {
-          Integration::ShaderPrecompiler::Get().StopPrecompile();
-          DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], but stop precompile");
-          break;
-        }
-
-        auto numberOfPrecomipledShader = precompiledShader->shaderCount;
-        for(int i = 0; i < numberOfPrecomipledShader; ++i)
-        {
-          auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader->vertexPrefix[i].data() + precompiledShader->vertexShader.data());
-          auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader->fragmentPrefix[i].data() + precompiledShader->fragmentShader.data());
-          mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
-        }
-        DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader count :%d \n", numberOfPrecomipledShader);
+        auto vertexShader   = std::string(graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + precompiledShader->vertexPrefix[i].data() + precompiledShader->vertexShader.data());
+        auto fragmentShader = std::string(graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + precompiledShader->fragmentPrefix[i].data() + precompiledShader->fragmentShader.data());
+        mCore.PreCompileShader(vertexShader.data(), fragmentShader.data());
       }
+      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[ENABLE], shader count :%d \n",numberOfPrecomipledShader);
     }
-    else
-    {
-      DALI_LOG_RELEASE_INFO("ShaderPrecompiler[DISABLE] \n");
-    }
+  }
+  else
+  {
+    DALI_LOG_RELEASE_INFO("ShaderPrecompiler[DISABLE] \n");
   }
 
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
@@ -1083,11 +1046,6 @@ void CombinedUpdateRenderController::PostRenderComplete()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
   mPostRendering = FALSE;
-  if(mIsQuitedPreCompile == FALSE)
-  {
-    mIsQuitedPreCompile = TRUE;
-    Integration::ShaderPrecompiler::Get().StopPrecompile();
-  }
   mUpdateRenderThreadWaitCondition.Notify(lock);
 }
 
