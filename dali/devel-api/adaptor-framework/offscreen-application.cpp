@@ -85,6 +85,26 @@ OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::Term
   return Internal::GetImplementation(*this).TerminateSignal();
 }
 
+OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::PauseSignal()
+{
+  return Internal::GetImplementation(*this).PauseSignal();
+}
+
+OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::ResumeSignal()
+{
+  return Internal::GetImplementation(*this).ResumeSignal();
+}
+
+OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::ResetSignal()
+{
+  return Internal::GetImplementation(*this).ResetSignal();
+}
+
+OffscreenApplication::OffscreenApplicationSignalType& OffscreenApplication::LanguageChangedSignal()
+{
+  return Internal::GetImplementation(*this).LanguageChangedSignal();
+}
+
 OffscreenApplication::OffscreenApplication(Internal::OffscreenApplication* offscreenApplication)
 : BaseHandle(offscreenApplication)
 {
