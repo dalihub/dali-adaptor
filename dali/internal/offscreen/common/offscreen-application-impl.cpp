@@ -25,6 +25,7 @@
 #include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/framework-factory.h>
+#include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/offscreen/common/offscreen-window-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -34,6 +35,18 @@ namespace Dali
 {
 namespace Internal
 {
+namespace
+{
+void EmitLifecycleControllerSignal(void (Internal::Adaptor::LifecycleController::*member)(Dali::Application&))
+{
+  Dali::LifecycleController lifecycleController = Dali::LifecycleController::Get();
+  if(DALI_LIKELY(lifecycleController))
+  {
+    Dali::Application dummyApplication;
+    (GetImplementation(lifecycleController).*member)(dummyApplication);
+  }
+}
+} // namespace
 using RenderMode = Dali::OffscreenApplication::RenderMode;
 
 IntrusivePtr<OffscreenApplication> OffscreenApplication::New(uint16_t width, uint16_t height, Dali::Any surface, bool isTranslucent, RenderMode renderMode)
@@ -100,19 +113,64 @@ void OffscreenApplication::OnInit()
   // Start the adaptor
   mAdaptor->Start();
 
+  Dali::OffscreenApplication application(this);
   mInitSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnInit);
 
   mAdaptor->NotifySceneCreated();
 }
 
 void OffscreenApplication::OnTerminate()
 {
+  Dali::OffscreenApplication application(this);
   mTerminateSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnTerminate);
 
   // Stop the adaptor
   mAdaptor->Stop();
 
   mDefaultWindow.Reset();
+}
+
+void OffscreenApplication::OnPause()
+{
+  Dali::OffscreenApplication application(this);
+  mPauseSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnPause);
+}
+
+void OffscreenApplication::OnResume()
+{
+  Dali::OffscreenApplication application(this);
+  mResumeSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnResume);
+
+  // DALi just delivers the framework Resume event to the application.
+  // Resuming DALi core only occurs on the Window Show framework event
+
+  // Trigger processing of events queued up while paused
+  Internal::Adaptor::CoreEventInterface& coreEventInterface = Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor);
+  coreEventInterface.ProcessCoreEvents();
+}
+
+void OffscreenApplication::OnReset()
+{
+  /*
+   * usually, reset callback was called when a caller request to launch this application via aul.
+   * because Application class already handled initialization in OnInit(), OnReset do nothing.
+   */
+  Dali::OffscreenApplication application(this);
+  mResetSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnReset);
+}
+
+void OffscreenApplication::OnLanguageChanged()
+{
+  mAdaptor->NotifyLanguageChanged();
+
+  Dali::OffscreenApplication application(this);
+  mLanguageChangedSignal.Emit();
+  EmitLifecycleControllerSignal(&Internal::Adaptor::LifecycleController::OnLanguageChanged);
 }
 
 void OffscreenApplication::QuitFromMainLoop()

@@ -131,7 +131,7 @@ public:
   Any GetFrameworkContext() const;
 
 public: // Signals
-        /**
+  /**
    * @brief Signal to notify the client when the application is ready to be initialized
    *
    * @note OffscreenApplication::Start() should be called to be initialized
@@ -146,6 +146,34 @@ public: // Signals
    * @return The signal
    */
   OffscreenApplicationSignalType& TerminateSignal();
+
+  /**
+   * @brief Signal to notify the user when the application is about to be paused
+   *
+   * @return The signal
+   */
+  OffscreenApplicationSignalType& PauseSignal();
+
+  /**
+   * @brief Signal to notify the user when the application is about to be resumed
+   *
+   * @return The signal
+   */
+  OffscreenApplicationSignalType& ResumeSignal();
+
+  /**
+   * @brief Signal to notify the user when the application is about to be reinitialized
+   *
+   * @return The signal
+   */
+  OffscreenApplicationSignalType& ResetSignal();
+
+  /**
+   * @brief Signal to notify the user when the application is about to be language is changed on the device.
+   *
+   * @return The signal
+   */
+  OffscreenApplicationSignalType& LanguageChangedSignal();
 
 public: // Not intended for application developers
   /**
