@@ -18,7 +18,7 @@
 #include <dali/internal/adaptor-framework/common/file-stream-impl.h>
 
 // EXTERNAL INCLUDES
-#include <string>
+#include <cstring>
 #include <fstream>
 
 #include <dali/integration-api/debug.h>
