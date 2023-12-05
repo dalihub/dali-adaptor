@@ -106,6 +106,38 @@ public: // Signals
     return mTerminateSignal;
   }
 
+  /**
+   * @copydoc Dali::OffscreenApplication::PauseSignal()
+   */
+  OffscreenApplicationSignalType& PauseSignal()
+  {
+    return mPauseSignal;
+  }
+
+  /**
+   * @copydoc Dali::OffscreenApplication::ResumeSignal()
+   */
+  OffscreenApplicationSignalType& ResumeSignal()
+  {
+    return mResumeSignal;
+  }
+
+  /**
+   * @copydoc Dali::OffscreenApplication::ResetSignal()
+   */
+  OffscreenApplicationSignalType& ResetSignal()
+  {
+    return mResetSignal;
+  }
+
+  /**
+   * @copydoc Dali::OffscreenApplication::LanguageChangedSignal()
+   */
+  OffscreenApplicationSignalType& LanguageChangedSignal()
+  {
+    return mLanguageChangedSignal;
+  }
+
 public: // From Framework::Observer
   /**
    * Called when the framework is initialised.
@@ -116,6 +148,26 @@ public: // From Framework::Observer
    * Called when the framework is terminated.
    */
   void OnTerminate() override;
+
+  /**
+   * Called when the framework is paused.
+   */
+  void OnPause() override;
+
+  /**
+   * Called when the framework resumes from a paused state.
+   */
+  void OnResume() override;
+
+  /**
+   * Called when the framework informs the application that it should reset itself.
+   */
+  void OnReset() override;
+
+  /**
+   * Called when the framework informs the application that the language of the device has changed.
+   */
+  void OnLanguageChanged() override;
 
 private:
   /**
@@ -148,6 +200,10 @@ private:
 
   OffscreenApplicationSignalType mInitSignal;
   OffscreenApplicationSignalType mTerminateSignal;
+  OffscreenApplicationSignalType mPauseSignal;
+  OffscreenApplicationSignalType mResumeSignal;
+  OffscreenApplicationSignalType mResetSignal;
+  OffscreenApplicationSignalType mLanguageChangedSignal;
 };
 
 inline OffscreenApplication& GetImplementation(Dali::OffscreenApplication& offscreenApplication)
