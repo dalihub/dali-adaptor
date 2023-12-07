@@ -88,7 +88,7 @@ void Adaptor::Stop()
 bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue)
 {
   DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
-  return mImpl->AddIdle(callback, hasReturnValue, false);
+  return mImpl->AddIdle(callback, hasReturnValue);
 }
 
 bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)

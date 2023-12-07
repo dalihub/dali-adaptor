@@ -663,12 +663,12 @@ Dali::TtsPlayer Adaptor::GetTtsPlayer(Dali::TtsPlayer::Mode mode)
   return mTtsPlayers[mode];
 }
 
-bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue, bool forceAdd)
+bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue)
 {
   bool idleAdded(false);
 
-  // Only add an idle if the Adaptor is actually running
-  if(RUNNING == mState || READY == mState || forceAdd)
+  // We want to run the processes even when paused
+  if(STOPPED != mState)
   {
     idleAdded = mCallbackManager->AddIdleCallback(callback, hasReturnValue);
   }
@@ -1004,7 +1004,7 @@ void Adaptor::RequestProcessEventsOnIdle()
     if(!mNotificationOnIdleInstalled)
     {
       // If we haven't installed the idle notification, install it idle enterer.
-      mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle), true);
+      mNotificationOnIdleInstalled = AddIdleEnterer(MakeCallback(this, &Adaptor::ProcessCoreEventsFromIdle));
     }
     else
     {
@@ -1337,12 +1337,12 @@ void Adaptor::SetRootLayoutDirection(std::string locale)
   }
 }
 
-bool Adaptor::AddIdleEnterer(CallbackBase* callback, bool forceAdd)
+bool Adaptor::AddIdleEnterer(CallbackBase* callback)
 {
   bool idleAdded(false);
 
-  // Only add an idle if the Adaptor is actually running
-  if(RUNNING == mState || READY == mState || forceAdd)
+  // We want to run the processes even when paused
+  if(STOPPED != mState)
   {
     idleAdded = mCallbackManager->AddIdleEntererCallback(callback);
   }
