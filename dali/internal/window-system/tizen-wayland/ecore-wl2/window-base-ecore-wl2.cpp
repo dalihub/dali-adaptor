@@ -1105,10 +1105,12 @@ Eina_Bool WindowBaseEcoreWl2::OnIconifyStateChanged(void* data, int type, void* 
   {
     if(iconifyChangedEvent->iconified == EINA_TRUE)
     {
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIconifyStateChanged, the window (%p) is iconified\n", mEcoreWindow);
       mIconifyChangedSignal.Emit(true);
     }
     else
     {
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIconifyStateChanged, the window (%p) is not iconified\n", mEcoreWindow);
       mIconifyChangedSignal.Emit(false);
     }
     handled = ECORE_CALLBACK_DONE;
@@ -1123,7 +1125,7 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusIn(void* data, int type, void* event)
 
   if(focusInEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n");
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusIn, Window (%p) EcoreEventWindowFocusIn\n", mEcoreWindow);
 
     mFocusChangedSignal.Emit(true);
   }
@@ -1137,7 +1139,7 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusOut(void* data, int type, void* event)
 
   if(focusOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n");
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusOut, Window (%p) EcoreEventWindowFocusOut\n", mEcoreWindow);
 
     mFocusChangedSignal.Emit(false);
   }
@@ -1151,7 +1153,7 @@ Eina_Bool WindowBaseEcoreWl2::OnOutputTransform(void* data, int type, void* even
 
   if(transformEvent->output == ecore_wl2_window_output_find(mEcoreWindow))
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform\n", mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window (%p) EcoreEventOutputTransform\n", mEcoreWindow);
 
     mScreenRotationAngle = GetScreenRotationAngle();
 
@@ -1167,7 +1169,7 @@ Eina_Bool WindowBaseEcoreWl2::OnIgnoreOutputTransform(void* data, int type, void
 
   if(ignoreTransformEvent->win == mEcoreWindow)
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform\n", mEcoreWindow);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window (%p) EcoreEventIgnoreOutputTransform\n", mEcoreWindow);
 
     mScreenRotationAngle = GetScreenRotationAngle();
 
@@ -1183,7 +1185,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
 
   if(ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnRotation, angle: %d, width: %d, height: %d\n", ev->angle, ev->w, ev->h);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnRotation, Window (%p), angle: %d, width: %d, height: %d\n", mEcoreWindow, ev->angle, ev->w, ev->h);
 
     RotationEvent rotationEvent;
     rotationEvent.angle     = ev->angle;
@@ -1251,7 +1253,7 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
       mWindowPositionSize.y      = ev->y;
       mWindowPositionSize.width  = newWidth;
       mWindowPositionSize.height = newHeight;
-      DALI_LOG_RELEASE_INFO("Update position & resize signal by server, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnConfiguration, Window (%p), Update position & resize signal by Ecore, current angle [%d] x[%d] y[%d] w[%d] h[%d]\n", mEcoreWindow, mWindowRotationAngle, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
       ecore_wl2_window_geometry_set(mEcoreWindow, mWindowPositionSize.x, mWindowPositionSize.y, mWindowPositionSize.width, mWindowPositionSize.height);
 
@@ -1463,7 +1465,7 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
 {
   Ecore_Event_Detent_Rotate* detentEvent = static_cast<Ecore_Event_Detent_Rotate*>(event);
 
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl2::OnDetentRotation\n");
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnDetentRotation, Window (%p)\n", mEcoreWindow);
 
   int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
 
@@ -1636,6 +1638,7 @@ void WindowBaseEcoreWl2::OnFontSizeChanged()
 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnTransitionEffectEvent, Window (%p)\n", mEcoreWindow);
   mTransitionEffectEventSignal.Emit(state, type);
 }
 
@@ -1654,7 +1657,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
   Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
   if(message)
   {
-    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, key:%s, value:%s \n", message->key, message->val);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), key:%s, value:%s \n", mEcoreWindow, message->key, message->val);
     std::string           key(message->key);
     std::string           value(message->val);
     Dali::Property::Array options;
@@ -1665,7 +1668,7 @@ void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
       void*      data;
       EINA_LIST_FOREACH(message->options, l, data)
       {
-        DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, option: %s\n", (char*)data);
+        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), option: %s\n", mEcoreWindow, (char*)data);
         std::string option(static_cast<char*>(data));
         options.Add(option);
       }
@@ -1794,7 +1797,7 @@ void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
     Dali::PositionSize orgPositionSize(movedDoneEvent->x, movedDoneEvent->y, movedDoneEvent->w, movedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
     Dali::Int32Pair    newPosition(newPositionSize.x, newPositionSize.y);
-    DALI_LOG_RELEASE_INFO("window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnMoveCompleted, window(%p) has been moved by server[%d, %d]\n", mEcoreWindow, newPositionSize.x, newPositionSize.y);
     mMoveCompletedSignal.Emit(newPosition);
   }
 }
@@ -1807,7 +1810,7 @@ void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
     Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
     Dali::Uint16Pair   newSize(newPositionSize.width, newPositionSize.height);
-    DALI_LOG_RELEASE_INFO("window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
+    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnResizeCompleted, window(%p) has been resized by server[%d, %d]\n", mEcoreWindow, newPositionSize.width, newPositionSize.height);
     mResizeCompletedSignal.Emit(newSize);
   }
 }
@@ -2626,7 +2629,7 @@ void WindowBaseEcoreWl2::SetType(Dali::WindowType type)
 
 Dali::WindowType WindowBaseEcoreWl2::GetType() const
 {
-  DALI_LOG_RELEASE_INFO("GetType, DALI WindType: %d, mIsIMEWindowInitialized: %d\n", mType, mIsIMEWindowInitialized);
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::GetType(), Window (%p), DALI WindType: %d, mIsIMEWindowInitialized: %d\n", mEcoreWindow, mType, mIsIMEWindowInitialized);
   return mType;
 }
 
@@ -2640,6 +2643,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
 
   int notificationLevel;
 
+  DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetNotificationLevel(), Window (%p), level [%d]\n", mEcoreWindow, level);
   switch(level)
   {
     case Dali::WindowNotificationLevel::NONE:
@@ -2669,7 +2673,7 @@ Dali::WindowOperationResult WindowBaseEcoreWl2::SetNotificationLevel(Dali::Windo
     }
     default:
     {
-      DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Verbose, "WindowBaseEcoreWl2::SetNotificationLevel: invalid level [%d]\n", level);
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::SetNotificationLevel(), invalid level [%d]\n", level);
       notificationLevel = TIZEN_POLICY_LEVEL_DEFAULT;
       break;
     }
