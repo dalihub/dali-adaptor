@@ -1003,6 +1003,22 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
         taskAvaliable = (mAvaliableLowPriorityTaskCounts > 0u); // priority is low, but we can use it.
       }
 
+      // Check whether we try to running same task at multiple threads.
+      if(taskAvaliable)
+      {
+        Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
+        auto              mapIter = mCacheImpl->mRunningTasksCache.find((*iter).Get());
+        if(mapIter != mCacheImpl->mRunningTasksCache.end())
+        {
+          if(!mapIter->second.empty())
+          {
+            // Some other thread running this tasks now. Ignore it.
+            DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Some other thread running this task [%p]\n", (*iter).Get());
+            taskAvaliable = false;
+          }
+        }
+      }
+
       if(taskAvaliable)
       {
         nextTask = *iter;

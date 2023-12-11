@@ -249,7 +249,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::AddIdle()
    */
-  virtual bool AddIdle(CallbackBase* callback, bool hasReturnValue, bool forceAdd);
+  virtual bool AddIdle(CallbackBase* callback, bool hasReturnValue);
 
   /**
    * Adds a new Window instance to the Adaptor
@@ -652,7 +652,7 @@ private:
    * @endcode
    * This callback will be called repeatedly as long as it returns true. A return of 0 deletes this callback.
    */
-  bool AddIdleEnterer(CallbackBase* callback, bool forceAdd);
+  bool AddIdleEnterer(CallbackBase* callback);
 
   /**
    * Removes a previously added the idle enterer callback.

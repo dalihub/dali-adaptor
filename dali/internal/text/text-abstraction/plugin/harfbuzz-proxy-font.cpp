@@ -380,7 +380,7 @@ void HarfBuzzProxyFont::Impl::CreateHarfBuzzFont(const PointSize26Dot6& requeste
     // Before create hb_font_t, we must set FT_Char_Size
     FT_Set_Char_Size(mFreeTypeFace,
                      0u,
-                     requestedPointSize,
+                     FT_F26Dot6(requestedPointSize),
                      horizontalDpi,
                      verticalDpi);
 

@@ -89,8 +89,7 @@ void OffscreenApplication::MainLoop()
 void OffscreenApplication::Quit()
 {
   // Actually quit the application.
-  // Force a call to Quit even if adaptor is not running.
-  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &OffscreenApplication::QuitFromMainLoop), false, true);
+  Internal::Adaptor::Adaptor::GetImplementation(*mAdaptor).AddIdle(MakeCallback(this, &OffscreenApplication::QuitFromMainLoop), false);
 }
 
 Dali::OffscreenWindow OffscreenApplication::GetWindow()

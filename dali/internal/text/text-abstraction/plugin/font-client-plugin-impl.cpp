@@ -127,7 +127,7 @@ bool IsFitIntoAtlas(FT_Face& ftFace, int& error, const unsigned int& horizontalD
 
   error = FT_Set_Char_Size(ftFace,
                            0,
-                           requestedPointSize,
+                           FT_F26Dot6(requestedPointSize),
                            horizontalDpi,
                            verticalDpi);
 
@@ -321,7 +321,7 @@ void FontClient::Plugin::CacheFontFaceFromFile(const std::string& fontPath) cons
   }
 
   FT_Face ftFace;
-  int error = FT_New_Face(mFreeTypeLibrary, fontPath.c_str(), 0, &ftFace);
+  int     error = FT_New_Face(mFreeTypeLibrary, fontPath.c_str(), 0, &ftFace);
   if(FT_Err_Ok != error)
   {
     FONT_LOG_MESSAGE(Dali::Integration::Log::ERROR, "Failed to load font face : %s\n", fontPath.c_str());
@@ -1285,7 +1285,7 @@ FontId FontClient::Plugin::CreateFont(const FontPath& path,
       {
         error = FT_Set_Char_Size(ftFace,
                                  0,
-                                 requestedPointSize,
+                                 FT_F26Dot6(requestedPointSize),
                                  mDpiHorizontal,
                                  mDpiVertical);
       }
