@@ -425,6 +425,12 @@ public:
   void SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
+   * @brief Increase surface resize completed counter.
+   * This API will be ignored if thread controller is not exist.
+   */
+  void IncreaseSurfaceResizeCounter();
+
+  /**
    * Sets layout direction of root by system language
    * @param[in] locale System locale
    */

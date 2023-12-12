@@ -249,6 +249,9 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   CreateRenderTarget();
 
   OnAdaptorSet(adaptor);
+
+  // Scene is newly created. Let we increase resize counter
+  mAdaptor->IncreaseSurfaceResizeCounter();
 }
 
 void SceneHolder::CreateRenderTarget()

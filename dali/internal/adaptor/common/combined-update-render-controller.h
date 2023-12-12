@@ -269,8 +269,9 @@ private:
    * Called by the Update/Render thread after a surface has been resized.
    *
    * This will lock the mutex in mEventThreadWaitCondition
+   * @param[in] resizedCount The number of resized count for given surface.
    */
-  void SurfaceResized();
+  void SurfaceResized(uint32_t resizedCount);
 
   /**
    * Helper for the thread calling the entry function

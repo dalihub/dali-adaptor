@@ -699,7 +699,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         {
           Integration::RenderStatus windowRenderStatus;
 
-          const bool sceneSurfaceResized = scene.IsSurfaceRectChanged();
+          const uint32_t sceneSurfaceResized = scene.GetSurfaceRectChangedCount();
 
           // clear previous frame damaged render items rects, buffer history is tracked on surface level
           mDamagedRects.clear();
@@ -713,7 +713,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           Rect<int> clippingRect; // Empty for fbo rendering
 
           // Switch to the context of the surface, merge damaged areas for previous frames
-          windowSurface->PreRender(sceneSurfaceResized, mDamagedRects, clippingRect); // Switch GL context
+          windowSurface->PreRender(sceneSurfaceResized > 0u, mDamagedRects, clippingRect); // Switch GL context
 
           // Render the surface
           mCore.RenderScene(windowRenderStatus, scene, false, clippingRect);
@@ -721,9 +721,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           // Buffer swapping now happens when the surface render target is presented.
 
           // If surface is resized, the surface resized count is decreased.
-          if(DALI_UNLIKELY(sceneSurfaceResized))
+          if(DALI_UNLIKELY(sceneSurfaceResized > 0u))
           {
-            SurfaceResized();
+            SurfaceResized(sceneSurfaceResized);
           }
         }
       }
@@ -916,12 +916,17 @@ void CombinedUpdateRenderController::SurfaceDeleted()
   mSurfaceSemaphore.Release(1);
 }
 
-void CombinedUpdateRenderController::SurfaceResized()
+void CombinedUpdateRenderController::SurfaceResized(uint32_t resizedCount)
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
-  if(mSurfaceResized)
+
+  if(mSurfaceResized >= resizedCount)
   {
-    mSurfaceResized--;
+    mSurfaceResized -= resizedCount;
+  }
+  else
+  {
+    mSurfaceResized = 0u;
   }
 }
 
