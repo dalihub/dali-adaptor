@@ -180,6 +180,20 @@ public:
   void FeedHoverEvent(Dali::TouchPoint& point);
 
   /**
+   * @brief Sets whether the processes using geometry event propagation touch and hover events.
+   *
+   * @param[in] enabled True if the processes using geometry event propagation touch and hover events.
+   */
+  void SetGeometryHittestEnabled(bool enabled);
+
+  /**
+   * @brief Queries whether the scene using geometry event propagation touch and hover events.
+   *
+   * @return True if the scene using geometry event propagation touch and hover events.
+   */
+  bool IsGeometryHittestEnabled();
+
+  /**
    * @brief Retrieves the list of render-tasks.
    * @return A valid handle to a RenderTaskList
    */

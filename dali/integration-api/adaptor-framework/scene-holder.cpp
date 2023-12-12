@@ -108,6 +108,16 @@ void SceneHolder::FeedHoverEvent(Dali::TouchPoint& point)
   GetImplementation(*this).FeedHoverEvent(convertedPoint);
 }
 
+void SceneHolder::SetGeometryHittestEnabled(bool enabled)
+{
+  GetImplementation(*this).SetGeometryHittestEnabled(enabled);
+}
+
+bool SceneHolder::IsGeometryHittestEnabled()
+{
+  return GetImplementation(*this).IsGeometryHittestEnabled();
+}
+
 RenderTaskList SceneHolder::GetRenderTaskList()
 {
   return GetImplementation(*this).GetRenderTaskList();

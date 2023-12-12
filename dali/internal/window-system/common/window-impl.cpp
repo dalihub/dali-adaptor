@@ -65,8 +65,8 @@ Window* Window::New(const std::string& name, const std::string& className, const
 
 Window* Window::New(Any surface, const std::string& name, const std::string& className, const WindowData& windowData)
 {
-  Window* window         = new Window();
-  window->mIsTransparent = windowData.GetTransparency();
+  Window* window                  = new Window();
+  window->mIsTransparent          = windowData.GetTransparency();
   window->mIsFrontBufferRendering = windowData.GetFrontBufferRendering();
   window->Initialize(surface, windowData.GetPositionSize(), name, className, windowData.GetWindowType());
   return window;
@@ -252,6 +252,12 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   else
   {
     OnAccessibilityDisabled();
+  }
+
+  if(mScene)
+  {
+    bool isGeometry = Dali::Internal::Adaptor::WindowSystem::IsGeometryHittestEnabled();
+    mScene.SetGeometryHittestEnabled(isGeometry);
   }
 
   // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
