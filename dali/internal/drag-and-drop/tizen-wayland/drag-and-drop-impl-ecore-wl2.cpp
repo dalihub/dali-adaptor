@@ -511,6 +511,8 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
   Ecore_Wl2_Event_Dnd_Motion* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
 
   Dali::DragAndDrop::DragEvent dragEvent;
+  dragEvent.SetMimeType((const char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0));
+
   Dali::Vector2                curPosition(ev->x, ev->y);
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
