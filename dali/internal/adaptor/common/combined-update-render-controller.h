@@ -43,7 +43,6 @@ class TriggerEventInterface;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
 class AdaptorInternalServices;
@@ -271,8 +270,9 @@ private:
    * Called by the Update/Render thread after a surface has been resized.
    *
    * This will lock the mutex in mEventThreadWaitCondition
+   * @param[in] resizedCount The number of resized count for given surface.
    */
-  void SurfaceResized();
+  void SurfaceResized(uint32_t resizedCount);
 
   /**
    * PreCompile shaders for launching time
@@ -391,7 +391,7 @@ private:
                                                      ///< Ensures we do not go to sleep if we have not processed the most recent update-request.
 
   volatile unsigned int mUseElapsedTimeAfterWait; ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
-  volatile unsigned int mIsPreCompileCancelled;      ///< Whether we need to do precompile shader.
+  volatile unsigned int mIsPreCompileCancelled;   ///< Whether we need to do precompile shader.
 
   Dali::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
   Dali::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
