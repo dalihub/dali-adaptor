@@ -63,8 +63,15 @@ struct Context::Impl
       hash ^= std::hash<uint32_t>{}(attr.location);
     }
 
-    auto& gl   = *mController.GetGL();
-    auto  iter = mProgramVAOMap.find(program);
+    auto& gl = *mController.GetGL();
+
+    if(DALI_UNLIKELY(!mDiscardedVAOList.empty()))
+    {
+      gl.DeleteVertexArrays(static_cast<Dali::GLsizei>(mDiscardedVAOList.size()), mDiscardedVAOList.data());
+      mDiscardedVAOList.clear();
+    }
+
+    auto iter = mProgramVAOMap.find(program);
     if(iter != mProgramVAOMap.end())
     {
       auto attributeIter = iter->second.find(hash);
@@ -228,6 +235,7 @@ struct Context::Impl
   std::unordered_map<const GLES::ProgramImpl*, std::map<std::size_t, uint32_t>> mProgramVAOMap;              ///< GL program-VAO map
   uint32_t                                                                      mProgramVAOCurrentState{0u}; ///< Currently bound VAO
   GLStateCache                                                                  mGlStateCache{};             ///< GL status cache
+  std::vector<Dali::GLuint>                                                     mDiscardedVAOList{};
 
   bool mGlContextCreated{false}; ///< True if the OpenGL context has been created
 
@@ -1074,12 +1082,18 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
           for(auto& attributeHashPair : iter->second)
           {
             auto vao = attributeHashPair.second;
-            gl->DeleteVertexArrays(1, &vao);
+
+            // Do not delete vao now. (Since Context might not be current.)
+            mImpl->mDiscardedVAOList.emplace_back(vao);
             if(mImpl->mProgramVAOCurrentState == vao)
             {
               mImpl->mProgramVAOCurrentState = 0u;
             }
           }
+
+          // Clear cached Vertex buffer.
+          mImpl->mCurrentVertexBufferBindings.clear();
+
           mImpl->mProgramVAOMap.erase(iter);
         }
       }
