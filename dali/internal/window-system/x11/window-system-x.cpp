@@ -20,6 +20,9 @@
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/keyboard.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/internal/system/common/system-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -139,6 +142,7 @@ bool GetWindowProperty(::Display* display, ::Window window, ::Atom property, ::A
 namespace WindowSystem
 {
 static WindowSystemX* gWindowSystem{nullptr};
+static bool           gGeometryHittest = false;
 
 /**
  * Initialize the window system (currently run from the first window that gets created)
@@ -926,7 +930,7 @@ void WindowSystemX::Show(::Window window)
 
 void WindowSystemX::Hide(::Window window)
 {
-  Window       rootWindow = window;
+  ::Window     rootWindow = window;
   int          x, y;
   unsigned int width, height, border, depth;
   if(ScreenCount(mImpl->mDisplay) == 1)
@@ -1092,6 +1096,28 @@ bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
 bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 {
   return false;
+}
+
+void SetGeometryHittestEnabled(bool enable)
+{
+  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
+  gGeometryHittest = enable;
+  if(gGeometryHittest)
+  {
+    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
+    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
+    {
+      if(*iter)
+      {
+        (*iter).SetGeometryHittestEnabled(enable);
+      }
+    }
+  }
+}
+
+bool IsGeometryHittestEnabled()
+{
+  return gGeometryHittest;
 }
 
 } // namespace WindowSystem

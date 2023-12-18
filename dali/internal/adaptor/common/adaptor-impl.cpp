@@ -1109,6 +1109,15 @@ void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, Surfa
   ProcessCoreEvents();
 }
 
+void Adaptor::IncreaseSurfaceResizeCounter()
+{
+  // Nofify surface resizing before flushing event queue
+  if(mThreadController)
+  {
+    mThreadController->ResizeSurface();
+  }
+}
+
 void Adaptor::NotifySceneCreated()
 {
   GetCore().SceneCreated();

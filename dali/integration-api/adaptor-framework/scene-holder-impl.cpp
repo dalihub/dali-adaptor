@@ -264,6 +264,9 @@ void SceneHolder::SetAdaptor(Dali::Adaptor& adaptor)
   CreateRenderTarget();
 
   OnAdaptorSet(adaptor);
+
+  // Scene is newly created. Let we increase resize counter
+  mAdaptor->IncreaseSurfaceResizeCounter();
 }
 
 void SceneHolder::CreateRenderTarget()
@@ -421,6 +424,16 @@ void SceneHolder::FeedHoverEvent(Dali::Integration::Point& point)
 
   mScene.QueueEvent(hoverEvent);
   mAdaptor->ProcessCoreEvents();
+}
+
+void SceneHolder::SetGeometryHittestEnabled(bool enabled)
+{
+  mScene.SetGeometryHittestEnabled(enabled);
+}
+
+bool SceneHolder::IsGeometryHittestEnabled()
+{
+  return mScene.IsGeometryHittestEnabled();
 }
 
 void SceneHolder::AddFrameRenderedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId)

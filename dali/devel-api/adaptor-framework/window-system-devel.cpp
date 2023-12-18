@@ -28,6 +28,16 @@ void GetScreenSize(int32_t& width, int32_t& height)
   Dali::Internal::Adaptor::WindowSystem::GetScreenSize(width, height);
 }
 
+void SetGeometryHittestEnabled(bool enabled)
+{
+  Dali::Internal::Adaptor::WindowSystem::SetGeometryHittestEnabled(enabled);
+}
+
+bool IsGeometryHittestEnabled()
+{
+  return Dali::Internal::Adaptor::WindowSystem::IsGeometryHittestEnabled();
+}
+
 } // namespace DevelWindowSystem
 
 } // namespace Dali

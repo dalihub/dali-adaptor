@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL_HEADERS
 #include <Ecore_Wayland.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/scene-holder.h>
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
@@ -29,6 +32,11 @@ namespace Adaptor
 {
 namespace WindowSystem
 {
+namespace
+{
+static bool gGeometryHittest = false;
+} // unnamed namespace
+
 void Initialize()
 {
   ecore_wl_init(NULL);
@@ -81,6 +89,28 @@ bool SetKeyboardVerticalRepeatInfo(float rate, float delay)
 bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 {
   return false;
+}
+
+void SetGeometryHittestEnabled(bool enable)
+{
+  DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
+  gGeometryHittest = enable;
+  if(gGeometryHittest)
+  {
+    Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
+    for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
+    {
+      if(*iter)
+      {
+        (*iter).SetGeometryHittestEnabled(enable);
+      }
+    }
+  }
+}
+
+bool IsGeometryHittestEnabled()
+{
+  return gGeometryHittest;
 }
 
 } // namespace WindowSystem
