@@ -22,6 +22,7 @@
 #include <dali/public-api/object/base-handle.h>
 #include <dali/public-api/signals/callback.h>
 #include <memory>
+#include <string_view>
 
 // INTERNAL INCLUDES
 #include <dali/public-api/dali-adaptor-common.h>
@@ -124,6 +125,17 @@ public:
    * @return True if the task is ready to process.
    */
   virtual bool IsReady() = 0;
+
+  /**
+   * Get the name of this task if we setup.
+   * @SINCE_2_3.4
+   * @return The name of this task.
+   */
+  virtual std::string_view GetTaskName() const
+  {
+    Dali::DaliPrintBackTrace();
+    return "";
+  }
 
 private:
   std::unique_ptr<CallbackBase> mCompletedCallback;
