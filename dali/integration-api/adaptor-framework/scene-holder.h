@@ -200,6 +200,13 @@ public:
   RenderTaskList GetRenderTaskList();
 
   /**
+   * @brief Gets the native window id
+   *
+   * @return The native window id
+   */
+  int32_t GetNativeId() const;
+
+  /**
    * @brief Retrieve the SceneHolder that the given actor is added to.
    *
    * @param[in] actor The actor

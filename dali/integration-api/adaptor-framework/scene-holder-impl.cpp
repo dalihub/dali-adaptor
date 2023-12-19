@@ -436,6 +436,11 @@ bool SceneHolder::IsGeometryHittestEnabled()
   return mScene.IsGeometryHittestEnabled();
 }
 
+int32_t SceneHolder::GetNativeId() const
+{
+  return mScene.GetNativeId();
+}
+
 void SceneHolder::AddFrameRenderedCallback(std::unique_ptr<CallbackBase> callback, int32_t frameId)
 {
   mScene.AddFrameRenderedCallback(std::move(callback), frameId);

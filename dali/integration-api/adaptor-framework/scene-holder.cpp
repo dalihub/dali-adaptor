@@ -123,6 +123,11 @@ RenderTaskList SceneHolder::GetRenderTaskList()
   return GetImplementation(*this).GetRenderTaskList();
 }
 
+int32_t SceneHolder::GetNativeId() const
+{
+  return GetImplementation(*this).GetNativeId();
+}
+
 SceneHolder SceneHolder::Get(Actor actor)
 {
   return Internal::Adaptor::SceneHolder::Get(actor);
