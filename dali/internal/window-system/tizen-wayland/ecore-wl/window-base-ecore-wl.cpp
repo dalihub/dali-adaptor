@@ -986,6 +986,7 @@ void WindowBaseEcoreWl::OnKeyDown(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::DOWN, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
   }
@@ -1049,6 +1050,7 @@ void WindowBaseEcoreWl::OnKeyUp(void* data, int type, void* event)
     GetDeviceSubclass(ecore_device_subclass_get(keyEvent->dev), deviceSubclass);
 
     Integration::KeyEvent keyEvent(keyName, logicalKey, keyString, keyCode, modifier, time, Integration::KeyEvent::UP, compose, deviceName, deviceClass, deviceSubclass);
+    keyEvent.windowId = GetNativeWindowId();
 
     mKeyEventSignal.Emit(keyEvent);
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -511,6 +511,7 @@ void GlWindow::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 void GlWindow::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   Dali::KeyEvent event = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  Dali::DevelKeyEvent::SetWindowId(event, keyEvent.windowId);
   Dali::GlWindow handle(this);
   mKeyEventSignal.Emit(event);
 }
