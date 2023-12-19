@@ -173,6 +173,14 @@ protected: // Implementation of Processor
    */
   void Process(bool postProcessor) override;
 
+  /**
+   * @copydoc Dali::Integration::Processor::GetProcessorName()
+   */
+  std::string_view GetProcessorName() const override
+  {
+    return "AsyncTaskManager";
+  }
+
 private:
   /**
    * @brief Helper class to keep the relation between AsyncTaskThread and corresponding container
