@@ -60,7 +60,15 @@ struct Context::Impl
     std::size_t hash = 0;
     for(const auto& attr : vertexInputState.attributes)
     {
-      hash ^= std::hash<uint32_t>{}(attr.location);
+      // Make unordered hash value by location.
+      // Note : This hash function varified for locations only under < 20.
+      std::size_t salt = attr.location + 1;
+      hash += salt << (sizeof(std::size_t) * 6);
+      salt *= salt;
+      salt ^= attr.location;
+      hash += salt << (sizeof(std::size_t) * 4);
+      salt *= salt;
+      hash += salt;
     }
 
     auto& gl = *mController.GetGL();
