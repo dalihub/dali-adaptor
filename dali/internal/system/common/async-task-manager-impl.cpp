@@ -24,7 +24,6 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/trace.h>
 
 #include <unordered_map>
 
@@ -67,8 +66,6 @@ Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging
 
 uint32_t gThreadId = 0u; // Only for debug
 #endif
-
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
 /**
  * @brief Get the Task Name.
@@ -167,9 +164,7 @@ void AsyncTaskThread::Run()
     else
     {
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Process task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
-      DALI_TRACE_BEGIN(gTraceFilter, GetTaskName(task));
       task->Process();
-      DALI_TRACE_END(gTraceFilter, GetTaskName(task));
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Complete task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
       if(!mDestroyThread)
       {
@@ -653,6 +648,14 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AddTask [%p][%s]\n", task.Get(), GetTaskName(task));
 
+#ifndef DALI_PROFILE_UBUNTU
+    /// Debug log for SVG memory corruption error, for VD
+    if(DALI_LIKELY(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD))
+    {
+      DALI_LOG_RELEASE_INFO("AddTask [%p][%s]\n", task.Get(), GetTaskName(task));
+    }
+#endif //DALI_PROFILE_UBUNTU
+
     // push back into waiting queue.
     auto waitingIter = mWaitingTasks.insert(mWaitingTasks.end(), task);
     CacheImpl::InsertTaskCache(mCacheImpl->mWaitingTasksCache, task, waitingIter);
@@ -699,6 +702,14 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
   if(task)
   {
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTask [%p][%s]\n", task.Get(), GetTaskName(task));
+
+#ifndef DALI_PROFILE_UBUNTU
+    /// Debug log for SVG memory corruption error, for VD
+    if(DALI_LIKELY(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD))
+    {
+      DALI_LOG_RELEASE_INFO("RemoveTask [%p][%s]\n", task.Get(), GetTaskName(task));
+    }
+#endif //DALI_PROFILE_UBUNTU
 
     // Check whether we need to unregister processor.
     // If there is some non-empty queue exist, we don't need to unregister processor.
@@ -963,6 +974,15 @@ void AsyncTaskManager::TasksCompleted()
   while(AsyncTaskPtr task = PopNextCompletedTask())
   {
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback [%p][%s]\n", task.Get(), GetTaskName(task));
+
+#ifndef DALI_PROFILE_UBUNTU
+    /// Debug log for SVG memory corruption error, for VD
+    if(DALI_LIKELY(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD))
+    {
+      DALI_LOG_RELEASE_INFO("Execute callback [%p][%s]\n", task.Get(), GetTaskName(task));
+    }
+#endif //DALI_PROFILE_UBUNTU
+
     CallbackBase::Execute(*(task->GetCompletedCallback()), task);
 
     // Remove TasksCompleted callback trace
@@ -1047,6 +1067,14 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
           DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Waiting -> Running [%p][%s]\n", nextTask.Get(), GetTaskName(nextTask));
+
+#ifndef DALI_PROFILE_UBUNTU
+          /// Debug log for SVG memory corruption error, for VD
+          if(DALI_LIKELY(nextTask->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD))
+          {
+            DALI_LOG_RELEASE_INFO("Waiting -> Running [%p][%s]\n", nextTask.Get(), GetTaskName(nextTask));
+          }
+#endif //DALI_PROFILE_UBUNTU
 
           auto runningIter = mRunningTasks.insert(mRunningTasks.end(), std::make_pair(nextTask, RunningTaskState::RUNNING));
           CacheImpl::InsertTaskCache(mCacheImpl->mRunningTasksCache, nextTask, runningIter);
@@ -1155,6 +1183,14 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
           needTrigger |= callbackRequired;
 
           DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p][%s] (callback required? : %d)\n", task.Get(), GetTaskName(task), callbackRequired);
+
+#ifndef DALI_PROFILE_UBUNTU
+          /// Debug log for SVG memory corruption error, for VD
+          if(DALI_LIKELY(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::MAIN_THREAD))
+          {
+            DALI_LOG_RELEASE_INFO("Running -> Completed [%p][%s] (callback required? : %d)\n", task.Get(), GetTaskName(task), callbackRequired);
+          }
+#endif //DALI_PROFILE_UBUNTU
 
           auto completedIter = mCompletedTasks.insert(mCompletedTasks.end(), std::make_pair(task, callbackRequired ? CompletedTaskState::REQUIRE_CALLBACK : CompletedTaskState::SKIP_CALLBACK));
           CacheImpl::InsertTaskCache(mCacheImpl->mCompletedTasksCache, task, completedIter);
