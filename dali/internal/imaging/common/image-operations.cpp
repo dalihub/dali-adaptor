@@ -1399,28 +1399,42 @@ namespace
  * @note Only possible if each scanline pointer's address aligned
  * It will give performance benifit.
  */
-inline void AverageScanlinesWithEightComponents(
+inline void AverageScanlinesWithMultipleComponents(
   const uint8_t* const scanline1,
   const uint8_t* const __restrict__ scanline2,
   uint8_t* const outputScanline,
   const uint32_t totalComponentCount)
 {
   uint32_t component = 0;
-  if(DALI_LIKELY(totalComponentCount >= 8))
+  if(DALI_LIKELY(totalComponentCount >= 16))
   {
-    // Note reinsterpret_cast from uint8_t to uint64_t and read/write only allowed
+    // Note reinsterpret_cast from uint8_t to uint64_t (or uint32_t) and read/write only allowed
     // If pointer of data is aligned well.
-    if(((reinterpret_cast<std::ptrdiff_t>(scanline1) & (sizeof(std::uint64_t) - 1)) == 0) &&
-       ((reinterpret_cast<std::ptrdiff_t>(scanline2) & (sizeof(std::uint64_t) - 1)) == 0) &&
-       ((reinterpret_cast<std::ptrdiff_t>(outputScanline) & (sizeof(std::uint64_t) - 1)) == 0))
+    // (to avoid SIGBUS)
+
+    // To increase the percentage of optimized works, let we check pre-padding value of each pointer.
+    auto scanline1Padding   = (reinterpret_cast<std::ptrdiff_t>(scanline1) & (sizeof(std::uint64_t) - 1));
+    auto scanline2Padding   = (reinterpret_cast<std::ptrdiff_t>(scanline2) & (sizeof(std::uint64_t) - 1));
+    auto outScanlinePadding = (reinterpret_cast<std::ptrdiff_t>(outputScanline) & (sizeof(std::uint64_t) - 1));
+    if((scanline1Padding == scanline2Padding) && (scanline1Padding == outScanlinePadding))
     {
+      const auto padding = (sizeof(std::uint64_t) - scanline1Padding) & (sizeof(std::uint64_t) - 1);
+
+      // Prepadding range calculate
+      for(std::uint32_t i = 0; i < padding; ++i)
+      {
+        const auto& c1    = scanline1[i];
+        const auto& c2    = scanline2[i];
+        outputScanline[i] = static_cast<std::uint8_t>(((c1 ^ c2) >> 1) + (c1 & c2));
+      }
+
       // Jump 8 components in one step
-      const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1);
-      const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2);
-      std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline);
+      const std::uint64_t* const scanline18Step = reinterpret_cast<const std::uint64_t* const>(scanline1 + padding);
+      const std::uint64_t* const scanline28Step = reinterpret_cast<const std::uint64_t* const>(scanline2 + padding);
+      std::uint64_t* const       output8step    = reinterpret_cast<std::uint64_t* const>(outputScanline + padding);
 
       const std::uint32_t totalStepCount = (totalComponentCount) >> 3;
-      component                          = totalStepCount << 3;
+      component                          = (totalStepCount << 3) + padding;
 
       // and for each step, calculate average of 8 bytes.
       for(std::uint32_t i = 0; i < totalStepCount; ++i)
@@ -1428,6 +1442,35 @@ inline void AverageScanlinesWithEightComponents(
         const auto& c1     = *(scanline18Step + i);
         const auto& c2     = *(scanline28Step + i);
         *(output8step + i) = static_cast<std::uint64_t>((((c1 ^ c2) & 0xfefefefefefefefeull) >> 1) + (c1 & c2));
+      }
+    }
+    else if(((scanline1Padding & (sizeof(std::uint32_t) - 1)) == (scanline2Padding & (sizeof(std::uint32_t) - 1))) &&
+            ((scanline1Padding & (sizeof(std::uint32_t) - 1)) == (outScanlinePadding & (sizeof(std::uint32_t) - 1))))
+    {
+      const auto padding = (sizeof(std::uint64_t) - scanline1Padding) & (sizeof(std::uint32_t) - 1);
+
+      // Prepadding range calculate
+      for(std::uint32_t i = 0; i < padding; ++i)
+      {
+        const auto& c1    = scanline1[i];
+        const auto& c2    = scanline2[i];
+        outputScanline[i] = static_cast<std::uint8_t>(((c1 ^ c2) >> 1) + (c1 & c2));
+      }
+
+      // Jump 4 components in one step
+      const std::uint32_t* const scanline14Step = reinterpret_cast<const std::uint32_t* const>(scanline1 + padding);
+      const std::uint32_t* const scanline24Step = reinterpret_cast<const std::uint32_t* const>(scanline2 + padding);
+      std::uint32_t* const       output4step    = reinterpret_cast<std::uint32_t* const>(outputScanline + padding);
+
+      const std::uint32_t totalStepCount = (totalComponentCount) >> 2;
+      component                          = (totalStepCount << 2) + padding;
+
+      // and for each step, calculate average of 4 bytes.
+      for(std::uint32_t i = 0; i < totalStepCount; ++i)
+      {
+        const auto& c1     = *(scanline14Step + i);
+        const auto& c2     = *(scanline24Step + i);
+        *(output4step + i) = static_cast<std::uint32_t>((((c1 ^ c2) & 0xfefefefeu) >> 1) + (c1 & c2));
       }
     }
   }
@@ -1457,7 +1500,7 @@ void AverageScanlines1(const uint8_t* const scanline1,
    * }
    * @endcode
    */
-  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width);
+  AverageScanlinesWithMultipleComponents(scanline1, scanline2, outputScanline, width);
 }
 
 void AverageScanlines2(const uint8_t* const scanline1,
@@ -1475,7 +1518,7 @@ void AverageScanlines2(const uint8_t* const scanline1,
    * }
    * @endcode
    */
-  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 2);
+  AverageScanlinesWithMultipleComponents(scanline1, scanline2, outputScanline, width * 2);
 }
 
 void AverageScanlines3(const uint8_t* const scanline1,
@@ -1493,7 +1536,7 @@ void AverageScanlines3(const uint8_t* const scanline1,
    * }
    * @endcode
    */
-  AverageScanlinesWithEightComponents(scanline1, scanline2, outputScanline, width * 3);
+  AverageScanlinesWithMultipleComponents(scanline1, scanline2, outputScanline, width * 3);
 }
 
 void AverageScanlinesRGBA8888(const uint8_t* const scanline1,
