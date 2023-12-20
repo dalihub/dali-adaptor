@@ -383,7 +383,7 @@ void LeaveNotifyEventHandler(const XEvent* xevent)
   HandlePointerMove(xevent->xcrossing.x, xevent->xcrossing.y, xevent->xcrossing.time, xevent->xcrossing.subwindow ? xevent->xcrossing.subwindow : xevent->xcrossing.window);
 }
 
-void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent)
+void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent, bool down)
 {
   const XKeyEvent* xKeyEvent = &(xEvent->xkey);
 
@@ -402,10 +402,59 @@ void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent)
     keyEvent.keyname = keyname;
   }
 
-  keyEvent.timestamp = xKeyEvent->time;
-  keyEvent.modifiers = xKeyEvent->state; // @todo add own modifier list
-  keyEvent.window    = xKeyEvent->window;
-  keyEvent.event     = xEvent;
+  static int modifiers = 0;
+  switch(keySymbol)
+  {
+    case XK_Shift_L:
+    {
+      modifiers &= 0xFE;
+      modifiers |= down ? 0x01 : 0;
+      break;
+    }
+    case XK_Shift_R:
+    {
+      modifiers &= 0xFD;
+      modifiers |= down ? 0x02 : 0;
+      break;
+    }
+    case XK_Control_L:
+    {
+      modifiers &= 0xFB;
+      modifiers |= down ? 0x04 : 0;
+      break;
+    }
+    case XK_Control_R:
+    {
+      modifiers &= 0xF7;
+      modifiers |= down ? 0x08 : 0;
+      break;
+    }
+    case XK_Alt_L:
+    {
+      modifiers &= 0xEF;
+      modifiers |= down ? 0x10 : 0;
+      break;
+    }
+    case XK_Alt_R:
+    {
+      modifiers &= 0xDF;
+      modifiers |= down ? 0x20 : 0;
+      break;
+    }
+    case XK_ISO_Level3_Shift:
+    {
+      modifiers &= 0xDF;
+      modifiers |= down ? 0x20 : 0;
+      break;
+    } // Alt Graphics
+  }
+  int shiftModifier   = (modifiers & 0x03) != 0;
+  int controlModifier = (modifiers & 0x0C) != 0;
+  int altModifier     = (modifiers & 0x30) != 0;
+  keyEvent.timestamp  = xKeyEvent->time;
+  keyEvent.modifiers  = shiftModifier | controlModifier << 1 | altModifier << 2;
+  keyEvent.window     = xKeyEvent->window;
+  keyEvent.event      = xEvent;
 
   KeySym         keySymbol2;
   XComposeStatus composeStatus;
@@ -432,14 +481,14 @@ void ConvertKeyEvent(const XEvent* xEvent, WindowSystemX::X11KeyEvent& keyEvent)
 void KeyPressEventHandler(const XEvent* xevent)
 {
   WindowSystemX::X11KeyEvent x11KeyEvent;
-  ConvertKeyEvent(xevent, x11KeyEvent);
+  ConvertKeyEvent(xevent, x11KeyEvent, true);
   GetImplementation().TriggerEventHandler(WindowSystemBase::Event::KEY_DOWN, x11KeyEvent);
 }
 
 void KeyReleaseEventHandler(const XEvent* xevent)
 {
   WindowSystemX::X11KeyEvent x11KeyEvent;
-  ConvertKeyEvent(xevent, x11KeyEvent);
+  ConvertKeyEvent(xevent, x11KeyEvent, false);
   GetImplementation().TriggerEventHandler(WindowSystemBase::Event::KEY_UP, x11KeyEvent);
 }
 
