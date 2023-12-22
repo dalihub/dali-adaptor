@@ -358,6 +358,47 @@ void FontClient::Plugin::CacheHandler::ClearCache()
   mDefaultFontDescriptionCached = false;
 }
 
+void FontClient::Plugin::CacheHandler::ClearCacheOnLocaleChanged()
+{
+  // delete cached glyph informations before clear mFontFaceCache.
+  mGlyphCacheManager->ClearCache();
+
+  mDefaultFontDescription = FontDescription();
+
+  mSystemFonts.clear();
+  mDefaultFonts.clear();
+
+  DestroyCharacterSets(mDefaultFontCharacterSets);
+  mDefaultFontCharacterSets.Clear();
+
+  ClearFallbackCache();
+  mFallbackCache.clear();
+
+  mFontIdCache.clear();
+
+  ClearCharacterSetFromFontFaceCache();
+  mFontFaceCache.clear();
+
+  mValidatedFontCache.clear();
+  mFontDescriptionCache.clear();
+
+  DestroyCharacterSets(mCharacterSetCache);
+  mCharacterSetCache.Clear();
+
+  mFontDescriptionSizeCache.clear();
+  mFontDescriptionSizeCache.rehash(0); // Note : unordered_map.clear() didn't deallocate memory
+
+  mEllipsisCache.clear();
+  mPixelBufferCache.clear();
+  mEmbeddedItemCache.clear();
+  mBitmapFontCache.clear();
+
+  mLatestFoundFontDescription.family.clear();
+  mLatestFoundCacheKey = FontDescriptionSizeCacheKey(0, 0);
+
+  mDefaultFontDescriptionCached = false;
+}
+
 void FontClient::Plugin::CacheHandler::ResetSystemDefaults()
 {
   mDefaultFontDescriptionCached = false;

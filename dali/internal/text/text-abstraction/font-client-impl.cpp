@@ -335,6 +335,14 @@ void FontClient::ClearCache()
   }
 }
 
+void FontClient::ClearCacheOnLocaleChanged()
+{
+  if(mPlugin)
+  {
+    mPlugin->ClearCacheOnLocaleChanged();
+  }
+}
+
 void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
 {
   mDpiHorizontal = horizontalDpi;

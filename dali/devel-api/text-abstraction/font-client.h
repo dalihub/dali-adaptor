@@ -164,6 +164,13 @@ public:
   void ClearCache();
 
   /**
+   * @brief Clear caches in FontClient when Locale Changed
+   *
+   * @note This function only clears caches that needs to be cleared.
+   */
+  void ClearCacheOnLocaleChanged();
+
+  /**
    * @brief Set the DPI of the target window.
    *
    * @note Multiple windows are not currently supported.
