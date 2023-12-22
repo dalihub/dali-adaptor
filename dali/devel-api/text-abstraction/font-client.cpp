@@ -112,6 +112,11 @@ void FontClient::ClearCache()
   GetImplementation(*this).ClearCache();
 }
 
+void FontClient::ClearCacheOnLocaleChanged()
+{
+  GetImplementation(*this).ClearCacheOnLocaleChanged();
+}
+
 void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
 {
   GetImplementation(*this).SetDpi(horizontalDpi, verticalDpi);

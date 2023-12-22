@@ -95,6 +95,11 @@ public: // Dali::TextAbstraction::FontClient
   void ClearCache() const;
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::ClearCacheOnLocaleChanged()
+   */
+  void ClearCacheOnLocaleChanged() const;
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
    */
   void SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi);
