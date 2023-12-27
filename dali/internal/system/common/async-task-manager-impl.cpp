@@ -24,6 +24,7 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 
 #include <unordered_map>
 
@@ -66,6 +67,21 @@ Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging
 
 uint32_t gThreadId = 0u; // Only for debug
 #endif
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+
+/**
+ * @brief Get the Task Name.
+ * Note that we can get const char* from std::string_view as data() since it will be const class.
+ *
+ * @param task The task what we want to get the name.
+ * @return The name of task, or (nil) if task is invalid.
+ */
+const char* GetTaskName(AsyncTaskPtr task)
+{
+  // Note
+  return task ? task->GetTaskName().data() : "(nil)";
+}
 
 } // unnamed namespace
 
@@ -150,9 +166,11 @@ void AsyncTaskThread::Run()
     }
     else
     {
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Process task [%p]\n", threadId, task.Get());
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Process task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
+      DALI_TRACE_BEGIN(gTraceFilter, GetTaskName(task));
       task->Process();
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Complete task [%p]\n", threadId, task.Get());
+      DALI_TRACE_END(gTraceFilter, GetTaskName(task));
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Complete task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
       if(!mDestroyThread)
       {
         mAsyncTaskManager.CompleteTask(std::move(task));
@@ -200,7 +218,7 @@ public:
    */
   void AppendTaskTrace(Dali::AsyncTaskManager::TasksCompletedId id, AsyncTaskPtr task)
   {
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AppendTaskTrace id[%u] task[%p]\n", id, task.Get());
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AppendTaskTrace id[%u] task[%p][%s]\n", id, task.Get(), GetTaskName(task));
 
     // Lock while adding tasks completed callback list to the queue
     Mutex::ScopedLock lock(mTasksCompletedCallbacksMutex);
@@ -238,7 +256,7 @@ public:
     {
       return;
     }
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTaskTrace task[%p] remove count[%u]\n", task.Get(), count);
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTaskTrace task[%p][%s] remove count[%u]\n", task.Get(), GetTaskName(task), count);
 
     // Lock while removing tasks completed callback list to the queue
     Mutex::ScopedLock lock(mTasksCompletedCallbacksMutex);
@@ -252,7 +270,7 @@ public:
 
       if(jter != callbackData.mTasks.end())
       {
-        DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTaskTrace id[%u] task[%p], current refcount[%u]\n", iter->first, task.Get(), (jter->second));
+        DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTaskTrace id[%u] task[%p][%s], current refcount[%u]\n", iter->first, task.Get(), GetTaskName(task), (jter->second));
 
         if(jter->second <= count)
         {
@@ -633,7 +651,7 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
     // Lock while adding task to the queue
     Mutex::ScopedLock lock(mWaitingTasksMutex);
 
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AddTask [%p]\n", task.Get());
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "AddTask [%p][%s]\n", task.Get(), GetTaskName(task));
 
     // push back into waiting queue.
     auto waitingIter = mWaitingTasks.insert(mWaitingTasks.end(), task);
@@ -680,7 +698,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
 {
   if(task)
   {
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTask [%p]\n", task.Get());
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "RemoveTask [%p][%s]\n", task.Get(), GetTaskName(task));
 
     // Check whether we need to unregister processor.
     // If there is some non-empty queue exist, we don't need to unregister processor.
@@ -887,7 +905,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextCompletedTask()
       CacheImpl::EraseTaskCache(mCacheImpl->mCompletedTasksCache, nextTask, next);
       mCompletedTasks.erase(next);
 
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p] (callback required? : %d)\n", nextTask.Get(), taskState == CompletedTaskState::REQUIRE_CALLBACK);
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Completed task [%p][%s] (callback required? : %d)\n", nextTask.Get(), GetTaskName(nextTask), taskState == CompletedTaskState::REQUIRE_CALLBACK);
 
       if(taskState == CompletedTaskState::REQUIRE_CALLBACK)
       {
@@ -898,7 +916,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextCompletedTask()
       ignoredTaskList.push_back(nextTask);
     }
 
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup completed [%p]\n", nextCompletedTask.Get());
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup completed [%p][%s]\n", nextCompletedTask.Get(), GetTaskName(nextCompletedTask));
   }
 
   return nextCompletedTask;
@@ -944,7 +962,7 @@ void AsyncTaskManager::TasksCompleted()
   DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "TasksCompleted begin\n");
   while(AsyncTaskPtr task = PopNextCompletedTask())
   {
-    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback [%p]\n", task.Get());
+    DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback [%p][%s]\n", task.Get(), GetTaskName(task));
     CallbackBase::Execute(*(task->GetCompletedCallback()), task);
 
     // Remove TasksCompleted callback trace
@@ -1013,7 +1031,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           if(!mapIter->second.empty())
           {
             // Some other thread running this tasks now. Ignore it.
-            DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Some other thread running this task [%p]\n", (*iter).Get());
+            DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Some other thread running this task [%p][%s]\n", (*iter).Get(), GetTaskName(*iter));
             taskAvaliable = false;
           }
         }
@@ -1028,7 +1046,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           // Lock while popping task out from the queue
           Mutex::ScopedLock lock(mRunningTasksMutex); // We can lock this mutex under mWaitingTasksMutex.
 
-          DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Waiting -> Running [%p]\n", nextTask.Get());
+          DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Waiting -> Running [%p][%s]\n", nextTask.Get(), GetTaskName(nextTask));
 
           auto runningIter = mRunningTasks.insert(mRunningTasks.end(), std::make_pair(nextTask, RunningTaskState::RUNNING));
           CacheImpl::InsertTaskCache(mCacheImpl->mRunningTasksCache, nextTask, runningIter);
@@ -1054,7 +1072,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
     }
   }
 
-  DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup process [%p]\n", nextTask.Get());
+  DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Pickup process [%p][%s]\n", nextTask.Get(), GetTaskName(nextTask));
 
   return nextTask;
 }
@@ -1087,13 +1105,13 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
         }
       }
 
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompleteTask [%p] (is notify? : %d)\n", task.Get(), notify);
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompleteTask [%p][%s] (is notify? : %d)\n", task.Get(), GetTaskName(task), notify);
     }
 
     // We should execute this tasks complete callback out of mutex
     if(notify && task->GetCallbackInvocationThread() == AsyncTask::ThreadType::WORKER_THREAD)
     {
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback on worker thread [%p]\n", task.Get());
+      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback on worker thread [%p][%s]\n", task.Get(), GetTaskName(task));
       CallbackBase::Execute(*(task->GetCompletedCallback()), task);
 
       // We need to remove task trace now.
@@ -1136,7 +1154,7 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 
           needTrigger |= callbackRequired;
 
-          DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p] (callback required? : %d)\n", task.Get(), callbackRequired);
+          DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Running -> Completed [%p][%s] (callback required? : %d)\n", task.Get(), GetTaskName(task), callbackRequired);
 
           auto completedIter = mCompletedTasks.insert(mCompletedTasks.end(), std::make_pair(task, callbackRequired ? CompletedTaskState::REQUIRE_CALLBACK : CompletedTaskState::SKIP_CALLBACK));
           CacheImpl::InsertTaskCache(mCacheImpl->mCompletedTasksCache, task, completedIter);
