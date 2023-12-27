@@ -258,6 +258,8 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   {
     bool isGeometry = Dali::Internal::Adaptor::WindowSystem::IsGeometryHittestEnabled();
     mScene.SetGeometryHittestEnabled(isGeometry);
+
+    mScene.SetNativeId(GetNativeId());
   }
 
   // If you call the 'Show' before creating the adaptor, the application cannot know the app resource id.
@@ -1089,6 +1091,7 @@ void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 void Window::OnKeyEvent(Dali::Integration::KeyEvent& keyEvent)
 {
   mLastKeyEvent = Dali::DevelKeyEvent::New(keyEvent.keyName, keyEvent.logicalKey, keyEvent.keyString, keyEvent.keyCode, keyEvent.keyModifier, keyEvent.time, static_cast<Dali::KeyEvent::State>(keyEvent.state), keyEvent.compose, keyEvent.deviceName, keyEvent.deviceClass, keyEvent.deviceSubclass);
+  DevelKeyEvent::SetWindowId(mLastKeyEvent, keyEvent.windowId);
   FeedKeyEvent(keyEvent);
 }
 

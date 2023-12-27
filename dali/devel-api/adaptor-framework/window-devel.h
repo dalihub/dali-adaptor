@@ -261,7 +261,7 @@ DALI_ADAPTOR_API int GetPhysicalOrientation(Window window);
 DALI_ADAPTOR_API void SetAvailableOrientations(Window window, const Dali::Vector<WindowOrientation>& orientations);
 
 /**
- * @brief Gets current window ID.
+ * @brief Gets the native window id.
  *
  * @param[in] window The window instance
  */

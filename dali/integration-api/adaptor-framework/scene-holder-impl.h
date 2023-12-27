@@ -221,6 +221,11 @@ public:
   bool IsGeometryHittestEnabled();
 
   /**
+   * @copydoc Dali::Integration::SceneHolder::GetNativeId
+   */
+  int32_t GetNativeId() const;
+
+  /**
    * @brief Adds a callback that is called when the frame rendering is done by the graphics driver.
    *
    * @param[in] callback The function to call

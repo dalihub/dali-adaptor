@@ -287,6 +287,7 @@ void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State k
     "WindowBaseCocoa::Impl::OnKey(%s)\n",
     [event.characters UTF8String]
   );
+  keyEvent.windowId = mThis->GetNativeWindowId();
 
   mThis->mKeyEventSignal.Emit(keyEvent);
 }
