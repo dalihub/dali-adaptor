@@ -1000,7 +1000,6 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph(PointSize26Dot6 requestedP
     EllipsisItem item;
 
     item.requestedPointSize = requestedPointSize;
-    item.index              = ellipsisCacheIndex;
 
     // Find a font for the ellipsis glyph.
     item.glyph.fontId = FindDefaultFont(ELLIPSIS_CHARACTER,
@@ -1016,7 +1015,12 @@ const GlyphInfo& FontClient::Plugin::GetEllipsisGlyph(PointSize26Dot6 requestedP
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "  glyph id %d found in the cache.\n", item.glyph.index);
     DALI_LOG_INFO(gFontClientLogFilter, Debug::General, "      font %d.\n", item.glyph.fontId);
 
+    // EllipsisCacheIndex is stored in item.index.
     ellipsisCacheIndex = mCacheHandler->CacheEllipsis(std::move(item));
+    if(!mCacheHandler->mEllipsisCache.empty())
+    {
+      mCacheHandler->mEllipsisCache.back().index = ellipsisCacheIndex;
+    }
   }
   return mCacheHandler->mEllipsisCache[ellipsisCacheIndex].glyph;
 }
