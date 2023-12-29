@@ -98,6 +98,11 @@ public: // API for Dali::TextAbstraction::FontClient used.
   void ClearCache();
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::ClearCacheOnLocaleChanged()
+   */
+  void ClearCacheOnLocaleChanged();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::SetDpi()
    */
   void SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi);

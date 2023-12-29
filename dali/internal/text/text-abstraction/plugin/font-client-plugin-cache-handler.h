@@ -132,6 +132,11 @@ public: // Clear cache public
   void ClearCache();
 
   /**
+   * @copydoc Dali::TextAbstraction::FontClient::Plugin::ClearCacheOnLocaleChanged()
+   */
+  void ClearCacheOnLocaleChanged();
+
+  /**
    * @copydoc Dali::TextAbstraction::FontClient::Plugin::ResetSystemDefaults()
    */
   void ResetSystemDefaults();

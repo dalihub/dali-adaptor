@@ -35,6 +35,9 @@
 #include <aul.h>
 #include <unistd.h>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/text-abstraction/font-client.h>
+
 namespace Dali
 {
 namespace Internal
@@ -56,7 +59,12 @@ static void OnSystemLanguageChanged(system_settings_key_e key, void* data)
   Adaptor* adaptor = static_cast<Adaptor*>(data);
   if(adaptor != NULL)
   {
+    TextAbstraction::FontClient fontClient = TextAbstraction::FontClient::Get();
+    fontClient.ClearCacheOnLocaleChanged();
+    fontClient.InitDefaultFontDescription();
+
     adaptor->SetRootLayoutDirection(locale);
+    adaptor->LocaleChangedSignal().Emit(locale);
   }
 
   free(locale);

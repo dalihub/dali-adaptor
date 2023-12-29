@@ -269,6 +269,11 @@ void FontClient::Plugin::ClearCache() const
   mCacheHandler->ClearCache();
 }
 
+void FontClient::Plugin::ClearCacheOnLocaleChanged() const
+{
+  mCacheHandler->ClearCacheOnLocaleChanged();
+}
+
 void FontClient::Plugin::SetDpi(unsigned int horizontalDpi,
                                 unsigned int verticalDpi)
 {

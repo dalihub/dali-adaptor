@@ -96,6 +96,7 @@ class Adaptor : public Integration::RenderController,
 public:
   using AdaptorSignalType       = Dali::Adaptor::AdaptorSignalType;
   using WindowCreatedSignalType = Dali::Adaptor::WindowCreatedSignalType;
+  using LocaleChangedSignalType = Dali::Adaptor::LocaleChangedSignalType;
 
   using SurfaceSize = Uint16Pair; ///< Surface size type
 
@@ -566,6 +567,14 @@ public: // Signals
     return mWindowCreatedSignal;
   }
 
+  /**
+   * @copydoc Dali::Adaptor::LocaleChangedSignal
+   */
+  LocaleChangedSignalType& LocaleChangedSignal()
+  {
+    return mLocaleChangedSignal;
+  }
+
 public: // From Dali::Internal::Adaptor::CoreEventInterface
   /**
    * @copydoc Dali::Internal::Adaptor::CoreEventInterface:::FlushUpdateMessages()
@@ -703,6 +712,7 @@ private:                                          // Data
   AdaptorSignalType       mResizedSignal;         ///< Resized signal.
   AdaptorSignalType       mLanguageChangedSignal; ///< Language changed signal.
   WindowCreatedSignalType mWindowCreatedSignal;   ///< Window created signal.
+  LocaleChangedSignalType mLocaleChangedSignal;   ///< Locale changed signal.
 
   Dali::Adaptor&           mAdaptor;          ///< Reference to public adaptor instance.
   State                    mState;            ///< Current state of the adaptor

@@ -119,6 +119,7 @@ class DALI_ADAPTOR_API Adaptor
 public:
   typedef Signal<void(Adaptor&)>                        AdaptorSignalType;       ///< Generic Type for adaptor signals
   typedef Signal<void(Dali::Integration::SceneHolder&)> WindowCreatedSignalType; ///< SceneHolder created signal type
+  typedef Signal<void(std::string)>                     LocaleChangedSignalType; ///< Locale changed signal type
 
   using SurfaceSize = Uint16Pair; ///< Surface size type
 
@@ -485,6 +486,13 @@ public: // Signals
    * @return The signal to connect to
    */
   WindowCreatedSignalType& WindowCreatedSignal();
+
+  /**
+   * @brief This signal is emitted when the system locale is changed
+   *
+   * @return The signal to connect to
+   */
+  LocaleChangedSignalType& LocaleChangedSignal();
 
 private:
   // Undefined
