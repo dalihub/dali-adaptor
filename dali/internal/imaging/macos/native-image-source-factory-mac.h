@@ -32,6 +32,7 @@ public:
     Any                                 nativeImageSource) override;
 
   std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(
+    uint32_t                                  queueCount,
     uint32_t                                  width,
     uint32_t                                  height,
     Dali::NativeImageSourceQueue::ColorFormat colorFormat,
