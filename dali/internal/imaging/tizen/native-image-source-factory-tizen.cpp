@@ -33,9 +33,9 @@ std::unique_ptr<NativeImageSource> NativeImageSourceFactoryTizen::CreateNativeIm
   return std::unique_ptr<NativeImageSource>(NativeImageSourceTizen::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryTizen::CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryTizen::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueTizen::New(width, height, colorFormat, nativeImageSourceQueue));
+  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueTizen::New(queueCount, width, height, colorFormat, nativeImageSourceQueue));
 }
 
 // this should be created from somewhere

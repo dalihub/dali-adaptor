@@ -40,6 +40,7 @@ NativeImageSourceFactoryCocoa::CreateNativeImageSource(
 
 std::unique_ptr<NativeImageSourceQueue>
 NativeImageSourceFactoryCocoa::CreateNativeImageSourceQueue(
+  uint32_t                                  queueCount,
   uint32_t                                  width,
   uint32_t                                  height,
   Dali::NativeImageSourceQueue::ColorFormat colorFormat,

@@ -36,12 +36,17 @@ public:
   /**
    * @copydoc Dali::NativeImageSourceQueue::New()
    */
-  static NativeImageSourceQueue* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  static NativeImageSourceQueue* New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
    */
   virtual Any GetNativeImageSourceQueue() const = 0;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::GetQueueCount
+   */
+  virtual uint32_t GetQueueCount() const = 0;
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::SetSize

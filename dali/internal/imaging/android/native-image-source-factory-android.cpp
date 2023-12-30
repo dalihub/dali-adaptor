@@ -33,9 +33,9 @@ std::unique_ptr<NativeImageSource> NativeImageSourceFactoryAndroid::CreateNative
   return std::unique_ptr<NativeImageSource>(NativeImageSourceAndroid::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryAndroid::CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryAndroid::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueAndroid::New(width, height, colorFormat, nativeImageSourceQueue));
+  return std::unique_ptr<NativeImageSourceQueue>(NativeImageSourceQueueAndroid::New(queueCount, width, height, colorFormat, nativeImageSourceQueue));
 }
 
 // this should be created from somewhere

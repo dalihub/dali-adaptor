@@ -33,7 +33,7 @@ std::unique_ptr<NativeImageSource> NativeImageSourceFactoryWin::CreateNativeImag
   return std::unique_ptr<NativeImageSource>(NativeImageSourceWin::New(width, height, depth, nativeImageSource));
 }
 
-std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryWin::CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+std::unique_ptr<NativeImageSourceQueue> NativeImageSourceFactoryWin::CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   return std::unique_ptr<NativeImageSourceQueue>(nullptr);
 }

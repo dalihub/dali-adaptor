@@ -38,14 +38,15 @@ namespace
 #define TBM_SURFACE_QUEUE_SIZE 3
 } // namespace
 
-NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, colorFormat, nativeImageSourceQueue);
+  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(queueCount, width, height, colorFormat, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
-: mWidth(width),
+NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+: mQueueCount(queueCount),
+  mWidth(width),
   mHeight(height)
 {
   DALI_LOG_ERROR("NativeImageSourceQueueX::NativeImageSourceQueueX: Not supported\n");
