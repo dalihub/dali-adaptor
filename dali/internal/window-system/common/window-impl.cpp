@@ -757,11 +757,14 @@ void Window::SetSize(Dali::Window::WindowSize size)
     mResizeSignal.Emit(handle, newSize);
 
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
+
+    if(Dali::Accessibility::IsUp())
+    {
+      Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
+    }
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(oldRect.x, oldRect.y, size.GetWidth(), size.GetHeight()));
 }
 
 Dali::Window::WindowSize Window::GetSize() const
@@ -786,11 +789,14 @@ void Window::SetPosition(Dali::Window::WindowPosition position)
 
     DALI_LOG_RELEASE_INFO("send moved signal with new position: %d, %d\n", newPosition.GetX(), newPosition.GetY());
     mMovedSignal.Emit(handle, newPosition);
+
+    if(Dali::Accessibility::IsUp())
+    {
+      Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
+    }
   }
 
   mSurface->SetFullSwapNextFrame();
-
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(position.GetX(), position.GetY(), oldRect.width, oldRect.height));
 }
 
 Dali::Window::WindowPosition Window::GetPosition() const
@@ -858,9 +864,12 @@ void Window::SetPositionSize(PositionSize positionSize)
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
 
-  mSurface->SetFullSwapNextFrame();
+  if((moved || resize) && Dali::Accessibility::IsUp())
+  {
+    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  }
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  mSurface->SetFullSwapNextFrame();
 }
 
 void Window::SetLayout(unsigned int numCols, unsigned int numRows, unsigned int column, unsigned int row, unsigned int colSpan, unsigned int rowSpan)
@@ -1073,9 +1082,12 @@ void Window::OnUpdatePositionSize(Dali::PositionSize& positionSize)
     mAdaptor->SurfaceResizeComplete(mSurface.get(), newSize);
   }
 
-  mSurface->SetFullSwapNextFrame();
+  if((moved || resize) && Dali::Accessibility::IsUp())
+  {
+    Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  }
 
-  Dali::Accessibility::Accessible::Get(mScene.GetRootLayer())->EmitBoundsChanged(Dali::Rect<>(positionSize.x, positionSize.y, positionSize.width, positionSize.height));
+  mSurface->SetFullSwapNextFrame();
 }
 
 void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
