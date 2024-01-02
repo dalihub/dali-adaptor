@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/trace.h>
 
 #include <unordered_map>
 
@@ -67,8 +66,6 @@ Debug::Filter* gAsyncTasksManagerLogFilter = Debug::Filter::New(Debug::NoLogging
 
 uint32_t gThreadId = 0u; // Only for debug
 #endif
-
-DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 
 /**
  * @brief Get the Task Name.
@@ -167,9 +164,7 @@ void AsyncTaskThread::Run()
     else
     {
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Process task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
-      DALI_TRACE_BEGIN(gTraceFilter, GetTaskName(task));
       task->Process();
-      DALI_TRACE_END(gTraceFilter, GetTaskName(task));
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Complete task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
       if(!mDestroyThread)
       {
@@ -1080,14 +1075,61 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
 /// Worker thread called
 void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
 {
-  bool notify = false;
-
   if(task)
   {
     bool needTrigger = false;
 
-    // Lock while check validation of task.
+    // Check now whether we need to execute callback or not, for worker thread cases.
+    if(task->GetCallbackInvocationThread() == AsyncTask::ThreadType::WORKER_THREAD)
     {
+      bool notify = false;
+
+      // Lock while check validation of task.
+      {
+        Mutex::ScopedLock lock(mRunningTasksMutex);
+
+        auto mapIter = mCacheImpl->mRunningTasksCache.find(task.Get());
+        if(mapIter != mCacheImpl->mRunningTasksCache.end())
+        {
+          const auto cacheIter = mapIter->second.begin();
+          DALI_ASSERT_ALWAYS(cacheIter != mapIter->second.end());
+
+          const auto iter = *cacheIter;
+          DALI_ASSERT_DEBUG(iter->first == task);
+          if(iter->second == RunningTaskState::RUNNING)
+          {
+            // This task is valid.
+            notify = true;
+          }
+        }
+
+        DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompleteTask [%p][%s] (is notify? : %d)\n", task.Get(), GetTaskName(task), notify);
+      }
+
+      // We should execute this tasks complete callback out of mutex
+      if(notify)
+      {
+        DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback on worker thread [%p][%s]\n", task.Get(), GetTaskName(task));
+        CallbackBase::Execute(*(task->GetCompletedCallback()), task);
+
+        // We need to remove task trace now.
+        if(mTasksCompletedImpl->IsTasksCompletedCallbackExist())
+        {
+          mTasksCompletedImpl->RemoveTaskTrace(task);
+
+          if(mTasksCompletedImpl->IsExecuteCallbackExist())
+          {
+            // We need to call EmitCompletedTasks(). Trigger main thread.
+            needTrigger = true;
+          }
+        }
+      }
+    }
+
+    // Lock while adding task to the queue
+    {
+      bool notify = false;
+
       Mutex::ScopedLock lock(mRunningTasksMutex);
 
       auto mapIter = mCacheImpl->mRunningTasksCache.find(task.Get());
@@ -1097,47 +1139,14 @@ void AsyncTaskManager::CompleteTask(AsyncTaskPtr&& task)
         DALI_ASSERT_ALWAYS(cacheIter != mapIter->second.end());
 
         const auto iter = *cacheIter;
+
         DALI_ASSERT_DEBUG(iter->first == task);
         if(iter->second == RunningTaskState::RUNNING)
         {
           // This task is valid.
           notify = true;
         }
-      }
 
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompleteTask [%p][%s] (is notify? : %d)\n", task.Get(), GetTaskName(task), notify);
-    }
-
-    // We should execute this tasks complete callback out of mutex
-    if(notify && task->GetCallbackInvocationThread() == AsyncTask::ThreadType::WORKER_THREAD)
-    {
-      DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "Execute callback on worker thread [%p][%s]\n", task.Get(), GetTaskName(task));
-      CallbackBase::Execute(*(task->GetCompletedCallback()), task);
-
-      // We need to remove task trace now.
-      if(mTasksCompletedImpl->IsTasksCompletedCallbackExist())
-      {
-        mTasksCompletedImpl->RemoveTaskTrace(task);
-
-        if(mTasksCompletedImpl->IsExecuteCallbackExist())
-        {
-          // We need to call EmitCompletedTasks(). Trigger main thread.
-          needTrigger = true;
-        }
-      }
-    }
-
-    // Lock while adding task to the queue
-    {
-      Mutex::ScopedLock lock(mRunningTasksMutex);
-
-      auto mapIter = mCacheImpl->mRunningTasksCache.find(task.Get());
-      if(mapIter != mCacheImpl->mRunningTasksCache.end())
-      {
-        const auto cacheIter = mapIter->second.begin();
-        DALI_ASSERT_ALWAYS(cacheIter != mapIter->second.end());
-
-        const auto iter         = *cacheIter;
         const auto priorityType = iter->first->GetPriorityType();
         // Increase avaliable task counts if it is low priority
         if(priorityType == AsyncTask::PriorityType::LOW)

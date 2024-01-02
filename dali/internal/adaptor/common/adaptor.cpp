@@ -135,6 +135,11 @@ Adaptor::WindowCreatedSignalType& Adaptor::WindowCreatedSignal()
   return mImpl->WindowCreatedSignal();
 }
 
+Adaptor::LocaleChangedSignalType& Adaptor::LocaleChangedSignal()
+{
+  return mImpl->LocaleChangedSignal();
+}
+
 Dali::RenderSurfaceInterface& Adaptor::GetSurface()
 {
   return mImpl->GetSurface();
