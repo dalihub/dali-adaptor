@@ -300,17 +300,24 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
         break;
     }
   }
+
+  // decode the whole image into bitmap buffer
+  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
+
+  DALI_ASSERT_DEBUG(pixels);
+
+  if(!pixels)
+  {
+    DALI_LOG_ERROR("PixelBuffer couldn't be created\n");
+    return false;
+  }
+
   rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
   if(DALI_UNLIKELY(!rows))
   {
     DALI_LOG_ERROR("malloc is failed\n");
     return false;
   }
-
-  // decode the whole image into bitmap buffer
-  auto pixels = (bitmap = Dali::Devel::PixelBuffer::New(bufferWidth, bufferHeight, pixelFormat)).GetBuffer();
-
-  DALI_ASSERT_DEBUG(pixels);
 
   for(y = 0; y < height; y++)
   {
