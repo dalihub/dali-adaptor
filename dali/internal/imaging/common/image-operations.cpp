@@ -20,6 +20,7 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/image-loading.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-vector.h>
 #include <dali/public-api/math/vector2.h>
 #include <stddef.h>
@@ -58,6 +59,8 @@ const float RAD_315 = RAD_225 + Math::PI_2;    ///< 315 degrees in radians;
 using Integration::Bitmap;
 using Integration::BitmapPtr;
 typedef uint8_t PixelBuffer;
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_IMAGE_PERFORMANCE_MARKER, false);
 
 /**
  * @brief 4 byte pixel structure.
@@ -533,6 +536,8 @@ bool Rotate90(const uint8_t* const pixelsIn,
     return false;
   }
 
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_BITMAP_ROTATE_90");
+
   // Rotate the buffer.
   for(uint32_t y = 0u; y < heightIn; ++y)
   {
@@ -585,6 +590,8 @@ bool Rotate180(const uint8_t* const pixelsIn,
     // Return if the memory allocations fails.
     return false;
   }
+
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_BITMAP_ROTATE_180");
 
   // Rotate the buffer.
   for(uint32_t y = 0u; y < heightIn; ++y)
@@ -650,6 +657,8 @@ bool Rotate270(const uint8_t* const pixelsIn,
     return false;
   }
 
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_BITMAP_ROTATE_270");
+
   // Rotate the buffer.
   for(uint32_t y = 0u; y < heightIn; ++y)
   {
@@ -697,6 +706,7 @@ void HorizontalSkew(const uint8_t* const srcBufferPtr,
                     int32_t              offset,
                     float                weight)
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_BITMAP_HORIZONTAL_SKEW");
   if(offset > 0)
   {
     // Fill gap left of skew with background.
@@ -792,6 +802,7 @@ void VerticalSkew(const uint8_t* const srcBufferPtr,
                   int32_t              offset,
                   float                weight)
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_BITMAP_VERTICAL_SKEW");
   for(int32_t i = 0; i < offset; ++i)
   {
     // Fill gap above skew with background
@@ -878,7 +889,6 @@ void VerticalSkew(const uint8_t* const srcBufferPtr,
     ++i;
   }
 }
-
 } // namespace
 
 ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions)
@@ -991,6 +1001,12 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
         return bitmap;
       }
 
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP", [&](std::ostringstream& oss) {
+        oss << "[origin:" << inputWidth << "x" << inputHeight << " ";
+        oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
+        oss << "fittingMode:" << fittingMode << "]";
+      });
+
       // Create new PixelBuffer with the desired size.
       const auto pixelFormat = bitmap.GetPixelFormat();
 
@@ -1031,6 +1047,8 @@ Dali::Devel::PixelBuffer CropAndPadForFittingMode(Dali::Devel::PixelBuffer& bitm
       AddBorders(croppedBitmap.GetBuffer(), bytesPerPixel, desiredDimensions, ImageDimensions(columnsToPad, scanlinesToPad));
       // Overwrite the loaded bitmap with the cropped version
       bitmap = croppedBitmap;
+
+      DALI_TRACE_END(gTraceFilter, "DALI_CROP_AND_PAD_BITMAP");
     }
   }
 
@@ -1105,6 +1123,12 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
     (desiredWidth > 0.0f) && (desiredHeight > 0.0f) &&
     ((desiredWidth < bitmapWidth) || (desiredHeight < bitmapHeight)))
   {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss) {
+      oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
+      oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
+      oss << "fittingMode:" << fittingMode << " ";
+      oss << "samplingMode:" << samplingMode << "]";
+    });
     auto pixelFormat = bitmap.GetPixelFormat();
 
     // Do the fast power of 2 iterated box filter to get to roughly the right side if the filter mode requests that:
@@ -1145,6 +1169,11 @@ Dali::Devel::PixelBuffer DownscaleBitmap(Dali::Devel::PixelBuffer bitmap,
       // The buffer is downscaled and it is tightly packed. We don't need to set a stride.
       outputBitmap = MakePixelBuffer(bitmap.GetBuffer(), pixelFormat, shrunkWidth, shrunkHeight);
     }
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_DOWNSCALE_BITMAP", [&](std::ostringstream& oss) {
+      oss << "[origin:" << bitmapWidth << "x" << bitmapHeight << " ";
+      oss << "desired:" << desiredWidth << "x" << desiredHeight << " ";
+      oss << "final:" << outputBitmap.GetWidth() << "x" << outputBitmap.GetHeight() << "]";
+    });
   }
 
   return outputBitmap;
