@@ -33,14 +33,15 @@ namespace Internal
 {
 namespace Adaptor
 {
-NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueAndroid* NativeImageSourceQueueAndroid::New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid(width, height, colorFormat, nativeImageSourceQueue);
+  NativeImageSourceQueueAndroid* image = new NativeImageSourceQueueAndroid(queueCount, width, height, colorFormat, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
-: mWidth(width),
+NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+: mQueueCount(queueCount),
+  mWidth(width),
   mHeight(height)
 {
   DALI_LOG_ERROR("NativeImageSourceQueueAndroid::NativeImageSourceQueueAndroid: Not supported\n");

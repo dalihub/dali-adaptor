@@ -27,7 +27,18 @@ namespace Dali
 NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t height, ColorFormat colorFormat)
 {
   Any                       empty;
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(width, height, colorFormat, empty);
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, width, height, colorFormat, empty);
+  if(image->mImpl)
+  {
+    return image;
+  }
+  return nullptr;
+}
+
+NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat)
+{
+  Any                       empty;
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(queueCount, width, height, colorFormat, empty);
   if(image->mImpl)
   {
     return image;
@@ -38,7 +49,7 @@ NativeImageSourceQueuePtr NativeImageSourceQueue::New(uint32_t width, uint32_t h
 NativeImageSourceQueuePtr NativeImageSourceQueue::New(Any nativeImageSourceQueue)
 {
   //ColorFormat will be ignored.
-  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, ColorFormat::BGRA8888, nativeImageSourceQueue);
+  NativeImageSourceQueuePtr image = new NativeImageSourceQueue(0, 0, 0, ColorFormat::BGRA8888, nativeImageSourceQueue);
   if(image->mImpl)
   {
     return image;
@@ -101,6 +112,11 @@ void NativeImageSourceQueue::PrepareTexture()
   mImpl->PrepareTexture();
 }
 
+uint32_t NativeImageSourceQueue::GetQueueCount() const
+{
+  return mImpl->GetQueueCount();
+}
+
 uint32_t NativeImageSourceQueue::GetWidth() const
 {
   return mImpl->GetWidth();
@@ -151,10 +167,10 @@ NativeImageInterface::Extension* NativeImageSourceQueue::GetExtension()
   return mImpl->GetNativeImageInterfaceExtension();
 }
 
-NativeImageSourceQueue::NativeImageSourceQueue(uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueue::NativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
   auto factory = Dali::Internal::Adaptor::GetNativeImageSourceFactory();
-  mImpl        = factory->CreateNativeImageSourceQueue(width, height, colorFormat, nativeImageSourceQueue);
+  mImpl        = factory->CreateNativeImageSourceQueue(queueCount, width, height, colorFormat, nativeImageSourceQueue);
 }
 
 NativeImageSourceQueue::~NativeImageSourceQueue()

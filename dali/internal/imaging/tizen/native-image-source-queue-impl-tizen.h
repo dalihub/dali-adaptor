@@ -45,13 +45,14 @@ public:
   /**
    * Create a new NativeImageSourceQueueTizen internally.
    * Depending on hardware the width and height may have to be a power of two.
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueTizen* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  static NativeImageSourceQueueTizen* New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -112,6 +113,14 @@ public:
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   void PrepareTexture() override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::GetQueueCount()
+   */
+  uint32_t GetQueueCount() const override
+  {
+    return mQueueCount;
+  }
 
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
@@ -181,12 +190,13 @@ public:
 private:
   /**
    * Private constructor; @see NativeImageSourceQueue::New()
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] colorFormat The format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   void Initialize(Dali::NativeImageSourceQueue::ColorFormat colorFormat);
 
@@ -201,6 +211,7 @@ private:
   typedef std::pair<tbm_surface_h, uint8_t*> BufferPair;
 
   Dali::Mutex               mMutex;              ///< Mutex
+  uint32_t                  mQueueCount;         ///< queue count
   uint32_t                  mWidth;              ///< image width
   uint32_t                  mHeight;             ///< image height
   tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle

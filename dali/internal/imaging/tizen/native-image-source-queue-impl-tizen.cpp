@@ -67,9 +67,9 @@ int32_t GetTbmSurfaceQueueSize()
 
 } // namespace
 
-NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(width, height, colorFormat, nativeImageSourceQueue);
+  NativeImageSourceQueueTizen* image = new NativeImageSourceQueueTizen(queueCount, width, height, colorFormat, nativeImageSourceQueue);
   DALI_ASSERT_DEBUG(image && "NativeImageSourceQueueTizen allocation failed.");
 
   if(image)
@@ -80,8 +80,9 @@ NativeImageSourceQueueTizen* NativeImageSourceQueueTizen::New(uint32_t width, ui
   return image;
 }
 
-NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 : mMutex(),
+  mQueueCount(queueCount),
   mWidth(width),
   mHeight(height),
   mTbmQueue(NULL),
@@ -105,6 +106,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t width, uint32_
   if(mTbmQueue != NULL)
   {
     mBlendingRequired = CheckBlending(tbm_surface_queue_get_format(mTbmQueue));
+    mQueueCount       = tbm_surface_queue_get_size(mTbmQueue);
     mWidth            = tbm_surface_queue_get_width(mTbmQueue);
     mHeight           = tbm_surface_queue_get_height(mTbmQueue);
   }
@@ -162,7 +164,12 @@ void NativeImageSourceQueueTizen::Initialize(Dali::NativeImageSourceQueue::Color
       }
     }
 
-    mTbmQueue = tbm_surface_queue_create(GetTbmSurfaceQueueSize(), mWidth, mHeight, tbmFormat, 0);
+    if(mQueueCount == 0)
+    {
+      mQueueCount = GetTbmSurfaceQueueSize();
+    }
+
+    mTbmQueue = tbm_surface_queue_create(mQueueCount, mWidth, mHeight, tbmFormat, 0);
     if(!mTbmQueue)
     {
       DALI_LOG_ERROR("NativeImageSourceQueueTizen::Initialize: tbm_surface_queue_create is failed! [%p]\n", mTbmQueue);

@@ -2,7 +2,7 @@
 #define DALI_NATIVE_IMAGE_SOURCE_QUEUE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,12 +76,25 @@ public:
   /**
    * @brief Creates a new NativeImageSourceQueue.
    *        Depending on hardware, the width and height may have to be a power of two.
+   *        It will use 3, or defined by DALI_TBM_SURFACE_QUEUE_SIZE as default.
    * @param[in] width The width of the image
    * @param[in] height The height of the image
    * @param[in] colorFormat The color format of the image
    * @return A smart-pointer to a newly allocated image
    */
   static NativeImageSourceQueuePtr New(uint32_t width, uint32_t height, ColorFormat colorFormat);
+
+  /**
+   * @brief Creates a new NativeImageSourceQueue with the queue size.
+   *        Depending on hardware, the width and height may have to be a power of two.
+   * @note Since queueCount can increase the memory usage, we recommened queueCount value is less or equal than 3.
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
+   * @param[in] width The width of the image
+   * @param[in] height The height of the image
+   * @param[in] colorFormat The color format of the image
+   * @return A smart-pointer to a newly allocated image
+   */
+  static NativeImageSourceQueuePtr New(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat);
 
   /**
    * @brief Creates a new NativeImageSourceQueue from an existing native image source.
@@ -164,6 +177,13 @@ public:
    */
   const char* GetCustomSamplerTypename() const override;
 
+  /**
+   * @brief Get the number of queue count for this image.
+   *
+   * @return The number of queue count.
+   */
+  uint32_t GetQueueCount() const;
+
 private: // native image
   /**
    * @copydoc Dali::NativeImageInterface::CreateResource()
@@ -224,12 +244,13 @@ private:
   /// @cond internal
   /**
    * @brief Private constructor.
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image
    * @param[in] height The height of the image
    * @param[in] colorFormat The color format of the image
    * @param[in] nativeImageSourceQueue contains either: native image source or is empty
    */
-  DALI_INTERNAL NativeImageSourceQueue(uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue);
+  DALI_INTERNAL NativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @brief A reference counted object may only be deleted by calling Unreference().
