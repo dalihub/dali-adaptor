@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1549,14 +1549,20 @@ void AverageScanlinesRGBA8888(const uint8_t* const scanline1,
   DALI_ASSERT_DEBUG(((reinterpret_cast<ptrdiff_t>(scanline2) & 3u) == 0u) && "Pointer should be 4-byte aligned for performance on some platforms.");
   DALI_ASSERT_DEBUG(((reinterpret_cast<ptrdiff_t>(outputScanline) & 3u) == 0u) && "Pointer should be 4-byte aligned for performance on some platforms.");
 
-  const uint32_t* const alignedScanline1 = reinterpret_cast<const uint32_t*>(scanline1);
-  const uint32_t* const alignedScanline2 = reinterpret_cast<const uint32_t*>(scanline2);
-  uint32_t* const       alignedOutput    = reinterpret_cast<uint32_t*>(outputScanline);
+  /**
+   * @code
+   * const uint32_t* const alignedScanline1 = reinterpret_cast<const uint32_t*>(scanline1);
+   * const uint32_t* const alignedScanline2 = reinterpret_cast<const uint32_t*>(scanline2);
+   * uint32_t* const       alignedOutput    = reinterpret_cast<uint32_t*>(outputScanline);
+   *
+   * for(uint32_t pixel = 0; pixel < width; ++pixel)
+   * {
+   *   alignedOutput[pixel] = AveragePixelRGBA8888(alignedScanline1[pixel], alignedScanline2[pixel]);
+   * }
+   * @endcode
+   */
 
-  for(uint32_t pixel = 0; pixel < width; ++pixel)
-  {
-    alignedOutput[pixel] = AveragePixelRGBA8888(alignedScanline1[pixel], alignedScanline2[pixel]);
-  }
+  AverageScanlinesWithMultipleComponents(scanline1, scanline2, outputScanline, width * 4u);
 }
 
 void AverageScanlinesRGB565(const uint8_t* const scanline1,
