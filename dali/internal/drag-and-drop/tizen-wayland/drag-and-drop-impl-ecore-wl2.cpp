@@ -54,7 +54,7 @@ static constexpr int32_t INVALID_ECORE_WL2_WINDOW_ID = -1;
 
 static bool IsIntersection(int px, int py, int tx, int ty, int tw, int th)
 {
-  if(px > tx && py > ty && px < (tx + tw) && py < (ty + th))
+  if(px >= tx && py >= ty && px <= (tx + tw) && py <= (ty + th))
   {
     return true;
   }
