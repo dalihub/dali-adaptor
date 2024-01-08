@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/imaging/common/pixel-buffer-impl.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/pixel-data-integ.h>
 #include <stdlib.h>
 #include <cstring>
 
@@ -102,23 +103,37 @@ PixelBufferPtr PixelBuffer::New(uint8_t*            buffer,
   return new PixelBuffer(buffer, bufferSize, width, height, stride, pixelFormat);
 }
 
-Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
+Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer, bool releaseAfterUpload)
 {
 #if defined(DEBUG_ENABLED)
   gPixelBufferAllocationTotal -= pixelBuffer.mBufferSize;
 #endif
-  Dali::PixelData pixelData = Dali::PixelData::New(pixelBuffer.mBuffer,
-                                                   pixelBuffer.mBufferSize,
-                                                   pixelBuffer.mWidth,
-                                                   pixelBuffer.mHeight,
-                                                   pixelBuffer.mStride,
-                                                   pixelBuffer.mPixelFormat,
-                                                   Dali::PixelData::FREE);
-  pixelBuffer.mBuffer       = NULL;
-  pixelBuffer.mWidth        = 0;
-  pixelBuffer.mHeight       = 0;
-  pixelBuffer.mBufferSize   = 0;
-  pixelBuffer.mStride       = 0;
+  Dali::PixelData pixelData;
+  if(releaseAfterUpload)
+  {
+    pixelData = Dali::Integration::NewPixelDataWithReleaseAfterUpload(pixelBuffer.mBuffer,
+                                                                      pixelBuffer.mBufferSize,
+                                                                      pixelBuffer.mWidth,
+                                                                      pixelBuffer.mHeight,
+                                                                      pixelBuffer.mStride,
+                                                                      pixelBuffer.mPixelFormat,
+                                                                      Dali::PixelData::FREE);
+  }
+  else
+  {
+    pixelData = Dali::PixelData::New(pixelBuffer.mBuffer,
+                                     pixelBuffer.mBufferSize,
+                                     pixelBuffer.mWidth,
+                                     pixelBuffer.mHeight,
+                                     pixelBuffer.mStride,
+                                     pixelBuffer.mPixelFormat,
+                                     Dali::PixelData::FREE);
+  }
+  pixelBuffer.mBuffer     = NULL;
+  pixelBuffer.mWidth      = 0;
+  pixelBuffer.mHeight     = 0;
+  pixelBuffer.mBufferSize = 0;
+  pixelBuffer.mStride     = 0;
 
   return pixelData;
 }
@@ -240,6 +255,7 @@ void PixelBuffer::ReleaseBuffer()
     gPixelBufferAllocationTotal -= mBufferSize;
 #endif
     free(mBuffer);
+    mBuffer = nullptr;
   }
 }
 
@@ -325,6 +341,10 @@ bool PixelBuffer::Rotate(Degree angle)
     pixelsOut   = nullptr;
     mBufferSize = mWidth * mHeight * pixelSize;
     mStride     = mWidth; // The buffer is tightly packed.
+
+#if defined(DEBUG_ENABLED)
+    gPixelBufferAllocationTotal += mBufferSize;
+#endif
   }
 
   return success;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,7 +244,7 @@ int UtcDaliPixelBufferNew01N(void)
   END_TEST;
 }
 
-int UtcDaliPixelBufferConvert(void)
+int UtcDaliPixelBufferConvert01(void)
 {
   TestApplication    application;
   TestGlAbstraction& gl           = application.GetGlAbstraction();
@@ -258,6 +258,56 @@ int UtcDaliPixelBufferConvert(void)
     Devel::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
 
     Dali::PixelData pixelData = Devel::PixelBuffer::Convert(pixbuf);
+    DALI_TEST_CHECK(!pixbuf);
+
+    // check the buffer in the second handle is empty
+    DALI_TEST_CHECK(pixbufPrime.GetBuffer() == NULL);
+
+    DALI_TEST_CHECK(pixelData);
+    DALI_TEST_EQUALS(pixelData.GetWidth(), 10, TEST_LOCATION);
+    DALI_TEST_EQUALS(pixelData.GetHeight(), 10, TEST_LOCATION);
+    DALI_TEST_EQUALS(pixelData.GetStride(), 10, TEST_LOCATION);
+    DALI_TEST_EQUALS(pixelData.GetPixelFormat(), Pixel::RGB565, TEST_LOCATION);
+
+    // Try drawing it
+    Texture t = Texture::New(TextureType::TEXTURE_2D, Pixel::RGB565, 10, 10);
+    t.Upload(pixelData);
+    TextureSet ts = TextureSet::New();
+    ts.SetTexture(0, t);
+    Geometry g = CreateQuadGeometry();
+    Shader   s = Shader::New("v", "f");
+    Renderer r = Renderer::New(g, s);
+    r.SetTextures(ts);
+    Actor a = Actor::New();
+    a.AddRenderer(r);
+    a.SetProperty(Actor::Property::SIZE, Vector2(10, 10));
+    a.SetProperty(Actor::Property::PARENT_ORIGIN, ParentOrigin::CENTER);
+    application.GetScene().Add(a);
+
+    application.SendNotification();
+    application.Render();
+    DALI_TEST_EQUALS(textureTrace.FindMethod("BindTexture"), true, TEST_LOCATION);
+
+    // Let secondary scope destroy pixbufPrime
+  }
+
+  END_TEST;
+}
+
+int UtcDaliPixelBufferConvert02(void)
+{
+  TestApplication    application;
+  TestGlAbstraction& gl           = application.GetGlAbstraction();
+  TraceCallStack&    textureTrace = gl.GetTextureTrace();
+  textureTrace.Enable(true);
+
+  Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New(10, 10, Pixel::RGB565);
+  FillCheckerboard(pixbuf);
+
+  {
+    Devel::PixelBuffer pixbufPrime = pixbuf; // store a second handle to the data
+
+    Dali::PixelData pixelData = Devel::PixelBuffer::Convert(pixbuf, true);
     DALI_TEST_CHECK(!pixbuf);
 
     // check the buffer in the second handle is empty
