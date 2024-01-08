@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,8 @@ const char* CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[] = {"DALI_ENABLE_DECODE_JPEG_TO
                                                      "DALI_ENABLE_DECODE_JPEG_TO_YUV_420",
                                                      "",
                                                      "DALI_ENABLE_DECODE_JPEG_TO_YUV_440",
-                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_411"};
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_411",
+                                                     "DALI_ENABLE_DECODE_JPEG_TO_YUV_441"};
 
 static bool gSubsamplingFormatTable[TJ_NUMSAMP] = {
   false,
@@ -202,7 +203,7 @@ public:
   }
 
   /// @brief Pointer to Pointer cast operator
-  operator T**()
+  operator T* *()
   {
     return &mRawPointer;
   }
