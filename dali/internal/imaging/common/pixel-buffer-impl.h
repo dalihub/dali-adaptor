@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,9 +76,10 @@ public:
    * The new object takes ownership of the buffer data, and the
    * mBuffer pointer is reset to NULL.
    * @param[in] pixelBuffer The buffer to convert
+   * @param[in] releaseAfterUpload Whether converted PixelData released after upload or not.
    * @return the pixelData
    */
-  static Dali::PixelData Convert(PixelBuffer& pixelBuffer);
+  static Dali::PixelData Convert(PixelBuffer& pixelBuffer, bool releaseAfterUpload);
 
   /**
    * @brief Constructor.

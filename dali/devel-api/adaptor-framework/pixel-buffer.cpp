@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,12 @@ PixelBuffer PixelBuffer::New(uint32_t            width,
 
 Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer)
 {
-  Dali::PixelData pixelData =
-    Internal::Adaptor::PixelBuffer::Convert(GetImplementation(pixelBuffer));
+  return Convert(pixelBuffer, false);
+}
+
+Dali::PixelData PixelBuffer::Convert(PixelBuffer& pixelBuffer, bool releaseAfterUpload)
+{
+  Dali::PixelData pixelData = Internal::Adaptor::PixelBuffer::Convert(GetImplementation(pixelBuffer), releaseAfterUpload);
   pixelBuffer.Reset();
   return pixelData;
 }
