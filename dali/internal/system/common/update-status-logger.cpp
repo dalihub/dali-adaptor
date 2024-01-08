@@ -77,6 +77,15 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
         oss += "<Render task waiting for completion> ";
       }
 
+      if(keepUpdatingStatus & Integration::KeepUpdating::FRAME_UPDATE_CALLBACK)
+      {
+        oss += "<FrameUpdateCallback::return true";
+#ifdef PROFILE_TV
+        oss += "(NOTE : We don't keep update for this version)"
+#endif
+        oss += "> ";
+      }
+
       DALI_LOG_UPDATE_STATUS("%s\n", oss.c_str());
     }
   }

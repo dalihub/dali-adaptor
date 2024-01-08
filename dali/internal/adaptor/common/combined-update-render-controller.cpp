@@ -733,8 +733,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       mNotificationTrigger.Trigger();
       LOG_UPDATE_RENDER("Notification Triggered");
     }
-  
-    if(uploadOnly && (keepUpdatingStatus & Dali::Integration::KeepUpdating::STAGE_KEEP_RENDERING))
+
+    if(uploadOnly && (keepUpdatingStatus & (Dali::Integration::KeepUpdating::STAGE_KEEP_RENDERING | Dali::Integration::KeepUpdating::FRAME_UPDATE_CALLBACK)))
     {
       // Render forcely if there exist some keep rendering required.
       uploadOnly = false;
@@ -872,7 +872,14 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     mForceClear = false;
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
-    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus) && !renderStatus.NeedsUpdate())
+    // or, only FrameUpdateCallback return true.
+    // TODO : This logic only required for PROFILE_TV case. We should consider other profile in future.
+    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus
+#ifdef PROFILE_TV
+        || Integration::KeepUpdating::FRAME_UPDATE_CALLBACK == keepUpdatingStatus
+#endif
+       )
+       && !renderStatus.NeedsUpdate())
     {
       mSleepTrigger->Trigger();
       updateRequired = false;
