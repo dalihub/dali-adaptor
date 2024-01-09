@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -748,17 +748,19 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                               info.srcExtent2D.width != (createInfo.size.width / (1 << info.level)) ||
                               info.srcExtent2D.height != (createInfo.size.height / (1 << info.level)));
 
-        uint8_t* sourceBuffer;
+        uint8_t* sourceBuffer                = nullptr;
+        bool     sourceBufferReleaseRequired = false;
         if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
         {
-          sourceBuffer = reinterpret_cast<uint8_t*>(source.memorySource.memory);
+          sourceBuffer                = reinterpret_cast<uint8_t*>(source.memorySource.memory);
+          sourceBufferReleaseRequired = true;
         }
         else
         {
-          // Get buffer of PixelData
           Dali::Integration::PixelDataBuffer pixelBufferData = Dali::Integration::GetPixelDataBuffer(source.pixelDataSource.pixelData);
 
-          sourceBuffer = pixelBufferData.buffer + info.srcOffset;
+          sourceBuffer                = pixelBufferData.buffer + info.srcOffset;
+          sourceBufferReleaseRequired = Dali::Integration::IsPixelDataReleaseAfterUpload(source.pixelDataSource.pixelData) && info.srcOffset == 0u;
         }
 
         auto                 sourceStride = info.srcStride;
@@ -847,10 +849,16 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           }
         }
 
-        if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
+        if(sourceBufferReleaseRequired && sourceBuffer != nullptr)
         {
-          // free staging memory
-          free(source.memorySource.memory);
+          if(source.sourceType == Graphics::TextureUpdateSourceInfo::Type::MEMORY)
+          {
+            free(reinterpret_cast<void*>(sourceBuffer));
+          }
+          else
+          {
+            Dali::Integration::ReleasePixelDataBuffer(source.pixelDataSource.pixelData);
+          }
         }
         break;
       }

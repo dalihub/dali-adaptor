@@ -2,7 +2,7 @@
 #define DALI_PIXEL_BUFFER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -126,6 +126,20 @@ public:
    * @return a new PixelData which takes ownership of the PixelBuffer's buffer.
    */
   static PixelData Convert(PixelBuffer& pixelBuffer);
+
+  /**
+   * Convert to a pixel data and release the pixelBuffer's object.
+   * This handle is left empty.
+   *
+   * @warning Any other handles that keep a reference to this object
+   * will be left with no buffer, trying to access it will return NULL.
+   *
+   * @SINCE_2_3.6
+   * @param[in,out] pixelBuffer
+   * @param[in] releaseAfterUpload Whether converted PixelData released after upload or not.
+   * @return a new PixelData which takes ownership of the PixelBuffer's buffer.
+   */
+  static PixelData Convert(PixelBuffer& pixelBuffer, bool releaseAfterUpload);
 
   /**
    * Copy the data from this object into a new PixelData object, which could be
