@@ -875,9 +875,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // or, only FrameUpdateCallback return true.
     // TODO : This logic only required for PROFILE_TV case. We should consider other profile in future.
     if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus
-#ifdef PROFILE_TV
+#ifdef DALI_PROFILE_TV
         || Integration::KeepUpdating::FRAME_UPDATE_CALLBACK == keepUpdatingStatus
-#endif
+#endif // DALI_PROFILE_TV
        )
        && !renderStatus.NeedsUpdate())
     {
