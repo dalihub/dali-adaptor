@@ -394,6 +394,7 @@ void BridgeAccessible::RegisterInterfaces()
   AddFunctionToInterface(desc, "GetReadingMaterial", &BridgeAccessible::GetReadingMaterial);
   AddFunctionToInterface(desc, "GetRelationSet", &BridgeAccessible::GetRelationSet);
   AddFunctionToInterface(desc, "SetListenPostRender", &BridgeAccessible::SetListenPostRender);
+  AddFunctionToInterface(desc, "GetNodeInfo", &BridgeAccessible::GetNodeInfo);
   mDbusServer.addInterface("/", desc, true);
 }
 
@@ -597,6 +598,51 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     parentRole,
     selectedChildCount,
     describedByObject};
+}
+
+BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
+{
+  auto self         = FindSelf();
+  auto roleName     = self->GetRoleName();
+  auto name         = self->GetName();
+  auto toolkitName  = "dali";
+  auto attributes   = self->GetAttributes();
+  auto states       = self->GetStates();
+
+  auto* component   = Component::DownCast(self);
+  Dali::Rect<> screenExtents = {0, 0, 0, 0};
+  Dali::Rect<> windowExtents = {0, 0, 0, 0};
+  if (component)
+  {
+    screenExtents = component->GetExtents(CoordinateType::SCREEN);
+    windowExtents = component->GetExtents(CoordinateType::WINDOW);
+  }
+
+  auto* valueInterface    = Value::DownCast(self);
+  double currentValue     = 0.0;
+  double minimumIncrement = 0.0;
+  double maximumValue     = 0.0;
+  double minimumValue     = 0.0;
+  if(valueInterface)
+  {
+    currentValue     = valueInterface->GetCurrent();
+    minimumIncrement = valueInterface->GetMinimumIncrement();
+    maximumValue     = valueInterface->GetMaximum();
+    minimumValue     = valueInterface->GetMinimum();
+  }
+
+  return {
+    roleName,
+    name,
+    toolkitName,
+    attributes,
+    states,
+    {screenExtents.x, screenExtents.y, screenExtents.width, screenExtents.height},
+    {windowExtents.x, windowExtents.y, windowExtents.width, windowExtents.height},
+    currentValue,
+    minimumIncrement,
+    maximumValue,
+    minimumValue};
 }
 
 DBus::ValueOrError<bool> BridgeAccessible::DoGesture(Dali::Accessibility::Gesture type, int32_t startPositionX, int32_t startPositionY, int32_t endPositionX, int32_t endPositionY, Dali::Accessibility::GestureState state, uint32_t eventTime)

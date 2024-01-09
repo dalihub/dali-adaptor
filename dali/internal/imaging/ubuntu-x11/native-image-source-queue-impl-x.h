@@ -41,13 +41,14 @@ public:
   /**
    * Create a new NativeImageSourceQueueX internally.
    * Depending on hardware the width and height may have to be a power of two.
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    * @return A smart-pointer to a newly allocated image.
    */
-  static NativeImageSourceQueueX* New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  static NativeImageSourceQueueX* New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
   /**
    * @copydoc Dali::NativeImageSourceQueue::GetNativeImageSourceQueue()
@@ -108,6 +109,14 @@ public:
    * @copydoc Dali::NativeImageInterface::PrepareTexture()
    */
   void PrepareTexture() override;
+
+  /**
+   * @copydoc Dali::NativeImageSourceQueue::GetQueueCount
+   */
+  uint32_t GetQueueCount() const override
+  {
+    return mQueueCount;
+  }
 
   /**
    * @copydoc Dali::NativeImageInterface::GetWidth()
@@ -177,16 +186,18 @@ public:
 private:
   /**
    * Private constructor; @see NativeImageSourceQueue::New()
+   * @param[in] queueCount The number of queue of the image. If it is 0, will use default.
    * @param[in] width The width of the image.
    * @param[in] height The height of the image.
    * @param[in] colorFormat The color format of the image.
    * @param[in] nativeImageSourceQueue contains tbm_surface_queue_h or is empty
    */
-  NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
+  NativeImageSourceQueueX(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue);
 
 private:
-  uint32_t mWidth;  ///< image width
-  uint32_t mHeight; ///< image height
+  uint32_t mQueueCount; ///< queue count
+  uint32_t mWidth;      ///< image width
+  uint32_t mHeight;     ///< image height
 };
 
 } // namespace Adaptor

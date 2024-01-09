@@ -42,7 +42,7 @@ public:
 
   virtual std::unique_ptr<NativeImageSource> CreateNativeImageSource(uint32_t width, uint32_t height, Dali::NativeImageSource::ColorDepth depth, Any nativeImageSource) = 0;
 
-  virtual std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue) = 0;
+  virtual std::unique_ptr<NativeImageSourceQueue> CreateNativeImageSourceQueue(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue) = 0;
 };
 
 extern std::unique_ptr<NativeImageSourceFactory> GetNativeImageSourceFactory();

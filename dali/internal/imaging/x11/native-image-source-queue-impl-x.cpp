@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,14 +28,15 @@ namespace Internal
 {
 namespace Adaptor
 {
-NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+NativeImageSourceQueueX* NativeImageSourceQueueX::New(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
 {
-  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(width, height, colorFormat, nativeImageSourceQueue);
+  NativeImageSourceQueueX* image = new NativeImageSourceQueueX(queueCount, width, height, colorFormat, nativeImageSourceQueue);
   return image;
 }
 
-NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
-: mWidth(width),
+NativeImageSourceQueueX::NativeImageSourceQueueX(uint32_t queueCount, uint32_t width, uint32_t height, Dali::NativeImageSourceQueue::ColorFormat colorFormat, Any nativeImageSourceQueue)
+: mQueueCount(queueCount),
+  mWidth(width),
   mHeight(height)
 {
   DALI_LOG_ERROR("NativeImageSourceQueueX::NativeImageSourceQueueX: Not supported\n");

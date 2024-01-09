@@ -63,10 +63,10 @@ struct Context::Impl
       // Make unordered hash value by location.
       // Note : This hash function varified for locations only under < 20.
       std::size_t salt = attr.location + 1;
-      hash += salt << (sizeof(std::size_t) * 3 / 4);
+      hash += salt << (sizeof(std::size_t) * 6);
       salt *= salt;
       salt ^= attr.location;
-      hash += salt << (sizeof(std::size_t) / 2);
+      hash += salt << (sizeof(std::size_t) * 4);
       salt *= salt;
       hash += salt;
     }

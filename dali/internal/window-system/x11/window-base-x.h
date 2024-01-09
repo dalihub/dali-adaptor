@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_WINDOW_BASE_X_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ public:
   /**
    * Create the dali key event from the X11 event
    */
-  static Integration::KeyEvent CreateKeyEvent(WindowSystemX::X11KeyEvent* keyEvent, Integration::KeyEvent::State state);
+  Integration::KeyEvent CreateKeyEvent(WindowSystemX::X11KeyEvent* keyEvent, Integration::KeyEvent::State state);
 
   /**
    * @brief Called when a key down is received.
