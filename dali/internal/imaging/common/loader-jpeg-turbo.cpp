@@ -59,6 +59,8 @@ const char* CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[] = {"DALI_ENABLE_DECODE_JPEG_TO
                                                      "DALI_ENABLE_DECODE_JPEG_TO_YUV_411",
                                                      "DALI_ENABLE_DECODE_JPEG_TO_YUV_441"};
 
+const int CHROMINANCE_SUBSAMPLING_OPTIONS_ENV_COUNT = sizeof(CHROMINANCE_SUBSAMPLING_OPTIONS_ENV) / sizeof(CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[0]);
+
 static bool gSubsamplingFormatTable[TJ_NUMSAMP] = {
   false,
 };
@@ -94,14 +96,20 @@ static bool IsSubsamplingFormatEnabled(int chrominanceSubsampling)
   {
     for(int i = 0; i < TJ_NUMSAMP; i++)
     {
-      auto valueString           = Dali::EnvironmentVariable::GetEnvironmentVariable(CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[i]);
+      const char* envName        = DALI_LIKELY(i < CHROMINANCE_SUBSAMPLING_OPTIONS_ENV_COUNT) ? CHROMINANCE_SUBSAMPLING_OPTIONS_ENV[i] : "";
+      auto        valueString    = Dali::EnvironmentVariable::GetEnvironmentVariable(envName);
       gSubsamplingFormatTable[i] = valueString ? std::atoi(valueString) : false;
     }
 
     gIsSubsamplingFormatTableInitialized = true;
   }
 
-  return gSubsamplingFormatTable[chrominanceSubsampling];
+  if(DALI_UNLIKELY(chrominanceSubsampling >= TJ_NUMSAMP))
+  {
+    DALI_LOG_WARNING("WARNING! Input subsampling value [%d] is bigger than turbojpeg library support [%d]\n", chrominanceSubsampling, TJ_NUMSAMP);
+  }
+
+  return chrominanceSubsampling < TJ_NUMSAMP ? gSubsamplingFormatTable[chrominanceSubsampling] : false;
 }
 
 /**
@@ -203,7 +211,7 @@ public:
   }
 
   /// @brief Pointer to Pointer cast operator
-  operator T* *()
+  operator T**()
   {
     return &mRawPointer;
   }
