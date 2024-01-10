@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -289,21 +289,19 @@ uint8_t* NativeImageSourceQueueTizen::DequeueBuffer(uint32_t& width, uint32_t& h
   height = mHeight;
 
   // Push the buffer
-  mBuffers.push_back(BufferPair(tbmSurface, buffer));
+  mBuffers.insert({buffer, tbmSurface});
   return buffer;
 }
 
 bool NativeImageSourceQueueTizen::EnqueueBuffer(uint8_t* buffer)
 {
   Dali::Mutex::ScopedLock lock(mMutex);
-  auto                    bufferInstance = std::find_if(mBuffers.begin(),
-                                     mBuffers.end(),
-                                     [buffer](BufferPair pair) { return (pair.second == buffer); });
+  auto                    bufferInstance = mBuffers.find(buffer);
   if(bufferInstance != mBuffers.end())
   {
-    tbm_surface_internal_unref((*bufferInstance).first);
-    tbm_surface_unmap((*bufferInstance).first);
-    tbm_surface_queue_enqueue(mTbmQueue, (*bufferInstance).first);
+    tbm_surface_internal_unref((*bufferInstance).second);
+    tbm_surface_unmap((*bufferInstance).second);
+    tbm_surface_queue_enqueue(mTbmQueue, (*bufferInstance).second);
     mBuffers.erase(bufferInstance);
     return true;
   }
@@ -379,19 +377,8 @@ void NativeImageSourceQueueTizen::PrepareTexture()
 
     if(mConsumeSurface)
     {
-      bool existing = false;
-      for(auto&& iter : mEglImages)
-      {
-        if(iter.first == mConsumeSurface)
-        {
-          // Find the surface in the existing list
-          existing = true;
-          mEglImageExtensions->TargetTextureKHR(iter.second);
-          break;
-        }
-      }
-
-      if(!existing)
+      auto iter = mEglImages.find(mConsumeSurface);
+      if(iter == mEglImages.end())
       {
         // Push the surface
         tbm_surface_internal_ref(mConsumeSurface);
@@ -399,19 +386,32 @@ void NativeImageSourceQueueTizen::PrepareTexture()
         void* eglImageKHR = mEglImageExtensions->CreateImageKHR(reinterpret_cast<EGLClientBuffer>(mConsumeSurface));
         mEglImageExtensions->TargetTextureKHR(eglImageKHR);
 
-        mEglImages.push_back(EglImagePair(mConsumeSurface, eglImageKHR));
+        mEglImages.insert({mConsumeSurface, eglImageKHR});
+      }
+      else
+      {
+        mEglImageExtensions->TargetTextureKHR(iter->second);
       }
     }
   }
 
   if(mFreeRequest)
   {
-    auto iter = std::remove_if(mEglImages.begin(), mEglImages.end(), [&](EglImagePair& eglImage) {
-        if(mConsumeSurface == eglImage.first) return false;
-        mEglImageExtensions->DestroyImageKHR(eglImage.second);
-        tbm_surface_internal_unref(eglImage.first);
-        return true; });
-    mEglImages.erase(iter, mEglImages.end());
+    // Destroy all egl images which is not mConsumeSurface.
+    for(auto iter = mEglImages.begin(); iter != mEglImages.end();)
+    {
+      if(iter->first == mConsumeSurface)
+      {
+        ++iter;
+      }
+      else
+      {
+        mEglImageExtensions->DestroyImageKHR(iter->second);
+        tbm_surface_internal_unref(iter->first);
+
+        iter = mEglImages.erase(iter);
+      }
+    }
 
     tbm_surface_queue_free_flush(mTbmQueue);
     mFreeRequest = false;
