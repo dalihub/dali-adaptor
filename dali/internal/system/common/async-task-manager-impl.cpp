@@ -164,6 +164,16 @@ void AsyncTaskThread::Run()
     else
     {
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Process task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
+      std::string_view userThreadName = task->GetTaskName();
+      if(userThreadName.size() > 0)
+      {
+        SetThreadName(std::string(userThreadName.data()) + "Thread");
+      }
+      else
+      {
+        SetThreadName("AsyncTaskThread");
+      }
+
       task->Process();
       DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::General, "Thread[%u] Complete task [%p][%s]\n", threadId, task.Get(), GetTaskName(task));
       if(!mDestroyThread)
