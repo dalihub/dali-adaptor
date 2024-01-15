@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_TIZEN_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@
  */
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/map-wrapper.h>
 #include <dali/devel-api/threading/mutex.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <tbm_surface.h>
 #include <tbm_surface_queue.h>
+#include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/internal/imaging/common/native-image-source-queue-impl.h>
@@ -207,23 +209,23 @@ private:
   bool CheckBlending(int format);
 
 private:
-  typedef std::pair<tbm_surface_h, void*>    EglImagePair;
-  typedef std::pair<tbm_surface_h, uint8_t*> BufferPair;
+  using SurfaceEglContainer    = std::unordered_map<tbm_surface_h, void*>;
+  using BufferSurfaceContainer = std::unordered_map<uint8_t*, tbm_surface_h>;
 
-  Dali::Mutex               mMutex;              ///< Mutex
-  uint32_t                  mQueueCount;         ///< queue count
-  uint32_t                  mWidth;              ///< image width
-  uint32_t                  mHeight;             ///< image height
-  tbm_surface_queue_h       mTbmQueue;           ///< Tbm surface queue handle
-  tbm_surface_h             mConsumeSurface;     ///< The current tbm surface
-  std::vector<EglImagePair> mEglImages;          ///< EGL Image vector
-  std::vector<BufferPair>   mBuffers;            ///< Buffer vector
-  EglGraphics*              mEglGraphics;        ///< EGL Graphics
-  EglImageExtensions*       mEglImageExtensions; ///< The EGL Image Extensions
-  bool                      mOwnTbmQueue;        ///< Whether we created tbm queue
-  bool                      mBlendingRequired;   ///< Whether blending is required
-  bool                      mIsResized;          ///< Whether the size has changed
-  bool                      mFreeRequest;        ///< Whether it is requested to free the released buffers
+  Dali::Mutex            mMutex;              ///< Mutex
+  uint32_t               mQueueCount;         ///< queue count
+  uint32_t               mWidth;              ///< image width
+  uint32_t               mHeight;             ///< image height
+  tbm_surface_queue_h    mTbmQueue;           ///< Tbm surface queue handle
+  tbm_surface_h          mConsumeSurface;     ///< The current tbm surface
+  SurfaceEglContainer    mEglImages;          ///< EGL Image map
+  BufferSurfaceContainer mBuffers;            ///< Buffer map
+  EglGraphics*           mEglGraphics;        ///< EGL Graphics
+  EglImageExtensions*    mEglImageExtensions; ///< The EGL Image Extensions
+  bool                   mOwnTbmQueue;        ///< Whether we created tbm queue
+  bool                   mBlendingRequired;   ///< Whether blending is required
+  bool                   mIsResized;          ///< Whether the size has changed
+  bool                   mFreeRequest;        ///< Whether it is requested to free the released buffers
 };
 
 } // namespace Adaptor
