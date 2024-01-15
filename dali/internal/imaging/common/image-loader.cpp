@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -350,9 +350,26 @@ bool ConvertStreamToPlanes(const Integration::BitmapResourceType& resource, cons
       if(planeLoader)
       {
         result = planeLoader(input, pixelBuffers);
-        if(!result)
+        if(!result || pixelBuffers.empty())
         {
           DALI_LOG_ERROR("Unable to convert %s\n", path.c_str());
+          return false;
+        }
+
+        bool applyAttributes = true;
+        for(auto&& pixelBuffer : pixelBuffers)
+        {
+          pixelBuffer = Internal::Platform::ApplyAttributesToBitmap(pixelBuffer, resource.size, resource.scalingMode, resource.samplingMode);
+          if(!pixelBuffer)
+          {
+            applyAttributes = false;
+            break;
+          }
+        }
+        if(!applyAttributes)
+        {
+          DALI_LOG_ERROR("ApplyAttributesToBitmap is failed [%s]\n", path.c_str());
+          return false;
         }
       }
       else

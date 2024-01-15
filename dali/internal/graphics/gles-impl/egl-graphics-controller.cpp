@@ -357,7 +357,7 @@ MemoryRequirements EglGraphicsController::GetBufferMemoryRequirements(Buffer& bu
 TextureProperties EglGraphicsController::GetTextureProperties(const Texture& texture)
 {
   const GLES::Texture* glesTexture = static_cast<const GLES::Texture*>(&texture);
-  auto                 createInfo  = glesTexture->GetCreateInfo();
+  const auto&          createInfo  = glesTexture->GetCreateInfo();
 
   TextureProperties properties{};
   properties.format       = createInfo.format;
