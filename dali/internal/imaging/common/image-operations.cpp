@@ -1635,7 +1635,7 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
   if(samplingMode == SamplingMode::BOX || samplingMode == SamplingMode::BOX_THEN_NEAREST || samplingMode == SamplingMode::BOX_THEN_LINEAR)
   {
     // Check the pixel format is one that is supported:
-    if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
+    if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
     {
       const BoxDimensionTest dimensionTest = DimensionTestForScalingMode(fittingMode);
 
@@ -1663,6 +1663,8 @@ void DownscaleInPlacePow2(uint8_t* const     pixels,
         }
         case Pixel::L8:
         case Pixel::A8:
+        case Pixel::CHROMINANCE_U:
+        case Pixel::CHROMINANCE_V:
         {
           Internal::Platform::DownscaleInPlacePow2SingleBytePerPixel(pixels, inputWidth, inputHeight, inputStride, desiredWidth, desiredHeight, dimensionTest, outWidth, outHeight, outStride);
           break;
@@ -1923,7 +1925,7 @@ void PointSample(const uint8_t* inPixels,
                  uint32_t       desiredHeight)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8)
+  if(pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
   {
     switch(pixelFormat)
     {
@@ -1945,6 +1947,8 @@ void PointSample(const uint8_t* inPixels,
       }
       case Pixel::L8:
       case Pixel::A8:
+      case Pixel::CHROMINANCE_U:
+      case Pixel::CHROMINANCE_V:
       {
         PointSample1BPP(inPixels, inputWidth, inputHeight, inputStride, outPixels, desiredWidth, desiredHeight);
         break;
@@ -2146,7 +2150,7 @@ void LinearSample(const uint8_t* __restrict__ inPixels,
                   ImageDimensions outDimensions)
 {
   // Check the pixel format is one that is supported:
-  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565)
+  if(pixelFormat == Pixel::RGB888 || pixelFormat == Pixel::RGBA8888 || pixelFormat == Pixel::L8 || pixelFormat == Pixel::A8 || pixelFormat == Pixel::LA88 || pixelFormat == Pixel::RGB565 || pixelFormat == Pixel::CHROMINANCE_U || pixelFormat == Pixel::CHROMINANCE_V)
   {
     switch(pixelFormat)
     {
@@ -2162,6 +2166,8 @@ void LinearSample(const uint8_t* __restrict__ inPixels,
       }
       case Pixel::L8:
       case Pixel::A8:
+      case Pixel::CHROMINANCE_U:
+      case Pixel::CHROMINANCE_V:
       {
         LinearSample1BPP(inPixels, inDimensions, inStride, outPixels, outDimensions);
         break;
