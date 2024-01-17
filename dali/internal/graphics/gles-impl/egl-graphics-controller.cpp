@@ -18,6 +18,7 @@
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/trace.h>
 #include <dali/public-api/common/dali-common.h>
 
 // INTERNAL INCLUDES
@@ -128,6 +129,7 @@ T0* CastObject(T1* apiObject)
 // Maximum size of texture upload buffer.
 const uint32_t TEXTURE_UPLOAD_MAX_BUFER_SIZE_MB = 1;
 
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_EGL, false);
 } // namespace
 
 EglGraphicsController::EglGraphicsController()
@@ -435,6 +437,8 @@ void EglGraphicsController::AddFramebuffer(GLES::Framebuffer& framebuffer)
 
 void EglGraphicsController::ProcessDiscardQueues()
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_DISCARD_QUEUE");
+
   // Process textures
   ProcessDiscardQueue<GLES::Texture>(mDiscardTextureQueue);
 
@@ -476,6 +480,7 @@ void EglGraphicsController::ProcessDiscardQueues()
 
 void EglGraphicsController::ProcessCreateQueues()
 {
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_CREATE_QUEUE");
   // Process textures
   ProcessCreateQueue(mCreateTextureQueue);
 
@@ -490,6 +495,11 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
 {
   auto       count    = 0u;
   const auto commands = commandBuffer.GetCommands(count);
+
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) {
+    oss << "[commandCount:" << count << "]";
+  });
+
   for(auto i = 0u; i < count; ++i)
   {
     auto& cmd = commands[i];
@@ -702,6 +712,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       }
     }
   }
+  DALI_TRACE_END(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS");
 }
 
 void EglGraphicsController::ProcessCommandQueues()
@@ -721,6 +732,11 @@ void EglGraphicsController::ProcessCommandQueues()
 
 void EglGraphicsController::ProcessTextureUpdateQueue()
 {
+  if(mTextureUpdateRequests.empty())
+  {
+    return;
+  }
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_TEXTURE_UPDATE");
   while(!mTextureUpdateRequests.empty())
   {
     TextureUpdateRequest& request = mTextureUpdateRequests.front();
@@ -933,6 +949,11 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
 
 void EglGraphicsController::ProcessTextureMipmapGenerationQueue()
 {
+  if(mTextureMipmapGenerationRequests.empty())
+  {
+    return;
+  }
+  DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_TEXTURE_MIPMAP");
   while(!mTextureMipmapGenerationRequests.empty())
   {
     auto* texture = mTextureMipmapGenerationRequests.front();
