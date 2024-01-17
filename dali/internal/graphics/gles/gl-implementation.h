@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -556,12 +556,20 @@ public:
 
   void Finish(void) override
   {
+    START_DURATION_CHECK();
+
     glFinish();
+
+    FINISH_DURATION_CHECK("glFinish");
   }
 
   void Flush(void) override
   {
+    START_DURATION_CHECK();
+
     glFlush();
+
+    FINISH_DURATION_CHECK("glFlush");
   }
 
   void FramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -623,7 +623,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   while(UpdateRenderReady(useElapsedTime, updateRequired, timeToSleepUntil))
   {
     LOG_UPDATE_RENDER_TRACE;
-    TRACE_UPDATE_RENDER_SCOPE("DALI_UPDATE_RENDER");
+    TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
 
     // For thread safe
     bool                          uploadOnly     = mUploadWithoutRendering;
@@ -925,6 +925,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         extraFramesDropped++;
       }
     }
+
+    TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
 
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
     if(0u == renderToFboInterval)
