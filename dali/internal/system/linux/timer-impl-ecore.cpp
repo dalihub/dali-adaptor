@@ -18,6 +18,9 @@
 // CLASS HEADER
 #include <dali/internal/system/linux/timer-impl-ecore.h>
 
+// EXTERNAL INCLUDES
+#include <dali/integration-api/trace.h>
+
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/public-api/dali-adaptor-common.h>
@@ -41,6 +44,8 @@ Eina_Bool TimerSourceFunc(void* data)
 
   return keepRunning ? EINA_TRUE : EINA_FALSE;
 }
+
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_TIMER_PERFORMANCE_MARKER, false);
 } // unnamed namespace
 
 /**
@@ -86,6 +91,13 @@ void TimerEcore::Start()
   }
   double interval = static_cast<double>(mImpl->mInterval) / 1000.0f;
   mImpl->mId      = ecore_timer_add(interval, reinterpret_cast<Ecore_Task_Cb>(TimerSourceFunc), this);
+
+#ifdef TRACE_ENABLED
+  if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+  {
+    DALI_LOG_DEBUG_INFO("Start ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+  }
+#endif
 }
 
 void TimerEcore::Stop()
@@ -103,6 +115,12 @@ void TimerEcore::Pause()
 
   if(mImpl->mId != NULL)
   {
+#ifdef TRACE_ENABLED
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Freeze ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+    }
+#endif
     ecore_timer_freeze(mImpl->mId);
   }
 }
@@ -114,6 +132,12 @@ void TimerEcore::Resume()
 
   if(mImpl->mId != NULL)
   {
+#ifdef TRACE_ENABLED
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Thaw ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+    }
+#endif
     ecore_timer_thaw(mImpl->mId);
   }
 }
@@ -146,7 +170,13 @@ bool TimerEcore::Tick()
   // Override with new signal if used
   if(!mTickSignal.Empty())
   {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss) {
+      oss << "[ecoreId:" << mImpl->mId << ", interval:" << mImpl->mInterval << "]";
+    });
     retVal = mTickSignal.Emit();
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_TIMER_TICK", [&](std::ostringstream& oss) {
+      oss << "[return:" << retVal << "]";
+    });
 
     // Timer stops if return value is false
     if(retVal == false)
@@ -171,6 +201,13 @@ void TimerEcore::ResetTimerData()
 {
   if(mImpl->mId != NULL)
   {
+#ifdef TRACE_ENABLED
+    if(gTraceFilter && gTraceFilter->IsTraceEnabled())
+    {
+      DALI_LOG_DEBUG_INFO("Stop ecore timer : %p with interval : %u ms\n", mImpl->mId, mImpl->mInterval);
+    }
+#endif
+
     ecore_timer_del(mImpl->mId);
     mImpl->mId = NULL;
   }
