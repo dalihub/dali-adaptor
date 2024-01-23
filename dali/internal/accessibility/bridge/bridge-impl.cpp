@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-selection.h>
 #include <dali/internal/accessibility/bridge/bridge-socket.h>
-#include <dali/internal/accessibility/bridge/bridge-table.h>
 #include <dali/internal/accessibility/bridge/bridge-table-cell.h>
+#include <dali/internal/accessibility/bridge/bridge-table.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
@@ -776,7 +776,11 @@ public:
       if(NULL == mIdleCallback)
       {
         mIdleCallback = MakeCallback(this, &BridgeImpl::OnIdleSignal);
-        adaptor.AddIdle(mIdleCallback, true);
+        if(DALI_UNLIKELY(!adaptor.AddIdle(mIdleCallback, true)))
+        {
+          DALI_LOG_ERROR("Fail to add idle callback for bridge initialize. Call it synchronously.\n");
+          OnIdleSignal();
+        }
       }
     }
   }
