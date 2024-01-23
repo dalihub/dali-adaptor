@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -234,7 +234,11 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 
   mTimerPairsWaiting.erase(timerIter, timerIter + 1);
 
-  Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false);
+  if(DALI_UNLIKELY(!Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false)))
+  {
+    DALI_LOG_ERROR("Fail to add idle callback for timer function. Call it synchronously.\n");
+    CleanupTimers();
+  }
 }
 
 void TizenPlatformAbstraction::CleanupTimers()
