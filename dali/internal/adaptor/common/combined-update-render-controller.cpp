@@ -733,6 +733,12 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       mNotificationTrigger.Trigger();
       LOG_UPDATE_RENDER("Notification Triggered");
     }
+  
+    if(uploadOnly && (keepUpdatingStatus & Dali::Integration::KeepUpdating::STAGE_KEEP_RENDERING))
+    {
+      // Render forcely if there exist some keep rendering required.
+      uploadOnly = false;
+    }
 
     // Optional logging of update/render status
     mUpdateStatusLogger.Log(keepUpdatingStatus);
@@ -826,6 +832,10 @@ void CombinedUpdateRenderController::UpdateRenderThread()
           }
         }
       }
+    }
+    else
+    {
+      DALI_LOG_RELEASE_INFO("DALI Rendering skip (upload only)\n");
     }
 
     TRACE_UPDATE_RENDER_BEGIN("DALI_POST_RENDER");
