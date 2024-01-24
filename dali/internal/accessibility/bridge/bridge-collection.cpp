@@ -47,6 +47,8 @@ void BridgeCollection::RegisterInterfaces()
 {
   DBus::DBusInterfaceDescription desc{Accessible::GetInterfaceName(AtspiInterface::COLLECTION)};
   AddFunctionToInterface(desc, "GetMatches", &BridgeCollection::GetMatches);
+  AddFunctionToInterface(desc, "GetMatchesInMatches", &BridgeCollection::GetMatchesInMatches);
+
   mDbusServer.addInterface("/", desc, true);
 }
 
@@ -449,6 +451,17 @@ struct BridgeCollection::Comparer
            CompareFunc(mState, obj);
   }
 
+  bool IsShowing(Accessible* obj)
+  {
+    if (mState.mMode == Mode::NONE) return true;
+    mState.Update(obj);
+    if (mState.IsRequestEmpty() || mState.IsObjectEmpty()) return true;
+    if (!mState.mRequested[State::SHOWING] ) return true;
+    if (mState.mObject[State::SHOWING]) return true;
+
+    return false;
+  }
+
   ComparerInterfaces mInterface;
   ComparerAttributes mAttribute;
   ComparerRoles      mRole;
@@ -473,6 +486,11 @@ void BridgeCollection::VisitNodes(Accessible* obj, std::vector<Accessible*>& res
     }
   }
 
+  if (!comparer.IsShowing(obj))
+  {
+    return;
+  }
+
   for(auto i = 0u; i < obj->GetChildCount(); ++i)
   {
     VisitNodes(obj->GetChildAtIndex(i), result, comparer, maxCount);
@@ -485,6 +503,47 @@ DBus::ValueOrError<std::vector<Accessible*> > BridgeCollection::GetMatches(Match
   auto                     self    = BridgeBase::FindCurrentObject();
   auto                     matcher = Comparer{&rule};
   VisitNodes(self, res, matcher, count);
+
+  switch(static_cast<SortOrder>(sortBy))
+  {
+    case SortOrder::CANONICAL:
+    {
+      break;
+    }
+
+    case SortOrder::REVERSE_CANONICAL:
+    {
+      std::reverse(res.begin(), res.end());
+      break;
+    }
+
+    default:
+    {
+      throw std::domain_error{"unsupported sorting order"};
+    }
+      //TODO: other cases
+  }
+
+  return res;
+}
+
+DBus::ValueOrError<std::vector<Accessible*> > BridgeCollection::GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount, bool traverse)
+{
+  std::vector<Accessible*> res;
+  std::vector<Accessible*> firstRes;
+  std::vector<Accessible*> secondRes;
+  auto                     self          = BridgeBase::FindCurrentObject();
+  auto                     firstMatcher  = Comparer{&firstRule};
+  auto                     secondMatcher = Comparer{&secondRule};
+  VisitNodes(self, firstRes, firstMatcher, firstCount);
+
+  for (auto &obj : firstRes)
+  {
+    VisitNodes(obj, secondRes, secondMatcher, secondCount);
+
+    res.insert(res.end(), secondRes.begin(), secondRes.end());
+    secondRes.clear();
+  }
 
   switch(static_cast<SortOrder>(sortBy))
   {
