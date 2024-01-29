@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ const int          DEFAULT_MULTI_SAMPLING_LEVEL            = -1;
 const bool         DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING   = true;
 const bool         DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING = true;
 const bool         DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING = true;
+const bool         DEFAULT_VSYNC_RENDER_REQUIRED_SETTING   = true;
 
 unsigned int GetEnvironmentVariable(const char* variable, unsigned int defaultValue)
 {
@@ -246,7 +247,8 @@ EnvironmentOptions::EnvironmentOptions()
   mGlesCallAccumulate(false),
   mDepthBufferRequired(DEFAULT_DEPTH_BUFFER_REQUIRED_SETTING),
   mStencilBufferRequired(DEFAULT_STENCIL_BUFFER_REQUIRED_SETTING),
-  mPartialUpdateRequired(DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING)
+  mPartialUpdateRequired(DEFAULT_PARTIAL_UPDATE_REQUIRED_SETTING),
+  mVsyncRenderRequired(DEFAULT_VSYNC_RENDER_REQUIRED_SETTING)
 {
   ParseEnvironmentOptions();
 }
@@ -520,6 +522,11 @@ bool EnvironmentOptions::PartialUpdateRequired() const
   return mPartialUpdateRequired;
 }
 
+bool EnvironmentOptions::VsyncRenderRequired() const
+{
+  return mVsyncRenderRequired;
+}
+
 void EnvironmentOptions::ParseEnvironmentOptions()
 {
   // get logging options
@@ -612,6 +619,8 @@ void EnvironmentOptions::ParseEnvironmentOptions()
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_STENCIL_BUFFER, DisableIfNonZero(mStencilBufferRequired));
 
   SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_PARTIAL_UPDATE, DisableIfNonZero(mPartialUpdateRequired));
+
+  SetFromEnvironmentVariable<int>(DALI_ENV_DISABLE_VSYNC_RENDER, DisableIfNonZero(mVsyncRenderRequired));
 }
 
 } // namespace Adaptor

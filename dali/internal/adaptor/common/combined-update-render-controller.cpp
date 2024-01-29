@@ -117,6 +117,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   mDefaultHalfFrameNanoseconds(0u),
   mUpdateRequestCount(0u),
   mRunning(FALSE),
+  mVsyncRender(TRUE),
   mThreadId(0),
   mThreadMode(threadMode),
   mUpdateRenderRunCount(0),
@@ -144,6 +145,8 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   {
     currentSurface->SetThreadSynchronization(*this);
   }
+
+  mVsyncRender = environmentOptions.VsyncRenderRequired();
 
   mSleepTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &CombinedUpdateRenderController::ProcessSleepRequest), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 }
@@ -912,7 +915,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     TRACE_UPDATE_RENDER_END("DALI_UPDATE_RENDER");
 
     // Render to FBO is intended to measure fps above 60 so sleep is not wanted.
-    if(0u == renderToFboInterval)
+    if(mVsyncRender && 0u == renderToFboInterval)
     {
       TRACE_UPDATE_RENDER_SCOPE("DALI_UPDATE_RENDER_SLEEP");
       // Sleep until at least the the default frame duration has elapsed. This will return immediately if the specified end-time has already passed.
