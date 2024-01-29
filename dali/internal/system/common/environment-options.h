@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_OPTIONS_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -331,6 +331,11 @@ public:
    */
   bool PartialUpdateRequired() const;
 
+  /**
+   * @return Whether the vsync render is required.
+   */
+  bool VsyncRenderRequired() const;
+
   /// Deleted copy constructor.
   EnvironmentOptions(const EnvironmentOptions&) = delete;
 
@@ -404,6 +409,7 @@ private: // Data
   bool mDepthBufferRequired;   ///< Whether the depth buffer is required
   bool mStencilBufferRequired; ///< Whether the stencil buffer is required
   bool mPartialUpdateRequired; ///< Whether the partial update is required
+  bool mVsyncRenderRequired;   ///< Whether the vsync render is required
 
   std::unique_ptr<TraceManager> mTraceManager; ///< TraceManager
 };

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_ENVIRONMENT_VARIABLES_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,6 +148,8 @@ namespace Adaptor
 #define DALI_ENV_SUPPRESS_SCREEN_READER "DALI_SUPPRESS_SCREEN_READER"
 
 #define DALI_ENV_ENABLE_UI_THREAD "DALI_ENABLE_UI_THREAD"
+
+#define DALI_ENV_DISABLE_VSYNC_RENDER "DALI_DISABLE_VSYNC_RENDER"
 
 // Debug relative environments
 #define DALI_ENV_CURLOPT_VERBOSE_MODE "DALI_CURLOPT_VERBOSE_MODE"
