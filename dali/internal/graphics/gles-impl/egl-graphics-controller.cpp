@@ -243,10 +243,10 @@ Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
   return *mGlAbstraction;
 }
 
-Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelperAbstraction()
+Integration::GraphicsConfig& EglGraphicsController::GetGraphicsConfig()
 {
-  DALI_ASSERT_DEBUG(mGlContextHelperAbstraction && "Graphics controller not initialized");
-  return *mGlContextHelperAbstraction;
+  DALI_ASSERT_DEBUG(mGlAbstraction && "Graphics controller not initialized");
+  return *mGlAbstraction;
 }
 
 Internal::Adaptor::EglSyncImplementation& EglGraphicsController::GetEglSyncImplementation()
