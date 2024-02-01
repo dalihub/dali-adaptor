@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@
 #include <dali/public-api/dali-adaptor-common.h>
 
 #include <dali/internal/graphics/gles/egl-graphics-factory.h>
-#include <dali/internal/graphics/gles/egl-graphics.h> // Temporary until Core is abstracted
+#include <dali/internal/graphics/gles/egl-graphics.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
 

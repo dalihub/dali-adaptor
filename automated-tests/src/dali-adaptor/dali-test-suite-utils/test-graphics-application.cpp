@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,7 +62,8 @@ void TestGraphicsApplication::CreateCore()
 
   mGraphics.Initialize();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
+  mGraphicsController.ActivateResourceContext();
 
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
@@ -163,11 +164,6 @@ Graphics::Controller& TestGraphicsApplication::GetGraphicsController()
 TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
 {
   return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
-}
-
-TestGlContextHelperAbstraction& TestGraphicsApplication::GetGlContextHelperAbstraction()
-{
-  return static_cast<TestGlContextHelperAbstraction&>(mGraphicsController.GetGlContextHelperAbstraction());
 }
 
 void TestGraphicsApplication::ProcessEvent(const Integration::Event& event)
@@ -277,7 +273,7 @@ void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mCore->ContextCreated();
 }
 

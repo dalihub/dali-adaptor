@@ -268,7 +268,11 @@ void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
 
   const auto& extraInfos = reflection.GetStandaloneUniformExtraInfo();
 
-  auto& gl = *GetController().GetGL();
+  auto* gl = GetController().GetGL();
+  if(!gl)
+  {
+    return; // Early out if no GL found
+  }
 
   // Set uniforms
   int  index    = 0;
@@ -283,17 +287,17 @@ void ProgramImpl::UpdateStandaloneUniformBlock(const char* ptr)
       {
         case UniformSetter::Type::FLOAT:
         {
-          (gl.*(setter.uniformfProc))(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
+          (gl->*(setter.uniformfProc))(info.location, info.arraySize, reinterpret_cast<const float*>(&ptr[offset]));
           break;
         }
         case UniformSetter::Type::INT:
         {
-          (gl.*(setter.uniformiProc))(info.location, info.arraySize, reinterpret_cast<const int*>(&ptr[offset]));
+          (gl->*(setter.uniformiProc))(info.location, info.arraySize, reinterpret_cast<const int*>(&ptr[offset]));
           break;
         }
         case UniformSetter::Type::MATRIX:
         {
-          (gl.*(setter.uniformMatrixProc))(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
+          (gl->*(setter.uniformMatrixProc))(info.location, info.arraySize, GL_FALSE, reinterpret_cast<const float*>(&ptr[offset]));
           break;
         }
         case UniformSetter::Type::UNDEFINED:

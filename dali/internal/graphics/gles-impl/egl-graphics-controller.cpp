@@ -153,20 +153,18 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 1\n");
   mGlAbstraction  = &glAbstraction;
-  mContext        = std::make_unique<GLES::Context>(*this);
+  mContext        = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mCurrentContext = mContext.get();
 }
 
-void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
-                                       Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
-                                       Internal::Adaptor::GraphicsInterface&    graphicsInterface)
+void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
+                                       Internal::Adaptor::GraphicsInterface& graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
   auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
 
-  mEglSyncImplementation      = syncImplPtr;
-  mGlContextHelperAbstraction = &glContextHelperAbstraction;
-  mGraphics                   = &graphicsInterface;
+  mEglSyncImplementation = syncImplPtr;
+  mGraphics              = &graphicsInterface;
 }
 
 void EglGraphicsController::FrameStart()
@@ -244,10 +242,10 @@ Integration::GlAbstraction& EglGraphicsController::GetGlAbstraction()
   return *mGlAbstraction;
 }
 
-Integration::GlContextHelperAbstraction& EglGraphicsController::GetGlContextHelperAbstraction()
+Integration::GraphicsConfig& EglGraphicsController::GetGraphicsConfig()
 {
-  DALI_ASSERT_DEBUG(mGlContextHelperAbstraction && "Graphics controller not initialized");
-  return *mGlContextHelperAbstraction;
+  DALI_ASSERT_DEBUG(mGlAbstraction && "Graphics controller not initialized");
+  return *mGlAbstraction;
 }
 
 Internal::Adaptor::EglSyncImplementation& EglGraphicsController::GetEglSyncImplementation()
@@ -379,7 +377,7 @@ const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Gr
 
 void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
-  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this);
+  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
 }
 
