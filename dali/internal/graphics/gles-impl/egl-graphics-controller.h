@@ -87,9 +87,8 @@ public:
    *
    * Note, this is now executed in the render thread, after core initialization
    */
-  void Initialize(Integration::GraphicsSyncAbstraction&    syncImplementation,
-                  Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
-                  Internal::Adaptor::GraphicsInterface&    graphicsInterface);
+  void Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
+                  Internal::Adaptor::GraphicsInterface& graphicsInterface);
 
   /**
    * Used to access GL implementation

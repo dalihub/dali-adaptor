@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ void EglGraphics::Initialize()
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
-  mGraphicsController.Initialize(*mEglSync.get(), *mEglContextHelper.get(), *this);
+  mGraphicsController.Initialize(*mEglSync.get(), *this);
 }
 
 void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, int msaa)
@@ -123,12 +123,10 @@ void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, in
 void EglGraphics::EglInitialize()
 {
   mEglSync            = Utils::MakeUnique<EglSyncImplementation>();
-  mEglContextHelper   = Utils::MakeUnique<EglContextHelperImplementation>();
   mEglImplementation  = Utils::MakeUnique<EglImplementation>(mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired, mPartialUpdateRequired);
   mEglImageExtensions = Utils::MakeUnique<EglImageExtensions>(mEglImplementation.get());
 
-  mEglSync->Initialize(mEglImplementation.get());          // The sync impl needs the EglDisplay
-  mEglContextHelper->Initialize(mEglImplementation.get()); // The context helper impl needs the EglContext
+  mEglSync->Initialize(mEglImplementation.get()); // The sync impl needs the EglDisplay
 }
 
 void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
@@ -224,12 +222,6 @@ EglSyncImplementation& EglGraphics::GetSyncImplementation()
 {
   DALI_ASSERT_DEBUG(mEglSync && "EglSyncImplementation not created");
   return *mEglSync;
-}
-
-EglContextHelperImplementation& EglGraphics::GetContextHelperImplementation()
-{
-  DALI_ASSERT_DEBUG(mEglContextHelper && "EglContextHelperImplementation not created");
-  return *mEglContextHelper;
 }
 
 EglImageExtensions* EglGraphics::GetImageExtensions()

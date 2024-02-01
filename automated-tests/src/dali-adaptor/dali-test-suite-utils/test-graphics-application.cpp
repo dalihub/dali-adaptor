@@ -62,7 +62,7 @@ void TestGraphicsApplication::CreateCore()
 
   mGraphics.Initialize();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mGraphicsController.ActivateResourceContext();
 
   mCore = Dali::Integration::Core::New(mRenderController,
@@ -273,7 +273,7 @@ void TestGraphicsApplication::ResetContext()
 {
   mCore->ContextDestroyed();
   mGraphicsController.InitializeGLES(mGlAbstraction);
-  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGlContextHelperAbstraction, mGraphics);
+  mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mCore->ContextCreated();
 }
 

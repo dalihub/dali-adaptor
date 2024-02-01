@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
-#include <dali/internal/graphics/gles/egl-context-helper-implementation.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
@@ -127,12 +126,6 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
-   * Gets the implementation of GlContextHelperAbstraction for EGL.
-   * @return The implementation of GlContextHelperAbstraction for EGL.
-   */
-  EglContextHelperImplementation& GetContextHelperImplementation();
-
-  /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable& GetDepthBufferRequired();
@@ -231,12 +224,11 @@ private:
   void EglInitialize();
 
 private:
-  Graphics::EglGraphicsController                 mGraphicsController; ///< Graphics Controller for Dali Core
-  std::unique_ptr<GlImplementation>               mGLES;               ///< GL implementation
-  std::unique_ptr<EglImplementation>              mEglImplementation;  ///< EGL implementation
-  std::unique_ptr<EglImageExtensions>             mEglImageExtensions; ///< EGL image extension
-  std::unique_ptr<EglSyncImplementation>          mEglSync;            ///< GlSyncAbstraction implementation for EGL
-  std::unique_ptr<EglContextHelperImplementation> mEglContextHelper;   ///< GlContextHelperAbstraction implementation for EGL
+  Graphics::EglGraphicsController        mGraphicsController; ///< Graphics Controller for Dali Core
+  std::unique_ptr<GlImplementation>      mGLES;               ///< GL implementation
+  std::unique_ptr<EglImplementation>     mEglImplementation;  ///< EGL implementation
+  std::unique_ptr<EglImageExtensions>    mEglImageExtensions; ///< EGL image extension
+  std::unique_ptr<EglSyncImplementation> mEglSync;            ///< GlSyncAbstraction implementation for EGL
 
   int mMultiSamplingLevel; ///< The multiple sampling level
 };

@@ -29,7 +29,6 @@
 #include <dali/public-api/common/dali-common.h>
 
 #include <test-gl-abstraction.h>
-#include <test-gl-context-helper-abstraction.h>
 #include <test-graphics-sync-impl.h>
 #include <test-platform-abstraction.h>
 #include <test-render-controller.h>
@@ -284,7 +283,6 @@ protected:
   TestRenderController                        mRenderController;
   Graphics::EglGraphicsController             mGraphicsController; // Use real controller in Adaptor
   TestGlAbstraction                           mGlAbstraction;
-  TestGlContextHelperAbstraction              mGlContextHelperAbstraction;
   TestGraphicsSyncImplementation              mGraphicsSyncImplementation;
   TestGraphicsImpl                            mGraphics;
   Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};

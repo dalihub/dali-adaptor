@@ -20,7 +20,6 @@
 #include <dali/graphics-api/graphics-controller.h>
 #include <unordered_map>
 #include "test-gl-abstraction.h"
-#include "test-gl-context-helper-abstraction.h"
 #include "test-graphics-command-buffer.h"
 #include "test-graphics-program.h"
 #include "test-graphics-reflection.h"
@@ -465,7 +464,6 @@ public:
 
   TestGlAbstraction              mGl;
   TestGraphicsSyncImplementation mGraphicsSyncImpl;
-  TestGlContextHelperAbstraction mGlContextHelperAbstraction;
 
   bool            isDiscardQueueEmptyResult{true};
   bool            isDrawOnResumeRequiredResult{true};
