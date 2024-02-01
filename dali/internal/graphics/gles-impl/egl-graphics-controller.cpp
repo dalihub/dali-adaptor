@@ -152,7 +152,7 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 1\n");
   mGlAbstraction  = &glAbstraction;
-  mContext        = std::make_unique<GLES::Context>(*this);
+  mContext        = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mCurrentContext = mContext.get();
 }
 
@@ -378,7 +378,7 @@ const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Gr
 
 void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
-  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this);
+  std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
 }
 
