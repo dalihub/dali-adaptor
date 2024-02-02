@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,10 @@ struct ProgramImpl::Impl
     {
       createInfo.shaderState = new std::vector<ShaderState>(*info.shaderState);
     }
+
+    // Create new reference of std::string_view.
+    name            = std::string(info.name);
+    createInfo.name = name;
   }
 
   ~Impl()
@@ -92,6 +96,7 @@ struct ProgramImpl::Impl
 
   EglGraphicsController& controller;
   ProgramCreateInfo      createInfo;
+  std::string            name;
   uint32_t               glProgram{};
   uint32_t               refCount{0u};
 
@@ -142,6 +147,8 @@ bool ProgramImpl::Create()
 
   auto program = gl->CreateProgram();
 
+  DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] create program id : %u\n", mImpl->name.c_str(), program);
+
   const auto& info = mImpl->createInfo;
   for(const auto& state : *info.shaderState)
   {
@@ -150,9 +157,13 @@ bool ProgramImpl::Create()
     // Compile shader first (ignored when compiled)
     if(shader->GetImplementation()->Compile())
     {
-      gl->AttachShader(program, shader->GetImplementation()->GetGLShader());
+      auto shaderId = shader->GetImplementation()->GetGLShader();
+      DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] attach shader : %u\n", mImpl->name.c_str(), shaderId);
+      gl->AttachShader(program, shaderId);
     }
   }
+
+  DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] call glLinkProgram\n", mImpl->name.c_str());
   gl->LinkProgram(program);
 
   GLint status{0};
@@ -164,7 +175,7 @@ bool ProgramImpl::Create()
     gl->GetProgramInfoLog(program, 4096, &size, output);
 
     // log on error
-    DALI_LOG_ERROR("glLinkProgam failed:\n%s\n", output);
+    DALI_LOG_ERROR("glLinkProgam[%s] failed:\n%s\n", mImpl->name.c_str(), output);
     gl->DeleteProgram(program);
     return false;
   }
