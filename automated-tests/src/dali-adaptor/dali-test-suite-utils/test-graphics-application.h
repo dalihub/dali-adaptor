@@ -2,7 +2,7 @@
 #define DALI_TEST_GRAPHICS_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,8 +252,7 @@ public:
   TestRenderController&    GetRenderController();
   Graphics::Controller&    GetGraphicsController();
 
-  TestGlAbstraction&              GetGlAbstraction();
-  TestGlContextHelperAbstraction& GetGlContextHelperAbstraction();
+  TestGlAbstraction& GetGlAbstraction();
 
   void        ProcessEvent(const Integration::Event& event);
   void        SendNotification();

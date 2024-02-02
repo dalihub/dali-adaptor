@@ -166,11 +166,6 @@ TestGlAbstraction& TestGraphicsApplication::GetGlAbstraction()
   return static_cast<TestGlAbstraction&>(mGraphicsController.GetGlAbstraction());
 }
 
-TestGlContextHelperAbstraction& TestGraphicsApplication::GetGlContextHelperAbstraction()
-{
-  return static_cast<TestGlContextHelperAbstraction&>(mGraphicsController.GetGlContextHelperAbstraction());
-}
-
 void TestGraphicsApplication::ProcessEvent(const Integration::Event& event)
 {
   mCore->QueueEvent(event);

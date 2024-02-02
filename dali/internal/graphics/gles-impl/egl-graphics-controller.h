@@ -2,7 +2,7 @@
 #define DALI_EGL_GRAPHICS_CONTROLLER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,8 +91,16 @@ public:
                   Integration::GlContextHelperAbstraction& glContextHelperAbstraction,
                   Internal::Adaptor::GraphicsInterface&    graphicsInterface);
 
-  Integration::GlAbstraction&               GetGlAbstraction() override;
-  Integration::GlContextHelperAbstraction&  GetGlContextHelperAbstraction() override;
+  /**
+   * Used to access GL implementation
+   */
+  Integration::GlAbstraction& GetGlAbstraction();
+
+  /**
+   * Used to access extra info about the graphics subsystem.
+   */
+  Integration::GraphicsConfig& GetGraphicsConfig();
+
   Internal::Adaptor::EglSyncImplementation& GetEglSyncImplementation();
 
   /**
