@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -313,6 +313,11 @@ Dali::WebEnginePlugin* WebEngine::GetPlugin() const
 Dali::NativeImageSourcePtr WebEngine::GetNativeImageSource()
 {
   return mPlugin->GetNativeImageSource();
+}
+
+void WebEngine::ChangeOrientation(int orientation)
+{
+  return mPlugin->ChangeOrientation(orientation);
 }
 
 Dali::WebEngineSettings& WebEngine::GetSettings() const
