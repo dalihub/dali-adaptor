@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -424,9 +424,9 @@ bool Texture::TryConvertPixelData(const void* pData, Graphics::Format srcFormat,
 
 void Texture::SetSamplerParameter(uint32_t param, uint32_t& cacheValue, uint32_t value) const
 {
-  if(cacheValue != value)
+  auto gl = mController.GetGL();
+  if(gl && cacheValue != value)
   {
-    auto gl = mController.GetGL();
     gl->TexParameteri(mGlTarget, param, value);
     cacheValue = value;
   }
