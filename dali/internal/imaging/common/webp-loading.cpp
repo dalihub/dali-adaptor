@@ -307,7 +307,7 @@ WebPLoading::~WebPLoading()
   delete mImpl;
 }
 
-Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
+Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
 {
   Dali::Devel::PixelBuffer pixelBuffer;
 
@@ -334,22 +334,71 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex)
       {
         uint32_t channelNumber = (features.has_alpha) ? 4 : 3;
         uint8_t* frameBuffer   = nullptr;
-        if(channelNumber == 4)
+
+        if(desiredSize.GetWidth() > 0 && desiredSize.GetHeight() > 0)
         {
-          frameBuffer = WebPDecodeRGBA(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
+          const int desiredWidth = desiredSize.GetWidth();
+          const int desiredHeight = desiredSize.GetHeight();
+
+          WebPDecoderConfig config;
+          if(!DALI_LIKELY(WebPInitDecoderConfig(&config)))
+          {
+            DALI_LOG_ERROR("WebPInitDecoderConfig is failed");
+            return pixelBuffer;
+          }
+
+          // Apply config for scaling
+          config.options.use_scaling = 1;
+          config.options.scaled_width = desiredWidth;
+          config.options.scaled_height = desiredHeight;
+
+          if(channelNumber == 4)
+          {
+            config.output.colorspace = MODE_RGBA;
+          }
+          else
+          {
+            config.output.colorspace = MODE_RGB;
+          }
+
+          if(WebPDecode(mImpl->mBuffer, mImpl->mBufferSize, &config) == VP8_STATUS_OK)
+          {
+            frameBuffer = config.output.u.RGBA.rgba;
+          }
+          else
+          {
+            DALI_LOG_ERROR("Webp Decoding with scaled size is failed \n");
+          }
+
+          if(frameBuffer != nullptr)
+          {
+            Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
+            int32_t                           bufferSize  = desiredWidth * desiredHeight * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+            pixelBuffer  = Dali::Devel::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
+            memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
+          }
+
+          WebPFreeDecBuffer(&config.output);
         }
         else
         {
-          frameBuffer = WebPDecodeRGB(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
-        }
+          if(channelNumber == 4)
+          {
+            frameBuffer = WebPDecodeRGBA(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
+          }
+          else
+          {
+            frameBuffer = WebPDecodeRGB(mImpl->mBuffer, mImpl->mBufferSize, &width, &height);
+          }
 
-        if(frameBuffer != nullptr)
-        {
-          Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
-          int32_t                           bufferSize  = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
-          Internal::Adaptor::PixelBufferPtr internal =
+          if(frameBuffer != nullptr)
+          {
+            Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
+            int32_t                           bufferSize  = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+            Internal::Adaptor::PixelBufferPtr internal =
             Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width, pixelFormat);
-          pixelBuffer = Devel::PixelBuffer(internal.Get());
+            pixelBuffer = Devel::PixelBuffer(internal.Get());
+          }
         }
       }
     }
