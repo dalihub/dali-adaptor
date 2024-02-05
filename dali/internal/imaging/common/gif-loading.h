@@ -75,7 +75,7 @@ public:
    * @return Dali::Devel::PixelBuffer The loaded PixelBuffer. If loading is fail, return empty handle.
    */
 
-  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex) override;
+  Dali::Devel::PixelBuffer LoadFrame(uint32_t frameIndex, ImageDimensions size) override;
 
   /**
    * @brief Get the size of a gif image.
