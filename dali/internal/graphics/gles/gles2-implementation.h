@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_GLES2_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -371,6 +371,40 @@ public:
   void GetActiveUniformsiv(GLuint program, GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params) override
   {
     DALI_LOG_ERROR("glGetActiveUniformsiv is not supported in OpenGL es 2.0\n");
+
+    int maxUniformNameLength = 0;
+    glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLength);
+    char* name = new char[maxUniformNameLength + 1];
+
+    for(auto i = 0; i < uniformCount; ++i)
+    {
+      GLint  elementCount;
+      GLint  written;
+      GLenum type;
+      glGetActiveUniform(program, uniformIndices[i], maxUniformNameLength, &written, &elementCount, &type, name);
+
+      if(pname == GL_UNIFORM_TYPE)
+      {
+        params[i] = type;
+      }
+      else if(pname == GL_UNIFORM_SIZE)
+      {
+        params[i] = elementCount;
+      }
+      else if(pname == GL_UNIFORM_NAME_LENGTH)
+      {
+        params[i] = written;
+      }
+      else if(pname == GL_UNIFORM_BLOCK_INDEX)
+      {
+        params[i] = -1; // Not support
+      }
+      else if(pname == GL_UNIFORM_OFFSET)
+      {
+        params[i] = 0; // Not support
+      }
+    }
+    delete[] name;
   }
 
   GLuint GetUniformBlockIndex(GLuint program, const GLchar* uniformBlockName) override
