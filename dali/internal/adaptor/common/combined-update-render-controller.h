@@ -279,8 +279,9 @@ private:
    *
    * @param[in] vertexShader vertexShader need to precompile
    * @param[in] fragmentShader fragmentShader need to precompile
+   * @param[in] shaderName the name of precompile shader (option)
   */
-  void PreCompileShader(std::string vertexShader, std::string fragmentShader);
+  void PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName = "");
 
   /**
    * Cancel the precompile

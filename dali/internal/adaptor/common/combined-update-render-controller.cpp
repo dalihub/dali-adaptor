@@ -612,7 +612,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         {
           auto vertexShader   = graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
           auto fragmentShader = graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
-          PreCompileShader(std::move(vertexShader), std::move(fragmentShader));
+          PreCompileShader(std::move(vertexShader), std::move(fragmentShader), static_cast<uint32_t>(i) < precompiledShader->shaderName.size() ? std::string(precompiledShader->shaderName[i]) : "");
         }
         DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
       }
@@ -1059,7 +1059,7 @@ void CombinedUpdateRenderController::SurfaceResized(uint32_t resizedCount)
   }
 }
 
-void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader)
+void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName)
 {
   GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
 
@@ -1089,6 +1089,7 @@ void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, 
 
   auto createInfo = Graphics::ProgramCreateInfo();
   createInfo.SetShaderState(shaderStates);
+  createInfo.SetName(shaderName);
 
   auto graphicsProgram = graphics.GetController().CreateProgram(createInfo, nullptr);
   ShaderPreCompiler::Get().AddPreCompiledProgram(std::move(graphicsProgram));
