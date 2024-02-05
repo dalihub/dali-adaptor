@@ -308,6 +308,7 @@ bool FontFaceCacheItem::GetGlyphMetrics(GlyphInfo& glyphInfo, unsigned int dpiVe
         glyphInfo.xBearing += static_cast<float>(metrics.vertBearingX) * FROM_266;
         glyphInfo.yBearing += static_cast<float>(metrics.vertBearingY) * FROM_266;
       }
+      glyphInfo.advance = round(glyphInfo.advance);
 
       const bool isEmboldeningRequired = glyphInfo.isBoldRequired && !(glyphData.mStyleFlags & FT_STYLE_FLAG_BOLD);
       if(isEmboldeningRequired)
