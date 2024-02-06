@@ -79,11 +79,7 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
 
       if(keepUpdatingStatus & Integration::KeepUpdating::FRAME_UPDATE_CALLBACK)
       {
-        oss += "<FrameUpdateCallback::return true";
-#ifdef DALI_PROFILE_TV
-        oss += "(NOTE : We don't keep update for this version of TV profile)";
-#endif // DALI_PROFILE_TV
-        oss += "> ";
+        oss += "<FrameUpdateCallback::return true> ";
       }
 
       DALI_LOG_UPDATE_STATUS("%s\n", oss.c_str());

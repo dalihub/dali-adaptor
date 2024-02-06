@@ -874,15 +874,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     mForceClear = false;
 
-    // Trigger event thread to request Update/Render thread to sleep if update not required
-    // or, only FrameUpdateCallback return true.
-    // TODO : This logic only required for PROFILE_TV case. We should consider other profile in future.
-    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus
-#ifdef DALI_PROFILE_TV
-        || Integration::KeepUpdating::FRAME_UPDATE_CALLBACK == keepUpdatingStatus
-#endif // DALI_PROFILE_TV
-       )
-       && !renderStatus.NeedsUpdate())
+    // Trigger event thread to request Update/Render thread to sleep if update not required.
+    if((Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus) && !renderStatus.NeedsUpdate())
     {
       mSleepTrigger->Trigger();
       updateRequired = false;
