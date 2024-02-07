@@ -378,8 +378,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       texture->InitializeResource();
     }
 
-    // Warning, this may cause glWaitSync to occur on the GPU.
-    dependencyChecker.CheckNeedsSync(this, texture);
+    // Warning, this may cause glWaitSync to occur on the GPU, or glClientWaitSync to block the CPU.
+    dependencyChecker.CheckNeedsSync(this, texture, true);
     texture->Bind(binding);
     texture->Prepare();
 

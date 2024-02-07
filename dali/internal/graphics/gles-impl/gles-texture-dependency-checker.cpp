@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,12 @@
 #include "gles-texture-dependency-checker.h"
 
 // EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gLogSyncFilter;
+#endif
 
 namespace Dali::Graphics::GLES
 {
@@ -70,12 +75,16 @@ void TextureDependencyChecker::AddTextures(const GLES::Context* writeContext, co
       texture->SetDependencyIndex(index);
     }
   }
-  textureDependency.writeContext    = const_cast<GLES::Context*>(writeContext);
-  textureDependency.framebuffer     = const_cast<GLES::Framebuffer*>(framebuffer);
-  textureDependency.agingSyncObject = mController.GetSyncPool().AllocateSyncObject(writeContext);
+  textureDependency.writeContext = const_cast<GLES::Context*>(writeContext);
+  textureDependency.framebuffer  = const_cast<GLES::Framebuffer*>(framebuffer);
+
+  // We have to check on different EGL contexts: The shared resource context is used to write to fbos,
+  // but they are usually drawn onto separate scene context.
+  DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::AddTextures() Allocating sync object\n");
+  textureDependency.agingSyncObject = mController.GetSyncPool().AllocateSyncObject(writeContext, SyncPool::SyncContext::EGL);
 }
 
-void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture)
+void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, const GLES::Texture* texture, bool cpu)
 {
   uint32_t dependencyIndex = texture->GetDependencyIndex();
   if(dependencyIndex < mTextureDependencies.size())
@@ -86,9 +95,19 @@ void TextureDependencyChecker::CheckNeedsSync(const GLES::Context* readContext, 
       // Needs syncing!
       textureDependency.syncing = true;
 
-      // Wait on the sync object in GPU. This will ensure that the writeContext completes its tasks prior
-      // to the sync point.
-      mController.GetSyncPool().Wait(textureDependency.agingSyncObject);
+      if(cpu)
+      {
+        DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert CPU WAIT");
+        mController.GetSyncPool().ClientWait(textureDependency.agingSyncObject);
+      }
+      else
+      {
+        // Wait on the sync object in GPU. This will ensure that the writeContext completes its tasks prior
+        // to the sync point.
+        // However, this may instead timeout, and we can't tell the difference (at least, for glFenceSync)
+        DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "TextureDependencyChecker::CheckNeedsSync Insert GPU WAIT");
+        mController.GetSyncPool().Wait(textureDependency.agingSyncObject);
+      }
     }
   }
 }
