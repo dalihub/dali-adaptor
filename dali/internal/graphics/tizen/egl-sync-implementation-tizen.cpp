@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/gles/egl-debug.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 
 #ifdef _ARCH_ARM_
@@ -39,7 +40,12 @@
 static PFNEGLCREATESYNCKHRPROC     eglCreateSyncKHR     = NULL;
 static PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = NULL;
 static PFNEGLDESTROYSYNCKHRPROC    eglDestroySyncKHR    = NULL;
+static PFNEGLWAITSYNCKHRPROC       eglWaitSyncKHR       = NULL;
 
+#endif
+
+#if defined(DEBUG_ENABLED)
+Debug::Filter* gLogSyncFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_FENCE_SYNC");
 #endif
 
 namespace Dali
@@ -50,9 +56,9 @@ namespace Adaptor
 {
 #ifdef _ARCH_ARM_
 
-EglSyncObject::EglSyncObject(EglImplementation& eglSyncImpl)
+EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
 : mEglSync(NULL),
-  mEglImplementation(eglSyncImpl)
+  mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();
   mEglSync           = eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, NULL);
@@ -60,6 +66,10 @@ EglSyncObject::EglSyncObject(EglImplementation& eglSyncImpl)
   {
     DALI_LOG_ERROR("eglCreateSyncKHR failed %#0.4x\n", eglGetError());
     mEglSync = NULL;
+  }
+  else
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglCreateSyncKHR Success: %p\n", mEglSync);
   }
 }
 
@@ -73,6 +83,10 @@ EglSyncObject::~EglSyncObject()
     {
       DALI_LOG_ERROR("eglDestroySyncKHR failed %#0.4x\n", error);
     }
+    else
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglDestroySyncKHR Success: %p\n", mEglSync);
+    }
   }
 }
 
@@ -82,6 +96,7 @@ bool EglSyncObject::IsSynced()
 
   if(mEglSync != NULL)
   {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync no timeout\n");
     EGLint result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0, 0ull);
     EGLint error  = eglGetError();
     if(EGL_SUCCESS != error)
@@ -94,7 +109,44 @@ bool EglSyncObject::IsSynced()
     }
   }
 
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, 0) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
   return synced;
+}
+
+void EglSyncObject::ClientWait()
+{
+  bool synced = false;
+  if(mEglSync != nullptr)
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync FOREVER\n");
+    auto result = eglClientWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, EGL_SYNC_FLUSH_COMMANDS_BIT_KHR, EGL_FOREVER_KHR);
+    if(result == EGL_FALSE)
+    {
+      Egl::PrintError(eglGetError());
+    }
+    else if(result == EGL_CONDITION_SATISFIED_KHR)
+    {
+      synced = true;
+    }
+  }
+  DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglClientWaitSync(%p, 0, FOREVER) %s\n", mEglSync, synced ? "Synced" : "NOT SYNCED");
+}
+
+void EglSyncObject::Wait()
+{
+  if(mEglSync != nullptr)
+  {
+    DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync\n");
+    auto result = eglWaitSyncKHR(mEglImplementation.GetDisplay(), mEglSync, 0);
+    if(EGL_FALSE == result)
+    {
+      Egl::PrintError(eglGetError());
+    }
+    else
+    {
+      DALI_LOG_INFO(gLogSyncFilter, Debug::General, "eglWaitSync() %p synced!\n", mEglSync);
+    }
+  }
 }
 
 EglSyncImplementation::EglSyncImplementation()
@@ -152,10 +204,11 @@ void EglSyncImplementation::InitializeEglSync()
   {
     eglCreateSyncKHR     = reinterpret_cast<PFNEGLCREATESYNCKHRPROC>(eglGetProcAddress("eglCreateSyncKHR"));
     eglClientWaitSyncKHR = reinterpret_cast<PFNEGLCLIENTWAITSYNCKHRPROC>(eglGetProcAddress("eglClientWaitSyncKHR"));
+    eglWaitSyncKHR       = reinterpret_cast<PFNEGLWAITSYNCKHRPROC>(eglGetProcAddress("eglWaitSyncKHR"));
     eglDestroySyncKHR    = reinterpret_cast<PFNEGLDESTROYSYNCKHRPROC>(eglGetProcAddress("eglDestroySyncKHR"));
   }
 
-  if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglDestroySyncKHR)
+  if(eglCreateSyncKHR && eglClientWaitSyncKHR && eglWaitSyncKHR && eglDestroySyncKHR)
   {
     mSyncInitialized = true;
   }
@@ -179,12 +232,15 @@ EglSyncObject::~EglSyncObject()
 
 bool EglSyncObject::IsSynced()
 {
-  if(mPollCounter <= 0)
-  {
-    return true;
-  }
-  --mPollCounter;
-  return false;
+  return true;
+}
+
+void EglSyncObject::Wait()
+{
+}
+
+void EglSyncObject::ClientWait()
+{
 }
 
 EglSyncImplementation::EglSyncImplementation()

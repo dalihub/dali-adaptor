@@ -3,7 +3,6 @@
 SET( adaptor_graphics_gles_src_files
     ${adaptor_graphics_dir}/gles/egl-debug.cpp
     ${adaptor_graphics_dir}/gles/egl-implementation.cpp
-    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp
     ${adaptor_graphics_dir}/gles/gl-extensions.cpp
     ${adaptor_graphics_dir}/gles/gl-extensions-support.cpp
     ${adaptor_graphics_dir}/gles/gl-implementation.cpp
@@ -17,31 +16,37 @@ INCLUDE( ${adaptor_graphics_dir}/gles-impl/file.list )
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
+    ${adaptor_graphics_dir}/tizen/egl-sync-implementation-tizen.cpp
 )
 
 # module: graphics, backend: ubuntu
 SET( adaptor_graphics_ubuntu_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )
 
 # module: graphics, backend: libuv-x11
 SET( adaptor_graphics_x11_src_files
     ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )
 
 # module: graphics, backend: android
 SET( adaptor_graphics_android_src_files
     ${adaptor_graphics_dir}/android/egl-image-extensions-android.cpp
+    ${adaptor_graphics_dir}/android/egl-sync-implementation-android.cpp
 )
 
 # module: graphics, backend: windows
 SET( adaptor_graphics_windows_src_files
     ${adaptor_graphics_dir}/windows-gl/egl-image-extensions.cpp
+    ${adaptor_graphics_dir}/windows/egl-sync-implementation-windows.cpp
 )
 
 # module: graphics, backend: macos
 SET( adaptor_graphics_macos_src_files
     ${adaptor_graphics_dir}/macos/egl-image-extensions.cpp
+    ${adaptor_graphics_dir}/macos/egl-sync-implementation-macos.cpp
 )
 
 # include GLES implementation
