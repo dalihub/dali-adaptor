@@ -79,10 +79,14 @@ IF( ENABLE_NETWORK_LOGGING )
     )
 ENDIF()
 
-IF( ENABLE_TRACE )
+IF( ENABLE_TRACE_STREAMLINE )
     SET( SOURCES ${SOURCES}
-        ${adaptor_trace_tizen_src_files}
-      )
+         ${adaptor_trace_tizen_streamline_src_files}
+         )
+ELSEIF( ENABLE_TRACE )
+    SET( SOURCES ${SOURCES}
+         ${adaptor_trace_tizen_src_files}
+         )
 ENDIF()
 
 IF( COMPONENT_APPLICATION_SUPPORT )
