@@ -10,9 +10,10 @@
          * [Building and executing test cases](#building-and-executing-test-cases)
       * [2. GBS Builds](#2-gbs-builds)
          * [DEBUG Builds](#debug-builds)
+         * [DS-5 Streamline Trace Builds](#ds-5-streamline-trace-builds)
       * [3. Building for MS Windows](#3-building-for-ms-windows)
-         * Build with the Visual Studio project.
-         * Build with CMake.
+         * [Build with the Visual Studio project](#build-with-the-visual-studio-project)
+         * [Build with CMake](#build-with-cmake)
       * [4. Building for MacOS](#4-building-for-macos)
 
 # Build Instructions
@@ -56,6 +57,13 @@ See the README.md in dali-adaptor/automated-tests.
 
          $ gbs build -A [TARGET_ARCH] --define "%enable_debug 1"
 
+
+### DS-5 Streamline Trace Builds
+
+By default, when using a GBS build, trace is enabled but Ttrace is used.
+If you want to use DS-5 Streamline instead then do the following:
+
+         $ gbs build -A [TARGET_ARCH] --define "%enable_streamline 1"
 
 ## 3. Building for MS Windows
 
