@@ -685,7 +685,12 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
   while(index++ < count)
   {
     auto processHelperIt = mTasks.GetNext();
-    DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
+    if(processHelperIt == mTasks.End())
+    {
+      DALI_LOG_ERROR("Invalid memory accessed. Count : %d, Current Index : %d, Number Of Element : %d, Is Processor Registered : %s, Is Adaptor Available : %s\n", count, index, mTasks.GetElementCount(), mProcessorRegistered ? "true" : "false", Dali::Adaptor::IsAvailable() ? "true" : "false");
+      DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
+    }
+
     if(processHelperIt->Request())
     {
       break;
