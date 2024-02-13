@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,28 +74,29 @@ void* Memory2::LockRegion(uint32_t offset, uint32_t size)
 
 void Memory2::Unlock(bool flush)
 {
-  auto gl = mController.GetGL();
-
-  // for buffer...
-  if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
+  if(auto gl = mController.GetGL())
   {
-    auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-    if(!buffer->IsCPUAllocated())
+    // for buffer...
+    if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
     {
-      buffer->Bind(BufferUsage::VERTEX_BUFFER);
-      gl->BufferSubData(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), mMappedPointer);
+      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+      if(!buffer->IsCPUAllocated())
+      {
+        buffer->Bind(BufferUsage::VERTEX_BUFFER);
+        gl->BufferSubData(GL_ARRAY_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), mMappedPointer);
+      }
     }
-  }
 
-  if(mIsAllocatedLocally)
-  {
-    free(mMappedPointer);
-    mMappedPointer = nullptr;
-  }
+    if(mIsAllocatedLocally)
+    {
+      free(mMappedPointer);
+      mMappedPointer = nullptr;
+    }
 
-  if(flush)
-  {
-    Flush();
+    if(flush)
+    {
+      Flush();
+    }
   }
 }
 

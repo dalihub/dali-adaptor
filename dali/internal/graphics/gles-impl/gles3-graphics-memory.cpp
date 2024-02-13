@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,50 +49,51 @@ Memory3::~Memory3()
 
 void* Memory3::LockRegion(uint32_t offset, uint32_t size)
 {
-  auto gl = mController.GetGL();
-
-  if(mMapObjectType == MapObjectType::BUFFER)
+  if(auto gl = mController.GetGL())
   {
-    auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+    if(mMapObjectType == MapObjectType::BUFFER)
+    {
+      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
 
-    if(buffer->IsCPUAllocated())
-    {
-      using Ptr      = char*;
-      mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+      if(buffer->IsCPUAllocated())
+      {
+        using Ptr      = char*;
+        mMappedPointer = Ptr(buffer->GetCPUAllocatedAddress()) + offset;
+      }
+      else
+      {
+        gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
+        void* ptr      = nullptr;
+        ptr            = gl->MapBufferRange(GL_COPY_WRITE_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
+        mMappedPointer = ptr;
+      }
+      return mMappedPointer;
     }
-    else
-    {
-      gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
-      void* ptr      = nullptr;
-      ptr            = gl->MapBufferRange(GL_COPY_WRITE_BUFFER, GLintptr(mMapBufferInfo.offset), GLsizeiptr(mMapBufferInfo.size), GL_MAP_WRITE_BIT);
-      mMappedPointer = ptr;
-    }
-    return mMappedPointer;
   }
-
   return nullptr;
 }
 
 void Memory3::Unlock(bool flush)
 {
-  auto gl = mController.GetGL();
-
-  if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
+  if(auto gl = mController.GetGL())
   {
-    auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
-    if(!buffer->IsCPUAllocated())
+    if(mMapObjectType == MapObjectType::BUFFER && mMappedPointer)
     {
-      gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
-      gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
+      auto buffer = static_cast<GLES::Buffer*>(mMapBufferInfo.buffer);
+      if(!buffer->IsCPUAllocated())
+      {
+        gl->BindBuffer(GL_COPY_WRITE_BUFFER, buffer->GetGLBuffer());
+        gl->UnmapBuffer(GL_COPY_WRITE_BUFFER);
+      }
     }
-  }
 
-  if(flush)
-  {
-    Flush();
-  }
+    if(flush)
+    {
+      Flush();
+    }
 
-  mMappedPointer = nullptr;
+    mMappedPointer = nullptr;
+  }
 }
 
 void Memory3::Flush()

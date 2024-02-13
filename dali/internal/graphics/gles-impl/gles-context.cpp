@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,9 @@ namespace Dali::Graphics::GLES
 {
 struct Context::Impl
 {
-  explicit Impl(EglGraphicsController& controller)
-  : mController(controller)
+  explicit Impl(EglGraphicsController& controller, Integration::GlAbstraction* gl)
+  : mController(controller),
+    mGL(gl)
   {
   }
 
@@ -71,11 +72,15 @@ struct Context::Impl
       hash += salt;
     }
 
-    auto& gl = *mController.GetGL();
+    auto* gl = GetGL();
+    if(!gl) // early out if no gl
+    {
+      return;
+    }
 
     if(DALI_UNLIKELY(!mDiscardedVAOList.empty()))
     {
-      gl.DeleteVertexArrays(static_cast<Dali::GLsizei>(mDiscardedVAOList.size()), mDiscardedVAOList.data());
+      gl->DeleteVertexArrays(static_cast<Dali::GLsizei>(mDiscardedVAOList.size()), mDiscardedVAOList.data());
       mDiscardedVAOList.clear();
     }
 
@@ -88,7 +93,7 @@ struct Context::Impl
         if(mProgramVAOCurrentState != attributeIter->second)
         {
           mProgramVAOCurrentState = attributeIter->second;
-          gl.BindVertexArray(attributeIter->second);
+          gl->BindVertexArray(attributeIter->second);
 
           // Binding VAO seems to reset the index buffer binding so the cache must be reset
           mGlStateCache.mBoundElementArrayBufferId = 0;
@@ -98,8 +103,8 @@ struct Context::Impl
     }
 
     uint32_t vao;
-    gl.GenVertexArrays(1, &vao);
-    gl.BindVertexArray(vao);
+    gl->GenVertexArrays(1, &vao);
+    gl->BindVertexArray(vao);
 
     // Binding VAO seems to reset the index buffer binding so the cache must be reset
     mGlStateCache.mBoundElementArrayBufferId = 0;
@@ -107,7 +112,7 @@ struct Context::Impl
     mProgramVAOMap[program][hash] = vao;
     for(const auto& attr : vertexInputState.attributes)
     {
-      gl.EnableVertexAttribArray(attr.location);
+      gl->EnableVertexAttribArray(attr.location);
     }
 
     mProgramVAOCurrentState = vao;
@@ -118,46 +123,48 @@ struct Context::Impl
    */
   void InitializeGlState()
   {
-    auto& gl = *mController.GetGL();
+    auto* gl = GetGL();
+    if(gl)
+    {
+      mGlStateCache.mClearColorSet        = false;
+      mGlStateCache.mColorMask            = true;
+      mGlStateCache.mStencilMask          = 0xFF;
+      mGlStateCache.mBlendEnabled         = false;
+      mGlStateCache.mDepthBufferEnabled   = false;
+      mGlStateCache.mDepthMaskEnabled     = false;
+      mGlStateCache.mScissorTestEnabled   = false;
+      mGlStateCache.mStencilBufferEnabled = false;
 
-    mGlStateCache.mClearColorSet        = false;
-    mGlStateCache.mColorMask            = true;
-    mGlStateCache.mStencilMask          = 0xFF;
-    mGlStateCache.mBlendEnabled         = false;
-    mGlStateCache.mDepthBufferEnabled   = false;
-    mGlStateCache.mDepthMaskEnabled     = false;
-    mGlStateCache.mScissorTestEnabled   = false;
-    mGlStateCache.mStencilBufferEnabled = false;
+      gl->Disable(GL_DITHER);
 
-    gl.Disable(GL_DITHER);
+      mGlStateCache.mBoundArrayBufferId        = 0;
+      mGlStateCache.mBoundElementArrayBufferId = 0;
+      mGlStateCache.mActiveTextureUnit         = 0;
 
-    mGlStateCache.mBoundArrayBufferId        = 0;
-    mGlStateCache.mBoundElementArrayBufferId = 0;
-    mGlStateCache.mActiveTextureUnit         = 0;
+      mGlStateCache.mBlendFuncSeparateSrcRGB   = BlendFactor::ONE;
+      mGlStateCache.mBlendFuncSeparateDstRGB   = BlendFactor::ZERO;
+      mGlStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
+      mGlStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
 
-    mGlStateCache.mBlendFuncSeparateSrcRGB   = BlendFactor::ONE;
-    mGlStateCache.mBlendFuncSeparateDstRGB   = BlendFactor::ZERO;
-    mGlStateCache.mBlendFuncSeparateSrcAlpha = BlendFactor::ONE;
-    mGlStateCache.mBlendFuncSeparateDstAlpha = BlendFactor::ZERO;
+      // initial state is GL_FUNC_ADD for both RGB and Alpha blend modes
+      mGlStateCache.mBlendEquationSeparateModeRGB   = BlendOp::ADD;
+      mGlStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
 
-    // initial state is GL_FUNC_ADD for both RGB and Alpha blend modes
-    mGlStateCache.mBlendEquationSeparateModeRGB   = BlendOp::ADD;
-    mGlStateCache.mBlendEquationSeparateModeAlpha = BlendOp::ADD;
+      mGlStateCache.mCullFaceMode = CullMode::NONE; // By default cullface is disabled, front face is set to CCW and cull face is set to back
 
-    mGlStateCache.mCullFaceMode = CullMode::NONE; //By default cullface is disabled, front face is set to CCW and cull face is set to back
+      // Initialze vertex attribute cache
+      memset(&mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mGlStateCache.mVertexAttributeCachedState));
+      memset(&mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mGlStateCache.mVertexAttributeCurrentState));
 
-    //Initialze vertex attribute cache
-    memset(&mGlStateCache.mVertexAttributeCachedState, 0, sizeof(mGlStateCache.mVertexAttributeCachedState));
-    memset(&mGlStateCache.mVertexAttributeCurrentState, 0, sizeof(mGlStateCache.mVertexAttributeCurrentState));
+      // Initialize bound 2d texture cache
+      memset(&mGlStateCache.mBoundTextureId, 0, sizeof(mGlStateCache.mBoundTextureId));
 
-    //Initialize bound 2d texture cache
-    memset(&mGlStateCache.mBoundTextureId, 0, sizeof(mGlStateCache.mBoundTextureId));
+      mGlStateCache.mFrameBufferStateCache.Reset();
 
-    mGlStateCache.mFrameBufferStateCache.Reset();
-
-    GLint maxTextures;
-    gl.GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
-    DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+      GLint maxTextures;
+      gl->GetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextures);
+      DALI_LOG_RELEASE_INFO("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS: %d\n", maxTextures);
+    }
   }
 
   /**
@@ -165,23 +172,25 @@ struct Context::Impl
    */
   void FlushVertexAttributeLocations()
   {
-    auto& gl = *mController.GetGL();
-
-    for(unsigned int i = 0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i)
+    auto* gl = GetGL();
+    if(gl)
     {
-      // see if the cached state is different to the actual state
-      if(mGlStateCache.mVertexAttributeCurrentState[i] != mGlStateCache.mVertexAttributeCachedState[i])
+      for(unsigned int i = 0; i < MAX_ATTRIBUTE_CACHE_SIZE; ++i)
       {
-        // it's different so make the change to the driver and update the cached state
-        mGlStateCache.mVertexAttributeCurrentState[i] = mGlStateCache.mVertexAttributeCachedState[i];
+        // see if the cached state is different to the actual state
+        if(mGlStateCache.mVertexAttributeCurrentState[i] != mGlStateCache.mVertexAttributeCachedState[i])
+        {
+          // it's different so make the change to the driver and update the cached state
+          mGlStateCache.mVertexAttributeCurrentState[i] = mGlStateCache.mVertexAttributeCachedState[i];
 
-        if(mGlStateCache.mVertexAttributeCurrentState[i])
-        {
-          gl.EnableVertexAttribArray(i);
-        }
-        else
-        {
-          gl.DisableVertexAttribArray(i);
+          if(mGlStateCache.mVertexAttributeCurrentState[i])
+          {
+            gl->EnableVertexAttribArray(i);
+          }
+          else
+          {
+            gl->DisableVertexAttribArray(i);
+          }
         }
       }
     }
@@ -195,29 +204,41 @@ struct Context::Impl
    */
   void SetVertexAttributeLocation(unsigned int location, bool state)
   {
-    auto& gl = *mController.GetGL();
-
-    if(location >= MAX_ATTRIBUTE_CACHE_SIZE)
+    auto* gl = GetGL();
+    if(gl)
     {
-      // not cached, make the gl call through context
-      if(state)
+      if(location >= MAX_ATTRIBUTE_CACHE_SIZE)
       {
-        gl.EnableVertexAttribArray(location);
+        // not cached, make the gl call through context
+        if(state)
+        {
+          gl->EnableVertexAttribArray(location);
+        }
+        else
+        {
+          gl->DisableVertexAttribArray(location);
+        }
       }
       else
       {
-        gl.DisableVertexAttribArray(location);
+        // set the cached state, it will be set at the next draw call
+        // if it's different from the current driver state
+        mGlStateCache.mVertexAttributeCachedState[location] = state;
       }
-    }
-    else
-    {
-      // set the cached state, it will be set at the next draw call
-      // if it's different from the current driver state
-      mGlStateCache.mVertexAttributeCachedState[location] = state;
     }
   }
 
-  EglGraphicsController& mController;
+  /**
+   * Get the pointer to the GL implementation
+   * @return The GL implementation, nullptr if the context has not been created or shutting down
+   */
+  [[nodiscard]] inline Integration::GlAbstraction* GetGL() const
+  {
+    return mGlContextCreated ? mGL : nullptr;
+  }
+
+  EglGraphicsController&      mController;
+  Integration::GlAbstraction* mGL{nullptr};
 
   const GLES::PipelineImpl* mCurrentPipeline{nullptr}; ///< Currently bound pipeline
   const GLES::PipelineImpl* mNewPipeline{nullptr};     ///< New pipeline to be set on flush
@@ -259,9 +280,9 @@ struct Context::Impl
   EGLContext mCacheEGLGraphicsContext{0u}; ///< cached window context
 };
 
-Context::Context(EglGraphicsController& controller)
+Context::Context(EglGraphicsController& controller, Integration::GlAbstraction* glAbstraction)
 {
-  mImpl = std::make_unique<Impl>(controller);
+  mImpl = std::make_unique<Impl>(controller, glAbstraction);
 }
 
 Context::~Context()
@@ -276,7 +297,11 @@ Context::~Context()
 
 void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::TextureDependencyChecker& dependencyChecker)
 {
-  auto& gl = *mImpl->mController.GetGL();
+  auto* gl = mImpl->GetGL();
+  if(!gl) // Early out if no gl
+  {
+    return;
+  }
 
   static const bool hasGLES3(mImpl->mController.GetGLESVersion() >= GLESVersion::GLES_30);
 
@@ -362,8 +387,8 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
     {
       // @warning Assume that location of array elements is sequential.
       // @warning GL does not guarantee this, but in practice, it is.
-      gl.Uniform1i(samplers[currentSampler].location + currentElement,
-                   samplers[currentSampler].offset + currentElement);
+      gl->Uniform1i(samplers[currentSampler].location + currentElement,
+                    samplers[currentSampler].offset + currentElement);
       ++currentElement;
       if(currentElement >= samplers[currentSampler].elementCount)
       {
@@ -404,20 +429,20 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
          attr.format == VertexInputFormat::FVECTOR3 ||
          attr.format == VertexInputFormat::FVECTOR4)
       {
-        gl.VertexAttribPointer(attr.location, // Not cached...
-                               GLVertexFormat(attr.format).size,
-                               GLVertexFormat(attr.format).format,
-                               GL_FALSE,
-                               bufferBinding.stride,
-                               reinterpret_cast<void*>(attr.offset));
+        gl->VertexAttribPointer(attr.location, // Not cached...
+                                GLVertexFormat(attr.format).size,
+                                GLVertexFormat(attr.format).format,
+                                GL_FALSE,
+                                bufferBinding.stride,
+                                reinterpret_cast<void*>(attr.offset));
       }
       else
       {
-        gl.VertexAttribIPointer(attr.location,
-                                GLVertexFormat(attr.format).size,
-                                GLVertexFormat(attr.format).format,
-                                bufferBinding.stride,
-                                reinterpret_cast<void*>(attr.offset));
+        gl->VertexAttribIPointer(attr.location,
+                                 GLVertexFormat(attr.format).size,
+                                 GLVertexFormat(attr.format).format,
+                                 bufferBinding.stride,
+                                 reinterpret_cast<void*>(attr.offset));
       }
 
       if(hasGLES3)
@@ -426,13 +451,13 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
         {
           case Graphics::VertexInputRate::PER_VERTEX:
           {
-            gl.VertexAttribDivisor(attr.location, 0);
+            gl->VertexAttribDivisor(attr.location, 0);
             break;
           }
           case Graphics::VertexInputRate::PER_INSTANCE:
           {
             //@todo Get actual instance rate...
-            gl.VertexAttribDivisor(attr.location, 1);
+            gl->VertexAttribDivisor(attr.location, 1);
             break;
           }
         }
@@ -459,16 +484,16 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
 
       if(drawCall.draw.instanceCount == 0)
       {
-        gl.DrawArrays(GLESTopology(ia->topology),
-                      drawCall.draw.firstVertex,
-                      drawCall.draw.vertexCount);
+        gl->DrawArrays(GLESTopology(ia->topology),
+                       drawCall.draw.firstVertex,
+                       drawCall.draw.vertexCount);
       }
       else
       {
-        gl.DrawArraysInstanced(GLESTopology(ia->topology),
-                               drawCall.draw.firstVertex,
-                               drawCall.draw.vertexCount,
-                               drawCall.draw.instanceCount);
+        gl->DrawArraysInstanced(GLESTopology(ia->topology),
+                                drawCall.draw.firstVertex,
+                                drawCall.draw.vertexCount,
+                                drawCall.draw.instanceCount);
       }
       break;
     }
@@ -490,18 +515,18 @@ void Context::Flush(bool reset, const GLES::DrawCallDescriptor& drawCall, GLES::
       auto indexBufferFormat = GLIndexFormat(binding.format).format;
       if(drawCall.drawIndexed.instanceCount == 0)
       {
-        gl.DrawElements(GLESTopology(ia->topology),
-                        drawCall.drawIndexed.indexCount,
-                        indexBufferFormat,
-                        reinterpret_cast<void*>(binding.offset));
+        gl->DrawElements(GLESTopology(ia->topology),
+                         drawCall.drawIndexed.indexCount,
+                         indexBufferFormat,
+                         reinterpret_cast<void*>(binding.offset));
       }
       else
       {
-        gl.DrawElementsInstanced(GLESTopology(ia->topology),
-                                 drawCall.drawIndexed.indexCount,
-                                 indexBufferFormat,
-                                 reinterpret_cast<void*>(binding.offset),
-                                 drawCall.drawIndexed.instanceCount);
+        gl->DrawElementsInstanced(GLESTopology(ia->topology),
+                                  drawCall.drawIndexed.indexCount,
+                                  indexBufferFormat,
+                                  reinterpret_cast<void*>(binding.offset),
+                                  drawCall.drawIndexed.instanceCount);
       }
       break;
     }
@@ -607,14 +632,18 @@ void Context::ResolveBlendState()
     return;
   }
 
-  auto& gl = *mImpl->mController.GetGL();
+  auto* gl = mImpl->GetGL();
+  if(!gl) // Early out if no gl
+  {
+    return;
+  }
 
   if(!currentBlendState || currentBlendState->blendEnable != newBlendState->blendEnable)
   {
     if(newBlendState->blendEnable != mImpl->mGlStateCache.mBlendEnabled)
     {
       mImpl->mGlStateCache.mBlendEnabled = newBlendState->blendEnable;
-      newBlendState->blendEnable ? gl.Enable(GL_BLEND) : gl.Disable(GL_BLEND);
+      newBlendState->blendEnable ? gl->Enable(GL_BLEND) : gl->Disable(GL_BLEND);
     }
   }
 
@@ -646,11 +675,11 @@ void Context::ResolveBlendState()
 
       if(newSrcRGB == newSrcAlpha && newDstRGB == newDstAlpha)
       {
-        gl.BlendFunc(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB));
+        gl->BlendFunc(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB));
       }
       else
       {
-        gl.BlendFuncSeparate(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB), GLBlendFunc(newSrcAlpha), GLBlendFunc(newDstAlpha));
+        gl->BlendFuncSeparate(GLBlendFunc(newSrcRGB), GLBlendFunc(newDstRGB), GLBlendFunc(newSrcAlpha), GLBlendFunc(newDstAlpha));
       }
     }
   }
@@ -667,15 +696,15 @@ void Context::ResolveBlendState()
 
       if(newBlendState->colorBlendOp == newBlendState->alphaBlendOp)
       {
-        gl.BlendEquation(GLBlendOp(newBlendState->colorBlendOp));
+        gl->BlendEquation(GLBlendOp(newBlendState->colorBlendOp));
         if(newBlendState->colorBlendOp >= Graphics::ADVANCED_BLEND_OPTIONS_START)
         {
-          gl.BlendBarrier();
+          gl->BlendBarrier();
         }
       }
       else
       {
-        gl.BlendEquationSeparate(GLBlendOp(newBlendState->colorBlendOp), GLBlendOp(newBlendState->alphaBlendOp));
+        gl->BlendEquationSeparate(GLBlendOp(newBlendState->colorBlendOp), GLBlendOp(newBlendState->alphaBlendOp));
       }
     }
   }
@@ -692,7 +721,11 @@ void Context::ResolveRasterizationState()
     return;
   }
 
-  auto& gl = *mImpl->mController.GetGL();
+  auto* gl = mImpl->GetGL();
+  if(!gl) // Early out if no gl
+  {
+    return;
+  }
 
   if(!currentRasterizationState ||
      currentRasterizationState->cullMode != newRasterizationState->cullMode)
@@ -702,12 +735,12 @@ void Context::ResolveRasterizationState()
       mImpl->mGlStateCache.mCullFaceMode = newRasterizationState->cullMode;
       if(newRasterizationState->cullMode == CullMode::NONE)
       {
-        gl.Disable(GL_CULL_FACE);
+        gl->Disable(GL_CULL_FACE);
       }
       else
       {
-        gl.Enable(GL_CULL_FACE);
-        gl.CullFace(GLCullMode(newRasterizationState->cullMode));
+        gl->Enable(GL_CULL_FACE);
+        gl->CullFace(GLCullMode(newRasterizationState->cullMode));
       }
     }
   }
@@ -730,11 +763,13 @@ void Context::ResolveUniformBuffers()
 
 void Context::ResolveGpuUniformBuffers()
 {
-  auto& gl = *mImpl->mController.GetGL();
-  auto  i  = 0u;
-  for(auto& binding : mImpl->mCurrentUBOBindings)
+  if(auto* gl = mImpl->GetGL())
   {
-    gl.BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+    auto i = 0u;
+    for(auto& binding : mImpl->mCurrentUBOBindings)
+    {
+      gl->BindBufferRange(GL_UNIFORM_BUFFER, i++, binding.buffer->GetGLBuffer(), GLintptr(binding.offset), GLintptr(binding.dataSize));
+    }
   }
 }
 
@@ -767,7 +802,11 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
 
   const auto& targetInfo = renderTarget.GetCreateInfo();
 
-  auto& gl = *mImpl->mController.GetGL();
+  auto* gl = mImpl->GetGL();
+  if(!gl) // Early out if no gl
+  {
+    return;
+  }
 
   if(targetInfo.surface)
   {
@@ -807,10 +846,10 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
        !Dali::Equals(mImpl->mGlStateCache.mClearColor.a, clearValues[0].color.a) ||
        !mImpl->mGlStateCache.mClearColorSet)
     {
-      gl.ClearColor(clearValues[0].color.r,
-                    clearValues[0].color.g,
-                    clearValues[0].color.b,
-                    clearValues[0].color.a);
+      gl->ClearColor(clearValues[0].color.r,
+                     clearValues[0].color.g,
+                     clearValues[0].color.b,
+                     clearValues[0].color.a);
 
       mImpl->mGlStateCache.mClearColorSet = true;
       mImpl->mGlStateCache.mClearColor    = Vector4(clearValues[0].color.r,
@@ -829,7 +868,7 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
       if(!mImpl->mGlStateCache.mDepthMaskEnabled)
       {
         mImpl->mGlStateCache.mDepthMaskEnabled = true;
-        gl.DepthMask(true);
+        gl->DepthMask(true);
       }
       mask |= GL_DEPTH_BUFFER_BIT;
     }
@@ -838,14 +877,14 @@ void Context::BeginRenderPass(const BeginRenderPassDescriptor& renderPassBegin)
       if(mImpl->mGlStateCache.mStencilMask != 0xFF)
       {
         mImpl->mGlStateCache.mStencilMask = 0xFF;
-        gl.StencilMask(0xFF);
+        gl->StencilMask(0xFF);
       }
       mask |= GL_STENCIL_BUFFER_BIT;
     }
   }
 
   SetScissorTestEnabled(true);
-  gl.Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
+  gl->Scissor(renderPassBegin.renderArea.x, renderPassBegin.renderArea.y, renderPassBegin.renderArea.width, renderPassBegin.renderArea.height);
   ClearBuffer(mask, true);
   SetScissorTestEnabled(false);
 
@@ -858,10 +897,10 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
   if(mImpl->mCurrentRenderTarget)
   {
     GLES::Framebuffer* framebuffer = mImpl->mCurrentRenderTarget->GetFramebuffer();
-    if(framebuffer)
+    auto*              gl          = mImpl->GetGL();
+    if(framebuffer && gl)
     {
-      auto& gl = *mImpl->mController.GetGL();
-      gl.Flush();
+      gl->Flush();
 
       /* @todo Full dependency checking would need to store textures in Begin, and create
        * fence objects here; but we're going to draw all fbos on shared context in serial,
@@ -887,12 +926,11 @@ void Context::ClearState()
 
 void Context::ColorMask(bool enabled)
 {
-  if(enabled != mImpl->mGlStateCache.mColorMask)
+  auto* gl = mImpl->GetGL();
+  if(gl && enabled != mImpl->mGlStateCache.mColorMask)
   {
     mImpl->mGlStateCache.mColorMask = enabled;
-
-    auto& gl = *mImpl->mController.GetGL();
-    gl.ColorMask(enabled, enabled, enabled, enabled);
+    gl->ColorMask(enabled, enabled, enabled, enabled);
   }
 }
 
@@ -908,66 +946,67 @@ void Context::ClearDepthBuffer()
 
 void Context::ClearBuffer(uint32_t mask, bool forceClear)
 {
-  mask = mImpl->mGlStateCache.mFrameBufferStateCache.GetClearMask(mask, forceClear, mImpl->mGlStateCache.mScissorTestEnabled);
-  if(mask > 0)
+  mask     = mImpl->mGlStateCache.mFrameBufferStateCache.GetClearMask(mask, forceClear, mImpl->mGlStateCache.mScissorTestEnabled);
+  auto* gl = mImpl->GetGL();
+  if(mask > 0 && gl)
   {
-    auto& gl = *mImpl->mController.GetGL();
-    gl.Clear(mask);
+    gl->Clear(mask);
   }
 }
 
 void Context::InvalidateDepthStencilBuffers()
 {
-  auto& gl = *mImpl->mController.GetGL();
-
-  GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
-  gl.InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+  if(auto* gl = mImpl->GetGL())
+  {
+    GLenum attachments[] = {GL_DEPTH, GL_STENCIL};
+    gl->InvalidateFramebuffer(GL_FRAMEBUFFER, 2, attachments);
+  }
 }
 
 void Context::SetScissorTestEnabled(bool scissorEnabled)
 {
-  if(mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
+  auto* gl = mImpl->GetGL();
+  if(gl && mImpl->mGlStateCache.mScissorTestEnabled != scissorEnabled)
   {
     mImpl->mGlStateCache.mScissorTestEnabled = scissorEnabled;
 
-    auto& gl = *mImpl->mController.GetGL();
     if(scissorEnabled)
     {
-      gl.Enable(GL_SCISSOR_TEST);
+      gl->Enable(GL_SCISSOR_TEST);
     }
     else
     {
-      gl.Disable(GL_SCISSOR_TEST);
+      gl->Disable(GL_SCISSOR_TEST);
     }
   }
 }
 
 void Context::SetStencilTestEnable(bool stencilEnable)
 {
-  if(stencilEnable != mImpl->mGlStateCache.mStencilBufferEnabled)
+  auto* gl = mImpl->GetGL();
+  if(gl && stencilEnable != mImpl->mGlStateCache.mStencilBufferEnabled)
   {
     mImpl->mGlStateCache.mStencilBufferEnabled = stencilEnable;
 
-    auto& gl = *mImpl->mController.GetGL();
     if(stencilEnable)
     {
-      gl.Enable(GL_STENCIL_TEST);
+      gl->Enable(GL_STENCIL_TEST);
     }
     else
     {
-      gl.Disable(GL_STENCIL_TEST);
+      gl->Disable(GL_STENCIL_TEST);
     }
   }
 }
 
 void Context::StencilMask(uint32_t writeMask)
 {
-  if(writeMask != mImpl->mGlStateCache.mStencilMask)
+  auto* gl = mImpl->GetGL();
+  if(gl && writeMask != mImpl->mGlStateCache.mStencilMask)
   {
     mImpl->mGlStateCache.mStencilMask = writeMask;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.StencilMask(writeMask);
+    gl->StencilMask(writeMask);
   }
 }
 
@@ -975,16 +1014,17 @@ void Context::StencilFunc(Graphics::CompareOp compareOp,
                           uint32_t            reference,
                           uint32_t            compareMask)
 {
-  if(compareOp != mImpl->mGlStateCache.mStencilFunc ||
-     reference != mImpl->mGlStateCache.mStencilFuncRef ||
-     compareMask != mImpl->mGlStateCache.mStencilFuncMask)
+  auto* gl = mImpl->GetGL();
+  if(gl &&
+     (compareOp != mImpl->mGlStateCache.mStencilFunc ||
+      reference != mImpl->mGlStateCache.mStencilFuncRef ||
+      compareMask != mImpl->mGlStateCache.mStencilFuncMask))
   {
     mImpl->mGlStateCache.mStencilFunc     = compareOp;
     mImpl->mGlStateCache.mStencilFuncRef  = reference;
     mImpl->mGlStateCache.mStencilFuncMask = compareMask;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.StencilFunc(GLCompareOp(compareOp).op, reference, compareMask);
+    gl->StencilFunc(GLCompareOp(compareOp).op, reference, compareMask);
   }
 }
 
@@ -992,149 +1032,163 @@ void Context::StencilOp(Graphics::StencilOp failOp,
                         Graphics::StencilOp depthFailOp,
                         Graphics::StencilOp passOp)
 {
-  if(failOp != mImpl->mGlStateCache.mStencilOpFail ||
-     depthFailOp != mImpl->mGlStateCache.mStencilOpDepthFail ||
-     passOp != mImpl->mGlStateCache.mStencilOpDepthPass)
+  auto* gl = mImpl->GetGL();
+  if(gl &&
+     (failOp != mImpl->mGlStateCache.mStencilOpFail ||
+      depthFailOp != mImpl->mGlStateCache.mStencilOpDepthFail ||
+      passOp != mImpl->mGlStateCache.mStencilOpDepthPass))
   {
     mImpl->mGlStateCache.mStencilOpFail      = failOp;
     mImpl->mGlStateCache.mStencilOpDepthFail = depthFailOp;
     mImpl->mGlStateCache.mStencilOpDepthPass = passOp;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.StencilOp(GLStencilOp(failOp).op, GLStencilOp(depthFailOp).op, GLStencilOp(passOp).op);
+    gl->StencilOp(GLStencilOp(failOp).op, GLStencilOp(depthFailOp).op, GLStencilOp(passOp).op);
   }
 }
 
 void Context::SetDepthCompareOp(Graphics::CompareOp compareOp)
 {
-  if(compareOp != mImpl->mGlStateCache.mDepthFunction)
+  auto* gl = mImpl->GetGL();
+  if(gl && compareOp != mImpl->mGlStateCache.mDepthFunction)
   {
     mImpl->mGlStateCache.mDepthFunction = compareOp;
-    auto& gl                            = *mImpl->mController.GetGL();
-    gl.DepthFunc(GLCompareOp(compareOp).op);
+
+    gl->DepthFunc(GLCompareOp(compareOp).op);
   }
 }
 
 void Context::SetDepthTestEnable(bool depthTestEnable)
 {
-  if(depthTestEnable != mImpl->mGlStateCache.mDepthBufferEnabled)
+  auto* gl = mImpl->GetGL();
+  if(gl && depthTestEnable != mImpl->mGlStateCache.mDepthBufferEnabled)
   {
     mImpl->mGlStateCache.mDepthBufferEnabled = depthTestEnable;
 
-    auto& gl = *mImpl->mController.GetGL();
     if(depthTestEnable)
     {
-      gl.Enable(GL_DEPTH_TEST);
+      gl->Enable(GL_DEPTH_TEST);
     }
     else
     {
-      gl.Disable(GL_DEPTH_TEST);
+      gl->Disable(GL_DEPTH_TEST);
     }
   }
 }
 
 void Context::SetDepthWriteEnable(bool depthWriteEnable)
 {
-  if(depthWriteEnable != mImpl->mGlStateCache.mDepthMaskEnabled)
+  auto* gl = mImpl->GetGL();
+  if(gl && depthWriteEnable != mImpl->mGlStateCache.mDepthMaskEnabled)
   {
     mImpl->mGlStateCache.mDepthMaskEnabled = depthWriteEnable;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.DepthMask(depthWriteEnable);
+    gl->DepthMask(depthWriteEnable);
   }
 }
 
 void Context::ActiveTexture(uint32_t textureBindingIndex)
 {
-  if(mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
+  auto* gl = mImpl->GetGL();
+  if(gl && mImpl->mGlStateCache.mActiveTextureUnit != textureBindingIndex)
   {
     mImpl->mGlStateCache.mActiveTextureUnit = textureBindingIndex;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.ActiveTexture(GL_TEXTURE0 + textureBindingIndex);
+    gl->ActiveTexture(GL_TEXTURE0 + textureBindingIndex);
   }
 }
 
 void Context::BindTexture(GLenum target, BoundTextureType textureTypeId, uint32_t textureId)
 {
   uint32_t typeId = static_cast<uint32_t>(textureTypeId);
-  if(mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
+  auto*    gl     = mImpl->GetGL();
+  if(gl && mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] != textureId)
   {
     mImpl->mGlStateCache.mBoundTextureId[mImpl->mGlStateCache.mActiveTextureUnit][typeId] = textureId;
 
-    auto& gl = *mImpl->mController.GetGL();
-    gl.BindTexture(target, textureId);
+    gl->BindTexture(target, textureId);
   }
 }
 
 void Context::GenerateMipmap(GLenum target)
 {
-  auto& gl = *mImpl->mController.GetGL();
-  gl.GenerateMipmap(target);
+  if(auto* gl = mImpl->GetGL())
+  {
+    gl->GenerateMipmap(target);
+  }
 }
 
 bool Context::BindBuffer(GLenum target, uint32_t bufferId)
 {
-  switch(target)
+  if(auto* gl = mImpl->GetGL())
   {
-    case GL_ARRAY_BUFFER:
+    switch(target)
     {
-      if(mImpl->mGlStateCache.mBoundArrayBufferId == bufferId)
+      case GL_ARRAY_BUFFER:
       {
-        return false;
+        if(mImpl->mGlStateCache.mBoundArrayBufferId == bufferId)
+        {
+          return false;
+        }
+        mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
+        break;
       }
-      mImpl->mGlStateCache.mBoundArrayBufferId = bufferId;
-      break;
-    }
-    case GL_ELEMENT_ARRAY_BUFFER:
-    {
-      if(mImpl->mGlStateCache.mBoundElementArrayBufferId == bufferId)
+      case GL_ELEMENT_ARRAY_BUFFER:
       {
-        return false;
+        if(mImpl->mGlStateCache.mBoundElementArrayBufferId == bufferId)
+        {
+          return false;
+        }
+        mImpl->mGlStateCache.mBoundElementArrayBufferId = bufferId;
+        break;
       }
-      mImpl->mGlStateCache.mBoundElementArrayBufferId = bufferId;
-      break;
     }
-  }
 
-  // Cache miss. Bind buffer.
-  auto& gl = *mImpl->mController.GetGL();
-  gl.BindBuffer(target, bufferId);
-  return true;
+    // Cache miss. Bind buffer.
+    gl->BindBuffer(target, bufferId);
+    return true;
+  }
+  return false;
 }
 
 void Context::DrawBuffers(uint32_t count, const GLenum* buffers)
 {
-  mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
-                                                            mImpl->mGlStateCache.DepthBufferWriteEnabled(),
-                                                            mImpl->mGlStateCache.StencilBufferWriteEnabled());
+  if(auto* gl = mImpl->GetGL())
+  {
+    mImpl->mGlStateCache.mFrameBufferStateCache.DrawOperation(mImpl->mGlStateCache.mColorMask,
+                                                              mImpl->mGlStateCache.DepthBufferWriteEnabled(),
+                                                              mImpl->mGlStateCache.StencilBufferWriteEnabled());
 
-  auto& gl = *mImpl->mController.GetGL();
-  gl.DrawBuffers(count, buffers);
+    gl->DrawBuffers(count, buffers);
+  }
 }
 
 void Context::BindFrameBuffer(GLenum target, uint32_t bufferId)
 {
-  mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(bufferId);
+  if(auto* gl = mImpl->GetGL())
+  {
+    mImpl->mGlStateCache.mFrameBufferStateCache.SetCurrentFrameBuffer(bufferId);
 
-  auto& gl = *mImpl->mController.GetGL();
-  gl.BindFramebuffer(target, bufferId);
+    gl->BindFramebuffer(target, bufferId);
+  }
 }
 
 void Context::GenFramebuffers(uint32_t count, uint32_t* framebuffers)
 {
-  auto& gl = *mImpl->mController.GetGL();
-  gl.GenFramebuffers(count, framebuffers);
-
-  mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersCreated(count, framebuffers);
+  if(auto* gl = mImpl->GetGL())
+  {
+    gl->GenFramebuffers(count, framebuffers);
+    mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersCreated(count, framebuffers);
+  }
 }
 
 void Context::DeleteFramebuffers(uint32_t count, uint32_t* framebuffers)
 {
-  mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersDeleted(count, framebuffers);
+  if(auto* gl = mImpl->GetGL())
+  {
+    mImpl->mGlStateCache.mFrameBufferStateCache.FrameBuffersDeleted(count, framebuffers);
 
-  auto& gl = *mImpl->mController.GetGL();
-  gl.DeleteFramebuffers(count, framebuffers);
+    gl->DeleteFramebuffers(count, framebuffers);
+  }
 }
 
 GLStateCache& Context::GetGLStateCache()
@@ -1167,7 +1221,7 @@ void Context::InvalidateCachedPipeline(GLES::Pipeline* pipeline)
   }
 
   // Remove cached VAO map
-  auto* gl = mImpl->mController.GetGL();
+  auto* gl = mImpl->GetGL();
   if(gl)
   {
     const auto* program = pipeline->GetCreateInfo().programState->program;

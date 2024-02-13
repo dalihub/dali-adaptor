@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.3.8
+Version:    2.3.10
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -270,7 +270,13 @@ CXXFLAGS+=" -D_ARCH_ARM_ -lgcc"
 
 CFLAGS+=" -DWAYLAND"
 CXXFLAGS+=" -DWAYLAND"
-cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON -DENABLE_TRACE=ON"
+cmake_flags=" -DENABLE_WAYLAND=ON -DENABLE_ATSPI=ON"
+
+%if 0%{?enable_streamline}
+cmake_flags+=" -DENABLE_TRACE_STREAMLINE=ON"
+%else
+cmake_flags+=" -DENABLE_TRACE=ON"
+%endif
 
 # Use this conditional when Tizen version is 5.x or greater
 %if 0%{?tizen_version_major} >= 5

@@ -610,8 +610,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         auto numberOfPrecompiledShader = precompiledShader->shaderCount;
         for(int i = 0; i < numberOfPrecompiledShader; ++i)
         {
-          auto vertexShader   = graphics.GetController().GetGlAbstraction().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
-          auto fragmentShader = graphics.GetController().GetGlAbstraction().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
+          auto vertexShader   = graphics.GetController().GetGraphicsConfig().GetVertexShaderPrefix() + std::string(precompiledShader->vertexPrefix[i].data()) + std::string(precompiledShader->vertexShader.data());
+          auto fragmentShader = graphics.GetController().GetGraphicsConfig().GetFragmentShaderPrefix() + std::string(precompiledShader->fragmentPrefix[i].data()) + std::string(precompiledShader->fragmentShader.data());
           PreCompileShader(std::move(vertexShader), std::move(fragmentShader));
         }
         DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);

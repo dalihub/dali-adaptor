@@ -511,7 +511,17 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
   Ecore_Wl2_Event_Dnd_Motion* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
 
   Dali::DragAndDrop::DragEvent dragEvent;
-  dragEvent.SetMimeType((const char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0));
+
+  Eina_Array *mimes = NULL;
+  mimes = ecore_wl2_offer_mimes_get(ev->offer);
+  if(mimes == NULL)
+  {
+    dragEvent.SetMimeType("");
+  }
+  else
+  {
+    dragEvent.SetMimeType((const char*)eina_array_data_get(mimes, 0));
+  }
 
   Dali::Vector2                curPosition(ev->x, ev->y);
 
@@ -540,7 +550,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
       dragEvent.SetPosition(curPosition);
       mDropTargets[i].callback(dragEvent);
       // Accept Offer
-      ecore_wl2_offer_mimes_set(ev->offer, ecore_wl2_offer_mimes_get(ev->offer));
+      ecore_wl2_offer_mimes_set(ev->offer, mimes);
     }
     else if(!currentInside && mDropTargets[i].inside)
     {
@@ -584,7 +594,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
       dragEvent.SetPosition(curPosition);
       mDropWindowTargets[i].callback(dragEvent);
       // Accept Offer
-      ecore_wl2_offer_mimes_set(ev->offer, ecore_wl2_offer_mimes_get(ev->offer));
+      ecore_wl2_offer_mimes_set(ev->offer, mimes);
     }
     else if(!currentInside && mDropWindowTargets[i].inside)
     {
@@ -616,6 +626,13 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   mTargetIndex       = -1;
   mWindowTargetIndex = -1;
 
+  Eina_Array *mimes = NULL;
+  mimes = ecore_wl2_offer_mimes_get(ev->offer);
+  if(mimes == NULL)
+  {
+    return false;
+  }
+
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
     if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
@@ -637,7 +654,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       mPosition           = position;
       Dali::Window window = Dali::DevelWindow::Get(mDropTargets[i].target);
 
-      char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
+      char* mimetype = (char*)eina_array_data_get(mimes, 0);
       if(mimetype)
       {
         ecore_wl2_offer_receive(ev->offer, mimetype);
@@ -667,7 +684,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       mWindowTargetIndex = i;
       mWindowPosition    = Dali::Vector2(position.GetX(), position.GetY());
 
-      char* mimetype = (char*)eina_array_data_get(ecore_wl2_offer_mimes_get(ev->offer), 0);
+      char* mimetype = (char*)eina_array_data_get(mimes, 0);
       if(mimetype)
       {
         ecore_wl2_offer_receive(ev->offer, mimetype);

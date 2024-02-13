@@ -2,7 +2,7 @@
 #define DALI_TEST_GRAPHICS_APPLICATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@
 #include <dali/public-api/common/dali-common.h>
 
 #include <test-gl-abstraction.h>
-#include <test-gl-context-helper-abstraction.h>
 #include <test-graphics-sync-impl.h>
 #include <test-platform-abstraction.h>
 #include <test-render-controller.h>
@@ -252,8 +251,7 @@ public:
   TestRenderController&    GetRenderController();
   Graphics::Controller&    GetGraphicsController();
 
-  TestGlAbstraction&              GetGlAbstraction();
-  TestGlContextHelperAbstraction& GetGlContextHelperAbstraction();
+  TestGlAbstraction& GetGlAbstraction();
 
   void        ProcessEvent(const Integration::Event& event);
   void        SendNotification();
@@ -285,7 +283,6 @@ protected:
   TestRenderController                        mRenderController;
   Graphics::EglGraphicsController             mGraphicsController; // Use real controller in Adaptor
   TestGlAbstraction                           mGlAbstraction;
-  TestGlContextHelperAbstraction              mGlContextHelperAbstraction;
   TestGraphicsSyncImplementation              mGraphicsSyncImplementation;
   TestGraphicsImpl                            mGraphics;
   Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};

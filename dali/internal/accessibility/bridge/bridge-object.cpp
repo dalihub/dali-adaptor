@@ -331,10 +331,14 @@ void BridgeObject::EmitScrollStarted(Accessible* obj)
     return;
   }
 
-  mDbusServer.emit2<Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
     Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
     "ScrollStarted",
+    "",
+    0,
+    0,
+    {0},
     {"", "root"});
 }
 
@@ -345,9 +349,13 @@ void BridgeObject::EmitScrollFinished(Accessible* obj)
     return;
   }
 
-  mDbusServer.emit2<Address>(
+  mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
     GetAccessiblePath(obj),
     Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
     "ScrollFinished",
+    "",
+    0,
+    0,
+    {0},
     {"", "root"});
 }

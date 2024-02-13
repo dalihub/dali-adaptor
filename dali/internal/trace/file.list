@@ -1,19 +1,25 @@
 
 # module: trace, backend: common
-SET( adaptor_trace_common_src_files 
-    ${adaptor_trace_dir}/common/trace-manager-impl.cpp 
+SET( adaptor_trace_common_src_files
+    ${adaptor_trace_dir}/common/trace-manager-impl.cpp
     ${adaptor_trace_dir}/common/trace-factory.cpp
 )
 
 # module: trace, backend: generic
-SET( adaptor_trace_generic_src_files 
-    ${adaptor_trace_dir}/generic/trace-manager-impl-generic.cpp 
+SET( adaptor_trace_generic_src_files
+    ${adaptor_trace_dir}/generic/trace-manager-impl-generic.cpp
     ${adaptor_trace_dir}/generic/trace-factory-generic.cpp
 )
 
 # module: trace, backend: tizen
-SET( adaptor_trace_tizen_src_files 
-    ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp 
+SET( adaptor_trace_tizen_src_files
+    ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp
     ${adaptor_trace_dir}/tizen/trace-factory-tizen.cpp
 )
 
+# module: trace, backend: tizen-streamline
+SET( adaptor_trace_tizen_streamline_src_files
+    ${adaptor_trace_dir}/streamline/streamline_annotate.c
+    ${adaptor_trace_dir}/streamline/trace-manager-impl-streamline.cpp
+    ${adaptor_trace_dir}/streamline/trace-factory-streamline.cpp
+)
