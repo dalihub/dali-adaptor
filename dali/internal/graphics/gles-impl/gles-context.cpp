@@ -198,7 +198,7 @@ struct Context::Impl
 
   /**
    * Either enables or disables a vertex attribute location in the cache
-   * The cahnges won't take affect until FlushVertexAttributeLocations is called
+   * The changes won't take affect until FlushVertexAttributeLocations is called
    * @param location attribute location
    * @param state attribute state
    */
@@ -1308,6 +1308,27 @@ void Context::PrepareForNativeRendering()
   }
 
   eglMakeCurrent(display, drawSurface, readSurface, mImpl->mNativeDrawContext);
+  // make sure it's current window context
+  eglMakeCurrent(display, mImpl->mCacheDrawWriteSurface, mImpl->mCacheDrawReadSurface, mImpl->mCacheEGLGraphicsContext);
+}
+
+void Context::ResetGLESState()
+{
+  mImpl->mGlStateCache.ResetBufferCache();
+  mImpl->mGlStateCache.ResetTextureCache();
+  mImpl->mCurrentPipeline = nullptr;
+  mImpl->mCurrentUBOBindings.clear();
+  mImpl->mCurrentTextureBindings.clear();
+  mImpl->mCurrentVertexBufferBindings.clear();
+  mImpl->mCurrentRenderTarget = nullptr;
+  mImpl->mCurrentRenderPass = nullptr;
+  mImpl->mVertexBuffersChanged = true;
+  mImpl->mCurrentIndexBufferBinding = {};
+  mImpl->mCurrentSamplerBindings = {};
+  mImpl->mProgramVAOCurrentState = 0;
+
+  ClearState();
+  mImpl->InitializeGlState();
 }
 
 void Context::RestoreFromNativeRendering()

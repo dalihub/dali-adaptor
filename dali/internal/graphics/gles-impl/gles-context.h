@@ -223,6 +223,7 @@ public:
   void SetDepthTestEnable(bool depthTestEnable);
   void SetDepthWriteEnable(bool depthWriteEnable);
 
+  void ResetGLESState();
 private:
   /**
    * @brief Clear current state
