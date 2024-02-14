@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_SHADER_PRECOMPILER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,28 +19,29 @@
  */
 
 // INTERNAL HEADER
-#include <dali/public-api/common/dali-common.h>
-#include <dali/public-api/object/base-handle.h>
-#include <dali/public-api/common/vector-wrapper.h>
 #include <dali/devel-api/threading/conditional-wait.h>
 #include <dali/devel-api/threading/mutex.h>
+#include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/common/vector-wrapper.h>
+#include <dali/public-api/object/base-handle.h>
 
 // EXTERNAL HEDAER
-#include <string_view>
-#include <memory>
-#include <mutex>
 #include <dali/graphics-api/graphics-program.h>
 #include <dali/graphics-api/graphics-types.h>
+#include <memory>
+#include <mutex>
+#include <string_view>
 
 namespace Dali
 {
 struct RawShaderData
 {
-  int shaderCount;
+  int                           shaderCount;
   std::vector<std::string_view> vertexPrefix;
   std::vector<std::string_view> fragmentPrefix;
-  std::string_view vertexShader;
-  std::string_view fragmentShader;
+  std::vector<std::string_view> shaderName;
+  std::string_view              vertexShader;
+  std::string_view              fragmentShader;
 };
 
 /**
@@ -125,14 +126,14 @@ private:
 
 private:
   std::vector<Graphics::UniquePtr<Dali::Graphics::Program>> mProgram;
-  static std::unique_ptr<ShaderPreCompiler> mInstance;
-  static std::once_flag mOnceFlag;
-  std::vector<RawShaderData> mRawShaderList;
-  ConditionalWait mConditionalWait;
-  Dali::Mutex mMutex;
-  bool mPrecompiled;
-  bool mEnabled;
-  bool mNeedsSleep{true};
+  static std::unique_ptr<ShaderPreCompiler>                 mInstance;
+  static std::once_flag                                     mOnceFlag;
+  std::vector<RawShaderData>                                mRawShaderList;
+  ConditionalWait                                           mConditionalWait;
+  Dali::Mutex                                               mMutex;
+  bool                                                      mPrecompiled;
+  bool                                                      mEnabled;
+  bool                                                      mNeedsSleep{true};
 };
 
 } // namespace Dali
