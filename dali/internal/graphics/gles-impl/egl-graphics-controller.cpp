@@ -696,7 +696,13 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       {
         auto* info = &cmd.drawNative.drawNativeInfo;
 
-        mCurrentContext->PrepareForNativeRendering();
+        // ISOLATED execution mode will isolate GL graphics context from
+        // DALi renderning pipeline which is the safest way of rendering
+        // the 'injected' code.
+        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        {
+          mCurrentContext->PrepareForNativeRendering();
+        }
 
         if(info->glesNativeInfo.eglSharedContextStoragePointer)
         {
@@ -705,8 +711,21 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
 
         CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
-
-        mCurrentContext->RestoreFromNativeRendering();
+        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        {
+          mCurrentContext->RestoreFromNativeRendering();
+        }
+        else
+        {
+          // After native rendering reset all states and caches.
+          // This is going to be called only when DIRECT execution mode is used
+          // and some GL states need to be reset.
+          // This does not guarantee that after execution a custom GL code
+          // the main rendering pipeline will work correctly and it's a responsibility
+          // of developer to make sure the GL states are not interfering with main
+          // rendering pipeline (by restoring/cleaning up GL states after drawing).
+          mCurrentContext->ResetGLESState();
+        }
         break;
       }
     }
