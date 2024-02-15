@@ -877,7 +877,7 @@ public:
 
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glTexImage2D", "size : %u x %u", width, height);
+    FINISH_DURATION_CHECK_WITH_FORMAT("glTexImage2D", "size : %u x %u, format : %d, type : %d", width, height, static_cast<int>(format), static_cast<int>(type));
   }
 
   void TexParameterf(GLenum target, GLenum pname, GLfloat param) override
@@ -906,7 +906,7 @@ public:
 
     glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
 
-    FINISH_DURATION_CHECK_WITH_FORMAT("glTexSubImage2D", "size : %u x %u", width, height);
+    FINISH_DURATION_CHECK_WITH_FORMAT("glTexSubImage2D", "size : %u x %u, format : %d, type : %d", width, height, static_cast<int>(format), static_cast<int>(type));
   }
 
   void Uniform1f(GLint location, GLfloat x) override

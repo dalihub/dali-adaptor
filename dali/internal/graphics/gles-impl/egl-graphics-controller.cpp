@@ -441,7 +441,7 @@ void EglGraphicsController::ProcessDiscardQueues()
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_CONTROLLER_DISCARD_QUEUE");
 
   // Process textures
-  ProcessDiscardQueue<GLES::Texture>(mDiscardTextureQueue);
+  ProcessDiscardSet<GLES::Texture>(mDiscardTextureSet);
 
   // Process buffers
   ProcessDiscardQueue<GLES::Buffer>(mDiscardBufferQueue);
@@ -780,89 +780,93 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           sourceBufferReleaseRequired = Dali::Integration::IsPixelDataReleaseAfterUpload(source.pixelDataSource.pixelData) && info.srcOffset == 0u;
         }
 
-        auto                 sourceStride = info.srcStride;
-        std::vector<uint8_t> tempBuffer;
-
-        if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
+        // Skip texture upload if given texture is already discarded for this render loop.
+        if(mDiscardTextureSet.find(texture) == mDiscardTextureSet.end())
         {
-          // Convert RGB to RGBA if necessary.
-          if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+          auto                 sourceStride = info.srcStride;
+          std::vector<uint8_t> tempBuffer;
+
+          if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
           {
-            sourceBuffer = &tempBuffer[0];
-            sourceStride = 0u; // Converted buffer compacted. make stride as 0.
-            srcFormat    = destFormat;
-            srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+            // Convert RGB to RGBA if necessary.
+            if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
+            {
+              sourceBuffer = &tempBuffer[0];
+              sourceStride = 0u; // Converted buffer compacted. make stride as 0.
+              srcFormat    = destFormat;
+              srcType      = GLES::GLTextureFormatType(createInfo.format).type;
+            }
           }
-        }
 
-        // Calculate the maximum mipmap level for the texture
-        texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
+          // Calculate the maximum mipmap level for the texture
+          texture->SetMaxMipMapLevel(std::max(texture->GetMaxMipMapLevel(), info.level));
 
-        GLenum bindTarget{GL_TEXTURE_2D};
-        GLenum target{GL_TEXTURE_2D};
+          GLenum bindTarget{GL_TEXTURE_2D};
+          GLenum target{GL_TEXTURE_2D};
 
-        if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
-        {
-          bindTarget = GL_TEXTURE_CUBE_MAP;
-          target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
-        }
-
-        mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
-
-        mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
-
-        if(!isSubImage)
-        {
-          if(!texture->IsCompressed())
+          if(createInfo.textureType == Graphics::TextureType::TEXTURE_CUBEMAP)
           {
-            mGlAbstraction->TexImage2D(target,
-                                       info.level,
-                                       destInternalFormat,
-                                       info.srcExtent2D.width,
-                                       info.srcExtent2D.height,
-                                       0,
-                                       srcFormat,
-                                       srcType,
-                                       sourceBuffer);
+            bindTarget = GL_TEXTURE_CUBE_MAP;
+            target     = GL_TEXTURE_CUBE_MAP_POSITIVE_X + info.layer;
           }
-          else
+
+          mGlAbstraction->PixelStorei(GL_UNPACK_ALIGNMENT, 1);
+          mGlAbstraction->PixelStorei(GL_UNPACK_ROW_LENGTH, sourceStride);
+
+          mCurrentContext->BindTexture(bindTarget, texture->GetTextureTypeId(), texture->GetGLTexture());
+
+          if(!isSubImage)
           {
-            mGlAbstraction->CompressedTexImage2D(target,
-                                                 info.level,
-                                                 destInternalFormat,
-                                                 info.srcExtent2D.width,
-                                                 info.srcExtent2D.height,
-                                                 0,
-                                                 info.srcSize,
-                                                 sourceBuffer);
-          }
-        }
-        else
-        {
-          if(!texture->IsCompressed())
-          {
-            mGlAbstraction->TexSubImage2D(target,
-                                          info.level,
-                                          info.dstOffset2D.x,
-                                          info.dstOffset2D.y,
-                                          info.srcExtent2D.width,
-                                          info.srcExtent2D.height,
-                                          srcFormat,
-                                          srcType,
-                                          sourceBuffer);
+            if(!texture->IsCompressed())
+            {
+              mGlAbstraction->TexImage2D(target,
+                                         info.level,
+                                         destInternalFormat,
+                                         info.srcExtent2D.width,
+                                         info.srcExtent2D.height,
+                                         0,
+                                         srcFormat,
+                                         srcType,
+                                         sourceBuffer);
+            }
+            else
+            {
+              mGlAbstraction->CompressedTexImage2D(target,
+                                                   info.level,
+                                                   destInternalFormat,
+                                                   info.srcExtent2D.width,
+                                                   info.srcExtent2D.height,
+                                                   0,
+                                                   info.srcSize,
+                                                   sourceBuffer);
+            }
           }
           else
           {
-            mGlAbstraction->CompressedTexSubImage2D(target,
-                                                    info.level,
-                                                    info.dstOffset2D.x,
-                                                    info.dstOffset2D.y,
-                                                    info.srcExtent2D.width,
-                                                    info.srcExtent2D.height,
-                                                    srcFormat,
-                                                    info.srcSize,
-                                                    sourceBuffer);
+            if(!texture->IsCompressed())
+            {
+              mGlAbstraction->TexSubImage2D(target,
+                                            info.level,
+                                            info.dstOffset2D.x,
+                                            info.dstOffset2D.y,
+                                            info.srcExtent2D.width,
+                                            info.srcExtent2D.height,
+                                            srcFormat,
+                                            srcType,
+                                            sourceBuffer);
+            }
+            else
+            {
+              mGlAbstraction->CompressedTexSubImage2D(target,
+                                                      info.level,
+                                                      info.dstOffset2D.x,
+                                                      info.dstOffset2D.y,
+                                                      info.srcExtent2D.width,
+                                                      info.srcExtent2D.height,
+                                                      srcFormat,
+                                                      info.srcSize,
+                                                      sourceBuffer);
+            }
           }
         }
 
