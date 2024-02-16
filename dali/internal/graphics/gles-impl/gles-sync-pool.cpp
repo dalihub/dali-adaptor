@@ -84,11 +84,11 @@ bool AgingSyncObject::ClientWait()
   }
   else
   {
-    if(glSyncObject)
+    auto gl = controller.GetGL();
+    if(gl && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::ClientWait(); glClientWaitSync 1ms\n");
       const GLuint64 TIMEOUT = 1000000; //1ms!
-      auto           gl      = controller.GetGL();
       GLenum         result  = gl->ClientWaitSync(glSyncObject, GL_SYNC_FLUSH_COMMANDS_BIT, TIMEOUT);
 
       synced = (result == GL_ALREADY_SIGNALED || result == GL_CONDITION_SATISFIED);
@@ -110,10 +110,10 @@ void AgingSyncObject::Wait()
   }
   else
   {
-    if(glSyncObject)
+    auto gl = controller.GetGL();
+    if(gl && glSyncObject)
     {
       DALI_LOG_INFO(gLogSyncFilter, Debug::Verbose, "AgingSyncObject::Wait(); glWaitSync\n");
-      auto gl = controller.GetGL();
       gl->WaitSync(glSyncObject, 0, 0ull);
     }
   }
