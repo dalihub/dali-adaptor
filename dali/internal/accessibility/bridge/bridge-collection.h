@@ -112,6 +112,19 @@ public:
    * @return The matching Accessible objects
    */
   DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatches(MatchRule rule, uint32_t sortBy, int32_t count, bool traverse);
+
+  /**
+   * @brief Gets the matching Accessible objects with two MatchRules.
+   *
+   * @param[in] firstRule The initial BridgeCollection::MatchRule.
+   * @param[in] secondRule An secondary BridgeCollection::MatchRule.
+   * @param[in] sortBy SortOrder::CANONICAL or SortOrder::REVERSE_CANONICAL
+   * @param[in] firstCount The maximum number of objects to return for the initial match.
+   * @param[in] secondCount The maximum number of objects to return for the secondary match.
+   * @param[in] traverse True if it is traverse, otherwise false.
+   * @return The matching Accessible objects
+   */
+  DBus::ValueOrError<std::vector<Dali::Accessibility::Accessible*> > GetMatchesInMatches(MatchRule firstRule, MatchRule secondRule, uint32_t sortBy, int32_t firstCount, int32_t secondCount,  bool traverse);
 };
 
 #endif // DALI_INTERNAL_ACCESSIBILITY_BRIDGE_COLLECTION_H
