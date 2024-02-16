@@ -55,8 +55,9 @@ uint32_t HashPipeline( const VulkanAPI::PipelineFactory& factory )
   const VulkanAPI::PipelineFactory::Info& info = factory.mInfo;
 
   // Obtain renderpass as it is a part of the hashed value
-  const auto renderPass = info.framebufferState.framebuffer ? static_cast<const VulkanAPI::Framebuffer*>(info.framebufferState.framebuffer)->GetFramebufferRef()->GetRenderPass() :
-                    factory.mGraphics.GetSwapchainForFBID( 0u )->GetCurrentFramebuffer()->GetRenderPass();
+  VkRenderPass_T* const renderPass = info.framebufferState.framebuffer ? static_cast<const VulkanAPI::Framebuffer*>(info.framebufferState.framebuffer)->GetFramebufferRef()->GetRenderPass() :
+    factory.mGraphics.GetSwapchainForFBID( 0u )->GetCurrentFramebuffer()->GetRenderPass();
+  VkRenderPass_T* renderPassPtr = const_cast<VkRenderPass_T*>(renderPass);
 
   uint32_t dsHash = HashBinary( &info.depthStencilState, sizeof( info.depthStencilState ) );
   uint32_t cbHash = HashBinary( &info.colorBlendState, sizeof( info.colorBlendState ) );
@@ -75,7 +76,7 @@ uint32_t HashPipeline( const VulkanAPI::PipelineFactory& factory )
   // rehash all
   std::array< uint32_t, 11 > allHashes = {
           dsHash, cbHash, shHash, vpHash, fbHash, rsHash, iaHash, viStateBindingsHash, viStateAttributesHash, info.dynamicStateMask,
-          uint32_t( uintptr_t( static_cast<const VkRenderPass>(renderPass) ) )
+          uint32_t( uintptr_t( renderPassPtr ))
   };
 
   return HashBinary( allHashes.data(), uint32_t( allHashes.size() * sizeof( uint32_t ) ) );
@@ -184,7 +185,7 @@ std::unique_ptr< Dali::Graphics::Pipeline > PipelineFactory::Create()
 
     if( mOldPipeline && static_cast<VulkanAPI::Pipeline*>(mOldPipeline.get())->GetImplementation() == ptr )
     {
-      return std::move( mOldPipeline );
+      return std::move(mOldPipeline);
     }
 
     // if pipeline is already in cache, attach implementation and return unique ptr

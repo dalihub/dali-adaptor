@@ -64,7 +64,7 @@ struct TextureFactory::Impl
 
     if( retval->Initialize() )
     {
-      return std::move( retval );
+      return retval;
     }
 
     return nullptr;
@@ -210,7 +210,7 @@ std::unique_ptr<TextureFactory> TextureFactory::Clone()
 {
   auto newFactory = std::unique_ptr<TextureFactory>( new TextureFactory() );
   newFactory->mImpl.reset( new Impl( *mImpl.get() ) );
-  return std::move( newFactory );
+  return newFactory;
 }
 
 }

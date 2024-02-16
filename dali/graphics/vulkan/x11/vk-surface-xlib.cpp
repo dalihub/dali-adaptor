@@ -53,7 +53,7 @@ vk::SurfaceKHR VkSurfaceXlib::Create( vk::Instance instance, const vk::Allocatio
 std::unique_ptr<SurfaceFactory> SurfaceFactory::New(Dali::RenderSurface& renderSurface)
 {
   auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXlib>( new Graphics::Vulkan::VkSurfaceXlib( renderSurface ) );
-  return std::move( surfaceFactory );
+  return surfaceFactory;
 }
 
 } // Graphics

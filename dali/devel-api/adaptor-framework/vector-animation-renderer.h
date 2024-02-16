@@ -125,7 +125,8 @@ public:
   /**
    * @brief Gets the default size of the file,.
    *
-   * @return The default size of the file
+   * @param[out] width The width
+   * @param[out] height The height
    */
   void GetDefaultSize( uint32_t& width, uint32_t& height ) const;
 

@@ -65,7 +65,7 @@ std::unique_ptr< Graphics::Shader > ShaderFactory::Create() const
   // add fragment shader
   retval->AddShaderModule( mFragmentShader.pipelineStage, mFragmentShader.language, mFragmentShader.source );
 
-  return std::move( retval );
+  return retval;
 }
 
 } // namespace VulkanAPI

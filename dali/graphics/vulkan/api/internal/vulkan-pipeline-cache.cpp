@@ -136,7 +136,17 @@ Dali::UniqueFutureGroup PipelineCache::Compile( bool parallel )
         {
           pipelineImpl->Compile();
         };
-        parallel ? tasks.emplace_back( workerFunc ) : workerFunc(0);
+
+        if(parallel)
+        {
+          // Queue it
+          tasks.emplace_back( workerFunc );
+        }
+        else
+        {
+          // Execute it
+          workerFunc(0);
+        }
       }
     }
   }

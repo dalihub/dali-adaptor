@@ -90,7 +90,7 @@ vk::SurfaceKHR VkSurfaceWayland::Create(
 std::unique_ptr<SurfaceFactory> SurfaceFactory::New( NativeWindowInterface& nativeWindow )
 {
   auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceWayland>( new Graphics::Vulkan::VkSurfaceWayland( nativeWindow ) );
-  return std::move( surfaceFactory );
+  return surfaceFactory;
 }
 
 } // Graphics

@@ -266,7 +266,7 @@ void CurlEnvironment::SetLockingFunction()
 
   mMutexs = new std::mutex[ CRYPTO_num_locks() ];
 
-  CRYPTO_THREADID_set_callback( &CurlEnvironment::GetThreadId );
+  //CRYPTO_THREADID_set_callback( &CurlEnvironment::GetThreadId );
   CRYPTO_set_locking_callback( &CurlEnvironment::OnOpenSSLLocking );
 }
 
@@ -277,7 +277,7 @@ void CurlEnvironment::UnsetLockingFunction()
     return;
   }
 
-  CRYPTO_THREADID_set_callback( NULL );
+  //CRYPTO_THREADID_set_callback( NULL );
   CRYPTO_set_locking_callback( NULL );
   delete [] mMutexs;
   mMutexs = NULL;

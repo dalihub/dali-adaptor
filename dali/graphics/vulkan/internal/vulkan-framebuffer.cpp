@@ -182,23 +182,23 @@ std::vector< RefCountedFramebufferAttachment > Framebuffer::GetAttachments( Atta
     {
       retval.reserve( mColorAttachments.size() );
       retval.insert( retval.end(), mColorAttachments.begin(), mColorAttachments.end() );
-      return std::move( retval );
+      break;
     }
     case AttachmentType::DEPTH_STENCIL:
     {
       retval.reserve( 1 );
       retval.push_back( mDepthAttachment );
-      return std::move( retval );
+      break;
     }
     case AttachmentType::INPUT:
     case AttachmentType::RESOLVE:
     case AttachmentType::PRESERVE:
     case AttachmentType::UNDEFINED:
     {
-      return std::move( retval );
+      break;
     }
   }
-  return std::move( retval );
+  return retval;
 }
 
 uint32_t Framebuffer::GetAttachmentCount( AttachmentType type ) const
@@ -248,7 +248,7 @@ std::vector< vk::ClearValue > Framebuffer::GetClearValues() const
     result.push_back( mDepthAttachment->GetClearValue() );
   }
 
-  return std::move( result );
+  return result;
 }
 
 bool Framebuffer::OnDestroy()

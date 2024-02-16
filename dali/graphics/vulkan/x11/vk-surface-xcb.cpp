@@ -53,7 +53,7 @@ vk::SurfaceKHR VkSurfaceXcb::Create( vk::Instance instance, const vk::Allocation
 std::unique_ptr<SurfaceFactory> SurfaceFactory::New( NativeWindowInterface& nativeWindow )
 {
   auto surfaceFactory = std::unique_ptr<Graphics::Vulkan::VkSurfaceXcb>( new Graphics::Vulkan::VkSurfaceXcb( nativeWindow ) );
-  return std::move( surfaceFactory );
+  return surfaceFactory;
 }
 
 } // Graphics

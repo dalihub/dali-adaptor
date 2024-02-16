@@ -176,7 +176,6 @@ public:
 
   /**
    * @brief Retrieve a handle to the instance of InputMethodContext.
-   * @return A handle to the InputMethodContext.
    * @brief Constructor.
    */
   InputMethodContext();
