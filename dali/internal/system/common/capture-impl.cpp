@@ -52,7 +52,8 @@ Capture::Capture()
   mNativeImageSourcePtr(NULL),
   mFileSave(false),
   mUseDefaultCamera(true),
-  mSceneOffCameraAfterCaptureFinished(false)
+  mSceneOffCameraAfterCaptureFinished(false),
+  mIsNativeImageSourcePossible(true)
 {
 }
 
@@ -64,7 +65,8 @@ Capture::Capture(Dali::CameraActor cameraActor)
   mNativeImageSourcePtr(NULL),
   mFileSave(false),
   mUseDefaultCamera(!cameraActor),
-  mSceneOffCameraAfterCaptureFinished(false)
+  mSceneOffCameraAfterCaptureFinished(false),
+  mIsNativeImageSourcePossible(true)
 {
 }
 
@@ -124,6 +126,11 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
   return mNativeImageSourcePtr;
 }
 
+Dali::Texture Capture::GetTexture()
+{
+  return mTexture;
+}
+
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
@@ -148,10 +155,17 @@ Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 
 void Capture::CreateTexture(const Vector2& size)
 {
-  if(!mNativeImageSourcePtr)
+  if(mIsNativeImageSourcePossible)
   {
-    mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
-    mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
+    if(!mNativeImageSourcePtr)
+    {
+      mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
+      mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
+    }
+  }
+  else
+  {
+    mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGB888, unsigned(size.width), unsigned(size.height));
   }
 }
 
@@ -284,6 +298,16 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
 {
+  Dali::Internal::Adaptor::Adaptor& adaptor     = Internal::Adaptor::Adaptor::GetImplementation(Internal::Adaptor::Adaptor::Get());
+  GraphicsInterface*                graphics    = &adaptor.GetGraphicsInterface();
+  auto                              eglGraphics = static_cast<EglGraphics*>(graphics);
+
+  if(eglGraphics->GetEglImplementation().GetGlesVersion() < GL_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE)
+  {
+    DALI_LOG_ERROR("GLES is 2.0, we can't use native image source \n");
+    mIsNativeImageSourcePossible = false;
+  }
+
   CreateTexture(size);
 
   CreateFrameBuffer();
@@ -345,10 +369,18 @@ bool Capture::OnTimeOut()
 
 bool Capture::SaveFile()
 {
-  if(mNativeImageSourcePtr)
+  if(mIsNativeImageSourcePossible)
   {
-    return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
+    if(mNativeImageSourcePtr)
+    {
+      return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
+    }
   }
+  else
+  {
+    DALI_LOG_ERROR("can't use Capture::SavceFile(). we don't support this function in gles 2.0 \n");
+  }
+
   return false;
 }
 

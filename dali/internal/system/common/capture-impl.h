@@ -91,6 +91,11 @@ public:
   Dali::Devel::PixelBuffer GetCapturedBuffer();
 
   /**
+   * @copydoc Dali::Capture::GetTexture
+   */
+  Dali::Texture GetTexture();
+
+  /**
    * @copydoc Dali::Capture::FinishedSignal
    */
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
@@ -211,6 +216,7 @@ private:
   bool                                     mFileSave;
   bool                                     mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
   bool                                     mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
+  bool                                     mIsNativeImageSourcePossible;
 };
 
 } // End of namespace Adaptor
