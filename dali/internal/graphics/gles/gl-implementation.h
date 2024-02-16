@@ -208,6 +208,11 @@ public:
     return false;
   }
 
+  uint32_t GetShaderLanguageVersion() override
+  {
+    return static_cast<uint32_t>(GetShadingLanguageVersion());
+  }
+
   std::string GetShaderVersionPrefix() override
   {
     if(mShaderVersionPrefix == "")
