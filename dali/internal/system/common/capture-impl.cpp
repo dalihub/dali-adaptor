@@ -135,15 +135,37 @@ Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
   {
-    std::vector<uint8_t> buffer;
     uint32_t             width, height;
     Dali::Pixel::Format  pixelFormat;
-    if(!mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+    if(mIsNativeImageSourcePossible)
     {
-      return Dali::Devel::PixelBuffer();
+      std::vector<uint8_t> buffer;
+      if(!mNativeImageSourcePtr || !mNativeImageSourcePtr->GetPixels(buffer, width, height, pixelFormat))
+      {
+        return Dali::Devel::PixelBuffer();
+      }
+      mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+      memcpy(mPixelBuffer.GetBuffer(), &buffer[0], width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
     }
-    mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
-    memcpy(mPixelBuffer.GetBuffer(), &buffer[0], width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
+    else
+    {
+      if(!mFrameBuffer || !mTexture)
+      {
+        DALI_LOG_ERROR("Capture is not started yet.");
+        return Dali::Devel::PixelBuffer();
+      }
+      uint8_t* buffer = mFrameBuffer.GetRenderedBuffer();
+      if(buffer == nullptr)
+      {
+        DALI_LOG_ERROR("Capture is not finished.");
+        return Dali::Devel::PixelBuffer();
+      }
+      width = mTexture.GetWidth();
+      height = mTexture.GetHeight();
+      pixelFormat = mTexture.GetPixelFormat();
+      mPixelBuffer = Dali::Devel::PixelBuffer::New(width, height, pixelFormat);
+      memcpy(mPixelBuffer.GetBuffer(), buffer, width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat));
+    }
   }
   return mPixelBuffer;
 }
@@ -165,7 +187,7 @@ void Capture::CreateTexture(const Vector2& size)
   }
   else
   {
-    mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGB888, unsigned(size.width), unsigned(size.height));
+    mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGBA8888, unsigned(size.width), unsigned(size.height));
   }
 }
 
@@ -260,6 +282,10 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
   mRenderTask.SetProperty(Dali::RenderTask::Property::REQUIRES_SYNC, true);
   mRenderTask.FinishedSignal().Connect(this, &Capture::OnRenderFinished);
   mRenderTask.GetCameraActor().SetInvertYAxis(true);
+  if(!mIsNativeImageSourcePossible)
+  {
+    mFrameBuffer.CaptureRenderedResult();
+  }
 
   mTimer = Dali::Timer::New(TIME_OUT_DURATION);
   mTimer.TickSignal().Connect(this, &Capture::OnTimeOut);
@@ -378,7 +404,8 @@ bool Capture::SaveFile()
   }
   else
   {
-    DALI_LOG_ERROR("can't use Capture::SavceFile(). we don't support this function in gles 2.0 \n");
+    uint8_t* buffer = mFrameBuffer.GetRenderedBuffer();
+    return Dali::EncodeToFile(buffer, mPath, Dali::Pixel::RGBA8888, mTexture.GetWidth(), mTexture.GetHeight(), mQuality);
   }
 
   return false;

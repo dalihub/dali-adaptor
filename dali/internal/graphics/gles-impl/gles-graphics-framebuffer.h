@@ -72,6 +72,15 @@ public:
 
   [[nodiscard]] uint32_t GetGlStencilBufferId() const;
 
+  void CaptureRenderingResult(CallbackBase* capturedCallback, uint8_t* capturedBuffer);
+
+  void DrawRenderedBuffer();
+
+  bool CaptureRequested() const
+  {
+    return mCaptureRenderedResult;
+  }
+
 private:
   /**
    * Attach a texture to the specified attachment point
@@ -88,6 +97,10 @@ private:
   uint32_t mStencilBufferId{0u};
   uint32_t mMultisamples{1u};
   bool     mInitialized{false};
+
+  uint8_t*            mCapturedBuffer{nullptr};   ///< not owned
+  Dali::CallbackBase* mCapturedCallback{nullptr}; ///< not owned
+  bool                mCaptureRenderedResult{false};
 };
 
 } // namespace Dali::Graphics::GLES

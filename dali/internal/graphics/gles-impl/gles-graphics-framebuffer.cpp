@@ -202,6 +202,10 @@ void Framebuffer::DestroyResource()
 void Framebuffer::DiscardResource()
 {
   mController.DiscardResource(this);
+
+  mCaptureRenderedResult = false;
+  mCapturedBuffer = nullptr;
+  mCapturedCallback = nullptr;
 }
 
 void Framebuffer::Bind() const
@@ -246,6 +250,30 @@ uint32_t Framebuffer::GetGlDepthBufferId() const
 uint32_t Framebuffer::GetGlStencilBufferId() const
 {
   return mStencilBufferId;
+}
+
+void Framebuffer::CaptureRenderingResult(CallbackBase* capturedCallback, uint8_t* capturedBuffer)
+{
+  // Let we make to capture the result.
+  mCaptureRenderedResult = true;
+
+  mCapturedCallback = capturedCallback;
+  mCapturedBuffer   = capturedBuffer;
+}
+
+void Framebuffer::DrawRenderedBuffer()
+{
+  auto gl = mController.GetGL();
+  if(gl && mCaptureRenderedResult && mCapturedCallback && mCapturedBuffer != nullptr)
+  {
+    gl->ReadPixels(0, 0, mCreateInfo.size.width, mCreateInfo.size.height, GL_RGBA, GL_UNSIGNED_BYTE, mCapturedBuffer);
+
+    CallbackBase::Execute(*mCapturedCallback, mCapturedBuffer);
+
+    mCaptureRenderedResult = false;
+    mCapturedBuffer = nullptr;
+    mCapturedCallback = nullptr;
+  }
 }
 
 } //namespace Dali::Graphics::GLES

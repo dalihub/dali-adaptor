@@ -885,4 +885,9 @@ GLES::PipelineCache& EglGraphicsController::GetPipelineCache() const
   return *mPipelineCache;
 }
 
+void EglGraphicsController::CaptureRenderingResult(Graphics::Framebuffer& framebuffer, CallbackBase* capturedCallback, uint8_t* capturedBuffer)
+{
+  static_cast<GLES::Framebuffer*>(&framebuffer)->CaptureRenderingResult(capturedCallback, capturedBuffer);
+}
+
 } // namespace Dali::Graphics

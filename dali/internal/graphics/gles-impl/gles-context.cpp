@@ -765,6 +765,11 @@ void Context::EndRenderPass(GLES::TextureDependencyChecker& dependencyChecker)
       auto& gl = *mImpl->mController.GetGL();
       gl.Flush();
 
+      if(framebuffer->CaptureRequested())
+      {
+        framebuffer->DrawRenderedBuffer();
+      }
+
       /* @todo Full dependency checking would need to store textures in Begin, and create
        * fence objects here; but we're going to draw all fbos on shared context in serial,
        * so no real need (yet). Might want to consider ensuring order of render passes,

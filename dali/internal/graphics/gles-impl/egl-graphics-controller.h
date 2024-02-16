@@ -313,6 +313,10 @@ public:
     return {};
   }
 
+public: // Framebuffer Capture
+  void CaptureRenderingResult(Graphics::Framebuffer& framebuffer, CallbackBase* capturedCallback, uint8_t* capturedBuffer) override;
+
+public:
   [[nodiscard]] Integration::GlAbstraction* GetGL() const
   {
     if(mIsShuttingDown)
