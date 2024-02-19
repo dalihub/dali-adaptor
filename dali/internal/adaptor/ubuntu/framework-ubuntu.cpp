@@ -167,6 +167,7 @@ void Framework::Run()
 {
   mRunning = true;
 
+  efreet_cache_disable();
   elm_init(*mArgc, *mArgv);
 
   Impl::AppCreate(this);
