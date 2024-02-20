@@ -1,16 +1,19 @@
-static_libraries_glyphy_src_files = \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-arcs.cc \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-blob-impl.cc \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-extents.cc \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-outline.cc \
-  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc \
+SET(static_libraries_glyphy_src_files
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-arcs.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-blob-impl.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-extents.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-outline.cc
+  ${adaptor_thirdparty_dir}/glyphy/glyphy-sdf.cc
   ${adaptor_thirdparty_dir}/glyphy/vector-font-cache.cpp
-  
-static_libraries_libunibreak_src_files = \
-  ${adaptor_thirdparty_dir}/libunibreak/linebreak.c \
-  ${adaptor_thirdparty_dir}/libunibreak/linebreakdata.c \
-  ${adaptor_thirdparty_dir}/libunibreak/linebreakdef.c \
-  ${adaptor_thirdparty_dir}/libunibreak/wordbreak.c
+)
 
-adaptor_resampler_src_files=\
+SET(static_libraries_libunibreak_src_files
+  ${adaptor_thirdparty_dir}/libunibreak/linebreak.c
+  ${adaptor_thirdparty_dir}/libunibreak/linebreakdata.c
+  ${adaptor_thirdparty_dir}/libunibreak/linebreakdef.c
+  ${adaptor_thirdparty_dir}/libunibreak/wordbreak.c
+)
+
+SET(adaptor_resampler_src_files
     ${adaptor_thirdparty_dir}/resampler/resampler.cpp
+)

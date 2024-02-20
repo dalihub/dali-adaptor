@@ -1,13 +1,14 @@
-
-
 # module: clipboard, backend: common
-adaptor_clipboard_common_src_files=\
+SET( adaptor_clipboard_common_src_files
     ${adaptor_clipboard_dir}/common/clipboard-event-notifier-impl.cpp
+)
 
 # module: clipboard, backend: tizen-wayland
-adaptor_clipboard_tizen_wayland_src_files=\
+SET( adaptor_clipboard_tizen_wayland_src_files
     ${adaptor_clipboard_dir}/tizen-wayland/clipboard-impl-ecore-wl.cpp
+)
 
 # module: clipboard, backend: ubuntu-x11
-adaptor_clipboard_ubuntu_x11_src_files=\
+SET( adaptor_clipboard_ubuntu_x11_src_files
     ${adaptor_clipboard_dir}/ubuntu-x11/clipboard-impl-x.cpp
+)

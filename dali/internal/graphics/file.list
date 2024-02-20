@@ -1,26 +1,32 @@
 # module: graphics, backend: Common
-adaptor_graphics_common_src_files=
+SET( adaptor_graphics_common_src_files
+)
 
 # module: graphics, backend: tizen
-adaptor_graphics_tizen_src_files=\
+SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/vsync-monitor-tizen.cpp
+)
 
 # module: graphics, backend: ubuntu
-adaptor_graphics_ubuntu_src_files=\
+SET( adaptor_graphics_ubuntu_src_files
     ${adaptor_graphics_dir}/ubuntu/vsync-monitor-ubuntu.cpp
+)
 
 # module: graphics, backend: gles
-adaptor_graphics_gl_src_files=\
-    ${adaptor_graphics_dir}/gles/egl-debug.cpp \
-    ${adaptor_graphics_dir}/gles/egl-implementation.cpp \
-    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp \
-    ${adaptor_graphics_dir}/gles/gl-extensions.cpp \
-    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp \
-    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp \
+SET( adaptor_graphics_gl_src_files
+    ${adaptor_graphics_dir}/gles/egl-debug.cpp
+    ${adaptor_graphics_dir}/gles/egl-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp
+    ${adaptor_graphics_dir}/gles/gl-extensions.cpp
+    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
     ${adaptor_graphics_dir}/gles/egl-graphics.cpp
+)
 
-adaptor_graphics_gl_ubuntu_src_files=\
+SET( adaptor_graphics_gl_ubuntu_src_files
     ${adaptor_graphics_dir}/ubuntu/egl-image-extensions-ubuntu.cpp
+)
 
-adaptor_graphics_gl_tizen_src_files=\
+SET( adaptor_graphics_gl_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
+)

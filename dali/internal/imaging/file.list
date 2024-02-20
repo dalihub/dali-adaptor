@@ -1,35 +1,35 @@
-
-
 # module: imaging, backend: common
-adaptor_imaging_common_src_files=\
-    ${adaptor_imaging_dir}/common/native-bitmap-buffer-impl.cpp \
-    ${adaptor_imaging_dir}/common/pixel-buffer-impl.cpp \
-    ${adaptor_imaging_dir}/common/alpha-mask.cpp \
-    ${adaptor_imaging_dir}/common/file-download.cpp \
-    ${adaptor_imaging_dir}/common/gaussian-blur.cpp \
-    ${adaptor_imaging_dir}/common/http-utils.cpp \
-    ${adaptor_imaging_dir}/common/image-loader.cpp \
-    ${adaptor_imaging_dir}/common/image-loader-plugin-proxy.cpp \
-    ${adaptor_imaging_dir}/common/image-operations.cpp \
-    ${adaptor_imaging_dir}/common/loader-astc.cpp \
-    ${adaptor_imaging_dir}/common/loader-bmp.cpp \
-    ${adaptor_imaging_dir}/common/loader-gif.cpp \
-    ${adaptor_imaging_dir}/common/loader-ico.cpp \
-    ${adaptor_imaging_dir}/common/loader-jpeg-turbo.cpp \
-    ${adaptor_imaging_dir}/common/loader-ktx.cpp \
-    ${adaptor_imaging_dir}/common/loader-png.cpp \
-    ${adaptor_imaging_dir}/common/loader-wbmp.cpp \
+SET( adaptor_imaging_common_src_files
+    ${adaptor_imaging_dir}/common/native-bitmap-buffer-impl.cpp
+    ${adaptor_imaging_dir}/common/pixel-buffer-impl.cpp
+    ${adaptor_imaging_dir}/common/alpha-mask.cpp
+    ${adaptor_imaging_dir}/common/file-download.cpp
+    ${adaptor_imaging_dir}/common/gaussian-blur.cpp
+    ${adaptor_imaging_dir}/common/http-utils.cpp
+    ${adaptor_imaging_dir}/common/image-loader.cpp
+    ${adaptor_imaging_dir}/common/image-loader-plugin-proxy.cpp
+    ${adaptor_imaging_dir}/common/image-operations.cpp
+    ${adaptor_imaging_dir}/common/loader-astc.cpp
+    ${adaptor_imaging_dir}/common/loader-bmp.cpp
+    ${adaptor_imaging_dir}/common/loader-gif.cpp
+    ${adaptor_imaging_dir}/common/loader-ico.cpp
+    ${adaptor_imaging_dir}/common/loader-jpeg-turbo.cpp
+    ${adaptor_imaging_dir}/common/loader-ktx.cpp
+    ${adaptor_imaging_dir}/common/loader-png.cpp
+    ${adaptor_imaging_dir}/common/loader-wbmp.cpp
     ${adaptor_imaging_dir}/common/pixel-manipulation.cpp
+)
 
 # module: imaging, backend: tizen
-adaptor_imaging_tizen_src_files=\
-    ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen.cpp \
-    ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen.cpp \
+SET( adaptor_imaging_tizen_src_files
+    ${adaptor_imaging_dir}/tizen/native-image-source-factory-tizen.cpp
+    ${adaptor_imaging_dir}/tizen/native-image-source-impl-tizen.cpp
     ${adaptor_imaging_dir}/tizen/native-image-source-queue-impl-tizen.cpp
+)
 
 # module: imaging, backend: ubuntu-x11
-adaptor_imaging_ubuntu_x11_src_files=\
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x.cpp \
-    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-impl-x.cpp \
+SET( adaptor_imaging_ubuntu_x11_src_files
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-impl-x.cpp
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
-
+)

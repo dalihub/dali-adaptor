@@ -1,4 +1,5 @@
 # Add local source files here
 
-feedback_plugin_src_files = \
-   $(plugin_src_dir)/dali-feedback.cpp
+SET(feedback_plugin_src_files
+   ${plugin_src_dir}/dali-feedback.cpp
+)

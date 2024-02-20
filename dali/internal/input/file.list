@@ -1,31 +1,34 @@
 
 
 # module: input, backend: common
-adaptor_input_common_src_files=\
-    ${adaptor_input_dir}/common/drag-and-drop-detector-impl.cpp \
-    ${adaptor_input_dir}/common/gesture-manager.cpp \
-    ${adaptor_input_dir}/common/input-method-context-impl.cpp \
-    ${adaptor_input_dir}/common/key-grab.cpp \
-    ${adaptor_input_dir}/common/key-impl.cpp \
-    ${adaptor_input_dir}/common/keyboard.cpp \
-    ${adaptor_input_dir}/common/long-press-gesture-detector.cpp \
-    ${adaptor_input_dir}/common/pan-gesture-detector-base.cpp \
-    ${adaptor_input_dir}/common/pan-gesture-detector.cpp \
-    ${adaptor_input_dir}/common/physical-keyboard-impl.cpp \
-    ${adaptor_input_dir}/common/pinch-gesture-detector.cpp \
-    ${adaptor_input_dir}/common/tap-gesture-detector.cpp \
-    ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
+SET( adaptor_input_common_src_files
+    ${adaptor_input_dir}/common/drag-and-drop-detector-impl.cpp
+    ${adaptor_input_dir}/common/gesture-manager.cpp
+    ${adaptor_input_dir}/common/input-method-context-impl.cpp
+    ${adaptor_input_dir}/common/key-grab.cpp
+    ${adaptor_input_dir}/common/key-impl.cpp
+    ${adaptor_input_dir}/common/keyboard.cpp
+    ${adaptor_input_dir}/common/long-press-gesture-detector.cpp
+    ${adaptor_input_dir}/common/pan-gesture-detector-base.cpp
+    ${adaptor_input_dir}/common/pan-gesture-detector.cpp
+    ${adaptor_input_dir}/common/physical-keyboard-impl.cpp
+    ${adaptor_input_dir}/common/pinch-gesture-detector.cpp
+    ${adaptor_input_dir}/common/tap-gesture-detector.cpp
+)
 
 # module: input, backend: tizen-wayland
-adaptor_input_tizen_wayland_src_files=\
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp \
-    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp \
+SET( adaptor_input_tizen_wayland_src_files
+    ${adaptor_input_dir}/tizen-wayland/input-method-context-factory-ecore-wl.cpp
+    ${adaptor_input_dir}/tizen-wayland/input-method-context-impl-ecore-wl.cpp
+    ${adaptor_input_dir}/tizen-wayland/key-mapping-ecore-wl.cpp
     ${adaptor_input_dir}/tizen-wayland/virtual-keyboard-impl-ecore-wl.cpp
+    ${adaptor_input_dir}/tizen-wayland/ecore-virtual-keyboard.cpp
+)
 
 # module: input, backend: ubuntu-x11
-adaptor_input_ubuntu_x11_src_files=\
-    ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp \
-    ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp \
-    ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp \
+SET( adaptor_input_ubuntu_x11_src_files
+    ${adaptor_input_dir}/ubuntu-x11/input-method-context-factory-x.cpp
+    ${adaptor_input_dir}/ubuntu-x11/input-method-context-impl-x.cpp
+    ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp
     ${adaptor_input_dir}/ubuntu-x11/virtual-keyboard-impl-x.cpp
+)

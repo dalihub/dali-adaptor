@@ -66,20 +66,6 @@ Ecore_IMF_Input_Panel_Return_Key_Type buttonActionMapping(Dali::InputMethod::But
 
 void RotateTo(int angle)
 {
-  // Get focus window used by Keyboard and rotate it
-  Display* display = XOpenDisplay(0);
-  if (display)
-  {
-    ::Window focusWindow;
-    int revert;
-    // Get Focus window
-    XGetInputFocus(display, &focusWindow, &revert);
-
-    ecore_x_window_prop_property_set( static_cast<Ecore_X_Window>( focusWindow ),
-                                      ECORE_X_ATOM_E_ILLUME_ROTATE_WINDOW_ANGLE,
-                                      ECORE_X_ATOM_CARDINAL, 32, &angle, 1 );
-    XCloseDisplay(display);
-  }
 }
 
 void SetReturnKeyType( const InputMethod::ButtonAction::Type type )
@@ -90,6 +76,55 @@ Dali::InputMethod::ButtonAction::Type GetReturnKeyType()
 {
   return gButtonActionFunction;
 }
+
+
+void ConnectCallbacks( Ecore_IMF_Context *imfContext )
+{
+}
+
+void DisconnectCallbacks( Ecore_IMF_Context *imfContext )
+{
+}
+
+void Show()
+{
+}
+
+void Hide()
+{
+}
+
+bool IsVisible()
+{
+  return false;
+}
+
+void ApplySettings( const Property::Map& settingsMap )
+{
+}
+
+void EnablePrediction(const bool enable)
+{
+}
+
+bool IsPredictionEnabled()
+{
+  return false;
+}
+
+Rect<int> GetSizeAndPosition()
+{
+  int xPos, yPos, width, height;
+  width = height = xPos = yPos = 0;
+  return Rect<int>(xPos,yPos,width,height);
+}
+
+Dali::VirtualKeyboard::TextDirection GetTextDirection()
+{
+  Dali::VirtualKeyboard::TextDirection direction ( Dali::VirtualKeyboard::LeftToRight );
+  return direction;
+}
+
 
 } // namespace VirtualKeyboard
 

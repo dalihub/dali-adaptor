@@ -1,16 +1,18 @@
 
-
 # module: trace, backend: common
-adaptor_trace_common_src_files=\
-    ${adaptor_trace_dir}/common/trace-manager-impl.cpp \
+SET( adaptor_trace_common_src_files
+    ${adaptor_trace_dir}/common/trace-manager-impl.cpp
     ${adaptor_trace_dir}/common/trace-factory.cpp
+)
 
 # module: trace, backend: ubuntu
-adaptor_trace_ubuntu_src_files=\
-    ${adaptor_trace_dir}/ubuntu/trace-manager-impl-ubuntu.cpp \
+SET( adaptor_trace_ubuntu_src_files
+    ${adaptor_trace_dir}/ubuntu/trace-manager-impl-ubuntu.cpp
     ${adaptor_trace_dir}/ubuntu/trace-factory-ubuntu.cpp
+)
 
 # module: trace, backend: tizen
-adaptor_trace_tizen_src_files=\
-    ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp \
+SET( adaptor_trace_tizen_src_files
+    ${adaptor_trace_dir}/tizen/trace-manager-impl-tizen.cpp
     ${adaptor_trace_dir}/tizen/trace-factory-tizen.cpp
+)

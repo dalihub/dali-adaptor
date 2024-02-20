@@ -1,0 +1,12 @@
+prefix=@PREFIX@
+exec_prefix=@EXEC_PREFIX@
+apiversion=@DALI_ADAPTOR_VERSION@
+libdir=@LIB_DIR@
+includedir=@DEV_INCLUDE_PATH@
+
+Name: dali-adaptor-integration
+Description: Integration APIs for dali-adaptor
+Version: ${apiversion}
+Requires: dali2-adaptor
+Libs: -L${libdir}
+Cflags: -I${includedir}/dali/public-api/adaptor-framework/ -I${includedir}/dali/devel-api/adaptor-framework/ -I${includedir}/dali/integration-api/adaptor-framework/

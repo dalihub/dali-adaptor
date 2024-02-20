@@ -1,60 +1,64 @@
 
-
 # module: system, backend: common
-adaptor_system_common_src_files=\
-    ${adaptor_system_dir}/common/abort-handler.cpp \
-    ${adaptor_system_dir}/common/color-controller-impl.cpp \
-    ${adaptor_system_dir}/common/command-line-options.cpp \
-    ${adaptor_system_dir}/common/environment-options.cpp \
-    ${adaptor_system_dir}/common/fps-tracker.cpp \
-    ${adaptor_system_dir}/common/frame-time-stamp.cpp \
-    ${adaptor_system_dir}/common/frame-time-stats.cpp \
-    ${adaptor_system_dir}/common/kernel-trace.cpp \
-    ${adaptor_system_dir}/common/locale-utils.cpp \
-    ${adaptor_system_dir}/common/object-profiler.cpp \
-    ${adaptor_system_dir}/common/performance-interface-factory.cpp \
-    ${adaptor_system_dir}/common/performance-logger-impl.cpp \
-    ${adaptor_system_dir}/common/performance-marker.cpp \
-    ${adaptor_system_dir}/common/performance-server.cpp \
-    ${adaptor_system_dir}/common/shared-file.cpp \
-    ${adaptor_system_dir}/common/singleton-service-impl.cpp \
-    ${adaptor_system_dir}/common/sound-player-impl.cpp \
-    ${adaptor_system_dir}/common/stat-context.cpp \
-    ${adaptor_system_dir}/common/stat-context-manager.cpp \
-    ${adaptor_system_dir}/common/system-trace.cpp \
-    ${adaptor_system_dir}/common/thread-controller.cpp \
-    ${adaptor_system_dir}/common/time-service.cpp \
-    ${adaptor_system_dir}/common/trigger-event.cpp \
-    ${adaptor_system_dir}/common/trigger-event-factory.cpp \
-    ${adaptor_system_dir}/common/update-status-logger.cpp \
-    ${adaptor_system_dir}/common/widget-application-impl.cpp \
-    ${adaptor_system_dir}/common/logging.cpp
+SET( adaptor_system_common_src_files
+    ${adaptor_system_dir}/common/abort-handler.cpp
+    ${adaptor_system_dir}/common/color-controller-impl.cpp
+    ${adaptor_system_dir}/common/command-line-options.cpp
+    ${adaptor_system_dir}/common/environment-options.cpp
+    ${adaptor_system_dir}/common/fps-tracker.cpp
+    ${adaptor_system_dir}/common/frame-time-stamp.cpp
+    ${adaptor_system_dir}/common/frame-time-stats.cpp
+    ${adaptor_system_dir}/common/kernel-trace.cpp
+    ${adaptor_system_dir}/common/locale-utils.cpp
+    ${adaptor_system_dir}/common/object-profiler.cpp
+    ${adaptor_system_dir}/common/performance-interface-factory.cpp
+    ${adaptor_system_dir}/common/performance-logger-impl.cpp
+    ${adaptor_system_dir}/common/performance-marker.cpp
+    ${adaptor_system_dir}/common/performance-server.cpp
+    ${adaptor_system_dir}/common/shared-file.cpp
+    ${adaptor_system_dir}/common/singleton-service-impl.cpp
+    ${adaptor_system_dir}/common/sound-player-impl.cpp
+    ${adaptor_system_dir}/common/stat-context.cpp
+    ${adaptor_system_dir}/common/stat-context-manager.cpp
+    ${adaptor_system_dir}/common/system-trace.cpp
+    ${adaptor_system_dir}/common/thread-controller.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/common/trigger-event.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/common/update-status-logger.cpp
+    ${adaptor_system_dir}/common/widget-application-impl.cpp
+)
 
 # module: system, backend: linux
-adaptor_system_linux_src_files=\
-    ${adaptor_system_dir}/linux/callback-manager-ecore.cpp \
-    ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp \
+SET( adaptor_system_linux_src_files
+    ${adaptor_system_dir}/linux/callback-manager-ecore.cpp
+    ${adaptor_system_dir}/linux/file-descriptor-monitor-ecore.cpp
     ${adaptor_system_dir}/linux/timer-impl-ecore.cpp
+)
 
 # module: system, backend: tizen-wayland
-adaptor_system_tizen_wayland_src_files=\
-    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
-    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
+SET( adaptor_system_tizen_wayland_src_files
+    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
+    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
+    ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
+)
 
 # module: system, backend: tizen-wearable
-adaptor_system_tizen_wearable_src_files=\
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture.cpp \
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture-impl-tizen.cpp \
-    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp \
-    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp \
-    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp \
+SET( adaptor_system_tizen_wearable_src_files
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture.cpp
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/capture-impl-tizen.cpp
+    ${adaptor_system_dir}/tizen-wayland/tizen-wearable/watch-time.cpp
+    ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
+    ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
-
+    ${adaptor_system_dir}/tizen-wayland/logging-tizen.cpp
+)
 
 # module: system, backend: ubuntu-x11
-adaptor_system_ubuntu_x11_src_files=\
-    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp \
-    ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp \
+SET( adaptor_system_ubuntu_x11_src_files
+    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
-
+    ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
+)

@@ -1,25 +1,27 @@
-
-
 # module: adaptor, backend: common
-adaptor_adaptor_common_src_files=\
-    ${adaptor_adaptor_dir}/common/lifecycle-controller-impl.cpp \
-    ${adaptor_adaptor_dir}/common/adaptor-impl.cpp \
-    ${adaptor_adaptor_dir}/common/adaptor.cpp \
-    ${adaptor_adaptor_dir}/common/adaptor-builder-impl.cpp \
-    ${adaptor_adaptor_dir}/common/application-impl.cpp \
+SET( adaptor_adaptor_common_src_files
+    ${adaptor_adaptor_dir}/common/lifecycle-controller-impl.cpp
+    ${adaptor_adaptor_dir}/common/adaptor-impl.cpp
+    ${adaptor_adaptor_dir}/common/adaptor.cpp
+    ${adaptor_adaptor_dir}/common/adaptor-builder-impl.cpp
+    ${adaptor_adaptor_dir}/common/application-impl.cpp
     ${adaptor_adaptor_dir}/common/combined-update-render-controller.cpp
+)
 
 # module: adaptor, backend: tizen-wayland
-adaptor_adaptor_tizen_wayland_src_files=\
-    ${adaptor_adaptor_dir}/tizen-wayland/adaptor-impl-tizen.cpp \
+SET( adaptor_adaptor_tizen_wayland_src_files
+    ${adaptor_adaptor_dir}/tizen-wayland/adaptor-impl-tizen.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/framework-tizen.cpp
+)
 
 # module: adaptor, backend: tizen-wearable
-adaptor_adaptor_tizen_wearable_src_files=\
-    ${adaptor_adaptor_dir}/tizen-wayland/tizen-wearable/watch-application.cpp \
+SET( adaptor_adaptor_tizen_wearable_src_files
+    ${adaptor_adaptor_dir}/tizen-wayland/tizen-wearable/watch-application.cpp
     ${adaptor_adaptor_dir}/tizen-wayland/tizen-wearable/watch-application-impl.cpp
+)
 
 # module: adaptor, backend: ubuntu
-adaptor_adaptor_ubuntu_src_files=\
-    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp \
+SET( adaptor_adaptor_ubuntu_src_files
+    ${adaptor_adaptor_dir}/generic/adaptor-impl-generic.cpp
     ${adaptor_adaptor_dir}/ubuntu/framework-ubuntu.cpp
+)

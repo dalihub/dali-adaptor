@@ -1,57 +1,59 @@
 # Add graphics source files here
 
-graphics_vulkan_src_files = \
-    $(graphics_src_dir)/vulkan/vulkan-graphics-factory.cpp \
-    $(graphics_src_dir)/vulkan/graphics-implementation.cpp \
-\
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-api-debug.cpp \
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-api-descriptor-set-allocator.cpp \
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-api-descriptor-set-requirements.cpp \
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-api-pipeline-impl.cpp \
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-pipeline-cache-debug.cpp \
-    $(graphics_src_dir)/vulkan/api/internal/vulkan-pipeline-cache.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-buffer-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-buffer.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-controller.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-framebuffer-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-framebuffer.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-pipeline-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-pipeline.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-render-command.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-sampler-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-sampler.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-shader-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-shader.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-texture-factory.cpp \
-    $(graphics_src_dir)/vulkan/api/vulkan-api-texture.cpp \
-    $(graphics_src_dir)/vulkan/internal/spirv/vulkan-spirv.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-buffer.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-command-buffer.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-command-pool.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-debug-allocator.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-debug.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-fence.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-framebuffer.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-image-view.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-image.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-queue.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-sampler.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-shader.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-surface.cpp \
-    $(graphics_src_dir)/vulkan/internal/vulkan-swapchain.cpp \
-    $(graphics_src_dir)/vulkan/vulkan-graphics.cpp
-
+SET( graphics_vulkan_src_files
+    ${graphics_src_dir}/vulkan/vulkan-graphics-factory.cpp
+    ${graphics_src_dir}/vulkan/graphics-implementation.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-api-debug.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-api-descriptor-set-allocator.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-api-descriptor-set-requirements.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-api-pipeline-impl.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-pipeline-cache-debug.cpp
+    ${graphics_src_dir}/vulkan/api/internal/vulkan-pipeline-cache.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-buffer-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-buffer.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-controller.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-framebuffer-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-framebuffer.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-pipeline-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-pipeline.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-render-command.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-sampler-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-sampler.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-shader-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-shader.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-texture-factory.cpp
+    ${graphics_src_dir}/vulkan/api/vulkan-api-texture.cpp
+    ${graphics_src_dir}/vulkan/internal/spirv/vulkan-spirv.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-buffer.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-command-buffer.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-command-pool.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-debug-allocator.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-debug.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-fence.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-framebuffer.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-image-view.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-image.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-queue.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-sampler.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-shader.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-surface.cpp
+    ${graphics_src_dir}/vulkan/internal/vulkan-swapchain.cpp
+    ${graphics_src_dir}/vulkan/vulkan-graphics.cpp
+)
 # module: graphics, backend: vulkan/x11
-graphics_vulkan_x11_src_files=\
-    $(graphics_src_dir)/vulkan/x11/vk-surface-xlib2xcb.cpp
+SET( graphics_vulkan_x11_src_files
+    ${graphics_src_dir}/vulkan/x11/vk-surface-xlib2xcb.cpp
 
 # Should be using one of these, but nVidia doesn't work properly
-#    $(graphics_src_dir)/vulkan/x11/vk-surface-xcb.cpp
-#    $(graphics_src_dir)/vulkan/x11/vk-surface-xlib.cpp
+#    ${graphics_src_dir}/vulkan/x11/vk-surface-xcb.cpp
+#    ${graphics_src_dir}/vulkan/x11/vk-surface-xlib.cpp
+)
 
 # module: graphics, backend: vulkan/wayland
-graphics_vulkan_wayland_src_files=\
-    $(graphics_src_dir)/vulkan/wayland/vk-surface-wayland.cpp
+SET( graphics_vulkan_wayland_src_files
+    ${graphics_src_dir}/vulkan/wayland/vk-surface-wayland.cpp
+)
 
-graphics_vulkan_tizen_src_files=\
-    $(graphics_src_dir)/vulkan/api/vulkan-api-native-texture.cpp
+SET( graphics_vulkan_tizen_src_files
+    ${graphics_src_dir}/vulkan/api/vulkan-api-native-texture.cpp
+)

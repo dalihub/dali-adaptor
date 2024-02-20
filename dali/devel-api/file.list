@@ -1,110 +1,112 @@
-devel_api_src_files = \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/application-devel.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/clipboard.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/color-controller.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/file-loader.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/image-loading.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/native-image-source-queue.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/orientation.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/pixel-buffer.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/sound-player.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/style-monitor.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/vector-animation-renderer.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/video-player.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/web-engine.cpp \
-  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.cpp
+SET( devel_api_src_files
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-adaptor.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop-detector.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/environment-variable.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/event-feeder.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/event-thread-callback.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/feedback-player.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/file-loader.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loading.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/gif-loading.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/orientation.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/physical-keyboard.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/pixel-buffer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/singleton-service.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/sound-player.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/style-monitor.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/tilt-sensor.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/video-player.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/window-devel.cpp
+)
 
 
+SET( devel_api_adaptor_framework_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-adaptor.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-action-handler.h
+  ${adaptor_devel_api_dir}/adaptor-framework/accessibility-gesture-handler.h
+  ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
+  ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
+  ${adaptor_devel_api_dir}/adaptor-framework/clipboard-event-notifier.h
+  ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
+  ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/color-controller.h
+  ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop-detector.h
+  ${adaptor_devel_api_dir}/adaptor-framework/environment-variable.h
+  ${adaptor_devel_api_dir}/adaptor-framework/event-feeder.h
+  ${adaptor_devel_api_dir}/adaptor-framework/event-thread-callback.h
+  ${adaptor_devel_api_dir}/adaptor-framework/feedback-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/feedback-player.h
+  ${adaptor_devel_api_dir}/adaptor-framework/file-loader.h
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loader-input.h
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loader-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/image-loading.h
+  ${adaptor_devel_api_dir}/adaptor-framework/gif-loading.h
+  ${adaptor_devel_api_dir}/adaptor-framework/input-method-context.h
+  ${adaptor_devel_api_dir}/adaptor-framework/input-method-options.h
+  ${adaptor_devel_api_dir}/adaptor-framework/keyboard.h
+  ${adaptor_devel_api_dir}/adaptor-framework/lifecycle-controller.h
+  ${adaptor_devel_api_dir}/adaptor-framework/native-image-source-queue.h
+  ${adaptor_devel_api_dir}/adaptor-framework/orientation.h
+  ${adaptor_devel_api_dir}/adaptor-framework/performance-logger.h
+  ${adaptor_devel_api_dir}/adaptor-framework/pixel-buffer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/singleton-service.h
+  ${adaptor_devel_api_dir}/adaptor-framework/sound-player.h
+  ${adaptor_devel_api_dir}/adaptor-framework/style-monitor.h
+  ${adaptor_devel_api_dir}/adaptor-framework/tilt-sensor.h
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer.h
+  ${adaptor_devel_api_dir}/adaptor-framework/vector-animation-renderer-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/video-player.h
+  ${adaptor_devel_api_dir}/adaptor-framework/video-player-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine.h
+  ${adaptor_devel_api_dir}/adaptor-framework/web-engine-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/key-extension-plugin.h
+  ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.h
+  ${adaptor_devel_api_dir}/adaptor-framework/physical-keyboard.h
+  ${adaptor_devel_api_dir}/adaptor-framework/key-devel.h
+  ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.h
+  ${adaptor_devel_api_dir}/adaptor-framework/window-devel.h
+)
 
-devel_api_adaptor_framework_header_files = \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-adaptor.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-action-handler.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/accessibility-gesture-handler.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/application-devel.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/bitmap-saver.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/clipboard-event-notifier.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/clipboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/color-controller-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/color-controller.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/drag-and-drop-detector.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/environment-variable.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/event-feeder.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/event-thread-callback.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/feedback-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/feedback-player.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/file-loader.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/image-loader-input.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/image-loader-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/image-loading.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/gif-loading.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/input-method-context.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/input-method-options.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/keyboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/lifecycle-controller.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/native-image-source-queue.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/orientation.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/performance-logger.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/pixel-buffer.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/singleton-service.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/sound-player.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/style-monitor.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/tilt-sensor.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/vector-animation-renderer.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/vector-animation-renderer-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/video-player.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/video-player-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/web-engine.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/web-engine-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/key-extension-plugin.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/virtual-keyboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/physical-keyboard.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/key-devel.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/thread-settings.h \
-  $(adaptor_devel_api_dir)/adaptor-framework/window-devel.h
+SET( devel_api_text_abstraction_src_files
+   ${adaptor_devel_api_dir}/text-abstraction/bidirectional-support.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/bitmap-font.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/font-client.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/font-list.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/font-metrics.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/glyph-info.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/script.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/segmentation.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/shaping.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/text-renderer.cpp
+   ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.cpp
+)
 
-devel_api_text_abstraction_src_files = \
-   $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/bitmap-font.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/font-client.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/font-list.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/font-metrics.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/glyph-info.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/script.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/segmentation.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/shaping.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/text-renderer.cpp \
-   $(adaptor_devel_api_dir)/text-abstraction/text-renderer-layout-helper.cpp
-
-text_abstraction_header_files = \
-   $(adaptor_devel_api_dir)/text-abstraction/bidirectional-support.h \
-   $(adaptor_devel_api_dir)/text-abstraction/bitmap-font.h \
-   $(adaptor_devel_api_dir)/text-abstraction/font-client.h \
-   $(adaptor_devel_api_dir)/text-abstraction/font-list.h \
-   $(adaptor_devel_api_dir)/text-abstraction/font-metrics.h \
-   $(adaptor_devel_api_dir)/text-abstraction/glyph-info.h \
-   $(adaptor_devel_api_dir)/text-abstraction/script.h \
-   $(adaptor_devel_api_dir)/text-abstraction/segmentation.h \
-   $(adaptor_devel_api_dir)/text-abstraction/shaping.h \
-   $(adaptor_devel_api_dir)/text-abstraction/text-abstraction.h \
-   $(adaptor_devel_api_dir)/text-abstraction/text-abstraction-definitions.h \
-   $(adaptor_devel_api_dir)/text-abstraction/text-renderer.h \
-   $(adaptor_devel_api_dir)/text-abstraction/text-renderer-layout-helper.h
-
+SET( text_abstraction_header_files
+   ${adaptor_devel_api_dir}/text-abstraction/bidirectional-support.h
+   ${adaptor_devel_api_dir}/text-abstraction/bitmap-font.h
+   ${adaptor_devel_api_dir}/text-abstraction/font-client.h
+   ${adaptor_devel_api_dir}/text-abstraction/font-list.h
+   ${adaptor_devel_api_dir}/text-abstraction/font-metrics.h
+   ${adaptor_devel_api_dir}/text-abstraction/glyph-info.h
+   ${adaptor_devel_api_dir}/text-abstraction/script.h
+   ${adaptor_devel_api_dir}/text-abstraction/segmentation.h
+   ${adaptor_devel_api_dir}/text-abstraction/shaping.h
+   ${adaptor_devel_api_dir}/text-abstraction/text-abstraction.h
+   ${adaptor_devel_api_dir}/text-abstraction/text-abstraction-definitions.h
+   ${adaptor_devel_api_dir}/text-abstraction/text-renderer.h
+   ${adaptor_devel_api_dir}/text-abstraction/text-renderer-layout-helper.h
+)

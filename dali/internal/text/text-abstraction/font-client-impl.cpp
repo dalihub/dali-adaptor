@@ -19,7 +19,8 @@
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 
 // EXTERNAL INCLUDES
-#ifndef DALI_PROFILE_UBUNTU
+#if defined(DALI_PROFILE_MOBILE) || defined(DALI_PROFILE_TV) || defined(DALI_PROFILE_WEARABLE)
+#define USE_VCONF
 #include <vconf.h>
 #endif
 
@@ -104,9 +105,9 @@ int FontClient::GetDefaultFontSize()
 {
   int fontSize( -1 );
 
-#ifndef DALI_PROFILE_UBUNTU
+#ifdef USE_VCONF
   vconf_get_int( VCONFKEY_SETAPPL_ACCESSIBILITY_FONT_SIZE, &fontSize );
-#endif // DALI_PROFILE_UBUNTU
+#endif
 
   return fontSize;
 }
