@@ -2,7 +2,7 @@
 #define DALI_GLES_TEXTURE_DEPENDENCY_CHECKER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,12 +63,21 @@ public:
 
   /**
    * Check if the given texture needs syncing before being read.  This
-   * will perform a glWaitSync() (GPU side semaphore) if the texture
-   * needs syncing.
+   * will perform either a glWaitSync() (GPU side semaphore), or a
+   * glClientWaitSync(CPU fence) if the texture needs syncing.
    * @param[in] readContext The context that the texture is being read (drawn with)
    * @param[in] texture The texture being read
+   * @param[in] cpuSync True if glClientWaitSync should be used instead of glWaitSync
    */
-  void CheckNeedsSync(const Context* readContext, const Texture* texture);
+  void CheckNeedsSync(const Context* readContext, const Texture* texture, bool cpuSync = false);
+
+  /**
+   * Get the number of (offscreen) textures for dependency checking
+   */
+  size_t GetTextureCount() const
+  {
+    return mTextureDependencies.size();
+  }
 
 private:
   struct TextureDependency

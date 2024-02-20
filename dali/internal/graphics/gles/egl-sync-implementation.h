@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_EGL_SYNC_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,11 +50,24 @@ public:
 
   bool IsSynced() override;
 
+  /**
+   * Set up a GPU wait (returns immediately on CPU) for this sync. Can work across
+   * EGL contexts.
+   */
+  void Wait() override;
+
+  /**
+   * Wait on the CPU until the GPU executes this sync. Warning: could be a long time!
+   * Can work across EGL contexts.
+   */
+  void ClientWait() override;
+
 private:
 #ifdef _ARCH_ARM_
   EGLSyncKHR mEglSync;
 #else
-  int mPollCounter; // Implementations without fence sync use a 3 frame counter
+  EGLSync mEglSync;
+  int     mPollCounter; // Implementations without fence sync use a 3 frame counter
 #endif
   EglImplementation& mEglImplementation;
 };

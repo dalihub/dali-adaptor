@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_SYNC_POOL_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,14 @@
 #include <dali/integration-api/gl-abstraction.h>
 #include <dali/public-api/common/vector-wrapper.h>
 
-namespace Dali::Graphics
+namespace Dali
+{
+namespace Internal::Adaptor
+{
+class EglSyncObject;
+}
+
+namespace Graphics
 {
 class EglGraphicsController;
 
@@ -31,14 +38,22 @@ class Context;
 
 struct AgingSyncObject
 {
-  AgingSyncObject(Graphics::EglGraphicsController& controller, const Context* writeContext);
+  AgingSyncObject(Graphics::EglGraphicsController& controller, const Context* writeContext, bool egl = false);
   ~AgingSyncObject();
 
   EglGraphicsController& controller;
   const Context*         writeContext;
-  GLsync                 glSyncObject{0};
-  uint8_t                age{2};
-  bool                   syncing{false};
+  union
+  {
+    GLsync                            glSyncObject;
+    Internal::Adaptor::EglSyncObject* eglSyncObject;
+  };
+  uint8_t age{2};
+  bool    syncing{false};
+  bool    egl{false};
+
+  void Wait();
+  bool ClientWait();
 };
 using AgingSyncPtrRef = std::unique_ptr<AgingSyncObject>&;
 
@@ -51,6 +66,12 @@ using AgingSyncPtrRef = std::unique_ptr<AgingSyncObject>&;
 class SyncPool
 {
 public:
+  enum class SyncContext
+  {
+    EGL, ///< Use EGL sync when syncing between multiple contexts
+    GL   ///< Use GL sync when syncing in the same context
+  };
+
   explicit SyncPool(Graphics::EglGraphicsController& graphicsController)
   : mController(graphicsController)
   {
@@ -63,19 +84,26 @@ public:
    * @param writeContext
    * @return An owned ptr to a sync object
    */
-  AgingSyncObject* AllocateSyncObject(const Context* writeContext);
+  AgingSyncObject* AllocateSyncObject(const Context* writeContext, SyncContext syncContext);
 
   /**
-   * Wait on a sync object in any context
+   * Wait on a sync object in any context in the GPU
    * @param syncPoolObject The object to wait on.
    */
   void Wait(AgingSyncObject* syncPoolObject);
 
   /**
-   * Delete the sync object if it's not needed.
-   *
+   * Wait on a sync object in any context in the CPU
+   * @param syncPoolObject The object to wait on.
+   * @return true if the sync object was signaled, false if it timed out
    */
-  void FreeSyncObject(AgingSyncObject* agingSyncObject);
+  bool ClientWait(AgingSyncObject* syncPoolObject);
+
+  /**
+   * Delete the sync object if it's not needed.
+   * @param syncPoolObject The object to delete.
+   */
+  void FreeSyncObject(AgingSyncObject* syncPoolObject);
 
   /**
    * Age outstanding sync objects. Call at the end of each frame.
@@ -89,6 +117,7 @@ private:
 };
 
 } // namespace GLES
-} // namespace Dali::Graphics
+} // namespace Graphics
+} // namespace Dali
 
 #endif //DALI_GRAPHICS_GLES_SYNC_POOL_H

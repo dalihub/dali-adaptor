@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-controller.h>
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/graphics-sync-abstraction.h>
@@ -384,7 +385,7 @@ public:
    */
   void DiscardResource(GLES::Texture* texture)
   {
-    mDiscardTextureQueue.push(texture);
+    mDiscardTextureSet.insert(texture);
   }
 
   /**
@@ -645,6 +646,40 @@ public:
   }
 
   /**
+   * @brief Processes a discard set for type specified
+   *
+   * @param[in,out] set Reference to the discard set
+   */
+  template<class U, class T>
+  void ProcessDiscardSet(T& set)
+  {
+    while(!set.empty())
+    {
+      auto  iter   = set.begin();
+      auto* object = const_cast<U*>(*iter);
+
+      // Destroy
+      object->DestroyResource();
+
+      // Free
+      auto* clbk = object->GetCreateInfo().allocationCallbacks;
+      if(clbk)
+      {
+        // Call destructor
+        object->~U();
+
+        // Free memory
+        clbk->freeCallback(object, clbk->userData);
+      }
+      else
+      {
+        delete object;
+      }
+      set.erase(iter);
+    }
+  }
+
+  /**
    * @brief Processes all resource create queues
    */
   void ProcessCreateQueues();
@@ -820,8 +855,8 @@ private:
   Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
   Internal::Adaptor::GraphicsInterface*     mGraphics{nullptr}; // Pointer to owning structure via interface.
 
-  std::queue<GLES::Texture*> mCreateTextureQueue;  ///< Create queue for texture resource
-  std::queue<GLES::Texture*> mDiscardTextureQueue; ///< Discard queue for texture resource
+  std::queue<GLES::Texture*>         mCreateTextureQueue; ///< Create queue for texture resource
+  std::unordered_set<GLES::Texture*> mDiscardTextureSet;  ///< Discard queue for texture resource
 
   std::queue<GLES::Buffer*> mCreateBufferQueue;  ///< Create queue for buffer resource
   std::queue<GLES::Buffer*> mDiscardBufferQueue; ///< Discard queue for buffer resource

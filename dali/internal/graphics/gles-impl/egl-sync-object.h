@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_EGL_SYNC_OBJECT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles-impl/gles-graphics-resource.h>
 
+//#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 namespace Dali::Internal::Adaptor
 {
 class EglSyncImplementation;
@@ -34,6 +35,9 @@ namespace Dali::Graphics::EGL
 {
 using SyncObjectResource = GLES::Resource<Graphics::SyncObject, Graphics::SyncObjectCreateInfo>;
 
+/**
+ * Proxy to EglSyncObject that also implements a graphics resource
+ */
 class SyncObject : public SyncObjectResource
 {
 public:
