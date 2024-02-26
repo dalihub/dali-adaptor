@@ -802,12 +802,14 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           auto                 sourceStride = info.srcStride;
           std::vector<uint8_t> tempBuffer;
 
+          uint8_t* srcBuffer = sourceBuffer;
+
           if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
           {
             // Convert RGB to RGBA if necessary.
             if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
             {
-              sourceBuffer = &tempBuffer[0];
+              srcBuffer    = &tempBuffer[0];
               sourceStride = 0u; // Converted buffer compacted. make stride as 0.
               srcFormat    = destFormat;
               srcType      = GLES::GLTextureFormatType(createInfo.format).type;
@@ -843,7 +845,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                          0,
                                          srcFormat,
                                          srcType,
-                                         sourceBuffer);
+                                         srcBuffer);
             }
             else
             {
@@ -854,7 +856,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                                    info.srcExtent2D.height,
                                                    0,
                                                    info.srcSize,
-                                                   sourceBuffer);
+                                                   srcBuffer);
             }
           }
           else
@@ -869,7 +871,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                             info.srcExtent2D.height,
                                             srcFormat,
                                             srcType,
-                                            sourceBuffer);
+                                            srcBuffer);
             }
             else
             {
@@ -881,7 +883,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                                       info.srcExtent2D.height,
                                                       srcFormat,
                                                       info.srcSize,
-                                                      sourceBuffer);
+                                                      srcBuffer);
             }
           }
         }
