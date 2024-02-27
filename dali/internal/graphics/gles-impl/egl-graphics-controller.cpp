@@ -695,7 +695,13 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
       {
         auto* info = &cmd.drawNative.drawNativeInfo;
 
-        mCurrentContext->PrepareForNativeRendering();
+        // ISOLATED execution mode will isolate GL graphics context from
+        // DALi renderning pipeline which is the safest way of rendering
+        // the 'injected' code.
+        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        {
+          mCurrentContext->PrepareForNativeRendering();
+        }
 
         if(info->glesNativeInfo.eglSharedContextStoragePointer)
         {
@@ -704,8 +710,21 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         }
 
         CallbackBase::ExecuteReturn<bool>(*info->callback, info->userData);
-
-        mCurrentContext->RestoreFromNativeRendering();
+        if(info->executionMode == DrawNativeExecutionMode::ISOLATED)
+        {
+          mCurrentContext->RestoreFromNativeRendering();
+        }
+        else
+        {
+          // After native rendering reset all states and caches.
+          // This is going to be called only when DIRECT execution mode is used
+          // and some GL states need to be reset.
+          // This does not guarantee that after execution a custom GL code
+          // the main rendering pipeline will work correctly and it's a responsibility
+          // of developer to make sure the GL states are not interfering with main
+          // rendering pipeline (by restoring/cleaning up GL states after drawing).
+          mCurrentContext->ResetGLESState();
+        }
         break;
       }
     }
@@ -783,12 +802,14 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
           auto                 sourceStride = info.srcStride;
           std::vector<uint8_t> tempBuffer;
 
+          uint8_t* srcBuffer = sourceBuffer;
+
           if(mGlAbstraction->TextureRequiresConverting(srcFormat, destFormat, isSubImage))
           {
             // Convert RGB to RGBA if necessary.
             if(texture->TryConvertPixelData(sourceBuffer, info.srcFormat, createInfo.format, info.srcSize, info.srcStride, info.srcExtent2D.width, info.srcExtent2D.height, tempBuffer))
             {
-              sourceBuffer = &tempBuffer[0];
+              srcBuffer    = &tempBuffer[0];
               sourceStride = 0u; // Converted buffer compacted. make stride as 0.
               srcFormat    = destFormat;
               srcType      = GLES::GLTextureFormatType(createInfo.format).type;
@@ -824,7 +845,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                          0,
                                          srcFormat,
                                          srcType,
-                                         sourceBuffer);
+                                         srcBuffer);
             }
             else
             {
@@ -835,7 +856,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                                    info.srcExtent2D.height,
                                                    0,
                                                    info.srcSize,
-                                                   sourceBuffer);
+                                                   srcBuffer);
             }
           }
           else
@@ -850,7 +871,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                             info.srcExtent2D.height,
                                             srcFormat,
                                             srcType,
-                                            sourceBuffer);
+                                            srcBuffer);
             }
             else
             {
@@ -862,7 +883,7 @@ void EglGraphicsController::ProcessTextureUpdateQueue()
                                                       info.srcExtent2D.height,
                                                       srcFormat,
                                                       info.srcSize,
-                                                      sourceBuffer);
+                                                      srcBuffer);
             }
           }
         }

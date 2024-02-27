@@ -1576,7 +1576,7 @@ GifLoading::~GifLoading()
   delete mImpl;
 }
 
-Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex)
+Dali::Devel::PixelBuffer GifLoading::LoadFrame(uint32_t frameIndex, ImageDimensions desiredSize)
 {
   int                      error;
   Dali::Devel::PixelBuffer pixelBuffer;
