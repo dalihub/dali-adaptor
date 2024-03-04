@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,7 +315,7 @@ bool LoadBitmapFromPng(const Dali::ImageLoader::Input& input, Dali::Devel::Pixel
   rows = reinterpret_cast<png_bytep*>(malloc(sizeof(png_bytep) * height));
   if(DALI_UNLIKELY(!rows))
   {
-    DALI_LOG_ERROR("malloc is failed\n");
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", sizeof(png_bytep) * height);
     return false;
   }
 

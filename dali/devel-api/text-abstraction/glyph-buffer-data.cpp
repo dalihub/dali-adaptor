@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ size_t GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, Gly
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
       {
+        DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize);
         return 0u;
       }
       outBufferData.isBufferOwned = true;
@@ -116,6 +117,7 @@ size_t GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, Gly
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
       {
+        DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize);
         return 0u;
       }
       outBufferData.isBufferOwned = true;
@@ -148,6 +150,7 @@ size_t GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, Gly
       uint8_t* __restrict__ tempBuffer = (uint8_t*)malloc(outBufferData.height * (widthByte + 1));
       if(DALI_UNLIKELY(tempBuffer == nullptr))
       {
+        DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", outBufferData.height * (widthByte + 1));
         return 0u;
       }
 
@@ -294,6 +297,7 @@ size_t GlyphBufferData::Compress(const uint8_t* const __restrict__ inBuffer, Gly
       compressedBuffer = (uint8_t*)malloc(bufferSize);
       if(DALI_UNLIKELY(compressedBuffer == nullptr))
       {
+        DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize);
         free(tempBuffer);
         return 0u;
       }

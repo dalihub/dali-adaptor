@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,7 +206,12 @@ public:
 
       if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
       {
-        mBuffer     = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
+        mBuffer = reinterpret_cast<WebPByteType*>(malloc(sizeof(WebPByteType) * mBufferSize));
+        if(DALI_UNLIKELY(!mBuffer))
+        {
+          DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", sizeof(WebPByteType) * mBufferSize);
+          return false;
+        }
         mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
         return true;
       }
@@ -337,7 +342,7 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
 
         if(desiredSize.GetWidth() > 0 && desiredSize.GetHeight() > 0)
         {
-          const int desiredWidth = desiredSize.GetWidth();
+          const int desiredWidth  = desiredSize.GetWidth();
           const int desiredHeight = desiredSize.GetHeight();
 
           WebPDecoderConfig config;
@@ -348,8 +353,8 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
           }
 
           // Apply config for scaling
-          config.options.use_scaling = 1;
-          config.options.scaled_width = desiredWidth;
+          config.options.use_scaling   = 1;
+          config.options.scaled_width  = desiredWidth;
           config.options.scaled_height = desiredHeight;
 
           if(channelNumber == 4)
@@ -372,9 +377,9 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
 
           if(frameBuffer != nullptr)
           {
-            Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
-            int32_t                           bufferSize  = desiredWidth * desiredHeight * Dali::Pixel::GetBytesPerPixel(pixelFormat);
-            pixelBuffer  = Dali::Devel::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
+            Pixel::Format pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
+            int32_t       bufferSize  = desiredWidth * desiredHeight * Dali::Pixel::GetBytesPerPixel(pixelFormat);
+            pixelBuffer               = Dali::Devel::PixelBuffer::New(desiredWidth, desiredHeight, pixelFormat);
             memcpy(pixelBuffer.GetBuffer(), frameBuffer, bufferSize);
           }
 
@@ -395,9 +400,8 @@ Dali::Devel::PixelBuffer WebPLoading::LoadFrame(uint32_t frameIndex, ImageDimens
           {
             Pixel::Format                     pixelFormat = (channelNumber == 4) ? Pixel::RGBA8888 : Pixel::RGB888;
             int32_t                           bufferSize  = width * height * Dali::Pixel::GetBytesPerPixel(pixelFormat);
-            Internal::Adaptor::PixelBufferPtr internal =
-            Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width, pixelFormat);
-            pixelBuffer = Devel::PixelBuffer(internal.Get());
+            Internal::Adaptor::PixelBufferPtr internal    = Internal::Adaptor::PixelBuffer::New(frameBuffer, bufferSize, width, height, width, pixelFormat);
+            pixelBuffer                                   = Devel::PixelBuffer(internal.Get());
           }
         }
       }

@@ -63,8 +63,12 @@ void* Memory2::LockRegion(uint32_t offset, uint32_t size)
     }
     else
     {
-      auto retval         = malloc(size);
-      mMappedPointer      = retval;
+      auto retval    = malloc(size);
+      mMappedPointer = retval;
+      if(DALI_UNLIKELY(mMappedPointer == nullptr))
+      {
+        DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", size);
+      }
       mIsAllocatedLocally = true;
     }
   }

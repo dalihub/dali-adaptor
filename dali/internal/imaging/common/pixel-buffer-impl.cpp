@@ -84,6 +84,10 @@ PixelBufferPtr PixelBuffer::New(uint32_t            width,
   if(bufferSize > 0)
   {
     buffer = static_cast<uint8_t*>(malloc(bufferSize));
+    if(DALI_UNLIKELY(!buffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", bufferSize);
+    }
 #if defined(DEBUG_ENABLED)
     gPixelBufferAllocationTotal += bufferSize;
 #endif
@@ -180,6 +184,11 @@ Dali::PixelData PixelBuffer::CreatePixelData() const
   if(mBufferSize > 0)
   {
     destBuffer = static_cast<uint8_t*>(malloc(mBufferSize));
+    if(DALI_UNLIKELY(!destBuffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", mBufferSize);
+      return Dali::PixelData();
+    }
     memcpy(destBuffer, mBuffer, mBufferSize);
   }
 
@@ -264,6 +273,10 @@ void PixelBuffer::AllocateFixedSize(uint32_t size)
   ReleaseBuffer();
   mBuffer     = reinterpret_cast<unsigned char*>(malloc(size));
   mBufferSize = size;
+  if(DALI_UNLIKELY(!mBuffer))
+  {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", mBufferSize);
+  }
 #if defined(DEBUG_ENABLED)
   gPixelBufferAllocationTotal += size;
 #endif

@@ -953,6 +953,12 @@ PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex,
   if(!data.isBufferOwned || data.compressionType != TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION)
   {
     uint8_t* newBuffer = (uint8_t*)malloc(data.width * data.height * Pixel::GetBytesPerPixel(data.format));
+    if(DALI_UNLIKELY(!newBuffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", data.width, data.height, Pixel::GetBytesPerPixel(data.format));
+      return Dali::PixelData();
+    }
+
     TextAbstraction::GlyphBufferData::Decompress(data, newBuffer);
     if(data.isBufferOwned)
     {

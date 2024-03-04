@@ -908,6 +908,10 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
                 data.buffer          = newBuffer;
                 data.compressionType = TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION;
               }
+              else
+              {
+                DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
+              }
             }
 
             Dali::Internal::Platform::RotateByShear(data.buffer,
