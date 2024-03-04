@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -342,6 +342,12 @@ bool Socket::Write(const void* buffer, unsigned int bufferSizeInBytes)
 
   while(bytesWritten != static_cast<int>(bufferSizeInBytes))
   {
+    if(bufferSizeInBytes < bytesWritten)
+    {
+      DALI_LOG_ERROR("Socket writer error! required size : %u byte, real written : %d byte \n", bufferSizeInBytes, bytesWritten);
+      return false;
+    }
+
     const char* byteBuffer = static_cast<const char*>(buffer);
     byteBuffer += bytesWritten;
 

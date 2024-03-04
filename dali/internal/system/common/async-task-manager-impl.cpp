@@ -711,7 +711,7 @@ void AsyncTaskManager::RemoveTask(AsyncTaskPtr task)
         for(auto& iterator : mapIter->second)
         {
           DALI_ASSERT_DEBUG((*iterator) == task);
-          if((*iterator)->GetPriorityType() == AsyncTask::PriorityType::HIGH)
+          if((*iterator)->GetPriorityType() == AsyncTask::PriorityType::HIGH && mWaitingHighProirityTaskCounts > 0u)
           {
             // Decrease the number of waiting tasks for high priority.
             --mWaitingHighProirityTaskCounts;
@@ -1057,7 +1057,7 @@ AsyncTaskPtr AsyncTaskManager::PopNextTaskToProcess()
           }
         }
 
-        if(priorityType == AsyncTask::PriorityType::HIGH)
+        if(priorityType == AsyncTask::PriorityType::HIGH && mWaitingHighProirityTaskCounts > 0u)
         {
           // Decrease the number of waiting tasks for high priority.
           --mWaitingHighProirityTaskCounts;
