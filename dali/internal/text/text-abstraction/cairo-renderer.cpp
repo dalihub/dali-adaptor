@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -369,7 +369,7 @@ void CopyImageToSurface(
   const int                                        rgbaCase,
   const double                                     glyphX,
   const double                                     glyphY,
-  const int                                        strideWidth,
+  const unsigned int                               strideWidth,
   const Vector4&                                   color,
   const bool                                       doBlendWithTextColor)
 {
@@ -685,9 +685,9 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
 
   // This function provides a stride value that will respect all alignment requirements of the
   // accelerated image-rendering code within cairo.
-  const int stride      = cairo_format_stride_for_width(cairoFormat,
+  const int          stride      = cairo_format_stride_for_width(cairoFormat,
                                                    static_cast<int>(parameters.width));
-  const int strideWidth = stride / bpp;
+  const unsigned int strideWidth = static_cast<unsigned int>(std::abs(stride)) / bpp;
 
   // Convert from DALi glyphs to Cairo glyphs.
   std::vector<cairo_glyph_t> cairoGlyphs;
@@ -736,7 +736,7 @@ Devel::PixelBuffer RenderTextCairo(const TextAbstraction::TextRenderer::Paramete
   Devel::PixelBuffer pixelBuffer = Devel::PixelBuffer::New(strideWidth, parameters.height, pixelFormat);
 
   unsigned char*     buffer     = pixelBuffer.GetBuffer();
-  const unsigned int bufferSize = stride * parameters.height;
+  const unsigned int bufferSize = static_cast<unsigned int>(std::abs(stride)) * parameters.height;
   memset(buffer, 0, bufferSize);
 
   std::unique_ptr<cairo_surface_t, void (*)(cairo_surface_t*)> surfacePtr(cairo_image_surface_create_for_data(buffer,

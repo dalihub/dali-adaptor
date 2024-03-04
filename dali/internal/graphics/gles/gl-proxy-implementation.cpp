@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,7 +85,7 @@ void Sampler::Accumulate()
   mNumSamples++;
 
   mAccumulated += mCurrentFrameCount;
-  mAccumulatedSquare += (mCurrentFrameCount * mCurrentFrameCount);
+  mAccumulatedSquare += (static_cast<uint64_t>(mCurrentFrameCount) * static_cast<uint64_t>(mCurrentFrameCount));
   mCurrentFrameCount = 0;
 }
 const char* Sampler::GetDescription() const
