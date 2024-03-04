@@ -933,11 +933,18 @@ void EglGraphicsController::UpdateTextures(const std::vector<TextureUpdateInfo>&
 
         uint8_t* stagingBuffer = reinterpret_cast<uint8_t*>(malloc(info.srcSize));
 
-        uint8_t* srcMemory = &reinterpret_cast<uint8_t*>(source.memorySource.memory)[info.srcOffset];
+        if(DALI_UNLIKELY(stagingBuffer == nullptr))
+        {
+          DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", info.srcSize);
+        }
+        else
+        {
+          uint8_t* srcMemory = &reinterpret_cast<uint8_t*>(source.memorySource.memory)[info.srcOffset];
 
-        std::copy(srcMemory, srcMemory + info.srcSize, stagingBuffer);
+          std::copy(srcMemory, srcMemory + info.srcSize, stagingBuffer);
 
-        mTextureUploadTotalCPUMemoryUsed += info.srcSize;
+          mTextureUploadTotalCPUMemoryUsed += info.srcSize;
+        }
 
         // store staging buffer
         source.memorySource.memory = stagingBuffer;

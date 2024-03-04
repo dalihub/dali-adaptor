@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,6 +193,12 @@ void ConvertBitmap(TextAbstraction::GlyphBufferData& data, unsigned int srcWidth
   {
     data.isBufferOwned = true;
     data.buffer        = (uint8_t*)malloc(bufferSize); // @note The caller is responsible for deallocating the bitmap data using free.
+
+    if(DALI_UNLIKELY(!data.buffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", bufferSize);
+      return;
+    }
     Dali::Internal::Platform::LanczosSample(srcBuffer,
                                             inputDimensions,
                                             srcWidth,

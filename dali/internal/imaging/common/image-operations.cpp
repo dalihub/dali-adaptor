@@ -529,6 +529,7 @@ bool Rotate90(const uint8_t* const pixelsIn,
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 
@@ -587,6 +588,7 @@ bool Rotate180(const uint8_t* const pixelsIn,
   pixelsOut = static_cast<uint8_t*>(malloc(widthIn * heightIn * pixelSize));
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthIn, heightIn, pixelSize);
     // Return if the memory allocations fails.
     return false;
   }
@@ -650,6 +652,7 @@ bool Rotate270(const uint8_t* const pixelsIn,
   pixelsOut = static_cast<uint8_t*>(malloc(widthOut * heightOut * pixelSize));
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 
@@ -2557,6 +2560,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 
@@ -2595,6 +2599,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 
@@ -2632,6 +2637,7 @@ void RotateByShear(const uint8_t* const pixelsIn,
 
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 
@@ -2685,6 +2691,7 @@ void HorizontalShear(const uint8_t* const pixelsIn,
 
   if(nullptr == pixelsOut)
   {
+    DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", widthOut, heightOut, pixelSize);
     widthOut  = 0u;
     heightOut = 0u;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 #include <dali/internal/text/text-abstraction/plugin/embedded-item.h>
 
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
+
+#include <dali/integration-api/debug.h>
 
 namespace Dali::TextAbstraction::Internal
 {
@@ -51,8 +53,14 @@ void EmbeddedItem::CreateBitmap(const std::vector<PixelBufferCacheItem>& pixelBu
     // Creates the output buffer
     const uint32_t bufferSize = data.width * data.height * 4u;
     data.buffer               = (uint8_t*)malloc(bufferSize); // @note The caller is responsible for deallocating the bitmap data using free.
-
-    memset(data.buffer, 0u, bufferSize);
+    if(DALI_UNLIKELY(!data.buffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", bufferSize);
+    }
+    else
+    {
+      memset(data.buffer, 0u, bufferSize);
+    }
 
     // Just creates a void buffer. Doesn't matter what pixel format is set as is the application code the responsible of filling it.
   }

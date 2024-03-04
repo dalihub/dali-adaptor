@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,11 +56,11 @@ bool Buffer::TryRecycle(const Graphics::BufferCreateInfo& createInfo, Graphics::
   mSetForGLRecycling = false;
 
   // if different buffer spec, we need new buffer
-  if(!(createInfo.size == mCreateInfo.size
-     && createInfo.allocationCallbacks == mCreateInfo.allocationCallbacks
-     && createInfo.propertiesFlags == mCreateInfo.propertiesFlags
-     && createInfo.usage == mCreateInfo.usage
-     && createInfo.nextExtension == mCreateInfo.nextExtension ))
+  if(!(createInfo.size == mCreateInfo.size &&
+       createInfo.allocationCallbacks == mCreateInfo.allocationCallbacks &&
+       createInfo.propertiesFlags == mCreateInfo.propertiesFlags &&
+       createInfo.usage == mCreateInfo.usage &&
+       createInfo.nextExtension == mCreateInfo.nextExtension))
   {
     return false;
   }
@@ -116,6 +116,10 @@ void Buffer::InitializeCPUBuffer()
   else
   {
     mBufferPtr = malloc(mCreateInfo.size);
+    if(DALI_UNLIKELY(mBufferPtr == nullptr))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u\n", mCreateInfo.size);
+    }
   }
 }
 

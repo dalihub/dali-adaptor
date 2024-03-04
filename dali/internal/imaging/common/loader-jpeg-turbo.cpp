@@ -894,7 +894,7 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
       auto planeSize = tjPlaneSizeYUV(i, scaledPostXformWidth, 0, scaledPostXformHeight, chrominanceSubsampling);
 
       uint8_t* buffer = static_cast<uint8_t*>(malloc(planeSize));
-      if(!buffer)
+      if(DALI_UNLIKELY(!buffer))
       {
         DALI_LOG_ERROR("Buffer allocation is failed [%d]\n", planeSize);
         pixelBuffers.clear();
@@ -981,6 +981,12 @@ bool DecodeJpeg(const Dali::ImageLoader::Input& input, std::vector<Dali::Devel::
       const uint8_t cmykBytesPerPixel = 4u;
 
       uint8_t* cmykBuffer = static_cast<uint8_t*>(malloc(sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel));
+
+      if(DALI_UNLIKELY(!cmykBuffer))
+      {
+        DALI_LOG_ERROR("cmykBuffer allocation is failed [%zu]\n", sizeof(uint8_t) * scaledPostXformWidth * scaledPostXformHeight * cmykBytesPerPixel);
+        return false;
+      }
 
       decodeResult = tjDecompress2(jpeg.get(), jpegBufferPtr, jpegBufferSize, reinterpret_cast<uint8_t*>(cmykBuffer), scaledPreXformWidth, 0, scaledPreXformHeight, pixelLibJpegType, flags);
       if(DALI_UNLIKELY(decodeResult == -1 && IsJpegDecodingFailed()))

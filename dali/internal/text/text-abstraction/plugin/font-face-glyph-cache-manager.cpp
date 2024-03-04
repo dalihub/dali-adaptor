@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,7 +168,18 @@ bool GlyphCacheManager::LoadGlyphDataFromIndex(
       {
         glyphData.mIsBitmap       = true;
         glyphData.mBitmap->buffer = (uint8_t*)malloc(bufferSize * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
-        memcpy(glyphData.mBitmap->buffer, freeTypeFace->glyph->bitmap.buffer, bufferSize);
+        if(DALI_UNLIKELY(!glyphData.mBitmap->buffer))
+        {
+          DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", bufferSize * sizeof(uint8_t));
+          delete glyphData.mBitmap;
+          glyphData.mIsBitmap = false;
+          glyphData.mBitmap   = nullptr;
+          error               = static_cast<FT_Error>(-1);
+        }
+        else
+        {
+          memcpy(glyphData.mBitmap->buffer, freeTypeFace->glyph->bitmap.buffer, bufferSize);
+        }
       }
       else
       {
@@ -225,12 +236,20 @@ void GlyphCacheManager::ResizeBitmapGlyph(
             if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width))
             {
               desiredBuffer = (uint8_t*)malloc(desiredWidth * desiredHeight * sizeof(uint8_t)); // @note The caller is responsible for deallocating the bitmap data using free.
-              // Resize bitmap here.
-              Dali::Internal::Platform::LanczosSample1BPP(glyphData.mBitmap->buffer,
-                                                          inputDimensions,
-                                                          glyphData.mBitmap->width,
-                                                          desiredBuffer,
-                                                          desiredDimensions);
+
+              if(DALI_UNLIKELY(!desiredBuffer))
+              {
+                DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x 1\n", desiredWidth, desiredHeight);
+              }
+              else
+              {
+                // Resize bitmap here.
+                Dali::Internal::Platform::LanczosSample1BPP(glyphData.mBitmap->buffer,
+                                                            inputDimensions,
+                                                            glyphData.mBitmap->width,
+                                                            desiredBuffer,
+                                                            desiredDimensions);
+              }
             }
             break;
           }
@@ -240,12 +259,20 @@ void GlyphCacheManager::ResizeBitmapGlyph(
             if(glyphData.mBitmap->pitch == static_cast<int>(glyphData.mBitmap->width << 2u))
             {
               desiredBuffer = (uint8_t*)malloc((desiredWidth * desiredHeight * sizeof(uint8_t)) << 2u); // @note The caller is responsible for deallocating the bitmap data using free.
-              // Resize bitmap here.
-              Dali::Internal::Platform::LanczosSample4BPP(glyphData.mBitmap->buffer,
-                                                          inputDimensions,
-                                                          glyphData.mBitmap->width,
-                                                          desiredBuffer,
-                                                          desiredDimensions);
+
+              if(DALI_UNLIKELY(!desiredBuffer))
+              {
+                DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x 4\n", desiredWidth, desiredHeight);
+              }
+              else
+              {
+                // Resize bitmap here.
+                Dali::Internal::Platform::LanczosSample4BPP(glyphData.mBitmap->buffer,
+                                                            inputDimensions,
+                                                            glyphData.mBitmap->width,
+                                                            desiredBuffer,
+                                                            desiredDimensions);
+              }
             }
             break;
           }
