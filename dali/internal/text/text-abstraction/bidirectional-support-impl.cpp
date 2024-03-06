@@ -110,15 +110,17 @@ struct BidirectionalSupport::Plugin
     BidirectionalInfo* bidirectionalInfo = new BidirectionalInfo();
 
     bidirectionalInfo->characterTypes = reinterpret_cast<FriBidiCharType*>(malloc(numberOfCharacters * sizeof(FriBidiCharType)));
-    if(!bidirectionalInfo->characterTypes)
+    if(DALI_UNLIKELY(!bidirectionalInfo->characterTypes))
     {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", numberOfCharacters * sizeof(FriBidiCharType));
       delete bidirectionalInfo;
       return 0;
     }
 
     bidirectionalInfo->embeddedLevels = reinterpret_cast<FriBidiLevel*>(malloc(numberOfCharacters * sizeof(FriBidiLevel)));
-    if(!bidirectionalInfo->embeddedLevels)
+    if(DALI_UNLIKELY(!bidirectionalInfo->embeddedLevels))
     {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", numberOfCharacters * sizeof(FriBidiLevel));
       free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
       return 0;
@@ -133,7 +135,9 @@ struct BidirectionalSupport::Plugin
     bidirectionalInfo->bracketTypes = reinterpret_cast<FriBidiBracketType*>(malloc(numberOfCharacters * sizeof(FriBidiBracketType)));
     if(!bidirectionalInfo->bracketTypes)
     {
-      free(bidirectionalInfo->bracketTypes);
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", numberOfCharacters * sizeof(FriBidiBracketType));
+      free(bidirectionalInfo->embeddedLevels);
+      free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
       return 0;
     }
@@ -143,8 +147,9 @@ struct BidirectionalSupport::Plugin
     // Retrieve the embedding levels.
     if(fribidi_get_par_embedding_levels_ex(bidirectionalInfo->characterTypes, bidirectionalInfo->bracketTypes, numberOfCharacters, &bidirectionalInfo->paragraphDirection, bidirectionalInfo->embeddedLevels) == 0)
     {
-      free(bidirectionalInfo->characterTypes);
       free(bidirectionalInfo->bracketTypes);
+      free(bidirectionalInfo->embeddedLevels);
+      free(bidirectionalInfo->characterTypes);
       delete bidirectionalInfo;
       return 0;
     }
@@ -216,7 +221,7 @@ struct BidirectionalSupport::Plugin
     // Copy embedded levels as fribidi_reorder_line() may change them.
     const size_t  embeddedLevelsSize = static_cast<std::size_t>(numberOfCharacters) * sizeof(FriBidiLevel);
     FriBidiLevel* embeddedLevels     = reinterpret_cast<FriBidiLevel*>(malloc(embeddedLevelsSize));
-    if(embeddedLevels)
+    if(DALI_LIKELY(embeddedLevels))
     {
       memcpy(embeddedLevels, bidirectionalInfo->embeddedLevels + firstCharacterIndex, embeddedLevelsSize);
 
@@ -235,6 +240,10 @@ struct BidirectionalSupport::Plugin
 
       // Free resources.
       free(embeddedLevels);
+    }
+    else
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", embeddedLevelsSize);
     }
   }
 

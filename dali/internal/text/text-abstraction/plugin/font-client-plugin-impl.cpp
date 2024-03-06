@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -765,21 +765,24 @@ FontId FontClient::Plugin::GetFontId(const FontDescription& fontDescription,
   // Check if exists a pair 'fontDescriptionId, requestedPointSize' in the cache.
   if(!mCacheHandler->FindFont(fontDescriptionId, requestedPointSize, fontCacheIndex))
   {
-    // Retrieve the font file name path.
-    const FontDescription& description = *(mCacheHandler->mFontDescriptionCache.begin() + fontDescriptionId - 1u);
-
-    // Retrieve the font id. Do not cache the description as it has been already cached.
-    // Note : CacheFontPath() API call ValidateFont() + setup CharacterSet + cache the font description.
-    // So set cacheDescription=false, that we don't call CacheFontPath().
-    fontId = GetFontIdByPath(description.path, requestedPointSize, faceIndex, false);
-
-    if((fontId > 0u) && (fontId - 1u < mCacheHandler->mFontIdCache.size()))
+    if(fontDescriptionId > 0u && fontDescriptionId <= mCacheHandler->mCharacterSetCache.Count())
     {
-      fontCacheIndex                                              = mCacheHandler->mFontIdCache[fontId - 1u].index;
-      mCacheHandler->mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
+      // Retrieve the font file name path.
+      const FontDescription& description = *(mCacheHandler->mFontDescriptionCache.begin() + fontDescriptionId - 1u);
 
-      // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
-      mCacheHandler->CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, fontCacheIndex);
+      // Retrieve the font id. Do not cache the description as it has been already cached.
+      // Note : CacheFontPath() API call ValidateFont() + setup CharacterSet + cache the font description.
+      // So set cacheDescription=false, that we don't call CacheFontPath().
+      fontId = GetFontIdByPath(description.path, requestedPointSize, faceIndex, false);
+
+      if((fontId > 0u) && (fontId - 1u < mCacheHandler->mFontIdCache.size()))
+      {
+        fontCacheIndex                                              = mCacheHandler->mFontIdCache[fontId - 1u].index;
+        mCacheHandler->mFontFaceCache[fontCacheIndex].mCharacterSet = FcCharSetCopy(mCacheHandler->mCharacterSetCache[fontDescriptionId - 1u]);
+
+        // Cache the pair 'fontDescriptionId, requestedPointSize' to improve the following queries.
+        mCacheHandler->CacheFontDescriptionSize(fontDescriptionId, requestedPointSize, fontCacheIndex);
+      }
     }
   }
   else
@@ -950,6 +953,12 @@ PixelData FontClient::Plugin::CreateBitmap(FontId fontId, GlyphIndex glyphIndex,
   if(!data.isBufferOwned || data.compressionType != TextAbstraction::GlyphBufferData::CompressionType::NO_COMPRESSION)
   {
     uint8_t* newBuffer = (uint8_t*)malloc(data.width * data.height * Pixel::GetBytesPerPixel(data.format));
+    if(DALI_UNLIKELY(!newBuffer))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %u x %u x %u\n", data.width, data.height, Pixel::GetBytesPerPixel(data.format));
+      return Dali::PixelData();
+    }
+
     TextAbstraction::GlyphBufferData::Decompress(data, newBuffer);
     if(data.isBufferOwned)
     {

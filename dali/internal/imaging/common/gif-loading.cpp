@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -315,8 +315,13 @@ bool LoaderInfo::FileData::LoadLocalFile()
 
   if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
   {
-    globalMap = reinterpret_cast<GifByteType*>(malloc(sizeof(GifByteType) * length));
-    length    = fread(globalMap, sizeof(GifByteType), length, fp);
+    globalMap = reinterpret_cast<GifByteType*>(malloc(sizeof(GifByteType) * static_cast<unsigned long long>(length)));
+    if(DALI_UNLIKELY(globalMap == nullptr))
+    {
+      DALI_LOG_ERROR("malloc is failed. request malloc size : %llu\n", sizeof(GifByteType) * static_cast<unsigned long long>(length));
+      return false;
+    }
+    length = fread(globalMap, sizeof(GifByteType), length, fp);
   }
   else
   {
@@ -346,8 +351,15 @@ bool LoaderInfo::FileData::LoadRemoteFile()
         if(DALI_LIKELY(!fseek(fp, 0, SEEK_SET)))
         {
           globalMap = reinterpret_cast<GifByteType*>(malloc(sizeof(GifByteType) * blobSize));
-          length    = fread(globalMap, sizeof(GifByteType), blobSize, fp);
-          succeeded = true;
+          if(DALI_UNLIKELY(globalMap == nullptr))
+          {
+            DALI_LOG_ERROR("malloc is failed. request malloc size : %zu\n", sizeof(GifByteType) * blobSize);
+          }
+          else
+          {
+            length    = fread(globalMap, sizeof(GifByteType), blobSize, fp);
+            succeeded = true;
+          }
         }
         else
         {
