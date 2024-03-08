@@ -1200,7 +1200,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
     // Internal jpeg downscaling is the same as our BOX_X sampling modes so only
     // apply it if the application requested one of those:
     // (use a switch case here so this code will fail to compile if other modes are added)
-    bool downscale = true;
+    bool useTurboJpegScaleFactor = true;
     switch(samplingMode)
     {
       case SamplingMode::BOX:
@@ -1208,26 +1208,30 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
       case SamplingMode::BOX_THEN_LINEAR:
       case SamplingMode::DONT_CARE:
       {
-        downscale = true;
+        useTurboJpegScaleFactor = true;
         break;
       }
       case SamplingMode::NO_FILTER:
       case SamplingMode::NEAREST:
       case SamplingMode::LINEAR:
       {
-        downscale = false;
+        useTurboJpegScaleFactor = false;
         break;
       }
     }
 
-    int scaleFactorIndex(0);
-    if(downscale)
+    int scaleFactorIndex(-1);
+    int fittedScaledWidth(postXformImageWidth);
+    int fittedScaledHeight(postXformImageHeight);
+    if(useTurboJpegScaleFactor)
     {
       // Find nearest supported scaling factor (factors are in sequential order, getting smaller)
-      for(int i = 1; i < numFactors; ++i)
+      for(int i = 0; i < numFactors; ++i)
       {
-        bool widthLessRequired  = TJSCALED(postXformImageWidth, factors[i]) < requiredWidth;
-        bool heightLessRequired = TJSCALED(postXformImageHeight, factors[i]) < requiredHeight;
+        int  scaledWidth        = TJSCALED(postXformImageWidth, factors[i]);
+        int  scaledHeight       = TJSCALED(postXformImageHeight, factors[i]);
+        bool widthLessRequired  = scaledWidth < requiredWidth;
+        bool heightLessRequired = scaledHeight < requiredHeight;
         // If either scaled dimension is smaller than the desired one, we were done at the last iteration
         if((fittingMode == FittingMode::SCALE_TO_FILL) && (widthLessRequired || heightLessRequired))
         {
@@ -1249,31 +1253,42 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
           break;
         }
         // This factor stays is within our fitting mode constraint so remember it:
-        scaleFactorIndex = i;
+        scaleFactorIndex   = i;
+        fittedScaledWidth  = scaledWidth;
+        fittedScaledHeight = scaledHeight;
       }
     }
 
     // Regardless of requested size, downscale to avoid exceeding the maximum texture size:
-    for(int i = scaleFactorIndex; i < numFactors; ++i)
+    if(scaleFactorIndex == -1 ||
+       (fittedScaledWidth >= static_cast<int>(Dali::GetMaxTextureSize()) ||
+        fittedScaledHeight >= static_cast<int>(Dali::GetMaxTextureSize())))
     {
-      // Continue downscaling to below maximum texture size (if possible)
-      scaleFactorIndex = i;
-
-      if(TJSCALED(postXformImageWidth, (factors[i])) < static_cast<int>(Dali::GetMaxTextureSize()) &&
-         TJSCALED(postXformImageHeight, (factors[i])) < static_cast<int>(Dali::GetMaxTextureSize()))
+      for(int i = scaleFactorIndex + 1; i < numFactors; ++i)
       {
-        // Current scale-factor downscales to below maximum texture size
-        break;
+        // Continue downscaling to below maximum texture size (if possible)
+        int scaledWidth  = TJSCALED(postXformImageWidth, factors[i]);
+        int scaledHeight = TJSCALED(postXformImageHeight, factors[i]);
+
+        if(scaledWidth < static_cast<int>(Dali::GetMaxTextureSize()) &&
+           scaledHeight < static_cast<int>(Dali::GetMaxTextureSize()))
+        {
+          // Current scale-factor downscales to below maximum texture size
+          scaleFactorIndex   = i;
+          fittedScaledWidth  = scaledWidth;
+          fittedScaledHeight = scaledHeight;
+          break;
+        }
       }
     }
 
     // We have finally chosen the scale-factor, return width/height values
-    if(scaleFactorIndex > 0)
+    if(scaleFactorIndex >= 0)
     {
       preXformImageWidth   = TJSCALED(preXformImageWidth, (factors[scaleFactorIndex]));
       preXformImageHeight  = TJSCALED(preXformImageHeight, (factors[scaleFactorIndex]));
-      postXformImageWidth  = TJSCALED(postXformImageWidth, (factors[scaleFactorIndex]));
-      postXformImageHeight = TJSCALED(postXformImageHeight, (factors[scaleFactorIndex]));
+      postXformImageWidth  = fittedScaledWidth;
+      postXformImageHeight = fittedScaledHeight;
     }
   }
 
