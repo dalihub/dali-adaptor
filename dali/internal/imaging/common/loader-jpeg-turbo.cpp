@@ -1259,31 +1259,30 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
       }
     }
 
+    const int maxTextureSize = static_cast<int>(Dali::GetMaxTextureSize());
+
     // Regardless of requested size, downscale to avoid exceeding the maximum texture size:
-    if(scaleFactorIndex == -1 ||
-       (fittedScaledWidth >= static_cast<int>(Dali::GetMaxTextureSize()) ||
-        fittedScaledHeight >= static_cast<int>(Dali::GetMaxTextureSize())))
+    if(fittedScaledWidth >= maxTextureSize ||
+       fittedScaledHeight >= maxTextureSize)
     {
       for(int i = scaleFactorIndex + 1; i < numFactors; ++i)
       {
         // Continue downscaling to below maximum texture size (if possible)
-        int scaledWidth  = TJSCALED(postXformImageWidth, factors[i]);
-        int scaledHeight = TJSCALED(postXformImageHeight, factors[i]);
+        scaleFactorIndex   = i;
+        fittedScaledWidth  = TJSCALED(postXformImageWidth, factors[i]);
+        fittedScaledHeight = TJSCALED(postXformImageHeight, factors[i]);
 
-        if(scaledWidth < static_cast<int>(Dali::GetMaxTextureSize()) &&
-           scaledHeight < static_cast<int>(Dali::GetMaxTextureSize()))
+        if(fittedScaledWidth < maxTextureSize &&
+           fittedScaledHeight < maxTextureSize)
         {
           // Current scale-factor downscales to below maximum texture size
-          scaleFactorIndex   = i;
-          fittedScaledWidth  = scaledWidth;
-          fittedScaledHeight = scaledHeight;
           break;
         }
       }
     }
 
     // We have finally chosen the scale-factor, return width/height values
-    if(scaleFactorIndex >= 0)
+    if(scaleFactorIndex >= 0 && scaleFactorIndex < numFactors)
     {
       preXformImageWidth   = TJSCALED(preXformImageWidth, (factors[scaleFactorIndex]));
       preXformImageHeight  = TJSCALED(preXformImageHeight, (factors[scaleFactorIndex]));
