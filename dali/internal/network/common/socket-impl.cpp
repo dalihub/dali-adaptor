@@ -336,15 +336,15 @@ bool Socket::Write(const void* buffer, unsigned int bufferSizeInBytes)
     return false;
   }
 
-  int bytesWritten = 0;
+  unsigned int bytesWritten = 0;
 
   // write isn't guaranteed to write the entire buffer in one go
 
-  while(bytesWritten != static_cast<int>(bufferSizeInBytes))
+  while(bytesWritten != bufferSizeInBytes)
   {
     if(bufferSizeInBytes < bytesWritten)
     {
-      DALI_LOG_ERROR("Socket writer error! required size : %u byte, real written : %d byte \n", bufferSizeInBytes, bytesWritten);
+      DALI_LOG_ERROR("Socket writer error! required size : %u byte, real written : %u byte \n", bufferSizeInBytes, bytesWritten);
       return false;
     }
 
