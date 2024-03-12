@@ -19,6 +19,7 @@
 #include <dali/internal/imaging/tizen/native-image-source-queue-impl-tizen.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/gl-defines.h>
 #include <tbm_surface_internal.h>
@@ -96,7 +97,7 @@ NativeImageSourceQueueTizen::NativeImageSourceQueueTizen(uint32_t queueCount, ui
   mIsResized(false),
   mFreeRequest(false)
 {
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics                = static_cast<EglGraphics*>(graphics);
