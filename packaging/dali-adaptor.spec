@@ -117,13 +117,6 @@ BuildRequires:  pkgconfig(component-based-core-base)
 BuildRequires:  pkgconfig(thorvg)
 %endif
 
-# For ASAN test
-%if "%{vd_asan}" == "1" || "%{asan}" == "1"
-BuildRequires: asan-force-options
-BuildRequires: asan-build-env
-BuildRequires: libasan
-%endif
-
 # for multiprofile
 Requires:   %{name}-compat = %{version}-%{release}
 Recommends: %{name}-profile_common = %{version}-%{release}
@@ -303,12 +296,6 @@ CXXFLAGS+=" -DOVER_TIZEN_VERSION_7"
 # Use this conditional when Tizen version is 8.x or greater
 %if 0%{?tizen_version_major} >= 8
 CXXFLAGS+=" -DOVER_TIZEN_VERSION_8"
-%endif
-
-%if "%{vd_asan}" == "1" || "%{asan}" == "1"
-CFLAGS+=" -fsanitize=address"
-CXXFLAGS+=" -fsanitize=address"
-LDFLAGS+=" -fsanitize=address"
 %endif
 
 %if 0%{?enable_debug}
