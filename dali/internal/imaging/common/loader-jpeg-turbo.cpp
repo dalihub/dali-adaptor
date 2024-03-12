@@ -1180,7 +1180,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
   }
 
   // Apply the special rules for when there are one or two zeros in requested dimensions:
-  const ImageDimensions correctedDesired = Internal::Platform::CalculateDesiredDimensions(ImageDimensions(postXformImageWidth, postXformImageHeight), ImageDimensions(requiredWidth, requiredHeight));
+  const ImageDimensions correctedDesired = Internal::Platform::CalculateDesiredDimensions(ImageDimensions(postXformImageWidth, postXformImageHeight), ImageDimensions(requiredWidth, requiredHeight), fittingMode);
   requiredWidth                          = correctedDesired.GetWidth();
   requiredHeight                         = correctedDesired.GetHeight();
 
@@ -1233,7 +1233,7 @@ bool TransformSize(int requiredWidth, int requiredHeight, FittingMode::Type fitt
         bool widthLessRequired  = scaledWidth < requiredWidth;
         bool heightLessRequired = scaledHeight < requiredHeight;
         // If either scaled dimension is smaller than the desired one, we were done at the last iteration
-        if((fittingMode == FittingMode::SCALE_TO_FILL) && (widthLessRequired || heightLessRequired))
+        if(((fittingMode == FittingMode::SCALE_TO_FILL) || (fittingMode == FittingMode::VISUAL_FITTING)) && (widthLessRequired || heightLessRequired))
         {
           break;
         }
