@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 
 // EXTERNAL INCLUDES
 #include <EGL/egl.h>
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 #include <include/EGL/eglext.h>
 
@@ -68,7 +69,7 @@ NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t heig
   mEglImageExtensions(NULL),
   mResourceDestructionCallback()
 {
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
   mEglGraphics                = static_cast<EglGraphics*>(graphics);

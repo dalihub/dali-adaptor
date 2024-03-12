@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,26 +87,52 @@ void Adaptor::Stop()
 
 bool Adaptor::AddIdle(CallbackBase* callback, bool hasReturnValue)
 {
-  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
-  return mImpl->AddIdle(callback, hasReturnValue);
+  if(IsAvailable())
+  {
+    return mImpl->AddIdle(callback, hasReturnValue);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Adaptor not instantiated");
+    return false;
+  }
 }
 
 bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)
 {
-  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
-  return mImpl->AddWindow(childWindow);
+  if(IsAvailable())
+  {
+    return mImpl->AddWindow(childWindow);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Adaptor not instantiated");
+    return false;
+  }
 }
 
 void Adaptor::RemoveIdle(CallbackBase* callback)
 {
-  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
-  mImpl->RemoveIdle(callback);
+  if(IsAvailable())
+  {
+    mImpl->RemoveIdle(callback);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Adaptor not instantiated");
+  }
 }
 
 void Adaptor::ProcessIdle()
 {
-  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
-  mImpl->ProcessIdle();
+  if(IsAvailable())
+  {
+    mImpl->ProcessIdle();
+  }
+  else
+  {
+    DALI_LOG_ERROR("Adaptor not instantiated");
+  }
 }
 
 void Adaptor::ReplaceSurface(Window window, Dali::RenderSurfaceInterface& surface)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/imaging/macos/native-image-source-impl-mac.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
@@ -48,7 +49,7 @@ NativeImageSourceCocoa::NativeImageSourceCocoa(
 : mImage(MakeRef<CGImageRef>(nullptr)),
   mResourceDestructionCallback()
 {
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
   DALI_ASSERT_ALWAYS(nativeImageSource.Empty());
 
   CFStringRef      colorSpaceName;

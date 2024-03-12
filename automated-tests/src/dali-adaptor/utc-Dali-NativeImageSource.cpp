@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ int UtcDaliNativeImageSourceNewN(void)
   catch(Dali::DaliException& e)
   {
     DALI_TEST_PRINT_ASSERT(e);
-    DALI_TEST_ASSERT(e, "Adaptor::IsAvailable()", TEST_LOCATION);
+    DALI_TEST_ASSERT(e, "Dali::Stage::IsCoreThread()", TEST_LOCATION);
   }
   catch(...)
   {
