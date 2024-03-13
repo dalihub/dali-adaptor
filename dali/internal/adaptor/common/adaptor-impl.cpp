@@ -49,14 +49,11 @@
 #include <dali/internal/system/common/thread-controller.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-#include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles/egl-sync-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/system/common/callback-manager.h>

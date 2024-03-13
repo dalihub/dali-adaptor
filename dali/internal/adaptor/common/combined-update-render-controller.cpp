@@ -30,7 +30,6 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/texture-upload-manager-impl.h>
 #include <dali/internal/system/common/time-service.h>

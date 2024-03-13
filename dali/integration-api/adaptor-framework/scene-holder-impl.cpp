@@ -33,7 +33,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 #include <dali/internal/system/common/time-service.h>

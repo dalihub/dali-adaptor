@@ -31,7 +31,6 @@
 #include <dali/devel-api/adaptor-framework/window-devel.h>
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali
 {

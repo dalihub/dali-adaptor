@@ -115,11 +115,6 @@ public:
   EglInterface& GetEglInterface() const;
 
   /**
-   * @copydoc Dali::Integration::GlAbstraction& GetGlesInterface()
-   */
-  GlImplementation& GetGlesInterface();
-
-  /**
    * Gets the implementation of GlSyncAbstraction for EGL.
    * @return The implementation of GlSyncAbstraction for EGL.
    */

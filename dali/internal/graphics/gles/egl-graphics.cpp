@@ -194,11 +194,6 @@ void EglGraphics::Destroy()
   mGraphicsController.Destroy();
 }
 
-GlImplementation& EglGraphics::GetGlesInterface()
-{
-  return *mGLES;
-}
-
 Integration::GlAbstraction& EglGraphics::GetGlAbstraction() const
 {
   DALI_ASSERT_DEBUG(mGLES && "GLImplementation not created");

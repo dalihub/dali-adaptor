@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -317,10 +317,12 @@ void WindowRenderSurface::InitializeGraphics()
     auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
     mEGL             = &eglGraphics->GetEglInterface();
 
-    // Create the OpenGL context for this window
-    Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
-    eglImpl.ChooseConfig(true, mColorDepth);
-    eglImpl.CreateWindowContext(mEGLContext);
+    if(mEGL)
+    {
+      // Create the OpenGL context for this window
+      mEGL->ChooseConfig(true, mColorDepth);
+      mEGL->CreateWindowContext(mEGLContext);
+    }
 
     // Create the OpenGL surface
     CreateSurface();
@@ -351,10 +353,10 @@ void WindowRenderSurface::CreateSurface()
     InitializeImeSurface();
   }
 
-  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  mEGLSurface                                   = eglImpl.CreateSurfaceWindow(window, mColorDepth);
+  if(mEGL)
+  {
+    mEGLSurface = mEGL->CreateSurfaceWindow(window, mColorDepth);
+  }
 
   DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), EGLSurface (%p), w = %d h = %d angle = %d screen rotation = %d\n",
                         mWindowBase->GetNativeWindowId(),
@@ -369,18 +371,15 @@ void WindowRenderSurface::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
-  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  if(eglGraphics)
+  if(mEGL)
   {
     DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: WinId (%d)\n", mWindowBase->GetNativeWindowId());
 
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
-    eglImpl.DestroySurface(mEGLSurface);
+    mEGL->DestroySurface(mEGLSurface);
     mEGLSurface = nullptr;
 
     // Destroy context also
-    eglImpl.DestroyContext(mEGLContext);
+    mEGL->DestroyContext(mEGLContext);
     mEGLContext = nullptr;
 
     mWindowBase->DestroyEglWindow();
@@ -409,10 +408,11 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
   // Create the EGL window
   EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
 
-  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-
-  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-  return eglImpl.ReplaceSurfaceWindow(window, mEGLSurface, mEGLContext);
+  if(mEGL)
+  {
+    return mEGL->ReplaceSurfaceWindow(window, mEGLSurface, mEGLContext);
+  }
+  return false;
 }
 
 void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
@@ -615,9 +615,6 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
   }
 
-  // This is now done when the render pass for the render surface begins
-  //  MakeContextCurrent();
-
   return true;
 }
 
@@ -627,8 +624,8 @@ void WindowRenderSurface::PostRender()
   auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
   if(eglGraphics)
   {
-    GlImplementation& mGLES = eglGraphics->GetGlesInterface();
-    mGLES.PostRender();
+    auto& gl = eglGraphics->GetGlAbstraction();
+    gl.PostRender();
 
     bool needWindowRotationCompleted = false;
 
@@ -728,7 +725,6 @@ void WindowRenderSurface::InitializeImeSurface()
     {
       mPostRenderTrigger = std::unique_ptr<TriggerEventInterface>(TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &WindowRenderSurface::ProcessPostRender),
                                                                                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
-
     }
   }
 }
@@ -820,8 +816,7 @@ void WindowRenderSurface::OnFileDescriptorEventDispatched(FileDescriptorMonitor:
 
 void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect)
 {
-  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  if(eglGraphics)
+  if(mEGL)
   {
     // If scene is not exist, just use stored mPositionSize.
     Rect<int> surfaceRect(0, 0, mPositionSize.width, mPositionSize.height);
@@ -839,8 +834,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
       orientation = std::min(totalAngle / 90, 3);
     }
 
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
+    if(!mEGL->IsPartialUpdateRequired() || mFullSwapNextFrame)
     {
       InsertRects(mBufferDamagedRects, surfaceRect);
       clippingRect = surfaceRect;
@@ -858,7 +852,7 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
     mGraphics->ActivateSurfaceContext(this);
 
-    EGLint bufferAge = eglImpl.GetBufferAge(mEGLSurface);
+    EGLint bufferAge = mEGL->GetBufferAge(mEGLSurface);
 
     // Buffer age 0 means the back buffer in invalid and requires full swap
     if(bufferAge == 0)
@@ -913,22 +907,19 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
         damagedRegion.push_back(clippingRect);
       }
 
-      eglImpl.SetDamageRegion(mEGLSurface, damagedRegion);
+      mEGL->SetDamageRegion(mEGLSurface, damagedRegion);
     }
   }
 }
 
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
-  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  if(eglGraphics)
+  if(mEGL)
   {
-    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-
-    if(!eglImpl.IsPartialUpdateRequired() || mFullSwapNextFrame)
+    if(!mEGL->IsPartialUpdateRequired() || mFullSwapNextFrame)
     {
       mFullSwapNextFrame = false;
-      eglImpl.SwapBuffers(mEGLSurface);
+      mEGL->SwapBuffers(mEGLSurface);
       return;
     }
 
@@ -945,11 +936,11 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
     {
       // In normal cases, WindowRenderSurface::SwapBuffers() will not be called if mergedRects.size() is 0.
       // For exceptional cases, swap full area.
-      eglImpl.SwapBuffers(mEGLSurface);
+      mEGL->SwapBuffers(mEGLSurface);
     }
     else
     {
-      eglImpl.SwapBuffers(mEGLSurface, damagedRects);
+      mEGL->SwapBuffers(mEGLSurface, damagedRects);
     }
   }
 }
@@ -958,7 +949,7 @@ void WindowRenderSurface::SetFrontBufferRendering(bool enable)
 {
   if(mIsFrontBufferRendering != enable)
   {
-    mIsFrontBufferRendering = enable;
+    mIsFrontBufferRendering        = enable;
     mIsFrontBufferRenderingChanged = !mIsFrontBufferRenderingChanged;
   }
 }

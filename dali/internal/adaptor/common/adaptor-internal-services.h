@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_INTERNAL_SERVICES_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/gles/egl-factory-interface.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
 #include <dali/internal/network/common/trace-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
