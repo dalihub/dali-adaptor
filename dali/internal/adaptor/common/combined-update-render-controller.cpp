@@ -536,11 +536,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   LOG_UPDATE_RENDER("THREAD CREATED");
 
   // Initialize graphics
-  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
-  graphics.Initialize();
-
   Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
-  displayConnection.Initialize(); //@todo Move InitializeGraphics code into graphics implementation
+  GraphicsInterface&       graphics          = mAdaptorInterfaces.GetGraphicsInterface();
+  graphics.Initialize(displayConnection);
 
   // Setup graphics controller into upload manager.
   GetImplementation(mTextureUploadManager).InitalizeGraphicsController(graphics.GetController());
@@ -661,7 +659,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // we need to delete the surface and renderable (pixmap / window)
       // Then create a new pixmap/window and new surface
       // If the new surface has a different display connection, then the context will be lost
-      mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      graphics.InitializeGraphicsAPI(displayConnection);
       graphics.ActivateSurfaceContext(newSurface);
       // TODO: ReplaceGraphicsSurface doesn't work, InitializeGraphics()
       // already creates new surface window, the surface and the context.

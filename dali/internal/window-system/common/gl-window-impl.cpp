@@ -793,15 +793,13 @@ void GlWindow::InitializeGraphics()
   {
     // Init Graphics
     std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(mEnvironmentOptions);
-    auto                             graphicsFactory    = *graphicsFactoryPtr.get();
+    auto                             graphicsFactory    = *graphicsFactoryPtr;
 
-    mGraphics                      = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
-    GraphicsInterface* graphics    = mGraphics.get();
-    EglGraphics*       eglGraphics = static_cast<EglGraphics*>(graphics);
-    eglGraphics->Initialize(mDepth, mStencil, false, mMSAA);
+    mGraphics                   = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
+    GraphicsInterface* graphics = mGraphics.get();
 
-    mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(*graphics, Dali::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
-    mDisplayConnection->Initialize();
+    mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
+    graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
 
     // Create Render Thread
     mGlWindowRenderThread = std::unique_ptr<Dali::Internal::Adaptor::GlWindowRenderThread>(new GlWindowRenderThread(mPositionSize, mColorDepth));

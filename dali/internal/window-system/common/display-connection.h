@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
-#define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
+#ifndef DALI_INTERNAL_WINDOW_SYSTEM_COMMON_DISPLAY_CONNECTION_H
+#define DALI_INTERNAL_WINDOW_SYSTEM_COMMON_DISPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,17 +23,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
-#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {
-namespace Internal
-{
-namespace Adaptor
+namespace Internal::Adaptor
 {
 class DisplayConnection;
 }
-} // namespace Internal
 
 class DisplayConnection
 {
@@ -41,20 +37,18 @@ public:
   /**
    * @brief Create an initialized DisplayConnection.
    *
-   * @param[in] graphics The abstracted graphics interface
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New(Dali::Internal::Adaptor::GraphicsInterface& graphics);
+  static DisplayConnection* New();
 
   /**
    * @brief Create an initialized DisplayConnection.
    * Native surface will need this instead of DisplayConnection::New()
    *
-   * @param[in] graphics The abstracted graphics interface
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New(Dali::Internal::Adaptor::GraphicsInterface& graphics, Dali::RenderSurfaceInterface::Type type);
+  static DisplayConnection* New(Dali::RenderSurfaceInterface::Type type);
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().
@@ -75,17 +69,12 @@ public:
    *
    * @return display
    */
-  Any GetDisplay();
+  Any GetDisplay() const;
 
   /**
    * @brief Consumes any possible events on the queue so that there is no leaking between frames
    */
   void ConsumeEvents();
-
-  /**
-   * @brief Initialize the display
-   */
-  bool Initialize();
 
 public:
   /**
@@ -101,4 +90,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_H
+#endif // DALI_INTERNAL_WINDOW_SYSTEM_COMMON_DISPLAY_CONNECTION_H

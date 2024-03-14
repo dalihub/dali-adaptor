@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,51 +19,27 @@
 #include <dali/internal/window-system/x11/display-connection-impl-x.h>
 
 // EXTERNAL_HEADERS
-#include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/graphics/gles/egl-graphics.h>
-#include <dali/internal/window-system/x11/pixmap-render-surface-x.h>
 #include <dali/internal/window-system/x11/window-system-x.h>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 DisplayConnectionX11::DisplayConnectionX11()
-: mGraphics(nullptr),
-  mDisplay(nullptr)
+: mDisplay(nullptr)
 {
 }
 
-DisplayConnectionX11::~DisplayConnectionX11()
-{
-}
+DisplayConnectionX11::~DisplayConnectionX11() = default;
 
 Any DisplayConnectionX11::GetDisplay()
 {
-  return Any(mDisplay);
+  return {mDisplay};
 }
 
 void DisplayConnectionX11::ConsumeEvents()
 {
   // Event consumption should only be done in WindowSystemX.
-}
-
-bool DisplayConnectionX11::InitializeGraphics()
-{
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
 }
 
 void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
@@ -74,13 +50,4 @@ void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type typ
   }
 }
 
-void DisplayConnectionX11::SetGraphicsInterface(GraphicsInterface& graphics)
-{
-  mGraphics = &graphics;
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

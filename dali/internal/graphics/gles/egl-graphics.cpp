@@ -102,15 +102,16 @@ void EglGraphics::SetFirstFrameAfterResume()
   }
 }
 
-void EglGraphics::Initialize()
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 {
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
   mGraphicsController.Initialize(*mEglSync.get(), *this);
+  InitializeGraphicsAPI(displayConnection);
 }
 
-void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, int msaa)
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
 {
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
@@ -118,6 +119,13 @@ void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, in
   mMultiSamplingLevel    = msaa;
 
   EglInitialize();
+  InitializeGraphicsAPI(displayConnection);
+}
+
+void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
+{
+  // Bad name - it does call "eglInitialize"!!!! @todo Rename me!
+  mEglImplementation->InitializeGles(displayConnection.GetDisplay().Get<EGLNativeDisplayType>());
 }
 
 void EglGraphics::EglInitialize()

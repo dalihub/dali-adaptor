@@ -216,7 +216,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
 
   mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
-  mDisplayConnection = Dali::DisplayConnection::New(*mGraphics, defaultWindow->GetSurface()->GetSurfaceType());
+  mDisplayConnection = Dali::DisplayConnection::New(defaultWindow->GetSurface()->GetSurfaceType());
 
   mThreadController = new ThreadController(*this, *mEnvironmentOptions, mThreadMode);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,10 +96,9 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
   mGraphics                      = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
   GraphicsInterface* graphics    = mGraphics.get();
   auto               eglGraphics = static_cast<EglGraphics*>(graphics);
-  eglGraphics->Initialize(mDepth, mStencil, false, mMSAA);
 
-  mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(*mGraphics, Dali::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));
-  mDisplayConnection->Initialize();
+  mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));
+  eglGraphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
 
   mEGL = &eglGraphics->GetEglInterface();
 

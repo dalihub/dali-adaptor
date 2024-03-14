@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOW_SYSTEM_X11_DISPLAY_CONNECTION_IMPL_X_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
-#include <X11/Xlib.h>
 
 namespace Dali
 {
 class DisplayConnection;
 
-namespace Internal
+namespace Internal::Adaptor
 {
-namespace Adaptor
-{
-class Impl
-{
-public:
-  ::Display* mDisplay; ///< X-display for rendering
-};
-
 /**
  * DisplayConnection implementation
  */
@@ -58,51 +49,33 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
    */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
-   */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionX11();
+  ~DisplayConnectionX11() override;
 
-protected:
-  // Undefined
   DisplayConnectionX11(const DisplayConnectionX11&) = delete;
 
-  // Undefined
   DisplayConnectionX11& operator=(const DisplayConnectionX11& rhs) = delete;
-
-private:
-  GraphicsInterface* mGraphics; ///< The graphics interface
 
 public:
   ::Display* mDisplay; ///< X-display for rendering
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace Internal::Adaptor
 
 } // namespace Dali
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIN_DIPLAY_CONNECTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,40 +54,24 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeEgl
-   */
-  bool InitializeEgl(EglInterface& egl);
-
-  /**
-  * @copydoc Dali::DisplayConnection::InitializeGraphics
-  */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
   */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-  * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
-  */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionWin();
+  ~DisplayConnectionWin() override;
 
-private:
   // Undefined
   DisplayConnectionWin(const DisplayConnectionWin&) = delete;
 
@@ -96,7 +80,7 @@ private:
 
 private:
   GraphicsInterface* mGraphics; ///< The graphics interface
-  HDC                mDisplay;
+  HDC                mDisplay{};
 };
 
 } // namespace Adaptor

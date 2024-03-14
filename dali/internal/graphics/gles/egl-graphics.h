@@ -53,12 +53,14 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize()
    */
-  void Initialize() override;
+  void Initialize(const Dali::DisplayConnection& displayConnection) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize(bool,bool,bool,int)
    */
-  void Initialize(bool depth, bool stencil, bool partialRendering, int msaa);
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+
+  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection);
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsInterface::ConfigureSurface()
@@ -208,11 +210,12 @@ public:
    */
   void LogMemoryPools() override;
 
-private:
+public:
   // Eliminate copy and assigned operations
   EglGraphics(const EglGraphics& rhs) = delete;
   EglGraphics& operator=(const EglGraphics& rhs) = delete;
 
+private:
   /**
    * Initialize graphics subsystems
    */

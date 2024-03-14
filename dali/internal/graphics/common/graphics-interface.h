@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_INTERFACE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #include <dali/graphics-api/graphics-controller.h>
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/system/common/environment-options.h>
+#include "dali/internal/window-system/common/display-connection.h"
 
 namespace Dali
 {
@@ -61,17 +62,24 @@ public:
   /**
    * Initialize the graphics subsystem, configured from environment
    */
-  virtual void Initialize() = 0;
+  virtual void Initialize(const Dali::DisplayConnection& displayConnection) = 0;
 
   /**
    * Initialize the graphics subsystem, providing explicit parameters.
    *
+   * @param[in] displayConnection The connection to the display
    * @param[in] depth True if depth buffer is required
    * @param[in] stencil True if stencil buffer is required
    * @param[in] partialRendering True if partial rendering is required
    * @param[in] msaa level of anti-aliasing required (-1 = off)
    */
-  virtual void Initialize(bool depth, bool stencil, bool partialRendering, int msaa) = 0;
+  virtual void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) = 0;
+
+  /**
+   * Initialize the graphics API subsystem
+   * @param displayConnection
+   */
+  virtual void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) = 0;
 
   /**
    * Configure the graphics surface

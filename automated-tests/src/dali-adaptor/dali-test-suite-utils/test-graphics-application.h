@@ -58,7 +58,7 @@ public:
   /**
    * Initialize the graphics subsystem, configured from environment
    */
-  void Initialize() override
+  void Initialize(const Dali::DisplayConnection& dc) override
   {
     mCallstack.PushCall("Initialize()", "");
   }
@@ -71,7 +71,7 @@ public:
    * @param[in] partialRendering True if partial rendering is required
    * @param[in] msaa level of anti-aliasing required (-1 = off)
    */
-  void Initialize(bool depth, bool stencil, bool partialRendering, int msaa) override
+  void Initialize(const Dali::DisplayConnection& dc, bool depth, bool stencil, bool partialRendering, int msaa) override
   {
     TraceCallStack::NamedParams namedParams;
     namedParams["depth"] << depth;
@@ -79,6 +79,11 @@ public:
     namedParams["partialRendering"] << partialRendering;
     namedParams["msaa"] << msaa;
     mCallstack.PushCall("Initialize()", "");
+  }
+
+  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override
+  {
+    mCallstack.PushCall("InitializeGraphicsAPI()", "");
   }
 
   /**
@@ -286,6 +291,7 @@ protected:
   TestGraphicsSyncImplementation              mGraphicsSyncImplementation;
   TestGraphicsImpl                            mGraphics;
   Graphics::UniquePtr<Graphics::RenderTarget> mRenderTarget{nullptr};
+  Dali::DisplayConnection*                    mDisplayConnection{nullptr};
 
   Integration::UpdateStatus mStatus;
   Integration::RenderStatus mRenderStatus;

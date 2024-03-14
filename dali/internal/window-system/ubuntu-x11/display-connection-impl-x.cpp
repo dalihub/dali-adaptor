@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@
 #include <dali/internal/window-system/ubuntu-x11/display-connection-impl-x.h>
 
 // EXTERNAL_HEADERS
-#include <dali/integration-api/debug.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 
 namespace Dali
@@ -34,15 +32,13 @@ namespace Adaptor
 {
 DisplayConnection* DisplayConnectionX11::New()
 {
-  //DisplayConnection* pDisplayConnection(new DisplayConnection());
-
-  //return pDisplayConnection;
   return nullptr;
+  DisplayConnection* pDisplayConnection(new DisplayConnectionX11());
+  return pDisplayConnection;
 }
 
 DisplayConnectionX11::DisplayConnectionX11()
-: mGraphics(nullptr),
-  mDisplay(nullptr)
+: mDisplay(nullptr)
 {
 }
 
@@ -56,7 +52,7 @@ DisplayConnectionX11::~DisplayConnectionX11()
 
 Any DisplayConnectionX11::GetDisplay()
 {
-  return Any(mDisplay);
+  return {mDisplay};
 }
 
 void DisplayConnectionX11::ConsumeEvents()
@@ -79,20 +75,6 @@ void DisplayConnectionX11::ConsumeEvents()
   } while(events > 0);
 }
 
-bool DisplayConnectionX11::InitializeGraphics()
-{
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
-}
-
 void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
   if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
@@ -100,11 +82,6 @@ void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type typ
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);
   }
-}
-
-void DisplayConnectionX11::SetGraphicsInterface(GraphicsInterface& graphics)
-{
-  mGraphics = &graphics;
 }
 
 } // namespace Adaptor

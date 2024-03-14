@@ -59,8 +59,8 @@ void TestGraphicsApplication::CreateCore()
 
   // We always need the first update!
   mStatus.keepUpdating = Integration::KeepUpdating::STAGE_KEEP_RENDERING;
-
-  mGraphics.Initialize();
+  mDisplayConnection   = DisplayConnection::New();
+  mGraphics.Initialize(*mDisplayConnection);
   mGraphicsController.InitializeGLES(mGlAbstraction);
   mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mGraphicsController.ActivateResourceContext();

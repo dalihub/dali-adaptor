@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
@@ -45,7 +44,6 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay(NULL),
   mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
-  mGraphics(nullptr),
   mBufMgr(nullptr)
 {
 }
@@ -67,20 +65,6 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 {
 }
 
-bool DisplayConnectionEcoreWl::InitializeGraphics()
-{
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(mDisplay))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
-}
-
 void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
   mSurfaceType = type;
@@ -100,14 +84,9 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type
   }
 }
 
-void DisplayConnectionEcoreWl::SetGraphicsInterface(GraphicsInterface& graphics)
-{
-  mGraphics = &graphics;
-}
-
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  mBufMgr = tbm_bufmgr_init(-1);  // -1 is meaningless. The parameter in this function is deprecated.
+  mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
   if(mBufMgr == nullptr)
   {
     DALI_LOG_ERROR("Fail to init tbm buf mgr\n");
