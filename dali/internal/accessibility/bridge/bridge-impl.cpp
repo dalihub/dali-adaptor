@@ -94,43 +94,43 @@ public:
   BridgeImpl() = default;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Emit()
+   * @copydoc Dali::Accessibility::Bridge::EmitKeyEvent()
    */
-  Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
+  bool EmitKeyEvent(Dali::KeyEvent keyEvent, std::function<void(Dali::KeyEvent, bool)> callback) override
   {
+    using ArgumentTypes = std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>;
+
+    static const char* methodName = "NotifyListenersSync";
+
     if(!IsUp())
     {
-      return Consumed::NO;
+      return false;
     }
 
-    unsigned int keyType = 0;
+    uint32_t keyType   = (keyEvent.GetState() == Dali::KeyEvent::DOWN ? 0U : 1U);
+    auto     timeStamp = static_cast<std::int32_t>(keyEvent.GetTime());
+    bool     isText    = !keyEvent.GetKeyString().empty();
 
-    switch(type)
-    {
-      case KeyEventType::KEY_PRESSED:
-      {
-        keyType = 0;
-        break;
-      }
-      case KeyEventType::KEY_RELEASED:
-      {
-        keyType = 1;
-        break;
-      }
-      default:
-      {
-        return Consumed::NO;
-      }
-    }
+    ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, keyEvent.GetKeyName(), isText);
 
-    auto methodObject = mRegistryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
-    auto result       = methodObject.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
-    if(!result)
-    {
-      LOG() << result.getError().message;
-      return Consumed::NO;
-    }
-    return std::get<0>(result) ? Consumed::YES : Consumed::NO;
+    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply) {
+      bool consumed = false;
+
+      if(!reply)
+      {
+        DALI_LOG_ERROR("%s call failed: %s", methodName, reply.getError().message.c_str());
+      }
+      else
+      {
+        consumed = std::get<0>(reply.getValues());
+      }
+
+      callback(std::move(keyEvent), consumed);
+    };
+
+    mRegistryClient.method<bool(ArgumentTypes)>(methodName).asyncCall(std::move(functor), arguments);
+
+    return true;
   }
 
   /**
