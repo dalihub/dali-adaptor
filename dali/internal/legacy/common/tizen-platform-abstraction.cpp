@@ -234,7 +234,7 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 
   mTimerPairsWaiting.erase(timerIter, timerIter + 1);
 
-  if(DALI_UNLIKELY(!Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false)))
+  if(DALI_UNLIKELY(!Dali::Adaptor::IsAvailable() || !Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false)))
   {
     DALI_LOG_ERROR("Fail to add idle callback for timer function. Call it synchronously.\n");
     CleanupTimers();

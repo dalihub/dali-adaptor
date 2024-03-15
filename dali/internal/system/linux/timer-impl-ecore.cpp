@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/system/linux/timer-impl-ecore.h>
 
 // EXTERNAL INCLUDES
+#include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/trace.h>
 
 // INTERNAL INCLUDES
@@ -83,7 +84,7 @@ TimerEcore::~TimerEcore()
 void TimerEcore::Start()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   if(mImpl->mId != NULL)
   {
@@ -103,7 +104,7 @@ void TimerEcore::Start()
 void TimerEcore::Stop()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   ResetTimerData();
 }
@@ -111,7 +112,7 @@ void TimerEcore::Stop()
 void TimerEcore::Pause()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   if(mImpl->mId != NULL)
   {
@@ -128,7 +129,7 @@ void TimerEcore::Pause()
 void TimerEcore::Resume()
 {
   // Timer should be used in the event thread
-  DALI_ASSERT_ALWAYS(Adaptor::IsAvailable());
+  DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
   if(mImpl->mId != NULL)
   {

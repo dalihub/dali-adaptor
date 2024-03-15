@@ -552,9 +552,12 @@ void Adaptor::Stop()
 
     mCallbackManager->Stop();
 
-    mState = STOPPED;
+    mCore->UnregisterProcessors();
 
     RemoveSystemInformation();
+
+    // Note: Must change the state at end of function.
+    mState = STOPPED;
 
     DALI_LOG_RELEASE_INFO("Adaptor::Stop\n");
   }
@@ -750,13 +753,13 @@ bool Adaptor::RemoveWindow(Internal::Adaptor::SceneHolder* childWindow)
 
 Dali::Adaptor& Adaptor::Get()
 {
-  DALI_ASSERT_ALWAYS(IsAvailable() && "Adaptor not instantiated");
+  DALI_ASSERT_ALWAYS((gThreadLocalAdaptor != NULL) && "Adaptor not instantiated");
   return gThreadLocalAdaptor->mAdaptor;
 }
 
 bool Adaptor::IsAvailable()
 {
-  return gThreadLocalAdaptor != NULL;
+  return gThreadLocalAdaptor != NULL && (gThreadLocalAdaptor->mState != Adaptor::State::STOPPED);
 }
 
 void Adaptor::SceneCreated()
