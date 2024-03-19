@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/android/window-base-android.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
@@ -133,7 +134,7 @@ std::string WindowBaseAndroid::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseAndroid::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseAndroid::CreateWindow(int width, int height)
 {
   // from eglplatform.h header
   // typedef struct ANativeWindow* EGLNativeWindowType;
@@ -141,28 +142,28 @@ EGLNativeWindowType WindowBaseAndroid::CreateEglWindow(int width, int height)
   return mWindow;
 }
 
-void WindowBaseAndroid::DestroyEglWindow()
+void WindowBaseAndroid::DestroyWindow()
 {
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Does nothing, the window is not owned by us.\n");
 }
 
-void WindowBaseAndroid::SetEglWindowRotation(int angle)
+void WindowBaseAndroid::SetWindowRotation(int angle)
 {
 }
 
-void WindowBaseAndroid::SetEglWindowBufferTransform(int angle)
+void WindowBaseAndroid::SetWindowBufferTransform(int angle)
 {
 }
 
-void WindowBaseAndroid::SetEglWindowTransform(int angle)
+void WindowBaseAndroid::SetWindowTransform(int angle)
 {
 }
 
-void WindowBaseAndroid::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseAndroid::ResizeWindow(PositionSize positionSize)
 {
 }
 
-bool WindowBaseAndroid::IsEglWindowRotationSupported()
+bool WindowBaseAndroid::IsWindowRotationSupported()
 {
   return false;
 }
@@ -491,7 +492,7 @@ bool WindowBaseAndroid::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseAndroid::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseAndroid::SetWindowFrontBufferMode(bool enable)
 {
 }
 

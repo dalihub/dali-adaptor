@@ -346,7 +346,7 @@ void WindowRenderSurface::CreateSurface()
   }
 
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
+  Dali::Any window = mWindowBase->CreateWindow(width, height);
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
@@ -355,7 +355,8 @@ void WindowRenderSurface::CreateSurface()
 
   if(mEGL)
   {
-    mEGLSurface = mEGL->CreateSurfaceWindow(window, mColorDepth);
+    EGLNativeWindowType eglWindow = window.Get<EGLNativeWindowType>();
+    mEGLSurface                   = mEGL->CreateSurfaceWindow(eglWindow, mColorDepth);
   }
 
   DALI_LOG_RELEASE_INFO("WindowRenderSurface::CreateSurface: WinId (%d), EGLSurface (%p), w = %d h = %d angle = %d screen rotation = %d\n",
@@ -382,7 +383,7 @@ void WindowRenderSurface::DestroySurface()
     mEGL->DestroyContext(mEGLContext);
     mEGLContext = nullptr;
 
-    mWindowBase->DestroyEglWindow();
+    mWindowBase->DestroyWindow();
   }
 }
 
@@ -391,7 +392,7 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
   DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
   // Destroy the old one
-  mWindowBase->DestroyEglWindow();
+  mWindowBase->DestroyWindow();
 
   int width, height;
   if(mScreenRotationAngle == 0 || mScreenRotationAngle == 180)
@@ -406,11 +407,11 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
   }
 
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow(width, height);
-
+  Dali::Any window = mWindowBase->CreateWindow(width, height);
   if(mEGL)
   {
-    return mEGL->ReplaceSurfaceWindow(window, mEGLSurface, mEGLContext);
+    EGLNativeWindowType eglWindow = window.Get<EGLNativeWindowType>();
+    return mEGL->ReplaceSurfaceWindow(eglWindow, mEGLSurface, mEGLContext);
   }
   return false;
 }
@@ -522,9 +523,9 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
   }
 
   /**
-    * wl_egl_window_tizen_set_rotation(SetEglWindowRotation)                -> PreRotation
-    * wl_egl_window_tizen_set_buffer_transform(SetEglWindowBufferTransform) -> Screen Rotation
-    * wl_egl_window_tizen_set_window_transform(SetEglWindowTransform)       -> Window Rotation
+    * wl_egl_window_tizen_set_rotation(SetWindowRotation)                -> PreRotation
+    * wl_egl_window_tizen_set_buffer_transform(SetWindowBufferTransform) -> Screen Rotation
+    * wl_egl_window_tizen_set_window_transform(SetWindowTransform)       -> Window Rotation
     * These function should be called before calling first drawing gl Function.
     * Notice : PreRotation is not used in the latest tizen,
     *          because output transform event should be occured before egl window is not created.
@@ -559,13 +560,13 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     // Window rotate or screen rotate
     if(mIsWindowOrientationChanging || isScreenOrientationChanging)
     {
-      mWindowBase->SetEglWindowBufferTransform(totalAngle);
+      mWindowBase->SetWindowBufferTransform(totalAngle);
     }
 
     // Only window rotate
     if(mIsWindowOrientationChanging)
     {
-      mWindowBase->SetEglWindowTransform(mWindowRotationAngle);
+      mWindowBase->SetWindowTransform(mWindowRotationAngle);
     }
 
     // Resize case
@@ -586,7 +587,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
       positionSize.height = mPositionSize.width;
     }
 
-    mWindowBase->ResizeEglWindow(positionSize);
+    mWindowBase->ResizeWindow(positionSize);
 
     SetFullSwapNextFrame();
   }
@@ -595,7 +596,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
   if(mIsFrontBufferRenderingChanged)
   {
     mIsFrontBufferRenderingChanged = false;
-    mWindowBase->SetEglWindowFrontBufferMode(mIsFrontBufferRendering);
+    mWindowBase->SetWindowFrontBufferMode(mIsFrontBufferRendering);
     SetFullSwapNextFrame();
   }
 

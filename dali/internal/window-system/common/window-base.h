@@ -29,7 +29,6 @@
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
 #include <dali/devel-api/adaptor-framework/window-devel.h>
-#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/rotation-event.h>
 #include <dali/public-api/adaptor-framework/key-grab.h>
@@ -119,45 +118,45 @@ public:
   virtual int GetNativeWindowId() = 0;
 
   /**
-   * @brief Get the native window resource id assinged by window manager
+   * @brief Get the native window resource id assigned by window manager
    * @return The native window resource id
    */
   virtual std::string GetNativeWindowResourceId() = 0;
 
   /**
-   * @brief Create the egl window
+   * @brief Create the window
    */
-  virtual EGLNativeWindowType CreateEglWindow(int width, int height) = 0;
+  virtual Dali::Any CreateWindow(int width, int height) = 0;
 
   /**
-   * @brief Destroy the egl window
+   * @brief Destroy the window
    */
-  virtual void DestroyEglWindow() = 0;
+  virtual void DestroyWindow() = 0;
 
   /**
-   * @brief Set the egl window rotation
+   * @brief Set the window rotation
    */
-  virtual void SetEglWindowRotation(int angle) = 0;
+  virtual void SetWindowRotation(int angle) = 0;
 
   /**
-   * @brief Set the egl window buffer transform
+   * @brief Set the window buffer transform
    */
-  virtual void SetEglWindowBufferTransform(int angle) = 0;
+  virtual void SetWindowBufferTransform(int angle) = 0;
 
   /**
-   * @brief Set the egl window transform
+   * @brief Set the window transform
    */
-  virtual void SetEglWindowTransform(int angle) = 0;
+  virtual void SetWindowTransform(int angle) = 0;
 
   /**
-   * @brief Resize the egl window
+   * @brief Resize the window
    */
-  virtual void ResizeEglWindow(Dali::PositionSize positionSize) = 0;
+  virtual void ResizeWindow(Dali::PositionSize positionSize) = 0;
 
   /**
-   * @brief Returns whether the egl window support rotation or not
+   * @brief Returns whether the window support rotation or not
    */
-  virtual bool IsEglWindowRotationSupported() = 0;
+  virtual bool IsWindowRotationSupported() = 0;
 
   /**
    * @brief Move the window
@@ -561,10 +560,10 @@ public:
   virtual bool GetFrontBufferRendering() = 0;
 
   /**
-   * @brief Sets front buffer rendering to the egl window.
+   * @brief Sets front buffer rendering to the window.
    * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
    */
-  virtual void SetEglWindowFrontBufferMode(bool enable) = 0;
+  virtual void SetWindowFrontBufferMode(bool enable) = 0;
 
   /**
    * @brief Enables or disables the modal of window.

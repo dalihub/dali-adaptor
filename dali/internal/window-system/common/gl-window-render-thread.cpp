@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -255,10 +255,10 @@ void GlWindowRenderThread::Run()
 
         if(isWindowRotated || isScreenRotated)
         {
-          mWindowBase->SetEglWindowBufferTransform(totalAngle);
+          mWindowBase->SetWindowBufferTransform(totalAngle);
           if(isWindowRotated)
           {
-            mWindowBase->SetEglWindowTransform(windowRotationAngle);
+            mWindowBase->SetWindowTransform(windowRotationAngle);
           }
         }
 
@@ -277,7 +277,7 @@ void GlWindowRenderThread::Run()
             positionSize.width  = mPositionSize.height;
             positionSize.height = mPositionSize.width;
           }
-          mWindowBase->ResizeEglWindow(positionSize);
+          mWindowBase->ResizeWindow(positionSize);
         }
       }
 
@@ -376,8 +376,8 @@ void GlWindowRenderThread::InitializeGraphics(EglGraphics* eglGraphics)
   eglImpl.CreateWindowContext(mEGLContext);
 
   // Create the EGL window
-  EGLNativeWindowType window = mWindowBase->CreateEglWindow(mPositionSize.width, mPositionSize.height);
-  mEGLSurface                = eglImpl.CreateSurfaceWindow(window, mColorDepth);
+  Dali::Any window = mWindowBase->CreateWindow(mPositionSize.width, mPositionSize.height);
+  mEGLSurface      = eglImpl.CreateSurfaceWindow(window.Get<EGLNativeWindowType>(), mColorDepth);
 }
 
 bool GlWindowRenderThread::RenderReady(uint64_t& timeToSleepUntil)

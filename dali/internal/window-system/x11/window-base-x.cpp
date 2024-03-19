@@ -283,7 +283,7 @@ void WindowBaseX::Initialize(PositionSize positionSize, Any surface, bool isTran
   {
     // we own the surface about to created
     mOwnSurface = true;
-    CreateWindow(positionSize, isTransparent);
+    CreateInternalWindow(positionSize, isTransparent);
   }
   else
   {
@@ -623,32 +623,32 @@ std::string WindowBaseX::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseX::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseX::CreateWindow(int width, int height)
 {
   return reinterpret_cast<EGLNativeWindowType>(mWindow);
 }
 
-void WindowBaseX::DestroyEglWindow()
+void WindowBaseX::DestroyWindow()
 {
 }
 
-void WindowBaseX::SetEglWindowRotation(int angle)
+void WindowBaseX::SetWindowRotation(int angle)
 {
 }
 
-void WindowBaseX::SetEglWindowBufferTransform(int angle)
+void WindowBaseX::SetWindowBufferTransform(int angle)
 {
 }
 
-void WindowBaseX::SetEglWindowTransform(int angle)
+void WindowBaseX::SetWindowTransform(int angle)
 {
 }
 
-void WindowBaseX::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseX::ResizeWindow(PositionSize positionSize)
 {
 }
 
-bool WindowBaseX::IsEglWindowRotationSupported()
+bool WindowBaseX::IsWindowRotationSupported()
 {
   return false;
 }
@@ -885,7 +885,7 @@ unsigned int WindowBaseX::GetSurfaceId(Any surface) const
   return surfaceId;
 }
 
-void WindowBaseX::CreateWindow(PositionSize positionSize, bool isTransparent)
+void WindowBaseX::CreateInternalWindow(PositionSize positionSize, bool isTransparent)
 {
   int depth = 3;
 
@@ -1021,7 +1021,7 @@ bool WindowBaseX::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseX::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseX::SetWindowFrontBufferMode(bool enable)
 {
 }
 void WindowBaseWin::SetModal(bool modal)

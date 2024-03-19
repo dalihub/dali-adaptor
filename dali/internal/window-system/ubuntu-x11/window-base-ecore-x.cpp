@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/ubuntu-x11/window-base-ecore-x.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/ecore-x-types.h>
@@ -284,7 +285,7 @@ void WindowBaseEcoreX::Initialize(PositionSize positionSize, Any surface, bool i
   {
     // we own the surface about to created
     mOwnSurface = true;
-    CreateWindow(positionSize, isTransparent);
+    CreateInternalWindow(positionSize, isTransparent);
   }
   else
   {
@@ -671,34 +672,34 @@ std::string WindowBaseEcoreX::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseEcoreX::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseEcoreX::CreateWindow(int width, int height)
 {
   // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
   XWindow window(mEcoreWindow);
   return reinterpret_cast<EGLNativeWindowType>(window);
 }
 
-void WindowBaseEcoreX::DestroyEglWindow()
+void WindowBaseEcoreX::DestroyWindow()
 {
 }
 
-void WindowBaseEcoreX::SetEglWindowRotation(int angle)
+void WindowBaseEcoreX::SetWindowRotation(int angle)
 {
 }
 
-void WindowBaseEcoreX::SetEglWindowBufferTransform(int angle)
+void WindowBaseEcoreX::SetWindowBufferTransform(int angle)
 {
 }
 
-void WindowBaseEcoreX::SetEglWindowTransform(int angle)
+void WindowBaseEcoreX::SetWindowTransform(int angle)
 {
 }
 
-void WindowBaseEcoreX::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseEcoreX::ResizeWindow(PositionSize positionSize)
 {
 }
 
-bool WindowBaseEcoreX::IsEglWindowRotationSupported()
+bool WindowBaseEcoreX::IsWindowRotationSupported()
 {
   return false;
 }
@@ -947,7 +948,7 @@ unsigned int WindowBaseEcoreX::GetSurfaceId(Any surface) const
   return surfaceId;
 }
 
-void WindowBaseEcoreX::CreateWindow(PositionSize positionSize, bool isTransparent)
+void WindowBaseEcoreX::CreateInternalWindow(PositionSize positionSize, bool isTransparent)
 {
   if(isTransparent)
   {
@@ -1086,7 +1087,7 @@ bool WindowBaseEcoreX::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseEcoreX::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseEcoreX::SetWindowFrontBufferMode(bool enable)
 {
 }
 

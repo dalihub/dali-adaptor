@@ -23,6 +23,7 @@
 #include <dali/public-api/object/any.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -266,32 +267,32 @@ std::string WindowBaseWin::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseWin::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseWin::CreateWindow(int width, int height)
 {
   return reinterpret_cast<EGLNativeWindowType>(mWin32Window);
 }
 
-void WindowBaseWin::DestroyEglWindow()
+void WindowBaseWin::DestroyWindow()
 {
 }
 
-void WindowBaseWin::SetEglWindowRotation(int angle)
+void WindowBaseWin::SetWindowRotation(int angle)
 {
 }
 
-void WindowBaseWin::SetEglWindowBufferTransform(int angle)
+void WindowBaseWin::SetWindowBufferTransform(int angle)
 {
 }
 
-void WindowBaseWin::SetEglWindowTransform(int angle)
+void WindowBaseWin::SetWindowTransform(int angle)
 {
 }
 
-void WindowBaseWin::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseWin::ResizeWindow(PositionSize positionSize)
 {
 }
 
-bool WindowBaseWin::IsEglWindowRotationSupported()
+bool WindowBaseWin::IsWindowRotationSupported()
 {
   return false;
 }
@@ -721,7 +722,7 @@ bool WindowBaseWin::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseWin::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseWin::SetWindowFrontBufferMode(bool enable)
 {
 }
 

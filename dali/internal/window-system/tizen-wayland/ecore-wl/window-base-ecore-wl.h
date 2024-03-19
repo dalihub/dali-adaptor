@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/window-base.h>
+#include <dali/public-api/object/any.h>
 
 // EXTERNAL HEADERS
 #include <Ecore.h>
@@ -185,39 +186,39 @@ public:
   std::string GetNativeWindowResourceId() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::CreateEglWindow()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::CreateWindow()
    */
-  EGLNativeWindowType CreateEglWindow(int width, int height) override;
+  Dali::Any CreateWindow(int width, int height) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyEglWindow()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyWindow()
    */
-  void DestroyEglWindow() override;
+  void DestroyWindow() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowRotation()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotation()
    */
-  void SetEglWindowRotation(int angle) override;
+  void SetWindowRotation(int angle) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowBufferTransform()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowBufferTransform()
    */
-  void SetEglWindowBufferTransform(int angle) override;
+  void SetWindowBufferTransform(int angle) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowTransform()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowTransform()
    */
-  void SetEglWindowTransform(int angle) override;
+  void SetWindowTransform(int angle) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeEglWindow()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeWindow()
    */
-  void ResizeEglWindow(PositionSize positionSize) override;
+  void ResizeWindow(PositionSize positionSize) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::IsEglWindowRotationSupported()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsWindowRotationSupported()
    */
-  bool IsEglWindowRotationSupported() override;
+  bool IsWindowRotationSupported() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
@@ -570,9 +571,9 @@ public:
   bool GetFrontBufferRendering() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::WindowBase::SetEglWindowFrontBufferMode()
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowFrontBufferMode()
    */
-  void SetEglWindowFrontBufferMode(bool enable) override;
+  void SetWindowFrontBufferMode(bool enable) override;
 
 private:
   /**
@@ -583,7 +584,7 @@ private:
   /**
    * @brief Create window
    */
-  void CreateWindow(PositionSize positionSize);
+  void CreateInternalWindow(PositionSize positionSize);
 
 protected:
   // Undefined

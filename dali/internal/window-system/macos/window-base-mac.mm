@@ -28,6 +28,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -402,7 +403,7 @@ std::string WindowBaseCocoa::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseCocoa::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseCocoa::CreateWindow(int width, int height)
 {
   // XXX: this method is called from a secondary thread, but
   // we can only resize the window from the main thread
@@ -411,30 +412,30 @@ EGLNativeWindowType WindowBaseCocoa::CreateEglWindow(int width, int height)
   return mImpl->mWindow.contentView.layer;
 }
 
-void WindowBaseCocoa::DestroyEglWindow()
+void WindowBaseCocoa::DestroyWindow()
 {
 }
 
-void WindowBaseCocoa::SetEglWindowRotation( int angle )
+void WindowBaseCocoa::SetWindowRotation( int angle )
 {
 }
 
-void WindowBaseCocoa::SetEglWindowBufferTransform( int angle )
+void WindowBaseCocoa::SetWindowBufferTransform( int angle )
 {
 }
 
-void WindowBaseCocoa::SetEglWindowTransform( int angle )
+void WindowBaseCocoa::SetWindowTransform( int angle )
 {
 }
 
-void WindowBaseCocoa::ResizeEglWindow( PositionSize positionSize )
+void WindowBaseCocoa::ResizeWindow( PositionSize positionSize )
 {
   dispatch_async(dispatch_get_main_queue(), ^{
     Resize(positionSize);
   });
 }
 
-bool WindowBaseCocoa::IsEglWindowRotationSupported()
+bool WindowBaseCocoa::IsWindowRotationSupported()
 {
   return false;
 }
@@ -802,7 +803,7 @@ bool WindowBaseCocoa::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseCocoa::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseCocoa::SetWindowFrontBufferMode(bool enable)
 {
 }
 
