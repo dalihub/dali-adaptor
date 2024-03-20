@@ -1197,11 +1197,9 @@ void Window::OnAccessibilityEnabled()
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer);
+  bridge->AddTopLevelWindow(accessible);
 
   DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is enabled\n", this, mNativeWindowId);
-
-  bridge->AddTopLevelWindow(accessible);
-  InterceptKeyEventSignal().Connect(this, &Window::OnAccessibilityInterceptKeyEvent);
 
   Dali::Window handle(this);
   if(!mIsEmittedWindowCreatedEvent)
@@ -1230,38 +1228,8 @@ void Window::OnAccessibilityDisabled()
   auto bridge     = Accessibility::Bridge::GetCurrentBridge();
   auto rootLayer  = mScene.GetRootLayer();
   auto accessible = Accessibility::Accessible::Get(rootLayer);
-
-  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
-
-  InterceptKeyEventSignal().Disconnect(this, &Window::OnAccessibilityInterceptKeyEvent);
   bridge->RemoveTopLevelWindow(accessible);
-}
-
-bool Window::OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent)
-{
-  auto bridge = Accessibility::Bridge::GetCurrentBridge();
-
-  if(!bridge->IsUp() || keyEvent.IsNoInterceptModifier())
-  {
-    DALI_LOG_ERROR("This KeyEvent should not have been intercepted!");
-
-    return false;
-  }
-
-  auto callback = [handle = Dali::Window(this)](Dali::KeyEvent keyEvent, bool consumed) {
-    if(!consumed)
-    {
-      Dali::DevelKeyEvent::SetNoInterceptModifier(keyEvent, true);
-      Dali::DevelWindow::FeedKeyEvent(handle, keyEvent);
-    }
-  };
-
-  bool emitted = bridge->EmitKeyEvent(keyEvent, callback);
-
-  // If emitted, consume the event in order not to have to wait for the D-Bus call
-  // to finish. If the event turns out not to be consumed by the remote client,
-  // then it is fed back to the window from the D-Bus callback.
-  return emitted;
+  DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Accessibility is disabled\n", this, mNativeWindowId);
 }
 
 void Window::OnMoveCompleted(Dali::Window::WindowPosition& position)

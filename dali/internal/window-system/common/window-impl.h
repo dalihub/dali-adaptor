@@ -691,14 +691,6 @@ private:
   void OnAccessibilityDisabled();
 
   /**
-   * @brief Called in Accessibility mode on every KeyEvent
-   *
-   * @param[in] keyEvent The key event
-   * @return Always true, meaning that the event is consumed
-   */
-  bool OnAccessibilityInterceptKeyEvent(const Dali::KeyEvent& keyEvent);
-
-  /**
    * @brief Called when the window rotation is finished.
    *
    * This signal is emmit when window rotation is finisehd and WindowRotationCompleted() is called.

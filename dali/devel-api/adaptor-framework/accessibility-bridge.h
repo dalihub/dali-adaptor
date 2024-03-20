@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ACCESSIBILITY_BRIDGE_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/actor.h>
-#include <dali/public-api/events/key-event.h>
 #include <dali/public-api/math/rect.h>
 #include <functional>
 #include <memory>
@@ -365,11 +364,14 @@ struct DALI_ADAPTOR_API Bridge
    * Screen-reader might receive this event and reply, that given keycode is consumed. In that case
    * further processing of the keycode should be ignored.
    *
-   * @param[in] keyEvent The key event
-   * @param[in] callback Notification if the event was consumed
-   * @return true if the event was emitted
-   */
-  virtual bool EmitKeyEvent(Dali::KeyEvent keyEvent, std::function<void(Dali::KeyEvent, bool)> callback) = 0;
+   * @param[in] type Key event type
+   * @param[in] keyCode Key code
+   * @param[in] keyName Key name
+   * @param[in] timeStamp Time stamp
+   * @param[in] isText Whether it's text or not
+   * @return Whether this event is consumed or not
+   **/
+  virtual Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) = 0;
 
   /**
    * @brief Reads given text by screen reader

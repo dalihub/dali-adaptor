@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_DUMMY_ATSPI_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,9 +174,9 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  bool EmitKeyEvent(Dali::KeyEvent keyEvent, std::function<void(Dali::KeyEvent, bool)> callback) override
+  Accessibility::Consumed Emit(Accessibility::KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
-    return false;
+    return Accessibility::Consumed::YES;
   }
 
   void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override

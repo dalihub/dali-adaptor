@@ -594,6 +594,26 @@ private:
 };
 
 /**
+ * @brief Enumeration describing type of key event
+ * @see Adaptor::AccessibilityObserver::OnAccessibleKeyEvent
+ */
+enum class KeyEventType
+{
+  KEY_PRESSED,
+  KEY_RELEASED,
+};
+
+/**
+ * @brief Enumeration with human readable values describing state of event
+ * @see Dali::Accessibility::Bridge::Emit
+ */
+enum class Consumed
+{
+  NO,
+  YES
+};
+
+/**
  * @brief Helper class representing two dimensional point with integer coordinates
  */
 struct DALI_ADAPTOR_API Point

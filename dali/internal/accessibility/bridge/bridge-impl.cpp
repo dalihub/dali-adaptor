@@ -94,43 +94,43 @@ public:
   BridgeImpl() = default;
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::EmitKeyEvent()
+   * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  bool EmitKeyEvent(Dali::KeyEvent keyEvent, std::function<void(Dali::KeyEvent, bool)> callback) override
+  Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
   {
-    using ArgumentTypes = std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>;
-
-    static const char* methodName = "NotifyListenersSync";
-
     if(!IsUp())
     {
-      return false;
+      return Consumed::NO;
     }
 
-    uint32_t keyType   = (keyEvent.GetState() == Dali::KeyEvent::DOWN ? 0U : 1U);
-    auto     timeStamp = static_cast<std::int32_t>(keyEvent.GetTime());
-    bool     isText    = !keyEvent.GetKeyString().empty();
+    unsigned int keyType = 0;
 
-    ArgumentTypes arguments(keyType, 0, keyEvent.GetKeyCode(), 0, timeStamp, keyEvent.GetKeyName(), isText);
-
-    auto functor = [keyEvent = std::move(keyEvent), callback = std::move(callback)](DBus::ValueOrError<bool> reply) {
-      bool consumed = false;
-
-      if(!reply)
+    switch(type)
+    {
+      case KeyEventType::KEY_PRESSED:
       {
-        DALI_LOG_ERROR("%s call failed: %s", methodName, reply.getError().message.c_str());
+        keyType = 0;
+        break;
       }
-      else
+      case KeyEventType::KEY_RELEASED:
       {
-        consumed = std::get<0>(reply.getValues());
+        keyType = 1;
+        break;
       }
+      default:
+      {
+        return Consumed::NO;
+      }
+    }
 
-      callback(std::move(keyEvent), consumed);
-    };
-
-    mRegistryClient.method<bool(ArgumentTypes)>(methodName).asyncCall(std::move(functor), arguments);
-
-    return true;
+    auto methodObject = mRegistryClient.method<bool(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>)>("NotifyListenersSync");
+    auto result       = methodObject.call(std::tuple<uint32_t, int32_t, int32_t, int32_t, int32_t, std::string, bool>{keyType, 0, static_cast<int32_t>(keyCode), 0, static_cast<int32_t>(timeStamp), keyName, isText ? 1 : 0});
+    if(!result)
+    {
+      LOG() << result.getError().message;
+      return Consumed::NO;
+    }
+    return std::get<0>(result) ? Consumed::YES : Consumed::NO;
   }
 
   /**

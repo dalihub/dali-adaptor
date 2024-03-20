@@ -50,6 +50,11 @@ namespace Dali
 {
 class RenderSurfaceInterface;
 
+namespace Accessibility
+{
+class Bridge;
+}
+
 namespace Integration
 {
 class Core;
@@ -746,6 +751,13 @@ private:                                          // Data
   Dali::LayoutDirection::Type      mRootLayoutDirection;         ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
+
+  class AccessibilityObserver : public ConnectionTracker
+  {
+  public:
+    void OnAccessibleKeyEvent(const Dali::KeyEvent& event);
+  };
+  AccessibilityObserver mAccessibilityObserver;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor)
