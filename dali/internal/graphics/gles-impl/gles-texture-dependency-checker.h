@@ -17,6 +17,10 @@
  * limitations under the License.
  */
 
+// EXTERNAL INCLUDES
+#include <cstddef>
+
+// INTERNAL INCLUDES
 #include <dali/public-api/common/vector-wrapper.h>
 
 namespace Dali::Graphics
