@@ -583,7 +583,9 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
     Dali::Window::WindowPosition position = window.GetPosition();
     Dali::Window::WindowSize     size     = window.GetSize();
 
-    bool currentInside = IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
+
+    bool currentInside = IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
 
     // Calculate Drag Enter, Leave, Move Event
     if(currentInside && !mDropWindowTargets[i].inside)
