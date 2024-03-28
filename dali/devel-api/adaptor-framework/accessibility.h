@@ -18,8 +18,8 @@
  */
 
 // EXTERNAL INCLUDES
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
@@ -500,11 +500,11 @@ enum class AtspiEvent
   MAX_COUNT
 };
 
-using AtspiInterfaces   = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
-using AtspiEvents       = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
-using ReadingInfoTypes  = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
-using States            = EnumBitSet<State, State::MAX_COUNT>;
-using Attributes        = std::unordered_map<std::string, std::string>;
+using AtspiInterfaces  = EnumBitSet<AtspiInterface, AtspiInterface::MAX_COUNT>;
+using AtspiEvents      = EnumBitSet<AtspiEvent, AtspiEvent::MAX_COUNT>;
+using ReadingInfoTypes = EnumBitSet<ReadingInfoType, ReadingInfoType::MAX_COUNT>;
+using States           = EnumBitSet<State, State::MAX_COUNT>;
+using Attributes       = std::map<std::string, std::string>;
 
 namespace Internal
 {

@@ -22,8 +22,8 @@
 #include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
+#include <map>
 #include <string_view>
-#include <unordered_map>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
@@ -63,7 +63,7 @@ std::string Accessible::GetLocalizedRoleName() const
 
 std::string Accessible::GetRoleName() const
 {
-  static const std::unordered_map<Role, std::string_view> roleMap{
+  static const std::map<Role, std::string_view> roleMap{
     {Role::INVALID, "invalid"},
     {Role::ACCELERATOR_LABEL, "accelerator label"},
     {Role::ALERT, "alert"},
@@ -253,7 +253,7 @@ AtspiInterfaces Accessible::DoGetInterfaces() const
 
 std::string Accessible::GetInterfaceName(AtspiInterface interface)
 {
-  static const std::unordered_map<AtspiInterface, std::string_view> interfaceMap{
+  static const std::map<AtspiInterface, std::string_view> interfaceMap{
     {AtspiInterface::ACCESSIBLE, "org.a11y.atspi.Accessible"},
     {AtspiInterface::ACTION, "org.a11y.atspi.Action"},
     {AtspiInterface::APPLICATION, "org.a11y.atspi.Application"},
@@ -521,7 +521,7 @@ public:
 
 }; // AdaptorAccessible
 
-using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
+using AdaptorAccessiblesType = std::map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible>>;
 
 // Save RefObject from an Actor in Accessible::Get()
 AdaptorAccessiblesType gAdaptorAccessibles;

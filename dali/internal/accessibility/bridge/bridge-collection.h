@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <array>
 #include <tuple>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 // INTERNAL INCLUDES
@@ -79,7 +79,7 @@ public:
   using MatchRule = std::tuple<
     std::array<int32_t, 2>,
     int32_t,
-    std::unordered_map<std::string, std::string>,
+    std::map<std::string, std::string>,
     int32_t,
     std::array<int32_t, 4>,
     int32_t,

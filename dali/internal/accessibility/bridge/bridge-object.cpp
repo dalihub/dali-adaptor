@@ -22,7 +22,7 @@
 #include <iostream>
 #include <string>
 #include <string_view>
-#include <unordered_map>
+#include <map>
 
 using namespace Dali::Accessibility;
 
@@ -68,7 +68,7 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
 
 void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 {
-  static const std::unordered_map<ObjectPropertyChangeEvent, std::string_view> eventMap{
+  static const std::map<ObjectPropertyChangeEvent, std::string_view> eventMap{
     {ObjectPropertyChangeEvent::NAME, "accessible-name"},
     {ObjectPropertyChangeEvent::DESCRIPTION, "accessible-description"},
     {ObjectPropertyChangeEvent::VALUE, "accessible-value"},
@@ -99,7 +99,7 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 
 void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 {
-  static const std::unordered_map<WindowEvent, std::string_view> eventMap{
+  static const std::map<WindowEvent, std::string_view> eventMap{
     {WindowEvent::PROPERTY_CHANGE, "PropertyChange"},
     {WindowEvent::MINIMIZE, "Minimize"},
     {WindowEvent::MAXIMIZE, "Maximize"},
@@ -145,7 +145,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
 
 void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, int reserved)
 {
-  static const std::unordered_map<State, std::string_view> stateMap{
+  static const std::map<State, std::string_view> stateMap{
     {State::INVALID, "invalid"},
     {State::ACTIVE, "active"},
     {State::ARMED, "armed"},
@@ -258,7 +258,7 @@ void BridgeObject::EmitCursorMoved(Accessible* obj, unsigned int cursorPosition)
 
 void BridgeObject::EmitTextChanged(Accessible* obj, TextChangedState state, unsigned int position, unsigned int length, const std::string& content)
 {
-  static const std::unordered_map<TextChangedState, std::string_view> stateMap{
+  static const std::map<TextChangedState, std::string_view> stateMap{
     {TextChangedState::INSERTED, "insert"},
     {TextChangedState::DELETED, "delete"},
   };

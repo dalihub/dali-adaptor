@@ -1009,9 +1009,9 @@ DBus::ValueOrError<std::array<uint32_t, 2>> BridgeAccessible::GetStates()
   return FindSelf()->GetStates().GetRawData();
 }
 
-DBus::ValueOrError<std::unordered_map<std::string, std::string>> BridgeAccessible::GetAttributes()
+DBus::ValueOrError<std::map<std::string, std::string>> BridgeAccessible::GetAttributes()
 {
-  std::unordered_map<std::string, std::string> attributes = FindSelf()->GetAttributes();
+  std::map<std::string, std::string> attributes = FindSelf()->GetAttributes();
 
   if(mIsScreenReaderSuppressed)
   {
@@ -1045,7 +1045,7 @@ std::string BridgeAccessible::GetName()
   return FindSelf()->GetName();
 }
 
-DBus::ValueOrError<Accessible*, uint32_t, std::unordered_map<std::string, std::string>> BridgeAccessible::GetDefaultLabelInfo()
+DBus::ValueOrError<Accessible*, uint32_t, std::map<std::string, std::string>> BridgeAccessible::GetDefaultLabelInfo()
 {
   auto* defaultLabel = GetDefaultLabel(FindSelf());
   DALI_ASSERT_DEBUG(defaultLabel);

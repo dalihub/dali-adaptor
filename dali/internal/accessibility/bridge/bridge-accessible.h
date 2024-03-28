@@ -20,8 +20,8 @@
 
 // EXTERNAL INCLUDES
 #include <array>
+#include <map>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 // INTERNAL INCLUDES
@@ -65,10 +65,10 @@ public:
   };
 
   using ReadingMaterialType = DBus::ValueOrError<
-    std::unordered_map<std::string, std::string>, // attributes
-    std::string,                                  // name
-    std::string,                                  // labeledByName
-    std::string,                                  // textIfceName
+    std::map<std::string, std::string>, // attributes
+    std::string,                        // name
+    std::string,                        // labeledByName
+    std::string,                        // textIfceName
     uint32_t,
     Dali::Accessibility::States,
     std::string,                      // localized name
@@ -96,7 +96,7 @@ public:
     std::string,                                    // role name
     std::string,                                    // name
     std::string,                                    // toolkit name
-    std::unordered_map<std::string, std::string>,   // attributes
+    std::map<std::string, std::string>,             // attributes
     Dali::Accessibility::States,                    // states
     std::tuple<int32_t, int32_t, int32_t, int32_t>, // screen extents
     std::tuple<int32_t, int32_t, int32_t, int32_t>, // window extents
@@ -166,7 +166,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Accessible::GetAttributes()
    */
-  DBus::ValueOrError<std::unordered_map<std::string, std::string>> GetAttributes();
+  DBus::ValueOrError<std::map<std::string, std::string>> GetAttributes();
 
   /**
    * @copydoc Dali::Accessibility::Accessible::GetInterfacesAsStrings()
@@ -204,7 +204,7 @@ public:
    * @note This is a Tizen only feature not present in upstream ATSPI.
    * Feature can be enabled/disabled for particular context root object by setting value of its accessibility attribute "default_label".
    */
-  DBus::ValueOrError<Dali::Accessibility::Accessible*, uint32_t, std::unordered_map<std::string, std::string>> GetDefaultLabelInfo();
+  DBus::ValueOrError<Dali::Accessibility::Accessible*, uint32_t, std::map<std::string, std::string>> GetDefaultLabelInfo();
 
   /**
    * @brief Gets Reading material information of the self object.

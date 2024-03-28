@@ -305,7 +305,7 @@ struct hash<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>>
  */
 class BridgeBase : public Dali::Accessibility::Bridge, public Dali::ConnectionTracker
 {
-  std::unordered_map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::tuple<unsigned int, unsigned int, std::function<void()>>> mCoalescableMessages;
+  std::map<std::pair<CoalescableMessages, Dali::Accessibility::Accessible*>, std::tuple<unsigned int, unsigned int, std::function<void()>>> mCoalescableMessages;
 
   /**
    * @brief Removes all CoalescableMessages using Tick signal.

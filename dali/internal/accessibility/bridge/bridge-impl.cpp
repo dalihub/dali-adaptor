@@ -22,7 +22,7 @@
 #include <dali/integration-api/debug.h>
 #include <dali/public-api/actors/layer.h>
 #include <iostream>
-#include <unordered_map>
+#include <map>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
@@ -77,21 +77,21 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeTable,
                    public BridgeTableCell
 {
-  DBus::DBusClient                                              mAccessibilityStatusClient;
-  DBus::DBusClient                                              mRegistryClient;
-  DBus::DBusClient                                              mDirectReadingClient;
-  bool                                                          mIsScreenReaderEnabled = false;
-  bool                                                          mIsEnabled             = false;
-  bool                                                          mIsApplicationRunning  = false;
-  std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
-  Dali::Actor                                                   mHighlightedActor;
-  std::function<void(Dali::Actor)>                              mHighlightClearAction;
-  Dali::CallbackBase*                                           mIdleCallback          = NULL;
-  Dali::Timer                                                   mInitializeTimer;
-  Dali::Timer                                                   mReadIsEnabledTimer;
-  Dali::Timer                                                   mReadScreenReaderEnabledTimer;
-  Dali::Timer                                                   mForceUpTimer;
-  std::string                                                   mPreferredBusName;
+  DBus::DBusClient                                    mAccessibilityStatusClient;
+  DBus::DBusClient                                    mRegistryClient;
+  DBus::DBusClient                                    mDirectReadingClient;
+  bool                                                mIsScreenReaderEnabled = false;
+  bool                                                mIsEnabled             = false;
+  bool                                                mIsApplicationRunning  = false;
+  std::map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
+  Dali::Actor                                         mHighlightedActor;
+  std::function<void(Dali::Actor)>                    mHighlightClearAction;
+  Dali::CallbackBase*                                 mIdleCallback          = NULL;
+  Dali::Timer                                         mInitializeTimer;
+  Dali::Timer                                         mReadIsEnabledTimer;
+  Dali::Timer                                         mReadScreenReaderEnabledTimer;
+  Dali::Timer                                         mForceUpTimer;
+  std::string                                         mPreferredBusName;
 
 public:
   BridgeImpl()

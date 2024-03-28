@@ -20,7 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <algorithm>
-#include <unordered_set>
+#include <set>
 #include <vector>
 
 using namespace Dali::Accessibility;
@@ -109,7 +109,7 @@ struct BridgeCollection::Comparer
    */
   struct ComparerInterfaces
   {
-    std::unordered_set<std::string> mObject;
+    std::set<std::string> mObject;
     std::vector<std::string>        mRequested;
     Mode                            mMode = Mode::INVALID;
 
@@ -163,9 +163,9 @@ struct BridgeCollection::Comparer
    */
   struct ComparerAttributes
   {
-    std::unordered_map<std::string, std::string> mRequested;
-    std::unordered_map<std::string, std::string> mObject;
-    Mode                                         mMode = Mode::INVALID;
+    std::map<std::string, std::string> mRequested;
+    std::map<std::string, std::string> mObject;
+    Mode                               mMode = Mode::INVALID;
 
     ComparerAttributes(MatchRule* rule)
     : mMode(ConvertToMatchType(std::get<static_cast<std::size_t>(Index::ATTRIBUTES_MATCH_TYPE)>(*rule)))
