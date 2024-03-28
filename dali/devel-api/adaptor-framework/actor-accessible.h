@@ -146,6 +146,11 @@ protected:
    */
   virtual void DoGetChildren(std::vector<Accessible*>& children);
 
+  /**
+   * @copydoc Dali::Accessibility::Accessible::UpdateAttributes()
+   */
+  void UpdateAttributes(Attributes& attributes) const override;
+
 private:
   // Extra overload for OnChildrenChanged() to connect to signals directly
   void OnChildrenChanged(Dali::Actor);

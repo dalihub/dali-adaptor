@@ -23,6 +23,7 @@
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
 #include <map>
+#include <sstream>
 #include <string_view>
 
 // INTERNAL INCLUDES
@@ -195,6 +196,79 @@ std::string Accessible::GetRoleName() const
   }
 
   return std::string{it->second};
+}
+
+void Accessible::UpdateAttributes(Attributes& attributes) const
+{
+  using MapType = std::map<ReadingInfoType, std::string_view>;
+
+  static const std::string readingInfoTypeKey = "reading_info_type";
+  static const char        separator          = '|';
+  static const MapType     readingInfoTypeMap{
+    {ReadingInfoType::NAME, "name"},
+    {ReadingInfoType::ROLE, "role"},
+    {ReadingInfoType::DESCRIPTION, "description"},
+    {ReadingInfoType::STATE, "state"},
+  };
+
+  bool allEnabled = mReadingInfoTypes[ReadingInfoType::NAME]
+    && mReadingInfoTypes[ReadingInfoType::ROLE]
+    && mReadingInfoTypes[ReadingInfoType::DESCRIPTION]
+    && mReadingInfoTypes[ReadingInfoType::STATE];
+
+  if(DALI_LIKELY(allEnabled))
+  {
+    attributes.erase(readingInfoTypeKey);
+    return;
+  }
+
+  std::stringstream buf;
+  for(auto& item : readingInfoTypeMap)
+  {
+    if(mReadingInfoTypes[item.first])
+    {
+      if(buf.tellp()) // non-empty
+      {
+        buf << separator;
+      }
+
+      buf << item.second;
+    }
+  }
+
+  attributes.insert_or_assign(readingInfoTypeKey, buf.str());
+}
+
+const Attributes& Accessible::GetAttributes() const
+{
+  UpdateAttributes(mAttributes);
+
+  return mAttributes;
+}
+
+bool Accessible::SetAttribute(const std::string& key, const std::string& value)
+{
+  return mAttributes.insert_or_assign(key, value).second;
+}
+
+bool Accessible::UnsetAttribute(const std::string& key)
+{
+  return (mAttributes.erase(key) > 0);
+}
+
+void Accessible::ClearAttributes()
+{
+  mAttributes.clear();
+}
+
+ReadingInfoTypes Accessible::GetReadingInfoTypes() const
+{
+  return mReadingInfoTypes;
+}
+
+void Accessible::SetReadingInfoTypes(ReadingInfoTypes types)
+{
+  mReadingInfoTypes = types;
 }
 
 AtspiInterfaces Accessible::GetInterfaces() const
@@ -459,22 +533,19 @@ public:
     return state;
   }
 
-  Attributes GetAttributes() const override
+  void UpdateAttributes(Attributes& attributes) const override
   {
-    Attributes attributes;
+    static const std::string resIDKey = "resID";
 
-    if(mRoot)
+    ActorAccessible::UpdateAttributes(attributes);
+
+    if(mRoot && attributes.find(resIDKey) == attributes.end())
     {
       Dali::Window window                         = Dali::DevelWindow::Get(Self());
       Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
-      attributes["resID"]                         = windowImpl.GetNativeResourceId();
+
+      attributes.emplace(resIDKey, windowImpl.GetNativeResourceId());
     }
-
-    Dali::TypeInfo type;
-    Self().GetTypeInfo(type);
-    attributes["class"] = type.GetName();
-
-    return attributes;
   }
 
   bool DoGesture(const GestureInfo& gestureInfo) override

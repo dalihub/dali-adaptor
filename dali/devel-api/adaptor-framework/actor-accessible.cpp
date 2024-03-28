@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
+#include <dali/public-api/object/type-info.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -174,6 +175,23 @@ void ActorAccessible::DoGetChildren(std::vector<Accessible*>& children)
   for(auto i = 0u; i < childCount; ++i)
   {
     children.push_back(Accessible::Get(self.GetChildAt(i)));
+  }
+}
+
+void ActorAccessible::UpdateAttributes(Attributes& attributes) const
+{
+  static const std::string classKey = "class";
+
+  Accessible::UpdateAttributes(attributes);
+
+  if(attributes.find(classKey) == attributes.end())
+  {
+    Dali::TypeInfo typeInfo;
+    Self().GetTypeInfo(typeInfo);
+    if(typeInfo)
+    {
+      attributes.emplace(classKey, typeInfo.GetName());
+    }
   }
 }
 

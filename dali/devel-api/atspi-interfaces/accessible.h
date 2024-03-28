@@ -250,9 +250,73 @@ public:
   /**
    * @brief Gets accessibility attributes.
    *
+   * Attributes are key-value string pairs which can be used to transfer arbitrary
+   * information from the application to a client such as a screen reader or an
+   * automation framework.
+   *
+   * Typically, attributes are used when the data does not fit any other category
+   * with a dedicated API (name, description, states etc.).
+   *
+   * @see Accessible::SetAttribute()
+   * @see Accessible::UnsetAttribute()
+   * @see Accessible::ClearAttributes()
+   * @see Accessible::UpdateAttributes()
+   *
    * @return The map of attributes and their values
    */
-  virtual Attributes GetAttributes() const = 0;
+  const Attributes& GetAttributes() const;
+
+  /**
+   * @brief Sets an attribute
+   *
+   * The key will be created if necessary and the old attribute value (if any) will be replaced.
+   *
+   * @param[in] key Attribute key
+   * @param[in] value Attribute value
+   *
+   * @return True if the key was created, false otherwise (only value was updated)
+   */
+  bool SetAttribute(const std::string& key, const std::string& value);
+
+  /**
+   * @brief Unsets an attribute
+   *
+   * The key-value pair is removed from the attribute collection.
+   *
+   * @param[in] key Attribute key
+   *
+   * @return True if there was such a key, false otherwise
+   */
+  bool UnsetAttribute(const std::string& key);
+
+  /**
+   * @brief Unsets all attributes
+   *
+   * @see Accessible::UnsetAttribute()
+   */
+  void ClearAttributes();
+
+  /**
+   * @brief Gets the reading info types
+   *
+   * @return Reading info types bitmask
+   * @see Accessible::SetReadingInfoTypes()
+   */
+  ReadingInfoTypes GetReadingInfoTypes() const;
+
+  /**
+   * @brief Sets the reading info types
+   *
+   * The reading info types are individual pieces of information (name, role etc.)
+   * that can be read by the screen reader. This method can be used to enable and
+   * disable reading specific pieces.
+   *
+   * @param[in] types Reading info types bitmask
+   *
+   * @note The types will appear in GetAttributes() under the "reading_info_type" key.
+   * @see Accessible::GetAttributes()
+   */
+  void SetReadingInfoTypes(ReadingInfoTypes types);
 
   /**
    * @brief Checks if this is hidden.
@@ -398,6 +462,21 @@ protected:
    */
   virtual AtspiInterfaces DoGetInterfaces() const;
 
+  /**
+   * @brief Updates the attribute collection
+   *
+   * This method, which is always called by GetAttributes(), can be overriden to
+   * provide lazily-calculated or dynamically-calculated (i.e. non-constant)
+   * attributes. When overriding, make sure to call the base class implementation
+   * first.
+   *
+   * @note The attribute collection is non-empty on entry
+   * @see Accessible::GetAttributes()
+   *
+   * @param[inout] attributes The attribute collection to update
+   */
+  virtual void UpdateAttributes(Attributes& attributes) const;
+
 public:
   /**
    * @brief Gets the highlight actor.
@@ -484,9 +563,10 @@ private:
 
   mutable std::weak_ptr<Bridge::Data> mBridgeData;
   mutable AtspiInterfaces             mInterfaces;
+  mutable Attributes                  mAttributes;
+  ReadingInfoTypes                    mReadingInfoTypes = ~ReadingInfoTypes(); // all set
   AtspiEvents                         mSuppressedEvents;
   bool                                mIsOnRootLevel = false;
-
 }; // Accessible class
 
 namespace Internal

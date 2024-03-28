@@ -104,11 +104,6 @@ public:
     return {};
   }
 
-  Attributes GetAttributes() const override
-  {
-    return {};
-  }
-
   bool IsProxy() const override
   {
     return true;

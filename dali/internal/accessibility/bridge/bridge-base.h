@@ -116,11 +116,6 @@ public:
     return result;
   }
 
-  Dali::Accessibility::Attributes GetAttributes() const override
-  {
-    return {};
-  }
-
   /**
    * @brief Gets the Accessible object from the window.
    *
