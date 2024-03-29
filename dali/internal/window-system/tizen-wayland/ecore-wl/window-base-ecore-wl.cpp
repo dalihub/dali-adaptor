@@ -903,10 +903,21 @@ void WindowBaseEcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
 
   if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
   {
+    Device::Class::Type    deviceClass;
+    Device::Subclass::Type deviceSubclass;
+
+    GetDeviceClass(ecore_device_class_get(touchEvent->dev), deviceClass);
+    GetDeviceSubclass(ecore_device_subclass_get(touchEvent->dev), deviceSubclass);
+
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
     point.SetState(PointState::INTERRUPTED);
-    point.SetScreenPosition(Vector2(0.0f, 0.0f));
+    point.SetScreenPosition(Vector2(touchEvent->x, touchEvent->y));
+    point.SetRadius(touchEvent->multi.radius, Vector2(touchEvent->multi.radius_x, touchEvent->multi.radius_y));
+    point.SetPressure(touchEvent->multi.pressure);
+    point.SetAngle(Degree(touchEvent->multi.angle));
+    point.SetDeviceClass(deviceClass);
+    point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 
