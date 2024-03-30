@@ -58,7 +58,9 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 {
   if(start)
   {
+#ifdef DALI_PROFILE_TV
     traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
+#endif // DALI_PROFILE_TV
 
     if(gTraceManagerEnablePrintLog)
     {
@@ -67,7 +69,9 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
   }
   else
   {
+#ifdef DALI_PROFILE_TV
     traceEnd(TTRACE_TAG_GRAPHICS);
+#endif // DALI_PROFILE_TV
 
     if(gTraceManagerEnablePrintLog)
     {
