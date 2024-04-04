@@ -77,7 +77,14 @@ TimerEcore::TimerEcore(uint32_t milliSec)
 
 TimerEcore::~TimerEcore()
 {
-  ResetTimerData();
+  try
+  {
+    ResetTimerData();
+  }
+  catch(std::bad_weak_ptr const& ex)
+  {
+    DALI_LOG_ERROR("TimerEcore::~TimerEcore() - std::bad_weak_ptr caught: %s\n", ex.what());
+  }
   delete mImpl;
 }
 

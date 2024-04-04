@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <dali/internal/system/linux/dali-ecore.h>
+#include <memory>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
@@ -129,7 +130,14 @@ FileDescriptorMonitorEcore::~FileDescriptorMonitorEcore()
 {
   if(mImpl->mHandler)
   {
-    ecore_main_fd_handler_del(mImpl->mHandler);
+    try
+    {
+      ecore_main_fd_handler_del(mImpl->mHandler);
+    }
+    catch(std::bad_weak_ptr const& ex)
+    {
+      DALI_LOG_ERROR("FileDescriptorMonitorEcore::~FileDescriptorMonitorEcore() - std::bad_weak_ptr caught: %s\n", ex.what());
+    }
   }
 
   delete mImpl;
