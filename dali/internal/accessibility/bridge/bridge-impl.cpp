@@ -80,6 +80,7 @@ class BridgeImpl : public virtual BridgeBase,
   DBus::DBusClient                                              mDirectReadingClient{};
   bool                                                          mIsScreenReaderEnabled{false};
   bool                                                          mIsEnabled{false};
+  bool                                                          mIsApplicationRunning{false};
   std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks{};
   Dali::Actor                                                   mHighlightedActor;
   std::function<void(Dali::Actor)>                              mHighlightClearAction{nullptr};
@@ -577,6 +578,24 @@ public:
   }
 
   /**
+   * @copydoc Dali::Accessibility::Bridge::ApplicationPaused()
+   */
+  void ApplicationPaused() override
+  {
+    mIsApplicationRunning = false;
+    SwitchBridge();
+  }
+
+  /**
+   * @copydoc Dali::Accessibility::Bridge::ApplicationResumed()
+   */
+  void ApplicationResumed() override
+  {
+    mIsApplicationRunning = true;
+    SwitchBridge();
+  }
+
+  /**
    * @copydoc Dali::Accessibility::Bridge::SuppressScreenReader()
    */
   void SuppressScreenReader(bool suppress) override
@@ -591,7 +610,9 @@ public:
 
   void SwitchBridge()
   {
-    if((!mIsScreenReaderSuppressed && mIsScreenReaderEnabled) || mIsEnabled)
+    bool isScreenReaderEnabled = mIsScreenReaderEnabled && !mIsScreenReaderSuppressed;
+
+    if((isScreenReaderEnabled || mIsEnabled) && mIsApplicationRunning)
     {
       ForceUp();
     }

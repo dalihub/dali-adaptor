@@ -218,6 +218,16 @@ struct DALI_ADAPTOR_API Bridge
   virtual void WindowMaximized(Window window) = 0;
 
   /**
+   * @brief Tells the bridge that the application is not running
+   */
+  virtual void ApplicationPaused() = 0;
+
+  /**
+   * @brief Tells the bridge that the application is running
+    */
+  virtual void ApplicationResumed() = 0;
+
+  /**
    * @brief Initializes accessibility bus.
    */
   virtual void Initialize() = 0;
