@@ -97,6 +97,14 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void ApplicationPaused() override
+  {
+  }
+
+  void ApplicationResumed() override
+  {
+  }
+
   void Initialize() override
   {
   }
