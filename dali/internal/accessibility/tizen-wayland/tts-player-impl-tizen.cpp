@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,18 +87,25 @@ TtsPlayerTizen::~TtsPlayerTizen()
   // If it is playing, stop it
   Stop();
 
-  // Unset the callback funtion for TTS state change
-  int retVal = tts_unset_state_changed_cb(mTtsHandle);
-  if(retVal != TTS_ERROR_NONE)
+  try
   {
-    LogErrorCode(static_cast<tts_error_e>(retVal));
-  }
+    // Unset the callback funtion for TTS state change
+    int retVal = tts_unset_state_changed_cb(mTtsHandle);
+    if(retVal != TTS_ERROR_NONE)
+    {
+      LogErrorCode(static_cast<tts_error_e>(retVal));
+    }
 
-  // Destroy the TTS handle and disconnects the daemon
-  retVal = tts_destroy(mTtsHandle);
-  if(retVal != TTS_ERROR_NONE)
+    // Destroy the TTS handle and disconnects the daemon
+    retVal = tts_destroy(mTtsHandle);
+    if(retVal != TTS_ERROR_NONE)
+    {
+      LogErrorCode(static_cast<tts_error_e>(retVal));
+    }
+  }
+  catch(std::bad_weak_ptr const& ex)
   {
-    LogErrorCode(static_cast<tts_error_e>(retVal));
+    DALI_LOG_ERROR("TtsPlayerTizen::~TtsPlayerTizen() - std::bad_weak_ptr caught: %s\n", ex.what());
   }
 }
 
