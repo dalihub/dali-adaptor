@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_DISPLAY_CONNECTION_IMPL_ECORE_X_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,23 +24,15 @@
 
 namespace Dali
 {
-
 class DisplayConnection;
 
-namespace Internal
+namespace Internal::Adaptor
 {
-
-namespace Adaptor
-{
-
-
 class Impl
 {
 public:
-
-  XDisplay*  mDisplay;        ///< X-display for rendering
+  XDisplay* mDisplay; ///< X-display for rendering
 };
-
 
 /**
  * DisplayConnection implementation
@@ -48,7 +40,6 @@ public:
 class DisplayConnectionX11 : public Dali::Internal::Adaptor::DisplayConnection
 {
 public:
-
   /**
    * @brief Default constructor
    */
@@ -62,7 +53,6 @@ public:
   static DisplayConnection* New();
 
 public:
-
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
@@ -74,28 +64,15 @@ public:
   void ConsumeEvents() override;
 
   /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  bool InitializeGraphics() override;
-
-  /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
    */
-  void SetSurfaceType( Integration::RenderSurface::Type type ) override;
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
-   */
-  void SetGraphicsInterface( Graphics::GraphicsInterface& graphics ) override;
+  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) override;
 
 public:
-
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionX11();
-
-protected:
+  ~DisplayConnectionX11() override;
 
   // Undefined
   DisplayConnectionX11(const DisplayConnectionX11&) = delete;
@@ -103,19 +80,11 @@ protected:
   // Undefined
   DisplayConnectionX11& operator=(const DisplayConnectionX11& rhs) = delete;
 
-private:
-
-  Graphics::GraphicsInterface* mGraphics; ///< The graphics interface
-
 public:
-
-  XDisplay*  mDisplay;        ///< X-display for rendering
-
+  XDisplay* mDisplay; ///< X-display for rendering
 };
 
-} // namespace Adaptor
-
-} // namespace internal
+} // namespace Internal::Adaptor
 
 } // namespace Dali
 

@@ -34,16 +34,16 @@ void LogMessage(Dali::Integration::Log::DebugPriority level, std::string& messag
 
   switch(level)
   {
-    case Dali::Integration::Log::DEBUG:
+    case Dali::Integration::Log::DebugDebug:
       print_log(DLOG_DEBUG, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::INFO:
+    case Dali::Integration::Log::DebugInfo:
       print_log(DLOG_INFO, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::WARNING:
+    case Dali::Integration::Log::DebugWarning:
       print_log(DLOG_WARN, DALI_TAG, "%s", message.c_str());
       break;
-    case Dali::Integration::Log::ERROR:
+    case Dali::Integration::Log::DebugError:
       print_log(DLOG_ERROR, DALI_TAG, "%s", message.c_str());
       break;
     default:

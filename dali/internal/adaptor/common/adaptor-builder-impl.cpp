@@ -25,7 +25,7 @@
 #if defined(VULKAN_ENABLED)
 #include <dali/graphics/vulkan/vulkan-graphics-factory.h>
 #else
-#include <dali/internal/graphics/gles20/egl-graphics-factory.h>
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #endif
 
 namespace Dali
@@ -49,15 +49,16 @@ AdaptorBuilder& AdaptorBuilder::Get(EnvironmentOptions& environmentOptions)
 }
 
 AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
-: mEnvironmentOptions( environmentOptions )
+: mGraphicsFactory(nullptr),
+  mEnvironmentOptions( environmentOptions )
 {
   // Construct Graphics Factory
   mGraphicsFactory = Utils::MakeUnique< GraphicsFactory >(environmentOptions);
 }
 
-GraphicsFactoryInterface& AdaptorBuilder::GetGraphicsFactory() const
+GraphicsFactory& AdaptorBuilder::GetGraphicsFactory() const
 {
-  return *mGraphicsFactory.get();
+  return *mGraphicsFactory;
 }
 
 } // namespace Adaptor

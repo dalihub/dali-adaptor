@@ -21,7 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/processor-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 
@@ -42,18 +42,12 @@ Debug::Filter* gSingletonServiceLogFilter = Debug::Filter::New( Debug::NoLogging
 
 #endif
 
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 namespace
 {
-thread_local SingletonService * gSingletonService = 0;
+thread_local SingletonService * gSingletonService = nullptr;
 } // unnamed namespace
 
 Dali::SingletonService SingletonService::New()
@@ -77,9 +71,9 @@ void SingletonService::Register( const std::type_info& info, BaseHandle singleto
   if( singleton )
   {
     DALI_LOG_SINGLETON_SERVICE( Debug::General, "Singleton Added: %s\n", info.name() );
-    mSingletonContainer.push_back( SingletonPair( info.name(), singleton ) );
+    mSingletonContainer.emplace_back( info.name(), singleton );
 
-    Integration::Processor* processor = dynamic_cast<Integration::Processor*>( &singleton.GetBaseObject() );
+    auto* processor = dynamic_cast<Integration::Processor*>( &singleton.GetBaseObject() );
     if( processor )
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
@@ -99,8 +93,8 @@ BaseHandle SingletonService::GetSingleton( const std::type_info& info ) const
 {
   BaseHandle object;
 
-  const SingletonContainer::const_iterator end = mSingletonContainer.end();
-  for( SingletonContainer::const_iterator iter = mSingletonContainer.begin(); iter != end; ++iter )
+  const auto end = mSingletonContainer.end();
+  for( auto iter = mSingletonContainer.begin(); iter != end; ++iter )
   {
     // comparing the addresses as these are allocated statically per library
     if( ( *iter ).first == info.name() )
@@ -125,13 +119,13 @@ SingletonService::SingletonService()
 
 SingletonService::~SingletonService()
 {
-  gSingletonService = 0;
+  gSingletonService = nullptr;
 
   DALI_LOG_SINGLETON_SERVICE_DIRECT( Debug::Concise, "SingletonService Destroyed\n" );
 }
 
-} // namespace Adaptor
+} // namespace Dali::Internal::Adaptor
 
-} // namespace Internal
 
-} // namespace Dali
+
+

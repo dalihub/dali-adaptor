@@ -27,15 +27,12 @@ namespace Dali
 
 namespace Internal
 {
-
 namespace Adaptor
 {
 
 class DALI_ADAPTOR_API GraphicsFactory : public GraphicsFactoryInterface
 {
 public:
-  typedef Dali::Rect<int> PositionSize;
-
   /**
    * Constructor
    */
@@ -49,7 +46,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  Graphics::GraphicsInterface& Create( PositionSize positionSize ) override;
+  GraphicsInterface& Create( PositionSize positionSize ) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()

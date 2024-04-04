@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_EGL_DEBUG_H__
-#define __DALI_INTERNAL_EGL_DEBUG_H__
+#ifndef DALI_INTERNAL_EGL_DEBUG_H
+#define DALI_INTERNAL_EGL_DEBUG_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,29 +18,24 @@
  *
  */
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include <dali/internal/graphics/common/egl-include.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace Egl
 {
+void PrintError(EGLint error);
 
-void PrintError( EGLint error);
+} // namespace Egl
 
-}  // namespace Egl
+} // namespace Adaptor
 
-}  // namespace Adaptor
+} // namespace Internal
 
-}  // namespace Internal
+} // namespace Dali
 
-}  // namespace Dali
-
-#endif //__DALI_INTERNAL_EGL_DEBUG_H__
+#endif //DALI_INTERNAL_EGL_DEBUG_H

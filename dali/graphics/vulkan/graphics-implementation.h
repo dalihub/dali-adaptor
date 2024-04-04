@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/graphics/surface-factory.h>
 
 // EXTERNAL INCLUDES
@@ -34,30 +34,24 @@ namespace Graphics
 /**
  * Graphics implementation class
  */
-class Graphics final : public Dali::Graphics::GraphicsInterface
+class Graphics final : public Dali::Internal::Adaptor::GraphicsInterface
 {
 public:
-  Graphics( const Dali::Graphics::GraphicsCreateInfo& info,
+  Graphics( const Internal::Adaptor::GraphicsCreateInfo& info,
             Integration::DepthBufferAvailable depthBufferAvailable,
             Integration::StencilBufferAvailable stencilBufferRequired );
 
   ~Graphics();
 
-  void Initialize() override;
+  void Initialize(const DisplayConnection& displayConnection) override;
+
+  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 
   /**
    * @param surfaceFactory
    * @return
    */
   std::unique_ptr<Dali::Graphics::Surface> CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory ) override;
-
-  /**
-   * When creating Graphics at least one surfaceFactory must be supplied ( no headless mode )
-   * @param surfaceFactory the surface factory.
-   *
-   * @note This should be called from the render thread
-   */
-  void Create() override;
 
   void Destroy() override;
 
@@ -76,11 +70,6 @@ public:
    * @return
    */
   Dali::Graphics::Controller& GetController() override;
-
-  /*
-   * Surface resized
-   */
-  void SurfaceResized( unsigned int width, unsigned int height ) override;
 
 private:
   Dali::Graphics::VulkanAPI::Controller mGraphicsController;

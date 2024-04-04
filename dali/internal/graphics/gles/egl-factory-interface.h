@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_EGL_FACTORY_INTERFACE_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,12 @@
 
 namespace Dali
 {
-
 class EglInterface;
 
 namespace Internal
 {
 namespace Adaptor
 {
-
 /**
  * Factory interface for creating EGL implementation
  */
@@ -49,11 +47,11 @@ protected:
   /**
    * Virtual protected destructor - no deletion through this interface
    */
-  virtual ~EglFactoryInterface() {};
+  virtual ~EglFactoryInterface(){};
 };
 
-} // Adaptor
-} // Internal
-} // Dali
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
 
 #endif // DALI_INTERNAL_BASE_EGL_FACTORY_INTERFACE_H

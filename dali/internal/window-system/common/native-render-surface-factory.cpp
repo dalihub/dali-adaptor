@@ -16,17 +16,16 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/native-render-surface.h>
-#include <dali/internal/window-system/common/render-surface-factory.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
+#include <dali/internal/window-system/common/render-surface-factory.h>
 
 namespace Dali
 {
-
-DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface( PositionSize positionSize, bool isTransparent )
+DALI_ADAPTOR_API NativeRenderSurface* CreateNativeSurface(PositionSize surfaceSize, Any surface, bool isTransparent)
 {
   auto renderSurfaceFactory = Dali::Internal::Adaptor::GetRenderSurfaceFactory();
-  auto nativeRenderSurface =  renderSurfaceFactory->CreateNativeRenderSurface( positionSize, isTransparent );
+  auto nativeRenderSurface  = renderSurfaceFactory->CreateNativeRenderSurface(surfaceSize, surface, isTransparent);
   return nativeRenderSurface.release();
 }
 

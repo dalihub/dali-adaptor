@@ -20,12 +20,7 @@
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
 
-namespace Dali
-{
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 InputMethodContextPtr InputMethodContext::New()
@@ -40,5 +35,5 @@ const std::string& InputMethodContext::GetSurroundingText() const
 }
 
 }
-}
-}
+
+

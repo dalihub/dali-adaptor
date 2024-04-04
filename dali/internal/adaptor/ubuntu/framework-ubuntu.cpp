@@ -61,10 +61,10 @@ struct Framework::Impl
   // Constructor
 
   Impl(void* data)
-  : mAbortCallBack( NULL ),
-    mCallbackManager( CallbackManager::New() ),
-    mLanguage( "NOT_SUPPORTED" ),
-    mRegion( "NOT_SUPPORTED" )
+  : mAbortCallBack(NULL),
+    mCallbackManager(CallbackManager::New()),
+    mLanguage("NOT_SUPPORTED"),
+    mRegion("NOT_SUPPORTED")
   {
   }
 
@@ -141,6 +141,7 @@ struct Framework::Impl
 Framework::Framework( Framework::Observer& observer, int *argc, char ***argv, Type type )
 : mObserver(observer),
   mInitialised(false),
+  mPaused(false),
   mRunning(false),
   mArgc(argc),
   mArgv(argv),
@@ -168,7 +169,7 @@ void Framework::Run()
   mRunning = true;
 
   efreet_cache_disable();
-  elm_init(*mArgc, *mArgv);
+  elm_init(mArgc ? *mArgc : 0, mArgv ? *mArgv : nullptr);
 
   Impl::AppCreate(this);
 

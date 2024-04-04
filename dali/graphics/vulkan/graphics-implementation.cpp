@@ -119,14 +119,7 @@ Dali::Graphics::Controller& Graphics::GetController()
   return mGraphicsController;
 }
 
-void Graphics::SurfaceResized( unsigned int width, unsigned int height )
-{
-  mCreateInfo.surfaceWidth = width;
-  mCreateInfo.surfaceHeight = height;
 
-  auto& graphicsImpl = mGraphicsController.GetGraphics();
-  graphicsImpl.SurfaceResized( width, height );
-}
 
 } // Namespace Graphics
 } // Namespace Dali

@@ -40,7 +40,7 @@ GraphicsFactory::~GraphicsFactory()
   /* Deleted by Adaptor destructor */
 }
 
-Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
+GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
 {
   auto depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ?
                               Integration::DepthBufferAvailable::TRUE :
@@ -53,7 +53,7 @@ Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSi
   uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1u : 0u;
   depthStencilMask |= uint32_t(mEnvironmentOptions.DepthBufferRequired()) ? 1u << 1u : 0u;
 
-  Graphics::GraphicsCreateInfo info;
+  GraphicsCreateInfo info;
   info.surfaceWidth = uint32_t( positionSize.width );
   info.surfaceHeight = uint32_t( positionSize.height );
   info.depthStencilMode = std::function<Graphics::DepthStencilMode()>(

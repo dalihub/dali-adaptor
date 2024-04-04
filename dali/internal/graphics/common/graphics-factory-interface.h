@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_FACTORY_INTERFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,45 +19,43 @@
  */
 
 // INTERNAL INCLUDES
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/graphics/graphics-interface.h>
 
 namespace Dali
 {
-namespace Internal
-{
-namespace Adaptor
-{
+class GraphicsInterface;
 
+namespace Internal::Adaptor
+{
 /**
  * Factory interface for creating Graphics Factory implementation
  */
 class GraphicsFactoryInterface
 {
 public:
-  typedef Dali::Rect<int> PositionSize;
-
   /**
    * Create a Graphics interface implementation
    * @return An implementation of the Graphics interface
    */
-  virtual Graphics::GraphicsInterface& Create(PositionSize) = 0;
+  virtual GraphicsInterface& Create(PositionSize size) = 0;
 
   /**
    * Destroy the Graphics Factory implementation
    */
   virtual void Destroy() = 0;
 
+protected:
   /**
-   * Virtual destructor
+   * Virtual protected destructor - no deletion through this interface
    */
-  virtual ~GraphicsFactoryInterface() = default;
+  virtual ~GraphicsFactoryInterface()=default;
 };
 
-} // Adaptor
+} // namespace Internal::Adaptor
 
-} // Internal
 
-} // Dali
+
+} // namespace Dali
 
 #endif // DALI_INTERNAL_BASE_GRAPHICS_FACTORY_INTERFACE_H

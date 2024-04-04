@@ -26,19 +26,12 @@ namespace Dali
 {
 class RenderSurfaceInterface;
 
-namespace Graphics
-{
-class GraphicsInterface;
-}
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Internal::Adaptor
 {
 class AdaptorInternalServices;
 class EnvironmentOptions;
 class ThreadControllerInterface;
+class GraphicsInterface;
 
 /**
  * Class to control all the threads.
@@ -50,7 +43,7 @@ public:
   /**
    * Constructor
    */
-  ThreadController( AdaptorInternalServices& adaptorInterfaces, Graphics::GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions );
+  ThreadController( AdaptorInternalServices& adaptorInterfaces, GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions );
 
   /**
    * Non virtual destructor. Not intended as base class.
@@ -138,9 +131,9 @@ private:
   ThreadControllerInterface* mThreadControllerInterface;
 };
 
-} // namespace Adaptor
+} // namespace Internal::Adaptor
 
-} // namespace Internal
+
 
 } // namespace Dali
 

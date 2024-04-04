@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_TRIGGER_EVENT_H__
-#define __DALI_INTERNAL_TRIGGER_EVENT_H__
+#ifndef DALI_INTERNAL_TRIGGER_EVENT_H
+#define DALI_INTERNAL_TRIGGER_EVENT_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,19 @@
 
 // EXTERNAL INCLUDES
 #include <dali/public-api/signals/callback.h>
-#include <dali/internal/system/common/file-descriptor-monitor.h>
+#include <memory>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
+#include <dali/internal/system/common/file-descriptor-monitor.h>
 #include <dali/public-api/dali-adaptor-common.h>
-#include <dali/integration-api/trigger-event-interface.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
-
 /**
  * The TriggerEvent class is used to send events between threads.  For example, this can be used
  * to wake up one thread from another thread.
@@ -49,7 +46,6 @@ namespace Adaptor
 class TriggerEvent : public TriggerEventInterface
 {
 public:
-
   /**
    * Constructor
    * Creates an event file descriptor and starts a GSource which reads from the file
@@ -59,7 +55,7 @@ public:
    * @param[in] options Trigger event options.
    * @note The ownership of callback is taken by this class.
    */
-  TriggerEvent( CallbackBase* callback, TriggerEventInterface::Options options );
+  TriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options);
 
   /**
    * Destructor
@@ -67,7 +63,6 @@ public:
   ~TriggerEvent();
 
 public:
-
   /**
    * Triggers the event.
    *
@@ -76,23 +71,21 @@ public:
   void Trigger();
 
 private:
-
   /**
    * @brief Called when our event file descriptor has been written to.
    * @param[in] eventBitMask bit mask of events that occured on the file descriptor
+   * @param[in] fileDescriptor The file descriptor
    */
-  void Triggered( FileDescriptorMonitor::EventType eventBitMask );
+  void Triggered(FileDescriptorMonitor::EventType eventBitMask, int fileDescriptor);
 
 private:
-
   struct Source;
 
 private:
-
-  FileDescriptorMonitor* mFileDescriptorMonitor;
-  CallbackBase* mCallback;
-  int mFileDescriptor;
-  TriggerEventInterface::Options mOptions;
+  std::unique_ptr<FileDescriptorMonitor> mFileDescriptorMonitor;
+  CallbackBase*                          mCallback;
+  int                                    mFileDescriptor;
+  TriggerEventInterface::Options         mOptions;
 };
 
 } // namespace Adaptor
@@ -101,4 +94,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TRIGGER_EVENT_H__
+#endif // DALI_INTERNAL_TRIGGER_EVENT_H

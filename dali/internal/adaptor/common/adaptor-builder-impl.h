@@ -21,16 +21,13 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/graphics/common/graphics-factory-interface.h>
+#if defined(VULKAN_ENABLED)
+//@todo What am i?!
+#else
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#endif
 
-
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 /**
@@ -43,7 +40,7 @@ public:
   /**
    * Destructor
    */
-  ~AdaptorBuilder() {};
+  ~AdaptorBuilder() = default;
 
   /**
    * Singleton getter
@@ -55,30 +52,26 @@ public:
   /**
    * @return reference to the GraphicsFactory object
    */
-  GraphicsFactoryInterface& GetGraphicsFactory() const;
+  [[nodiscard]] GraphicsFactory& GetGraphicsFactory() const;
 
-
-private:
-
-  /**
-   * Constructor
-   */
-  AdaptorBuilder(EnvironmentOptions& environmentOptions);
-
-// Eliminate copy and assigned operations
   AdaptorBuilder(const AdaptorBuilder&) = delete;
   AdaptorBuilder& operator=(AdaptorBuilder&) = delete;
 
+private:
+  /**
+   * Constructor
+   */
+  explicit AdaptorBuilder(EnvironmentOptions& environmentOptions);
 
 private:
-  std::unique_ptr< GraphicsFactoryInterface > mGraphicsFactory;
+  std::unique_ptr< GraphicsFactory > mGraphicsFactory;
   EnvironmentOptions& mEnvironmentOptions;
 };
 
 } // namespace Internal
 
-} // namespace Adaptor
+// namespace Adaptor
 
-} // namespace Dali
+
 
 #endif // DALI_INTERNAL_ADAPTOR_BUILDER_IMPL_H

@@ -1,32 +1,64 @@
-# module: graphics, backend: Common
-SET( adaptor_graphics_common_src_files
+# module: graphics, backend: gles
+SET( adaptor_graphics_gles_src_files
+    ${adaptor_graphics_dir}/gles/egl-debug.cpp
+    ${adaptor_graphics_dir}/gles/egl-implementation.cpp
+    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
+    ${adaptor_graphics_dir}/gles/egl-graphics.cpp
+
+    ${adaptor_graphics_dir}/gles/gl-extensions.cpp
+    ${adaptor_graphics_dir}/gles/gl-extensions-support.cpp
+    ${adaptor_graphics_dir}/gles/gl-implementation.cpp
+    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
 )
+
+# module: graphics, backend: gles-impl
+SET( adaptor_graphics_gles_src_files ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_dir}/gles-impl/egl-graphics-controller.cpp
+    ${adaptor_graphics_dir}/gles-impl/egl-graphics-controller-debug.cpp
+    ${adaptor_graphics_dir}/gles-impl/egl-sync-object.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-buffer.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-command-buffer.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-debug.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-framebuffer.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles2-graphics-memory.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles3-graphics-memory.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-pipeline.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-program.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-reflection.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-render-pass.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-render-target.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-sampler.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-shader.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-texture.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-graphics-pipeline-cache.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-context.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-sync-pool.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-sync-object.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-framebuffer-state-cache.cpp
+    ${adaptor_graphics_dir}/gles-impl/gles-texture-dependency-checker.cpp
+)
+
 
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
-    ${adaptor_graphics_dir}/tizen/vsync-monitor-tizen.cpp
+    ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
+    ${adaptor_graphics_dir}/tizen/egl-sync-implementation-tizen.cpp
 )
 
 # module: graphics, backend: ubuntu
 SET( adaptor_graphics_ubuntu_src_files
-    ${adaptor_graphics_dir}/ubuntu/vsync-monitor-ubuntu.cpp
+    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )
 
-# module: graphics, backend: gles
-SET( adaptor_graphics_gl_src_files
-    ${adaptor_graphics_dir}/gles/egl-debug.cpp
-    ${adaptor_graphics_dir}/gles/egl-implementation.cpp
-    ${adaptor_graphics_dir}/gles/egl-sync-implementation.cpp
-    ${adaptor_graphics_dir}/gles/gl-extensions.cpp
-    ${adaptor_graphics_dir}/gles/gl-proxy-implementation.cpp
-    ${adaptor_graphics_dir}/gles/egl-graphics-factory.cpp
-    ${adaptor_graphics_dir}/gles/egl-graphics.cpp
+# module: graphics, backend: libuv-x11
+SET( adaptor_graphics_libuvx11_src_files
+    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )
 
-SET( adaptor_graphics_gl_ubuntu_src_files
-    ${adaptor_graphics_dir}/ubuntu/egl-image-extensions-ubuntu.cpp
-)
-
-SET( adaptor_graphics_gl_tizen_src_files
-    ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
+# module: graphics, backend: glib-x11
+SET( adaptor_graphics_glibx11_src_files
+    ${adaptor_graphics_dir}/generic/egl-image-extensions-generic.cpp
+    ${adaptor_graphics_dir}/generic/egl-sync-implementation.cpp
 )

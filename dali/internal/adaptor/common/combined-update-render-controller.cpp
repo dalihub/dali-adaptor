@@ -19,32 +19,24 @@
 #include <dali/internal/adaptor/common/combined-update-render-controller.h>
 
 // EXTERNAL INCLUDES
-#include <errno.h>
+#include <cerrno>
 #include <dali/integration-api/platform-abstraction.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
-#include <dali/integration-api/trigger-event-factory.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
-#include <dali/internal/adaptor/common/adaptor-internal-services.h>
-#include <dali/devel-api/adaptor-framework/thread-settings.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 namespace
 {
-
 const unsigned int CREATED_THREAD_COUNT = 1u;
 
 const int CONTINUOUS = -1;
@@ -88,7 +80,7 @@ const unsigned int MAXIMUM_UPDATE_REQUESTS = 2;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                                                Graphics::GraphicsInterface& graphics,
+                                                                GraphicsInterface& graphics,
                                                                 const EnvironmentOptions& environmentOptions )
 : mFpsTracker( environmentOptions ),
   mUpdateStatusLogger( environmentOptions ),
@@ -100,9 +92,9 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mGraphics( graphics ),
   mEnvironmentOptions( environmentOptions ),
   mNotificationTrigger( adaptorInterfaces.GetProcessCoreEventsTrigger() ),
-  mSleepTrigger( NULL ),
-  mPreRenderCallback( NULL ),
-  mUpdateRenderThread( NULL ),
+  mSleepTrigger( nullptr ),
+  mPreRenderCallback( nullptr ),
+  mUpdateRenderThread( nullptr ),
   mDefaultFrameDelta( 0.0f ),
   mDefaultFrameDurationMilliseconds( 0u ),
   mDefaultFrameDurationNanoseconds( 0u ),
@@ -114,7 +106,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController( AdaptorInternalS
   mUpdateRenderThreadCanSleep( FALSE ),
   mPendingRequestUpdate( FALSE ),
   mUseElapsedTimeAfterWait( FALSE ),
-  mNewSurface( NULL ),
+  mNewSurface( nullptr ),
   mPostRendering( FALSE ),
   mSurfaceResized( FALSE ),
   mForceClear( FALSE )
@@ -156,7 +148,7 @@ void CombinedUpdateRenderController::Initialize()
 
   // Create Update/Render Thread
   mUpdateRenderThread = new pthread_t();
-  int error = pthread_create( mUpdateRenderThread, NULL, InternalUpdateRenderThreadEntryFunc, this );
+  int error = pthread_create( mUpdateRenderThread, nullptr, InternalUpdateRenderThreadEntryFunc, this );
   DALI_ASSERT_ALWAYS( !error && "Return code from pthread_create() when creating UpdateRenderThread" );
 
   // The Update/Render thread will now run and initialise the graphics interface etc. and will then wait for Start to be called
@@ -240,10 +232,10 @@ void CombinedUpdateRenderController::Stop()
     LOG_EVENT( "Destroying UpdateRenderThread" );
 
     // wait for the thread to finish
-    pthread_join( *mUpdateRenderThread, NULL );
+    pthread_join( *mUpdateRenderThread, nullptr );
 
     delete mUpdateRenderThread;
-    mUpdateRenderThread = NULL;
+    mUpdateRenderThread = nullptr;
   }
 
   mRunning = FALSE;
@@ -293,7 +285,7 @@ void CombinedUpdateRenderController::ReplaceSurface( Dali::RenderSurfaceInterfac
 {
   LOG_EVENT_TRACE;
 
-  // Set the ThreadSyncronizationInterface on the new surface
+  // Set the ThreadSynchronizationInterface on the new surface
   newSurface->SetThreadSynchronization( *this );
 
   LOG_EVENT( "Starting to replace the surface, event-thread blocked" );
@@ -411,7 +403,7 @@ void CombinedUpdateRenderController::ProcessSleepRequest()
 
 void CombinedUpdateRenderController::UpdateRenderThread()
 {
-  SetThreadName("RenderThread\0");
+  SetThreadName("RenderThread");
 
   // Install a function for logging
   mEnvironmentOptions.InstallLogFunction();
@@ -422,8 +414,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   LOG_UPDATE_RENDER( "THREAD CREATED" );
 
   // Create graphics
+  Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
   auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
-  graphics.Create();
+  graphics.Initialize(displayConnection);
 
   // Create Graphics surface
   RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
@@ -474,7 +467,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // REPLACE SURFACE
     //////////////////////////////
 
-    Integration::RenderSurface* newSurface = ShouldSurfaceBeReplaced();
+    Dali::RenderSurfaceInterface* newSurface = ShouldSurfaceBeReplaced();
     if( DALI_UNLIKELY( newSurface ) )
     {
       LOG_UPDATE_RENDER_TRACE_FMT( "Replacing Surface" );
@@ -484,8 +477,16 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // Then create a new pixmap/window and new surface
       // If the new surface has a different display connection, then the context will be lost
 
-      mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      //mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      graphics.InitializeGraphicsAPI(displayConnection);
+
+      // Following becomes graphics.ActivateSurfaceContext(newSurface), but that makes no sense
+      // in a single window mode.
+      // @todo FIXME
       newSurface->InitializeGraphics( mAdaptorInterfaces.GetGraphicsInterface() );
+      // @todo This is commented out in latest. But, may need to bring this back, as recent
+      // changes to graphics interface mean INitializeGraphicsAPI only does exactly that. Double
+      // check, anyway.
       newSurface->ReplaceGraphicsSurface();
       SurfaceReplaced();
     }
@@ -551,29 +552,16 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
-    if( mPreRenderCallback != NULL )
+    if( mPreRenderCallback != nullptr )
     {
       bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
       if( ! keepCallback )
       {
         delete mPreRenderCallback;
-        mPreRenderCallback = NULL;
+        mPreRenderCallback = nullptr;
       }
     }
     Integration::RenderStatus renderStatus;
-
-    //mRenderHelper.PreRender();
-
-    //AddPerformanceMarker( PerformanceInterface::RENDER_START );
-    //mCore.Render( renderStatus, mForceClear );
-    //AddPerformanceMarker( PerformanceInterface::RENDER_END );
-
-    //mForceClear = false;
-
-    //if( renderStatus.NeedsPostRender() )
-    //{
-      //mRenderHelper.PostRender( isRenderingToFbo );
-    //}
 
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
@@ -669,7 +657,7 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
     // of the first frame.
     timeToSleepUntil = 0;
 
-    if( ! mUpdateRenderRunCount )
+    if(! mUpdateRenderRunCount )
     {
       mGraphics.Pause();
     }
@@ -710,11 +698,11 @@ bool CombinedUpdateRenderController::UpdateRenderReady( bool& useElapsedTime, bo
   return ! mDestroyUpdateRenderThread;
 }
 
-Integration::RenderSurface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
+RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock( mUpdateRenderThreadWaitCondition );
 
-  Integration::RenderSurface* newSurface = mNewSurface;
+  auto newSurface = dynamic_cast<RenderSurfaceInterface*>(mNewSurface);
   mNewSurface = NULL;
 
   return newSurface;
@@ -789,8 +777,8 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
   }
 }
 
-} // namespace Adaptor
+} // namespace Dali::Internal::Adaptor
 
-} // namespace Internal
 
-} // namespace Dali
+
+

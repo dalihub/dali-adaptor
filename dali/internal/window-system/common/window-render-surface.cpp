@@ -22,8 +22,8 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/trigger-event-factory-interface.h>
-#include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
@@ -33,6 +33,10 @@
 
 #include <dali/graphics/surface-factory.h>
 
+#if defined(VULKAN_ENABLED)
+#else
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
 
 namespace Dali
 {
@@ -68,8 +72,10 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true ),
-  mGraphicsSurface( nullptr )
+  mResizeFinished( true )
+#if defined(VULKAN_ENABLED)
+  ,mGraphicsSurface( nullptr )
+#endif
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -77,10 +83,7 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
 
 WindowRenderSurface::~WindowRenderSurface()
 {
-  if( mRotationTrigger )
-  {
-    delete mRotationTrigger;
-  }
+  delete mRotationTrigger;
 }
 
 void WindowRenderSurface::Initialize( Any surface )
@@ -180,7 +183,7 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
   mWindowBase->GetDpi( dpiHorizontal, dpiVertical );
 }
 
-void WindowRenderSurface::InitializeGraphics( Graphics::GraphicsInterface& graphicsInterface )
+void WindowRenderSurface::InitializeGraphics( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
@@ -192,12 +195,25 @@ void WindowRenderSurface::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+#if defined(VULKAN_ENABLED)
   auto surfaceFactory = Graphics::SurfaceFactory::New(*this);
-
   mGraphicsSurface = std::move( mGraphics->CreateSurface( *surfaceFactory.get() ) );
 
   // Check rotation capability
-  mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
+  mRotationSupported = mWindowBase->IsWindowRotationSupported();
+#else
+  // Create the EGL window
+  auto windowPtr = mWindowBase->CreateWindow(mPositionSize.width, mPositionSize.height);
+  auto window = windowPtr.Get<EGLNativeWindowType>();
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  auto egl         = &eglGraphics->GetEglInterface();
+
+  if(egl)
+  {
+    mEGLSurface = egl->CreateSurfaceWindow(window, mColorDepth);
+  }
+
+#endif
 
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::CreateSurface: w = %d h = %d angle = %d screen rotation = %d\n", mPositionSize.width, mPositionSize.height, mRotationAngle, mScreenRotationAngle );
 }
@@ -268,23 +284,9 @@ bool WindowRenderSurface::PreRender( bool resizingSurface )
   return true;
 }
 
-void WindowRenderSurface::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
+void WindowRenderSurface::PostRender()
 {
-  if( resizingSurface )
-  {
-    if( !mRotationFinished )
-    {
-      DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "WindowRenderSurface::PostRender: Trigger rotation event\n" );
-
-      mRotationTrigger->Trigger();
-
-      if( mThreadSynchronization )
-      {
-        // Wait until the event-thread complete the rotation event processing
-        mThreadSynchronization->PostRenderWaitForCompletion();
-      }
-    }
-  }
+  // performed rotation change, swapBuffers, render notification
 }
 
 void WindowRenderSurface::StopRender()

@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H__
-#define __DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H__
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H
 
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,10 @@
 
 namespace Dali
 {
-
-namespace Integration
-{
-class Core;
-}
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * @brief Monitors the given file descriptor and whenever anything is written to it, the provided
  * callback is called
@@ -42,7 +34,6 @@ namespace Adaptor
 class FileDescriptorMonitor
 {
 public:
-
   /**
    * @brief Bitmask of file descriptor event types
    */
@@ -66,7 +57,7 @@ public:
    *    mFileDescriptorMonitor = new FileDescriptorMonitor( myFd, MakeCallback( this, &MyClass::FdCallback ), FileDescriptorMonitor::FD_READABLE );
    * }
    *
-   * void MyClass::FdCallback( EventType event )
+   * void MyClass::FdCallback( EventType event, int fileDescriptor )
    * {
    *    if( event & FileDescriptorMonitor::FD_ERROR)
    *    {
@@ -87,20 +78,18 @@ public:
    * readable or writable even when it isn’t. The developer should check for handle EAGAIN or equivalent
    * when reading from or write to the fd.
    */
-  FileDescriptorMonitor( int fileDescriptor, CallbackBase* callback, int eventBitmask );
+  FileDescriptorMonitor(int fileDescriptor, CallbackBase* callback, int eventBitmask);
 
   /**
    * Destructor
    */
-  ~FileDescriptorMonitor();
-
-private:
+  virtual ~FileDescriptorMonitor();
 
   // Undefined
-  FileDescriptorMonitor( const FileDescriptorMonitor& fileDescriptorMonitor );
+  FileDescriptorMonitor(const FileDescriptorMonitor& fileDescriptorMonitor)=delete;
 
   // Undefined
-  FileDescriptorMonitor& operator=( const FileDescriptorMonitor& fileDescriptorMonitor );
+  FileDescriptorMonitor& operator=(const FileDescriptorMonitor& fileDescriptorMonitor)=delete;
 
 private:
   struct Impl;
@@ -113,4 +102,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_FILE_DESCRIPTOR_MONITOR_H__
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_FILE_DESCRIPTOR_MONITOR_H

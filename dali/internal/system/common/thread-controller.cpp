@@ -32,7 +32,7 @@ namespace Internal
 namespace Adaptor
 {
 
-ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, Graphics::GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions )
+ThreadController::ThreadController( AdaptorInternalServices& adaptorInterfaces, GraphicsInterface& graphics, const EnvironmentOptions& environmentOptions )
 : mThreadControllerInterface( NULL )
 {
   switch( environmentOptions.GetThreadingMode() )

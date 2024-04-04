@@ -2,7 +2,7 @@
 #define DALI_WIDGET_CONTROLLER_UBUNTU_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,8 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
 /**
@@ -38,7 +36,6 @@ namespace Adaptor
 class WidgetImplUbuntu : public Widget::Impl
 {
 public:
-
   /**
    * Constructor
    */
@@ -50,11 +47,21 @@ public:
   ~WidgetImplUbuntu() override;
 
 public:
-
   /**
    * Set content information to widget framework
    */
-  void SetContentInfo( const std::string& contentInfo ) override;
+  void SetContentInfo(const std::string& contentInfo) override;
+
+  /**
+   * Check Widget is using key
+   */
+  bool IsKeyEventUsing() const override;
+
+  /**
+   * Set the flag that widget is using keyEvent
+   */
+  void SetUsingKeyEvent(bool flag) override;
+
 };
 
 } // namespace Adaptor

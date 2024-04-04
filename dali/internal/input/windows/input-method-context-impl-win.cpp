@@ -25,7 +25,7 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/locale-utils.h>
 #include <dali/internal/system/common/singleton-service-impl.h>
@@ -372,4 +372,3 @@ bool InputMethodContextWin::ProcessEventKeyUp( const KeyEvent& keyEvent )
 } // Internal
 
 } // Dali
-

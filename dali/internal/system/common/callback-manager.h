@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_CALLBACK_MANAGER_H__
-#define __DALI_INTERNAL_CALLBACK_MANAGER_H__
+#ifndef DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H
+#define DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,32 +26,29 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Abstract interface to install call backs in to an applications main loop.
  */
 class CallbackManager
 {
-
 public:
+  /**
+   * Create a new call back interface
+   */
+  static CallbackManager* New();
 
-    /**
-     * Create a new call back interface
-     */
-    static CallbackManager* New();
+  /**
+   * Virtual destructor
+   */
+  virtual ~CallbackManager()
+  {
+  }
 
-    /**
-     * Virtual destructor
-     */
-    virtual ~CallbackManager() {}
-
-    /**
+  /**
      * @brief Adds a @p callback to be run on idle.
      * @note Must be called from the main thread only.
      *
@@ -71,9 +68,9 @@ public:
      *
      * @return true on success
      */
-    virtual bool AddIdleCallback( CallbackBase* callback, bool hasReturnValue ) = 0;
+  virtual bool AddIdleCallback(CallbackBase* callback, bool hasReturnValue) = 0;
 
-    /**
+  /**
      * @brief Removes a previously added @p callback.
      * @note Must be called from main thread only.
      *
@@ -81,9 +78,21 @@ public:
      *
      * @param[in] callback The callback to be removed.
      */
-    virtual void RemoveIdleCallback( CallbackBase* callback ) = 0;
+  virtual void RemoveIdleCallback(CallbackBase* callback) = 0;
 
-    /**
+  /**
+     * @brief Processes the idle callbacks.
+     *
+     * @return whether a DALi callback has been processed.
+     */
+  virtual bool ProcessIdle() = 0;
+
+  /**
+     * @brief Clears the container of callbacks.
+     */
+  virtual void ClearIdleCallbacks() = 0;
+
+  /**
      * @brief Adds a @p callback to be run when entering an idle state.
      * @note Must be called from the main thread only.
      *
@@ -97,9 +106,9 @@ public:
      *
      * @return true on success
      */
-    virtual bool AddIdleEntererCallback( CallbackBase* callback ) = 0;
+  virtual bool AddIdleEntererCallback(CallbackBase* callback) = 0;
 
-    /**
+  /**
      * @brief Removes a previously added the idle enterer callback.
      * @note Must be called from main thread only.
      *
@@ -107,35 +116,34 @@ public:
      *
      * @param[in] callback The callback to be removed.
      */
-    virtual void RemoveIdleEntererCallback( CallbackBase* callback ) = 0;
+  virtual void RemoveIdleEntererCallback(CallbackBase* callback) = 0;
 
-    /**
+  /**
      * Starts the callback manager.
      */
-    virtual void Start() = 0;
+  virtual void Start() = 0;
 
-    /**
+  /**
      * Stop the callback manager and can remove all pending callbacks synchronously.
      * This call will synchronise with the main loop and not return
      * until all call backs have been deleted.
      */
-    virtual void Stop() = 0;
+  virtual void Stop() = 0;
 
 protected:
-
-    /**
+  /**
      * constructor
      */
-    CallbackManager() {}
+  CallbackManager()
+  {
+  }
 
 private:
+  // Undefined copy constructor.
+  CallbackManager(const CallbackManager&);
 
-    // Undefined copy constructor.
-    CallbackManager( const CallbackManager& );
-
-    // Undefined assignment operator.
-    CallbackManager& operator=( const CallbackManager& );
-
+  // Undefined assignment operator.
+  CallbackManager& operator=(const CallbackManager&);
 };
 
 } // namespace Adaptor
@@ -144,4 +152,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_CALLBACK_MANAGER_H__
+#endif // DALI_INTERNAL_ADAPTOR_SYSTEM_COMMON_CALLBACK_MANAGER_H

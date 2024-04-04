@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,21 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/trigger-event-factory.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/trigger-event.h>
 
 namespace Dali
 {
-
-TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent( CallbackBase* callback,  TriggerEventInterface::Options options )
+TriggerEventInterface* TriggerEventFactory::CreateTriggerEvent(CallbackBase* callback, TriggerEventInterface::Options options)
 {
-  return new Internal::Adaptor::TriggerEvent( callback, options );
+  return new Internal::Adaptor::TriggerEvent(callback, options);
 }
 
-void TriggerEventFactory::DestroyTriggerEvent( TriggerEventInterface* triggerEventInterface )
+void TriggerEventFactory::DestroyTriggerEvent(TriggerEventInterface* triggerEventInterface)
 {
-  Internal::Adaptor::TriggerEvent* triggerEvent( static_cast<Internal::Adaptor::TriggerEvent *>(triggerEventInterface) );
+  Internal::Adaptor::TriggerEvent* triggerEvent(static_cast<Internal::Adaptor::TriggerEvent*>(triggerEventInterface));
   delete triggerEvent;
 }
 

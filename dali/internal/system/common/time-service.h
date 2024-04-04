@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_TIME_SERVICE_H__
-#define __DALI_INTERNAL_TIME_SERVICE_H__
+#ifndef DALI_INTERNAL_TIME_SERVICE_H
+#define DALI_INTERNAL_TIME_SERVICE_H
 
 /*
- * Copyright (c) 2015 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,27 +22,32 @@
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TimeService
 {
-
 /**
- * @brief Get the monotonic time since some unspecified starting point (usually the boot time).
+ * @brief Get the monotonic time since the clock's epoch.
  *
  * @param[out]  timeInNanoseconds  The time in nanoseconds since the reference point.
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
  */
-void GetNanoseconds( uint64_t& timeInNanoseconds );
+void GetNanoseconds(uint64_t& timeInNanoseconds);
 
 /**
- * @brief Sleeps until the monotonic time specified since some unspecified starting point (usually the boot time).
+ * @brief Get the monotonic time since the clock's epoch.
+ *
+ * @return The time in milliseconds since the reference point.
+ *
+ * @note The maximum value that can be returned is 0xFFFFFFFF which is 4,294,967,295. Therefore, this can overflow after approximately 49 days.
+ */
+uint32_t GetMilliSeconds();
+
+/**
+ * @brief Sleeps until the monotonic time specified since the clock's epoch.
  *
  * If the time specified has already passed, then it returns immediately.
  *
@@ -50,7 +55,7 @@ void GetNanoseconds( uint64_t& timeInNanoseconds );
  *
  * @note The maximum value timeInNanoseconds can hold is 0xFFFFFFFFFFFFFFFF which is 1.844674407e+19. Therefore, this can overflow after approximately 584 years.
  */
-void SleepUntil( uint64_t timeInNanoseconds );
+void SleepUntil(uint64_t timeInNanoseconds);
 
 } // namespace TimeService
 
@@ -60,4 +65,4 @@ void SleepUntil( uint64_t timeInNanoseconds );
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_TIME_SERVICE_H__
+#endif // DALI_INTERNAL_TIME_SERVICE_H

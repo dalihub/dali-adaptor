@@ -9,6 +9,7 @@ SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/window-base.cpp
     ${adaptor_window_system_dir}/common/window-impl.cpp
     ${adaptor_window_system_dir}/common/window-render-surface.cpp
+    ${adaptor_window_system_dir}/common/window-system.cpp
 )
 
 # module: window-system, backend: tizen-wayland
@@ -32,6 +33,17 @@ SET( adaptor_window_system_ecore_wl2_src_files
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-base-ecore-wl2.cpp
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-factory-ecore-wl2.cpp
     ${adaptor_window_system_dir}/tizen-wayland/ecore-wl2/window-system-ecore-wl2.cpp
+)
+
+# module: window-system, backend: libuv-x11
+SET( adaptor_window_system_x11_src_files
+    ${adaptor_window_system_dir}/x11/display-connection-factory-x.cpp
+    ${adaptor_window_system_dir}/x11/display-connection-impl-x.cpp
+    ${adaptor_window_system_dir}/x11/pixmap-render-surface-x.cpp
+    ${adaptor_window_system_dir}/x11/render-surface-factory-x.cpp
+    ${adaptor_window_system_dir}/x11/window-base-x.cpp
+    ${adaptor_window_system_dir}/x11/window-factory-x.cpp
+    ${adaptor_window_system_dir}/x11/window-system-x.cpp
 )
 
 # module: window-system, backend: ubuntu-x11

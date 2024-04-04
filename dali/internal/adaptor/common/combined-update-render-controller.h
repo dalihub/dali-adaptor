@@ -25,28 +25,20 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/system/common/fps-tracker.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>
 #include <dali/internal/system/common/update-status-logger.h>
 #include <dali/internal/window-system/common/display-connection.h>
 
-
 namespace Dali
 {
-
-class RenderSurfaceInterface;
 class TriggerEventInterface;
 
-
-
-namespace Internal
+namespace Internal::Adaptor
 {
-
-namespace Adaptor
-{
-
+class GraphicsInterface;
 class AdaptorInternalServices;
 class EnvironmentOptions;
 
@@ -85,7 +77,7 @@ public:
    * @param[in] environmentOptions Settings from environment/command line/registries.
    */
   CombinedUpdateRenderController( AdaptorInternalServices& adaptorInterfaces,
-                                  Graphics::GraphicsInterface& graphics,
+                                  GraphicsInterface& graphics,
                                   const EnvironmentOptions& environmentOptions );
 
   /**
@@ -131,7 +123,7 @@ public:
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
-  virtual void ReplaceSurface( Dali::RenderSurfaceInterface* surface );
+  virtual void ReplaceSurface( RenderSurfaceInterface* surface );
 
   /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
@@ -224,7 +216,7 @@ private:
    *
    * @return Pointer to the new surface, NULL otherwise
    */
-  Integration::RenderSurface* ShouldSurfaceBeReplaced();
+  RenderSurfaceInterface* ShouldSurfaceBeReplaced();
 
   /**
    * Called by the Update/Render thread after a surface has been replaced.
@@ -314,7 +306,7 @@ private:
   AdaptorInternalServices&          mAdaptorInterfaces;                ///< The adaptor internal interface
   PerformanceInterface*             mPerformanceInterface;             ///< The performance logging interface
   Integration::Core&                mCore;                             ///< Dali core reference
-  Graphics::GraphicsInterface&      mGraphics;                         ///< Graphics object
+  GraphicsInterface&      mGraphics;                         ///< Graphics object
   const EnvironmentOptions&         mEnvironmentOptions;               ///< Environment options
   TriggerEventInterface&            mNotificationTrigger;              ///< Reference to notification event trigger
   TriggerEventInterface*            mSleepTrigger;                     ///< Used by the update-render thread to trigger the event thread when it no longer needs to do any updates
@@ -343,16 +335,16 @@ private:
 
   volatile unsigned int             mUseElapsedTimeAfterWait;          ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
 
-  Integration::RenderSurface* volatile mNewSurface;                    ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Integration::RenderSurface*  mNewSurface;                    ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int             mPostRendering;                    ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int             mSurfaceResized;                   ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).
   volatile unsigned int             mForceClear;                       ///< Will be set to clear forcibly
 };
 
-} // namespace Adaptor
+} // namespace Internal::Adaptor
 
-} // namespace Internal
+
 
 } // namespace Dali
 

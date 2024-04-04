@@ -23,8 +23,6 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/system-trace.cpp
     ${adaptor_system_dir}/common/thread-controller.cpp
     ${adaptor_system_dir}/common/time-service.cpp
-    ${adaptor_system_dir}/common/trigger-event.cpp
-    ${adaptor_system_dir}/common/trigger-event-factory.cpp
     ${adaptor_system_dir}/common/update-status-logger.cpp
     ${adaptor_system_dir}/common/widget-application-impl.cpp
 )
@@ -57,8 +55,27 @@ SET( adaptor_system_tizen_wearable_src_files
 
 # module: system, backend: ubuntu-x11
 SET( adaptor_system_ubuntu_x11_src_files
+    ${adaptor_system_dir}/common/shared-file.cpp
+    ${adaptor_system_dir}/common/trigger-event.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
     ${adaptor_system_dir}/ubuntu-x11/widget-controller-x.cpp
+)
+
+# module: system, backend: libuv-x11
+SET( adaptor_system_libuv_src_files
+    ${adaptor_system_dir}/common/shared-file.cpp
+    ${adaptor_system_dir}/common/time-service.cpp
+    ${adaptor_system_dir}/common/trigger-event.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
+    ${adaptor_system_dir}/generic/shared-file-operations-generic.cpp
+    ${adaptor_system_dir}/libuv/callback-manager-libuv.cpp
+    ${adaptor_system_dir}/libuv/file-descriptor-monitor-libuv.cpp
+    ${adaptor_system_dir}/libuv/timer-impl-libuv.cpp
     ${adaptor_system_dir}/ubuntu-x11/logging-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/system-settings-x.cpp
+    ${adaptor_system_dir}/ubuntu-x11/widget-application-impl-x.cpp
 )

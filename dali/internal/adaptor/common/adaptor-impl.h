@@ -25,17 +25,18 @@
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
-#include <dali/integration-api/scene.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
+
 #include <dali/public-api/adaptor-framework/tts-player.h>
 #include <dali/devel-api/adaptor-framework/clipboard.h>
+#include <dali/public-api/adaptor-framework/tts-player.h>
+
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/network/common/socket-factory.h>
-#include <dali/integration-api/adaptor.h>
-#include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/core-event-interface.h>
@@ -47,14 +48,12 @@
 #include <dali/internal/system/common/system-trace.h>
 #include <dali/internal/window-system/common/damage-observer.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
 
 
 #include <memory>
 
 namespace Dali
 {
-
 class RenderSurfaceInterface;
 class Window;
 
@@ -63,10 +62,7 @@ namespace Integration
 class Processor;
 }
 
-namespace Internal
-{
-
-namespace Adaptor
+namespace Internal::Adaptor
 {
 class DisplayConnection;
 class GraphicsFactoryInterface;
@@ -158,7 +154,7 @@ public:
   /**
    * Virtual destructor.
    */
-  virtual ~Adaptor();
+  ~Adaptor() override;
 
   /**
    * @copydoc Dali::Adaptor::Get()
@@ -219,7 +215,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual Dali::RenderSurfaceInterface& GetSurface() const;
+  [[nodiscard]] virtual Dali::RenderSurfaceInterface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -284,7 +280,7 @@ public:
   /**
    * @return the Core instance
    */
-  virtual Dali::Integration::Core& GetCore();
+  Dali::Integration::Core& GetCore() override;
 
   /**
    * @copydoc Dali::Adaptor::SetRenderRefreshRate()
@@ -300,7 +296,7 @@ public:
    * Return the PlatformAbstraction.
    * @return The PlatformAbstraction.
    */
-  Integration::PlatformAbstraction& GetPlatformAbstraction() const;
+  [[nodiscard]] Integration::PlatformAbstraction& GetPlatformAbstraction() const;
 
   /**
    * Sets the Drag & Drop Listener.
@@ -424,57 +420,57 @@ public:  //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPlatformAbstractionInterface()
    */
-  virtual Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface();
+  Dali::Integration::PlatformAbstraction& GetPlatformAbstractionInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetDisplayConnectionInterface()
    */
-  virtual Dali::DisplayConnection& GetDisplayConnectionInterface();
+  Dali::DisplayConnection& GetDisplayConnectionInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
    */
-  virtual Dali::Graphics::GraphicsInterface& GetGraphicsInterface();
+  GraphicsInterface& GetGraphicsInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
    */
-  virtual TriggerEventInterface& GetProcessCoreEventsTrigger();
+  TriggerEventInterface& GetProcessCoreEventsTrigger() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventFactoryInterface()
    */
-  virtual TriggerEventFactoryInterface& GetTriggerEventFactoryInterface();
+  TriggerEventFactoryInterface& GetTriggerEventFactoryInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSocketFactoryInterface()
    */
-  virtual SocketFactoryInterface& GetSocketFactoryInterface();
+  SocketFactoryInterface& GetSocketFactoryInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
-  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface();
+  Dali::RenderSurfaceInterface* GetRenderSurfaceInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetVSyncMonitorInterface()
    */
-  virtual VSyncMonitorInterface* GetVSyncMonitorInterface();
+  VSyncMonitorInterface* GetVSyncMonitorInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
    */
-  virtual PerformanceInterface* GetPerformanceInterface();
+  PerformanceInterface* GetPerformanceInterface() override;
 
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetKernelTraceInterface()
    */
-  virtual TraceInterface& GetKernelTraceInterface();
+  TraceInterface& GetKernelTraceInterface() override;
 
   /**
    * copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetSystemTraceInterface()
    */
-  virtual TraceInterface& GetSystemTraceInterface();
+  TraceInterface& GetSystemTraceInterface() override;
 
 public: // Signals
 
@@ -508,46 +504,45 @@ private: // From Dali::Internal::Adaptor::CoreEventInterface
   /**
    * @copydoc Dali::Internal::Adaptor::CoreEventInterface::QueueCoreEvent()
    */
-  virtual void QueueCoreEvent(const Dali::Integration::Event& event);
+  void QueueCoreEvent(const Dali::Integration::Event& event) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor:CoreEventInterface:::ProcessCoreEvents()
    */
-  virtual void ProcessCoreEvents();
+  void ProcessCoreEvents() override;
 
 private: // From Dali::Integration::RenderController
 
   /**
    * @copydoc Dali::Integration::RenderController::RequestUpdate()
    */
-  virtual void RequestUpdate( bool forceUpdate );
+  void RequestUpdate( bool forceUpdate ) override;
 
   /**
    * @copydoc Dali::Integration::RenderController::RequestProcessEventsOnIdle()
    */
-  virtual void RequestProcessEventsOnIdle( bool forceProcess );
+  void RequestProcessEventsOnIdle( bool forceProcess ) override;
 
 private: // From Dali::Internal::Adaptor::WindowVisibilityObserver
 
   /**
    * Called when the window becomes fully or partially visible.
    */
-  virtual void OnWindowShown();
+  void OnWindowShown() override;
 
   /**
    * Called when the window is fully hidden.
    */
-  virtual void OnWindowHidden();
+  void OnWindowHidden() override;
 
 private: // From Dali::Internal::Adaptor::DamageObserver
 
   /**
    * @copydoc Dali::Internal::Adaptor::DamageObserver::OnDamaged()
    */
-  void OnDamaged( const DamageArea& area );
+  void OnDamaged( const DamageArea& area ) override;
 
-private:
-
+public:
   // Undefined
   Adaptor(const Adaptor&) = delete;
   Adaptor& operator=(Adaptor&) = delete;
@@ -636,7 +631,7 @@ private: // Data
   ThreadController*                     mThreadController;            ///< Controls the threads
   VSyncMonitor*                         mVSyncMonitor;                ///< Monitors VSync events
 
-  Graphics::GraphicsInterface*          mGraphics;                    ///< @todo move ownership to GraphicsFactory?
+  GraphicsInterface*                    mGraphics;                    ///< Graphics interface
 
   Dali::DisplayConnection*              mDisplayConnection;           ///< Display connection
   WindowContainer                       mWindows;                     ///< A container of all the Windows that are currently created
@@ -669,7 +664,7 @@ public:
 
 } // namespace Internal
 
-} // namespace Adaptor
+// namespace Adaptor
 
 } // namespace Dali
 

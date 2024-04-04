@@ -27,7 +27,7 @@
 #include <string.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 namespace
 {

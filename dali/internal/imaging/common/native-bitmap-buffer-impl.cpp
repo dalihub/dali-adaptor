@@ -21,26 +21,19 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/graphics/graphics-interface.h>
+//#include <dali/internal/graphics/common/graphics-interface.h>
 
 // INTERNAL HEADERS
 
-namespace Dali
+namespace Dali::Internal::Adaptor
 {
-
-namespace Internal
-{
-
-namespace Adaptor
-{
-
 // @todo GRAPHICS_API FIXME
 NativeBitmapBuffer::NativeBitmapBuffer( Adaptor* adaptor, unsigned int width, unsigned int height, Pixel::Format pFormat )
 : //mGraphicsInterface( nullptr),
   mWidth(width),
   mHeight(height),
   mPixelFormat(pFormat),
-  mLastReadBuffer(NULL)
+  mLastReadBuffer(nullptr)
 {
   DALI_ASSERT_ALWAYS( adaptor );
   mBuffer = new Integration::LocklessBuffer( width * height * Pixel::GetBytesPerPixel(pFormat) );
@@ -103,8 +96,8 @@ bool NativeBitmapBuffer::RequiresBlending() const
   return Pixel::HasAlpha( mPixelFormat );
 }
 
-} // namespace Adaptor
+} // namespace Dali::Internal::Adaptor
 
-} // namespace Internal
 
-} // namespace Dali
+
+

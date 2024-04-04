@@ -49,7 +49,7 @@ public:
 
   virtual std::unique_ptr< PixmapRenderSurface > CreatePixmapRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) = 0;
 
-  virtual std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, bool isTransparent = false ) = 0;
+  virtual std::unique_ptr< NativeRenderSurface > CreateNativeRenderSurface( Dali::PositionSize positionSize, Any surface, bool isTransparent = false ) = 0;
 };
 
 extern std::unique_ptr< RenderSurfaceFactory > GetRenderSurfaceFactory();

@@ -2,6 +2,7 @@
 .project
 .settings
 .directory
+.idea/
 configure
 config.*
 aclocal.m4

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,58 +18,89 @@
  *
  */
 
-// EXTERNAL INCLUDES
-
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
-#include <dali/integration-api/egl-interface.h>
-#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
-
-#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/gles-impl/egl-graphics-controller.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/graphics/gles/egl-sync-implementation.h>
-
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
+class EnvironmentOptions;
+class ConfigurationManager;
 
 class EglGraphics : public GraphicsInterface
 {
 public:
-
   /**
    * Constructor
    */
-  EglGraphics();
+  EglGraphics(EnvironmentOptions& environmentOptions, GraphicsCreateInfo createInfo);
 
   /**
    * Destructor
    */
-  virtual ~EglGraphics();
+  ~EglGraphics() override;
 
   /**
-   * @copydoc Dali::Graphics::GraphicsInterface::Initialize()
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize()
    */
-  void Initialize( EnvironmentOptions* environmentOptions ) override;
+  void Initialize(const Dali::DisplayConnection& displayConnection) override;
 
   /**
-   * Creates the graphics interface for EGL
-   * @return The graphics interface for EGL
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize(bool,bool,bool,int)
    */
-  EglInterface* Create();
+  void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+
+  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 
   /**
-   * Set gles version
-   * Default version is gles 3.0
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::ConfigureSurface()
    */
-  void SetGlesVersion( const int32_t glesVersion );
+  void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
+
+  /**
+   * Set whether the surfaceless context is supported
+   * @param[in] isSupported Whether the surfaceless context is supported
+   */
+  void SetIsSurfacelessContextSupported(const bool isSupported);
+
+  /**
+   * Activate the resource context (shared surfaceless context)
+   */
+  void ActivateResourceContext() override;
+
+  /**
+   * Activate the surface context
+   *
+   * @param[in] surface The surface whose context to be switched to.
+   */
+  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override;
+
+  // Lifecycle:
+  void Pause() override {};
+  void Resume() override {};
+
+  /**
+   * This is called after all the surfaces have been rendered.
+   *
+   * @note This should not be called if uploading resource only without rendering any surface.
+   */
+  void PostRender() override;
+
+  /**
+   * Inform graphics interface that this is the first frame after a resume.
+   * (For debug only)
+   */
+  void SetFirstFrameAfterResume() override;
 
   /**
    * Gets the GL abstraction
@@ -90,25 +121,10 @@ public:
   EglInterface& GetEglInterface() const;
 
   /**
-   * @copydoc Dali::Integration::GlAbstraction& GetGlesInterface()
-   */
-  GlImplementation& GetGlesInterface();
-
-  /**
    * Gets the implementation of GlSyncAbstraction for EGL.
    * @return The implementation of GlSyncAbstraction for EGL.
    */
   EglSyncImplementation& GetSyncImplementation();
-
-  /**
-   * @copydoc Dali::Graphics::GraphicsInterface::GetDepthBufferRequired()
-   */
-  Integration::DepthBufferAvailable& GetDepthBufferRequired();
-
-  /**
-   * @copydoc Dali::Graphics::GraphicsInterface::GetStencilBufferRequired()
-   */
-  Integration::StencilBufferAvailable GetStencilBufferRequired();
 
   /**
    * Gets the EGL image extension
@@ -117,23 +133,96 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
-   * @copydoc Dali::Graphics::GraphicsInterface::Destroy()
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Shutdown()
+   */
+  void Shutdown() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Destroy()
    */
   void Destroy() override;
 
-private:
+  Graphics::Controller& GetController() override;
+
+  bool IsAdvancedBlendEquationSupported() override
+  {
+    return mGLES->IsAdvancedBlendEquationSupported();
+  }
+
+  bool IsMultisampledRenderToTextureSupported() override
+  {
+    return mGLES->IsMultisampledRenderToTextureSupported();
+  }
+
+  /**
+   * @return true if graphics subsystem is initialized
+   */
+  bool IsInitialized() override
+  {
+    return mEglImplementation && mEglImplementation->IsGlesInitialized();
+  }
+
+  bool IsResourceContextSupported() override
+  {
+    return mEglImplementation && mEglImplementation->IsSurfacelessContextSupported();
+  }
+
+  uint32_t GetMaxTextureSize() override
+  {
+    return mGLES->GetMaxTextureSize();
+  }
+
+  uint32_t GetMaxCombinedTextureUnits() override
+  {
+    return mGLES->GetMaxCombinedTextureUnits();
+  }
+
+  uint8_t GetMaxTextureSamples() override
+  {
+    return mGLES->GetMaxTextureSamples();
+  }
+
+  uint32_t GetShaderLanguageVersion() override
+  {
+    return mGLES->GetShadingLanguageVersion();
+  }
+
+  bool ApplyNativeFragmentShader(std::string& shader, const char* customSamplerType)
+  {
+    return mGLES->ApplyNativeFragmentShader(shader, customSamplerType);
+  }
+
+  void CacheConfigurations(ConfigurationManager& configurationManager) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::FrameStart()
+   */
+  void FrameStart() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::LogMemoryPools()
+   */
+  void LogMemoryPools() override;
+
+public:
   // Eliminate copy and assigned operations
   EglGraphics(const EglGraphics& rhs) = delete;
   EglGraphics& operator=(const EglGraphics& rhs) = delete;
 
+private:
+  /**
+   * Initialize graphics subsystems
+   */
+  void EglInitialize();
 
 private:
-  std::unique_ptr< GlImplementation > mGLES;                    ///< GL implementation
-  std::unique_ptr< EglImplementation > mEglImplementation;      ///< EGL implementation
-  std::unique_ptr< EglImageExtensions > mEglImageExtensions;    ///< EGL image extension
-  std::unique_ptr< EglSyncImplementation > mEglSync;            ///< GlSyncAbstraction implementation for EGL
+  Graphics::EglGraphicsController        mGraphicsController; ///< Graphics Controller for Dali Core
+  std::unique_ptr<GlImplementation>      mGLES;               ///< GL implementation
+  std::unique_ptr<EglImplementation>     mEglImplementation;  ///< EGL implementation
+  std::unique_ptr<EglImageExtensions>    mEglImageExtensions; ///< EGL image extension
+  std::unique_ptr<EglSyncImplementation> mEglSync;            ///< GlSyncAbstraction implementation for EGL
 
-  int mMultiSamplingLevel;                                      ///< The multiple sampling level
+  int mMultiSamplingLevel; ///< The multiple sampling level
 };
 
 } // namespace Adaptor
@@ -142,4 +231,4 @@ private:
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H__
+#endif // DALI_INTERNAL_BASE_GRAPHICS_IMPLEMENTATION_H

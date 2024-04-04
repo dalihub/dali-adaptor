@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,104 +15,242 @@
  *
  */
 
-
 // CLASS HEADER
 #include <dali/internal/graphics/gles/egl-graphics.h>
 
 // INTERNAL INCLUDES
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/debug.h>
+#include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+
+
+namespace Dali::Internal::Adaptor
 {
 
-EglGraphics::EglGraphics( )
-: mMultiSamplingLevel( 0 )
+EglGraphics::EglGraphics(EnvironmentOptions& environmentOptions, GraphicsCreateInfo createInfo)
+: GraphicsInterface(createInfo,
+                    static_cast<Integration::DepthBufferAvailable>(environmentOptions.DepthBufferRequired()),
+                    static_cast<Integration::StencilBufferAvailable>(environmentOptions.StencilBufferRequired())),
+  mMultiSamplingLevel(environmentOptions.GetMultiSamplingLevel())
 {
+  if(environmentOptions.GetGlesCallTime() > 0)
+  {
+    mGLES = Utils::MakeUnique<GlProxyImplementation>(environmentOptions);
+  }
+  else
+  {
+    mGLES.reset(new GlImplementation());
+  }
+
+  mGraphicsController.InitializeGLES(*mGLES.get());
 }
 
 EglGraphics::~EglGraphics()
 {
 }
 
-void EglGraphics::SetGlesVersion( const int32_t glesVersion )
+void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 {
-  mEglImplementation->SetGlesVersion( glesVersion );
-  mGLES->SetGlesVersion( glesVersion );
+  mGLES->SetIsSurfacelessContextSupported(isSupported);
 }
 
-void EglGraphics::Initialize( EnvironmentOptions* environmentOptions )
+void EglGraphics::ActivateResourceContext()
 {
-  if( environmentOptions->GetGlesCallTime() > 0 )
+  if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
-    mGLES = Utils::MakeUnique< GlProxyImplementation >( *environmentOptions );
+    // Make the shared surfaceless context as current before rendering
+    mEglImplementation->MakeContextCurrent(EGL_NO_SURFACE, mEglImplementation->GetContext());
+  }
+
+  mGraphicsController.ActivateResourceContext();
+}
+
+void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+{
+  if(surface)
+  {
+    surface->InitializeGraphics(*this);
+    surface->MakeContextCurrent();
+  }
+
+  mGraphicsController.ActivateSurfaceContext(surface);
+}
+
+void EglGraphics::PostRender()
+{
+  ActivateResourceContext();
+
+  if(mGraphicsController.GetCurrentContext())
+  {
+    mGraphicsController.GetCurrentContext()->InvalidateDepthStencilBuffers();
+  }
+
+  mGraphicsController.PostRender();
+}
+
+void EglGraphics::SetFirstFrameAfterResume()
+{
+  if(mEglImplementation)
+  {
+    mEglImplementation->SetFirstFrameAfterResume();
+  }
+}
+
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
+{
+  EglInitialize();
+
+  // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
+  mGraphicsController.Initialize(*this);
+  InitializeGraphicsAPI(displayConnection);
+}
+
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
+{
+  mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
+  mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
+  mMultiSamplingLevel    = msaa;
+
+  EglInitialize();
+  InitializeGraphicsAPI(displayConnection);
+}
+
+void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
+{
+  // Bad name - it does call "eglInitialize"!!!! @todo Rename me!
+  mEglImplementation->InitializeGles(displayConnection.GetDisplay().Get<EGLNativeDisplayType>());
+}
+
+void EglGraphics::EglInitialize()
+{
+  mEglSync            = Utils::MakeUnique<EglSyncImplementation>();
+  mEglImplementation  = Utils::MakeUnique<EglImplementation>(mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired);
+  mEglImageExtensions = Utils::MakeUnique<EglImageExtensions>(mEglImplementation.get());
+
+  mEglSync->Initialize(mEglImplementation.get()); // The sync impl needs the EglDisplay
+}
+
+void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
+{
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
+
+  // Try to use OpenGL es 3.0
+  // ChooseConfig returns false here when the device only support gles 2.0.
+  // Because eglChooseConfig with gles 3.0 setting fails when the device only support gles 2.0 and Our default setting is gles 3.0.
+  if(!mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32))
+  {
+    // Retry to use OpenGL es 2.0
+    mEglImplementation->SetGlesVersion(20);
+
+    // Mark gles that we will use gles 2.0 version.
+    // After this call, we will not change mGLES version anymore.
+    mGLES->SetGlesVersion(20);
+
+    mEglImplementation->ChooseConfig(true, COLOR_DEPTH_32);
+  }
+
+  // Check whether surfaceless context is supported
+  bool isSurfacelessContextSupported = mEglImplementation->IsSurfacelessContextSupported();
+  SetIsSurfacelessContextSupported(isSurfacelessContextSupported);
+
+  RenderSurfaceInterface* currentSurface = nullptr;
+  if(isSurfacelessContextSupported)
+  {
+    // Create a surfaceless OpenGL context for shared resources
+    mEglImplementation->CreateContext();
+    ActivateResourceContext();
   }
   else
   {
-    mGLES.reset ( new GlImplementation() );
+    currentSurface = surface;
+    if(currentSurface)
+    {
+      ActivateSurfaceContext(currentSurface);
+    }
   }
 
-  mDepthBufferRequired = static_cast< Integration::DepthBufferAvailable >( environmentOptions->DepthBufferRequired() );
-  mStencilBufferRequired = static_cast< Integration::StencilBufferAvailable >( environmentOptions->StencilBufferRequired() );
+  mGLES->ContextCreated(); // After this call, we can know exact gles version.
+  auto glesVersion = mGLES->GetGlesVersion();
 
-  mMultiSamplingLevel = environmentOptions->GetMultiSamplingLevel();
-
-  mEglSync = Utils::MakeUnique< EglSyncImplementation >();
+  // Set more detail GLES version to egl and graphics controller.
+  // Note. usually we don't need EGL client's minor version. So don't need to choose config one more time.
+  mEglImplementation->SetGlesVersion(glesVersion);
+  mGraphicsController.SetGLESVersion(static_cast<Graphics::GLES::GLESVersion>(glesVersion));
 }
 
-EglInterface* EglGraphics::Create()
+void EglGraphics::Shutdown()
 {
-  mEglImplementation = Utils::MakeUnique< EglImplementation >( mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired );
-  mEglImageExtensions = Utils::MakeUnique< EglImageExtensions >( mEglImplementation.get() );
+  if(mEglImplementation)
+  {
+    // Shutdown controller
+    mGraphicsController.Shutdown();
 
-  mEglSync->Initialize( mEglImplementation.get() ); // The sync impl needs the EglDisplay
-
-  return mEglImplementation.get();
+    // Terminate GLES
+    mEglImplementation->TerminateGles();
+  }
 }
 
 void EglGraphics::Destroy()
 {
-}
-
-GlImplementation& EglGraphics::GetGlesInterface()
-{
-  return *mGLES;
+  mGraphicsController.Destroy();
 }
 
 Integration::GlAbstraction& EglGraphics::GetGlAbstraction() const
 {
-  DALI_ASSERT_DEBUG( mGLES && "GLImplementation not created" );
+  DALI_ASSERT_DEBUG(mGLES && "GLImplementation not created");
   return *mGLES;
 }
 
 EglImplementation& EglGraphics::GetEglImplementation() const
 {
-  DALI_ASSERT_DEBUG( mEglImplementation && "EGLImplementation not created" );
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
   return *mEglImplementation;
 }
 
 EglInterface& EglGraphics::GetEglInterface() const
 {
-  DALI_ASSERT_DEBUG( mEglImplementation && "EGLImplementation not created" );
+  DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
   EglInterface* eglInterface = mEglImplementation.get();
   return *eglInterface;
 }
 
 EglSyncImplementation& EglGraphics::GetSyncImplementation()
 {
-  DALI_ASSERT_DEBUG( mEglSync && "EglSyncImplementation not created" );
+  DALI_ASSERT_DEBUG(mEglSync && "EglSyncImplementation not created");
   return *mEglSync;
 }
 
 EglImageExtensions* EglGraphics::GetImageExtensions()
 {
-  DALI_ASSERT_DEBUG( mEglImageExtensions && "EglImageExtensions not created" );
+  DALI_ASSERT_DEBUG(mEglImageExtensions && "EglImageExtensions not created");
   return mEglImageExtensions.get();
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+Graphics::Controller& EglGraphics::GetController()
+{
+  return mGraphicsController;
+}
+
+void EglGraphics::CacheConfigurations(ConfigurationManager& configurationManager)
+{
+}
+
+void EglGraphics::FrameStart()
+{
+  mGraphicsController.FrameStart();
+}
+
+void EglGraphics::LogMemoryPools()
+{
+  std::size_t graphicsCapacity = mGraphicsController.GetCapacity();
+  DALI_LOG_RELEASE_INFO(
+    "EglGraphics:\n"
+    "  GraphicsController Capacity: %lu\n",
+    graphicsCapacity);
+}
+
+} // namespace Dali::Internal::Adaptor
+
+

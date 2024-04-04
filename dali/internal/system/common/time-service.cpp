@@ -19,45 +19,46 @@
 #include <dali/internal/system/common/time-service.h>
 
 // EXTERNAL INCLUDES
-#include <ctime>
+#include <chrono>
+#include <thread>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 namespace TimeService
 {
-
-namespace
+void GetNanoseconds(uint64_t& timeInNanoseconds)
 {
-const uint64_t NANOSECONDS_PER_SECOND = 1e+9;
+  // Get the time of a monotonic clock since its epoch.
+  auto epoch = std::chrono::steady_clock::now().time_since_epoch();
+
+  auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(epoch);
+
+  timeInNanoseconds = static_cast<uint64_t>(duration.count());
 }
 
-void GetNanoseconds( uint64_t& timeInNanoseconds )
+uint32_t GetMilliSeconds()
 {
-  timespec timeSpec;
-  clock_gettime( CLOCK_MONOTONIC, &timeSpec );
+  // Get the time of a monotonic clock since its epoch.
+  auto epoch = std::chrono::steady_clock::now().time_since_epoch();
 
-  // Convert all values to uint64_t to match our return type
-  timeInNanoseconds = ( static_cast< uint64_t >( timeSpec.tv_sec ) * NANOSECONDS_PER_SECOND ) + static_cast< uint64_t >( timeSpec.tv_nsec );
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+
+  return static_cast<uint32_t>(duration.count());
 }
 
-void SleepUntil( uint64_t timeInNanoseconds )
+void SleepUntil(uint64_t timeInNanoseconds)
 {
-  timespec timeSpec;
-  timeSpec.tv_sec  = timeInNanoseconds / NANOSECONDS_PER_SECOND;
-  timeSpec.tv_nsec = timeInNanoseconds % NANOSECONDS_PER_SECOND;
+  using Clock     = std::chrono::steady_clock;
+  using TimePoint = std::chrono::time_point<Clock>;
 
-  // clock_nanosleep returns 0 if it sleeps for the period specified, otherwise it returns an error value
-  // If an error value is returned, just sleep again till the absolute time specified
-  while( clock_nanosleep( CLOCK_MONOTONIC, TIMER_ABSTIME, &timeSpec, NULL ) )
-  {
-  }
+  const Clock::duration duration = std::chrono::nanoseconds(timeInNanoseconds);
+  const TimePoint       timePoint(duration);
+
+  std::this_thread::sleep_until(timePoint);
 }
 
 } // namespace TimeService

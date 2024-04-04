@@ -16,7 +16,7 @@
  */
 
 // CLASS HEADER
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>

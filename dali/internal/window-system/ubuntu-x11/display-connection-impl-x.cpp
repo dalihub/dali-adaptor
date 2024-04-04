@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,31 +20,25 @@
 
 // EXTERNAL_HEADERS
 #include <dali/internal/system/linux/dali-ecore-x.h>
-#include <dali/integration-api/debug.h>
 
 // INTERNAL HEADERS
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 DisplayConnection* DisplayConnectionX11::New()
 {
-  //DisplayConnection* pDisplayConnection(new DisplayConnection());
-
-  //return pDisplayConnection;
   return nullptr;
+  DisplayConnection* pDisplayConnection(new DisplayConnectionX11());
+  return pDisplayConnection;
 }
 
 DisplayConnectionX11::DisplayConnectionX11()
-: mGraphics( nullptr ),
-  mDisplay( nullptr )
+: mDisplay(nullptr)
 {
 }
 
@@ -58,7 +52,7 @@ DisplayConnectionX11::~DisplayConnectionX11()
 
 Any DisplayConnectionX11::GetDisplay()
 {
-  return Any(mDisplay);
+  return {mDisplay};
 }
 
 void DisplayConnectionX11::ConsumeEvents()
@@ -71,34 +65,23 @@ void DisplayConnectionX11::ConsumeEvents()
     // Check if there are any events in the queue
     events = XEventsQueued(mDisplay, QueuedAfterFlush);
 
-    if (events > 0)
+    if(events > 0)
     {
       // Just flush event to prevent memory leak from event queue as the events get built up in
       // memory but are only deleted when we retrieve them
       XEvent ev;
       XNextEvent(mDisplay, &ev);
     }
-  }
-  while (events > 0);
+  } while(events > 0);
 }
 
-bool DisplayConnectionX11::InitializeGraphics()
+void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
 {
-  return true;
-}
-
-void DisplayConnectionX11::SetSurfaceType( Integration::RenderSurface::Type type )
-{
-  if( type == Integration::RenderSurface::WINDOW_RENDER_SURFACE )
+  if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
   {
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);
   }
-}
-
-void DisplayConnectionX11::SetGraphicsInterface( Graphics::GraphicsInterface& graphics )
-{
-  mGraphics = &graphics;
 }
 
 } // namespace Adaptor

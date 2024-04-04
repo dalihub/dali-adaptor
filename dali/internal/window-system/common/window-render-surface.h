@@ -19,22 +19,21 @@
  */
 
 // INTERNAL INCLUDES
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/render-surface-interface.h>
-#else
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#endif
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+
 
 // EXTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#if !defined(VULKAN_ENABLED)
+#include <EGL/egl.h>
+#endif
 #include <dali/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <memory>
 
 namespace Dali
 {
-
 namespace Integration
 {
 class Surface;
@@ -42,11 +41,8 @@ class Surface;
 
 class TriggerEventInterface;
 
-namespace Internal
+namespace Internal::Adaptor
 {
-namespace Adaptor
-{
-
 class WindowBase;
 class AdaptorInternalServices;
 
@@ -70,7 +66,7 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~WindowRenderSurface();
+  ~WindowRenderSurface() override;
 
 public: // API
 
@@ -127,86 +123,86 @@ public: // from Dali::Integration::RenderSurface
   /**
    * @copydoc Dali::Integration::RenderSurface::GetPositionSize()
    */
-  virtual PositionSize GetPositionSize() const override;
+  PositionSize GetPositionSize() const override;
 
   /**
    */
-  virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
+  void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
    */
-  virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
+  void InitializeGraphics( GraphicsInterface& graphics ) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::CreateSurface()
    */
-  virtual void CreateSurface() override;
+  void CreateSurface() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::DestroySurface()
    */
-  virtual void DestroySurface() override;
+  void DestroySurface() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::ReplaceGraphicsSurface()
    */
-  virtual bool ReplaceGraphicsSurface() override;
+  bool ReplaceGraphicsSurface() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::MoveResize()
    */
-  virtual void MoveResize( Dali::PositionSize positionSize) override;
+  void MoveResize( Dali::PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::StartRender()
    */
-  virtual void StartRender() override;
+  void StartRender() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::PreRender()
    */
-  virtual bool PreRender( bool resizingSurface ) override;
+  bool PreRender( bool resizingSurface ) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::PostRender()
    */
-  virtual void PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface );
+  void PostRender() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::StopRender()
    */
-  virtual void StopRender() override;
+   void StopRender() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::SetThreadSynchronization
    */
-  virtual void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
+   void SetThreadSynchronization( ThreadSynchronizationInterface& threadSynchronization ) override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::ReleaseLock()
    */
-  virtual void ReleaseLock() override;
+   void ReleaseLock() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::GetSurfaceType()
    */
-  virtual Integration::RenderSurface::Type GetSurfaceType() override;
+   Integration::RenderSurface::Type GetSurfaceType() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::MakeContextCurrent()
    */
-  virtual void MakeContextCurrent() override;
+   void MakeContextCurrent() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurfacsudo e::GetDepthBufferRequired()
    */
-  virtual Integration::DepthBufferAvailable GetDepthBufferRequired() override;
+   Integration::DepthBufferAvailable GetDepthBufferRequired() override;
 
   /**
    * @copydoc Dali::Integration::RenderSurface::GetStencilBufferRequired()
    */
-  virtual Integration::StencilBufferAvailable GetStencilBufferRequired() override;
+   Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
 
@@ -241,7 +237,7 @@ private: // Data
   ThreadSynchronizationInterface* mThreadSynchronization;
   TriggerEventInterface*          mRenderNotification; ///< Render notification trigger
   TriggerEventInterface*          mRotationTrigger;
-  Graphics::GraphicsInterface*    mGraphics;           ///< Graphics interface
+  GraphicsInterface*              mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
   int                             mRotationAngle;
@@ -251,12 +247,16 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
+#if defined(VULKAN_ENABLED)
   std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
+#else
+  EGLSurface                      mEGLSurface;         ///< EGL surface
+#endif
 }; // class WindowRenderSurface
 
-} // namespace Adaptor
+} // namespace Internal::Adaptor
 
-} // namespace internal
+// namespace internal
 
 } // namespace Dali
 

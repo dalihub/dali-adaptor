@@ -22,13 +22,13 @@
 #include <dali/integration-api/core.h>
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
-#include <dali/integration-api/trigger-event-interface.h>
-#include <dali/integration-api/trigger-event-factory-interface.h>
-#include <dali/integration-api/render-surface-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory-interface.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/network/common/socket-factory-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/common/vsync-monitor-interface.h>
 #include <dali/internal/network/common/trace-interface.h>
 #include <dali/integration-api/render-surface.h>
@@ -74,7 +74,7 @@ public:
    * This also contains the depth and stencil buffers
    * @return the graphics interface
    */
-  virtual Dali::Graphics::GraphicsInterface& GetGraphicsInterface() = 0;
+  virtual GraphicsInterface& GetGraphicsInterface() = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process

@@ -63,6 +63,25 @@ struct Memory
   };
 };
 
+/**
+ * @brief Struct for orientation of the device.
+ * @SINCE_2_2.1
+ */
+struct Orientation
+{
+  /**
+   * @brief Enumeration for orientation status.
+   * @SINCE_2_2.1
+   */
+  enum Status
+  {
+    ORIENTATION_0 = 0,       ///< The device is oriented in a natural position @SINCE_2_2.1
+    ORIENTATION_90 = 90,     ///< The device's left side is at the top @SINCE_2_2.1
+    ORIENTATION_180 = 180,   ///< The device is upside down @SINCE_2_2.1
+    ORIENTATION_270 = 270    ///< The device's right side is at the top @SINCE_2_2.1
+  };
+};
+
 }// namespace DeviceStatus
 
 /**

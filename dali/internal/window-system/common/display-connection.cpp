@@ -23,29 +23,25 @@
 #include <dali/internal/window-system/common/display-connection-impl.h>
 #include <dali/internal/window-system/common/display-connection-factory.h>
 
-
 namespace Dali
 {
 
-DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics )
+DisplayConnection* DisplayConnection::New()
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
   Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
-  internal->SetGraphicsInterface( graphics );
-
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New( Dali::Graphics::GraphicsInterface& graphics, Integration::RenderSurface::Type type )
+DisplayConnection* DisplayConnection::New( Integration::RenderSurface::Type type )
 {
   auto factory = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();
 
   Internal::Adaptor::DisplayConnection* internal( displayConnection.release() );
 
-  internal->SetGraphicsInterface( graphics );
   internal->SetSurfaceType( type );
 
   return new DisplayConnection(internal);
@@ -59,8 +55,7 @@ DisplayConnection::DisplayConnection(Internal::Adaptor::DisplayConnection* impl)
 {
   mImpl.reset( impl );
 }
-
-Any DisplayConnection::GetDisplay()
+Any DisplayConnection::GetDisplay() const
 {
   return mImpl->GetDisplay();
 }
@@ -68,11 +63,6 @@ Any DisplayConnection::GetDisplay()
 void DisplayConnection::ConsumeEvents()
 {
   mImpl->ConsumeEvents();
-}
-
-bool DisplayConnection::Initialize()
-{
-  return mImpl->InitializeGraphics();
 }
 
 }

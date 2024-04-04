@@ -21,7 +21,7 @@
 #include <iostream>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor.h>
+#include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/public-api/adaptor-framework/application.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 

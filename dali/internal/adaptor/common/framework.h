@@ -1,8 +1,8 @@
-#ifndef __DALI_INTERNAL_FRAMEWORK_H__
-#define __DALI_INTERNAL_FRAMEWORK_H__
+#ifndef DALI_INTERNAL_FRAMEWORK_H
+#define DALI_INTERNAL_FRAMEWORK_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2022 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
  */
 
 // EXTERNAL INCLUDES
-#include <string>
 #include <dali/public-api/signals/callback.h>
+#include <string>
 #ifdef APPCORE_WATCH_AVAILABLE
 #include <dali/public-api/watch/watch-application.h>
 #endif
@@ -29,15 +29,16 @@
 #include <dali/internal/system/common/abort-handler.h>
 #include <dali/public-api/adaptor-framework/device-status.h>
 
+#ifdef COMPONENT_APPLICATION_SUPPORT
+#include <dali/devel-api/adaptor-framework/component-application.h>
+#endif
+
 namespace Dali
 {
-
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * The Framework class is ideally placed to provide key API required by Applications.
  *
@@ -49,12 +50,12 @@ namespace Adaptor
 class Framework
 {
 public:
-
   enum Type
   {
-    NORMAL,       ///< normal appFramework
-    WATCH,        ///< watch appFramework
-    WIDGET        ///< widget appFramework
+    NORMAL,   ///< normal appFramework
+    WATCH,    ///< watch appFramework
+    WIDGET,   ///< widget appFramework
+    COMPONENT ///< component appFramework
   };
 
   /**
@@ -63,78 +64,126 @@ public:
   class Observer
   {
   public:
-
     /**
      * Invoked when the application is to be initialised.
      */
-    virtual void OnInit() {}
+    virtual void OnInit()
+    {
+    }
 
     /**
      * Invoked when the application is to be terminated.
      */
-    virtual void OnTerminate() {}
+    virtual void OnTerminate()
+    {
+    }
 
     /**
      * Invoked when the application is to be paused.
      */
-    virtual void OnPause() {}
+    virtual void OnPause()
+    {
+    }
 
     /**
      * Invoked when the application is to be resumed.
      */
-    virtual void OnResume() {}
+    virtual void OnResume()
+    {
+    }
 
     /**
      * Invoked when the application is to be reset.
      */
-    virtual void OnReset() {}
+    virtual void OnReset()
+    {
+    }
 
     /**
     * Invoked when the AppControl message is received.
     * @param[in] The bundle data of AppControl message.
     */
-    virtual void OnAppControl(void *) {}
+    virtual void OnAppControl(void*)
+    {
+    }
 
 #ifdef APPCORE_WATCH_AVAILABLE
     /**
      * Invoked at every second
      */
-    virtual void OnTimeTick(WatchTime&) {}
+    virtual void OnTimeTick(WatchTime&)
+    {
+    }
 
     /**
      * Invoked at every second in ambient mode
      */
-    virtual void OnAmbientTick(WatchTime&) {}
+    virtual void OnAmbientTick(WatchTime&)
+    {
+    }
 
     /**
      * Invoked when the device enters or exits ambient mode
      */
-    virtual void OnAmbientChanged(bool ambient) {}
+    virtual void OnAmbientChanged(bool ambient)
+    {
+    }
 #endif
 
     /**
      * Invoked when the language of the device is changed.
      */
-    virtual void OnLanguageChanged() {}
+    virtual void OnLanguageChanged()
+    {
+    }
 
     /**
-    * Invoked when the region is changed.
-    */
-    virtual void OnRegionChanged() {}
+     * Invoked when the region is changed.
+     */
+    virtual void OnRegionChanged()
+    {
+    }
 
     /**
-    * Invoked when the battery level of the device is low.
-    */
-    virtual void OnBatteryLow( Dali::DeviceStatus::Battery::Status status ) {}
+     * Invoked when the battery level of the device is low.
+     */
+    virtual void OnBatteryLow(Dali::DeviceStatus::Battery::Status status)
+    {
+    }
 
     /**
-    * Invoked when the memory level of the device is low.
-    */
-    virtual void OnMemoryLow( Dali::DeviceStatus::Memory::Status status ) {}
+     * Invoked when the memory level of the device is low.
+     */
+    virtual void OnMemoryLow(Dali::DeviceStatus::Memory::Status status)
+    {
+    }
+
+    /**
+     * Invoked when the platform surface is created.
+     */
+    virtual void OnSurfaceCreated(Any newSurface)
+    {
+    }
+
+    /**
+     * Invoked when the platform surface is destroyed.
+     */
+    virtual void OnSurfaceDestroyed(Any newSurface)
+    {
+    }
+
+#ifdef COMPONENT_APPLICATION_SUPPORT
+    /**
+     * Invoked when the component application is created.
+     */
+    virtual Any OnCreate()
+    {
+      return nullptr;
+    }
+#endif
   };
 
 public:
-
   /**
    * Constructor
    * @param[in]  observer  The observer of the Framework.
@@ -142,7 +191,7 @@ public:
    * @param[in]  argv      A pointer the the argument list.
    * @param[in]  type      The type of application
    */
-  Framework( Observer& observer, int* argc, char ***argv, Type type = NORMAL );
+  Framework(Observer& observer, int* argc, char*** argv, Type type = NORMAL);
 
   /**
    * Destructor
@@ -150,7 +199,6 @@ public:
   ~Framework();
 
 public:
-
   /**
    * Runs the main loop of framework
    */
@@ -173,7 +221,7 @@ public:
    * @note Only one callback can be registered.  The last callback to be set will be called on abort.
    * @note The ownership of callback is passed onto this class.
    */
-  void AddAbortCallback( CallbackBase* callback );
+  void AddAbortCallback(CallbackBase* callback);
 
   /**
    * Gets bundle name which was passed in app_reset callback.
@@ -184,6 +232,18 @@ public:
    * Gets bundle id which was passed in app_reset callback.
    */
   std::string GetBundleId() const;
+
+  /**
+   * Sets a command line options.
+   * This is used in case of the preinitialized application.
+   * @param[in] argc A pointer to the number of arguments
+   * @param[in] argv A pointer to the argument list
+   */
+  void SetCommandLineOptions(int* argc, char** argv[])
+  {
+    mArgc = argc;
+    mArgv = argv;
+  }
 
   /**
    *  Gets the path at which application resources are stored.
@@ -198,12 +258,12 @@ public:
   /**
    * Sets system language.
    */
-  void SetLanguage( const std::string& language );
+  void SetLanguage(const std::string& language);
 
   /**
    * Sets system region.
    */
-  void SetRegion( const std::string& region );
+  void SetRegion(const std::string& region);
 
   /**
    * Gets system language.
@@ -215,25 +275,38 @@ public:
    */
   std::string GetRegion() const;
 
-private:
+  /**
+   * Called by the App framework when an application lifecycle event occurs.
+   * @param[in] type The type of event occurred.
+   * @param[in] data The data of event occurred.
+   */
+  bool AppStatusHandler(int type, void* data);
 
+  /**
+   * Called by the adaptor when an idle callback is added.
+   * @param[in] timeout The timeout of the callback.
+   * @param[in] data The data of of the callback.
+   * @param[in] callback The callback.
+   * @return The callback id.
+   */
+  unsigned int AddIdle(int timeout, void* data, bool (*callback)(void* data));
+
+  /**
+   * Called by the adaptor when an idle callback is removed.
+   * @param[in] id The callback id.
+   */
+  void RemoveIdle(unsigned int id);
+
+private:
   // Undefined
   Framework(const Framework&);
   Framework& operator=(Framework&);
 
 private:
-
   /**
    * Called when the application is created.
    */
   bool Create();
-
-  /**
-   * Called by the App framework when an application lifecycle event occurs.
-   * @param[in] type The type of event occurred.
-   * @param[in] bundleData The bundle data of event occurred.
-   */
-  bool AppStatusHandler(int type, void *bundleData);
 
   /**
    * Called app_reset callback was called with bundle.
@@ -256,17 +329,17 @@ private:
   void InitThreads();
 
 private:
-  Observer&          mObserver;
-  bool               mInitialised;
-  bool               mRunning;
-  int*               mArgc;
-  char***            mArgv;
-  std::string        mBundleName;
-  std::string        mBundleId;
-  AbortHandler       mAbortHandler;
+  Observer&    mObserver;
+  bool         mInitialised;
+  bool         mPaused;
+  bool         mRunning;
+  int*         mArgc;
+  char***      mArgv;
+  std::string  mBundleName;
+  std::string  mBundleId;
+  AbortHandler mAbortHandler;
 
 private: // impl members
-
   struct Impl;
   Impl* mImpl;
 };
@@ -277,4 +350,4 @@ private: // impl members
 
 } // namespace Dali
 
-#endif // __DALI_INTERNAL_FRAMEWORK_H__
+#endif // DALI_INTERNAL_FRAMEWORK_H

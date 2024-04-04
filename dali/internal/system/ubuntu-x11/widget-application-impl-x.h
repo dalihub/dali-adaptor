@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WIDGET_APPLICATION_IMPL_UBUNTU_H
 
 /*
- * Copyright (c) 2018 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,19 +29,16 @@ class Widget;
 
 namespace Internal
 {
-
 namespace Adaptor
 {
-
 /**
  * Implementation of the WidgetApplicationUbuntu class.
  */
 class WidgetApplicationUbuntu : public WidgetApplication
 {
 public:
-
-  typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction >  CreateWidgetFunctionPair;
-  typedef std::vector< CreateWidgetFunctionPair >   CreateWidgetFunctionContainer;
+  typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction> CreateWidgetFunctionPair;
+  typedef std::vector<CreateWidgetFunctionPair>                                       CreateWidgetFunctionContainer;
 
   /**
    * Create a new widget application
@@ -49,24 +46,22 @@ public:
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    */
-  static WidgetApplicationPtr New( int* argc, char **argv[], const std::string& stylesheet );
+  static WidgetApplicationPtr New(int* argc, char** argv[], const std::string& stylesheet);
 
 public:
-
   /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()
    */
-  void RegisterWidgetCreatingFunction( const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction ) override;
+  void RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction) override;
 
 protected:
-
   /**
    * Private Constructor
    * @param[in]  argc         A pointer to the number of arguments
    * @param[in]  argv         A pointer to the argument list
    * @param[in]  stylesheet   The path to user defined theme file
    */
-  WidgetApplicationUbuntu( int* argc, char **argv[], const std::string& stylesheet );
+  WidgetApplicationUbuntu(int* argc, char** argv[], const std::string& stylesheet);
 
   /**
    * Destructor

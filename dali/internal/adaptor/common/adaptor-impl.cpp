@@ -25,7 +25,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/devel-api/actors/actor-devel.h>
 
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
@@ -59,28 +59,25 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 
-
+//@todo ABSTRACT THIS!
+#ifndef VULKAN_ENABLED
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
 
 using Dali::TextAbstraction::FontClient;
 
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 namespace
 {
-thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
+thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific pointer to allow Adaptor::Get
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
-  Dali::Adaptor* adaptor = new Dali::Adaptor;
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions );
+  auto* adaptor = new Dali::Adaptor;
+  auto* impl = new Adaptor( window, *adaptor, surface, environmentOptions );
   adaptor->mImpl = impl;
 
   AdaptorBuilder& adaptorBuilder( AdaptorBuilder::Get( *environmentOptions ) );
@@ -101,8 +98,8 @@ Dali::Adaptor* Adaptor::New( Dali::Window window, Dali::Configuration::ContextLo
 
 Dali::Adaptor* Adaptor::New( GraphicsFactoryInterface& graphicsFactory, Dali::Window window, Dali::RenderSurfaceInterface *surface, Dali::Configuration::ContextLoss configuration, EnvironmentOptions* environmentOptions )
 {
-  Dali::Adaptor* adaptor = new Dali::Adaptor; // Public adaptor
-  Adaptor* impl = new Adaptor( window, *adaptor, surface, environmentOptions ); // Impl adaptor
+  auto* adaptor = new Dali::Adaptor; // Public adaptor
+  auto* impl = new Adaptor( window, *adaptor, surface, environmentOptions ); // Impl adaptor
   adaptor->mImpl = impl;
 
   impl->Initialize( graphicsFactory, configuration );
@@ -178,9 +175,9 @@ void Adaptor::Initialize( GraphicsFactoryInterface& graphicsFactory, Dali::Confi
 
   mNotificationTrigger = mTriggerEventFactory.CreateTriggerEvent( MakeCallback( this, &Adaptor::ProcessCoreEvents ), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
-  mVSyncMonitor = new VSyncMonitor;
+  //mVSyncMonitor = new VSyncMonitor;
 
-  mDisplayConnection = Dali::DisplayConnection::New( *mGraphics, defaultWindow->GetSurface()->GetSurfaceType() );
+  mDisplayConnection = Dali::DisplayConnection::New( defaultWindow->GetSurface()->GetSurfaceType() );
 
   mThreadController = new ThreadController( *this, *mGraphics, *mEnvironmentOptions );
 
@@ -607,7 +604,7 @@ void Adaptor::SetRenderRefreshRate( unsigned int numberOfVSyncsPerRender )
 
 void Adaptor::SetUseHardwareVSync( bool useHardware )
 {
-  mVSyncMonitor->SetUseHardwareVSync( useHardware );
+  //mVSyncMonitor->SetUseHardwareVSync( useHardware );
 }
 
 Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
@@ -616,7 +613,7 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
   return *mDisplayConnection;
 }
 
-Dali::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
+GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG( mGraphics && "Graphics interface not created" );
   return *mGraphics;
@@ -708,11 +705,10 @@ Any Adaptor::GetGraphicsDisplay()
 {
   Any display;
 
-#if 0
+#ifndef VULKAN_ENABLED
   if (mGraphics)
   {
-    auto eglGraphics = static_cast<eglGraphics *>( mGraphics ); // This interface is temporary until Core has been updated to match
-
+    auto eglGraphics = static_cast<EglGraphics *>( mGraphics );
     EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     display = eglImpl.GetDisplay();
   }
@@ -995,8 +991,4 @@ void Adaptor::RemoveIdleEnterer( CallbackBase* callback )
   mCallbackManager->RemoveIdleEntererCallback( callback );
 }
 
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

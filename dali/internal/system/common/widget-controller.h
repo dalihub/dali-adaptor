@@ -42,7 +42,18 @@ public:
   /**
    * Set content information to widget framework
    */
-  virtual void SetContentInfo( const std::string& contentInfo ) = 0;
+  virtual void SetContentInfo(const std::string& contentInfo) = 0;
+
+  /**
+   * Check Widget is using key
+   */
+  virtual bool IsKeyEventUsing() const = 0;
+
+  /**
+   * Set the flag that widget is using keyEvent
+   */
+  virtual void SetUsingKeyEvent(bool flag) = 0;
+
 };
 
 } // namespace Adaptor

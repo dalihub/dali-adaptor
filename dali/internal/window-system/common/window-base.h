@@ -33,7 +33,6 @@
 #include <vector>
 #include <cstdint>
 
-using EGLNativeWindowType = Dali::Any;
 
 namespace Dali
 {
@@ -108,39 +107,39 @@ public:
   virtual int GetNativeWindowId() = 0;
 
   /**
-   * @brief Create the egl window
+   * @brief Create the  window
    */
-  virtual EGLNativeWindowType CreateEglWindow( int width, int height ) = 0;
+  virtual Dali::Any CreateWindow( int width, int height ) = 0;
 
   /**
-   * @brief Destroy the egl window
+   * @brief Destroy the  window
    */
-  virtual void DestroyEglWindow() = 0;
+  virtual void DestroyWindow() = 0;
 
   /**
-   * @brief Set the egl window rotation
+   * @brief Set the  window rotation
    */
-  virtual void SetEglWindowRotation( int angle ) = 0;
+  virtual void SetWindowRotation( int angle ) = 0;
 
   /**
-   * @brief Set the egl window buffer transform
+   * @brief Set the  window buffer transform
    */
-  virtual void SetEglWindowBufferTransform( int angle ) = 0;
+  virtual void SetWindowBufferTransform( int angle ) = 0;
 
   /**
-   * @brief Set the egl window transform
+   * @brief Set the  window transform
    */
-  virtual void SetEglWindowTransform( int angle ) = 0;
+  virtual void SetWindowTransform( int angle ) = 0;
 
   /**
-   * @brief Resize the egl window
+   * @brief Resize the  window
    */
-  virtual void ResizeEglWindow( Dali::PositionSize positionSize ) = 0;
+  virtual void ResizeWindow( Dali::PositionSize positionSize ) = 0;
 
   /**
-   * @brief Returns whether the egl window support rotation or not
+   * @brief Returns whether the  window support rotation or not
    */
-  virtual bool IsEglWindowRotationSupported() = 0;
+  virtual bool IsWindowRotationSupported() = 0;
 
   /**
    * @brief Move the window
@@ -176,16 +175,6 @@ public:
    * @copydoc Dali::Window::Activate()
    */
   virtual void Activate() = 0;
-
-  /**
-   * @copydoc Dali::Window::SetAvailableOrientations()
-   */
-  virtual void SetAvailableOrientations( const std::vector< Dali::Window::WindowOrientation >& orientations ) = 0;
-
-  /**
-   * @copydoc Dali::Window::SetPreferredOrientation()
-   */
-  virtual void SetPreferredOrientation( Dali::Window::WindowOrientation orientation ) = 0;
 
   /**
    * @copydoc Dali::Window::SetAcceptFocus()
@@ -246,6 +235,8 @@ public:
    * @copydoc Dali::Window::SetType()
    */
   virtual void SetType( Dali::Window::Type type ) = 0;
+
+  [[nodiscard]] virtual Dali::Window::Type GetType() const = 0;
 
   /**
    * @copydoc Dali::Window::SetNotificationLevel()
@@ -310,6 +301,11 @@ public:
   virtual void GetDpi( unsigned int& dpiHorizontal, unsigned int& dpiVertical ) = 0;
 
   /**
+   * @brief Get the window rotation angle
+   */
+  virtual int GetWindowRotationAngle() const = 0;
+
+  /**
    * @brief Get the screen rotation angle of the window
    */
   virtual int GetScreenRotationAngle() = 0;
@@ -318,6 +314,10 @@ public:
    * @brief Set the rotation angle of the window
    */
   virtual void SetWindowRotationAngle( int degree ) = 0;
+
+  virtual void SetAvailableOrientations( const std::vector<Dali::Window::WindowOrientation>& orientations ) = 0;
+
+  virtual void SetPreferredOrientation(Dali::Window::WindowOrientation orientation) = 0;
 
   /**
    * @brief Inform the window rotation is completed
