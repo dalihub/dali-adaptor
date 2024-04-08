@@ -45,23 +45,15 @@ void TestApplication::Initialize()
 
   mCore = Dali::Integration::Core::New( mRenderController,
                                         mPlatformAbstraction,
-                                        mGlAbstraction,
-                                        mGlSyncAbstraction,
+                                        *mGraphicsController,
                                         mGestureManager,
                                         mDataRetentionPolicy,
                                         Integration::RenderToFrameBuffer::FALSE,
                                         Integration::DepthBufferAvailable::TRUE,
                                         Integration::StencilBufferAvailable::TRUE );
 
-  mCore->ContextCreated();
-
   Dali::Integration::Log::LogFunction logFunction(&TestApplication::LogMessage);
   Dali::Integration::Log::InstallLogFunction(logFunction);
-
-  Dali::Integration::Trace::LogContextFunction logContextFunction(&TestApplication::LogContext);
-  Dali::Integration::Trace::InstallLogContextFunction( logContextFunction );
-
-  Dali::Integration::Trace::LogContext( true, "Test" );
 
   mRenderSurface = new TestRenderSurface( Dali::PositionSize( 0, 0, mSurfaceWidth, mSurfaceHeight ) );
   mScene = Dali::Integration::Scene::New( Vector2( static_cast<float>( mSurfaceWidth ), static_cast<float>( mSurfaceHeight ) ) );
@@ -100,6 +92,9 @@ void TestApplication::LogMessage(Dali::Integration::Log::DebugPriority level, st
   {
     switch(level)
     {
+      case Dali::Integration::Log::DebugDebug:
+        fprintf(stderr, "DEBUG: %s", message.c_str());
+        break;
       case Dali::Integration::Log::DebugInfo:
         fprintf(stderr, "INFO: %s", message.c_str());
         break;
@@ -126,19 +121,14 @@ TestPlatformAbstraction& TestApplication::GetPlatform()
   return mPlatformAbstraction;
 }
 
+TestGraphicsController& TestApplication::GetGraphicsController()
+{
+  return *mGraphicsController.get();
+}
+
 TestRenderController& TestApplication::GetRenderController()
 {
   return mRenderController;
-}
-
-TestGlAbstraction& TestApplication::GetGlAbstraction()
-{
-  return mGlAbstraction;
-}
-
-TestGlSyncAbstraction& TestApplication::GetGlSyncAbstraction()
-{
-  return mGlSyncAbstraction;
 }
 
 TestGestureManager& TestApplication::GetGestureManager()
@@ -179,7 +169,6 @@ void TestApplication::DoUpdate( uint32_t intervalMilliseconds, const char* locat
 bool TestApplication::Render( uint32_t intervalMilliseconds, const char* location )
 {
   DoUpdate( intervalMilliseconds, location );
-  mCore->Render( mRenderStatus, false );
 
   mFrame++;
 
@@ -210,13 +199,6 @@ bool TestApplication::RenderOnly( )
   mFrame++;
 
   return mRenderStatus.NeedsUpdate();
-}
-
-void TestApplication::ResetContext()
-{
-  mCore->ContextDestroyed();
-  mGlAbstraction.Initialize();
-  mCore->ContextCreated();
 }
 
 uint32_t TestApplication::Wait( uint32_t durationToWait )

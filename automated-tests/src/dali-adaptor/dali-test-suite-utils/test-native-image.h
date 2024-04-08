@@ -21,7 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/public-api/images/native-image-interface.h>
 #include <dali/devel-api/images/native-image-interface-extension.h>
-#include <dali/integration-api/gl-defines.h>
+
 
 namespace Dali
 {
@@ -36,7 +36,9 @@ public:
   inline const char* GetCustomFragmentPreFix(){return "#extension GL_OES_EGL_image_external:require\n";}
   inline const char* GetCustomSamplerTypename(){return "samplerExternalOES";}
 
-  inline int32_t GetEglImageTextureTarget(){return GL_TEXTURE_EXTERNAL_OES;}
+  inline int32_t GetEglImageTextureTarget(){return 0x8D65;} // GL_TEXTURE_EXTERNAL_OES
+  inline bool IsSetSource() const {return false;}
+  inline Any GetNativeImageHandle() const {return Dali::Any();}
 
 };
 
@@ -48,7 +50,7 @@ public:
   inline void SetGlExtensionCreateResult(bool result){ createResult = result;}
   inline virtual bool GlExtensionCreate() { ++mExtensionCreateCalls; return createResult;};
   inline virtual void GlExtensionDestroy() { ++mExtensionDestroyCalls; };
-  inline virtual GLenum TargetTexture() { ++mTargetTextureCalls; return 0;};
+  inline virtual uint32_t TargetTexture() { ++mTargetTextureCalls; return 0;};
   inline virtual void PrepareTexture() {};
   inline virtual uint32_t GetWidth() const {return mWidth;};
   inline virtual uint32_t GetHeight() const {return mHeight;};
@@ -79,7 +81,7 @@ public:
   inline void SetGlExtensionCreateResult(bool result){ createResult = result;}
   inline virtual bool GlExtensionCreate() { ++mExtensionCreateCalls; return createResult;};
   inline virtual void GlExtensionDestroy() { ++mExtensionDestroyCalls; };
-  inline virtual GLenum TargetTexture() { ++mTargetTextureCalls; return 1;};
+  inline virtual uint32_t TargetTexture() { ++mTargetTextureCalls; return 1;};
   inline virtual void PrepareTexture() {};
   inline virtual uint32_t GetWidth() const {return mWidth;};
   inline virtual uint32_t GetHeight() const {return mHeight;};

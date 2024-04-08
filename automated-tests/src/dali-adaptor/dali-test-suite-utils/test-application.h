@@ -21,14 +21,15 @@
 // INTERNAL INCLUDES
 #include <test-platform-abstraction.h>
 #include "test-gesture-manager.h"
-#include "test-gl-sync-abstraction.h"
-#include "test-gl-abstraction.h"
 #include "test-render-controller.h"
+#include "test-graphics-controller.h"
 #include "test-render-surface.h"
+#include <dali/integration-api/scene.h>
 #include <dali/public-api/common/dali-common.h>
+#include <dali/public-api/signals/connection-tracker.h>
+#include <dali/integration-api/core.h>
 #include <dali/integration-api/resource-policies.h>
 #include <dali/integration-api/trace.h>
-#include <dali/integration-api/scene.h>
 
 namespace Dali
 {
@@ -65,9 +66,8 @@ public:
   static void LogContext( bool start, const char* tag );
   Dali::Integration::Core& GetCore();
   TestPlatformAbstraction& GetPlatform();
+  TestGraphicsController& GetGraphicsController();
   TestRenderController& GetRenderController();
-  TestGlAbstraction& GetGlAbstraction();
-  TestGlSyncAbstraction& GetGlSyncAbstraction();
   TestGestureManager& GetGestureManager();
   void ProcessEvent(const Integration::Event& event);
   void SendNotification();
@@ -92,11 +92,10 @@ private:
   void DoUpdate( uint32_t intervalMilliseconds, const char* location=NULL );
 
 protected:
-  TestPlatformAbstraction   mPlatformAbstraction;
-  TestRenderController      mRenderController;
-  TestGlAbstraction         mGlAbstraction;
-  TestGlSyncAbstraction     mGlSyncAbstraction;
-  TestGestureManager        mGestureManager;
+  TestPlatformAbstraction             mPlatformAbstraction;
+  std::unique_ptr<TestGraphicsController> mGraphicsController;
+  TestRenderController                mRenderController;
+  TestGestureManager                  mGestureManager;
   TestRenderSurface*        mRenderSurface;
 
   Integration::UpdateStatus mStatus;

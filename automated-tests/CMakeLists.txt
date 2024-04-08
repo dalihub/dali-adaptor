@@ -1,6 +1,9 @@
 include(CheckIncludeFileCXX)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+SET(CMAKE_C_STANDARD 99)
+SET(CMAKE_CXX_STANDARD 17)
+
 PROJECT(tct_coreapi_utc)
 
 INCLUDE(FindPkgConfig)

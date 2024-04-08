@@ -18,12 +18,13 @@
 #include "test-platform-abstraction.h"
 #include "dali-test-suite-utils.h"
 #include <dali/integration-api/bitmap.h>
+#include "test-trace-call-stack.h"
 
 namespace Dali
 {
 
 TestPlatformAbstraction::TestPlatformAbstraction()
-: mTrace(),
+: mTrace(false, ""),
   mIsLoadingResult( false ),
   mClosestSize(),
   mLoadFileResult(),
@@ -44,7 +45,13 @@ ImageDimensions TestPlatformAbstraction::GetClosestImageSize( const std::string&
                                                               bool orientationCorrection )
 {
   ImageDimensions closestSize = ImageDimensions( mClosestSize );
-  mTrace.PushCall("GetClosestImageSize", "");
+  TraceCallStack::NamedParams namedParams;
+  namedParams["filename"] << filename;
+  namedParams["size"] << size.GetWidth() << ", " << size.GetHeight();
+  namedParams["fittingMode"] << fittingMode;
+  namedParams["samplingMode"] << samplingMode;
+  namedParams["orientationCorrection"] << orientationCorrection;
+  mTrace.PushCall("GetClosestImageSize", "", namedParams);
   return closestSize;
 }
 
@@ -73,7 +80,9 @@ Integration::BitmapPtr TestPlatformAbstraction::DecodeBuffer( const Integration:
 
 bool TestPlatformAbstraction::LoadShaderBinaryFile( const std::string& filename, Dali::Vector< unsigned char >& buffer ) const
 {
-  mTrace.PushCall("LoadShaderBinaryFile", "");
+  TraceCallStack::NamedParams namedParams;
+  namedParams["filename"]<<filename;
+  mTrace.PushCall("LoadShaderBinaryFile", "", namedParams);
   if( mLoadFileResult.loadResult )
   {
     buffer = mLoadFileResult.buffer;

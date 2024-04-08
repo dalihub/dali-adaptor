@@ -210,8 +210,9 @@ int UtcDaliPixelBufferNew01N(void)
 int UtcDaliPixelBufferConvert(void)
 {
   TestApplication application;
-  TestGlAbstraction& gl=application.GetGlAbstraction();
-  TraceCallStack& textureTrace=gl.GetTextureTrace();
+  //TestGlAbstraction& gl=application.GetGlAbstraction();
+  TestGraphicsController& graphics = application.GetGraphicsController();
+  TraceCallStack& textureTrace=graphics.GetTextureTrace();
   textureTrace.Enable(true);
 
   Devel::PixelBuffer pixbuf = Devel::PixelBuffer::New( 10, 10, Pixel::RGB565 );

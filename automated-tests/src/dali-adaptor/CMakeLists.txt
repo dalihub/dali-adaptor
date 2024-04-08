@@ -28,8 +28,20 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-harness.cpp
     dali-test-suite-utils/test-application.cpp
     dali-test-suite-utils/test-gesture-manager.cpp
-    dali-test-suite-utils/test-gl-abstraction.cpp
-    dali-test-suite-utils/test-gl-sync-abstraction.cpp
+
+    dali-test-suite-utils/test-graphics-sync-impl.cpp
+    dali-test-suite-utils/test-graphics-sync-object.cpp
+    dali-test-suite-utils/test-graphics-buffer.cpp
+    dali-test-suite-utils/test-graphics-command-buffer.cpp
+    dali-test-suite-utils/test-graphics-controller.cpp
+    dali-test-suite-utils/test-graphics-framebuffer.cpp
+    dali-test-suite-utils/test-graphics-pipeline.cpp
+    dali-test-suite-utils/test-graphics-reflection.cpp
+    dali-test-suite-utils/test-graphics-texture.cpp
+    dali-test-suite-utils/test-graphics-sampler.cpp
+    dali-test-suite-utils/test-graphics-shader.cpp
+    dali-test-suite-utils/test-graphics-program.cpp
+
     dali-test-suite-utils/test-native-image.cpp
     dali-test-suite-utils/test-platform-abstraction.cpp
     dali-test-suite-utils/test-render-controller.cpp
@@ -39,13 +51,13 @@ LIST(APPEND TC_SOURCES
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
-    dali-core
-    dali-adaptor
+    dali2-core
+    dali2-adaptor
     ecore
     ecore-x
 )
 
-ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
+ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror -Wno-unknown-pragmas)
 ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
 
 ADD_DEFINITIONS(-DTEST_RESOURCE_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../../resources\" )
