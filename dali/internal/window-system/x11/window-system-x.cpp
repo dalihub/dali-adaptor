@@ -1097,9 +1097,9 @@ void WindowSystemX::EnableDragAndDrop(::Window window, bool enable)
 
 WindowSystemX& GetImplementation()
 {
-  if(nullptr != gWindowSystem)
+  if(nullptr == gWindowSystem)
   {
-    Initialize();
+    gWindowSystem = new WindowSystemX();
   }
   return *gWindowSystem;
 }

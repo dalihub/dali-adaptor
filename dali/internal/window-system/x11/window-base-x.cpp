@@ -853,7 +853,8 @@ void WindowBaseX::CreateInternalWindow(PositionSize positionSize, bool isTranspa
 
     mIsTransparent = true;
   }
-  mWindow = WindowSystem::GetImplementation().CreateWindow(depth, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
+  auto& windowSystem = WindowSystem::GetImplementation();
+  mWindow = windowSystem.CreateWindow(depth, positionSize.x, positionSize.y, positionSize.width, positionSize.height);
 
   if(mWindow == 0)
   {
@@ -862,7 +863,3 @@ void WindowBaseX::CreateInternalWindow(PositionSize positionSize, bool isTranspa
 }
 
 } // namespace Dali::Internal::Adaptor
-
-
-
-

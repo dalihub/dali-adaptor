@@ -31,6 +31,7 @@
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/render-surface-factory.h>
+#include <dali/internal/window-system/common/window-system.h>
 
 // To disable a macro with the same name from one of OpenGL headers
 #undef Status
@@ -150,6 +151,8 @@ Application::~Application()
 
 void Application::CreateWindow()
 {
+  WindowSystem::Initialize();
+
   if( mWindowPositionSize.width == 0 && mWindowPositionSize.height == 0 )
   {
     if( mCommandLineOptions->stageWidth > 0 && mCommandLineOptions->stageHeight > 0 )
