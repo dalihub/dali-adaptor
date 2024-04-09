@@ -128,7 +128,7 @@ CHECK_MODULE_AND_SET( CAPI_APPFW_WIDGET_BASE appcore-widget-base [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_COMMON capi-appfw-app-common [] )
 CHECK_MODULE_AND_SET( CAPI_APPFW_CONTROL capi-appfw-app-control [] )
 
-CHECK_MODULE_AND_SET( DALICORE dali2-core [] )
+CHECK_MODULE_AND_SET( DALICORE dali-core [] )
 
 CHECK_MODULE_AND_SET( THORVG thorvg thorvg_support )
 
