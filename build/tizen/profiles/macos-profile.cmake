@@ -89,7 +89,7 @@ FIND_LIBRARY( FRIBIDI_LIBRARY NAMES fribidi REQUIRED )
 
 FIND_PACKAGE( unofficial-angle REQUIRED )
 FIND_PACKAGE( unofficial-cairo REQUIRED )
-FIND_PACKAGE( dali2-core REQUIRED)
+FIND_PACKAGE( dali-core REQUIRED)
 
 FIND_PACKAGE( WebP REQUIRED )
 SET(DALI_WEBP_AVAILABLE 1)
@@ -120,7 +120,7 @@ SET(REQUIRED_LIBS
   unofficial::cairo::cairo
   WebP::webp
   WebP::webpdemux
-  dali2-core::dali2-core
+  dali-core::dali-core
   ${OpenGL}
   ${IOSurface}
   ${Foundation}

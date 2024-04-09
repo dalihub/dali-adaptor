@@ -7,6 +7,6 @@ includedir=@DEV_INCLUDE_PATH@
 Name: dali-adaptor
 Description: DALi adaptor using ecore
 Version: ${apiversion}
-Requires: dali2-core
-Libs: -L${libdir} -ldali2-adaptor
+Requires: dali-core
+Libs: -L${libdir} -ldali-adaptor
 Cflags: -I${includedir}/dali

@@ -2,7 +2,7 @@ IF( (NOT UBUNTU_PROFILE) )
   PKG_CHECK_MODULES(FEEDBACK feedback)
   PKG_CHECK_MODULES(MMFSOUND mm-sound)
 
-  SET(PLUGIN_TARGET dali2-feedback-plugin )
+  SET(PLUGIN_TARGET dali-feedback-plugin )
 
   MESSAGE(STATUS ${ROOT_SRC_DIR}/plugins )
   SET( plugin_src_dir ${ROOT_SRC_DIR}/plugins )

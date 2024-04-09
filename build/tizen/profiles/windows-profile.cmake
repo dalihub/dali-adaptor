@@ -104,5 +104,5 @@ SET( REQUIRED_LIBS
         unofficial::cairo::cairo
         WebP::webp
         WebP::webpdemux
-        dali2-core::dali2-core
+        dali-core::dali-core
 )

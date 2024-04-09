@@ -5,6 +5,8 @@ CMakeLists_temp.txt
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
+dali-adaptor.pc
+dali-adaptor-integration.pc
 dali2-adaptor.pc
 dali2-adaptor-integration.pc
 dali-adaptor-vk-integration.pc
@@ -12,6 +14,7 @@ dali.info
 doc
 install_manifest.txt
 libdali2-adaptor.so.*
+libdali-adaptor.so.*
 linker-test
 *config.cmake
 *.dylib

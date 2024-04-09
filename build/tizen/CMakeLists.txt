@@ -3,10 +3,9 @@ CMAKE_POLICY(SET CMP0012 NEW) # Prevent dereferencing of OFF/ON as variables
 
 SET(CMAKE_C_STANDARD 99)
 SET(CMAKE_CXX_STANDARD 17)
-PROJECT(${name} CXX)
-SET(PKG_NAME ${name})
 
-SET(name "dali2-adaptor")
+PROJECT(dali-adaptor CXX C)
+SET(name "dali-adaptor")
 
 SET(GCC_COMPILER_VERSION_REQUIRED "6")
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -17,7 +16,7 @@ ENDIF()
 
 OPTION(ENABLE_PKG_CONFIGURE     "Use pkgconfig" ON)
 OPTION(ENABLE_LINK_TEST         "Enable the link test" ON)
-OPTION(ENABLE_ATSPI             "Enable AT-SPI accessibility" ON)
+OPTION(ENABLE_ATSPI             "Enable AT-SPI accessibility" OFF)
 OPTION(ENABLE_TRACE             "Enable Trace" OFF)
 OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
 OPTION(ENABLE_VECTOR_BASED_TEXT_RENDERING "Enable vector based text rendering (glyphy)" OFF)
@@ -43,7 +42,7 @@ ENDIF()
 GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)
 
 # API VERSION (Not DALi release version)
-SET(${name}_VERSION_MAJOR 2)
+SET(${name}_VERSION_MAJOR 1)
 SET(${name}_VERSION_MINOR 0)
 SET(${name}_VERSION_PATCH 0)
 SET(${name}_VERSION ${${name}_VERSION_MAJOR}.${${name}_VERSION_MINOR}.${${name}_VERSION_PATCH})
@@ -52,7 +51,7 @@ SET(DALI_ADAPTOR_VERSION ${${name}_VERSION} )
 
 IF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   FIND_PACKAGE( dali-windows-dependencies REQUIRED)
-  FIND_PACKAGE( dali2-core REQUIRED)
+  FIND_PACKAGE( dali-core REQUIRED)
 ENDIF()
 
 SET( VCPKG_INCLUDE_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
@@ -136,6 +135,7 @@ ENDIF()
 # Set up compiler flags and warnings
 IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
+  ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   ADD_COMPILE_OPTIONS( /FIdali-windows-dependencies.h ) #
   ADD_COMPILE_OPTIONS( /FIextern-definitions.h )        # Adds missing definitions.
@@ -176,8 +176,8 @@ IF( ENABLE_PKG_CONFIGURE )
   # Requires the following variables to be setup:
   # @PREFIX@ @EXEC_PREFIX@ @DALI_ADAPTOR_VERSION@ @LIB_DIR@ @DEV_INCLUDE_PATH@
   SET( DEV_INCLUDE_PATH ${INCLUDE_DIR} )
-  SET( ADAPTOR_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali2-adaptor.pc )
-  SET( ADAPTOR_INTEGRATION_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali2-adaptor-integration.pc )
+  SET( ADAPTOR_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor.pc )
+  SET( ADAPTOR_INTEGRATION_PKG_CFG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/dali-adaptor-integration.pc )
   CONFIGURE_FILE( ${ADAPTOR_PKG_CFG_FILE}.in ${ADAPTOR_PKG_CFG_FILE} @ONLY )
   CONFIGURE_FILE( ${ADAPTOR_INTEGRATION_PKG_CFG_FILE}.in ${ADAPTOR_INTEGRATION_PKG_CFG_FILE} @ONLY )
 ENDIF()

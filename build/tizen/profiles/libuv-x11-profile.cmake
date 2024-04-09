@@ -10,18 +10,17 @@ SET( SOURCES
         ${adaptor_addons_ubuntu_src_files}
         ${adaptor_camera_common_src_files}
         ${adaptor_canvas_renderer_generic_src_files}
+        ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_libuv_x11_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
         ${devel_api_src_files}
         ${adaptor_devel_api_text_abstraction_src_files}
-        ${adaptor_graphics_common_src_files}
-        ${adaptor_graphics_gles_src_files}
-        ${adaptor_graphics_x11_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_imaging_x11_src_files}
         ${adaptor_input_common_src_files}
+        ${adaptor_input_libuv_x11_src_files}
         ${adaptor_integration_api_src_files}
         ${adaptor_legacy_common_src_files}
         ${adaptor_network_common_src_files}
@@ -42,11 +41,21 @@ SET( SOURCES
         ${adaptor_web_engine_common_src_files}
         ${adaptor_window_system_common_src_files}
         ${adaptor_window_system_x11_src_files}
-        ${devel_api_text_abstraction_src_files}
         ${static_libraries_libunibreak_src_files}
-        ${graphics_vulkan_src_files}
-        ${graphics_vulkan_x11_src_files}
+        ${devel_api_text_abstraction_src_files}
 )
+
+IF( ENABLE_VULKAN )
+  SET(SOURCES ${SOURCES}
+    ${graphics_vulkan_src_files}
+    ${graphics_vulkan_x11_src_files}
+    )
+ELSE()
+  SET(SOURCES ${SOURCES}
+    ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_libuvx11_src_files}
+    )
+ENDIF()
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}
