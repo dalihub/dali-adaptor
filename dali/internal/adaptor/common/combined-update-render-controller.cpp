@@ -642,7 +642,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     uint64_t timeSinceLastFrame = currentFrameStartTime - lastFrameTime;
 
     // Optional FPS Tracking when continuously rendering
-    if(useElapsedTime && mFpsTracker.Enabled())
+    if(mFpsTracker.Enabled())
     {
       float absoluteTimeSinceLastRender = timeSinceLastFrame * NANOSECONDS_TO_SECOND;
       mFpsTracker.Track(absoluteTimeSinceLastRender);
