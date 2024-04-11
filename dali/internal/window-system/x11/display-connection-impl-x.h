@@ -19,6 +19,7 @@
  */
 
 // INTERNAL INCLUDES
+#include <X11/Xlib.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
 namespace Dali

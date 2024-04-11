@@ -18,6 +18,7 @@
  */
 
 #include <dali/public-api/common/vector-wrapper.h>
+#include <cstddef>
 
 namespace Dali::Graphics
 {
