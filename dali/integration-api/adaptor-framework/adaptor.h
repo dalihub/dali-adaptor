@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_ADAPTOR_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -392,8 +392,13 @@ public:
   void SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
-   * @brief Renders once more even if we're paused
+   * @brief Update once. It will not wake up the update thread if we're paused.
    * @note Will not work if the window is hidden.
+   */
+  void UpdateOnce();
+
+  /**
+   * @brief Renders once more even if we're paused
    */
   void RenderOnce();
 

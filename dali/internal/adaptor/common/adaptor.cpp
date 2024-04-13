@@ -220,6 +220,11 @@ void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, Surfa
   mImpl->SurfaceResizeComplete(surface, surfaceSize);
 }
 
+void Adaptor::UpdateOnce()
+{
+  mImpl->RequestUpdateOnce();
+}
+
 void Adaptor::RenderOnce()
 {
   mImpl->RenderOnce();
