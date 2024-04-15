@@ -21,19 +21,35 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <bundle.h>
-#include <widget_base.h>
+#include <dlfcn.h>
+#include <dlog.h>
+#include <tizen.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
 #include <dali/devel-api/atspi-interfaces/accessible.h>
+#include <dali/integration-api/debug.h>
 
 namespace Dali
 {
 namespace Internal
 {
+namespace
+{
+constexpr char const* const kApplicationNamePrefix     = "libdali2-adaptor-application-";
+constexpr char const* const kApplicationNamePostfix    = ".so";
+
+std::string MakePluginName(const char* appModelName)
+{
+  std::stringstream fullName;
+  fullName << kApplicationNamePrefix << appModelName << kApplicationNamePostfix;
+  return fullName.str();
+}
+
+}
 namespace Adaptor
 {
-WidgetImplTizen::WidgetImplTizen(widget_base_instance_h instanceHandle)
+WidgetImplTizen::WidgetImplTizen(void* instanceHandle)
 : Widget::Impl(),
   mInstanceHandle(instanceHandle),
   mWindow(),
@@ -53,9 +69,33 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   int         len              = contentInfo.length();
   contentBundle                = bundle_decode(contentBundleRaw, len);
 
-  widget_base_context_set_content_info(mInstanceHandle, contentBundle);
+
+  using SetContentInfoFunc          = void (*)(void*, bundle*);
+  SetContentInfoFunc                setContentInfoFuncPtr;
+  std::string pluginName = MakePluginName("widget");
+
+  void* mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
+
+  if(mHandle == nullptr)
+  {
+    print_log(DLOG_ERROR, "DALI", "error : %s", dlerror() );
+    return;
+  }
+
+  setContentInfoFuncPtr = reinterpret_cast<SetContentInfoFunc>(dlsym(mHandle, "SetContentInfo"));
+  if(setContentInfoFuncPtr == nullptr)
+  {
+    print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n" );
+    return;
+  }
+  setContentInfoFuncPtr(mInstanceHandle, contentBundle);
 
   bundle_free(contentBundle);
+
+  if(mHandle!=NULL)
+  {
+    dlclose(mHandle);
+  }
 }
 
 bool WidgetImplTizen::IsKeyEventUsing() const

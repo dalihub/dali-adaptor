@@ -29,7 +29,7 @@ namespace Adaptor
 /**
  * FrameworkTizen class provides an Framework Tizen implementation.
  */
-class FrameworkTizen : public Framework
+class DALI_ADAPTOR_API FrameworkTizen : public Framework
 {
 public:
   /**
@@ -59,9 +59,19 @@ public:
   std::string GetBundleName() const;
 
   /**
+   * Called app_reset callback was called with bundle.
+   */
+  void SetBundleName(const std::string& name);
+
+  /**
    * Gets bundle id which was passed in app_reset callback.
    */
   std::string GetBundleId() const;
+
+  /**
+   * Called app_reset callback was called with bundle.
+   */
+  void SetBundleId(const std::string& id);
 
   /**
    * Sets system language.
@@ -83,26 +93,15 @@ public:
    */
   std::string GetRegion() const override;
 
-private:
-  // Undefined
-  FrameworkTizen(const FrameworkTizen&) = delete;
-  FrameworkTizen& operator=(FrameworkTizen&) = delete;
-
-private:
   /**
    * Called when the application is created.
    */
   bool Create();
 
-  /**
-   * Called app_reset callback was called with bundle.
-   */
-  void SetBundleName(const std::string& name);
-
-  /**
-   * Called app_reset callback was called with bundle.
-   */
-  void SetBundleId(const std::string& id);
+private:
+  // Undefined
+  FrameworkTizen(const FrameworkTizen&) = delete;
+  FrameworkTizen& operator=(FrameworkTizen&) = delete;
 
 private:
   bool        mInitialised;

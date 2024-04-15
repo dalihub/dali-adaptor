@@ -20,7 +20,6 @@
 
 // EXTERNAL INCLUDES
 #include <screen_connector_provider.h>
-#include <widget_base.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/window-devel.h>
@@ -41,7 +40,7 @@ typedef IntrusivePtr<WidgetApplication> WidgetApplicationPtr;
 /**
  * Implementation of the WidgetApplication class.
  */
-class WidgetApplicationTizen : public WidgetApplication, public ConnectionTracker
+class DALI_ADAPTOR_API WidgetApplicationTizen : public WidgetApplication, public ConnectionTracker
 {
 public:
   typedef std::pair<const std::string, Dali::WidgetApplication::CreateWidgetFunction> CreateWidgetFunctionPair;
@@ -63,6 +62,11 @@ public:
   void OnInit() override;
 
   /**
+   * @copydoc This function creates and initalizes a new Widget instance
+   */
+  void InitializeWidget(void* instanceHandle, Dali::Widget widgetInstance);
+
+  /**
    * @copydoc Dali::WidgetApplication::RegisterWidgetCreator()
    */
   void RegisterWidgetCreatingFunction(const std::string& widgetName, Dali::WidgetApplication::CreateWidgetFunction createFunction) override;
@@ -80,17 +84,17 @@ public:
   /**
    * Add widget_base_instance_h - Widget instance pair to container.
    */
-  void AddWidget(widget_base_instance_h widgetBaseInstance, Dali::Widget widget, Dali::Window window, const std::string& widgetId);
+  void AddWidget(void* widgetBaseInstance, Dali::Widget widget, Dali::Window window, const std::string& widgetId);
 
   /**
    * Find and get Widget instance in container by widget_base_instance_h.
    */
-  Dali::Widget GetWidget(widget_base_instance_h widgetBaseInstance) const;
+  Dali::Widget GetWidget(void* widgetBaseInstance) const;
 
   /**
    * Delete widget_base_instance_h - Widget instance pair in container.
    */
-  void DeleteWidget(widget_base_instance_h widgetBaseInstance);
+  void DeleteWidget(void* widgetBaseInstance);
 
   /**
    * Find and get Window instance in container by widget_base_instance_h.
@@ -100,11 +104,17 @@ public:
   /**
    * Find and get widget_base_instance in container by widget id.
    */
-  widget_base_instance_h GetWidgetInstanceFromWidgetId(std::string& widgetId) const;
+  void* GetWidgetInstanceFromWidgetId(std::string& widgetId) const;
+
   /**
    * Get the number of created widget.
    */
   int32_t GetWidgetCount();
+
+  /**
+   * Get the number of created widget.
+   */
+  Dali::Window GetWidgetWindow();
 
   /**
    * @brief connect the keyEvent for window
@@ -129,7 +139,7 @@ public:
    * @param[in] keyEvent The key event for widget
    * @return True if widget consume keyEvent, false otherwise.
    */
-  bool FeedKeyEvent(widget_base_instance_h instanceHandle, const Dali::KeyEvent& keyEvent);
+  bool FeedKeyEvent(void* instanceHandle, const Dali::KeyEvent& keyEvent);
 
 protected:
   /**
@@ -150,7 +160,7 @@ protected:
   WidgetApplicationTizen& operator=(Application&) = delete;
 
 private:
-  typedef std::pair<widget_base_instance_h, Dali::Widget> WidgetInstancePair;
+  typedef std::pair<void*, Dali::Widget> WidgetInstancePair;
   typedef std::vector<WidgetInstancePair>                 WidgetInstanceContainer;
 
   CreateWidgetFunctionContainer mCreateWidgetFunctionContainer;

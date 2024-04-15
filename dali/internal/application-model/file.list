@@ -1,0 +1,18 @@
+# Add local source files here
+
+SET( app_normal_src_files
+      ${appmodel_src_dir}/normal/appmodel-normal-tizen.cpp
+)
+
+SET( app_widget_src_files
+      ${appmodel_src_dir}/widget/appmodel-widget-tizen.cpp
+      ${appmodel_src_dir}/widget/widget-base-tizen.cpp
+)
+
+SET( app_watch_src_files
+      ${appmodel_src_dir}/watch/appmodel-watch-tizen.cpp
+)
+
+SET( app_component_based_src_files
+      ${appmodel_src_dir}/component-based/appmodel-component-based-tizen.cpp
+)
