@@ -77,6 +77,16 @@ void UpdateStatusLogger::Log(unsigned int keepUpdatingStatus)
         oss += "<Render task waiting for completion> ";
       }
 
+      if(keepUpdatingStatus & Integration::KeepUpdating::FRAME_UPDATE_CALLBACK)
+      {
+        oss += "<FrameUpdateCallback::return true> ";
+      }
+
+      if(keepUpdatingStatus & Integration::KeepUpdating::RENDERER_CONTINUOUSLY)
+      {
+        oss += "<Renderer::RENDERING_BEHAVIOUR is CONTINUOUSLY> ";
+      }
+
       DALI_LOG_UPDATE_STATUS("%s\n", oss.c_str());
     }
   }
