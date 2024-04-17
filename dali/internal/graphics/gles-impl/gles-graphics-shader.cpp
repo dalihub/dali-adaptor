@@ -101,6 +101,7 @@ struct ShaderImpl::Impl
         auto       shader = gl->CreateShader(pipelineStage);
         const auto src    = reinterpret_cast<const char*>(createInfo.sourceData);
         GLint      size   = createInfo.sourceSize;
+
         gl->ShaderSource(shader, 1, const_cast<const char**>(&src), &size);
         gl->CompileShader(shader);
 

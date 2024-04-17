@@ -117,6 +117,8 @@ public:
    */
   virtual TraceInterface& GetSystemTraceInterface() = 0;
 
+  virtual int GetWindowCount() = 0;
+  virtual Dali::RenderSurfaceInterface* GetWindowSurfaceInterface(int index) = 0;
 
 protected:
 

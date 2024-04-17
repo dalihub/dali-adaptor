@@ -649,6 +649,21 @@ Dali::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
   return nullptr;
 }
 
+int Adaptor::GetWindowCount()
+{
+  return mWindows.size();
+}
+
+Dali::RenderSurfaceInterface* Adaptor::GetWindowSurfaceInterface(int index)
+{
+  if( !mWindows.empty() && index<mWindows.size())
+  {
+    return mWindows[index]->GetSurface();
+  }
+
+  return nullptr;
+}
+
 VSyncMonitorInterface* Adaptor::GetVSyncMonitorInterface()
 {
   return mVSyncMonitor;

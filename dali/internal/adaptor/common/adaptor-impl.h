@@ -472,6 +472,10 @@ public:  //AdaptorInternalServices
    */
   TraceInterface& GetSystemTraceInterface() override;
 
+  int GetWindowCount() override;
+
+  Dali::RenderSurfaceInterface* GetWindowSurfaceInterface(int index) override;
+
 public: // Signals
 
   /**

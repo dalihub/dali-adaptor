@@ -43,6 +43,7 @@ struct PrintVersion
   }
 };
 PrintVersion ADAPTOR_VERSION;
+
 } // unnamed namespace
 #endif
 

@@ -36,6 +36,11 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 
+#if defined(DEBUG_ENABLED)
+// Shared, so don't anonymize/make static
+Debug::Filter* gEglLogFilter = Debug::Filter::New(Debug::Verbose, true, "LOG_EGL");
+#endif
+
 namespace
 {
 #ifndef DALI_PROFILE_UBUNTU
@@ -135,6 +140,8 @@ EglImplementation::~EglImplementation()
 
 bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(!mGlesInitialized)
   {
     mEglNativeDisplay = display;
@@ -238,6 +245,8 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
 
 bool EglImplementation::CreateContext()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   // make sure a context isn't created twice
   DALI_ASSERT_ALWAYS((mEglContext == 0) && "EGL context recreated");
 
@@ -252,23 +261,14 @@ bool EglImplementation::CreateContext()
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** GL_SHADING_LANGUAGE_VERSION : %s***\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
   DALI_LOG_INFO(Debug::Filter::gShader, Debug::General, "*** Supported Extensions ***\n%s\n\n", glGetString(GL_EXTENSIONS));
 
-  mEglSetDamageRegionKHR = reinterpret_cast<PFNEGLSETDAMAGEREGIONKHRPROC>(eglGetProcAddress("eglSetDamageRegionKHR"));
-  if(!mEglSetDamageRegionKHR)
-  {
-    DALI_LOG_ERROR("Coudn't find eglSetDamageRegionKHR!\n");
-    mPartialUpdateRequired = false;
-  }
-  mEglSwapBuffersWithDamageKHR = reinterpret_cast<PFNEGLSWAPBUFFERSWITHDAMAGEEXTPROC>(eglGetProcAddress("eglSwapBuffersWithDamageKHR"));
-  if(!mEglSwapBuffersWithDamageKHR)
-  {
-    DALI_LOG_ERROR("Coudn't find eglSwapBuffersWithDamageKHR!\n");
-    mPartialUpdateRequired = false;
-  }
+  mPartialUpdateRequired=false;
   return true;
 }
 
 bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   // make sure a context isn't created twice
   DALI_ASSERT_ALWAYS((eglContext == 0) && "EGL context recreated");
 
@@ -302,6 +302,8 @@ bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
 
 void EglImplementation::DestroyContext(EGLContext& eglContext)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(eglContext)
   {
     eglDestroyContext(mEglDisplay, eglContext);
@@ -311,6 +313,8 @@ void EglImplementation::DestroyContext(EGLContext& eglContext)
 
 void EglImplementation::DestroySurface(EGLSurface& eglSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(mIsOwnSurface && eglSurface)
   {
     // Make context null to prevent crash in driver side
@@ -322,6 +326,8 @@ void EglImplementation::DestroySurface(EGLSurface& eglSurface)
 
 void EglImplementation::MakeContextCurrent(EGLSurface eglSurface, EGLContext eglContext)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(mCurrentEglContext == eglContext)
   {
     return;
@@ -348,6 +354,8 @@ void EglImplementation::MakeContextCurrent(EGLSurface eglSurface, EGLContext egl
 
 void EglImplementation::MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(mCurrentEglContext == mEglContext)
   {
     return;
@@ -375,6 +383,8 @@ void EglImplementation::MakeCurrent(EGLNativePixmapType pixmap, EGLSurface eglSu
 
 void EglImplementation::MakeContextNull()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   // clear the current context
   eglMakeCurrent(mEglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
   mCurrentEglContext = EGL_NO_CONTEXT;
@@ -382,6 +392,8 @@ void EglImplementation::MakeContextNull()
 
 void EglImplementation::TerminateGles()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(mGlesInitialized)
   {
     // Make context null to prevent crash in driver side
@@ -414,11 +426,13 @@ void EglImplementation::TerminateGles()
 
 bool EglImplementation::IsGlesInitialized() const
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   return mGlesInitialized;
 }
 
 void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   if(eglSurface != EGL_NO_SURFACE) // skip if using surfaceless context
   {
     START_DURATION_CHECK();
@@ -449,16 +463,19 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
 
 void EglImplementation::CopyBuffers(EGLSurface& eglSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   eglCopyBuffers(mEglDisplay, eglSurface, mCurrentEglNativePixmap);
 }
 
 void EglImplementation::WaitGL()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   eglWaitGL();
 }
 
 bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   if(mEglConfig && isWindowType == mIsWindow && mColorDepth == depth)
   {
     return true;
@@ -598,6 +615,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 
 EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   mEglNativeWindow = window;
   mColorDepth      = depth;
   mIsWindow        = true;
@@ -615,6 +633,7 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
 
 EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, ColorDepth depth)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   mCurrentEglNativePixmap = pixmap;
   mColorDepth             = depth;
   mIsWindow               = false;
@@ -632,6 +651,7 @@ EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, Co
 
 bool EglImplementation::ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   bool contextLost = false;
 
   // display connection has not changed, then we can just create a new surface
@@ -655,6 +675,7 @@ bool EglImplementation::ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurf
 
 bool EglImplementation::ReplaceSurfacePixmap(EGLNativePixmapType pixmap, EGLSurface& eglSurface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   bool contextLost = false;
 
   // display connection has not changed, then we can just create a new surface

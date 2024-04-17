@@ -24,7 +24,7 @@ ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
 ARG_ENABLE( ENABLE_ECORE_WAYLAND2 enable_ecore_wayland2 "${ENABLE_VAL}" "Build on Ecore Wayland2" )
 ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether so file is renamed or not" )
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
-ARG_ENABLE( ENABLE_VULKAN enable_vulkan 1 "Enables Vulkan build")
+ARG_ENABLE( ENABLE_VULKAN enable_vulkan 0 "Enables Vulkan build")
 
 # help option
 ARG_ENABLE( PRINT_HELP print_help "${ENABLE_VAL}" "Prints help" )
@@ -328,11 +328,15 @@ IF (NOT APPLE)
     ${LIBCRYPTO_LDFLAGS}
     ${HARFBUZZ_LDFLAGS}
     ${UTILX_LDFLAGS}
-    ${VULKAN_LDFLAGS}
-   -lgif
+
+    -lgif
     -lturbojpeg
     -ljpeg
   )
+
+IF(VULKAN_ENABLED)
+  SET( DALI_LDFLAGS $DALI_LDFLAGS, ${VULKAN_LDFLAGS})
+ENDIF()
 
 if( NOT ANDROID_PROFILE )
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}

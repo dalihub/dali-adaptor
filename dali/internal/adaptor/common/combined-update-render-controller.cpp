@@ -30,7 +30,14 @@
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/time-service.h>
+#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/graphics/gles/egl-implementation.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
+#endif
 
 namespace Dali::Internal::Adaptor
 {
@@ -418,14 +425,23 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
   graphics.Initialize(displayConnection);
 
-  // Create Graphics surface
-  RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
-  {
-    currentSurface->InitializeGraphics( graphics );
-  }
+  // Configure RESOURCE CONTEXT
+  graphics.ConfigureSurface(mAdaptorInterfaces.GetRenderSurfaceInterface());
 
   NotifyThreadInitialised();
+
+  // Configure SURFACE CONTEXTS
+  int windowCount = mAdaptorInterfaces.GetWindowCount();
+  for(int i=0; i<windowCount; ++i)
+  {
+    Dali::RenderSurfaceInterface* windowSurface = mAdaptorInterfaces.GetWindowSurfaceInterface(i);
+
+    if(windowSurface)
+    {
+      windowSurface->InitializeGraphics(graphics);
+    }
+  }
+
 
   // Update time
   uint64_t lastFrameTime;
@@ -495,8 +511,18 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     ++frameCount;
 
     //////////////////////////////
-    // UPDATE
+    // UPDATE / RENDER
     //////////////////////////////
+
+    if( mPreRenderCallback != nullptr )
+    {
+      bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
+      if( ! keepCallback )
+      {
+        delete mPreRenderCallback;
+        mPreRenderCallback = nullptr;
+      }
+    }
 
     const unsigned int currentTime = currentFrameStartTime / NANOSECONDS_PER_MILLISECOND;
     const unsigned int nextFrameTime = currentTime + mDefaultFrameDurationMilliseconds;
@@ -512,6 +538,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     }
     LOG_UPDATE_RENDER( "timeSinceLastFrame(%llu) noOfFramesSinceLastUpdate(%u) frameDelta(%.6f)", timeSinceLastFrame, noOfFramesSinceLastUpdate, frameDelta );
 
+    // Activate resource context before update/render
+    graphics.ActivateResourceContext();
     Integration::UpdateStatus updateStatus;
 
     AddPerformanceMarker( PerformanceInterface::UPDATE_START );
@@ -552,17 +580,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     mAdaptorInterfaces.GetDisplayConnectionInterface().ConsumeEvents();
 
-    if( mPreRenderCallback != nullptr )
-    {
-      bool keepCallback = CallbackBase::ExecuteReturn<bool>(*mPreRenderCallback);
-      if( ! keepCallback )
-      {
-        delete mPreRenderCallback;
-        mPreRenderCallback = nullptr;
-      }
-    }
     Integration::RenderStatus renderStatus;
-
 
     // Trigger event thread to request Update/Render thread to sleep if update not required
     if( ( Integration::KeepUpdating::NOT_REQUESTED == keepUpdatingStatus ) && !renderStatus.NeedsUpdate() )
@@ -621,12 +639,18 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   }
 
   mCore.GraphicsShutdown();
-  currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
+
+  for(int i=0; i<windowCount; ++i)
   {
-    currentSurface->DestroySurface();
-    currentSurface = nullptr;
+    Dali::RenderSurfaceInterface* windowSurface = mAdaptorInterfaces.GetWindowSurfaceInterface(i);
+
+    if(windowSurface)
+    {
+      windowSurface->DestroySurface();
+    }
   }
+
+  graphics.Shutdown();
 
   LOG_UPDATE_RENDER( "THREAD DESTROYED" );
 
@@ -778,7 +802,3 @@ void CombinedUpdateRenderController::PostRenderWaitForCompletion()
 }
 
 } // namespace Dali::Internal::Adaptor
-
-
-
-

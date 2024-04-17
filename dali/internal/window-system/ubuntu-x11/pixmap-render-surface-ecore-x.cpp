@@ -230,7 +230,7 @@ bool PixmapRenderSurfaceEcoreX::PreRender( bool )
 
 void PixmapRenderSurfaceEcoreX::PostRender( bool renderToFbo, bool replacingSurface, bool resizingSurface )
 {
-#if 0
+#if !defined(VULKAN_ENABLED)
   auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
 
   // flush gl instruction queue

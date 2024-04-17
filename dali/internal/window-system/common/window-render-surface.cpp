@@ -186,9 +186,20 @@ void WindowRenderSurface::GetDpi( unsigned int& dpiHorizontal, unsigned int& dpi
 void WindowRenderSurface::InitializeGraphics( GraphicsInterface& graphicsInterface )
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
-
   mGraphics = &graphicsInterface;
-  CreateSurface();
+
+  if ( mEGLContext == NULL )
+  {
+    // Create the OpenGL context for this window
+    auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+    auto egl = &eglGraphics->GetEglInterface();
+    Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*egl);
+    eglImpl.ChooseConfig(true, mColorDepth);
+    eglImpl.CreateWindowContext( mEGLContext );
+
+    // Create the OpenGL surface
+    CreateSurface();
+  }
 }
 
 void WindowRenderSurface::CreateSurface()
@@ -226,7 +237,34 @@ void WindowRenderSurface::DestroySurface()
 bool WindowRenderSurface::ReplaceGraphicsSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
-  return false;
+#if !defined(VULKAN_ENABLED)
+  // Destroy the old one
+  mWindowBase->DestroyWindow();
+
+  int width, height;
+  if( mScreenRotationAngle == 0 || mScreenRotationAngle == 180 )
+  {
+    width = mPositionSize.width;
+    height = mPositionSize.height;
+  }
+  else
+  {
+    width = mPositionSize.height;
+    height = mPositionSize.width;
+  }
+
+  // Create the EGL window
+  auto windowPtr = mWindowBase->CreateWindow(width, height);
+  auto window = windowPtr.Get<EGLNativeWindowType>();
+
+  // Set screen rotation
+  mScreenRotationFinished = false;
+
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+
+  Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+  return eglImpl.ReplaceSurfaceWindow( window, mEGLSurface, mEGLContext );
+#endif
 }
 
 void WindowRenderSurface::MoveResize( Dali::PositionSize positionSize )
@@ -281,12 +319,37 @@ void WindowRenderSurface::StartRender()
 
 bool WindowRenderSurface::PreRender( bool resizingSurface )
 {
+#if !defined(VULKAN_ENABLED)
+  MakeContextCurrent();
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  if ( eglGraphics )
+  {
+    auto& gles = eglGraphics->GetGlAbstraction();
+    gles.PreRender();
+  }
+#endif
   return true;
 }
 
 void WindowRenderSurface::PostRender()
 {
-  // performed rotation change, swapBuffers, render notification
+  // Inform the gl implementation that rendering has finished before informing the surface
+#if !defined(VULKAN_ENABLED)
+  auto eglGraphics = static_cast<EglGraphics *>(mGraphics);
+  if ( eglGraphics )
+  {
+    auto& gles = eglGraphics->GetGlAbstraction();
+    gles.PreRender();
+
+    Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
+    eglImpl.SwapBuffers( mEGLSurface );
+
+    if( mRenderNotification )
+    {
+      mRenderNotification->Trigger();
+    }
+  }
+#endif
 }
 
 void WindowRenderSurface::StopRender()
@@ -312,6 +375,11 @@ Integration::RenderSurface::Type WindowRenderSurface::GetSurfaceType()
 
 void WindowRenderSurface::MakeContextCurrent()
 {
+#if !defined(VULKAN_ENABLED)
+  auto eglGraphics = static_cast<EglGraphics*>(mGraphics);
+  auto egl         = &eglGraphics->GetEglInterface();
+  egl->MakeContextCurrent( mEGLSurface, mEGLContext );
+#endif
 }
 
 Integration::DepthBufferAvailable WindowRenderSurface::GetDepthBufferRequired()

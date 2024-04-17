@@ -251,6 +251,7 @@ private: // Data
   std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
 #else
   EGLSurface                      mEGLSurface;         ///< EGL surface
+  EGLContext                      mEGLContext;
 #endif
 }; // class WindowRenderSurface
 

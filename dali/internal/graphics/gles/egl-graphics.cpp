@@ -23,8 +23,11 @@
 #include <dali/integration-api/debug.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
+#include <X11/Xlib.h>
 
-
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gEglLogFilter;
+#endif
 
 namespace Dali::Internal::Adaptor
 {
@@ -58,6 +61,8 @@ void EglGraphics::SetIsSurfacelessContextSupported(const bool isSupported)
 
 void EglGraphics::ActivateResourceContext()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(mEglImplementation && mEglImplementation->IsSurfacelessContextSupported())
   {
     // Make the shared surfaceless context as current before rendering
@@ -69,6 +74,8 @@ void EglGraphics::ActivateResourceContext()
 
 void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
+
   if(surface)
   {
     surface->InitializeGraphics(*this);
@@ -80,6 +87,7 @@ void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
 
 void EglGraphics::PostRender()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   ActivateResourceContext();
 
   if(mGraphicsController.GetCurrentContext())
@@ -92,6 +100,7 @@ void EglGraphics::PostRender()
 
 void EglGraphics::SetFirstFrameAfterResume()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   if(mEglImplementation)
   {
     mEglImplementation->SetFirstFrameAfterResume();
@@ -100,6 +109,7 @@ void EglGraphics::SetFirstFrameAfterResume()
 
 void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
@@ -109,6 +119,7 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 
 void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
   mMultiSamplingLevel    = msaa;
@@ -119,12 +130,14 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, b
 
 void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   // Bad name - it does call "eglInitialize"!!!! @todo Rename me!
-  mEglImplementation->InitializeGles(displayConnection.GetDisplay().Get<EGLNativeDisplayType>());
+  mEglImplementation->InitializeGles(displayConnection.GetDisplay().Get<::Display*>());
 }
 
 void EglGraphics::EglInitialize()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   mEglSync            = Utils::MakeUnique<EglSyncImplementation>();
   mEglImplementation  = Utils::MakeUnique<EglImplementation>(mMultiSamplingLevel, mDepthBufferRequired, mStencilBufferRequired);
   mEglImageExtensions = Utils::MakeUnique<EglImageExtensions>(mEglImplementation.get());
@@ -134,6 +147,7 @@ void EglGraphics::EglInitialize()
 
 void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
 
   // Try to use OpenGL es 3.0
@@ -182,6 +196,7 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
 
 void EglGraphics::Shutdown()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   if(mEglImplementation)
   {
     // Shutdown controller
@@ -194,6 +209,7 @@ void EglGraphics::Shutdown()
 
 void EglGraphics::Destroy()
 {
+  DALI_LOG_TRACE_METHOD(gEglLogFilter);
   mGraphicsController.Destroy();
 }
 
@@ -252,5 +268,3 @@ void EglGraphics::LogMemoryPools()
 }
 
 } // namespace Dali::Internal::Adaptor
-
-
