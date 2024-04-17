@@ -58,7 +58,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 {
   if(start)
   {
-#ifdef DALI_PROFILE_TV
+#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
 #endif // DALI_PROFILE_TV
 
@@ -69,7 +69,7 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
   }
   else
   {
-#ifdef DALI_PROFILE_TV
+#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     traceEnd(TTRACE_TAG_GRAPHICS);
 #endif // DALI_PROFILE_TV
 
