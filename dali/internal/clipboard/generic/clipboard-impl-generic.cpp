@@ -135,6 +135,11 @@ bool Clipboard::OnReceiveData()
   return false;
 }
 
+bool Clipboard::OnMultiSelectionTimeout()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
