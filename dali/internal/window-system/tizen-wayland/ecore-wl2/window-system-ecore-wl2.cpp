@@ -21,6 +21,8 @@
 #include <dali/integration-api/adaptor-framework/scene-holder.h>
 #include <dali/integration-api/debug.h>
 
+#include <dlog.h>
+
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/keyboard.h>
 #include <dali/internal/adaptor/common/framework-factory.h>
@@ -60,6 +62,7 @@ void Initialize()
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ecore_wl2_init()", __MODULE__, __func__, __LINE__);
     ecore_wl2_init();
   }
 }
@@ -69,6 +72,7 @@ void Shutdown()
   auto frameworkFactory = Dali::Internal::Adaptor::GetFrameworkFactory();
   if(frameworkFactory == nullptr || (frameworkFactory && frameworkFactory->GetFrameworkBackend() == FrameworkBackend::DEFAULT))
   {
+    print_log(DLOG_INFO, "DALI", "%s: %s(%d) > ecore_wl2_shutdown()", __MODULE__, __func__, __LINE__);
     ecore_wl2_shutdown();
   }
 }
@@ -87,8 +91,16 @@ void GetScreenSize(int32_t& width, int32_t& height)
         ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
         FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
 
+        // Since dali adaptor doesn't initialize this time, we should use dlog.
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > GetScreenSize() for display(%p) return %d x %d", __MODULE__, __func__, __LINE__, display, gScreenWidth, gScreenHeight);
+
         DALI_ASSERT_ALWAYS((gScreenWidth > 0) && "screen width is 0");
         DALI_ASSERT_ALWAYS((gScreenHeight > 0) && "screen height is 0");
+      }
+      else
+      {
+        // Since dali adaptor doesn't initialize this time, we should use dlog.
+        print_log(DLOG_INFO, "DALI", "%s: %s(%d) > GetScreenSize() but display is null", __MODULE__, __func__, __LINE__);
       }
     }
   }
@@ -107,6 +119,14 @@ void UpdateScreenSize()
       START_DURATION_CHECK();
       ecore_wl2_display_screen_size_get(display, &gScreenWidth, &gScreenHeight);
       FINISH_DURATION_CHECK("ecore_wl2_display_screen_size_get");
+
+      // Since dali adaptor doesn't initialize this time, we should use dlog.
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > UpdateScreenSize() for display(%p) return %d x %d", __MODULE__, __func__, __LINE__, display, gScreenWidth, gScreenHeight);
+    }
+    else
+    {
+      // Since dali adaptor doesn't initialize this time, we should use dlog.
+      print_log(DLOG_INFO, "DALI", "%s: %s(%d) > UpdateScreenSize() but display is null", __MODULE__, __func__, __LINE__);
     }
   }
 }
