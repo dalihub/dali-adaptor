@@ -77,7 +77,7 @@ public:
   /**
    * @copydoc Dali::Accessibility::Accessible::GetInternalActor()
    */
-  Dali::Actor GetInternalActor() final;
+  Dali::Actor GetInternalActor() const final;
 
   /**
    * @copydoc Dali::Accessibility::Component::GetLayer()
