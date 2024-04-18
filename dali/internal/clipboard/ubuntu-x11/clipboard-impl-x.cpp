@@ -43,6 +43,11 @@ struct Clipboard::Impl
     mApplicationWindow = ecoreXwin;
   }
 
+  bool HasType(const std::string& mimeType)
+  {
+    return mMimeType == mimeType ? true : false;
+  }
+
   bool SetData(const Dali::Clipboard::ClipData& clipData)
   {
     mMimeType = clipData.GetMimeType();
@@ -173,6 +178,11 @@ Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
   return mImpl->mDataSelectedSignal;
 }
 
+bool Clipboard::HasType(const std::string& mimeType)
+{
+  return mImpl->HasType(mimeType);
+}
+
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
 {
   return mImpl->SetData(clipData);
@@ -185,8 +195,8 @@ uint32_t Clipboard::GetData(const std::string &mimeType)
 
 size_t Clipboard::NumberOfItems()
 {
-  // TODO: We should to check if the data is empty in the clipboard service.
-  return 1u;
+  bool isItem = HasType(MIME_TYPE_TEXT_PLAIN) || HasType(MIME_TYPE_HTML) || HasType(MIME_TYPE_TEXT_URI);
+  return isItem ? 1u : 0u;
 }
 
 void Clipboard::ShowClipboard()

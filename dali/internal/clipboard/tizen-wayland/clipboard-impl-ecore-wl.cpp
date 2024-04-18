@@ -50,6 +50,32 @@ struct Clipboard::Impl
     ecore_event_handler_del(mSelectionHanlder);
   }
 
+  bool HasType(const std::string& mimeType)
+  {
+    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+    Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+    Ecore_Wl2_Offer*   offer   = ecore_wl2_dnd_selection_get(input);
+
+    if(!offer)
+    {
+      DALI_LOG_ERROR("selection_get fail, request type:%s\n", mimeType.c_str());
+      return false;
+    }
+
+    Eina_Array*  availableTypes = ecore_wl2_offer_mimes_get(offer);
+    unsigned int typeCount      = (unsigned int)eina_array_count((Eina_Array *)availableTypes);
+
+    for(unsigned int i = 0; i < typeCount; ++i)
+    {
+      char* availableType = (char*)eina_array_data_get((Eina_Array *)availableTypes, i);
+      if(!mimeType.compare(availableType))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+
   bool SetData(const Dali::Clipboard::ClipData& clipData)
   {
     mMimeType = clipData.GetMimeType();
@@ -395,6 +421,11 @@ Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
   return mImpl->mDataSelectedSignal;
 }
 
+bool Clipboard::HasType(const std::string& mimeType)
+{
+  return mImpl->HasType(mimeType);
+}
+
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
 {
   return mImpl->SetData(clipData);
@@ -407,8 +438,8 @@ uint32_t Clipboard::GetData(const std::string &mimeType)
 
 size_t Clipboard::NumberOfItems()
 {
-  // TODO: We should to check if the data is empty in the clipboard service.
-  return 1u;
+  bool isItem = HasType(MIME_TYPE_TEXT_PLAIN) || HasType(MIME_TYPE_HTML) || HasType(MIME_TYPE_TEXT_URI);
+  return isItem ? 1u : 0u;
 }
 
 void Clipboard::ShowClipboard()

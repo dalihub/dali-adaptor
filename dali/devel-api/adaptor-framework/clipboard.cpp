@@ -61,6 +61,11 @@ Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
   return GetImplementation(*this).DataSelectedSignal();
 }
 
+bool Clipboard::HasType(const std::string& mimeType)
+{
+  return GetImplementation(*this).HasType(mimeType);
+}
+
 bool Clipboard::SetData(const ClipData& clipData)
 {
   return GetImplementation(*this).SetData(clipData);
