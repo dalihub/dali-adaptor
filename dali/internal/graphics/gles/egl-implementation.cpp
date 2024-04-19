@@ -38,7 +38,7 @@
 
 #if defined(DEBUG_ENABLED)
 // Shared, so don't anonymize/make static
-Debug::Filter* gEglLogFilter = Debug::Filter::New(Debug::Verbose, true, "LOG_EGL");
+Debug::Filter* gEglLogFilter = Debug::Filter::New(Debug::Verbose, false, "LOG_EGL");
 #endif
 
 namespace
@@ -445,7 +445,7 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
     DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_SWAP_BUFFERS");
 #endif //DALI_PROFILE_UBUNTU
 
-    // DALI_LOG_ERROR("EglImplementation::SwapBuffers()\n");
+    DALI_LOG_INFO(gEglLogFilter, Debug::Verbose, "EglImplementation::SwapBuffers()\n");
     eglSwapBuffers(mEglDisplay, eglSurface);
 
 #ifndef DALI_PROFILE_UBUNTU

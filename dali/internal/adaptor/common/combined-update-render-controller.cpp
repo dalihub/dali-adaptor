@@ -425,7 +425,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
   graphics.Initialize(displayConnection);
 
-  // Configure RESOURCE CONTEXT
+  LOG_UPDATE_RENDER( "Configure Resource context\n" );
   graphics.ConfigureSurface(mAdaptorInterfaces.GetRenderSurfaceInterface());
 
   NotifyThreadInitialised();
@@ -438,6 +438,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
     if(windowSurface)
     {
+      LOG_UPDATE_RENDER( "Configure Surface context\n" );
       windowSurface->InitializeGraphics(graphics);
     }
   }

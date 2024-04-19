@@ -250,8 +250,8 @@ private: // Data
 #if defined(VULKAN_ENABLED)
   std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
 #else
-  EGLSurface                      mEGLSurface;         ///< EGL surface
-  EGLContext                      mEGLContext;
+  EGLSurface                      mEGLSurface{nullptr};         ///< EGL surface
+  EGLContext                      mEGLContext{nullptr};
 #endif
 }; // class WindowRenderSurface
 
