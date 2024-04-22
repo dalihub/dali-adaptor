@@ -108,7 +108,7 @@ std::size_t ActorAccessible::GetIndexInParent()
   throw std::domain_error{"actor is not a child of its parent"};
 }
 
-Dali::Actor ActorAccessible::GetInternalActor()
+Dali::Actor ActorAccessible::GetInternalActor() const
 {
   return Self();
 }
