@@ -203,15 +203,17 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
   if(stateName != stateMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-      "StateChanged",
-      std::string{stateName->second},
-      newValue,
-      reserved,
-      {0},
-      {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj, 1.0f, [=]() {
+      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+        GetAccessiblePath(obj),
+        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        "StateChanged",
+        std::string{stateName->second},
+        newValue,
+        reserved,
+        {0},
+        {"", "root"});
+    });
   }
 }
 
