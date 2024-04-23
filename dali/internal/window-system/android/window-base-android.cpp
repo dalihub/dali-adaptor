@@ -68,7 +68,10 @@ void WindowBaseAndroid::Initialize(PositionSize positionSize, Any surface, bool 
 
 void WindowBaseAndroid::OnDeleteRequest()
 {
-  mDeleteRequestSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mDeleteRequestSignal.Emit();
+  }
 }
 
 void WindowBaseAndroid::OnFocusIn(void* data, int type, void* event)

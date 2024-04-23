@@ -1108,7 +1108,7 @@ Eina_Bool WindowBaseEcoreWl2::OnIconifyStateChanged(void* data, int type, void* 
   Ecore_Wl2_Event_Window_Iconify_State_Change* iconifyChangedEvent(static_cast<Ecore_Wl2_Event_Window_Iconify_State_Change*>(event));
   Eina_Bool                                    handled(ECORE_CALLBACK_PASS_ON);
 
-  if(iconifyChangedEvent->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(iconifyChangedEvent->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     if(iconifyChangedEvent->iconified == EINA_TRUE)
     {
@@ -1130,7 +1130,7 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusIn(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Focus_In* focusInEvent(static_cast<Ecore_Wl2_Event_Focus_In*>(event));
 
-  if(focusInEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(focusInEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusIn, Window (%p) EcoreEventWindowFocusIn\n", mEcoreWindow);
 
@@ -1144,7 +1144,7 @@ Eina_Bool WindowBaseEcoreWl2::OnFocusOut(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Focus_Out* focusOutEvent(static_cast<Ecore_Wl2_Event_Focus_Out*>(event));
 
-  if(focusOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(focusOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnFocusOut, Window (%p) EcoreEventWindowFocusOut\n", mEcoreWindow);
 
@@ -1158,7 +1158,7 @@ Eina_Bool WindowBaseEcoreWl2::OnOutputTransform(void* data, int type, void* even
 {
   Ecore_Wl2_Event_Output_Transform* transformEvent(static_cast<Ecore_Wl2_Event_Output_Transform*>(event));
 
-  if(transformEvent->output == ecore_wl2_window_output_find(mEcoreWindow))
+  if(transformEvent->output == ecore_wl2_window_output_find(mEcoreWindow) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnOutputTransform, Window (%p) EcoreEventOutputTransform\n", mEcoreWindow);
 
@@ -1174,7 +1174,7 @@ Eina_Bool WindowBaseEcoreWl2::OnIgnoreOutputTransform(void* data, int type, void
 {
   Ecore_Wl2_Event_Ignore_Output_Transform* ignoreTransformEvent(static_cast<Ecore_Wl2_Event_Ignore_Output_Transform*>(event));
 
-  if(ignoreTransformEvent->win == mEcoreWindow)
+  if(ignoreTransformEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnIgnoreOutputTransform, Window (%p) EcoreEventIgnoreOutputTransform\n", mEcoreWindow);
 
@@ -1190,7 +1190,7 @@ void WindowBaseEcoreWl2::OnRotation(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Window_Rotation* ev(static_cast<Ecore_Wl2_Event_Window_Rotation*>(event));
 
-  if(ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnRotation, Window (%p), angle: %d, width: %d, height: %d\n", mEcoreWindow, ev->angle, ev->w, ev->h);
 
@@ -1226,7 +1226,7 @@ void WindowBaseEcoreWl2::OnConfiguration(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Window_Configure* ev(static_cast<Ecore_Wl2_Event_Window_Configure*>(event));
 
-  if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     // Note: To comply with the wayland protocol, Dali should make an ack_configure
     // by calling ecore_wl2_window_commit
@@ -1278,7 +1278,7 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_DOWN");
 
@@ -1320,7 +1320,7 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_UP");
 
@@ -1349,7 +1349,7 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Move* touchEvent = static_cast<Ecore_Event_Mouse_Move*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_MOVE");
 
@@ -1378,7 +1378,7 @@ void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* e
 {
   Ecore_Event_Mouse_Relative_Move* relativeMoveEvent = static_cast<Ecore_Event_Mouse_Relative_Move*>(event);
 
-  if(relativeMoveEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(relativeMoveEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_RELATIVE_MOVE");
 
@@ -1399,7 +1399,7 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_CANCEL");
 
@@ -1430,7 +1430,7 @@ void WindowBaseEcoreWl2::OnPointerConstraints(void* data, int type, void* event)
 {
   Ecore_Wl2_Event_Pointer_Constraints* constraintsEvent = static_cast<Ecore_Wl2_Event_Pointer_Constraints*>(event);
 
-  if(constraintsEvent && constraintsEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(constraintsEvent && constraintsEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_POINTER_CONSTRAINTS");
     Dali::Int32Pair position(constraintsEvent->x, constraintsEvent->y);
@@ -1445,7 +1445,7 @@ void WindowBaseEcoreWl2::OnMouseWheel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Wheel* mouseWheelEvent = static_cast<Ecore_Event_Mouse_Wheel*>(event);
 
-  if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_WHEEL");
 
@@ -1461,7 +1461,7 @@ void WindowBaseEcoreWl2::OnMouseInOut(void* data, int type, void* event, Dali::D
 {
   Ecore_Event_Mouse_IO* mouseInOutEvent = static_cast<Ecore_Event_Mouse_IO*>(event);
 
-  if(mouseInOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(mouseInOutEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_IN_OUT");
 
@@ -1484,19 +1484,21 @@ void WindowBaseEcoreWl2::OnDetentRotation(void* data, int type, void* event)
   Ecore_Event_Detent_Rotate* detentEvent = static_cast<Ecore_Event_Detent_Rotate*>(event);
 
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnDetentRotation, Window (%p)\n", mEcoreWindow);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
 
-  int32_t clockwise = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
+    Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, detentEvent->direction, 0, Vector2(0.0f, 0.0f), clockwise, detentEvent->timestamp);
 
-  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, detentEvent->direction, 0, Vector2(0.0f, 0.0f), clockwise, detentEvent->timestamp);
-
-  mWheelEventSignal.Emit(wheelEvent);
+    mWheelEventSignal.Emit(wheelEvent);
+  }
 }
 
 void WindowBaseEcoreWl2::OnKeyDown(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     std::string keyName(keyEvent->keyname);
     std::string logicalKey("");
@@ -1568,7 +1570,7 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(keyEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
 #if defined(ECORE_VERSION_MAJOR) && (ECORE_VERSION_MAJOR >= 1) && defined(ECORE_VERSION_MINOR) && (ECORE_VERSION_MINOR >= 23)
     // Cancel processing flag is sent because this key event will combine with the previous key. So, the event should not actually perform anything.
@@ -1638,162 +1640,190 @@ void WindowBaseEcoreWl2::OnKeyUp(void* data, int type, void* event)
 
 void WindowBaseEcoreWl2::OnDataSend(void* data, int type, void* event)
 {
-  mSelectionDataSendSignal.Emit(event);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mSelectionDataSendSignal.Emit(event);
+  }
 }
 
 void WindowBaseEcoreWl2::OnDataReceive(void* data, int type, void* event)
 {
-  mSelectionDataReceivedSignal.Emit(event);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mSelectionDataReceivedSignal.Emit(event);
+  }
 }
 
 void WindowBaseEcoreWl2::OnFontNameChanged()
 {
-  mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_CHANGE);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_CHANGE);
+  }
 }
 
 void WindowBaseEcoreWl2::OnFontSizeChanged()
 {
-  mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
+  }
 }
 
 void WindowBaseEcoreWl2::OnTransitionEffectEvent(WindowEffectState state, WindowEffectType type)
 {
   DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnTransitionEffectEvent, Window (%p)\n", mEcoreWindow);
-  mTransitionEffectEventSignal.Emit(state, type);
+
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mTransitionEffectEventSignal.Emit(state, type);
+  }
 }
 
 void WindowBaseEcoreWl2::OnKeyboardRepeatSettingsChanged()
 {
-  mKeyboardRepeatSettingsChangedSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mKeyboardRepeatSettingsChangedSignal.Emit();
+  }
 }
 
 void WindowBaseEcoreWl2::OnEcoreEventWindowRedrawRequest()
 {
-  mWindowRedrawRequestSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mWindowRedrawRequestSignal.Emit();
+  }
 }
 
 void WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage(void* event)
 {
-  Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
-  if(message)
+  if(Dali::Adaptor::IsAvailable())
   {
-    DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), key:%s, value:%s \n", mEcoreWindow, message->key, message->val);
-    std::string           key(message->key);
-    std::string           value(message->val);
-    Dali::Property::Array options;
-
-    if(message->options)
+    Ecore_Wl2_Event_Aux_Message* message = static_cast<Ecore_Wl2_Event_Aux_Message*>(event);
+    if(message)
     {
-      Eina_List* l;
-      void*      data;
-      EINA_LIST_FOREACH(message->options, l, data)
-      {
-        DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), option: %s\n", mEcoreWindow, (char*)data);
-        std::string option(static_cast<char*>(data));
-        options.Add(option);
-      }
-    }
+      DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), key:%s, value:%s \n", mEcoreWindow, message->key, message->val);
+      std::string           key(message->key);
+      std::string           value(message->val);
+      Dali::Property::Array options;
 
-    mAuxiliaryMessageSignal.Emit(key, value, options);
+      if(message->options)
+      {
+        Eina_List* l;
+        void*      data;
+        EINA_LIST_FOREACH(message->options, l, data)
+        {
+          DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl2::OnEcoreEventWindowAuxiliaryMessage, Window (%p), option: %s\n", mEcoreWindow, (char*)data);
+          std::string option(static_cast<char*>(data));
+          options.Add(option);
+        }
+      }
+
+      mAuxiliaryMessageSignal.Emit(key, value, options);
+    }
   }
 }
 
 void WindowBaseEcoreWl2::OnEcoreEventConformantChange(void* event)
 {
-  Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(event);
-  if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(Dali::Adaptor::IsAvailable())
   {
-    WindowInsetsPartType partType = WindowInsetsPartType::STATUS_BAR;
-
-    int x = 0;
-    int y = 0;
-    int w = 0;
-    int h = 0;
-
-    switch(ev->part_type)
+    Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(event);
+    if(ev && ev->win == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)))
     {
-      case ECORE_WL2_INDICATOR_PART:
+      WindowInsetsPartType partType = WindowInsetsPartType::STATUS_BAR;
+
+      int x = 0;
+      int y = 0;
+      int w = 0;
+      int h = 0;
+
+      switch(ev->part_type)
       {
-        partType = WindowInsetsPartType::STATUS_BAR;
-        ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &x, &y, &w, &h);
-        break;
-      }
-      case ECORE_WL2_KEYBOARD_PART:
-      {
-        partType = WindowInsetsPartType::KEYBOARD;
-        ecore_wl2_window_keyboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
-        break;
-      }
-      case ECORE_WL2_CLIPBOARD_PART:
-      {
-        partType = WindowInsetsPartType::CLIPBOARD;
-        ecore_wl2_window_clipboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
-        break;
-      }
-      default:
-      {
-        break;
-      }
-    }
-
-    WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
-
-    int left   = 0;
-    int right  = 0;
-    int top    = 0;
-    int bottom = 0;
-
-    // Insets are applied only if system UI(e.g. virtual keyboard) satisfies the following 2 conditions.
-    // 1. System UI fits to the window width or height.
-    // 2. System UI begins or ends from the edge of window.
-    // Otherwise, we should not resize window content because there would be empty space around system UI.
-    bool applyInsets = false;
-
-    // Zero insets are applied if state is invisible
-    if(!ev->state)
-    {
-      applyInsets = true;
-    }
-    else
-    {
-      partState = WindowInsetsPartState::VISIBLE;
-
-      int winX = mWindowPositionSize.x;
-      int winY = mWindowPositionSize.y;
-      int winW = mWindowPositionSize.width;
-      int winH = mWindowPositionSize.height;
-
-      if((x <= winX) && (x + w >= winX + winW))
-      {
-        if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
+        case ECORE_WL2_INDICATOR_PART:
         {
-          top         = y + h - winY;
-          applyInsets = true;
+          partType = WindowInsetsPartType::STATUS_BAR;
+          ecore_wl2_window_indicator_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+          break;
         }
-        else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
+        case ECORE_WL2_KEYBOARD_PART:
         {
-          bottom      = winY + winH - y;
-          applyInsets = true;
+          partType = WindowInsetsPartType::KEYBOARD;
+          ecore_wl2_window_keyboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+          break;
+        }
+        case ECORE_WL2_CLIPBOARD_PART:
+        {
+          partType = WindowInsetsPartType::CLIPBOARD;
+          ecore_wl2_window_clipboard_geometry_get(mEcoreWindow, &x, &y, &w, &h);
+          break;
+        }
+        default:
+        {
+          break;
         }
       }
-      else if((y <= winY) && (y + h >= winY + winH))
+
+      WindowInsetsPartState partState = WindowInsetsPartState::INVISIBLE;
+
+      int left   = 0;
+      int right  = 0;
+      int top    = 0;
+      int bottom = 0;
+
+      // Insets are applied only if system UI(e.g. virtual keyboard) satisfies the following 2 conditions.
+      // 1. System UI fits to the window width or height.
+      // 2. System UI begins or ends from the edge of window.
+      // Otherwise, we should not resize window content because there would be empty space around system UI.
+      bool applyInsets = false;
+
+      // Zero insets are applied if state is invisible
+      if(!ev->state)
       {
-        if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
+        applyInsets = true;
+      }
+      else
+      {
+        partState = WindowInsetsPartState::VISIBLE;
+
+        int winX = mWindowPositionSize.x;
+        int winY = mWindowPositionSize.y;
+        int winW = mWindowPositionSize.width;
+        int winH = mWindowPositionSize.height;
+
+        if((x <= winX) && (x + w >= winX + winW))
         {
-          left        = x + w - winX;
-          applyInsets = true;
+          if((y <= winY) && (y + h >= winY) && (y + h <= winY + winH))
+          {
+            top         = y + h - winY;
+            applyInsets = true;
+          }
+          else if((y + h >= winY + winH) && (y >= winY) && (y <= winY + winH))
+          {
+            bottom      = winY + winH - y;
+            applyInsets = true;
+          }
         }
-        else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
+        else if((y <= winY) && (y + h >= winY + winH))
         {
-          right       = winX + winW - x;
-          applyInsets = true;
+          if((x <= winX) && (x + w >= winX) && (x + w <= winX + winW))
+          {
+            left        = x + w - winX;
+            applyInsets = true;
+          }
+          else if((x + w >= winX + winW) && (x >= winX) && (x <= winX + winW))
+          {
+            right       = winX + winW - x;
+            applyInsets = true;
+          }
         }
       }
-    }
 
-    if(applyInsets)
-    {
-      mInsetsChangedSignal.Emit(partType, partState, Extents(left, right, top, bottom));
+      if(applyInsets)
+      {
+        mInsetsChangedSignal.Emit(partType, partState, Extents(left, right, top, bottom));
+      }
     }
   }
 }
@@ -1812,7 +1842,7 @@ void WindowBaseEcoreWl2::KeymapChanged(void* data, int type, void* event)
 void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
 {
   Ecore_Wl2_Event_Window_Interactive_Move_Done* movedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Move_Done*>(event);
-  if(movedDoneEvent && movedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(movedDoneEvent && movedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     Dali::PositionSize orgPositionSize(movedDoneEvent->x, movedDoneEvent->y, movedDoneEvent->w, movedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);
@@ -1825,7 +1855,7 @@ void WindowBaseEcoreWl2::OnMoveCompleted(void* event)
 void WindowBaseEcoreWl2::OnResizeCompleted(void* event)
 {
   Ecore_Wl2_Event_Window_Interactive_Resize_Done* resizedDoneEvent = static_cast<Ecore_Wl2_Event_Window_Interactive_Resize_Done*>(event);
-  if(resizedDoneEvent && resizedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)))
+  if(resizedDoneEvent && resizedDoneEvent->win == static_cast<uint32_t>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     Dali::PositionSize orgPositionSize(resizedDoneEvent->x, resizedDoneEvent->y, resizedDoneEvent->w, resizedDoneEvent->h);
     Dali::PositionSize newPositionSize = RecalculatePositionSizeToCurrentOrientation(orgPositionSize);

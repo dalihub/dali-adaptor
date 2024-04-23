@@ -135,7 +135,10 @@ struct WindowBaseCocoa::Impl final
 
   void OnFocus(bool focus)
   {
-    mThis->mFocusChangedSignal.Emit(focus);
+    if(Dali::Adaptor::IsAvailable())
+    {
+      mThis->mFocusChangedSignal.Emit(focus);
+    }
   }
 
   // Handle mouse events
@@ -146,7 +149,10 @@ struct WindowBaseCocoa::Impl final
 
   void OnRedraw(void)
   {
-    mThis->mWindowRedrawRequestSignal.Emit();
+    if(Dali::Adaptor::IsAvailable())
+    {
+      mThis->mWindowRedrawRequestSignal.Emit();
+    }
   }
 
 private:
@@ -195,113 +201,125 @@ WindowBaseCocoa::Impl::~Impl()
 
 void WindowBaseCocoa::Impl::OnMouse(NSEvent *event, PointState::Type state)
 {
-  Integration::Point point;
-  point.SetDeviceId(event.deviceID);
-  point.SetState(state);
-  auto p = [event locationInWindow];
-  auto [x, y] = [mWindow.contentView convertPoint:p fromView:nil];
-  point.SetScreenPosition(Vector2(x, y));
-  point.SetRadius(std::sqrt(x*x + y*y));
-  point.SetPressure(event.pressure);
-
-  if (x == 0.0)
+  if(Dali::Adaptor::IsAvailable())
   {
-    point.SetAngle(Degree(0.0));
-  }
-  else
-  {
-    point.SetAngle(Radian(std::atan(y/x)));
-  }
+    Integration::Point point;
+    point.SetDeviceId(event.deviceID);
+    point.SetState(state);
+    auto p = [event locationInWindow];
+    auto [x, y] = [mWindow.contentView convertPoint:p fromView:nil];
+    point.SetScreenPosition(Vector2(x, y));
+    point.SetRadius(std::sqrt(x*x + y*y));
+    point.SetPressure(event.pressure);
 
-  DALI_LOG_INFO(
-    gWindowBaseLogFilter,
-    Debug::Verbose,
-    "WindowBaseCocoa::Impl::OnMouse(%.1f, %.1f)\n",
-    x,
-    y
-  );
+    if (x == 0.0)
+    {
+      point.SetAngle(Degree(0.0));
+    }
+    else
+    {
+      point.SetAngle(Radian(std::atan(y/x)));
+    }
 
-  // timestamp is given in seconds, the signal expects it in milliseconds
-  mThis->mTouchEventSignal.Emit(point, event.timestamp * 1000);
+    DALI_LOG_INFO(
+      gWindowBaseLogFilter,
+      Debug::Verbose,
+      "WindowBaseCocoa::Impl::OnMouse(%.1f, %.1f)\n",
+      x,
+      y
+    );
+
+    // timestamp is given in seconds, the signal expects it in milliseconds
+    mThis->mTouchEventSignal.Emit(point, event.timestamp * 1000);
+  }
 }
 
 void WindowBaseCocoa::Impl::OnMouseWheel(NSEvent *event)
 {
-  auto p = [event locationInWindow];
-  auto [x, y] = [mWindow.contentView convertPoint:p fromView:nil];
-
-  const auto modifiers = GetKeyModifiers(event);
-  const Vector2 vec(x, y);
-  const auto timestamp = event.timestamp * 1000;
-
-  if (event.scrollingDeltaY)
+  if(Dali::Adaptor::IsAvailable())
   {
-    Integration::WheelEvent wheelEvent(
-      Integration::WheelEvent::MOUSE_WHEEL,
-      0,
-      modifiers,
-      vec,
-      event.scrollingDeltaY < 0 ? -1 : 1,
-      timestamp
-    );
+    auto p = [event locationInWindow];
+    auto [x, y] = [mWindow.contentView convertPoint:p fromView:nil];
 
-    mThis->mWheelEventSignal.Emit(wheelEvent);
-  }
+    const auto modifiers = GetKeyModifiers(event);
+    const Vector2 vec(x, y);
+    const auto timestamp = event.timestamp * 1000;
 
-  if (event.scrollingDeltaX)
-  {
-    Integration::WheelEvent wheelEvent(
-      Integration::WheelEvent::MOUSE_WHEEL,
-      0,
-      modifiers,
-      vec,
-      event.scrollingDeltaX < 0 ? -1 : 1,
-      timestamp
-    );
+    if (event.scrollingDeltaY)
+    {
+      Integration::WheelEvent wheelEvent(
+        Integration::WheelEvent::MOUSE_WHEEL,
+        0,
+        modifiers,
+        vec,
+        event.scrollingDeltaY < 0 ? -1 : 1,
+        timestamp
+      );
 
-    mThis->mWheelEventSignal.Emit(wheelEvent);
+      mThis->mWheelEventSignal.Emit(wheelEvent);
+    }
+
+    if (event.scrollingDeltaX)
+    {
+      Integration::WheelEvent wheelEvent(
+        Integration::WheelEvent::MOUSE_WHEEL,
+        0,
+        modifiers,
+        vec,
+        event.scrollingDeltaX < 0 ? -1 : 1,
+        timestamp
+      );
+
+      mThis->mWheelEventSignal.Emit(wheelEvent);
+    }
   }
 }
 
 void WindowBaseCocoa::Impl::OnKey(NSEvent *event, Integration::KeyEvent::State keyState)
 {
-  const std::string empty;
+  if(Dali::Adaptor::IsAvailable())
+  {
+    const std::string empty;
 
-  Integration::KeyEvent keyEvent(
-    GetKeyName(event),
-    empty,
-    [event.characters UTF8String],
-    event.keyCode,
-    GetKeyModifiers(event),
-    event.timestamp * 1000,
-    keyState,
-    empty,
-    empty,
-    Device::Class::NONE,
-    Device::Subclass::NONE
-  );
+    Integration::KeyEvent keyEvent(
+      GetKeyName(event),
+      empty,
+      [event.characters UTF8String],
+      event.keyCode,
+      GetKeyModifiers(event),
+      event.timestamp * 1000,
+      keyState,
+      empty,
+      empty,
+      Device::Class::NONE,
+      Device::Subclass::NONE
+    );
 
-  DALI_LOG_INFO(
-    gWindowBaseLogFilter,
-    Debug::Verbose,
-    "WindowBaseCocoa::Impl::OnKey(%s)\n",
-    [event.characters UTF8String]
-  );
-  keyEvent.windowId = mThis->GetNativeWindowId();
+    DALI_LOG_INFO(
+      gWindowBaseLogFilter,
+      Debug::Verbose,
+      "WindowBaseCocoa::Impl::OnKey(%s)\n",
+      [event.characters UTF8String]
+    );
+    keyEvent.windowId = mThis->GetNativeWindowId();
 
-  mThis->mKeyEventSignal.Emit(keyEvent);
+    mThis->mKeyEventSignal.Emit(keyEvent);
+  }
 }
 
 void WindowBaseCocoa::Impl::OnWindowDamaged(const NSRect &rect)
 {
-  const DamageArea area(
-    rect.origin.x,
-    rect.origin.y,
-    rect.size.width,
-    rect.size.height
-  );
+  if(Dali::Adaptor::IsAvailable())
+  {
+    const DamageArea area(
+      rect.origin.x,
+      rect.origin.y,
+      rect.size.width,
+      rect.size.height
+    );
 
-  mThis->mWindowDamagedSignal.Emit(area);
+    mThis->mWindowDamagedSignal.Emit(area);
+  }
 }
 
 uint32_t WindowBaseCocoa::Impl::GetKeyModifiers(NSEvent *event) const noexcept
