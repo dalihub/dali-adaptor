@@ -357,7 +357,7 @@ bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemBase::Event ty
   bool handled(false);
 
   auto propertyNotifyEvent = static_cast<WindowSystem::WindowSystemX::X11PropertyNotifyEvent*>(event);
-  if(propertyNotifyEvent->window == mWindow)
+  if(propertyNotifyEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     WindowSystemX::WindowState state = WindowSystem::GetImplementation().GetWindowState(mWindow);
 
@@ -398,7 +398,7 @@ bool WindowBaseX::OnWindowPropertyChanged(void* data, WindowSystemBase::Event ty
 void WindowBaseX::OnConfigure(WindowSystemBase::EventBase* event)
 {
   auto configureEvent = static_cast<WindowSystemX::X11ConfigureNotifyEvent*>(event);
-  if(configureEvent->window == mWindow)
+  if(configureEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::OnConfigureNotify\n");
     Dali::PositionSize positionSize;
@@ -413,14 +413,17 @@ void WindowBaseX::OnConfigure(WindowSystemBase::EventBase* event)
 
 void WindowBaseX::OnDeleteRequest()
 {
-  mDeleteRequestSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mDeleteRequestSignal.Emit();
+  }
 }
 
 void WindowBaseX::OnFocusIn(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event)
 {
   auto x11Event = static_cast<WindowSystemX::X11Event*>(event);
 
-  if(x11Event->window == mWindow)
+  if(x11Event->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::OnFocusIn\n");
 
@@ -432,7 +435,7 @@ void WindowBaseX::OnFocusOut(void* data, WindowSystemBase::Event, WindowSystemBa
 {
   auto x11Event = static_cast<WindowSystemX::X11Event*>(event);
   // If the window loses focus then hide the keyboard.
-  if(x11Event->window == mWindow)
+  if(x11Event->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::FocusOut\n");
 
@@ -443,7 +446,7 @@ void WindowBaseX::OnFocusOut(void* data, WindowSystemBase::Event, WindowSystemBa
 void WindowBaseX::OnWindowDamaged(void* data, WindowSystemBase::Event, WindowSystemBase::EventBase* event)
 {
   auto windowExposeEvent = static_cast<WindowSystemX::X11ExposeEvent*>(event);
-  if(windowExposeEvent->window == mWindow)
+  if(windowExposeEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DamageArea area;
     area.x      = windowExposeEvent->x;
@@ -459,7 +462,7 @@ void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemBase::Event type, Wi
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
-  if(touchEvent->window == mWindow)
+  if(touchEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::ButtonDown\n");
     PointState::Type state(PointState::DOWN);
@@ -484,7 +487,7 @@ void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemBase::Event type, Wind
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
-  if(touchEvent->window == mWindow)
+  if(touchEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window::ButtonUp\n");
     Integration::Point point;
@@ -507,7 +510,7 @@ void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemBase::Event type, Wi
 {
   auto touchEvent = static_cast<WindowSystemX::X11MouseEvent*>(event);
 
-  if(touchEvent->window == mWindow)
+  if(touchEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->device);
@@ -525,7 +528,7 @@ void WindowBaseX::OnMouseWheel(void* data, WindowSystemBase::Event type, WindowS
 {
   auto mouseWheelEvent = static_cast<WindowSystemX::X11MouseWheelEvent*>(event);
 
-  if(mouseWheelEvent->window == mWindow)
+  if(mouseWheelEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseX::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
 
@@ -567,7 +570,7 @@ void WindowBaseX::OnKeyDown(void* data, WindowSystemBase::Event type, WindowSyst
 {
   auto keyEvent = static_cast<WindowSystemX::X11KeyEvent*>(event);
 
-  if(keyEvent->window == mWindow)
+  if(keyEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseX::OnKeyDown\n");
 
@@ -581,7 +584,7 @@ void WindowBaseX::OnKeyUp(void* data, WindowSystemBase::Event type, WindowSystem
 {
   auto keyEvent = static_cast<WindowSystemX::X11KeyEvent*>(event);
 
-  if(keyEvent->window == mWindow)
+  if(keyEvent->window == mWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, " WindowBaseX::OnKeyUp\n");
 

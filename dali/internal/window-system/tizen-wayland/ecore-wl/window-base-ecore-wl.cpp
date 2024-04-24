@@ -712,7 +712,7 @@ Eina_Bool WindowBaseEcoreWl::OnIconifyStateChanged(void* data, int type, void* e
   Ecore_Wl_Event_Window_Iconify_State_Change* iconifyChangedEvent(static_cast<Ecore_Wl_Event_Window_Iconify_State_Change*>(event));
   Eina_Bool                                   handled(ECORE_CALLBACK_PASS_ON);
 
-  if(iconifyChangedEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(iconifyChangedEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     if(iconifyChangedEvent->iconified == EINA_TRUE)
     {
@@ -732,7 +732,7 @@ Eina_Bool WindowBaseEcoreWl::OnFocusIn(void* data, int type, void* event)
 {
   Ecore_Wl_Event_Focus_In* focusInEvent(static_cast<Ecore_Wl_Event_Focus_In*>(event));
 
-  if(focusInEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(focusInEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n");
 
@@ -746,7 +746,7 @@ Eina_Bool WindowBaseEcoreWl::OnFocusOut(void* data, int type, void* event)
 {
   Ecore_Wl_Event_Focus_Out* focusOutEvent(static_cast<Ecore_Wl_Event_Focus_Out*>(event));
 
-  if(focusOutEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(focusOutEvent->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n");
 
@@ -760,7 +760,7 @@ Eina_Bool WindowBaseEcoreWl::OnOutputTransform(void* data, int type, void* event
 {
   Ecore_Wl_Event_Output_Transform* transformEvent(static_cast<Ecore_Wl_Event_Output_Transform*>(event));
 
-  if(transformEvent->output == ecore_wl_window_output_find(mEcoreWindow))
+  if(transformEvent->output == ecore_wl_window_output_find(mEcoreWindow) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window (%p) EcoreEventOutputTransform\n", mEcoreWindow);
 
@@ -774,7 +774,7 @@ Eina_Bool WindowBaseEcoreWl::OnIgnoreOutputTransform(void* data, int type, void*
 {
   Ecore_Wl_Event_Ignore_Output_Transform* ignoreTransformEvent(static_cast<Ecore_Wl_Event_Ignore_Output_Transform*>(event));
 
-  if(ignoreTransformEvent->win == mEcoreWindow)
+  if(ignoreTransformEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window (%p) EcoreEventIgnoreOutputTransform\n", mEcoreWindow);
 
@@ -788,7 +788,7 @@ void WindowBaseEcoreWl::OnRotation(void* data, int type, void* event)
 {
   Ecore_Wl_Event_Window_Rotate* ev(static_cast<Ecore_Wl_Event_Window_Rotate*>(event));
 
-  if(ev->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(ev->win == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_RELEASE_INFO("WindowBaseEcoreWl::OnRotation, angle: %d, width: %d, height: %d\n", ev->angle, ev->w, ev->h);
 
@@ -815,7 +815,7 @@ void WindowBaseEcoreWl::OnMouseButtonDown(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     PointState::Type state(PointState::DOWN);
 
@@ -851,7 +851,7 @@ void WindowBaseEcoreWl::OnMouseButtonUp(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
@@ -877,7 +877,7 @@ void WindowBaseEcoreWl::OnMouseButtonMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Move* touchEvent = static_cast<Ecore_Event_Mouse_Move*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
@@ -903,7 +903,7 @@ void WindowBaseEcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(touchEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     Device::Class::Type    deviceClass;
     Device::Subclass::Type deviceSubclass;
@@ -931,7 +931,7 @@ void WindowBaseEcoreWl::OnMouseWheel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Wheel* mouseWheelEvent = static_cast<Ecore_Event_Mouse_Wheel*>(event);
 
-  if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(mouseWheelEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
 
@@ -943,23 +943,26 @@ void WindowBaseEcoreWl::OnMouseWheel(void* data, int type, void* event)
 
 void WindowBaseEcoreWl::OnDetentRotation(void* data, int type, void* event)
 {
-  Ecore_Event_Detent_Rotate* detentEvent = static_cast<Ecore_Event_Detent_Rotate*>(event);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    Ecore_Event_Detent_Rotate* detentEvent = static_cast<Ecore_Event_Detent_Rotate*>(event);
 
-  DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl::OnDetentRotation\n");
+    DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, "WindowBaseEcoreWl::OnDetentRotation\n");
 
-  int direction = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
-  int timeStamp = detentEvent->timestamp;
+    int direction = (detentEvent->direction == ECORE_DETENT_DIRECTION_CLOCKWISE) ? 1 : -1;
+    int timeStamp = detentEvent->timestamp;
 
-  Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, 0, 0, Vector2(0.0f, 0.0f), direction, timeStamp);
+    Integration::WheelEvent wheelEvent(Integration::WheelEvent::CUSTOM_WHEEL, 0, 0, Vector2(0.0f, 0.0f), direction, timeStamp);
 
-  mWheelEventSignal.Emit(wheelEvent);
+    mWheelEventSignal.Emit(wheelEvent);
+  }
 }
 
 void WindowBaseEcoreWl::OnKeyDown(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(keyEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyDown\n");
 
@@ -1014,7 +1017,7 @@ void WindowBaseEcoreWl::OnKeyUp(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)))
+  if(keyEvent->window == static_cast<unsigned int>(ecore_wl_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnKeyUp\n");
 
@@ -1076,22 +1079,34 @@ void WindowBaseEcoreWl::OnKeyUp(void* data, int type, void* event)
 
 void WindowBaseEcoreWl::OnDataSend(void* data, int type, void* event)
 {
-  mSelectionDataSendSignal.Emit(event);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mSelectionDataSendSignal.Emit(event);
+  }
 }
 
 void WindowBaseEcoreWl::OnDataReceive(void* data, int type, void* event)
 {
-  mSelectionDataReceivedSignal.Emit(event);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mSelectionDataReceivedSignal.Emit(event);
+  }
 }
 
 void WindowBaseEcoreWl::OnFontNameChanged()
 {
-  mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_CHANGE);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_CHANGE);
+  }
 }
 
 void WindowBaseEcoreWl::OnFontSizeChanged()
 {
-  mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mStyleChangedSignal.Emit(StyleChange::DEFAULT_FONT_SIZE_CHANGE);
+  }
 }
 
 void WindowBaseEcoreWl::RegistryGlobalCallback(void* data, struct wl_registry* registry, uint32_t name, const char* interface, uint32_t version)
