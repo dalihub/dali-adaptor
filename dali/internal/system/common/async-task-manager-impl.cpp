@@ -680,22 +680,20 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
     }
   }
 
-  size_t count = mTasks.GetElementCount();
-  size_t index = 0;
-  while(index++ < count)
   {
-    auto processHelperIt = mTasks.GetNext();
-    if(processHelperIt == mTasks.End())
+    Mutex::ScopedLock lock(mTasksMutex);
+    size_t count = mTasks.GetElementCount();
+    size_t index = 0;
+    while(index++ < count)
     {
-      DALI_LOG_ERROR("Invalid memory accessed. Count : %d, Current Index : %d, Number Of Element : %d, Is Processor Registered : %s, Is Adaptor Available : %s\n", count, index, mTasks.GetElementCount(), mProcessorRegistered ? "true" : "false", Dali::Adaptor::IsAvailable() ? "true" : "false");
+      auto processHelperIt = mTasks.GetNext();
       DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
+      if(processHelperIt->Request())
+      {
+        break;
+      }
+      // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
     }
-
-    if(processHelperIt->Request())
-    {
-      break;
-    }
-    // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
   }
 
   // Register Process (Since mTrigger execute too late timing if event thread running a lots of events.)

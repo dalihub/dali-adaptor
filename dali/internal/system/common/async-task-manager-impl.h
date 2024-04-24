@@ -270,6 +270,7 @@ private:
   Dali::Mutex mWaitingTasksMutex;   ///< Mutex for mWaitingTasks. We can lock mRunningTasksMutex and mCompletedTasksMutex under this scope.
   Dali::Mutex mRunningTasksMutex;   ///< Mutex for mRunningTasks. We can lock mCompletedTasksMutex under this scope.
   Dali::Mutex mCompletedTasksMutex; ///< Mutex for mCompletedTasks. We cannot lock any mutex under this scope.
+  Dali::Mutex mTasksMutex;          ///< Mutex for mTasks.        We cannot lock any mutex under this scope.
 
   std::unique_ptr<EventThreadCallback> mTrigger;
 
