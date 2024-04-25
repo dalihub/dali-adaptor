@@ -174,6 +174,8 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
+  tickTimer.Reset();
+  mCoalescableMessages.clear();
   mRegistry      = {};
   mDbusServer    = {};
   mConnectionPtr = {};

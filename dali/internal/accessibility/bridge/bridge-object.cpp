@@ -242,6 +242,11 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 
 void BridgeObject::EmitPostRender(Accessible *obj)
 {
+  if(!IsUp() || obj->IsHidden())
+  {
+    return;
+  }
+
   AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj, 0.5f, [=]() {
     Emit(obj, WindowEvent::POST_RENDER);
   });
