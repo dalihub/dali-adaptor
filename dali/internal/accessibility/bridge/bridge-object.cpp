@@ -85,15 +85,17 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 
   if(eventName != eventMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-      "PropertyChange",
-      std::string{eventName->second},
-      0,
-      0,
-      {0},
-      {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj, 1.0f, [=]() {
+      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+        GetAccessiblePath(obj),
+        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        "PropertyChange",
+        std::string{eventName->second},
+        0,
+        0,
+        {0},
+        {"", "root"});
+    });
   }
 }
 

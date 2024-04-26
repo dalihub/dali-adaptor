@@ -287,8 +287,9 @@ enum class CoalescableMessages
   SET_OFFSET, ///< Set offset
   POST_RENDER, ///< Post render
   STATE_CHANGED_BEGIN = 500, ///< State changed (begin of reserved range)
-  STATE_CHANGED_END   = 599, ///< State changed (end of reserved range)
-  // <- any enum value declared here will have the value 600
+  STATE_CHANGED_END   = STATE_CHANGED_BEGIN + 99, ///< State changed (end of reserved range)
+  PROPERTY_CHANGED_BEGIN, ///< Property changed (begin of reserved range)
+  PROPERTY_CHANGED_END = PROPERTY_CHANGED_BEGIN + 99, ///< Property changed (end of reserved range)
 };
 
 // Custom specialization of std::hash
