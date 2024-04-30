@@ -113,7 +113,7 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
-  mGraphicsController.Initialize(*this);
+  mGraphicsController.Initialize(*mEglSync.get(), *this);
   InitializeGraphicsAPI(displayConnection);
 }
 

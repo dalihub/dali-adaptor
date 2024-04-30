@@ -25,8 +25,7 @@
 #include <unordered_set>
 
 // INTERNAL INCLUDES
-//@todo add sync back later
-//#include <dali/integration-api/graphics-sync-abstraction.h>
+#include <dali/integration-api/graphics-sync-abstraction.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles-impl/gles-context.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-buffer.h>
@@ -89,7 +88,7 @@ public:
    *
    * Note, this is now executed in the render thread, after core initialization
    */
-  void Initialize(//Integration::GraphicsSyncAbstraction& syncImplementation,
+  void Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
                   Internal::Adaptor::GraphicsInterface& graphicsInterface);
 
   /**

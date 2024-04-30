@@ -156,12 +156,13 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
   mCurrentContext = mContext.get();
 }
 
-void EglGraphicsController::Initialize(//Integration::GraphicsSyncAbstraction& syncImplementation,
+void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
                                        Internal::Adaptor::GraphicsInterface& graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
-  //auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
-  mEglSyncImplementation = nullptr;//syncImplPtr;@todo resurrect me
+  auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
+
+  mEglSyncImplementation = syncImplPtr;
   mGraphics              = &graphicsInterface;
 }
 
