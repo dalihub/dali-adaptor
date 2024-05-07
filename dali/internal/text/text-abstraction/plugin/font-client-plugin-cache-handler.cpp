@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/adaptor-framework/file-loader.h>
 #include <dali/devel-api/adaptor-framework/image-loading.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/logging.h>
 #include <dali/internal/text/text-abstraction/font-client-impl.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-plugin-impl.h>
@@ -81,7 +82,6 @@ extern Dali::Integration::Log::Filter* gFontClientLogFilter;
 
 namespace
 {
-
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_FONT_PERFORMANCE_MARKER, false);
 
 /**
@@ -100,8 +100,7 @@ constexpr auto MAX_NUMBER_OF_GLYPH_CACHE_ENV = "DALI_GLYPH_CACHE_MAX";
  */
 inline size_t GetMaxNumberOfGlyphCache()
 {
-  using Dali::EnvironmentVariable::GetEnvironmentVariable;
-  static auto numberString = GetEnvironmentVariable(MAX_NUMBER_OF_GLYPH_CACHE_ENV);
+  static auto numberString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_MAX_NUMBER_OF_GLYPH_CACHE);
   static auto number       = numberString ? std::strtoul(numberString, nullptr, 10) : DEFAULT_GLYPH_CACHE_MAX;
   return (number < MINIMUM_SIZE_OF_GLYPH_CACHE_MAX) ? MINIMUM_SIZE_OF_GLYPH_CACHE_MAX : number;
 }
@@ -742,12 +741,12 @@ void FontClient::Plugin::CacheHandler::ValidateFont(const FontDescription& fontD
 
   if(matched && (nullptr != characterSet))
   {
-    #if defined(TRACE_ENABLED)
+#if defined(TRACE_ENABLED)
     if(gTraceFilter && gTraceFilter->IsTraceEnabled())
     {
       DALI_LOG_DEBUG_INFO("DALI_TEXT_VALIDATE_FONT : FcFontMatch : %s, style : %s, %s, %s\n", fontDescription.family.c_str(), FontWidth::Name[fontDescription.width], FontWeight::Name[fontDescription.weight], FontSlant::Name[fontDescription.slant]);
     }
-    #endif
+#endif
 
     // Add the path to the cache.
     description.type = FontDescription::FACE_FONT;
@@ -825,12 +824,12 @@ void FontClient::Plugin::CacheHandler::CacheFallbackFontList(FontDescription&&  
 
   DALI_TRACE_SCOPE(gTraceFilter, "DALI_TEXT_FALLBACK_FONTLIST");
 
-  #if defined(TRACE_ENABLED)
+#if defined(TRACE_ENABLED)
   if(gTraceFilter && gTraceFilter->IsTraceEnabled())
   {
     DALI_LOG_DEBUG_INFO("DALI_TEXT_FALLBACK_FONTLIST : FcFontSort : %s\n", fontDescription.family.c_str());
   }
-  #endif
+#endif
 
   fontList         = new FontList;
   characterSetList = new CharacterSetList;
