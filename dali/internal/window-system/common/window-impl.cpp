@@ -1209,17 +1209,19 @@ void Window::OnAccessibilityEnabled()
     mIsEmittedWindowCreatedEvent = true;
   }
 
-  if(!mVisible || mIconified)
+  if(IsVisible())
   {
-    return;
+    bridge->WindowShown(handle);
+
+    if(mFocused)
+    {
+      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
+      bridge->WindowFocused(handle);
+    }
   }
-
-  bridge->WindowShown(handle);
-
-  if(mFocused)
+  else
   {
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
-    bridge->WindowFocused(handle);
+    bridge->WindowHidden(handle);
   }
 }
 
