@@ -32,3 +32,11 @@ SET( adaptor_input_ubuntu_x11_src_files
     ${adaptor_input_dir}/ubuntu-x11/key-mapping-x.cpp
     ${adaptor_input_dir}/ubuntu-x11/virtual-keyboard-impl-x.cpp
 )
+
+# module: input, backend: libuv-x11
+SET( adaptor_input_libuv_x11_src_files
+    ${adaptor_input_dir}/generic/input-method-context-factory-generic.cpp
+    ${adaptor_input_dir}/generic/input-method-context-impl-generic.cpp
+    ${adaptor_input_dir}/generic/key-mapping-generic.cpp
+    ${adaptor_input_dir}/generic/virtual-keyboard-impl-generic.cpp
+)
