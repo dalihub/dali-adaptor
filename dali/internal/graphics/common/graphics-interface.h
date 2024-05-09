@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_GRAPHICS_INTERFACE_H
-#define DALI_GRAPHICS_GRAPHICS_INTERFACE_H
+#ifndef DALI_INTERNAL_GRAPHICS_INTERFACE_H
+#define DALI_INTERNAL_GRAPHICS_INTERFACE_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -177,4 +177,4 @@ protected:
 } // namespace Graphics
 } // namespace Dali
 
-#endif //DALI_GRAPHICS_GRAPHICS_INTERFACE_H
+#endif //DALI_INTERNAL_GRAPHICS_INTERFACE_H

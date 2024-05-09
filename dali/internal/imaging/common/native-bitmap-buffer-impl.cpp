@@ -21,7 +21,7 @@
 // EXTERNAL HEADERS
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/bitmap.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 // INTERNAL HEADERS
 

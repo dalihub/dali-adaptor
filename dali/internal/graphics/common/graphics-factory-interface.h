@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {

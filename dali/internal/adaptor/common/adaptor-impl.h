@@ -25,30 +25,25 @@
 #include <dali/public-api/signals/callback.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/integration-api/render-controller.h>
-#include <dali/graphics/graphics-interface.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/clipboard.h>
 #include <dali/integration-api/adaptor.h>
 #include <dali/integration-api/scene.h>
-#include <dali/public-api/adaptor-framework/tts-player.h>
-#include <dali/devel-api/adaptor-framework/clipboard.h>
-#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
-#include <dali/internal/network/common/socket-factory.h>
-#include <dali/integration-api/adaptor.h>
 #include <dali/integration-api/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
-#include <dali/internal/system/common/environment-options.h>
-#include <dali/internal/system/common/core-event-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/input/common/drag-and-drop-detector-impl.h>
-#include <dali/internal/window-system/common/damage-observer.h>
-#include <dali/internal/window-system/common/window-impl.h>
-#include <dali/internal/window-system/common/window-visibility-observer.h>
+#include <dali/internal/legacy/common/tizen-platform-abstraction.h>
+#include <dali/internal/network/common/socket-factory.h>
+#include <dali/internal/system/common/core-event-interface.h>
+#include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/kernel-trace.h>
 #include <dali/internal/system/common/system-trace.h>
 #include <dali/internal/window-system/common/damage-observer.h>
+#include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-visibility-observer.h>
 #include <dali/public-api/adaptor-framework/tts-player.h>
-
 
 #include <memory>
 

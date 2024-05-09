@@ -22,7 +22,7 @@
 #include <dali/integration-api/core.h>
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/integration-api/trigger-event-interface.h>
 #include <dali/integration-api/trigger-event-factory-interface.h>
 #include <dali/integration-api/render-surface-interface.h>

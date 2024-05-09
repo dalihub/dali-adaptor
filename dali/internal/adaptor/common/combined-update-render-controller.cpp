@@ -31,7 +31,7 @@
 #include <dali/internal/system/common/time-service.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {

@@ -25,7 +25,7 @@
 #include <dali/public-api/object/any.h>
 #include <dali/devel-api/actors/actor-devel.h>
 
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/core.h>
