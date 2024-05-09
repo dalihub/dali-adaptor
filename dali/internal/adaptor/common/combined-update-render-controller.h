@@ -25,7 +25,7 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/thread-synchronization-interface.h>
+#include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 #include <dali/internal/system/common/performance-interface.h>
 #include <dali/internal/system/common/fps-tracker.h>
 #include <dali/internal/adaptor/common/thread-controller-interface.h>

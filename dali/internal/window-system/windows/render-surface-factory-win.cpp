@@ -17,7 +17,7 @@
 
 // EXTERNAL HEADERS
 #include <dali/integration-api/debug.h>
-#include <dali/integration-api/native-render-surface.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 #include <dali/internal/window-system/windows/render-surface-factory-win.h>
 
 // INTERNAL HEADERS

@@ -19,11 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/render-surface-interface.h>
-#else
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#endif
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 // EXTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>

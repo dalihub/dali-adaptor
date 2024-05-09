@@ -23,7 +23,7 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/graphics/surface-factory.h>
 #include <dali/graphics/vulkan/internal/vulkan-types.h>
 #include <dali/graphics/vulkan/internal/vulkan-queue.h>

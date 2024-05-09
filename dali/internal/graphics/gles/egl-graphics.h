@@ -22,7 +22,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/integration-api/egl-interface.h>
+#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/internal/graphics/gles/gl-proxy-implementation.h>
 #include <dali/internal/graphics/gles/gl-implementation.h>
 

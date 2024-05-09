@@ -69,7 +69,6 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
     ADD_DEFINITIONS( "-DBUILDING_DALI_ADAPTOR" )
   ENDIF()
 
-  ADD_DEFINITIONS( "-DDALI_ADAPTOR_COMPILATION" )
   ADD_DEFINITIONS( "-D_NSIG=65" )
 ENDIF()
 
@@ -146,7 +145,6 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
 ENDIF()
 
 ADD_DEFINITIONS( -DNON_POWER_OF_TWO_TEXTURES ${DEFINITIONS} )
-ADD_DEFINITIONS( -DDALI_COMPILATION -DDALI_ADAPTOR_COMPILATION )
 
 # from root/build/tizen, get back to root
 SET(ROOT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../)

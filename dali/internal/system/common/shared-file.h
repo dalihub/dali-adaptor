@@ -48,6 +48,12 @@ public:
   virtual ~SharedFile();
 
   /**
+   * Opens a file descriptor to shared memory segment
+   * @return The file descriptor
+   */
+  int Open(const char* filename, int size, int oflag, mode_t mode);
+
+  /**
    * Opens a file for read/write
    * @return true if opened, false on error.
    */

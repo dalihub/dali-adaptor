@@ -22,7 +22,7 @@
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/devel-api/images/native-image-interface-extension.h>

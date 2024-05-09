@@ -19,14 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/render-surface-interface.h>
-#include <dali/graphics/graphics-interface.h>
-#else
-#include <dali/integration-api/adaptors/render-surface-interface.h>
-#endif
-
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 
 namespace Dali
 {

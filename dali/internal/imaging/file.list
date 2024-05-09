@@ -29,9 +29,9 @@ SET( adaptor_imaging_tizen_src_files
 
 # module: imaging, backend: ubuntu-x11
 SET( adaptor_imaging_ubuntu_x11_src_files
-    ${adaptor_imaging_dir}/ecore-x11/native-image-source-factory-x.cpp
-    ${adaptor_imaging_dir}/ecore-x11/native-image-source-impl-x.cpp
-    ${adaptor_imaging_dir}/ecore-x11/native-image-source-queue-impl-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-impl-x.cpp
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
 )
 
 # module: imaging, backend: libuv-x11

@@ -22,7 +22,7 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 #include <dali/internal/window-system/common/display-utils.h>
-#include <dali/integration-api/native-render-surface.h>
+#include <dali/integration-api/adaptor-framework/native-render-surface.h>
 
 // EXTERNAL INCLUDES
 #include <memory>

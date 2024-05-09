@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/graphics/surface-factory.h>
 
 // EXTERNAL INCLUDES

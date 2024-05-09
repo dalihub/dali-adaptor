@@ -27,7 +27,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/devel-api/adaptor-framework/bitmap-saver.h>
-#include <dali/graphics/graphics-interface.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/integration-api/render-surface.h>
 
 

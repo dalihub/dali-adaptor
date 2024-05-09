@@ -24,7 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/thread-settings.h>
-#include <dali/integration-api/trigger-event-factory.h>
+#include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/system/common/environment-options.h>

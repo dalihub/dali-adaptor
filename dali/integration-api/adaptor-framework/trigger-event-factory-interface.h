@@ -22,11 +22,7 @@
 #include <dali/public-api/signals/callback.h>
 
 // INTERNAL INCLUDES
-#ifdef DALI_ADAPTOR_COMPILATION
-#include <dali/integration-api/trigger-event-interface.h>
-#else
-#include <dali/integration-api/adaptors/trigger-event-interface.h>
-#endif
+#include <dali/integration-api/adaptor-framework/trigger-event-interface.h>
 
 namespace Dali
 {
