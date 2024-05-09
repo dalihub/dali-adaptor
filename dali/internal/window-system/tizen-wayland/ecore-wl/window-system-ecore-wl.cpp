@@ -94,8 +94,7 @@ bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 void SetGeometryHittestEnabled(bool enable)
 {
   DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  gGeometryHittest = enable;
-  if(gGeometryHittest && Dali::Adaptor::IsAvailable())
+  if(gGeometryHittest != enable && Dali::Adaptor::IsAvailable())
   {
     Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
     for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
@@ -106,6 +105,7 @@ void SetGeometryHittestEnabled(bool enable)
       }
     }
   }
+  gGeometryHittest = enable;
 }
 
 bool IsGeometryHittestEnabled()
