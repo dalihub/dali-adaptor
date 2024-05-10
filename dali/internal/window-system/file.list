@@ -38,11 +38,14 @@ SET( adaptor_window_system_ecore_wl2_src_files
 SET( adaptor_window_system_x11_src_files
     ${adaptor_window_system_dir}/x11/display-connection-factory-x.cpp
     ${adaptor_window_system_dir}/x11/display-connection-impl-x.cpp
-    ${adaptor_window_system_dir}/x11/pixmap-render-surface-x.cpp
     ${adaptor_window_system_dir}/x11/render-surface-factory-x.cpp
     ${adaptor_window_system_dir}/x11/window-base-x.cpp
     ${adaptor_window_system_dir}/x11/window-factory-x.cpp
     ${adaptor_window_system_dir}/x11/window-system-x.cpp
+)
+
+SET( adaptor_window_system_x11_egl_src_files
+    ${adaptor_window_system_dir}/x11/pixmap-render-surface-x.cpp
 )
 
 # module: window-system, backend: ubuntu-x11

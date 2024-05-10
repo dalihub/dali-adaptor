@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <X11/Xlib.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 
 namespace Dali
 {

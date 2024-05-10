@@ -358,7 +358,3 @@ unsigned int PixmapRenderSurfaceX::GetSurfaceId(Any surface) const
 }
 
 } // namespace Dali::Internal::Adaptor
-
-
-
-

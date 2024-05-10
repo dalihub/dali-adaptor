@@ -194,17 +194,6 @@ void UvCallbackManager::RemoveIdleCallback(CallbackBase* callback)
   }
 }
 
-bool UvCallbackManager::ProcessIdle()
-{
-  // TBD
-  return false;
-}
-
-void UvCallbackManager::ClearIdleCallbacks()
-{
-  // TBD
-}
-
 bool UvCallbackManager::AddIdleEntererCallback(CallbackBase* callback)
 {
   if(!mRunning)

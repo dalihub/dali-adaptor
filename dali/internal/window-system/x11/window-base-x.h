@@ -137,37 +137,37 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::CreateWindow()
    */
-  Dali::Any CreateWindow(int width, int height) override;
+  Dali::Any CreateEglWindow(int width, int height) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::DestroyWindow()
    */
-  void DestroyWindow() override;
+  void DestroyEglWindow() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowRotation()
    */
-  void SetWindowRotation(int angle) override;
+  void SetEglWindowRotation(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowBufferTransform()
    */
-  void SetWindowBufferTransform(int angle) override;
+  void SetEglWindowBufferTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetWindowTransform()
    */
-  void SetWindowTransform(int angle) override;
+  void SetEglWindowTransform(int angle) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::ResizeWindow()
    */
-  void ResizeWindow(PositionSize positionSize) override;
+  void ResizeEglWindow(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::IsWindowRotationSupported()
    */
-  bool IsWindowRotationSupported() override;
+  bool IsEglWindowRotationSupported() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::Move()
@@ -267,7 +267,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetType()
    */
-  [[nodiscard]] Dali::Window::Type GetType() const override;
+  [[nodiscard]] Dali::Window::Type GetType() const /*override*/;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::SetNotificationLevel()
@@ -332,7 +332,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetWindowRotationAngle()
    */
-  int GetWindowRotationAngle() const override;
+  int GetWindowRotationAngle() const /*override*/;
 
   /**
    * @copydoc Dali::Internal::Adaptor::WindowBase::GetScreenRotationAngle()

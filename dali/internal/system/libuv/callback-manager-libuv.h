@@ -60,16 +60,6 @@ public:
   void RemoveIdleCallback(CallbackBase* callback) override;
 
   /**
-   * @copydoc CallbackManager::ProcessIdle()
-   */
-  bool ProcessIdle() override;
-
-  /**
-   * @copydoc CallbackManager::ClearIdleCallbacks()
-   */
-  void ClearIdleCallbacks() override;
-
-  /**
    * @copydoc CallbackManager::AddIdleEntererCallback()
    */
   bool AddIdleEntererCallback(CallbackBase* callback) override;
