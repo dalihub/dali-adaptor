@@ -368,6 +368,14 @@ public:
   }
 
   /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPositionAlign()
+   */
+  virtual bool SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+  {
+    return false;
+  }
+
+  /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
   virtual void GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
@@ -461,6 +469,7 @@ protected:
       SET_INPUT_PANEL_DATA,
       SET_INPUT_PANEL_LANGUAGE,
       SET_INPUT_PANEL_POSITION,
+      SET_INPUT_PANEL_POSITION_ALIGN,
       SET_RETURN_KEY_STATE,
       MAX_COUNT
     };

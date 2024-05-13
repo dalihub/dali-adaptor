@@ -367,6 +367,12 @@ void InputMethodContextWin::SetInputPanelPosition(unsigned int x, unsigned int y
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPosition\n");
 }
 
+bool InputMethodContextWin::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::SetInputPanelPositionAlign\n");
+  return false;
+}
+
 void InputMethodContextWin::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextWin::GetPreeditStyle\n");

@@ -355,6 +355,12 @@ void InputMethodContextCocoa::SetInputPanelPosition(unsigned int x, unsigned int
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelPosition\n");
 }
 
+bool InputMethodContextCocoa::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::SetInputPanelPositionAlign\n");
+  return false;
+}
+
 void InputMethodContextCocoa::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextCocoa::GetPreeditStyle\n");

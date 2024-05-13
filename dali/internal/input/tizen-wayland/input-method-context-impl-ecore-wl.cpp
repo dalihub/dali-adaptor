@@ -1187,6 +1187,71 @@ void InputMethodContextEcoreWl::SetInputPanelPosition(unsigned int x, unsigned i
   mBackupOperations[Operation::SET_INPUT_PANEL_POSITION] = std::bind(&InputMethodContextEcoreWl::SetInputPanelPosition, this, x, y);
 }
 
+bool InputMethodContextEcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::SetInputPanelPositionAlign\n");
+  bool result = false;
+
+  if(mIMFContext)
+  {
+    Ecore_IMF_Input_Panel_Align inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_TOP_LEFT;
+    switch (align)
+    {
+      case Dali::InputMethodContext::InputPanelAlign::TOP_LEFT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_TOP_LEFT;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::TOP_CENTER:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_TOP_CENTER;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::TOP_RIGHT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_TOP_RIGHT;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::MIDDLE_LEFT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_MIDDLE_LEFT;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::MIDDLE_CENTER:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_MIDDLE_CENTER;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::MIDDLE_RIGHT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_MIDDLE_RIGHT;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::BOTTOM_LEFT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_BOTTOM_LEFT;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::BOTTOM_CENTER:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_BOTTOM_CENTER;
+        break;
+      }
+      case Dali::InputMethodContext::InputPanelAlign::BOTTOM_RIGHT:
+      {
+        inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_BOTTOM_RIGHT;
+        break;
+      }
+    }
+
+    result = ecore_imf_context_input_panel_position_align_set(mIMFContext, x, y, inputPanelAlign);
+  }
+
+  mBackupOperations[Operation::SET_INPUT_PANEL_POSITION_ALIGN] = std::bind(&InputMethodContextEcoreWl::SetInputPanelPositionAlign, this, x, y, align);
+
+  return result;
+}
+
 void InputMethodContextEcoreWl::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextEcoreWl::GetPreeditStyle\n");

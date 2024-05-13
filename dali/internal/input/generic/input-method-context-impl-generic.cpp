@@ -291,19 +291,25 @@ void InputMethodContextGeneric::SetInputPanelLanguage(Dali::InputMethodContext::
 
 Dali::InputMethodContext::InputPanelLanguage InputMethodContextGeneric::GetInputPanelLanguage() const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetInputPanelLanguage\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::GetInputPanelLanguage\n");
 
   return Dali::InputMethodContext::InputPanelLanguage::AUTOMATIC;
 }
 
 void InputMethodContextGeneric::SetInputPanelPosition(unsigned int x, unsigned int y)
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPosition\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SetInputPanelPosition\n");
+}
+
+bool InputMethodContextGeneric::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::SetInputPanelPositionAlign\n");
+  return false;
 }
 
 void InputMethodContextGeneric::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
-  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n");
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextGeneric::GetPreeditStyle\n");
   // Do Nothing
 }
 
