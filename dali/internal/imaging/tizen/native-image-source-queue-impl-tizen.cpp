@@ -29,6 +29,7 @@
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/graphics/common/egl-image-extensions.h>
 #include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
 {
@@ -57,11 +58,10 @@ const char* SAMPLER_TYPE = "samplerExternalOES";
 constexpr int32_t NUM_FORMATS_BLENDING_REQUIRED = 18;
 
 constexpr int32_t DEFAULT_TBM_SURFACE_QUEUE_SIZE = 3u;
-constexpr auto    TBM_SURFACE_QUEUE_SIZE         = "DALI_TBM_SURFACE_QUEUE_SIZE";
 
 int32_t GetTbmSurfaceQueueSize()
 {
-  static auto    queueSizeString = EnvironmentVariable::GetEnvironmentVariable(TBM_SURFACE_QUEUE_SIZE);
+  static auto    queueSizeString = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_TBM_SURFACE_QUEUE_SIZE);
   static int32_t queueSize       = queueSizeString ? std::atoi(queueSizeString) : DEFAULT_TBM_SURFACE_QUEUE_SIZE;
   return queueSize;
 }

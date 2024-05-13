@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
 {
@@ -33,9 +34,8 @@ namespace Adaptor
 {
 namespace
 {
-const char* DALI_TRACE_ENABLE_PRINT_LOG_ENV = "DALI_TRACE_ENABLE_PRINT_LOG";
-const char* EMPTY_TAG                       = "(null)";
-static bool gTraceManagerEnablePrintLog     = false;
+const char* EMPTY_TAG                   = "(null)";
+static bool gTraceManagerEnablePrintLog = false;
 } // namespace
 
 TraceManagerGeneric* TraceManagerGeneric::traceManagerGeneric = nullptr;
@@ -43,7 +43,7 @@ TraceManagerGeneric* TraceManagerGeneric::traceManagerGeneric = nullptr;
 TraceManagerGeneric::TraceManagerGeneric(PerformanceInterface* performanceInterface)
 : TraceManager(performanceInterface)
 {
-  const char* enablePrintLog = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_TRACE_ENABLE_PRINT_LOG_ENV);
+  const char* enablePrintLog = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_TRACE_ENABLE_PRINT_LOG);
   if(enablePrintLog && std::atoi(enablePrintLog) != 0)
   {
     gTraceManagerEnablePrintLog = true;

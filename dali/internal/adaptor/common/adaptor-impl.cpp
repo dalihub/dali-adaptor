@@ -95,8 +95,6 @@ namespace
 thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
-
-const char* ENABLE_IMAGE_LOADER_PLUGIN_ENV = "DALI_ENABLE_IMAGE_LOADER_PLUGIN";
 } // unnamed namespace
 
 Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
@@ -416,7 +414,7 @@ void Adaptor::Start()
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
   // Initialize the image loader plugin
-  auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(ENABLE_IMAGE_LOADER_PLUGIN_ENV);
+  auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ENABLE_IMAGE_LOADER_PLUGIN);
   bool enablePlugin       = enablePluginString ? std::atoi(enablePluginString) : false;
   if(enablePlugin)
   {
@@ -540,7 +538,7 @@ void Adaptor::Stop()
     }
 
     // Destroy the image loader plugin
-    auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(ENABLE_IMAGE_LOADER_PLUGIN_ENV);
+    auto enablePluginString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ENABLE_IMAGE_LOADER_PLUGIN);
     bool enablePlugin       = enablePluginString ? std::atoi(enablePluginString) : false;
     if(enablePlugin)
     {

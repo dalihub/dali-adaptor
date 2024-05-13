@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 // INTERNAL HEADERS
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/text/text-abstraction/plugin/font-client-utils.h>
 #include <dali/internal/text/text-abstraction/plugin/font-face-cache-item.h>
 
@@ -44,7 +45,6 @@ constexpr float MAXIMUM_RATE_OF_BITMAP_GLYPH_CACHE_RESIZE = 1.5f;
  * @brief Behavior about cache the rendered glyph cache.
  */
 constexpr bool DEFAULT_ENABLE_CACHE_RENDERED_GLYPH = true;
-constexpr auto ENABLE_CACHE_RENDERED_GLYPH_ENV     = "DALI_ENABLE_CACHE_RENDERED_GLYPH";
 
 /**
  * @brief Get whether we allow to cache rendered glyph from environment.
@@ -54,8 +54,7 @@ constexpr auto ENABLE_CACHE_RENDERED_GLYPH_ENV     = "DALI_ENABLE_CACHE_RENDERED
  */
 inline bool EnableCacheRenderedGlyph()
 {
-  using Dali::EnvironmentVariable::GetEnvironmentVariable;
-  static auto numberString = GetEnvironmentVariable(ENABLE_CACHE_RENDERED_GLYPH_ENV);
+  static auto numberString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ENABLE_CACHE_RENDERED_GLYPH);
   static auto number       = numberString ? (std::strtoul(numberString, nullptr, 10) ? true : false) : DEFAULT_ENABLE_CACHE_RENDERED_GLYPH;
   return number;
 }
@@ -70,7 +69,6 @@ constexpr auto DEFAULT_RENDERED_GLYPH_COMPRESS_POLICY =
 #else
   GlyphCacheManager::CompressionPolicyType::SPEED; // If not tizen target
 #endif
-constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRESS_POLICY";
 
 /**
  * @brief Get whether we allow to cache rendered glyph from environment.
@@ -80,8 +78,7 @@ constexpr auto RENDERED_GLYPH_COMPRESS_POLICY_ENV = "DALI_RENDERED_GLYPH_COMPRES
  */
 inline GlyphCacheManager::CompressionPolicyType GetRenderedGlyphCompressPolicy()
 {
-  using Dali::EnvironmentVariable::GetEnvironmentVariable;
-  static auto policyString = GetEnvironmentVariable(RENDERED_GLYPH_COMPRESS_POLICY_ENV);
+  static auto policyString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_RENDERED_GLYPH_COMPRESS_POLICY);
 
   static auto policy = policyString ? policyString[0] == 's' || policyString[0] == 'S'   ? GlyphCacheManager::CompressionPolicyType::SPEED
                                       : policyString[0] == 'm' || policyString[0] == 'M' ? GlyphCacheManager::CompressionPolicyType::MEMORY
