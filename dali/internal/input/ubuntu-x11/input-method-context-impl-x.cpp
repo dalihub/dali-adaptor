@@ -845,6 +845,12 @@ void InputMethodContextX::SetInputPanelPosition(unsigned int x, unsigned int y)
   // ecore_imf_context_input_panel_position_set() is supported from ecore-imf 1.21.0 version.
 }
 
+bool InputMethodContextX::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::SetInputPanelPositionAlign\n");
+  return false;
+}
+
 void InputMethodContextX::GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const
 {
   DALI_LOG_INFO(gLogFilter, Debug::General, "InputMethodContextX::GetPreeditStyle\n");
