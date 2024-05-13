@@ -85,15 +85,17 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 
   if(eventName != eventMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-      "PropertyChange",
-      std::string{eventName->second},
-      0,
-      0,
-      {0},
-      {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj, 1.0f, [=]() {
+      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+        GetAccessiblePath(obj),
+        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        "PropertyChange",
+        std::string{eventName->second},
+        0,
+        0,
+        {0},
+        {"", "root"});
+    });
   }
 }
 
@@ -203,15 +205,17 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
   if(stateName != stateMap.end())
   {
-    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-      GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-      "StateChanged",
-      std::string{stateName->second},
-      newValue,
-      reserved,
-      {0},
-      {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj, 1.0f, [=]() {
+      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+        GetAccessiblePath(obj),
+        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        "StateChanged",
+        std::string{stateName->second},
+        newValue,
+        reserved,
+        {0},
+        {"", "root"});
+    });
   }
 }
 
@@ -240,6 +244,11 @@ void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
 
 void BridgeObject::EmitPostRender(Accessible *obj)
 {
+  if(!IsUp() || obj->IsHidden())
+  {
+    return;
+  }
+
   AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj, 0.5f, [=]() {
     Emit(obj, WindowEvent::POST_RENDER);
   });

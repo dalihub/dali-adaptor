@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,9 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
 {
   if(start)
   {
+#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     traceBegin(TTRACE_TAG_GRAPHICS, tag ? tag : EMPTY_TAG);
+#endif // DALI_PROFILE_TV
 
     if(gTraceManagerEnablePrintLog)
     {
@@ -67,7 +69,9 @@ void TraceManagerTizen::LogContext(bool start, const char* tag, const char* mess
   }
   else
   {
+#ifndef DALI_PROFILE_TV // Avoid HWC log printing in TV
     traceEnd(TTRACE_TAG_GRAPHICS);
+#endif // DALI_PROFILE_TV
 
     if(gTraceManagerEnablePrintLog)
     {

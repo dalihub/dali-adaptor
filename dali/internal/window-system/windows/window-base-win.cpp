@@ -82,7 +82,10 @@ void WindowBaseWin::Initialize(PositionSize positionSize, Any surface, bool isTr
 
 void WindowBaseWin::OnDeleteRequest()
 {
-  mDeleteRequestSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mDeleteRequestSignal.Emit();
+  }
 }
 
 void WindowBaseWin::OnFocusIn(int type, TWinEventInfo* event)
@@ -97,7 +100,7 @@ void WindowBaseWin::OnWindowDamaged(int type, TWinEventInfo* event)
 {
   Event_Mouse_Button* windowDamagedEvent((Event_Mouse_Button*)event);
 
-  if(windowDamagedEvent->window == mWin32Window)
+  if(windowDamagedEvent->window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     DamageArea area;
     area.x = 0;
@@ -116,7 +119,7 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
   touchEvent.y                  = HIWORD(event->lParam);
   touchEvent.multi.device       = DEVICE_MOUSE;
 
-  if(touchEvent.window == mWin32Window)
+  if(touchEvent.window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     PointState::Type state(PointState::DOWN);
 
@@ -140,7 +143,7 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
   touchEvent.y                  = HIWORD(event->lParam);
   touchEvent.multi.device       = DEVICE_MOUSE;
 
-  if(touchEvent.window == mWin32Window)
+  if(touchEvent.window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     PointState::Type state(PointState::UP);
 
@@ -164,7 +167,7 @@ void WindowBaseWin::OnMouseButtonMove(int type, TWinEventInfo* event)
   touchEvent.y                  = HIWORD(event->lParam);
   touchEvent.multi.device       = DEVICE_MOUSE;
 
-  if(touchEvent.window == mWin32Window)
+  if(touchEvent.window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     PointState::Type state(PointState::MOTION);
 
@@ -184,7 +187,7 @@ void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
 {
   Event_Mouse_Wheel mouseWheelEvent = *((Event_Mouse_Wheel*)(event));
 
-  if(mouseWheelEvent.window == mWin32Window)
+  if(mouseWheelEvent.window == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent.direction, mouseWheelEvent.modifiers, mouseWheelEvent.x, mouseWheelEvent.y, mouseWheelEvent.z);
 
@@ -196,7 +199,7 @@ void WindowBaseWin::OnMouseWheel(int type, TWinEventInfo* event)
 
 void WindowBaseWin::OnKeyDown(int type, TWinEventInfo* event)
 {
-  if(event->mWindow == mWin32Window)
+  if(event->mWindow == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 
@@ -220,7 +223,7 @@ void WindowBaseWin::OnKeyDown(int type, TWinEventInfo* event)
 
 void WindowBaseWin::OnKeyUp(int type, TWinEventInfo* event)
 {
-  if(event->mWindow == mWin32Window)
+  if(event->mWindow == mWin32Window && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseWin::OnKeyDown\n");
 

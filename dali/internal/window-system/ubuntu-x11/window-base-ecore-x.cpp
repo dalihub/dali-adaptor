@@ -351,7 +351,7 @@ void WindowBaseEcoreX::Initialize(PositionSize positionSize, Any surface, bool i
 void WindowBaseEcoreX::OnWindowConfigure(void* event)
 {
   auto configure = static_cast<Ecore_X_Event_Window_Configure*>(event);
-  if(configure->win == mEcoreWindow)
+  if(configure->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     Dali::PositionSize positionSize;
     positionSize.x      = configure->x;
@@ -367,7 +367,7 @@ Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged(void* data, int type, void* 
   Ecore_X_Event_Window_Property* propertyChangedEvent = static_cast<Ecore_X_Event_Window_Property*>(event);
   Eina_Bool                      handled(ECORE_CALLBACK_PASS_ON);
 
-  if(propertyChangedEvent->win == mEcoreWindow)
+  if(propertyChangedEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     Ecore_X_Window_State_Hint state(ecore_x_icccm_state_get(propertyChangedEvent->win));
 
@@ -407,14 +407,17 @@ Eina_Bool WindowBaseEcoreX::OnWindowPropertyChanged(void* data, int type, void* 
 
 void WindowBaseEcoreX::OnDeleteRequest()
 {
-  mDeleteRequestSignal.Emit();
+  if(Dali::Adaptor::IsAvailable())
+  {
+    mDeleteRequestSignal.Emit();
+  }
 }
 
 void WindowBaseEcoreX::OnFocusIn(void* data, int type, void* event)
 {
   Ecore_X_Event_Window_Focus_In* focusInEvent = static_cast<Ecore_X_Event_Window_Focus_In*>(event);
 
-  if(focusInEvent->win == mEcoreWindow)
+  if(focusInEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusIn\n");
 
@@ -427,7 +430,7 @@ void WindowBaseEcoreX::OnFocusOut(void* data, int type, void* event)
   Ecore_X_Event_Window_Focus_Out* focusOutEvent = static_cast<Ecore_X_Event_Window_Focus_Out*>(event);
 
   // If the window loses focus then hide the keyboard.
-  if(focusOutEvent->win == mEcoreWindow)
+  if(focusOutEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Window EcoreEventWindowFocusOut\n");
 
@@ -439,7 +442,7 @@ void WindowBaseEcoreX::OnWindowDamaged(void* data, int type, void* event)
 {
   Ecore_X_Event_Window_Damage* windowDamagedEvent = static_cast<Ecore_X_Event_Window_Damage*>(event);
 
-  if(windowDamagedEvent->win == mEcoreWindow)
+  if(windowDamagedEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DamageArea area;
     area.x      = windowDamagedEvent->x;
@@ -455,7 +458,7 @@ void WindowBaseEcoreX::OnMouseButtonDown(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == mEcoreWindow)
+  if(touchEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     PointState::Type state(PointState::DOWN);
 
@@ -479,7 +482,7 @@ void WindowBaseEcoreX::OnMouseButtonUp(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Button* touchEvent = static_cast<Ecore_Event_Mouse_Button*>(event);
 
-  if(touchEvent->window == mEcoreWindow)
+  if(touchEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -501,7 +504,7 @@ void WindowBaseEcoreX::OnMouseButtonMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Move* touchEvent = static_cast<Ecore_Event_Mouse_Move*>(event);
 
-  if(touchEvent->window == mEcoreWindow)
+  if(touchEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     Integration::Point point;
     point.SetDeviceId(touchEvent->multi.device);
@@ -519,7 +522,7 @@ void WindowBaseEcoreX::OnMouseWheel(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Wheel* mouseWheelEvent = static_cast<Ecore_Event_Mouse_Wheel*>(event);
 
-  if(mouseWheelEvent->window == mEcoreWindow)
+  if(mouseWheelEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnMouseWheel: direction: %d, modifiers: %d, x: %d, y: %d, z: %d\n", mouseWheelEvent->direction, mouseWheelEvent->modifiers, mouseWheelEvent->x, mouseWheelEvent->y, mouseWheelEvent->z);
 
@@ -533,7 +536,7 @@ void WindowBaseEcoreX::OnKeyDown(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == mEcoreWindow)
+  if(keyEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreX::OnKeyDown\n");
 
@@ -575,7 +578,7 @@ void WindowBaseEcoreX::OnKeyUp(void* data, int type, void* event)
 {
   Ecore_Event_Key* keyEvent = static_cast<Ecore_Event_Key*>(event);
 
-  if(keyEvent->window == mEcoreWindow)
+  if(keyEvent->window == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, " WindowBaseEcoreX::OnKeyUp\n");
 
@@ -632,7 +635,7 @@ void WindowBaseEcoreX::OnSelectionNotify(void* data, int type, void* event)
 {
   Ecore_X_Event_Selection_Notify* selectionNotifyEvent = static_cast<Ecore_X_Event_Selection_Notify*>(event);
 
-  if(selectionNotifyEvent->win == mEcoreWindow)
+  if(selectionNotifyEvent->win == mEcoreWindow && Dali::Adaptor::IsAvailable())
   {
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::Concise, " WindowBaseEcoreX::OnSelectionNotify\n");
 

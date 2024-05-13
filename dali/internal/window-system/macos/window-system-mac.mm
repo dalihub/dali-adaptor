@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,8 +84,7 @@ bool GetKeyboardVerticalRepeatInfo(float& rate, float& delay)
 void SetGeometryHittestEnabled(bool enable)
 {
   DALI_LOG_RELEASE_INFO("GeometryHittest : %d \n", enable);
-  gGeometryHittest = enable;
-  if(gGeometryHittest)
+  if(gGeometryHittest != enable)
   {
     Dali::SceneHolderList sceneHolders = Dali::Adaptor::Get().GetSceneHolders();
     for(auto iter = sceneHolders.begin(); iter != sceneHolders.end(); ++iter)
@@ -96,6 +95,7 @@ void SetGeometryHittestEnabled(bool enable)
       }
     }
   }
+  gGeometryHittest = enable;
 }
 
 bool IsGeometryHittestEnabled()

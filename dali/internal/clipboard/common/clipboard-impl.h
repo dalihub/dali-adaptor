@@ -35,6 +35,10 @@ namespace Adaptor
  */
 class Clipboard : public Dali::BaseObject, public ConnectionTracker
 {
+const char* MIME_TYPE_TEXT_PLAIN = "text/plain;charset=utf-8";
+const char* MIME_TYPE_HTML       = "application/xhtml+xml";
+const char* MIME_TYPE_TEXT_URI   = "text/uri-list";
+
 public:
   struct Impl;
 
@@ -73,6 +77,11 @@ public:
    * @copydoc Dali::Clipboard::DataSelectedSignal()
    */
   Dali::Clipboard::DataSelectedSignalType& DataSelectedSignal();
+
+  /**
+   * @copydoc Dali::Clipboard::HasType()
+   */
+  bool HasType(const std::string& mimeType);
 
   /**
    * @copydoc Dali::Clipboard::SetData()

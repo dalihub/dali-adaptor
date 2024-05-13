@@ -97,6 +97,11 @@ Dali::Clipboard::DataSelectedSignalType& Clipboard::DataSelectedSignal()
   return mImpl->mDataSelectedSignal;
 }
 
+bool Clipboard::HasType(const std::string& mimeType)
+{
+  return true;
+}
+
 bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
 {
   return true;

@@ -670,17 +670,20 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
     }
   }
 
-  size_t count = mTasks.GetElementCount();
-  size_t index = 0;
-  while(index++ < count)
   {
-    auto processHelperIt = mTasks.GetNext();
-    DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
-    if(processHelperIt->Request())
+    Mutex::ScopedLock lock(mTasksMutex);
+    size_t count = mTasks.GetElementCount();
+    size_t index = 0;
+    while(index++ < count)
     {
-      break;
+      auto processHelperIt = mTasks.GetNext();
+      DALI_ASSERT_ALWAYS(processHelperIt != mTasks.End());
+      if(processHelperIt->Request())
+      {
+        break;
+      }
+      // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
     }
-    // If all threads are busy, then it's ok just to push the task because they will try to get the next job.
   }
 
   // Register Process (Since mTrigger execute too late timing if event thread running a lots of events.)
