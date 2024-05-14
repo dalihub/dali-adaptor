@@ -20,7 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 
 // EXTERNAL INCLUDES
 #include <dali/graphics/vulkan/api/vulkan-api-controller.h>

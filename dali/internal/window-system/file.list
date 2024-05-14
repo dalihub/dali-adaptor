@@ -52,10 +52,14 @@ SET( adaptor_window_system_x11_egl_src_files
 SET( adaptor_window_system_ubuntu_x11_src_files
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-factory-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-impl-x.cpp
-    ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/render-surface-factory-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-interface-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-base-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-factory-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-system-ecore-x.cpp
+)
+
+# module: window-system, backend ubuntu-x11/egl
+SET( adaptor_window_system_ubuntu_x11_egl_src_files
+    ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp
 )

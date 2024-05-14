@@ -6,19 +6,18 @@ SET( SOURCES
         ${adaptor_accessibility_ubuntu_src_files}
         ${adaptor_adaptor_common_src_files}
         ${adaptor_adaptor_ubuntu_src_files}
+        ${adaptor_addons_common_src_files}
+        ${adaptor_addons_ubuntu_src_files}
+        ${adaptor_camera_common_src_files}
         ${adaptor_canvas_renderer_ubuntu_src_files}
         ${adaptor_clipboard_common_src_files}
         ${adaptor_clipboard_ubuntu_x11_src_files}
+        ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
-        ${devel_api_src_files}
-        ${adaptor_devel_api_text_abstraction_src_files}
         ${adaptor_graphics_common_src_files}
-        ${adaptor_graphics_gles_src_files}
-        ${adaptor_graphics_ubuntu_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
-        ${adaptor_imaging_ubuntu_x11_src_files}
         ${adaptor_input_common_src_files}
         ${adaptor_input_ubuntu_x11_src_files}
         ${adaptor_integration_api_src_files}
@@ -26,6 +25,7 @@ SET( SOURCES
         ${adaptor_network_common_src_files}
         ${adaptor_offscreen_common_src_files}
         ${adaptor_public_api_src_files}
+        ${adaptor_resampler_src_files}
         ${adaptor_sensor_common_src_files}
         ${adaptor_sensor_ubuntu_src_files}
         ${adaptor_styling_common_src_files}
@@ -34,24 +34,34 @@ SET( SOURCES
         ${adaptor_system_ubuntu_x11_src_files}
         ${adaptor_text_common_src_files}
         ${adaptor_text_ubuntu_src_files}
-        ${adaptor_resampler_src_files}
+        ${adaptor_thread_common_src_files}
+        ${adaptor_thread_linux_src_files}
+        ${adaptor_trace_common_src_files}
         ${adaptor_vector_animation_common_src_files}
         ${adaptor_vector_image_common_src_files}
         ${adaptor_video_common_src_files}
-        ${adaptor_camera_common_src_files}
         ${adaptor_web_engine_common_src_files}
         ${adaptor_window_system_common_src_files}
-        ${adaptor_trace_common_src_files}
-        ${adaptor_thread_common_src_files}
-        ${adaptor_thread_linux_src_files}
         ${adaptor_window_system_ubuntu_x11_src_files}
+        ${devel_api_src_files}
         ${devel_api_text_abstraction_src_files}
-        ${adaptor_addons_common_src_files}
-        ${adaptor_addons_ubuntu_src_files}
         ${static_libraries_libunibreak_src_files}
-        ${graphics_vulkan_src_files}
-        ${graphics_vulkan_x11_src_files}
 )
+
+IF( ENABLE_VULKAN )
+  SET(SOURCES ${SOURCES}
+    ${adaptor_graphics_vulkan_src_files}
+    ${adaptor_graphics_vulkan_x11_src_files}
+    )
+ELSE()
+  SET(SOURCES ${SOURCES}
+    ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_ubuntu_src_files}
+    ${adaptor_imaging_ubuntu_x11_src_files}
+    ${adaptor_window_system_ubuntu_x11_egl_src_files}
+    )
+ENDIF()
+
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}

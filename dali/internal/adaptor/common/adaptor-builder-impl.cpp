@@ -23,7 +23,7 @@
 #include <dali/internal/window-system/common/display-utils.h>
 
 #if defined(VULKAN_ENABLED)
-#include <dali/graphics/vulkan/vulkan-graphics-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
 #else
 #include <dali/internal/graphics/gles20/egl-graphics-factory.h>
 #endif

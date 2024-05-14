@@ -22,7 +22,7 @@
 #include <dali/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 // INTERNAL INCLUDES
-#include <dali/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 
 
 namespace Dali

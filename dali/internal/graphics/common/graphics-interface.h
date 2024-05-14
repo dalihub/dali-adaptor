@@ -19,7 +19,7 @@
 
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/core-enumerations.h>
-#include <dali/graphics-api/graphics-api-controller.h>
+#include <dali/graphics-api/graphics-controller.h>
 #include <cstdint>
 
 namespace Dali
@@ -33,7 +33,7 @@ using FBID = int32_t;
 /**
  * Structure to manager lifecycle of graphics surface.
  */
-struct DALI_ADAPTOR_API Surface
+struct  Surface
 {
   DALI_ADAPTOR_API Surface( Controller& graphicsController, Dali::Graphics::FBID framebufferId);
   DALI_ADAPTOR_API ~Surface();
@@ -42,7 +42,7 @@ struct DALI_ADAPTOR_API Surface
   FBID mFramebufferId;
 };
 
-enum class DALI_ADAPTOR_API DepthStencilMode
+enum class  DepthStencilMode
 {
   /**
    * No depth/stencil at all
@@ -65,7 +65,7 @@ enum class DALI_ADAPTOR_API DepthStencilMode
   DEPTH_STENCIL_EXPLICIT,
 };
 
-enum class DALI_ADAPTOR_API SwapchainBufferingMode
+enum class  SwapchainBufferingMode
 {
   OPTIMAL = 0,
 
@@ -75,7 +75,7 @@ enum class DALI_ADAPTOR_API SwapchainBufferingMode
 };
 
 
-struct DALI_ADAPTOR_API GraphicsCreateInfo
+struct GraphicsCreateInfo
 {
   uint32_t                    surfaceWidth;
   uint32_t                    surfaceHeight;
@@ -86,7 +86,7 @@ struct DALI_ADAPTOR_API GraphicsCreateInfo
 /**
  * Defines the Graphics interface that a graphics backend will implement (in Adaptor only)
  */
-class DALI_ADAPTOR_API GraphicsInterface
+class GraphicsInterface
 {
 public:
   /**

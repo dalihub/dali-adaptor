@@ -30,3 +30,65 @@ SET( adaptor_graphics_gl_ubuntu_src_files
 SET( adaptor_graphics_gl_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp
 )
+
+SET( adaptor_graphics_vulkan_src_files
+    ${adaptor_graphics_dir}/vulkan/graphics-implementation.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-graphics.cpp
+)
+
+SET( unused
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-api-debug.cpp
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-api-descriptor-set-allocator.cpp
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-api-descriptor-set-requirements.cpp
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-api-pipeline-impl.cpp
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-pipeline-cache-debug.cpp
+    ${adaptor_graphics_dir}/vulkan/api/internal/vulkan-pipeline-cache.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-buffer-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-buffer.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-controller.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-framebuffer-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-framebuffer.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-pipeline-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-pipeline.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-render-command.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-sampler-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-sampler.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-shader-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-shader.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-texture-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-texture.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/spirv/vulkan-spirv.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-buffer.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-command-buffer.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-command-pool.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-debug-allocator.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-debug.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-fence.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-framebuffer.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-image-view.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-image.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-queue.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-sampler.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-shader.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-surface.cpp
+    ${adaptor_graphics_dir}/vulkan/internal/vulkan-swapchain.cpp
+)
+
+# module: graphics, backend: vulkan/x11
+SET( adaptor_graphics_vulkan_x11_src_files
+    ${adaptor_graphics_dir}/vulkan/x11/vk-surface-xlib2xcb.cpp
+
+# Should be using one of these, but nVidia doesn't(didn't?) work properly
+#    ${adaptor_graphics_dir}/vulkan/x11/vk-surface-xcb.cpp
+#    ${adaptor_graphics_dir}/vulkan/x11/vk-surface-xlib.cpp
+)
+
+# module: graphics, backend: vulkan/wayland
+SET( adaptor_graphics_vulkan_wayland_src_files
+    ${adaptor_graphics_dir}/vulkan/wayland/vk-surface-wayland.cpp
+)
+
+SET( adaptor_graphics_vulkan_tizen_src_files
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-native-texture.cpp
+)
