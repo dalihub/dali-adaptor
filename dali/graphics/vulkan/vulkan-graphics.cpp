@@ -1513,7 +1513,7 @@ void Graphics::PreparePhysicalDevice()
   mPhysicalDevice = nullptr;
   if( devices.size() == 1 )
   {
-    mPhysicalDevice = devices[0];
+      mPhysicalDevice = devices[0];
   }
   else // otherwise look for one which is a graphics device
   {
@@ -1523,8 +1523,15 @@ void Graphics::PreparePhysicalDevice()
       if( properties.deviceType == vk::PhysicalDeviceType::eDiscreteGpu ||
           properties.deviceType == vk::PhysicalDeviceType::eIntegratedGpu )
       {
-        mPhysicalDevice = device;
-        break;
+        auto queueFamilyProperties = device.getQueueFamilyProperties();
+        for(const auto& queueFamily : queueFamilyProperties)
+        {
+          if(queueFamily.queueFlags & vk::QueueFlagBits::eGraphics)
+          {
+            mPhysicalDevice = device;
+            break;
+          }
+        }
       }
     }
   }
@@ -1636,7 +1643,7 @@ std::vector< const char* > Graphics::PrepareDefaultInstanceExtensions()
 
   for( auto&& ext : extensions.value )
   {
-    extensionName = ext.extensionName;
+    extensionName = std::string(ext.extensionName);
     if( extensionName == VK_KHR_XCB_SURFACE_EXTENSION_NAME )
     {
       xcbAvailable = true;
