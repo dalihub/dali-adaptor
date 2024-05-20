@@ -24,6 +24,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/environment-variable.h>
+#include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/trace/streamline/streamline_annotate.h>
 
 ANNOTATE_DEFINE;
@@ -32,9 +33,8 @@ namespace Dali::Internal::Adaptor
 {
 namespace
 {
-const char* DALI_TRACE_ENABLE_PRINT_LOG_ENV = "DALI_TRACE_ENABLE_PRINT_LOG";
-const char* EMPTY_TAG                       = "(null)";
-bool        gTraceManagerEnablePrintLog     = false;
+const char* EMPTY_TAG                   = "(null)";
+bool        gTraceManagerEnablePrintLog = false;
 } // namespace
 
 TraceManagerStreamline* TraceManagerStreamline::traceManagerStreamline = nullptr;
@@ -43,7 +43,7 @@ TraceManagerStreamline::TraceManagerStreamline(PerformanceInterface* performance
 : TraceManager(performanceInterface)
 {
   ANNOTATE_SETUP;
-  const char* enablePrintLog = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_TRACE_ENABLE_PRINT_LOG_ENV);
+  const char* enablePrintLog = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_TRACE_ENABLE_PRINT_LOG);
   if(enablePrintLog && std::atoi(enablePrintLog) != 0)
   {
     gTraceManagerEnablePrintLog = true;

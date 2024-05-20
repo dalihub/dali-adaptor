@@ -221,7 +221,8 @@ void EglSyncImplementation::InitializeEglSync()
 #else
 
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
-: mPollCounter(3),
+: mEglSync(NULL),
+  mPollCounter(3),
   mEglImplementation(eglImpl)
 {
 }

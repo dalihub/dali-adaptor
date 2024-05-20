@@ -25,6 +25,9 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/debug.h>
 
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/environment-variables.h>
+
 #include <unordered_map>
 
 namespace Dali
@@ -38,24 +41,22 @@ namespace
 constexpr auto FORCE_TRIGGER_THRESHOLD = 128u; ///< Trigger TasksCompleted() forcely if the number of completed task contain too much.
 
 constexpr auto DEFAULT_NUMBER_OF_ASYNC_THREADS = size_t{8u};
-constexpr auto NUMBER_OF_ASYNC_THREADS_ENV     = "DALI_ASYNC_MANAGER_THREAD_POOL_SIZE";
 
 // The number of threads for low priority task.
 constexpr auto DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS = size_t{6u};
-constexpr auto NUMBER_OF_LOW_PRIORITY_THREADS_ENV     = "DALI_ASYNC_MANAGER_LOW_PRIORITY_THREAD_POOL_SIZE";
 
-size_t GetNumberOfThreads(const char* environmentVariable, size_t defaultValue)
+size_t GetNumberOfThreads(size_t defaultValue)
 {
-  auto           numberString          = EnvironmentVariable::GetEnvironmentVariable(environmentVariable);
+  auto           numberString          = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ASYNC_MANAGER_THREAD_POOL_SIZE);
   auto           numberOfThreads       = numberString ? std::strtoul(numberString, nullptr, 10) : 0;
   constexpr auto MAX_NUMBER_OF_THREADS = 16u;
   DALI_ASSERT_DEBUG(numberOfThreads <= MAX_NUMBER_OF_THREADS);
   return (numberOfThreads > 0 && numberOfThreads <= MAX_NUMBER_OF_THREADS) ? numberOfThreads : defaultValue;
 }
 
-size_t GetNumberOfLowPriorityThreads(const char* environmentVariable, size_t defaultValue, size_t maxValue)
+size_t GetNumberOfLowPriorityThreads(size_t defaultValue, size_t maxValue)
 {
-  auto numberString    = EnvironmentVariable::GetEnvironmentVariable(environmentVariable);
+  auto numberString    = EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_ASYNC_MANAGER_LOW_PRIORITY_THREAD_POOL_SIZE);
   auto numberOfThreads = numberString ? std::strtoul(numberString, nullptr, 10) : 0;
   DALI_ASSERT_DEBUG(numberOfThreads <= maxValue);
   return (numberOfThreads > 0 && numberOfThreads <= maxValue) ? numberOfThreads : std::min(defaultValue, maxValue);
@@ -608,8 +609,8 @@ Dali::AsyncTaskManager AsyncTaskManager::Get()
 }
 
 AsyncTaskManager::AsyncTaskManager()
-: mTasks(GetNumberOfThreads(NUMBER_OF_ASYNC_THREADS_ENV, DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]() { return TaskHelper(*this); }),
-  mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(NUMBER_OF_LOW_PRIORITY_THREADS_ENV, DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
+: mTasks(GetNumberOfThreads(DEFAULT_NUMBER_OF_ASYNC_THREADS), [&]() { return TaskHelper(*this); }),
+  mAvaliableLowPriorityTaskCounts(GetNumberOfLowPriorityThreads(DEFAULT_NUMBER_OF_LOW_PRIORITY_THREADS, mTasks.GetElementCount())),
   mWaitingHighProirityTaskCounts(0u),
   mTrigger(new EventThreadCallback(MakeCallback(this, &AsyncTaskManager::TasksCompleted))),
   mTasksCompletedImpl(new TasksCompletedImpl(*this, mTrigger.get())),
@@ -672,8 +673,8 @@ void AsyncTaskManager::AddTask(AsyncTaskPtr task)
 
   {
     Mutex::ScopedLock lock(mTasksMutex);
-    size_t count = mTasks.GetElementCount();
-    size_t index = 0;
+    size_t            count = mTasks.GetElementCount();
+    size_t            index = 0;
     while(index++ < count)
     {
       auto processHelperIt = mTasks.GetNext();

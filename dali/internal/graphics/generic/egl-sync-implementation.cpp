@@ -37,7 +37,8 @@ namespace Internal
 namespace Adaptor
 {
 EglSyncObject::EglSyncObject(EglImplementation& eglImpl)
-: mPollCounter(3),
+: mEglSync(NULL),
+  mPollCounter(3),
   mEglImplementation(eglImpl)
 {
   EGLDisplay display = mEglImplementation.GetDisplay();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 
 // EXTERNAL INCLUDES
 #include <limits>
+
+// INTERNAL INCLUDES
+#include <dali/internal/system/common/environment-variables.h>
 
 namespace Dali
 {
@@ -54,12 +57,9 @@ static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING = "#extension GL_OES_
 
 static constexpr const char* OES_EGL_IMAGE_EXTERNAL_STRING_ESSL3 = "#extension GL_OES_EGL_image_external_essl3:require\n";
 
-// Threshold time in miliseconds
-constexpr auto PERFORMANCE_LOG_THRESHOLD_TIME_ENV = "DALI_EGL_PERFORMANCE_LOG_THRESHOLD_TIME";
-
 static uint32_t GetPerformanceLogThresholdTime()
 {
-  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(PERFORMANCE_LOG_THRESHOLD_TIME_ENV);
+  auto     timeString = Dali::EnvironmentVariable::GetEnvironmentVariable(DALI_ENV_EGL_PERFORMANCE_LOG_THRESHOLD_TIME);
   uint32_t time       = timeString ? static_cast<uint32_t>(std::atoi(timeString)) : std::numeric_limits<uint32_t>::max();
   return time;
 }
