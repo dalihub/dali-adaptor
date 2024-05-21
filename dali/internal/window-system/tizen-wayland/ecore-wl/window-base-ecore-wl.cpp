@@ -2238,6 +2238,11 @@ void WindowBaseEcoreWl::SetWindowFrontBufferMode(bool enable)
 {
 }
 
+Any WindowBaseEcoreWl::GetNativeWindow()
+{
+  return mEglWindow;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

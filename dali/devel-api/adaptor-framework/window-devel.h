@@ -699,6 +699,14 @@ DALI_ADAPTOR_API void SetAlwaysOnTop(Window window, bool alwaysOnTop);
 DALI_ADAPTOR_API bool IsAlwaysOnTop(Window window);
 
 /**
+ * @brief Gets the native buffer of the window.
+ *
+ * When users call this function, it wraps the actual type used by the underlying window system.
+ * @return The native buffer of the Window or an empty handle
+ */
+DALI_ADAPTOR_API Any GetNativeBuffer(Window window);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

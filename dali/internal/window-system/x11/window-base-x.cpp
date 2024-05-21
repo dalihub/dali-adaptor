@@ -1044,6 +1044,11 @@ bool WindowBaseX::IsAlwaysOnTop()
   return false;
 }
 
+Any WindowBaseX::GetNativeBuffer()
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

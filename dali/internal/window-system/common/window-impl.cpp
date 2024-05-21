@@ -1612,6 +1612,10 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
+Dali::Any Window::GetNativeBuffer() const
+{
+  return mWindowBase->GetNativeBuffer();
+}
 
 } // namespace Adaptor
 

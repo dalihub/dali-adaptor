@@ -575,6 +575,11 @@ public:
    */
   void SetWindowFrontBufferMode(bool enable) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeBuffer()
+   */
+  Any GetNativeBuffer() const override;
+
 private:
   /**
    * Second stage initialization

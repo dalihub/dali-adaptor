@@ -593,6 +593,12 @@ public:
    */
   virtual bool IsAlwaysOnTop() = 0;
 
+  /**
+   * @brief Get native buffer of window.
+   * @return The native window buffer handle
+   */
+  virtual Any GetNativeBuffer() const = 0;
+
   // Signals
 
   /**

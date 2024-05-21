@@ -526,6 +526,11 @@ public:
    */
   bool IsAlwaysOnTop() override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::GetNativeBuffer()
+   */
+  Any GetNativeBuffer() override;
+
 private:
   /**
    * Second stage initialization

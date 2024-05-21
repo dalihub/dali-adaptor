@@ -389,6 +389,11 @@ bool IsAlwaysOnTop(Window window)
   return GetImplementation(window).IsAlwaysOnTop();
 }
 
+Any GetNativeBuffer(Window window)
+{
+  return GetImplementation(window).GetNativeBuffer();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

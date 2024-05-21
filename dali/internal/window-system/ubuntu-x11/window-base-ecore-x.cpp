@@ -1110,6 +1110,11 @@ bool WindowBaseEcoreX::IsAlwaysOnTop()
   return false;
 }
 
+Any WindowBaseEcoreX::GetNativeBuffer() const
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

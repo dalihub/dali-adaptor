@@ -3700,6 +3700,12 @@ bool WindowBaseEcoreWl2::IsAlwaysOnTop()
   return ret;
 }
 
+Any WindowBaseEcoreWl2::GetNativeBuffer() const
+{
+  DALI_LOG_RELEASE_INFO("Get wl_egl_window, ecore_window: [%p], wl_egl_window [%p]\n", mEcoreWindow, mEglWindow);
+  return mEglWindow;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
