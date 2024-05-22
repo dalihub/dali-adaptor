@@ -40,12 +40,20 @@ std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryX::CreateWindowRenderSu
 
 std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryX::CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
+#if !defined(VULKAN_ENABLED)
   return Utils::MakeUnique<PixmapRenderSurfaceX>(positionSize, surface, isTransparent);
+#else
+  return nullptr;
+#endif
 }
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryX::CreateNativeRenderSurface(Dali::PositionSize surfaceSize, Any surface, bool isTransparent)
 {
+#if !defined(VULKAN_ENABLED)
   return std::unique_ptr<NativeRenderSurface>(nullptr);
+#else
+  return nullptr;
+#endif
 }
 
 // this should be created from somewhere

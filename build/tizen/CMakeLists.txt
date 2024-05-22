@@ -37,7 +37,7 @@ ENDIF()
 # set the variable only if it's not set yet. it allows to access build script
 # from top-level directory
 IF( NOT ROOT_SRC_DIR )
-  SET(ROOT_SRC_DIR ${CMAKE_SOURCE_DIR}/../..)
+  SET(ROOT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 ENDIF()
 # Make sure the path is absolute
 GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)

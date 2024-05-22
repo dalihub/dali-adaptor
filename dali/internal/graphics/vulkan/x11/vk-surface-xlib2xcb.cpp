@@ -20,7 +20,7 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 
 #include <dali/integration-api/render-surface.h>
-#include <dali/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
+#include <dali/internal/graphics/vulkan/x11/vk-surface-xlib2xcb.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <X11/Xlib-xcb.h>
 

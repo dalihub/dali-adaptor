@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/internal/vulkan-types.h>
 
 namespace Dali
 {

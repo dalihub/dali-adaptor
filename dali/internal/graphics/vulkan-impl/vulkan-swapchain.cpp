@@ -16,18 +16,20 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/vulkan-graphics.h>
-#include <dali/graphics/vulkan/internal/vulkan-command-buffer.h>
-#include <dali/graphics/vulkan/internal/vulkan-command-pool.h>
-#include <dali/graphics/vulkan/internal/vulkan-fence.h>
-#include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
 
-#include <dali/graphics/vulkan/internal/vulkan-image.h>
-#include <dali/graphics/vulkan/internal/vulkan-image-view.h>
-#include <dali/graphics/vulkan/internal/vulkan-queue.h>
-#include <dali/graphics/vulkan/internal/vulkan-surface.h>
-#include <dali/graphics/vulkan/internal/vulkan-swapchain.h>
-#include <dali/graphics/vulkan/internal/vulkan-debug.h>
+#if 0
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-pool.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-debug.h>
+#endif
 
 namespace Dali
 {
@@ -35,16 +37,19 @@ namespace Graphics
 {
 namespace Vulkan
 {
+
 namespace
 {
 const auto MAX_SWAPCHAIN_RESOURCE_BUFFERS = 2u;
 }
+
+#if 0
 /**
  * SwapchainBuffer stores all per-buffer data
  */
 struct SwapchainBuffer
 {
-  SwapchainBuffer( Graphics& _graphics );
+  SwapchainBuffer( Device& _graphicsDevice );
 
   ~SwapchainBuffer();
 
@@ -63,39 +68,42 @@ struct SwapchainBuffer
    */
   vk::Semaphore submitSemaphore;
 
-  RefCountedFence betweenRenderPassFence;
-  RefCountedFence endOfFrameFence;
+  Fence* betweenRenderPassFence;
+  Fence* endOfFrameFence;
 
-  Graphics& graphics;
+  Device& graphicsDevice;
 };
 
-SwapchainBuffer::SwapchainBuffer(Graphics& _graphics)
-: graphics( _graphics )
+SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice)
+: mGraphicsDevice( graphicsDevice )
 {
-  acquireNextImageSemaphore = graphics.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
-  submitSemaphore = graphics.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
+  acquireNextImageSemaphore = graphicsDevice.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
+  submitSemaphore = graphicsDevice.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
 
   // Ensure there is at least 1 allocated primary command buffer
-  commandBuffers.emplace_back( graphics.CreateCommandBuffer( true ) );
+  commandBuffers.emplace_back( graphicsDevice.CreateCommandBuffer( true ) );
 
-  betweenRenderPassFence = graphics.CreateFence({});
-  endOfFrameFence = graphics.CreateFence({});
+  betweenRenderPassFence = graphicsDevice.CreateFence({});
+  endOfFrameFence = graphicsDevice.CreateFence({});
 }
 
 SwapchainBuffer::~SwapchainBuffer()
 {
   // swapchain dies so make sure semaphore are not in use anymore
-  graphics.GetDevice().waitIdle();
-  graphics.GetDevice().destroySemaphore( acquireNextImageSemaphore, graphics.GetAllocator() );
-  graphics.GetDevice().destroySemaphore( submitSemaphore, graphics.GetAllocator() );
+  graphicsDevice.GetDevice().waitIdle();
+  graphicsDevice.GetDevice().destroySemaphore( acquireNextImageSemaphore, graphics.GetAllocator() );
+  graphicsDevice.GetDevice().destroySemaphore( submitSemaphore, graphics.GetAllocator() );
 }
+#endif
 
-Swapchain::Swapchain( Graphics& graphics, Queue& presentationQueue,
-                      RefCountedSurface surface,
-                      std::vector< RefCountedFramebuffer >&& framebuffers,
-                      vk::SwapchainCreateInfoKHR createInfo,
-                      vk::SwapchainKHR vkHandle )
-: mGraphics( &graphics ),
+
+Swapchain::Swapchain(Device& graphicsDevice,
+                     Queue& presentationQueue,
+                     Surface* surface,
+                     std::vector< Framebuffer* >&& framebuffers,
+                     vk::SwapchainCreateInfoKHR createInfo,
+                     vk::SwapchainKHR vkHandle)
+: mGraphicsDevice( &graphicsDevice ),
   mQueue( &presentationQueue ),
   mSurface( std::move( surface ) ),
   mSwapchainImageIndex( 0u ),
@@ -108,6 +116,13 @@ Swapchain::Swapchain( Graphics& graphics, Queue& presentationQueue,
 
 Swapchain::~Swapchain() = default;
 
+vk::SwapchainKHR Swapchain::GetVkHandle() const
+{
+  return mSwapchainKHR;
+}
+
+
+#if 0
 RefCountedFramebuffer Swapchain::GetCurrentFramebuffer() const
 {
   return GetFramebuffer( mSwapchainImageIndex );
@@ -296,11 +311,6 @@ bool Swapchain::OnDestroy()
   return false;
 }
 
-vk::SwapchainKHR Swapchain::GetVkHandle()
-{
-  return mSwapchainKHR;
-}
-
 bool Swapchain::IsValid() const
 {
   return mIsValid;
@@ -428,6 +438,7 @@ uint32_t Swapchain::GetImageCount() const
 {
   return uint32_t(mFramebuffers.size());
 }
+#endif
 
 } // namespace Vulkan
 } // namespace Graphics

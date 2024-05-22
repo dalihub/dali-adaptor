@@ -15,9 +15,15 @@
  *
  */
 
-#include <dali/graphics/vulkan/vulkan-graphics.h>
-#include <dali/graphics/vulkan/internal/vulkan-image.h>
-#include <dali/graphics/vulkan/internal/vulkan-debug.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/integration-api/debug.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
+
 
 namespace Dali
 {
@@ -26,12 +32,12 @@ namespace Graphics
 namespace Vulkan
 {
 
-Image::Image( Graphics& graphics, const vk::ImageCreateInfo& createInfo, vk::Image externalImage )
-        : mGraphics( &graphics ),
-          mCreateInfo( createInfo ),
-          mImage( externalImage ),
-          mImageLayout( mCreateInfo.initialLayout ),
-          mIsExternal( static_cast<bool>(externalImage) )
+Image::Image( Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage )
+: mGraphicsDevice( &graphicsDevice ),
+  mCreateInfo( createInfo ),
+  mImage( externalImage ),
+  mImageLayout( mCreateInfo.initialLayout ),
+  mIsExternal( static_cast<bool>(externalImage) )
 {
   auto depthStencilFormats = std::vector< vk::Format >{
           vk::Format::eD32Sfloat,
@@ -144,7 +150,8 @@ vk::SampleCountFlagBits Image::GetSampleCount() const
 
 void Image::DestroyNow()
 {
-  DestroyVulkanResources( mGraphics->GetDevice(), mImage, mDeviceMemory->ReleaseVkObject(), &mGraphics->GetAllocator() );
+  DestroyVulkanResources(mGraphicsDevice->GetDevice(), mImage, mDeviceMemory->ReleaseVkObject(),
+			 &mGraphicsDevice->GetAllocator() );
   mImage = nullptr;
   mDeviceMemory = nullptr;
 }
@@ -155,12 +162,12 @@ bool Image::OnDestroy()
   {
     if( mImage )
     {
-      auto device = mGraphics->GetDevice();
+      auto device = mGraphicsDevice->GetDevice();
       auto image = mImage;
-      auto allocator = &mGraphics->GetAllocator();
+      auto allocator = &mGraphicsDevice->GetAllocator();
       auto memory = mDeviceMemory->ReleaseVkObject();
 
-      mGraphics->DiscardResource( [ device, image, memory, allocator ]() {
+      mGraphicsDevice->DiscardResource( [ device, image, memory, allocator ]() {
         DestroyVulkanResources( device, image, memory, allocator );
       }
       );

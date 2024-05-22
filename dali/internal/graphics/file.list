@@ -34,7 +34,15 @@ SET( adaptor_graphics_gl_tizen_src_files
 SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan/graphics-implementation.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
-    ${adaptor_graphics_dir}/vulkan/vulkan-graphics.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-graphics-controller.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-image.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-view.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-memory.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-queue.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-surface.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-swapchain.cpp
 )
 
 SET( unused
@@ -67,12 +75,8 @@ SET( unused
     ${adaptor_graphics_dir}/vulkan/internal/vulkan-fence.cpp
     ${adaptor_graphics_dir}/vulkan/internal/vulkan-framebuffer.cpp
     ${adaptor_graphics_dir}/vulkan/internal/vulkan-image-view.cpp
-    ${adaptor_graphics_dir}/vulkan/internal/vulkan-image.cpp
-    ${adaptor_graphics_dir}/vulkan/internal/vulkan-queue.cpp
     ${adaptor_graphics_dir}/vulkan/internal/vulkan-sampler.cpp
     ${adaptor_graphics_dir}/vulkan/internal/vulkan-shader.cpp
-    ${adaptor_graphics_dir}/vulkan/internal/vulkan-surface.cpp
-    ${adaptor_graphics_dir}/vulkan/internal/vulkan-swapchain.cpp
 )
 
 # module: graphics, backend: vulkan/x11

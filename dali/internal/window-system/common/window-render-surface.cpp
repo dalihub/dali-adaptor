@@ -193,7 +193,6 @@ void WindowRenderSurface::CreateSurface()
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   auto surfaceFactory = Graphics::SurfaceFactory::New(*this);
-
   mGraphicsSurface = std::move( mGraphics->CreateSurface( *surfaceFactory.get() ) );
 
   // Check rotation capability

@@ -16,9 +16,14 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-surface.h>
-#include <dali/graphics/vulkan/internal/vulkan-debug.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+
+#include <dali/integration-api/debug.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
 
 namespace Dali
 {
@@ -27,8 +32,8 @@ namespace Graphics
 namespace Vulkan
 {
 
-Surface::Surface( Graphics& graphics )
-: mGraphics( &graphics )
+Surface::Surface( Device& device )
+: mGraphicsDevice( &device )
 {
 }
 
@@ -54,11 +59,11 @@ bool Surface::OnDestroy()
 {
   if( mSurface )
   {
-    auto instance = mGraphics->GetInstance();
+    auto instance = mGraphicsDevice->GetInstance();
     auto surface = mSurface;
-    auto allocator = &mGraphics->GetAllocator();
+    auto allocator = &mGraphicsDevice->GetAllocator();
 
-    mGraphics->DiscardResource( [ instance, surface, allocator ]() {
+    mGraphicsDevice->DiscardResource( [ instance, surface, allocator ]() {
       DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: surface->%p\n",
                      static_cast< VkSurfaceKHR >( surface ) )
       instance.destroySurfaceKHR( surface, allocator );

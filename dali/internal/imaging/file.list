@@ -29,12 +29,18 @@ SET( adaptor_imaging_tizen_src_files
 
 # TODO: Do we need vulkan version for tizen? Or is this already enough?
 
-# module: imaging, backend: ubuntu-x11
-SET( adaptor_imaging_ubuntu_x11_src_files
+# module: imaging, backend: ubuntu-egl-x11
+SET( adaptor_imaging_ubuntu_egl_x11_src_files
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x.cpp
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-impl-x.cpp
     ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-queue-impl-x.cpp
 )
+
+# module: imaging, backend: ubuntu-vulkan-x11
+SET( adaptor_imaging_ubuntu_vulkan_x11_src_files
+    ${adaptor_imaging_dir}/ubuntu-x11/native-image-source-factory-x.cpp
+)
+
 
 # module: imaging, backend: libuv-x11
 SET( adaptor_imaging_x11_src_files

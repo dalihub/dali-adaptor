@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_FRAMEBUFFER
-#define DALI_GRAPHICS_VULKAN_FRAMEBUFFER
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -18,7 +18,7 @@
  *
  */
 
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali
 {
@@ -37,22 +37,22 @@ enum class AttachmentType
   UNDEFINED
 };
 
-class Graphics;
+class Device;
 
 class FramebufferAttachment : public VkManaged
 {
-  friend class Graphics;
+  friend class Device;
 
 public:
 
-  static RefCountedFramebufferAttachment NewColorAttachment( RefCountedImageView imageView,
-                                                             vk::ClearColorValue clearColorValue,
-                                                             bool presentable );
+  static FramebufferAttachment* NewColorAttachment( ImageView* imageView,
+                                                   vk::ClearColorValue clearColorValue,
+                                                   bool presentable );
 
-  static RefCountedFramebufferAttachment NewDepthAttachment( RefCountedImageView imageView,
-                                                             vk::ClearDepthStencilValue clearDepthStencilValue );
+  static FramebufferAttachment* NewDepthAttachment( ImageView* imageView,
+                                                   vk::ClearDepthStencilValue clearDepthStencilValue );
 
-  RefCountedImageView GetImageView() const;
+  ImageView* GetImageView() const;
 
   const vk::AttachmentDescription& GetDescription() const;
 
@@ -65,17 +65,14 @@ public:
 private:
   FramebufferAttachment() = default;
 
-  FramebufferAttachment( const RefCountedImageView& imageView,
+  FramebufferAttachment( ImageView* imageView,
                          vk::ClearValue clearColor,
                          AttachmentType type,
                          bool presentable  );
 
-  RefCountedImageView mImageView;
-
+  ImageView* mImageView;
   vk::AttachmentDescription mDescription;
-
   vk::ClearValue mClearValue;
-
   AttachmentType mType;
 };
 
@@ -88,15 +85,15 @@ private:
 class Framebuffer : public VkManaged
 {
 public:
-  friend class Graphics;
+  friend class Device;
 
   uint32_t GetWidth() const;
 
   uint32_t GetHeight() const;
 
-  RefCountedFramebufferAttachment GetAttachment( AttachmentType type, uint32_t index ) const;
+  FramebufferAttachment* GetAttachment( AttachmentType type, uint32_t index ) const;
 
-  std::vector< RefCountedFramebufferAttachment > GetAttachments( AttachmentType type ) const;
+  std::vector<FramebufferAttachment*> GetAttachments( AttachmentType type ) const;
 
   uint32_t GetAttachmentCount( AttachmentType type ) const;
 
@@ -110,9 +107,9 @@ public:
 
 private:
 
-  Framebuffer( Graphics& graphics,
-               const std::vector< RefCountedFramebufferAttachment >& colorAttachments,
-               const RefCountedFramebufferAttachment& depthAttachment,
+  Framebuffer( Device& graphicsDevice,
+               const std::vector<FramebufferAttachment*>& colorAttachments,
+               FramebufferAttachment* depthAttachment,
                vk::Framebuffer vkHandle,
                vk::RenderPass renderPass,
                uint32_t width,
@@ -120,19 +117,15 @@ private:
                bool externalRenderPass = false );
 
 private:
-  Graphics* mGraphics;
+  Device* mGraphicsDevice;
 
   uint32_t mWidth;
   uint32_t mHeight;
 
-  std::vector< RefCountedFramebufferAttachment > mColorAttachments;
-
-  RefCountedFramebufferAttachment mDepthAttachment;
-
+  std::vector<FramebufferAttachment*> mColorAttachments;
+  FramebufferAttachment* mDepthAttachment;
   vk::Framebuffer mFramebuffer;
-
   vk::RenderPass mRenderPass;
-
   bool mExternalRenderPass;
 };
 
@@ -143,4 +136,4 @@ private:
 
 } // Namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_FRAMEBUFFER
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H

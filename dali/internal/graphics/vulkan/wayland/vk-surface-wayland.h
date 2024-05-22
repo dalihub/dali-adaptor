@@ -22,7 +22,7 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/vk-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 
 
 // EXTERNAL INCLUDES

@@ -16,15 +16,19 @@
  */
 
 // CLASS HEADER
-#include <dali/graphics/vulkan/graphics-implementation.h>
+#include <dali/internal/graphics/vulkan/graphics-implementation.h>
 
 // INTERNAL HEADERS
-#include <dali/graphics/vulkan/api/vulkan-api-controller.h>
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
-#include <dali/graphics/vulkan/internal/vulkan-surface.h>
-#include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
-#include <dali/graphics/vulkan/internal/vulkan-swapchain.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
+#if 0
+#include <dali/internal/graphics/vulkan/api/vulkan-api-controller.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain.h>
+#endif
+
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <vector>
 
 extern "C" std::vector<uint32_t> GraphicsGetBuiltinShader( const std::string& tag );
 
@@ -44,16 +48,16 @@ Surface::Surface( Dali::Graphics::Controller& graphicsController, Dali::Graphics
 
 Surface::~Surface()
 {
-  auto vkGraphicsController = dynamic_cast< const Dali::Graphics::VulkanAPI::Controller* >( &mGraphicsController );
+  auto vkGraphicsController = dynamic_cast< const Dali::Graphics::VulkanGraphicsController* >( &mGraphicsController );
   if( vkGraphicsController )
   {
-    vkGraphicsController->GetGraphics().DestroySurface( mFramebufferId );
+    vkGraphicsController->GetGraphicsDevice().DestroySurface( mFramebufferId );
   }
 }
 
-GraphicsInterface::GraphicsInterface( const GraphicsCreateInfo& info,
-                                      Integration::DepthBufferAvailable depthBufferRequired,
-                                      Integration::StencilBufferAvailable stencilBufferRequired )
+GraphicsInterface::GraphicsInterface(const GraphicsCreateInfo& info,
+                                     Integration::DepthBufferAvailable depthBufferRequired,
+                                     Integration::StencilBufferAvailable stencilBufferRequired )
 : mCreateInfo(info),
   mDepthBufferRequired( depthBufferRequired ),
   mStencilBufferRequired( stencilBufferRequired )
@@ -63,69 +67,70 @@ GraphicsInterface::GraphicsInterface( const GraphicsCreateInfo& info,
 GraphicsInterface::~GraphicsInterface() = default;
 
 
-Graphics::Graphics( const Dali::Graphics::GraphicsCreateInfo& info,
-                    Integration::DepthBufferAvailable depthBufferAvailable,
-                    Integration::StencilBufferAvailable stencilBufferRequired )
+VulkanGraphics::VulkanGraphics(const Dali::Graphics::GraphicsCreateInfo& info,
+                   Integration::DepthBufferAvailable depthBufferAvailable,
+                   Integration::StencilBufferAvailable stencilBufferRequired )
 : GraphicsInterface( info, depthBufferAvailable, stencilBufferRequired ),
   mGraphicsController()
 {
 }
 
-Graphics::~Graphics() = default;
+VulkanGraphics::~VulkanGraphics() = default;
 
 
-void Graphics::Initialize()
+void VulkanGraphics::Initialize()
 {
+  mGraphicsController.Initialize(*this);
 }
 
-void Graphics::Create()
+void VulkanGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
 {
-  mGraphicsController.Initialise();
+  surface->InitializeGraphics(*this); // Calls CreateSurface below
 }
 
-std::unique_ptr<Dali::Graphics::Surface> Graphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory)
+std::unique_ptr<Dali::Graphics::Surface> VulkanGraphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory)
 {
-  auto& graphicsImpl = mGraphicsController.GetGraphics();
+  auto& graphicsDevice = mGraphicsController.GetGraphicsDevice();
 
   // create surface ( also takes surface factory ownership )
-  auto framebufferId = graphicsImpl.CreateSurface( surfaceFactory, mCreateInfo );
+  auto framebufferId = graphicsDevice.CreateSurface( surfaceFactory, mCreateInfo );
 
   // create swapchain from surface
-  auto surface = graphicsImpl.GetSurface( framebufferId );
+  auto surface = graphicsDevice.GetSurface( framebufferId );
 
   // create swapchain
-  graphicsImpl.CreateSwapchainForSurface( surface );
+  graphicsDevice.CreateSwapchainForSurface( surface );
 
   return std::unique_ptr<Dali::Graphics::Surface>( new Dali::Graphics::Surface( mGraphicsController, framebufferId ) );
 }
 
-void Graphics::Destroy()
+void VulkanGraphics::Destroy()
 {
 }
 
-void Graphics::Pause()
+void VulkanGraphics::Pause()
 {
   mGraphicsController.Pause();
 }
 
-void Graphics::Resume()
+void VulkanGraphics::Resume()
 {
   mGraphicsController.Resume();
 }
 
-
-Dali::Graphics::Controller& Graphics::GetController()
+Dali::Graphics::Controller& VulkanGraphics::GetController()
 {
   return mGraphicsController;
 }
 
-void Graphics::SurfaceResized( unsigned int width, unsigned int height )
+void VulkanGraphics::SurfaceResized( unsigned int width, unsigned int height )
 {
   mCreateInfo.surfaceWidth = width;
   mCreateInfo.surfaceHeight = height;
 
-  auto& graphicsImpl = mGraphicsController.GetGraphics();
-  graphicsImpl.SurfaceResized( width, height );
+  //@todo Shouldn't this class own the graphicsDevice?!
+  auto& graphicsDevice = mGraphicsController.GetGraphicsDevice();
+  graphicsDevice.SurfaceResized( width, height );
 }
 
 } // Namespace Graphics

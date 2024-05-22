@@ -20,6 +20,8 @@
 #include <dali/public-api/dali-adaptor-common.h>
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/graphics-api/graphics-controller.h>
+#include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+
 #include <cstdint>
 
 namespace Dali
@@ -97,17 +99,12 @@ public:
                      Integration::StencilBufferAvailable stencilBufferRequired );
 
   /**
-   * Initialize the graphics interface
+   * Initialize the Graphics implementation
    */
   virtual void Initialize() = 0;
 
   /**
-   * Create the  Graphics Factory implementation
-   */
-  virtual void Create() = 0;
-
-  /**
-   * Destroy the Graphics Factory implementation
+   * Destroy the Graphics implementation
    */
   virtual void Destroy() = 0;
 
@@ -125,6 +122,13 @@ public:
    * Create a surface for the graphics implementation
    */
   virtual std::unique_ptr<Surface> CreateSurface( SurfaceFactory& surfaceFactory ) = 0;
+
+  /**
+   * Configure the graphics surface
+   *
+   * @param[in] surface The surface to configure, or NULL if not present
+   */
+  virtual void ConfigureSurface(Dali::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Returns controller object

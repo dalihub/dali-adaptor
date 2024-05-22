@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_QUEUE
-#define DALI_GRAPHICS_VULKAN_QUEUE
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE
+#define DALI_INTERNALGRAPHICS_VULKAN_QUEUE
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 #include <mutex>
 
@@ -29,8 +29,9 @@ namespace Graphics
 {
 namespace Vulkan
 {
-
+class CommandBuffer;
 class Fence;
+
 
 struct SubmissionData
 {
@@ -38,28 +39,28 @@ struct SubmissionData
 
   explicit SubmissionData( const std::vector< vk::Semaphore >& waitSemaphores_,
                            vk::PipelineStageFlags waitDestinationStageMask_,
-                           const std::vector< RefCountedCommandBuffer >& commandBuffers_,
+                           const std::vector< CommandBuffer* >& commandBuffers_,
                            const std::vector< vk::Semaphore >& signalSemaphores_ );
 
   SubmissionData& SetWaitSemaphores( const std::vector< vk::Semaphore >& semaphores );
 
   SubmissionData& SetWaitDestinationStageMask( vk::PipelineStageFlags dstStageMask );
 
-  SubmissionData& SetCommandBuffers( const std::vector< RefCountedCommandBuffer >& cmdBuffers );
+  SubmissionData& SetCommandBuffers( const std::vector< CommandBuffer* >& cmdBuffers );
 
   SubmissionData& SetSignalSemaphores( const std::vector< vk::Semaphore >& semaphores );
 
   std::vector< vk::Semaphore > waitSemaphores;
   vk::PipelineStageFlags waitDestinationStageMask;
-  std::vector< RefCountedCommandBuffer > commandBuffers;
+  std::vector< CommandBuffer* > commandBuffers;
   std::vector< vk::Semaphore > signalSemaphores;
 };
 
-class Graphics;
+class Device;
 
 class Queue
 {
-  friend class Graphics;
+  friend class Device;
 
 public:
 
@@ -70,14 +71,12 @@ public:
   std::unique_ptr<std::lock_guard<std::recursive_mutex>> Lock();
 
 private:
-  Queue( Graphics& graphics,
-         vk::Queue queue,
-         uint32_t queueFamilyIndex,
-         uint32_t queueIndex,
-         vk::QueueFlags queueFlags );
+  Queue(vk::Queue queue,
+        uint32_t queueFamilyIndex,
+        uint32_t queueIndex,
+        vk::QueueFlags queueFlags);
 
 private:
-  Graphics& mGraphics;
   vk::Queue mQueue;
   vk::QueueFlags mFlags;
   uint32_t mQueueFamilyIndex;
@@ -92,4 +91,4 @@ private:
 
 } // namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_QUEUE
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE

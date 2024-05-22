@@ -18,7 +18,7 @@
  *
  */
 
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali
 {
@@ -27,12 +27,12 @@ namespace Graphics
 namespace Vulkan
 {
 
-class Graphics;
+class Device;
 class Memory;
 
 class Image : public VkManaged
 {
-  friend class Graphics;
+  friend class Device;
 
 public:
 
@@ -129,7 +129,7 @@ private:
    * @param graphics
    * @param createInfo
    */
-  Image( Graphics& graphics, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr );
+  Image( Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage = nullptr );
 
   /**
    * Destroys used Vulkan resource objects
@@ -141,7 +141,7 @@ private:
   static void DestroyVulkanResources( vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator );
 
 private:
-  Graphics* mGraphics;
+  Device* mGraphicsDevice;
   vk::ImageCreateInfo mCreateInfo;
   vk::Image mImage;
   vk::ImageLayout mImageLayout;

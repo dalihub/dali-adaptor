@@ -22,10 +22,8 @@
 #endif
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/vk-surface-factory.h>
-
-// EXTERNAL INCLUDES
-#include <vulkan/vulkan.hpp>
+#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 namespace Dali
 {

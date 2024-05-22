@@ -17,11 +17,11 @@
 
 
 // CLASS HEADER
-#include <dali/graphics/vulkan/vulkan-graphics-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
-#include <dali/graphics/vulkan/graphics-implementation.h>
+#include <dali/internal/graphics/vulkan/graphics-implementation.h>
 
 namespace Dali
 {
@@ -75,7 +75,7 @@ Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSi
 
   info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Graphics::Graphics( info, depthBufferRequired, stencilBufferRequired );
+  auto graphics = new Graphics::VulkanGraphics( info, depthBufferRequired, stencilBufferRequired );
   return *graphics;
 }
 

@@ -15,12 +15,19 @@
  *
  */
 
-#include <dali/graphics/vulkan/internal/vulkan-framebuffer.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
-#include <dali/graphics/vulkan/internal/vulkan-image.h>
-#include <dali/graphics/vulkan/internal/vulkan-image-view.h>
-#include <dali/graphics/vulkan/internal/vulkan-debug.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
+
+#include <dali/integration-api/debug.h>
+
 #include <utility>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
 
 namespace Dali
 {
@@ -30,34 +37,34 @@ namespace Vulkan
 {
 
 //FramebufferAttachment ------------------------
-RefCountedFramebufferAttachment FramebufferAttachment::NewColorAttachment( RefCountedImageView imageView,
-                                                                           vk::ClearColorValue clearColorValue,
-                                                                           bool presentable )
+FramebufferAttachment* FramebufferAttachment::NewColorAttachment(ImageView* imageView,
+                                                                 vk::ClearColorValue clearColorValue,
+                                                                 bool presentable )
 {
   assert( imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eColorAttachment );
 
-  auto attachment = new FramebufferAttachment( std::move( imageView ),
+  auto attachment = new FramebufferAttachment( imageView,
                                                clearColorValue,
                                                AttachmentType::COLOR,
                                                presentable );
-
-  return RefCountedFramebufferAttachment( attachment );
+  return attachment;
 }
 
-RefCountedFramebufferAttachment FramebufferAttachment::NewDepthAttachment( RefCountedImageView imageView,
-                                                                           vk::ClearDepthStencilValue clearDepthStencilValue )
+FramebufferAttachment* FramebufferAttachment::NewDepthAttachment(
+  ImageView* imageView,
+  vk::ClearDepthStencilValue clearDepthStencilValue )
 {
   assert( imageView->GetImage()->GetUsageFlags() & vk::ImageUsageFlagBits::eDepthStencilAttachment );
 
-  auto attachment = new FramebufferAttachment( std::move( imageView ),
+  auto attachment = new FramebufferAttachment( imageView,
                                                clearDepthStencilValue,
                                                AttachmentType::DEPTH_STENCIL,
                                                false /* presentable */ );
 
-  return RefCountedFramebufferAttachment( attachment );
+  return attachment;
 }
 
-FramebufferAttachment::FramebufferAttachment( const RefCountedImageView& imageView,
+FramebufferAttachment::FramebufferAttachment( ImageView* imageView,
                                               vk::ClearValue clearColor,
                                               AttachmentType type,
                                               bool presentable )
@@ -95,7 +102,7 @@ FramebufferAttachment::FramebufferAttachment( const RefCountedImageView& imageVi
   }
 }
 
-RefCountedImageView FramebufferAttachment::GetImageView() const
+ImageView* FramebufferAttachment::GetImageView() const
 {
   return mImageView;
 }
@@ -122,15 +129,15 @@ bool FramebufferAttachment::IsValid() const
 
 
 //Framebuffer -------------------------------
-Framebuffer::Framebuffer( Graphics& graphics,
-                          const std::vector< RefCountedFramebufferAttachment >& colorAttachments,
-                          const RefCountedFramebufferAttachment& depthAttachment,
+Framebuffer::Framebuffer( Device& graphicsDevice,
+                          const std::vector< FramebufferAttachment* >& colorAttachments,
+                          FramebufferAttachment* depthAttachment,
                           vk::Framebuffer vkHandle,
                           vk::RenderPass renderPass,
                           uint32_t width,
                           uint32_t height,
                           bool externalRenderPass )
-: mGraphics( &graphics ),
+: mGraphicsDevice( &graphicsDevice ),
   mWidth( width ),
   mHeight( height ),
   mColorAttachments( colorAttachments ),
@@ -151,7 +158,7 @@ uint32_t Framebuffer::GetHeight() const
   return mHeight;
 }
 
-RefCountedFramebufferAttachment Framebuffer::GetAttachment( AttachmentType type, uint32_t index ) const
+FramebufferAttachment* Framebuffer::GetAttachment( AttachmentType type, uint32_t index ) const
 {
   switch( type )
   {
@@ -170,12 +177,12 @@ RefCountedFramebufferAttachment Framebuffer::GetAttachment( AttachmentType type,
       break;
   }
 
-  return RefCountedFramebufferAttachment{};
+  return nullptr;
 }
 
-std::vector< RefCountedFramebufferAttachment > Framebuffer::GetAttachments( AttachmentType type ) const
+std::vector< FramebufferAttachment* > Framebuffer::GetAttachments( AttachmentType type ) const
 {
-  auto retval = std::vector< RefCountedFramebufferAttachment >{};
+  auto retval = std::vector< FramebufferAttachment* >{};
   switch( type )
   {
     case AttachmentType::COLOR:
@@ -239,7 +246,7 @@ std::vector< vk::ClearValue > Framebuffer::GetClearValues() const
   std::transform( mColorAttachments.begin(), // @todo & color clear enabled
                   mColorAttachments.end(),
                   std::back_inserter( result ),
-                  []( const RefCountedFramebufferAttachment& attachment ) {
+                  []( FramebufferAttachment* attachment ) {
                     return attachment->GetClearValue();
                   } );
 
@@ -253,14 +260,14 @@ std::vector< vk::ClearValue > Framebuffer::GetClearValues() const
 
 bool Framebuffer::OnDestroy()
 {
-  auto device = mGraphics->GetDevice();
+  auto device = mGraphicsDevice->GetDevice();
   auto frameBuffer = mFramebuffer;
 
   vk::RenderPass renderPass = mExternalRenderPass ? vk::RenderPass{} : mRenderPass;
 
-  auto allocator = &mGraphics->GetAllocator();
+  auto allocator = &mGraphicsDevice->GetAllocator();
 
-  mGraphics->DiscardResource( [ device, frameBuffer, renderPass, allocator ]() {
+  mGraphicsDevice->DiscardResource( [ device, frameBuffer, renderPass, allocator ]() {
 
     DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: framebuffer->%p\n",
                    static_cast< VkFramebuffer >(frameBuffer) )

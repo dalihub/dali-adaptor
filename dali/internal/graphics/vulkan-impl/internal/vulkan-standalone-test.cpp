@@ -20,7 +20,7 @@
 using namespace glm;
 
 #include <dali/internal/graphics/vulkan/graphics.h>
-#include <dali/internal/graphics/vulkan/vk-surface-factory.h>
+#include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
 #include <dali/internal/graphics/vulkan/vulkan-hpp-wrapper.h>
 
 #include <unistd.h>

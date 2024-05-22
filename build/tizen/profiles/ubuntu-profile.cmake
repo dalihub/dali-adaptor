@@ -16,6 +16,7 @@ SET( SOURCES
         ${adaptor_drag_and_drop_generic_src_files}
         ${adaptor_framework_generic_src_files}
         ${adaptor_graphics_common_src_files}
+        ${adaptor_graphics_ubuntu_src_files}
         ${adaptor_haptics_common_src_files}
         ${adaptor_imaging_common_src_files}
         ${adaptor_input_common_src_files}
@@ -52,12 +53,13 @@ IF( ENABLE_VULKAN )
   SET(SOURCES ${SOURCES}
     ${adaptor_graphics_vulkan_src_files}
     ${adaptor_graphics_vulkan_x11_src_files}
+    ${adaptor_imaging_ubuntu_vulkan_x11_src_files}
     )
 ELSE()
   SET(SOURCES ${SOURCES}
     ${adaptor_graphics_gles_src_files}
     ${adaptor_graphics_ubuntu_src_files}
-    ${adaptor_imaging_ubuntu_x11_src_files}
+    ${adaptor_imaging_ubuntu_egl_x11_src_files}
     ${adaptor_window_system_ubuntu_x11_egl_src_files}
     )
 ENDIF()

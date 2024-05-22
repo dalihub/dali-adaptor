@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_SWAPCHAIN_H
-#define DALI_GRAPHICS_VULKAN_SWAPCHAIN_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -19,7 +19,7 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali
 {
@@ -27,7 +27,7 @@ namespace Graphics
 {
 namespace Vulkan
 {
-
+class Device;
 class Surface;
 class Queue;
 class SwapchainBuffer;
@@ -37,17 +37,18 @@ class SwapchainBuffer;
  */
 class Swapchain : public VkManaged
 {
-
-  friend class Graphics;
+  friend class Device;
 
 public:
-
   ~Swapchain() override;
-
   Swapchain( const Swapchain& ) = delete;
-
   Swapchain& operator=( const Swapchain& ) = delete;
 
+  vk::SwapchainKHR GetVkHandle() const;
+
+
+
+#if 0
   /**
    * Allocate command buffers for each render pass.
    * @param[in] renderPassCount The number of render passes to allocate for (includes main renderpass)
@@ -58,33 +59,33 @@ public:
    * Returns current framebuffer ( the one which is rendering to )
    * @return
    */
-  RefCountedFramebuffer GetCurrentFramebuffer() const;
+  Framebuffer* GetCurrentFramebuffer() const;
 
   /**
    * Returns any framebuffer from the queue
    * @param index
    * @return
    */
-  RefCountedFramebuffer GetFramebuffer( uint32_t index ) const;
+  Framebuffer* GetFramebuffer( uint32_t index ) const;
 
   /**
    * This function acquires next framebuffer
    * @todo we should rather use round robin method
    * @return
    */
-  RefCountedFramebuffer AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
+  Framebuffer* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
 
   /**
    * Return the primary command buffer associated with the swapchain
    */
-  RefCountedCommandBuffer GetLastCommandBuffer();
+  CommandBuffer* GetLastCommandBuffer();
 
   /**
    * Returns the primary command buffers associated with each render pass
    * being recorded
    * @return mutable vector of command buffers
    */
-  std::vector<RefCountedCommandBuffer>& GetCommandBuffers() const;
+  std::vector<CommandBuffer*>& GetCommandBuffers() const;
 
   /**
    * Presents using default present queue, asynchronously
@@ -98,8 +99,6 @@ public:
   void Present( std::vector< vk::Semaphore > waitSemaphores );
 
   bool OnDestroy() override;
-
-  vk::SwapchainKHR GetVkHandle();
 
   /**
    * Returns true when swapchain expired
@@ -128,44 +127,45 @@ public:
    * @return Number of swapchain images
    */
   uint32_t GetImageCount() const;
+#endif
 
 private:
-
-  Swapchain( Graphics& graphics,
-             Queue& presentationQueue,
-             RefCountedSurface surface,
-             std::vector< RefCountedFramebuffer >&& framebuffers,
-             vk::SwapchainCreateInfoKHR createInfo,
-             vk::SwapchainKHR vkHandle );
+  Swapchain(Device& graphicsDevice,
+            Queue& presentationQueue,
+            Surface* surface,
+            std::vector< Framebuffer* >&& framebuffers,
+            vk::SwapchainCreateInfoKHR createInfo,
+            vk::SwapchainKHR vkHandle );
 
 private:
-  Graphics* mGraphics;
+  Device* mGraphicsDevice;
   Queue* mQueue;
-  RefCountedSurface mSurface;
+  Surface* mSurface;
 
   uint32_t mSwapchainImageIndex; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   vk::SwapchainKHR mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR;
-
   /*
    * Framebuffer object associated with the buffer
    */
-  std::vector<RefCountedFramebuffer> mFramebuffers;
+  std::vector<Framebuffer*> mFramebuffers;
 
+#if 0
   /**
    * Array of swapchain buffers
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
 
-  RefCountedFence mBetweenRenderPassFence;
+  Fence* mBetweenRenderPassFence;
 
   uint32_t mFrameCounter { 0u }; ///< Current frame number
 
+#endif
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
 
 } // namespace Vulkan
 } // namespace Graphics
 } // namespace Dali
-#endif //DALI_GRAPHICS_VULKAN_SWAPCHAIN_H
+#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H

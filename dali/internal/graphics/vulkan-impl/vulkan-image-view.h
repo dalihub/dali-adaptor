@@ -18,7 +18,7 @@
  *
  */
 
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
 namespace Dali
 {
@@ -27,14 +27,14 @@ namespace Graphics
 namespace Vulkan
 {
 
-class Graphics;
+class Device;
 
 /*
  * ImageView
  */
 class ImageView : public VkManaged
 {
-  friend class Graphics;
+  friend class Device;
 
 public:
 
@@ -47,10 +47,10 @@ public:
   vk::ImageView GetVkHandle() const;
 
   /**
-   * Returns bound ImageRef
+   * Returns bound Image
    * @return
    */
-  RefCountedImage GetImage() const;
+  const Image* GetImage() const;
 
   /**
    *
@@ -77,13 +77,13 @@ public:
   bool OnDestroy() override;
 
 private:
-  ImageView( Graphics& graphics,
-             RefCountedImage image,
-             vk::ImageViewCreateInfo createInfo );
+  ImageView(Device& graphicsDevice,
+            const Image* image,
+            vk::ImageViewCreateInfo createInfo );
 
 private:
-  Graphics* mGraphics;
-  RefCountedImage mImage;
+  Device* mGraphicsDevice;
+  const Image* mImage;
   vk::ImageViewCreateInfo mCreateInfo;
   vk::ImageView mImageView;
 };

@@ -16,10 +16,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-command-buffer.h>
-#include <dali/graphics/vulkan/internal/vulkan-fence.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
-#include <dali/graphics/vulkan/internal/vulkan-queue.h>
+//#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
 
 namespace Dali
 {
@@ -29,10 +27,10 @@ namespace Vulkan
 {
 
 // submission
-SubmissionData::SubmissionData( const std::vector< vk::Semaphore >& waitSemaphores_,
+SubmissionData::SubmissionData( const std::vector<vk::Semaphore>& waitSemaphores_,
                                 vk::PipelineStageFlags waitDestinationStageMask_,
-                                const std::vector< RefCountedCommandBuffer >& commandBuffers_,
-                                const std::vector< vk::Semaphore >& signalSemaphores_ )
+                                const std::vector<CommandBuffer*>& commandBuffers_,
+                                const std::vector<vk::Semaphore>& signalSemaphores_ )
         : waitSemaphores( waitSemaphores_ ),
           waitDestinationStageMask( waitDestinationStageMask_ ),
           commandBuffers( commandBuffers_ ),
@@ -52,7 +50,7 @@ SubmissionData& SubmissionData::SetWaitDestinationStageMask( vk::PipelineStageFl
   return *this;
 }
 
-SubmissionData& SubmissionData::SetCommandBuffers( const std::vector< RefCountedCommandBuffer >& cmdBuffers )
+SubmissionData& SubmissionData::SetCommandBuffers( const std::vector< CommandBuffer* >& cmdBuffers )
 {
   commandBuffers = cmdBuffers;
   return *this;
@@ -65,13 +63,11 @@ SubmissionData& SubmissionData::SetSignalSemaphores( const std::vector< vk::Sema
 }
 
 // queue
-Queue::Queue( Graphics& graphics,
-              vk::Queue queue,
+Queue::Queue( vk::Queue queue,
               uint32_t queueFamilyIndex,
               uint32_t queueIndex,
               vk::QueueFlags queueFlags )
-        : mGraphics( graphics ),
-          mQueue( queue ),
+        : mQueue( queue ),
           mFlags( queueFlags ),
           mQueueFamilyIndex( queueFamilyIndex ),
           mQueueIndex( queueIndex ),

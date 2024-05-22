@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_HPP_WRAPPER_H
-#define DALI_GRAPHICS_VULKAN_HPP_WRAPPER_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_HPP_WRAPPER_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_HPP_WRAPPER_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -29,4 +29,4 @@
 #include <vulkan/vulkan.hpp>
 #pragma GCC diagnostic pop
 
-#endif // DALI_GRAPHICS_VULKAN_HPP_WRAPPER_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_HPP_WRAPPER_H

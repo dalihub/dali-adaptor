@@ -423,14 +423,11 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   // Create graphics
   auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
-  graphics.Create();
+  graphics.Initialize();
 
   // Create Graphics surface
   RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
-  if( currentSurface )
-  {
-    currentSurface->InitializeGraphics( graphics );
-  }
+  graphics.ConfigureSurface(currentSurface);
 
   NotifyThreadInitialised();
 
