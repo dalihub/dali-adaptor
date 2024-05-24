@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,8 @@ using namespace Dali::Accessibility;
 
 namespace
 {
+constexpr const char* FORCE_CHILD_SEARCH_ATTR{"forceChildSearch"};
+
 bool SortVertically(Component* lhs, Component* rhs)
 {
   auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
@@ -437,7 +439,16 @@ Component* BridgeAccessible::CalculateNavigableAccessibleAtPoint(Accessible* roo
   auto rootComponent = dynamic_cast<Component*>(root);
   LOG() << "CalculateNavigableAccessibleAtPoint: checking: " << MakeIndent(maxRecursionDepth) << GetComponentInfo(rootComponent);
 
-  if(rootComponent && !rootComponent->IsAccessibleContainingPoint(point, type))
+  bool        forceChildSearch     = false;
+  const auto& attributes           = root->GetAttributes();
+  auto        forceChildSearchAttr = attributes.find(FORCE_CHILD_SEARCH_ATTR);
+  if(forceChildSearchAttr != attributes.end())
+  {
+    DALI_LOG_RELEASE_INFO("Force child search attr is set.");
+    forceChildSearch = std::atoi(forceChildSearchAttr->second.c_str()) == 1;
+  }
+
+  if(rootComponent && !forceChildSearch && !rootComponent->IsAccessibleContainingPoint(point, type))
   {
     return nullptr;
   }
@@ -489,7 +500,7 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
   auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
 
-  double      currentValue     = 0.0;
+  double      currentValue = 0.0;
   std::string currentValueText;
   double      minimumIncrement = 0.0;
   double      maximumValue     = 0.0;
@@ -602,23 +613,23 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
 BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
 {
-  auto self         = FindSelf();
-  auto roleName     = self->GetRoleName();
-  auto name         = self->GetName();
-  auto toolkitName  = "dali";
-  auto attributes   = self->GetAttributes();
-  auto states       = self->GetStates();
+  auto self        = FindSelf();
+  auto roleName    = self->GetRoleName();
+  auto name        = self->GetName();
+  auto toolkitName = "dali";
+  auto attributes  = self->GetAttributes();
+  auto states      = self->GetStates();
 
-  auto* component   = Component::DownCast(self);
+  auto*        component     = Component::DownCast(self);
   Dali::Rect<> screenExtents = {0, 0, 0, 0};
   Dali::Rect<> windowExtents = {0, 0, 0, 0};
-  if (component)
+  if(component)
   {
     screenExtents = component->GetExtents(CoordinateType::SCREEN);
     windowExtents = component->GetExtents(CoordinateType::WINDOW);
   }
 
-  auto* valueInterface    = Value::DownCast(self);
+  auto*  valueInterface   = Value::DownCast(self);
   double currentValue     = 0.0;
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
