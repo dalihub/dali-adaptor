@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -480,6 +480,8 @@ void WindowBaseX::OnMouseButtonDown(void* data, WindowSystemBase::Event type, Wi
     }
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -503,6 +505,8 @@ void WindowBaseX::OnMouseButtonUp(void* data, WindowSystemBase::Event type, Wind
     }
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -521,6 +525,8 @@ void WindowBaseX::OnMouseButtonMove(void* data, WindowSystemBase::Event type, Wi
     point.SetAngle(Degree(static_cast<float>(touchEvent->multi.angle)));
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 

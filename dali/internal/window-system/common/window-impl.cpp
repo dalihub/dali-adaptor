@@ -1122,6 +1122,11 @@ void Window::OnTouchPoint(Dali::Integration::Point& point, int timeStamp)
   FeedTouchPoint(point, timeStamp);
 }
 
+void Window::OnMouseFrameEvent()
+{
+  FeedMouseFrameEvent();
+}
+
 void Window::OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 {
   FeedWheelEvent(wheelEvent);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -231,6 +231,8 @@ void WindowBaseCocoa::Impl::OnMouse(NSEvent *event, PointState::Type state)
 
     // timestamp is given in seconds, the signal expects it in milliseconds
     mThis->mTouchEventSignal.Emit(point, event.timestamp * 1000);
+
+    mThis->mMouseFrameEventSignal.Emit();
   }
 }
 

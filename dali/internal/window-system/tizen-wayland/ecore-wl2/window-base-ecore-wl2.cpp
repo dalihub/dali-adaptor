@@ -462,6 +462,19 @@ static Eina_Bool EcoreEventMouseButtonMove(void* data, int type, void* event)
 /**
  * Called when a touch motion is received.
  */
+static Eina_Bool EcoreEventMouseFrame(void* data, int type, void* event)
+{
+  WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
+  if(windowBase)
+  {
+    windowBase->OnMouseFrame(data, type, event);
+  }
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+/**
+ * Called when a touch motion is received.
+ */
 static Eina_Bool EcoreEventMouseButtonRelativeMove(void* data, int type, void* event)
 {
   WindowBaseEcoreWl2* windowBase = static_cast<WindowBaseEcoreWl2*>(data);
@@ -1019,6 +1032,9 @@ void WindowBaseEcoreWl2::Initialize(PositionSize positionSize, Any surface, bool
 
   // Register pointer lock/unlock event
   mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_WL2_EVENT_POINTER_CONSTRAINTS, EcoreEventPointerConstraints, this));
+
+  // Register mouse frame events
+  mEcoreEventHandler.PushBack(ecore_event_handler_add(ECORE_EVENT_MOUSE_FRAME, EcoreEventMouseFrame, this));
 #endif
 
   // Register Mouse wheel events
@@ -1313,6 +1329,10 @@ void WindowBaseEcoreWl2::OnMouseButtonDown(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+#ifndef OVER_TIZEN_VERSION_8
+    mMouseFrameEventSignal.Emit();
+#endif
   }
 }
 
@@ -1342,6 +1362,10 @@ void WindowBaseEcoreWl2::OnMouseButtonUp(void* data, int type, void* event)
     point.SetMouseButton(static_cast<MouseButton::Type>(touchEvent->buttons));
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+#ifndef OVER_TIZEN_VERSION_8
+    mMouseFrameEventSignal.Emit();
+#endif
   }
 }
 
@@ -1370,10 +1394,25 @@ void WindowBaseEcoreWl2::OnMouseButtonMove(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+#ifndef OVER_TIZEN_VERSION_8
+    mMouseFrameEventSignal.Emit();
+#endif
   }
 }
 
 #ifdef OVER_TIZEN_VERSION_8
+void WindowBaseEcoreWl2::OnMouseFrame(void* data, int type, void* event)
+{
+  Ecore_Event_Mouse_Frame* MouseFrameEvent = static_cast<Ecore_Event_Mouse_Frame*>(event);
+
+  if(MouseFrameEvent->window == static_cast<unsigned int>(ecore_wl2_window_id_get(mEcoreWindow)) && Dali::Adaptor::IsAvailable())
+  {
+    DALI_TRACE_SCOPE(gTraceFilter, "DALI_ON_MOUSE_FRAME");
+    mMouseFrameEventSignal.Emit();
+  }
+}
+
 void WindowBaseEcoreWl2::OnMouseButtonRelativeMove(void* data, int type, void* event)
 {
   Ecore_Event_Mouse_Relative_Move* relativeMoveEvent = static_cast<Ecore_Event_Mouse_Relative_Move*>(event);
@@ -1420,6 +1459,10 @@ void WindowBaseEcoreWl2::OnMouseButtonCancel(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+#ifndef OVER_TIZEN_VERSION_8
+    mMouseFrameEventSignal.Emit();
+#endif
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl2::OnMouseButtonCancel\n");
   }

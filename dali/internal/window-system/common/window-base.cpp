@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ WindowBase::WindowBase()
   mWindowDamagedSignal(),
   mRotationSignal(),
   mTouchEventSignal(),
+  mMouseFrameEventSignal(),
   mWheelEventSignal(),
   mKeyEventSignal(),
   mSelectionDataSendSignal(),
@@ -93,6 +94,11 @@ WindowBase::RotationSignalType& WindowBase::RotationSignal()
 WindowBase::TouchEventSignalType& WindowBase::TouchEventSignal()
 {
   return mTouchEventSignal;
+}
+
+WindowBase::MouseFrameEventSignalType& WindowBase::MouseFrameEventSignal()
+{
+  return mMouseFrameEventSignal;
 }
 
 WindowBase::WheelEventSignalType& WindowBase::WheelEventSignal()
