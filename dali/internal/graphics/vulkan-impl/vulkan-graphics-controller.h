@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -19,24 +19,25 @@
 
 #include <dali/graphics-api/graphics-controller.h>
 
-namespace Dali::Graphics
+namespace Dali
+{
+namespace Graphics
 {
 class VulkanGraphics;
 
 namespace Vulkan
 {
 class Device;
-}
+class Surface;
 
-class VulkanGraphicsController : public Dali::Graphics::Controller, Integration::GraphicsConfig
+class VulkanGraphicsController : public Graphics::Controller, public Integration::GraphicsConfig
 {
 public:
   VulkanGraphicsController();
   ~VulkanGraphicsController() override;
 
-  void Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation);
-
-  [[nodiscard]] Vulkan::Device& GetGraphicsDevice() const;
+  void Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation,
+                  Vulkan::Device&                 graphicsDevice);
 
   /**
    * Get graphics configuration for info about the graphics subsystem.
@@ -98,13 +99,13 @@ public:
    *
    */
   void UpdateTextures(const std::vector<TextureUpdateInfo>&       updateInfoList,
-                              const std::vector<TextureUpdateSourceInfo>& sourceList) override;
+                      const std::vector<TextureUpdateSourceInfo>& sourceList) override;
 
   /**
    * Auto generates mipmaps for the texture
    * @param[in] texture The texture
    */
-  void GenerateTextureMipmaps(const Texture& texture) override;
+  void GenerateTextureMipmaps(const Graphics::Texture& texture) override;
 
   /**
    * @brief Enables depth/stencil buffer
@@ -156,7 +157,7 @@ public:
    * @param[in] oldBuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Buffer object
    */
-  UniquePtr<Buffer> CreateBuffer(const BufferCreateInfo& bufferCreateInfo, UniquePtr<Buffer>&& oldBuffer) override;
+  UniquePtr<Graphics::Buffer> CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer) override;
 
   /**
    * @brief Creates new CommandBuffer object
@@ -165,7 +166,7 @@ public:
    * @param[in] oldCommandBuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the CommandBuffer object
    */
-  UniquePtr<CommandBuffer> CreateCommandBuffer(const CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<CommandBuffer>&& oldCommandBuffer) override;
+  UniquePtr<Graphics::CommandBuffer> CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer) override;
 
   /**
    * @brief Creates new RenderPass object
@@ -174,7 +175,7 @@ public:
    * @param[in] oldRenderPass The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the RenderPass object
    */
-  UniquePtr<RenderPass> CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<RenderPass>&& oldRenderPass) override;
+  UniquePtr<Graphics::RenderPass> CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass) override;
 
   /**
    * @brief Creates new Texture object
@@ -183,7 +184,7 @@ public:
    * @param[in] oldTexture The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the TextureCreateInfo object
    */
-  UniquePtr<Texture> CreateTexture(const TextureCreateInfo& textureCreateInfo, UniquePtr<Texture>&& oldTexture) override;
+  UniquePtr<Graphics::Texture> CreateTexture(const Graphics::TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture) override;
 
   /**
    * @brief Creates new Framebuffer object
@@ -192,7 +193,7 @@ public:
    * @param[in] oldFramebuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Framebuffer object
    */
-  UniquePtr<Framebuffer> CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Framebuffer>&& oldFramebuffer) override;
+  UniquePtr<Graphics::Framebuffer> CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer) override;
 
   /**
    * @brief Creates new Pipeline object
@@ -201,7 +202,7 @@ public:
    * @param[in] oldPipeline The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Pipeline object
    */
-  UniquePtr<Pipeline> CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Pipeline>&& oldPipeline) override;
+  UniquePtr<Graphics::Pipeline> CreatePipeline(const Graphics::PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Graphics::Pipeline>&& oldPipeline) override;
 
   /**
    * @brief Creates new Program object
@@ -210,7 +211,7 @@ public:
    * @param[in] oldProgram The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Program object
    */
-  UniquePtr<Program> CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram) override;
+  UniquePtr<Graphics::Program> CreateProgram(const Graphics::ProgramCreateInfo& programCreateInfo, UniquePtr<Graphics::Program>&& oldProgram) override;
 
   /**
    * @brief Creates new Shader object
@@ -219,7 +220,7 @@ public:
    * @param[in] oldShader The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Shader object
    */
-  UniquePtr<Shader> CreateShader(const ShaderCreateInfo& shaderCreateInfo, UniquePtr<Shader>&& oldShader) override;
+  UniquePtr<Graphics::Shader> CreateShader(const Graphics::ShaderCreateInfo& shaderCreateInfo, UniquePtr<Graphics::Shader>&& oldShader) override;
 
   /**
    * @brief Creates new Sampler object
@@ -228,7 +229,7 @@ public:
    * @param[in] oldSampler The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the Sampler object
    */
-  UniquePtr<Sampler> CreateSampler(const SamplerCreateInfo& samplerCreateInfo, UniquePtr<Sampler>&& oldSampler) override;
+  UniquePtr<Graphics::Sampler> CreateSampler(const Graphics::SamplerCreateInfo& samplerCreateInfo, UniquePtr<Graphics::Sampler>&& oldSampler) override;
 
   /**
    * @brief Creates new RenderTarget object
@@ -237,7 +238,15 @@ public:
    * @param[in] oldRenderTarget The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    * @return pointer to the RenderTarget object
    */
-  UniquePtr<RenderTarget> CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<RenderTarget>&& oldRenderTarget) override;
+  UniquePtr<Graphics::RenderTarget> CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget) override;
+
+  /**
+   * @brief Create matching graphics surface from existing surface (window/external image/framebuffer)
+   *
+   * @param[in] createInfo The valid creation struct
+   * @param[in] oldSurface the old surface object to re-use
+   */
+  UniquePtr<Graphics::Surface> CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&& oldSurface);
 
   /**
    * Create a synchronisation object.
@@ -246,8 +255,8 @@ public:
    * @param[in] syncObjectCreateInfo The valid SyncObjectCreateInfo structure
    * @param[in] oldSyncObject The valid pointer to the old object or nullptr. The object will be reused or destroyed.
    */
-  UniquePtr<SyncObject> CreateSyncObject(const SyncObjectCreateInfo& syncObjectCreateInfo,
-                                                 UniquePtr<SyncObject>&&     oldSyncObject) override;
+  UniquePtr<Graphics::SyncObject> CreateSyncObject(const Graphics::SyncObjectCreateInfo& syncObjectCreateInfo,
+                                                   UniquePtr<Graphics::SyncObject>&&     oldSyncObject) override;
 
   /**
    * @brief Maps memory associated with Buffer object
@@ -255,7 +264,7 @@ public:
    * @param[in] mapInfo Filled details of mapped resource
    * @return Returns pointer to Memory object or nullptr on error
    */
-  UniquePtr<Memory> MapBufferRange(const MapBufferInfo& mapInfo) override;
+  UniquePtr<Graphics::Memory> MapBufferRange(const Graphics::MapBufferInfo& mapInfo) override;
 
   /**
    * @brief Maps memory associated with the texture.
@@ -271,7 +280,7 @@ public:
    *
    * @return Valid Memory object or nullptr on error
    */
-  UniquePtr<Memory> MapTextureRange(const MapTextureInfo& mapInfo) override;
+  UniquePtr<Graphics::Memory> MapTextureRange(const Graphics::MapTextureInfo& mapInfo) override;
 
   /**
    * @brief Unmaps memory and discards Memory object
@@ -281,7 +290,7 @@ public:
    *
    * @param[in] memory Valid and previously mapped Memory object
    */
-  void UnmapMemory(UniquePtr<Memory> memory) override;
+  void UnmapMemory(UniquePtr<Graphics::Memory> memory) override;
 
   /**
    * @brief Returns memory requirements of the Texture object.
@@ -292,7 +301,7 @@ public:
    *
    * @return Returns memory requirements of Texture
    */
-  MemoryRequirements GetTextureMemoryRequirements(Texture& texture) const override;
+  Graphics::MemoryRequirements GetTextureMemoryRequirements(Graphics::Texture& texture) const override;
 
   /**
    * @brief Returns memory requirements of the Buffer object.
@@ -303,7 +312,7 @@ public:
    *
    * @return Returns memory requirements of Buffer
    */
-  MemoryRequirements GetBufferMemoryRequirements(Buffer& buffer) const override;
+  Graphics::MemoryRequirements GetBufferMemoryRequirements(Graphics::Buffer& buffer) const override;
 
   /**
    * @brief Returns specification of the Texture object
@@ -314,7 +323,7 @@ public:
    *
    * @return Returns the TextureProperties object
    */
-  TextureProperties GetTextureProperties(const Texture& texture) override;
+  Graphics::TextureProperties GetTextureProperties(const Graphics::Texture& texture) override;
 
   /**
    * @brief Returns the reflection of the given program
@@ -322,7 +331,7 @@ public:
    * @param[in] program The program
    * @return The reflection of the program
    */
-  const Reflection& GetProgramReflection(const Program& program) override;
+  const Graphics::Reflection& GetProgramReflection(const Graphics::Program& program) override;
 
   /**
    * @brief Tests whether two Pipelines are the same.
@@ -331,7 +340,7 @@ public:
    *
    * @return true if pipeline objects match
    */
-  bool PipelineEquals(const Pipeline& pipeline0, const Pipeline& pipeline1) const override;
+  [[nodiscard]] bool PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const override;
 
   /**
    * @brief Retrieves program parameters
@@ -345,9 +354,12 @@ public:
    */
   bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
 
-public: // Integration::GraphicsConfig
+  void Add(Vulkan::Surface* surface);
+  void DiscardResource(Vulkan::Surface* surface);
 
-  //bool IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
+
+public: // Integration::GraphicsConfig
+  // bool IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;
 
   uint32_t GetShaderLanguageVersion() override;
 
@@ -359,9 +371,10 @@ public: // Integration::GraphicsConfig
 
 private:
   struct Impl;
-  std::unique_ptr< Impl > mImpl;
+  std::unique_ptr<Impl> mImpl;
 };
 
+} // Vulkan
+} // Dali::Graphics
 }
-
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_H
+#endif //DALI_INTERNAL_GRAPHICS_VULKAN_CONTROLLER_IMPL_H

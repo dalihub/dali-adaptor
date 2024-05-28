@@ -15,10 +15,10 @@
  *
  */
 
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/integration-api/debug.h>
 
 #include <utility>

@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -21,14 +21,10 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 class Device;
-class Surface;
+class SurfaceImpl;
 class Queue;
 class SwapchainBuffer;
 
@@ -37,16 +33,23 @@ class SwapchainBuffer;
  */
 class Swapchain : public VkManaged
 {
-  friend class Device;
-
 public:
   ~Swapchain() override;
   Swapchain( const Swapchain& ) = delete;
   Swapchain& operator=( const Swapchain& ) = delete;
 
-  vk::SwapchainKHR GetVkHandle() const;
+  Swapchain(Device& graphicsDevice,
+            Queue& presentationQueue,
+            SurfaceImpl* surface,
+            std::vector< Framebuffer* >&& framebuffers,
+            vk::SwapchainCreateInfoKHR createInfo,
+            vk::SwapchainKHR vkHandle );
 
-
+  [[nodiscard]] vk::SwapchainKHR GetVkHandle() const;
+  void SetVkHandle(vk::SwapchainKHR swapchainKhr)
+  {
+    mSwapchainKHR = swapchainKhr;
+  }
 
 #if 0
   /**
@@ -130,17 +133,9 @@ public:
 #endif
 
 private:
-  Swapchain(Device& graphicsDevice,
-            Queue& presentationQueue,
-            Surface* surface,
-            std::vector< Framebuffer* >&& framebuffers,
-            vk::SwapchainCreateInfoKHR createInfo,
-            vk::SwapchainKHR vkHandle );
-
-private:
   Device* mGraphicsDevice;
   Queue* mQueue;
-  Surface* mSurface;
+  SurfaceImpl* mSurface;
 
   uint32_t mSwapchainImageIndex; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
@@ -160,12 +155,11 @@ private:
   Fence* mBetweenRenderPassFence;
 
   uint32_t mFrameCounter { 0u }; ///< Current frame number
-
 #endif
+
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_H
+} // namespace Dali::Graphics::Vulkan
+
+#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SWAPCHAIN_IMPL_H

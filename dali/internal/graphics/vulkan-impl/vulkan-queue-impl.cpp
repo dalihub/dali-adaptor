@@ -16,8 +16,7 @@
  */
 
 // INTERNAL INCLUDES
-//#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
 
 namespace Dali
 {

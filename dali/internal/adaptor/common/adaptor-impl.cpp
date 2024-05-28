@@ -324,7 +324,14 @@ void Adaptor::Start()
   fontClient.SetDpi( dpiHor, dpiVer );
 
   // Tell the core the size of the surface just before we start the render-thread
-  mCore->SurfaceResized( defaultWindow->GetSurface() );
+  auto windowSurface = defaultWindow->GetSurface();
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(windowSurface->GetGraphicsSurface())
+    .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mCore->SurfaceResized( windowSurface, rtInfo);
 
   // Initialize the thread controller
   mThreadController->Initialize();
@@ -464,12 +471,19 @@ void Adaptor::ReplaceSurface( Dali::Window window, Dali::RenderSurfaceInterface&
   {
     if( windowPtr.Get() == windowImpl ) // the window is not deleted
     {
+      auto windowSurface = static_cast<WindowRenderSurface*>( &newSurface );
       // Let the core know the surface size has changed
-      mCore->SurfaceResized( &newSurface );
+      Graphics::RenderTargetCreateInfo rtInfo{};
+      rtInfo
+        .SetSurface(windowSurface->GetGraphicsSurface())
+        .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
+        .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+      mCore->SurfaceResized( &newSurface, rtInfo );
 
       mResizedSignal.Emit( mAdaptor );
 
-      windowImpl->SetSurface( static_cast<WindowRenderSurface*>( &newSurface ) );
+      windowImpl->SetSurface( windowSurface );
 
       // Flush the event queue to give the update-render thread chance
       // to start processing messages for new camera setup etc as soon as possible
@@ -853,7 +867,14 @@ void Adaptor::OnDamaged( const DamageArea& area )
 void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize )
 {
   // Let the core know the surface size has changed
-  mCore->SurfaceResized( surface );
+  auto windowSurface = static_cast<WindowRenderSurface*>( surface );
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(windowSurface->GetGraphicsSurface())
+    .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mCore->SurfaceResized( surface, rtInfo );
 
   //@todo Inform graphics subsystem
   //mGraphics->SurfaceResized( surfaceSize.width, surfaceSize.height );

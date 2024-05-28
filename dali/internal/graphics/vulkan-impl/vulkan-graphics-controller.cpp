@@ -14,31 +14,110 @@
  * limitations under the License.
  */
 
+// CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan/graphics-implementation.h>
 
-namespace Dali::Graphics
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+
+namespace Dali::Graphics::Vulkan
 {
+
+/**
+ * @brief Custom deleter for all Graphics objects created
+ * with use of the Controller.
+ *
+ * When Graphics object dies the unique pointer (Graphics::UniquePtr)
+ * doesn't destroy it directly but passes the ownership back
+ * to the Controller. The VKDeleter is responsible for passing
+ * the object to the discard queue (by calling Resource::DiscardResource()).
+ */
+template<typename T>
+struct VKDeleter
+{
+  VKDeleter() = default;
+
+  void operator()(T* object)
+  {
+    // Discard resource (add it to discard queue)
+    object->DiscardResource();
+  }
+};
+
+/**
+ * @brief Helper function allocating graphics object
+ *
+ * @param[in] info Create info structure
+ * @param[in] controller Controller object
+ * @param[out] out Unique pointer to the return object
+ */
+template<class VKType, class GfxCreateInfo, class T>
+auto NewObject(const GfxCreateInfo& info, VulkanGraphicsController& controller, T&& oldObject)
+{
+  // Use allocator
+  using Type = typename T::element_type;
+  using UPtr = Dali::Graphics::UniquePtr<Type>;
+  if(info.allocationCallbacks)
+  {
+    auto* memory = info.allocationCallbacks->allocCallback(
+      sizeof(VKType),
+      0,
+      info.allocationCallbacks->userData);
+    return UPtr(new(memory) VKType(info, controller), VKDeleter<VKType>());
+  }
+  else // Use standard allocator
+  {
+    // We are given all object for recycling
+    if(oldObject)
+    {
+      auto reusedObject = oldObject.release();
+      // If succeeded, attach the object to the unique_ptr and return it back
+      if(static_cast<VKType*>(reusedObject)->TryRecycle(info, controller))
+      {
+        return UPtr(reusedObject, VKDeleter<VKType>());
+      }
+      else
+      {
+        // can't reuse so kill object by giving it back to original
+        // unique pointer.
+        oldObject.reset(reusedObject);
+      }
+    }
+
+    // Create brand new object
+    return UPtr(new VKType(info, controller), VKDeleter<VKType>());
+  }
+}
+
+template<class T0, class T1>
+T0* CastObject(T1* apiObject)
+{
+  return static_cast<T0*>(apiObject);
+}
+
+
 
 struct VulkanGraphicsController::Impl
 {
-  Impl(VulkanGraphicsController& controller)
-  : mGraphicsController(controller)
+  explicit Impl(VulkanGraphicsController& controller)
+  : mGraphicsController(controller),
+    mGraphicsDevice(nullptr)
   {
   }
 
-  bool Initialize()
+  bool Initialize(Vulkan::Device& device)
   {
+    mGraphicsDevice = &device;
+
     // Create factories.
     // Create pipeline cache
-    // Create DescriptorSetAllocator
     // Initialize thread pool
     return true;
   }
 
   VulkanGraphicsController& mGraphicsController;
-  Vulkan::Device mGraphicsDevice; // @todo You don't own me!
+  Vulkan::Device* mGraphicsDevice;
 };
 
 VulkanGraphicsController::VulkanGraphicsController()
@@ -46,20 +125,12 @@ VulkanGraphicsController::VulkanGraphicsController()
 {
 }
 
-VulkanGraphicsController::~VulkanGraphicsController()
-{
-}
+VulkanGraphicsController::~VulkanGraphicsController() = default;
 
-void VulkanGraphicsController::Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation)
+void VulkanGraphicsController::Initialize(Dali::Graphics::VulkanGraphics& graphicsImplementation,
+                                          Vulkan::Device& graphicsDevice)
 {
-  mImpl->mGraphicsDevice.Create();
-  mImpl->mGraphicsDevice.CreateDevice();
-  mImpl->Initialize();
-}
-
-Vulkan::Device& VulkanGraphicsController::GetGraphicsDevice() const
-{
-  return mImpl->mGraphicsDevice;
+  mImpl->Initialize(graphicsDevice);
 }
 
 Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
@@ -100,7 +171,7 @@ void VulkanGraphicsController::UpdateTextures(const std::vector<TextureUpdateInf
 {
 }
 
-void VulkanGraphicsController::GenerateTextureMipmaps(const Texture& texture)
+void VulkanGraphicsController::GenerateTextureMipmaps(const Graphics::Texture& texture)
 {
 }
 
@@ -127,60 +198,65 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
   return true;
 }
 
-UniquePtr<Buffer> VulkanGraphicsController::CreateBuffer(const BufferCreateInfo& bufferCreateInfo, UniquePtr<Buffer>&& oldBuffer)
+UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
 {
-  return UniquePtr<Buffer>{};
+  return UniquePtr<Graphics::Buffer>{};
 }
 
-UniquePtr<CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<CommandBuffer>&& oldCommandBuffer)
+UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
-  return UniquePtr<CommandBuffer>{};
+  return UniquePtr<Graphics::CommandBuffer>{};
 }
 
-UniquePtr<RenderPass> VulkanGraphicsController::CreateRenderPass(const RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<RenderPass>&& oldRenderPass)
+UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-  return UniquePtr<RenderPass>{};
+  return UniquePtr<Graphics::RenderPass>{};
 }
 
-UniquePtr<Texture> VulkanGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, UniquePtr<Texture>&& oldTexture)
+UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
 {
-  return UniquePtr<Texture>{};
+  return UniquePtr<Graphics::Texture>{};
 }
 
-UniquePtr<Framebuffer> VulkanGraphicsController::CreateFramebuffer(const FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Framebuffer>&& oldFramebuffer)
+UniquePtr<Graphics::Framebuffer> VulkanGraphicsController::CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer)
 {
-  return UniquePtr<Framebuffer>{};
+  return UniquePtr<Graphics::Framebuffer>{};
 }
 
-UniquePtr<Pipeline> VulkanGraphicsController::CreatePipeline(const PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Pipeline>&& oldPipeline)
+UniquePtr<Graphics::Pipeline> VulkanGraphicsController::CreatePipeline(const Graphics::PipelineCreateInfo& pipelineCreateInfo, UniquePtr<Graphics::Pipeline>&& oldPipeline)
 {
-  return UniquePtr<Pipeline>{};
+  return UniquePtr<Graphics::Pipeline>{};
 }
 
-UniquePtr<Program> VulkanGraphicsController::CreateProgram(const ProgramCreateInfo& programCreateInfo, UniquePtr<Program>&& oldProgram)
+UniquePtr<Graphics::Program> VulkanGraphicsController::CreateProgram(const Graphics::ProgramCreateInfo& programCreateInfo, UniquePtr<Graphics::Program>&& oldProgram)
 {
-  return UniquePtr<Program>{};
+  return UniquePtr<Graphics::Program>{};
 }
 
-UniquePtr<Shader> VulkanGraphicsController::CreateShader(const ShaderCreateInfo& shaderCreateInfo, UniquePtr<Shader>&& oldShader)
+UniquePtr<Graphics::Shader> VulkanGraphicsController::CreateShader(const Graphics::ShaderCreateInfo& shaderCreateInfo, UniquePtr<Graphics::Shader>&& oldShader)
 {
-  return UniquePtr<Shader>{};
+  return UniquePtr<Graphics::Shader>{};
 }
 
-UniquePtr<Sampler> VulkanGraphicsController::CreateSampler(const SamplerCreateInfo& samplerCreateInfo, UniquePtr<Sampler>&& oldSampler)
+UniquePtr<Graphics::Sampler> VulkanGraphicsController::CreateSampler(const Graphics::SamplerCreateInfo& samplerCreateInfo, UniquePtr<Graphics::Sampler>&& oldSampler)
 {
-  return UniquePtr<Sampler>{};
+  return UniquePtr<Graphics::Sampler>{};
 }
 
-UniquePtr<RenderTarget> VulkanGraphicsController::CreateRenderTarget(const RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<RenderTarget>&& oldRenderTarget)
+UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
-  return UniquePtr<RenderTarget>{};
+  return UniquePtr<Graphics::RenderTarget>{};
 }
 
-UniquePtr<SyncObject> VulkanGraphicsController::CreateSyncObject(const SyncObjectCreateInfo& syncObjectCreateInfo,
-                                                                 UniquePtr<SyncObject>&&     oldSyncObject)
+UniquePtr<Graphics::Surface> VulkanGraphicsController::CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&&oldSurface)
 {
-  return UniquePtr<SyncObject>{};
+  return NewObject<Graphics::Vulkan::Surface>(createInfo, *this, std::move(oldSurface));
+}
+
+UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const Graphics::SyncObjectCreateInfo& syncObjectCreateInfo,
+                                                                 UniquePtr<Graphics::SyncObject>&&     oldSyncObject)
+{
+  return UniquePtr<Graphics::SyncObject>{};
 }
 
 UniquePtr<Memory> VulkanGraphicsController::MapBufferRange(const MapBufferInfo& mapInfo)
@@ -197,27 +273,27 @@ void VulkanGraphicsController::UnmapMemory(UniquePtr<Memory> memory)
 {
 }
 
-MemoryRequirements VulkanGraphicsController::GetTextureMemoryRequirements(Texture& texture) const
+MemoryRequirements VulkanGraphicsController::GetTextureMemoryRequirements(Graphics::Texture& texture) const
 {
   return MemoryRequirements{};
 }
 
-MemoryRequirements VulkanGraphicsController::GetBufferMemoryRequirements(Buffer& buffer) const
+MemoryRequirements VulkanGraphicsController::GetBufferMemoryRequirements(Graphics::Buffer& buffer) const
 {
   return MemoryRequirements{};
 }
 
-TextureProperties VulkanGraphicsController::GetTextureProperties(const Texture& texture)
+TextureProperties VulkanGraphicsController::GetTextureProperties(const Graphics::Texture& texture)
 {
   return TextureProperties{};
 }
 
-const Reflection& VulkanGraphicsController::GetProgramReflection(const Program& program)
+const Reflection& VulkanGraphicsController::GetProgramReflection(const Graphics::Program& program)
 {
   return *(reinterpret_cast<Reflection*>(0));
 }
 
-bool VulkanGraphicsController::PipelineEquals(const Pipeline& pipeline0, const Pipeline& pipeline1) const
+bool VulkanGraphicsController::PipelineEquals(const Graphics::Pipeline& pipeline0, const Graphics::Pipeline& pipeline1) const
 {
   return true;
 }
@@ -251,5 +327,16 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
 {
   return "";
 }
+
+void VulkanGraphicsController::Add(Surface* surface)
+{
+  // Don't store, it's already in Device...
+}
+
+void VulkanGraphicsController::DiscardResource(Surface* surface)
+{
+  mImpl->mGraphicsDevice->DestroySurface(surface->GetCreateInfo().framebufferId);
+}
+
 
 } //namespace Dali::Graphics

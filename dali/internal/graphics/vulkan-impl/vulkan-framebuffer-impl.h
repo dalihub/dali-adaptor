@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -20,11 +20,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 enum class AttachmentType
@@ -52,15 +48,15 @@ public:
   static FramebufferAttachment* NewDepthAttachment( ImageView* imageView,
                                                    vk::ClearDepthStencilValue clearDepthStencilValue );
 
-  ImageView* GetImageView() const;
+  [[nodiscard]] ImageView* GetImageView() const;
 
-  const vk::AttachmentDescription& GetDescription() const;
+  [[nodiscard]] const vk::AttachmentDescription& GetDescription() const;
 
-  const vk::ClearValue& GetClearValue() const;
+  [[nodiscard]] const vk::ClearValue& GetClearValue() const;
 
-  AttachmentType GetType() const;
+  [[nodiscard]] AttachmentType GetType() const;
 
-  bool IsValid() const;
+  [[nodiscard]] bool IsValid() const;
 
 private:
   FramebufferAttachment() = default;
@@ -70,10 +66,10 @@ private:
                          AttachmentType type,
                          bool presentable  );
 
-  ImageView* mImageView;
+  ImageView* mImageView{nullptr};
   vk::AttachmentDescription mDescription;
   vk::ClearValue mClearValue;
-  AttachmentType mType;
+  AttachmentType mType{AttachmentType::UNDEFINED};
 };
 
 /**
@@ -87,21 +83,21 @@ class Framebuffer : public VkManaged
 public:
   friend class Device;
 
-  uint32_t GetWidth() const;
+  [[nodiscard]] uint32_t GetWidth() const;
 
-  uint32_t GetHeight() const;
+  [[nodiscard]] uint32_t GetHeight() const;
 
-  FramebufferAttachment* GetAttachment( AttachmentType type, uint32_t index ) const;
+  [[nodiscard]] FramebufferAttachment* GetAttachment( AttachmentType type, uint32_t index ) const;
 
-  std::vector<FramebufferAttachment*> GetAttachments( AttachmentType type ) const;
+  [[nodiscard]] std::vector<FramebufferAttachment*> GetAttachments( AttachmentType type ) const;
 
-  uint32_t GetAttachmentCount( AttachmentType type ) const;
+  [[nodiscard]] uint32_t GetAttachmentCount( AttachmentType type ) const;
 
-  vk::RenderPass GetRenderPass() const;
+  [[nodiscard]] vk::RenderPass GetRenderPass() const;
 
-  vk::Framebuffer GetVkHandle() const;
+  [[nodiscard]] vk::Framebuffer GetVkHandle() const;
 
-  std::vector< vk::ClearValue > GetClearValues() const;
+  [[nodiscard]] std::vector< vk::ClearValue > GetClearValues() const;
 
   bool OnDestroy() override;
 
@@ -129,11 +125,7 @@ private:
   bool mExternalRenderPass;
 };
 
+} // Namespace Dali::Graphics::Vulkan
 
-} // Namespace Vulkan
 
-} // Namespace Graphics
-
-} // Namespace Dali
-
-#endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMPL_FRAMEBUFFER_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H

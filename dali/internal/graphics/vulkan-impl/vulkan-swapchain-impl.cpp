@@ -17,8 +17,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 
 #if 0
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
@@ -31,11 +31,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-debug.h>
 #endif
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 namespace
@@ -99,7 +95,7 @@ SwapchainBuffer::~SwapchainBuffer()
 
 Swapchain::Swapchain(Device& graphicsDevice,
                      Queue& presentationQueue,
-                     Surface* surface,
+                     SurfaceImpl* surface,
                      std::vector< Framebuffer* >&& framebuffers,
                      vk::SwapchainCreateInfoKHR createInfo,
                      vk::SwapchainKHR vkHandle)
@@ -121,7 +117,7 @@ vk::SwapchainKHR Swapchain::GetVkHandle() const
   return mSwapchainKHR;
 }
 
-
+/*
 #if 0
 RefCountedFramebuffer Swapchain::GetCurrentFramebuffer() const
 {
@@ -373,7 +369,7 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
     // A new color attachment for each framebuffer
     auto colorAttachment = FramebufferAttachment::NewColorAttachment( colorImageView,
                                                                       clearColor,
-                                                                      true /* presentable */ );
+                                                                      true );//presentable
 
     framebuffers.push_back( mGraphics->CreateFramebuffer( { colorAttachment },
                                                depthAttachment,
@@ -439,7 +435,8 @@ uint32_t Swapchain::GetImageCount() const
   return uint32_t(mFramebuffers.size());
 }
 #endif
+*/
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan::Internal
+
+

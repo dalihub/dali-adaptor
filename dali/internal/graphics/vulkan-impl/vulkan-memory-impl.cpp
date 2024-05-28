@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {

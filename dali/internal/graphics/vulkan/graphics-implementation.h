@@ -23,12 +23,12 @@
 #include <dali/internal/graphics/common/surface-factory.h>
 
 // EXTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <memory>
 
-namespace Dali
-{
-namespace Graphics
+
+namespace Dali::Graphics
 {
 
 /**
@@ -49,7 +49,7 @@ public:
    * @param surfaceFactory
    * @return
    */
-  std::unique_ptr<Dali::Graphics::Surface> CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory ) override;
+  Graphics::UniquePtr<Dali::Graphics::Surface> CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory) override;
 
   void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
 
@@ -76,12 +76,17 @@ public:
    */
   void SurfaceResized( unsigned int width, unsigned int height ) override;
 
+  /**
+   * Get the vulkan device
+   */
+  Dali::Graphics::Vulkan::Device& GetDevice();
+
 private:
-  Dali::Graphics::VulkanGraphicsController mGraphicsController;
+  Vulkan::Device mGraphicsDevice;
+  Vulkan::VulkanGraphicsController mGraphicsController;
 };
 
+} // Namespace Dali::Graphics
 
-} // Namespace Graphics
-} // Namespace Dali
 
 #endif // DALI_GRAPHICS_VULKAN_GRAPHICS_IMPLEMENTATION_H

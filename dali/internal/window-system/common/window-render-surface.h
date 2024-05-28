@@ -23,14 +23,13 @@
 
 // EXTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 #include <dali/public-api/signals/connection-tracker.h>
 #include <dali/public-api/signals/dali-signal.h>
 #include <memory>
 
 namespace Dali
 {
-
 namespace Integration
 {
 class Surface;
@@ -38,11 +37,8 @@ class Surface;
 
 class TriggerEventInterface;
 
-namespace Internal
+namespace Internal::Adaptor
 {
-namespace Adaptor
-{
-
 class WindowBase;
 class AdaptorInternalServices;
 
@@ -112,6 +108,14 @@ public: // API
    * @return The window base object
    */
   WindowBase* GetWindowBase();
+
+  /**
+   * Get the graphics surface associated with this window
+   */
+  Dali::Graphics::Surface* GetGraphicsSurface()
+  {
+    return mGraphicsSurface.get();
+  }
 
   /**
    * @brief This signal is emitted when the output is transformed.
@@ -247,13 +251,10 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  std::unique_ptr<Dali::Graphics::Surface> mGraphicsSurface;
+  Graphics::UniquePtr<Dali::Graphics::Surface> mGraphicsSurface;
 }; // class WindowRenderSurface
 
-} // namespace Adaptor
-
-} // namespace internal
-
+} // namespace Internal::Adaptor
 } // namespace Dali
 
 #endif // DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H

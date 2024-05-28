@@ -26,7 +26,6 @@ SET( graphics_src_dir ${ADAPTOR_ROOT}/dali/graphics )
 
 include( ${ADAPTOR_ROOT}/dali/devel-api/file.list )
 include( ${ADAPTOR_ROOT}/dali/file.list )
-include( ${ADAPTOR_ROOT}/dali/graphics/file.list )
 include( ${ADAPTOR_ROOT}/dali/integration-api/file.list )
 include( ${ADAPTOR_ROOT}/dali/internal/accessibility/file.list )
 include( ${ADAPTOR_ROOT}/dali/internal/adaptor/file.list )

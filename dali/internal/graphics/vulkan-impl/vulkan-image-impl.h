@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_IMAGE
-#define DALI_GRAPHICS_VULKAN_IMAGE
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -20,11 +20,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 class Device;
@@ -40,65 +36,65 @@ public:
    * Returns underlying Vulkan object
    * @return
    */
-  vk::Image GetVkHandle() const;
+  [[nodiscard]] vk::Image GetVkHandle() const;
 
   /**
    * Returns VkImageLayout associated with the image
    * @return
    */
-  vk::ImageLayout GetImageLayout() const;
+  [[nodiscard]] vk::ImageLayout GetImageLayout() const;
 
   /**
    * Returns width in pixels
    * @return
    */
-  uint32_t GetWidth() const;
+  [[nodiscard]] uint32_t GetWidth() const;
 
   /**
    * Returns height in pixels
    * @return
    */
-  uint32_t GetHeight() const;
+  [[nodiscard]] uint32_t GetHeight() const;
 
   /**
    * Returns number of layers
    * @return
    */
-  uint32_t GetLayerCount() const;
+  [[nodiscard]] uint32_t GetLayerCount() const;
 
   /**
    * Returns number of mipmap levels
    * @return
    */
-  uint32_t GetMipLevelCount() const;
+  [[nodiscard]] uint32_t GetMipLevelCount() const;
 
   /**
    * Returns pixel format
    * @return
    */
-  vk::Format GetFormat() const;
+  [[nodiscard]] vk::Format GetFormat() const;
 
   /**
    * returns image type ( VkImageType)
    * @return
    */
-  vk::ImageType GetImageType() const;
+  [[nodiscard]] vk::ImageType GetImageType() const;
 
   /**
    * Returns used image tiling mode
    * @return
    */
-  vk::ImageTiling GetImageTiling() const;
+  [[nodiscard]] vk::ImageTiling GetImageTiling() const;
 
-  vk::ImageAspectFlags GetAspectFlags() const;
+  [[nodiscard]] vk::ImageAspectFlags GetAspectFlags() const;
 
   /**
    *
    * @return
    */
-  vk::ImageUsageFlags GetUsageFlags() const;
+  [[nodiscard]] vk::ImageUsageFlags GetUsageFlags() const;
 
-  vk::SampleCountFlagBits GetSampleCount() const;
+  [[nodiscard]] vk::SampleCountFlagBits GetSampleCount() const;
 
   void SetImageLayout( vk::ImageLayout imageLayout );
 
@@ -108,7 +104,7 @@ public:
 
   bool OnDestroy() override;
 
-  Memory* GetMemory() const
+  [[nodiscard]] Memory* GetMemory() const
   {
     return mDeviceMemory.get();
   }
@@ -151,10 +147,10 @@ private:
   bool mIsExternal;
 };
 
-} // namespace Vulkan
+} // namespace Dali::Graphics::Vulkan
 
-} // namespace Graphics
 
-} // namespace Dali
 
-#endif // DALI_GRAPHICS_VULKAN_IMAGE
+
+
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_IMPL_H

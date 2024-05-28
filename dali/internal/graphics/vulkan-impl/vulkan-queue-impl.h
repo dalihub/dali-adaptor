@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE
-#define DALI_INTERNALGRAPHICS_VULKAN_QUEUE
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -23,15 +23,10 @@
 
 #include <mutex>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 class CommandBuffer;
 class Fence;
-
 
 struct SubmissionData
 {
@@ -85,10 +80,7 @@ private:
   std::recursive_mutex mMutex;
 };
 
-} // namespace Vulkan
+} // namespace Dali::Graphics::Vulkan
 
-} // namespace Graphics
 
-} // namespace Dali
-
-#endif // DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H

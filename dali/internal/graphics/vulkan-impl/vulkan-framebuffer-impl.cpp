@@ -15,28 +15,21 @@
  *
  */
 
-#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 
 #include <dali/integration-api/debug.h>
-
-#include <utility>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
 #endif
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
-//FramebufferAttachment ------------------------
 FramebufferAttachment* FramebufferAttachment::NewColorAttachment(ImageView* imageView,
                                                                  vk::ClearColorValue clearColorValue,
                                                                  bool presentable )
@@ -78,14 +71,7 @@ FramebufferAttachment::FramebufferAttachment( ImageView* imageView,
 
   mDescription.setSamples( sampleCountFlags );
 
-  if( type == AttachmentType::DEPTH_STENCIL )
-  {
-    mDescription.setStoreOp( vk::AttachmentStoreOp::eStore );
-  }
-  else
-  {
-    mDescription.setStoreOp( vk::AttachmentStoreOp::eStore );
-  }
+  mDescription.setStoreOp( vk::AttachmentStoreOp::eStore );
   mDescription.setStencilStoreOp( vk::AttachmentStoreOp::eStore );
   mDescription.setStencilLoadOp( vk::AttachmentLoadOp::eClear );
   mDescription.setFormat( image->GetFormat() );
@@ -287,6 +273,6 @@ bool Framebuffer::OnDestroy()
 
 } // Namespace Vulkan
 
-} // Namespace Graphics
+// Namespace Graphics
 
-} // Namespace Dali
+// Namespace Dali

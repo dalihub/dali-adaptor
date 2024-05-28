@@ -32,9 +32,8 @@
 #undef WAYLAND
 #endif
 
-namespace Dali
-{
-namespace Graphics
+
+namespace Dali::Graphics
 {
 
 namespace
@@ -79,12 +78,12 @@ class Texture;
 /**
  * Unique pointers to Vulkan types
  */
-using UniqueQueue         = std::unique_ptr< Queue >;
+using UniqueQueue = std::unique_ptr< Queue >;
 
 /**
  * Reference wrappers
  */
-using QueueRef         = std::reference_wrapper< Queue >;
+using QueueRef = std::reference_wrapper< Queue >;
 
 template< typename T >
 T VkAssert( const vk::ResultValue< T >& result, vk::Result expected = vk::Result::eSuccess )
@@ -128,8 +127,6 @@ inline double F64( T value )
 {
   return static_cast< double >( value );
 }
-
-using FBID = int32_t;
 
 enum class Platform
 {
@@ -196,7 +193,7 @@ private:
 
 
 } // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics
+
 
 #endif // DALI_GRAPHICS_VULKAN_TYPES

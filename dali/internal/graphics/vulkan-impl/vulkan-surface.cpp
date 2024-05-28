@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,68 +12,38 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
+// CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
 
-#include <dali/integration-api/debug.h>
+// INTERNAL INCLUDES
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
-#if defined(DEBUG_ENABLED)
-extern Debug::Filter* gVulkanFilter;
-#endif
-
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
-Surface::Surface( Device& device )
-: mGraphicsDevice( &device )
+Surface::Surface(const Graphics::SurfaceCreateInfo& createInfo,
+                 VulkanGraphicsController& graphicsController)
+: SurfaceResource(createInfo, graphicsController)
 {
+  graphicsController.Add(this);
 }
 
 Surface::~Surface() = default;
 
-vk::SurfaceKHR Surface::GetVkHandle() const
+bool Surface::InitializeResource()
 {
-  return mSurface;
+  return true;
 }
 
-const vk::SurfaceCapabilitiesKHR& Surface::GetCapabilities() const
+void Surface::DestroyResource()
 {
-  return mCapabilities;
 }
 
-void Surface::UpdateSize( unsigned int width, unsigned int height )
+void Surface::DiscardResource()
 {
-  mCapabilities.currentExtent.width = width;
-  mCapabilities.currentExtent.height = height;
+  mController.DiscardResource(this);
 }
 
-bool Surface::OnDestroy()
-{
-  if( mSurface )
-  {
-    auto instance = mGraphicsDevice->GetInstance();
-    auto surface = mSurface;
-    auto allocator = &mGraphicsDevice->GetAllocator();
-
-    mGraphicsDevice->DiscardResource( [ instance, surface, allocator ]() {
-      DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: surface->%p\n",
-                     static_cast< VkSurfaceKHR >( surface ) )
-      instance.destroySurfaceKHR( surface, allocator );
-    } );
-
-    mSurface = nullptr;
-  }
-  return false;
-}
-
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan

@@ -16,8 +16,8 @@
  */
 
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-memory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
 #include <dali/integration-api/debug.h>
 
 #if defined(DEBUG_ENABLED)
@@ -151,7 +151,7 @@ vk::SampleCountFlagBits Image::GetSampleCount() const
 void Image::DestroyNow()
 {
   DestroyVulkanResources(mGraphicsDevice->GetDevice(), mImage, mDeviceMemory->ReleaseVkObject(),
-			 &mGraphicsDevice->GetAllocator() );
+       &mGraphicsDevice->GetAllocator() );
   mImage = nullptr;
   mDeviceMemory = nullptr;
 }

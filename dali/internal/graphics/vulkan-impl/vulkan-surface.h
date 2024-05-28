@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE
-#define DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H
 
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,59 +15,46 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/graphics-api/graphics-surface.h>
+#include <dali/graphics-api/graphics-controller.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
-class Device;
+using SurfaceResource = Resource<Graphics::Surface, Graphics::SurfaceCreateInfo>;
 
-class Surface : public VkManaged
+/**
+ * Structure to manager lifecycle of graphics surface.
+ */
+class Surface : public SurfaceResource
 {
-  friend class Device;
-
 public:
+  Surface(const Graphics::SurfaceCreateInfo& createInfo,
+          VulkanGraphicsController& graphicsController);
 
-  ~Surface() final;
+  ~Surface() override;
 
   /**
+   * @brief Called when GPU resources are destroyed
+   */
+  void DestroyResource() override;
+
+  /**
+   * @brief Called when initializing the resource
    *
-   * @return
+   * @return True on success
    */
-  vk::SurfaceKHR GetVkHandle() const;
+  bool InitializeResource() override;
 
   /**
-   * Returns size of surface
-   * @return
+   * @brief Called when UniquePtr<> on client-side dies
    */
-  const vk::SurfaceCapabilitiesKHR& GetCapabilities() const;
-
-  /**
-   * Update size of surface
-   */
-  void UpdateSize( unsigned int width, unsigned int height );
-
-  bool OnDestroy() override;
-
-private:
-  Surface( Device& device );
-
-private:
-  Device* mGraphicsDevice;
-  vk::SurfaceKHR mSurface;
-  vk::SurfaceCapabilitiesKHR mCapabilities;
+  void DiscardResource() override;
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
-#endif // DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE
+#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H

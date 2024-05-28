@@ -147,7 +147,14 @@ void Window::SetAdaptor(Adaptor& adaptor)
   // Create scene for the window
   PositionSize positionSize = mSurface->GetPositionSize();
   mScene = Dali::Integration::Scene::New( Vector2( positionSize.width, positionSize.height ) );
-  mScene.SetSurface( *mSurface.get() );
+
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(mSurface->GetGraphicsSurface())
+    .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mScene.SetSurface( *mSurface.get(), rtInfo );
 
   unsigned int dpiHorizontal, dpiVertical;
   dpiHorizontal = dpiVertical = 0;
@@ -183,7 +190,13 @@ void Window::SetSurface(WindowRenderSurface* surface)
 {
   mSurface.reset( surface );
 
-  mScene.SetSurface( *mSurface.get() );
+  Graphics::RenderTargetCreateInfo rtInfo{};
+  rtInfo
+    .SetSurface(mSurface->GetGraphicsSurface())
+    .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
+    .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
+
+  mScene.SetSurface( *mSurface.get(), rtInfo );
 
   unsigned int dpiHorizontal, dpiVertical;
   dpiHorizontal = dpiVertical = 0;

@@ -22,13 +22,7 @@
 #include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
-{
-
-namespace Internal
-{
-
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 class DALI_ADAPTOR_API GraphicsFactory : public GraphicsFactoryInterface
@@ -39,32 +33,27 @@ public:
   /**
    * Constructor
    */
-  GraphicsFactory( EnvironmentOptions& environmentOptions );
+  explicit GraphicsFactory(EnvironmentOptions& environmentOptions);
 
   /**
    * Destructor
    */
-  virtual ~GraphicsFactory();
+  ~GraphicsFactory() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  Graphics::GraphicsInterface& Create( PositionSize positionSize ) override;
+  Graphics::GraphicsInterface& Create(PositionSize positionSize) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
    */
-  void Destroy();
+  void Destroy() override;
 
 private:
   EnvironmentOptions& mEnvironmentOptions;
-
 };
 
-} // Adaptor
-
-} // Internal
-
-} // Dali
+} // Dali::Internal::Adaptor
 
 #endif // DALI_GRAPHICS_VULKAN_GRAPHICS_FACTORY_H

@@ -25,20 +25,18 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/common/surface-factory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
+#include <dali/graphics-api/graphics-types.h>
 
 #include <thread>
 #include <mutex>
 #include <map>
 #include <functional>
 
-
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 // Consider using Graphics::UniquePtr<Vulkan::Swapchain>& ?
@@ -48,7 +46,7 @@ namespace Vulkan
 struct SwapchainSurfacePair
 {
   Swapchain* swapchain;
-  Surface* surface;
+  SurfaceImpl* surface;
 };
 
 class Device
@@ -68,16 +66,16 @@ public: // Create methods
 
   void CreateDevice();
 
-  FBID CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
-                      const Dali::Graphics::GraphicsCreateInfo& createInfo );
+  Graphics::FramebufferId CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
+                                         const Dali::Graphics::GraphicsCreateInfo& createInfo );
 
-  void DestroySurface( Dali::Graphics::FBID framebufferId );
+  void DestroySurface( Dali::Graphics::FramebufferId framebufferId );
 
-  Swapchain* CreateSwapchainForSurface( Surface* surface );
+  Swapchain* CreateSwapchainForSurface( SurfaceImpl* surface );
 
-  Swapchain* ReplaceSwapchainForSurface( Surface* surface, Swapchain*&& oldSwapchain);
+  Swapchain* ReplaceSwapchainForSurface( SurfaceImpl* surface, Swapchain*&& oldSwapchain);
 
-  Swapchain* CreateSwapchain( Surface* surface, vk::Format requestedFormat,
+  Swapchain* CreateSwapchain( SurfaceImpl* surface, vk::Format requestedFormat,
                               vk::PresentModeKHR presentMode,
                               uint32_t bufferCount,
                               Swapchain*&& oldSwapchain );
@@ -88,11 +86,11 @@ public: // Create methods
 
 
 public: // Getters
-  Surface* GetSurface( FBID surfaceId );
+  SurfaceImpl* GetSurface( Graphics::FramebufferId surfaceId );
 
-  Swapchain* GetSwapchainForSurface( Surface* surface );
+  Swapchain* GetSwapchainForSurface( SurfaceImpl* surface );
 
-  Swapchain* GetSwapchainForFBID( FBID surfaceId );
+  Swapchain* GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId );
 
   vk::Device GetDevice() const;
 
@@ -181,9 +179,9 @@ private: // Members
   std::vector< Queue* > mTransferQueues;
   std::vector< Queue* > mComputeQueues;
 
-  std::unordered_map< FBID, SwapchainSurfacePair > mSurfaceFBIDMap;
-  bool mSurfaceResized;
-  FBID mBaseFBID{0u};
+  std::unordered_map< Graphics::FramebufferId, SwapchainSurfacePair > mSurfaceFBIDMap;
+  bool mSurfaceResized{false};
+  Graphics::FramebufferId mBaseFramebufferId{0u};
 
   Platform mPlatform{Platform::UNDEFINED};
   uint32_t mCurrentBufferIndex{0u};
@@ -194,8 +192,6 @@ private: // Members
 
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
 #endif // DALI_GRAPHICS_VULKAN_DEVICE_H

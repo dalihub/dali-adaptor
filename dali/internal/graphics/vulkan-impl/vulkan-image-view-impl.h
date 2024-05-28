@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_IMAGE_VIEW
-#define DALI_GRAPHICS_VULKAN_IMAGE_VIEW
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_VIEW_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_VIEW_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -20,11 +20,7 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 class Device;
@@ -44,31 +40,31 @@ public:
    *
    * @return
    */
-  vk::ImageView GetVkHandle() const;
+  [[nodiscard]] vk::ImageView GetVkHandle() const;
 
   /**
    * Returns bound Image
    * @return
    */
-  const Image* GetImage() const;
+  [[nodiscard]] const Image* GetImage() const;
 
   /**
    *
    * @return
    */
-  uint32_t GetLayerCount() const;
+  [[nodiscard]] uint32_t GetLayerCount() const;
 
   /**
    *
    * @return
    */
-  uint32_t GetMipLevelCount() const;
+  [[nodiscard]] uint32_t GetMipLevelCount() const;
 
   /**
    *
    * @return
    */
-  vk::ImageAspectFlags GetImageAspectMask() const;
+  [[nodiscard]] vk::ImageAspectFlags GetImageAspectMask() const;
 
   const ImageView& ConstRef();
 
@@ -88,8 +84,8 @@ private:
   vk::ImageView mImageView;
 };
 
-} //namespace Vulkan
-} //namespace Graphics
-} //namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_GRAPHICS_VULKAN_IMAGE_VIEW
+
+
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_VIEW_IMPL_H

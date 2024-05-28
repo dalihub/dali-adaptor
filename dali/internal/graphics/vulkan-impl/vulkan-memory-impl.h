@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -60,7 +60,7 @@ public:
    */
   vk::DeviceMemory ReleaseVkObject();
 
-  vk::DeviceMemory GetVkHandle() const;
+  [[nodiscard]] vk::DeviceMemory GetVkHandle() const;
 
 private:
   Device* graphicsDevice;
@@ -74,4 +74,4 @@ private:
 
 }//namespaces
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_H
+#endif //DALI_INTERNAL_GRAPHICS_VULKAN_MEMORY_IMPL_H

@@ -26,24 +26,17 @@
 #include <dali/integration-api/adaptor-framework/thread-synchronization-interface.h>
 
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/window-system/common/window-base.h>
 #include <dali/internal/window-system/common/window-factory.h>
 #include <dali/internal/window-system/common/window-system.h>
 
-#include <dali/graphics/surface-factory.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 
-
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 namespace
 {
-
 const int MINIMUM_DIMENSION_CHANGE( 1 ); ///< Minimum change for window to be considered to have moved
 
 #if defined(DEBUG_ENABLED)
@@ -56,9 +49,9 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
 : mDisplayConnection( nullptr ),
   mPositionSize( positionSize ),
   mWindowBase(),
-  mThreadSynchronization( NULL ),
-  mRenderNotification( NULL ),
-  mRotationTrigger( NULL ),
+  mThreadSynchronization( nullptr ),
+  mRenderNotification( nullptr ),
+  mRotationTrigger( nullptr ),
   mGraphics( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
@@ -97,7 +90,7 @@ void WindowRenderSurface::Initialize( Any surface )
 
   // Create a window base
   auto windowFactory = Dali::Internal::Adaptor::GetWindowFactory();
-  mWindowBase = windowFactory->CreateWindowBase( mPositionSize, surface, ( mColorDepth == COLOR_DEPTH_32 ? true : false ) );
+  mWindowBase = windowFactory->CreateWindowBase( mPositionSize, surface, mColorDepth == COLOR_DEPTH_32);
 
   // Connect signals
   mWindowBase->OutputTransformedSignal().Connect( this, &WindowRenderSurface::OutputTransformed );
@@ -193,7 +186,7 @@ void WindowRenderSurface::CreateSurface()
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
   auto surfaceFactory = Graphics::SurfaceFactory::New(*this);
-  mGraphicsSurface = std::move( mGraphics->CreateSurface( *surfaceFactory.get() ) );
+  mGraphicsSurface = mGraphics->CreateSurface( *surfaceFactory ) ;
 
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
@@ -354,8 +347,8 @@ void WindowRenderSurface::ProcessRotationRequest()
   }
 }
 
-} // namespace Adaptor
+} // namespace Dali::Internal::Adaptor
 
-} // namespace internal
+// namespace internal
 
-} // namespace Dali
+

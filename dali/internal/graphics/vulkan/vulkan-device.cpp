@@ -20,11 +20,11 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/integration-api/debug.h>
 
 #ifndef VK_KHR_XLIB_SURFACE_EXTENSION_NAME
@@ -46,11 +46,7 @@
 Debug::Filter* gVulkanFilter = Debug::Filter::New(Debug::Concise, false, "LOG_VULKAN");
 #endif
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 auto reqLayers = std::vector< const char* >{
@@ -208,8 +204,9 @@ void Device::CreateDevice()
   // }
 }
 
-FBID Device::CreateSurface(Dali::Graphics::SurfaceFactory& surfaceFactory,
-                           const Dali::Graphics::GraphicsCreateInfo& createInfo )
+Graphics::FramebufferId Device::CreateSurface(
+  Dali::Graphics::SurfaceFactory& surfaceFactory,
+  const Dali::Graphics::GraphicsCreateInfo& createInfo )
 {
   auto vulkanSurfaceFactory = dynamic_cast<Dali::Graphics::Vulkan::SurfaceFactory*>( &surfaceFactory );
 
@@ -219,13 +216,10 @@ FBID Device::CreateSurface(Dali::Graphics::SurfaceFactory& surfaceFactory,
   }
 
   // create surface from the factory
-  Surface* surface = new Surface( *this );
-
-  surface->mSurface = vulkanSurfaceFactory->Create( mInstance,
-                                                    mAllocator.get(),
-                                                    mPhysicalDevice );
-
-  if( !surface->mSurface )
+  auto* surface = new SurfaceImpl( *this, vulkanSurfaceFactory->Create( mInstance,
+                                                                        mAllocator.get(),
+                                                                        mPhysicalDevice ));
+  if( !surface->GetVkHandle() )
   {
     return -1;
   }
@@ -233,7 +227,7 @@ FBID Device::CreateSurface(Dali::Graphics::SurfaceFactory& surfaceFactory,
   VkBool32 supported( VK_FALSE );
   for( auto i = 0u; i < mQueueFamilyProperties.size(); ++i )
   {
-    auto result = mPhysicalDevice.getSurfaceSupportKHR( i, surface->mSurface, &supported );
+    auto result = mPhysicalDevice.getSurfaceSupportKHR( i, surface->GetVkHandle(), &supported );
     if( result == vk::Result::eSuccess && supported )
     {
       break;
@@ -242,23 +236,23 @@ FBID Device::CreateSurface(Dali::Graphics::SurfaceFactory& surfaceFactory,
 
   assert( supported && "There is no queue family supporting presentation!");
 
-  surface->mCapabilities = VkAssert( mPhysicalDevice.getSurfaceCapabilitiesKHR( surface->mSurface ) );
+  surface->GetCapabilities() = VkAssert( mPhysicalDevice.getSurfaceCapabilitiesKHR( surface->GetVkHandle() ) );
 
-   // If width (and height) equals the special value 0xFFFFFFFF, the size of the surface will be set by the swapchain
-  if( surface->mCapabilities.currentExtent.width == std::numeric_limits< uint32_t >::max() )
+  // If width (and height) equals the special value 0xFFFFFFFF, the size of the surface will be set by the swapchain
+  if( surface->GetCapabilities().currentExtent.width == std::numeric_limits< uint32_t >::max() )
   {
-    surface->mCapabilities.currentExtent.width = std::max( surface->mCapabilities.minImageExtent.width,
-                                   std::min( surface->mCapabilities.maxImageExtent.width, createInfo.surfaceWidth ) );
+    surface->GetCapabilities().currentExtent.width = std::max( surface->GetCapabilities().minImageExtent.width,
+                                                               std::min( surface->GetCapabilities().maxImageExtent.width, createInfo.surfaceWidth ) );
 
-    surface->mCapabilities.currentExtent.height = std::max( surface->mCapabilities.minImageExtent.height,
-                                    std::min( surface->mCapabilities.maxImageExtent.height, createInfo.surfaceHeight ) );
+    surface->GetCapabilities().currentExtent.height = std::max( surface->GetCapabilities().minImageExtent.height,
+                                                                std::min( surface->GetCapabilities().maxImageExtent.height, createInfo.surfaceHeight ) );
 
   }
 
   mSurfaceResized = false;
 
-  // map surface to FBID
-  auto fbid = ++mBaseFBID;
+  // map surface to Framebuffer Id
+  auto fbid = ++mBaseFramebufferId;
 
   mSurfaceFBIDMap[ fbid ] = SwapchainSurfacePair{ nullptr, surface };
 
@@ -280,19 +274,18 @@ FBID Device::CreateSurface(Dali::Graphics::SurfaceFactory& surfaceFactory,
   return fbid;
 }
 
-void Device::DestroySurface( Dali::Graphics::FBID framebufferId )
+void Device::DestroySurface( Dali::Graphics::FramebufferId framebufferId )
 {
-  /*
   if( auto surface = GetSurface( framebufferId ) )
   {
     DeviceWaitIdle();
-    auto swapchain = GetSwapchainForFBID( framebufferId );
+    auto swapchain = GetSwapchainForFramebuffer( framebufferId );
     swapchain->Destroy();
     surface->Destroy();
-  }*/
+  }
 }
 
-Swapchain* Device::CreateSwapchainForSurface( Surface* surface )
+Swapchain* Device::CreateSwapchainForSurface( SurfaceImpl* surface )
 {
   DALI_ASSERT_DEBUG(surface && "Surface ptr must be allocated");
 
@@ -319,7 +312,7 @@ Swapchain* Device::CreateSwapchainForSurface( Surface* surface )
 }
 
 
-Swapchain* Device::ReplaceSwapchainForSurface( Surface* surface, Swapchain*&& oldSwapchain )
+Swapchain* Device::ReplaceSwapchainForSurface( SurfaceImpl* surface, Swapchain*&& oldSwapchain )
 {
   auto surfaceCapabilities = surface->GetCapabilities();
 
@@ -344,7 +337,7 @@ Swapchain* Device::ReplaceSwapchainForSurface( Surface* surface, Swapchain*&& ol
   return swapchain;
 }
 
-Swapchain* Device::CreateSwapchain( Surface* surface,
+Swapchain* Device::CreateSwapchain( SurfaceImpl* surface,
                                     vk::Format requestedFormat,
                                     vk::PresentModeKHR presentMode,
                                     uint32_t bufferCount,
@@ -384,7 +377,6 @@ Swapchain* Device::CreateSwapchain( Surface* surface,
       swapchainColorSpace = surfaceFormat.colorSpace;
       swapchainImageFormat = surfaceFormat.format;
     }
-
   }
 
   assert( swapchainImageFormat != vk::Format::eUndefined && "Could not find a supported swap chain image format." );
@@ -406,7 +398,6 @@ Swapchain* Device::CreateSwapchain( Surface* surface,
           vk::CompositeAlphaFlagBitsKHR::eInherit
   };
 
-
   for( const auto& compositeAlphaFlag : compositeAlphaFlags )
   {
 
@@ -415,7 +406,6 @@ Swapchain* Device::CreateSwapchain( Surface* surface,
       compositeAlpha = compositeAlphaFlag;
       break;
     }
-
   }
 
   // Determine the number of images
@@ -491,8 +481,8 @@ Swapchain* Device::CreateSwapchain( Surface* surface,
   {
     // prevent destroying the swapchain as it is handled automatically
     // during replacing the swapchain
-    auto khr = oldSwapchain->mSwapchainKHR;
-    oldSwapchain->mSwapchainKHR = nullptr;
+    auto khr = oldSwapchain->GetVkHandle();
+    oldSwapchain->SetVkHandle(nullptr);
     oldSwapchain->Release();
 
     mLogicalDevice.destroySwapchainKHR( khr, *mAllocator );
@@ -845,7 +835,7 @@ ImageView* Device::CreateImageView( Image* image )
 
 // -------------------------------------------------------------------------------------------------------
 // Getters------------------------------------------------------------------------------------------------
-Surface* Device::GetSurface( FBID surfaceId )
+SurfaceImpl* Device::GetSurface( Graphics::FramebufferId surfaceId )
 {
   // TODO: FBID == 0 means default framebuffer, but there should be no
   // such thing as default framebuffer.
@@ -856,31 +846,30 @@ Surface* Device::GetSurface( FBID surfaceId )
   return mSurfaceFBIDMap[surfaceId].surface;
 }
 
-Swapchain* Device::GetSwapchainForSurface( Surface* surface )
+Swapchain* Device::GetSwapchainForSurface( SurfaceImpl* surface )
 {
-  /*for( auto&& val : mSurfaceFBIDMap )
+  for( auto&& val : mSurfaceFBIDMap )
   {
     if( val.second.surface == surface )
     {
       return val.second.swapchain;
     }
-  }*/
+  }
   return nullptr;
 }
 
-Swapchain* Device::GetSwapchainForFBID( FBID surfaceId )
+Swapchain* Device::GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId )
 {
-  /*if( surfaceId == 0 )
+  if( surfaceId == 0 )
   {
     return mSurfaceFBIDMap.begin()
                           ->second
                           .swapchain;
   }
-  return mSurfaceFBIDMap[surfaceId].swapchain;*/
-  return nullptr;
+  return mSurfaceFBIDMap[surfaceId].swapchain;
 }
 
-vk::Device Device::GetDevice() const // @todo rename?
+vk::Device Device::GetDevice() const
 {
   return mLogicalDevice;
 }
@@ -1177,7 +1166,6 @@ std::vector< const char* > Device::PrepareDefaultInstanceExtensions()
   return retval;
 }
 
+} // namespace Dali::Graphics::Vulkan
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+

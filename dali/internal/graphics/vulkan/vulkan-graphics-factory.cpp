@@ -23,11 +23,7 @@
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/vulkan/graphics-implementation.h>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 
 GraphicsFactory::GraphicsFactory( EnvironmentOptions& environmentOptions )
@@ -35,10 +31,8 @@ GraphicsFactory::GraphicsFactory( EnvironmentOptions& environmentOptions )
 {
 }
 
-GraphicsFactory::~GraphicsFactory()
-{
-  /* Deleted by Adaptor destructor */
-}
+GraphicsFactory::~GraphicsFactory() = default;
+
 
 Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSize positionSize)
 {
@@ -53,7 +47,7 @@ Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSi
   uint32_t depthStencilMask = mEnvironmentOptions.StencilBufferRequired() ? 1u : 0u;
   depthStencilMask |= uint32_t(mEnvironmentOptions.DepthBufferRequired()) ? 1u << 1u : 0u;
 
-  Graphics::GraphicsCreateInfo info;
+  Graphics::GraphicsCreateInfo info{};
   info.surfaceWidth = uint32_t( positionSize.width );
   info.surfaceHeight = uint32_t( positionSize.height );
   info.depthStencilMode = std::function<Graphics::DepthStencilMode()>(
@@ -66,7 +60,6 @@ Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSi
         case 2:
           return Graphics::DepthStencilMode::DEPTH_OPTIMAL;
         case 0:
-          return Graphics::DepthStencilMode::NONE;
         default:
           return Graphics::DepthStencilMode::NONE;
       }
@@ -75,14 +68,12 @@ Graphics::GraphicsInterface& GraphicsFactory::Create(GraphicsFactory::PositionSi
 
   info.swapchainBufferingMode = Graphics::SwapchainBufferingMode::OPTIMAL;
 
-  auto graphics = new Graphics::VulkanGraphics( info, depthBufferRequired, stencilBufferRequired );
-  return *graphics;
+  auto graphics = new Dali::Graphics::VulkanGraphics( info, depthBufferRequired, stencilBufferRequired );
+  return static_cast<Dali::Graphics::GraphicsInterface&>(*graphics);
 }
 
 void GraphicsFactory::Destroy()
 {
 }
 
-} // Adaptor
-} // Internal
-} // Dali
+} // Dali::Internal::Adaptor

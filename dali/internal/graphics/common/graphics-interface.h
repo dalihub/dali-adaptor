@@ -24,25 +24,10 @@
 
 #include <cstdint>
 
-namespace Dali
-{
-namespace Graphics
+
+namespace Dali::Graphics
 {
 class SurfaceFactory;
-
-using FBID = int32_t;
-
-/**
- * Structure to manager lifecycle of graphics surface.
- */
-struct  Surface
-{
-  DALI_ADAPTOR_API Surface( Controller& graphicsController, Dali::Graphics::FBID framebufferId);
-  DALI_ADAPTOR_API ~Surface();
-
-  const Controller& mGraphicsController;
-  FBID mFramebufferId;
-};
 
 enum class  DepthStencilMode
 {
@@ -121,7 +106,7 @@ public:
   /**
    * Create a surface for the graphics implementation
    */
-  virtual std::unique_ptr<Surface> CreateSurface( SurfaceFactory& surfaceFactory ) = 0;
+  virtual Graphics::UniquePtr<Surface> CreateSurface( SurfaceFactory& surfaceFactory ) = 0;
 
   /**
    * Configure the graphics surface
@@ -178,7 +163,7 @@ protected:
   const Integration::StencilBufferAvailable mStencilBufferRequired;   ///< Whether the stencil buffer is required
 };
 
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics
+
 
 #endif //DALI_INTERNAL_GRAPHICS_INTERFACE_H

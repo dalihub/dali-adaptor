@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_VKSURFACEFACTORY_H
-#define DALI_GRAPHICS_VULKAN_VKSURFACEFACTORY_H
+#ifndef DALI_GRAPHICS_VULKAN_SURFACE_FACTORY_H
+#define DALI_GRAPHICS_VULKAN_SURFACE_FACTORY_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -24,12 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/surface-factory.h>
 
-
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 class SurfaceFactory : public Dali::Graphics::SurfaceFactory
@@ -43,8 +38,6 @@ public:
                                  vk::PhysicalDevice physicalDevice ) const = 0;
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
-#endif // DALI_GRAPHICS_VULKAN_VKSURFACEFACTORY_H
+#endif // DALI_GRAPHICS_VULKAN_SURFACE_FACTORY_H
