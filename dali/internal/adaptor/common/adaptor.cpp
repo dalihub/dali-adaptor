@@ -291,6 +291,16 @@ void Adaptor::UnregisterProcessor(Integration::Processor& processor, bool postPr
   mImpl->UnregisterProcessor(processor, postProcessor);
 }
 
+void Adaptor::RegisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  mImpl->RegisterProcessorOnce(processor, postProcessor);
+}
+
+void Adaptor::UnregisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  mImpl->UnregisterProcessorOnce(processor, postProcessor);
+}
+
 Dali::WindowContainer Adaptor::GetWindows() const
 {
   return mImpl->GetWindows();

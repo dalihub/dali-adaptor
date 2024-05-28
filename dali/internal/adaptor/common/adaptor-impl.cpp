@@ -1198,6 +1198,16 @@ void Adaptor::UnregisterProcessor(Integration::Processor& processor, bool postPr
   GetCore().UnregisterProcessor(processor, postProcessor);
 }
 
+void Adaptor::RegisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  GetCore().RegisterProcessorOnce(processor, postProcessor);
+}
+
+void Adaptor::UnregisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  GetCore().UnregisterProcessorOnce(processor, postProcessor);
+}
+
 bool Adaptor::IsMultipleWindowSupported() const
 {
   return mConfigurationManager->IsMultipleWindowSupported();

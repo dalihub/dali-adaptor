@@ -442,6 +442,21 @@ public:
   void UnregisterProcessor(Integration::Processor& processor, bool postProcessor = false);
 
   /**
+   * @brief Register a processor implementing the Integration::Processor interface with dali-core.
+   * @param[in] processor the Processor to register
+   * @param[in] postProcessor set this processor required to be called after size negotiation. Default is false.
+   * @note registered processor will be unregistered automatically after process.
+   */
+  void RegisterProcessorOnce(Integration::Processor& processor, bool postProcessor = false);
+
+  /**
+   * @brief Unregister a previously registered once processor from dali-core.
+   * @param[in] processor the Processor to unregister
+   * @param[in] postProcessor True if the processor to be unregister is for post processor.
+   */
+  void UnregisterProcessorOnce(Integration::Processor& processor, bool postProcessor = false);
+
+  /**
    * @brief Get the list of windows created.
    * @return The list of windows
    */
