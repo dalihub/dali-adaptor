@@ -62,21 +62,21 @@ public:
    * Returns current framebuffer ( the one which is rendering to )
    * @return
    */
-  Framebuffer* GetCurrentFramebuffer() const;
+  FramebufferImpl* GetCurrentFramebuffer() const;
 
   /**
    * Returns any framebuffer from the queue
    * @param index
    * @return
    */
-  Framebuffer* GetFramebuffer( uint32_t index ) const;
+  FramebufferImpl* GetFramebuffer( uint32_t index ) const;
 
   /**
    * This function acquires next framebuffer
    * @todo we should rather use round robin method
    * @return
    */
-  Framebuffer* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
+  FramebufferImpl* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
 
   /**
    * Return the primary command buffer associated with the swapchain
@@ -142,7 +142,7 @@ private:
   vk::SwapchainKHR mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR;
   /*
-   * Framebuffer object associated with the buffer
+   * FramebufferImpl object associated with the buffer
    */
   std::vector<Framebuffer*> mFramebuffers;
 

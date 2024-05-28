@@ -114,8 +114,8 @@ bool FramebufferAttachment::IsValid() const
 }
 
 
-//Framebuffer -------------------------------
-Framebuffer::Framebuffer( Device& graphicsDevice,
+//FramebufferImpl -------------------------------
+FramebufferImpl::FramebufferImpl( Device& graphicsDevice,
                           const std::vector< FramebufferAttachment* >& colorAttachments,
                           FramebufferAttachment* depthAttachment,
                           vk::Framebuffer vkHandle,
@@ -134,17 +134,17 @@ Framebuffer::Framebuffer( Device& graphicsDevice,
 {
 }
 
-uint32_t Framebuffer::GetWidth() const
+uint32_t FramebufferImpl::GetWidth() const
 {
   return mWidth;
 }
 
-uint32_t Framebuffer::GetHeight() const
+uint32_t FramebufferImpl::GetHeight() const
 {
   return mHeight;
 }
 
-FramebufferAttachment* Framebuffer::GetAttachment( AttachmentType type, uint32_t index ) const
+FramebufferAttachment* FramebufferImpl::GetAttachment( AttachmentType type, uint32_t index ) const
 {
   switch( type )
   {
@@ -166,7 +166,7 @@ FramebufferAttachment* Framebuffer::GetAttachment( AttachmentType type, uint32_t
   return nullptr;
 }
 
-std::vector< FramebufferAttachment* > Framebuffer::GetAttachments( AttachmentType type ) const
+std::vector< FramebufferAttachment* > FramebufferImpl::GetAttachments( AttachmentType type ) const
 {
   auto retval = std::vector< FramebufferAttachment* >{};
   switch( type )
@@ -194,7 +194,7 @@ std::vector< FramebufferAttachment* > Framebuffer::GetAttachments( AttachmentTyp
   return retval;
 }
 
-uint32_t Framebuffer::GetAttachmentCount( AttachmentType type ) const
+uint32_t FramebufferImpl::GetAttachmentCount( AttachmentType type ) const
 {
   switch( type )
   {
@@ -215,17 +215,17 @@ uint32_t Framebuffer::GetAttachmentCount( AttachmentType type ) const
   return 0u;
 }
 
-vk::RenderPass Framebuffer::GetRenderPass() const
+vk::RenderPass FramebufferImpl::GetRenderPass() const
 {
   return mRenderPass;
 }
 
-vk::Framebuffer Framebuffer::GetVkHandle() const
+vk::Framebuffer FramebufferImpl::GetVkHandle() const
 {
   return mFramebuffer;
 }
 
-std::vector< vk::ClearValue > Framebuffer::GetClearValues() const
+std::vector< vk::ClearValue > FramebufferImpl::GetClearValues() const
 {
   auto result = std::vector< vk::ClearValue >{};
 
@@ -244,7 +244,7 @@ std::vector< vk::ClearValue > Framebuffer::GetClearValues() const
   return result;
 }
 
-bool Framebuffer::OnDestroy()
+bool FramebufferImpl::OnDestroy()
 {
   auto device = mGraphicsDevice->GetDevice();
   auto frameBuffer = mFramebuffer;

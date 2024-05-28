@@ -187,11 +187,11 @@ public:
   UniquePtr<Graphics::Texture> CreateTexture(const Graphics::TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture) override;
 
   /**
-   * @brief Creates new Framebuffer object
+   * @brief Creates new FramebufferImpl object
    *
    * @param[in] framebufferCreateInfo The valid FramebufferCreateInfo structure
    * @param[in] oldFramebuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
-   * @return pointer to the Framebuffer object
+   * @return pointer to the FramebufferImpl object
    */
   UniquePtr<Graphics::Framebuffer> CreateFramebuffer(const Graphics::FramebufferCreateInfo& framebufferCreateInfo, UniquePtr<Graphics::Framebuffer>&& oldFramebuffer) override;
 

@@ -251,7 +251,7 @@ Graphics::FramebufferId Device::CreateSurface(
 
   mSurfaceResized = false;
 
-  // map surface to Framebuffer Id
+  // map surface to FramebufferImpl Id
   auto fbid = ++mBaseFramebufferId;
 
   mSurfaceFBIDMap[ fbid ] = SwapchainSurfacePair{ nullptr, surface };
@@ -501,7 +501,7 @@ Swapchain* Device::CreateSwapchain( SurfaceImpl* surface,
     return nullptr;
   }
 
-  auto framebuffers = std::vector< Framebuffer* >{};
+  auto framebuffers = std::vector<FramebufferImpl* >{};
   framebuffers.reserve( images.size() );
 
   auto clearColor = vk::ClearColorValue{}.setFloat32( { 0.0f, 0.0f, 0.0f, 0.0f } );
@@ -581,7 +581,7 @@ void Device::DiscardResource( std::function< void() > deleter )
   //mDiscardQueue[mCurrentBufferIndex].push_back( std::move( deleter ) );
 }
 
-Framebuffer* Device::CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
+FramebufferImpl* Device::CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
                                        FramebufferAttachment* depthAttachment,
                                        uint32_t width,
                                        uint32_t height,
@@ -634,7 +634,7 @@ Framebuffer* Device::CreateFramebuffer(const std::vector< FramebufferAttachment*
 
   auto framebuffer = VkAssert( mLogicalDevice.createFramebuffer( framebufferCreateInfo, mAllocator.get() ) );
 
-  return new Framebuffer( *this,
+  return new FramebufferImpl( *this,
                          colorAttachments,
                          depthAttachment,
                          framebuffer,

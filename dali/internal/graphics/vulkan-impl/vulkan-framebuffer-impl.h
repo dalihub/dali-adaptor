@@ -73,12 +73,12 @@ private:
 };
 
 /**
- * Framebuffer encapsulates following objects:
+ * FramebufferImpl encapsulates following objects:
  * - Images ( attachments )
- * - Framebuffer
+ * - FramebufferImpl
  * - ImageViews
  */
-class Framebuffer : public VkManaged
+class FramebufferImpl : public VkManaged
 {
 public:
   friend class Device;
@@ -102,8 +102,7 @@ public:
   bool OnDestroy() override;
 
 private:
-
-  Framebuffer( Device& graphicsDevice,
+  FramebufferImpl( Device& graphicsDevice,
                const std::vector<FramebufferAttachment*>& colorAttachments,
                FramebufferAttachment* depthAttachment,
                vk::Framebuffer vkHandle,

@@ -210,6 +210,7 @@ UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
+
   return UniquePtr<Graphics::RenderPass>{};
 }
 

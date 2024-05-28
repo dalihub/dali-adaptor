@@ -63,7 +63,7 @@ class CommandPool;
 class DescriptorPool;
 class DescriptorSet;
 class Fence;
-class Framebuffer;
+class FramebufferImpl;
 class FramebufferAttachment;
 class GpuMemoryBlock;
 class Image;
