@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ f * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,6 +163,30 @@ static bool IsObjectZeroSize(Component* obj)
   return Dali::EqualsZero(extents.height) || Dali::EqualsZero(extents.width);
 }
 
+static bool IsVisibleInScrollableParent(Accessible* accessible)
+
+{
+  auto scrollableParent = GetScrollableParent(accessible);
+
+  if (scrollableParent == nullptr) return true;
+
+  auto scrollableParentExtents = scrollableParent->GetExtents(CoordinateType::WINDOW);
+
+  auto component = dynamic_cast<Component*>(accessible);
+
+  if (component && !scrollableParentExtents.Intersects(component->GetExtents(CoordinateType::WINDOW)))
+  {
+    return false;
+  }
+
+  return true;
+}
+
+static bool IsChildVisibleInScrollableParent(Accessible *start, Accessible *accessible)
+{
+  return IsVisibleInScrollableParent(start) || IsVisibleInScrollableParent(accessible);
+}
+
 static bool IsObjectAcceptable(Component* obj)
 {
   if(!obj)
@@ -280,13 +304,13 @@ static bool IsRoleAcceptableWhenNavigatingNextPrev(Accessible* obj)
   return role != Role::POPUP_MENU && role != Role::DIALOG;
 }
 
-static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, unsigned int currentIndex, unsigned char forward)
+static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, unsigned int currentIndex, unsigned char forward, Accessible* start)
 {
   unsigned int childrenCount = children.size();
   for(; currentIndex < childrenCount; forward ? ++currentIndex : --currentIndex)
   {
     Accessible* object = children[currentIndex];
-    if(object && !object->GetStates()[State::DEFUNCT])
+    if(object && !object->GetStates()[State::DEFUNCT] && IsChildVisibleInScrollableParent(start, object))
     {
       return object;
     }
@@ -295,7 +319,7 @@ static Accessible* FindNonDefunctChild(const std::vector<Component*>& children, 
 }
 
 // The auxiliary method for Depth-First Search (DFS) algorithm to find non defunct child directionally
-static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Component*>& children, unsigned char forward)
+static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, const std::vector<Component*>& children, unsigned char forward, Accessible* start)
 {
   if(!node)
   {
@@ -308,7 +332,7 @@ static Accessible* FindNonDefunctChildWithDepthFirstSearch(Accessible* node, con
     const bool isShowing = GetScrollableParent(node) == nullptr ? node->GetStates()[State::SHOWING] : true;
     if(isShowing)
     {
-      return FindNonDefunctChild(children, forward ? 0 : childrenCount - 1, forward);
+      return FindNonDefunctChild(children, forward ? 0 : childrenCount - 1, forward, start);
     }
   }
   return nullptr;
@@ -811,7 +835,7 @@ Accessible* BridgeAccessible::GetNextNonDefunctSibling(Accessible* obj, Accessib
   }
 
   forward ? ++current : --current;
-  auto ret = FindNonDefunctChild(children, current, forward);
+  auto ret = FindNonDefunctChild(children, current, forward, start);
   return ret;
 }
 
@@ -913,7 +937,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     //    Objects with those roles shouldnt be reachable, when navigating next / prev.
     bool areAllChildrenVisitedOrMovingForward = (children.size() == 0 || forward || areAllChildrenVisited);
 
-    if(!forceNext && node != start && areAllChildrenVisitedOrMovingForward && IsObjectAcceptable(node))
+    if(!forceNext && node != start && areAllChildrenVisitedOrMovingForward && IsObjectAcceptable(node) && IsChildVisibleInScrollableParent(start, node))
     {
       if(start == NULL || IsRoleAcceptableWhenNavigatingNextPrev(node))
       {
@@ -935,7 +959,7 @@ Accessible* BridgeAccessible::CalculateNeighbor(Accessible* root, Accessible* st
     }
     else
     {
-      auto child = !forceNext && !areAllChildrenVisited ? FindNonDefunctChildWithDepthFirstSearch(node, children, forward) : nullptr;
+      auto child = !forceNext && !areAllChildrenVisited ? FindNonDefunctChildWithDepthFirstSearch(node, children, forward, start) : nullptr;
       if(child)
       {
         wantCycleDetection = 1;
