@@ -81,7 +81,7 @@ ImageView& ImageView::Ref()
 
 bool ImageView::OnDestroy()
 {
-  auto device = mGraphicsDevice->GetDevice();
+  auto device = mGraphicsDevice->GetLogicalDevice();
   auto imageView = mImageView;
   auto allocator = &mGraphicsDevice->GetAllocator();
 

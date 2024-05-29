@@ -20,6 +20,8 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-surface-factory.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
@@ -581,6 +583,14 @@ void Device::DiscardResource( std::function< void() > deleter )
   //mDiscardQueue[mCurrentBufferIndex].push_back( std::move( deleter ) );
 }
 
+Fence* Device::CreateFence( const vk::FenceCreateInfo& fenceCreateInfo )
+{
+  vk::Fence vkFence;
+  VkAssert( mLogicalDevice.createFence( &fenceCreateInfo, mAllocator.get(), &vkFence ) );
+
+  return new Fence(*this, vkFence);
+}
+
 FramebufferImpl* Device::CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
                                        FramebufferAttachment* depthAttachment,
                                        uint32_t width,
@@ -635,13 +645,13 @@ FramebufferImpl* Device::CreateFramebuffer(const std::vector< FramebufferAttachm
   auto framebuffer = VkAssert( mLogicalDevice.createFramebuffer( framebufferCreateInfo, mAllocator.get() ) );
 
   return new FramebufferImpl( *this,
-                         colorAttachments,
-                         depthAttachment,
-                         framebuffer,
-                         renderPass,
-                         width,
-                         height,
-                         isRenderPassExternal );
+                             colorAttachments,
+                             depthAttachment,
+                             framebuffer,
+                             renderPass,
+                             width,
+                             height,
+                             isRenderPassExternal );
 }
 
 vk::RenderPass Device::CreateCompatibleRenderPass(
@@ -832,6 +842,11 @@ ImageView* Device::CreateImageView( Image* image )
   return imageView;
 }
 
+vk::Result Device::WaitForFence(Fence* fence, uint32_t timeout)
+{
+  auto f = fence->GetVkHandle();
+  return mLogicalDevice.waitForFences( 1, &f, VK_TRUE, timeout );
+}
 
 // -------------------------------------------------------------------------------------------------------
 // Getters------------------------------------------------------------------------------------------------
@@ -869,7 +884,7 @@ Swapchain* Device::GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId
   return mSurfaceFBIDMap[surfaceId].swapchain;
 }
 
-vk::Device Device::GetDevice() const
+vk::Device Device::GetLogicalDevice() const
 {
   return mLogicalDevice;
 }
@@ -895,6 +910,26 @@ Platform Device::GetDefaultPlatform() const
 #else
   return mPlatform;
 #endif
+}
+
+CommandPool* Device::GetCommandPool( std::thread::id threadId)
+{
+  CommandPool* commandPool=nullptr;
+  {
+    std::lock_guard<std::mutex> lock{mMutex};
+    commandPool = mCommandPools.find(threadId) == mCommandPools.end()?nullptr:mCommandPools[threadId];
+  }
+  if(!commandPool)
+  {
+    vk::CommandPoolCreateInfo createInfo{};
+    createInfo.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+    commandPool = CommandPool::New(*this, createInfo);
+    {
+      std::lock_guard<std::mutex> lock{mMutex};
+      mCommandPools[std::this_thread::get_id()] = commandPool;
+    }
+  }
+  return commandPool;
 }
 
 void Device::SurfaceResized( unsigned int width, unsigned int height )
@@ -1167,5 +1202,3 @@ std::vector< const char* > Device::PrepareDefaultInstanceExtensions()
 }
 
 } // namespace Dali::Graphics::Vulkan
-
-

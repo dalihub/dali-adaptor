@@ -39,9 +39,7 @@
 namespace Dali::Graphics::Vulkan
 {
 
-// Consider using Graphics::UniquePtr<Vulkan::Swapchain>& ?
-// where Vulkan::Swapchain is derived from Graphics::Resource<Graphics::Swapchain, Graphics::SwapchainCreateInfo>...
-// Which is new!
+using CommandPoolMap = std::unordered_map< std::thread::id, CommandPool* >;
 
 struct SwapchainSurfacePair
 {
@@ -92,7 +90,7 @@ public: // Getters
 
   Swapchain* GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId );
 
-  vk::Device GetDevice() const;
+  vk::Device GetLogicalDevice() const;
 
   vk::PhysicalDevice GetPhysicalDevice() const;
 
@@ -110,6 +108,8 @@ public: // Getters
 
   Platform GetDefaultPlatform() const;
 
+  CommandPool* GetCommandPool( std::thread::id threadid);
+
   void SurfaceResized( unsigned int width, unsigned int height );
   bool IsSurfaceResized() const
   {
@@ -118,7 +118,9 @@ public: // Getters
 
   void DiscardResource( std::function< void() > deleter );
 
-  Framebuffer* CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
+  Fence* CreateFence(const vk::FenceCreateInfo& fenceCreateInfo);
+
+  FramebufferImpl* CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
                                  FramebufferAttachment* depthAttachment,
                                  uint32_t width,
                                  uint32_t height,
@@ -140,6 +142,13 @@ public: // Getters
 
   ImageView* CreateImageView( Image* image );
 
+  vk::Result WaitForFence( Fence* fence, uint32_t timeout = std::numeric_limits< uint32_t >::max() );
+
+  uint32_t GetCurrentBufferIndex() const;
+
+  uint32_t SwapBuffers();
+
+
 private: // Methods
 
   void CreateInstance( const std::vector< const char* >& extensions,
@@ -152,10 +161,6 @@ private: // Methods
   void GetPhysicalDeviceProperties();
 
   void GetQueueFamilyProperties();
-
-  uint32_t SwapBuffers();
-
-  uint32_t GetCurrentBufferIndex() const;
 
   std::vector< vk::DeviceQueueCreateInfo > GetQueueCreateInfos();
 
@@ -178,6 +183,8 @@ private: // Members
   std::vector< Queue* > mGraphicsQueues;
   std::vector< Queue* > mTransferQueues;
   std::vector< Queue* > mComputeQueues;
+
+  CommandPoolMap mCommandPools;
 
   std::unordered_map< Graphics::FramebufferId, SwapchainSurfacePair > mSurfaceFBIDMap;
   bool mSurfaceResized{false};

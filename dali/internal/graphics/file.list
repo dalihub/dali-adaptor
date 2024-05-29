@@ -36,6 +36,9 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
     ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-graphics-controller.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-buffer-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-pool-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-fence-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-view-impl.cpp
@@ -44,6 +47,11 @@ SET( adaptor_graphics_vulkan_src_files
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-surface.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-surface-impl.cpp
     ${adaptor_graphics_dir}/vulkan-impl/vulkan-swapchain-impl.cpp
+)
+
+SET( unused2
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-target.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass.cpp
 )
 
 SET( unused

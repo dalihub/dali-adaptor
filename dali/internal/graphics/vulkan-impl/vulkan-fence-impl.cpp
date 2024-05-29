@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,21 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-fence.h>
-#include <dali/graphics/vulkan/vulkan-graphics.h>
-#include <dali/graphics/vulkan/internal/vulkan-debug.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/integration-api/debug.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
+
+namespace Dali::Graphics::Vulkan
 {
 
-Fence::Fence( Graphics& graphics ) : mGraphics( &graphics )
+Fence::Fence( Device& graphicsDevice, vk::Fence handle )
+: mGraphicsDevice( &graphicsDevice ),
+  mFence(handle)
 {
 }
 
@@ -54,12 +57,12 @@ bool Fence::OnDestroy()
   // Cannot capture the "this" pointer in the lambda.
   // When the lambda is invoked "this" is already destroyed.
   // This method is only deferring execution to the end of the frame.
-  auto device = mGraphics->GetDevice();
+  auto device = mGraphicsDevice->GetLogicalDevice();
   auto fence = mFence;
-  auto allocator = &mGraphics->GetAllocator();
+  auto allocator = &mGraphicsDevice->GetAllocator();
 
   // capture copies of the pointers and handles
-  mGraphics->DiscardResource( [ device, fence, allocator ]() {
+  mGraphicsDevice->DiscardResource( [ device, fence, allocator ]() {
     DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: fence->%p\n",
                    static_cast< VkFence >(fence) )
     device.destroyFence( fence, allocator );
@@ -68,7 +71,4 @@ bool Fence::OnDestroy()
   return false;
 }
 
-
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan

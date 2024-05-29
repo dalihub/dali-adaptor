@@ -41,7 +41,7 @@ public:
   Swapchain(Device& graphicsDevice,
             Queue& presentationQueue,
             SurfaceImpl* surface,
-            std::vector< Framebuffer* >&& framebuffers,
+            std::vector< FramebufferImpl* >&& framebuffers,
             vk::SwapchainCreateInfoKHR createInfo,
             vk::SwapchainKHR vkHandle );
 
@@ -50,13 +50,6 @@ public:
   {
     mSwapchainKHR = swapchainKhr;
   }
-
-#if 0
-  /**
-   * Allocate command buffers for each render pass.
-   * @param[in] renderPassCount The number of render passes to allocate for (includes main renderpass)
-   */
-  void AllocateCommandBuffers( size_t renderPassCount );
 
   /**
    * Returns current framebuffer ( the one which is rendering to )
@@ -79,27 +72,9 @@ public:
   FramebufferImpl* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
 
   /**
-   * Return the primary command buffer associated with the swapchain
-   */
-  CommandBuffer* GetLastCommandBuffer();
-
-  /**
-   * Returns the primary command buffers associated with each render pass
-   * being recorded
-   * @return mutable vector of command buffers
-   */
-  std::vector<CommandBuffer*>& GetCommandBuffers() const;
-
-  /**
    * Presents using default present queue, asynchronously
    */
   void Present();
-
-  /**
-   * Presents using default queue, synchronized with supplied semaphores
-   * @param waitSemaphores
-   */
-  void Present( std::vector< vk::Semaphore > waitSemaphores );
 
   bool OnDestroy() override;
 
@@ -119,18 +94,11 @@ public:
   void SetDepthStencil( vk::Format depthStencilFormat );
 
   /**
-   * Resets all existing command buffers for all swapchain images
-   * To run it safe it must be sure the GPU is not using any of the
-   * command buffers.
-   */
-  void ResetAllCommandBuffers();
-
-  /**
    * Returns number of allocated swapchain images
    * @return Number of swapchain images
    */
   uint32_t GetImageCount() const;
-#endif
+
 
 private:
   Device* mGraphicsDevice;
@@ -141,12 +109,12 @@ private:
 
   vk::SwapchainKHR mSwapchainKHR;
   vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR;
-  /*
+
+  /**
    * FramebufferImpl object associated with the buffer
    */
-  std::vector<Framebuffer*> mFramebuffers;
+  std::vector<FramebufferImpl*> mFramebuffers;
 
-#if 0
   /**
    * Array of swapchain buffers
    */
@@ -155,7 +123,7 @@ private:
   Fence* mBetweenRenderPassFence;
 
   uint32_t mFrameCounter { 0u }; ///< Current frame number
-#endif
+
 
   bool mIsValid; // indicates whether the swapchain is still valid or requires to be recreated
 };

@@ -19,16 +19,20 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 
 #if 0
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-command-pool.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-debug.h>
+#endif
+
+#include <dali/integration-api/debug.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
 #endif
 
 namespace Dali::Graphics::Vulkan
@@ -39,7 +43,6 @@ namespace
 const auto MAX_SWAPCHAIN_RESOURCE_BUFFERS = 2u;
 }
 
-#if 0
 /**
  * SwapchainBuffer stores all per-buffer data
  */
@@ -48,11 +51,6 @@ struct SwapchainBuffer
   SwapchainBuffer( Device& _graphicsDevice );
 
   ~SwapchainBuffer();
-
-  /**
-   * Separate command buffer for each render pass (the final pass is for the swapchain fb)
-   */
-  std::vector<RefCountedCommandBuffer> commandBuffers;
 
   /**
    * Semaphore signalled on acquire next image
@@ -64,39 +62,35 @@ struct SwapchainBuffer
    */
   vk::Semaphore submitSemaphore;
 
-  Fence* betweenRenderPassFence;
   Fence* endOfFrameFence;
 
   Device& graphicsDevice;
 };
 
-SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice)
-: mGraphicsDevice( graphicsDevice )
+SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice_)
+: graphicsDevice( graphicsDevice_ )
 {
-  acquireNextImageSemaphore = graphicsDevice.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
-  submitSemaphore = graphicsDevice.GetDevice().createSemaphore( {}, graphics.GetAllocator() ).value;
+  acquireNextImageSemaphore = graphicsDevice.GetLogicalDevice().createSemaphore( {}, graphicsDevice.GetAllocator() ).value;
+  submitSemaphore = graphicsDevice.GetLogicalDevice().createSemaphore( {}, graphicsDevice.GetAllocator() ).value;
 
-  // Ensure there is at least 1 allocated primary command buffer
-  commandBuffers.emplace_back( graphicsDevice.CreateCommandBuffer( true ) );
-
-  betweenRenderPassFence = graphicsDevice.CreateFence({});
   endOfFrameFence = graphicsDevice.CreateFence({});
 }
 
 SwapchainBuffer::~SwapchainBuffer()
 {
   // swapchain dies so make sure semaphore are not in use anymore
-  graphicsDevice.GetDevice().waitIdle();
-  graphicsDevice.GetDevice().destroySemaphore( acquireNextImageSemaphore, graphics.GetAllocator() );
-  graphicsDevice.GetDevice().destroySemaphore( submitSemaphore, graphics.GetAllocator() );
+  auto result = graphicsDevice.GetLogicalDevice().waitIdle();
+  assert(result == vk::Result::eSuccess);
+  graphicsDevice.GetLogicalDevice().destroySemaphore( acquireNextImageSemaphore, graphicsDevice.GetAllocator() );
+  graphicsDevice.GetLogicalDevice().destroySemaphore( submitSemaphore, graphicsDevice.GetAllocator() );
 }
-#endif
+
 
 
 Swapchain::Swapchain(Device& graphicsDevice,
                      Queue& presentationQueue,
                      SurfaceImpl* surface,
-                     std::vector< Framebuffer* >&& framebuffers,
+                     std::vector< FramebufferImpl* >&& framebuffers,
                      vk::SwapchainCreateInfoKHR createInfo,
                      vk::SwapchainKHR vkHandle)
 : mGraphicsDevice( &graphicsDevice ),
@@ -117,28 +111,26 @@ vk::SwapchainKHR Swapchain::GetVkHandle() const
   return mSwapchainKHR;
 }
 
-/*
-#if 0
-RefCountedFramebuffer Swapchain::GetCurrentFramebuffer() const
+FramebufferImpl* Swapchain::GetCurrentFramebuffer() const
 {
   return GetFramebuffer( mSwapchainImageIndex );
 }
 
-RefCountedFramebuffer Swapchain::GetFramebuffer( uint32_t index ) const
+FramebufferImpl* Swapchain::GetFramebuffer( uint32_t index ) const
 {
   return mFramebuffers[index];
 }
 
-RefCountedFramebuffer Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow  )
+FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow  )
 {
   // prevent from using invalid swapchain
   if( !mIsValid )
   {
     DALI_LOG_INFO( gVulkanFilter, Debug::General, "Attempt to present invalid/expired swapchain: %p\n", static_cast< VkSwapchainKHR >(mSwapchainKHR) );
-    return RefCountedFramebuffer();
+    return nullptr;
   }
 
-  const auto& device = mGraphics->GetDevice();
+  const auto& device = mGraphicsDevice->GetLogicalDevice();
 
   // on swapchain first create sync primitives and master command buffer
   // if not created yet
@@ -147,17 +139,20 @@ RefCountedFramebuffer Swapchain::AcquireNextFramebuffer( bool shouldCollectGarba
     mSwapchainBuffers.resize( MAX_SWAPCHAIN_RESOURCE_BUFFERS );
     for( auto& buffer : mSwapchainBuffers )
     {
-      buffer.reset( new SwapchainBuffer( *mGraphics ) );
+      buffer.reset( new SwapchainBuffer( *mGraphicsDevice ) );
     }
   }
 
-  DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d", int(mSwapchainImageIndex) );
-                 auto result = device.acquireNextImageKHR( mSwapchainKHR,
-                                            std::numeric_limits<uint64_t>::max(),
-                                            mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->acquireNextImageSemaphore,
-                                            nullptr, &mSwapchainImageIndex );
+  DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d",
+                int(mSwapchainImageIndex) );
 
-  DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d", int(mSwapchainImageIndex) );
+  auto result = device.acquireNextImageKHR(mSwapchainKHR,
+                                           std::numeric_limits<uint64_t>::max(),
+                                           mSwapchainBuffers[mGraphicsDevice->GetCurrentBufferIndex()]->acquireNextImageSemaphore,
+                                           nullptr, &mSwapchainImageIndex );
+
+  DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d",
+                int(mSwapchainImageIndex) );
 
   // swapchain either not optimal or expired, returning nullptr and
   // setting validity to false
@@ -166,7 +161,7 @@ RefCountedFramebuffer Swapchain::AcquireNextFramebuffer( bool shouldCollectGarba
     mIsValid = false;
     if ( result == vk::Result::eErrorOutOfDateKHR )
     {
-      return RefCountedFramebuffer();
+      return nullptr;
     }
     else
     {
@@ -179,14 +174,13 @@ RefCountedFramebuffer Swapchain::AcquireNextFramebuffer( bool shouldCollectGarba
   // cause a stall ( nvidia, ubuntu )
   if( mFrameCounter >= mSwapchainBuffers.size() )
   {
-    mGraphics->WaitForFence( mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->endOfFrameFence );
-    mGraphics->CollectGarbage();
+    mGraphicsDevice->WaitForFence( mSwapchainBuffers[mGraphicsDevice->GetCurrentBufferIndex()]->endOfFrameFence );
   }
   else
   {
-    mGraphics->DeviceWaitIdle();
-    mGraphics->CollectGarbage();
+    mGraphicsDevice->DeviceWaitIdle();
   }
+  //mGraphicsDevice->CollectGarbage();
 
   return mFramebuffers[mSwapchainImageIndex];
 }
@@ -196,44 +190,7 @@ void Swapchain::Present()
   // prevent from using invalid swapchain
   if( !mIsValid )
   {
-    DALI_LOG_INFO( gVulkanFilter, Debug::General, "Attempt to present invalid/expired swapchain: %p\n", static_cast< VkSwapchainKHR >(mSwapchainKHR) );
     return;
-  }
-
-  auto& swapBuffer = mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()];
-
-  // End any render pass command buffers
-  size_t count = swapBuffer->commandBuffers.size();
-  size_t index = 0;
-  for( auto& commandBuffer : swapBuffer->commandBuffers )
-  {
-    // @todo Add semaphores between each render pass
-    if( index < count-1 )
-    {
-      auto submissionData = SubmissionData{};
-      submissionData.SetCommandBuffers( { commandBuffer  } )
-        .SetSignalSemaphores( { } )
-        .SetWaitSemaphores( { } )
-        .SetWaitDestinationStageMask( vk::PipelineStageFlagBits::eFragmentShader );
-      mGraphics->Submit( *mQueue, { std::move( submissionData ) }, swapBuffer->betweenRenderPassFence );
-
-      mGraphics->WaitForFence(swapBuffer->betweenRenderPassFence);
-      mGraphics->ResetFence( swapBuffer->betweenRenderPassFence );
-    }
-    else // last frame
-    {
-      mGraphics->ResetFence( swapBuffer->endOfFrameFence );
-
-      auto submissionData = SubmissionData{};
-
-      submissionData.SetCommandBuffers( { commandBuffer  } )
-        .SetSignalSemaphores( { swapBuffer->submitSemaphore } )
-        .SetWaitSemaphores( { swapBuffer->acquireNextImageSemaphore } )
-        .SetWaitDestinationStageMask( vk::PipelineStageFlagBits::eFragmentShader );
-      mGraphics->Submit( *mQueue, { std::move( submissionData ) }, swapBuffer->endOfFrameFence );
-    }
-
-    ++index;
   }
 
   vk::PresentInfoKHR presentInfo{};
@@ -242,10 +199,10 @@ void Swapchain::Present()
              .setPResults( &result )
              .setPSwapchains( &mSwapchainKHR )
              .setSwapchainCount( 1 )
-             .setPWaitSemaphores( &swapBuffer->submitSemaphore )
-             .setWaitSemaphoreCount( 1 );
+             .setPWaitSemaphores( nullptr )
+             .setWaitSemaphoreCount( 0 );
 
-  mGraphics->Present( *mQueue, presentInfo );
+  mGraphicsDevice->Present( *mQueue, presentInfo );
 
   // handle error
   if( presentInfo.pResults[0] != vk::Result::eSuccess )
@@ -265,38 +222,15 @@ void Swapchain::Present()
   mFrameCounter++;
 }
 
-void Swapchain::Present( std::vector< vk::Semaphore > waitSemaphores )
-{
-  // prevent from using invalid swapchain
-  if( !mIsValid )
-  {
-    DALI_LOG_INFO( gVulkanFilter, Debug::General, "Attempt to present invalid/expired swapchain: %p\n", static_cast< VkSwapchainKHR >(mSwapchainKHR) );
-    return;
-  }
-
-  vk::PresentInfoKHR presentInfo{};
-  vk::Result result{};
-  presentInfo.setPImageIndices( &mSwapchainImageIndex )
-             .setPResults( &result )
-             .setPSwapchains( &mSwapchainKHR )
-             .setSwapchainCount( 1 )
-             .setPWaitSemaphores( nullptr )
-             .setWaitSemaphoreCount( 0 );
-
-  mGraphics->Present( *mQueue, presentInfo );
-}
-
-
 bool Swapchain::OnDestroy()
 {
   if( mSwapchainKHR )
   {
-    auto graphics = mGraphics;
-    auto device = graphics->GetDevice();
+    auto device = mGraphicsDevice->GetLogicalDevice();
     auto swapchain = mSwapchainKHR;
-    auto allocator = &graphics->GetAllocator();
+    auto allocator = &mGraphicsDevice->GetAllocator();
 
-    graphics->DiscardResource( [ device, swapchain, allocator ]() {
+    mGraphicsDevice->DiscardResource( [ device, swapchain, allocator ]() {
       DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n",
                      static_cast< VkSwapchainKHR >(swapchain) )
       device.destroySwapchainKHR( swapchain, allocator );
@@ -317,6 +251,8 @@ void Swapchain::Invalidate()
   mIsValid = false;
 }
 
+#if 0
+/*
 void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 {
   RefCountedFramebufferAttachment depthAttachment;
@@ -382,61 +318,14 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 
   mFramebuffers = std::move( framebuffers );
 }
-
-void Swapchain::ResetAllCommandBuffers()
-{
-  for( auto& swapbuffer : mSwapchainBuffers )
-  {
-    for( auto& cmdbuffer : swapbuffer->commandBuffers )
-    {
-      cmdbuffer->Reset();
-    }
-  }
-}
-
-void Swapchain::AllocateCommandBuffers( size_t renderPassCount )
-{
-  size_t commandBuffersCount = mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers.size();
-
-  DALI_LOG_STREAM( gVulkanFilter, Debug::General, "AllocateCommandBuffers: cbCount:" << commandBuffersCount
-                                                  << " renderPassCount: " << renderPassCount );
-
-  if( commandBuffersCount < renderPassCount )
-  {
-    for( size_t index = commandBuffersCount; index < renderPassCount ; ++index )
-    {
-      // Create primary buffer for each render pass & begin recording
-      auto commandBuffer = mGraphics->CreateCommandBuffer(true);
-      mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers.emplace_back( commandBuffer );
-    }
-  }
-  else if( renderPassCount < commandBuffersCount )
-  {
-    mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers.resize( renderPassCount );
-  }
-}
-
-RefCountedCommandBuffer Swapchain::GetLastCommandBuffer()
-{
-  if( mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers.empty() )
-  {
-    AllocateCommandBuffers( 1 );
-  }
-  return mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers.back();
-}
-
-std::vector<RefCountedCommandBuffer>& Swapchain::GetCommandBuffers() const
-{
-  return mSwapchainBuffers[mGraphics->GetCurrentBufferIndex()]->commandBuffers;
-}
+*/
+#endif
 
 uint32_t Swapchain::GetImageCount() const
 {
   return uint32_t(mFramebuffers.size());
 }
-#endif
-*/
+
+
 
 } // namespace Dali::Graphics::Vulkan::Internal
-
-

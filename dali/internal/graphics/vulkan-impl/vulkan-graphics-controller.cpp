@@ -20,6 +20,9 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -116,6 +119,33 @@ struct VulkanGraphicsController::Impl
     return true;
   }
 
+  void AcquireNextFramebuffer()
+  {
+    // for all swapchains acquire new framebuffer
+    auto surface = mGraphicsDevice->GetSurface( 0u );
+
+    auto swapchain = mGraphicsDevice->GetSwapchainForFramebuffer( 0u ); // @todo Rename from Framebuffer
+
+    if ( mGraphicsDevice->IsSurfaceResized() )
+    {
+      swapchain->Invalidate();
+    }
+
+    swapchain->AcquireNextFramebuffer(true);
+
+    if( !swapchain->IsValid() )
+    {
+      // make sure device doesn't do any work before replacing swapchain
+      mGraphicsDevice->DeviceWaitIdle();
+
+      // replace swapchain
+      swapchain = mGraphicsDevice->ReplaceSwapchainForSurface( surface, std::move(swapchain) );
+
+      // get new valid framebuffer
+      swapchain->AcquireNextFramebuffer(true);
+    }
+  }
+
   VulkanGraphicsController& mGraphicsController;
   Vulkan::Device* mGraphicsDevice;
 };
@@ -144,6 +174,24 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 
 void VulkanGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
 {
+  // Test code to create a render pass to clear the surface
+  mImpl->AcquireNextFramebuffer();
+
+  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForFramebuffer( 0u );
+
+  CommandPool* commandPool = mImpl->mGraphicsDevice->GetCommandPool(std::this_thread::get_id());
+  auto primaryCommandBuffer = commandPool->NewCommandBuffer(true);
+
+  primaryCommandBuffer->Begin( vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
+  primaryCommandBuffer->BeginRenderPass( vk::RenderPassBeginInfo{}
+        .setFramebuffer( swapchain->GetCurrentFramebuffer()->GetVkHandle() )
+        .setRenderPass(swapchain->GetCurrentFramebuffer()->GetRenderPass() )
+        .setRenderArea( { {0, 0}, { swapchain->GetCurrentFramebuffer()->GetWidth(), swapchain->GetCurrentFramebuffer()->GetHeight() } } )
+        .setPClearValues( swapchain->GetCurrentFramebuffer()->GetClearValues().data() )
+        .setClearValueCount( uint32_t(swapchain->GetCurrentFramebuffer()->GetClearValues().size()) ), vk::SubpassContents::eInline );
+  primaryCommandBuffer->EndRenderPass();
+  primaryCommandBuffer->End();
+  swapchain->Present();
 }
 
 void VulkanGraphicsController::WaitIdle()
@@ -198,20 +246,32 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
   return true;
 }
 
-UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
+UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
-  return UniquePtr<Graphics::Buffer>{};
+  //return NewObject(<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
+  return UniquePtr<Graphics::RenderTarget>{};
+}
+
+UniquePtr<Graphics::Surface> VulkanGraphicsController::CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&&oldSurface)
+{
+  return NewObject<Graphics::Vulkan::Surface>(createInfo, *this, std::move(oldSurface));
 }
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
+  //return NewObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
   return UniquePtr<Graphics::CommandBuffer>{};
 }
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-
+  //return NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
   return UniquePtr<Graphics::RenderPass>{};
+}
+
+UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
+{
+  return UniquePtr<Graphics::Buffer>{};
 }
 
 UniquePtr<Graphics::Texture> VulkanGraphicsController::CreateTexture(const TextureCreateInfo& textureCreateInfo, UniquePtr<Graphics::Texture>&& oldTexture)
@@ -242,16 +302,6 @@ UniquePtr<Graphics::Shader> VulkanGraphicsController::CreateShader(const Graphic
 UniquePtr<Graphics::Sampler> VulkanGraphicsController::CreateSampler(const Graphics::SamplerCreateInfo& samplerCreateInfo, UniquePtr<Graphics::Sampler>&& oldSampler)
 {
   return UniquePtr<Graphics::Sampler>{};
-}
-
-UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
-{
-  return UniquePtr<Graphics::RenderTarget>{};
-}
-
-UniquePtr<Graphics::Surface> VulkanGraphicsController::CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&&oldSurface)
-{
-  return NewObject<Graphics::Vulkan::Surface>(createInfo, *this, std::move(oldSurface));
 }
 
 UniquePtr<Graphics::SyncObject> VulkanGraphicsController::CreateSyncObject(const Graphics::SyncObjectCreateInfo& syncObjectCreateInfo,

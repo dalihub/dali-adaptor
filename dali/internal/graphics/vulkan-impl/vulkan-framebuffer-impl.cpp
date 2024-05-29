@@ -71,12 +71,12 @@ FramebufferAttachment::FramebufferAttachment( ImageView* imageView,
 
   mDescription.setSamples( sampleCountFlags );
 
+  mDescription.setLoadOp( vk::AttachmentLoadOp::eClear );
   mDescription.setStoreOp( vk::AttachmentStoreOp::eStore );
-  mDescription.setStencilStoreOp( vk::AttachmentStoreOp::eStore );
   mDescription.setStencilLoadOp( vk::AttachmentLoadOp::eClear );
+  mDescription.setStencilStoreOp( vk::AttachmentStoreOp::eStore );
   mDescription.setFormat( image->GetFormat() );
   mDescription.setInitialLayout( vk::ImageLayout::eUndefined );
-  mDescription.setLoadOp( vk::AttachmentLoadOp::eClear );
 
   if( type == AttachmentType::DEPTH_STENCIL )
   {
@@ -246,7 +246,7 @@ std::vector< vk::ClearValue > FramebufferImpl::GetClearValues() const
 
 bool FramebufferImpl::OnDestroy()
 {
-  auto device = mGraphicsDevice->GetDevice();
+  auto device = mGraphicsDevice->GetLogicalDevice();
   auto frameBuffer = mFramebuffer;
 
   vk::RenderPass renderPass = mExternalRenderPass ? vk::RenderPass{} : mRenderPass;

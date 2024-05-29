@@ -35,7 +35,7 @@ Memory::~Memory()
   // free memory
   if( memory )
   {
-    auto device = graphicsDevice->GetDevice();
+    auto device = graphicsDevice->GetLogicalDevice();
     auto allocator = &graphicsDevice->GetAllocator();
     auto deviceMemory = memory;
 
@@ -58,7 +58,7 @@ void* Memory::Map( uint32_t offset, uint32_t requestedMappedSize )
   {
     return mappedPtr;
   }
-  mappedPtr = graphicsDevice->GetDevice().mapMemory( memory, offset, requestedMappedSize ? requestedMappedSize : VK_WHOLE_SIZE ).value;
+  mappedPtr = graphicsDevice->GetLogicalDevice().mapMemory( memory, offset, requestedMappedSize ? requestedMappedSize : VK_WHOLE_SIZE ).value;
   mappedSize = requestedMappedSize;
   return mappedPtr;
 }
@@ -72,7 +72,7 @@ void Memory::Unmap()
 {
   if( memory && mappedPtr )
   {
-    graphicsDevice->GetDevice().unmapMemory( memory );
+    graphicsDevice->GetLogicalDevice().unmapMemory( memory );
     mappedPtr = nullptr;
   }
 }
@@ -86,7 +86,7 @@ vk::DeviceMemory Memory::ReleaseVkObject()
 
 void Memory::Flush()
 {
-  vk::Result result = graphicsDevice->GetDevice().flushMappedMemoryRanges( { vk::MappedMemoryRange{}
+  vk::Result result = graphicsDevice->GetLogicalDevice().flushMappedMemoryRanges( { vk::MappedMemoryRange{}
     .setSize( mappedSize )
     .setMemory( memory )
     .setOffset( 0u )

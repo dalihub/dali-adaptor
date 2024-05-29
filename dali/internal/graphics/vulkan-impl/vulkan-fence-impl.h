@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_FENCE
-#define DALI_GRAPHICS_VULKAN_FENCE
+#ifndef DALI_GRAPHICS_VULKAN_FENCE_IMPL_H
+#define DALI_GRAPHICS_VULKAN_FENCE_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -19,22 +19,16 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/graphics/vulkan/internal/vulkan-types.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
-namespace Dali
+namespace Dali::Graphics::Vulkan
 {
-namespace Graphics
-{
-namespace Vulkan
-{
-
-class Graphics;
+class Device;
 
 class Fence : public VkManaged
 {
-  friend class Graphics;
-
 public:
+  Fence(Device& graphicsDevice, vk::Fence handle);
 
   ~Fence() override;
 
@@ -47,16 +41,11 @@ public:
   bool OnDestroy() override;
 
 private:
-  explicit Fence( Graphics& graphics );
 
-private:
-
-  Graphics* mGraphics;
+  Device* mGraphicsDevice;
   vk::Fence mFence;
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
-#endif // DALI_GRAPHICS_VULKAN_FENCE
+#endif // DALI_GRAPHICS_VULKAN_FENCE_IMPL_H

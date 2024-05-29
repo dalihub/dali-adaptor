@@ -150,7 +150,7 @@ vk::SampleCountFlagBits Image::GetSampleCount() const
 
 void Image::DestroyNow()
 {
-  DestroyVulkanResources(mGraphicsDevice->GetDevice(), mImage, mDeviceMemory->ReleaseVkObject(),
+  DestroyVulkanResources(mGraphicsDevice->GetLogicalDevice(), mImage, mDeviceMemory->ReleaseVkObject(),
        &mGraphicsDevice->GetAllocator() );
   mImage = nullptr;
   mDeviceMemory = nullptr;
@@ -162,7 +162,7 @@ bool Image::OnDestroy()
   {
     if( mImage )
     {
-      auto device = mGraphicsDevice->GetDevice();
+      auto device = mGraphicsDevice->GetLogicalDevice();
       auto image = mImage;
       auto allocator = &mGraphicsDevice->GetAllocator();
       auto memory = mDeviceMemory->ReleaseVkObject();
