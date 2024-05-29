@@ -59,7 +59,7 @@ typedef Uint16Pair ImageDimensions;
  * @param[in] requestedDimensions Width and height of area to scale image into. Can be zero.
  * @return Dimensions of area to scale image into after special rules are applied.
  */
-ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions);
+ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions, FittingMode::Type fittingMode);
 
 /**
  * @defgroup BitmapOperations Bitmap-to-Bitmap Image operations.

@@ -191,6 +191,7 @@ BoxDimensionTest DimensionTestForScalingMode(FittingMode::Type fittingMode)
     }
     // Scale to fill mode keeps both dimensions at least as large as desired:
     case FittingMode::SCALE_TO_FILL:
+    case FittingMode::VISUAL_FITTING:
     {
       dimensionTest = BoxDimensionTestBoth;
       break;
@@ -306,6 +307,7 @@ ImageDimensions FitToScalingMode(ImageDimensions requestedSize, ImageDimensions 
       break;
     }
     case FittingMode::SCALE_TO_FILL:
+    case FittingMode::VISUAL_FITTING:
     {
       fitDimensions = FitForScaleToFill(requestedSize, sourceSize);
       break;
@@ -378,6 +380,7 @@ void CalculateBordersFromFittingMode(ImageDimensions sourceSize, FittingMode::Ty
     }
 
     case FittingMode::SCALE_TO_FILL:
+    case FittingMode::VISUAL_FITTING:
     {
       const float sourceAspect(static_cast<float>(sourceWidth) / static_cast<float>(sourceHeight));
       if(sourceAspect > targetAspect)
@@ -435,7 +438,7 @@ Dali::Devel::PixelBuffer MakePixelBuffer(const uint8_t* const pixels, Pixel::For
  * @param[in] requestedHeight Height of area to scale image into. Can be zero.
  * @return Dimensions of area to scale image into after special rules are applied.
  */
-ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmapHeight, uint32_t requestedWidth, uint32_t requestedHeight)
+ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmapHeight, uint32_t requestedWidth, uint32_t requestedHeight, FittingMode::Type fittingMode)
 {
   uint32_t maxSize = Dali::GetMaxTextureSize();
 
@@ -463,6 +466,28 @@ ImageDimensions CalculateDesiredDimensions(uint32_t bitmapWidth, uint32_t bitmap
   // If both dimensions have values requested, use them both:
   if(requestedWidth != 0 && requestedHeight != 0)
   {
+    DALI_ASSERT_DEBUG( (bitmapWidth > 0 && bitmapHeight > 0) && "Bitmap dimensions are zero");
+
+    if(fittingMode == FittingMode::VISUAL_FITTING)
+    {
+      uint32_t adjustedDesiredWidth, adjustedDesiredHeight;
+      float aspectOfDesiredSize = (float)requestedHeight / (float)requestedWidth;
+      float aspectOfImageSize = (float)bitmapHeight / (float)bitmapWidth;
+      if (aspectOfImageSize > aspectOfDesiredSize)
+      {
+        adjustedDesiredWidth = requestedWidth;
+        adjustedDesiredHeight = static_cast<uint64_t>(bitmapHeight) * requestedWidth / bitmapWidth;
+      }
+      else
+      {
+        adjustedDesiredWidth = static_cast<uint64_t>(bitmapWidth) * requestedHeight / bitmapHeight;
+        adjustedDesiredHeight = requestedHeight;
+      }
+
+      requestedWidth = adjustedDesiredWidth;
+      requestedHeight = adjustedDesiredHeight;
+    }
+
     if(requestedWidth <= maxSize && requestedHeight <= maxSize)
     {
       return ImageDimensions(requestedWidth, requestedHeight);
@@ -894,9 +919,9 @@ void VerticalSkew(const uint8_t* const srcBufferPtr,
 }
 } // namespace
 
-ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions)
+ImageDimensions CalculateDesiredDimensions(ImageDimensions rawDimensions, ImageDimensions requestedDimensions, FittingMode::Type fittingMode)
 {
-  return CalculateDesiredDimensions(rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight());
+  return CalculateDesiredDimensions(rawDimensions.GetWidth(), rawDimensions.GetHeight(), requestedDimensions.GetWidth(), requestedDimensions.GetHeight(), fittingMode);
 }
 
 /**
@@ -936,7 +961,7 @@ Dali::Devel::PixelBuffer ApplyAttributesToBitmap(Dali::Devel::PixelBuffer bitmap
   if(bitmap)
   {
     // Calculate the desired box, accounting for a possible zero component:
-    const ImageDimensions desiredDimensions = CalculateDesiredDimensions(bitmap.GetWidth(), bitmap.GetHeight(), dimensions.GetWidth(), dimensions.GetHeight());
+    const ImageDimensions desiredDimensions = CalculateDesiredDimensions(bitmap.GetWidth(), bitmap.GetHeight(), dimensions.GetWidth(), dimensions.GetHeight(), fittingMode);
 
     // If a different size than the raw one has been requested, resize the image
     // maximally using a repeated box filter without making it smaller than the
