@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -15,32 +15,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
-#include <dali/graphics-api/graphics-surface.h>
-#include <dali/graphics-api/graphics-controller.h>
 
-namespace Dali::Graphics::Vulkan
+#include <dali/graphics-api/graphics-framebuffer.h>
+#include <dali/graphics-api/graphics-framebuffer-create-info.h>
+
+namespace Dali
+{
+namespace Graphics
+{
+namespace Vulkan
 {
 
-using SurfaceResource = Resource<Graphics::Surface, Graphics::SurfaceCreateInfo>;
-
-/**
- * Structure to manager lifecycle of graphics surface.
- * This is currently just wrapping the FramebufferId used to reference the surface+swapchain
- * in the VulkanDevice (mSurfaceFBIDMap).
- */
-class Surface : public SurfaceResource
+using FramebufferResource = Resource<Graphics::Framebuffer, Graphics::FramebufferCreateInfo>;
+class Framebuffer : public FramebufferResource
 {
 public:
-  Surface(const Graphics::SurfaceCreateInfo& createInfo,
-          VulkanGraphicsController& graphicsController);
+  Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller);
 
-  ~Surface() override;
+  ~Framebuffer() override;
 
   /**
-   * @brief Called when GPU resources are destroyed
+   * @brief Called when GL resources are destroyed
    */
   void DestroyResource() override;
 
@@ -55,8 +54,11 @@ public:
    * @brief Called when UniquePtr<> on client-side dies
    */
   void DiscardResource() override;
+
 };
 
-} // namespace Dali::Graphics::Vulkan
+} // namespace Vulkan
+} // namespace Graphics
+} // namespace Dali
 
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_SURFACE_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H

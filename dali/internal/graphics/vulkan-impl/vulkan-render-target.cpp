@@ -16,17 +16,18 @@
  */
 
 // CLASS HEADER
-#include "gles-graphics-render-target.h"
+#include "vulkan-render-target.h"
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
+#include <dali/integration-api/render-surface.h>
 #include "vulkan-graphics-controller.h"
 #include "vulkan-framebuffer.h"
 
 namespace Dali::Graphics::Vulkan
 {
 
-RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, Graphics::EglGraphicsController& controller)
+RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, VulkanGraphicsController& controller)
 : RenderTargetResource(createInfo, controller)
 {
   if(createInfo.surface)
@@ -58,7 +59,7 @@ Vulkan::Framebuffer* RenderTarget::GetFramebuffer() const
   return static_cast<Vulkan::Framebuffer*>(mCreateInfo.framebuffer);
 }
 
-Vulkan::Surface* RenderTarget::GetSurface() const
+Integration::RenderSurface* RenderTarget::GetSurface() const
 {
   return mCreateInfo.surface;
 }

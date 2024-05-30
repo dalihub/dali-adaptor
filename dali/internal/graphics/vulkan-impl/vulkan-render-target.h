@@ -18,8 +18,11 @@
  */
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+
 #include <dali/graphics-api/graphics-render-target.h>
 #include <dali/graphics-api/graphics-render-target-create-info.h>
+#include <dali/integration-api/render-surface.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -59,12 +62,12 @@ public:
   /**
    * @brief Returns framebuffer associated with the render target
    */
-  Vulkan::Framebuffer* GetFramebuffer() const;
+  [[nodiscard]] Vulkan::Framebuffer* GetFramebuffer() const;
 
   /**
    * @brief Returns surface associated with the render target
    */
-  Vulkan::Surface* GetSurface() const;
+  [[nodiscard]] Integration::RenderSurface* GetSurface() const;
 };
 
 } // namespace Dali::Graphics::Vulkan

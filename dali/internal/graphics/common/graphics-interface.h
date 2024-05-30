@@ -104,16 +104,18 @@ public:
   virtual void Resume() = 0;
 
   /**
-   * Create a surface for the graphics implementation
-   */
-  virtual Graphics::UniquePtr<Surface> CreateSurface( SurfaceFactory& surfaceFactory ) = 0;
-
-  /**
    * Configure the graphics surface
    *
    * @param[in] surface The surface to configure, or NULL if not present
    */
   virtual void ConfigureSurface(Dali::RenderSurfaceInterface* surface) = 0;
+
+  /**
+   * Create the graphics surface and swapchain.
+   * @param[in] factory The factory used to generate a graphics surface for a window
+   * @return the Id of the graphics surface/swapchain pair.
+   */
+  virtual Graphics::FramebufferId CreateSurface(Graphics::SurfaceFactory& factory) = 0;
 
   /**
    * Returns controller object

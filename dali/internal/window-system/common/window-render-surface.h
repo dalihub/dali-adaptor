@@ -109,13 +109,6 @@ public: // API
    */
   WindowBase* GetWindowBase();
 
-  /**
-   * Get the graphics surface associated with this window
-   */
-  Dali::Graphics::Surface* GetGraphicsSurface()
-  {
-    return mGraphicsSurface.get();
-  }
 
   /**
    * @brief This signal is emitted when the output is transformed.
@@ -137,6 +130,19 @@ public: // from Dali::Integration::RenderSurface
    * @copydoc Dali::Integration::RenderSurface::InitializeGraphics()
    */
   virtual void InitializeGraphics( Graphics::GraphicsInterface& graphics ) override;
+
+  /**
+   * Store the associated id of the graphics surface (in the vulkan surface/swapchain map)
+   */
+  void SetGraphicsSurfaceId(Graphics::FramebufferId id);
+
+  /**
+   * Get the graphics surface id of this window
+   */
+  Dali::Graphics::FramebufferId GetGraphicsSurfaceId()
+  {
+    return mGraphicsSurface;
+  }
 
   /**
    * @copydoc Dali::Integration::RenderSurface::CreateSurface()
@@ -244,6 +250,7 @@ private: // Data
   Graphics::GraphicsInterface*    mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
+  Graphics::FramebufferId         mGraphicsSurface;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
@@ -251,7 +258,7 @@ private: // Data
   bool                            mRotationFinished;
   bool                            mScreenRotationFinished;
   bool                            mResizeFinished;
-  Graphics::UniquePtr<Dali::Graphics::Surface> mGraphicsSurface;
+
 }; // class WindowRenderSurface
 
 } // namespace Internal::Adaptor

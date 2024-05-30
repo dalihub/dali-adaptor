@@ -12,38 +12,40 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-// CLASS HEADER
-#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 
-// INTERNAL INCLUDES
-#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
-
-namespace Dali::Graphics::Vulkan
+namespace Dali
+{
+namespace Graphics
+{
+namespace Vulkan
 {
 
-Surface::Surface(const Graphics::SurfaceCreateInfo& createInfo,
-                 VulkanGraphicsController& graphicsController)
-: SurfaceResource(createInfo, graphicsController)
+Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller)
+: Resource(createInfo, controller)
 {
-  graphicsController.Add(this);
+  // mController.AddFramebuffer(*this)
 }
 
-Surface::~Surface() = default;
+Framebuffer::~Framebuffer() = default;
 
-bool Surface::InitializeResource()
+bool Framebuffer::InitializeResource()
 {
+  // @todo Create the framebuffer !!
   return true;
 }
 
-void Surface::DestroyResource()
+void Framebuffer::DestroyResource()
 {
 }
 
-void Surface::DiscardResource()
+void Framebuffer::DiscardResource()
 {
-  mController.DiscardResource(this);
 }
 
-} // namespace Dali::Graphics::Vulkan
+} // namespace Vulkan
+} // namespace Graphics
+} // namespace Dali

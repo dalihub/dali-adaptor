@@ -45,13 +45,8 @@ public:
 
   void Initialize() override;
 
-  /**
-   * @param surfaceFactory
-   * @return
-   */
-  Graphics::UniquePtr<Dali::Graphics::Surface> CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory) override;
-
   void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
+  Graphics::FramebufferId CreateSurface(Graphics::SurfaceFactory& factory) override;
 
   void Destroy() override;
 

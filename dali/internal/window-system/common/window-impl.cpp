@@ -150,7 +150,7 @@ void Window::SetAdaptor(Adaptor& adaptor)
 
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
-    .SetSurface(mSurface->GetGraphicsSurface())
+    .SetSurface(mSurface.get())
     .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
@@ -192,7 +192,7 @@ void Window::SetSurface(WindowRenderSurface* surface)
 
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
-    .SetSurface(mSurface->GetGraphicsSurface())
+    .SetSurface(mSurface.get())
     .SetExtent({static_cast<uint32_t>(mSurface->GetPositionSize().width), static_cast<uint32_t>(mSurface->GetPositionSize().height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 

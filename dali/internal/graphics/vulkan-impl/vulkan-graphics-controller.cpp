@@ -19,10 +19,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -172,7 +172,7 @@ void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo
 {
 }
 
-void VulkanGraphicsController::PresentRenderTarget(RenderTarget* renderTarget)
+void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
   // Test code to create a render pass to clear the surface
   mImpl->AcquireNextFramebuffer();
@@ -248,13 +248,8 @@ bool VulkanGraphicsController::IsDrawOnResumeRequired()
 
 UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget)
 {
-  //return NewObject(<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
-  return UniquePtr<Graphics::RenderTarget>{};
-}
+  return NewObject<Vulkan::RenderTarget>(renderTargetCreateInfo, *this, std::move(oldRenderTarget));
 
-UniquePtr<Graphics::Surface> VulkanGraphicsController::CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&&oldSurface)
-{
-  return NewObject<Graphics::Vulkan::Surface>(createInfo, *this, std::move(oldSurface));
 }
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
@@ -379,15 +374,12 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
   return "";
 }
 
-void VulkanGraphicsController::Add(Surface* surface)
+void VulkanGraphicsController::Add(Vulkan::RenderTarget* surface)
 {
-  // Don't store, it's already in Device...
 }
 
-void VulkanGraphicsController::DiscardResource(Surface* surface)
+void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* surface)
 {
-  mImpl->mGraphicsDevice->DestroySurface(surface->GetCreateInfo().framebufferId);
 }
-
 
 } //namespace Dali::Graphics

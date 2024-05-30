@@ -23,7 +23,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-surface.h>
 
 namespace Dali
 {

@@ -19,6 +19,10 @@
 
 #include <dali/graphics-api/graphics-controller.h>
 
+#include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+
+
 namespace Dali
 {
 namespace Graphics
@@ -58,7 +62,7 @@ public:
    * @brief Presents render target
    * @param renderTarget render target to present
    */
-  void PresentRenderTarget(RenderTarget* renderTarget) override;
+  void PresentRenderTarget(Graphics::RenderTarget* renderTarget) override;
 
   /**
    * @brief Waits until the GPU is idle
@@ -241,14 +245,6 @@ public:
   UniquePtr<Graphics::RenderTarget> CreateRenderTarget(const Graphics::RenderTargetCreateInfo& renderTargetCreateInfo, UniquePtr<Graphics::RenderTarget>&& oldRenderTarget) override;
 
   /**
-   * @brief Create matching graphics surface from existing surface (window/external image/framebuffer)
-   *
-   * @param[in] createInfo The valid creation struct
-   * @param[in] oldSurface the old surface object to re-use
-   */
-  UniquePtr<Graphics::Surface> CreateSurface(const Graphics::SurfaceCreateInfo& createInfo, UniquePtr<Graphics::Surface>&& oldSurface);
-
-  /**
    * Create a synchronisation object.
    *
    * @return A pointer to an opaque sync object
@@ -356,6 +352,8 @@ public:
 
   void Add(Vulkan::Surface* surface);
   void DiscardResource(Vulkan::Surface* surface);
+  void Add(Vulkan::RenderTarget* surface);
+  void DiscardResource(Vulkan::RenderTarget* surface);
 
 
 public: // Integration::GraphicsConfig

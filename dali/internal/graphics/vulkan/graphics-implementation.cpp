@@ -67,19 +67,17 @@ void VulkanGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
   surface->InitializeGraphics(*this); // Calls CreateSurface below
 }
 
-Graphics::UniquePtr<Dali::Graphics::Surface> VulkanGraphics::CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory)
+Graphics::FramebufferId VulkanGraphics::CreateSurface(Graphics::SurfaceFactory& surfaceFactory)
 {
   // create surface ( also takes surface factory ownership )
   auto framebufferId = mGraphicsDevice.CreateSurface( surfaceFactory, mCreateInfo );
 
   // create swapchain for surface
   auto surface = mGraphicsDevice.GetSurface( framebufferId );
+
   mGraphicsDevice.CreateSwapchainForSurface( surface );
 
-  // Create matching graphics surface
-  Graphics::SurfaceCreateInfo createInfo{};
-  createInfo.SetFramebufferId(framebufferId);
-  return mGraphicsController.CreateSurface(createInfo, nullptr);
+  return framebufferId;
 }
 
 void VulkanGraphics::Destroy()

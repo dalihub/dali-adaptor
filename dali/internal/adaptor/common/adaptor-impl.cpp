@@ -327,7 +327,7 @@ void Adaptor::Start()
   auto windowSurface = defaultWindow->GetSurface();
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
-    .SetSurface(windowSurface->GetGraphicsSurface())
+    .SetSurface(windowSurface)
     .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
@@ -475,7 +475,7 @@ void Adaptor::ReplaceSurface( Dali::Window window, Dali::RenderSurfaceInterface&
       // Let the core know the surface size has changed
       Graphics::RenderTargetCreateInfo rtInfo{};
       rtInfo
-        .SetSurface(windowSurface->GetGraphicsSurface())
+        .SetSurface(windowSurface)
         .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
         .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
@@ -870,14 +870,14 @@ void Adaptor::SurfaceResizePrepare( Dali::RenderSurfaceInterface* surface, Surfa
   auto windowSurface = static_cast<WindowRenderSurface*>( surface );
   Graphics::RenderTargetCreateInfo rtInfo{};
   rtInfo
-    .SetSurface(windowSurface->GetGraphicsSurface())
+    .SetSurface(windowSurface)
     .SetExtent({static_cast<uint32_t>(windowSurface->GetPositionSize().width), static_cast<uint32_t>(windowSurface->GetPositionSize().height)})
     .SetPreTransform(0 | Graphics::RenderTargetTransformFlagBits::TRANSFORM_IDENTITY_BIT);
 
   mCore->SurfaceResized( surface, rtInfo );
 
-  //@todo Inform graphics subsystem
-  //mGraphics->SurfaceResized( surfaceSize.width, surfaceSize.height );
+  // Inform graphics subsystem
+  mGraphics->SurfaceResized( surfaceSize.GetWidth(), surfaceSize.GetHeight() );
 
   mResizedSignal.Emit( mAdaptor );
 }

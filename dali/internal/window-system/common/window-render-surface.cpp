@@ -55,14 +55,14 @@ WindowRenderSurface::WindowRenderSurface( Dali::PositionSize positionSize, Any s
   mGraphics( nullptr ),
   mColorDepth( isTransparent ? COLOR_DEPTH_32 : COLOR_DEPTH_24 ),
   mOutputTransformedSignal(),
+  mGraphicsSurface( 0u ),
   mRotationAngle( 0 ),
   mScreenRotationAngle( 0 ),
   mOwnSurface( false ),
   mRotationSupported( false ),
   mRotationFinished( true ),
   mScreenRotationFinished( true ),
-  mResizeFinished( true ),
-  mGraphicsSurface( nullptr )
+  mResizeFinished( true )
 {
   DALI_LOG_INFO( gWindowRenderSurfaceLogFilter, Debug::Verbose, "Creating Window\n" );
   Initialize( surface );
@@ -181,12 +181,20 @@ void WindowRenderSurface::InitializeGraphics( Graphics::GraphicsInterface& graph
   CreateSurface();
 }
 
+void WindowRenderSurface::SetGraphicsSurfaceId(Graphics::FramebufferId id)
+{
+  mGraphicsSurface = id;
+}
+
 void WindowRenderSurface::CreateSurface()
 {
   DALI_LOG_TRACE_METHOD( gWindowRenderSurfaceLogFilter );
 
+  // Create a surface factory for this window.
   auto surfaceFactory = Graphics::SurfaceFactory::New(*this);
-  mGraphicsSurface = mGraphics->CreateSurface( *surfaceFactory ) ;
+  // Use the factory to create a graphics surface and swapchain.
+  auto framebufferId = mGraphics->CreateSurface(*surfaceFactory);
+  SetGraphicsSurfaceId(framebufferId);
 
   // Check rotation capability
   mRotationSupported = mWindowBase->IsEglWindowRotationSupported();
@@ -350,5 +358,3 @@ void WindowRenderSurface::ProcessRotationRequest()
 } // namespace Dali::Internal::Adaptor
 
 // namespace internal
-
-
