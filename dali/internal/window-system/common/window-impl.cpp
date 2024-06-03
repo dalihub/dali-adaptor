@@ -883,9 +883,33 @@ Dali::Layer Window::GetRootLayer() const
   return mScene.GetRootLayer();
 }
 
+void Window::SetBackgroundColor(const Vector4& color)
+{
+  mBackgroundColor = color;
+  if(mIsTransparent)
+  {
+    Vector4 backgroundColor = color;
+    backgroundColor.r *= backgroundColor.a;
+    backgroundColor.g *= backgroundColor.a;
+    backgroundColor.b *= backgroundColor.a;
+    SceneHolder::SetBackgroundColor(backgroundColor);
+  }
+  else
+  {
+    SceneHolder::SetBackgroundColor(color);
+  }
+}
+
+Vector4 Window::GetBackgroundColor() const
+{
+  return mBackgroundColor;
+}
+
 void Window::SetTransparency(bool transparent)
 {
-  mWindowSurface->SetTransparency(transparent);
+  mIsTransparent = transparent;
+  mWindowSurface->SetTransparency(mIsTransparent);
+  SceneHolder::SetBackgroundColor(mBackgroundColor);
 }
 
 bool Window::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
