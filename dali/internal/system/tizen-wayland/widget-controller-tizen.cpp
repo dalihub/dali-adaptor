@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2021 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,14 +83,12 @@ void WidgetImplTizen::SetContentInfo(const std::string& contentInfo)
   }
 
   setContentInfoFuncPtr = reinterpret_cast<SetContentInfoFunc>(dlsym(mHandle, "SetContentInfo"));
-  if(setContentInfoFuncPtr != nullptr)
-  {
-    setContentInfoFuncPtr(mInstanceHandle, contentBundle);
-  }
-  else
+  if(setContentInfoFuncPtr == nullptr)
   {
     print_log(DLOG_ERROR, "DALI", "SetContentInfo is null\n" );
+    return;
   }
+  setContentInfoFuncPtr(mInstanceHandle, contentBundle);
 
   bundle_free(contentBundle);
 

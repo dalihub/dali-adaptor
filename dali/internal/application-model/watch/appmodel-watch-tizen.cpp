@@ -49,8 +49,7 @@ extern "C" DALI_ADAPTOR_API AppModelWatch* Create() {
 }
 
 extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
-  AppModelWatch* appWatch = static_cast<AppModelWatch*>(p);
-  delete appWatch;
+  delete p;
 }
 
 extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {

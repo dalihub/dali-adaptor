@@ -49,19 +49,21 @@ namespace Adaptor
 {
 
 extern "C" DALI_ADAPTOR_API AppModelWidget* Create() {
+    print_log(DLOG_INFO, "DALI", "AppModelWidget Create");
   return new AppModelWidget();
 }
 
 extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
-  AppModelWidget* appWidget = static_cast<AppModelWidget*>(p);
-  delete appWidget;
+  delete p;
 }
 
 extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
+  print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 1");
   AppModelWidget* appWidget = static_cast<AppModelWidget*>(pData);
   int ret = 0;
   if (appWidget != nullptr)
   {
+  print_log(DLOG_INFO, "DALI", "AppModelWidget AppMain 2");
     ret = appWidget->AppMain(data);
   }
   else
