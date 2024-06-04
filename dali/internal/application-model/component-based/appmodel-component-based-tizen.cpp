@@ -47,7 +47,8 @@ extern "C" DALI_ADAPTOR_API AppModelComponentBased* Create() {
 }
 
 extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
-  delete p;
+  AppModelComponentBased* appComponent = static_cast<AppModelComponentBased*>(p);
+  delete appComponent;
 }
 
 extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
