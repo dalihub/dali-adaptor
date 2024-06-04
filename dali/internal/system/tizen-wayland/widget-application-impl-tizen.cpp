@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -141,13 +141,16 @@ void WidgetApplicationTizen::RegisterWidgetCreatingFunction(const std::string& w
   }
 
   registerFunctionPtr = reinterpret_cast<RegisterFunction>(dlsym(mHandle, "RegisterWidgetCallback"));
-  if(registerFunctionPtr == nullptr)
+  if(registerFunctionPtr != nullptr)
   {
-    DALI_LOG_ERROR("createFunctionPtr is null\n");
+    registerFunctionPtr(widgetName.c_str(), this);
   }
-  registerFunctionPtr(widgetName.c_str(), this);
-  
-  if(mHandle!=NULL)
+  else
+  {
+    print_log(DLOG_INFO, "DALI", "registerFunctionPtr is null\n");
+  }
+
+  if(mHandle != NULL)
   {
     dlclose(mHandle);
   }
