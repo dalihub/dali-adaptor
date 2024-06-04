@@ -1,5 +1,5 @@
-#ifndef DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
-#define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
+#ifndef DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H
+#define DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H
 
 /*
  * Copyright (c) 2019 Samsung Electronics Co., Ltd.
@@ -26,17 +26,16 @@ namespace Dali::Graphics::Vulkan
 {
 class Device;
 
-class CommandBuffer : public VkManaged
+class CommandBufferImpl : public VkManaged
 {
   friend class CommandPool;
 
   friend struct CommandBufferPool;
 
 public:
+  CommandBufferImpl() = delete;
 
-  CommandBuffer() = delete;
-
-  ~CommandBuffer() override;
+  ~CommandBufferImpl() override;
 
   /** Begin recording */
   void Begin( vk::CommandBufferUsageFlags usageFlags, vk::CommandBufferInheritanceInfo* inheritanceInfo );
@@ -51,21 +50,13 @@ public:
   void Free();
 
   /** Returns Vulkan object associated with the buffer */
-  vk::CommandBuffer GetVkHandle() const;
+  [[nodiscard]] vk::CommandBuffer GetVkHandle() const;
 
   /**
    * Tests if the command buffer is primary
    * @return Returns true if the command buffer is primary
    */
-  bool IsPrimary() const;
-
-  /**
-   * Begins render pass using VkRenderPass and VkFramebuffer associated with FBID
-   * @todo should be replaced with proper implementation and use the framebuffer
-   * @param framebufferId
-   * @param bufferIndex
-   */
-  void BeginRenderPass( Graphics::FramebufferId framebufferId, uint32_t bufferIndex );
+  [[nodiscard]] bool IsPrimary() const;
 
   /**
    * Allows to issue custom VkRenderPassBeginInfo structure
@@ -91,12 +82,12 @@ private:
    * Returns allocation index
    * @return
    */
-  uint32_t GetPoolAllocationIndex() const;
+  [[nodiscard]] uint32_t GetPoolAllocationIndex() const;
 
 private:
 
   // Constructor called by the CommandPool only
-  CommandBuffer( CommandPool& commandPool,
+  CommandBufferImpl( CommandPool& commandPool,
                  uint32_t poolIndex,
                  const vk::CommandBufferAllocateInfo& allocateInfo,
                  vk::CommandBuffer vulkanHandle );
@@ -115,4 +106,4 @@ private:
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
+#endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_IMPL_H

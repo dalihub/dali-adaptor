@@ -25,7 +25,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
-class CommandBuffer;
+class CommandBufferImpl;
 class Fence;
 
 struct SubmissionData
@@ -34,20 +34,20 @@ struct SubmissionData
 
   explicit SubmissionData( const std::vector< vk::Semaphore >& waitSemaphores_,
                            vk::PipelineStageFlags waitDestinationStageMask_,
-                           const std::vector< CommandBuffer* >& commandBuffers_,
+                           const std::vector<CommandBufferImpl* >& commandBuffers_,
                            const std::vector< vk::Semaphore >& signalSemaphores_ );
 
   SubmissionData& SetWaitSemaphores( const std::vector< vk::Semaphore >& semaphores );
 
   SubmissionData& SetWaitDestinationStageMask( vk::PipelineStageFlags dstStageMask );
 
-  SubmissionData& SetCommandBuffers( const std::vector< CommandBuffer* >& cmdBuffers );
+  SubmissionData& SetCommandBuffers( const std::vector<CommandBufferImpl* >& cmdBuffers );
 
   SubmissionData& SetSignalSemaphores( const std::vector< vk::Semaphore >& semaphores );
 
   std::vector< vk::Semaphore > waitSemaphores;
   vk::PipelineStageFlags waitDestinationStageMask;
-  std::vector< CommandBuffer* > commandBuffers;
+  std::vector<CommandBufferImpl* > commandBuffers;
   std::vector< vk::Semaphore > signalSemaphores;
 };
 

@@ -66,21 +66,21 @@ public: // API
    * @param allocateInfo
    * @return
    */
-  CommandBuffer* NewCommandBuffer( const vk::CommandBufferAllocateInfo& allocateInfo );
+  CommandBufferImpl* NewCommandBuffer( const vk::CommandBufferAllocateInfo& allocateInfo );
 
   /**
    *
    * @param isPrimary
    * @return
    */
-  CommandBuffer* NewCommandBuffer( bool isPrimary = true );
+  CommandBufferImpl* NewCommandBuffer( bool isPrimary = true );
 
   /**
    * Releases command buffer
    * @param buffer
    * @return
    */
-  bool ReleaseCommandBuffer( CommandBuffer& buffer );
+  bool ReleaseCommandBuffer(CommandBufferImpl& buffer );
 
   /**
    * Returns current pool capacity ( 0 if nothing allocated )
@@ -117,10 +117,10 @@ private: //Internal structs
 
     struct Node
     {
-      Node( uint32_t _nextFreeIndex, CommandBuffer* _commandBuffer );
+      Node( uint32_t _nextFreeIndex, CommandBufferImpl* _commandBuffer );
 
       uint32_t nextFreeIndex;
-      CommandBuffer* commandBuffer;
+      CommandBufferImpl* commandBuffer;
     };
 
     InternalPool( CommandPool& owner, Device* graphics, uint32_t initialCapacity, bool isPrimary );
@@ -144,14 +144,14 @@ private: //Internal structs
      * Allocates new command buffer
      * @return
      */
-    CommandBuffer* AllocateCommandBuffer( bool reset );
+    CommandBufferImpl* AllocateCommandBuffer( bool reset );
 
     /**
      * Releases command buffer back to the pool
      * @param reset if true, Resets command buffer
      * @param ref
      */
-    void ReleaseCommandBuffer( CommandBuffer& buffer, bool reset = false );
+    void ReleaseCommandBuffer(CommandBufferImpl& buffer, bool reset = false );
 
     uint32_t GetCapacity() const;
 

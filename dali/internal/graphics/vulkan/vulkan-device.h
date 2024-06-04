@@ -38,6 +38,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
+class RenderPassImpl;
 
 using CommandPoolMap = std::unordered_map< std::thread::id, CommandPool* >;
 
@@ -121,14 +122,10 @@ public: // Getters
   Fence* CreateFence(const vk::FenceCreateInfo& fenceCreateInfo);
 
   FramebufferImpl* CreateFramebuffer(const std::vector< FramebufferAttachment* >& colorAttachments,
-                                 FramebufferAttachment* depthAttachment,
-                                 uint32_t width,
-                                 uint32_t height,
-                                 vk::RenderPass externalRenderPass = nullptr);
-
-  vk::RenderPass CreateCompatibleRenderPass(const std::vector< FramebufferAttachment* >& colorAttachments,
-                                            FramebufferAttachment* depthAttachment,
-                                            std::vector<vk::ImageView>& attachments);
+                                     FramebufferAttachment* depthAttachment,
+                                     uint32_t width,
+                                     uint32_t height,
+                                     RenderPassImpl* externalRenderPass = nullptr);
 
   Image* CreateImageFromExternal( vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent );
 

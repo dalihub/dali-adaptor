@@ -58,7 +58,7 @@ class Device;
 class Queue;
 
 class Buffer;
-class CommandBuffer;
+class CommandBufferImpl;
 class CommandPool;
 class DescriptorPool;
 class DescriptorSet;

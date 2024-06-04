@@ -17,12 +17,16 @@
 // CLASS HEADER
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
+
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+
 
 namespace Dali::Graphics::Vulkan
 {
@@ -184,9 +188,10 @@ void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* rende
 
   primaryCommandBuffer->Begin( vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
   primaryCommandBuffer->BeginRenderPass( vk::RenderPassBeginInfo{}
-        .setFramebuffer( swapchain->GetCurrentFramebuffer()->GetVkHandle() )
-        .setRenderPass(swapchain->GetCurrentFramebuffer()->GetRenderPass() )
-        .setRenderArea( { {0, 0}, { swapchain->GetCurrentFramebuffer()->GetWidth(), swapchain->GetCurrentFramebuffer()->GetHeight() } } )
+        .setFramebuffer(swapchain->GetCurrentFramebuffer()->GetVkHandle())
+        .setRenderPass(swapchain->GetCurrentFramebuffer()->GetRenderPass())
+        .setRenderArea( { {0, 0}, { swapchain->GetCurrentFramebuffer()->GetWidth(),
+                                    swapchain->GetCurrentFramebuffer()->GetHeight() } } )
         .setPClearValues( swapchain->GetCurrentFramebuffer()->GetClearValues().data() )
         .setClearValueCount( uint32_t(swapchain->GetCurrentFramebuffer()->GetClearValues().size()) ), vk::SubpassContents::eInline );
   primaryCommandBuffer->EndRenderPass();
@@ -254,14 +259,13 @@ UniquePtr<Graphics::RenderTarget> VulkanGraphicsController::CreateRenderTarget(c
 
 UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer)
 {
-  //return NewObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
-  return UniquePtr<Graphics::CommandBuffer>{};
+  return NewObject<Vulkan::CommandBuffer>(commandBufferCreateInfo, *this, std::move(oldCommandBuffer));
 }
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-  //return NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
-  return UniquePtr<Graphics::RenderPass>{};
+  // Do new stuff?!
+  return NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
 }
 
 UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)
@@ -376,10 +380,16 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
 
 void VulkanGraphicsController::Add(Vulkan::RenderTarget* surface)
 {
+
 }
 
 void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* surface)
 {
+}
+
+Vulkan::Device& VulkanGraphicsController::GetGraphicsDevice()
+{
+  return *mImpl->mGraphicsDevice;
 }
 
 } //namespace Dali::Graphics

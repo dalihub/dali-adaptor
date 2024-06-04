@@ -34,7 +34,7 @@ namespace Dali::Graphics::Vulkan
  *
  * Struct: InternalPool
  */
-CommandPool::InternalPool::Node::Node( uint32_t _nextFreeIndex, CommandBuffer* _commandBuffer )
+CommandPool::InternalPool::Node::Node( uint32_t _nextFreeIndex, CommandBufferImpl* _commandBuffer )
 : nextFreeIndex( _nextFreeIndex ),
   commandBuffer( _commandBuffer )
 {
@@ -97,7 +97,7 @@ void CommandPool::InternalPool::Resize( uint32_t newCapacity )
   }
   for( auto&& cmdbuf : newBuffers )
   {
-    auto commandBuffer = new CommandBuffer( mOwner, i - 1, allocateInfo, cmdbuf );
+    auto commandBuffer = new CommandBufferImpl( mOwner, i - 1, allocateInfo, cmdbuf );
     mPoolData.emplace_back( i, commandBuffer );
     ++i;
   }
@@ -105,7 +105,7 @@ void CommandPool::InternalPool::Resize( uint32_t newCapacity )
   mCapacity = U32( mPoolData.size() );
 }
 
-CommandBuffer* CommandPool::InternalPool::AllocateCommandBuffer( bool reset )
+CommandBufferImpl* CommandPool::InternalPool::AllocateCommandBuffer( bool reset )
 {
   // resize if no more nodes
   if( mFirstFree == INVALID_NODE_INDEX )
@@ -126,7 +126,7 @@ CommandBuffer* CommandPool::InternalPool::AllocateCommandBuffer( bool reset )
   return node.commandBuffer;
 }
 
-void CommandPool::InternalPool::ReleaseCommandBuffer( CommandBuffer& buffer, bool reset )
+void CommandPool::InternalPool::ReleaseCommandBuffer(CommandBufferImpl& buffer, bool reset )
 {
   auto indexInPool = buffer.GetPoolAllocationIndex();
   mPoolData[indexInPool].nextFreeIndex = mFirstFree;
@@ -193,12 +193,12 @@ Device& CommandPool::GetGraphicsDevice() const
   return *mGraphicsDevice;
 }
 
-CommandBuffer* CommandPool::NewCommandBuffer( const vk::CommandBufferAllocateInfo& allocateInfo )
+CommandBufferImpl* CommandPool::NewCommandBuffer( const vk::CommandBufferAllocateInfo& allocateInfo )
 {
   return NewCommandBuffer( allocateInfo.level == vk::CommandBufferLevel::ePrimary );
 }
 
-CommandBuffer* CommandPool::NewCommandBuffer( bool isPrimary )
+CommandBufferImpl* CommandPool::NewCommandBuffer( bool isPrimary )
 {
   auto& usedPool = isPrimary ? *mInternalPoolPrimary : *mInternalPoolSecondary;
   return usedPool.AllocateCommandBuffer( false );
@@ -212,7 +212,7 @@ void CommandPool::Reset( bool releaseResources )
                                                : vk::CommandPoolResetFlags{} );
 }
 
-bool CommandPool::ReleaseCommandBuffer( CommandBuffer& buffer )
+bool CommandPool::ReleaseCommandBuffer(CommandBufferImpl& buffer )
 {
   if( buffer.IsPrimary() )
   {

@@ -26,7 +26,6 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, VulkanGraphicsController& controller)
 : RenderTargetResource(createInfo, controller)
 {

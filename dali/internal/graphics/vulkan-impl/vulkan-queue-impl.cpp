@@ -28,7 +28,7 @@ namespace Vulkan
 // submission
 SubmissionData::SubmissionData( const std::vector<vk::Semaphore>& waitSemaphores_,
                                 vk::PipelineStageFlags waitDestinationStageMask_,
-                                const std::vector<CommandBuffer*>& commandBuffers_,
+                                const std::vector<CommandBufferImpl*>& commandBuffers_,
                                 const std::vector<vk::Semaphore>& signalSemaphores_ )
         : waitSemaphores( waitSemaphores_ ),
           waitDestinationStageMask( waitDestinationStageMask_ ),
@@ -49,7 +49,7 @@ SubmissionData& SubmissionData::SetWaitDestinationStageMask( vk::PipelineStageFl
   return *this;
 }
 
-SubmissionData& SubmissionData::SetCommandBuffers( const std::vector< CommandBuffer* >& cmdBuffers )
+SubmissionData& SubmissionData::SetCommandBuffers( const std::vector<CommandBufferImpl* >& cmdBuffers )
 {
   commandBuffers = cmdBuffers;
   return *this;

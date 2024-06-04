@@ -31,7 +31,7 @@ namespace Graphics
 namespace Vulkan
 {
 
-CommandBuffer::CommandBuffer( CommandPool& commandPool,
+CommandBufferImpl::CommandBufferImpl( CommandPool& commandPool,
                               uint32_t poolIndex,
                               const vk::CommandBufferAllocateInfo& allocateInfo,
                               vk::CommandBuffer vulkanHandle )
@@ -43,13 +43,13 @@ CommandBuffer::CommandBuffer( CommandPool& commandPool,
 {
 }
 
-CommandBuffer::~CommandBuffer() = default;
+CommandBufferImpl::~CommandBufferImpl() = default;
 
 /** Begin recording */
-void CommandBuffer::Begin( vk::CommandBufferUsageFlags usageFlags,
+void CommandBufferImpl::Begin( vk::CommandBufferUsageFlags usageFlags,
                            vk::CommandBufferInheritanceInfo* inheritanceInfo )
 {
-  assert( !mRecording && "CommandBuffer already is in the recording state" );
+  assert( !mRecording && "CommandBufferImpl already is in the recording state" );
   auto info = vk::CommandBufferBeginInfo{};
   info.setPInheritanceInfo( inheritanceInfo );
   info.setFlags( usageFlags );
@@ -60,15 +60,15 @@ void CommandBuffer::Begin( vk::CommandBufferUsageFlags usageFlags,
 }
 
 /** Finish recording */
-void CommandBuffer::End()
+void CommandBufferImpl::End()
 {
-  assert( mRecording && "CommandBuffer is not in the recording state!" );
+  assert( mRecording && "CommandBufferImpl is not in the recording state!" );
   VkAssert( mCommandBuffer.end() );
   mRecording = false;
 }
 
 /** Reset command buffer */
-void CommandBuffer::Reset()
+void CommandBufferImpl::Reset()
 {
   assert( !mRecording && "Can't reset command buffer during recording!" );
   assert( mCommandBuffer && "Invalid command buffer!" );
@@ -76,57 +76,39 @@ void CommandBuffer::Reset()
 }
 
 /** Free command buffer */
-void CommandBuffer::Free()
+void CommandBufferImpl::Free()
 {
   assert( mCommandBuffer && "Invalid command buffer!" );
   mGraphicsDevice->GetLogicalDevice().freeCommandBuffers( mOwnerCommandPool->GetVkHandle(), mCommandBuffer );
 }
 
-vk::CommandBuffer CommandBuffer::GetVkHandle() const
+vk::CommandBuffer CommandBufferImpl::GetVkHandle() const
 {
   return mCommandBuffer;
 }
 
-bool CommandBuffer::IsPrimary() const
+bool CommandBufferImpl::IsPrimary() const
 {
   return mAllocateInfo.level == vk::CommandBufferLevel::ePrimary;
 }
 
-void CommandBuffer::BeginRenderPass( Graphics::FramebufferId framebufferId, uint32_t bufferIndex )
-{
-  auto swapchain = mGraphicsDevice->GetSwapchainForFramebuffer( 0u );
-  auto surface = mGraphicsDevice->GetSurface( 0u );
-  auto frameBuffer = swapchain->GetCurrentFramebuffer();
-  auto renderPass = frameBuffer->GetRenderPass();
-  auto clearValues = frameBuffer->GetClearValues();
-
-  auto info = vk::RenderPassBeginInfo{};
-  info.setFramebuffer( frameBuffer->GetVkHandle() );
-  info.setRenderPass( renderPass );
-  info.setClearValueCount( U32( clearValues.size() ) );
-  info.setPClearValues( clearValues.data() );
-  info.setRenderArea( vk::Rect2D( { 0, 0 }, surface->GetCapabilities().currentExtent ) );
-
-  mCommandBuffer.beginRenderPass( info, vk::SubpassContents::eInline );
-}
-
-void CommandBuffer::BeginRenderPass( vk::RenderPassBeginInfo renderPassBeginInfo, vk::SubpassContents subpassContents )
+void CommandBufferImpl::BeginRenderPass( vk::RenderPassBeginInfo renderPassBeginInfo, vk::SubpassContents subpassContents )
 {
   mCommandBuffer.beginRenderPass( renderPassBeginInfo, subpassContents );
 }
 
-void CommandBuffer::EndRenderPass()
+void CommandBufferImpl::EndRenderPass()
 {
   mCommandBuffer.endRenderPass();
 }
 
 
-uint32_t CommandBuffer::GetPoolAllocationIndex() const
+uint32_t CommandBufferImpl::GetPoolAllocationIndex() const
 {
   return mPoolAllocationIndex;
 }
 
-bool CommandBuffer::OnDestroy()
+bool CommandBufferImpl::OnDestroy()
 {
   mOwnerCommandPool->ReleaseCommandBuffer( *this );
   return true;

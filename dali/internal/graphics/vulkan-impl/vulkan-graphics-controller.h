@@ -48,6 +48,8 @@ public:
    */
   Integration::GraphicsConfig& GetGraphicsConfig() override;
 
+  Vulkan::Device& GetGraphicsDevice();
+
   /**
    * @brief Submits array of command buffers
    *
@@ -164,11 +166,11 @@ public:
   UniquePtr<Graphics::Buffer> CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer) override;
 
   /**
-   * @brief Creates new CommandBuffer object
+   * @brief Creates new CommandBufferImpl object
    *
    * @param[in] bufferCreateInfo The valid BufferCreateInfo structure
    * @param[in] oldCommandBuffer The valid pointer to the old object or nullptr. The object will be reused or destroyed.
-   * @return pointer to the CommandBuffer object
+   * @return pointer to the CommandBufferImpl object
    */
   UniquePtr<Graphics::CommandBuffer> CreateCommandBuffer(const Graphics::CommandBufferCreateInfo& commandBufferCreateInfo, UniquePtr<Graphics::CommandBuffer>&& oldCommandBuffer) override;
 

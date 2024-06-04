@@ -1,5 +1,5 @@
-#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H
-#define DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H
+#ifndef DALI_INTERNAL_GRAPHICS_VULKAN_RENDERPASS_H
+#define DALI_INTERNAL_GRAPHICS_VULKAN_RENDERPASS_H
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -20,24 +20,20 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
-#include <dali/graphics-api/graphics-framebuffer.h>
-#include <dali/graphics-api/graphics-framebuffer-create-info.h>
+#include <dali/graphics-api/graphics-render-pass.h>
+#include <dali/graphics-api/graphics-render-pass-create-info.h>
 
-namespace Dali
+namespace Dali::Graphics::Vulkan
 {
-namespace Graphics
-{
-namespace Vulkan
-{
-class FramebufferImpl;
+class RenderPassImpl;
 
-using FramebufferResource = Resource<Graphics::Framebuffer, Graphics::FramebufferCreateInfo>;
-class Framebuffer : public FramebufferResource
+using RenderPassResource = Resource<Graphics::RenderPass, Graphics::RenderPassCreateInfo>;
+class RenderPass : public RenderPassResource
 {
 public:
-  Framebuffer(const Graphics::FramebufferCreateInfo& createInfo, VulkanGraphicsController& controller);
+  RenderPass(const Graphics::RenderPassCreateInfo& createInfo, VulkanGraphicsController& controller);
 
-  ~Framebuffer() override;
+  ~RenderPass() override;
 
   /**
    * @brief Called when GL resources are destroyed
@@ -56,16 +52,12 @@ public:
    */
   void DiscardResource() override;
 
-  FramebufferImpl* GetImpl()
-  {
-    return mFramebufferImpl;
-  }
+  RenderPassImpl* GetImpl();
+
 private:
-  FramebufferImpl* mFramebufferImpl;
+  RenderPassImpl* mRenderPassImpl;
 };
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+} // namespace Dali::Graphics::Vulkan
 
-#endif // DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDERPASS_H

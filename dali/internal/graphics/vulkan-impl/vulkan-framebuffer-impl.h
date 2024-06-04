@@ -37,9 +37,11 @@ class Device;
 
 class FramebufferAttachment : public VkManaged
 {
-  friend class Device;
-
 public:
+  FramebufferAttachment(ImageView* imageView,
+                        vk::ClearValue clearColor,
+                        AttachmentType type,
+                        bool presentable);
 
   static FramebufferAttachment* NewColorAttachment( ImageView* imageView,
                                                    vk::ClearColorValue clearColorValue,
@@ -61,11 +63,6 @@ public:
 private:
   FramebufferAttachment() = default;
 
-  FramebufferAttachment( ImageView* imageView,
-                         vk::ClearValue clearColor,
-                         AttachmentType type,
-                         bool presentable  );
-
   ImageView* mImageView{nullptr};
   vk::AttachmentDescription mDescription;
   vk::ClearValue mClearValue;
@@ -81,7 +78,14 @@ private:
 class FramebufferImpl : public VkManaged
 {
 public:
-  friend class Device;
+  FramebufferImpl(Device& graphicsDevice,
+                  const std::vector<FramebufferAttachment*>& colorAttachments,
+                  FramebufferAttachment* depthAttachment,
+                  vk::Framebuffer vkHandle,
+                  vk::RenderPass renderPass,
+                  uint32_t width,
+                  uint32_t height,
+                  bool externalRenderPass = false );
 
   [[nodiscard]] uint32_t GetWidth() const;
 
@@ -100,16 +104,6 @@ public:
   [[nodiscard]] std::vector< vk::ClearValue > GetClearValues() const;
 
   bool OnDestroy() override;
-
-private:
-  FramebufferImpl( Device& graphicsDevice,
-               const std::vector<FramebufferAttachment*>& colorAttachments,
-               FramebufferAttachment* depthAttachment,
-               vk::Framebuffer vkHandle,
-               vk::RenderPass renderPass,
-               uint32_t width,
-               uint32_t height,
-               bool externalRenderPass = false );
 
 private:
   Device* mGraphicsDevice;
