@@ -30,7 +30,7 @@ namespace Dali::Graphics::Vulkan
 {
 
 SurfaceImpl::SurfaceImpl( Device& device, vk::SurfaceKHR surfaceKhr)
-: mGraphicsDevice( &device ),
+: mGraphicsDevice( device ),
   mSurface(surfaceKhr)
 {
 }
@@ -52,6 +52,53 @@ vk::SurfaceCapabilitiesKHR& SurfaceImpl::GetCapabilities()
   return mCapabilities;
 }
 
+bool SurfaceImpl::GetSupportedFormats(
+  vk::SurfaceFormatKHR requestedFormat,
+  vk::Format& swapchainImageFormat,
+  vk::ColorSpaceKHR& swapchainColorSpace)
+{
+  bool found=false;
+  auto supportedFormats = VkAssert( mGraphicsDevice.GetPhysicalDevice().getSurfaceFormatsKHR( mSurface ) );
+
+  // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
+  // there is no preferred format, so we assume vk::Format::eB8G8R8A8Unorm
+  if( supportedFormats.size() == 1 && supportedFormats[0].format == vk::Format::eUndefined )
+  {
+    swapchainColorSpace = supportedFormats[0].colorSpace;
+    swapchainImageFormat = vk::Format::eB8G8R8A8Unorm;
+  }
+  else // Try to find the requested format in the list
+  {
+    auto iter = std::find_if(supportedFormats.begin(),
+                             supportedFormats.end(),
+                             [ & ]( vk::SurfaceFormatKHR supportedFormat ) {
+                               return requestedFormat == supportedFormat.format;
+                             } );
+    // If found assign it.
+    if( iter != supportedFormats.end() )
+    {
+      found = true;
+      auto surfaceFormat = *iter;
+      swapchainColorSpace = surfaceFormat.colorSpace;
+      swapchainImageFormat = surfaceFormat.format;
+    }
+    else // Requested format not found...attempt to use the first one on the list
+    {
+      auto surfaceFormat = supportedFormats[0];
+      swapchainColorSpace = surfaceFormat.colorSpace;
+      swapchainImageFormat = surfaceFormat.format;
+    }
+  }
+  assert( swapchainImageFormat != vk::Format::eUndefined && "Could not find a supported swap chain image format." );
+  return found;
+}
+
+std::vector<vk::PresentModeKHR> SurfaceImpl::GetSurfacePresentModes()
+{
+  auto presentModes = mGraphicsDevice.GetPhysicalDevice().getSurfacePresentModesKHR(mSurface).value;
+  return presentModes;
+}
+
 void SurfaceImpl::UpdateSize( unsigned int width, unsigned int height )
 {
   mCapabilities.currentExtent.width = width;
@@ -62,11 +109,11 @@ bool SurfaceImpl::OnDestroy()
 {
   if( mSurface )
   {
-    auto instance = mGraphicsDevice->GetInstance();
+    auto instance = mGraphicsDevice.GetInstance();
     auto surface = mSurface;
-    auto allocator = &mGraphicsDevice->GetAllocator();
+    auto allocator = &mGraphicsDevice.GetAllocator();
 
-    mGraphicsDevice->DiscardResource( [ instance, surface, allocator ]() {
+    mGraphicsDevice.DiscardResource( [ instance, surface, allocator ]() {
       DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: surface->%p\n",
                      static_cast< VkSurfaceKHR >( surface ) )
       instance.destroySurfaceKHR( surface, allocator );
@@ -78,5 +125,3 @@ bool SurfaceImpl::OnDestroy()
 }
 
 } // namespace Dali::Graphics::Vulkan
-
-

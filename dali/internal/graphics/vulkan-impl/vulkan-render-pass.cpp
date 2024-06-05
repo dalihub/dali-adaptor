@@ -39,6 +39,11 @@ bool RenderPass::InitializeResource()
   DALI_ASSERT_ALWAYS(framebuffer);
   auto vkFramebuffer = framebuffer->GetImpl();
 
+  // Hmmm... VkFramebuffer needs a render pass... (or does it now?!)
+  //
+  // At any rate, we want to generate render passes for surface without generating fbos
+  // for surface swapchain images; then in RenderTarget initialization, auto-generate fbos
+  // against compatible render passes. So.
   std::vector<FramebufferAttachment*> colorAttachments = vkFramebuffer->GetAttachments(AttachmentType::COLOR);;
   std::vector<FramebufferAttachment*> depthAttachment = vkFramebuffer->GetAttachments(AttachmentType::DEPTH_STENCIL);;
 

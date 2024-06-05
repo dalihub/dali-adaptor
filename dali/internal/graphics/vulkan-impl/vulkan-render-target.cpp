@@ -32,6 +32,7 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, V
   if(createInfo.surface)
   {
     // Do creation stuff!
+    //   Create Swapchain?!
   }
 }
 

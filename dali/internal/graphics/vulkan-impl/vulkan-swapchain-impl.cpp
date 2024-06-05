@@ -85,26 +85,171 @@ SwapchainBuffer::~SwapchainBuffer()
   graphicsDevice.GetLogicalDevice().destroySemaphore( submitSemaphore, graphicsDevice.GetAllocator() );
 }
 
+Swapchain* Swapchain::NewSwapchain(
+  Device& device,
+  Queue& presentationQueue,
+  vk::SwapchainKHR oldSwapchain,
+  SurfaceImpl* surface,
+  vk::Format requestedFormat,
+  vk::PresentModeKHR presentMode,
+  uint32_t bufferCount)
+{
+  auto swapchain = new Swapchain(device, presentationQueue);
+  swapchain->CreateVkSwapchain(oldSwapchain, surface, requestedFormat, presentMode, bufferCount);
+  return swapchain;
+}
 
-
-Swapchain::Swapchain(Device& graphicsDevice,
-                     Queue& presentationQueue,
-                     SurfaceImpl* surface,
-                     std::vector< FramebufferImpl* >&& framebuffers,
-                     vk::SwapchainCreateInfoKHR createInfo,
-                     vk::SwapchainKHR vkHandle)
-: mGraphicsDevice( &graphicsDevice ),
+Swapchain::Swapchain(Device& graphicsDevice, Queue& presentationQueue)
+: mGraphicsDevice( graphicsDevice ),
   mQueue( &presentationQueue ),
-  mSurface( std::move( surface ) ),
-  mSwapchainImageIndex( 0u ),
-  mSwapchainKHR( vkHandle ),
-  mSwapchainCreateInfoKHR( std::move( createInfo ) ),
-  mFramebuffers( std::move( framebuffers ) ),
-  mIsValid( true )
+  mSwapchainKHR(nullptr),
+  mIsValid(false)
 {
 }
 
 Swapchain::~Swapchain() = default;
+
+void Swapchain::CreateVkSwapchain(
+  vk::SwapchainKHR oldSwapchain,
+  SurfaceImpl* surface,
+  vk::Format requestedFormat,
+  vk::PresentModeKHR presentMode,
+  uint32_t bufferCount)
+{
+  mSurface = surface;
+  vk::Format swapchainImageFormat{};
+  vk::ColorSpaceKHR swapchainColorSpace{};
+  surface->GetSupportedFormats(requestedFormat, swapchainImageFormat, swapchainColorSpace);
+
+  // Get the surface capabilities to determine some settings of the swap chain
+  auto surfaceCapabilities = surface->GetCapabilities();
+
+  // Determine the swap chain extent
+  auto swapchainExtent = surfaceCapabilities.currentExtent;
+
+  // Find a supported composite alpha format (not all devices support alpha opaque)
+  auto compositeAlpha = vk::CompositeAlphaFlagBitsKHR{};
+
+  // Simply select the first composite alpha format available
+  auto compositeAlphaFlags = std::vector< vk::CompositeAlphaFlagBitsKHR >{
+          vk::CompositeAlphaFlagBitsKHR::eOpaque,
+          vk::CompositeAlphaFlagBitsKHR::ePreMultiplied,
+          vk::CompositeAlphaFlagBitsKHR::ePostMultiplied,
+          vk::CompositeAlphaFlagBitsKHR::eInherit
+  };
+
+  for( const auto& compositeAlphaFlag : compositeAlphaFlags )
+  {
+    if( surfaceCapabilities.supportedCompositeAlpha & compositeAlphaFlag )
+    {
+      compositeAlpha = compositeAlphaFlag;
+      break;
+    }
+  }
+
+  // Determine the number of images
+  if (surfaceCapabilities.minImageCount > 0 &&
+      bufferCount > surfaceCapabilities.minImageCount )
+  {
+      bufferCount = surfaceCapabilities.minImageCount;
+  }
+
+  // Find the transformation of the surface
+  vk::SurfaceTransformFlagBitsKHR preTransform;
+  if( surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity )
+  {
+    // We prefer a non-rotated transform
+    preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
+  }
+  else
+  {
+    preTransform = surfaceCapabilities.currentTransform;
+  }
+
+  auto presentModes = surface->GetSurfacePresentModes();
+  auto found = std::find_if( presentModes.begin(),
+                             presentModes.end(),
+                             [ & ]( vk::PresentModeKHR mode ) {
+                               return presentMode == mode;
+                             } );
+
+  if( found == presentModes.end() )
+  {
+    // Requested present mode not supported. Default to FIFO. FIFO is always supported as per spec.
+    presentMode = vk::PresentModeKHR::eFifo;
+  }
+
+  // Creation settings have been determined. Fill in the create info struct.
+  mSwapchainCreateInfoKHR
+    .setSurface( surface->GetVkHandle() )
+    .setPreTransform( preTransform )
+    .setPresentMode( presentMode )
+    .setOldSwapchain( oldSwapchain )
+    .setMinImageCount( bufferCount )
+    .setImageUsage( vk::ImageUsageFlagBits::eColorAttachment )
+    .setImageSharingMode( vk::SharingMode::eExclusive )
+    .setImageArrayLayers( 1 )
+    .setImageColorSpace( swapchainColorSpace )
+    .setImageFormat( swapchainImageFormat )
+    .setImageExtent( swapchainExtent )
+    .setCompositeAlpha( compositeAlpha )
+    .setClipped( static_cast<vk::Bool32>(true) )
+    .setQueueFamilyIndexCount( 0 )
+    .setPQueueFamilyIndices( nullptr );
+
+  // Create the swap chain
+  mSwapchainKHR = VkAssert(mGraphicsDevice.GetLogicalDevice().createSwapchainKHR(mSwapchainCreateInfoKHR, mGraphicsDevice.GetAllocator()));
+}
+
+
+void Swapchain::CreateFramebuffers()
+{
+  assert(mSwapchainKHR && "Needs a swapchain before creating framebuffers");
+
+  // pull images and create Framebuffers
+  auto images = VkAssert( mGraphicsDevice.GetLogicalDevice().getSwapchainImagesKHR( mSwapchainKHR ) );
+  auto surfaceCapabilities = mSurface->GetCapabilities();
+
+  // number of images must match requested buffering mode
+  if( images.size() < surfaceCapabilities.minImageCount )
+  {
+    DALI_LOG_STREAM( gVulkanFilter,
+                     Debug::General,
+                     "Swapchain creation failed: Swapchain images are less than the requested amount" );
+    mGraphicsDevice.GetLogicalDevice().destroySwapchainKHR( mSwapchainKHR );
+    mSwapchainKHR = nullptr;
+    return;
+  }
+
+  mFramebuffers.clear();
+  mFramebuffers.reserve( images.size() );
+
+  auto clearColor = vk::ClearColorValue{}.setFloat32( { 0.0f, 0.0f, 0.0f, 0.0f } );
+
+  //
+  // CREATE FRAMEBUFFERS
+  //
+
+  for( auto&& image : images )
+  {
+    auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
+                                                      mSwapchainCreateInfoKHR.imageFormat,
+                                                      mSwapchainCreateInfoKHR.imageExtent);
+
+    auto colorImageView = mGraphicsDevice.CreateImageView(colorImage);
+
+    // A new color attachment for each framebuffer
+    auto colorAttachment = FramebufferAttachment::NewColorAttachment( colorImageView,
+                                                                      clearColor,
+                                                                      true ); // presentable
+
+    mFramebuffers.push_back( mGraphicsDevice.CreateFramebuffer( { colorAttachment },
+                                                       nullptr,
+                                                       mSwapchainCreateInfoKHR.imageExtent.width,
+                                                       mSwapchainCreateInfoKHR.imageExtent.height ) );
+  }
+  mIsValid = true;
+}
 
 vk::SwapchainKHR Swapchain::GetVkHandle() const
 {
@@ -130,7 +275,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
     return nullptr;
   }
 
-  const auto& device = mGraphicsDevice->GetLogicalDevice();
+  const auto& device = mGraphicsDevice.GetLogicalDevice();
 
   // on swapchain first create sync primitives and master command buffer
   // if not created yet
@@ -139,7 +284,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
     mSwapchainBuffers.resize( MAX_SWAPCHAIN_RESOURCE_BUFFERS );
     for( auto& buffer : mSwapchainBuffers )
     {
-      buffer.reset( new SwapchainBuffer( *mGraphicsDevice ) );
+      buffer.reset( new SwapchainBuffer( mGraphicsDevice ) );
     }
   }
 
@@ -148,7 +293,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
 
   auto result = device.acquireNextImageKHR(mSwapchainKHR,
                                            std::numeric_limits<uint64_t>::max(),
-                                           mSwapchainBuffers[mGraphicsDevice->GetCurrentBufferIndex()]->acquireNextImageSemaphore,
+                                           mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()]->acquireNextImageSemaphore,
                                            nullptr, &mSwapchainImageIndex );
 
   DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d",
@@ -174,13 +319,13 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
   // cause a stall ( nvidia, ubuntu )
   if( mFrameCounter >= mSwapchainBuffers.size() )
   {
-    mGraphicsDevice->WaitForFence( mSwapchainBuffers[mGraphicsDevice->GetCurrentBufferIndex()]->endOfFrameFence );
+    mGraphicsDevice.WaitForFence( mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()]->endOfFrameFence );
   }
   else
   {
-    mGraphicsDevice->DeviceWaitIdle();
+    mGraphicsDevice.DeviceWaitIdle();
   }
-  //mGraphicsDevice->CollectGarbage();
+  //mGraphicsDevice.CollectGarbage();
 
   return mFramebuffers[mSwapchainImageIndex];
 }
@@ -202,7 +347,7 @@ void Swapchain::Present()
              .setPWaitSemaphores( nullptr )
              .setWaitSemaphoreCount( 0 );
 
-  mGraphicsDevice->Present( *mQueue, presentInfo );
+  mGraphicsDevice.Present( *mQueue, presentInfo );
 
   // handle error
   if( presentInfo.pResults[0] != vk::Result::eSuccess )
@@ -226,11 +371,11 @@ bool Swapchain::OnDestroy()
 {
   if( mSwapchainKHR )
   {
-    auto device = mGraphicsDevice->GetLogicalDevice();
+    auto device = mGraphicsDevice.GetLogicalDevice();
     auto swapchain = mSwapchainKHR;
-    auto allocator = &mGraphicsDevice->GetAllocator();
+    auto allocator = &mGraphicsDevice.GetAllocator();
 
-    mGraphicsDevice->DiscardResource( [ device, swapchain, allocator ]() {
+    mGraphicsDevice.DiscardResource( [ device, swapchain, allocator ]() {
       DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n",
                      static_cast< VkSwapchainKHR >(swapchain) )
       device.destroySwapchainKHR( swapchain, allocator );
@@ -251,10 +396,9 @@ void Swapchain::Invalidate()
   mIsValid = false;
 }
 
-#if 0
-/*
 void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 {
+#if 0
   RefCountedFramebufferAttachment depthAttachment;
   auto swapchainExtent = mSwapchainCreateInfoKHR.imageExtent;
 
@@ -273,9 +417,9 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
       .setInitialLayout( vk::ImageLayout::eUndefined )
       .setSamples( vk::SampleCountFlagBits::e1 );
 
-    auto dsRefCountedImage = mGraphics->CreateImage( imageCreateInfo );
+    auto dsRefCountedImage = mGraphicsDevice->CreateImage( imageCreateInfo );
 
-    auto memory = mGraphics->AllocateMemory( dsRefCountedImage, vk::MemoryPropertyFlagBits::eDeviceLocal );
+    auto memory = mGraphicsDevice->AllocateMemory( dsRefCountedImage, vk::MemoryPropertyFlagBits::eDeviceLocal );
 
     mGraphics->BindImageMemory( dsRefCountedImage, std::move(memory), 0 );
 
@@ -317,9 +461,8 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
   mGraphics->DeviceWaitIdle();
 
   mFramebuffers = std::move( framebuffers );
-}
-*/
 #endif
+}
 
 uint32_t Swapchain::GetImageCount() const
 {

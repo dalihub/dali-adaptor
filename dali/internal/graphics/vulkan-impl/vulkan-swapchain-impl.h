@@ -34,18 +34,29 @@ class SwapchainBuffer;
 class Swapchain : public VkManaged
 {
 public:
+  static Swapchain* NewSwapchain(
+    Device& device,
+    Queue& presentationQueue,
+    vk::SwapchainKHR oldSwapchain,
+    SurfaceImpl* surface,
+    vk::Format requestedFormat,
+    vk::PresentModeKHR presentMode,
+    uint32_t bufferCount);
+
+  Swapchain(Device& graphicsDevice, Queue& presentationQueue);
+
   ~Swapchain() override;
+
   Swapchain( const Swapchain& ) = delete;
   Swapchain& operator=( const Swapchain& ) = delete;
 
-  Swapchain(Device& graphicsDevice,
-            Queue& presentationQueue,
-            SurfaceImpl* surface,
-            std::vector< FramebufferImpl* >&& framebuffers,
-            vk::SwapchainCreateInfoKHR createInfo,
-            vk::SwapchainKHR vkHandle );
+  /**
+   * Automatically create framebuffers (generating compatible render passes)
+   */
+  void CreateFramebuffers();
 
   [[nodiscard]] vk::SwapchainKHR GetVkHandle() const;
+
   void SetVkHandle(vk::SwapchainKHR swapchainKhr)
   {
     mSwapchainKHR = swapchainKhr;
@@ -55,14 +66,14 @@ public:
    * Returns current framebuffer ( the one which is rendering to )
    * @return
    */
-  FramebufferImpl* GetCurrentFramebuffer() const;
+  [[nodiscard]] FramebufferImpl* GetCurrentFramebuffer() const;
 
   /**
    * Returns any framebuffer from the queue
    * @param index
    * @return
    */
-  FramebufferImpl* GetFramebuffer( uint32_t index ) const;
+  [[nodiscard]] FramebufferImpl* GetFramebuffer( uint32_t index ) const;
 
   /**
    * This function acquires next framebuffer
@@ -97,18 +108,25 @@ public:
    * Returns number of allocated swapchain images
    * @return Number of swapchain images
    */
-  uint32_t GetImageCount() const;
-
+  [[nodiscard]] uint32_t GetImageCount() const;
 
 private:
-  Device* mGraphicsDevice;
-  Queue* mQueue;
-  SurfaceImpl* mSurface;
+  void CreateVkSwapchain(
+    vk::SwapchainKHR oldSwapchain,
+    SurfaceImpl* surface,
+    vk::Format requestedFormat,
+    vk::PresentModeKHR presentMode,
+    uint32_t bufferCount);
 
-  uint32_t mSwapchainImageIndex; ///< Swapchain image index returned by vkAcquireNextImageKHR
+private:
+  Device& mGraphicsDevice;
+  Queue* mQueue;
+  SurfaceImpl* mSurface{};
+
+  uint32_t mSwapchainImageIndex{}; ///< Swapchain image index returned by vkAcquireNextImageKHR
 
   vk::SwapchainKHR mSwapchainKHR;
-  vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR;
+  vk::SwapchainCreateInfoKHR mSwapchainCreateInfoKHR{};
 
   /**
    * FramebufferImpl object associated with the buffer
@@ -120,7 +138,7 @@ private:
    */
   std::vector<std::unique_ptr<SwapchainBuffer>> mSwapchainBuffers;
 
-  Fence* mBetweenRenderPassFence;
+  Fence* mBetweenRenderPassFence{};
 
   uint32_t mFrameCounter { 0u }; ///< Current frame number
 

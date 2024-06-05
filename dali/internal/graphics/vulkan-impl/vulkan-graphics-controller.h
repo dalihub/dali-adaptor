@@ -352,10 +352,8 @@ public:
    */
   bool GetProgramParameter(Graphics::Program& program, uint32_t parameterId, void* outData) override;
 
-  void Add(Vulkan::Surface* surface);
-  void DiscardResource(Vulkan::Surface* surface);
-  void Add(Vulkan::RenderTarget* surface);
-  void DiscardResource(Vulkan::RenderTarget* surface);
+  void Add(Vulkan::RenderTarget* renderTarget);
+  void DiscardResource(Vulkan::RenderTarget* renderTarget);
 
 
 public: // Integration::GraphicsConfig

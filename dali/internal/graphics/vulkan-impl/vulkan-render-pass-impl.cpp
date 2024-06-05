@@ -23,6 +23,12 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
+#include <dali/integration-api/debug.h>
+
+#if defined(DEBUG_ENABLED)
+extern Debug::Filter* gVulkanFilter;
+#endif
+
 namespace Dali::Graphics::Vulkan
 {
 
@@ -188,9 +194,22 @@ vk::RenderPass RenderPassImpl::GetVkHandle()
 
 bool RenderPassImpl::OnDestroy()
 {
-  // @todo Destroy render pass
-  return true;
+  if( mVkRenderPass )
+  {
+    auto device = mGraphicsDevice->GetLogicalDevice();
+    auto allocator = &mGraphicsDevice->GetAllocator();
+    auto renderPass = mVkRenderPass;
+    mGraphicsDevice->DiscardResource( [ device, renderPass, allocator ]() {
+      DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n",
+                     static_cast< VkRenderPass >(renderPass) )
+      device.destroyRenderPass( renderPass, allocator );
+    } );
+
+    mVkRenderPass = nullptr;
+  }
+  return false;
 }
+
 std::vector< vk::ImageView >& RenderPassImpl::GetAttachments()
 {
   return mAttachments;

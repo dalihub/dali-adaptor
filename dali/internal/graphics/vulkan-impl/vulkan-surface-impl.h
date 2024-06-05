@@ -47,6 +47,19 @@ public:
    */
   [[nodiscard]] vk::SurfaceCapabilitiesKHR& GetCapabilities();
 
+  std::vector<vk::PresentModeKHR> GetSurfacePresentModes();
+
+  /**
+   * @param[in] requestedFormat The format to search for
+   * @param[out] swapchainImageFormat The supported image format
+   * @param[out] swapchainColorSpace The supported color space
+   * @return true if requested format was found, false if default values used;
+   */
+  bool GetSupportedFormats(
+    vk::SurfaceFormatKHR requestedFormat,
+    vk::Format& swapchainImageFormat,
+    vk::ColorSpaceKHR& swapchainColorSpace);
+
   /**
    * Update size of surface
    */
@@ -55,7 +68,7 @@ public:
   bool OnDestroy() override;
 
 private:
-  Device*                    mGraphicsDevice;
+  Device&                    mGraphicsDevice;
   vk::SurfaceKHR             mSurface;
   vk::SurfaceCapabilitiesKHR mCapabilities;
 };

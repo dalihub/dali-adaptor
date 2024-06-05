@@ -68,6 +68,11 @@ public:
    * @brief Returns surface associated with the render target
    */
   [[nodiscard]] Integration::RenderSurface* GetSurface() const;
+
+  // Get Swapchain?
+
+private:
+  //  UniquePtr<Swapchain> mSwapchain;
 };
 
 } // namespace Dali::Graphics::Vulkan

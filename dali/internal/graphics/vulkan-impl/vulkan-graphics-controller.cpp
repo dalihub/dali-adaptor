@@ -264,7 +264,11 @@ UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-  // Do new stuff?!
+  // If this is for a surface, then we already have a render pass hidden inside the swapchain...
+  // The surface should have a GraphicsSurfaceId, which can be used to get the swapchain.
+  // But, we want to create multiple render passes in Core on a scene's surface...
+  // Now, renderPassCreateInfo contains renderTarget, so this implementation can decide to generate
+  // surface's swapchain framebuffers based on this new renderpass. Though, should be explicit about it!
   return NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
 }
 
@@ -378,12 +382,14 @@ std::string VulkanGraphicsController::GetFragmentShaderPrefix()
   return "";
 }
 
-void VulkanGraphicsController::Add(Vulkan::RenderTarget* surface)
+// Add to initialize resource queue
+void VulkanGraphicsController::Add(Vulkan::RenderTarget* renderTarget)
 {
 
 }
 
-void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* surface)
+// Add to discard queue
+void VulkanGraphicsController::DiscardResource(Vulkan::RenderTarget* renderTarget)
 {
 }
 

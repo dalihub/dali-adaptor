@@ -296,6 +296,7 @@ Swapchain* Device::CreateSwapchainForSurface( SurfaceImpl* surface )
   auto surfaceCapabilities = surface->GetCapabilities();
 
   //TODO: propagate the format and presentation mode to higher layers to allow for more control?
+  // @todo - for instance, Graphics::RenderTargetCreateInfo?!
   Swapchain* swapchain = CreateSwapchain( surface,
                                           vk::Format::eB8G8R8A8Unorm,
                                           vk::PresentModeKHR::eFifo,
@@ -347,127 +348,9 @@ Swapchain* Device::CreateSwapchain( SurfaceImpl* surface,
                                     uint32_t bufferCount,
                                     Swapchain*&& oldSwapchain )
 {
-  // obtain supported image format
-  auto supportedFormats = VkAssert( mPhysicalDevice.getSurfaceFormatsKHR( surface->GetVkHandle() ) );
-
-  vk::Format swapchainImageFormat{};
-  vk::ColorSpaceKHR swapchainColorSpace{};
-
-  // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
-  // there is no preferred format, so we assume vk::Format::eB8G8R8A8Unorm
-  if( supportedFormats.size() == 1 && supportedFormats[0].format == vk::Format::eUndefined )
-  {
-    swapchainColorSpace = supportedFormats[0].colorSpace;
-    swapchainImageFormat = vk::Format::eB8G8R8A8Unorm;
-  }
-  else // Try to find the requested format in the list
-  {
-    auto found = std::find_if( supportedFormats.begin(),
-                               supportedFormats.end(),
-                               [ & ]( vk::SurfaceFormatKHR supportedFormat ) {
-                                 return requestedFormat == supportedFormat.format;
-                               } );
-
-    // If found assign it.
-    if( found != supportedFormats.end() )
-    {
-      auto surfaceFormat = *found;
-      swapchainColorSpace = surfaceFormat.colorSpace;
-      swapchainImageFormat = surfaceFormat.format;
-    }
-    else // Requested format not found...attempt to use the first one on the list
-    {
-      auto surfaceFormat = supportedFormats[0];
-      swapchainColorSpace = surfaceFormat.colorSpace;
-      swapchainImageFormat = surfaceFormat.format;
-    }
-  }
-
-  assert( swapchainImageFormat != vk::Format::eUndefined && "Could not find a supported swap chain image format." );
-
-  // Get the surface capabilities to determine some settings of the swap chain
-  auto surfaceCapabilities = surface->GetCapabilities();
-
-  // Determine the swap chain extent
-  auto swapchainExtent = surfaceCapabilities.currentExtent;
-
-  // Find a supported composite alpha format (not all devices support alpha opaque)
-  auto compositeAlpha = vk::CompositeAlphaFlagBitsKHR{};
-
-  // Simply select the first composite alpha format available
-  auto compositeAlphaFlags = std::vector< vk::CompositeAlphaFlagBitsKHR >{
-          vk::CompositeAlphaFlagBitsKHR::eOpaque,
-          vk::CompositeAlphaFlagBitsKHR::ePreMultiplied,
-          vk::CompositeAlphaFlagBitsKHR::ePostMultiplied,
-          vk::CompositeAlphaFlagBitsKHR::eInherit
-  };
-
-  for( const auto& compositeAlphaFlag : compositeAlphaFlags )
-  {
-
-    if( surfaceCapabilities.supportedCompositeAlpha & compositeAlphaFlag )
-    {
-      compositeAlpha = compositeAlphaFlag;
-      break;
-    }
-  }
-
-  // Determine the number of images
-  if (surfaceCapabilities.minImageCount > 0 &&
-      bufferCount > surfaceCapabilities.minImageCount )
-  {
-      bufferCount = surfaceCapabilities.minImageCount;
-  }
-
-  // Find the transformation of the surface
-  vk::SurfaceTransformFlagBitsKHR preTransform;
-  if( surfaceCapabilities.supportedTransforms & vk::SurfaceTransformFlagBitsKHR::eIdentity )
-  {
-    // We prefer a non-rotated transform
-    preTransform = vk::SurfaceTransformFlagBitsKHR::eIdentity;
-  }
-  else
-  {
-    preTransform = surfaceCapabilities.currentTransform;
-  }
-
-
-  // Check if the requested present mode is supported
-  auto presentModes = mPhysicalDevice.getSurfacePresentModesKHR( surface->GetVkHandle() ).value;
-
-  auto found = std::find_if( presentModes.begin(),
-                             presentModes.end(),
-                             [ & ]( vk::PresentModeKHR mode ) {
-                               return presentMode == mode;
-                             } );
-
-  if( found == presentModes.end() )
-  {
-    // Requested present mode not supported. Default to FIFO. FIFO is always supported as per spec.
-    presentMode = vk::PresentModeKHR::eFifo;
-  }
-
-  // Creation settings have been determined. Fill in the create info struct.
-  auto swapChainCreateInfo = vk::SwapchainCreateInfoKHR{}.setSurface( surface->GetVkHandle() )
-                                                         .setPreTransform( preTransform )
-                                                         .setPresentMode( presentMode )
-                                                         .setOldSwapchain( oldSwapchain ? oldSwapchain->GetVkHandle()
-                                                                                        : vk::SwapchainKHR{} )
-                                                         .setMinImageCount( bufferCount )
-                                                         .setImageUsage( vk::ImageUsageFlagBits::eColorAttachment )
-                                                         .setImageSharingMode( vk::SharingMode::eExclusive )
-                                                         .setImageArrayLayers( 1 )
-                                                         .setImageColorSpace( swapchainColorSpace )
-                                                         .setImageFormat( swapchainImageFormat )
-                                                         .setImageExtent( swapchainExtent )
-                                                         .setCompositeAlpha( compositeAlpha )
-                                                         .setClipped( static_cast<vk::Bool32>(true) )
-                                                         .setQueueFamilyIndexCount( 0 )
-                                                         .setPQueueFamilyIndices( nullptr );
-
-
-  // Create the swap chain
-  auto swapChainVkHandle = VkAssert( mLogicalDevice.createSwapchainKHR( swapChainCreateInfo, mAllocator.get() ) );
+  auto newSwapchain = Swapchain::NewSwapchain( *this, GetPresentQueue(),
+                                              oldSwapchain?oldSwapchain->GetVkHandle():nullptr,
+                                              surface, requestedFormat, presentMode, bufferCount);
 
   if( oldSwapchain )
   {
@@ -492,45 +375,9 @@ Swapchain* Device::CreateSwapchain( SurfaceImpl* surface,
     mLogicalDevice.destroySwapchainKHR( khr, *mAllocator );
   }
 
-  // pull images and create Framebuffers
-  auto images = VkAssert( mLogicalDevice.getSwapchainImagesKHR( swapChainVkHandle ) );
-
-  // number of images must match requested buffering mode
-  if( images.size() < surfaceCapabilities.minImageCount )
-  {
-    DALI_LOG_STREAM( gVulkanFilter,
-                     Debug::General,
-                     "Swapchain creation failed: Swapchain images are less than the requested amount" );
-    mLogicalDevice.destroySwapchainKHR( swapChainVkHandle );
-    return nullptr;
-  }
-
-  auto framebuffers = std::vector<FramebufferImpl* >{};
-  framebuffers.reserve( images.size() );
-
-  auto clearColor = vk::ClearColorValue{}.setFloat32( { 0.0f, 0.0f, 0.0f, 0.0f } );
-
-  //
-  // CREATE FRAMEBUFFERS
-  //
-
-  for( auto&& image : images )
-  {
-    auto colorImageView = CreateImageView( CreateImageFromExternal( image, swapchainImageFormat, swapchainExtent ) );
-
-    // A new color attachment for each framebuffer
-    auto colorAttachment = FramebufferAttachment::NewColorAttachment( colorImageView,
-                                                                      clearColor,
-                                                                      true ); // presentable
-
-    framebuffers.push_back( CreateFramebuffer( { colorAttachment },
-                                               nullptr,
-                                               swapchainExtent.width,
-                                               swapchainExtent.height ) );
-  }
-
-  return new Swapchain( *this, GetPresentQueue(), surface, std::move(framebuffers),
-                       swapChainCreateInfo, swapChainVkHandle );
+  // @todo: Only create framebuffers if no "external" render passes.
+  newSwapchain->CreateFramebuffers(); // Note, this may destroy vk swapchain if invalid.
+  return newSwapchain;
 }
 
 vk::Result Device::Present( Queue& queue, vk::PresentInfoKHR presentInfo )
