@@ -181,7 +181,7 @@ void WindowRenderSurface::InitializeGraphics( Graphics::GraphicsInterface& graph
   CreateSurface();
 }
 
-void WindowRenderSurface::SetGraphicsSurfaceId(Graphics::FramebufferId id)
+void WindowRenderSurface::SetGraphicsSurfaceId(Graphics::SurfaceId id)
 {
   mGraphicsSurface = id;
 }

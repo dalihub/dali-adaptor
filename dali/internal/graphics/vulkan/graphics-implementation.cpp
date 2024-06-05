@@ -67,8 +67,7 @@ void VulkanGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
   surface->InitializeGraphics(*this); // Calls CreateSurface below
 }
 
-//@todo Rename Graphics::FramebufferId to Graphics::SurfaceId (equates to window #)
-Graphics::FramebufferId VulkanGraphics::CreateSurface(Graphics::SurfaceFactory& surfaceFactory)
+Graphics::SurfaceId VulkanGraphics::CreateSurface(Graphics::SurfaceFactory& surfaceFactory)
 {
   // create surface ( also takes surface factory ownership )
   auto surfaceId = mGraphicsDevice.CreateSurface( surfaceFactory, mCreateInfo );

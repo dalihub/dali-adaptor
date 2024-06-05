@@ -29,6 +29,14 @@ namespace Dali::Graphics
 {
 class SurfaceFactory;
 
+/**
+ * @brief Surface identifier
+ *
+ * The surface id is used as the index for windows in the vulkan implementation
+ */
+using SurfaceId = uint32_t;
+
+
 enum class  DepthStencilMode
 {
   /**
@@ -115,7 +123,7 @@ public:
    * @param[in] factory The factory used to generate a graphics surface for a window
    * @return the Id of the graphics surface/swapchain pair.
    */
-  virtual Graphics::FramebufferId CreateSurface(Graphics::SurfaceFactory& factory) = 0;
+  virtual Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory& factory) = 0;
 
   /**
    * Returns controller object

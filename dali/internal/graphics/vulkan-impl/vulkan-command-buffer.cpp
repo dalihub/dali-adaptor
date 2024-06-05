@@ -96,7 +96,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
                                     const std::vector<ClearValue>& clearValues)
 {
   //@todo Find a better place to auto-insert begin/end.
-  mCommandBufferImpl->Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
+  //mCommandBufferImpl->Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
 
   auto vulkanRenderPass   = static_cast<Vulkan::RenderPass*>(renderPass);
   auto vulkanRenderTarget = static_cast<Vulkan::RenderTarget*>(renderTarget);
@@ -107,8 +107,8 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
   if(surface)
   {
     auto window        = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface);
-    auto framebufferId = window->GetGraphicsSurfaceId();
-    auto swapchain     = device.GetSwapchainForFramebuffer(framebufferId);
+    auto surfaceId     = window->GetGraphicsSurfaceId();
+    auto swapchain     = device.GetSwapchainForSurfaceId(surfaceId);
     framebuffer        = swapchain->GetCurrentFramebuffer();
     vkRenderPass = framebuffer->GetRenderPass();
   }
@@ -122,8 +122,14 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
   std::vector<vk::ClearValue> vkClearValues;
   for(auto clearValue : clearValues)
   {
-    vkClearValues.emplace_back(vk::ClearColorValue{clearValue.color.r,clearValue.color.g,clearValue.color.b,clearValue.color.a});
+    vk::ClearColorValue color;
+    color.float32[0]=clearValue.color.r;
+    color.float32[1]=clearValue.color.g;
+    color.float32[2]=clearValue.color.b;
+    color.float32[3]=clearValue.color.a;
+    vkClearValues.emplace_back(color);
   }
+/**
   mCommandBufferImpl->BeginRenderPass( vk::RenderPassBeginInfo{}
                                          .setFramebuffer( framebuffer->GetVkHandle() )
                                          .setRenderPass( vkRenderPass )
@@ -131,11 +137,12 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
                                          .setPClearValues( vkClearValues.data() )
                                          .setClearValueCount( uint32_t(framebuffer->GetClearValues().size()) ),
                                       vk::SubpassContents::eInline );
+*/
 }
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
-  mCommandBufferImpl->EndRenderPass();
+  //mCommandBufferImpl->EndRenderPass();
 }
 
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)

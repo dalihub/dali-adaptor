@@ -224,17 +224,16 @@ void Swapchain::CreateFramebuffers()
   mFramebuffers.clear();
   mFramebuffers.reserve( images.size() );
 
-  auto clearColor = vk::ClearColorValue{}.setFloat32( { 0.0f, 0.0f, 0.0f, 0.0f } );
+  auto clearColor = vk::ClearColorValue{}.setFloat32( { 1.0f, 0.0f, 1.0f, 0.0f } );
 
   //
   // CREATE FRAMEBUFFERS
   //
-
   for( auto&& image : images )
   {
     auto colorImage = mGraphicsDevice.CreateImageFromExternal(image,
-                                                      mSwapchainCreateInfoKHR.imageFormat,
-                                                      mSwapchainCreateInfoKHR.imageExtent);
+                                                              mSwapchainCreateInfoKHR.imageFormat,
+                                                              mSwapchainCreateInfoKHR.imageExtent);
 
     auto colorImageView = mGraphicsDevice.CreateImageView(colorImage);
 
@@ -243,10 +242,11 @@ void Swapchain::CreateFramebuffers()
                                                                       clearColor,
                                                                       true ); // presentable
 
-    mFramebuffers.push_back( mGraphicsDevice.CreateFramebuffer( { colorAttachment },
-                                                       nullptr,
-                                                       mSwapchainCreateInfoKHR.imageExtent.width,
-                                                       mSwapchainCreateInfoKHR.imageExtent.height ) );
+    mFramebuffers.push_back(
+      mGraphicsDevice.CreateFramebuffer( { colorAttachment },
+                                         nullptr,
+                                         mSwapchainCreateInfoKHR.imageExtent.width,
+                                         mSwapchainCreateInfoKHR.imageExtent.height ) );
   }
   mIsValid = true;
 }

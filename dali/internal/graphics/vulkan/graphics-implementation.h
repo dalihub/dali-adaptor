@@ -46,7 +46,8 @@ public:
   void Initialize() override;
 
   void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
-  Graphics::FramebufferId CreateSurface(Graphics::SurfaceFactory& factory) override;
+
+  Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory& factory) override;
 
   void Destroy() override;
 

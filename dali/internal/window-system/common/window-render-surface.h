@@ -134,12 +134,12 @@ public: // from Dali::Integration::RenderSurface
   /**
    * Store the associated id of the graphics surface (in the vulkan surface/swapchain map)
    */
-  void SetGraphicsSurfaceId(Graphics::FramebufferId id);
+  void SetGraphicsSurfaceId(Graphics::SurfaceId id);
 
   /**
    * Get the graphics surface id of this window
    */
-  Dali::Graphics::FramebufferId GetGraphicsSurfaceId()
+  Dali::Graphics::SurfaceId GetGraphicsSurfaceId()
   {
     return mGraphicsSurface;
   }
@@ -250,7 +250,7 @@ private: // Data
   Graphics::GraphicsInterface*    mGraphics;           ///< Graphics interface
   ColorDepth                      mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
   OutputSignalType                mOutputTransformedSignal;
-  Graphics::FramebufferId         mGraphicsSurface;
+  Graphics::SurfaceId             mGraphicsSurface;
   int                             mRotationAngle;
   int                             mScreenRotationAngle;
   bool                            mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)

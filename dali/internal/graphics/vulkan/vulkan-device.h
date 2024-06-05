@@ -65,10 +65,10 @@ public: // Create methods
 
   void CreateDevice();
 
-  Graphics::FramebufferId CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
-                                         const Dali::Graphics::GraphicsCreateInfo& createInfo );
+  Graphics::SurfaceId CreateSurface( Dali::Graphics::SurfaceFactory& surfaceFactory,
+                                     const Dali::Graphics::GraphicsCreateInfo& createInfo );
 
-  void DestroySurface( Dali::Graphics::FramebufferId framebufferId );
+  void DestroySurface( Dali::Graphics::SurfaceId surfaceId );
 
   Swapchain* CreateSwapchainForSurface( SurfaceImpl* surface );
 
@@ -85,11 +85,11 @@ public: // Create methods
 
 
 public: // Getters
-  SurfaceImpl* GetSurface( Graphics::FramebufferId surfaceId );
+  SurfaceImpl* GetSurface( Graphics::SurfaceId surfaceId );
 
   Swapchain* GetSwapchainForSurface( SurfaceImpl* surface );
 
-  Swapchain* GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId );
+  Swapchain* GetSwapchainForSurfaceId( Graphics::SurfaceId surfaceId );
 
   vk::Device GetLogicalDevice() const;
 
@@ -183,9 +183,9 @@ private: // Members
 
   CommandPoolMap mCommandPools;
 
-  std::unordered_map< Graphics::FramebufferId, SwapchainSurfacePair > mSurfaceFBIDMap;
+  std::unordered_map< Graphics::SurfaceId, SwapchainSurfacePair > mSurfaceMap;
   bool mSurfaceResized{false};
-  Graphics::FramebufferId mBaseFramebufferId{0u};
+  Graphics::SurfaceId mBaseSurfaceId{0u};
 
   Platform mPlatform{Platform::UNDEFINED};
   uint32_t mCurrentBufferIndex{0u};

@@ -78,7 +78,7 @@ Device::~Device()
   // Wait for everything to finish on the GPU
   DeviceWaitIdle();
 
-  mSurfaceFBIDMap.clear();
+  mSurfaceMap.clear();
 
   DALI_LOG_STREAM( gVulkanFilter, Debug::General, "DESTROYING GRAPHICS CONTEXT--------------------------------\n" );
 
@@ -208,7 +208,7 @@ void Device::CreateDevice()
   // }
 }
 
-Graphics::FramebufferId Device::CreateSurface(
+Graphics::SurfaceId Device::CreateSurface(
   Dali::Graphics::SurfaceFactory& surfaceFactory,
   const Dali::Graphics::GraphicsCreateInfo& createInfo )
 {
@@ -255,10 +255,10 @@ Graphics::FramebufferId Device::CreateSurface(
 
   mSurfaceResized = false;
 
-  // map surface to FramebufferImpl Id
-  auto fbid = ++mBaseFramebufferId;
+  // map surface to SurfaceId
+  auto surfaceId = ++mBaseSurfaceId;
 
-  mSurfaceFBIDMap[ fbid ] = SwapchainSurfacePair{ nullptr, surface };
+  mSurfaceMap[ surfaceId ] = SwapchainSurfacePair{ nullptr, surface };
 
   if( createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_OPTIMAL ||
       createInfo.depthStencilMode == Dali::Graphics::DepthStencilMode::DEPTH_STENCIL_OPTIMAL )
@@ -275,15 +275,15 @@ Graphics::FramebufferId Device::CreateSurface(
     mHasStencil = true;
   }
 
-  return fbid;
+  return surfaceId;
 }
 
-void Device::DestroySurface( Dali::Graphics::FramebufferId framebufferId )
+void Device::DestroySurface( Dali::Graphics::SurfaceId surfaceId )
 {
-  if( auto surface = GetSurface( framebufferId ) )
+  if( auto surface = GetSurface( surfaceId ) )
   {
     DeviceWaitIdle();
-    auto swapchain = GetSwapchainForFramebuffer( framebufferId );
+    auto swapchain = GetSwapchainForSurfaceId( surfaceId );
     swapchain->Destroy();
     surface->Destroy();
   }
@@ -304,7 +304,7 @@ Swapchain* Device::CreateSwapchainForSurface( SurfaceImpl* surface )
                                           nullptr );
 
   // store swapchain in the correct pair
-  for( auto&& val : mSurfaceFBIDMap )
+  for( auto&& val : mSurfaceMap )
   {
     if( val.second.surface == surface )
     {
@@ -330,7 +330,7 @@ Swapchain* Device::ReplaceSwapchainForSurface( SurfaceImpl* surface, Swapchain*&
                                     std::move(oldSwapchain) );
 
   // store swapchain in the correct pair
-  for( auto&& val : mSurfaceFBIDMap )
+  for( auto&& val : mSurfaceMap )
   {
     if( val.second.surface == surface )
     {
@@ -354,7 +354,7 @@ Swapchain* Device::CreateSwapchain( SurfaceImpl* surface,
 
   if( oldSwapchain )
   {
-    for( auto&& i : mSurfaceFBIDMap )
+    for( auto&& i : mSurfaceMap )
     {
       if( i.second.swapchain == oldSwapchain )
       {
@@ -582,20 +582,19 @@ vk::Result Device::WaitForFence(Fence* fence, uint32_t timeout)
 
 // -------------------------------------------------------------------------------------------------------
 // Getters------------------------------------------------------------------------------------------------
-SurfaceImpl* Device::GetSurface( Graphics::FramebufferId surfaceId )
+SurfaceImpl* Device::GetSurface( Graphics::SurfaceId surfaceId )
 {
-  // TODO: FBID == 0 means default framebuffer, but there should be no
-  // such thing as default framebuffer.
+  // Note, surface ID == 0 means main window
   if( surfaceId == 0 )
   {
-    return mSurfaceFBIDMap.begin()->second.surface;
+    return mSurfaceMap.begin()->second.surface;
   }
-  return mSurfaceFBIDMap[surfaceId].surface;
+  return mSurfaceMap[surfaceId].surface;
 }
 
 Swapchain* Device::GetSwapchainForSurface( SurfaceImpl* surface )
 {
-  for( auto&& val : mSurfaceFBIDMap )
+  for( auto&& val : mSurfaceMap )
   {
     if( val.second.surface == surface )
     {
@@ -605,15 +604,15 @@ Swapchain* Device::GetSwapchainForSurface( SurfaceImpl* surface )
   return nullptr;
 }
 
-Swapchain* Device::GetSwapchainForFramebuffer( Graphics::FramebufferId surfaceId )
+Swapchain* Device::GetSwapchainForSurfaceId( Graphics::SurfaceId surfaceId )
 {
   if( surfaceId == 0 )
   {
-    return mSurfaceFBIDMap.begin()
+    return mSurfaceMap.begin()
                           ->second
                           .swapchain;
   }
-  return mSurfaceFBIDMap[surfaceId].swapchain;
+  return mSurfaceMap[surfaceId].swapchain;
 }
 
 vk::Device Device::GetLogicalDevice() const
@@ -666,11 +665,11 @@ CommandPool* Device::GetCommandPool( std::thread::id threadId)
 
 void Device::SurfaceResized( unsigned int width, unsigned int height )
 {
-  // Get surface with FBID "0"
-  // At first, check to empty about mSurfaceFBIDMap
-  if ( !mSurfaceFBIDMap.empty() )
+  // Get main window's surface
+  // At first, check to empty about mSurfaceMap
+  if ( !mSurfaceMap.empty() )
   {
-    auto surface = mSurfaceFBIDMap.begin()->second.surface;
+    auto surface = mSurfaceMap.begin()->second.surface;
     if (surface)
     {
       auto surfaceCapabilities = surface->GetCapabilities();

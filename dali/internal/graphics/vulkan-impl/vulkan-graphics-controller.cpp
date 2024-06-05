@@ -127,8 +127,7 @@ struct VulkanGraphicsController::Impl
   {
     // for all swapchains acquire new framebuffer
     auto surface = mGraphicsDevice->GetSurface( 0u );
-
-    auto swapchain = mGraphicsDevice->GetSwapchainForFramebuffer( 0u ); // @todo Rename from Framebuffer
+    auto swapchain = mGraphicsDevice->GetSwapchainForSurfaceId( 0u );
 
     if ( mGraphicsDevice->IsSurfaceResized() )
     {
@@ -181,7 +180,7 @@ void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* rende
   // Test code to create a render pass to clear the surface
   mImpl->AcquireNextFramebuffer();
 
-  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForFramebuffer( 0u );
+  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId( 0u );
 
   CommandPool* commandPool = mImpl->mGraphicsDevice->GetCommandPool(std::this_thread::get_id());
   auto primaryCommandBuffer = commandPool->NewCommandBuffer(true);
