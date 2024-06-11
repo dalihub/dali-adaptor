@@ -20,9 +20,9 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 
 #if 0
-#include <dali/internal/graphics/vulkan-impl/vulkan-fence.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
@@ -224,7 +224,7 @@ void Swapchain::CreateFramebuffers()
   mFramebuffers.clear();
   mFramebuffers.reserve( images.size() );
 
-  auto clearColor = vk::ClearColorValue{}.setFloat32( { 1.0f, 0.0f, 1.0f, 0.0f } );
+  auto clearColor = vk::ClearColorValue{}.setFloat32( { 1.0f, 0.0f, 1.0f, 1.0f } );
 
   //
   // CREATE FRAMEBUFFERS
@@ -277,8 +277,7 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
 
   const auto& device = mGraphicsDevice.GetLogicalDevice();
 
-  // on swapchain first create sync primitives and master command buffer
-  // if not created yet
+  // on swapchain first create sync primitives if not created yet
   if( mSwapchainBuffers.empty() )
   {
     mSwapchainBuffers.resize( MAX_SWAPCHAIN_RESOURCE_BUFFERS );
@@ -291,9 +290,10 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
   DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( BEFORE Acquire ) = %d",
                 int(mSwapchainImageIndex) );
 
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
   auto result = device.acquireNextImageKHR(mSwapchainKHR,
                                            std::numeric_limits<uint64_t>::max(),
-                                           mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()]->acquireNextImageSemaphore,
+                                           swapchainBuffer->acquireNextImageSemaphore,
                                            nullptr, &mSwapchainImageIndex );
 
   DALI_LOG_INFO( gVulkanFilter, Debug::General, "Swapchain Image Index ( AFTER Acquire ) = %d",
@@ -319,15 +319,36 @@ FramebufferImpl* Swapchain::AcquireNextFramebuffer( bool shouldCollectGarbageNow
   // cause a stall ( nvidia, ubuntu )
   if( mFrameCounter >= mSwapchainBuffers.size() )
   {
-    mGraphicsDevice.WaitForFence( mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()]->endOfFrameFence );
+    vk::Result result = swapchainBuffer->endOfFrameFence->GetStatus();
+    if(result == vk::Result::eNotReady)
+    {
+      swapchainBuffer->endOfFrameFence->Wait();
+      swapchainBuffer->endOfFrameFence->Reset();
+    }
   }
   else
   {
-    mGraphicsDevice.DeviceWaitIdle();
+    //mGraphicsDevice.DeviceWaitIdle(); // Do we care for first frame?!
   }
   //mGraphicsDevice.CollectGarbage();
 
   return mFramebuffers[mSwapchainImageIndex];
+}
+
+
+void Swapchain::Submit(CommandBufferImpl* commandBuffer)
+{
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
+
+  swapchainBuffer->endOfFrameFence->Reset();
+
+  mGraphicsDevice.Submit( *mQueue,
+                          { Vulkan::SubmissionData{
+                            {swapchainBuffer->acquireNextImageSemaphore},
+                            {},
+                            {commandBuffer},
+                            {swapchainBuffer->submitSemaphore}}},
+                          nullptr/*swapchainBuffer->inFlightFence*/); //This fence could guard resetting the cmd buffer
 }
 
 void Swapchain::Present()
@@ -338,14 +359,15 @@ void Swapchain::Present()
     return;
   }
 
+  auto& swapchainBuffer = mSwapchainBuffers[mGraphicsDevice.GetCurrentBufferIndex()];
   vk::PresentInfoKHR presentInfo{};
   vk::Result result;
   presentInfo.setPImageIndices( &mSwapchainImageIndex )
              .setPResults( &result )
              .setPSwapchains( &mSwapchainKHR )
              .setSwapchainCount( 1 )
-             .setPWaitSemaphores( nullptr )
-             .setWaitSemaphoreCount( 0 );
+             .setPWaitSemaphores( &swapchainBuffer->submitSemaphore )
+             .setWaitSemaphoreCount( 1 );
 
   mGraphicsDevice.Present( *mQueue, presentInfo );
 

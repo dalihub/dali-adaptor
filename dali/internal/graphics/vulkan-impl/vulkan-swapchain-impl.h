@@ -83,6 +83,11 @@ public:
   FramebufferImpl* AcquireNextFramebuffer( bool shouldCollectGarbageNow = true );
 
   /**
+   * Submits the given command buffer to the swapchain queue
+   */
+  void Submit(CommandBufferImpl* commandBuffer);
+
+  /**
    * Presents using default present queue, asynchronously
    */
   void Present();
@@ -93,9 +98,14 @@ public:
    * Returns true when swapchain expired
    * @return
    */
-  bool IsValid() const;
+  [[nodiscard]] bool IsValid() const;
 
   void Invalidate();
+
+  [[nodiscard]] Queue* GetQueue() const
+  {
+    return mQueue;
+  }
 
   /**
    * Enables depth/stencil buffer for swapchain ( off by default )

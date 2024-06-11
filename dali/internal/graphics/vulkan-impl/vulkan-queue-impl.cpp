@@ -17,12 +17,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-queue-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 
-namespace Dali
-{
-namespace Graphics
-{
-namespace Vulkan
+namespace Dali::Graphics::Vulkan
 {
 
 // submission
@@ -86,6 +83,19 @@ std::unique_ptr<std::lock_guard<std::recursive_mutex>> Queue::Lock()
   return std::unique_ptr<std::lock_guard<std::recursive_mutex>>( new std::lock_guard<std::recursive_mutex>( mMutex ) );
 }
 
-} // namespace Vulkan
-} // namespace Graphics
-} // namespace Dali
+vk::Result Queue::WaitIdle()
+{
+  return mQueue.waitIdle();
+}
+
+vk::Result Queue::Present(vk::PresentInfoKHR& presentInfo)
+{
+  return mQueue.presentKHR(&presentInfo);
+}
+
+vk::Result Queue::Submit(std::vector<vk::SubmitInfo>& info, Fence* fence)
+{
+  return VkAssert(mQueue.submit(info, fence?fence->GetVkHandle():nullptr));
+}
+
+} // namespace Dali::Graphics::Vulkan

@@ -21,10 +21,17 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 
+// EXTERNAL INCLUDES
+#include <limits>
+
 namespace Dali::Graphics::Vulkan
 {
 class Device;
 
+
+/**
+ * CPU sync
+ */
 class Fence : public VkManaged
 {
 public:
@@ -39,6 +46,12 @@ public:
   vk::Fence GetVkHandle() const;
 
   bool OnDestroy() override;
+
+  void Reset();
+
+  void Wait(uint32_t timeout=std::numeric_limits< uint32_t >::max());
+
+  vk::Result GetStatus();
 
 private:
 

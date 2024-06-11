@@ -79,6 +79,7 @@ public: // Create methods
                               uint32_t bufferCount,
                               Swapchain*&& oldSwapchain );
 
+  vk::Result Submit(Queue& queue, const std::vector< SubmissionData >& submissionData, Fence* fence = nullptr);
   vk::Result Present( Queue& queue, vk::PresentInfoKHR presentInfo );
   vk::Result QueueWaitIdle( Queue& queue );
   vk::Result DeviceWaitIdle();

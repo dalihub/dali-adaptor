@@ -23,6 +23,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
@@ -195,6 +196,10 @@ void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* rende
         .setClearValueCount( uint32_t(swapchain->GetCurrentFramebuffer()->GetClearValues().size()) ), vk::SubpassContents::eInline );
   primaryCommandBuffer->EndRenderPass();
   primaryCommandBuffer->End();
+
+  // Submit command buffer
+  swapchain->Submit(primaryCommandBuffer);
+
   swapchain->Present();
 }
 

@@ -71,4 +71,23 @@ bool Fence::OnDestroy()
   return false;
 }
 
+void Fence::Reset()
+{
+  auto device = mGraphicsDevice->GetLogicalDevice();
+  VkAssert(device.resetFences(1, &mFence));
+}
+
+void Fence::Wait(uint32_t timeout)
+{
+  auto device = mGraphicsDevice->GetLogicalDevice();
+  VkAssert(device.waitForFences(1, &mFence, VK_TRUE, timeout));
+}
+
+vk::Result Fence::GetStatus()
+{
+  auto device = mGraphicsDevice->GetLogicalDevice();
+  vk::Result result = device.getFenceStatus(mFence);
+  return result;
+}
+
 } // namespace Dali::Graphics::Vulkan

@@ -55,9 +55,11 @@ class Device;
 
 class Queue
 {
-  friend class Device;
-
 public:
+  Queue(vk::Queue queue,
+        uint32_t queueFamilyIndex,
+        uint32_t queueIndex,
+        vk::QueueFlags queueFlags);
 
   ~Queue(); // queues are non-destructible
 
@@ -65,11 +67,11 @@ public:
 
   std::unique_ptr<std::lock_guard<std::recursive_mutex>> Lock();
 
-private:
-  Queue(vk::Queue queue,
-        uint32_t queueFamilyIndex,
-        uint32_t queueIndex,
-        vk::QueueFlags queueFlags);
+  vk::Result WaitIdle();
+
+  vk::Result Present(vk::PresentInfoKHR& presentInfo);
+
+  vk::Result Submit(std::vector<vk::SubmitInfo>& info, Fence* fence);
 
 private:
   vk::Queue mQueue;
