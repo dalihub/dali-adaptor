@@ -119,12 +119,6 @@ public:
    */
   bool OnReceiveData();
 
-  /**
-   * This is called after a timeout when no new data set.
-   * @return will return false; one-shot timer.
-   */
-  bool OnMultiSelectionTimeout();
-
 private:
   // Undefined
   Clipboard(const Clipboard&);

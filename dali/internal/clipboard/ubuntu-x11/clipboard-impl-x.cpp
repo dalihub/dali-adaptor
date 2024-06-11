@@ -29,8 +29,6 @@
 #include <dali/devel-api/common/singleton-service.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/window-system/ubuntu-x11/window-interface-ecore-x.h>
-#include <map>
-#include <queue>
 
 namespace Dali
 {
@@ -47,64 +45,30 @@ struct Clipboard::Impl
 
   bool HasType(const std::string& mimeType)
   {
-    for(const auto& type : mMimeTypes)
-    {
-      if (type == mimeType)
-      {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  void UpdateData(std::string& mimeType, std::string& data, bool clearBuffer)
-  {
-    if(clearBuffer)
-    {
-      mMimeTypes.clear();
-      mDatas.clear();
-    }
-    mMimeTypes.push_back(mimeType);
-    mDatas[mimeType] = data;
+    return mMimeType == mimeType ? true : false;
   }
 
   bool SetData(const Dali::Clipboard::ClipData& clipData)
   {
-    std::string mimeType = clipData.GetMimeType();
-    std::string data     = clipData.GetData();
+    mMimeType = clipData.GetMimeType();
+    mData     = clipData.GetData();
 
-    if(mimeType.empty() || data.empty())
+    if(mData.empty())
     {
       return false;
     }
 
-    if(mLastType != mimeType && !mMultiSelectionTimeout)
-    {
-      bool clearBuffer = HasType(mimeType);
-      UpdateData(mimeType, data, clearBuffer);
-    }
-    else
-    {
-      UpdateData(mimeType, data, true);
-    }
-
-    mLastType = mimeType;
-
-    mDataSentSignal.Emit(mimeType.c_str(), data.c_str());
-    mDataSelectedSignal.Emit(mimeType.c_str());
-
-    SetMultiSelectionTimeout();
+    mDataSentSignal.Emit(mMimeType.c_str(), mData.c_str());
+    mDataSelectedSignal.Emit(mMimeType.c_str());
 
     return true;
   }
 
   uint32_t GetData(const std::string &mimeType)
   {
-    if(mDatas.count(mimeType))
+    if(!mMimeType.compare(mimeType.c_str()))
     {
       mDataId++;
-      mDataReceiveQueue.push(std::make_pair(mDataId, mimeType));
-
       // For consistency of operation with tizen Wl2, a fake callback is occurs using a timer.
       if(mDataReceiveTimer.IsRunning())
       {
@@ -119,67 +83,28 @@ struct Clipboard::Impl
 
   bool OnReceiveData()
   {
-    while(!mDataReceiveQueue.empty())
-    {
-      auto item = mDataReceiveQueue.front();
-      mDataReceiveQueue.pop();
-
-      uint32_t    requestId   = item.first;
-      std::string requestType = item.second;
-      std::string data        = "";
-
-      if(mDatas.count(requestType))
-      {
-        data = mDatas[requestType];
-      }
-
-      DALI_LOG_RELEASE_INFO("receive data, success signal emit, id:%u, type:%s, data:%s\n", requestId, requestType.c_str(), data.c_str());
-      mDataReceivedSignal.Emit(requestId, requestType.c_str(), data.c_str());
-    }
-    return false;
-  }
-
-  void SetMultiSelectionTimeout()
-  {
-    mMultiSelectionTimeout = false;
-    if(mMultiSelectionTimeoutTimer.IsRunning())
-    {
-      mMultiSelectionTimeoutTimer.Stop();
-    }
-    mMultiSelectionTimeoutTimer.Start();
-  }
-
-  bool OnMultiSelectionTimeout()
-  {
-    mMultiSelectionTimeout = true;
+    DALI_LOG_RELEASE_INFO("receive data, success signal emit, id:%u, type:%s, data:%s\n", mDataId, mMimeType.c_str(), mData.c_str());
+    mDataReceivedSignal.Emit(mDataId, mMimeType.c_str(), mData.c_str());
     return false;
   }
 
   Ecore_X_Window mApplicationWindow;
+  std::string    mMimeType;
+  std::string    mData;
   uint32_t       mDataId{0};
-  std::string    mLastType;
-
-  std::vector<std::string>                     mMimeTypes;
-  std::map<std::string, std::string>           mDatas;            // type, data
-  std::queue<std::pair<uint32_t, std::string>> mDataReceiveQueue; // id, type
 
   Dali::Clipboard::DataSentSignalType     mDataSentSignal;
   Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
   Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
 
   Dali::Timer mDataReceiveTimer;
-  Dali::Timer mMultiSelectionTimeoutTimer;
-  bool        mMultiSelectionTimeout{false};
 };
 
 Clipboard::Clipboard(Impl* impl)
 : mImpl(impl)
 {
-  mImpl->mDataReceiveTimer = Dali::Timer::New(10u);
+  mImpl->mDataReceiveTimer = Dali::Timer::New(10);
   mImpl->mDataReceiveTimer.TickSignal().Connect(this, &Clipboard::OnReceiveData);
-
-  mImpl->mMultiSelectionTimeoutTimer = Dali::Timer::New(500u);
-  mImpl->mMultiSelectionTimeoutTimer.TickSignal().Connect(this, &Clipboard::OnMultiSelectionTimeout);
 }
 
 Clipboard::~Clipboard()
@@ -290,11 +215,6 @@ bool Clipboard::IsVisible() const
 bool Clipboard::OnReceiveData()
 {
   return mImpl->OnReceiveData();
-}
-
-bool Clipboard::OnMultiSelectionTimeout()
-{
-  return mImpl->OnMultiSelectionTimeout();
 }
 
 } // namespace Adaptor
