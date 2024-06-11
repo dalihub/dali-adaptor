@@ -100,6 +100,22 @@ public:
   };
 
   /**
+   * @brief Enumeration for defining the types of Ecore_IMF Input Panel align.
+   */
+  enum class InputPanelAlign
+  {
+    TOP_LEFT,      ///< The top-left corner
+    TOP_CENTER,    ///< The top-center position
+    TOP_RIGHT,     ///< The top-right corner
+    MIDDLE_LEFT,   ///< The middle-left position
+    MIDDLE_CENTER, ///< The middle-center position
+    MIDDLE_RIGHT,  ///< The middle-right position
+    BOTTOM_LEFT,   ///< The bottom-left corner
+    BOTTOM_CENTER, ///< The bottom-center position
+    BOTTOM_RIGHT   ///< The bottom-right corner
+  };
+
+  /**
    * @brief Enumeration for the preedit style types.
    */
   enum class PreeditStyle
@@ -514,6 +530,20 @@ public:
    * @param[in] y The top-left y coordinate of the input panel
    */
   void SetInputPanelPosition(unsigned int x, unsigned int y);
+
+  /**
+   * @brief Sets the alignment and its x, y coordinates of the input panel.
+   *
+   * Regardless of the rotation degree, the x, y values of the top-left corner on the screen are based on 0, 0.
+   * When the IME size is changed, its size will change according to the set alignment.
+   *
+   * @param[in] x The x coordinate of the InputPanelAlign value.
+   * @param[in] y The y coordinate of the InputPanelAlign value.
+   * @param[in] align one of the InputPanelAlign values specifying the desired alignment.
+   * @return true on success, false otherwise.
+   * @remarks This API can be used to set the alignment of a floating IME.
+   */
+  bool SetInputPanelPositionAlign(int x, int y, InputPanelAlign align);
 
   /**
    * @brief Gets the preedit attributes data.

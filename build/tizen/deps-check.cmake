@@ -19,6 +19,7 @@ ARG_ENABLE( ENABLE_PROFILE enable_profile "${ENABLE_VAL};UBUNTU" "Select the var
 ARG_ENABLE( ENABLE_TIZEN_MAJOR_VERSION enable_tizen_major_version "${ENABLE_VAL};0" "Specify the Tizen Major version for backwards compatibility" )
 
 ARG_ENABLE( ENABLE_FEEDBACK enable_feedback 1 "Enable feedback plugin" )
+ARG_ENABLE( ENABLE_APPMODEL enable_appmodel 1 "Enable appmodel" )
 
 ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
 ARG_ENABLE( ENABLE_ECORE_WAYLAND2 enable_ecore_wayland2 "${ENABLE_VAL}" "Build on Ecore Wayland2" )

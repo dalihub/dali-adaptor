@@ -171,13 +171,28 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   // Create the AddOnManager
   mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
 
+  Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEFAULT;
+  if(0u != mEnvironmentOptions->GetRenderToFboInterval())
+  {
+    corePolicyFlags |= Integration::CorePolicyFlags::RENDER_TO_FRAME_BUFFER;
+  }
+  if(Integration::DepthBufferAvailable::TRUE == mGraphics->GetDepthBufferRequired())
+  {
+    corePolicyFlags |= Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE;
+  }
+  if(Integration::StencilBufferAvailable::TRUE == mGraphics->GetStencilBufferRequired())
+  {
+    corePolicyFlags |= Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
+  }
+  if(Integration::PartialUpdateAvailable::TRUE == mGraphics->GetPartialUpdateRequired())
+  {
+    corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
+  }
+
   mCore = Integration::Core::New(*this,
                                  *mPlatformAbstraction,
                                  mGraphics->GetController(),
-                                 (0u != mEnvironmentOptions->GetRenderToFboInterval()) ? Integration::RenderToFrameBuffer::TRUE : Integration::RenderToFrameBuffer::FALSE,
-                                 mGraphics->GetDepthBufferRequired(),
-                                 mGraphics->GetStencilBufferRequired(),
-                                 mGraphics->GetPartialUpdateRequired());
+                                 corePolicyFlags);
 
   // Create TextureUploadManager after mCore created
   mTextureUploadManager = Dali::Devel::TextureUploadManager::Get();
@@ -1181,6 +1196,16 @@ void Adaptor::RegisterProcessor(Integration::Processor& processor, bool postProc
 void Adaptor::UnregisterProcessor(Integration::Processor& processor, bool postProcessor)
 {
   GetCore().UnregisterProcessor(processor, postProcessor);
+}
+
+void Adaptor::RegisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  GetCore().RegisterProcessorOnce(processor, postProcessor);
+}
+
+void Adaptor::UnregisterProcessorOnce(Integration::Processor& processor, bool postProcessor)
+{
+  GetCore().UnregisterProcessorOnce(processor, postProcessor);
 }
 
 bool Adaptor::IsMultipleWindowSupported() const

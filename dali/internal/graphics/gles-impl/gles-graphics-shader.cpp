@@ -43,7 +43,7 @@ struct ShaderImpl::Impl
 
     source.resize(dataSize);
     std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex,
-              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataSize,
+              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex + dataSize,
               source.data());
 
     // Substitute pointer
@@ -220,10 +220,10 @@ void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& s
 {
   // Make a copy of source code. if code is meant to be used
   // by modern parser, skip the prefix part
+  auto text = reinterpret_cast<const char*>(info.sourceData);
+  auto result = std::string_view(text).find("//@legacy-prefix-end");
   if(info.shaderVersion != 0)
   {
-    auto text = reinterpret_cast<const char*>(info.sourceData);
-    auto result = std::string_view(text).find("//@legacy-prefix-end");
     if(result != 0 && result != std::string::npos)
     {
       DALI_LOG_ERROR("Shader processing: @legacy-prefix-end must be a very first statement!\n");
@@ -234,7 +234,24 @@ void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& s
       startIndex = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
     }
   }
-
+  else
+  {
+    // For legacy shaders we need to make sure that the #version is a very first line
+    // so need to strip //@legacy-prefix-end tag
+    if(result != std::string::npos)
+    {
+      auto versionPos = std::string_view(text).find("#version", result);
+      if(versionPos == std::string::npos)
+      {
+        DALI_LOG_ERROR("Shader processing: new-line missing after @legacy-prefix-end!\n");
+        startIndex = 0; // not trimming anything
+      }
+      else
+      {
+        startIndex = versionPos;
+      }
+    }
+  }
   finalDataSize = info.sourceSize - startIndex;
 }
 

@@ -191,7 +191,7 @@ public:
   bool GetDaylightSavingTimeStatus() const;
 
 public: // Not intended for application developers
-  DALI_INTERNAL WatchTime(void* time_handle);
+  DALI_ADAPTOR_API WatchTime(void* time_handle);
 
 private: // Internal Data
   struct Impl;

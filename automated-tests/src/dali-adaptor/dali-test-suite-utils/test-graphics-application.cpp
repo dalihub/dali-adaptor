@@ -65,13 +65,16 @@ void TestGraphicsApplication::CreateCore()
   mGraphicsController.Initialize(mGraphicsSyncImplementation, mGraphics);
   mGraphicsController.ActivateResourceContext();
 
+  Integration::CorePolicyFlags corePolicyFlags = Integration::CorePolicyFlags::DEPTH_BUFFER_AVAILABLE | Integration::CorePolicyFlags::STENCIL_BUFFER_AVAILABLE;
+  if(mPartialUpdateEnabled)
+  {
+    corePolicyFlags |= Integration::CorePolicyFlags::PARTIAL_UPDATE_AVAILABLE;
+  }
+
   mCore = Dali::Integration::Core::New(mRenderController,
                                        mPlatformAbstraction,
                                        mGraphicsController,
-                                       Integration::RenderToFrameBuffer::FALSE,
-                                       Integration::DepthBufferAvailable::TRUE,
-                                       Integration::StencilBufferAvailable::TRUE,
-                                       mPartialUpdateEnabled ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
+                                       corePolicyFlags);
 
   mCore->ContextCreated();
 

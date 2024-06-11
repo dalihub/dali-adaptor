@@ -220,6 +220,11 @@ void InputMethodContext::SetInputPanelPosition(unsigned int x, unsigned int y)
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPosition(x, y);
 }
 
+bool InputMethodContext::SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align)
+{
+  return Internal::Adaptor::InputMethodContext::GetImplementation(*this).SetInputPanelPositionAlign(x, y, align);
+}
+
 void InputMethodContext::GetPreeditStyle(PreEditAttributeDataContainer& attrs) const
 {
   Internal::Adaptor::InputMethodContext::GetImplementation(*this).GetPreeditStyle(attrs);

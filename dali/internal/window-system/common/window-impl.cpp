@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -883,9 +883,36 @@ Dali::Layer Window::GetRootLayer() const
   return mScene.GetRootLayer();
 }
 
+void Window::SetBackgroundColor(const Vector4& color)
+{
+  mBackgroundColor = color;
+  if(mIsTransparent)
+  {
+    Vector4 backgroundColor = color;
+    backgroundColor.r *= backgroundColor.a;
+    backgroundColor.g *= backgroundColor.a;
+    backgroundColor.b *= backgroundColor.a;
+    SceneHolder::SetBackgroundColor(backgroundColor);
+  }
+  else
+  {
+    SceneHolder::SetBackgroundColor(color);
+  }
+}
+
+Vector4 Window::GetBackgroundColor() const
+{
+  return mBackgroundColor;
+}
+
 void Window::SetTransparency(bool transparent)
 {
-  mWindowSurface->SetTransparency(transparent);
+  if(mIsTransparent != transparent)
+  {
+    mIsTransparent = transparent;
+    Window::SetBackgroundColor(mBackgroundColor);
+  }
+  mWindowSurface->SetTransparency(mIsTransparent);
 }
 
 bool Window::GrabKey(Dali::KEY key, KeyGrab::KeyGrabMode grabMode)
@@ -1211,17 +1238,19 @@ void Window::OnAccessibilityEnabled()
     mIsEmittedWindowCreatedEvent = true;
   }
 
-  if(!mVisible || mIconified)
+  if(IsVisible())
   {
-    return;
+    bridge->WindowShown(handle);
+
+    if(mFocused)
+    {
+      DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
+      bridge->WindowFocused(handle);
+    }
   }
-
-  bridge->WindowShown(handle);
-
-  if(mFocused)
+  else
   {
-    DALI_LOG_RELEASE_INFO("Window (%p), WinId (%d), Emit Accessbility Window Focused Event\n", this, mNativeWindowId);
-    bridge->WindowFocused(handle);
+    bridge->WindowHidden(handle);
   }
 }
 

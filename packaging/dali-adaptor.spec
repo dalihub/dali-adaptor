@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.3.24
+Version:    2.3.27
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -322,6 +322,7 @@ cmake_flags+=" -DCMAKE_INSTALL_LIBDIR=%{_libdir}"
 cmake_flags+=" -DCMAKE_INSTALL_INCLUDEDIR=%{_includedir}"
 cmake_flags+=" -DENABLE_TIZEN_MAJOR_VERSION=%{tizen_version_major}"
 cmake_flags+=" -DENABLE_FEEDBACK=YES"
+cmake_flags+=" -DENABLE_APPMODEL=ON"
 cmake_flags+=" -DENABLE_APPFW=YES"
 cmake_flags+=" -DCOMPONENT_APPLICATION_SUPPORT=YES"
 
@@ -608,6 +609,10 @@ exit 0
 %{_libdir}/libdali2-adaptor.so
 %{_libdir}/libdali2-adaptor.so.2
 %{_libdir}/libdali2-adaptor.so.2.0.0
+%{_libdir}/libdali2-adaptor-application-normal.so*
+%{_libdir}/libdali2-adaptor-application-widget.so*
+%{_libdir}/libdali2-adaptor-application-watch.so*
+%{_libdir}/libdali2-adaptor-application-component-based.so*
 
 #################################################
 

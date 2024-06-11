@@ -274,6 +274,11 @@ public:
   void SetInputPanelPosition(unsigned int x, unsigned int y) override;
 
   /**
+   * @copydoc Dali::InputMethodContext::SetInputPanelPositionAlign()
+   */
+  bool SetInputPanelPositionAlign(int x, int y, Dali::InputMethodContext::InputPanelAlign align) override;
+
+  /**
    * @copydoc Dali::InputMethodContext::GetPreeditStyle()
    */
   void GetPreeditStyle(Dali::InputMethodContext::PreEditAttributeDataContainer& attrs) const override;

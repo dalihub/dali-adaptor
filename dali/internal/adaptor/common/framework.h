@@ -331,6 +331,26 @@ public:
     mArgv = argv;
   }
 
+  Observer& GetObserver()
+  {
+    return mObserver;
+  }
+
+  int* GetArgc()
+  {
+    return mArgc;
+  }
+
+  char*** GetArgv()
+  {
+    return mArgv;
+  }
+
+  TaskObserver& GetTaskObserver()
+  {
+    return mTaskObserver;
+  }
+
 private:
   /**
    * Called if the application is aborted.

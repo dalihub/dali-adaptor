@@ -119,3 +119,41 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
 
   END_TEST;
 }
+
+int UtcDaliGlesLegacyCodeTest(void)
+{
+  TestGraphicsApplication application;
+
+  std::string vertexShader =
+    "#version 320 es\n"
+    "some code\n";
+
+  std::string somePrefix =
+    "This is some prefix\n";
+
+  auto newVertexPrefix = Dali::Integration::Test::GenerateTaggedShaderPrefix(somePrefix);
+  {
+    Dali::Graphics::ShaderCreateInfo info;
+    info.SetPipelineStage(Dali::Graphics::PipelineStage::VERTEX_SHADER);
+
+    std::string prefixedVertexShader = newVertexPrefix + vertexShader;
+
+    info.SetShaderVersion(0);
+    info.SetSourceData(prefixedVertexShader.data());
+    info.SetSourceSize(prefixedVertexShader.size());
+    info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
+
+    size_t dataSize  = 0;
+    size_t dataIndex = 0;
+    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, dataSize);
+
+    auto index = prefixedVertexShader.find("#version");
+
+    DALI_TEST_EQUALS(dataIndex, index, TEST_LOCATION);
+
+    // should match original shader size
+    DALI_TEST_EQUALS(dataSize, vertexShader.size(), TEST_LOCATION);
+  }
+
+  END_TEST;
+}
