@@ -205,6 +205,7 @@ public:
    *
    * @SINCE_1_4.19
    * @param[in] color The new background color
+   * @note If this window is transparent, the color is converted premultiplied alpha format internally.
    */
   void SetBackgroundColor(const Vector4& color);
 

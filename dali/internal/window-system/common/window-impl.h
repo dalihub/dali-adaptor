@@ -359,6 +359,16 @@ public:
   Dali::Layer GetRootLayer() const;
 
   /**
+   * @copydoc Dali::Window::SetBackgroundColor
+   */
+  void SetBackgroundColor(const Dali::Vector4& color);
+
+  /**
+   * @copydoc Dali::Window::GetBackgroundColor
+   */
+  Vector4 GetBackgroundColor() const;
+
+  /**
    * @copydoc Dali::Window::SetTransparency()
    */
   void SetTransparency(bool transparent);
@@ -996,6 +1006,8 @@ private:
   PointerConstraintsSignalType            mPointerConstraintsSignal;
 
   Dali::KeyEvent mLastKeyEvent;
+
+  Vector4 mBackgroundColor;
 
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;
