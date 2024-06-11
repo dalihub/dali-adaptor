@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,8 @@ namespace Adaptor
 {
 namespace
 {
-constexpr char const* const kApplicationNamePrefix     = "libdali2-adaptor-application-";
-constexpr char const* const kApplicationNamePostfix    = ".so";
+constexpr char const* const kApplicationNamePrefix  = "libdali2-adaptor-application-";
+constexpr char const* const kApplicationNamePostfix = ".so";
 
 std::string MakePluginName(const char* appModelName)
 {
@@ -72,7 +72,7 @@ struct FrameworkTizen::Impl
   Impl(void* data, Type type, bool isUiThread)
   {
     mFramework = static_cast<FrameworkTizen*>(data);
-    mUiThread = isUiThread;
+    mUiThread  = isUiThread;
 #ifndef APPCORE_WATCH_AVAILABLE
     if(type == WATCH)
     {
@@ -116,27 +116,27 @@ struct FrameworkTizen::Impl
     mHandle = dlopen(pluginName.c_str(), RTLD_LAZY);
     if(mHandle == nullptr)
     {
-      print_log(DLOG_INFO, "DALI", "error : %s", dlerror() );
+      print_log(DLOG_INFO, "DALI", "error : %s", dlerror());
       return;
     }
 
     createFunctionPtr = reinterpret_cast<CreateFunction>(dlsym(mHandle, "Create"));
-    if(createFunctionPtr == nullptr)
+    if(DALI_UNLIKELY(createFunctionPtr == nullptr))
     {
       DALI_LOG_ERROR("createFunctionPtr is null\n");
     }
     destroyFunctionPtr = reinterpret_cast<DestroyFunction>(dlsym(mHandle, "Destroy"));
-    if(destroyFunctionPtr == nullptr)
+    if(DALI_UNLIKELY(destroyFunctionPtr == nullptr))
     {
       DALI_LOG_ERROR("destroyFunctionPtr is null\n");
     }
     appMainFunctionPtr = reinterpret_cast<AppMainFunction>(dlsym(mHandle, "AppMain"));
-    if(appMainFunctionPtr == nullptr)
+    if(DALI_UNLIKELY(appMainFunctionPtr == nullptr))
     {
       DALI_LOG_ERROR("appMainFunctionPtr is null\n");
     }
     appExitFunctionPtr = reinterpret_cast<AppExitFunction>(dlsym(mHandle, "AppExit"));
-    if(appExitFunctionPtr == nullptr)
+    if(DALI_UNLIKELY(appExitFunctionPtr == nullptr))
     {
       DALI_LOG_ERROR("appExitFunctionPtr is null\n");
     }
@@ -146,9 +146,13 @@ struct FrameworkTizen::Impl
   {
     if(mHandle != NULL)
     {
-      if(destroyFunctionPtr != NULL)
+      if(DALI_LIKELY(destroyFunctionPtr != nullptr))
       {
         destroyFunctionPtr(baseAppPtr);
+      }
+      else
+      {
+        DALI_LOG_ERROR("destroyFunctionPtr is null\n");
       }
 
       dlclose(mHandle);
@@ -163,9 +167,13 @@ struct FrameworkTizen::Impl
       return TIZEN_ERROR_NOT_SUPPORTED;
     }
 
-    if(createFunctionPtr != nullptr)
+    if(DALI_LIKELY(createFunctionPtr != nullptr))
     {
       baseAppPtr = createFunctionPtr();
+    }
+    else
+    {
+      DALI_LOG_ERROR("createFunctionPtr is null\n");
     }
 
     if(baseAppPtr == nullptr)
@@ -175,9 +183,14 @@ struct FrameworkTizen::Impl
     }
 
     int ret = 0;
-    if(appMainFunctionPtr != nullptr)
+    if(DALI_LIKELY(appMainFunctionPtr != nullptr))
     {
       ret = appMainFunctionPtr(mUiThread, mFramework, baseAppPtr);
+    }
+    else
+    {
+      DALI_LOG_ERROR("appMainFunctionPtr is null\n");
+      ret = TIZEN_ERROR_NOT_SUPPORTED;
     }
     return ret;
   }
@@ -189,7 +202,14 @@ struct FrameworkTizen::Impl
       DALI_LOG_ERROR("baseAppPtr is null\n");
       return;
     }
-    appExitFunctionPtr(baseAppPtr);
+    if(DALI_LIKELY(appExitFunctionPtr != nullptr))
+    {
+      appExitFunctionPtr(baseAppPtr);
+    }
+    else
+    {
+      DALI_LOG_ERROR("appExitFunctionPtr is null\n");
+    }
   }
 
   void SetLanguage(const std::string& language)
@@ -234,26 +254,26 @@ struct FrameworkTizen::Impl
     return mRegion;
   }
 
-  using CreateFunction          = void* (*)();
-  using DestroyFunction         = void (*)(void*);
+  using CreateFunction  = void* (*)();
+  using DestroyFunction = void (*)(void*);
 
-  using AppMainFunction         = int (*)(bool, void*, void*);
-  using AppExitFunction         = void (*)(void*);
+  using AppMainFunction = int (*)(bool, void*, void*);
+  using AppExitFunction = void (*)(void*);
 
-  void*                         mHandle{nullptr};
-  CreateFunction                createFunctionPtr;
-  DestroyFunction               destroyFunctionPtr;
-  AppMainFunction               appMainFunctionPtr;
-  AppExitFunction               appExitFunctionPtr;
-  void*                         baseAppPtr = nullptr;
-  bool                          mUiThread;
+  void*           mHandle{nullptr};
+  CreateFunction  createFunctionPtr{nullptr};
+  DestroyFunction destroyFunctionPtr{nullptr};
+  AppMainFunction appMainFunctionPtr{nullptr};
+  AppExitFunction appExitFunctionPtr{nullptr};
+  void*           baseAppPtr{nullptr};
+  bool            mUiThread;
 
   // Data
-  Type                          mApplicationType;
-  std::string                   mLanguage{};
-  std::string                   mRegion{};
+  Type        mApplicationType;
+  std::string mLanguage{};
+  std::string mRegion{};
 
-  FrameworkTizen*               mFramework;
+  FrameworkTizen* mFramework{nullptr};
 
 private:
   // Undefined
