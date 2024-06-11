@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,9 @@ namespace Adaptor
 {
 struct Clipboard::Impl
 {
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal;
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
+  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
+  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 };
 
 Clipboard::Clipboard(Impl* impl)
@@ -41,6 +41,7 @@ Clipboard::Clipboard(Impl* impl)
 
 Clipboard::~Clipboard()
 {
+  delete mImpl;
 }
 
 Dali::Clipboard Clipboard::Get()
@@ -107,7 +108,7 @@ bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
   return true;
 }
 
-uint32_t Clipboard::GetData(const std::string &mimeType)
+uint32_t Clipboard::GetData(const std::string& mimeType)
 {
   return 0u;
 }
