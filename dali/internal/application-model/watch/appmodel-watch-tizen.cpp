@@ -25,18 +25,18 @@
 
 // EXTERNAL INCLUDES
 #include <app_common.h>
-#include <appcore_base.h>
-#include <tizen.h>
-#include <bundle.h>
-#include <dlog.h>
-#include <bundle_internal.h>
 #include <app_control_internal.h>
+#include <appcore_base.h>
+#include <bundle.h>
+#include <bundle_internal.h>
+#include <dlog.h>
+#include <tizen.h>
 
 // INTERNAL INCLUDES
-#include <dali/public-api/watch/watch-time.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/public-api/watch/watch-time.h>
 
 namespace Dali
 {
@@ -44,19 +44,22 @@ namespace Internal
 {
 namespace Adaptor
 {
-extern "C" DALI_ADAPTOR_API AppModelWatch* Create() {
+extern "C" DALI_ADAPTOR_API AppModelWatch* Create()
+{
   return new AppModelWatch;
 }
 
-extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
+extern "C" DALI_ADAPTOR_API void Destroy(void* p)
+{
   AppModelWatch* appWatch = static_cast<AppModelWatch*>(p);
   delete appWatch;
 }
 
-extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
+extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
+{
   AppModelWatch* appWatch = static_cast<AppModelWatch*>(pData);
-  int ret = 0;
-  if (appWatch != nullptr)
+  int            ret      = 0;
+  if(appWatch != nullptr)
   {
     ret = appWatch->AppMain(data);
   }
@@ -67,7 +70,8 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   return ret;
 }
 
-extern "C" DALI_ADAPTOR_API void AppExit(AppModelWatch* p) {
+extern "C" DALI_ADAPTOR_API void AppExit(AppModelWatch* p)
+{
   p->AppExit();
 }
 
@@ -85,7 +89,7 @@ typedef enum
 } AppEventType;
 
 static int AppEventConverter[APPCORE_BASE_EVENT_MAX] =
-{
+  {
     [LOW_MEMORY]                 = APPCORE_BASE_EVENT_LOW_MEMORY,
     [LOW_BATTERY]                = APPCORE_BASE_EVENT_LOW_BATTERY,
     [LANGUAGE_CHANGED]           = APPCORE_BASE_EVENT_LANG_CHANGE,
@@ -134,27 +138,23 @@ int AppAddEventHandler(AppEventHandlerPtr* eventHandler, AppEventType eventType,
   AppEventHandlerPtr handler;
 
   handler = static_cast<AppEventHandlerPtr>(calloc(1, sizeof(struct AppEventHandler)));
-  if(!handler)
+  if(DALI_UNLIKELY(!handler))
   {
-    DALI_LOG_ERROR("failed to create handler");
+    DALI_LOG_ERROR("failed to create handler. calloc size : %zu\n", sizeof(struct AppEventHandler));
     return TIZEN_ERROR_UNKNOWN;
   }
-  else
-  {
-    handler->type = eventType;
-    handler->cb   = callback;
-    handler->data = userData;
-    handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
+  handler->type = eventType;
+  handler->cb   = callback;
+  handler->data = userData;
+  handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
 
-    *eventHandler = handler;
+  *eventHandler = handler;
 
-    return TIZEN_ERROR_NONE;
-  }
+  return TIZEN_ERROR_NONE;
 }
-}
+} // namespace AppCoreWatch
 struct DALI_ADAPTOR_API AppModelWatch::Impl
 {
-
 #ifdef APPCORE_WATCH_AVAILABLE
   static bool WatchAppCreate(int width, int height, void* data)
   {
@@ -164,7 +164,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
   static void WatchAppTimeTick(watch_time_h time, void* data)
   {
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
-    WatchTime curTime(time);
+    WatchTime            curTime(time);
 
     observer->OnTimeTick(curTime);
   }
@@ -172,7 +172,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
   static void WatchAppAmbientTick(watch_time_h time, void* data)
   {
     Framework::Observer* observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
-    WatchTime curTime(time);
+    WatchTime            curTime(time);
 
     observer->OnAmbientTick(curTime);
   }
@@ -186,9 +186,9 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void WatchAppControl(app_control_h app_control, void* data)
   {
-    FrameworkTizen* framework  = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer   = &framework->GetObserver();
-    bundle*         bundleData = NULL;
+    FrameworkTizen*      framework  = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer   = &framework->GetObserver();
+    bundle*              bundleData = NULL;
 
     app_control_to_bundle(app_control, &bundleData);
     ProcessBundle(framework, bundleData);
@@ -243,8 +243,8 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppLanguageChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
-    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer  = &framework->GetObserver();
+    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer  = &framework->GetObserver();
 
     if(event && event->value)
     {
@@ -259,8 +259,8 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppRegionChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
-    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer  = &framework->GetObserver();
+    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer  = &framework->GetObserver();
 
     if(event && event->value)
     {
@@ -275,7 +275,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppBatteryLow(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                           observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*                observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                 status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
 
@@ -300,7 +300,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppMemoryLow(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                          observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
 
@@ -330,7 +330,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 
   static void AppDeviceOrientationChanged(AppCoreWatch::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*                    observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                     status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
 
@@ -368,7 +368,7 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
     int ret = TIZEN_ERROR_NOT_SUPPORTED;
 
 #ifdef APPCORE_WATCH_AVAILABLE
-    FrameworkTizen* mFramework = static_cast<FrameworkTizen*>(data);
+    FrameworkTizen* mFramework     = static_cast<FrameworkTizen*>(data);
     mWatchCallback.create          = WatchAppCreate;
     mWatchCallback.app_control     = WatchAppControl;
     mWatchCallback.terminate       = WatchAppTerminate;
@@ -397,23 +397,25 @@ struct DALI_ADAPTOR_API AppModelWatch::Impl
 #endif
   }
 
-
   Impl(void* data)
-  : handlers{nullptr, nullptr, nullptr, nullptr, nullptr}
+  : handlers
+  {
+    nullptr, nullptr, nullptr, nullptr, nullptr
+  }
 #ifdef APPCORE_WATCH_AVAILABLE
   ,
-  mWatchCallback()
+    mWatchCallback()
 #endif
   {
-    mAppModelWatch  = static_cast<AppModelWatch*>(data);
+    mAppModelWatch = static_cast<AppModelWatch*>(data);
   }
 
   ~Impl()
   {
   }
 
-  AppModelWatch*                     mAppModelWatch;
-  AppCoreWatch::AppEventHandlerPtr    handlers[5];
+  AppModelWatch*                   mAppModelWatch;
+  AppCoreWatch::AppEventHandlerPtr handlers[5];
 #ifdef APPCORE_WATCH_AVAILABLE
   watch_app_lifecycle_callback_s mWatchCallback;
 #endif
@@ -429,7 +431,7 @@ AppModelWatch::~AppModelWatch()
   delete mImpl;
 }
 
-int AppModelWatch::AppMain(void *data)
+int AppModelWatch::AppMain(void* data)
 {
   return mImpl->AppMain(data);
 }
@@ -439,7 +441,6 @@ void AppModelWatch::AppExit()
   mImpl->AppExit();
 }
 
-} // Adaptor
-} // Internal
-} // Dali
-
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali

@@ -28,8 +28,8 @@
 #include <glib.h>
 #include <system_info.h>
 #include <system_settings.h>
-#include <app_core_ui_base.hh>
 #include <app_core_task_base.hh>
+#include <app_core_ui_base.hh>
 #include <app_event_internal.hh>
 
 // CONDITIONAL INCLUDES
@@ -39,9 +39,9 @@
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 using namespace tizen_cpp;
 
@@ -51,19 +51,22 @@ namespace Internal
 {
 namespace Adaptor
 {
-extern "C" DALI_ADAPTOR_API AppModelNormal* Create() {
+extern "C" DALI_ADAPTOR_API AppModelNormal* Create()
+{
   return new AppModelNormal(false);
 }
 
-extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
+extern "C" DALI_ADAPTOR_API void Destroy(void* p)
+{
   AppModelNormal* appNormal = static_cast<AppModelNormal*>(p);
   delete appNormal;
 }
 
-extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
+extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
+{
   AppModelNormal* appNormal = static_cast<AppModelNormal*>(pData);
-  int ret = 0;
-  if (appNormal != nullptr)
+  int             ret       = 0;
+  if(appNormal != nullptr)
   {
     ret = appNormal->AppMain(data);
   }
@@ -74,7 +77,8 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   return ret;
 }
 
-extern "C" DALI_ADAPTOR_API void AppExit(AppModelNormal* p) {
+extern "C" DALI_ADAPTOR_API void AppExit(AppModelNormal* p)
+{
   p->AppExit();
 }
 
@@ -87,7 +91,6 @@ Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::No
 
 namespace AppCore
 {
-
 typedef enum
 {
   LOW_MEMORY,                 //< The low memory event
@@ -100,7 +103,7 @@ typedef enum
 } AppEventType;
 
 static int AppEventConverter[APPCORE_BASE_EVENT_MAX] =
-{
+  {
     [LOW_MEMORY]                 = APPCORE_BASE_EVENT_LOW_MEMORY,
     [LOW_BATTERY]                = APPCORE_BASE_EVENT_LOW_BATTERY,
     [LANGUAGE_CHANGED]           = APPCORE_BASE_EVENT_LANG_CHANGE,
@@ -149,22 +152,19 @@ int AppAddEventHandler(AppEventHandlerPtr* eventHandler, AppEventType eventType,
   AppEventHandlerPtr handler;
 
   handler = static_cast<AppEventHandlerPtr>(calloc(1, sizeof(struct AppEventHandler)));
-  if(!handler)
+  if(DALI_UNLIKELY(!handler))
   {
-    DALI_LOG_ERROR("failed to create handler");
+    DALI_LOG_ERROR("failed to create handler. calloc size : %zu\n", sizeof(struct AppEventHandler));
     return TIZEN_ERROR_UNKNOWN;
   }
-  else
-  {
-    handler->type = eventType;
-    handler->cb   = callback;
-    handler->data = userData;
-    handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
+  handler->type = eventType;
+  handler->cb   = callback;
+  handler->data = userData;
+  handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
 
-    *eventHandler = handler;
+  *eventHandler = handler;
 
-    return TIZEN_ERROR_NONE;
-  }
+  return TIZEN_ERROR_NONE;
 }
 
 DeviceStatus::Memory::Status GetMemoryStatus(app_event_low_memory_status_e memoryStatus)
@@ -231,7 +231,7 @@ DeviceStatus::Orientation::Status GetOrientationStatus(app_device_orientation_e 
     }
   }
 }
-}
+} // namespace AppCore
 
 struct DALI_ADAPTOR_API AppModelNormal::Impl
 {
@@ -586,8 +586,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
   private:
     static void OnLanguageChanged(app_event_info_h event_info, void* user_data)
     {
-      auto*     context   = static_cast<UiAppContext*>(user_data);
-      auto*     framework = context->mFramework;
+      auto*                context   = static_cast<UiAppContext*>(user_data);
+      auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
 
       char* lang           = nullptr;
@@ -606,8 +606,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnRegionFormatChanged(app_event_info_h event_info, void* user_data)
     {
-      auto*     context   = static_cast<UiAppContext*>(user_data);
-      auto*     framework = context->mFramework;
+      auto*                context   = static_cast<UiAppContext*>(user_data);
+      auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
 
       char* region         = nullptr;
@@ -626,8 +626,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowBattery(app_event_info_h event_info, void* user_data)
     {
-      auto*     context   = static_cast<UiAppContext*>(user_data);
-      auto*     framework = context->mFramework;
+      auto*                context   = static_cast<UiAppContext*>(user_data);
+      auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
 
       app_event_low_battery_status_e status;
@@ -645,8 +645,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnLowMemory(app_event_info_h event_info, void* user_data)
     {
-      auto*     context   = static_cast<UiAppContext*>(user_data);
-      auto*     framework = context->mFramework;
+      auto*                context   = static_cast<UiAppContext*>(user_data);
+      auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
 
       app_event_low_memory_status_e status;
@@ -664,8 +664,8 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
 
     static void OnDeviceOrientationChanged(app_event_info_h event_info, void* user_data)
     {
-      auto*     context   = static_cast<UiAppContext*>(user_data);
-      auto*     framework = context->mFramework;
+      auto*                context   = static_cast<UiAppContext*>(user_data);
+      auto*                framework = context->mFramework;
       Framework::Observer* observer  = &framework->GetObserver();
 
       app_device_orientation_e status;
@@ -773,9 +773,9 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
   {
   }
 
-  AppModelNormal*                     mAppModelNormal;
-  std::unique_ptr<UiAppContext>       mUiAppContext{nullptr};
-  bool                                mUseUiThread{false};
+  AppModelNormal*               mAppModelNormal;
+  std::unique_ptr<UiAppContext> mUiAppContext{nullptr};
+  bool                          mUseUiThread{false};
 };
 
 AppModelNormal::AppModelNormal(bool isUiThread)
@@ -798,7 +798,6 @@ void AppModelNormal::AppExit()
   mImpl->AppExit();
 }
 
-} // Adaptor
-} // Internal
-} // Dali
-
+} // namespace Adaptor
+} // namespace Internal
+} // namespace Dali
