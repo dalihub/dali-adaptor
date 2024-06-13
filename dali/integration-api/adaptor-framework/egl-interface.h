@@ -20,17 +20,12 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/common/egl-include.h>
+#include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/public-api/common/vector-wrapper.h>
 #include <dali/public-api/math/rect.h>
 
 namespace Dali
 {
-enum ColorDepth
-{
-  COLOR_DEPTH_24 = 24,
-  COLOR_DEPTH_32 = 32
-};
-
 /**
  * EglInterface provides an interface for managing EGL contexts
  */

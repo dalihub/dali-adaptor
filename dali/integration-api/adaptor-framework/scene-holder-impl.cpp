@@ -183,7 +183,7 @@ Uint16Pair SceneHolder::GetDpi() const
   return mDpi;
 }
 
-void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
+void SceneHolder::SetSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mSurface.reset(surface);
 
@@ -214,7 +214,7 @@ void SceneHolder::SurfaceResized(float width, float height)
   CreateRenderTarget();
 }
 
-Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
+Dali::Integration::RenderSurfaceInterface* SceneHolder::GetSurface() const
 {
   return mSurface.get();
 }

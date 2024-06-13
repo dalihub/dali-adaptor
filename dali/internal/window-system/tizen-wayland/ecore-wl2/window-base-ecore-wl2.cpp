@@ -2116,7 +2116,7 @@ Dali::Any WindowBaseEcoreWl2::CreateWindow(int width, int height)
   }
   FINISH_DURATION_CHECK("wl_egl_window_create");
 
-  return static_cast<EGLNativeWindowType>(mEglWindow);
+  return static_cast<void*>(mEglWindow);
 }
 
 void WindowBaseEcoreWl2::DestroyWindow()

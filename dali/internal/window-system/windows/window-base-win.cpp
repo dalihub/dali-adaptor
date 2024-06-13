@@ -269,7 +269,7 @@ std::string WindowBaseWin::GetNativeWindowResourceId()
 
 Dali::Any WindowBaseWin::CreateWindow(int width, int height)
 {
-  return reinterpret_cast<EGLNativeWindowType>(mWin32Window);
+  return reinterpret_cast<void*>(mWin32Window);
 }
 
 void WindowBaseWin::DestroyWindow()

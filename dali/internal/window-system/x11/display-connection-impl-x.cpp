@@ -42,9 +42,9 @@ void DisplayConnectionX11::ConsumeEvents()
   // Event consumption should only be done in WindowSystemX.
 }
 
-void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionX11::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
-  if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
+  if(type == Dali::Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
   {
     mDisplay = WindowSystem::GetImplementation().GetXDisplay();
   }

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_NATIVE_SURFACE_ECORE_WL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,100 +76,100 @@ public: // from NativeRenderSurface
    */
   void SetFrameRenderedCallback(CallbackBase* callback) override;
 
-public: // from Dali::RenderSurfaceInterface
+public: // from Dali::Integration::RenderSurfaceInterface
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetPositionSize()
    */
   PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetDpi()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDpi()
    */
   void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceOrientation()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetSurfaceOrientation()
    */
   int GetSurfaceOrientation() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetScreenOrientation()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetScreenOrientation()
    */
   int GetScreenOrientation() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::InitializeGraphics()
    */
   void InitializeGraphics() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::CreateSurface()
    */
   void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::DestroySurface()
    */
   void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
   bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::MoveResize()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::MoveResize()
    */
   void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::StartRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::StartRender()
    */
   void StartRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::PreRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::PreRender()
    */
   bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::PostRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::PostRender()
    */
   void PostRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::StopRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::StopRender()
    */
   void StopRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
+   * @copydoc Dali::Integration::RenderSurfaceInterface::SetThreadSynchronization
    */
   void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetSurfaceType()
    */
-  Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
+  Dali::Integration::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::MakeContextCurrent()
    */
   void MakeContextCurrent() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable GetDepthBufferRequired() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
 private:
   /**
-   * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::ReleaseLock()
    */
   void ReleaseLock() override;
 
@@ -181,7 +181,7 @@ private:
 private: // Data
   SurfaceSize                           mSurfaceSize;
   TriggerEventInterface*                mRenderNotification;
-  Internal::Adaptor::GraphicsInterface* mGraphics; ///< The graphics interface
+  Graphics::GraphicsInterface*          mGraphics; ///< The graphics interface
   EglInterface*                         mEGL;
   EGLSurface                            mEGLSurface;
   EGLContext                            mEGLContext;

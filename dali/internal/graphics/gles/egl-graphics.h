@@ -36,14 +36,20 @@ namespace Adaptor
 {
 class EnvironmentOptions;
 class ConfigurationManager;
+class WindowBase;
 
-class EglGraphics : public GraphicsInterface
+class EglGraphics : public Graphics::GraphicsInterface
 {
 public:
   /**
    * Constructor
    */
-  EglGraphics(EnvironmentOptions& environmentOptions);
+  EglGraphics(
+    EnvironmentOptions&                 environmentOptions,
+    const Graphics::GraphicsCreateInfo& info,
+    Integration::DepthBufferAvailable   depthBufferRequired,
+    Integration::StencilBufferAvailable stencilBufferRequired,
+    Integration::PartialUpdateAvailable partialUpdateRequired);
 
   /**
    * Destructor
@@ -51,21 +57,39 @@ public:
   virtual ~EglGraphics();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize()
+   * @copydoc Dali::Graphics::GraphicsInterface::Initialize()
    */
   void Initialize(const Dali::DisplayConnection& displayConnection) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Initialize(bool,bool,bool,int)
+   * @copydoc Dali::Graphics::GraphicsInterface::Initialize(bool,bool,bool,int)
    */
   void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
 
-  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection);
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::InitializeGraphicsAPI()
+   */
+  void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::ConfigureSurface()
+   * @copydoc Dali::Graphics::GraphicsInterface::CreateSurface()
    */
-  void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override;
+  Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height) override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::DestroySurface()
+   */
+  void DestroySurface(Graphics::SurfaceId surfaceId) override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::ReplaceSurface()
+   */
+  bool ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int height) override;
+
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::ConfigureSurface()
+   */
+  void ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
    * Set whether the surfaceless context is supported
@@ -83,7 +107,13 @@ public:
    *
    * @param[in] surface The surface whose context to be switched to.
    */
-  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override;
+  void ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) override;
+
+  /**
+   * Make the surface context current
+   * @todo Same as ActivateSurfaceContext?!
+   */
+  void MakeContextCurrent(Graphics::SurfaceId surfaceId) override;
 
   /**
    * This is called after all the surfaces have been rendered.
@@ -93,10 +123,37 @@ public:
   void PostRender() override;
 
   /**
+   * Generate frame statistics and post to debug log.
+   */
+  void PostRenderDebug() override;
+
+  /**
+   * @copydoc Graphics::GraphicsInterface::Pause()
+   */
+  void Pause() override;
+
+  /**
+   * @copydoc Graphics::GraphicsInterface::Resume()
    * Inform graphics interface that this is the first frame after a resume.
    * (For debug only)
    */
-  void SetFirstFrameAfterResume() override;
+  void Resume() override;
+
+  /**
+   * @copydoc Graphics::GraphicsInterface::GetBufferAge()
+   */
+  int GetBufferAge(Graphics::SurfaceId surfaceId) override;
+
+  /**
+   * @copydoc Graphics::GraphicsInterface::SetDamageRegion()
+   */
+  void SetDamageRegion(Graphics::SurfaceId, std::vector<Rect<int>>& damagedRegion) override;
+
+  /**
+   * @copydoc Graphics::GraphicsInterface::SwapBuffers
+   */
+  void SwapBuffers(Graphics::SurfaceId surfaceId) override;
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion) override;
 
   /**
    * Gets the GL abstraction
@@ -123,12 +180,12 @@ public:
   EglSyncImplementation& GetSyncImplementation();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Graphics::GraphicsInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable& GetDepthBufferRequired();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Graphics::GraphicsInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired();
 
@@ -139,55 +196,79 @@ public:
   EglImageExtensions* GetImageExtensions();
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Shutdown()
+   * @copydoc Dali::Graphics::GraphicsInterface::Shutdown()
    */
   void Shutdown() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::Destroy()
+   * @copydoc Dali::Graphics::GraphicsInterface::Destroy()
    */
   void Destroy() override;
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetController()
+   */
   Graphics::Controller& GetController() override;
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::IsAdvancedBlendEquationSupported()
+   */
   bool IsAdvancedBlendEquationSupported() override
   {
     return mGLES->IsAdvancedBlendEquationSupported();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::IsMultisampledRenderToTextureSupported
+   */
   bool IsMultisampledRenderToTextureSupported() override
   {
     return mGLES->IsMultisampledRenderToTextureSupported();
   }
 
   /**
-   * @return true if graphics subsystem is initialized
+   * @copydoc Dali::Graphics::GraphicsInterface::IsInitialized
    */
   bool IsInitialized() override
   {
     return mEglImplementation && mEglImplementation->IsGlesInitialized();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::IsResourceContextSupported
+   */
   bool IsResourceContextSupported() override
   {
     return mEglImplementation && mEglImplementation->IsSurfacelessContextSupported();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetMaxTextureSize
+   */
   uint32_t GetMaxTextureSize() override
   {
     return mGLES->GetMaxTextureSize();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetMaxCombinedTextureUnits
+   */
   uint32_t GetMaxCombinedTextureUnits() override
   {
     return mGLES->GetMaxCombinedTextureUnits();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetMaxTextureSamples
+   */
   uint8_t GetMaxTextureSamples() override
   {
     return mGLES->GetMaxTextureSamples();
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetShaderLanguageVersion
+   */
   uint32_t GetShaderLanguageVersion() override
   {
     return mGLES->GetShadingLanguageVersion();
@@ -198,15 +279,18 @@ public:
     return mGLES->ApplyNativeFragmentShader(shader, customSamplerType);
   }
 
+  /**
+   * @copydoc Dali::Graphics::GraphicsInterface::
+   */
   void CacheConfigurations(ConfigurationManager& configurationManager) override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::FrameStart()
+   * @copydoc Dali::Graphics::GraphicsInterface::FrameStart()
    */
   void FrameStart() override;
 
   /**
-   * @copydoc Dali::Internal::Adaptor::GraphicsInterface::LogMemoryPools()
+   * @copydoc Dali::Graphics::GraphicsInterface::LogMemoryPools()
    */
   void LogMemoryPools() override;
 
@@ -222,11 +306,21 @@ private:
   void EglInitialize();
 
 private:
-  Graphics::EglGraphicsController        mGraphicsController; ///< Graphics Controller for Dali Core
-  std::unique_ptr<GlImplementation>      mGLES;               ///< GL implementation
-  std::unique_ptr<EglImplementation>     mEglImplementation;  ///< EGL implementation
-  std::unique_ptr<EglImageExtensions>    mEglImageExtensions; ///< EGL image extension
-  std::unique_ptr<EglSyncImplementation> mEglSync;            ///< GlSyncAbstraction implementation for EGL
+  struct EglSurfaceContext
+  {
+    WindowBase* windowBase;
+    EGLSurface  surface;
+    EGLContext  context;
+  };
+
+  ///<@todo Should SurfaceId be sequential from here, or just a hash of the surface ptr?
+  std::unordered_map<Graphics::SurfaceId, EglSurfaceContext> mSurfaceMap;
+  Graphics::SurfaceId                                        mBaseSurfaceId{0u};
+  Graphics::EglGraphicsController                            mGraphicsController; ///< Graphics Controller for Dali Core
+  std::unique_ptr<GlImplementation>                          mGLES;               ///< GL implementation
+  std::unique_ptr<EglImplementation>                         mEglImplementation;  ///< EGL implementation
+  std::unique_ptr<EglImageExtensions>                        mEglImageExtensions; ///< EGL image extension
+  std::unique_ptr<EglSyncImplementation>                     mEglSync;            ///< GlSyncAbstraction implementation for EGL
 
   int mMultiSamplingLevel; ///< The multiple sampling level
 };

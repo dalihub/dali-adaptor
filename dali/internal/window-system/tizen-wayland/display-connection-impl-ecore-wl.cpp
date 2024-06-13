@@ -43,14 +43,14 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay(NULL),
-  mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
+  mSurfaceType(Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
   mBufMgr(nullptr)
 {
 }
 
 DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 {
-  if(mSurfaceType == RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
+  if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     ReleaseNativeDisplay();
   }
@@ -65,11 +65,11 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 {
 }
 
-void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterface::Type type)
 {
   mSurfaceType = type;
 
-  if(mSurfaceType == Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
+  if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     mDisplay = GetNativeDisplay();
   }

@@ -22,7 +22,6 @@
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/ubuntu-x11/pixmap-render-surface-ecore-x.h>
 
 namespace Dali
 {
@@ -75,9 +74,9 @@ void DisplayConnectionX11::ConsumeEvents()
   } while(events > 0);
 }
 
-void DisplayConnectionX11::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionX11::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
-  if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
+  if(type == Dali::Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
   {
     // Because of DDK issue, we need to use separated x display instead of ecore default display
     mDisplay = XOpenDisplay(0);

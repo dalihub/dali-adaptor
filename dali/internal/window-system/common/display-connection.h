@@ -48,7 +48,7 @@ public:
    * @param[in] type Render surface type
    * @return A handle to a newly allocated DisplayConnection resource.
    */
-  static DisplayConnection* New(Dali::RenderSurfaceInterface::Type type);
+  static DisplayConnection* New(Dali::Integration::RenderSurfaceInterface::Type type);
 
   /**
    * @brief Create a DisplayConnection handle; this can be initialised with DisplayConnection::New().

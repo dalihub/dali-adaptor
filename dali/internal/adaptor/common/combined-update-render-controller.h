@@ -123,12 +123,12 @@ public:
   /**
    * @copydoc ThreadControllerInterface::ReplaceSurface()
    */
-  void ReplaceSurface(Dali::RenderSurfaceInterface* surface) override;
+  void ReplaceSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc ThreadControllerInterface::DeleteSurface()
    */
-  void DeleteSurface(Dali::RenderSurfaceInterface* surface) override;
+  void DeleteSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc ThreadControllerInterface::ResizeSurface()
@@ -153,7 +153,7 @@ public:
   /**
    * @copydoc ThreadControllerInterface::AddSurface()
    */
-  void AddSurface(Dali::RenderSurfaceInterface* surface) override;
+  void AddSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc ThreadControllerInterface::GetThreadId()
@@ -242,7 +242,7 @@ private:
    *
    * @return Pointer to the new surface, NULL otherwise
    */
-  Dali::RenderSurfaceInterface* ShouldSurfaceBeReplaced();
+  Dali::Integration::RenderSurfaceInterface* ShouldSurfaceBeReplaced();
 
   /**
    * Called by the Update/Render thread after a surface has been replaced.
@@ -257,7 +257,7 @@ private:
    *
    * @return Pointer to the deleted surface, nullptr otherwise
    */
-  Dali::RenderSurfaceInterface* ShouldSurfaceBeDeleted();
+  Dali::Integration::RenderSurfaceInterface* ShouldSurfaceBeDeleted();
 
   /**
    * Called by the Update/Render thread after a surface has been deleted.
@@ -395,8 +395,8 @@ private:
   volatile unsigned int mUseElapsedTimeAfterWait; ///< Whether we should use the elapsed time after waiting (set by the event-thread, read by the update-render-thread).
   volatile unsigned int mIsPreCompileCancelled;   ///< Whether we need to do precompile shader.
 
-  Dali::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
-  Dali::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Dali::Integration::RenderSurfaceInterface* volatile mNewSurface;     ///< Will be set to the new-surface if requested (set by the event-thread, read & cleared by the update-render thread).
+  Dali::Integration::RenderSurfaceInterface* volatile mDeletedSurface; ///< Will be set to the deleted surface if requested (set by the event-thread, read & cleared by the update-render thread).
 
   volatile unsigned int mPostRendering;  ///< Whether post-rendering is taking place (set by the event & render threads, read by the render-thread).
   volatile unsigned int mSurfaceResized; ///< Will be set to resize the surface (set by the event-thread, read & cleared by the update-render thread).

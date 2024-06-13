@@ -76,7 +76,7 @@ GlWindowRenderThread::~GlWindowRenderThread()
 {
 }
 
-void GlWindowRenderThread::SetGraphicsInterface(GraphicsInterface* graphics)
+void GlWindowRenderThread::SetGraphicsInterface(Graphics::GraphicsInterface* graphics)
 {
   mGraphics = graphics;
 }

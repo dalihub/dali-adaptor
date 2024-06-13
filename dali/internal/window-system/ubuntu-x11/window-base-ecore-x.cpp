@@ -676,7 +676,8 @@ Dali::Any WindowBaseEcoreX::CreateWindow(int width, int height)
 {
   // need to create X handle as in 64bit system ECore handle is 32 bit whereas EGLnative and XWindow are 64 bit
   XWindow window(mEcoreWindow);
-  return reinterpret_cast<EGLNativeWindowType>(window);
+
+  return reinterpret_cast<void*>(window);
 }
 
 void WindowBaseEcoreX::DestroyWindow()

@@ -795,10 +795,11 @@ void GlWindow::InitializeGraphics()
     std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(mEnvironmentOptions);
     auto                             graphicsFactory    = *graphicsFactoryPtr;
 
-    mGraphics                   = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
-    GraphicsInterface* graphics = mGraphics.get();
+    mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
 
-    mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
+    Graphics::GraphicsInterface* graphics = mGraphics.get();
+
+    mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::WINDOW_RENDER_SURFACE));
     graphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
 
     // Create Render Thread

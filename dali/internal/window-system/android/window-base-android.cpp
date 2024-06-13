@@ -139,7 +139,9 @@ Dali::Any WindowBaseAndroid::CreateWindow(int width, int height)
   // from eglplatform.h header
   // typedef struct ANativeWindow* EGLNativeWindowType;
   DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "Returns the window created for us.\n");
-  return mWindow;
+
+  auto window = static_cast<void*>(mWindow);
+  return window;
 }
 
 void WindowBaseAndroid::DestroyWindow()

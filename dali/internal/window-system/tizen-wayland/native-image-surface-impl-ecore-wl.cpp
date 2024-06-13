@@ -93,11 +93,11 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
   std::unique_ptr<GraphicsFactory> graphicsFactoryPtr = Utils::MakeUnique<GraphicsFactory>(*(new EnvironmentOptions()));
   auto                             graphicsFactory    = *graphicsFactoryPtr.get();
 
-  mGraphics                      = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
-  GraphicsInterface* graphics    = mGraphics.get();
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
+  mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
+  auto graphics = mGraphics.get();
+  auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
-  mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));
+  mDisplayConnection = std::unique_ptr<Dali::DisplayConnection>(Dali::DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type::NATIVE_RENDER_SURFACE));
   eglGraphics->Initialize(*mDisplayConnection, mDepth, mStencil, false, mMSAA);
 
   mEGL = &eglGraphics->GetEglInterface();
@@ -128,8 +128,8 @@ void NativeImageSurfaceEcoreWl::InitializeGraphics()
 
 void NativeImageSurfaceEcoreWl::TerminateGraphics()
 {
-  GraphicsInterface* graphics    = mGraphics.get();
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
+  auto graphics    = mGraphics.get();
+  auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
   Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
   if(mEGLSurface)
@@ -150,8 +150,8 @@ void NativeImageSurfaceEcoreWl::PreRender()
 
 void NativeImageSurfaceEcoreWl::PostRender()
 {
-  GraphicsInterface* graphics    = mGraphics.get();
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
+  auto graphics    = mGraphics.get();
+  auto eglGraphics = static_cast<EglGraphics*>(graphics);
   if(eglGraphics)
   {
     Internal::Adaptor::EglImplementation& eglImpl = eglGraphics->GetEglImplementation();

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_PIXMAP_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace Adaptor
 /**
  * Pixmap interface of render surface.
  */
-class PixmapRenderSurface : public Dali::RenderSurfaceInterface
+class PixmapRenderSurface : public Dali::Integration::RenderSurfaceInterface
 {
 public:
   /**
@@ -60,7 +60,7 @@ public: // API
   virtual void SetRenderNotification(TriggerEventInterface* renderNotification) = 0;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable GetDepthBufferRequired() override
   {
@@ -68,7 +68,7 @@ public: // API
   }
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired() override
   {

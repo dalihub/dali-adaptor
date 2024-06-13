@@ -55,7 +55,7 @@ public:
    * Sets the render surface type
    * @param[in] type The render surface type
    */
-  virtual void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) = 0;
+  virtual void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) = 0;
 
 public:
   /**

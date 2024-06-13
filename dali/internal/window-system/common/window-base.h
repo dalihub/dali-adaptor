@@ -126,7 +126,7 @@ public:
   /**
    * @brief Create the window
    */
-  virtual Dali::Any CreateWindow(int width, int height) = 0;
+  virtual Any CreateWindow(int width, int height) = 0;
 
   /**
    * @brief Destroy the window

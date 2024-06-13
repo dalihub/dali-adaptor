@@ -405,9 +405,9 @@ static Eina_Bool EcoreEventDataSend(void* data, int type, void* event)
 }
 
 /**
-* Called when the source window sends us about the selected content.
-* For example, when item is selected in the clipboard.
-*/
+ * Called when the source window sends us about the selected content.
+ * For example, when item is selected in the clipboard.
+ */
 static Eina_Bool EcoreEventDataReceive(void* data, int type, void* event)
 {
   WindowBaseEcoreWl* windowBase = static_cast<WindowBaseEcoreWl*>(data);
@@ -1202,7 +1202,7 @@ Dali::Any WindowBaseEcoreWl::CreateWindow(int width, int height)
 {
   mEglWindow = wl_egl_window_create(mWlSurface, width, height);
 
-  return static_cast<EGLNativeWindowType>(mEglWindow);
+  return static_cast<void*>(mEglWindow);
 }
 
 void WindowBaseEcoreWl::DestroyWindow()

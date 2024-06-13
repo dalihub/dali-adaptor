@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/x11/window-base-x.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -625,7 +626,7 @@ std::string WindowBaseX::GetNativeWindowResourceId()
 
 Dali::Any WindowBaseX::CreateWindow(int width, int height)
 {
-  return reinterpret_cast<EGLNativeWindowType>(mWindow);
+  return reinterpret_cast<void*>(mWindow);
 }
 
 void WindowBaseX::DestroyWindow()
@@ -1024,20 +1025,21 @@ bool WindowBaseX::GetFrontBufferRendering()
 void WindowBaseX::SetWindowFrontBufferMode(bool enable)
 {
 }
-void WindowBaseWin::SetModal(bool modal)
+
+void WindowBaseX::SetModal(bool modal)
 {
 }
 
-bool WindowBaseWin::IsModal()
+bool WindowBaseX::IsModal()
 {
   return false;
 }
 
-void WindowBaseWin::SetAlwaysOnTop(bool alwaysOnTop)
+void WindowBaseX::SetAlwaysOnTop(bool alwaysOnTop)
 {
 }
 
-bool WindowBaseWin::IsAlwaysOnTop()
+bool WindowBaseX::IsAlwaysOnTop()
 {
   return false;
 }

@@ -21,6 +21,10 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
+
 namespace Dali
 {
 class DisplayConnection;
@@ -60,7 +64,7 @@ public:
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) override;
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**

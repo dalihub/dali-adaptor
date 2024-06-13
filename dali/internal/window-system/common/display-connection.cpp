@@ -34,7 +34,7 @@ DisplayConnection* DisplayConnection::New()
   return new DisplayConnection(internal);
 }
 
-DisplayConnection* DisplayConnection::New(Dali::RenderSurfaceInterface::Type type)
+DisplayConnection* DisplayConnection::New(Dali::Integration::RenderSurfaceInterface::Type type)
 {
   auto factory           = Dali::Internal::Adaptor::GetDisplayConnectionFactory();
   auto displayConnection = factory->CreateDisplayConnection();

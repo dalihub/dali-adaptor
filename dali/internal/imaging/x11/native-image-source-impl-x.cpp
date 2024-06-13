@@ -45,8 +45,8 @@ using Dali::Integration::PixelBuffer;
 namespace
 {
 /**
-   * Free an allocated XImage on destruction.
-   */
+ * Free an allocated XImage on destruction.
+ */
 struct XImageJanitor
 {
   XImageJanitor(XImage* const pXImage)
@@ -100,8 +100,8 @@ NativeImageSourceX::NativeImageSourceX(uint32_t width, uint32_t height, Dali::Na
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  GraphicsInterface* graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
+  auto graphics    = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
   mEglImageExtensions = eglGraphics->GetImageExtensions();
 

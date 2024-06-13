@@ -40,11 +40,11 @@ namespace Internal::Adaptor
 class ConfigurationManager;
 }
 
-class TestGraphicsImpl : public Internal::Adaptor::GraphicsInterface
+class TestGraphicsImpl : public Graphics::GraphicsInterface
 {
 public:
   TestGraphicsImpl()
-  : GraphicsInterface()
+  : GraphicsInterface(Graphics::GraphicsCreateInfo{}, Integration::DepthBufferAvailable::TRUE, Integration::StencilBufferAvailable::TRUE, Integration::PartialUpdateAvailable::TRUE)
   {
   }
   virtual ~TestGraphicsImpl() = default;
@@ -93,8 +93,30 @@ public:
    */
   void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override
   {
+    mCallstack.PushCall("ConfigureSurface()", "");
   }
 
+  Graphics::SurfaceId CreateSurface(
+    Graphics::SurfaceFactory*      factory,
+    Internal::Adaptor::WindowBase* windowBase,
+    ColorDepth                     colorDepth,
+    int                            width,
+    int                            height) override
+  {
+    mCallstack.PushCall("CreateSurface()", "");
+    return 0;
+  }
+
+  void DestroySurface(Graphics::SurfaceId surfaceId) override
+  {
+    mCallstack.PushCall("DestroySurface()", "");
+  }
+
+  bool ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int height) override
+  {
+    mCallstack.PushCall("ReplaceSurface()", "");
+    return true;
+  }
   /**
    * Activate the resource context
    */
@@ -108,23 +130,21 @@ public:
    *
    * @param[in] surface The surface whose context to be switched to.
    */
-  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface) override
+  void ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface) override
   {
     TraceCallStack::NamedParams namedParams;
     namedParams["surface"] << std::hex << surface;
     mCallstack.PushCall("ActivateResourceContext()", namedParams.str(), namedParams);
   }
 
+  void MakeContextCurrent(Graphics::SurfaceId surfaceId) override
+  {
+    mCallstack.PushCall("MakeContextCurrent()", "");
+  }
+
   void PostRender() override
   {
     mCallstack.PushCall("PostRender()", "");
-  }
-
-  /**
-   * Inform graphics interface that this is the first frame after a resume.
-   */
-  void SetFirstFrameAfterResume() override
-  {
   }
 
   /**
@@ -144,10 +164,59 @@ public:
   }
 
   /**
+   * Lifecycle event for pausing application
+   */
+  void Pause() override
+  {
+    mCallstack.PushCall("()", "");
+  }
+
+  /**
+   * Lifecycle event for resuming application
+   */
+  void Resume() override
+  {
+    mCallstack.PushCall("Resume()", "");
+  }
+
+  /**
+   * Get the buffer age of the surface. 0 means that the back buffer
+   * is invalid and needs a full swap.
+   */
+  int GetBufferAge(Graphics::SurfaceId surfaceId) override
+  {
+    mCallstack.PushCall("GetBufferAge()", "");
+    return 0;
+  }
+
+  /**
+   * Set damage regions onto the surface
+   * @param[in] surfaceId The surface to define damage regions for
+   * @param[in] damagedRegion The damage regions
+   */
+  void SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion) override
+  {
+    mCallstack.PushCall("SetDamageRegion()", "");
+  }
+
+  /**
+   * Swap the surface's buffers. May be done by other mechanisms, depending on
+   * the graphics backend.
+   */
+  void SwapBuffers(Graphics::SurfaceId surfaceId) override
+  {
+    mCallstack.PushCall("SwapBuffers()", "");
+  }
+  void SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damageRects) override
+  {
+    mCallstack.PushCall("SwapBuffers()", "");
+  }
+  /**
    * @return true if advanced blending options are supported
    */
   bool IsAdvancedBlendEquationSupported() override
   {
+    mCallstack.PushCall("IsAdvancedBlendEquationSupported()", "");
     return true;
   }
 
@@ -156,6 +225,7 @@ public:
    */
   bool IsMultisampledRenderToTextureSupported() override
   {
+    mCallstack.PushCall("IsMultisampledRenderToTextureSupported()", "");
     return true;
   }
 
@@ -205,6 +275,10 @@ public:
   }
 
   void FrameStart() override
+  {
+  }
+
+  void PostRenderDebug() override
   {
   }
 

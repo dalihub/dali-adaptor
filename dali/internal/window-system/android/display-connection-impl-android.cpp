@@ -16,10 +16,9 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/window-system/android/display-connection-impl-android.h>
 
 // INTERNAL HEADERS
-#include <dali/internal/window-system/android/display-connection-impl-android.h>
 
 // EXTERNAL HEADERS
 
@@ -48,7 +47,7 @@ void DisplayConnectionAndroid::ConsumeEvents()
 {
 }
 
-void DisplayConnectionAndroid::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionAndroid::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
   mDisplay = EGL_DEFAULT_DISPLAY;
 }

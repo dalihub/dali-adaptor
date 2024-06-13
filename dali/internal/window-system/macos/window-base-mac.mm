@@ -409,7 +409,7 @@ Dali::Any WindowBaseCocoa::CreateWindow(int width, int height)
   // we can only resize the window from the main thread
   //PositionSize size(0, 0, width, height);
   //Resize(size);
-  return mImpl->mWindow.contentView.layer;
+  return static_cast<void*>(mImpl->mWindow.contentView.layer);
 }
 
 void WindowBaseCocoa::DestroyWindow()

@@ -266,7 +266,7 @@ void Window::OnAdaptorSet(Dali::Adaptor& adaptor)
   Show();
 }
 
-void Window::OnSurfaceSet(Dali::RenderSurfaceInterface* surface)
+void Window::OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mWindowSurface = static_cast<WindowRenderSurface*>(surface);
 }

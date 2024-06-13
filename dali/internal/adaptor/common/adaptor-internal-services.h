@@ -71,7 +71,7 @@ public:
    * This also contains the depth and stencil buffers
    * @return the graphics interface
    */
-  virtual GraphicsInterface& GetGraphicsInterface() = 0;
+  virtual Dali::Graphics::GraphicsInterface& GetGraphicsInterface() = 0;
 
   /**
    * Used by update-thread to notify core (main-thread) it has messages to process
@@ -87,7 +87,7 @@ public:
   /**
    * @return render surface
    */
-  virtual Dali::RenderSurfaceInterface* GetRenderSurfaceInterface() = 0;
+  virtual Dali::Integration::RenderSurfaceInterface* GetRenderSurfaceInterface() = 0;
 
   /**
    * @return performance interface

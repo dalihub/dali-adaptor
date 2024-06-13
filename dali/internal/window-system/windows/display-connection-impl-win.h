@@ -64,7 +64,7 @@ public:
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
   */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) override;
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**

@@ -41,7 +41,7 @@ void DisplayConnectionCocoa::ConsumeEvents()
 {
 }
 
-void DisplayConnectionCocoa::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionCocoa::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
 }
 
