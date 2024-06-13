@@ -22,7 +22,9 @@
 #include <dali/devel-api/threading/conditional-wait.h>
 
 // INTERNAL INCLUDES
+#if !defined(VULKAN_ENABLED)
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
+#endif
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/system/linux/dali-ecore-x.h>
@@ -179,13 +181,13 @@ private:
   unsigned int GetSurfaceId(Any surface) const;
 
 private: // Data
-  static const int         BUFFER_COUNT = 2;
-  Graphics::GraphicsInterface* mGraphics;       ///< Graphics interface
-  Dali::DisplayConnection* mDisplayConnection;  ///< Display connection
-  PositionSize             mPosition;           ///< Position
-  TriggerEventInterface*   mRenderNotification; ///< Render notification trigger
-  ColorDepth               mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
-  bool                     mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
+  static const int             BUFFER_COUNT = 2;
+  Graphics::GraphicsInterface* mGraphics;           ///< Graphics interface
+  Dali::DisplayConnection*     mDisplayConnection;  ///< Display connection
+  PositionSize                 mPosition;           ///< Position
+  TriggerEventInterface*       mRenderNotification; ///< Render notification trigger
+  ColorDepth                   mColorDepth;         ///< Color depth of surface (32 bit or 24 bit)
+  bool                         mOwnSurface;         ///< Whether we own the surface (responsible for deleting it)
 
   int                             mProduceBufferIndex;
   int                             mConsumeBufferIndex;

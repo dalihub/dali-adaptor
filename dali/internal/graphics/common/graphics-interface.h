@@ -22,8 +22,9 @@
 #include <dali/graphics-api/graphics-controller.h>
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/system/common/environment-options.h>
+#include <dali/internal/window-system/common/display-connection.h>
+#include <dali/internal/window-system/common/window-base.h>
 #include <limits>
-#include "dali/internal/window-system/common/display-connection.h"
 
 namespace Dali
 {
@@ -37,15 +38,16 @@ namespace Integration
 {
 class RenderSurfaceInterface;
 }
+
 namespace Internal::Adaptor
 {
 class ConfigurationManager;
-class WindowBase;
-} // namespace Internal::Adaptor
+}
 
 namespace Graphics
 {
 class SurfaceFactory;
+
 
 /**
  * @brief Surface identifier
@@ -53,10 +55,9 @@ class SurfaceFactory;
  * The surface id is used as the index for windows in the vulkan implementation
  */
 using SurfaceId = uint32_t;
+const SurfaceId INVALID_SURFACE_ID=std::numeric_limits<SurfaceId>::max();
 
-const SurfaceId INVALID_SURFACE_ID = std::numeric_limits<uint32_t>::max();
-
-enum class DepthStencilMode
+enum class  DepthStencilMode
 {
   /**
    * No depth/stencil at all
@@ -79,7 +80,7 @@ enum class DepthStencilMode
   DEPTH_STENCIL_EXPLICIT,
 };
 
-enum class SwapchainBufferingMode
+enum class  SwapchainBufferingMode
 {
   OPTIMAL = 0,
 
@@ -88,16 +89,16 @@ enum class SwapchainBufferingMode
   TRIPLE_BUFFERING = 3,
 };
 
+
 struct GraphicsCreateInfo
 {
-  uint32_t               surfaceWidth;
-  uint32_t               surfaceHeight;
-  DepthStencilMode       depthStencilMode;
-  SwapchainBufferingMode swapchainBufferingMode;
-  int                    multiSamplingLevel;
+  uint32_t                    surfaceWidth;
+  uint32_t                    surfaceHeight;
+  DepthStencilMode            depthStencilMode;
+  SwapchainBufferingMode      swapchainBufferingMode;
+  ColorDepth                  colorDepth;
+  int                         multiSamplingLevel;
 };
-
-class ConfigurationManager;
 
 /**
  * Factory interface for creating Graphics Factory implementation
@@ -109,8 +110,8 @@ public:
    * Constructor
    */
   GraphicsInterface(
-    const GraphicsCreateInfo&           info,
-    Integration::DepthBufferAvailable   depthBufferRequired,
+    const GraphicsCreateInfo& info,
+    Integration::DepthBufferAvailable depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
     Integration::PartialUpdateAvailable partialUpdateRequired)
   : mCreateInfo(info),
@@ -135,7 +136,6 @@ public:
    * Initialize the graphics subsystem, configured from environment
    */
   virtual void Initialize(const Dali::DisplayConnection& displayConnection) = 0;
-
   /**
    * Initialize the graphics subsystem, providing explicit parameters.
    *

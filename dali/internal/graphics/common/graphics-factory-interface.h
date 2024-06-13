@@ -42,9 +42,8 @@ public:
    */
   virtual void Destroy() = 0;
 
-protected:
   /**
-   * Virtual protected destructor - no deletion through this interface
+   * Virtual destructor - no deletion through this interface
    */
   virtual ~GraphicsFactoryInterface() = default;
 };

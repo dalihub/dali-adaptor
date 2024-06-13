@@ -26,7 +26,6 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-//#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/graphics/common/surface-factory.h>

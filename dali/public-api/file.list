@@ -13,10 +13,12 @@ SET( adaptor_public_api_src_files
   ${adaptor_public_api_dir}/adaptor-framework/widget-impl.cpp
   ${adaptor_public_api_dir}/adaptor-framework/async-task-manager.cpp
   ${adaptor_public_api_dir}/adaptor-framework/window-data.cpp
-  ${adaptor_public_api_dir}/capture/capture.cpp
   ${adaptor_public_api_dir}/dali-adaptor-version.cpp
 )
 
+SET( adaptor_public_api_egl_src_files
+  ${adaptor_public_api_dir}/capture/capture.cpp
+)
 
 SET( public_api_header_files
   ${adaptor_public_api_dir}/dali-adaptor-version.h

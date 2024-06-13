@@ -3,10 +3,9 @@ CMAKE_POLICY(SET CMP0012 NEW) # Prevent dereferencing of OFF/ON as variables
 
 SET(CMAKE_C_STANDARD 99)
 SET(CMAKE_CXX_STANDARD 17)
-PROJECT(${name} CXX)
-SET(PKG_NAME ${name})
-
+PROJECT(dali2-adaptor CXX C)
 SET(name "dali2-adaptor")
+SET(PKG_NAME ${name})
 
 SET(GCC_COMPILER_VERSION_REQUIRED "6")
 IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -37,7 +36,7 @@ ENDIF()
 # set the variable only if it's not set yet. it allows to access build script
 # from top-level directory
 IF( NOT ROOT_SRC_DIR )
-  SET(ROOT_SRC_DIR ${CMAKE_SOURCE_DIR}/../..)
+  SET(ROOT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 ENDIF()
 # Make sure the path is absolute
 GET_FILENAME_COMPONENT(ROOT_SRC_DIR ${ROOT_SRC_DIR} ABSOLUTE)
@@ -69,7 +68,6 @@ ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
     ADD_DEFINITIONS( "-DBUILDING_DALI_ADAPTOR" )
   ENDIF()
 
-  ADD_DEFINITIONS( "-DDALI_ADAPTOR_COMPILATION" )
   ADD_DEFINITIONS( "-D_NSIG=65" )
 ENDIF()
 
@@ -105,6 +103,7 @@ IF( NOT BIN_DIR )
 ENDIF()
 
 IF( UNIX )
+  # Perform dependency checks (in an automake fashion)
   INCLUDE( deps-check.cmake )
 ENDIF()
 
@@ -135,6 +134,7 @@ ENDIF()
 # Set up compiler flags and warnings
 IF( UNIX )
   ADD_COMPILE_OPTIONS( -Wall ${DALI_CFLAGS} )# -Wextra -Wno-unused-parameter )# -Wfloat-equal )
+  ADD_COMPILE_OPTIONS( -Wno-pragmas -Wno-unknown-pragmas )
 ELSEIF( WIN32 ) # WIN32 includes x64 as well according to the cmake doc.
   ADD_COMPILE_OPTIONS( /FIdali-windows-dependencies.h ) #
   ADD_COMPILE_OPTIONS( /FIextern-definitions.h )        # Adds missing definitions.
@@ -313,6 +313,7 @@ INSTALL( FILES ${adaptor_integration_api_header_files} DESTINATION ${tizenadapto
 INSTALL( FILES ${adaptor_application_api_header_files} DESTINATION ${tizenadaptorapplicationapidir} )
 INSTALL( FILES ${public_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkpublicapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
+INSTALL( FILES ${devel_api_adaptor_framework_egl_header_files} DESTINATION ${tizenadaptorframeworkdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_canvas_renderer_header_files} DESTINATION ${tizencanvasrendererdevelapidir} )
 INSTALL( FILES ${devel_api_adaptor_framework_web_engine_header_files} DESTINATION ${tizenwebenginedevelapidir} )
 INSTALL( FILES ${devel_api_atspi_interfaces_header_files} DESTINATION ${tizenatspiinterfacesdevelapidir} )
@@ -458,6 +459,9 @@ MESSAGE( STATUS "Compile flags:                    ${CMAKE_C_FLAGS}")
 MESSAGE( STATUS "CMAKE_SYSROOT:                    ${CMAKE_SYSROOT}")
 MESSAGE( STATUS "CMAKE_SYSTEM_INCLUDE_PATH:        ${CMAKE_SYSTEM_INCLUDE_PATH}")
 MESSAGE( STATUS "CMAKE_SYSTEM_LIBRARY_PATH:        ${CMAKE_SYSTEM_LIBRARY_PATH}")
+MESSAGE( STATUS "Vulkan:                           ${ENABLE_VULKAN}")
+
+
 IF( enable_feedback )
   ADD_SUBDIRECTORY( plugins )
 ENDIF()

@@ -31,8 +31,8 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
-#include <dali/integration-api/scene.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/network/common/socket-factory.h>
@@ -48,7 +48,6 @@
 
 namespace Dali
 {
-
 namespace Integration
 {
 class AddOnManager;
@@ -63,20 +62,17 @@ namespace Internal
 namespace Adaptor
 {
 class DisplayConnection;
-class GraphicsFactory;
-class GlImplementation;
-class GlSyncImplementation;
 class ThreadController;
 class TriggerEvent;
 class CallbackManager;
 class FeedbackPluginProxy;
 class FeedbackController;
-class VSyncMonitor;
 class PerformanceInterface;
 class LifeCycleObserver;
 class ObjectProfiler;
 class SceneHolder;
 class ConfigurationManager;
+
 enum class ThreadMode;
 
 /**
@@ -104,10 +100,10 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    * @param[in]  threadMode          The thread mode
    */
-  static Dali::Adaptor* New(Dali::Integration::SceneHolder window,
-                            Dali::Integration::RenderSurfaceInterface*  surface,
-                            EnvironmentOptions*            environmentOptions,
-                            ThreadMode                     threadMode);
+  static Dali::Adaptor* New(Dali::Integration::SceneHolder             window,
+                            Dali::Integration::RenderSurfaceInterface* surface,
+                            EnvironmentOptions*                        environmentOptions,
+                            ThreadMode                                 threadMode);
 
   /**
    * Creates a New Adaptor
@@ -127,11 +123,11 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    * @param[in]  threadMode          The thread mode
    */
-  static Dali::Adaptor* New(GraphicsFactory&               graphicsFactory,
-                            Dali::Integration::SceneHolder window,
-                            Dali::Integration::RenderSurfaceInterface*  surface,
-                            EnvironmentOptions*            environmentOptions,
-                            ThreadMode                     threadMode);
+  static Dali::Adaptor* New(GraphicsFactoryInterface&                  graphicsFactory,
+                            Dali::Integration::SceneHolder             window,
+                            Dali::Integration::RenderSurfaceInterface* surface,
+                            EnvironmentOptions*                        environmentOptions,
+                            ThreadMode                                 threadMode);
 
   /**
    * Creates a New Adaptor
@@ -139,7 +135,7 @@ public:
    * @param[in]  window              The window handle
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New(GraphicsFactory&               graphicsFactory,
+  static Dali::Adaptor* New(GraphicsFactoryInterface&      graphicsFactory,
                             Dali::Integration::SceneHolder window,
                             EnvironmentOptions*            environmentOptions);
 
@@ -147,7 +143,7 @@ public:
    * 2-step initialisation, this should be called after creating an adaptor instance.
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
    */
-  void Initialize(GraphicsFactory& graphicsFactory);
+  void Initialize(GraphicsFactoryInterface& graphicsFactory);
 
   /**
    * Virtual destructor.
@@ -228,7 +224,7 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual Dali::Integration::RenderSurfaceInterface& GetSurface() const;
+  [[nodiscard]] virtual Dali::Integration::RenderSurfaceInterface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -725,8 +721,8 @@ private:                                          // Data
   ThreadController*        mThreadController; ///< Controls the threads
 
   std::unique_ptr<Dali::Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
-  Dali::DisplayConnection*           mDisplayConnection; ///< Display connection
-  WindowContainer                    mWindows;           ///< A container of all the Windows that are currently created
+  Dali::DisplayConnection*                           mDisplayConnection; ///< Display connection
+  WindowContainer                                    mWindows;           ///< A container of all the Windows that are currently created
 
   std::unique_ptr<ConfigurationManager> mConfigurationManager; ///< Configuration manager
 

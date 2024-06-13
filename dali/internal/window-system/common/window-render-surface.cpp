@@ -328,9 +328,12 @@ void WindowRenderSurface::CreateSurface()
     height = mPositionSize.width;
   }
 
-  Graphics::SurfaceFactory* surfaceFactory = nullptr;
+  std::unique_ptr<Graphics::SurfaceFactory> surfaceFactory = nullptr;
+#if defined(VULKAN_ENABLED)
+  surfaceFactory = Graphics::SurfaceFactory::New(*this);
+#endif
 
-  mSurfaceId = mGraphics->CreateSurface(surfaceFactory, mWindowBase.get(), mColorDepth, width, height);
+  mSurfaceId = mGraphics->CreateSurface(surfaceFactory.get(), mWindowBase.get(), mColorDepth, width, height);
 
   if(mWindowBase->GetType() == WindowType::IME)
   {
@@ -423,6 +426,8 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
   if(scene)
   {
     bool needFrameRenderedTrigger = false;
+
+    //@todo These callbacks are specifically for wayland EGL. Are there equivalent wayland vulkan callbacks?
 
     scene.GetFrameRenderedCallback(callbacks);
     if(!callbacks.empty())
@@ -865,6 +870,9 @@ void WindowRenderSurface::SetBufferDamagedRects(const std::vector<Rect<int>>& da
 
 void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects)
 {
+#if defined(VULKAN_ENABLED)
+  //@todo Implement me (or rather, do this quite differently!!!!)
+#else
   if(Integration::PartialUpdateAvailable::FALSE == mGraphics->GetPartialUpdateRequired() ||
      mFullSwapNextFrame)
   {
@@ -892,6 +900,7 @@ void WindowRenderSurface::SwapBuffers(const std::vector<Rect<int>>& damagedRects
   {
     mGraphics->SwapBuffers(mSurfaceId, damagedRects);
   }
+#endif
 }
 
 void WindowRenderSurface::SetFrontBufferRendering(bool enable)

@@ -25,6 +25,7 @@ ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
 ARG_ENABLE( ENABLE_ECORE_WAYLAND2 enable_ecore_wayland2 "${ENABLE_VAL}" "Build on Ecore Wayland2" )
 ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether so file is renamed or not" )
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
+ARG_ENABLE( ENABLE_VULKAN enable_vulkan 1 "Enables Vulkan build")
 
 # help option
 ARG_ENABLE( PRINT_HELP print_help "${ENABLE_VAL}" "Prints help" )
@@ -104,7 +105,9 @@ CHECK_MODULE_AND_SET( TTS tts [] )
 CHECK_MODULE_AND_SET( VCONF vconf [] )
 CHECK_MODULE_AND_SET( LIBUV libuv [] )
 CHECK_MODULE_AND_SET( GLIB glib-2.0 [] )
+CHECK_MODULE_AND_SET( VULKAN vulkan [] )
 CHECK_MODULE_AND_SET( X11 x11 [] )
+CHECK_MODULE_AND_SET( XCB x11-xcb [] )
 CHECK_MODULE_AND_SET( XDAMAGE xdamage [] )
 CHECK_MODULE_AND_SET( XFIXES xfixes [] )
 CHECK_MODULE_AND_SET( XINPUT xi [] )
@@ -300,6 +303,7 @@ SET( DALI_CFLAGS
   ${LIBEXIF_CFLAGS}
   ${LIBCURL_CFLAGS}
   ${UTILX_CFLAGS}
+  ${VULKAN_CFLAGS}
   -Wall
 )
 
@@ -330,6 +334,9 @@ IF (NOT APPLE)
     -lturbojpeg
     -ljpeg
   )
+IF(VULKAN_ENABLED)
+  SET( DALI_LDFLAGS $DALI_LDFLAGS, ${VULKAN_LDFLAGS})
+ENDIF()
 
 if( NOT ANDROID_PROFILE )
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}
@@ -459,6 +466,46 @@ IF( WAYLAND )
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}
     ${WAYLAND_LDFLAGS}
   )
+ENDIF()
+IF(enable_vulkan)
+  ADD_DEFINITIONS( -DVULKAN_ENABLED )
+  ADD_DEFINITIONS( -DVULKAN_HPP_NO_EXCEPTIONS )
+#gcc_flags = -Wno-return-local-addr -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override \
+#            -Wstack-usage=256 -Wunsafe-loop-optimizations -Wzero-as-null-pointer-constant -Wuseless-cast
+# -Wfloat-equal causes issues with vulkan.hpp, removed for now
+#cxx_more_warnings = -Wold-style-cast -Woverloaded-virtual -Wdouble-promotion -Wswitch-enum \
+#                    -Wshadow \
+#                    -Wcast-qual -Wcast-align \
+#                    -Wconversion -Wsign-conversion
+#-Wlarger-than=1024  # Conflicts with --coverage
+# the following warnings should not be enforced
+#cxx_warnings_to_remove = \
+#                         -Wno-c++98-compat \
+#                         -Wno-unused-parameter \
+#                         -Wno-unknown-warning-option \
+#                         -Wno-switch \
+#                         -Wno-switch-enum \
+#                         -Wno-error=switch \
+#                         -Wno-error=switch-enum
+#the following warnings should be added back when possible
+#cxx_warnings_to_preserve = \
+#                           -Wno-weak-vtables
+  # Warnings that cause issues with vulkan.hpp. Double check when we upgrade.
+  ADD_COMPILE_OPTIONS(-Wno-switch -Wno-switch-enum -Wno-error=switch -Wno-error=switch-enum)
+  ADD_COMPILE_OPTIONS(-Wno-init-list-lifetime)
+  INCLUDE(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG(-Wno-class-memaccess HAVE_NO_CLASS_MEMACCESS)
+  IF (HAVE_NO_CLASS_MEMACCESS)
+    ADD_COMPILE_OPTIONS( -Wno-class-memaccess )
+  ENDIF()
+  IF( enable_wayland )
+    ADD_DEFINITIONS( -DVULKAN_WITH_WAYLAND )
+  ELSEIF(X11_REQUIRED)
+    SET(DALI_CFLAGS ${DALI_CFLAGS} ${XCB_CFLAGS} )
+    SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${XCB_LDFLAGS} )
+  ENDIF()
+  SET(DALI_CFLAGS ${DALI_CFLAGS} ${VULKAN_CFLAGS} )
+  SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${VULKAN_LDFLAGS} )
 ENDIF()
 
 IF(LIBUV_X11_PROFILE)

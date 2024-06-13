@@ -5,8 +5,6 @@ SET(RPM_NAME "core-${PKG_NAME}-tests")
 
 SET(CAPI_LIB "dali-graphics")
 SET(TC_SOURCES
-    utc-Dali-GlImplementation.cpp
-    utc-Dali-GlesImplementation.cpp
     utc-Dali-GraphicsBuffer.cpp
     utc-Dali-GraphicsDraw.cpp
     utc-Dali-GraphicsFramebuffer.cpp
@@ -33,6 +31,7 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
   ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
   ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
+  ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
   ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
   ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
   tct-dali-graphics-core.cpp

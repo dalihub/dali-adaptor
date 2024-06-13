@@ -65,7 +65,7 @@ ELSE()
     ${adaptor_system_common_egl_src_files}
     ${adaptor_window_system_common_egl_src_files}
     ${adaptor_window_system_ubuntu_x11_egl_src_files}
-  )
+    )
 ENDIF()
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )

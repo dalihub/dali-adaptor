@@ -66,7 +66,6 @@ include( ${ADAPTOR_ROOT}/dali/internal/thread/file.list )
 
 SET( adaptor_addons_dir ${ADAPTOR_ROOT}/dali/internal/addons )
 include( ${ADAPTOR_ROOT}/dali/internal/addons/file.list )
-
 SET( adaptor_vector_animation_dir ${ADAPTOR_ROOT}/dali/internal/vector-animation )
 include( ${ADAPTOR_ROOT}/dali/internal/vector-animation/file.list )
 

@@ -19,8 +19,9 @@ SET(TC_SOURCES
     utc-Dali-LRUCacheContainer.cpp
     utc-Dali-TiltSensor.cpp
     utc-Dali-WbmpLoader.cpp
+    utc-Dali-GlImplementation.cpp
+    utc-Dali-GlesImplementation.cpp
 )
-
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
@@ -45,6 +46,7 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
     ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
     ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
 )

@@ -48,6 +48,7 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-native-image.cpp
     dali-test-suite-utils/test-platform-abstraction.cpp
     dali-test-suite-utils/test-render-controller.cpp
+    dali-test-suite-utils/test-render-surface.cpp
     dali-test-suite-utils/test-trace-call-stack.cpp
     dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     dali-test-suite-utils/adaptor-environment-variable.cpp

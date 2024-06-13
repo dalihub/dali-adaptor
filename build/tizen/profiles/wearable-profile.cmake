@@ -53,6 +53,14 @@ SET( SOURCES
     ${static_libraries_libunibreak_src_files}
 )
 
+IF(NOT ENABLE_VULKAN)
+  SET(SOURCES ${SOURCES}
+    ${adaptor_system_common_egl_src_files}
+    ${adaptor_public_api_egl_src_files}
+    ${adaptor_devel_api_egl_src_files}
+  )
+ENDIF()
+
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}
          ${static_libraries_glyphy_src_files}

@@ -91,7 +91,7 @@ public:
    *
    * @param[in] surface The surface to configure, or NULL if not present
    */
-  void ConfigureSurface(Dali::RenderSurfaceInterface* surface) override
+  void ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface) override
   {
     mCallstack.PushCall("ConfigureSurface()", "");
   }
