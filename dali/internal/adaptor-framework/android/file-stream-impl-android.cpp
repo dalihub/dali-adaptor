@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@
 #include <dali/integration-api/debug.h>
 #include <fstream>
 #include <string>
+#include <streambuf>
+#include <iostream>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/android/android-framework.h>
@@ -28,12 +30,67 @@
 
 namespace Dali
 {
+
+/// Extends streambuf so that we can use the buffer in Dali::Vector
+class VectorStreamBuffer : public std::streambuf
+{
+public:
+  VectorStreamBuffer(char* buffer, size_t length)
+  {
+    char* begin = buffer;
+    char* end = begin + length;
+    setg(begin, begin, end);
+    setp(begin, end);
+  }
+
+  VectorStreamBuffer(Vector<char>& vec)
+  : VectorStreamBuffer(vec.Begin(), vec.Size())
+  {
+  }
+
+  pos_type seekoff(off_type off, std::ios_base::seekdir way, std::ios_base::openmode which) override
+  {
+    if(way == std::ios_base::cur)
+    {
+      gbump(static_cast<int>(off));
+    }
+    else if(way == std::ios_base::end)
+    {
+      setg(eback(), egptr() - off, egptr());
+    }
+    else // way == ios_base::beg
+    {
+      setg(eback(), eback() + off, egptr());
+    }
+    return gptr() - eback();
+  }
+
+  pos_type seekpos(pos_type pos, std::ios_base::openmode which) override
+  {
+    return seekoff(pos, std::ios_base::beg, which);
+  }
+};
+
+struct FileStream::Impl::PlatformSpecificImpl
+{
+  ~PlatformSpecificImpl()
+  {
+    mVectorStream.reset();
+    delete mStreamBuffer;
+    mStreamBuffer = nullptr;
+  }
+
+  std::unique_ptr<std::iostream> mVectorStream;
+  std::streambuf* mStreamBuffer{nullptr};
+};
+
 FileStream::Impl::Impl(const std::string& filename, uint8_t mode)
 : mFileName(filename),
   mMode(mode),
   mBuffer(nullptr),
   mDataSize(0),
-  mFile(nullptr)
+  mFile(nullptr),
+  mPlatformSpecificImpl(new PlatformSpecificImpl)
 {
   DALI_ASSERT_DEBUG(!filename.empty() && "Can't open a empty filename.");
   DALI_ASSERT_DEBUG(mode != 0 && "No mode is undefined behaviour");
@@ -43,7 +100,8 @@ FileStream::Impl::Impl(uint8_t* buffer, size_t dataSize, uint8_t mode)
 : mMode(mode),
   mBuffer(buffer),
   mDataSize(dataSize),
-  mFile(nullptr)
+  mFile(nullptr),
+  mPlatformSpecificImpl(new PlatformSpecificImpl)
 {
   DALI_ASSERT_DEBUG(buffer != 0 && "Can't open file on null buffer.");
   DALI_ASSERT_DEBUG(dataSize > 0 && "Pointless to open file on empty buffer.");
@@ -54,7 +112,8 @@ FileStream::Impl::Impl(Dali::Vector<uint8_t>& buffer, size_t dataSize, uint8_t m
 : mMode(mode),
   mBuffer(nullptr),
   mDataSize(dataSize),
-  mFile(nullptr)
+  mFile(nullptr),
+  mPlatformSpecificImpl(new PlatformSpecificImpl)
 {
   // Resize the buffer to ensure any null that gets written by
   // fmemopen is written past the end of any data that is written to the buffer.
@@ -88,6 +147,9 @@ FileStream::Impl::~Impl()
   {
     mFileStream.close();
   }
+
+  delete mPlatformSpecificImpl;
+  mPlatformSpecificImpl = nullptr;
 }
 
 std::iostream& FileStream::Impl::GetStream()
@@ -106,6 +168,11 @@ std::iostream& FileStream::Impl::GetStream()
   if(mBufferStream.rdbuf()->in_avail())
   {
     return mBufferStream;
+  }
+
+  if(mPlatformSpecificImpl->mVectorStream && mPlatformSpecificImpl->mVectorStream->rdbuf()->in_avail())
+  {
+    return *mPlatformSpecificImpl->mVectorStream.get();
   }
 
   int openMode = 0;
@@ -132,22 +199,28 @@ std::iostream& FileStream::Impl::GetStream()
   if(!mFileName.empty())
   {
     // TODO: it works only with text files, we need custom stream buffer implementation for binary and to avoid buffer copy
-    if(!(mMode & Dali::FileStream::WRITE) && !(mMode & Dali::FileStream::APPEND) && !(mMode & Dali::FileStream::BINARY))
+    if(!(mMode & Dali::FileStream::WRITE) && !(mMode & Dali::FileStream::APPEND))
     {
       std::streampos fileSize;
-      if(ReadFile(mFileName, fileSize, mFileBuffer, Dali::FileLoader::TEXT))
+      if (ReadFile(mFileName, fileSize, mFileBuffer, (mMode & Dali::FileStream::BINARY) ? Dali::FileLoader::BINARY : Dali::FileLoader::TEXT))
       {
-        mBuffer   = reinterpret_cast<uint8_t*>(&mFileBuffer[0]);
+        mBuffer = reinterpret_cast<uint8_t *>(&mFileBuffer[0]);
         mDataSize = fileSize;
-        mBufferStream.str(std::string(&mFileBuffer[0], fileSize));
-        if(!mBufferStream.rdbuf()->in_avail())
+
+        // For some reason on Android, calling mBufferStream.rdbuf()->pubsetbuf(...) has no effect.
+        // When we use this, calling mBufferStream.rdbuf()->in_avail() always returns false
+
+        mPlatformSpecificImpl->mStreamBuffer = new VectorStreamBuffer(mFileBuffer);
+        mPlatformSpecificImpl->mVectorStream.reset(new std::iostream(mPlatformSpecificImpl->mStreamBuffer));
+        if (!mPlatformSpecificImpl->mVectorStream->rdbuf()->in_avail())
         {
-          DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
-                         static_cast<void*>(mBuffer),
-                         static_cast<unsigned>(mDataSize),
-                         static_cast<int>(openMode));
+          DALI_LOG_ERROR(
+            "File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
+            static_cast<void *>(mBuffer),
+            static_cast<unsigned>(mDataSize),
+            static_cast<int>(openMode));
         }
-        return mBufferStream;
+        return *mPlatformSpecificImpl->mVectorStream.get();
       }
       else
       {
@@ -166,14 +239,18 @@ std::iostream& FileStream::Impl::GetStream()
   }
   else if(mBuffer)
   {
-    mBufferStream.rdbuf()->pubsetbuf(reinterpret_cast<char*>(mBuffer), mDataSize);
-    if(!mBufferStream.rdbuf()->in_avail())
+    // For some reason on Android, calling mBufferStream.rdbuf()->pubsetbuf(...) has no effect.
+    // When we use this, calling mBufferStream.rdbuf()->in_avail() always returns false
+    mPlatformSpecificImpl->mStreamBuffer = new VectorStreamBuffer(reinterpret_cast<char*>(mBuffer), mDataSize);
+    mPlatformSpecificImpl->mVectorStream.reset(new std::iostream(mPlatformSpecificImpl->mStreamBuffer));
+    if(!mPlatformSpecificImpl->mVectorStream->rdbuf()->in_avail())
     {
       DALI_LOG_ERROR("File open failed for memory buffer at location: \"%p\", of size: \"%u\", in mode: \"%d\".\n",
                      static_cast<void*>(mBuffer),
                      static_cast<unsigned>(mDataSize),
                      static_cast<int>(openMode));
     }
+    return *mPlatformSpecificImpl->mVectorStream.get();
   }
 
   return mBufferStream;
