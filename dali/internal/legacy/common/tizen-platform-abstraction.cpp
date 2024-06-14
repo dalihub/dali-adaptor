@@ -226,7 +226,9 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 
   if(timerIter == std::end(mTimerPairsWaiting))
   {
-    DALI_ASSERT_DEBUG(false);
+    // It might be cancel during callback execute.
+    // Just return now.
+    return;
   }
 
   // ...and move it
