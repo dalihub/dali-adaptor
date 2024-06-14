@@ -2,7 +2,7 @@
 #define DALI_TIZEN_PLATFORM_ABSTRACTION_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,6 +120,11 @@ private:
    */
   void RunTimerFunction(TimerCallback& timerPtr);
 
+  /**
+   * @brief Requests cleanup of timers into idler.
+   */
+  void RequestCleanupTimers();
+
   TizenPlatformAbstraction(const TizenPlatformAbstraction&);            ///< Undefined
   TizenPlatformAbstraction& operator=(const TizenPlatformAbstraction&); ///< Undefined
 
@@ -127,6 +132,8 @@ private:
 
   std::vector<std::unique_ptr<TimerCallback> > mTimerPairsWaiting;
   std::vector<std::unique_ptr<TimerCallback> > mTimerPairsSpent;
+
+  Dali::CallbackBase* mCleanupIdleCallback;
 };
 
 /**
