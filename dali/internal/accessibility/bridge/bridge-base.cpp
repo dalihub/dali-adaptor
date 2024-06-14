@@ -174,6 +174,7 @@ BridgeBase::ForceUpResult BridgeBase::ForceUp()
 void BridgeBase::ForceDown()
 {
   Bridge::ForceDown();
+  DBusWrapper::Installed()->Strings.clear();
   mRegistry      = {};
   mDbusServer    = {};
   mConnectionPtr = {};

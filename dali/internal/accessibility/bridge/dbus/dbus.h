@@ -150,6 +150,10 @@ struct DALI_ADAPTOR_API DBusWrapper
     {
       return add(txt.c_str());
     }
+    void clear()
+    {
+      storage.clear();
+    }
   };
 
   struct CallId
