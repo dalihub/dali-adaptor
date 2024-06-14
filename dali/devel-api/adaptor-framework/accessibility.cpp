@@ -19,7 +19,6 @@
 #include <dali/public-api/actors/actor.h>
 #include <dali/public-api/actors/layer.h>
 #include <dali/public-api/object/base-object.h>
-#include <dali/public-api/object/object-registry.h>
 #include <dali/public-api/object/type-info.h>
 #include <dali/public-api/object/type-registry-helper.h>
 #include <map>
@@ -41,8 +40,8 @@
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
-#include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/table-cell.h>
+#include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -211,10 +210,7 @@ void Accessible::UpdateAttributes(Attributes& attributes) const
     {ReadingInfoType::STATE, "state"},
   };
 
-  bool allEnabled = mReadingInfoTypes[ReadingInfoType::NAME]
-    && mReadingInfoTypes[ReadingInfoType::ROLE]
-    && mReadingInfoTypes[ReadingInfoType::DESCRIPTION]
-    && mReadingInfoTypes[ReadingInfoType::STATE];
+  bool allEnabled = mReadingInfoTypes[ReadingInfoType::NAME] && mReadingInfoTypes[ReadingInfoType::ROLE] && mReadingInfoTypes[ReadingInfoType::DESCRIPTION] && mReadingInfoTypes[ReadingInfoType::STATE];
 
   if(DALI_LIKELY(allEnabled))
   {
@@ -417,10 +413,8 @@ namespace
 class AdaptorAccessible : public ActorAccessible
 {
 private:
-  std::unique_ptr<TriggerEventInterface> mRenderNotification = nullptr;
-
-protected:
-  bool mRoot = false;
+  std::unique_ptr<TriggerEventInterface> mRenderNotification{nullptr};
+  bool                                   mRoot{false};
 
 public:
   AdaptorAccessible(Dali::Actor actor, bool isRoot)
@@ -447,7 +441,7 @@ public:
       return false;
     }
 
-    auto self = Self();
+    auto self                = Self();
     auto oldHighlightedActor = GetCurrentlyHighlightedActor();
     if(self == oldHighlightedActor)
     {
@@ -466,7 +460,7 @@ public:
 
     SetCurrentlyHighlightedActor(self);
 
-    auto window                                 = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::DevelWindow::Get(self);
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(true);
 
@@ -494,7 +488,7 @@ public:
 
     SetCurrentlyHighlightedActor({});
 
-    auto window                                 = Dali::DevelWindow::Get(self);
+    auto                             window     = Dali::DevelWindow::Get(self);
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
     windowImpl.EmitAccessibilityHighlightSignal(false);
 
@@ -519,7 +513,7 @@ public:
       state[State::VISIBLE]   = true;
       state[State::ACTIVE]    = visible;
     }
-    else if (GetParent())
+    else if(GetParent())
     {
       auto parentState      = GetParent()->GetStates();
       state[State::SHOWING] = parentState[State::SHOWING];
@@ -541,7 +535,7 @@ public:
 
     if(mRoot && attributes.find(resIDKey) == attributes.end())
     {
-      Dali::Window window                         = Dali::DevelWindow::Get(Self());
+      Dali::Window                     window     = Dali::DevelWindow::Get(Self());
       Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
 
       attributes.emplace(resIDKey, windowImpl.GetNativeResourceId());
@@ -560,22 +554,22 @@ public:
 
   void SetListenPostRender(bool enabled) override
   {
-    if (!mRoot)
+    if(!mRoot)
     {
       return;
     }
 
-    auto window                                 = Dali::DevelWindow::Get(Self());
+    auto                             window     = Dali::DevelWindow::Get(Self());
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
 
     if(!mRenderNotification)
     {
       mRenderNotification = std::unique_ptr<TriggerEventInterface>(
-                                           TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
-                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+        TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
+                                                TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
     }
 
-    if (enabled)
+    if(enabled)
     {
       windowImpl.SetRenderNotification(mRenderNotification.get());
     }
@@ -592,54 +586,65 @@ public:
 
 }; // AdaptorAccessible
 
-using AdaptorAccessiblesType = std::map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible>>;
+using ConvertingResult = std::pair<std::shared_ptr<Accessible>, bool>;
 
-// Save RefObject from an Actor in Accessible::Get()
-AdaptorAccessiblesType gAdaptorAccessibles;
-
-std::function<Accessible*(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> Accessible* {
-  return nullptr;
+std::function<ConvertingResult(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> ConvertingResult {
+  return {nullptr, true};
 };
 
-ObjectRegistry objectRegistry;
 } // namespace
 
-void Accessible::SetObjectRegistry(ObjectRegistry registry)
-{
-  objectRegistry = registry;
-  objectRegistry.ObjectDestroyedSignal().Connect([](const Dali::RefObject* obj) {
-    gAdaptorAccessibles.erase(obj);
-  });
-}
-
-void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor)
+void Accessible::RegisterExternalAccessibleGetter(std::function<ConvertingResult(Dali::Actor)> functor)
 {
   convertingFunctor = functor;
 }
 
-Accessible* Accessible::Get(Dali::Actor actor)
+std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
 {
   if(!actor)
   {
     return nullptr;
   }
 
-  auto accessible = convertingFunctor(actor);
-  if(!accessible)
+  auto bridge = Bridge::GetCurrentBridge();
+
+  // Try finding exsiting accessible object.
+  auto accessible = bridge->GetAccessible(actor);
+  if(accessible)
   {
-    auto pair = gAdaptorAccessibles.emplace(&actor.GetBaseObject(), nullptr);
-    if(pair.second)
+    return accessible;
+  }
+
+  // No acessible object created, let's create one.
+  auto result                = convertingFunctor(actor);
+  accessible                 = result.first;
+  const bool creationEnabled = result.second;
+  if(!accessible && creationEnabled)
+  {
+    bool                     isRoot = false;
+    Dali::Integration::Scene scene  = Dali::Integration::Scene::Get(actor);
+    if(scene)
     {
-      bool isRoot                    = false;
-      Dali::Integration::Scene scene = Dali::Integration::Scene::Get(actor);
-      if(scene)
-      {
-        isRoot = (actor == scene.GetRootLayer());
-      }
-      pair.first->second.reset(new AdaptorAccessible(actor, isRoot));
+      isRoot = (actor == scene.GetRootLayer());
     }
-    accessible = pair.first->second.get();
+    accessible = std::make_shared<AdaptorAccessible>(actor, isRoot);
+  }
+
+  if(accessible)
+  {
+    uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
+    bridge->AddAccessible(actorId, accessible);
+    if(auto actorAccesible = std::dynamic_pointer_cast<ActorAccessible>(accessible))
+    {
+      actorAccesible->StartObservingDestruction();
+    }
   }
 
   return accessible;
+}
+
+Accessible* Accessible::Get(Dali::Actor actor)
+{
+  auto accessible = Accessible::GetOwningPtr(actor);
+  return accessible ? accessible.get() : nullptr;
 }

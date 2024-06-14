@@ -28,8 +28,10 @@
 namespace Dali::Accessibility
 {
 ActorAccessible::ActorAccessible(Actor actor)
-: mSelf(actor),
-  mChildrenDirty{true} // to trigger the initial UpdateChildren()
+: Dali::BaseObjectObserver(actor),
+  mSelf(actor),
+  mChildrenDirty{true}, // to trigger the initial UpdateChildren()
+  mActorId{static_cast<uint32_t>(actor.GetProperty<int>(Dali::Actor::Property::ID))}
 {
   // Select the right overload manually because Connect(this, &OnChildrenChanged) is ambiguous.
   void (ActorAccessible::*handler)(Dali::Actor) = &ActorAccessible::OnChildrenChanged;
@@ -37,6 +39,11 @@ ActorAccessible::ActorAccessible(Actor actor)
   Dali::DevelActor::ChildAddedSignal(actor).Connect(this, handler);
   Dali::DevelActor::ChildRemovedSignal(actor).Connect(this, handler);
   Dali::DevelActor::ChildOrderChangedSignal(actor).Connect(this, handler);
+}
+
+void ActorAccessible::ObjectDestroyed()
+{
+  Bridge::GetCurrentBridge()->RemoveAccessible(mActorId);
 }
 
 std::string ActorAccessible::GetName() const

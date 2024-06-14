@@ -592,16 +592,6 @@ private:
 };
 
 /**
- * @brief Enumeration describing type of key event
- * @see Adaptor::AccessibilityObserver::OnAccessibleKeyEvent
- */
-enum class KeyEventType
-{
-  KEY_PRESSED,
-  KEY_RELEASED,
-};
-
-/**
  * @brief Enumeration with human readable values describing state of event
  * @see Dali::Accessibility::Bridge::Emit
  */

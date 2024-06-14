@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,19 +30,19 @@
 #include <dali/internal/accessibility/bridge/accessibility-common.h>
 #include <dali/internal/accessibility/bridge/bridge-accessible.h>
 #include <dali/internal/accessibility/bridge/bridge-action.h>
+#include <dali/internal/accessibility/bridge/bridge-application.h>
 #include <dali/internal/accessibility/bridge/bridge-collection.h>
 #include <dali/internal/accessibility/bridge/bridge-component.h>
 #include <dali/internal/accessibility/bridge/bridge-editable-text.h>
-#include <dali/internal/accessibility/bridge/bridge-hypertext.h>
 #include <dali/internal/accessibility/bridge/bridge-hyperlink.h>
+#include <dali/internal/accessibility/bridge/bridge-hypertext.h>
 #include <dali/internal/accessibility/bridge/bridge-object.h>
 #include <dali/internal/accessibility/bridge/bridge-selection.h>
 #include <dali/internal/accessibility/bridge/bridge-socket.h>
-#include <dali/internal/accessibility/bridge/bridge-table.h>
 #include <dali/internal/accessibility/bridge/bridge-table-cell.h>
+#include <dali/internal/accessibility/bridge/bridge-table.h>
 #include <dali/internal/accessibility/bridge/bridge-text.h>
 #include <dali/internal/accessibility/bridge/bridge-value.h>
-#include <dali/internal/accessibility/bridge/bridge-application.h>
 #include <dali/internal/accessibility/bridge/dummy/dummy-atspi.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/system/common/environment-variables.h>
@@ -52,7 +52,6 @@ using namespace Dali::Accessibility;
 
 namespace // unnamed namespace
 {
-
 const int RETRY_INTERVAL = 1000;
 
 } // unnamed namespace
@@ -77,21 +76,22 @@ class BridgeImpl : public virtual BridgeBase,
                    public BridgeTable,
                    public BridgeTableCell
 {
-  DBus::DBusClient                                    mAccessibilityStatusClient;
-  DBus::DBusClient                                    mRegistryClient;
-  DBus::DBusClient                                    mDirectReadingClient;
-  bool                                                mIsScreenReaderEnabled = false;
-  bool                                                mIsEnabled             = false;
-  bool                                                mIsApplicationRunning  = false;
-  std::map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks;
-  Dali::Actor                                         mHighlightedActor;
-  std::function<void(Dali::Actor)>                    mHighlightClearAction;
-  Dali::CallbackBase*                                 mIdleCallback          = NULL;
-  Dali::Timer                                         mInitializeTimer;
-  Dali::Timer                                         mReadIsEnabledTimer;
-  Dali::Timer                                         mReadScreenReaderEnabledTimer;
-  Dali::Timer                                         mForceUpTimer;
-  std::string                                         mPreferredBusName;
+  DBus::DBusClient                                              mAccessibilityStatusClient{};
+  DBus::DBusClient                                              mRegistryClient{};
+  DBus::DBusClient                                              mDirectReadingClient{};
+  bool                                                          mIsScreenReaderEnabled{false};
+  bool                                                          mIsEnabled{false};
+  bool                                                          mIsApplicationRunning{false};
+  std::unordered_map<int32_t, std::function<void(std::string)>> mDirectReadingCallbacks{};
+  Dali::Actor                                                   mHighlightedActor;
+  std::function<void(Dali::Actor)>                              mHighlightClearAction{nullptr};
+  Dali::CallbackBase*                                           mIdleCallback{};
+  Dali::Timer                                                   mInitializeTimer;
+  Dali::Timer                                                   mReadIsEnabledTimer;
+  Dali::Timer                                                   mReadScreenReaderEnabledTimer;
+  Dali::Timer                                                   mForceUpTimer;
+  std::string                                                   mPreferredBusName;
+  std::map<uint32_t, std::shared_ptr<Accessible>>               mAccessibles; // Actor.ID to Accessible map
 
 public:
   BridgeImpl()
@@ -99,36 +99,29 @@ public:
   }
 
   /**
-   * @copydoc Dali::Accessibility::Bridge::Emit()
+   * @copydoc Dali::Accessibility::Bridge::AddAccessible()
    */
-  Consumed Emit(KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
+  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
   {
-    if(!IsUp())
-    {
-      return Consumed::NO;
-    }
+    mAccessibles[actorId] = std::move(accessible);
+  }
 
-    unsigned int keyType = 0;
+  /**
+   * @copydoc Dali::Accessibility::Bridge::RemoveAccessible()
+   */
+  void RemoveAccessible(uint32_t actorId) override
+  {
+    mAccessibles.erase(actorId);
+  }
 
-    switch(type)
-    {
-      case KeyEventType::KEY_PRESSED:
-      {
-        keyType = 0;
-        break;
-      }
-      case KeyEventType::KEY_RELEASED:
-      {
-        keyType = 1;
-        break;
-      }
-      default:
-      {
-        return Consumed::NO;
-      }
-    }
-
-    return Consumed::NO;
+  /**
+   * @copydoc Dali::Accessibility::Bridge::GetAccessible()
+   */
+  std::shared_ptr<Accessible> GetAccessible(Dali::Actor actor) const override
+  {
+    uint32_t actorId = actor.GetProperty<int>(Dali::Actor::Property::ID);
+    auto     iter    = mAccessibles.find(actorId);
+    return iter != mAccessibles.end() ? iter->second : nullptr;
   }
 
   /**
@@ -147,7 +140,7 @@ public:
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
-                                                                                        true);
+                                                                                         true);
   }
 
   /**
@@ -166,7 +159,7 @@ public:
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
-                                                                                        false);
+                                                                                         false);
   }
 
   /**
@@ -185,7 +178,7 @@ public:
         LOG() << "Direct reading command failed (" << msg.getError().message << ")\n";
       }
     },
-                                                                                        alsoNonDiscardable);
+                                                                                         alsoNonDiscardable);
   }
 
   /**
@@ -208,8 +201,8 @@ public:
         mDirectReadingCallbacks.emplace(std::get<2>(msg), callback);
       }
     },
-                                                                                                                           text,
-                                                                                                                           discardable);
+                                                                                                                            text,
+                                                                                                                            discardable);
   }
 
   /**
@@ -234,8 +227,8 @@ public:
     mHighlightedActor     = {};
     mHighlightClearAction = {};
     BridgeAccessible::ForceDown();
-    mRegistryClient       = {};
-    mDirectReadingClient  = {};
+    mRegistryClient      = {};
+    mDirectReadingClient = {};
     mDirectReadingCallbacks.clear();
     mApplication.mChildren.clear();
     ClearTimer();
@@ -288,9 +281,9 @@ public:
     {
       Dali::Adaptor::Get().RemoveIdle(mIdleCallback);
     }
-    mAccessibilityStatusClient        = {};
-    mDbusServer                       = {};
-    mConnectionPtr                    = {};
+    mAccessibilityStatusClient = {};
+    mDbusServer                = {};
+    mConnectionPtr             = {};
   }
 
   bool ForceUpTimerCallback()
@@ -592,7 +585,7 @@ public:
   void ReadScreenReaderEnabledProperty()
   {
     // can be true because of SuppressScreenReader before init
-    if (!mAccessibilityStatusClient)
+    if(!mAccessibilityStatusClient)
     {
       return;
     }
@@ -626,7 +619,7 @@ public:
 
   void EmitScreenReaderEnabledSignal()
   {
-    if (mIsScreenReaderEnabled)
+    if(mIsScreenReaderEnabled)
     {
       mScreenReaderEnabledSignal.Emit();
     }
@@ -658,7 +651,7 @@ public:
   {
     mAccessibilityStatusClient = DBus::DBusClient{A11yDbusName, A11yDbusPath, A11yDbusStatusInterface, DBus::ConnectionType::SESSION};
 
-    if (!mAccessibilityStatusClient)
+    if(!mAccessibilityStatusClient)
     {
       DALI_LOG_ERROR("Accessibility Status DbusClient is not ready\n");
       return false;
@@ -669,7 +662,7 @@ public:
 
   bool InitializeTimerCallback()
   {
-    if ( InitializeAccessibilityStatusClient() )
+    if(InitializeAccessibilityStatusClient())
     {
       ReadAndListenProperties();
       return false;
@@ -679,7 +672,7 @@ public:
 
   bool OnIdleSignal()
   {
-    if ( InitializeAccessibilityStatusClient() )
+    if(InitializeAccessibilityStatusClient())
     {
       ReadAndListenProperties();
       mIdleCallback = NULL;
@@ -702,20 +695,20 @@ public:
    */
   void Initialize() override
   {
-    if ( InitializeAccessibilityStatusClient() )
+    if(InitializeAccessibilityStatusClient())
     {
       ReadAndListenProperties();
       return;
     }
 
     // Initialize failed. Try it again on Idle
-    if( Dali::Adaptor::IsAvailable() )
+    if(Dali::Adaptor::IsAvailable())
     {
       Dali::Adaptor& adaptor = Dali::Adaptor::Get();
-      if( NULL == mIdleCallback )
+      if(NULL == mIdleCallback)
       {
-        mIdleCallback = MakeCallback( this, &BridgeImpl::OnIdleSignal );
-        adaptor.AddIdle( mIdleCallback, true );
+        mIdleCallback = MakeCallback(this, &BridgeImpl::OnIdleSignal);
+        adaptor.AddIdle(mIdleCallback, true);
       }
     }
   }
@@ -821,7 +814,6 @@ private:
 
 namespace // unnamed namespace
 {
-
 bool INITIALIZED_BRIDGE = false;
 
 /**

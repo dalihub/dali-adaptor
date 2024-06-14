@@ -359,17 +359,17 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::RegisterDefaultLabel()
    */
-  void RegisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
+  void RegisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::UnregisterDefaultLabel()
    */
-  void UnregisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
+  void UnregisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
    */
-  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override;
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetApplication()
@@ -613,7 +613,7 @@ public:
 
 protected:
   // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
-  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::Accessibility::Accessible*>;
+  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, std::weak_ptr<Dali::Accessibility::Accessible>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
   mutable ApplicationAccessible mApplication;

@@ -35,7 +35,7 @@ namespace Dali::Accessibility
 /**
  * @brief Basic interface implemented by all accessibility objects.
  */
-class DALI_ADAPTOR_API Accessible
+class DALI_ADAPTOR_API Accessible : public std::enable_shared_from_this<Accessible>
 {
 public:
   virtual ~Accessible() noexcept;
@@ -517,26 +517,28 @@ public:
   static void SetCurrentlyHighlightedActor(Dali::Actor actor);
 
   /**
-   * @brief Sets ObjectRegistry.
-   *
-   * @param[in] registry ObjectRegistry instance
-   */
-  static void SetObjectRegistry(ObjectRegistry registry);
-
-  /**
    * @brief The method registers functor resposible for converting Actor into Accessible.
    * @param functor The returning Accessible handle from Actor object
    */
-  static void RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor);
+  static void RegisterExternalAccessibleGetter(std::function<std::pair<std::shared_ptr<Accessible>, bool>(Dali::Actor)> functor);
 
   /**
    * @brief Acquires Accessible object from Actor object.
    *
    * @param[in] actor Actor object
    *
-   * @return The handle to Accessible object
+   * @return The raw pointer to Accessible object
    */
   static Accessible* Get(Dali::Actor actor);
+
+  /**
+   * @brief Acquires Accessible object from Actor object.
+   *
+   * @param[in] actor Actor object
+   *
+   * @return The owning pointer to Accessible object
+   */
+  static std::shared_ptr<Accessible> GetOwningPtr(Dali::Actor actor);
 
   /**
    * @brief Obtains the DBus interface name for the specified AT-SPI interface.

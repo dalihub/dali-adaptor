@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,24 +314,6 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
   mConfigurationManager = Utils::MakeUnique<ConfigurationManager>(systemCachePath, mGraphics.get(), mThreadController);
 }
 
-void Adaptor::AccessibilityObserver::OnAccessibleKeyEvent(const Dali::KeyEvent& event)
-{
-  Accessibility::KeyEventType type;
-  if(event.GetState() == Dali::KeyEvent::DOWN)
-  {
-    type = Accessibility::KeyEventType::KEY_PRESSED;
-  }
-  else if(event.GetState() == Dali::KeyEvent::UP)
-  {
-    type = Accessibility::KeyEventType::KEY_RELEASED;
-  }
-  else
-  {
-    return;
-  }
-  Dali::Accessibility::Bridge::GetCurrentBridge()->Emit(type, event.GetKeyCode(), event.GetKeyName(), event.GetTime(), !event.GetKeyString().empty());
-}
-
 Adaptor::~Adaptor()
 {
   Accessibility::Bridge::GetCurrentBridge()->Terminate();
@@ -392,7 +374,6 @@ void Adaptor::Start()
   auto bridge  = Accessibility::Bridge::GetCurrentBridge();
   bridge->SetApplicationName(appName);
   bridge->Initialize();
-  Dali::Stage::GetCurrent().KeyEventSignal().Connect(&mAccessibilityObserver, &AccessibilityObserver::OnAccessibleKeyEvent);
 
   Dali::Internal::Adaptor::SceneHolder* defaultWindow = mWindows.front();
 

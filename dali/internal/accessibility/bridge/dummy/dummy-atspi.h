@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_DUMMY_ATSPI_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -46,15 +46,15 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void RegisterDefaultLabel(Accessibility::Accessible* object) override
+  void RegisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
   {
   }
 
-  void UnregisterDefaultLabel(Accessibility::Accessible* object) override
+  void UnregisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
   {
   }
 
-  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) override
   {
     return nullptr;
   }
@@ -142,7 +142,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int newValue, int reserved) override
+  void EmitStateChanged(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::State state, int newValue, int reserved) override
   {
   }
 
@@ -150,17 +150,12 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void Emit(Accessibility::Accessible* obj, Accessibility::ObjectPropertyChangeEvent event) override
+  void Emit(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::ObjectPropertyChangeEvent event) override
   {
   }
 
-  void EmitBoundsChanged(Accessibility::Accessible* obj, Rect<> rect) override
+  void EmitBoundsChanged(std::shared_ptr<Accessibility::Accessible> obj, Rect<> rect) override
   {
-  }
-
-  Accessibility::Consumed Emit(Accessibility::KeyEventType type, unsigned int keyCode, const std::string& keyName, unsigned int timeStamp, bool isText) override
-  {
-    return Accessibility::Consumed::YES;
   }
 
   void Say(const std::string& text, bool discardable, std::function<void(std::string)> callback) override
@@ -213,6 +208,19 @@ struct DummyBridge : Dali::Accessibility::Bridge
   void SetPreferredBusName(std::string_view preferredBusName) override
   {
   }
+
+  void AddAccessible(uint32_t actorId, std::shared_ptr<Accessible> accessible) override
+  {
+  }
+
+  void RemoveAccessible(uint32_t actorId) override
+  {
+  }
+
+  std::shared_ptr<Accessible> GetAccessible(Actor actor) const override
+  {
+    return nullptr;
+  };
 };
 
 } // namespace Dali::Accessibility

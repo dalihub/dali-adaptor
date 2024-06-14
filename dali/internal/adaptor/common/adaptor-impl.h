@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -699,13 +699,6 @@ private:                                          // Data
   Dali::LayoutDirection::Type mRootLayoutDirection;                   ///< LayoutDirection of window
 
   std::unique_ptr<Integration::AddOnManager> mAddOnManager; ///< Pointer to the addon manager
-
-  class AccessibilityObserver : public ConnectionTracker
-  {
-  public:
-    void OnAccessibleKeyEvent(const Dali::KeyEvent& event);
-  };
-  AccessibilityObserver mAccessibilityObserver;
 
 public:
   inline static Adaptor& GetImplementation(Dali::Adaptor& adaptor)
