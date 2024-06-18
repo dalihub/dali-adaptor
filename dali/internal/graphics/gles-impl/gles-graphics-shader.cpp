@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,16 +32,23 @@ struct ShaderImpl::Impl
     createInfo.pipelineStage  = _createInfo.pipelineStage;
     createInfo.shaderlanguage = _createInfo.shaderlanguage;
     createInfo.sourceMode     = _createInfo.sourceMode;
-    createInfo.sourceSize     = _createInfo.sourceSize;
+    createInfo.shaderVersion  = _createInfo.shaderVersion;
 
-    // Make a copy of source code
-    source.resize(_createInfo.sourceSize);
-    std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData),
-              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + _createInfo.sourceSize,
+    // Make a copy of source code. if code is meant to be used
+    // by modern parser, skip the prefix part
+    size_t dataStartIndex = 0;
+    size_t dataSize;
+
+    ShaderImpl::StripLegacyCodeIfNeeded( _createInfo, dataStartIndex, dataSize );
+
+    source.resize(dataSize);
+    std::copy(reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex,
+              reinterpret_cast<const uint8_t*>(_createInfo.sourceData) + dataStartIndex + dataSize,
               source.data());
 
     // Substitute pointer
     createInfo.sourceData = source.data();
+    createInfo.sourceSize = dataSize;
   }
 
   ~Impl(){};
@@ -207,6 +214,45 @@ const ShaderCreateInfo& ShaderImpl::GetCreateInfo() const
 [[nodiscard]] EglGraphicsController& ShaderImpl::GetController() const
 {
   return mImpl->controller;
+}
+
+void ShaderImpl::StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& startIndex, size_t& finalDataSize)
+{
+  // Make a copy of source code. if code is meant to be used
+  // by modern parser, skip the prefix part
+  auto text = reinterpret_cast<const char*>(info.sourceData);
+  auto result = std::string_view(text).find("//@legacy-prefix-end");
+  if(info.shaderVersion != 0)
+  {
+    if(result != 0 && result != std::string::npos)
+    {
+      DALI_LOG_ERROR("Shader processing: @legacy-prefix-end must be a very first statement!\n");
+    }
+    else if(result == 0)
+    {
+      char* end;
+      startIndex = std::strtoul(reinterpret_cast<const char*>(info.sourceData) + 21, &end, 10);
+    }
+  }
+  else
+  {
+    // For legacy shaders we need to make sure that the #version is a very first line
+    // so need to strip //@legacy-prefix-end tag
+    if(result != std::string::npos)
+    {
+      auto versionPos = std::string_view(text).find("#version", result);
+      if(versionPos == std::string::npos)
+      {
+        DALI_LOG_ERROR("Shader processing: new-line missing after @legacy-prefix-end!\n");
+        startIndex = 0; // not trimming anything
+      }
+      else
+      {
+        startIndex = versionPos;
+      }
+    }
+  }
+  finalDataSize = info.sourceSize - startIndex;
 }
 
 Shader::~Shader()
