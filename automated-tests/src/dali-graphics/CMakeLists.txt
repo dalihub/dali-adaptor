@@ -14,6 +14,7 @@ SET(TC_SOURCES
     utc-Dali-GraphicsNativeImage.cpp
     utc-Dali-GraphicsProgram.cpp
     utc-Dali-GraphicsSampler.cpp
+    utc-Dali-GraphicsShader.cpp
     utc-Dali-GraphicsTexture.cpp
 )
 
