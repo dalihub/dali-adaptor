@@ -147,7 +147,7 @@ bool ProgramImpl::Create()
 
   auto program = gl->CreateProgram();
 
-  DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] create program id : %u\n", mImpl->name.c_str(), program);
+  DALI_LOG_DEBUG_INFO("Program[%s] create program id : %u\n", mImpl->name.c_str(), program);
 
   const auto& info = mImpl->createInfo;
   for(const auto& state : *info.shaderState)
@@ -158,12 +158,12 @@ bool ProgramImpl::Create()
     if(shader->GetImplementation()->Compile())
     {
       auto shaderId = shader->GetImplementation()->GetGLShader();
-      DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] attach shader : %u\n", mImpl->name.c_str(), shaderId);
+      DALI_LOG_DEBUG_INFO("Program[%s] attach shader : %u\n", mImpl->name.c_str(), shaderId);
       gl->AttachShader(program, shaderId);
     }
   }
 
-  DALI_LOG_INFO(gGraphicsProgramLogFilter, Debug::Verbose, "Program[%s] call glLinkProgram\n", mImpl->name.c_str());
+  DALI_LOG_DEBUG_INFO("Program[%s] call glLinkProgram\n", mImpl->name.c_str());
   gl->LinkProgram(program);
 
   GLint status{0};

@@ -19,14 +19,14 @@
 #include <dali/internal/application-model/widget/appmodel-widget-tizen.h>
 
 // EXTERNAL INCLUDES
-#include <tizen.h>
 #include <bundle.h>
 #include <bundle_internal.h>
 #include <dlog.h>
-#include <widget_base.h>
 #include <glib.h>
 #include <system_info.h>
 #include <system_settings.h>
+#include <tizen.h>
+#include <widget_base.h>
 
 #ifdef DALI_ELDBUS_AVAILABLE
 #include <Eldbus.h>
@@ -35,9 +35,9 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
 #include <dali/integration-api/trace.h>
-#include <dali/internal/system/linux/dali-ecore.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
+#include <dali/internal/system/linux/dali-ecore.h>
 
 #define DEBUG_PRINTF(fmt, arg...) LOGD(" " fmt, ##arg)
 
@@ -47,20 +47,22 @@ namespace Internal
 {
 namespace Adaptor
 {
-
-extern "C" DALI_ADAPTOR_API AppModelWidget* Create() {
+extern "C" DALI_ADAPTOR_API AppModelWidget* Create()
+{
   return new AppModelWidget();
 }
 
-extern "C" DALI_ADAPTOR_API void Destroy(void* p) {
+extern "C" DALI_ADAPTOR_API void Destroy(void* p)
+{
   AppModelWidget* appWidget = static_cast<AppModelWidget*>(p);
   delete appWidget;
 }
 
-extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData) {
+extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData)
+{
   AppModelWidget* appWidget = static_cast<AppModelWidget*>(pData);
-  int ret = 0;
-  if (appWidget != nullptr)
+  int             ret       = 0;
+  if(appWidget != nullptr)
   {
     ret = appWidget->AppMain(data);
   }
@@ -71,7 +73,8 @@ extern "C" DALI_ADAPTOR_API int AppMain(bool isUiThread, void* data, void* pData
   return ret;
 }
 
-extern "C" DALI_ADAPTOR_API void AppExit(AppModelWidget* p) {
+extern "C" DALI_ADAPTOR_API void AppExit(AppModelWidget* p)
+{
   p->AppExit();
 }
 
@@ -97,7 +100,7 @@ typedef enum
 } AppEventType;
 
 static int AppEventConverter[APPCORE_BASE_EVENT_MAX] =
-{
+  {
     [LOW_MEMORY]                 = APPCORE_BASE_EVENT_LOW_MEMORY,
     [LOW_BATTERY]                = APPCORE_BASE_EVENT_LOW_BATTERY,
     [LANGUAGE_CHANGED]           = APPCORE_BASE_EVENT_LANG_CHANGE,
@@ -146,24 +149,21 @@ int AppAddEventHandler(AppEventHandlerPtr* eventHandler, AppEventType eventType,
   AppEventHandlerPtr handler;
 
   handler = static_cast<AppEventHandlerPtr>(calloc(1, sizeof(struct AppEventHandler)));
-  if(!handler)
+  if(DALI_UNLIKELY(!handler))
   {
-    DALI_LOG_ERROR("failed to create handler");
+    DALI_LOG_ERROR("failed to create handler. calloc size : %zu\n", sizeof(struct AppEventHandler));
     return TIZEN_ERROR_UNKNOWN;
   }
-  else
-  {
-    handler->type = eventType;
-    handler->cb   = callback;
-    handler->data = userData;
-    handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
+  handler->type = eventType;
+  handler->cb   = callback;
+  handler->data = userData;
+  handler->raw  = appcore_base_add_event(static_cast<appcore_base_event>(AppEventConverter[static_cast<int>(eventType)]), EventCallback, handler);
 
-    *eventHandler = handler;
+  *eventHandler = handler;
 
-    return TIZEN_ERROR_NONE;
-  }
+  return TIZEN_ERROR_NONE;
 }
-}
+} // namespace AppCoreWidget
 
 struct DALI_ADAPTOR_API AppModelWidget::Impl
 {
@@ -211,17 +211,17 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppInit(int argc, char** argv, void* data)
   {
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
     ecore_init();
     ecore_app_args_set(argc, (const char**)argv);
-  #pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 
-  #ifdef DALI_ELDBUS_AVAILABLE
+#ifdef DALI_ELDBUS_AVAILABLE
     // Initialize ElDBus.
     DALI_LOG_INFO(gDBusLogging, Debug::General, "Starting DBus Initialization\n");
     eldbus_init();
-  #endif
+#endif
   }
 
   static void AppFinish(void)
@@ -234,11 +234,11 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
       ecore_shutdown();
     }
 
-  #ifdef DALI_ELDBUS_AVAILABLE
+#ifdef DALI_ELDBUS_AVAILABLE
     // Shutdown ELDBus.
     DALI_LOG_INFO(gDBusLogging, Debug::General, "Shutting down DBus\n");
     eldbus_shutdown();
-  #endif
+#endif
   }
 
   static void AppRun(void* data)
@@ -251,11 +251,10 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
     ecore_main_loop_quit();
   }
 
-
   static void AppLanguageChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
-    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer  = &framework->GetObserver();
+    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer  = &framework->GetObserver();
 
     if(event && event->value)
     {
@@ -270,8 +269,8 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppRegionChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
-    FrameworkTizen* framework = static_cast<FrameworkTizen*>(data);
-    Framework::Observer*       observer  = &framework->GetObserver();
+    FrameworkTizen*      framework = static_cast<FrameworkTizen*>(data);
+    Framework::Observer* observer  = &framework->GetObserver();
 
     if(event && event->value)
     {
@@ -286,7 +285,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppBatteryLow(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                           observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*                observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                 status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Battery::Status result   = Dali::DeviceStatus::Battery::Status::NORMAL;
 
@@ -311,7 +310,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppMemoryLow(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                          observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Memory::Status result   = Dali::DeviceStatus::Memory::Status::NORMAL;
 
@@ -341,7 +340,7 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
 
   static void AppDeviceOrientationChanged(AppCoreWidget::AppEventInfoPtr event, void* data)
   {
-    Framework::Observer*                               observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
+    Framework::Observer*                    observer = &static_cast<FrameworkTizen*>(data)->GetObserver();
     int                                     status   = *static_cast<int*>(event->value);
     Dali::DeviceStatus::Orientation::Status result   = Dali::DeviceStatus::Orientation::Status::ORIENTATION_0;
 
@@ -418,8 +417,8 @@ struct DALI_ADAPTOR_API AppModelWidget::Impl
   {
   }
 
-  AppModelWidget*                     mAppModelWidget;
-  AppCoreWidget::AppEventHandlerPtr    handlers[5];
+  AppModelWidget*                   mAppModelWidget;
+  AppCoreWidget::AppEventHandlerPtr handlers[5];
 }; // Impl
 
 AppModelWidget::AppModelWidget()
@@ -432,7 +431,7 @@ AppModelWidget::~AppModelWidget()
   delete mImpl;
 }
 
-int AppModelWidget::AppMain(void *data)
+int AppModelWidget::AppMain(void* data)
 {
   return mImpl->AppMain(data);
 }

@@ -1979,8 +1979,9 @@ void WindowBaseEcoreWl2::TizenPolicyConformantArea(void* data, struct tizen_poli
   {
     Ecore_Wl2_Event_Conformant_Change* ev = static_cast<Ecore_Wl2_Event_Conformant_Change*>(calloc(1, sizeof(Ecore_Wl2_Event_Conformant_Change)));
 
-    if(!ev)
+    if(DALI_UNLIKELY(!ev))
     {
+      DALI_LOG_ERROR("Failed to allocate Ecore_Wl2_Event_Conformant_Change. calloc size : %zu\n", sizeof(Ecore_Wl2_Event_Conformant_Change));
       return;
     }
     ev->win       = GetNativeWindowId();

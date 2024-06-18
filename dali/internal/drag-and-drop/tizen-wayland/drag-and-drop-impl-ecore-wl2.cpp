@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -411,6 +411,13 @@ void DragAndDropEcoreWl::SendData(void* event)
     return;
   }
 
+  DelayedWritingData* data = (DelayedWritingData*)calloc(1, sizeof(DelayedWritingData));
+  if(DALI_UNLIKELY(!data))
+  {
+    DALI_LOG_ERROR("Failed to allocate DelayedWritingData. calloc size : %zu\n", sizeof(DelayedWritingData));
+    return;
+  }
+
   int dataLength = strlen(mData.c_str());
   int bufferSize = dataLength;
   if((mMimeType.find("text") != std::string::npos) ||
@@ -420,9 +427,8 @@ void DragAndDropEcoreWl::SendData(void* event)
     bufferSize += 1;
   }
 
-  DelayedWritingData* data = (DelayedWritingData*)calloc(1, sizeof(DelayedWritingData));
-  data->slice.mem          = new char[bufferSize];
-  data->slice.len          = bufferSize;
+  data->slice.mem = new char[bufferSize];
+  data->slice.len = bufferSize;
   memcpy(data->slice.mem, mData.c_str(), dataLength);
   ((char*)data->slice.mem)[dataLength] = '\0';
 
@@ -512,8 +518,8 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 
   Dali::DragAndDrop::DragEvent dragEvent;
 
-  Eina_Array *mimes = NULL;
-  mimes = ecore_wl2_offer_mimes_get(ev->offer);
+  Eina_Array* mimes = NULL;
+  mimes             = ecore_wl2_offer_mimes_get(ev->offer);
   if(mimes == NULL)
   {
     dragEvent.SetMimeType("");
@@ -523,7 +529,7 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
     dragEvent.SetMimeType((const char*)eina_array_data_get(mimes, 0));
   }
 
-  Dali::Vector2                curPosition(ev->x, ev->y);
+  Dali::Vector2 curPosition(ev->x, ev->y);
 
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
@@ -628,8 +634,8 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
   mTargetIndex       = -1;
   mWindowTargetIndex = -1;
 
-  Eina_Array *mimes = NULL;
-  mimes = ecore_wl2_offer_mimes_get(ev->offer);
+  Eina_Array* mimes = NULL;
+  mimes             = ecore_wl2_offer_mimes_get(ev->offer);
   if(mimes == NULL)
   {
     return false;

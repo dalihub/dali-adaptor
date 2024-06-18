@@ -72,13 +72,18 @@ uint32_t TizenPlatformAbstraction::TimerCallback::sNextTimerId = 0;
 TizenPlatformAbstraction::TizenPlatformAbstraction()
 : mDataStoragePath(""),
   mTimerPairsWaiting(),
-  mTimerPairsSpent()
-
+  mTimerPairsSpent(),
+  mCleanupIdleCallback(nullptr)
 {
 }
 
 TizenPlatformAbstraction::~TizenPlatformAbstraction()
 {
+  if(mCleanupIdleCallback && Dali::Adaptor::IsAvailable())
+  {
+    Dali::Adaptor::Get().RemoveIdle(mCleanupIdleCallback);
+    mCleanupIdleCallback = nullptr;
+  }
 }
 
 ImageDimensions TizenPlatformAbstraction::GetClosestImageSize(const std::string& filename,
@@ -202,20 +207,30 @@ uint32_t TizenPlatformAbstraction::StartTimer(uint32_t milliseconds, CallbackBas
 
 void TizenPlatformAbstraction::CancelTimer(uint32_t timerId)
 {
-  auto iter = std::remove_if(
-    mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&timerId](std::unique_ptr<TimerCallback>& timerCallbackPtr) {
-      if(timerCallbackPtr->mIdNumber == timerId)
-      {
-        timerCallbackPtr->mTimer.Stop();
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    });
+  std::vector<std::unique_ptr<TimerCallback> >::iterator timerIter = std::find_if(mTimerPairsWaiting.begin(), mTimerPairsWaiting.end(), [&timerId](std::unique_ptr<TimerCallback>& timerCallbackPtr) {
+    if(timerCallbackPtr->mIdNumber == timerId)
+    {
+      timerCallbackPtr->mTimer.Stop();
+      return true;
+    }
+    else
+    {
+      return false;
+    }
+  });
 
-  mTimerPairsWaiting.erase(iter, mTimerPairsWaiting.end());
+  if(timerIter == std::end(mTimerPairsWaiting))
+  {
+    DALI_LOG_DEBUG_INFO("TimerId %u Cancelled duplicated.\n", timerId);
+    return;
+  }
+
+  // Move the canceled item to the spent list.
+  std::move(timerIter, timerIter + 1, std::back_inserter(mTimerPairsSpent));
+
+  mTimerPairsWaiting.erase(timerIter, timerIter + 1);
+
+  RequestCleanupTimers();
 }
 
 void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
@@ -226,24 +241,38 @@ void TizenPlatformAbstraction::RunTimerFunction(TimerCallback& timerPtr)
 
   if(timerIter == std::end(mTimerPairsWaiting))
   {
-    DALI_ASSERT_DEBUG(false);
+    // It might be cancel during callback execute.
+    DALI_LOG_DEBUG_INFO("Timer might be cancelled during execute.\n");
+    return;
   }
 
-  // ...and move it
+  // Move the executed item to the spent list.
   std::move(timerIter, timerIter + 1, std::back_inserter(mTimerPairsSpent));
 
   mTimerPairsWaiting.erase(timerIter, timerIter + 1);
 
-  if(DALI_UNLIKELY(!Dali::Adaptor::IsAvailable() || !Dali::Adaptor::Get().AddIdle(MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers), false)))
-  {
-    DALI_LOG_ERROR("Fail to add idle callback for timer function. Call it synchronously.\n");
-    CleanupTimers();
-  }
+  RequestCleanupTimers();
 }
 
 void TizenPlatformAbstraction::CleanupTimers()
 {
+  // Idler callback called. Remove it.
+  mCleanupIdleCallback = nullptr;
+
   mTimerPairsSpent.clear();
+}
+
+void TizenPlatformAbstraction::RequestCleanupTimers()
+{
+  if(!mCleanupIdleCallback)
+  {
+    mCleanupIdleCallback = MakeCallback(this, &TizenPlatformAbstraction::CleanupTimers);
+    if(DALI_UNLIKELY(!Dali::Adaptor::IsAvailable() || !Dali::Adaptor::Get().AddIdle(mCleanupIdleCallback, false)))
+    {
+      DALI_LOG_ERROR("Fail to add idle callback for timer function. Call it synchronously.\n");
+      CleanupTimers();
+    }
+  }
 }
 
 TizenPlatformAbstraction* CreatePlatformAbstraction()

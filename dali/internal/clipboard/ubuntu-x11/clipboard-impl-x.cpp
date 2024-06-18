@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ struct Clipboard::Impl
   {
     for(const auto& type : mMimeTypes)
     {
-      if (type == mimeType)
+      if(type == mimeType)
       {
         return true;
       }
@@ -98,7 +98,7 @@ struct Clipboard::Impl
     return true;
   }
 
-  uint32_t GetData(const std::string &mimeType)
+  uint32_t GetData(const std::string& mimeType)
   {
     if(mDatas.count(mimeType))
     {
@@ -155,20 +155,20 @@ struct Clipboard::Impl
     return false;
   }
 
-  Ecore_X_Window mApplicationWindow;
+  Ecore_X_Window mApplicationWindow{};
   uint32_t       mDataId{0};
-  std::string    mLastType;
+  std::string    mLastType{};
 
-  std::vector<std::string>                     mMimeTypes;
-  std::map<std::string, std::string>           mDatas;            // type, data
-  std::queue<std::pair<uint32_t, std::string>> mDataReceiveQueue; // id, type
+  std::vector<std::string>                     mMimeTypes{};
+  std::map<std::string, std::string>           mDatas{};            // type, data
+  std::queue<std::pair<uint32_t, std::string>> mDataReceiveQueue{}; // id, type
 
-  Dali::Clipboard::DataSentSignalType     mDataSentSignal;
-  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal;
-  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal;
+  Dali::Clipboard::DataSentSignalType     mDataSentSignal{};
+  Dali::Clipboard::DataReceivedSignalType mDataReceivedSignal{};
+  Dali::Clipboard::DataSelectedSignalType mDataSelectedSignal{};
 
-  Dali::Timer mDataReceiveTimer;
-  Dali::Timer mMultiSelectionTimeoutTimer;
+  Dali::Timer mDataReceiveTimer{};
+  Dali::Timer mMultiSelectionTimeoutTimer{};
   bool        mMultiSelectionTimeout{false};
 };
 
@@ -263,7 +263,7 @@ bool Clipboard::SetData(const Dali::Clipboard::ClipData& clipData)
   return mImpl->SetData(clipData);
 }
 
-uint32_t Clipboard::GetData(const std::string &mimeType)
+uint32_t Clipboard::GetData(const std::string& mimeType)
 {
   return mImpl->GetData(mimeType);
 }
