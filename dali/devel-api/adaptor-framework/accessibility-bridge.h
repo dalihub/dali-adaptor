@@ -99,7 +99,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @param[in] object The accessible object
    */
-  virtual void RegisterDefaultLabel(Accessible* object) = 0;
+  virtual void RegisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
 
   /**
    * @brief Removes object from the stack of "default label" sourcing objects.
@@ -108,7 +108,7 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @param[in] object The accessible object
    */
-  virtual void UnregisterDefaultLabel(Accessible* object) = 0;
+  virtual void UnregisterDefaultLabel(std::shared_ptr<Accessible> object) = 0;
 
   /**
    * @brief Gets the top-most object from the stack of "default label" sourcing objects.
@@ -126,7 +126,7 @@ struct DALI_ADAPTOR_API Bridge
    * Following strings are valid values for "default_label" attribute: "enabled", "disabled".
    * Any other value will be interpreted as "enabled".
    */
-  virtual Accessible* GetDefaultLabel(Accessible* root) const = 0;
+  virtual Accessible* GetDefaultLabel(Accessible* root) = 0;
 
   /**
    * @brief Sets name of current application which will be visible on accessibility bus.
@@ -302,14 +302,14 @@ struct DALI_ADAPTOR_API Bridge
    *
    * @param obj Accessible Object
    */
-  virtual void EmitScrollStarted(Accessible *obj) = 0;
+  virtual void EmitScrollStarted(Accessible* obj) = 0;
 
-    /**
+  /**
    * @brief Emits ScrollFinished event on at-spi bus.
    *
    * @param obj Accessible Object
    */
-  virtual void EmitScrollFinished(Accessible *obj) = 0;
+  virtual void EmitScrollFinished(Accessible* obj) = 0;
 
   /**
    * @brief Emits state-changed event on at-spi bus.
@@ -357,7 +357,7 @@ struct DALI_ADAPTOR_API Bridge
    * The actual number of events emitted during a given time interval may be smaller
    * than the number of calls to this method, but at least one is guaranteed.
    */
-  virtual void EmitPostRender(Accessible *obj) = 0;
+  virtual void EmitPostRender(Accessible* obj) = 0;
 
   /**
    * @brief Emits key event on at-spi bus.

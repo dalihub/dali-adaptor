@@ -2,7 +2,7 @@
 #define DALI_ADAPTOR_ATSPI_ACCESSIBLE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -459,16 +459,25 @@ public:
    * @brief The method registers functor resposible for converting Actor into Accessible.
    * @param functor The returning Accessible handle from Actor object
    */
-  static void RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor);
+  static void RegisterExternalAccessibleGetter(std::function<std::shared_ptr<Accessible>(Dali::Actor)> functor);
 
   /**
    * @brief Acquires Accessible object from Actor object.
    *
    * @param[in] actor Actor object
    *
-   * @return The handle to Accessible object
+   * @return The raw pointer to Accessible object
    */
   static Accessible* Get(Dali::Actor actor);
+
+  /**
+   * @brief Acquires Accessible object from Actor object.
+   *
+   * @param[in] actor Actor object
+   *
+   * @return The owning pointer to Accessible object
+   */
+  static std::shared_ptr<Accessible> GetOwningPtr(Dali::Actor actor);
 
   /**
    * @brief Obtains the DBus interface name for the specified AT-SPI interface.

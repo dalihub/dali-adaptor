@@ -18,8 +18,8 @@
  *
  */
 
-#include <dali/devel-api/adaptor-framework/accessibility.h>
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/accessibility.h>
 
 namespace Dali::Accessibility
 {
@@ -46,15 +46,15 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void RegisterDefaultLabel(Accessibility::Accessible* object) override
+  void RegisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
   {
   }
 
-  void UnregisterDefaultLabel(Accessibility::Accessible* object) override
+  void UnregisterDefaultLabel(std::shared_ptr<Accessibility::Accessible> object) override
   {
   }
 
-  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) override
   {
     return nullptr;
   }
@@ -170,7 +170,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitPostRender(Accessibility::Accessible *obj) override
+  void EmitPostRender(Accessibility::Accessible* obj) override
   {
   }
 
