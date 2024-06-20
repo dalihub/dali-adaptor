@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_OBJECT_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitStateChanged()
    */
-  void EmitStateChanged(Dali::Accessibility::Accessible* obj, Dali::Accessibility::State state, int newValue, int reserved) override;
+  void EmitStateChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::State state, int newValue, int reserved) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
@@ -73,17 +73,17 @@ protected:
   /**
    * @copydoc Dali::Accessibility::Bridge::Emit()
    */
-  void Emit(Dali::Accessibility::Accessible* obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
+  void Emit(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Accessibility::ObjectPropertyChangeEvent event) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitBoundsChanged()
    */
-  void EmitBoundsChanged(Dali::Accessibility::Accessible* obj, Dali::Rect<> rect) override;
+  void EmitBoundsChanged(std::shared_ptr<Dali::Accessibility::Accessible> obj, Dali::Rect<> rect) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitPostRender()
    */
-  void EmitPostRender(Dali::Accessibility::Accessible* obj) override;
+  void EmitPostRender(std::shared_ptr<Dali::Accessibility::Accessible> obj) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::EmitMovedOutOfScreen()

@@ -34,7 +34,7 @@ namespace Dali::Accessibility
 /**
  * @brief Basic interface implemented by all accessibility objects.
  */
-class DALI_ADAPTOR_API Accessible
+class DALI_ADAPTOR_API Accessible : public std::enable_shared_from_this<Accessible>
 {
 public:
   virtual ~Accessible() noexcept;

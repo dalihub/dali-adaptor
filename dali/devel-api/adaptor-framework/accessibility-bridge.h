@@ -319,7 +319,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] newValue Whether the state value is changed to new value or not.
    * @param[in] reserved Reserved. (Currently, this argument is not implemented in dali)
    **/
-  virtual void EmitStateChanged(Accessible* obj, State state, int newValue, int reserved = 0) = 0;
+  virtual void EmitStateChanged(std::shared_ptr<Accessible> obj, State state, int newValue, int reserved = 0) = 0;
 
   /**
    * @brief Emits window event on at-spi bus.
@@ -336,7 +336,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] event Property changed event
    **/
-  virtual void Emit(Accessible* obj, ObjectPropertyChangeEvent event) = 0;
+  virtual void Emit(std::shared_ptr<Accessible> obj, ObjectPropertyChangeEvent event) = 0;
 
   /**
    * @brief Emits bounds-changed event on at-spi bus.
@@ -344,7 +344,7 @@ struct DALI_ADAPTOR_API Bridge
    * @param[in] obj The accessible object
    * @param[in] rect The rectangle for changed bounds
    **/
-  virtual void EmitBoundsChanged(Accessible* obj, Rect<> rect) = 0;
+  virtual void EmitBoundsChanged(std::shared_ptr<Accessible> obj, Rect<> rect) = 0;
 
   /**
    * @brief Emits org.a11y.atspi.Event.Window.PostRender on the AT-SPI bus.
@@ -357,7 +357,7 @@ struct DALI_ADAPTOR_API Bridge
    * The actual number of events emitted during a given time interval may be smaller
    * than the number of calls to this method, but at least one is guaranteed.
    */
-  virtual void EmitPostRender(Accessible* obj) = 0;
+  virtual void EmitPostRender(std::shared_ptr<Accessible> obj) = 0;
 
   /**
    * @brief Emits key event on at-spi bus.

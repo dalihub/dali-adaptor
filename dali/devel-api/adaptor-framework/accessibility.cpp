@@ -522,7 +522,7 @@ public:
 
   void OnPostRender()
   {
-    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(this);
+    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
   }
 }; // AdaptorAccessible
 

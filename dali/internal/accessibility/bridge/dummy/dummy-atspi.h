@@ -154,7 +154,7 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void EmitStateChanged(Accessibility::Accessible* obj, Accessibility::State state, int newValue, int reserved) override
+  void EmitStateChanged(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::State state, int newValue, int reserved) override
   {
   }
 
@@ -162,15 +162,15 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
-  void Emit(Accessibility::Accessible* obj, Accessibility::ObjectPropertyChangeEvent event) override
+  void Emit(std::shared_ptr<Accessibility::Accessible> obj, Accessibility::ObjectPropertyChangeEvent event) override
   {
   }
 
-  void EmitBoundsChanged(Accessibility::Accessible* obj, Rect<> rect) override
+  void EmitBoundsChanged(std::shared_ptr<Accessibility::Accessible> obj, Rect<> rect) override
   {
   }
 
-  void EmitPostRender(Accessibility::Accessible* obj) override
+  void EmitPostRender(std::shared_ptr<Accessibility::Accessible> obj) override
   {
   }
 
