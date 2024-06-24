@@ -364,6 +364,26 @@ bool GetFrontBufferRendering(Window window)
   return GetImplementation(window).GetFrontBufferRendering();
 }
 
+void SetModal(Window window, bool modal)
+{
+  GetImplementation(window).SetModal(modal);
+}
+
+bool IsModal(Window window)
+{
+  return GetImplementation(window).IsModal();
+}
+
+void SetAlwaysOnTop(Window window, bool alwaysOnTop)
+{
+  GetImplementation(window).SetAlwaysOnTop(alwaysOnTop);
+}
+
+bool IsAlwaysOnTop(Window window)
+{
+  return GetImplementation(window).IsAlwaysOnTop();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

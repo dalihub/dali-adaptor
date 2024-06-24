@@ -495,6 +495,24 @@ void WindowBaseAndroid::SetEglWindowFrontBufferMode(bool enable)
 {
 }
 
+void WindowBaseAndroid::SetModal(bool modal)
+{
+}
+
+bool WindowBaseAndroid::IsModal()
+{
+  return false;
+}
+
+void WindowBaseAndroid::SetAlwaysOnTop(bool alwaysOnTop)
+{
+}
+
+bool WindowBaseAndroid::IsAlwaysOnTop()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

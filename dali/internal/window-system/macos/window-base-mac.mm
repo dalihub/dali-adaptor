@@ -806,6 +806,24 @@ void WindowBaseCocoa::SetEglWindowFrontBufferMode(bool enable)
 {
 }
 
+void WindowBaseCocoa::SetModal(bool modal)
+{
+}
+
+bool WindowBaseCocoa::IsModal()
+{
+  return false;
+}
+
+void WindowBaseCocoa::SetAlwaysOnTop(bool alwaysOnTop)
+{
+}
+
+bool WindowBaseCocoa::IsAlwaysOnTop()
+{
+  return false;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

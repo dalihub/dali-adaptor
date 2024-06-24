@@ -582,6 +582,26 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool GetFrontBufferRendering();
 
+  /**
+   * @copydoc Dali::DevelWindow::SetModal()
+   */
+  void SetModal(bool modal);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsModal()
+   */
+  bool IsModal();
+
+  /**
+   * @copydoc Dali::DevelWindow::SetAlwaysOnTop()
+   */
+  void SetAlwaysOnTop(bool alwaysOnTop);
+
+  /**
+   * @copydoc Dali::DevelWindow::IsAlwaysOnTop()
+   */
+  bool IsAlwaysOnTop();
+
 private:
   /**
    * @brief Enumeration for orietation mode.

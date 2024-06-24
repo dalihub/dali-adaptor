@@ -1581,6 +1581,27 @@ bool Window::GetFrontBufferRendering()
   return mWindowBase->GetFrontBufferRendering();
 }
 
+void Window::SetModal(bool modal)
+{
+  mWindowBase->SetModal(modal);
+}
+
+bool Window::IsModal()
+{
+  return mWindowBase->IsModal();
+}
+
+void Window::SetAlwaysOnTop(bool alwaysOnTop)
+{
+  mWindowBase->SetAlwaysOnTop(alwaysOnTop);
+}
+
+bool Window::IsAlwaysOnTop()
+{
+  return mWindowBase->IsAlwaysOnTop();
+}
+
+
 } // namespace Adaptor
 
 } // namespace Internal
