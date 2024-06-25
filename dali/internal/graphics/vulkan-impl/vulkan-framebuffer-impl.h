@@ -22,6 +22,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
+class RenderPassImpl;
 
 enum class AttachmentType
 {
@@ -38,17 +39,17 @@ class Device;
 class FramebufferAttachment : public VkManaged
 {
 public:
-  FramebufferAttachment(ImageView* imageView,
+  FramebufferAttachment(ImageView*     imageView,
                         vk::ClearValue clearColor,
                         AttachmentType type,
-                        bool presentable);
+                        bool           presentable);
 
-  static FramebufferAttachment* NewColorAttachment( ImageView* imageView,
+  static FramebufferAttachment* NewColorAttachment(ImageView*          imageView,
                                                    vk::ClearColorValue clearColorValue,
-                                                   bool presentable );
+                                                   bool                presentable);
 
-  static FramebufferAttachment* NewDepthAttachment( ImageView* imageView,
-                                                   vk::ClearDepthStencilValue clearDepthStencilValue );
+  static FramebufferAttachment* NewDepthAttachment(ImageView*                 imageView,
+                                                   vk::ClearDepthStencilValue clearDepthStencilValue);
 
   [[nodiscard]] ImageView* GetImageView() const;
 
@@ -63,10 +64,10 @@ public:
 private:
   FramebufferAttachment() = default;
 
-  ImageView* mImageView{nullptr};
+  ImageView*                mImageView{nullptr};
   vk::AttachmentDescription mDescription;
-  vk::ClearValue mClearValue;
-  AttachmentType mType{AttachmentType::UNDEFINED};
+  vk::ClearValue            mClearValue;
+  AttachmentType            mType{AttachmentType::UNDEFINED};
 };
 
 /**
@@ -78,30 +79,47 @@ private:
 class FramebufferImpl : public VkManaged
 {
 public:
-  FramebufferImpl(Device& graphicsDevice,
-                  const std::vector<FramebufferAttachment*>& colorAttachments,
-                  FramebufferAttachment* depthAttachment,
-                  vk::Framebuffer vkHandle,
-                  vk::RenderPass renderPass,
-                  uint32_t width,
-                  uint32_t height,
-                  bool externalRenderPass = false );
+  static FramebufferImpl* New(
+    Vulkan::Device&                      device,
+    RenderPassImpl*                      renderPass,
+    std::vector<FramebufferAttachment*>& attachments,
+    uint32_t                             width,
+    uint32_t                             height,
+    bool                                 hasDepthAttachment,
+    bool                                 takeRenderPassOwnership);
+
+  static FramebufferImpl* New(
+    Vulkan::Device&                            device,
+    RenderPassImpl*                            renderPass,
+    const std::vector<FramebufferAttachment*>& colorAttachments,
+    FramebufferAttachment*                     depthAttachment,
+    uint32_t                                   width,
+    uint32_t                                   height);
+
+  FramebufferImpl(Device&                                    graphicsDevice,
+                  const std::vector<FramebufferAttachment*>& attachments,
+                  vk::Framebuffer                            vkHandle,
+                  vk::RenderPass                             renderPass,
+                  uint32_t                                   width,
+                  uint32_t                                   height,
+                  bool                                       hasDepthAttachment,
+                  bool                                       takeRenderPassOwnership);
 
   [[nodiscard]] uint32_t GetWidth() const;
 
   [[nodiscard]] uint32_t GetHeight() const;
 
-  [[nodiscard]] FramebufferAttachment* GetAttachment( AttachmentType type, uint32_t index ) const;
+  [[nodiscard]] FramebufferAttachment* GetAttachment(AttachmentType type, uint32_t index) const;
 
-  [[nodiscard]] std::vector<FramebufferAttachment*> GetAttachments( AttachmentType type ) const;
+  [[nodiscard]] std::vector<FramebufferAttachment*> GetAttachments(AttachmentType type) const;
 
-  [[nodiscard]] uint32_t GetAttachmentCount( AttachmentType type ) const;
+  [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
   [[nodiscard]] vk::RenderPass GetRenderPass() const;
 
   [[nodiscard]] vk::Framebuffer GetVkHandle() const;
 
-  [[nodiscard]] std::vector< vk::ClearValue > GetClearValues() const;
+  [[nodiscard]] std::vector<vk::ClearValue> GetClearValues() const;
 
   bool OnDestroy() override;
 
@@ -111,14 +129,13 @@ private:
   uint32_t mWidth;
   uint32_t mHeight;
 
-  std::vector<FramebufferAttachment*> mColorAttachments;
-  FramebufferAttachment* mDepthAttachment;
-  vk::Framebuffer mFramebuffer;
-  vk::RenderPass mRenderPass;
-  bool mExternalRenderPass;
+  std::vector<FramebufferAttachment*> mAttachments;
+  vk::Framebuffer                     mFramebuffer;
+  vk::RenderPass                      mRenderPass;
+  bool                                mHasDepthAttachment{false};
+  bool                                mRenderPassOwned{false};
 };
 
 } // Namespace Dali::Graphics::Vulkan
-
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_FRAMEBUFFER_IMPL_H

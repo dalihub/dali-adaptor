@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
+#include <dali/graphics-api/graphics-render-pass-create-info.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/public-api/common/vector-wrapper.h>
-#include <dali/graphics-api/graphics-render-pass-create-info.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -30,32 +30,30 @@ class RenderTarget;
 class RenderPassImpl final : public Dali::Graphics::Vulkan::VkManaged
 {
 public:
-  static RenderPassImpl* NewRenderPass(
-    Vulkan::Device& device,
+  static RenderPassImpl* New(
+    Vulkan::Device&                            device,
     const std::vector<FramebufferAttachment*>& colorAttachments,
-    FramebufferAttachment* depthAttachment);
+    FramebufferAttachment*                     depthAttachment);
 
   RenderPassImpl(Vulkan::Device& device, vk::RenderPass renderPass);
 
-  RenderPassImpl(const Graphics::RenderPassCreateInfo& createInfo, VulkanGraphicsController& controller,
-    std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
+  RenderPassImpl(Vulkan::Device& device, const Graphics::RenderPassCreateInfo& createInfo, std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
 
   ~RenderPassImpl() override;
 
   vk::RenderPass GetVkHandle();
 
-  std::vector< vk::ImageView >& GetAttachments();
+  std::vector<vk::ImageView>& GetAttachments();
 
-  void SetAttachments(std::vector< vk::ImageView >& attachments);
+  void SetAttachments(std::vector<vk::ImageView>& attachments);
 
   bool OnDestroy() override;
 
 private:
-  Device* mGraphicsDevice;
-  vk::RenderPass mVkRenderPass;
-  std::vector< vk::ImageView > mAttachments{};
+  Device*                    mGraphicsDevice;
+  vk::RenderPass             mVkRenderPass;
+  std::vector<vk::ImageView> mAttachments{};
 };
 } // namespace Dali::Graphics::Vulkan
 
-
-#endif //DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_PASS_IMPL_H
+#endif // DALI_INTERNAL_GRAPHICS_VULKAN_RENDER_PASS_IMPL_H

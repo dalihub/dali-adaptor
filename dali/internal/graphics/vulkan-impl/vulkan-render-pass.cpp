@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
-
 
 namespace Dali::Graphics::Vulkan
 {
@@ -35,19 +34,30 @@ RenderPass::~RenderPass() = default;
 bool RenderPass::InitializeResource()
 {
   auto renderTarget = static_cast<RenderTarget*>(mCreateInfo.renderTarget);
-  auto framebuffer = renderTarget->GetFramebuffer();
-  DALI_ASSERT_ALWAYS(framebuffer);
-  auto vkFramebuffer = framebuffer->GetImpl();
+  auto framebuffer  = renderTarget->GetFramebuffer();
+  if(framebuffer)
+  {
+    auto vkFramebuffer = framebuffer->GetImpl();
 
-  // Hmmm... VkFramebuffer needs a render pass... (or does it now?!)
-  //
-  // At any rate, we want to generate render passes for surface without generating fbos
-  // for surface swapchain images; then in RenderTarget initialization, auto-generate fbos
-  // against compatible render passes. So.
-  std::vector<FramebufferAttachment*> colorAttachments = vkFramebuffer->GetAttachments(AttachmentType::COLOR);;
-  std::vector<FramebufferAttachment*> depthAttachment = vkFramebuffer->GetAttachments(AttachmentType::DEPTH_STENCIL);;
+    // Note, Vulkan framebuffer can now be used with compatible render passes in vkBeginRenderPass.
+    // So we can create multiple render passes.
 
-  mRenderPassImpl = new RenderPassImpl(mCreateInfo, mController, colorAttachments, depthAttachment[0]);
+    std::vector<FramebufferAttachment*> colorAttachments = vkFramebuffer->GetAttachments(AttachmentType::COLOR);
+    ;
+    std::vector<FramebufferAttachment*> depthAttachment = vkFramebuffer->GetAttachments(AttachmentType::DEPTH_STENCIL);
+    ;
+
+    mRenderPassImpl = new RenderPassImpl(mController.GetGraphicsDevice(), mCreateInfo, colorAttachments, depthAttachment[0]);
+  }
+  else
+  {
+    // RenderTarget must be a surface.
+    // Create a new render pass that's compatible with the surface's framebuffer.
+    //
+    // Does that mean it has to use the fbo's color attachment? YES.
+    // I.e. should we generate separate RenderPassImpls for each of the surface's framebuffers?
+    // GetImpl() then needs bufferIndex
+  }
   return true;
 }
 
@@ -64,4 +74,4 @@ RenderPassImpl* RenderPass::GetImpl()
   return mRenderPassImpl;
 }
 
-}
+} // namespace Dali::Graphics::Vulkan

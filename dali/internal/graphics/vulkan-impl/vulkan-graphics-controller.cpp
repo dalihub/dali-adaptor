@@ -270,7 +270,11 @@ UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const
   // But, we want to create multiple render passes in Core on a scene's surface...
   // Now, renderPassCreateInfo contains renderTarget, so this implementation can decide to generate
   // surface's swapchain framebuffers based on this new renderpass. Though, should be explicit about it!
-  return NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
+  auto renderPass = NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
+
+  //auto vkRenderPass = static_cast<Vulkan::RenderPass*>(renderPass.get());
+  //vkRenderPass->InitializeResource(); // This may create an actual resource.
+  return renderPass;
 }
 
 UniquePtr<Graphics::Buffer> VulkanGraphicsController::CreateBuffer(const Graphics::BufferCreateInfo& bufferCreateInfo, UniquePtr<Graphics::Buffer>&& oldBuffer)

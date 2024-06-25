@@ -19,8 +19,8 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-controller.h>
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/integration-api/debug.h>
@@ -31,137 +31,115 @@ extern Debug::Filter* gVulkanFilter;
 
 namespace Dali::Graphics::Vulkan
 {
-
-namespace {
-
+namespace
+{
 vk::RenderPass CreateCompatibleRenderPass(
-  Vulkan::Device& device,
-  const std::vector< FramebufferAttachment* >& colorAttachments,
-  FramebufferAttachment* depthAttachment,
-  std::vector< vk::ImageView >& attachments)
+  Vulkan::Device&                            device,
+  const std::vector<FramebufferAttachment*>& colorAttachments,
+  FramebufferAttachment*                     depthAttachment,
+  std::vector<vk::ImageView>&                attachments)
 {
   auto hasDepth = false;
-  if( depthAttachment )
+  if(depthAttachment)
   {
     hasDepth = depthAttachment->IsValid();
-    assert( hasDepth && "Invalid depth attachment! The attachment has no ImageView" );
+    assert(hasDepth && "Invalid depth attachment! The attachment has no ImageView");
   }
 
   // The total number of attachments
   auto totalAttachmentCount = hasDepth ? colorAttachments.size() + 1 : colorAttachments.size();
   attachments.clear();
-  attachments.reserve( totalAttachmentCount );
+  attachments.reserve(totalAttachmentCount);
 
   // This vector stores the attachment references
-  auto colorAttachmentReferences = std::vector< vk::AttachmentReference >{};
-  colorAttachmentReferences.reserve( colorAttachments.size() );
+  auto colorAttachmentReferences = std::vector<vk::AttachmentReference>{};
+  colorAttachmentReferences.reserve(colorAttachments.size());
 
   // This vector stores the attachment descriptions
-  auto attachmentDescriptions = std::vector< vk::AttachmentDescription >{};
-  attachmentDescriptions.reserve( totalAttachmentCount );
+  auto attachmentDescriptions = std::vector<vk::AttachmentDescription>{};
+  attachmentDescriptions.reserve(totalAttachmentCount);
 
   // For each color attachment...
-  for( auto i = 0u; i < colorAttachments.size(); ++i )
+  for(auto i = 0u; i < colorAttachments.size(); ++i)
   {
     // Get the image layout
     auto imageLayout = colorAttachments[i]->GetImageView()->GetImage()->GetImageLayout();
 
     // If the layout is undefined...
-    if( imageLayout == vk::ImageLayout::eUndefined )
+    if(imageLayout == vk::ImageLayout::eUndefined)
     {
       // Set it to color attachment optimal
       imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
     }
 
     // Any other case should be invalid
-    assert( imageLayout == vk::ImageLayout::eColorAttachmentOptimal );
+    assert(imageLayout == vk::ImageLayout::eColorAttachmentOptimal);
 
     // Add a reference and a descriptions and image views to their respective vectors
-    colorAttachmentReferences.push_back( vk::AttachmentReference{}.setLayout( imageLayout )
-                                                                  .setAttachment( U32( i ) ) );
+    colorAttachmentReferences.push_back(vk::AttachmentReference{}.setLayout(imageLayout).setAttachment(U32(i)));
 
-    attachmentDescriptions.push_back( colorAttachments[i]->GetDescription() );
+    attachmentDescriptions.push_back(colorAttachments[i]->GetDescription());
 
-    attachments.push_back( colorAttachments[i]->GetImageView()->GetVkHandle() );
+    attachments.push_back(colorAttachments[i]->GetImageView()->GetVkHandle());
   }
-
 
   // Follow the exact same procedure as color attachments
   auto depthAttachmentReference = vk::AttachmentReference{};
-  if( hasDepth )
+  if(hasDepth)
   {
     auto imageLayout = depthAttachment->GetImageView()->GetImage()->GetImageLayout();
 
-    if( imageLayout == vk::ImageLayout::eUndefined )
+    if(imageLayout == vk::ImageLayout::eUndefined)
     {
       imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
     }
 
-    assert( imageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal );
+    assert(imageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
-    depthAttachmentReference.setLayout( imageLayout );
-    depthAttachmentReference.setAttachment( U32( colorAttachmentReferences.size() ) );
+    depthAttachmentReference.setLayout(imageLayout);
+    depthAttachmentReference.setAttachment(U32(colorAttachmentReferences.size()));
 
-    attachmentDescriptions.push_back( depthAttachment->GetDescription() );
+    attachmentDescriptions.push_back(depthAttachment->GetDescription());
 
-    attachments.push_back( depthAttachment->GetImageView()->GetVkHandle() );
+    attachments.push_back(depthAttachment->GetImageView()->GetVkHandle());
   }
 
   // Creating a single subpass per framebuffer
   auto subpassDesc = vk::SubpassDescription{};
-  subpassDesc.setPipelineBindPoint( vk::PipelineBindPoint::eGraphics );
-  subpassDesc.setColorAttachmentCount( U32( colorAttachments.size()));
-  if( hasDepth )
+  subpassDesc.setPipelineBindPoint(vk::PipelineBindPoint::eGraphics);
+  subpassDesc.setColorAttachmentCount(U32(colorAttachments.size()));
+  if(hasDepth)
   {
-    subpassDesc.setPDepthStencilAttachment( &depthAttachmentReference );
+    subpassDesc.setPDepthStencilAttachment(&depthAttachmentReference);
   }
-  subpassDesc.setPColorAttachments( colorAttachmentReferences.data() );
+  subpassDesc.setPColorAttachments(colorAttachmentReferences.data());
 
   // Creating 2 subpass dependencies using VK_SUBPASS_EXTERNAL to leverage the implicit image layout
   // transitions provided by the driver
-  std::array< vk::SubpassDependency, 2 > subpassDependencies{
+  std::array<vk::SubpassDependency, 2> subpassDependencies{
 
-    vk::SubpassDependency{}.setSrcSubpass( VK_SUBPASS_EXTERNAL )
-                           .setDstSubpass( 0 )
-                           .setSrcStageMask( vk::PipelineStageFlagBits::eBottomOfPipe )
-                           .setDstStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput )
-                           .setSrcAccessMask( vk::AccessFlagBits::eMemoryRead )
-                           .setDstAccessMask( vk::AccessFlagBits::eColorAttachmentRead |
-                                              vk::AccessFlagBits::eColorAttachmentWrite )
-                           .setDependencyFlags( vk::DependencyFlagBits::eByRegion ),
+    vk::SubpassDependency{}.setSrcSubpass(VK_SUBPASS_EXTERNAL).setDstSubpass(0).setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe).setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput).setSrcAccessMask(vk::AccessFlagBits::eMemoryRead).setDstAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).setDependencyFlags(vk::DependencyFlagBits::eByRegion),
 
-    vk::SubpassDependency{}.setSrcSubpass( 0 )
-                           .setDstSubpass( VK_SUBPASS_EXTERNAL )
-                           .setSrcStageMask( vk::PipelineStageFlagBits::eColorAttachmentOutput )
-                           .setDstStageMask( vk::PipelineStageFlagBits::eBottomOfPipe )
-                           .setSrcAccessMask( vk::AccessFlagBits::eColorAttachmentRead |
-                                              vk::AccessFlagBits::eColorAttachmentWrite )
-                           .setDstAccessMask( vk::AccessFlagBits::eMemoryRead )
-                           .setDependencyFlags( vk::DependencyFlagBits::eByRegion )
+    vk::SubpassDependency{}.setSrcSubpass(0).setDstSubpass(VK_SUBPASS_EXTERNAL).setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput).setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe).setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentRead | vk::AccessFlagBits::eColorAttachmentWrite).setDstAccessMask(vk::AccessFlagBits::eMemoryRead).setDependencyFlags(vk::DependencyFlagBits::eByRegion)
 
   };
 
   // Create the render pass
-  auto renderPassCreateInfo = vk::RenderPassCreateInfo{}.setAttachmentCount( U32( attachmentDescriptions.size() ) )
-                                                        .setPAttachments( attachmentDescriptions.data() )
-                                                        .setPSubpasses( &subpassDesc )
-                                                        .setSubpassCount( 1 )
-                                                        .setPDependencies( subpassDependencies.data() );
+  auto renderPassCreateInfo = vk::RenderPassCreateInfo{}.setAttachmentCount(U32(attachmentDescriptions.size())).setPAttachments(attachmentDescriptions.data()).setPSubpasses(&subpassDesc).setSubpassCount(1).setPDependencies(subpassDependencies.data());
 
-  auto vkRenderPass = VkAssert(device.GetLogicalDevice().createRenderPass( renderPassCreateInfo, device.GetAllocator()));
+  auto vkRenderPass = VkAssert(device.GetLogicalDevice().createRenderPass(renderPassCreateInfo, device.GetAllocator()));
   return vkRenderPass;
 }
 
 } // namespace
 
-
-RenderPassImpl* RenderPassImpl::NewRenderPass(
-  Vulkan::Device& device,
-  const std::vector< FramebufferAttachment* >& colorAttachments,
-  FramebufferAttachment* depthAttachment)
+RenderPassImpl* RenderPassImpl::New(
+  Vulkan::Device&                            device,
+  const std::vector<FramebufferAttachment*>& colorAttachments,
+  FramebufferAttachment*                     depthAttachment)
 {
-  std::vector< vk::ImageView > attachments{};
-  auto vkRenderPass = CreateCompatibleRenderPass(device, colorAttachments, depthAttachment, attachments);
+  std::vector<vk::ImageView> attachments{};
+  auto                       vkRenderPass = CreateCompatibleRenderPass(device, colorAttachments, depthAttachment, attachments);
 
   auto renderPass = new RenderPassImpl(device, vkRenderPass);
   renderPass->SetAttachments(attachments);
@@ -174,11 +152,12 @@ RenderPassImpl::RenderPassImpl(Vulkan::Device& device, vk::RenderPass renderPass
 {
 }
 
-RenderPassImpl::RenderPassImpl(const Graphics::RenderPassCreateInfo& createInfo,
-  VulkanGraphicsController& controller,
-  std::vector<FramebufferAttachment*>& colorAttachments,
-  FramebufferAttachment* depthAttachment)
-: mGraphicsDevice(&controller.GetGraphicsDevice())
+RenderPassImpl::RenderPassImpl(
+  Vulkan::Device&                       device,
+  const Graphics::RenderPassCreateInfo& createInfo,
+  std::vector<FramebufferAttachment*>&  colorAttachments,
+  FramebufferAttachment*                depthAttachment)
+: mGraphicsDevice(&device)
 {
   // @todo Do mostly as CreateCompatibleRenderPass above, but instead, get the attachment
   // descriptions from the createInfo passed in here.
@@ -194,29 +173,29 @@ vk::RenderPass RenderPassImpl::GetVkHandle()
 
 bool RenderPassImpl::OnDestroy()
 {
-  if( mVkRenderPass )
+  if(mVkRenderPass)
   {
-    auto device = mGraphicsDevice->GetLogicalDevice();
-    auto allocator = &mGraphicsDevice->GetAllocator();
+    auto device     = mGraphicsDevice->GetLogicalDevice();
+    auto allocator  = &mGraphicsDevice->GetAllocator();
     auto renderPass = mVkRenderPass;
-    mGraphicsDevice->DiscardResource( [ device, renderPass, allocator ]() {
-      DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n",
-                     static_cast< VkRenderPass >(renderPass) )
-      device.destroyRenderPass( renderPass, allocator );
-    } );
+    mGraphicsDevice->DiscardResource([device, renderPass, allocator]()
+                                     {
+      DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkRenderPass>(renderPass))
+      device.destroyRenderPass(renderPass, allocator); });
 
     mVkRenderPass = nullptr;
   }
   return false;
 }
 
-std::vector< vk::ImageView >& RenderPassImpl::GetAttachments()
+std::vector<vk::ImageView>& RenderPassImpl::GetAttachments()
 {
   return mAttachments;
 }
 
-void RenderPassImpl::SetAttachments(std::vector< vk::ImageView >& attachments)
+void RenderPassImpl::SetAttachments(std::vector<vk::ImageView>& attachments)
 {
+  // @todo Remove? How can we late bind attachments? Recreate the whole RP?
   mAttachments = std::move(attachments);
 }
 
