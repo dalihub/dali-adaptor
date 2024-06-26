@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_SHADER_H
 
 /*
- * Copyright (c) 2024 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2023 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,14 +75,6 @@ public:
   [[nodiscard]] const ShaderCreateInfo& GetCreateInfo() const;
 
   [[nodiscard]] EglGraphicsController& GetController() const;
-
-  /**
-   * Strips legacy prefix fromt he GLSL source code if necessary
-   * @param info valid ShaderCreateInfo strucutre
-   * @param[out] startIndex Start index of the source code
-   * @param[out] finalDataSize Size of trimmed data
-   */
-  static void StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& startIndex, size_t& finalDataSize);
 
 private:
   friend class Shader;
