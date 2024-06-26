@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ACCESSIBILITY_BRIDGE_BASE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -283,12 +283,12 @@ public:
  */
 enum class CoalescableMessages
 {
-  BOUNDS_CHANGED, ///< Bounds changed
-  SET_OFFSET, ///< Set offset
-  POST_RENDER, ///< Post render
-  STATE_CHANGED_BEGIN = 500, ///< State changed (begin of reserved range)
-  STATE_CHANGED_END   = STATE_CHANGED_BEGIN + 99, ///< State changed (end of reserved range)
-  PROPERTY_CHANGED_BEGIN, ///< Property changed (begin of reserved range)
+  BOUNDS_CHANGED,                                     ///< Bounds changed
+  SET_OFFSET,                                         ///< Set offset
+  POST_RENDER,                                        ///< Post render
+  STATE_CHANGED_BEGIN = 500,                          ///< State changed (begin of reserved range)
+  STATE_CHANGED_END   = STATE_CHANGED_BEGIN + 99,     ///< State changed (end of reserved range)
+  PROPERTY_CHANGED_BEGIN,                             ///< Property changed (begin of reserved range)
   PROPERTY_CHANGED_END = PROPERTY_CHANGED_BEGIN + 99, ///< Property changed (end of reserved range)
 };
 
@@ -364,17 +364,17 @@ public:
   /**
    * @copydoc Dali::Accessibility::Bridge::RegisterDefaultLabel()
    */
-  void RegisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
+  void RegisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::UnregisterDefaultLabel()
    */
-  void UnregisterDefaultLabel(Dali::Accessibility::Accessible* object) override;
+  void UnregisterDefaultLabel(std::shared_ptr<Dali::Accessibility::Accessible> object) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetDefaultLabel()
    */
-  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) const override;
+  Dali::Accessibility::Accessible* GetDefaultLabel(Dali::Accessibility::Accessible* root) override;
 
   /**
    * @copydoc Dali::Accessibility::Bridge::GetApplication()
@@ -618,7 +618,7 @@ public:
 
 protected:
   // We use a weak handle in order not to keep a window alive forever if someone forgets to UnregisterDefaultLabel()
-  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, Dali::Accessibility::Accessible*>;
+  using DefaultLabelType  = std::pair<Dali::WeakHandle<Dali::Window>, std::weak_ptr<Dali::Accessibility::Accessible>>;
   using DefaultLabelsType = std::list<DefaultLabelType>;
 
   mutable ApplicationAccessible mApplication;

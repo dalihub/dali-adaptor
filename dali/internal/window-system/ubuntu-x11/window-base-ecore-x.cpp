@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -475,6 +475,8 @@ void WindowBaseEcoreX::OnMouseButtonDown(void* data, int type, void* event)
     }
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -497,6 +499,8 @@ void WindowBaseEcoreX::OnMouseButtonUp(void* data, int type, void* event)
     }
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -515,6 +519,8 @@ void WindowBaseEcoreX::OnMouseButtonMove(void* data, int type, void* event)
     point.SetAngle(Degree(static_cast<float>(touchEvent->multi.angle)));
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 

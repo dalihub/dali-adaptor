@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_TIZENWAYLAND_WINDOW_BASE_ECORE_WL2_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,6 +104,11 @@ public:
    * @brief Called when a touch motion is received.
    */
   void OnMouseButtonMove(void* data, int type, void* event);
+
+  /**
+   * @brief Called when a mouse frame is received.
+   */
+  void OnMouseFrame(void* data, int type, void* event);
 
   /**
    * @brief Called when a touch motion is received.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ EventHandler::EventHandler(WindowBase* windowBase, DamageObserver& damageObserve
     windowBase->FocusChangedSignal().Connect(this, &EventHandler::OnFocusChanged);
     windowBase->RotationSignal().Connect(this, &EventHandler::OnRotation);
     windowBase->TouchEventSignal().Connect(this, &EventHandler::OnTouchEvent);
+    windowBase->MouseFrameEventSignal().Connect(this, &EventHandler::OnMouseFrameEvent);
     windowBase->WheelEventSignal().Connect(this, &EventHandler::OnWheelEvent);
     windowBase->KeyEventSignal().Connect(this, &EventHandler::OnKeyEvent);
     windowBase->SelectionDataSendSignal().Connect(this, &EventHandler::OnSelectionDataSend);
@@ -103,6 +104,14 @@ void EventHandler::OnTouchEvent(Integration::Point& point, uint32_t timeStamp)
   for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
   {
     (*iter)->OnTouchPoint(point, timeStamp);
+  }
+}
+
+void EventHandler::OnMouseFrameEvent()
+{
+  for(ObserverContainer::iterator iter = mObservers.begin(), endIter = mObservers.end(); iter != endIter; ++iter)
+  {
+    (*iter)->OnMouseFrameEvent();
   }
 }
 

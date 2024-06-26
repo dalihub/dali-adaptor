@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,8 @@ namespace
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gSceneHolderLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_SCENE_HOLDER");
 #endif
+
+const uint32_t MAX_PRESSED_POINT_COUNT = 2;
 } // unnamed namespace
 
 uint32_t SceneHolder::mSceneHolderCounter = 0;
@@ -93,7 +95,11 @@ SceneHolder::SceneHolder()
   mAdaptor(nullptr),
   mDpi(),
   mAdaptorStarted(false),
-  mVisible(true)
+  mVisible(true),
+  mHandledMultiTouch(false),
+  mPreviousTouchEvent(),
+  mPreviousHoverEvent(),
+  mPreviousType(Integration::TouchEventCombiner::DISPATCH_NONE)
 {
 }
 
@@ -316,13 +322,12 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
   {
     timeStamp = TimeService::GetMilliSeconds();
   }
-
   Vector2 convertedPosition = RecalculatePosition(point.GetScreenPosition());
   point.SetScreenPosition(convertedPosition);
 
   Integration::TouchEvent                            touchEvent;
   Integration::HoverEvent                            hoverEvent;
-  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent);
+  Integration::TouchEventCombiner::EventDispatchType type = mCombiner.GetNextTouchEvent(point, timeStamp, touchEvent, hoverEvent, mHandledMultiTouch);
   if(type != Integration::TouchEventCombiner::DISPATCH_NONE)
   {
     DALI_LOG_INFO(gSceneHolderLogFilter, Debug::Verbose, "%d: Device %d: Button state %d (%.2f, %.2f)\n", timeStamp, point.GetDeviceId(), point.GetState(), point.GetScreenPosition().x, point.GetScreenPosition().y);
@@ -331,22 +336,78 @@ void SceneHolder::FeedTouchPoint(Dali::Integration::Point& point, int timeStamp)
     // Keep the handle alive until the core events are processed.
     Dali::BaseHandle sceneHolder(this);
 
-    // First the touch and/or hover event & related gesture events are queued
+    uint32_t pointCount = touchEvent.GetPointCount();
+    if(pointCount > MAX_PRESSED_POINT_COUNT)
+    {
+      mPreviousTouchEvent = touchEvent;
+      mPreviousHoverEvent = hoverEvent;
+      if(mPreviousType == Integration::TouchEventCombiner::DISPATCH_NONE)
+      {
+        mPreviousType = type;
+      }
+      else if(mPreviousType != type)
+      {
+        mPreviousType = Integration::TouchEventCombiner::DISPATCH_BOTH;
+      }
+      mHandledMultiTouch = true;
+    }
+
     if(type == Integration::TouchEventCombiner::DISPATCH_TOUCH || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
     {
       mLastTouchEvent = Dali::Integration::NewTouchEvent(timeStamp, point);
-      mScene.QueueEvent(touchEvent);
     }
 
     if(type == Integration::TouchEventCombiner::DISPATCH_HOVER || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
     {
       mLastHoverEvent = Dali::Integration::NewHoverEvent(timeStamp, point);
-      mScene.QueueEvent(hoverEvent);
     }
 
     // Next the events are processed with a single call into Core
+    if(pointCount <= MAX_PRESSED_POINT_COUNT || (point.GetState() != PointState::MOTION))
+    {
+      mHandledMultiTouch = false;
+      mPreviousType      = Integration::TouchEventCombiner::DISPATCH_NONE;
+
+      // First the touch and/or hover event & related gesture events are queued
+      if(type == Integration::TouchEventCombiner::DISPATCH_TOUCH || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
+      {
+        mScene.QueueEvent(touchEvent);
+      }
+
+      if(type == Integration::TouchEventCombiner::DISPATCH_HOVER || type == Integration::TouchEventCombiner::DISPATCH_BOTH)
+      {
+        mScene.QueueEvent(hoverEvent);
+      }
+      mAdaptor->ProcessCoreEvents();
+    }
+  }
+}
+
+void SceneHolder::FeedMouseFrameEvent()
+{
+  if(DALI_UNLIKELY(!mAdaptorStarted))
+  {
+    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this feed.\n");
+    return;
+  }
+
+  if(mPreviousType == Integration::TouchEventCombiner::DISPATCH_TOUCH || mPreviousType == Integration::TouchEventCombiner::DISPATCH_BOTH)
+  {
+    mScene.QueueEvent(mPreviousTouchEvent);
+  }
+
+  if(mPreviousType == Integration::TouchEventCombiner::DISPATCH_HOVER || mPreviousType == Integration::TouchEventCombiner::DISPATCH_BOTH)
+  {
+    mScene.QueueEvent(mPreviousHoverEvent);
+  }
+
+  if(mPreviousType != Integration::TouchEventCombiner::DISPATCH_NONE)
+  {
     mAdaptor->ProcessCoreEvents();
   }
+
+  mHandledMultiTouch = false;
+  mPreviousType      = Integration::TouchEventCombiner::DISPATCH_NONE;
 }
 
 const Dali::TouchEvent& SceneHolder::GetLastTouchEvent() const
@@ -489,6 +550,8 @@ void SceneHolder::Reset()
   mScene.QueueEvent(event);
 
   // Next the events are processed with a single call into Core
+  mHandledMultiTouch = false;
+  mPreviousType      = Integration::TouchEventCombiner::DISPATCH_NONE;
   mAdaptor->ProcessCoreEvents();
 }
 

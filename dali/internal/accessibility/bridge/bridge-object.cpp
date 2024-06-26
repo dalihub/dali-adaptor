@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ void BridgeObject::EmitActiveDescendantChanged(Accessible* obj, Accessible* chil
     {"", "root"});
 }
 
-void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
+void BridgeObject::Emit(std::shared_ptr<Accessible> obj, ObjectPropertyChangeEvent event)
 {
   static const std::unordered_map<ObjectPropertyChangeEvent, std::string_view> eventMap{
     {ObjectPropertyChangeEvent::NAME, "accessible-name"},
@@ -85,16 +85,19 @@ void BridgeObject::Emit(Accessible* obj, ObjectPropertyChangeEvent event)
 
   if(eventName != eventMap.end())
   {
-    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj, 1.0f, [=]() {
-      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-        GetAccessiblePath(obj),
-        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-        "PropertyChange",
-        std::string{eventName->second},
-        0,
-        0,
-        {0},
-        {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::PROPERTY_CHANGED_BEGIN) + static_cast<int>(event)), obj.get(), 1.0f, [weakObj = std::weak_ptr<Accessible>(obj), eventName, this]() {
+      if(auto obj = weakObj.lock())
+      {
+        mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+          GetAccessiblePath(obj.get()),
+          Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+          "PropertyChange",
+          std::string{eventName->second},
+          0,
+          0,
+          {0},
+          {"", "root"});
+      }
     });
   }
 }
@@ -145,7 +148,7 @@ void BridgeObject::Emit(Accessible* obj, WindowEvent event, unsigned int detail)
   }
 }
 
-void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, int reserved)
+void BridgeObject::EmitStateChanged(std::shared_ptr<Accessible> obj, State state, int newValue, int reserved)
 {
   static const std::unordered_map<State, std::string_view> stateMap{
     {State::INVALID, "invalid"},
@@ -205,52 +208,61 @@ void BridgeObject::EmitStateChanged(Accessible* obj, State state, int newValue, 
 
   if(stateName != stateMap.end())
   {
-    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj, 1.0f, [=]() {
-      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
-        GetAccessiblePath(obj),
-        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-        "StateChanged",
-        std::string{stateName->second},
-        newValue,
-        reserved,
-        {0},
-        {"", "root"});
+    AddCoalescableMessage(static_cast<CoalescableMessages>(static_cast<int>(CoalescableMessages::STATE_CHANGED_BEGIN) + static_cast<int>(state)), obj.get(), 1.0f, [weakObj = std::weak_ptr<Accessible>(obj), stateName, newValue, reserved, this]() {
+      if(auto obj = weakObj.lock())
+      {
+        mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<int>, Address>(
+          GetAccessiblePath(obj.get()),
+          Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+          "StateChanged",
+          std::string{stateName->second},
+          newValue,
+          reserved,
+          {0},
+          {"", "root"});
+      }
     });
   }
 }
 
-void BridgeObject::EmitBoundsChanged(Accessible* obj, Dali::Rect<> rect)
+void BridgeObject::EmitBoundsChanged(std::shared_ptr<Accessible> obj, Dali::Rect<> rect)
 {
   if(!IsUp() || !IsBoundsChangedEventAllowed || obj->IsHidden() || obj->GetSuppressedEvents()[AtspiEvent::BOUNDS_CHANGED])
   {
     return;
   }
 
-  DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
-    std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
+  AddCoalescableMessage(CoalescableMessages::BOUNDS_CHANGED, obj.get(), 1.0f, [weakObj = std::weak_ptr<Accessible>(obj), rect = std::move(rect), this]() {
+    if(auto obj = weakObj.lock())
+    {
+      DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> > tmp{
+        std::tuple<int32_t, int32_t, int32_t, int32_t>{rect.x, rect.y, rect.width, rect.height}};
 
-  AddCoalescableMessage(CoalescableMessages::BOUNDS_CHANGED, obj, 1.0f, [=]() {
-    mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
-      GetAccessiblePath(obj),
-      Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
-      "BoundsChanged",
-      "",
-      0,
-      0,
-      tmp,
-      {"", "root"});
+      mDbusServer.emit2<std::string, int, int, DBus::EldbusVariant<std::tuple<int32_t, int32_t, int32_t, int32_t> >, Address>(
+        GetAccessiblePath(obj.get()),
+        Accessible::GetInterfaceName(AtspiInterface::EVENT_OBJECT),
+        "BoundsChanged",
+        "",
+        0,
+        0,
+        tmp,
+        {"", "root"});
+    }
   });
 }
 
-void BridgeObject::EmitPostRender(Accessible *obj)
+void BridgeObject::EmitPostRender(std::shared_ptr<Accessible> obj)
 {
   if(!IsUp() || obj->IsHidden())
   {
     return;
   }
 
-  AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj, 0.5f, [=]() {
-    Emit(obj, WindowEvent::POST_RENDER);
+  AddCoalescableMessage(CoalescableMessages::POST_RENDER, obj.get(), 0.5f, [weakObj = std::weak_ptr<Accessible>(obj), this]() {
+    if(auto obj = weakObj.lock())
+    {
+      Emit(obj.get(), WindowEvent::POST_RENDER);
+    }
   });
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ void Accessible::EmitStateChanged(State state, int newValue, int reserved)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(this, state, newValue, reserved);
+    bridgeData->mBridge->EmitStateChanged(shared_from_this(), state, newValue, reserved);
   }
 }
 
@@ -58,7 +58,7 @@ void Accessible::EmitShowing(bool isShowing)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(this, State::SHOWING, isShowing ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::SHOWING, isShowing ? 1 : 0, 0);
   }
 }
 
@@ -66,7 +66,7 @@ void Accessible::EmitVisible(bool isVisible)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(this, State::VISIBLE, isVisible ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::VISIBLE, isVisible ? 1 : 0, 0);
   }
 }
 
@@ -74,7 +74,7 @@ void Accessible::EmitHighlighted(bool isHighlighted)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(this, State::HIGHLIGHTED, isHighlighted ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::HIGHLIGHTED, isHighlighted ? 1 : 0, 0);
   }
 }
 
@@ -82,7 +82,7 @@ void Accessible::EmitFocused(bool isFocused)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitStateChanged(this, State::FOCUSED, isFocused ? 1 : 0, 0);
+    bridgeData->mBridge->EmitStateChanged(shared_from_this(), State::FOCUSED, isFocused ? 1 : 0, 0);
   }
 }
 void Accessible::EmitTextInserted(unsigned int position, unsigned int length, const std::string& content)
@@ -152,7 +152,7 @@ void Accessible::Emit(ObjectPropertyChangeEvent event)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->Emit(this, event);
+    bridgeData->mBridge->Emit(shared_from_this(), event);
   }
 }
 
@@ -160,7 +160,7 @@ void Accessible::EmitBoundsChanged(Rect<> rect)
 {
   if(auto bridgeData = GetBridgeData())
   {
-    bridgeData->mBridge->EmitBoundsChanged(this, rect);
+    bridgeData->mBridge->EmitBoundsChanged(shared_from_this(), rect);
   }
 }
 
@@ -225,7 +225,7 @@ void Accessible::NotifyAccessibilityStateChange(Dali::Accessibility::States stat
       auto index = static_cast<Dali::Accessibility::State>(i);
       if(states[index])
       {
-        data->mBridge->EmitStateChanged(this, index, GetStates()[index], 0);
+        data->mBridge->EmitStateChanged(shared_from_this(), index, GetStates()[index], 0);
       }
     }
 

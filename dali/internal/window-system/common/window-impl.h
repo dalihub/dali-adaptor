@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -823,6 +823,11 @@ private: // Dali::Internal::Adaptor::EventHandler::Observer
   void OnTouchPoint(Dali::Integration::Point& point, int timeStamp) override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnMouseFrameEvent
+   */
+  void OnMouseFrameEvent() override;
+
+  /**
    * @copydoc Dali::Internal::Adaptor::EventHandler::Observer::OnWheelEvent
    */
   void OnWheelEvent(Dali::Integration::WheelEvent& wheelEvent) override;
@@ -1024,8 +1029,8 @@ private:
   bool mOpaqueState : 1;
   bool mWindowRotationAcknowledgement : 1;
   bool mFocused : 1;
-  bool mIsWindowRotating : 1;      ///< The window rotating flag.
-  bool mIsEnabledUserGeometry : 1; ///< The user geometry enable flag.
+  bool mIsWindowRotating : 1;            ///< The window rotating flag.
+  bool mIsEnabledUserGeometry : 1;       ///< The user geometry enable flag.
   bool mIsEmittedWindowCreatedEvent : 1; ///< The Window Created Event emit flag for accessibility.
   bool mIsFrontBufferRendering : 1;      ///< The Front Buffer Rendering state.
 };

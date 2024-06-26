@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_BASE_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,6 +85,7 @@ public:
 
   // Input events
   typedef Signal<void(Integration::Point&, uint32_t)> TouchEventSignalType;
+  typedef Signal<void()>                              MouseFrameEventSignalType;
   typedef Signal<void(Integration::WheelEvent&)>      WheelEventSignalType;
   typedef Signal<void(Integration::KeyEvent&)>        KeyEventSignalType;
 
@@ -553,7 +554,7 @@ public:
    */
   virtual void SetFrontBufferRendering(bool enable) = 0;
 
-    /**
+  /**
    * @brief Enables or disables front buffer rendering.
    * @return Returns whether front buffer rendering has been enabled or not.
    */
@@ -606,6 +607,11 @@ public:
    * @brief This signal is emitted when a touch event is received.
    */
   TouchEventSignalType& TouchEventSignal();
+
+  /**
+   * @brief This signal is emitted when a mouse frame event is received.
+   */
+  MouseFrameEventSignalType& MouseFrameEventSignal();
 
   /**
    * @brief This signal is emitted when a mouse wheel is received.
@@ -708,6 +714,7 @@ protected:
   DamageSignalType                        mWindowDamagedSignal;
   RotationSignalType                      mRotationSignal;
   TouchEventSignalType                    mTouchEventSignal;
+  MouseFrameEventSignalType               mMouseFrameEventSignal;
   WheelEventSignalType                    mWheelEventSignal;
   KeyEventSignalType                      mKeyEventSignal;
   SelectionSignalType                     mSelectionDataSendSignal;

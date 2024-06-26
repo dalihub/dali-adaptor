@@ -2,7 +2,7 @@
 #define DALI_INTEGRATION_INTERNAL_SCENEHOLDER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #include <dali/integration-api/events/key-event-integ.h>
 #include <dali/integration-api/events/point.h>
 #include <dali/integration-api/events/touch-event-combiner.h>
+#include <dali/integration-api/events/touch-event-integ.h>
 #include <dali/integration-api/scene.h>
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/events/hover-event.h>
@@ -180,6 +181,11 @@ public:
    * @copydoc Dali::Integration::SceneHolder::FeedTouchPoint
    */
   void FeedTouchPoint(Dali::Integration::Point& point, int timeStamp);
+
+  /**
+   * @copydoc Dali::Integration::SceneHolder::FeedMouseFrameEvent
+   */
+  void FeedMouseFrameEvent();
 
   /**
    * @brief Get the Last Touch Event
@@ -412,8 +418,12 @@ protected:
 
   Uint16Pair mDpi; ///< The DPI for this SceneHolder.
 
-  bool mAdaptorStarted; ///< Whether the adaptor has started or not
-  bool mVisible : 1;    ///< Whether the scene is visible or not
+  bool                                               mAdaptorStarted; ///< Whether the adaptor has started or not
+  bool                                               mVisible : 1;    ///< Whether the scene is visible or not
+  bool                                               mHandledMultiTouch : 1;
+  Integration::TouchEvent                            mPreviousTouchEvent;
+  Integration::HoverEvent                            mPreviousHoverEvent;
+  Integration::TouchEventCombiner::EventDispatchType mPreviousType;
 };
 
 } // namespace Adaptor

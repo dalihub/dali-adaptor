@@ -40,8 +40,8 @@
 #include <dali/devel-api/atspi-interfaces/hypertext.h>
 #include <dali/devel-api/atspi-interfaces/selection.h>
 #include <dali/devel-api/atspi-interfaces/socket.h>
-#include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/table-cell.h>
+#include <dali/devel-api/atspi-interfaces/table.h>
 #include <dali/devel-api/atspi-interfaces/text.h>
 #include <dali/devel-api/atspi-interfaces/value.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
@@ -451,7 +451,7 @@ public:
       state[State::VISIBLE]   = true;
       state[State::ACTIVE]    = visible;
     }
-    else if (GetParent())
+    else if(GetParent())
     {
       auto parentState      = GetParent()->GetStates();
       state[State::SHOWING] = parentState[State::SHOWING];
@@ -495,22 +495,22 @@ public:
 
   void SetListenPostRender(bool enabled) override
   {
-    if (!mRoot)
+    if(!mRoot)
     {
       return;
     }
 
-    auto window                                 = Dali::DevelWindow::Get(Self());
+    auto                             window     = Dali::DevelWindow::Get(Self());
     Dali::Internal::Adaptor::Window& windowImpl = Dali::GetImplementation(window);
 
     if(!mRenderNotification)
     {
       mRenderNotification = std::unique_ptr<TriggerEventInterface>(
-                                           TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
-                                           TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
+        TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &AdaptorAccessible::OnPostRender),
+                                                TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER));
     }
 
-    if (enabled)
+    if(enabled)
     {
       windowImpl.SetRenderNotification(mRenderNotification.get());
     }
@@ -522,11 +522,11 @@ public:
 
   void OnPostRender()
   {
-    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(this);
+    Accessibility::Bridge::GetCurrentBridge()->EmitPostRender(shared_from_this());
   }
 }; // AdaptorAccessible
 
-using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::unique_ptr<AdaptorAccessible> >;
+using AdaptorAccessiblesType = std::unordered_map<const Dali::RefObject*, std::shared_ptr<AdaptorAccessible>>;
 
 // Save RefObject from an Actor in Accessible::Get()
 AdaptorAccessiblesType& GetAdaptorAccessibles()
@@ -535,7 +535,7 @@ AdaptorAccessiblesType& GetAdaptorAccessibles()
   return gAdaptorAccessibles;
 }
 
-std::function<Accessible*(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> Accessible* {
+std::function<std::shared_ptr<Accessible>(Dali::Actor)> convertingFunctor = [](Dali::Actor) -> std::shared_ptr<Accessible> {
   return nullptr;
 };
 
@@ -550,12 +550,12 @@ void Accessible::SetObjectRegistry(ObjectRegistry registry)
   });
 }
 
-void Accessible::RegisterExternalAccessibleGetter(std::function<Accessible*(Dali::Actor)> functor)
+void Accessible::RegisterExternalAccessibleGetter(std::function<std::shared_ptr<Accessible>(Dali::Actor)> functor)
 {
   convertingFunctor = functor;
 }
 
-Accessible* Accessible::Get(Dali::Actor actor)
+std::shared_ptr<Accessible> Accessible::GetOwningPtr(Dali::Actor actor)
 {
   if(!actor)
   {
@@ -576,8 +576,14 @@ Accessible* Accessible::Get(Dali::Actor actor)
       }
       pair.first->second.reset(new AdaptorAccessible(actor, isRoot));
     }
-    accessible = pair.first->second.get();
+    accessible = pair.first->second;
   }
 
   return accessible;
+}
+
+Accessible* Accessible::Get(Dali::Actor actor)
+{
+  auto accessible = Accessible::GetOwningPtr(actor);
+  return accessible ? accessible.get() : nullptr;
 }

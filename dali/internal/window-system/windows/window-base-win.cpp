@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,6 +132,8 @@ void WindowBaseWin::OnMouseButtonDown(int type, TWinEventInfo* event)
     point.SetAngle(Degree(touchEvent.multi.angle));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -156,6 +158,8 @@ void WindowBaseWin::OnMouseButtonUp(int type, TWinEventInfo* event)
     point.SetAngle(Degree(touchEvent.multi.angle));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -180,6 +184,8 @@ void WindowBaseWin::OnMouseButtonMove(int type, TWinEventInfo* event)
     point.SetAngle(Degree(touchEvent.multi.angle));
 
     mTouchEventSignal.Emit(point, touchEvent.timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 

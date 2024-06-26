@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EVENT_HANDLER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,6 +67,11 @@ public:
      * @param[in] timeStamp The time stamp
      */
     virtual void OnTouchPoint(Dali::Integration::Point& point, int timeStamp) = 0;
+
+    /**
+     * @brief Deriving classes should override this to be notified when we receive a mouse frame event.
+     */
+    virtual void OnMouseFrameEvent() = 0;
 
     /**
      * Deriving classes should override this to be notified when we receive a wheel event.
@@ -155,6 +160,11 @@ private:
    * Called when a touch event is received.
    */
   void OnTouchEvent(Integration::Point& point, uint32_t timeStamp);
+
+  /**
+   * Called when a mouse frame event is received.
+   */
+  void OnMouseFrameEvent();
 
   /**
    * Called when a mouse wheel is received.

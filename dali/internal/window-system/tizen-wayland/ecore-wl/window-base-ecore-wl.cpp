@@ -844,6 +844,8 @@ void WindowBaseEcoreWl::OnMouseButtonDown(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -870,6 +872,8 @@ void WindowBaseEcoreWl::OnMouseButtonUp(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -896,6 +900,8 @@ void WindowBaseEcoreWl::OnMouseButtonMove(void* data, int type, void* event)
     point.SetDeviceSubclass(deviceSubclass);
 
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
@@ -924,6 +930,8 @@ void WindowBaseEcoreWl::OnMouseButtonCancel(void* data, int type, void* event)
     mTouchEventSignal.Emit(point, touchEvent->timestamp);
 
     DALI_LOG_INFO(gWindowBaseLogFilter, Debug::General, "WindowBaseEcoreWl::OnMouseButtonCancel\n");
+
+    mMouseFrameEventSignal.Emit();
   }
 }
 
