@@ -20,6 +20,7 @@ OPTION(ENABLE_ATSPI             "Enable AT-SPI accessibility" ON)
 OPTION(ENABLE_APPMODEL          "Enable AppModel" OFF)
 OPTION(ENABLE_TRACE             "Enable Trace" OFF)
 OPTION(ENABLE_TRACE_STREAMLINE  "Enable Trace (Streamline)" OFF)
+OPTION(CONFIGURE_AUTOMATED_TESTS "Configure automated tests" ON)
 
 # Include additional macros
 INCLUDE( common.cmake )
@@ -470,4 +471,4 @@ IF( ENABLE_APPMODEL )
   ADD_SUBDIRECTORY( application-model )
 ENDIF()
 
-CLEAN_ARG_CACHE()
+#CLEAN_ARG_CACHE()

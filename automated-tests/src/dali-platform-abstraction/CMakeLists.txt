@@ -9,6 +9,8 @@ SET(TC_SOURCES
     utc-image-fitting-modes.cpp
 )
 
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
+
 LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp

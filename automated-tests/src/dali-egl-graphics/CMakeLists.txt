@@ -1,9 +1,11 @@
-SET(PKG_NAME "dali-graphics")
+SET(PKG_NAME "dali-egl-graphics")
 
 SET(EXEC_NAME "tct-${PKG_NAME}-core")
 SET(RPM_NAME "core-${PKG_NAME}-tests")
+MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
 
-SET(CAPI_LIB "dali-graphics")
+SET(CAPI_LIB "dali-egl-graphics")
+
 SET(TC_SOURCES
     utc-Dali-GraphicsBuffer.cpp
     utc-Dali-GraphicsDraw.cpp
@@ -16,6 +18,8 @@ SET(TC_SOURCES
     utc-Dali-GraphicsShaderParser.cpp
     utc-Dali-GraphicsTexture.cpp
 )
+
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
 
 LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
@@ -34,7 +38,7 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
   ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
   ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
-  tct-dali-graphics-core.cpp
+  tct-dali-egl-graphics-core.cpp
 )
 
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED

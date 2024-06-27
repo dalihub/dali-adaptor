@@ -25,7 +25,8 @@ ARG_ENABLE( ENABLE_WAYLAND enable_wayland "${ENABLE_VAL}" "Build on Wayland" )
 ARG_ENABLE( ENABLE_ECORE_WAYLAND2 enable_ecore_wayland2 "${ENABLE_VAL}" "Build on Ecore Wayland2" )
 ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether so file is renamed or not" )
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
-ARG_ENABLE( ENABLE_VULKAN enable_vulkan 1 "Enables Vulkan build")
+
+ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build")
 
 # help option
 ARG_ENABLE( PRINT_HELP print_help "${ENABLE_VAL}" "Prints help" )
@@ -34,6 +35,13 @@ IF( print_help )
   MESSAGE( STATUS ${HELP_ENABLES} )
   EXIT()
 ENDIF()
+
+IF( CONFIGURE_AUTOMATED_TESTS )
+  # Configure automated tests
+  CONFIGURE_FILE( ${ROOT_SRC_DIR}/automated-tests/CMakeLists.txt.in
+                  ${ROOT_SRC_DIR}/automated-tests/CMakeLists.txt @ONLY )
+ENDIF()
+
 
 IF( NOT enable_profile )
   IF( ANDROID )

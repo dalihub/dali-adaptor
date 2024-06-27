@@ -13,7 +13,7 @@ In case of TC in form of "int tc_name()" script will abort.
 EOF
 )
 
-function get_tc_files {
+function get_tc_files_old {
     CMAKE_FILE="$DIR/CMakeLists.txt"
     if [ ! -e $CMAKE_FILE ]; then
         echo "File $CMAKE_FILE not found. Aborting..."
@@ -44,6 +44,10 @@ function get_tc_files {
     END {
         print files;
     }')
+}
+
+function get_tc_files {
+    TC_FILES=$(cd ../../build; cmake -LA -N 2>/dev/null | grep TC_SOURCE_LIST | perl -n -e 'my ($blah, $vars)=split(/=/,$_);my @files=split(/;/, $vars); print join("\n", @files) ;' )
 }
 
 function tc_names {
@@ -163,13 +167,13 @@ function tc_fullinfo {
 # usage note and exit:
 # - argument begin with '-' but is not recognised or number of arguments is > 3,
 # - argument doesn't begin with '-' and number of arguments is > 2
-if [[ ( "$1" == -* && ( ! "$1" =~ ^-(anum|mnum|f)$ || $# > 3 ) ) || ( "$1" != -* && $# > 2 ) ]]; then
+if [[ ( "$1" == -* && ( ! "$1" =~ ^-(anum|mnum|f|l)$ || $# > 3 ) ) || ( "$1" != -* && $# > 2 ) ]]; then
     echo -e "$USAGE"
     exit 1
 fi
 
 # get directory from last argument (or assume current one)
-if [[ ! "$1" =~ ^-(anum|mnum|f)$ ]]; then
+if [[ ! "$1" =~ ^-(anum|mnum|f|l)$ ]]; then
     DIR=${1:-.}
 else
     DIR=${2:-.}
@@ -207,6 +211,8 @@ case "$1" in
         tc_mnum $TC_FILES ;;
     -f)
         tc_fullinfo $TC_FILES ;;
+    -l)
+        echo $TC_FILES ;;
     *)
         tc_names $TC_FILES ;;
 esac

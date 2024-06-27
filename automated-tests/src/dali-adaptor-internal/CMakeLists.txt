@@ -3,6 +3,8 @@ SET(PKG_NAME "dali-adaptor-internal")
 SET(EXEC_NAME "tct-${PKG_NAME}-core")
 SET(RPM_NAME "core-${PKG_NAME}-tests")
 
+MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
+
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
@@ -19,9 +21,17 @@ SET(TC_SOURCES
     utc-Dali-LRUCacheContainer.cpp
     utc-Dali-TiltSensor.cpp
     utc-Dali-WbmpLoader.cpp
+)
+
+IF(ENABLE_VULKAN)
+ELSE()
+  LIST(APPEND TC_SOURCES
     utc-Dali-GlImplementation.cpp
     utc-Dali-GlesImplementation.cpp
-)
+  )
+ENDIF()
+
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
