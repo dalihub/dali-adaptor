@@ -28,6 +28,10 @@
 #include <Ecore_Wayland.h>
 #endif
 
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/common/egl-include.h>
+#endif
+
 namespace Dali
 {
 namespace Internal
@@ -82,6 +86,15 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterfac
     mDisplay = reinterpret_cast<EGLNativeDisplayType>(ecore_wl_display_get());
 #endif
   }
+}
+
+Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
+{
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {mDisplay};
+#endif
 }
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()

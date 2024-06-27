@@ -86,6 +86,7 @@ ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(
     ../../../
     ../../../third-party/image-resampler
+  ../../../dali/integration-api/adaptor-framework
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
 )

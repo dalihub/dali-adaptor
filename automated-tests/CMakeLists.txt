@@ -8,7 +8,7 @@ PROJECT(tct_coreapi_utc)
 INCLUDE(FindPkgConfig)
 SET(BIN_DIR "/opt/usr/bin")
 
-OPTION(ENABLE_VULKAN "Whether to build tests for vulkan or gl" ON)
+OPTION(ENABLE_VULKAN "Whether to build tests for vulkan or gl" OFF)
 
 INCLUDE_DIRECTORIES(
 	src/common

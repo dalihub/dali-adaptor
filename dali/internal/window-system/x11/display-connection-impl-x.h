@@ -19,8 +19,8 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/window-system/common/display-connection-impl.h>
 #include <X11/Xlib.h>
+#include <dali/internal/window-system/common/display-connection-impl.h>
 
 namespace Dali
 {
@@ -51,6 +51,11 @@ public:
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
   Any GetDisplay() override;
+
+  /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents

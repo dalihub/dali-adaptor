@@ -48,6 +48,11 @@ public:
   Any GetDisplay() override;
 
   /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
+
+  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   void ConsumeEvents() override;

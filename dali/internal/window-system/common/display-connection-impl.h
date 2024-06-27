@@ -46,6 +46,13 @@ public:
   virtual Any GetDisplay() = 0;
 
   /**
+   * @brief Get display for the graphics backend
+   *
+   * @return EGLNativeDisplayType or vulkan display type
+   */
+  virtual Any GetNativeGraphicsDisplay() = 0;
+
+  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   virtual void ConsumeEvents() = 0;

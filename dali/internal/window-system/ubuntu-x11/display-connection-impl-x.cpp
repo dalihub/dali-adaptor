@@ -22,6 +22,9 @@
 #include <dali/internal/system/linux/dali-ecore-x.h>
 
 // INTERNAL HEADERS
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/common/egl-include.h>
+#endif
 
 namespace Dali
 {
@@ -52,6 +55,15 @@ DisplayConnectionX11::~DisplayConnectionX11()
 Any DisplayConnectionX11::GetDisplay()
 {
   return {mDisplay};
+}
+
+Any DisplayConnectionX11::GetNativeGraphicsDisplay()
+{
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {static_cast<EGLNativeDisplayType>(mDisplay)};
+#endif
 }
 
 void DisplayConnectionX11::ConsumeEvents()

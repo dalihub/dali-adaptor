@@ -72,6 +72,13 @@ public:
   Any GetDisplay() const;
 
   /**
+   * @brief Get display for the graphics backend
+   *
+   * @return EGLNativeDisplayType or vulkan display type
+   */
+  Any GetNativeGraphicsDisplay() const;
+
+  /**
    * @brief Consumes any possible events on the queue so that there is no leaking between frames
    */
   void ConsumeEvents();

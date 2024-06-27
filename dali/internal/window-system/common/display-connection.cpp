@@ -60,6 +60,11 @@ Any DisplayConnection::GetDisplay() const
   return mImpl->GetDisplay();
 }
 
+Any DisplayConnection::GetNativeGraphicsDisplay() const
+{
+  return mImpl->GetNativeGraphicsDisplay();
+}
+
 void DisplayConnection::ConsumeEvents()
 {
   mImpl->ConsumeEvents();

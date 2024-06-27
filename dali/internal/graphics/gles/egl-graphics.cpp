@@ -27,8 +27,6 @@
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/window-base.h>
 
-#include <X11/Xlib.h>
-
 namespace Dali
 {
 namespace Internal
@@ -173,10 +171,8 @@ void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, b
 
 void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
 {
-  // Bad name - it does call "eglInitialize"!!!! @todo Rename me!
-  auto display    = displayConnection.GetDisplay();
-  auto x11Display = display.Get<::Display*>();
-  auto eglDisplay = static_cast<EGLNativeDisplayType>(x11Display);
+  auto display    = displayConnection.GetNativeGraphicsDisplay();
+  auto eglDisplay = display.Get<EGLNativeDisplayType>();
   mEglImplementation->InitializeGles(eglDisplay);
 }
 

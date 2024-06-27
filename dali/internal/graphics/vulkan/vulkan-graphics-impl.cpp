@@ -63,8 +63,8 @@ void VulkanGraphics::Initialize(const Dali::DisplayConnection& displayConnection
 
 void VulkanGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
 {
-  // Pass native X11 display to vulkan device?
-  // Not needed for xlib-xcb surface creation
+  // Pass native X11/Wayland/Mac/Android display to vulkan device?
+  // Not needed for xlib-xcb surface creation...
 }
 
 void VulkanGraphics::ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface)

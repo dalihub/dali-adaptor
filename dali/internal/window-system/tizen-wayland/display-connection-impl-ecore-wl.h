@@ -61,6 +61,11 @@ public:
   Any GetDisplay() override;
 
   /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
+
+  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   void ConsumeEvents() override;
@@ -95,9 +100,9 @@ protected:
   void ReleaseNativeDisplay();
 
 private:
-  EGLNativeDisplayType               mDisplay;     ///< Wayland-display for rendering
+  EGLNativeDisplayType                            mDisplay;     ///< Wayland-display for rendering
   Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
-  tbm_bufmgr                         mBufMgr;      ///< For creating tbm_dummy_display
+  tbm_bufmgr                                      mBufMgr;      ///< For creating tbm_dummy_display
 };
 
 } // namespace Adaptor

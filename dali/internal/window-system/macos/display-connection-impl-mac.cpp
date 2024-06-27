@@ -37,6 +37,15 @@ Any DisplayConnectionCocoa::GetDisplay()
   return EGL_DEFAULT_DISPLAY;
 }
 
+Any DisplayConnectionCocoa::GetNativeGraphicsDisplay()
+{
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {EGL_DEFAULT_DISPLAY};
+#endif
+}
+
 void DisplayConnectionCocoa::ConsumeEvents()
 {
 }
