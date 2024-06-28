@@ -399,6 +399,32 @@ void Reflection::BuildUniformBlockReflection()
     blockIndex++;
   }
 
+  // Calculate array element stride for uniform blocks (not needed for standalone block)
+  if(mUniformBlocks.size() > 1)
+  {
+    for(auto i = 1u; i < mUniformBlocks.size(); ++i)
+    {
+      auto& block = mUniformBlocks[i];
+
+      // check last member
+      auto& lastMember = block.members.back();
+      if(lastMember.elementCount > 0)
+      {
+        lastMember.elementStride = (block.size - lastMember.offset) / lastMember.elementCount;
+      }
+
+      // update other arrays in this block
+      for(auto memberIndex = 0u; memberIndex < block.members.size() - 1; ++memberIndex)
+      {
+        auto& member = block.members[memberIndex];
+        if(member.elementCount > 0)
+        {
+          member.elementStride = (block.members[memberIndex+1].offset - member.offset) / member.elementCount;
+        }
+      }
+    }
+  }
+
   // count uniform size
   auto& defaultUniformBlock = mUniformBlocks[0]; // Standalone block
   defaultUniformBlock.size  = 0;
@@ -507,12 +533,13 @@ bool Reflection::GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInf
   for(auto i = 0u; i < out.members.size(); ++i)
   {
     const auto& memberUniform   = block.members[i];
-    out.members[i].name         = memberUniform.name;
-    out.members[i].binding      = block.binding;
-    out.members[i].uniformClass = Graphics::UniformClass::UNIFORM;
-    out.members[i].offset       = memberUniform.offset;
-    out.members[i].location     = memberUniform.location;
-    out.members[i].elementCount = memberUniform.elementCount;
+    out.members[i].name          = memberUniform.name;
+    out.members[i].binding       = block.binding;
+    out.members[i].uniformClass  = Graphics::UniformClass::UNIFORM;
+    out.members[i].offset        = memberUniform.offset;
+    out.members[i].location      = memberUniform.location;
+    out.members[i].elementCount  = memberUniform.elementCount;
+    out.members[i].elementStride = memberUniform.elementStride;
   }
 
   return true;
