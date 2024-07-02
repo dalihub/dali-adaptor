@@ -3669,6 +3669,36 @@ void WindowBaseEcoreWl2::SetEglWindowFrontBufferMode(bool enable)
   wl_egl_window_tizen_set_frontbuffer_mode(mEglWindow, enable);
 }
 
+void WindowBaseEcoreWl2::SetModal(bool modal)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_set, window: [%p], flag [%d]\n", mEcoreWindow, modal);
+  START_DURATION_CHECK();
+  ecore_wl2_window_modal_set(mEcoreWindow, modal);
+  FINISH_DURATION_CHECK("ecore_wl2_window_modal_set");
+}
+
+bool WindowBaseEcoreWl2::IsModal()
+{
+  bool ret = ecore_wl2_window_modal_get(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_modal_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
+  return ret;
+}
+
+void WindowBaseEcoreWl2::SetAlwaysOnTop(bool alwaysOnTop)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_set, window: [%p], flag [%d]\n", mEcoreWindow, alwaysOnTop);
+  START_DURATION_CHECK();
+  ecore_wl2_window_pin_mode_set(mEcoreWindow, alwaysOnTop);
+  FINISH_DURATION_CHECK("ecore_wl2_window_pin_mode_set");
+}
+
+bool WindowBaseEcoreWl2::IsAlwaysOnTop()
+{
+  bool ret = ecore_wl2_window_pin_mode_get(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_pin_mode_get, window: [%p], flag [%d]\n", mEcoreWindow, ret);
+  return ret;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

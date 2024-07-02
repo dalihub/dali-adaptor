@@ -566,6 +566,34 @@ public:
    */
   virtual void SetEglWindowFrontBufferMode(bool enable) = 0;
 
+  /**
+   * @brief Enables or disables the modal of window.
+   *
+   * @param[in] modal true to enable the modal of window, false to disable.
+   */
+  virtual void SetModal(bool modal) = 0;
+
+  /**
+   * @brief Returns whether the window has a modal or not.
+   *
+   * @return True if the window is modal, false otherwise.
+   */
+  virtual bool IsModal() = 0;
+
+  /**
+   * @brief Enables or disables the window always is on top.
+   *
+   * @param[in] alwaysOnTop true to enable the window always is on top, false to disable.
+   */
+  virtual void SetAlwaysOnTop(bool alwaysOnTop) = 0;
+
+  /**
+   * @brief Returns whether the window always is on top.
+   *
+   * @return True if the window always is on top, false otherwise.
+   */
+  virtual bool IsAlwaysOnTop() = 0;
+
   // Signals
 
   /**

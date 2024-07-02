@@ -448,6 +448,26 @@ public:
   bool GetFrontBufferRendering() override;
 
   /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetModal()
+   */
+  void SetModal(bool modal) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsModal()
+   */
+  bool IsModal() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetAlwaysOnTop()
+   */
+  void SetAlwaysOnTop(bool alwaysOnTop) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsAlwaysOnTop()
+   */
+  bool IsAlwaysOnTop() override;
+
+  /**
    * @brief Sets front buffer rendering to the egl window.
    * @param[in] enable True to enable front buffer rendering mode, False to otherwise.
    */

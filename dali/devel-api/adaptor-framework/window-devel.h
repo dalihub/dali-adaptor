@@ -449,6 +449,7 @@ DALI_ADAPTOR_API void FeedHoverEvent(Window window, const Dali::TouchPoint& poin
 
 /**
  * @brief Maximizes window's size.
+ *
  * If this function is called with true, window will be resized with screen size.
  * Otherwise window will be resized with previous size.
  * It is for the window's MAX button in window's border.
@@ -484,6 +485,7 @@ DALI_ADAPTOR_API void SetMaximumSize(Window window, Dali::Window::WindowSize siz
 
 /**
  * @brief Minimizes window's size.
+ *
  * If this function is called with true, window will be iconified.
  * Otherwise window will be activated.
  * It is for the window's MIN button in window border.
@@ -654,6 +656,38 @@ DALI_ADAPTOR_API void SetFrontBufferRendering(Window window, bool enable);
  * @return Whether front buffer rendering has been enabled or not.
  */
 DALI_ADAPTOR_API bool GetFrontBufferRendering(Window window);
+
+/**
+ * @brief Enables or disables the modal of window.
+ *
+ * @param[in] window The window instance.
+ * @param[in] modal true to enable the modal of window, false to disable.
+ */
+DALI_ADAPTOR_API void SetModal(Window window, bool modal);
+
+/**
+ * @brief Returns whether the window has a modal or not.
+ *
+ * @param[in] window The window instance.
+ * @return True if the window is modal, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsModal(Window window);
+
+/**
+ * @brief Enables or disables the window always is on top.
+ *
+ * @param[in] window The window instance.
+ * @param[in] alwaysOnTop true to enable the window always is on top, false to disable.
+ */
+DALI_ADAPTOR_API void SetAlwaysOnTop(Window window, bool alwaysOnTop);
+
+/**
+ * @brief Returns whether the window always is on top.
+ *
+ * @param[in] window The window instance.
+ * @return True if the window always is on top, false otherwise.
+ */
+DALI_ADAPTOR_API bool IsAlwaysOnTop(Window window);
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.

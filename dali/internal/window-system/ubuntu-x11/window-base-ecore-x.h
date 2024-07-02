@@ -524,6 +524,26 @@ public:
    */
   void SetEglWindowFrontBufferMode(bool enable) override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetModal()
+   */
+  void SetModal(bool modal) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsModal()
+   */
+  bool IsModal() override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::SetAlwaysOnTop()
+   */
+  void SetAlwaysOnTop(bool alwaysOnTop) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::IsAlwaysOnTop()
+   */
+  bool IsAlwaysOnTop() override;
+
 private:
   /**
    * Second stage initialization

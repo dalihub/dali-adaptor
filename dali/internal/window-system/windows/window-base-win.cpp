@@ -725,6 +725,24 @@ void WindowBaseWin::SetEglWindowFrontBufferMode(bool enable)
 {
 }
 
+void WindowBaseWin::SetModal(bool modal)
+{
+}
+
+bool WindowBaseWin::IsModal()
+{
+  return false;
+}
+
+void WindowBaseWin::SetAlwaysOnTop(bool alwaysOnTop)
+{
+}
+
+bool WindowBaseWin::IsAlwaysOnTop()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

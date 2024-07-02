@@ -1090,6 +1090,24 @@ void WindowBaseEcoreX::SetEglWindowFrontBufferMode(bool enable)
 {
 }
 
+void WindowBaseEcoreX::SetModal(bool modal)
+{
+}
+
+bool WindowBaseEcoreX::IsModal()
+{
+  return false;
+}
+
+void WindowBaseEcoreX::SetAlwaysOnTop(bool alwaysOnTop)
+{
+}
+
+bool WindowBaseEcoreX::IsAlwaysOnTop()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
