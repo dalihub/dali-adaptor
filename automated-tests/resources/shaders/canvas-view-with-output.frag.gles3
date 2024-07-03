@@ -1,0 +1,18 @@
+#version 320 es
+
+
+#define TEXTURE texture
+layout(std140) uniform FragBlock
+{
+ lowp vec4 uColor;
+};
+
+in mediump vec2 vTexCoord;
+uniform sampler2D sTexture;
+
+out mediump vec4 fragColor;
+
+void main()
+{
+  fragColor = TEXTURE(sTexture, vTexCoord) * uColor;
+}
