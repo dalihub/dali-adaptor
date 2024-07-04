@@ -70,13 +70,16 @@ void WidgetImplTizen::SetUsingKeyEvent(bool flag)
 
 void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& widgetId)
 {
-  using Dali::Accessibility::Bridge;
-
   mWindow = window;
   mWidgetId = widgetId;
 
-  auto preferredBusName = Bridge::MakeBusNameForWidget(widgetId);
-  Bridge::GetCurrentBridge()->SetPreferredBusName(preferredBusName);
+  auto bridge           = Accessibility::Bridge::GetCurrentBridge();
+  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId);
+
+  // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
+  // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.
+  bridge->ApplicationResumed();
+  bridge->SetPreferredBusName(preferredBusName);
 
   // Widget should not send window events (which could narrow down the navigation context)
   auto& suppressedEvents = Accessibility::Accessible::Get(window.GetRootLayer())->GetSuppressedEvents();
