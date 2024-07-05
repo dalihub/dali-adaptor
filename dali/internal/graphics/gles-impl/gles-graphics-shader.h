@@ -36,12 +36,28 @@ public:
    * @param[in] controller Reference to the controller
    */
   ShaderImpl(const Graphics::ShaderCreateInfo& createInfo, Graphics::EglGraphicsController& controller);
+
+  /**
+   * @brief destructor
+   */
   ~ShaderImpl();
 
+  /**
+   * @brief Increases ref count
+   * @return ref count after increment
+   */
   uint32_t Retain();
 
+  /**
+   * @brief Decreases refcount
+   * @return ref count after decrement
+   */
   uint32_t Release();
 
+  /**
+   * @brief returns current ref count
+   * @return current ref count
+   */
   [[nodiscard]] uint32_t GetRefCount() const;
 
   /**
@@ -70,19 +86,45 @@ public:
    */
   void Destroy();
 
+  /**
+   * @brief Returns GL resource
+   * @return Valid GL shader resource
+   */
   uint32_t GetGLShader() const;
 
+  /**
+   * @brief Returns create info structure
+   * @return Returns valid create info structure
+   */
   [[nodiscard]] const ShaderCreateInfo& GetCreateInfo() const;
 
+  /**
+   * @brief Returns reference to the graphics controller
+   * @return Valid reference to the graphics controller
+   */
   [[nodiscard]] EglGraphicsController& GetController() const;
 
   /**
    * Strips legacy prefix fromt he GLSL source code if necessary
    * @param info valid ShaderCreateInfo strucutre
    * @param[out] startIndex Start index of the source code
+   * @param[out] glslVersion Detected GLSL version of legacy shader
    * @param[out] finalDataSize Size of trimmed data
    */
-  static void StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& startIndex, size_t& finalDataSize);
+  static void StripLegacyCodeIfNeeded(const ShaderCreateInfo& info, size_t& startIndex, uint32_t& glslVersion, size_t& finalDataSize);
+
+  /**
+   * @brief Sets preprocess code
+   * @param[in] data Valid pointer to the new source code
+   * @param[in] size Size of the source code
+   */
+  void SetPreprocessedCode(void* data, uint32_t size);
+
+  /**
+   * @brief Returns GLSL version
+   * @return Returns valid GLSL version or 0 if undefined
+   */
+  [[nodiscard]] uint32_t GetGLSLVersion() const;
 
 private:
   friend class Shader;
@@ -146,6 +188,8 @@ public:
   {
     // nothing to do here
   }
+
+  [[nodiscard]] uint32_t GetGLSLVersion() const;
 
 private:
   ShaderImpl* mShader{nullptr};
