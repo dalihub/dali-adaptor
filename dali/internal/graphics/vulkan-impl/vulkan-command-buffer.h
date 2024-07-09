@@ -24,6 +24,7 @@
 namespace Dali::Graphics::Vulkan
 {
 class CommandBufferImpl;
+class Swapchain;
 
 using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
 
@@ -337,8 +338,23 @@ public:
    */
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
+public: //API
+  /**
+   * Get the last swapchain referenced by a BeginRenderPass command in this command buffer.
+   *
+   * @todo Should split the command buffer up into multiple buffers if there is more than one
+   * render target referenced in it.
+   */
+  Swapchain* GetLastSwapchain() const;
+
+  CommandBufferImpl* GetImpl() const
+  {
+    return mCommandBufferImpl;
+  }
+
 private:
   CommandBufferImpl* mCommandBufferImpl;
+  Swapchain*         mLastSwapchain{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan

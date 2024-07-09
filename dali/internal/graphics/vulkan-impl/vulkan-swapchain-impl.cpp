@@ -22,13 +22,6 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
-#if 0
-#include <dali/internal/graphics/vulkan-impl/vulkan-debug.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image-view.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-image.h>
-#include <dali/internal/graphics/vulkan-impl/vulkan-queue.h>
-#endif
-
 #include <dali/integration-api/debug.h>
 
 #if defined(DEBUG_ENABLED)
@@ -167,8 +160,7 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode)
-                            {
+                            [&](vk::PresentModeKHR mode) {
                               return presentMode == mode;
                             });
 
@@ -394,8 +386,7 @@ bool Swapchain::OnDestroy()
     auto swapchain = mSwapchainKHR;
     auto allocator = &mGraphicsDevice.GetAllocator();
 
-    mGraphicsDevice.DiscardResource([device, swapchain, allocator]()
-                                    {
+    mGraphicsDevice.DiscardResource([device, swapchain, allocator]() {
       DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkSwapchainKHR>(swapchain))
       device.destroySwapchainKHR(swapchain, allocator); });
 

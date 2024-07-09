@@ -260,7 +260,7 @@ private:
 
 protected:
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
-  Dali::Graphics::GraphicsInterface*       mGraphics;
+  Dali::Graphics::GraphicsInterface*                mGraphics;
   Dali::DisplayConnection*                          mDisplayConnection;
   WeakHandle<Dali::Integration::Scene>              mScene;
   bool                                              mFullSwapNextFrame; ///< Whether the full surface swap is required

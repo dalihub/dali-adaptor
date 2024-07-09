@@ -22,6 +22,7 @@
 
 namespace Dali::Graphics::Vulkan
 {
+class RenderPass;
 class RenderPassImpl;
 
 enum class AttachmentType
@@ -85,8 +86,7 @@ public:
     std::vector<FramebufferAttachment*>& attachments,
     uint32_t                             width,
     uint32_t                             height,
-    bool                                 hasDepthAttachment,
-    bool                                 takeRenderPassOwnership);
+    bool                                 hasDepthAttachment);
 
   static FramebufferImpl* New(
     Vulkan::Device&                            device,
@@ -99,11 +99,10 @@ public:
   FramebufferImpl(Device&                                    graphicsDevice,
                   const std::vector<FramebufferAttachment*>& attachments,
                   vk::Framebuffer                            vkHandle,
-                  vk::RenderPass                             renderPass,
+                  const RenderPassImpl&                      renderPass,
                   uint32_t                                   width,
                   uint32_t                                   height,
-                  bool                                       hasDepthAttachment,
-                  bool                                       takeRenderPassOwnership);
+                  bool                                       hasDepthAttachment);
 
   [[nodiscard]] uint32_t GetWidth() const;
 
@@ -115,7 +114,7 @@ public:
 
   [[nodiscard]] uint32_t GetAttachmentCount(AttachmentType type) const;
 
-  [[nodiscard]] vk::RenderPass GetRenderPass() const;
+  [[nodiscard]] RenderPassImpl* GetRenderPass(RenderPass* renderPass); // May mutate mRenderPasses
 
   [[nodiscard]] vk::Framebuffer GetVkHandle() const;
 
@@ -129,11 +128,20 @@ private:
   uint32_t mWidth;
   uint32_t mHeight;
 
+  /**
+   * Structure to map RenderPass to RenderPassImpl.
+   */
+  struct RenderPassMapElement
+  {
+    RenderPass*     renderPass{nullptr};
+    RenderPassImpl* renderPassImpl{nullptr};
+  };
+  using RenderPasses = std::vector<RenderPassMapElement>;
+
   std::vector<FramebufferAttachment*> mAttachments;
   vk::Framebuffer                     mFramebuffer;
-  vk::RenderPass                      mRenderPass;
+  RenderPasses                        mRenderPasses;
   bool                                mHasDepthAttachment{false};
-  bool                                mRenderPassOwned{false};
 };
 
 } // Namespace Dali::Graphics::Vulkan

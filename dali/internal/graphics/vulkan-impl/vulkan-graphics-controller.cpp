@@ -27,6 +27,7 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+#include <dali/internal/window-system/common/window-render-surface.h>
 
 namespace Dali::Graphics::Vulkan
 {
@@ -121,7 +122,7 @@ struct VulkanGraphicsController::Impl
 
   void AcquireNextFramebuffer()
   {
-    // for all swapchains acquire new framebuffer
+    // @todo for all swapchains acquire new framebuffer
     auto surface   = mGraphicsDevice->GetSurface(0u);
     auto swapchain = mGraphicsDevice->GetSwapchainForSurfaceId(0u);
 
@@ -168,33 +169,31 @@ Integration::GraphicsConfig& VulkanGraphicsController::GetGraphicsConfig()
   return *this;
 }
 
+void VulkanGraphicsController::FrameStart()
+{
+  mImpl->mCapacity = 0;
+  mImpl->AcquireNextFramebuffer();
+}
+
 void VulkanGraphicsController::SubmitCommandBuffers(const SubmitInfo& submitInfo)
 {
+  // Figure out where to submit each command buffer.
+  for(auto gfxCmdBuffer : submitInfo.cmdBuffer)
+  {
+    auto cmdBuffer = static_cast<const CommandBuffer*>(gfxCmdBuffer);
+    auto swapchain = cmdBuffer->GetLastSwapchain();
+    if(swapchain)
+    {
+      swapchain->Submit(cmdBuffer->GetImpl());
+    }
+  }
 }
 
 void VulkanGraphicsController::PresentRenderTarget(Graphics::RenderTarget* renderTarget)
 {
-  // Test code to create a render pass to clear the surface
-  mImpl->AcquireNextFramebuffer();
-
-  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(0u);
-
-  CommandPool* commandPool          = mImpl->mGraphicsDevice->GetCommandPool(std::this_thread::get_id());
-  auto         primaryCommandBuffer = commandPool->NewCommandBuffer(true);
-
-  primaryCommandBuffer->Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr);
-  primaryCommandBuffer->BeginRenderPass(vk::RenderPassBeginInfo{}
-                                          .setFramebuffer(swapchain->GetCurrentFramebuffer()->GetVkHandle())
-                                          .setRenderPass(swapchain->GetCurrentFramebuffer()->GetRenderPass())
-                                          .setRenderArea({{0, 0}, {swapchain->GetCurrentFramebuffer()->GetWidth(), swapchain->GetCurrentFramebuffer()->GetHeight()}})
-                                          .setPClearValues(swapchain->GetCurrentFramebuffer()->GetClearValues().data())
-                                          .setClearValueCount(uint32_t(swapchain->GetCurrentFramebuffer()->GetClearValues().size())),
-                                        vk::SubpassContents::eInline);
-  primaryCommandBuffer->EndRenderPass();
-  primaryCommandBuffer->End();
-
-  // Submit command buffer
-  swapchain->Submit(primaryCommandBuffer);
+  auto surface   = static_cast<Vulkan::RenderTarget*>(renderTarget)->GetSurface();
+  auto surfaceId = static_cast<Internal::Adaptor::WindowRenderSurface*>(surface)->GetSurfaceId();
+  auto swapchain = mImpl->mGraphicsDevice->GetSwapchainForSurfaceId(surfaceId);
 
   swapchain->Present();
 }
@@ -265,15 +264,9 @@ UniquePtr<Graphics::CommandBuffer> VulkanGraphicsController::CreateCommandBuffer
 
 UniquePtr<Graphics::RenderPass> VulkanGraphicsController::CreateRenderPass(const Graphics::RenderPassCreateInfo& renderPassCreateInfo, UniquePtr<Graphics::RenderPass>&& oldRenderPass)
 {
-  // If this is for a surface, then we already have a render pass hidden inside the swapchain...
-  // The surface should have a GraphicsSurfaceId, which can be used to get the swapchain.
-  // But, we want to create multiple render passes in Core on a scene's surface...
-  // Now, renderPassCreateInfo contains renderTarget, so this implementation can decide to generate
-  // surface's swapchain framebuffers based on this new renderpass. Though, should be explicit about it!
-  auto renderPass = NewObject<Vulkan::RenderPass>(renderPassCreateInfo, *this, std::move(oldRenderPass));
+  auto renderPass = UniquePtr<Graphics::RenderPass>(new Vulkan::RenderPass(renderPassCreateInfo, *this));
 
-  //auto vkRenderPass = static_cast<Vulkan::RenderPass*>(renderPass.get());
-  //vkRenderPass->InitializeResource(); // This may create an actual resource.
+  // Don't create actual vulkan resource here. It will instead be done on demand. (e.g. framebuffer creation, CommandBuffer::BeginRenderPass())
   return renderPass;
 }
 
@@ -491,11 +484,6 @@ Graphics::UniquePtr<Graphics::Texture> VulkanGraphicsController::ReleaseTextureF
   }
   */
   return texture;
-}
-
-void VulkanGraphicsController::FrameStart()
-{
-  mImpl->mCapacity = 0;
 }
 
 std::size_t VulkanGraphicsController::GetCapacity() const

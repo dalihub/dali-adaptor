@@ -27,30 +27,63 @@ class Device;
 class VulkanGraphicsController;
 class RenderTarget;
 
+/**
+ * Holder class for Vulkan RenderPass object.
+ *
+ * We need a render pass to create a Framebuffer; this can create a
+ * compatible render pass given the specific attachments.
+ *
+ * FramebufferImpl will own it's RenderPassImpl(s), NOT the Graphics::RenderPass
+ * implementation.
+ *
+ * When we want to use the FramebufferImpl (CommandBuffer::BeginRenderPass), then
+ * we try and match the supplied Graphics::RenderPass to the creating render pass.
+ * FramebufferImpl will create a separate compatible RenderPassImpl if a matching
+ * render pass is NOT found.
+ */
 class RenderPassImpl final : public Dali::Graphics::Vulkan::VkManaged
 {
 public:
+  struct CreateInfo
+  {
+    std::vector<vk::AttachmentReference>   colorAttachmentReferences;
+    vk::AttachmentReference                depthAttachmentReference;
+    std::vector<vk::AttachmentDescription> attachmentDescriptions;
+    vk::SubpassDescription                 subpassDesc;
+    std::array<vk::SubpassDependency, 2>   subpassDependencies;
+    vk::RenderPassCreateInfo               createInfo;
+  };
+
   static RenderPassImpl* New(
     Vulkan::Device&                            device,
     const std::vector<FramebufferAttachment*>& colorAttachments,
     FramebufferAttachment*                     depthAttachment);
 
-  RenderPassImpl(Vulkan::Device& device, vk::RenderPass renderPass);
-
-  RenderPassImpl(Vulkan::Device& device, const Graphics::RenderPassCreateInfo& createInfo, std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
+  RenderPassImpl(Vulkan::Device& device, const std::vector<FramebufferAttachment*>& colorAttachments, FramebufferAttachment* depthAttachment);
 
   ~RenderPassImpl() override;
 
   vk::RenderPass GetVkHandle();
 
+  bool OnDestroy() override;
+
   std::vector<vk::ImageView>& GetAttachments();
 
-  void SetAttachments(std::vector<vk::ImageView>& attachments);
+  CreateInfo& GetCreateInfo()
+  {
+    return mCreateInfo;
+  }
 
-  bool OnDestroy() override;
+private:
+  void CreateCompatibleCreateInfo(
+    const std::vector<FramebufferAttachment*>& colorAttachments,
+    FramebufferAttachment*                     depthAttachment);
+
+  void CreateRenderPass();
 
 private:
   Device*                    mGraphicsDevice;
+  CreateInfo                 mCreateInfo;
   vk::RenderPass             mVkRenderPass;
   std::vector<vk::ImageView> mAttachments{};
 };
