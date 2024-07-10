@@ -91,11 +91,6 @@ public:
   Dali::Devel::PixelBuffer GetCapturedBuffer();
 
   /**
-   * @copydoc Dali::Capture::GetTexture
-   */
-  Dali::Texture GetTexture() const;
-
-  /**
    * @copydoc Dali::Capture::FinishedSignal
    */
   Dali::Capture::CaptureFinishedSignalType& FinishedSignal();
