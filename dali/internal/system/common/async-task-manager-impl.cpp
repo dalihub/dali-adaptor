@@ -360,6 +360,7 @@ public:
         {
           iter = mExcuteCallbackList.erase(iter);
 
+          DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] completed, but not execute callback.\n", id);
           return true;
         }
         else
@@ -369,8 +370,16 @@ public:
       }
 
       // This task is alread erased and completed. Ignore.
+      DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] is alread erased and completed.\n", id);
       return false;
     }
+
+    uint32_t remainedTasksCount = 0u;
+    for(const auto& taskPair : iter->second.mTasks)
+    {
+      remainedTasksCount += taskPair.second;
+    }
+    DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] remain task count : %u.\n", id, remainedTasksCount);
 
     mTasksCompletedCallbackList.erase(iter);
 
@@ -440,6 +449,7 @@ private:
 
     // Lock while adding excute callback list to the queue
     Mutex::ScopedLock lock(mExcuteCallbacksMutex);
+    DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] need to be execute.\n", id);
 
     mExcuteCallbackList.emplace_back(std::move(callback), id);
 
@@ -802,7 +812,7 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
   // mTasksCompletedImpl will take ownership of callback.
   Dali::AsyncTaskManager::TasksCompletedId tasksCompletedId = mTasksCompletedImpl->GenerateTasksCompletedId(callback);
 
-  bool taskAdded = false; ///< Flag whether at least one task tracing now.
+  uint32_t addedTaskCount = 0u; ///< Count the number of task tracing now.
 
   DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "SetCompletedCallback id : %u, mask : %d\n", tasksCompletedId, static_cast<int32_t>(mask));
 
@@ -822,7 +832,7 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
 
           if((checkMask & mask) == checkMask)
           {
-            taskAdded = true;
+            ++addedTaskCount;
             mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
           }
         }
@@ -839,7 +849,7 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
 
             if((checkMask & mask) == checkMask)
             {
-              taskAdded = true;
+              ++addedTaskCount;
               mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
             }
           }
@@ -861,7 +871,7 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
 
             if((checkMask & mask) == checkMask)
             {
-              taskAdded = true;
+              ++addedTaskCount;
               mTasksCompletedImpl->AppendTaskTrace(tasksCompletedId, task);
             }
           }
@@ -871,12 +881,13 @@ Dali::AsyncTaskManager::TasksCompletedId AsyncTaskManager::SetCompletedCallback(
   }
 
   // If there is nothing to check task, just excute callback right now.
-  if(!taskAdded)
+  if(addedTaskCount == 0u)
   {
     DALI_LOG_INFO(gAsyncTasksManagerLogFilter, Debug::Verbose, "CompletedCallback id[%u] executed now due to no task exist\n", tasksCompletedId);
 
     mTasksCompletedImpl->CheckTasksCompletedCallbackCompleted(tasksCompletedId);
   }
+  DALI_LOG_DEBUG_INFO("CompletedCallback id[%u] wait %u tasks completed\n", tasksCompletedId, addedTaskCount);
   return tasksCompletedId;
 }
 
