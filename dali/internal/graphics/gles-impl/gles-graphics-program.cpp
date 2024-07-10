@@ -18,13 +18,13 @@
 #include "gles-graphics-program.h"
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/shader-parser.h>
 #include "egl-graphics-controller.h"
 #include "gles-graphics-reflection.h"
 #include "gles-graphics-shader.h"
 
 // EXTERNAL HEADERS
-#include <dali/integration-api/gl-abstraction.h>
-#include <dali/integration-api/gl-defines.h>
+#include <iostream>
 
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gGraphicsProgramLogFilter = Debug::Filter::New(Debug::NoLogging, false, "LOG_GRAPHICS_PROGRAM");
@@ -135,6 +135,80 @@ bool ProgramImpl::Destroy()
   return false;
 }
 
+void ProgramImpl::Preprocess()
+{
+  // For now only Vertex and Fragment shader stages supported
+  // and one per stage
+  std::string  vertexString;
+  std::string  fragmentString;
+  std::string* currentString = nullptr;
+
+  const GLES::Shader* vsh = nullptr;
+  const GLES::Shader* fsh = nullptr;
+
+  const auto& info = mImpl->createInfo;
+
+  for(const auto& state : *info.shaderState)
+  {
+    const auto* shader = static_cast<const GLES::Shader*>(state.shader);
+    if(state.pipelineStage == PipelineStage::VERTEX_SHADER)
+    {
+      // Only TEXT source mode can be processed
+      currentString = &vertexString;
+      vsh           = shader;
+    }
+    else if(state.pipelineStage == PipelineStage::FRAGMENT_SHADER)
+    {
+      // Only TEXT source mode can be processed
+      currentString = &fragmentString;
+      fsh           = shader;
+    }
+    else
+    {
+      // no valid stream to push
+      currentString = nullptr;
+      DALI_LOG_ERROR("Shader state contains invalid shader source (most likely binary)! Can't process!");
+    }
+
+    // Check if stream valid
+    if(currentString && currentString->empty() && shader->GetCreateInfo().sourceMode == ShaderSourceMode::TEXT)
+    {
+      *currentString = std::string(reinterpret_cast<const char*>(shader->GetCreateInfo().sourceData),
+                                   shader->GetCreateInfo().sourceSize);
+    }
+    else
+    {
+      DALI_LOG_ERROR("Preprocessing of binary shaders isn't allowed!");
+    }
+  }
+
+  // if we have both streams ready
+  if(!vertexString.empty() && !fragmentString.empty())
+  {
+    // In case we have one modern shader and one legacy counterpart we need to enforce
+    // output language.
+    Internal::ShaderParser::ShaderParserInfo parseInfo{};
+    parseInfo.vertexShaderCode            = &vertexString;
+    parseInfo.fragmentShaderCode          = &fragmentString;
+    parseInfo.vertexShaderLegacyVersion   = vsh->GetGLSLVersion();
+    parseInfo.fragmentShaderLegacyVersion = fsh->GetGLSLVersion();
+    parseInfo.language                    = Internal::ShaderParser::OutputLanguage::GLSL3; // We default to GLSL3
+    parseInfo.outputVersion               = std::max(vsh->GetGLSLVersion(), fsh->GetGLSLVersion());
+
+    std::vector<std::string> newShaders;
+
+    Internal::ShaderParser::Parse(parseInfo, newShaders);
+
+    // substitute shader code
+    vsh->GetImplementation()->SetPreprocessedCode(newShaders[0].data(), newShaders[0].size());
+    fsh->GetImplementation()->SetPreprocessedCode(newShaders[1].data(), newShaders[1].size());
+  }
+  else
+  {
+    DALI_LOG_ERROR("Preprocessing shader code failed!");
+  }
+}
+
 bool ProgramImpl::Create()
 {
   // Create and link new program
@@ -150,6 +224,9 @@ bool ProgramImpl::Create()
   DALI_LOG_DEBUG_INFO("Program[%s] create program id : %u\n", mImpl->name.c_str(), program);
 
   const auto& info = mImpl->createInfo;
+
+  Preprocess();
+
   for(const auto& state : *info.shaderState)
   {
     const auto* shader = static_cast<const GLES::Shader*>(state.shader);
@@ -175,7 +252,7 @@ bool ProgramImpl::Create()
     gl->GetProgramInfoLog(program, 4096, &size, output);
 
     // log on error
-    DALI_LOG_ERROR("glLinkProgam[%s] failed:\n%s\n", mImpl->name.c_str(), output);
+    DALI_LOG_ERROR("glLinkProgram[%s] failed:\n%s\n", mImpl->name.c_str(), output);
     gl->DeleteProgram(program);
     return false;
   }

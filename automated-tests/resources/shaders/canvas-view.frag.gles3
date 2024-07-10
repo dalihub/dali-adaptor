@@ -1,0 +1,18 @@
+#version 320 es
+
+
+#define TEXTURE texture
+layout(std140) uniform FragBlock
+{
+ lowp vec4 uColor;
+};
+
+in mediump vec2 vTexCoord;
+uniform sampler2D sTexture;
+
+#define gl_FragColor _glFragColor
+out mediump vec4 _glFragColor;
+void main()
+{
+  gl_FragColor = TEXTURE(sTexture, vTexCoord) * uColor;
+}

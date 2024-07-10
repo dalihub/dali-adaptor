@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -296,10 +296,6 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
 {
-  Dali::Internal::Adaptor::Adaptor& adaptor     = Internal::Adaptor::Adaptor::GetImplementation(Internal::Adaptor::Adaptor::Get());
-  GraphicsInterface*                graphics    = &adaptor.GetGraphicsInterface();
-  auto                              eglGraphics = static_cast<EglGraphics*>(graphics);
-
   if(mFileSave && Dali::Shader::GetShaderLanguageVersion() < SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE)
   {
     DALI_LOG_ERROR("GLES is 2.0, we can't use native image source \n");

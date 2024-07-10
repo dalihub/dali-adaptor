@@ -142,18 +142,28 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     mEglNativeDisplay = display;
 
     {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
+        oss << "[native display:" << mEglNativeDisplay << "]";
+      });
       START_DURATION_CHECK();
       // Try to get the display connection for the native display first
       mEglDisplay = eglGetDisplay(mEglNativeDisplay);
       FINISH_DURATION_CHECK("eglGetDisplay");
+      DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << "]";
+      });
     }
 
     if(mEglDisplay == EGL_NO_DISPLAY)
     {
+      DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_GET_DISPLAY");
       START_DURATION_CHECK();
       // If failed, try to get the default display connection
       mEglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
       FINISH_DURATION_CHECK("eglGetDisplay");
+      DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_GET_DISPLAY", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << "]";
+      });
     }
 
     if(mEglDisplay == EGL_NO_DISPLAY)
@@ -166,9 +176,15 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     EGLint minorVersion = 0;
 
     {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_INITIALIZE", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << "]";
+      });
       START_DURATION_CHECK();
       bool ret = eglInitialize(mEglDisplay, &majorVersion, &minorVersion);
       FINISH_DURATION_CHECK("eglInitialize");
+      DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_INITIALIZE", [&](std::ostringstream& oss) {
+        oss << "[ret:" << ret << " version:" << majorVersion << "." << minorVersion << "]";
+      });
 
       if(!ret)
       {
@@ -177,6 +193,7 @@ bool EglImplementation::InitializeGles(EGLNativeDisplayType display, bool isOwnS
     }
 
     {
+      DALI_TRACE_SCOPE(gTraceFilter, "DALI_EGL_BIND_API");
       START_DURATION_CHECK();
       eglBindAPI(EGL_OPENGL_ES_API);
       FINISH_DURATION_CHECK("eglBindAPI");
@@ -265,9 +282,15 @@ bool EglImplementation::CreateContext()
   DALI_ASSERT_ALWAYS((mEglContext == 0) && "EGL context recreated");
 
   {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << "]";
+    });
     START_DURATION_CHECK();
     mEglContext = eglCreateContext(mEglDisplay, mEglConfig, NULL, &(mContextAttribs[0]));
     FINISH_DURATION_CHECK("eglCreateContext");
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
+      oss << "[context:" << mEglContext << "]";
+    });
   }
   TEST_EGL_ERROR("eglCreateContext render thread");
 
@@ -308,9 +331,15 @@ bool EglImplementation::CreateWindowContext(EGLContext& eglContext)
   DALI_ASSERT_ALWAYS((eglContext == 0) && "EGL context recreated");
 
   {
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << ", share_context:" << mEglContext << "]";
+    });
     START_DURATION_CHECK();
     eglContext = eglCreateContext(mEglDisplay, mEglConfig, mEglContext, &(mContextAttribs[0]));
     FINISH_DURATION_CHECK("eglCreateContext");
+    DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_CONTEXT", [&](std::ostringstream& oss) {
+      oss << "[context:" << eglContext << "]";
+    });
   }
   TEST_EGL_ERROR("eglCreateContext render thread");
 
@@ -351,10 +380,21 @@ void EglImplementation::DestroyContext(EGLContext& eglContext)
 {
   if(eglContext)
   {
+    // Remove from the list of contexts first.
+    auto iter = std::find(mEglWindowContexts.begin(), mEglWindowContexts.end(), eglContext);
+    if(iter != mEglWindowContexts.end())
+    {
+      mEglWindowContexts.erase(iter);
+    }
+
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << ", context:" << eglContext << "]";
+    });
     START_DURATION_CHECK();
     eglDestroyContext(mEglDisplay, eglContext);
     eglContext = 0;
     FINISH_DURATION_CHECK("eglDestroyContext");
+    DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
   }
 }
 
@@ -364,10 +404,14 @@ void EglImplementation::DestroySurface(EGLSurface& eglSurface)
   {
     // Make context null to prevent crash in driver side
     MakeContextNull();
+    DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_SURFACE", [&](std::ostringstream& oss) {
+      oss << "[display:" << mEglDisplay << ", surface:" << eglSurface << "]";
+    });
     START_DURATION_CHECK();
     eglDestroySurface(mEglDisplay, eglSurface);
     eglSurface = 0;
     FINISH_DURATION_CHECK("eglDestroySurface");
+    DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_SURFACE");
   }
 }
 
@@ -450,28 +494,44 @@ void EglImplementation::TerminateGles()
       {
         if(eglSurface)
         {
+          DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_SURFACE", [&](std::ostringstream& oss) {
+            oss << "[display:" << mEglDisplay << ", surface:" << eglSurface << "]";
+          });
           START_DURATION_CHECK();
           eglDestroySurface(mEglDisplay, eglSurface);
           FINISH_DURATION_CHECK("eglDestroySurface");
+          DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_SURFACE");
         }
       }
     }
     {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << ", context:" << mEglContext << "]";
+      });
       START_DURATION_CHECK();
       eglDestroyContext(mEglDisplay, mEglContext);
       FINISH_DURATION_CHECK("eglDestroyContext");
+      DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
     }
     for(auto eglContext : mEglWindowContexts)
     {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << ", context:" << eglContext << "]";
+      });
       START_DURATION_CHECK();
       eglDestroyContext(mEglDisplay, eglContext);
       FINISH_DURATION_CHECK("eglDestroyContext");
+      DALI_TRACE_END(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT");
     }
 
     {
+      DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_TERMINATE", [&](std::ostringstream& oss) {
+        oss << "[display:" << mEglDisplay << "]";
+      });
       START_DURATION_CHECK();
       eglTerminate(mEglDisplay);
       FINISH_DURATION_CHECK("eglTerminate");
+      DALI_TRACE_END(gTraceFilter, "DALI_EGL_TERMINATE");
     }
 
     mEglDisplay        = NULL;
@@ -675,9 +735,11 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
 
   configAttribs.PushBack(EGL_NONE);
 
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
   START_DURATION_CHECK();
   auto ret = eglChooseConfig(mEglDisplay, &(configAttribs[0]), &mEglConfig, 1, &numConfigs);
   FINISH_DURATION_CHECK("eglChooseConfig");
+  DALI_TRACE_END(gTraceFilter, "DALI_EGL_CHOOSE_CONFIG");
 
   // Ensure number of configs is set to 1 as on some drivers,
   // eglChooseConfig succeeds but does not actually create a proper configuration.
@@ -760,9 +822,16 @@ EGLSurface EglImplementation::CreateSurfaceWindow(EGLNativeWindowType window, Co
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+    oss << "[display:" << mEglDisplay << "]";
+  });
   START_DURATION_CHECK();
   mCurrentEglSurface = eglCreateWindowSurface(mEglDisplay, mEglConfig, mEglNativeWindow, NULL);
   FINISH_DURATION_CHECK("eglCreateWindowSurface");
+  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+    oss << "[window surface:" << mCurrentEglSurface << "]";
+  });
+
   TEST_EGL_ERROR("eglCreateWindowSurface");
 
   DALI_ASSERT_ALWAYS(mCurrentEglSurface && "Create window surface failed");
@@ -779,9 +848,16 @@ EGLSurface EglImplementation::CreateSurfacePixmap(EGLNativePixmapType pixmap, Co
   // egl choose config
   ChooseConfig(mIsWindow, mColorDepth);
 
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+    oss << "[display:" << mEglDisplay << "]";
+  });
   START_DURATION_CHECK();
   mCurrentEglSurface = eglCreatePixmapSurface(mEglDisplay, mEglConfig, mCurrentEglNativePixmap, NULL);
   FINISH_DURATION_CHECK("eglCreatePixmapSurface");
+  DALI_TRACE_END_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CREATE_SURFACE", [&](std::ostringstream& oss) {
+    oss << "[pixmap surface:" << mCurrentEglSurface << "]";
+  });
+
   TEST_EGL_ERROR("eglCreatePixmapSurface");
 
   DALI_ASSERT_ALWAYS(mCurrentEglSurface && "Create pixmap surface failed");

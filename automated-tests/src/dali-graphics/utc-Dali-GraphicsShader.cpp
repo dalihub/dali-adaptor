@@ -37,9 +37,10 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest1(void)
     info.SetSourceSize(vertexShader.size());
     info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
 
-    size_t dataSize  = 0;
-    size_t dataIndex = 0;
-    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, dataSize);
+    size_t   dataSize  = 0;
+    size_t   dataIndex = 0;
+    uint32_t version;
+    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, version, dataSize);
 
     DALI_TEST_EQUALS(dataIndex, 0, TEST_LOCATION);
     DALI_TEST_EQUALS(dataSize, vertexShader.size(), TEST_LOCATION);
@@ -71,9 +72,10 @@ int UtcDaliGlesStripLegacyCodeTestDifferentPrefix(void)
     info.SetSourceSize(prefixedVertexShader.size());
     info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
 
-    size_t dataSize  = 0;
-    size_t dataIndex = 0;
-    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, dataSize);
+    size_t   dataSize  = 0;
+    size_t   dataIndex = 0;
+    uint32_t version;
+    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, version, dataSize);
 
     auto index = prefixedVertexShader.find("//@version");
 
@@ -107,9 +109,10 @@ int UtcDaliGlesStripLegacyCodeIfNeededTest2(void)
     info.SetSourceSize(prefixedVertexShader.size());
     info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
 
-    size_t dataSize  = 0;
-    size_t dataIndex = 0;
-    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, dataSize);
+    size_t   dataSize  = 0;
+    size_t   dataIndex = 0;
+    uint32_t version;
+    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, version, dataSize);
 
     DALI_TEST_EQUALS(dataIndex, vertexPrefix.length(), TEST_LOCATION);
 
@@ -143,9 +146,10 @@ int UtcDaliGlesLegacyCodeTest(void)
     info.SetSourceSize(prefixedVertexShader.size());
     info.SetSourceMode(Dali::Graphics::ShaderSourceMode::TEXT);
 
-    size_t dataSize  = 0;
-    size_t dataIndex = 0;
-    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, dataSize);
+    size_t   dataSize  = 0;
+    size_t   dataIndex = 0;
+    uint32_t version;
+    Graphics::GLES::ShaderImpl::StripLegacyCodeIfNeeded(info, dataIndex, version, dataSize);
 
     auto index = prefixedVertexShader.find("#version");
 
