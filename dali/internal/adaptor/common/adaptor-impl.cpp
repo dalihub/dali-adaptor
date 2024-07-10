@@ -365,6 +365,7 @@ Adaptor::~Adaptor()
   delete mObjectProfiler;
 
   delete mCore;
+  mCore = nullptr;
 
   delete mDisplayConnection;
   delete mPlatformAbstraction;
