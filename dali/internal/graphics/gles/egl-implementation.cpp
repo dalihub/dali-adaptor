@@ -380,6 +380,13 @@ void EglImplementation::DestroyContext(EGLContext& eglContext)
 {
   if(eglContext)
   {
+    // Remove from the list of contexts first.
+    auto iter = std::find(mEglWindowContexts.begin(), mEglWindowContexts.end(), eglContext);
+    if(iter != mEglWindowContexts.end())
+    {
+      mEglWindowContexts.erase(iter);
+    }
+
     DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_DESTROY_CONTEXT", [&](std::ostringstream& oss) {
       oss << "[display:" << mEglDisplay << ", context:" << eglContext << "]";
     });
