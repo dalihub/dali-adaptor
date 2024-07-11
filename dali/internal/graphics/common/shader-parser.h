@@ -19,7 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <map>
+#include <dali/devel-api/common/map-wrapper.h>
+
+#include <cstdint>
 #include <regex>
 #include <string>
 #include <utility>
