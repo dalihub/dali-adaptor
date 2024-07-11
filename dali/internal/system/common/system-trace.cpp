@@ -67,7 +67,7 @@ int GetCookie(const std::string& description, std::string& markerName)
   }
   markerName = description.substr(0, pos);
 
-  std::size_t hash = Dali::CalculateHash(markerName.c_str());
+  std::size_t hash = Dali::CalculateHash(markerName);
   return static_cast<int>(hash);
 }
 } // namespace
