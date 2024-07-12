@@ -36,13 +36,13 @@
 namespace Dali
 {
 class ObjectRegistry;
-class RenderSurfaceInterface;
 
 using WindowContainer = std::vector<Window>;
 
 namespace Integration
 {
 class SceneHolder;
+class RenderSurfaceInterface;
 }
 
 using SceneHolderList = std::vector<Dali::Integration::SceneHolder>;
@@ -139,7 +139,7 @@ public:
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New(Window window, const Dali::RenderSurfaceInterface& surface);
+  static Adaptor& New(Window window, const Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @brief Create a new adaptor using the SceneHolder.
@@ -156,7 +156,7 @@ public:
    * @param[in] surface The surface to draw onto
    * @return a reference to the adaptor handle
    */
-  static Adaptor& New(Dali::Integration::SceneHolder sceneHolder, const Dali::RenderSurfaceInterface& surface);
+  static Adaptor& New(Dali::Integration::SceneHolder sceneHolder, const Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @brief Virtual Destructor.
@@ -239,7 +239,7 @@ public:
    * @param[in] window The window to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface(Window window, Dali::RenderSurfaceInterface& surface);
+  void ReplaceSurface(Window window, Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @brief Replaces the rendering surface
@@ -247,14 +247,14 @@ public:
    * @param[in] sceneHolder The SceneHolder to replace the surface for
    * @param[in] surface to use
    */
-  void ReplaceSurface(Dali::Integration::SceneHolder sceneHolder, Dali::RenderSurfaceInterface& surface);
+  void ReplaceSurface(Dali::Integration::SceneHolder sceneHolder, Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @brief Get the render surface the adaptor is using to render to.
    *
    * @return reference to current render surface
    */
-  Dali::RenderSurfaceInterface& GetSurface();
+  Dali::Integration::RenderSurfaceInterface& GetSurface();
 
   /**
    * @brief Gets native window handle
@@ -383,7 +383,7 @@ public:
    * @param[in] surface The current render surface
    * @param[in] surfaceSize The new surface size
    */
-  void SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
+  void SurfaceResizePrepare(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @brief Informs ThreadController the surface size has changed.
@@ -391,7 +391,7 @@ public:
    * @param[in] surface The current render surface
    * @param[in] surfaceSize The new surface size
    */
-  void SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
+  void SurfaceResizeComplete(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @brief Update once. It will not wake up the update thread if we're paused.

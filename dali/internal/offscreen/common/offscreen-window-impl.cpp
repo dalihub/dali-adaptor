@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ OffscreenWindow::OffscreenWindow(uint16_t width, uint16_t height, Dali::Any surf
 : mRenderNotification()
 {
   // Create surface
-  mSurface = std::unique_ptr<RenderSurfaceInterface>(CreateNativeSurface(SurfaceSize(width, height), surface, isTranslucent));
+  mSurface = std::unique_ptr<Integration::RenderSurfaceInterface>(CreateNativeSurface(SurfaceSize(width, height), surface, isTranslucent));
 }
 
 void OffscreenWindow::Initialize(bool isDefaultWindow)

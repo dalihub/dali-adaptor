@@ -42,9 +42,9 @@ NativeBitmapBuffer::NativeBitmapBuffer(Adaptor* adaptor, uint32_t width, uint32_
   DALI_ASSERT_ALWAYS(adaptor);
   mBuffer = new Integration::LocklessBuffer(width * height * Pixel::GetBytesPerPixel(pFormat));
 
-  GraphicsInterface* graphics    = &(adaptor->GetGraphicsInterface());
-  auto               eglGraphics = static_cast<EglGraphics*>(graphics);
-  mGlAbstraction                 = &(eglGraphics->GetGlAbstraction());
+  auto graphics    = &(adaptor->GetGraphicsInterface());
+  auto eglGraphics = static_cast<EglGraphics*>(graphics);
+  mGlAbstraction   = &(eglGraphics->GetGlAbstraction());
 }
 
 NativeBitmapBuffer::~NativeBitmapBuffer()

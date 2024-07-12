@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,12 +82,12 @@ void ThreadController::RequestUpdateOnce(UpdateMode updateMode)
   mThreadControllerInterface->RequestUpdateOnce(updateMode);
 }
 
-void ThreadController::ReplaceSurface(Dali::RenderSurfaceInterface* newSurface)
+void ThreadController::ReplaceSurface(Dali::Integration::RenderSurfaceInterface* newSurface)
 {
   mThreadControllerInterface->ReplaceSurface(newSurface);
 }
 
-void ThreadController::DeleteSurface(Dali::RenderSurfaceInterface* surface)
+void ThreadController::DeleteSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mThreadControllerInterface->DeleteSurface(surface);
 }
@@ -112,7 +112,7 @@ void ThreadController::SetPreRenderCallback(CallbackBase* callback)
   mThreadControllerInterface->SetPreRenderCallback(callback);
 }
 
-void ThreadController::AddSurface(Dali::RenderSurfaceInterface* newSurface)
+void ThreadController::AddSurface(Dali::Integration::RenderSurfaceInterface* newSurface)
 {
   mThreadControllerInterface->AddSurface(newSurface);
 }

@@ -90,7 +90,7 @@ private:
 
 private:                                                       // Data
   std::unique_ptr<Dali::DisplayConnection> mDisplayConnection; ///< The native display connection
-  std::unique_ptr<GraphicsInterface>       mGraphics;          ///< Graphics interface
+  std::unique_ptr<Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
   EglInterface*                            mEGL;
   EGLSurface                               mEGLSurface;
   EGLContext                               mEGLContext;

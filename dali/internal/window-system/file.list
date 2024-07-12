@@ -3,14 +3,17 @@
 SET( adaptor_window_system_common_src_files
     ${adaptor_window_system_dir}/common/display-connection.cpp
     ${adaptor_window_system_dir}/common/event-handler.cpp
-    ${adaptor_window_system_dir}/common/gl-window-impl.cpp
-    ${adaptor_window_system_dir}/common/gl-window-render-thread.cpp
     ${adaptor_window_system_dir}/common/native-render-surface-factory.cpp
     ${adaptor_window_system_dir}/common/orientation-impl.cpp
     ${adaptor_window_system_dir}/common/window-base.cpp
     ${adaptor_window_system_dir}/common/window-impl.cpp
     ${adaptor_window_system_dir}/common/window-render-surface.cpp
     ${adaptor_window_system_dir}/common/window-system.cpp
+)
+
+SET( adaptor_window_system_common_egl_src_files
+    ${adaptor_window_system_dir}/common/gl-window-impl.cpp
+    ${adaptor_window_system_dir}/common/gl-window-render-thread.cpp
 )
 
 # module: window-system, backend: tizen-wayland
@@ -51,11 +54,18 @@ SET( adaptor_window_system_x11_src_files
     ${adaptor_window_system_dir}/x11/window-system-x.cpp
 )
 
+SET( adaptor_window_system_x11_egl_src_files
+    ${adaptor_window_system_dir}/x11/pixmap-render-surface-x.cpp
+)
+
+SET( adaptor_window_system_ubuntu_x11_egl_src_files
+    ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp
+)
+
 # module: window-system, backend: ubuntu-x11
 SET( adaptor_window_system_ubuntu_x11_src_files
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-factory-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/display-connection-impl-x.cpp
-    ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/render-surface-factory-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-interface-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/window-base-ecore-x.cpp
@@ -63,6 +73,10 @@ SET( adaptor_window_system_ubuntu_x11_src_files
     ${adaptor_window_system_dir}/ubuntu-x11/window-system-ecore-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/native-image-surface-factory-x.cpp
     ${adaptor_window_system_dir}/ubuntu-x11/native-image-surface-impl-x.cpp
+)
+
+SET( adaptor_window_system_ubuntu_x11_egl_src_files
+    ${adaptor_window_system_dir}/ubuntu-x11/pixmap-render-surface-ecore-x.cpp
 )
 
 # module: window-system, backend: android

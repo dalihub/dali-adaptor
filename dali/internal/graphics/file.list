@@ -14,6 +14,44 @@ SET( adaptor_graphics_gles_src_files
 
 INCLUDE( ${adaptor_graphics_dir}/gles-impl/file.list )
 
+SET( adaptor_graphics_vulkan_src_files
+    ${adaptor_graphics_dir}/vulkan/vulkan-graphics-impl.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-graphics-factory.cpp
+    ${adaptor_graphics_dir}/vulkan/vulkan-device.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-graphics-controller.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-buffer.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-buffer-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-command-pool-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-fence-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-framebuffer-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-image-view-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-memory-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-queue-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-pass-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-render-target.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-surface-impl.cpp
+    ${adaptor_graphics_dir}/vulkan-impl/vulkan-swapchain-impl.cpp
+)
+
+# module: graphics, backend: vulkan/x11
+SET( adaptor_graphics_vulkan_x11_src_files
+    ${adaptor_graphics_dir}/vulkan/x11/vk-surface-xlib2xcb.cpp
+)
+
+# module: graphics, backend: vulkan/wayland
+SET( adaptor_graphics_vulkan_wayland_src_files
+    ${adaptor_graphics_dir}/vulkan/wayland/vk-surface-wayland.cpp
+)
+
+# module: graphics, backend: vulkan/tizen
+SET( adaptor_graphics_vulkan_tizen_src_files
+    ${adaptor_graphics_dir}/vulkan/api/vulkan-api-native-texture.cpp
+)
+
 # module: graphics, backend: tizen
 SET( adaptor_graphics_tizen_src_files
     ${adaptor_graphics_dir}/tizen/egl-image-extensions-tizen.cpp

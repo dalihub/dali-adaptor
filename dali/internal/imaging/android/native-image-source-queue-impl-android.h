@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_NATIVE_IMAGE_SOURCE_QUEUE_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ namespace Internal
 {
 namespace Adaptor
 {
-class EglGraphics;
-class EglImageExtensions;
-
 /**
  * Dali internal NativeImageSourceQueue.
  */

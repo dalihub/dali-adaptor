@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREX_DISPLAY_CONNECTION_IMPL_ECORE_X_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,7 @@ namespace Dali
 {
 class DisplayConnection;
 
-namespace Internal
-{
-namespace Adaptor
+namespace Internal::Adaptor
 {
 class Impl
 {
@@ -58,51 +56,40 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
+
+  /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
    */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
-   */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionX11();
+  ~DisplayConnectionX11() override;
 
-protected:
   // Undefined
   DisplayConnectionX11(const DisplayConnectionX11&) = delete;
 
   // Undefined
   DisplayConnectionX11& operator=(const DisplayConnectionX11& rhs) = delete;
 
-private:
-  GraphicsInterface* mGraphics; ///< The graphics interface
-
 public:
   XDisplay* mDisplay; ///< X-display for rendering
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace Internal::Adaptor
 
 } // namespace Dali
 

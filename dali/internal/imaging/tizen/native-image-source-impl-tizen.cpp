@@ -94,8 +94,8 @@ NativeImageSourceTizen::NativeImageSourceTizen(uint32_t width, uint32_t height, 
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  mEglGraphics                = static_cast<EglGraphics*>(graphics);
+  auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  mEglGraphics  = static_cast<EglGraphics*>(graphics);
 
   mTbmSurface = GetSurfaceFromAny(nativeImageSource);
 

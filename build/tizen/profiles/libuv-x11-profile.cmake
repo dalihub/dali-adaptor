@@ -47,6 +47,30 @@ SET( SOURCES
         ${static_libraries_libunibreak_src_files}
 )
 
+IF( ENABLE_VULKAN )
+  SET(SOURCES ${SOURCES}
+    ${graphics_vulkan_src_files}
+    ${graphics_vulkan_x11_src_files}
+    ${adaptor_imaging_x11_src_files}
+    )
+ELSE()
+  SET(SOURCES ${SOURCES}
+    ${adaptor_public_api_egl_src_files}
+
+    ${devel_api_egl_src_files}
+
+    ${adaptor_graphics_gles_src_files}
+    ${adaptor_graphics_ubuntu_src_files}
+
+    ${adaptor_imaging_x11_egl_src_files}
+
+    ${adaptor_system_common_egl_src_files}
+
+    ${adaptor_window_system_x11_egl_src_files}
+    ${adaptor_window_system_common_egl_src_files}
+  )
+ENDIF()
+
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}
          ${static_libraries_glyphy_src_files}

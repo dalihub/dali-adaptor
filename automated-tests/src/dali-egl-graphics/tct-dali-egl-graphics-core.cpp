@@ -1,6 +1,6 @@
 #include <test-harness.h>
 
-#include "tct-dali-graphics-core.h"
+#include "tct-dali-egl-graphics-core.h"
 
 int main(int argc, char* const argv[])
 {

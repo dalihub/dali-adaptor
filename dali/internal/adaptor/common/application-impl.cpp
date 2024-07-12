@@ -34,6 +34,7 @@
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-settings.h>
@@ -316,7 +317,7 @@ void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS(mMainWindow && "Window required to create adaptor");
 
-  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  auto& graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder(&Dali::GetImplementation(mMainWindow));
 
@@ -327,7 +328,7 @@ void Application::CreateAdaptor()
 
 void Application::CreateAdaptorBuilder()
 {
-  mAdaptorBuilder = new AdaptorBuilder(*mEnvironmentOptions);
+  mAdaptorBuilder = &AdaptorBuilder::Get(*mEnvironmentOptions);
 }
 
 void Application::MainLoop()

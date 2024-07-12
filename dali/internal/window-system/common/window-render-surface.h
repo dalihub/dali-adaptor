@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_WINDOW_RENDER_SURFACE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,9 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-#include <dali/integration-api/adaptor-framework/egl-interface.h>
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
+#include <dali/internal/graphics/common/surface-factory.h>
 #include <dali/internal/system/common/file-descriptor-monitor.h>
 
 namespace Dali
@@ -45,11 +45,12 @@ class AdaptorInternalServices;
 /**
  * Window interface of render surface.
  */
-class WindowRenderSurface : public Dali::RenderSurfaceInterface, public ConnectionTracker
+class WindowRenderSurface : public Dali::Integration::RenderSurfaceInterface,
+                            public ConnectionTracker,
+                            public Graphics::NativeWindowInterface
 {
 public:
-
-  using RotationFinishedSignalType = Signal<void()>        ; ///<The signal of window rotation's finished.
+  using RotationFinishedSignalType = Signal<void()>; ///<The signal of window rotation's finished.
   using OutputSignalType           = Signal<void()>;
   using DamagedRectsContainer      = std::vector<Rect<int>>;
 
@@ -81,6 +82,12 @@ public: // API
    * @return The native window id
    */
   int GetNativeWindowId();
+
+public: // API
+  Graphics::SurfaceId GetSurfaceId() const
+  {
+    return mSurfaceId;
+  }
 
   /**
    * @brief Map window
@@ -168,99 +175,99 @@ public: // API
    */
   void SetFrontBufferRendering(bool enable);
 
-public: // from Dali::RenderSurfaceInterface
+public: // from Dali::Integration::RenderSurfaceInterface
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetPositionSize()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetPositionSize()
    */
   PositionSize GetPositionSize() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetDpi()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDpi()
    */
   void GetDpi(unsigned int& dpiHorizontal, unsigned int& dpiVertical) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceOrientation()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetSurfaceOrientation()
    */
   int GetSurfaceOrientation() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetScreenOrientation()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetScreenOrientation()
    */
   int GetScreenOrientation() const override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::InitializeGraphics()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::InitializeGraphics()
    */
   void InitializeGraphics() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::CreateSurface()
    */
   void CreateSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::DestroySurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::DestroySurface()
    */
   void DestroySurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::ReplaceGraphicsSurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::ReplaceGraphicsSurface()
    */
   bool ReplaceGraphicsSurface() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::MoveResize()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::MoveResize()
    */
   void MoveResize(Dali::PositionSize positionSize) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::StartRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::StartRender()
    */
   void StartRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::PreRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::PreRender()
    */
   bool PreRender(bool resizingSurface, const std::vector<Rect<int>>& damagedRects, Rect<int>& clippingRect) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::PostRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::PostRender()
    */
   void PostRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::StopRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::StopRender()
    */
   void StopRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::SetThreadSynchronization
+   * @copydoc Dali::Integration::RenderSurfaceInterface::SetThreadSynchronization
    */
   void SetThreadSynchronization(ThreadSynchronizationInterface& threadSynchronization) override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::ReleaseLock()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::ReleaseLock()
    */
   void ReleaseLock() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetSurfaceType()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetSurfaceType()
    */
-  Dali::RenderSurfaceInterface::Type GetSurfaceType() override;
+  Dali::Integration::RenderSurfaceInterface::Type GetSurfaceType() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::MakeContextCurrent()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::MakeContextCurrent()
    */
   void MakeContextCurrent() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetDepthBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetDepthBufferRequired()
    */
   Integration::DepthBufferAvailable GetDepthBufferRequired() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::GetStencilBufferRequired()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::GetStencilBufferRequired()
    */
   Integration::StencilBufferAvailable GetStencilBufferRequired() override;
 
@@ -346,7 +353,9 @@ private:
   using FrameCallbackInfoContainer = std::vector<std::unique_ptr<FrameCallbackInfo>>;
 
 private: // Data
-  EglInterface*                          mEGL;
+         //  EglInterface*                          mEGL;
+         //  EGLSurface                             mEGLSurface;
+         //  EGLContext                             mEGLContext;
   Dali::DisplayConnection*               mDisplayConnection;
   PositionSize                           mPositionSize; ///< Position
   std::unique_ptr<WindowBase>            mWindowBase;
@@ -354,15 +363,14 @@ private: // Data
   TriggerEventInterface*                 mRenderNotification; ///< Render notification trigger
   std::unique_ptr<TriggerEventInterface> mPostRenderTrigger;  ///< Post render callback function
   std::unique_ptr<TriggerEventInterface> mFrameRenderedTrigger;
-  GraphicsInterface*                     mGraphics; ///< Graphics interface
-  EGLSurface                             mEGLSurface;
-  EGLContext                             mEGLContext;
-  ColorDepth                             mColorDepth; ///< Color depth of surface (32 bit or 24 bit)
-  OutputSignalType                       mOutputTransformedSignal;       ///< The signal of screen rotation occurs
-  RotationFinishedSignalType             mWindowRotationFinishedSignal;  ///< The signal of window rotation's finished
+  Dali::Graphics::GraphicsInterface*     mGraphics;                     ///< Graphics interface
+  ColorDepth                             mColorDepth;                   ///< Color depth of surface (32 bit or 24 bit)
+  OutputSignalType                       mOutputTransformedSignal;      ///< The signal of screen rotation occurs
+  RotationFinishedSignalType             mWindowRotationFinishedSignal; ///< The signal of window rotation's finished
   FrameCallbackInfoContainer             mFrameCallbackInfoContainer;
   DamagedRectsContainer                  mBufferDamagedRects;
   Dali::Mutex                            mMutex;
+  Graphics::SurfaceId                    mSurfaceId{Graphics::INVALID_SURFACE_ID};
   int                                    mWindowRotationAngle;
   int                                    mScreenRotationAngle;
   uint32_t                               mDpiHorizontal;

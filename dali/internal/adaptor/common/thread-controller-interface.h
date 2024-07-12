@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_INTERFACE_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,10 @@
 
 namespace Dali
 {
+namespace Integration
+{
 class RenderSurfaceInterface;
+}
 
 namespace Internal
 {
@@ -97,13 +100,13 @@ public:
    * Replaces the surface.
    * @param surface new surface
    */
-  virtual void ReplaceSurface(Dali::RenderSurfaceInterface* surface) = 0;
+  virtual void ReplaceSurface(Dali::Integration::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Deletes the surface.
    * @param[in] surface The surface to be deleted
    */
-  virtual void DeleteSurface(Dali::RenderSurfaceInterface* surface) = 0;
+  virtual void DeleteSurface(Dali::Integration::RenderSurfaceInterface* surface) = 0;
 
   /**
    * Resize the surface.
@@ -129,7 +132,7 @@ public:
    * @brief Adds the new surface.
    * @param surface new surface
    */
-  virtual void AddSurface(Dali::RenderSurfaceInterface* surface) = 0;
+  virtual void AddSurface(Dali::Integration::RenderSurfaceInterface* surface) = 0;
 
   /**
    * @brief Gets the thread id.

@@ -819,7 +819,7 @@ private: // Dali::Internal::Adaptor::SceneHolder
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnSurfaceSet
    */
-  void OnSurfaceSet(Dali::RenderSurfaceInterface* surface) override;
+  void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface) override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::SceneHolder::OnPause

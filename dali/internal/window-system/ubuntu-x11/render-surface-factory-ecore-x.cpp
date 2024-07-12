@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,20 @@ std::unique_ptr<WindowRenderSurface> RenderSurfaceFactoryEcoreX::CreateWindowRen
 
 std::unique_ptr<PixmapRenderSurface> RenderSurfaceFactoryEcoreX::CreatePixmapRenderSurface(Dali::PositionSize positionSize, Any surface, bool isTransparent)
 {
+#if !defined(VULKAN_ENABLED)
   return Utils::MakeUnique<PixmapRenderSurfaceEcoreX>(positionSize, surface, isTransparent);
+#else
+  return nullptr;
+#endif
 }
 
 std::unique_ptr<NativeRenderSurface> RenderSurfaceFactoryEcoreX::CreateNativeRenderSurface(SurfaceSize surfaceSize, Any surface, bool isTransparent)
 {
+#if !defined(VULKAN_ENABLED)
   return std::unique_ptr<NativeRenderSurface>(nullptr);
+#else
+  return nullptr;
+#endif
 }
 
 // this should be created from somewhere

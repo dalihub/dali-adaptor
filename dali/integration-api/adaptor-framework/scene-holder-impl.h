@@ -120,7 +120,7 @@ public:
    * @brief Set the render surface
    * @param[in] surface The render surface
    */
-  void SetSurface(Dali::RenderSurfaceInterface* surface);
+  void SetSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * @brief Called when the surface set is resized.
@@ -133,7 +133,7 @@ public:
    * @brief Get the render surface
    * @return The render surface
    */
-  Dali::RenderSurfaceInterface* GetSurface() const;
+  Dali::Integration::RenderSurfaceInterface* GetSurface() const;
 
   /**
    * @brief Set the adaptor to the scene holder
@@ -365,7 +365,7 @@ private: // The following methods can be overridden if required
    * @brief Called by the base class to inform deriving classes that a new surface has been set.
    * @param[in] surface The new render surface
    */
-  virtual void OnSurfaceSet(Dali::RenderSurfaceInterface* surface){};
+  virtual void OnSurfaceSet(Dali::Integration::RenderSurfaceInterface* surface){};
 
   /**
    * @brief Called by the base class to inform deriving classes that we are being paused.
@@ -411,7 +411,7 @@ protected:
   Dali::Integration::Scene mScene; ///< The Scene
   std::string              mName;  ///< The name of the SceneHolder
 
-  std::unique_ptr<Dali::RenderSurfaceInterface> mSurface; ///< The window rendering surface
+  std::unique_ptr<Dali::Integration::RenderSurfaceInterface> mSurface; ///< The window rendering surface
   Adaptor*                                      mAdaptor; ///< The adaptor
 
   Dali::Integration::TouchEventCombiner mCombiner; ///< Combines multi-touch events.

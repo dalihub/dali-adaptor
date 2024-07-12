@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_THREAD_CONTROLLER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,13 +106,13 @@ public:
    *
    * @param surface new surface
    */
-  void ReplaceSurface(Dali::RenderSurfaceInterface* surface);
+  void ReplaceSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * Deletes the surface.
    * @param surface The surface to be deleted
    */
-  void DeleteSurface(Dali::RenderSurfaceInterface* surface);
+  void DeleteSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * Resize the surface.
@@ -139,7 +139,7 @@ public:
    *
    * @param surface new surface
    */
-  void AddSurface(Dali::RenderSurfaceInterface* surface);
+  void AddSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * @brief Gets the thread id.

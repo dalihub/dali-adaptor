@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/tizen-wayland/display-connection-impl-ecore-wl.h>
 
 // EXTERNAL_HEADERS
@@ -27,6 +26,10 @@
 #include <Ecore_Wl2.h>
 #else
 #include <Ecore_Wayland.h>
+#endif
+
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/common/egl-include.h>
 #endif
 
 namespace Dali
@@ -44,15 +47,14 @@ DisplayConnection* DisplayConnectionEcoreWl::New()
 
 DisplayConnectionEcoreWl::DisplayConnectionEcoreWl()
 : mDisplay(NULL),
-  mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
-  mGraphics(nullptr),
+  mSurfaceType(Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
   mBufMgr(nullptr)
 {
 }
 
 DisplayConnectionEcoreWl::~DisplayConnectionEcoreWl()
 {
-  if(mSurfaceType == RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
+  if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     ReleaseNativeDisplay();
   }
@@ -67,25 +69,11 @@ void DisplayConnectionEcoreWl::ConsumeEvents()
 {
 }
 
-bool DisplayConnectionEcoreWl::InitializeGraphics()
-{
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(mDisplay))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
-}
-
-void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
+void DisplayConnectionEcoreWl::SetSurfaceType(Integration::RenderSurfaceInterface::Type type)
 {
   mSurfaceType = type;
 
-  if(mSurfaceType == Dali::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
+  if(mSurfaceType == Integration::RenderSurfaceInterface::NATIVE_RENDER_SURFACE)
   {
     mDisplay = GetNativeDisplay();
   }
@@ -100,14 +88,18 @@ void DisplayConnectionEcoreWl::SetSurfaceType(Dali::RenderSurfaceInterface::Type
   }
 }
 
-void DisplayConnectionEcoreWl::SetGraphicsInterface(GraphicsInterface& graphics)
+Any DisplayConnectionEcoreWl::GetNativeGraphicsDisplay()
 {
-  mGraphics = &graphics;
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {mDisplay};
+#endif
 }
 
 EGLNativeDisplayType DisplayConnectionEcoreWl::GetNativeDisplay()
 {
-  mBufMgr = tbm_bufmgr_init(-1);  // -1 is meaningless. The parameter in this function is deprecated.
+  mBufMgr = tbm_bufmgr_init(-1); // -1 is meaningless. The parameter in this function is deprecated.
   if(mBufMgr == nullptr)
   {
     DALI_LOG_ERROR("Fail to init tbm buf mgr\n");

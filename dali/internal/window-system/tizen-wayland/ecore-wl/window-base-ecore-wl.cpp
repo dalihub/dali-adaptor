@@ -23,6 +23,7 @@
 #include <dali/internal/window-system/tizen-wayland/ecore-wl/window-base-ecore-wl.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -404,9 +405,9 @@ static Eina_Bool EcoreEventDataSend(void* data, int type, void* event)
 }
 
 /**
-* Called when the source window sends us about the selected content.
-* For example, when item is selected in the clipboard.
-*/
+ * Called when the source window sends us about the selected content.
+ * For example, when item is selected in the clipboard.
+ */
 static Eina_Bool EcoreEventDataReceive(void* data, int type, void* event)
 {
   WindowBaseEcoreWl* windowBase = static_cast<WindowBaseEcoreWl*>(data);
@@ -629,7 +630,7 @@ void WindowBaseEcoreWl::Initialize(PositionSize positionSize, Any surface, bool 
   {
     // we own the surface about to created
     mOwnSurface = true;
-    CreateWindow(positionSize);
+    CreateInternalWindow(positionSize);
   }
 
   mWlSurface = ecore_wl_window_surface_create(mEcoreWindow);
@@ -1197,14 +1198,14 @@ std::string WindowBaseEcoreWl::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseEcoreWl::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseEcoreWl::CreateWindow(int width, int height)
 {
   mEglWindow = wl_egl_window_create(mWlSurface, width, height);
 
-  return static_cast<EGLNativeWindowType>(mEglWindow);
+  return static_cast<void*>(mEglWindow);
 }
 
-void WindowBaseEcoreWl::DestroyEglWindow()
+void WindowBaseEcoreWl::DestroyWindow()
 {
   if(mEglWindow != NULL)
   {
@@ -1213,7 +1214,7 @@ void WindowBaseEcoreWl::DestroyEglWindow()
   }
 }
 
-void WindowBaseEcoreWl::SetEglWindowRotation(int angle)
+void WindowBaseEcoreWl::SetWindowRotation(int angle)
 {
   wl_egl_window_rotation rotation;
 
@@ -1249,7 +1250,7 @@ void WindowBaseEcoreWl::SetEglWindowRotation(int angle)
   wl_egl_window_set_rotation(mEglWindow, rotation);
 }
 
-void WindowBaseEcoreWl::SetEglWindowBufferTransform(int angle)
+void WindowBaseEcoreWl::SetWindowBufferTransform(int angle)
 {
   wl_output_transform bufferTransform;
 
@@ -1285,7 +1286,7 @@ void WindowBaseEcoreWl::SetEglWindowBufferTransform(int angle)
   wl_egl_window_set_buffer_transform(mEglWindow, bufferTransform);
 }
 
-void WindowBaseEcoreWl::SetEglWindowTransform(int angle)
+void WindowBaseEcoreWl::SetWindowTransform(int angle)
 {
   wl_output_transform windowTransform;
 
@@ -1321,12 +1322,12 @@ void WindowBaseEcoreWl::SetEglWindowTransform(int angle)
   wl_egl_window_set_window_transform(mEglWindow, windowTransform);
 }
 
-void WindowBaseEcoreWl::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseEcoreWl::ResizeWindow(PositionSize positionSize)
 {
   wl_egl_window_resize(mEglWindow, positionSize.width, positionSize.height, positionSize.x, positionSize.y);
 }
 
-bool WindowBaseEcoreWl::IsEglWindowRotationSupported()
+bool WindowBaseEcoreWl::IsWindowRotationSupported()
 {
   // Check capability
   wl_egl_window_capability capability = static_cast<wl_egl_window_capability>(wl_egl_window_get_capabilities(mEglWindow));
@@ -2156,7 +2157,7 @@ void WindowBaseEcoreWl::SetTransparency(bool transparent)
   ecore_wl_window_alpha_set(mEcoreWindow, transparent);
 }
 
-void WindowBaseEcoreWl::CreateWindow(PositionSize positionSize)
+void WindowBaseEcoreWl::CreateInternalWindow(PositionSize positionSize)
 {
   mEcoreWindow = ecore_wl_window_new(0, positionSize.x, positionSize.y, positionSize.width, positionSize.height, ECORE_WL_WINDOW_BUFFER_TYPE_EGL_WINDOW);
 
@@ -2233,7 +2234,7 @@ bool WindowBaseEcoreWl::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseEcoreWl::SetEglWindowFrontBufferMode(bool enable)
+void WindowBaseEcoreWl::SetWindowFrontBufferMode(bool enable)
 {
 }
 

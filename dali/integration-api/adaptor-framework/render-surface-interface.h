@@ -1,8 +1,8 @@
-#ifndef DALI_RENDER_SURFACE_INTERFACE_H
-#define DALI_RENDER_SURFACE_INTERFACE_H
+#ifndef DALI_INTEGRATION_RENDER_SURFACE_INTERFACE_H
+#define DALI_INTEGRATION_RENDER_SURFACE_INTERFACE_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
  * limitations under the License.
  *
  */
+
+// INTERNAL INCLUDES
+#include <dali/public-api/dali-adaptor-common.h>
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/core-enumerations.h>
@@ -33,20 +36,27 @@ namespace Dali
 class DisplayConnection;
 class ThreadSynchronizationInterface;
 
-namespace Internal
+namespace Graphics
 {
-namespace Adaptor
+class GraphicsInterface;
+}
+
+namespace Internal::Adaptor
 {
 class AdaptorInternalServices;
-class GraphicsInterface;
-} // namespace Adaptor
-} // namespace Internal
+} // namespace Internal::Adaptor
 
 /**
  * @brief The position and size of the render surface.
  */
 using PositionSize = Dali::Rect<int>;
 using SurfaceSize  = Uint16Pair;
+
+namespace Integration
+{
+struct DALI_ADAPTOR_API RenderSurface
+{
+};
 
 /**
  * @brief Interface for a render surface onto which Dali draws.
@@ -60,8 +70,7 @@ using SurfaceSize  = Uint16Pair;
  * The implementation of the factory method below should choose an appropriate
  * implementation of RenderSurface for the given platform
  */
-
-class RenderSurfaceInterface
+class RenderSurfaceInterface : public Integration::RenderSurface
 {
 public:
   enum Type
@@ -186,7 +195,7 @@ public:
   /**
    * @brief Gets the surface type
    */
-  virtual Dali::RenderSurfaceInterface::Type GetSurfaceType() = 0;
+  virtual Dali::Integration::RenderSurfaceInterface::Type GetSurfaceType() = 0;
 
   /**
    * @brief Makes the graphics context current
@@ -211,7 +220,7 @@ public:
     mAdaptor = &adaptor;
   }
 
-  void SetGraphicsInterface(Dali::Internal::Adaptor::GraphicsInterface& graphics)
+  void SetGraphicsInterface(Dali::Graphics::GraphicsInterface& graphics)
   {
     mGraphics = &graphics;
   }
@@ -251,7 +260,7 @@ private:
 
 protected:
   Dali::Internal::Adaptor::AdaptorInternalServices* mAdaptor;
-  Dali::Internal::Adaptor::GraphicsInterface*       mGraphics;
+  Dali::Graphics::GraphicsInterface*       mGraphics;
   Dali::DisplayConnection*                          mDisplayConnection;
   WeakHandle<Dali::Integration::Scene>              mScene;
   bool                                              mFullSwapNextFrame; ///< Whether the full surface swap is required
@@ -263,6 +272,7 @@ private:
   Vector4 mBackgroundColor; ///< The background color of the surface
 };
 
+} // Namespace Integration
 } // namespace Dali
 
-#endif // DALI_RENDER_SURFACE_INTERFACE_H
+#endif // DALI_INTEGRATION_RENDER_SURFACE_INTERFACE_H

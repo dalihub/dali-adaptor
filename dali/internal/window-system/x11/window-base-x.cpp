@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/x11/window-base-x.h>
 
 // INTERNAL HEADERS
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
@@ -283,7 +284,7 @@ void WindowBaseX::Initialize(PositionSize positionSize, Any surface, bool isTran
   {
     // we own the surface about to created
     mOwnSurface = true;
-    CreateWindow(positionSize, isTransparent);
+    CreateInternalWindow(positionSize, isTransparent);
   }
   else
   {
@@ -623,32 +624,32 @@ std::string WindowBaseX::GetNativeWindowResourceId()
   return std::string();
 }
 
-EGLNativeWindowType WindowBaseX::CreateEglWindow(int width, int height)
+Dali::Any WindowBaseX::CreateWindow(int width, int height)
 {
-  return reinterpret_cast<EGLNativeWindowType>(mWindow);
+  return reinterpret_cast<void*>(mWindow);
 }
 
-void WindowBaseX::DestroyEglWindow()
-{
-}
-
-void WindowBaseX::SetEglWindowRotation(int angle)
+void WindowBaseX::DestroyWindow()
 {
 }
 
-void WindowBaseX::SetEglWindowBufferTransform(int angle)
+void WindowBaseX::SetWindowRotation(int angle)
 {
 }
 
-void WindowBaseX::SetEglWindowTransform(int angle)
+void WindowBaseX::SetWindowBufferTransform(int angle)
 {
 }
 
-void WindowBaseX::ResizeEglWindow(PositionSize positionSize)
+void WindowBaseX::SetWindowTransform(int angle)
 {
 }
 
-bool WindowBaseX::IsEglWindowRotationSupported()
+void WindowBaseX::ResizeWindow(PositionSize positionSize)
+{
+}
+
+bool WindowBaseX::IsWindowRotationSupported()
 {
   return false;
 }
@@ -885,7 +886,7 @@ unsigned int WindowBaseX::GetSurfaceId(Any surface) const
   return surfaceId;
 }
 
-void WindowBaseX::CreateWindow(PositionSize positionSize, bool isTransparent)
+void WindowBaseX::CreateInternalWindow(PositionSize positionSize, bool isTransparent)
 {
   int depth = 3;
 
@@ -1021,23 +1022,24 @@ bool WindowBaseX::GetFrontBufferRendering()
   return false;
 }
 
-void WindowBaseX::SetEglWindowFrontBufferMode(bool enable)
-{
-}
-void WindowBaseWin::SetModal(bool modal)
+void WindowBaseX::SetWindowFrontBufferMode(bool enable)
 {
 }
 
-bool WindowBaseWin::IsModal()
+void WindowBaseX::SetModal(bool modal)
+{
+}
+
+bool WindowBaseX::IsModal()
 {
   return false;
 }
 
-void WindowBaseWin::SetAlwaysOnTop(bool alwaysOnTop)
+void WindowBaseX::SetAlwaysOnTop(bool alwaysOnTop)
 {
 }
 
-bool WindowBaseWin::IsAlwaysOnTop()
+bool WindowBaseX::IsAlwaysOnTop()
 {
   return false;
 }

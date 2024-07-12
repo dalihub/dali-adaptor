@@ -31,8 +31,8 @@
 #include "gles-graphics-render-target.h"
 #include "gles-texture-dependency-checker.h"
 
-#include <EGL/egl.h>
-#include <EGL/eglext.h>
+#include <dali/internal/graphics/common/egl-include.h>
+
 #include <map>
 #include <unordered_map>
 
@@ -1320,12 +1320,12 @@ void Context::ResetGLESState()
   mImpl->mCurrentUBOBindings.clear();
   mImpl->mCurrentTextureBindings.clear();
   mImpl->mCurrentVertexBufferBindings.clear();
-  mImpl->mCurrentRenderTarget = nullptr;
-  mImpl->mCurrentRenderPass = nullptr;
-  mImpl->mVertexBuffersChanged = true;
+  mImpl->mCurrentRenderTarget       = nullptr;
+  mImpl->mCurrentRenderPass         = nullptr;
+  mImpl->mVertexBuffersChanged      = true;
   mImpl->mCurrentIndexBufferBinding = {};
-  mImpl->mCurrentSamplerBindings = {};
-  mImpl->mProgramVAOCurrentState = 0;
+  mImpl->mCurrentSamplerBindings    = {};
+  mImpl->mProgramVAOCurrentState    = 0;
 
   ClearState();
   mImpl->InitializeGlState();

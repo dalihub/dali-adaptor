@@ -9,6 +9,8 @@ SET(TC_SOURCES
     utc-image-fitting-modes.cpp
 )
 
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
+
 LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/mesh-builder.cpp
     ../dali-adaptor/dali-test-suite-utils/dali-test-suite-utils.cpp
@@ -31,6 +33,7 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
     ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
     ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     tct-dali-platform-abstraction-core.cpp
@@ -53,9 +56,7 @@ ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
 INCLUDE_DIRECTORIES(
     ../../../
-    ../../../adaptors/tizen
-    ../../../platform-abstractions/tizen
-    ../../../third-party/image-resampler
+    ../../../dali/integration-api/adaptor-framework
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
     /usr/include/freetype2

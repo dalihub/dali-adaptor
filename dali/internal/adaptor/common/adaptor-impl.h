@@ -31,8 +31,8 @@
 #include <dali/integration-api/adaptor-framework/adaptor.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/integration-api/adaptor-framework/trigger-event-factory.h>
-#include <dali/integration-api/scene.h>
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
 #include <dali/internal/legacy/common/tizen-platform-abstraction.h>
 #include <dali/internal/network/common/socket-factory.h>
@@ -48,14 +48,13 @@
 
 namespace Dali
 {
-class RenderSurfaceInterface;
-
 namespace Integration
 {
+class AddOnManager;
 class Core;
 class GlAbstraction;
 class Processor;
-class AddOnManager;
+class RenderSurfaceInterface;
 } // namespace Integration
 
 namespace Internal
@@ -63,20 +62,17 @@ namespace Internal
 namespace Adaptor
 {
 class DisplayConnection;
-class GraphicsFactory;
-class GlImplementation;
-class GlSyncImplementation;
 class ThreadController;
 class TriggerEvent;
 class CallbackManager;
 class FeedbackPluginProxy;
 class FeedbackController;
-class VSyncMonitor;
 class PerformanceInterface;
 class LifeCycleObserver;
 class ObjectProfiler;
 class SceneHolder;
 class ConfigurationManager;
+
 enum class ThreadMode;
 
 /**
@@ -104,10 +100,10 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    * @param[in]  threadMode          The thread mode
    */
-  static Dali::Adaptor* New(Dali::Integration::SceneHolder window,
-                            Dali::RenderSurfaceInterface*  surface,
-                            EnvironmentOptions*            environmentOptions,
-                            ThreadMode                     threadMode);
+  static Dali::Adaptor* New(Dali::Integration::SceneHolder             window,
+                            Dali::Integration::RenderSurfaceInterface* surface,
+                            EnvironmentOptions*                        environmentOptions,
+                            ThreadMode                                 threadMode);
 
   /**
    * Creates a New Adaptor
@@ -127,11 +123,11 @@ public:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    * @param[in]  threadMode          The thread mode
    */
-  static Dali::Adaptor* New(GraphicsFactory&               graphicsFactory,
-                            Dali::Integration::SceneHolder window,
-                            Dali::RenderSurfaceInterface*  surface,
-                            EnvironmentOptions*            environmentOptions,
-                            ThreadMode                     threadMode);
+  static Dali::Adaptor* New(GraphicsFactoryInterface&                  graphicsFactory,
+                            Dali::Integration::SceneHolder             window,
+                            Dali::Integration::RenderSurfaceInterface* surface,
+                            EnvironmentOptions*                        environmentOptions,
+                            ThreadMode                                 threadMode);
 
   /**
    * Creates a New Adaptor
@@ -139,7 +135,7 @@ public:
    * @param[in]  window              The window handle
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    */
-  static Dali::Adaptor* New(GraphicsFactory&               graphicsFactory,
+  static Dali::Adaptor* New(GraphicsFactoryInterface&      graphicsFactory,
                             Dali::Integration::SceneHolder window,
                             EnvironmentOptions*            environmentOptions);
 
@@ -147,7 +143,7 @@ public:
    * 2-step initialisation, this should be called after creating an adaptor instance.
    * @param[in]  graphicsFactory     A factory that creates the graphics interface
    */
-  void Initialize(GraphicsFactory& graphicsFactory);
+  void Initialize(GraphicsFactoryInterface& graphicsFactory);
 
   /**
    * Virtual destructor.
@@ -223,12 +219,12 @@ public: // AdaptorInternalServices implementation
   /**
    * @copydoc Dali::Adaptor::ReplaceSurface()
    */
-  virtual void ReplaceSurface(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface);
+  virtual void ReplaceSurface(Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @copydoc Dali::Adaptor::GetSurface()
    */
-  virtual Dali::RenderSurfaceInterface& GetSurface() const;
+  [[nodiscard]] virtual Dali::Integration::RenderSurfaceInterface& GetSurface() const;
 
   /**
    * @copydoc Dali::Adaptor::ReleaseSurfaceLock()
@@ -291,7 +287,7 @@ public: // AdaptorInternalServices implementation
    * @brief Deletes the rendering surface
    * @param[in] surface to delete
    */
-  void DeleteSurface(Dali::RenderSurfaceInterface& surface);
+  void DeleteSurface(Dali::Integration::RenderSurfaceInterface& surface);
 
   /**
    * @brief Retrieve the window that the given actor is added to.
@@ -416,12 +412,12 @@ public:
   /**
    * @copydoc Dali::Adaptor::SurfaceResizePrepare
    */
-  void SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
+  void SurfaceResizePrepare(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @copydoc Dali::Adaptor::SurfaceResizeComplete
    */
-  void SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
+  void SurfaceResizeComplete(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize);
 
   /**
    * @brief Increase surface resize completed counter.
@@ -496,7 +492,7 @@ public: //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetGraphicsInterface()
    */
-  GraphicsInterface& GetGraphicsInterface() override;
+  Dali::Graphics::GraphicsInterface& GetGraphicsInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetTriggerEventInterface()
@@ -511,7 +507,7 @@ public: //AdaptorInternalServices
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetRenderSurfaceInterface()
    */
-  Dali::RenderSurfaceInterface* GetRenderSurfaceInterface() override;
+  Dali::Integration::RenderSurfaceInterface* GetRenderSurfaceInterface() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::AdaptorInternalServices::GetPerformanceInterface()
@@ -635,7 +631,7 @@ private:
    * Assigns the render surface to the adaptor
    *
    */
-  void SetSurface(Dali::RenderSurfaceInterface* surface);
+  void SetSurface(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * called after surface is created
@@ -695,7 +691,7 @@ private:
    * @param[in]  environmentOptions  A pointer to the environment options. If NULL then one is created.
    * @param[in]  threadMode   The ThreadMode of the Adaptor
    */
-  Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode);
+  Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode);
 
 private: // Types
   enum State
@@ -724,9 +720,9 @@ private:                                          // Data
   Dali::Integration::Core* mCore;             ///< Dali Core
   ThreadController*        mThreadController; ///< Controls the threads
 
-  std::unique_ptr<GraphicsInterface> mGraphics;          ///< Graphics interface
-  Dali::DisplayConnection*           mDisplayConnection; ///< Display connection
-  WindowContainer                    mWindows;           ///< A container of all the Windows that are currently created
+  std::unique_ptr<Dali::Graphics::GraphicsInterface> mGraphics;          ///< Graphics interface
+  Dali::DisplayConnection*                           mDisplayConnection; ///< Display connection
+  WindowContainer                                    mWindows;           ///< A container of all the Windows that are currently created
 
   std::unique_ptr<ConfigurationManager> mConfigurationManager; ///< Configuration manager
 

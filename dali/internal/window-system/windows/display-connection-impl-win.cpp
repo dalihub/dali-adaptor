@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,10 @@
 #include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-graphics.h>
+
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/common/egl-include.h>
+#endif
 
 namespace Dali
 {
@@ -32,67 +35,43 @@ namespace Adaptor
 {
 DisplayConnection* DisplayConnectionWin::New()
 {
-  DisplayConnection* pDisplayConnection(new DisplayConnectionWin());
+  auto* pDisplayConnection(new DisplayConnectionWin());
 
-  return pDisplayConnection;
+  return static_cast<DisplayConnection*>(pDisplayConnection);
 }
 
 DisplayConnectionWin::DisplayConnectionWin()
-: mDisplay(NULL)
+: mDisplay(nullptr),
+  mGraphics(nullptr)
 {
 }
 
-DisplayConnectionWin::~DisplayConnectionWin()
-{
-}
+DisplayConnectionWin::~DisplayConnectionWin() = default;
 
 Any DisplayConnectionWin::GetDisplay()
 {
   return Any(mDisplay);
 }
 
+Any DisplayConnectionWin::GetNativeGraphicsDisplay()
+{
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {eglGetDisplay(mDisplay)};
+#endif
+}
+
 void DisplayConnectionWin::ConsumeEvents()
 {
 }
 
-bool DisplayConnectionWin::InitializeEgl(EglInterface& egl)
+void DisplayConnectionWin::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
-  EglImplementation& eglImpl = static_cast<EglImplementation&>(egl);
-
-  if(!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
-}
-
-bool DisplayConnectionWin::InitializeGraphics()
-{
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(reinterpret_cast<EGLNativeDisplayType>(mDisplay)))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
-}
-
-void DisplayConnectionWin::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
-{
-  if(type == Dali::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
+  if(type == Dali::Integration::RenderSurfaceInterface::WINDOW_RENDER_SURFACE)
   {
     mDisplay = GetDC(GetForegroundWindow());
   }
-}
-
-void DisplayConnectionWin::SetGraphicsInterface(GraphicsInterface& graphics)
-{
-  mGraphics = &graphics;
 }
 
 } // namespace Adaptor

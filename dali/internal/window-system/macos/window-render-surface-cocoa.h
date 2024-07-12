@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,12 @@ public:
   WindowRenderSurfaceCocoa(Dali::PositionSize positionSize, Any surface, bool isTransparent = true);
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::StartRender()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::StartRender()
    */
   void StartRender() override;
 
   /**
-   * @copydoc Dali::RenderSurfaceInterface::CreateSurface()
+   * @copydoc Dali::Integration::RenderSurfaceInterface::CreateSurface()
    */
   void CreateSurface() override;
 

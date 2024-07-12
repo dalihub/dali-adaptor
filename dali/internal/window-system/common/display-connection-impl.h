@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_COMMON_DISPLAY_CONNECTION_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/public-api/object/base-object.h>
 
@@ -27,9 +26,7 @@ namespace Dali
 {
 class DisplayConnection;
 
-namespace Internal
-{
-namespace Adaptor
+namespace Internal::Adaptor
 {
 /**
  * DisplayConnection implementation
@@ -42,13 +39,6 @@ public:
    */
   DisplayConnection() = default;
 
-  /**
-   * @brief Create an initialized DisplayConnection.
-   *
-   * @return A handle to a newly allocated DisplayConnection resource.
-   */
-  static DisplayConnection* New();
-
 public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
@@ -56,26 +46,22 @@ public:
   virtual Any GetDisplay() = 0;
 
   /**
+   * @brief Get display for the graphics backend
+   *
+   * @return EGLNativeDisplayType or vulkan display type
+   */
+  virtual Any GetNativeGraphicsDisplay() = 0;
+
+  /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
   virtual void ConsumeEvents() = 0;
 
   /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  virtual bool InitializeGraphics() = 0;
-
-  /**
    * Sets the render surface type
    * @param[in] type The render surface type
    */
-  virtual void SetSurfaceType(Dali::RenderSurfaceInterface::Type type) = 0;
-
-  /**
-   * Sets the graphics interface
-   * @param[in] graphics The graphics interface
-   */
-  virtual void SetGraphicsInterface(GraphicsInterface& graphics) = 0;
+  virtual void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) = 0;
 
 public:
   /**
@@ -83,7 +69,6 @@ public:
    */
   ~DisplayConnection() override = default;
 
-protected:
   // Undefined
   DisplayConnection(const DisplayConnection&) = delete;
 
@@ -91,9 +76,7 @@ protected:
   DisplayConnection& operator=(const DisplayConnection& rhs) = delete;
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace Internal::Adaptor
 
 } // namespace Dali
 

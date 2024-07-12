@@ -386,25 +386,25 @@ public: // Signals
   }
 
 private:
-  std::unique_ptr<WindowBase>              mWindowBase;
-  std::unique_ptr<GraphicsInterface>       mGraphics;             ///< Graphics interface
-  std::unique_ptr<Dali::DisplayConnection> mDisplayConnection;    ///< The native display connection
-  std::unique_ptr<GlWindowRenderThread>    mGlWindowRenderThread; ///< The render thread
-  EventHandlerPtr                          mEventHandler;         ///< The window events handler
-  Dali::Window                             mChildWindow;          ///< The default child UI Window
-  std::string                              mName;
-  std::string                              mClassName;
-  bool                                     mIsTransparent : 1;
-  bool                                     mIsFocusAcceptable : 1;
-  bool                                     mIconified : 1;
-  bool                                     mOpaqueState : 1;
-  bool                                     mResizeEnabled : 1;
-  bool                                     mVisible : 1;
-  bool                                     mIsWindowRotated : 1;
-  bool                                     mIsTouched : 1;
-  bool                                     mIsEGLInitialized : 1;
-  bool                                     mDepth : 1;
-  bool                                     mStencil : 1;
+  std::unique_ptr<WindowBase>                  mWindowBase;
+  std::unique_ptr<Graphics::GraphicsInterface> mGraphics;             ///< Graphics interface
+  std::unique_ptr<Dali::DisplayConnection>     mDisplayConnection;    ///< The native display connection
+  std::unique_ptr<GlWindowRenderThread>        mGlWindowRenderThread; ///< The render thread
+  EventHandlerPtr                              mEventHandler;         ///< The window events handler
+  Dali::Window                                 mChildWindow;          ///< The default child UI Window
+  std::string                                  mName;
+  std::string                                  mClassName;
+  bool                                         mIsTransparent : 1;
+  bool                                         mIsFocusAcceptable : 1;
+  bool                                         mIconified : 1;
+  bool                                         mOpaqueState : 1;
+  bool                                         mResizeEnabled : 1;
+  bool                                         mVisible : 1;
+  bool                                         mIsWindowRotated : 1;
+  bool                                         mIsTouched : 1;
+  bool                                         mIsEGLInitialized : 1;
+  bool                                         mDepth : 1;
+  bool                                         mStencil : 1;
 
   PositionSize                  mPositionSize; ///< The window position and size
   EnvironmentOptions            mEnvironmentOptions;

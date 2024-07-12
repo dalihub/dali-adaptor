@@ -18,8 +18,6 @@
 // CLASS HEADER
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/addons/common/addon-manager-factory.h>
-#include <dali/internal/addons/common/addon-manager-impl.h>
 
 // EXTERNAL INCLUDES
 #include <dali/devel-api/actors/actor-devel.h>
@@ -39,29 +37,33 @@
 #include <dali/public-api/events/wheel-event.h>
 #include <dali/public-api/object/any.h>
 #include <dali/public-api/object/object-registry.h>
-#include <errno.h>
+
 #include <sys/stat.h>
+#include <cerrno>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/common/lifecycle-observer.h>
-#include <dali/internal/adaptor/common/thread-controller-interface.h>
-#include <dali/internal/system/common/performance-interface-factory.h>
-#include <dali/internal/system/common/thread-controller.h>
 #include <dali/public-api/dali-adaptor-common.h>
 
-#include <dali/internal/graphics/gles/egl-graphics-factory.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
-
+#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/devel-api/text-abstraction/font-client.h>
 
 #include <dali/internal/accessibility/common/tts-player-impl.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles/egl-sync-implementation.h>
-#include <dali/internal/graphics/gles/gl-implementation.h>
-#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
+#include <dali/internal/adaptor/common/lifecycle-observer.h>
+#include <dali/internal/adaptor/common/thread-controller-interface.h>
+#include <dali/internal/addons/common/addon-manager-factory.h>
+#include <dali/internal/addons/common/addon-manager-impl.h>
+#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
+#include <dali/internal/imaging/common/image-loader.h>
 #include <dali/internal/system/common/callback-manager.h>
+#include <dali/internal/system/common/configuration-manager.h>
+#include <dali/internal/system/common/environment-variables.h>
+#include <dali/internal/system/common/locale-utils.h>
+#include <dali/internal/system/common/logging.h>
 #include <dali/internal/system/common/object-profiler.h>
+#include <dali/internal/system/common/performance-interface-factory.h>
 #include <dali/internal/system/common/system-factory.h>
+#include <dali/internal/system/common/thread-controller.h>
 #include <dali/internal/window-system/common/display-connection.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
 #include <dali/internal/window-system/common/event-handler.h>
@@ -69,45 +71,35 @@
 #include <dali/internal/window-system/common/window-render-surface.h>
 #include <dali/internal/window-system/common/window-system.h>
 
-#include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
-#include <dali/internal/system/common/logging.h>
-
-#include <dali/internal/imaging/common/image-loader-plugin-proxy.h>
-#include <dali/internal/imaging/common/image-loader.h>
-#include <dali/internal/system/common/locale-utils.h>
-
-#include <dali/devel-api/adaptor-framework/environment-variable.h>
-#include <dali/internal/system/common/configuration-manager.h>
-#include <dali/internal/system/common/environment-variables.h>
+#if defined(VULKAN_ENABLED)
+#else
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#include <dali/internal/graphics/gles/gl-implementation.h>
+#include <dali/internal/graphics/gles/gl-proxy-implementation.h>
+#endif
 
 using Dali::TextAbstraction::FontClient;
 
 extern std::string GetSystemCachePath();
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 namespace
 {
-thread_local Adaptor* gThreadLocalAdaptor = NULL; // raw thread specific pointer to allow Adaptor::Get
+thread_local Adaptor* gThreadLocalAdaptor = nullptr; // raw thread specific pointer to allow Adaptor::Get
 
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
 } // unnamed namespace
 
-Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
+Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;
   Adaptor*       impl    = new Adaptor(window, *adaptor, surface, environmentOptions, threadMode);
   adaptor->mImpl         = impl;
 
-  Dali::Internal::Adaptor::AdaptorBuilder* mAdaptorBuilder = new AdaptorBuilder(*(impl->mEnvironmentOptions));
-  auto                                     graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
-
+  AdaptorBuilder& adaptorBuilder  = AdaptorBuilder::Get(*(impl->mEnvironmentOptions));
+  auto&           graphicsFactory = adaptorBuilder.GetGraphicsFactory();
   impl->Initialize(graphicsFactory);
-  delete mAdaptorBuilder; // Not needed anymore as the graphics interface has now been created
 
   return adaptor;
 }
@@ -120,7 +112,7 @@ Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, EnvironmentOp
   return adaptor;
 }
 
-Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
+Dali::Adaptor* Adaptor::New(GraphicsFactoryInterface& graphicsFactory, Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 {
   Dali::Adaptor* adaptor = new Dali::Adaptor;                                                      // Public adaptor
   Adaptor*       impl    = new Adaptor(window, *adaptor, surface, environmentOptions, threadMode); // Impl adaptor
@@ -131,7 +123,7 @@ Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration:
   return adaptor;
 } // Called second
 
-Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions)
+Dali::Adaptor* Adaptor::New(GraphicsFactoryInterface& graphicsFactory, Dali::Integration::SceneHolder window, EnvironmentOptions* environmentOptions)
 {
   Internal::Adaptor::SceneHolder& windowImpl = Dali::GetImplementation(window);
   Dali::Adaptor*                  adaptor    = New(graphicsFactory, window, windowImpl.GetSurface(), environmentOptions, ThreadMode::NORMAL);
@@ -139,7 +131,7 @@ Dali::Adaptor* Adaptor::New(GraphicsFactory& graphicsFactory, Dali::Integration:
   return adaptor;
 } // Called first
 
-void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
+void Adaptor::Initialize(GraphicsFactoryInterface& graphicsFactory)
 {
   // all threads here (event, update, and render) will send their logs to TIZEN Platform's LogMessage handler.
   Dali::Integration::Log::LogFunction logFunction(Dali::TizenPlatform::LogMessage);
@@ -166,7 +158,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
 
   DALI_ASSERT_DEBUG(defaultWindow->GetSurface() && "Surface not initialized");
 
-  mGraphics = std::unique_ptr<GraphicsInterface>(&graphicsFactory.Create());
+  mGraphics = std::unique_ptr<Graphics::GraphicsInterface>(&graphicsFactory.Create());
 
   // Create the AddOnManager
   mAddOnManager.reset(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
@@ -219,7 +211,7 @@ void Adaptor::Initialize(GraphicsFactory& graphicsFactory)
 
   mNotificationTrigger = TriggerEventFactory::CreateTriggerEvent(MakeCallback(this, &Adaptor::ProcessCoreEvents), TriggerEventInterface::KEEP_ALIVE_AFTER_TRIGGER);
 
-  mDisplayConnection = Dali::DisplayConnection::New(*mGraphics, defaultWindow->GetSurface()->GetSurfaceType());
+  mDisplayConnection = Dali::DisplayConnection::New(defaultWindow->GetSurface()->GetSurfaceType());
 
   mThreadController = new ThreadController(*this, *mEnvironmentOptions, mThreadMode);
 
@@ -424,7 +416,7 @@ void Adaptor::Start()
   }
 
   // cache advanced blending and shader language version
-  mGraphics->CacheConfigurations(*mConfigurationManager.get());
+  mGraphics->CacheConfigurations(*mConfigurationManager);
 
   ProcessCoreEvents(); // Ensure any startup messages are processed.
 
@@ -607,7 +599,7 @@ void Adaptor::FeedKeyEvent(Dali::KeyEvent& keyEvent)
   mWindows.front()->FeedKeyEvent(convertedEvent);
 }
 
-void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& newSurface)
+void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface& newSurface)
 {
   Internal::Adaptor::SceneHolder* windowImpl = &Dali::GetImplementation(window);
   for(auto windowPtr : mWindows)
@@ -629,7 +621,7 @@ void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::Render
   }
 }
 
-void Adaptor::DeleteSurface(Dali::RenderSurfaceInterface& surface)
+void Adaptor::DeleteSurface(Dali::Integration::RenderSurfaceInterface& surface)
 {
   // Flush the event queue to give the update-render thread chance
   // to start processing messages for new camera setup etc as soon as possible
@@ -639,7 +631,7 @@ void Adaptor::DeleteSurface(Dali::RenderSurfaceInterface& surface)
   mThreadController->DeleteSurface(&surface);
 }
 
-Dali::RenderSurfaceInterface& Adaptor::GetSurface() const
+Dali::Integration::RenderSurfaceInterface& Adaptor::GetSurface() const
 {
   return *mWindows.front()->GetSurface();
 }
@@ -709,7 +701,7 @@ bool Adaptor::AddWindow(Dali::Integration::SceneHolder childWindow)
     mWindows.push_back(&windowImpl);
   }
 
-  Dali::RenderSurfaceInterface* surface = windowImpl.GetSurface();
+  Dali::Integration::RenderSurfaceInterface* surface = windowImpl.GetSurface();
 
   mThreadController->AddSurface(surface);
 
@@ -796,10 +788,10 @@ Dali::DisplayConnection& Adaptor::GetDisplayConnectionInterface()
   return *mDisplayConnection;
 }
 
-GraphicsInterface& Adaptor::GetGraphicsInterface()
+Dali::Graphics::GraphicsInterface& Adaptor::GetGraphicsInterface()
 {
   DALI_ASSERT_DEBUG(mGraphics && "Graphics interface not created");
-  return *(mGraphics.get());
+  return *mGraphics;
 }
 
 Dali::Integration::PlatformAbstraction& Adaptor::GetPlatformAbstractionInterface()
@@ -817,7 +809,7 @@ SocketFactoryInterface& Adaptor::GetSocketFactoryInterface()
   return mSocketFactory;
 }
 
-Dali::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
+Dali::Integration::RenderSurfaceInterface* Adaptor::GetRenderSurfaceInterface()
 {
   if(!mWindows.empty())
   {
@@ -896,13 +888,16 @@ Any Adaptor::GetGraphicsDisplay()
 
   if(mGraphics)
   {
-    GraphicsInterface* graphics    = mGraphics.get(); // This interface is temporary until Core has been updated to match
-    auto               eglGraphics = static_cast<EglGraphics*>(graphics);
+#if defined(VULKAN_ENABLED)
+    //@todo Implement this!
+#else
+    auto graphics    = mGraphics.get();
+    auto eglGraphics = static_cast<EglGraphics*>(graphics);
 
     EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
     display                    = eglImpl.GetDisplay();
+#endif
   }
-
   return display;
 }
 
@@ -1091,12 +1086,13 @@ void Adaptor::OnDamaged(const DamageArea& area)
   RequestUpdate();
 }
 
-void Adaptor::SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
+void Adaptor::SurfaceResizePrepare(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
   mResizedSignal.Emit(mAdaptor);
+  // @todo inform graphics device...
 }
 
-void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
+void Adaptor::SurfaceResizeComplete(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
   // Nofify surface resizing before flushing event queue
   mThreadController->ResizeSurface();
@@ -1302,7 +1298,7 @@ Dali::ObjectRegistry Adaptor::GetObjectRegistry() const
   return registry;
 }
 
-Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
+Adaptor::Adaptor(Dali::Integration::SceneHolder window, Dali::Adaptor& adaptor, Dali::Integration::RenderSurfaceInterface* surface, EnvironmentOptions* environmentOptions, ThreadMode threadMode)
 : mResizedSignal(),
   mLanguageChangedSignal(),
   mWindowCreatedSignal(),
@@ -1383,8 +1379,4 @@ bool Adaptor::MemoryPoolTimeout()
   return true; // Keep logging forever
 }
 
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

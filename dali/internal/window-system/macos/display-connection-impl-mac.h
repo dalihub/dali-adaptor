@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/gles/egl-implementation.h>
 #include <dali/internal/window-system/common/display-connection-impl.h>
-#include <dali/public-api/object/base-object.h>
 
 namespace Dali::Internal::Adaptor
 {
@@ -46,48 +45,34 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
+
+  /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeEgl
-   */
-  bool InitializeEgl(EglInterface& egl);
-
-  /**
-  * @copydoc Dali::DisplayConnection::InitializeGraphics
-  */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
   * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetSurfaceType
   */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-  * @copydoc Dali::Internal::Adaptor::DisplayConnection::SetGraphicsInterface
-  */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionCocoa();
+  ~DisplayConnectionCocoa() override;
 
-private:
   // Undefined
   DisplayConnectionCocoa(const DisplayConnectionCocoa&) = delete;
 
   // Undefined
   DisplayConnectionCocoa& operator=(const DisplayConnectionCocoa& rhs) = delete;
-
-private:
-  GraphicsInterface* mGraphics; ///< The graphics interface
 };
 
 } // namespace Dali::Internal::Adaptor

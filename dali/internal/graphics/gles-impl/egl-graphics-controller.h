@@ -89,7 +89,7 @@ public:
    * Note, this is now executed in the render thread, after core initialization
    */
   void Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
-                  Internal::Adaptor::GraphicsInterface& graphicsInterface);
+                  Graphics::GraphicsInterface&          graphicsInterface);
 
   /**
    * Used to access GL implementation
@@ -356,7 +356,7 @@ public:
     return mGlAbstraction;
   }
 
-  [[nodiscard]] Internal::Adaptor::GraphicsInterface* GetGraphicsInterface() const
+  [[nodiscard]] Graphics::GraphicsInterface* GetGraphicsInterface() const
   {
     return mGraphics;
   }
@@ -797,14 +797,14 @@ public:
    *
    * @param[in] surface The surface whose GLES context to be created.
    */
-  void CreateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+  void CreateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * Deletes a GLES context
    *
    * @param[in] surface The surface whose GLES context to be deleted.
    */
-  void DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface);
+  void DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * Activate the resource context (shared surfaceless context)
@@ -816,7 +816,7 @@ public:
    *
    * @param[in] surface The surface whose context to be switched to.
    */
-  void ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface);
+  void ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface);
 
   /**
    * @brief Returns the current context
@@ -853,7 +853,7 @@ private:
   Integration::GlContextHelperAbstraction* mGlContextHelperAbstraction{nullptr};
 
   Internal::Adaptor::EglSyncImplementation* mEglSyncImplementation{nullptr};
-  Internal::Adaptor::GraphicsInterface*     mGraphics{nullptr}; // Pointer to owning structure via interface.
+  Graphics::GraphicsInterface*              mGraphics{nullptr}; // Pointer to owning structure via interface.
 
   std::queue<GLES::Texture*>         mCreateTextureQueue; ///< Create queue for texture resource
   std::unordered_set<GLES::Texture*> mDiscardTextureSet;  ///< Discard queue for texture resource
@@ -882,7 +882,7 @@ private:
 
   GLES::Context*                 mCurrentContext{nullptr}; ///< The current context
   std::unique_ptr<GLES::Context> mContext{nullptr};        ///< Context object handling command buffers execution
-  using SurfaceContextPair = std::pair<Dali::RenderSurfaceInterface*, std::unique_ptr<GLES::Context>>;
+  using SurfaceContextPair = std::pair<Dali::Integration::RenderSurfaceInterface*, std::unique_ptr<GLES::Context>>;
   std::vector<SurfaceContextPair> mSurfaceContexts; ///< Vector of surface context objects handling command buffers execution
 
   std::unique_ptr<GLES::PipelineCache> mPipelineCache{nullptr}; ///< Internal pipeline cache
