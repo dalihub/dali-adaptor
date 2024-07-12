@@ -222,10 +222,6 @@ struct DummyBridge : Dali::Accessibility::Bridge
     return {};
   }
 
-  void EmbedAtkSocket(const Address& plug, const Address& socket) override
-  {
-  }
-
   void UnembedSocket(const Address& plug, const Address& socket) override
   {
   }
