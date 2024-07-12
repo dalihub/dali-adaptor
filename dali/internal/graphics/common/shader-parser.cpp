@@ -15,6 +15,7 @@
 *
 */
 
+#include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/common/shader-parser.h>
 #include <sstream>
 
@@ -258,6 +259,40 @@ bool ProcessTokenOUTPUT(IT& it, Program& program, OutputLanguage lang, ShaderSta
 }
 
 template<class IT>
+bool ProcessTokenUNIFORM(IT& it, Program& program, OutputLanguage lang, ShaderStage stage)
+{
+  auto& l = *it;
+  if(l.tokens.size())
+  {
+    auto token = GetToken(l, 0);
+    if(token == "UNIFORM")
+    {
+      int&              binding = program.samplerBinding;
+      std::string&      outStr  = (stage == ShaderStage::VERTEX) ? program.vertexShader.output : program.fragmentShader.output;
+      std::stringstream ss;
+      {
+        if(lang == OutputLanguage::GLSL2 || lang == OutputLanguage::GLSL3)
+        {
+          ss << "uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          outStr += ss.str();
+        }
+        else if(lang == OutputLanguage::SPIRV_GLSL)
+        {
+          ss << "layout(binding = " << binding++ << ") uniform" << l.line.substr(l.tokens[0].first + l.tokens[0].second).c_str() << "\n";
+          outStr += ss.str();
+        }
+        else
+        {
+          DALI_LOG_ERROR("UNIFORM can't be interpreted for selected shader dialect!");
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+template<class IT>
 bool ProcessTokenUNIFORM_BLOCK(IT& it, Program& program, OutputLanguage lang, ShaderStage stage)
 {
   auto&             l       = *it;
@@ -412,6 +447,10 @@ void ProcessStage(Program& program, ShaderStage stage, OutputLanguage language)
     if(!res)
     {
       res = ProcessTokenUNIFORM_BLOCK(it, program, language, stage);
+    }
+    if(!res)
+    {
+      res = ProcessTokenUNIFORM(it, program, language, stage);
     }
     if(!res)
     {

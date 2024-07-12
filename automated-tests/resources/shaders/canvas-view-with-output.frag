@@ -12,7 +12,7 @@ UNIFORM_BLOCK FragBlock
 };
 
 INPUT mediump vec2 vTexCoord;
-uniform sampler2D sTexture;
+UNIFORM sampler2D sTexture;
 
 OUTPUT mediump vec4 fragColor;
 

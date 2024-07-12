@@ -8,7 +8,7 @@ layout(set=0, binding=1, std140) uniform FragBlock
 };
 
 layout(location = 0) in mediump vec2 vTexCoord;
-uniform sampler2D sTexture;
+layout(binding = 0) uniform sampler2D sTexture;
 
 #define gl_FragColor _glFragColor
 out mediump vec4 _glFragColor;
