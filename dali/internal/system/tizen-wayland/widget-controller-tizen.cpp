@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/actors/layer.h>
 #include <bundle.h>
+#include <unistd.h>
 #include <widget_base.h>
 
 // INTERNAL INCLUDES
@@ -74,7 +75,7 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   mWidgetId = widgetId;
 
   auto bridge           = Accessibility::Bridge::GetCurrentBridge();
-  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId);
+  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
 
   // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
   // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.

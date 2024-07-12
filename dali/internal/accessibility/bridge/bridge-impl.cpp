@@ -750,13 +750,6 @@ public:
     return std::get<0>(reply.getValues());
   }
 
-  void EmbedAtkSocket(const Address& plug, const Address& socket) override
-  {
-    auto client = CreateSocketClient(socket);
-
-    client.method<void(std::string)>("Embedded").asyncCall([](DBus::ValueOrError<void>) {}, ATSPI_PREFIX_PATH + plug.GetPath());
-  }
-
   void UnembedSocket(const Address& plug, const Address& socket) override
   {
     auto client = CreateSocketClient(socket);
@@ -930,12 +923,12 @@ void Bridge::EnableAutoInit()
   }
 }
 
-std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId)
+std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId)
 {
   // The bus name should consist of dot-separated alphanumeric elements, e.g. "com.example.BusName123".
-  // Allowed characters in each element: "[A-Z][a-z][0-9]_", but no element may start with a digit.
+  // Allowed characters in each element: "[A-Z][a-z][0-9]_-", but no element may start with a digit.
 
-  static const char prefix[]   = "com.samsung.dali.widget_";
+  static const char prefix[]   = "elm.atspi.proxy.socket-";
   static const char underscore = '_';
 
   std::stringstream tmp;
@@ -944,8 +937,10 @@ std::string Bridge::MakeBusNameForWidget(std::string_view widgetInstanceId)
 
   for(char ch : widgetInstanceId)
   {
-    tmp << (std::isalnum(ch) ? ch : underscore);
+    tmp << (!std::isalnum(ch) && ch != '_' && ch != '-' && ch != '.' ? underscore : ch);
   }
+
+  tmp << '-' << widgetProcessId;
 
   return tmp.str();
 }

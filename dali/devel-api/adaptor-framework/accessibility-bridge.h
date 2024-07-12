@@ -399,17 +399,6 @@ struct DALI_ADAPTOR_API Bridge
   virtual Address EmbedSocket(const Address& plug, const Address& socket) = 0;
 
   /**
-   * @brief Calls socket.Embedded(plug) via D-Bus.
-   *
-   * The "Embedded" D-Bus method is an ATK extension.
-   * See 'impl_Embedded' in AT_SPI2_ATK/atk-adaptor/adaptors/socket-adaptor.c for more information.
-   *
-   * @param[in] plug The plug
-   * @param[in] socket The socket
-   */
-  virtual void EmbedAtkSocket(const Address& plug, const Address& socket) = 0;
-
-  /**
    * @brief Calls socket.Unmbed(plug) via D-Bus.
    *
    * @param[in] plug The plug
@@ -501,11 +490,12 @@ struct DALI_ADAPTOR_API Bridge
    * @brief Encodes a widget ID as a usable bus name.
    *
    * @param widgetInstanceId The instance ID of a widget
+   * @param widgetProcessId The process ID (PID) of the widget
    * @return std::string Encoded bus name
    *
    * @see SetPreferredBusName
    */
-  static std::string MakeBusNameForWidget(std::string_view widgetInstanceId);
+  static std::string MakeBusNameForWidget(std::string_view widgetInstanceId, int widgetProcessId);
 
   static Signal<void()>& EnabledSignal()
   {
