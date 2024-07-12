@@ -24,6 +24,7 @@
 #include <dlfcn.h>
 #include <dlog.h>
 #include <tizen.h>
+#include <unistd.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/accessibility-bridge.h>
@@ -116,7 +117,7 @@ void WidgetImplTizen::SetInformation(Dali::Window window, const std::string& wid
   mWidgetId = widgetId;
 
   auto bridge           = Accessibility::Bridge::GetCurrentBridge();
-  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId);
+  auto preferredBusName = Accessibility::Bridge::MakeBusNameForWidget(widgetId, getpid());
 
   // Ensure the bridge is at least in an unlocked state. Normal application callbacks that would
   // call Bridge::ApplicationPaused/Resumed() elsewhere are not operational in widget scenarios.
