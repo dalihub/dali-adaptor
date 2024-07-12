@@ -353,9 +353,6 @@ private:
   using FrameCallbackInfoContainer = std::vector<std::unique_ptr<FrameCallbackInfo>>;
 
 private: // Data
-         //  EglInterface*                          mEGL;
-         //  EGLSurface                             mEGLSurface;
-         //  EGLContext                             mEGLContext;
   Dali::DisplayConnection*               mDisplayConnection;
   PositionSize                           mPositionSize; ///< Position
   std::unique_ptr<WindowBase>            mWindowBase;

@@ -47,7 +47,10 @@ public:
 
   void Initialize(const Dali::DisplayConnection& displayConnection) override;
   void Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa) override;
+
   void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
+
+  Dali::Any GetDisplay() const override;
 
   void ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface) override;
 

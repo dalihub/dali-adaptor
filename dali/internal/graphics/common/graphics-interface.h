@@ -48,16 +48,15 @@ namespace Graphics
 {
 class SurfaceFactory;
 
-
 /**
  * @brief Surface identifier
  *
  * The surface id is used as the index for windows in the vulkan implementation
  */
-using SurfaceId = uint32_t;
-const SurfaceId INVALID_SURFACE_ID=std::numeric_limits<SurfaceId>::max();
+using SurfaceId                    = uint32_t;
+const SurfaceId INVALID_SURFACE_ID = std::numeric_limits<SurfaceId>::max();
 
-enum class  DepthStencilMode
+enum class DepthStencilMode
 {
   /**
    * No depth/stencil at all
@@ -80,7 +79,7 @@ enum class  DepthStencilMode
   DEPTH_STENCIL_EXPLICIT,
 };
 
-enum class  SwapchainBufferingMode
+enum class SwapchainBufferingMode
 {
   OPTIMAL = 0,
 
@@ -89,15 +88,14 @@ enum class  SwapchainBufferingMode
   TRIPLE_BUFFERING = 3,
 };
 
-
 struct GraphicsCreateInfo
 {
-  uint32_t                    surfaceWidth;
-  uint32_t                    surfaceHeight;
-  DepthStencilMode            depthStencilMode;
-  SwapchainBufferingMode      swapchainBufferingMode;
-  ColorDepth                  colorDepth;
-  int                         multiSamplingLevel;
+  uint32_t               surfaceWidth;
+  uint32_t               surfaceHeight;
+  DepthStencilMode       depthStencilMode;
+  SwapchainBufferingMode swapchainBufferingMode;
+  ColorDepth             colorDepth;
+  int                    multiSamplingLevel;
 };
 
 /**
@@ -110,8 +108,8 @@ public:
    * Constructor
    */
   GraphicsInterface(
-    const GraphicsCreateInfo& info,
-    Integration::DepthBufferAvailable depthBufferRequired,
+    const GraphicsCreateInfo&           info,
+    Integration::DepthBufferAvailable   depthBufferRequired,
     Integration::StencilBufferAvailable stencilBufferRequired,
     Integration::PartialUpdateAvailable partialUpdateRequired)
   : mCreateInfo(info),
@@ -152,6 +150,12 @@ public:
    * @param displayConnection
    */
   virtual void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) = 0;
+
+  /**
+   * Get the graphics display handle. It will be a type in the specific graphics backend,
+   * e.g. EGLDisplay.
+   */
+  virtual Dali::Any GetDisplay() const = 0;
 
   /**
    * Configure the graphics surface

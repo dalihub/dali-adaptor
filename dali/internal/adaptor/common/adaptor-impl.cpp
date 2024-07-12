@@ -888,15 +888,7 @@ Any Adaptor::GetGraphicsDisplay()
 
   if(mGraphics)
   {
-#if defined(VULKAN_ENABLED)
-    //@todo Implement this!
-#else
-    auto graphics    = mGraphics.get();
-    auto eglGraphics = static_cast<EglGraphics*>(graphics);
-
-    EglImplementation& eglImpl = eglGraphics->GetEglImplementation();
-    display                    = eglImpl.GetDisplay();
-#endif
+    display = mGraphics->GetDisplay();
   }
   return display;
 }

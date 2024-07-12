@@ -40,10 +40,9 @@ GraphicsFactory::~GraphicsFactory()
 Graphics::GraphicsInterface& GraphicsFactory::Create()
 {
   Graphics::GraphicsCreateInfo info{};
-  auto                         depthBufferRequired = (mEnvironmentOptions.DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
 
+  auto depthBufferRequired   = (mEnvironmentOptions.DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
   auto stencilBufferRequired = (mEnvironmentOptions.StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
-
   auto partialUpdateRequired = (mEnvironmentOptions.PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
 
   info.multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();

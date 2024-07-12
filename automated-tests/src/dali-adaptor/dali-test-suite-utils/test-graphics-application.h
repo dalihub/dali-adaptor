@@ -86,6 +86,11 @@ public:
     mCallstack.PushCall("InitializeGraphicsAPI()", "");
   }
 
+  Dali::Any GetDisplay() const override
+  {
+    return {};
+  }
+
   /**
    * Configure the graphics surface
    *

@@ -486,7 +486,7 @@ bool WindowRenderSurface::PreRender(bool resizingSurface, const std::vector<Rect
     }
   }
 
-  /**
+  /*
    * wl_egl_window_tizen_set_rotation(SetWindowRotation)                -> PreRotation
    * wl_egl_window_tizen_set_buffer_transform(SetWindowBufferTransform) -> Screen Rotation
    * wl_egl_window_tizen_set_window_transform(SetWindowTransform)       -> Window Rotation
