@@ -56,6 +56,14 @@ void CommandBuffer::DiscardResource()
 {
 }
 
+void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
+{
+}
+
+void CommandBuffer::End()
+{
+}
+
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
                                       const std::vector<const Graphics::Buffer*>& buffers,
                                       const std::vector<uint32_t>&                offsets)
@@ -96,7 +104,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
                                     const std::vector<ClearValue>& clearValues)
 {
   //@todo Find a better place to auto-insert begin/end.
-  //mCommandBufferImpl->Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
+  // mCommandBufferImpl->Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit, nullptr );
 
   auto             vulkanRenderPass   = static_cast<Vulkan::RenderPass*>(renderPass);
   auto             vulkanRenderTarget = static_cast<Vulkan::RenderTarget*>(renderTarget);
@@ -142,7 +150,7 @@ void CommandBuffer::BeginRenderPass(Graphics::RenderPass*          renderPass,
 
 void CommandBuffer::EndRenderPass(Graphics::SyncObject* syncObject)
 {
-  //mCommandBufferImpl->EndRenderPass();
+  // mCommandBufferImpl->EndRenderPass();
 }
 
 void CommandBuffer::ExecuteCommandBuffers(std::vector<const Graphics::CommandBuffer*>&& commandBuffers)
