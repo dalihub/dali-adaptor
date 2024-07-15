@@ -67,6 +67,11 @@ void VulkanGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displa
   // Not needed for xlib-xcb surface creation...
 }
 
+Dali::Any VulkanGraphics::GetDisplay() const
+{
+  return {}; // We don't have a display equivalent for vulkan.
+}
+
 void VulkanGraphics::ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   surface->InitializeGraphics(); // Calls CreateSurface below

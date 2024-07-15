@@ -176,6 +176,11 @@ void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayCo
   mEglImplementation->InitializeGles(eglDisplay);
 }
 
+Dali::Any EglGraphics::GetDisplay() const
+{
+  return {mEglImplementation->GetDisplay()};
+}
+
 void EglGraphics::EglInitialize()
 {
   mEglSync            = Utils::MakeUnique<EglSyncImplementation>();

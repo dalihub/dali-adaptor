@@ -407,8 +407,7 @@ Dali::Any WindowBaseCocoa::CreateWindow(int width, int height)
 {
   // XXX: this method is called from a secondary thread, but
   // we can only resize the window from the main thread
-  //PositionSize size(0, 0, width, height);
-  //Resize(size);
+
   return static_cast<void*>(mImpl->mWindow.contentView.layer);
 }
 

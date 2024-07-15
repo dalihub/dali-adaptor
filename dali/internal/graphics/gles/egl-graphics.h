@@ -72,6 +72,11 @@ public:
   void InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection) override;
 
   /**
+   * @copydoc Dali::Graphics::GraphicsInterface::GetDisplay()
+   */
+  Dali::Any GetDisplay() const override;
+
+  /**
    * @copydoc Dali::Graphics::GraphicsInterface::CreateSurface()
    */
   Graphics::SurfaceId CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height) override;
