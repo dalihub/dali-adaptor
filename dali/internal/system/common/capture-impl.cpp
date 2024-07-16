@@ -41,8 +41,8 @@ namespace Adaptor
 {
 namespace
 {
-constexpr int32_t  GL_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 30;
-constexpr uint32_t TIME_OUT_DURATION                        = 1000;
+constexpr int32_t  SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
+constexpr uint32_t TIME_OUT_DURATION                            = 1000;
 } // namespace
 
 Capture::Capture()
@@ -124,6 +124,11 @@ Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
   return mNativeImageSourcePtr;
 }
 
+Dali::Texture Capture::GetTexture() const
+{
+  return mTexture;
+}
+
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
 {
   if(!mPixelBuffer || (mPixelBuffer && !mPixelBuffer.GetBuffer()))
@@ -148,10 +153,17 @@ Dali::Capture::CaptureFinishedSignalType& Capture::FinishedSignal()
 
 void Capture::CreateTexture(const Vector2& size)
 {
-  if(!mNativeImageSourcePtr)
+  if(mFileSave)
   {
-    mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
-    mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
+    if(!mNativeImageSourcePtr)
+    {
+      mNativeImageSourcePtr = Dali::NativeImageSource::New(size.width, size.height, Dali::NativeImageSource::COLOR_DEPTH_DEFAULT);
+      mTexture              = Dali::Texture::New(*mNativeImageSourcePtr);
+    }
+  }
+  else
+  {
+    mTexture = Dali::Texture::New(TextureType::TEXTURE_2D, Pixel::RGBA8888, unsigned(size.width), unsigned(size.height));
   }
 }
 
@@ -284,6 +296,12 @@ bool Capture::IsRenderTaskSetup()
 
 void Capture::SetupResources(const Dali::Vector2& position, const Dali::Vector2& size, const Dali::Vector4& clearColor, Dali::Actor source)
 {
+  if(mFileSave && Dali::Shader::GetShaderLanguageVersion() < SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE)
+  {
+    DALI_LOG_ERROR("GLES is 2.0, we can't use native image source \n");
+    mFileSave = false;
+  }
+
   CreateTexture(size);
 
   CreateFrameBuffer();
@@ -349,6 +367,7 @@ bool Capture::SaveFile()
   {
     return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
   }
+
   return false;
 }
 
