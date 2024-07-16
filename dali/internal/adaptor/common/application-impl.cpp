@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@
 #include <dali/internal/adaptor/common/framework-factory.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/common/lifecycle-controller-impl.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/command-line-options.h>
 #include <dali/internal/system/common/environment-variables.h>
 #include <dali/internal/system/common/system-settings.h>
@@ -104,14 +105,14 @@ void Application::PreInitialize(int* argc, char** argv[])
 #ifdef UI_THREAD_AVAILABLE
     if(isUseUIThread)
     {
-      DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading");
+      DALI_LOG_RELEASE_INFO("PRE_INITIALIZED with UI Threading\n");
       gPreInitializedApplication->mUIThreadLoader = new UIThreadLoader(argc, argv);
       gPreInitializedApplication->mUIThreadLoader->Run([&]() { gPreInitializedApplication->CreateWindow(); });
     }
     else
 #endif
     {
-      DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED");
+      DALI_LOG_RELEASE_INFO("Only PRE_INITIALIZED\n");
       gPreInitializedApplication->CreateWindow(); // Only create window
     }
   }
@@ -265,7 +266,7 @@ void Application::CreateWindow()
   windowData.SetWindowType(mDefaultWindowType);
   windowData.SetFrontBufferRendering(mIsMainWindowFrontBufferRendering);
 
-  DALI_LOG_RELEASE_INFO("Create Default Window");
+  DALI_LOG_RELEASE_INFO("Create Default Window\n");
 
   WindowSystem::Initialize();
   mIsSystemInitialized = true;
@@ -316,7 +317,7 @@ void Application::CreateAdaptor()
 {
   DALI_ASSERT_ALWAYS(mMainWindow && "Window required to create adaptor");
 
-  auto graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  auto& graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder(&Dali::GetImplementation(mMainWindow));
 
@@ -327,7 +328,7 @@ void Application::CreateAdaptor()
 
 void Application::CreateAdaptorBuilder()
 {
-  mAdaptorBuilder = new AdaptorBuilder(*mEnvironmentOptions);
+  mAdaptorBuilder = &AdaptorBuilder::Get(*mEnvironmentOptions);
 }
 
 void Application::MainLoop()
@@ -369,7 +370,7 @@ void Application::OnInit()
   // If an application was pre-initialized, a window was made in advance
   if(mLaunchpadState == Launchpad::NONE)
   {
-    DALI_LOG_RELEASE_INFO("default Window is created in standalone");
+    DALI_LOG_RELEASE_INFO("default Window is created in standalone\n");
     CreateWindow();
   }
 

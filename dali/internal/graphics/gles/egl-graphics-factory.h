@@ -1,8 +1,8 @@
-#ifndef DALI_INTERNAL_GRAPHICS_FACTORY_H
-#define DALI_INTERNAL_GRAPHICS_FACTORY_H
+#ifndef DALI_INTERNAL_EGL_GRAPHICS_FACTORY_H
+#define DALI_INTERNAL_EGL_GRAPHICS_FACTORY_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 class GraphicsFactory : public GraphicsFactoryInterface
 {
@@ -36,7 +32,7 @@ public:
   /**
    * Constructor
    */
-  GraphicsFactory(EnvironmentOptions& environmentOptions);
+  explicit GraphicsFactory(EnvironmentOptions& environmentOptions);
 
   /**
    * Destructor
@@ -46,7 +42,7 @@ public:
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Create()
    */
-  GraphicsInterface& Create() override;
+  Graphics::GraphicsInterface& Create() override;
 
   /**
    * @copydoc Dali::Internal::Adaptor::GraphicsFactoryInterface::Destroy()
@@ -57,10 +53,6 @@ private:
   EnvironmentOptions& mEnvironmentOptions;
 };
 
-} // namespace Adaptor
+} // namespace Dali::Internal::Adaptor
 
-} // namespace Internal
-
-} // namespace Dali
-
-#endif // DALI_INTERNAL_GRAPHICS_FACTORY_H
+#endif // DALI_INTERNAL_EGL_GRAPHICS_FACTORY_H

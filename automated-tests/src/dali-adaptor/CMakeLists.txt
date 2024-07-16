@@ -3,15 +3,16 @@ SET(PKG_NAME "dali-adaptor")
 SET(EXEC_NAME "tct-${PKG_NAME}-core")
 SET(RPM_NAME "core-${PKG_NAME}-tests")
 
+MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
+
 SET(CAPI_LIB "dali-adaptor")
+
 SET(TC_SOURCES
     utc-Dali-Application.cpp
     utc-Dali-EncodedImageBuffer.cpp
-    utc-Dali-Capture.cpp
     utc-Dali-WindowData.cpp
     utc-Dali-FileLoader.cpp
     utc-Dali-GifLoading.cpp
-    utc-Dali-Gl-Window.cpp
     utc-Dali-ImageLoading.cpp
     utc-Dali-Key.cpp
     utc-Dali-NativeImageSource.cpp
@@ -24,6 +25,16 @@ SET(TC_SOURCES
     utc-Dali-Window.cpp
     utc-Dali-WindowSystem.cpp
 )
+
+IF(ENABLE_VULKAN)
+ELSE()
+  LIST(APPEND TC_SOURCES
+    utc-Dali-Gl-Window.cpp
+    utc-Dali-Capture.cpp
+)
+ENDIF()
+
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
 
 LIST(APPEND TC_SOURCES
     dali-test-suite-utils/mesh-builder.cpp
@@ -48,6 +59,7 @@ LIST(APPEND TC_SOURCES
     dali-test-suite-utils/test-native-image.cpp
     dali-test-suite-utils/test-platform-abstraction.cpp
     dali-test-suite-utils/test-render-controller.cpp
+    dali-test-suite-utils/test-render-surface.cpp
     dali-test-suite-utils/test-trace-call-stack.cpp
     dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
     dali-test-suite-utils/adaptor-environment-variable.cpp
@@ -70,9 +82,10 @@ FOREACH(directory ${${CAPI_LIB}_LIBRARY_DIRS})
 ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 
 INCLUDE_DIRECTORIES(
-    ../../../
-    ${${CAPI_LIB}_INCLUDE_DIRS}
-    dali-test-suite-utils
+  ../../../
+  ../../../dali/integration-api/adaptor-framework
+  ${${CAPI_LIB}_INCLUDE_DIRS}
+  dali-test-suite-utils
 )
 
 ADD_EXECUTABLE(${EXEC_NAME} ${EXEC_NAME}.cpp ${TC_SOURCES})

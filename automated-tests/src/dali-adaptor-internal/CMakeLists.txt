@@ -3,6 +3,8 @@ SET(PKG_NAME "dali-adaptor-internal")
 SET(EXEC_NAME "tct-${PKG_NAME}-core")
 SET(RPM_NAME "core-${PKG_NAME}-tests")
 
+MESSAGE(STATUS "ENABLE_VULKAN: ${ENABLE_VULKAN}")
+
 SET(CAPI_LIB "dali-adaptor-internal")
 
 SET(TC_SOURCES
@@ -21,6 +23,15 @@ SET(TC_SOURCES
     utc-Dali-WbmpLoader.cpp
 )
 
+IF(ENABLE_VULKAN)
+ELSE()
+  LIST(APPEND TC_SOURCES
+    utc-Dali-GlImplementation.cpp
+    utc-Dali-GlesImplementation.cpp
+  )
+ENDIF()
+
+SET(TC_SOURCE_LIST ${TC_SOURCES} CACHE STRING "List of test sources")
 
 LIST(APPEND TC_SOURCES
     image-loaders.cpp
@@ -45,6 +56,7 @@ LIST(APPEND TC_SOURCES
     ../dali-adaptor/dali-test-suite-utils/test-native-image.cpp
     ../dali-adaptor/dali-test-suite-utils/test-platform-abstraction.cpp
     ../dali-adaptor/dali-test-suite-utils/test-render-controller.cpp
+    ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
     ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
     ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
 )
@@ -52,11 +64,11 @@ LIST(APPEND TC_SOURCES
 PKG_CHECK_MODULES(${CAPI_LIB} REQUIRED
     dali2-core
     dali2-adaptor
-    ecore
     freetype2>=9.16.3
+    ecore
+    ecore-x
+    glesv2
 )
-
-
 
 ADD_COMPILE_OPTIONS( -O0 -ggdb --coverage -Wall -Werror )
 ADD_COMPILE_OPTIONS( ${${CAPI_LIB}_CFLAGS_OTHER} )
@@ -74,6 +86,7 @@ ENDFOREACH(directory ${CAPI_LIB_LIBRARY_DIRS})
 INCLUDE_DIRECTORIES(
     ../../../
     ../../../third-party/image-resampler
+  ../../../dali/integration-api/adaptor-framework
     ${${CAPI_LIB}_INCLUDE_DIRS}
     ../dali-adaptor/dali-test-suite-utils
 )

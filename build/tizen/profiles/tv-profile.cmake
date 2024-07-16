@@ -1,4 +1,4 @@
-# PROFILE: IVI
+# PROFILE: TV
 
 # Set the sources
 SET( SOURCES
@@ -50,6 +50,13 @@ SET( SOURCES
     ${adaptor_addons_tizen_src_files}
     ${static_libraries_libunibreak_src_files}
      )
+
+IF( NOT ENABLE_VULKAN )
+  SET(SOURCES ${SOURCES}
+    ${adaptor_public_api_egl_src_files}
+    ${adaptor_system_common_egl_src_files}
+  )
+ENDIF()
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}
@@ -117,4 +124,3 @@ ELSE()
   MESSAGE (HYPHEN_DIC: "${HYPHEN_DIC}")
 
 ENDIF()
-

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_EGL_IMPLEMENTATION_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,9 @@
  */
 
 // EXTERNAL INCLUDES
-#include <dali/public-api/common/list-wrapper.h>
-#include <dali/public-api/common/vector-wrapper.h>
-
 #include <dali/integration-api/core-enumerations.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/public-api/common/dali-vector.h>
-#include <dali/public-api/common/vector-wrapper.h>
-#include <dali/public-api/math/rect.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/egl-interface.h>
@@ -80,17 +75,17 @@ public:
     * Create the OpenGL context for the window.
     * @return true if successful
     */
-  bool CreateWindowContext(EGLContext& mEglContext);
+  bool CreateWindowContext(EGLContext& mEglContext) override;
 
   /**
     * Destroy the OpenGL context.
     */
-  void DestroyContext(EGLContext& eglContext);
+  void DestroyContext(EGLContext& eglContext) override;
 
   /**
     * Destroy the OpenGL surface.
     */
-  void DestroySurface(EGLSurface& eglSurface);
+  void DestroySurface(EGLSurface& eglSurface) override;
 
   /**
    * Make the OpenGL context current
@@ -122,24 +117,24 @@ public:
   bool IsGlesInitialized() const;
 
   /**
-   * Performs an OpenGL swap buffers command
+   * Gets current back buffer age
+   */
+  int GetBufferAge(EGLSurface& eglSurface) const override;
+
+  /**
+   * @copydoc EglInterface::SetDamageRegion
+   */
+  void SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects) override;
+
+  /**
+   * @copydoc EglInterface::SwapBuffers
    */
   void SwapBuffers(EGLSurface& eglSurface) override;
 
   /**
-   * Gets current back buffer age
+   * @copydoc EglInterface::SwapBuffers
    */
-  EGLint GetBufferAge(EGLSurface& eglSurface) const;
-
-  /**
-   * Performs an OpenGL set damage command with damaged rects
-   */
-  void SetDamageRegion(EGLSurface& eglSurface, std::vector<Rect<int>>& damagedRects);
-
-  /**
-   * Performs an OpenGL swap buffers command with damaged rects
-   */
-  virtual void SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects);
+  void SwapBuffers(EGLSurface& eglSurface, const std::vector<Rect<int>>& damagedRects) override;
 
   /**
    * Performs an OpenGL copy buffers command
@@ -152,20 +147,14 @@ public:
   void WaitGL() override;
 
   /**
-   * Choose config of egl
-   * @param isWindowType whether the config for window or pixmap
-   * @param colorDepth Bit per pixel value (ex. 32 or 24)
-   * @return true if the eglChooseConfig is succeed.
-  */
-  bool ChooseConfig(bool isWindowType, ColorDepth depth);
+   * @copydoc EglInterface::ChooseConfig
+   */
+  bool ChooseConfig(bool isWindowType, ColorDepth depth) override;
 
   /**
-    * Create an OpenGL surface using a window
-    * @param window The window to create the surface on
-    * @param colorDepth Bit per pixel value (ex. 32 or 24)
-    * @return Handle to an on-screen EGL window surface (the requester has an ownership of this egl surface)
-    */
-  EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth);
+   * @copydoc EglInterface::CreateSurfaceWindow
+   */
+  EGLSurface CreateSurfaceWindow(EGLNativeWindowType window, ColorDepth depth) override;
 
   /**
    * Create the OpenGL surface using a pixmap
@@ -176,12 +165,9 @@ public:
   EGLSurface CreateSurfacePixmap(EGLNativePixmapType pixmap, ColorDepth depth);
 
   /**
-   * Replaces the render surface
-   * @param[in] window, the window to create the new surface on
-   * @return true if the context was lost due to a change in display
-   *         between old surface and new surface
+   * @copydoc EglInterface::ReplaceSurfaceWindow
    */
-  bool ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext);
+  bool ReplaceSurfaceWindow(EGLNativeWindowType window, EGLSurface& eglSurface, EGLContext& eglContext) override;
 
   /**
    * Replaces the render surface
@@ -235,7 +221,7 @@ public:
    * @brief Returns whether the partial update is required.
    * @return true if the partial update is required.
    */
-  bool IsPartialUpdateRequired() const;
+  bool IsPartialUpdateRequired() const override;
 
 private:
   Vector<EGLint> mContextAttribs;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ const char* DALI_GLSL_VERSION                           = "DALI_GLSL_VERSION";
 
 } // unnamed namespace
 
-ConfigurationManager::ConfigurationManager(std::string systemCachePath, GraphicsInterface* graphics, ThreadController* threadController)
+ConfigurationManager::ConfigurationManager(std::string systemCachePath, Graphics::GraphicsInterface* graphics, ThreadController* threadController)
 : mSystemCacheFilePath(systemCachePath + SYSTEM_CACHE_FILE),
   mGraphics(graphics),
   mThreadController(threadController),

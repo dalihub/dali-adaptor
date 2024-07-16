@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,27 @@
 #include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-graphics-factory.h>
 #include <dali/internal/window-system/common/display-utils.h>
-#include <dali/public-api/dali-adaptor-common.h>
 
-namespace Dali
+#if defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/vulkan/vulkan-graphics-factory.h>
+#else
+#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#endif
+
+namespace Dali::Internal::Adaptor
 {
-namespace Internal
+AdaptorBuilder& AdaptorBuilder::Get(EnvironmentOptions& environmentOptions)
 {
-namespace Adaptor
-{
+  static AdaptorBuilder* gAdaptorBuilder = nullptr;
+
+  if(gAdaptorBuilder == nullptr)
+  {
+    gAdaptorBuilder = new AdaptorBuilder(environmentOptions);
+  }
+  return *gAdaptorBuilder;
+}
+
 AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
 : mEnvironmentOptions(environmentOptions)
 {
@@ -36,13 +47,9 @@ AdaptorBuilder::AdaptorBuilder(EnvironmentOptions& environmentOptions)
   mGraphicsFactory = Utils::MakeUnique<GraphicsFactory>(environmentOptions);
 }
 
-GraphicsFactory& AdaptorBuilder::GetGraphicsFactory() const
+GraphicsFactoryInterface& AdaptorBuilder::GetGraphicsFactory() const
 {
-  return *mGraphicsFactory.get();
+  return *mGraphicsFactory;
 }
 
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

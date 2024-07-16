@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ const std::string FRAG_SHADER_SOURCE2 =
   "  gl_fragColor = texture2d(sTextures[0], vTexCoord) + lightDirection*texture2d(sTextures[2], vTexCoord);\n"
   "}\n";
 
-} //anonymous namespace
+} // anonymous namespace
 
 int UtcDaliGraphicsProgram01(void)
 {

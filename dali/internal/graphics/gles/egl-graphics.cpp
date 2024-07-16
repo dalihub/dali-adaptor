@@ -21,9 +21,11 @@
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/integration-api/debug.h>
+#include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/system/common/configuration-manager.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/window-system/common/display-utils.h> // For Utils::MakeUnique
+#include <dali/internal/window-system/common/window-base.h>
 
 namespace Dali
 {
@@ -31,14 +33,15 @@ namespace Internal
 {
 namespace Adaptor
 {
-EglGraphics::EglGraphics(EnvironmentOptions& environmentOptions)
-: mMultiSamplingLevel(0)
+EglGraphics::EglGraphics(
+  EnvironmentOptions&                 environmentOptions,
+  const Graphics::GraphicsCreateInfo& info,
+  Integration::DepthBufferAvailable   depthBufferRequired,
+  Integration::StencilBufferAvailable stencilBufferRequired,
+  Integration::PartialUpdateAvailable partialUpdateRequired)
+: GraphicsInterface(info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired),
+  mMultiSamplingLevel(info.multiSamplingLevel)
 {
-  mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(environmentOptions.DepthBufferRequired());
-  mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(environmentOptions.StencilBufferRequired());
-  mPartialUpdateRequired = static_cast<Integration::PartialUpdateAvailable>(environmentOptions.PartialUpdateRequired());
-  mMultiSamplingLevel    = environmentOptions.GetMultiSamplingLevel();
-
   if(environmentOptions.GetGlesCallTime() > 0)
   {
     mGLES = Utils::MakeUnique<GlProxyImplementation>(environmentOptions);
@@ -71,7 +74,7 @@ void EglGraphics::ActivateResourceContext()
   mGraphicsController.ActivateResourceContext();
 }
 
-void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+void EglGraphics::ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   if(surface)
   {
@@ -80,6 +83,14 @@ void EglGraphics::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
   }
 
   mGraphicsController.ActivateSurfaceContext(surface);
+}
+
+void EglGraphics::MakeContextCurrent(Graphics::SurfaceId surfaceId)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  mEglImplementation->MakeContextCurrent(search->second.surface, search->second.context);
 }
 
 void EglGraphics::PostRender()
@@ -94,7 +105,11 @@ void EglGraphics::PostRender()
   mGraphicsController.PostRender();
 }
 
-void EglGraphics::SetFirstFrameAfterResume()
+void EglGraphics::Pause()
+{
+}
+
+void EglGraphics::Resume()
 {
   if(mEglImplementation)
   {
@@ -102,15 +117,48 @@ void EglGraphics::SetFirstFrameAfterResume()
   }
 }
 
-void EglGraphics::Initialize()
+int EglGraphics::GetBufferAge(Graphics::SurfaceId surfaceId)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  return mEglImplementation->GetBufferAge(search->second.surface);
+}
+
+void EglGraphics::SetDamageRegion(Graphics::SurfaceId surfaceId, std::vector<Rect<int>>& damagedRegion)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  mEglImplementation->SetDamageRegion(search->second.surface, damagedRegion);
+}
+
+void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  mEglImplementation->SwapBuffers(search->second.surface);
+}
+
+void EglGraphics::SwapBuffers(Graphics::SurfaceId surfaceId, const std::vector<Rect<int>>& damagedRegion)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  mEglImplementation->SwapBuffers(search->second.surface, damagedRegion);
+}
+
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection)
 {
   EglInitialize();
 
   // Sync and context helper require EGL to be initialized first (can't execute in the constructor)
   mGraphicsController.Initialize(*mEglSync.get(), *this);
+  InitializeGraphicsAPI(displayConnection);
 }
 
-void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, int msaa)
+void EglGraphics::Initialize(const Dali::DisplayConnection& displayConnection, bool depth, bool stencil, bool partialRendering, int msaa)
 {
   mDepthBufferRequired   = static_cast<Integration::DepthBufferAvailable>(depth);
   mStencilBufferRequired = static_cast<Integration::StencilBufferAvailable>(stencil);
@@ -118,6 +166,19 @@ void EglGraphics::Initialize(bool depth, bool stencil, bool partialRendering, in
   mMultiSamplingLevel    = msaa;
 
   EglInitialize();
+  InitializeGraphicsAPI(displayConnection);
+}
+
+void EglGraphics::InitializeGraphicsAPI(const Dali::DisplayConnection& displayConnection)
+{
+  auto display    = displayConnection.GetNativeGraphicsDisplay();
+  auto eglDisplay = display.Get<EGLNativeDisplayType>();
+  mEglImplementation->InitializeGles(eglDisplay);
+}
+
+Dali::Any EglGraphics::GetDisplay() const
+{
+  return {mEglImplementation->GetDisplay()};
 }
 
 void EglGraphics::EglInitialize()
@@ -129,7 +190,54 @@ void EglGraphics::EglInitialize()
   mEglSync->Initialize(mEglImplementation.get()); // The sync impl needs the EglDisplay
 }
 
-void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
+Graphics::SurfaceId EglGraphics::CreateSurface(Graphics::SurfaceFactory* surfaceFactory, WindowBase* windowBase, ColorDepth colorDepth, int width, int height)
+{
+  // Create the OpenGL context for this window
+  mEglImplementation->ChooseConfig(true, colorDepth);
+  EGLContext context = 0;
+  mEglImplementation->CreateWindowContext(context);
+
+  auto window     = windowBase->CreateWindow(width, height);
+  auto eglWindow  = reinterpret_cast<EGLNativeWindowType>(window.Get<void*>());
+  auto eglSurface = mEglImplementation->CreateSurfaceWindow(eglWindow, colorDepth);
+
+  auto surfaceId         = ++mBaseSurfaceId;
+  mSurfaceMap[surfaceId] = EglSurfaceContext{windowBase, eglSurface, context};
+
+  return surfaceId;
+}
+
+void EglGraphics::DestroySurface(Graphics::SurfaceId surfaceId)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  mEglImplementation->DestroySurface(search->second.surface);
+  mEglImplementation->DestroyContext(search->second.context);
+  search->second.windowBase->DestroyWindow();
+  mSurfaceMap.erase(search);
+}
+
+bool EglGraphics::ReplaceSurface(Graphics::SurfaceId surfaceId, int width, int height)
+{
+  auto search = mSurfaceMap.find(surfaceId);
+  DALI_ASSERT_DEBUG(search != mSurfaceMap.end());
+
+  auto& windowBase = search->second.windowBase;
+
+  // Destroy the old graphics window
+  windowBase->DestroyWindow();
+
+  // Create the EGL window
+  Dali::Any window = windowBase->CreateWindow(width, height);
+
+  EGLNativeWindowType eglWindow = window.Get<EGLNativeWindowType>();
+  auto&               context   = search->second.context;
+  auto&               surface   = search->second.surface;
+  return mEglImplementation->ReplaceSurfaceWindow(eglWindow, surface, context); // Should update the map.
+}
+
+void EglGraphics::ConfigureSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   DALI_ASSERT_ALWAYS(mEglImplementation && "EGLImplementation not created");
 
@@ -152,7 +260,7 @@ void EglGraphics::ConfigureSurface(Dali::RenderSurfaceInterface* surface)
   bool isSurfacelessContextSupported = mEglImplementation->IsSurfacelessContextSupported();
   SetIsSurfacelessContextSupported(isSurfacelessContextSupported);
 
-  RenderSurfaceInterface* currentSurface = nullptr;
+  Integration::RenderSurfaceInterface* currentSurface = nullptr;
   if(isSurfacelessContextSupported)
   {
     // Create a surfaceless OpenGL context for shared resources
@@ -192,11 +300,6 @@ void EglGraphics::Shutdown()
 void EglGraphics::Destroy()
 {
   mGraphicsController.Destroy();
-}
-
-GlImplementation& EglGraphics::GetGlesInterface()
-{
-  return *mGLES;
 }
 
 Integration::GlAbstraction& EglGraphics::GetGlAbstraction() const
@@ -245,6 +348,11 @@ void EglGraphics::CacheConfigurations(ConfigurationManager& configurationManager
 void EglGraphics::FrameStart()
 {
   mGraphicsController.FrameStart();
+}
+
+void EglGraphics::PostRenderDebug()
+{
+  mGLES->PostRender();
 }
 
 void EglGraphics::LogMemoryPools()

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ADAPTOR_BUILDER_IMPL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,10 @@
  */
 
 // INTERNAL INCLUDES
-#include <dali/internal/graphics/gles/egl-graphics-factory.h>
+#include <dali/internal/graphics/common/graphics-factory-interface.h>
 #include <dali/internal/system/common/environment-options.h>
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+namespace Dali::Internal::Adaptor
 {
 /**
  * Implementation of the Adaptor Builder class.
@@ -34,36 +30,33 @@ namespace Adaptor
 class AdaptorBuilder
 {
 public:
-  /**
-   * Constructor
-   */
-  AdaptorBuilder(EnvironmentOptions& environmentOptions);
+  static AdaptorBuilder& Get(EnvironmentOptions& environmentOptions);
 
   /**
    * Destructor
    */
-  ~AdaptorBuilder(){};
+  ~AdaptorBuilder() = default;
 
 public:
   /**
    * @return reference to the GraphicsFactory object
    */
-  GraphicsFactory& GetGraphicsFactory() const;
+  [[nodiscard]] GraphicsFactoryInterface& GetGraphicsFactory() const;
 
-private:
   // Eliminate copy and assigned operations
   AdaptorBuilder(const AdaptorBuilder&) = delete;
   AdaptorBuilder& operator=(AdaptorBuilder&) = delete;
 
 private:
-  std::unique_ptr<GraphicsFactory> mGraphicsFactory; ///< GraphicsFactory object
-  EnvironmentOptions&              mEnvironmentOptions;
+  /**
+   * Constructor
+   */
+  explicit AdaptorBuilder(EnvironmentOptions& environmentOptions);
+
+  std::unique_ptr<GraphicsFactoryInterface> mGraphicsFactory; ///< GraphicsFactory object
+  EnvironmentOptions&                       mEnvironmentOptions;
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor
 
 #endif // DALI_INTERNAL_ADAPTOR_BUILDER_IMPL_H

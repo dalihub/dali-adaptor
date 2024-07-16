@@ -1,7 +1,6 @@
 # module: system, backend: common
 SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/abort-handler.cpp
-    ${adaptor_system_dir}/common/capture-impl.cpp
     ${adaptor_system_dir}/common/color-controller-impl.cpp
     ${adaptor_system_dir}/common/command-line-options.cpp
     ${adaptor_system_dir}/common/configuration-manager.cpp
@@ -27,6 +26,16 @@ SET( adaptor_system_common_src_files
     ${adaptor_system_dir}/common/texture-upload-manager-impl.cpp
 )
 
+# module: system, backend: egl
+SET( adaptor_system_common_egl_src_files
+    ${adaptor_system_dir}/common/capture-impl.cpp
+)
+
+# module: system, backend: vulkan
+SET( adaptor_system_common_vulkan_src_files
+    ${adaptor_system_dir}/vulkan/capture-vk-impl.cpp
+)
+
 # module: system, backend: linux
 SET( adaptor_system_linux_src_files
     ${adaptor_system_dir}/common/shared-file.cpp
@@ -45,6 +54,7 @@ SET( adaptor_system_linux_src_files
 
 # module: system, backend: tizen-wayland
 SET( adaptor_system_tizen_wayland_src_files
+    ${adaptor_system_dir}/common/capture-impl.cpp
     ${adaptor_system_dir}/common/shared-file.cpp
     ${adaptor_system_dir}/common/trigger-event.cpp
     ${adaptor_system_dir}/common/trigger-event-factory.cpp

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_DISPLAY_CONNECTION_IMPL_ANDROID_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,15 @@
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
 
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
+
 namespace Dali
 {
 class DisplayConnection;
 
-namespace Internal
-{
-namespace Adaptor
+namespace Internal::Adaptor
 {
 /**
  * DisplayConnection implementation
@@ -51,52 +53,41 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
+
+  /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-   * @brief Sets the graphics interface
-   * @param[in] graphics The graphics interface
-   */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionAndroid();
-
-protected:
-  // Undefined
-  DisplayConnectionAndroid(const DisplayConnectionAndroid&);
+  ~DisplayConnectionAndroid() override;
 
   // Undefined
-  DisplayConnectionAndroid& operator=(const DisplayConnectionAndroid& rhs);
+  DisplayConnectionAndroid(const DisplayConnectionAndroid&) = delete;
+
+  // Undefined
+  DisplayConnectionAndroid& operator=(const DisplayConnectionAndroid& rhs) = delete;
 
 private:
-  EGLNativeDisplayType               mDisplay;     ///< EGL display for rendering
-  Dali::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
-  GraphicsInterface*                 mGraphics;    ///< The graphics interface
+  EGLNativeDisplayType mDisplay; ///< EGL display for rendering
 };
 
-} // namespace Adaptor
-
-} // namespace Internal
+} // namespace Internal::Adaptor
 
 } // namespace Dali
 

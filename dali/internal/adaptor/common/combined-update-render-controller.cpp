@@ -30,7 +30,6 @@
 #include <dali/internal/adaptor/common/adaptor-internal-services.h>
 #include <dali/internal/adaptor/common/combined-update-render-controller-debug.h>
 #include <dali/internal/graphics/common/graphics-interface.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/system/common/environment-options.h>
 #include <dali/internal/system/common/texture-upload-manager-impl.h>
 #include <dali/internal/system/common/time-service.h>
@@ -140,7 +139,7 @@ CombinedUpdateRenderController::CombinedUpdateRenderController(AdaptorInternalSe
   SetRenderRefreshRate(environmentOptions.GetRenderRefreshRate());
 
   // Set the thread-synchronization interface on the render-surface
-  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::Integration::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if(currentSurface)
   {
     currentSurface->SetThreadSynchronization(*this);
@@ -196,7 +195,7 @@ void CombinedUpdateRenderController::Start()
 
   RunUpdateRenderThread(CONTINUOUS, AnimationProgression::NONE, UpdateMode::NORMAL);
 
-  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  auto currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if(currentSurface)
   {
     currentSurface->StartRender();
@@ -247,7 +246,7 @@ void CombinedUpdateRenderController::Stop()
   LOG_EVENT_TRACE;
 
   // Stop Rendering and the Update/Render Thread
-  Dali::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
+  Dali::Integration::RenderSurfaceInterface* currentSurface = mAdaptorInterfaces.GetRenderSurfaceInterface();
   if(currentSurface)
   {
     currentSurface->StopRender();
@@ -309,7 +308,7 @@ void CombinedUpdateRenderController::RequestUpdateOnce(UpdateMode updateMode)
   }
 }
 
-void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface* newSurface)
+void CombinedUpdateRenderController::ReplaceSurface(Dali::Integration::RenderSurfaceInterface* newSurface)
 {
   LOG_EVENT_TRACE;
 
@@ -336,7 +335,7 @@ void CombinedUpdateRenderController::ReplaceSurface(Dali::RenderSurfaceInterface
   }
 }
 
-void CombinedUpdateRenderController::DeleteSurface(Dali::RenderSurfaceInterface* surface)
+void CombinedUpdateRenderController::DeleteSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   LOG_EVENT_TRACE;
 
@@ -415,7 +414,7 @@ void CombinedUpdateRenderController::SetPreRenderCallback(CallbackBase* callback
   mPreRenderCallback = callback;
 }
 
-void CombinedUpdateRenderController::AddSurface(Dali::RenderSurfaceInterface* surface)
+void CombinedUpdateRenderController::AddSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   LOG_EVENT_TRACE;
   LOG_EVENT("Surface is added");
@@ -537,11 +536,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   LOG_UPDATE_RENDER("THREAD CREATED");
 
   // Initialize graphics
-  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
-  graphics.Initialize();
-
-  Dali::DisplayConnection& displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
-  displayConnection.Initialize(); //@todo Move InitializeGraphics code into graphics implementation
+  Dali::DisplayConnection&           displayConnection = mAdaptorInterfaces.GetDisplayConnectionInterface();
+  Dali::Graphics::GraphicsInterface& graphics          = mAdaptorInterfaces.GetGraphicsInterface();
+  graphics.Initialize(displayConnection);
 
   // Setup graphics controller into upload manager.
   GetImplementation(mTextureUploadManager).InitalizeGraphicsController(graphics.GetController());
@@ -562,8 +559,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   for(auto&& window : windows)
   {
-    Dali::Integration::Scene      scene         = window->GetScene();
-    Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
+    Dali::Integration::Scene                   scene         = window->GetScene();
+    Dali::Integration::RenderSurfaceInterface* windowSurface = window->GetSurface();
 
     if(scene && windowSurface)
     {
@@ -629,9 +626,9 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     TRACE_UPDATE_RENDER_BEGIN("DALI_UPDATE_RENDER");
 
     // For thread safe
-    bool                          uploadOnly     = mUploadWithoutRendering;
-    unsigned int                  surfaceResized = mSurfaceResized;
-    Dali::RenderSurfaceInterface* deletedSurface = ShouldSurfaceBeDeleted();
+    bool                                       uploadOnly     = mUploadWithoutRendering;
+    unsigned int                               surfaceResized = mSurfaceResized;
+    Dali::Integration::RenderSurfaceInterface* deletedSurface = ShouldSurfaceBeDeleted();
 
     // Performance statistics are logged upon a VSYNC tick so use this point for a VSync marker
     AddPerformanceMarker(PerformanceInterface::VSYNC);
@@ -654,7 +651,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     // REPLACE SURFACE
     //////////////////////////////
 
-    Dali::RenderSurfaceInterface* newSurface = ShouldSurfaceBeReplaced();
+    Dali::Integration::RenderSurfaceInterface* newSurface = ShouldSurfaceBeReplaced();
     if(DALI_UNLIKELY(newSurface))
     {
       LOG_UPDATE_RENDER_TRACE_FMT("Replacing Surface");
@@ -662,7 +659,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
       // we need to delete the surface and renderable (pixmap / window)
       // Then create a new pixmap/window and new surface
       // If the new surface has a different display connection, then the context will be lost
-      mAdaptorInterfaces.GetDisplayConnectionInterface().Initialize();
+      graphics.InitializeGraphicsAPI(displayConnection);
       graphics.ActivateSurfaceContext(newSurface);
       // TODO: ReplaceGraphicsSurface doesn't work, InitializeGraphics()
       // already creates new surface window, the surface and the context.
@@ -771,7 +768,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     {
       // mFirstFrameAfterResume is set to true when the thread is resumed
       // Let graphics know the first frame after thread initialized or resumed.
-      graphics.SetFirstFrameAfterResume();
+      graphics.Resume();
       mFirstFrameAfterResume = FALSE;
     }
 
@@ -793,8 +790,8 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
       for(auto&& window : windows)
       {
-        Dali::Integration::Scene      scene         = window->GetScene();
-        Dali::RenderSurfaceInterface* windowSurface = window->GetSurface();
+        Dali::Integration::Scene                   scene         = window->GetScene();
+        Dali::Integration::RenderSurfaceInterface* windowSurface = window->GetSurface();
 
         if(scene && windowSurface)
         {
@@ -937,7 +934,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
   // Destroy surfaces
   for(auto&& window : windows)
   {
-    Dali::RenderSurfaceInterface* surface = window->GetSurface();
+    Dali::Integration::RenderSurfaceInterface* surface = window->GetSurface();
     surface->DestroySurface();
   }
 
@@ -1007,12 +1004,12 @@ bool CombinedUpdateRenderController::UpdateRenderReady(bool& useElapsedTime, boo
   return !mDestroyUpdateRenderThread;
 }
 
-Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
+Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeReplaced()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
-  Dali::RenderSurfaceInterface* newSurface = mNewSurface;
-  mNewSurface                              = NULL;
+  Dali::Integration::RenderSurfaceInterface* newSurface = mNewSurface;
+  mNewSurface                                           = NULL;
 
   return newSurface;
 }
@@ -1023,12 +1020,12 @@ void CombinedUpdateRenderController::SurfaceReplaced()
   mSurfaceSemaphore.Release(1);
 }
 
-Dali::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
+Dali::Integration::RenderSurfaceInterface* CombinedUpdateRenderController::ShouldSurfaceBeDeleted()
 {
   ConditionalWait::ScopedLock lock(mUpdateRenderThreadWaitCondition);
 
-  Dali::RenderSurfaceInterface* deletedSurface = mDeletedSurface;
-  mDeletedSurface                              = NULL;
+  Dali::Integration::RenderSurfaceInterface* deletedSurface = mDeletedSurface;
+  mDeletedSurface                                           = NULL;
 
   return deletedSurface;
 }
@@ -1055,7 +1052,7 @@ void CombinedUpdateRenderController::SurfaceResized(uint32_t resizedCount)
 
 void CombinedUpdateRenderController::PreCompileShader(std::string vertexShader, std::string fragmentShader, std::string shaderName)
 {
-  GraphicsInterface& graphics = mAdaptorInterfaces.GetGraphicsInterface();
+  auto& graphics = mAdaptorInterfaces.GetGraphicsInterface();
 
   Graphics::ShaderCreateInfo vertexShaderCreateInfo;
   vertexShaderCreateInfo.SetPipelineStage(Graphics::PipelineStage::VERTEX_SHADER);

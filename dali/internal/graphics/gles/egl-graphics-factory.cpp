@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,9 +37,17 @@ GraphicsFactory::~GraphicsFactory()
   /* Deleted by Adaptor destructor */
 }
 
-GraphicsInterface& GraphicsFactory::Create()
+Graphics::GraphicsInterface& GraphicsFactory::Create()
 {
-  GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions);
+  Graphics::GraphicsCreateInfo info{};
+
+  auto depthBufferRequired   = (mEnvironmentOptions.DepthBufferRequired() ? Integration::DepthBufferAvailable::TRUE : Integration::DepthBufferAvailable::FALSE);
+  auto stencilBufferRequired = (mEnvironmentOptions.StencilBufferRequired() ? Integration::StencilBufferAvailable::TRUE : Integration::StencilBufferAvailable::FALSE);
+  auto partialUpdateRequired = (mEnvironmentOptions.PartialUpdateRequired() ? Integration::PartialUpdateAvailable::TRUE : Integration::PartialUpdateAvailable::FALSE);
+
+  info.multiSamplingLevel = mEnvironmentOptions.GetMultiSamplingLevel();
+
+  Graphics::GraphicsInterface* eglGraphicsInterface = new EglGraphics(mEnvironmentOptions, info, depthBufferRequired, stencilBufferRequired, partialUpdateRequired);
   return *eglGraphicsInterface;
 }
 

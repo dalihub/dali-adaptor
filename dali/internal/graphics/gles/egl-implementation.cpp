@@ -579,11 +579,11 @@ void EglImplementation::SwapBuffers(EGLSurface& eglSurface)
   }
 }
 
-EGLint EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
+int EglImplementation::GetBufferAge(EGLSurface& eglSurface) const
 {
   START_DURATION_CHECK();
 
-  EGLint age = 0;
+  int age = 0;
   eglQuerySurface(mEglDisplay, eglSurface, EGL_BUFFER_AGE_EXT, &age);
   if(age < 0)
   {

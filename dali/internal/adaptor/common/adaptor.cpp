@@ -39,10 +39,10 @@ Adaptor& Adaptor::New(Window window)
   return *adaptor;
 }
 
-Adaptor& Adaptor::New(Window window, const Dali::RenderSurfaceInterface& surface)
+Adaptor& Adaptor::New(Window window, const Dali::Integration::RenderSurfaceInterface& surface)
 {
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
-  Dali::RenderSurfaceInterface*   pSurface    = const_cast<Dali::RenderSurfaceInterface*>(&surface);
+  auto pSurface    = const_cast<Dali::Integration::RenderSurfaceInterface*>(&surface);
   Adaptor*                        adaptor     = Internal::Adaptor::Adaptor::New(Dali::Integration::SceneHolder(sceneHolder), pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
@@ -53,9 +53,9 @@ Adaptor& Adaptor::New(Dali::Integration::SceneHolder window)
   return *adaptor;
 }
 
-Adaptor& Adaptor::New(Dali::Integration::SceneHolder window, const Dali::RenderSurfaceInterface& surface)
+Adaptor& Adaptor::New(Dali::Integration::SceneHolder window, const Dali::Integration::RenderSurfaceInterface& surface)
 {
-  Dali::RenderSurfaceInterface* pSurface = const_cast<Dali::RenderSurfaceInterface*>(&surface);
+  Dali::Integration::RenderSurfaceInterface* pSurface = const_cast<Dali::Integration::RenderSurfaceInterface*>(&surface);
   Adaptor*                      adaptor  = Internal::Adaptor::Adaptor::New(window, pSurface, NULL, Dali::Internal::Adaptor::ThreadMode::NORMAL);
   return *adaptor;
 }
@@ -135,13 +135,13 @@ void Adaptor::ProcessIdle()
   }
 }
 
-void Adaptor::ReplaceSurface(Window window, Dali::RenderSurfaceInterface& surface)
+void Adaptor::ReplaceSurface(Window window, Dali::Integration::RenderSurfaceInterface& surface)
 {
   Internal::Adaptor::SceneHolder* sceneHolder = &Dali::GetImplementation(window);
   mImpl->ReplaceSurface(Dali::Integration::SceneHolder(sceneHolder), surface);
 }
 
-void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::RenderSurfaceInterface& surface)
+void Adaptor::ReplaceSurface(Dali::Integration::SceneHolder window, Dali::Integration::RenderSurfaceInterface& surface)
 {
   mImpl->ReplaceSurface(window, surface);
 }
@@ -166,7 +166,7 @@ Adaptor::LocaleChangedSignalType& Adaptor::LocaleChangedSignal()
   return mImpl->LocaleChangedSignal();
 }
 
-Dali::RenderSurfaceInterface& Adaptor::GetSurface()
+Dali::Integration::RenderSurfaceInterface& Adaptor::GetSurface()
 {
   return mImpl->GetSurface();
 }
@@ -241,12 +241,12 @@ void Adaptor::SceneCreated()
   mImpl->SceneCreated();
 }
 
-void Adaptor::SurfaceResizePrepare(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
+void Adaptor::SurfaceResizePrepare(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
   mImpl->SurfaceResizePrepare(surface, surfaceSize);
 }
 
-void Adaptor::SurfaceResizeComplete(Dali::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
+void Adaptor::SurfaceResizeComplete(Dali::Integration::RenderSurfaceInterface* surface, SurfaceSize surfaceSize)
 {
   mImpl->SurfaceResizeComplete(surface, surfaceSize);
 }

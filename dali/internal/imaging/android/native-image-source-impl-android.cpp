@@ -71,8 +71,8 @@ NativeImageSourceAndroid::NativeImageSourceAndroid(uint32_t width, uint32_t heig
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  mEglGraphics                = static_cast<EglGraphics*>(graphics);
+  auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  mEglGraphics  = static_cast<EglGraphics*>(graphics);
 
   // assign the pixmap
   mPixmap = static_cast<AHardwareBuffer*>(GetPixmapFromAny(nativeImageSource));

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_WINDOWSYSTEM_ECOREWL_DISPLAY_CONNECTION_IMPL_ECORE_WL_H
 
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@
 
 // INTERNAL INCLUDES
 #include <dali/internal/window-system/common/display-connection-impl.h>
+
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
 
 namespace Dali
 {
@@ -54,35 +58,35 @@ public:
   /**
    * @copydoc Dali::DisplayConnection::GetDisplay
    */
-  Any GetDisplay();
+  Any GetDisplay() override;
+
+  /**
+   * @copydoc Dali::DisplayConnection::GetNativeGraphicsDisplay
+   */
+  Any GetNativeGraphicsDisplay() override;
 
   /**
    * @copydoc Dali::DisplayConnection::ConsumeEvents
    */
-  void ConsumeEvents();
-
-  /**
-   * @copydoc Dali::DisplayConnection::InitializeGraphics
-   */
-  bool InitializeGraphics();
+  void ConsumeEvents() override;
 
   /**
    * @brief Sets the surface type
    * @param[in] type The surface type
    */
-  void SetSurfaceType(Dali::RenderSurfaceInterface::Type type);
-
-  /**
-   * @brief Sets the graphics interface
-   * @param[in] graphics The graphics interface
-   */
-  void SetGraphicsInterface(GraphicsInterface& graphics);
+  void SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type) override;
 
 public:
   /**
    * Destructor
    */
-  virtual ~DisplayConnectionEcoreWl();
+  ~DisplayConnectionEcoreWl() override;
+
+  // Undefined
+  DisplayConnectionEcoreWl(const DisplayConnectionEcoreWl&) = delete;
+
+  // Undefined
+  DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs) = delete;
 
 protected:
   /**
@@ -95,17 +99,10 @@ protected:
    */
   void ReleaseNativeDisplay();
 
-  // Undefined
-  DisplayConnectionEcoreWl(const DisplayConnectionEcoreWl&);
-
-  // Undefined
-  DisplayConnectionEcoreWl& operator=(const DisplayConnectionEcoreWl& rhs);
-
 private:
-  EGLNativeDisplayType               mDisplay;     ///< Wayland-display for rendering
-  Dali::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
-  GraphicsInterface*                 mGraphics;    ///< The graphics interface
-  tbm_bufmgr                         mBufMgr;      ///< For creating tbm_dummy_display
+  EGLNativeDisplayType                            mDisplay;     ///< Wayland-display for rendering
+  Dali::Integration::RenderSurfaceInterface::Type mSurfaceType; ///< The surface type
+  tbm_bufmgr                                      mBufMgr;      ///< For creating tbm_dummy_display
 };
 
 } // namespace Adaptor

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ RenderTarget::RenderTarget(const Graphics::RenderTargetCreateInfo& createInfo, G
 {
   if(createInfo.surface)
   {
-    controller.CreateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(createInfo.surface));
+    controller.CreateSurfaceContext(static_cast<Dali::Integration::RenderSurfaceInterface*>(createInfo.surface));
   }
 }
 
@@ -47,7 +47,7 @@ void RenderTarget::DiscardResource()
   // The surface context should be deleted now
   if(mCreateInfo.surface)
   {
-    mController.DeleteSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(mCreateInfo.surface));
+    mController.DeleteSurfaceContext(static_cast<Dali::Integration::RenderSurfaceInterface*>(mCreateInfo.surface));
     mCreateInfo.surface = nullptr;
   }
 }
@@ -57,7 +57,7 @@ GLES::Framebuffer* RenderTarget::GetFramebuffer() const
   return static_cast<GLES::Framebuffer*>(mCreateInfo.framebuffer);
 }
 
-Surface* RenderTarget::GetSurface() const
+Integration::RenderSurfaceInterface* RenderTarget::GetSurface() const
 {
   return mCreateInfo.surface;
 }

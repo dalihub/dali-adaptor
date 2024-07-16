@@ -28,30 +28,52 @@ fi
 
 function build
 {
-    if [ $opt_generate == true -o $opt_rebuild == false ] ; then
-        (cd src/$1; ../../scripts/tcheadgen.sh tct-$1-core.h)
-        if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
-    fi
+    echo Building $1
+
     BUILDSYSTEM="Unix Makefiles"
     BUILDCMD=make
     if [ -e ../build/tizen/build.ninja ] ; then
         BUILDSYSTEM="Ninja"
         BUILDCMD=ninja
     fi
+
+    if [ $opt_generate == true -o $opt_rebuild == false ] ; then
+        (cd build ; rm CMakeCache.txt ; cmake .. -C /dev/null -G "$BUILDSYSTEM" -DMODULE=$1)
+        (cd src/$1; ../../scripts/retriever.sh -l)
+        (cd src/$1; ../../scripts/tcheadgen.sh tct-$1-core.h)
+        if [ $? -ne 0 ]; then echo "Aborting..."; exit 1; fi
+    fi
+
     (cd build ; cmake .. -DMODULE=$1 -G "$BUILDSYSTEM" ; $BUILDCMD -j7 )
 }
 
+# Query main build to determine if we are using vulkan or egl
+ENABLE_VULKAN=0
+(cd ../build/tizen ; cmake -LA -N 2>/dev/null | grep ENABLE_VULKAN | grep "\=ON")
+if [ $? -eq 0 ] ; then
+    ENABLE_VULKAN=1
+fi
 if [ -n "$1" ] ; then
   echo BUILDING ONLY $1
   build $1
 else
   for mod in `ls -1 src/ | grep -v CMakeList `
   do
-    if [ $mod != 'common' ] && [ $mod != 'manual' ]; then
-        echo BUILDING $mod
-        build $mod
-        if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
-    fi
+      build=0
+      # Don't build dali-egl-graphics if we are using Vulkan...
+      if [ $mod == 'dali-egl-graphics' ] ; then
+          if [ $ENABLE_VULKAN == 0 ] ; then
+              build=1
+          fi
+      elif [ $mod != 'common' ] && [ $mod != 'manual' ]; then
+          build=1
+      fi
+
+      if [ $build == 1 ] ; then
+          echo BUILDING $mod
+          build $mod
+          if [ $? -ne 0 ]; then echo "Build failed" ; exit 1; fi
+      fi
   done
 fi
 

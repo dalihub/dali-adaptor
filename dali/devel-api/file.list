@@ -16,7 +16,6 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller.cpp
@@ -48,13 +47,16 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/virtual-keyboard.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/thread-settings.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.cpp
-  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-system-devel.cpp
 )
 
+SET( devel_api_egl_src_files
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.cpp
+)
 
 SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/accessibility.h
@@ -65,7 +67,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/application-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/atspi-accessibility.h
   ${adaptor_devel_api_dir}/adaptor-framework/bitmap-saver.h
-  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/clipboard.h
   ${adaptor_devel_api_dir}/adaptor-framework/drag-and-drop.h
   ${adaptor_devel_api_dir}/adaptor-framework/color-controller-plugin.h
@@ -111,7 +112,6 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/window-devel.h
   ${adaptor_devel_api_dir}/adaptor-framework/component-application.h
   ${adaptor_devel_api_dir}/adaptor-framework/video-sync-mode.h
-  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-application.h
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.h
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.h
@@ -119,6 +119,10 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/window-system-devel.h
 )
 
+SET( devel_api_adaptor_framework_egl_header_files
+  ${adaptor_devel_api_dir}/adaptor-framework/capture-devel.h
+  ${adaptor_devel_api_dir}/adaptor-framework/gl-window.h
+)
 
 SET( devel_api_adaptor_framework_canvas_renderer_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/canvas-renderer/canvas-renderer.h

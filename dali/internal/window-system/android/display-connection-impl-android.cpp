@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
  */
 
 // CLASS HEADER
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/window-system/android/display-connection-impl-android.h>
 
-// EXTERNAL_HEADERS
-#include <dali/integration-api/debug.h>
+// INTERNAL HEADERS
+#if !defined(VULKAN_ENABLED)
+#include <dali/internal/graphics/gles/egl-graphics.h>
+#endif
 
-namespace Dali
-{
-namespace Internal
-{
-namespace Adaptor
+// EXTERNAL HEADERS
+
+namespace Dali::Internal::Adaptor
 {
 DisplayConnection* DisplayConnectionAndroid::New()
 {
@@ -36,9 +35,7 @@ DisplayConnection* DisplayConnectionAndroid::New()
 }
 
 DisplayConnectionAndroid::DisplayConnectionAndroid()
-: mDisplay(NULL),
-  mSurfaceType(RenderSurfaceInterface::WINDOW_RENDER_SURFACE),
-  mGraphics(nullptr)
+: mDisplay(nullptr)
 {
 }
 
@@ -46,40 +43,25 @@ DisplayConnectionAndroid::~DisplayConnectionAndroid() = default;
 
 Any DisplayConnectionAndroid::GetDisplay()
 {
-  return Any(mDisplay);
+  return {mDisplay};
+}
+
+Any DisplayConnectionAndroid::GetNativeGraphicsDisplay()
+{
+#if defined(VULKAN_ENABLED)
+  return {nullptr};
+#else
+  return {mDisplay};
+#endif
 }
 
 void DisplayConnectionAndroid::ConsumeEvents()
 {
 }
 
-bool DisplayConnectionAndroid::InitializeGraphics()
+void DisplayConnectionAndroid::SetSurfaceType(Dali::Integration::RenderSurfaceInterface::Type type)
 {
-  auto               eglGraphics = static_cast<EglGraphics*>(mGraphics);
-  EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
-
-  if(!eglImpl.InitializeGles(mDisplay))
-  {
-    DALI_LOG_ERROR("Failed to initialize GLES.\n");
-    return false;
-  }
-
-  return true;
+  mDisplay = EGL_DEFAULT_DISPLAY;
 }
 
-void DisplayConnectionAndroid::SetSurfaceType(Dali::RenderSurfaceInterface::Type type)
-{
-  mSurfaceType = type;
-  mDisplay     = EGL_DEFAULT_DISPLAY;
-}
-
-void DisplayConnectionAndroid::SetGraphicsInterface(GraphicsInterface& graphics)
-{
-  mGraphics = &graphics;
-}
-
-} // namespace Adaptor
-
-} // namespace Internal
-
-} // namespace Dali
+} // namespace Dali::Internal::Adaptor

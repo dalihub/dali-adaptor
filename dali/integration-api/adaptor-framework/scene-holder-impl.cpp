@@ -33,7 +33,6 @@
 // INTERNAL INCLUDES
 #include <dali/internal/adaptor/common/adaptor-impl.h>
 #include <dali/internal/adaptor/common/lifecycle-observer.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 #include <dali/internal/input/common/key-impl.h>
 #include <dali/internal/input/common/physical-keyboard-impl.h>
 #include <dali/internal/system/common/time-service.h>
@@ -184,7 +183,7 @@ Uint16Pair SceneHolder::GetDpi() const
   return mDpi;
 }
 
-void SceneHolder::SetSurface(Dali::RenderSurfaceInterface* surface)
+void SceneHolder::SetSurface(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mSurface.reset(surface);
 
@@ -215,7 +214,7 @@ void SceneHolder::SurfaceResized(float width, float height)
   CreateRenderTarget();
 }
 
-Dali::RenderSurfaceInterface* SceneHolder::GetSurface() const
+Dali::Integration::RenderSurfaceInterface* SceneHolder::GetSurface() const
 {
   return mSurface.get();
 }

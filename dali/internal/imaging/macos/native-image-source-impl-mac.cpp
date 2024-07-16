@@ -21,12 +21,11 @@
 // EXTERNAL INCLUDES
 #include <dali/devel-api/common/stage.h>
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/gl-defines.h>
 
 // INTERNAL INCLUDES
 #include <dali/integration-api/adaptor-framework/render-surface-interface.h>
 #include <dali/internal/adaptor/common/adaptor-impl.h>
-#include <dali/internal/graphics/common/egl-image-extensions.h>
-#include <dali/internal/graphics/gles/egl-graphics.h>
 
 namespace Dali::Internal::Adaptor
 {

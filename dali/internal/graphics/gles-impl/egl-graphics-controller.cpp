@@ -157,7 +157,7 @@ void EglGraphicsController::InitializeGLES(Integration::GlAbstraction& glAbstrac
 }
 
 void EglGraphicsController::Initialize(Integration::GraphicsSyncAbstraction& syncImplementation,
-                                       Internal::Adaptor::GraphicsInterface& graphicsInterface)
+                                       Graphics::GraphicsInterface&          graphicsInterface)
 {
   DALI_LOG_RELEASE_INFO("Initializing Graphics Controller Phase 2\n");
   auto* syncImplPtr = static_cast<Internal::Adaptor::EglSyncImplementation*>(&syncImplementation);
@@ -223,7 +223,7 @@ void EglGraphicsController::ResolvePresentRenderTarget(GLES::RenderTarget* rende
   auto* rt = static_cast<GLES::RenderTarget*>(renderTarget);
   if(rt->GetCreateInfo().surface)
   {
-    auto* surfaceInterface = reinterpret_cast<Dali::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
+    auto* surfaceInterface = reinterpret_cast<Dali::Integration::RenderSurfaceInterface*>(rt->GetCreateInfo().surface);
     surfaceInterface->MakeContextCurrent();
     surfaceInterface->PostRender();
   }
@@ -374,13 +374,13 @@ const Graphics::Reflection& EglGraphicsController::GetProgramReflection(const Gr
   return static_cast<const Graphics::GLES::Program*>(&program)->GetReflection();
 }
 
-void EglGraphicsController::CreateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+void EglGraphicsController::CreateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   std::unique_ptr<GLES::Context> context = std::make_unique<GLES::Context>(*this, mGlAbstraction);
   mSurfaceContexts.push_back(std::move(std::make_pair(surface, std::move(context))));
 }
 
-void EglGraphicsController::DeleteSurfaceContext(Dali::RenderSurfaceInterface* surface)
+void EglGraphicsController::DeleteSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   mSurfaceContexts.erase(std::remove_if(
                            mSurfaceContexts.begin(), mSurfaceContexts.end(), [surface](SurfaceContextPair& iter) { return surface == iter.first; }),
@@ -401,7 +401,7 @@ void EglGraphicsController::ActivateResourceContext()
   }
 }
 
-void EglGraphicsController::ActivateSurfaceContext(Dali::RenderSurfaceInterface* surface)
+void EglGraphicsController::ActivateSurfaceContext(Dali::Integration::RenderSurfaceInterface* surface)
 {
   if(surface && mGraphics->IsResourceContextSupported())
   {
@@ -494,9 +494,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
   auto       count    = 0u;
   const auto commands = commandBuffer.GetCommands(count);
 
-  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) {
-    oss << "[commandCount:" << count << "]";
-  });
+  DALI_TRACE_BEGIN_WITH_MESSAGE_GENERATOR(gTraceFilter, "DALI_EGL_CONTROLLER_PROCESS", [&](std::ostringstream& oss) { oss << "[commandCount:" << count << "]"; });
 
   for(auto i = 0u; i < count; ++i)
   {
@@ -640,7 +638,7 @@ void EglGraphicsController::ProcessCommandBuffer(const GLES::CommandBuffer& comm
         if(targetInfo.surface)
         {
           // switch to surface context
-          mGraphics->ActivateSurfaceContext(static_cast<Dali::RenderSurfaceInterface*>(targetInfo.surface));
+          mGraphics->ActivateSurfaceContext(static_cast<Dali::Integration::RenderSurfaceInterface*>(targetInfo.surface));
         }
         else if(targetInfo.framebuffer)
         {

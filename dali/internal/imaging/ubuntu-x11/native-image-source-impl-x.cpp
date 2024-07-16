@@ -43,8 +43,8 @@ using Dali::Integration::PixelBuffer;
 namespace
 {
 /**
-   * Free an allocated XImage on destruction.
-   */
+ * Free an allocated XImage on destruction.
+ */
 struct XImageJanitor
 {
   XImageJanitor(XImage* const pXImage)
@@ -99,8 +99,8 @@ NativeImageSourceX::NativeImageSourceX(uint32_t width, uint32_t height, Dali::Na
 {
   DALI_ASSERT_ALWAYS(Dali::Stage::IsCoreThread() && "Core is not installed. Might call this API from worker thread?");
 
-  GraphicsInterface* graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
-  mEglGraphics                = static_cast<EglGraphics*>(graphics);
+  auto graphics = &(Adaptor::GetImplementation(Adaptor::Get()).GetGraphicsInterface());
+  mEglGraphics  = static_cast<EglGraphics*>(graphics);
 
   // assign the pixmap
   mPixmap = GetPixmapFromAny(nativeImageSource);
@@ -138,7 +138,7 @@ NativeImageSourceX::~NativeImageSourceX()
   if(mOwnPixmap && mPixmap)
   {
     // Temporarily disable this as this causes a crash with EFL Version 1.24.0
-    //ecore_x_pixmap_free(mPixmap);
+    // ecore_x_pixmap_free(mPixmap);
   }
 }
 

@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ namespace Dali
 {
 class FileStream;
 
-namespace Internal
-{
-namespace Adaptor
+namespace Graphics
 {
 class GraphicsInterface;
+}
+
+namespace Internal::Adaptor
+{
 class ThreadController;
 
 /**
@@ -44,7 +46,7 @@ public:
   /**
    * @brief Constructor
    */
-  ConfigurationManager(std::string systemCachePath, GraphicsInterface* graphics, ThreadController* threadController);
+  ConfigurationManager(std::string systemCachePath, Dali::Graphics::GraphicsInterface* graphics, ThreadController* threadController);
 
   /**
    * @brief Virtual Destructor for interface cleanup
@@ -105,7 +107,7 @@ public:
 
 private:                                                                // Data
   std::string        mSystemCacheFilePath;                              ///< The path of system cache file
-  GraphicsInterface* mGraphics;                                         ///< Graphics interface
+  Dali::Graphics::GraphicsInterface* mGraphics;                         ///< Graphics interface
   ThreadController*  mThreadController;                                 ///< The thread controller
   unsigned int       mMaxTextureSize;                                   ///< The largest texture that the GL can handle
   unsigned int       mMaxCombinedTextureUnits;                          ///< The maximum number of combined texture units
@@ -121,8 +123,7 @@ private:                                                                // Data
   bool               mMaxCombinedTextureUnitsCached : 1;                ///< Whether we have checked the maximum number of combined texture units
 };
 
-} // namespace Adaptor
-} // namespace Internal
+} // namespace Internal::Adaptor
 } // namespace Dali
 
 #endif // DALI_INTERNAL_ENVIRONMENT_CONFIGURATION_MANAGER_H
