@@ -73,6 +73,9 @@ BuildRequires:  pkgconfig(input-method-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
 
+BuildRequires:  glslang-devel
+BuildRequires:  glslang
+
 # WebP support only from Tizen 6 onwards
 %if 0%{?tizen_version_major} >= 6
 BuildRequires:  pkgconfig(libwebp)
