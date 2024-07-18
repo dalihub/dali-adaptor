@@ -481,24 +481,25 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
   int screenWidth, screenHeight;
   Internal::Adaptor::WindowSystem::GetScreenSize(screenWidth, screenHeight);
   int angle = DevelWindow::GetPhysicalOrientation(window);
+  Dali::Window::WindowSize size = window.GetSize();
 
   int           newX, newY;
   Dali::Vector2 newPosition;
 
   if(angle == 90)
   {
-    newX = screenHeight - y;
+    newX = size.GetWidth() - y;
     newY = x;
   }
   else if(angle == 180)
   {
-    newX = screenWidth - x;
-    newY = screenHeight - y;
+    newX = size.GetHeight() - x;
+    newY = size.GetWidth() - y;
   }
   else if(angle == 270)
   {
     newX = y;
-    newY = screenWidth - x;
+    newY = size.GetHeight() - x;
   }
   else
   {
@@ -686,8 +687,9 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
     Dali::Window::WindowPosition position = window.GetPosition();
     Dali::Window::WindowSize     size     = window.GetSize();
 
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
     // If the drop position is in the target object region, request drop data to the source object
-    if(IsIntersection(ev->x + position.GetX(), ev->y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
+    if(IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
     {
       mWindowTargetIndex = i;
       mWindowPosition    = Dali::Vector2(position.GetX(), position.GetY());
