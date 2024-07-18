@@ -290,23 +290,32 @@ struct Clipboard::Impl
       return;
     }
 
-    if(ev->data == nullptr || ev->len < 1)
+    if((ev->data == nullptr || ev->len < 1) && ev->mimetype == nullptr)
     {
       DALI_LOG_ERROR("no selection data.\n");
       return;
     }
 
-    size_t      dataLength = strlen(ev->data);
-    size_t      bufferSize = static_cast<size_t>(ev->len);
     std::string content;
-
-    if(dataLength < bufferSize)
+    if(ev->data == nullptr && ev->mimetype)
     {
-      content.append(ev->data, dataLength);
+      // fail case.
+      DALI_LOG_ERROR("cbhm [%s] data is empty.\n", ev->mimetype);
+      content.append("");
     }
     else
     {
-      content.append(ev->data, bufferSize);
+      size_t dataLength = strlen(ev->data);
+      size_t bufferSize = static_cast<size_t>(ev->len);
+
+      if(dataLength < bufferSize)
+      {
+        content.append(ev->data, dataLength);
+      }
+      else
+      {
+        content.append(ev->data, bufferSize);
+      }
     }
 
     DALI_LOG_RELEASE_INFO("receive data, type:%s, data:%s\n", ev->mimetype, content.c_str());
@@ -332,26 +341,37 @@ struct Clipboard::Impl
           // For safe processing, old offers are considered invalid offers.
           if(offer && offer == ev->offer && mLastOffer == offer)
           {
-            DALI_LOG_RELEASE_INFO("receive data, success signal emit, id:%u, type:%s\n", dataRequestId, mimeType.c_str());
-            mDataReceivedSignal.Emit(dataRequestId, mimeType.c_str(), content.c_str());
+            if(content.empty())
+            {
+              DALI_LOG_RELEASE_INFO("content is empty, id:%u\n", dataRequestId);
+              mDataReceivedSignal.Emit(dataRequestId, "", "");
+            }
+            else
+            {
+              DALI_LOG_RELEASE_INFO("receive data, success signal emit, id:%u, type:%s\n", dataRequestId, mimeType.c_str());
+              mDataReceivedSignal.Emit(dataRequestId, mimeType.c_str(), content.c_str());
+            }
 
             if(mReservedOfferReceives.count(dataRequestId))
             {
-              uint32_t reservedId = mReservedOfferReceives[dataRequestId];
-              if(mDataRequestItems.count(reservedId))
+              if(!content.empty())
               {
-                const auto&      reservedItem  = mDataRequestItems[reservedId];
-                std::string      reservedType  = static_cast<std::string>(reservedItem.first);
-                Ecore_Wl2_Offer* reservedOffer = static_cast<Ecore_Wl2_Offer*>(reservedItem.second);
-
-                if(reservedOffer)
+                uint32_t reservedId = mReservedOfferReceives[dataRequestId];
+                if(mDataRequestItems.count(reservedId))
                 {
-                  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
-                  Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+                  const auto&      reservedItem  = mDataRequestItems[reservedId];
+                  std::string      reservedType  = static_cast<std::string>(reservedItem.first);
+                  Ecore_Wl2_Offer* reservedOffer = static_cast<Ecore_Wl2_Offer*>(reservedItem.second);
 
-                  DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", reservedId, reservedType.c_str());
-                  ecore_wl2_offer_receive(reservedOffer, const_cast<char*>(reservedType.c_str()));
-                  ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+                  if(reservedOffer)
+                  {
+                    Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+                    Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
+
+                    DALI_LOG_RELEASE_INFO("offer_receive, id:%u, request type:%s\n", reservedId, reservedType.c_str());
+                    ecore_wl2_offer_receive(reservedOffer, const_cast<char*>(reservedType.c_str()));
+                    ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
+                  }
                 }
               }
               mReservedOfferReceives.erase(dataRequestId);
