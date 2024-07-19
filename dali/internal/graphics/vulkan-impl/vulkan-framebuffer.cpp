@@ -39,29 +39,27 @@ Framebuffer::~Framebuffer() = default;
 
 bool Framebuffer::InitializeResource()
 {
-  /*
-   * Renderpass handling.
-   * We get passed VulkanRenderPass
-   * For actual framebuffer creation, we need at least the first VulkanRenderPass to have a VulkanRenderPassImpl created
-   * and for subsequent VulkanRenderPasses to be compatible with the first (and can be created on the fly)
-   */
-
   // Create attachments
-  auto renderPass = static_cast<Vulkan::RenderPass*>(mCreateInfo.renderPasses[0]);
-
-  auto renderPassImpl = renderPass->GetImpl(); // Only generate actual render pass if needed
-  if(!renderPassImpl)
+  std::vector<FramebufferAttachment*> colorAttachments;
+  // for(auto& attachment : mCreateInfo.colorAttachments)
   {
-    renderPass->InitializeResource();
+    // auto graphicsTexture = static_cast<const Vulkan::Texture*>(attachment.texture);
+    // colorAttachments.push_back(FramebufferAttachment::NewColorAttachment(attachment.texture->GetVkHandle(), clearColor, AttachmentType::COLOR, false);
+  }
+  FramebufferAttachment* depthStencilAttachment{nullptr};
+  if(mCreateInfo.depthStencilAttachment.depthTexture || mCreateInfo.depthStencilAttachment.stencilTexture)
+  {
+    // depthStencilAttachment = FramebufferAttachment::NewDepthAttachment();
   }
 
-  auto&                               device = mController.GetGraphicsDevice();
-  std::vector<FramebufferAttachment*> colorAttachments;
-  FramebufferAttachment*              depthStencilAttachment{nullptr};
-  //@todo FINISH ME! (Needs texture -> image view bindings)
+  // Create initial render pass.
+  auto renderPassImpl = RenderPassImpl::New(mController.GetGraphicsDevice(),
+                                            colorAttachments,
+                                            depthStencilAttachment);
+
+  auto& device     = mController.GetGraphicsDevice();
   mFramebufferImpl = FramebufferImpl::New(device, renderPassImpl, colorAttachments, depthStencilAttachment, mCreateInfo.size.width, mCreateInfo.size.height);
 
-  //@todo Store all the render passes here. Will be used later to generate compatible render pass impls.
   return true;
 }
 

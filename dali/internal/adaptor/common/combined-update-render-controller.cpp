@@ -545,7 +545,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
 
   NotifyGraphicsInitialised();
 
-  //@todo Vk swaps this around, but we need to support surfaceless context for multi-window
+  // Generate swapchains if needed
   graphics.ConfigureSurface(mAdaptorInterfaces.GetRenderSurfaceInterface());
 
   // Tell core it has a context
@@ -777,7 +777,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     AddPerformanceMarker(PerformanceInterface::RENDER_START);
     TRACE_UPDATE_RENDER_BEGIN("DALI_RENDER");
 
-    // Upload shared resources
+    // Upload shared resources and process render messages
     TRACE_UPDATE_RENDER_BEGIN("DALI_PRE_RENDER");
     mCore.PreRender(renderStatus, mForceClear);
     TRACE_UPDATE_RENDER_END("DALI_PRE_RENDER");
