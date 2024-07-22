@@ -3706,6 +3706,22 @@ Any WindowBaseEcoreWl2::GetNativeBuffer() const
   return mEglWindow;
 }
 
+bool WindowBaseEcoreWl2::RelativeMotionGrab(uint32_t boundary)
+{
+  Ecore_Wl2_Pointer_Boundary wlPointerBoundary = static_cast<Ecore_Wl2_Pointer_Boundary>(boundary);
+  bool ret = ecore_wl2_window_relative_motion_grab(mEcoreWindow, wlPointerBoundary);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_grab, window: [%p], boundary:[%d] flag [%d]\n", mEcoreWindow, wlPointerBoundary, ret);
+  return ret;
+}
+
+bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
+{
+  bool ret = ecore_wl2_window_relative_motion_ungrab(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_relative_motion_ungrab, window: [%p], flag [%d]\n", mEcoreWindow, ret);
+  return ret;
+}
+
+
 } // namespace Adaptor
 
 } // namespace Internal

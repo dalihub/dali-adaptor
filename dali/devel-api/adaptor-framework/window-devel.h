@@ -707,6 +707,23 @@ DALI_ADAPTOR_API bool IsAlwaysOnTop(Window window);
 DALI_ADAPTOR_API Any GetNativeBuffer(Window window);
 
 /**
+ * @brief Requests relative motion grab
+ *
+ * @param[in] window The window instance.
+ * @param[in] boundary The Pointer edge boundary for grab.
+ * @return True if the request was successful, false otherwise.
+ */
+DALI_ADAPTOR_API bool RelativeMotionGrab(Window window, uint32_t boundary);
+
+/**
+ * @brief Requests relative motion ungrab
+ *
+ * @param[in] window The window instance.
+ * @return True if the request was successful, false otherwise.
+ */
+DALI_ADAPTOR_API bool RelativeMotionUnGrab(Window window);
+
+/**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.
  *
  * Intercepts KeyEvents in the window before dispatching KeyEvents to the control.

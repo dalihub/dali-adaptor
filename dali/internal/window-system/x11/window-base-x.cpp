@@ -1054,6 +1054,16 @@ Any WindowBaseX::GetNativeBuffer()
   return 0;
 }
 
+bool WindowBaseX::RelativeMotionGrab(uint32_t boundary)
+{
+  return false;
+}
+
+bool WindowBaseX::RelativeMotionUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

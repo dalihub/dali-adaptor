@@ -1653,6 +1653,17 @@ Dali::Any Window::GetNativeBuffer() const
   return mWindowBase->GetNativeBuffer();
 }
 
+bool Window::RelativeMotionGrab(uint32_t boundary)
+{
+  return mWindowBase->RelativeMotionGrab(boundary);
+}
+
+bool Window::RelativeMotionUnGrab()
+{
+  return mWindowBase->RelativeMotionUnGrab();
+}
+
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -554,6 +554,16 @@ public:
    */
   Any GetNativeBuffer() const override;
 
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RelativeMotionGrab()
+   */
+  bool RelativeMotionGrab(uint32_t boundary) override;
+
+  /**
+   * @copydoc Dali::Internal::Adaptor::WindowBase::RelativeMotionUnGrab()
+   */
+  bool RelativeMotionUnGrab() override;
+
 private:
   /**
    * Second stage initialization

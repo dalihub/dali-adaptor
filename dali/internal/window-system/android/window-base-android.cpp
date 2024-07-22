@@ -521,6 +521,16 @@ Any WindowBaseAndroid::GetNativeBuffer() const
   return 0;
 }
 
+bool WindowBaseAndroid::RelativeMotionGrab(uint32_t boundary)
+{
+  return false;
+}
+
+bool WindowBaseAndroid::RelativeMotionUnGrab()
+{
+  return false;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
