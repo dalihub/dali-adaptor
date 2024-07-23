@@ -40,8 +40,8 @@ namespace Adaptor
 {
 namespace
 {
-constexpr int32_t  SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
-constexpr uint32_t TIME_OUT_DURATION                            = 1000;
+constexpr int32_t  GL_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 30;
+constexpr uint32_t TIME_OUT_DURATION                        = 1000;
 } // namespace
 
 Capture::Capture()
@@ -121,11 +121,6 @@ void Capture::SetImageQuality(uint32_t quality)
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
 {
   return mNativeImageSourcePtr;
-}
-
-Dali::Texture Capture::GetTexture() const
-{
-  return mTexture;
 }
 
 Dali::Devel::PixelBuffer Capture::GetCapturedBuffer()
@@ -353,7 +348,6 @@ bool Capture::SaveFile()
   {
     return Dali::DevelNativeImageSource::EncodeToFile(*mNativeImageSourcePtr, mPath, mQuality);
   }
-
   return false;
 }
 
