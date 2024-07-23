@@ -40,8 +40,9 @@ namespace Adaptor
 {
 namespace
 {
-constexpr int32_t  SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
-constexpr uint32_t TIME_OUT_DURATION                            = 1000;
+static constexpr uint32_t ORDER_INDEX_CAPTURE_RENDER_TASK              = INT32_MAX;
+constexpr int32_t         SHADER_VERSION_NATIVE_IMAGE_SOURCE_AVAILABLE = 300;
+constexpr uint32_t        TIME_OUT_DURATION                            = 1000;
 } // namespace
 
 Capture::Capture()
@@ -116,6 +117,23 @@ void Capture::Start(Dali::Actor source, const Dali::Vector2& position, const Dal
 void Capture::SetImageQuality(uint32_t quality)
 {
   mQuality = quality;
+}
+
+void Capture::SetExclusive(bool exclusive)
+{
+  if(mIsExclusive != exclusive)
+  {
+    mIsExclusive = exclusive;
+    if(mRenderTask)
+    {
+      mRenderTask.SetExclusive(mIsExclusive);
+    }
+  }
+}
+
+bool Capture::IsExclusive() const
+{
+  return mIsExclusive;
 }
 
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
@@ -206,8 +224,8 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     return;
   }
 
-  Dali::Window window = DevelWindow::Get(source);
-  if(!window)
+  Dali::Integration::SceneHolder sceneHolder = Dali::Integration::SceneHolder::Get(source);
+  if(!sceneHolder)
   {
     DALI_LOG_ERROR("The source is not added on the scene\n");
     return;
@@ -235,7 +253,7 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     {
       DALI_LOG_ERROR("Camera must be on scene. Camera is connected to window now.\n");
     }
-    window.Add(mCameraActor);
+    sceneHolder.Add(mCameraActor);
     mSceneOffCameraAfterCaptureFinished = true;
   }
 
@@ -245,8 +263,10 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
     return;
   }
 
-  Dali::RenderTaskList taskList = window.GetRenderTaskList();
+  mSceneHolderHandle            = sceneHolder;
+  Dali::RenderTaskList taskList = sceneHolder.GetRenderTaskList();
   mRenderTask                   = taskList.CreateTask();
+  mRenderTask.SetOrderIndex(ORDER_INDEX_CAPTURE_RENDER_TASK);
   mRenderTask.SetRefreshRate(Dali::RenderTask::REFRESH_ONCE);
   mRenderTask.SetSourceActor(source);
   mRenderTask.SetCameraActor(mCameraActor);
@@ -254,6 +274,7 @@ void Capture::SetupRenderTask(const Dali::Vector2& position, const Dali::Vector2
   mRenderTask.SetFrameBuffer(mFrameBuffer);
   mRenderTask.SetClearColor(clearColor);
   mRenderTask.SetClearEnabled(true);
+  mRenderTask.SetExclusive(mIsExclusive);
   mRenderTask.SetProperty(Dali::RenderTask::Property::REQUIRES_SYNC, true);
   mRenderTask.FinishedSignal().Connect(this, &Capture::OnRenderFinished);
   mRenderTask.GetCameraActor().SetInvertYAxis(true);
@@ -278,14 +299,15 @@ void Capture::UnsetRenderTask()
     mCameraActor.Reset();
   }
 
-  if(mRenderTask)
+  Dali::Integration::SceneHolder sceneHolder = mSceneHolderHandle.GetHandle();
+  if(mRenderTask && sceneHolder)
   {
-    Dali::Window         window   = DevelWindow::Get(mSource);
-    Dali::RenderTaskList taskList = window.GetRenderTaskList();
+    Dali::RenderTaskList taskList = sceneHolder.GetRenderTaskList();
     taskList.RemoveTask(mRenderTask);
-    mRenderTask.Reset();
   }
+  mRenderTask.Reset();
   mSource.Reset();
+  mSceneHolderHandle.Reset();
 }
 
 bool Capture::IsRenderTaskSetup()

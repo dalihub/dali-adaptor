@@ -106,6 +106,15 @@ public:
   SceneHolder& operator=(SceneHolder&& rhs) noexcept;
 
   /**
+   * @brief Downcast BaseHandle to SceneHolder
+   *
+   * @SINCE_2_3.35
+   * @param[in] handle The handle need to downcast
+   * @return Whether it's a valid SceneHolder or not
+   */
+  static SceneHolder DownCast(BaseHandle handle);
+
+  /**
    * @brief Adds a child Actor to the SceneHolder.
    *
    * The child will be referenced.

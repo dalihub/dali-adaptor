@@ -49,6 +49,11 @@ SceneHolder::SceneHolder(SceneHolder&& rhs) noexcept = default;
 
 SceneHolder& SceneHolder::operator=(SceneHolder&& rhs) noexcept = default;
 
+SceneHolder SceneHolder::DownCast(BaseHandle handle)
+{
+  return SceneHolder(dynamic_cast<Dali::Internal::Adaptor::SceneHolder*>(handle.GetObjectPtr()));
+}
+
 SceneHolder::SceneHolder(Internal::Adaptor::SceneHolder* internal)
 : BaseHandle(internal)
 {

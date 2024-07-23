@@ -252,6 +252,20 @@ public:
   void SetImageQuality(uint32_t quality);
 
   /**
+   * @brief Sets whether the capture source should not be render on Screen or not.
+   * @SINCE_2_3.35
+   * @param[in] exclusive True if the source actors will only be rendered by this capture result
+   */
+  void SetExclusive(bool exclusive);
+
+  /**
+   * @brief Queries whether the Capture is exclusive or not.
+   * @SINCE_2_3.35
+   * @return True if the source actors will only be rendered by this capture result
+   */
+  bool IsExclusive() const;
+
+  /**
    * @brief Get NativeImageSourcePtr that is saved captured image.
    *
    * @SINCE_1_9.10
