@@ -19,7 +19,7 @@
 #include <dali/dali.h>
 #include <dali/integration-api/testing.h>
 #include <dali/internal/graphics/gles-impl/gles-graphics-shader.h>
-#include <test-graphics-application.h>
+#include <test-graphics-egl-application.h>
 
 int UtcDaliGlesStripLegacyCodeIfNeededTest1(void)
 {

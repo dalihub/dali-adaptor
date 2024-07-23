@@ -1,5 +1,4 @@
-#ifndef DALI_TEST_GRAPHICS_APPLICATION_H
-#define DALI_TEST_GRAPHICS_APPLICATION_H
+#pragma once
 
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
@@ -393,5 +392,3 @@ protected:
 };
 
 } // namespace Dali
-
-#endif // DALI_TEST_GRAPHICS_APPLICATION_H

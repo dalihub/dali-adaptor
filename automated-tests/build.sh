@@ -60,9 +60,14 @@ else
   for mod in `ls -1 src/ | grep -v CMakeList `
   do
       build=0
-      # Don't build dali-egl-graphics if we are using Vulkan...
+      # only build dali-egl-graphics if we are not using Vulkan.
       if [ $mod == 'dali-egl-graphics' ] ; then
           if [ $ENABLE_VULKAN == 0 ] ; then
+              build=1
+          fi
+      # only build dali-vk-graphics if we are using Vulkan.
+      elif [ $mod == 'dali-vk-graphics' ] ; then
+          if [ $ENABLE_VULKAN == 1 ] ; then
               build=1
           fi
       elif [ $mod != 'common' ] && [ $mod != 'manual' ]; then
