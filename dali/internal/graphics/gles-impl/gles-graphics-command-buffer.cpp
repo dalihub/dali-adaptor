@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,6 +238,16 @@ CommandBuffer::CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo
 }
 
 CommandBuffer::~CommandBuffer() = default;
+
+void CommandBuffer::Begin(const Graphics::CommandBufferBeginInfo& info)
+{
+  // Nothing to do for GL
+}
+
+void CommandBuffer::End()
+{
+  // Nothing to do for GL
+}
 
 void CommandBuffer::BindVertexBuffers(uint32_t                                    firstBinding,
                                       const std::vector<const Graphics::Buffer*>& buffers,

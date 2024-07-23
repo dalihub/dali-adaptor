@@ -2,7 +2,7 @@
 #define DALI_GRAPHICS_GLES_COMMAND_BUFFER_H
 
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,10 +98,10 @@ struct Command
    * @brief Copy constructor
    * @param[in] rhs Command
    */
-  Command(const Command& rhs) = default;
+  Command(const Command& rhs)            = default;
   Command& operator=(const Command& rhs) = default;
   Command(Command&& rhs) noexcept        = delete;
-  Command& operator=(Command&& rhs) = delete;
+  Command& operator=(Command&& rhs)      = delete;
 
   CommandType type{CommandType::FLUSH}; ///< Type of command
 
@@ -232,6 +232,16 @@ public:
   CommandBuffer(const Graphics::CommandBufferCreateInfo& createInfo, EglGraphicsController& controller);
 
   ~CommandBuffer() override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::Begin
+   */
+  void Begin(const Graphics::CommandBufferBeginInfo& info) override;
+
+  /**
+   * @copydoc Dali::Graphics::CommandBuffer::End
+   */
+  void End() override;
 
   /**
    * @copydoc Dali::Graphics::CommandBuffer::BindVertexBuffers

@@ -27,9 +27,15 @@ ARG_ENABLE( ENABLE_RENAME_SO enable_rename_so "${ENABLE_VAL};1" "Specify whether
 ARG_ENABLE( ENABLE_COVERAGE enable_coverage "${ENABLE_VAL}" "Enables coverage" )
 
 ARG_ENABLE( ENABLE_VULKAN enable_vulkan "${ENABLE_VAL}" "Enables Vulkan build")
+ARG_ENABLE( ENABLE_GLSLANG enable_glslang "${ENABLE_VAL}" "Enables Vulkan GLSLang")
 
 # help option
 ARG_ENABLE( PRINT_HELP print_help "${ENABLE_VAL}" "Prints help" )
+
+# If Vulkan is enabled GLSLang is used by default
+IF( ENABLE_VULKAN )
+  SET(enable_glslang ON)
+ENDIF()
 
 IF( print_help )
   MESSAGE( STATUS ${HELP_ENABLES} )
@@ -114,6 +120,7 @@ CHECK_MODULE_AND_SET( VCONF vconf [] )
 CHECK_MODULE_AND_SET( LIBUV libuv [] )
 CHECK_MODULE_AND_SET( GLIB glib-2.0 [] )
 CHECK_MODULE_AND_SET( VULKAN vulkan [] )
+CHECK_MODULE_AND_SET( GLSLANG glslang [] )
 CHECK_MODULE_AND_SET( X11 x11 [] )
 CHECK_MODULE_AND_SET( XCB x11-xcb [] )
 CHECK_MODULE_AND_SET( XDAMAGE xdamage [] )
@@ -316,7 +323,7 @@ SET( DALI_CFLAGS
 )
 
 IF (NOT APPLE)
-  # Default set of linked librarires
+  # Default set of linked libraries
   SET( DALI_LDFLAGS
     ${DALICORE_LDFLAGS}
     ${OPENGLES20_LDFLAGS}
@@ -342,9 +349,6 @@ IF (NOT APPLE)
     -lturbojpeg
     -ljpeg
   )
-IF(VULKAN_ENABLED)
-  SET( DALI_LDFLAGS $DALI_LDFLAGS, ${VULKAN_LDFLAGS})
-ENDIF()
 
 if( NOT ANDROID_PROFILE )
   SET( DALI_LDFLAGS ${DALI_LDFLAGS}
@@ -514,6 +518,19 @@ IF(enable_vulkan)
   ENDIF()
   SET(DALI_CFLAGS ${DALI_CFLAGS} ${VULKAN_CFLAGS} )
   SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${VULKAN_LDFLAGS} )
+ENDIF()
+
+IF(enable_glslang)
+  # glsllang-dev package on Ubuntu seems to be broken and doesn't
+  # provide valid cmake config files. On Tizen cmake files are valid
+  # but there's no pkg-config files so we handle both ways of obtaining
+  # package configuration.
+  IF(NOT GLSLANG_LDFLAGS)
+    FIND_PACKAGE(glslang)
+    SET(DALI_LDFLAGS ${DALI_LDFLAGS} glslang::glslang )
+  ELSE()
+    SET(DALI_LDFLAGS ${DALI_LDFLAGS} ${GLSLANG_LDFLAGS} )
+  ENDIF()
 ENDIF()
 
 IF(LIBUV_X11_PROFILE)

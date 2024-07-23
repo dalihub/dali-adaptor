@@ -17,13 +17,14 @@
  * limitations under the License.
  */
 
-#include <dali/graphics-api/graphics-command-buffer.h>
 #include <dali/graphics-api/graphics-command-buffer-create-info.h>
+#include <dali/graphics-api/graphics-command-buffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
 namespace Dali::Graphics::Vulkan
 {
 class CommandBufferImpl;
+class Swapchain;
 
 using CommandBufferResource = Resource<Graphics::CommandBuffer, Graphics::CommandBufferCreateInfo>;
 
@@ -49,10 +50,13 @@ public:
    */
   void DiscardResource() override;
 
+  void Begin(const Graphics::CommandBufferBeginInfo& info) override;
 
-  void BindVertexBuffers(uint32_t                          firstBinding,
+  void End() override;
+
+  void BindVertexBuffers(uint32_t                                    firstBinding,
                          const std::vector<const Graphics::Buffer*>& buffers,
-                         const std::vector<uint32_t>&      offsets) override;
+                         const std::vector<uint32_t>&                offsets) override;
 
   /**
    * @brief Binds uniform buffers
@@ -90,8 +94,8 @@ public:
    * @param[in] binding push constants binding index
    */
   void BindPushConstants(void*    data,
-                                 uint32_t size,
-                                 uint32_t binding) override;
+                         uint32_t size,
+                         uint32_t binding) override;
 
   /**
    * @brief Binds index buffer
@@ -105,8 +109,8 @@ public:
    * @param[in] format Format of index buffer
    */
   void BindIndexBuffer(const Graphics::Buffer& buffer,
-                               uint32_t      offset,
-                               Format        format) override;
+                       uint32_t                offset,
+                       Format                  format) override;
   /**
    * @brief Begins render pass
    *
@@ -122,8 +126,8 @@ public:
    * @param[in] clearValues clear values (compatible with renderpass spec)
    */
   void BeginRenderPass(
-    Graphics::RenderPass*                    renderPass,
-    Graphics::RenderTarget*                  renderTarget,
+    Graphics::RenderPass*          renderPass,
+    Graphics::RenderTarget*        renderTarget,
     Rect2D                         renderArea,
     const std::vector<ClearValue>& clearValues) override;
 
@@ -199,10 +203,10 @@ public:
    * @param[in] stride stride between draw parameters
    */
   void DrawIndexedIndirect(
-    Graphics::Buffer&  buffer,
-    uint32_t offset,
-    uint32_t drawCount,
-    uint32_t stride) override;
+    Graphics::Buffer& buffer,
+    uint32_t          offset,
+    uint32_t          drawCount,
+    uint32_t          stride) override;
 
   /**
    * @brief Draws using native API (via callback)
@@ -300,8 +304,8 @@ public:
    * @param[in] compareMask The bitplanes from the stencil buffer that are active.
    */
   void SetStencilFunc(Graphics::CompareOp compareOp,
-                              uint32_t            reference,
-                              uint32_t            compareMask) override;
+                      uint32_t            reference,
+                      uint32_t            compareMask) override;
 
   /**
    * @brief Set how subsequent draws will affect the stencil buffer.
@@ -310,8 +314,8 @@ public:
    * @param[in] depthFailOp What happens to stencil buffer if drawing a pixel passes stencil but fails depth test.
    */
   void SetStencilOp(Graphics::StencilOp failOp,
-                            Graphics::StencilOp passOp,
-                            Graphics::StencilOp depthFailOp) override;
+                    Graphics::StencilOp passOp,
+                    Graphics::StencilOp depthFailOp) override;
 
   /**
    * @brief Defines the comparison operator for passing the depth test.
@@ -334,10 +338,25 @@ public:
    */
   void SetDepthWriteEnable(bool depthWriteEnable) override;
 
+public: //API
+  /**
+   * Get the last swapchain referenced by a BeginRenderPass command in this command buffer.
+   *
+   * @todo Should split the command buffer up into multiple buffers if there is more than one
+   * render target referenced in it.
+   */
+  Swapchain* GetLastSwapchain() const;
+
+  CommandBufferImpl* GetImpl() const
+  {
+    return mCommandBufferImpl;
+  }
+
 private:
   CommandBufferImpl* mCommandBufferImpl;
+  Swapchain*         mLastSwapchain{nullptr};
 };
 
 } // namespace Dali::Graphics::Vulkan
 
-#endif //DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H
+#endif // DALI_GRAPHICS_VULKAN_COMMAND_BUFFER_H

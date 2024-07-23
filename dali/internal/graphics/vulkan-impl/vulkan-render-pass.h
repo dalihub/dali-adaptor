@@ -20,42 +20,39 @@
 
 #include <dali/internal/graphics/vulkan-impl/vulkan-graphics-resource.h>
 
-#include <dali/graphics-api/graphics-render-pass.h>
 #include <dali/graphics-api/graphics-render-pass-create-info.h>
+#include <dali/graphics-api/graphics-render-pass.h>
 
 namespace Dali::Graphics::Vulkan
 {
 class RenderPassImpl;
 
-using RenderPassResource = Resource<Graphics::RenderPass, Graphics::RenderPassCreateInfo>;
-class RenderPass : public RenderPassResource
+/**
+ * This class represents a set of render pass operations.
+ *
+ * This class is not directly associated with a graphics resource, and is not
+ * responsible for the lifetime of actual vulkan render pass objects. That is
+ * instead the responsibility of the Framebuffer implementation.
+ *
+ * When this render pass is used, the Framebuffer will find or create a compatible
+ * render pass implementation, and cache it.
+ */
+class RenderPass : public Graphics::RenderPass
 {
 public:
   RenderPass(const Graphics::RenderPassCreateInfo& createInfo, VulkanGraphicsController& controller);
 
   ~RenderPass() override;
 
-  /**
-   * @brief Called when GL resources are destroyed
-   */
-  void DestroyResource() override;
-
-  /**
-   * @brief Called when initializing the resource
-   *
-   * @return True on success
-   */
-  bool InitializeResource() override;
-
-  /**
-   * @brief Called when UniquePtr<> on client-side dies
-   */
-  void DiscardResource() override;
-
-  RenderPassImpl* GetImpl();
+  [[nodiscard]] const Graphics::RenderPassCreateInfo& GetCreateInfo() const
+  {
+    return mCreateInfo;
+  }
 
 private:
-  RenderPassImpl* mRenderPassImpl;
+  Graphics::RenderPassCreateInfo               mCreateInfo;
+  VulkanGraphicsController&                    mController;
+  std::vector<Graphics::AttachmentDescription> mAttachments;
 };
 
 } // namespace Dali::Graphics::Vulkan

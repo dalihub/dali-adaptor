@@ -20,6 +20,8 @@
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-pass-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-render-pass.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-types.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #include <dali/integration-api/debug.h>
@@ -122,10 +124,11 @@ FramebufferImpl* FramebufferImpl::New(
   std::vector<FramebufferAttachment*>& attachments,
   uint32_t                             width,
   uint32_t                             height,
-  bool                                 hasDepthAttachments,
-  bool                                 takeRenderPassOwnership)
+  bool                                 hasDepthAttachments)
 {
   std::vector<vk::ImageView> imageViewAttachments;
+
+  DALI_ASSERT_ALWAYS(renderPass != nullptr && "You require more render passes!");
 
   std::transform(attachments.cbegin(),
                  attachments.cend(),
@@ -142,11 +145,10 @@ FramebufferImpl* FramebufferImpl::New(
   return new FramebufferImpl(device,
                              attachments,
                              vkFramebuffer,
-                             renderPass->GetVkHandle(),
+                             *renderPass,
                              width,
                              height,
-                             hasDepthAttachments,
-                             takeRenderPassOwnership);
+                             hasDepthAttachments);
 }
 
 FramebufferImpl* FramebufferImpl::New(
@@ -183,11 +185,10 @@ FramebufferImpl* FramebufferImpl::New(
   auto attachments = std::vector<FramebufferAttachment*>{};
 
   // Flag that indicates if the render pass is externally provided
-  bool renderPassTakeOwnership = false;
   if(renderPass == nullptr)
   {
-    renderPass              = RenderPassImpl::New(device, colorAttachments, depthAttachment);
-    renderPassTakeOwnership = true;
+    // Create compatible render pass
+    renderPass = RenderPassImpl::New(device, colorAttachments, depthAttachment);
   }
   attachments.reserve(colorAttachments.size());
   attachments.insert(attachments.begin(), colorAttachments.begin(), colorAttachments.end());
@@ -195,26 +196,24 @@ FramebufferImpl* FramebufferImpl::New(
   {
     attachments.push_back(depthAttachment);
   }
-  return FramebufferImpl::New(device, renderPass, attachments, width, height, hasDepth, renderPassTakeOwnership);
+  return FramebufferImpl::New(device, renderPass, attachments, width, height, hasDepth);
 }
 
 FramebufferImpl::FramebufferImpl(Device&                                    graphicsDevice,
                                  const std::vector<FramebufferAttachment*>& attachments,
                                  vk::Framebuffer                            vkHandle,
-                                 vk::RenderPass                             renderPass,
+                                 const RenderPassImpl&                      renderPassImpl,
                                  uint32_t                                   width,
                                  uint32_t                                   height,
-                                 bool                                       hasDepthAttachment,
-                                 bool                                       takeRenderPassOwnership)
+                                 bool                                       hasDepthAttachment)
 : mGraphicsDevice(&graphicsDevice),
   mWidth(width),
   mHeight(height),
   mAttachments(attachments),
   mFramebuffer(vkHandle),
-  mRenderPass(renderPass),
-  mHasDepthAttachment(hasDepthAttachment),
-  mRenderPassOwned(takeRenderPassOwnership)
+  mHasDepthAttachment(hasDepthAttachment)
 {
+  mRenderPasses.push_back(RenderPassMapElement{nullptr, const_cast<RenderPassImpl*>(&renderPassImpl)});
 }
 
 uint32_t FramebufferImpl::GetWidth() const
@@ -303,9 +302,42 @@ uint32_t FramebufferImpl::GetAttachmentCount(AttachmentType type) const
   return 0u;
 }
 
-vk::RenderPass FramebufferImpl::GetRenderPass() const
+RenderPassImpl* FramebufferImpl::GetRenderPass(RenderPass* renderPass)
 {
-  return mRenderPass;
+  auto attachments  = renderPass->GetCreateInfo().attachments;
+  auto matchLoadOp  = attachments->front().loadOp;
+  auto matchStoreOp = attachments->front().storeOp;
+
+  for(auto& element : mRenderPasses)
+  {
+    // Test renderpass first
+    if(element.renderPass != nullptr)
+    {
+      auto firstAttachment = element.renderPass->GetCreateInfo().attachments->front();
+      if(firstAttachment.loadOp == matchLoadOp &&
+         firstAttachment.storeOp == matchStoreOp)
+      {
+        return element.renderPassImpl;
+      }
+    }
+    else
+    {
+      DALI_ASSERT_DEBUG(element.renderPassImpl != nullptr && "Render pass list doesn't contain impl");
+      auto createInfo = element.renderPassImpl->GetCreateInfo();
+
+      if(createInfo.attachmentDescriptions[0].loadOp == VkLoadOpType(matchLoadOp).loadOp &&
+         createInfo.attachmentDescriptions[0].storeOp == VkStoreOpType(matchStoreOp).storeOp)
+      {
+        // Point at passed in render pass... should be a weak ptr... What's lifecycle?!
+        element.renderPass = renderPass;
+        return element.renderPassImpl;
+      }
+    }
+  }
+
+  // @todo create new render pass from existing + load/store op, add it to mRenderPasses, and return it.
+
+  return mRenderPasses[0].renderPassImpl;
 }
 
 vk::Framebuffer FramebufferImpl::GetVkHandle() const
@@ -333,7 +365,8 @@ bool FramebufferImpl::OnDestroy()
   auto device      = mGraphicsDevice->GetLogicalDevice();
   auto frameBuffer = mFramebuffer;
 
-  vk::RenderPass renderPass = mRenderPassOwned ? mRenderPass : vk::RenderPass{};
+  ///@todo Destroy all render passes.
+  vk::RenderPass renderPass = mRenderPasses[0].renderPassImpl->GetVkHandle();
 
   auto allocator = &mGraphicsDevice->GetAllocator();
 
@@ -346,8 +379,7 @@ bool FramebufferImpl::OnDestroy()
                                      {
                                        DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: render pass->%p\n", static_cast<VkRenderPass>(renderPass))
                                        device.destroyRenderPass(renderPass, allocator);
-                                     }
-                                   });
+                                     } });
 
   return false;
 }

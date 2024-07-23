@@ -17,7 +17,7 @@
 
 Name:       dali2-adaptor
 Summary:    The DALi Tizen Adaptor
-Version:    2.3.32
+Version:    2.3.33
 Release:    1
 Group:      System/Libraries
 License:    Apache-2.0 and BSD-3-Clause and MIT
@@ -72,6 +72,9 @@ BuildRequires:  pkgconfig(wayland-client)
 BuildRequires:  pkgconfig(input-method-client)
 BuildRequires:  wayland-devel
 BuildRequires:  wayland-extension-client-devel
+
+BuildRequires:  glslang-devel
+BuildRequires:  glslang
 
 # WebP support only from Tizen 6 onwards
 %if 0%{?tizen_version_major} >= 6
