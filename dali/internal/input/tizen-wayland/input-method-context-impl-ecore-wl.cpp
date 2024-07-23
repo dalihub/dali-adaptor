@@ -126,6 +126,27 @@ size_t Utf8SequenceLength(const unsigned char leadByte)
   return length;
 }
 
+size_t GetNumberOfUtf8Characters(const char* utf8, size_t length)
+{
+  size_t numberOfCharacters = 0u;
+
+  const uint8_t* begin = reinterpret_cast<const uint8_t*>(utf8);
+  const uint8_t* end   = reinterpret_cast<const uint8_t*>(utf8 + length);
+
+  while(begin < end)
+  {
+    size_t sequenceLength = Utf8SequenceLength(static_cast<unsigned char>(*begin));
+    if(sequenceLength == 0u)
+    {
+      // Invalid case, return zero to avoid infinity loop.
+      return 0u;
+    }
+    begin += sequenceLength;
+    numberOfCharacters++;
+  }
+  return numberOfCharacters;
+}
+
 // Static function calls used by ecore 'c' style callback registration
 void Commit(void* data, Ecore_IMF_Context* imfContext, void* eventInfo)
 {
@@ -684,16 +705,24 @@ bool InputMethodContextEcoreWl::RetrieveSurrounding(void* data, ImfContext* imfC
 
       if(plainText)
       {
-        // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
-        *text = strdup(plainText);
-
         // If the current input panel is password mode, dali should replace the plain text with '*' (Asterisk) character.
-        if((ecore_imf_context_input_hint_get(mIMFContext) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA) && *text)
+        if(ecore_imf_context_input_hint_get(mIMFContext) & ECORE_IMF_INPUT_HINT_SENSITIVE_DATA)
         {
-          for(char* iter = *text; *iter; ++iter)
+          size_t textLength = callbackData.currentText.length();
+          size_t utf8Length = GetNumberOfUtf8Characters(plainText, textLength);
+          if(textLength > 0u && utf8Length == 0u)
           {
-            *iter = '*';
+            DALI_LOG_ERROR("Invalid utf8 characters, utf8 len:%zu, text len:%zu, text:%s\n", utf8Length, textLength, plainText);
+            return EINA_FALSE;
           }
+
+          std::string asterisks(utf8Length, '*');
+          *text = strdup(asterisks.c_str());
+        }
+        else
+        {
+          // The memory allocated by strdup() can be freed by ecore_imf_context_surrounding_get() internally.
+          *text = strdup(plainText);
         }
 
         return EINA_TRUE;
