@@ -352,11 +352,14 @@ void WindowRenderSurface::DestroySurface()
 {
   DALI_LOG_TRACE_METHOD(gWindowRenderSurfaceLogFilter);
 
-  DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: SurfaceId(%d) WinId (%d)\n",
-                        mSurfaceId,
-                        mWindowBase->GetNativeWindowId());
-  mGraphics->DestroySurface(mSurfaceId);
-  mSurfaceId = Graphics::INVALID_SURFACE_ID;
+  if(DALI_LIKELY(mGraphics))
+  {
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::DestroySurface: SurfaceId(%d) WinId (%d)\n",
+                          mSurfaceId,
+                          mWindowBase->GetNativeWindowId());
+    mGraphics->DestroySurface(mSurfaceId);
+    mSurfaceId = Graphics::INVALID_SURFACE_ID;
+  }
 }
 
 bool WindowRenderSurface::ReplaceGraphicsSurface()
@@ -375,7 +378,20 @@ bool WindowRenderSurface::ReplaceGraphicsSurface()
     height = mPositionSize.width;
   }
 
-  return mGraphics->ReplaceSurface(mSurfaceId, width, height);
+  if(DALI_LIKELY(mGraphics))
+  {
+    DALI_LOG_RELEASE_INFO("WindowRenderSurface::ReplaceGraphicsSurface: SurfaceId(%d) WinId (%d), width(%d) height(%d)\n",
+                          mSurfaceId,
+                          mWindowBase->GetNativeWindowId(),
+                          width,
+                          height);
+    return mGraphics->ReplaceSurface(mSurfaceId, width, height);
+  }
+  else
+  {
+    DALI_LOG_ERROR("Graphics interface is not initialized yet.");
+    return false;
+  }
 }
 
 void WindowRenderSurface::UpdatePositionSize(Dali::PositionSize positionSize)
