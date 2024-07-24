@@ -311,13 +311,17 @@ int GetWindowIdFromActor(Dali::Actor actor)
 
   if(actor.GetProperty<bool>(Dali::Actor::Property::CONNECTED_TO_SCENE))
   {
-    Any nativeWindowHandle = Dali::Integration::SceneHolder::Get(actor).GetNativeHandle();
+    auto sceneHolder = Dali::Integration::SceneHolder::Get(actor);
+    if(DALI_LIKELY(sceneHolder))
+    {
+      Any nativeWindowHandle = sceneHolder.GetNativeHandle();
 
 #ifdef ECORE_WAYLAND2
-    windowId = ecore_wl2_window_id_get(AnyCast<Ecore_Wl2_Window*>(nativeWindowHandle));
+      windowId = ecore_wl2_window_id_get(AnyCast<Ecore_Wl2_Window*>(nativeWindowHandle));
 #else
-    windowId = ecore_wl_window_id_get(AnyCast<Ecore_Wl_Window*>(nativeWindowHandle));
+      windowId = ecore_wl_window_id_get(AnyCast<Ecore_Wl_Window*>(nativeWindowHandle));
 #endif
+    }
   }
 
   return windowId;
@@ -1224,7 +1228,7 @@ bool InputMethodContextEcoreWl::SetInputPanelPositionAlign(int x, int y, Dali::I
   if(mIMFContext)
   {
     Ecore_IMF_Input_Panel_Align inputPanelAlign = ECORE_IMF_INPUT_PANEL_ALIGN_TOP_LEFT;
-    switch (align)
+    switch(align)
     {
       case Dali::InputMethodContext::InputPanelAlign::TOP_LEFT:
       {
