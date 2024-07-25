@@ -24,7 +24,6 @@
 #include <unistd.h>
 
 // INTERNAL INCLUDES
-#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-system.h>
 
@@ -71,9 +70,9 @@ static Eina_Bool EcoreEventDataSend(void* data, int type, void* event)
 
 static Eina_Bool EcoreEventDataSourceEnd(void* data, int type, void* event)
 {
-  Ecore_Wl2_Event_Data_Source_End* ev      = reinterpret_cast<Ecore_Wl2_Event_Data_Source_End*>(event);
+  Ecore_Wl2_Event_Data_Source_End* event_      = reinterpret_cast<Ecore_Wl2_Event_Data_Source_End*>(event);
   DragAndDropEcoreWl*              dndImpl = reinterpret_cast<DragAndDropEcoreWl*>(data);
-  if(ev->cancelled)
+  if(event_->cancelled)
   {
     dndImpl->CallSourceEvent(Dali::DragAndDrop::SourceEventType::CANCEL);
   }
@@ -118,10 +117,10 @@ static Eina_Bool EcoreEventDataDrop(void* data, int type, void* event)
 
 static Eina_Bool EcoreEventDataEnter(void* data, int type, void* event)
 {
-  Ecore_Wl2_Event_Dnd_Enter* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Enter*>(event);
+  Ecore_Wl2_Event_Dnd_Enter* event_ = reinterpret_cast<Ecore_Wl2_Event_Dnd_Enter*>(event);
 
   // Set default offer is reject
-  ecore_wl2_offer_accept(ev->offer, NULL);
+  ecore_wl2_offer_accept(event_->offer, nullptr);
   return ECORE_CALLBACK_PASS_ON;
 }
 
@@ -207,13 +206,13 @@ bool DragAndDropEcoreWl::StartDragAndDrop(Dali::Actor source, Dali::Window shado
   // Start Drag and Drop
   Ecore_Wl2_Window*  parentWindow = AnyCast<Ecore_Wl2_Window*>(parent.GetNativeHandle());
   Ecore_Wl2_Window*  dragWindow   = AnyCast<Ecore_Wl2_Window*>(mDragWindow.GetNativeHandle());
-  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Display* display      = ecore_wl2_connected_display_get(nullptr);
   Ecore_Wl2_Input*   input        = ecore_wl2_input_default_input_get(display);
 
   // Set mime type for drag and drop
   const char* mimeTypes[2];
   mimeTypes[0] = mMimeType.c_str();
-  mimeTypes[1] = NULL;
+  mimeTypes[1] = nullptr;
 
   // Set mime type
   ecore_wl2_dnd_drag_types_set(input, (const char**)mimeTypes);
@@ -405,8 +404,8 @@ static Eina_Bool WriteDelayedDataTofd(void* data, Ecore_Fd_Handler* fd_handler)
 
 void DragAndDropEcoreWl::SendData(void* event)
 {
-  Ecore_Wl2_Event_Data_Source_Send* ev = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send*>(event);
-  if(ev->serial != mSerial)
+  Ecore_Wl2_Event_Data_Source_Send* event_ = reinterpret_cast<Ecore_Wl2_Event_Data_Source_Send*>(event);
+  if(event_->serial != mSerial)
   {
     return;
   }
@@ -432,40 +431,40 @@ void DragAndDropEcoreWl::SendData(void* event)
   memcpy(data->slice.mem, mData.c_str(), dataLength);
   ((char*)data->slice.mem)[dataLength] = '\0';
 
-  ecore_main_fd_handler_add(ev->fd, ECORE_FD_WRITE, WriteDelayedDataTofd, data, NULL, NULL);
+  ecore_main_fd_handler_add(event_->fd, ECORE_FD_WRITE, WriteDelayedDataTofd, data, nullptr, nullptr);
 }
 
 void DragAndDropEcoreWl::ReceiveData(void* event)
 {
-  Ecore_Wl2_Event_Offer_Data_Ready* ev = reinterpret_cast<Ecore_Wl2_Event_Offer_Data_Ready*>(event);
+  Ecore_Wl2_Event_Offer_Data_Ready* event_ = reinterpret_cast<Ecore_Wl2_Event_Offer_Data_Ready*>(event);
 
   if(mTargetIndex != -1)
   {
-    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, ev->mimetype, ev->data);
+    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mPosition, event_->mimetype, event_->data);
     mDropTargets[mTargetIndex].callback(dragEvent);
     mDropTargets[mTargetIndex].inside = false;
   }
   mTargetIndex = -1;
 
 #ifdef OVER_TIZEN_VERSION_8
-  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+  Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
   Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
 #endif
 
   if(mWindowTargetIndex != -1)
   {
-    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
+    Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, event_->mimetype, event_->data);
     mDropWindowTargets[mWindowTargetIndex].callback(dragEvent);
     mDropWindowTargets[mWindowTargetIndex].inside = false;
   }
 #ifdef OVER_TIZEN_VERSION_8
-  else if(ev->offer != ecore_wl2_dnd_selection_get(input))
+  else if(event_->offer != ecore_wl2_dnd_selection_get(input))
   {
     for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
     {
-      if(ev->win == static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
+      if(event_->win == static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
       {
-        Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, ev->mimetype, ev->data);
+        Dali::DragAndDrop::DragEvent dragEvent(Dali::DragAndDrop::DragType::DROP, mWindowPosition, event_->mimetype, event_->data);
         mDropWindowTargets[i].callback(dragEvent);
         break;
       }
@@ -513,15 +512,120 @@ Vector2 DragAndDropEcoreWl::RecalculatePositionByOrientation(int x, int y, Dali:
   return newPosition;
 }
 
+void DragAndDropEcoreWl::TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes,  Dali::DragAndDrop::DragEvent& dragEvent)
+{
+  Vector2 position = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
+  Vector2 size     = mDropTargets[targetIndex].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
+
+  // Recalculate Cursor by Orientation
+  Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[targetIndex].target);
+  Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
+  bool currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
+
+  // Calculate Drag Enter, Leave, Move Event
+  if(currentInside && !mDropTargets[targetIndex].inside)
+  {
+    mDropTargets[targetIndex].inside = true;
+    // Call Enter Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+    // Accept Offer
+    ecore_wl2_offer_mimes_set(event->offer, mimes);
+  }
+  else if(!currentInside && mDropTargets[targetIndex].inside)
+  {
+    mDropTargets[targetIndex].inside = false;
+    // Call Leave Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+    // Reject Offer
+    ecore_wl2_offer_accept(event->offer, nullptr);
+  }
+  else if(currentInside && mDropTargets[targetIndex].inside)
+  {
+    // Call Move Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+  }
+}
+
+void DragAndDropEcoreWl::ProcessDragEventsForTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes)
+{
+  for(std::size_t targetIndex = 0; targetIndex < mDropTargets.size(); targetIndex++)
+  {
+    if(event->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[targetIndex].parentWindowId))
+    {
+      continue;
+    }
+
+    TriggerDragEventForTarget(targetIndex, event, mimes, dragEvent);
+  }
+}
+
+void DragAndDropEcoreWl::TriggerDragEventForWindowTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent)
+{
+  // Recalculate Cursor by Orientation
+  Dali::Window                 window   = mDropWindowTargets[targetIndex].target;
+  Dali::Window::WindowPosition position = window.GetPosition();
+  Dali::Window::WindowSize     size     = window.GetSize();
+
+  Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
+  bool currentInside = IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
+
+  // Calculate Drag Enter, Leave, Move Event
+  if(currentInside && !mDropTargets[targetIndex].inside)
+  {
+    mDropTargets[targetIndex].inside = true;
+    // Call Enter Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+    // Accept Offer
+    ecore_wl2_offer_mimes_set(event->offer, mimes);
+  }
+  else if(!currentInside && mDropTargets[targetIndex].inside)
+  {
+    mDropTargets[targetIndex].inside = false;
+    // Call Leave Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+    // Reject Offer
+    ecore_wl2_offer_accept(event->offer, nullptr);
+  }
+  else if(currentInside && mDropTargets[targetIndex].inside)
+  {
+    // Call Move Event
+    dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
+    dragEvent.SetPosition(cursor);
+    mDropTargets[targetIndex].callback(dragEvent);
+  }
+}
+
+void DragAndDropEcoreWl::ProcessDragEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes)
+{
+  for(std::size_t targetIndex = 0; targetIndex < mDropWindowTargets.size(); targetIndex++)
+  {
+    if(event->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[targetIndex].windowId))
+    {
+      continue;
+    }
+
+    TriggerDragEventForWindowTarget(targetIndex, event, mimes, dragEvent);
+  }
+}
+
 bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
 {
-  Ecore_Wl2_Event_Dnd_Motion* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
+  Ecore_Wl2_Event_Dnd_Motion* event_ = reinterpret_cast<Ecore_Wl2_Event_Dnd_Motion*>(event);
 
   Dali::DragAndDrop::DragEvent dragEvent;
 
-  Eina_Array* mimes = NULL;
-  mimes             = ecore_wl2_offer_mimes_get(ev->offer);
-  if(mimes == NULL)
+  Eina_Array* mimes = ecore_wl2_offer_mimes_get(event_->offer);
+  if(mimes == nullptr)
   {
     dragEvent.SetMimeType("");
   }
@@ -530,121 +634,17 @@ bool DragAndDropEcoreWl::CalculateDragEvent(void* event)
     dragEvent.SetMimeType((const char*)eina_array_data_get(mimes, 0));
   }
 
-  Dali::Vector2 curPosition(ev->x, ev->y);
-
-  for(std::size_t i = 0; i < mDropTargets.size(); i++)
-  {
-    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
-    {
-      continue;
-    }
-
-    Vector2 position = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SCREEN_POSITION);
-    Vector2 size     = mDropTargets[i].target.GetProperty<Vector2>(Dali::Actor::Property::SIZE);
-
-    // Recalculate Cursor by Orientation
-    Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
-
-    bool currentInside = IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height);
-
-    // Calculate Drag Enter, Leave, Move Event
-    if(currentInside && !mDropTargets[i].inside)
-    {
-      mDropTargets[i].inside = true;
-      // Call Enter Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
-      dragEvent.SetPosition(curPosition);
-      mDropTargets[i].callback(dragEvent);
-      // Accept Offer
-      ecore_wl2_offer_mimes_set(ev->offer, mimes);
-    }
-    else if(!currentInside && mDropTargets[i].inside)
-    {
-      mDropTargets[i].inside = false;
-      // Call Leave Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
-      dragEvent.SetPosition(curPosition);
-      mDropTargets[i].callback(dragEvent);
-      // Reject Offer
-      ecore_wl2_offer_accept(ev->offer, NULL);
-    }
-    else if(currentInside && mDropTargets[i].inside)
-    {
-      // Call Move Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
-      dragEvent.SetPosition(curPosition);
-      mDropTargets[i].callback(dragEvent);
-    }
-  }
-
-  for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
-  {
-    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
-    {
-      continue;
-    }
-
-    // Recalculate Cursor by Orientation
-    Dali::Window                 window   = mDropWindowTargets[i].target;
-    Dali::Window::WindowPosition position = window.GetPosition();
-    Dali::Window::WindowSize     size     = window.GetSize();
-
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
-
-    bool currentInside = IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight());
-
-    // Calculate Drag Enter, Leave, Move Event
-    if(currentInside && !mDropWindowTargets[i].inside)
-    {
-      mDropWindowTargets[i].inside = true;
-      // Call Enter Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::ENTER);
-      dragEvent.SetPosition(curPosition);
-      mDropWindowTargets[i].callback(dragEvent);
-      // Accept Offer
-      ecore_wl2_offer_mimes_set(ev->offer, mimes);
-    }
-    else if(!currentInside && mDropWindowTargets[i].inside)
-    {
-      mDropWindowTargets[i].inside = false;
-      // Call Leave Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::LEAVE);
-      dragEvent.SetPosition(curPosition);
-      mDropWindowTargets[i].callback(dragEvent);
-      // Reject Offer
-      ecore_wl2_offer_accept(ev->offer, NULL);
-    }
-    else if(currentInside && mDropWindowTargets[i].inside)
-    {
-      // Call Move Event
-      dragEvent.SetAction(Dali::DragAndDrop::DragType::MOVE);
-      dragEvent.SetPosition(curPosition);
-      mDropWindowTargets[i].callback(dragEvent);
-    }
-  }
+  ProcessDragEventsForTargets(event_, dragEvent, mimes);
+  ProcessDragEventsForWindowTargets(event_, dragEvent, mimes);
 
   return true;
 }
 
-bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
+bool DragAndDropEcoreWl::ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* event, Eina_Array* mimes)
 {
-  Ecore_Wl2_Event_Dnd_Drop* ev = reinterpret_cast<Ecore_Wl2_Event_Dnd_Drop*>(event);
-
-  // Check the target object region
-  mTargetIndex       = -1;
-  mWindowTargetIndex = -1;
-
-  Eina_Array* mimes = NULL;
-  mimes             = ecore_wl2_offer_mimes_get(ev->offer);
-  if(mimes == NULL)
-  {
-    return false;
-  }
-
   for(std::size_t i = 0; i < mDropTargets.size(); i++)
   {
-    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
+    if(event->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropTargets[i].parentWindowId))
     {
       continue;
     }
@@ -654,7 +654,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
 
     // Recalculate Cursor by Orientation
     Dali::Window  window = Dali::DevelWindow::Get(mDropTargets[i].target);
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
 
     // If the drop position is in the target object region, request drop data to the source object
     if(IsIntersection(cursor.x, cursor.y, position.x, position.y, size.width, size.height))
@@ -666,18 +666,22 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       char* mimetype = (char*)eina_array_data_get(mimes, 0);
       if(mimetype)
       {
-        ecore_wl2_offer_receive(ev->offer, mimetype);
-        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+        ecore_wl2_offer_receive(event->offer, mimetype);
+        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
         Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
         ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
       }
       return true;
     }
   }
+  return false;
+}
 
+bool DragAndDropEcoreWl::ProcessDropEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Drop* event, Eina_Array* mimes)
+{
   for(std::size_t i = 0; i < mDropWindowTargets.size(); i++)
   {
-    if(ev->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
+    if(event->win != static_cast<EcoreWl2EventDragAndDropWindowIdType>(mDropWindowTargets[i].windowId))
     {
       continue;
     }
@@ -687,7 +691,7 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
     Dali::Window::WindowPosition position = window.GetPosition();
     Dali::Window::WindowSize     size     = window.GetSize();
 
-    Dali::Vector2 cursor = RecalculatePositionByOrientation(ev->x, ev->y, window);
+    Dali::Vector2 cursor = RecalculatePositionByOrientation(event->x, event->y, window);
     // If the drop position is in the target object region, request drop data to the source object
     if(IsIntersection(cursor.x + position.GetX(), cursor.y + position.GetY(), position.GetX(), position.GetY(), size.GetWidth(), size.GetHeight()))
     {
@@ -697,13 +701,34 @@ bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
       char* mimetype = (char*)eina_array_data_get(mimes, 0);
       if(mimetype)
       {
-        ecore_wl2_offer_receive(ev->offer, mimetype);
-        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(NULL);
+        ecore_wl2_offer_receive(event->offer, mimetype);
+        Ecore_Wl2_Display* display = ecore_wl2_connected_display_get(nullptr);
         Ecore_Wl2_Input*   input   = ecore_wl2_input_default_input_get(display);
         ecore_wl2_display_flush(ecore_wl2_input_display_get(input));
       }
       return true;
     }
+  }
+  return false;
+}
+
+bool DragAndDropEcoreWl::CalculateViewRegion(void* event)
+{
+  Ecore_Wl2_Event_Dnd_Drop* event_ = reinterpret_cast<Ecore_Wl2_Event_Dnd_Drop*>(event);
+
+  // Check the target object region
+  mTargetIndex       = -1;
+  mWindowTargetIndex = -1;
+
+  Eina_Array* mimes = ecore_wl2_offer_mimes_get(event_->offer);
+  if(mimes == nullptr)
+  {
+    return false;
+  }
+
+  if(ProcessDropEventsForTargets(event_, mimes) || ProcessDropEventsForWindowTargets(event_, mimes))
+  {
+    return true;
   }
 
   return false;
