@@ -43,6 +43,13 @@ Hyphenation Hyphenation::Get()
   return Internal::Hyphenation::Get();
 }
 
+Hyphenation Hyphenation::New()
+{
+  auto hyphenationImpl = new Internal::Hyphenation();
+
+  return Hyphenation(hyphenationImpl);
+}
+
 const char* Hyphenation::GetDictionaryEncoding(const char* lang)
 {
   return GetImplementation(*this).GetDictionaryEncoding(lang);

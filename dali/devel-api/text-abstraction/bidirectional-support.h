@@ -69,8 +69,18 @@ public:
    * @brief Retrieve a handle to the BidirectionalSupport instance.
    *
    * @return A handle to the BidirectionalSupport
+   * @remarks A reference to the singleton instance of BidirectionalSupport.
    */
   static BidirectionalSupport Get();
+
+  /**
+   * @brief Create a handle to the new BidirectionalSupport instance.
+   *
+   * @return A handle to the BidirectionalSupport.
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
+   */
+  static BidirectionalSupport New();
 
   /**
    * @brief Creates bidirectional data for the whole paragraph.

@@ -43,6 +43,13 @@ BidirectionalSupport BidirectionalSupport::Get()
   return Internal::BidirectionalSupport::Get();
 }
 
+BidirectionalSupport BidirectionalSupport::New()
+{
+  auto bidirectionalSupportImpl = new Internal::BidirectionalSupport();
+
+  return BidirectionalSupport(bidirectionalSupportImpl);
+}
+
 BidiInfoIndex BidirectionalSupport::CreateInfo(const Character* const paragraph,
                                                Length                 numberOfCharacters,
                                                bool                   matchLayoutDirection,
