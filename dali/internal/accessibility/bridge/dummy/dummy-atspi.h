@@ -109,6 +109,14 @@ struct DummyBridge : Dali::Accessibility::Bridge
   {
   }
 
+  void ApplicationPaused() override
+  {
+  }
+
+  void ApplicationResumed() override
+  {
+  }
+
   void Initialize() override
   {
   }
@@ -212,10 +220,6 @@ struct DummyBridge : Dali::Accessibility::Bridge
   Address EmbedSocket(const Address& plug, const Address& socket) override
   {
     return {};
-  }
-
-  void EmbedAtkSocket(const Address& plug, const Address& socket) override
-  {
   }
 
   void UnembedSocket(const Address& plug, const Address& socket) override
