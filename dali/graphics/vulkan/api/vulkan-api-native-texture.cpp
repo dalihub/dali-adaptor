@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,10 +62,11 @@ namespace VulkanAPI
 {
 using namespace Dali::Graphics::Vulkan;
 
-std::unique_ptr<NativeTexture> MakeUniqueVulkanNativeTexture( Dali::Graphics::TextureFactory& factory )
-{
-  return std::make_unique<NativeTexture>( factory );
-}
+// TODO(AK): Doesn't compile on target
+//std::unique_ptr<NativeTexture> MakeUniqueVulkanNativeTexture( Dali::Graphics::TextureFactory& factory )
+//{
+//  return std::make_unique<NativeTexture>( factory );
+//}
 
 namespace
 {
@@ -92,27 +93,28 @@ bool GetFormatLinearDrmModifierNativeImage( VkFormat format, VkDrmFormatModifier
                             formatProperties                           // VkFormatProperties    formatProperties;
                           };
 
-  VkPhysicalDevice vkPhysicalDevice = static_cast<VkPhysicalDevice>(mGraphics.GetPhysicalDevice());
-  gGetPhysicalDeviceFormatProperties2KHR( vkPhysicalDevice, format, &format_props);
-
-  if (mod_props.drmFormatModifierCount <= 0)
-  {
-    return false;
-  }
-
-  drm_format_modifiers.resize( mod_props.drmFormatModifierCount);
-  mod_props.pDrmFormatModifierProperties = &drm_format_modifiers[0];
-
-  gGetPhysicalDeviceFormatProperties2KHR( vkPhysicalDevice, format, &format_props);
-
-  for( VkDrmFormatModifierPropertiesEXT &mode : drm_format_modifiers )
-  {
-    if( mode.drmFormatModifier == DRM_FORMAT_MOD_LINEAR )
-    {
-      outMode = mode;
-      return true;
-    }
-  }
+// TODO(AK): Doesn't compile on target
+//  VkPhysicalDevice vkPhysicalDevice = static_cast<VkPhysicalDevice>(mGraphics.GetPhysicalDevice());
+//  gGetPhysicalDeviceFormatProperties2KHR( vkPhysicalDevice, format, &format_props);
+//
+//  if (mod_props.drmFormatModifierCount <= 0)
+//  {
+//    return false;
+//  }
+//
+//  drm_format_modifiers.resize( mod_props.drmFormatModifierCount);
+//  mod_props.pDrmFormatModifierProperties = &drm_format_modifiers[0];
+//
+//  gGetPhysicalDeviceFormatProperties2KHR( vkPhysicalDevice, format, &format_props);
+//
+//  for( VkDrmFormatModifierPropertiesEXT &mode : drm_format_modifiers )
+//  {
+//    if( mode.drmFormatModifier == DRM_FORMAT_MOD_LINEAR )
+//    {
+//      outMode = mode;
+//      return true;
+//    }
+//  }
   return false;
 }
 
@@ -127,37 +129,38 @@ NativeTexture::NativeTexture( Dali::Graphics::TextureFactory& factory )
     mSamplerIsImmutable( false ),
     mIsSupportNativeImage{ false }
 {
-  /**
-   * Initialise extension functions
-   */
-  if ( !gCreateSamplerYcbcrConversionKHR && !gGetPhysicalDeviceFormatProperties2KHR )
-  {
-    gCreateSamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkCreateSamplerYcbcrConversionKHR>(
-      mGraphics.GetDeviceProcedureAddress( "vkCreateSamplerYcbcrConversionKHR" ) );
-
-    gGetPhysicalDeviceFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFormatProperties2KHR>(
-      mGraphics.GetInstanceProcedureAddress( "vkGetPhysicalDeviceFormatProperties2KHR" ) );
-
-    gDestroySamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkDestroySamplerYcbcrConversionKHR>(
-      mGraphics.GetDeviceProcedureAddress( "vkDestroySamplerYcbcrConversionKHR" ) );
-  }
-
-  /**
-   * Check whether native image is set in the factory. If yes, then enable native image support
-   */
-  NativeImageInterfacePtr nativeImage = mTextureFactory.GetNativeImage();
-
-  if ( gCreateSamplerYcbcrConversionKHR
-       && gDestroySamplerYcbcrConversionKHR
-       && gGetPhysicalDeviceFormatProperties2KHR
-       && nativeImage )
-  {
-    mIsSupportNativeImage = true;
-  }
-  else
-  {
+// TODO(AK): Doesn't compile on target
+//  /**
+//   * Initialise extension functions
+//   */
+//  if ( !gCreateSamplerYcbcrConversionKHR && !gGetPhysicalDeviceFormatProperties2KHR )
+//  {
+//    gCreateSamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkCreateSamplerYcbcrConversionKHR>(
+//      mGraphics.GetDeviceProcedureAddress( "vkCreateSamplerYcbcrConversionKHR" ) );
+//
+//    gGetPhysicalDeviceFormatProperties2KHR = reinterpret_cast<PFN_vkGetPhysicalDeviceFormatProperties2KHR>(
+//      mGraphics.GetInstanceProcedureAddress( "vkGetPhysicalDeviceFormatProperties2KHR" ) );
+//
+//    gDestroySamplerYcbcrConversionKHR = reinterpret_cast<PFN_vkDestroySamplerYcbcrConversionKHR>(
+//      mGraphics.GetDeviceProcedureAddress( "vkDestroySamplerYcbcrConversionKHR" ) );
+//  }
+//
+//  /**
+//   * Check whether native image is set in the factory. If yes, then enable native image support
+//   */
+//  NativeImageInterfacePtr nativeImage = mTextureFactory.GetNativeImage();
+//
+//  if ( gCreateSamplerYcbcrConversionKHR
+//       && gDestroySamplerYcbcrConversionKHR
+//       && gGetPhysicalDeviceFormatProperties2KHR
+//       && nativeImage )
+//  {
+//    mIsSupportNativeImage = true;
+//  }
+//  else
+//  {
     mIsSupportNativeImage = false;
-  }
+//  }
 }
 
 NativeTexture::~NativeTexture()
@@ -189,29 +192,30 @@ bool NativeTexture::Initialize()
   SetFormatAndUsage();
 
   bool result = false;
-  if (mIsSupportNativeImage)
-  {
-    mUsage = vk::ImageUsageFlagBits::eSampled;
-    mLayout = vk::ImageLayout::eUndefined;
-
-    mComponentMapping.r = vk::ComponentSwizzle::eIdentity;
-    mComponentMapping.g = vk::ComponentSwizzle::eIdentity;
-    mComponentMapping.b = vk::ComponentSwizzle::eIdentity;
-    mComponentMapping.a = vk::ComponentSwizzle::eIdentity;
-
-    //mNativeImage = nativeImage->GetNativeImageHandle();
-    NativeImageInterface::Extension* extension = mTextureFactory.GetNativeImage()->GetExtension();
-    if( extension != NULL )
-    {
-      mNativeImage = extension->GetNativeImageHandle();
-    }
-
-    if (InitialiseNativeImage() )
-    {
-      CopyNativeImage( Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
-      result = true;
-    }
-  }
+// TODO(AK): Doesn't compile on target
+//  if (mIsSupportNativeImage)
+//  {
+//    mUsage = vk::ImageUsageFlagBits::eSampled;
+//    mLayout = vk::ImageLayout::eUndefined;
+//
+//    mComponentMapping.r = vk::ComponentSwizzle::eIdentity;
+//    mComponentMapping.g = vk::ComponentSwizzle::eIdentity;
+//    mComponentMapping.b = vk::ComponentSwizzle::eIdentity;
+//    mComponentMapping.a = vk::ComponentSwizzle::eIdentity;
+//
+//    //mNativeImage = nativeImage->GetNativeImageHandle();
+//    NativeImageInterface::Extension* extension = mTextureFactory.GetNativeImage()->GetExtension();
+//    if( extension != NULL )
+//    {
+//      mNativeImage = extension->GetNativeImageHandle();
+//    }
+//
+//    if (InitialiseNativeImage())
+//    {
+//      CopyNativeImage( Dali::Graphics::TextureDetails::UpdateMode::IMMEDIATE );
+//      result = true;
+//    }
+//  }
 
   return result;
 }
@@ -300,7 +304,9 @@ bool NativeTexture::InitialiseNativeImage()
 
   VkImageDrmFormatModifierExplicitCreateInfoEXT mod_create_info =
   {
-    static_cast< VkStructureType >(VK_STRUCTURE_TYPE_IMAGE_EXCPLICIT_DRM_FORMAT_MODIFIER_CREATE_INFO_EXT), //VkStructureType sType;
+// TODO(AK): Doesn't compile on target
+//    static_cast< VkStructureType >(VK_STRUCTURE_TYPE_IMAGE_EXCPLICIT_DRM_FORMAT_MODIFIER_CREATE_INFO_EXT), //VkStructureType sType;
+    static_cast< VkStructureType >(VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO), //VkStructureType sType; // TODO(AK): Replace with correct type!!!
     nullptr,                                                           //const void*                   pNext;
     DRM_FORMAT_MOD_LINEAR,                                             //uint64_t                      drmFormatModifier;
     drm_fmt_modifier.drmFormatModifierPlaneCount,                      //uint32_t                      drmFormatModifierPlaneCount;
@@ -326,7 +332,8 @@ bool NativeTexture::InitialiseNativeImage()
     .setInitialLayout( mLayout );
 
   mImage = mGraphics.CreateImage( imageCreateInfo );
-  mImage->SetIsNativeImage( true );
+// TODO(AK): Doesn't compile on target
+//  mImage->SetIsNativeImage( true );
 
   //allocate memory for the image
   uint32_t numberOfBufferObjects = static_cast<uint32_t>(tbm_surface_internal_get_num_bos(tbmSurface));
@@ -352,13 +359,14 @@ bool NativeTexture::InitialiseNativeImage()
 
       importSize = static_cast<VkDeviceSize>(tbm_bo_size(bo));
 
-      auto memory = mGraphics.AllocateMemory( mImage, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent, static_cast<int>(newFD), importSize );
-      if ( !memory )
-      {
+// TODO(AK): Doesn't compile on target
+//      auto memory = mGraphics.AllocateMemory( mImage, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent, static_cast<int>(newFD), importSize );
+//      if ( !memory )
+//      {
         return false;
-      }
-      memories[i] = memory->GetVkHandle();
-      tMemories.push_back(std::move(memory));
+//      }
+//      memories[i] = memory->GetVkHandle();
+//      tMemories.push_back(std::move(memory));
     }
 
     std::vector<vk::BindImageMemoryInfo> bind_image_mem_info(tbmSurface_info.num_planes);
@@ -382,7 +390,8 @@ bool NativeTexture::InitialiseNativeImage()
       bind_image_plane_mem_info[2].setPlaneAspect( vk::ImageAspectFlagBits::ePlane2KHR );
     }
 
-    mGraphics.BindImageMemory( mImage, bind_image_mem_info, tbmSurface_info.num_planes, tMemories );
+    // TODO(AK): Doesn't compile on target
+    // mGraphics.BindImageMemory( mImage, bind_image_mem_info, tbmSurface_info.num_planes, tMemories );
   }
   else if ( numberOfBufferObjects == 1 )
   {
@@ -400,14 +409,15 @@ bool NativeTexture::InitialiseNativeImage()
 
     importSize = static_cast<VkDeviceSize>(tbmSurface_info.size);
 
-    auto memory = mGraphics.AllocateMemory( mImage, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent, static_cast<int>(newFD), importSize );
-    if ( !memory )
-    {
+// TODO(AK): Doesn't compile on target
+//    auto memory = mGraphics.AllocateMemory( mImage, vk::MemoryPropertyFlagBits::eHostVisible|vk::MemoryPropertyFlagBits::eHostCoherent, static_cast<int>(newFD), importSize );
+//    if ( !memory )
+//    {
       return false;
-    }
-
-    tMemories.push_back(std::move(memory));
-    mGraphics.BindImageMemory( mImage, bind_image_mem_info, 1, tMemories );
+//    }
+//
+//    tMemories.push_back(std::move(memory));
+//    mGraphics.BindImageMemory( mImage, bind_image_mem_info, 1, tMemories );
   }
   else
   {
@@ -455,16 +465,18 @@ bool NativeTexture::CreateSamplerYUVNativeImage( bool support_LinearFilter )
 {
   auto conversionCreateInfo = vk::SamplerYcbcrConversionCreateInfoKHR()
        .setFormat( mFormat  )
-       .setYcbcrModel( vk::SamplerYcbcrModelConversion::eYcbcr709KHR )
-       .setYcbcrRange( vk::SamplerYcbcrRange::eItuFullKHR )
+// TODO(AK): Doesn't compile on target
+//       .setYcbcrModel( vk::SamplerYcbcrModelConversion::eYcbcr709KHR )
+//       .setYcbcrRange( vk::SamplerYcbcrRange::eItuFullKHR )
        .setComponents( vk::ComponentMapping()
                         .setR( vk::ComponentSwizzle::eIdentity )
                         .setG( vk::ComponentSwizzle::eIdentity )
                         .setB( vk::ComponentSwizzle::eIdentity )
                         .setA( vk::ComponentSwizzle::eIdentity )
                      )
-       .setXChromaOffset( vk::ChromaLocation::eMidpointKHR )
-       .setYChromaOffset( vk::ChromaLocation::eMidpointKHR )
+// TODO(AK): Doesn't compile on target
+//       .setXChromaOffset( vk::ChromaLocation::eMidpointKHR )
+//       .setYChromaOffset( vk::ChromaLocation::eMidpointKHR )
        .setChromaFilter( support_LinearFilter ? vk::Filter::eLinear : vk::Filter::eNearest )
        .setForceExplicitReconstruction( false );
 

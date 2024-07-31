@@ -1,5 +1,0 @@
-# Files to install here
-
-SET(dali_plugin_sound_files
-  ${plugin_sounds_dir}/*.wav
-)
