@@ -1,4 +1,4 @@
-# PROFILE: IVI
+# PROFILE: COMMON
 
 # Set the sources
 SET( SOURCES
@@ -49,7 +49,10 @@ SET( SOURCES
     ${adaptor_addons_tizen_src_files}
     ${devel_api_text_abstraction_src_files}
     ${static_libraries_libunibreak_src_files}
-     )
+    ${graphics_vulkan_src_files}
+    ${graphics_vulkan_wayland_src_files}
+    ${graphics_vulkan_tizen_src_files}
+    )
 
 IF( ENABLE_VECTOR_BASED_TEXT_RENDERING )
     SET( SOURCES ${SOURCES}

@@ -35,6 +35,8 @@ SET( adaptor_system_linux_src_files
 
 # module: system, backend: tizen-wayland
 SET( adaptor_system_tizen_wayland_src_files
+    ${adaptor_system_dir}/common/trigger-event.cpp
+    ${adaptor_system_dir}/common/trigger-event-factory.cpp
     ${adaptor_system_dir}/tizen-wayland/system-settings-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-application-impl-tizen.cpp
     ${adaptor_system_dir}/tizen-wayland/widget-controller-tizen.cpp
