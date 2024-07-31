@@ -56,7 +56,7 @@ std::string MakePluginName(const char* environmentName)
 {
   std::stringstream fullName;
   fullName << kPluginFullNamePrefix << environmentName << kPluginFullNamePostfix;
-  return fullName.str();
+  return std::move(fullName.str());
 }
 
 Dali::BaseHandle Create()
