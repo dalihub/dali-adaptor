@@ -21,6 +21,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/drag-and-drop/common/drag-and-drop-impl.h>
 #include <dali/internal/system/linux/dali-ecore.h>
+#include <dali/internal/adaptor/tizen-wayland/dali-ecore-wl2.h>
 
 namespace Dali
 {
@@ -113,6 +114,36 @@ public:
    * @copydoc Dali::DragAndDrop::CalculateViewRegion()
    */
   bool CalculateViewRegion(void* event) override;
+
+  /**
+   * @brief Trigger drag event for target.
+   */
+  void TriggerDragEventForTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent);
+
+  /**
+   * @brief Trigger drag event for window target.
+   */
+  void TriggerDragEventForWindowTarget(int targetIndex, Ecore_Wl2_Event_Dnd_Motion* event, Eina_Array* mimes, Dali::DragAndDrop::DragEvent& dragEvent);
+
+  /**
+   * @brief Process drag events for targets.
+   */
+  void ProcessDragEventsForTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes);
+
+  /**
+   * @brief Process drag events for window targets.
+   */
+  void ProcessDragEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Motion* event, Dali::DragAndDrop::DragEvent& dragEvent, Eina_Array* mimes);
+
+  /**
+   * @brief Process drop events for targets.
+   */
+  bool ProcessDropEventsForTargets(Ecore_Wl2_Event_Dnd_Drop* event, Eina_Array* mimes);
+
+  /**
+   * @brief Process drop events for window targets.
+   */
+  bool ProcessDropEventsForWindowTargets(Ecore_Wl2_Event_Dnd_Drop* event, Eina_Array* mimes);
 
   /**
    * @brief Call drag source events.

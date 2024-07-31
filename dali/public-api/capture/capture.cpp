@@ -83,6 +83,16 @@ void Capture::SetImageQuality(uint32_t quality)
   return GetImpl(*this).SetImageQuality(quality);
 }
 
+void Capture::SetExclusive(bool exclusive)
+{
+  return GetImpl(*this).SetExclusive(exclusive);
+}
+
+bool Capture::IsExclusive() const
+{
+  return GetImpl(*this).IsExclusive();
+}
+
 Dali::NativeImageSourcePtr Capture::GetNativeImageSource() const
 {
   return GetImpl(*this).GetNativeImageSource();

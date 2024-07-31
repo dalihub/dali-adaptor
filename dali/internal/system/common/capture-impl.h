@@ -21,6 +21,7 @@
 // EXTERNAL INCLUDES
 #include <dali/public-api/object/base-object.h>
 #include <dali/public-api/object/ref-object.h>
+#include <dali/public-api/object/weak-handle.h>
 #include <dali/public-api/render-tasks/render-task.h>
 #include <dali/public-api/rendering/frame-buffer.h>
 #include <dali/public-api/rendering/texture.h>
@@ -29,6 +30,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/pixel-buffer.h>
+#include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
 #include <dali/public-api/adaptor-framework/native-image-source.h>
 #include <dali/public-api/adaptor-framework/timer.h>
 #include <dali/public-api/capture/capture.h>
@@ -79,6 +81,16 @@ public:
    * @copydoc Dali::Capture::SetImageQuality
    */
   void SetImageQuality(uint32_t quality);
+
+  /**
+   * @copydoc Dali::Capture::SetExclusive
+   */
+  void SetExclusive(bool exclusive);
+
+  /**
+   * @copydoc Dali::Capture::IsExclusive
+   */
+  bool IsExclusive() const;
 
   /**
    * @copydoc Dali::Capture::GetNativeImageSource
@@ -202,20 +214,22 @@ private:
   Capture& operator=(const Capture& rhs);
 
 private:
-  uint32_t                                 mQuality;
-  Dali::Texture                            mTexture;
-  Dali::FrameBuffer                        mFrameBuffer;
-  Dali::RenderTask                         mRenderTask;
-  Dali::Actor                              mSource;
-  Dali::CameraActor                        mCameraActor;
-  Dali::Timer                              mTimer; ///< For timeout.
-  Dali::Capture::CaptureFinishedSignalType mFinishedSignal;
-  std::string                              mPath;
-  Dali::NativeImageSourcePtr               mNativeImageSourcePtr; ///< pointer to surface image
-  Dali::Devel::PixelBuffer                 mPixelBuffer;
-  bool                                     mFileSave;
-  bool                                     mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
-  bool                                     mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
+  uint32_t                                         mQuality;
+  Dali::Texture                                    mTexture;
+  Dali::WeakHandle<Dali::Integration::SceneHolder> mSceneHolderHandle;
+  Dali::FrameBuffer                                mFrameBuffer;
+  Dali::RenderTask                                 mRenderTask;
+  Dali::Actor                                      mSource;
+  Dali::CameraActor                                mCameraActor;
+  Dali::Timer                                      mTimer; ///< For timeout.
+  Dali::Capture::CaptureFinishedSignalType         mFinishedSignal;
+  std::string                                      mPath;
+  Dali::NativeImageSourcePtr                       mNativeImageSourcePtr; ///< pointer to surface image
+  Dali::Devel::PixelBuffer                         mPixelBuffer;
+  bool                                             mIsExclusive{false};
+  bool                                             mFileSave;
+  bool                                             mUseDefaultCamera;                   // Whether we use default generated camera, or use inputed camera.
+  bool                                             mSceneOffCameraAfterCaptureFinished; // Whether we need to scene-off after capture finished.
 };
 
 } // End of namespace Adaptor

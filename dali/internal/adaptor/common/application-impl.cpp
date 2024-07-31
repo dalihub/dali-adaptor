@@ -442,6 +442,8 @@ void Application::OnTerminate()
 
 void Application::OnPause()
 {
+  Accessibility::Bridge::GetCurrentBridge()->ApplicationPaused();
+
   // A DALi app should handle Pause/Resume events.
   // DALi just delivers the framework Pause event to the application, but not actually pause DALi core.
   // Pausing DALi core only occurs on the Window Hidden framework event
@@ -451,6 +453,8 @@ void Application::OnPause()
 
 void Application::OnResume()
 {
+  Accessibility::Bridge::GetCurrentBridge()->ApplicationResumed();
+
   // Emit the signal first so the application can queue any messages before we do an update/render
   // This ensures we do not just redraw the last frame before pausing if that's not required
   Dali::Application application(this);
