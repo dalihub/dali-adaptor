@@ -166,6 +166,11 @@ public:
   using WebEngineNavigationPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
 
   /**
+   * @brief WebView callback related with new window policy would be decided.
+   */
+  using WebEngineNewWindowPolicyDecidedCallback = std::function<void(std::unique_ptr<Dali::WebEnginePolicyDecision>)>;
+
+  /**
    * @brief WebView callback related with a new window would be created.
    */
   using WebEngineNewWindowCreatedCallback = std::function<void(Dali::WebEnginePlugin*&)>;
@@ -174,6 +179,21 @@ public:
    * @brief Hit test callback called after hit test is created asynchronously.
    */
   using WebEngineHitTestCreatedCallback = std::function<bool(std::unique_ptr<Dali::WebEngineHitTest>)>;
+
+  /**
+   * @brief WebView callback called after fullscreen is entered.
+   */
+  using WebEngineFullscreenEnteredCallback = std::function<void(void)>;
+
+  /**
+   * @brief WebView callback called after fullscreen is exited.
+   */
+  using WebEngineFullscreenExitedCallback = std::function<void(void)>;
+
+  /**
+   * @brief WebView callback called after text is found.
+   */
+  using WebEngineTextFoundCallback = std::function<void(uint32_t)>;
 
   /**
    * @brief The callback to be called when the web engine received a plain text of current web page.
@@ -762,6 +782,11 @@ public:
   virtual bool SendWheelEvent(const WheelEvent& event) = 0;
 
   /**
+   * @brief Exit fullscreen.
+   */
+  virtual void ExitFullscreen() = 0;
+
+  /**
    * @brief Callback to be called when frame would be rendered.
    *
    * @param[in] callback
@@ -839,6 +864,13 @@ public:
   virtual void RegisterNavigationPolicyDecidedCallback(WebEngineNavigationPolicyDecidedCallback callback) = 0;
 
   /**
+   * @brief Callback to be called when new window policy would be decided.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterNewWindowPolicyDecidedCallback(WebEngineNewWindowPolicyDecidedCallback callback) = 0;
+
+  /**
    * @brief Callback to be called when a new window would be created.
    *
    * @param[in] callback
@@ -879,6 +911,27 @@ public:
    * @param[in] callback
    */
   virtual void RegisterContextMenuHiddenCallback(WebEngineContextMenuHiddenCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when fullscreen would be entered.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterFullscreenEnteredCallback(WebEngineFullscreenEnteredCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when fullscreen would be exited.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterFullscreenExitedCallback(WebEngineFullscreenExitedCallback callback) = 0;
+
+  /**
+   * @brief Callback to be called when text would be found.
+   *
+   * @param[in] callback
+   */
+  virtual void RegisterTextFoundCallback(WebEngineTextFoundCallback callback) = 0;
 
   /**
    * @brief Get a plain text of current web page asynchronously.
