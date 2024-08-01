@@ -717,15 +717,18 @@ DBus::ValueOrError<Accessible*, uint8_t, Accessible*> BridgeAccessible::GetNavig
   if(component)
   {
     recurse = component->IsProxy();
+    if (recurse)
+    {
+      Accessible* parent = component->GetParent();
+      deputy = IsObjectAcceptable(parent) ? parent : nullptr;
+    }
   }
-  //TODO: add deputy
   return {component, recurse, deputy};
 }
 
 Accessible* BridgeAccessible::GetCurrentlyHighlighted()
 {
-  //TODO: add currently highlighted object
-  return nullptr;
+  return Accessible::Get(mData->mCurrentlyHighlightedActor);
 }
 
 std::vector<Component*> BridgeAccessible::GetValidChildren(const std::vector<Accessible*>& children, Accessible* start)
