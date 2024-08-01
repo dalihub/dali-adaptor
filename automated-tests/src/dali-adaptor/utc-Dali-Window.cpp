@@ -1667,3 +1667,18 @@ int UtcDaliWindowPointerConstraintsSignalNegative(void)
   }
   END_TEST;
 }
+
+int UtcDaliWindowGetLastPanGestureState(void)
+{
+  try
+  {
+    Dali::Window arg1;
+    DevelWindow::GetLastPanGestureState(arg1);
+    DALI_TEST_CHECK(false); // Should not get here
+  }
+  catch(...)
+  {
+    DALI_TEST_CHECK(true); // We expect an assert
+  }
+  END_TEST;
+}
