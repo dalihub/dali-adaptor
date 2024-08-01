@@ -248,7 +248,8 @@ bool NativeImageSourceAndroid::CreateResource()
 
   DALI_ASSERT_ALWAYS(mPixmap);
   EGLClientBuffer eglBuffer = eglGetNativeClientBufferANDROID(mPixmap);
-  switch(eglGetError())
+  EGLint          error     = eglGetError();
+  switch(error)
   {
     case EGL_SUCCESS:
     {
@@ -271,7 +272,7 @@ bool NativeImageSourceAndroid::CreateResource()
     }
     default:
     {
-      DALI_LOG_ERROR("eglGetNativeClientBufferANDROID error\n");
+      DALI_LOG_ERROR("eglGetNativeClientBufferANDROID error. eglGetError return[0x%x]\n", error);
       break;
     }
   }

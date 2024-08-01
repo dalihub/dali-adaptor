@@ -785,7 +785,7 @@ bool EglImplementation::ChooseConfig(bool isWindowType, ColorDepth depth)
       }
       default:
       {
-        DALI_LOG_ERROR("Unknown error.\n");
+        DALI_LOG_ERROR("Unknown error. eglGetError return[0x%x]\n", error);
       }
     }
     DALI_ASSERT_ALWAYS(false && "eglChooseConfig failed!");
