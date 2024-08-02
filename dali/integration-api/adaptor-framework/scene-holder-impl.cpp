@@ -419,6 +419,17 @@ const Dali::HoverEvent& SceneHolder::GetLastHoverEvent() const
   return mLastHoverEvent;
 }
 
+Dali::GestureState SceneHolder::GetLastPanGestureState()
+{
+  if(DALI_UNLIKELY(!mAdaptorStarted))
+  {
+    DALI_LOG_ERROR("Adaptor is stopped, or not be started yet. Ignore this GetLastPanGestureState.\n");
+    return Dali::GestureState::CLEAR;
+  }
+
+  return mScene.GetLastPanGestureState();
+}
+
 void SceneHolder::FeedWheelEvent(Dali::Integration::WheelEvent& wheelEvent)
 {
   if(DALI_UNLIKELY(!mAdaptorStarted))

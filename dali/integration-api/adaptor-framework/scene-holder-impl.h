@@ -29,6 +29,7 @@
 #include <dali/public-api/common/intrusive-ptr.h>
 #include <dali/public-api/events/hover-event.h>
 #include <dali/public-api/events/touch-event.h>
+#include <dali/public-api/events/gesture-enumerations.h>
 #include <dali/public-api/math/uint-16-pair.h>
 #include <dali/public-api/object/base-object.h>
 #include <atomic>
@@ -200,6 +201,13 @@ public:
    * @return Dali::HoverEvent
    */
   const Dali::HoverEvent& GetLastHoverEvent() const;
+
+  /**
+   * @brief Gets the last pan gesture state
+   *
+   * @return Dali::GestureState
+   */
+  Dali::GestureState GetLastPanGestureState();
 
   /**
    * @copydoc Dali::Integration::SceneHolder::FeedWheelEvent

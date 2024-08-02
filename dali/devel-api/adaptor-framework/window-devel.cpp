@@ -304,6 +304,11 @@ const HoverEvent& GetLastHoverEvent(Window window)
   return GetImplementation(window).GetLastHoverEvent();
 }
 
+GestureState GetLastPanGestureState(Window window)
+{
+  return GetImplementation(window).GetLastPanGestureState();
+}
+
 bool PointerConstraintsLock(Window window)
 {
   return GetImplementation(window).PointerConstraintsLock();

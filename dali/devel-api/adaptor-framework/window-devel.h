@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <memory>
+#include <dali/public-api/events/gesture-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
@@ -550,6 +551,14 @@ DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
  * @note It returns the raw event the window gets. There is no hit-actor and local position information.
  */
 DALI_ADAPTOR_API const HoverEvent& GetLastHoverEvent(Window window);
+
+/**
+ * @brief Gets the last pan gesture state the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last pan gesture state the window gets.
+ */
+DALI_ADAPTOR_API GestureState GetLastPanGestureState(Window window);
 
 /**
  * @brief Sets the pointer constraints lock.
