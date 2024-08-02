@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,10 +54,11 @@ uint32_t HashPipeline( const VulkanAPI::PipelineFactory& factory )
 {
   const VulkanAPI::PipelineFactory::Info& info = factory.mInfo;
 
-  // Obtain renderpass as it is a part of the hashed value
-  VkRenderPass_T* const renderPass = info.framebufferState.framebuffer ? static_cast<const VulkanAPI::Framebuffer*>(info.framebufferState.framebuffer)->GetFramebufferRef()->GetRenderPass() :
-    factory.mGraphics.GetSwapchainForFBID( 0u )->GetCurrentFramebuffer()->GetRenderPass();
-  VkRenderPass_T* renderPassPtr = const_cast<VkRenderPass_T*>(renderPass);
+// TODO(AK): Doesn't compile on target
+//  // Obtain renderpass as it is a part of the hashed value
+//  uint32_t* const renderPass = info.framebufferState.framebuffer ? static_cast<const VulkanAPI::Framebuffer*>(info.framebufferState.framebuffer)->GetFramebufferRef()->GetRenderPass() :
+//    factory.mGraphics.GetSwapchainForFBID( 0u )->GetCurrentFramebuffer()->GetRenderPass();
+//  uint32_t* renderPassPtr = const_cast<uint32_t*>(renderPass);
 
   uint32_t dsHash = HashBinary( &info.depthStencilState, sizeof( info.depthStencilState ) );
   uint32_t cbHash = HashBinary( &info.colorBlendState, sizeof( info.colorBlendState ) );
@@ -76,7 +77,9 @@ uint32_t HashPipeline( const VulkanAPI::PipelineFactory& factory )
   // rehash all
   std::array< uint32_t, 11 > allHashes = {
           dsHash, cbHash, shHash, vpHash, fbHash, rsHash, iaHash, viStateBindingsHash, viStateAttributesHash, info.dynamicStateMask,
-          uint32_t( uintptr_t( renderPassPtr ))
+// TODO(AK): Doesn't compile on target
+//          uint32_t( uintptr_t( renderPassPtr ))
+          uint32_t( uintptr_t( nullptr ))
   };
 
   return HashBinary( allHashes.data(), uint32_t( allHashes.size() * sizeof( uint32_t ) ) );

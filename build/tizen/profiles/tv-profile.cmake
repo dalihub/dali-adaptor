@@ -1,4 +1,4 @@
-# PROFILE: IVI
+# PROFILE: TV
 
 # Set the sources
 SET( SOURCES

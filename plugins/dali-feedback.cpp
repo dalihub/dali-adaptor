@@ -82,7 +82,7 @@ int DaliFeedback::PlaySound( const std::string& fileName )
 
 void DaliFeedback::StopSound( int handle )
 {
-  int errorCode = mm_sound_stop_sound( handle );
+  int errorCode = mm_sound_stop_keysound(NULL);
   if( errorCode < 0 )
   {
     DEBUG_PRINTF( "StopSound() handle = %d failed with error code = %d\n", handle, errorCode);
