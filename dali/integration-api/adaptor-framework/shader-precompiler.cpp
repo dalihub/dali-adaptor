@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,17 @@
 
 // EXTERNAL INCLUDES
 #include <dali/integration-api/debug.h>
+#include <dali/integration-api/trace.h>
+
+namespace
+{
+DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_PERFORMANCE_MARKER, false);
+}
 
 namespace Dali
 {
 std::unique_ptr<ShaderPreCompiler> ShaderPreCompiler::mInstance = nullptr;
-std::once_flag ShaderPreCompiler::mOnceFlag;
+std::once_flag                     ShaderPreCompiler::mOnceFlag;
 
 ShaderPreCompiler::ShaderPreCompiler()
 : mRawShaderList(),
@@ -34,8 +40,7 @@ ShaderPreCompiler::ShaderPreCompiler()
 
 ShaderPreCompiler& ShaderPreCompiler::Get()
 {
-  std::call_once(mOnceFlag, []()
-                 { mInstance.reset(new ShaderPreCompiler); });
+  std::call_once(mOnceFlag, []() { mInstance.reset(new ShaderPreCompiler); });
 
   return *(mInstance.get());
 }
@@ -54,7 +59,8 @@ void ShaderPreCompiler::GetPreCompileShaderList(std::vector<RawShaderData>& shad
 void ShaderPreCompiler::SavePreCompileShaderList(std::vector<RawShaderData>& shaderList)
 {
   mRawShaderList = shaderList;
-  mPrecompiled = true;
+  mPrecompiled   = true;
+  DALI_LOG_RELEASE_INFO("Precompile shader list is saved! Precompile available now\n");
   Awake();
 }
 
@@ -84,13 +90,15 @@ void ShaderPreCompiler::Wait()
     }
   }
 
+  DALI_TRACE_BEGIN(gTraceFilter, "DALI_SHADER_PRECOMPILE_WAIT");
   mConditionalWait.Wait(lock);
+  DALI_TRACE_END(gTraceFilter, "DALI_SHADER_PRECOMPILE_WAIT");
 }
 
 void ShaderPreCompiler::Awake()
 {
   ConditionalWait::ScopedLock lock(mConditionalWait);
-  Dali::Mutex::ScopedLock mutexLock(mMutex);
+  Dali::Mutex::ScopedLock     mutexLock(mMutex);
   mNeedsSleep = false;
   mConditionalWait.Notify(lock);
 }
