@@ -184,10 +184,18 @@ public:
             // Open a file handle on the memory buffer:
             fileReader = std::make_unique<Internal::Platform::FileReader>(dataBuffer, mBufferSize);
           }
+          else
+          {
+            DALI_LOG_ERROR("Error download empty buffer!\n");
+          }
+        }
+        else
+        {
+          DALI_LOG_ERROR("Error download failed!\n");
         }
       }
 
-      if(fileReader)
+      if(DALI_LIKELY(fileReader))
       {
         fp = fileReader->GetFile();
       }
@@ -199,6 +207,7 @@ public:
       {
         if(DALI_UNLIKELY(fseek(fp, 0, SEEK_END) <= -1))
         {
+          DALI_LOG_ERROR("Error seeking within file\n");
           return false;
         }
         mBufferSize = ftell(fp);
@@ -215,6 +224,14 @@ public:
         mBufferSize = fread(mBuffer, sizeof(WebPByteType), mBufferSize, fp);
         return true;
       }
+      else
+      {
+        DALI_LOG_ERROR("Error seeking within file\n");
+      }
+    }
+    else
+    {
+      DALI_LOG_ERROR("Error reading file\n");
     }
     return false;
   }
