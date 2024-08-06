@@ -861,6 +861,9 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
 
   // other essential extensions
   retval.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+
+  // @todo determine if the vulkan library is swiftshader, if so,
+  // disable this extension. (Or work out how to enable it in swiftshader!)
   retval.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 
   return retval;

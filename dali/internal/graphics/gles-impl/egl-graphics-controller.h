@@ -294,6 +294,7 @@ public:
   void UnmapMemory(Graphics::UniquePtr<Memory> memory) override
   {
   }
+
   /**
    * @copydoc Dali::Graphics::GetTextureMemoryRequirements()
    */
