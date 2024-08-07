@@ -531,6 +531,15 @@ bool WindowBaseAndroid::RelativeMotionUnGrab()
   return false;
 }
 
+void WindowBaseAndroid::SetBackgroundBlur(int blurRadius, int cornerRadius)
+{
+}
+
+int WindowBaseAndroid::GetBackgroundBlur()
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -1130,6 +1130,15 @@ bool WindowBaseEcoreX::RelativeMotionUnGrab()
   return false;
 }
 
+void WindowBaseEcoreX::SetBackgroundBlur(int blurRadius, int cornerRadius)
+{
+}
+
+int WindowBaseEcoreX::GetBackgroundBlur()
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

@@ -404,6 +404,16 @@ bool RelativeMotionUnGrab(Window window)
   return GetImplementation(window).RelativeMotionUnGrab();
 }
 
+void SetBlur(Window window, const WindowBlurInfo& blurInfo)
+{
+  GetImplementation(window).SetBlur(blurInfo);
+}
+
+WindowBlurInfo GetBlur(Window window)
+{
+  return GetImplementation(window).GetBlur();
+}
+
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)
 {
   return GetImplementation(window).InterceptKeyEventSignal();

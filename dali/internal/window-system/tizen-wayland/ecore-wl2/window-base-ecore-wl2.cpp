@@ -3721,6 +3721,20 @@ bool WindowBaseEcoreWl2::RelativeMotionUnGrab()
   return ret;
 }
 
+void WindowBaseEcoreWl2::SetBackgroundBlur(int blurRadius, int cornerRadius)
+{
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_set, window: [%p], blur radius [%d], corner radius[%d]\n", mEcoreWindow, blurRadius, cornerRadius);
+  START_DURATION_CHECK();
+  ecore_wl2_window_background_blur_set(mEcoreWindow, blurRadius, cornerRadius, cornerRadius);
+  FINISH_DURATION_CHECK("ecore_wl2_window_background_blur_set");
+}
+
+int WindowBaseEcoreWl2::GetBackgroundBlur()
+{
+  int radius = ecore_wl2_window_background_blur_get(mEcoreWindow);
+  DALI_LOG_RELEASE_INFO("ecore_wl2_window_background_blur_get, window: [%p], radius [%d]\n", mEcoreWindow, radius);
+  return radius;
+}
 
 } // namespace Adaptor
 

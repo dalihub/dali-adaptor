@@ -51,6 +51,7 @@ SET( devel_api_src_files
   ${adaptor_devel_api_dir}/adaptor-framework/offscreen-window.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.cpp
   ${adaptor_devel_api_dir}/adaptor-framework/window-system-devel.cpp
+  ${adaptor_devel_api_dir}/adaptor-framework/window-blur-info.cpp
 )
 
 SET( adaptor_devel_api_egl_src_files
@@ -117,6 +118,7 @@ SET( devel_api_adaptor_framework_header_files
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player.h
   ${adaptor_devel_api_dir}/adaptor-framework/camera-player-plugin.h
   ${adaptor_devel_api_dir}/adaptor-framework/window-system-devel.h
+  ${adaptor_devel_api_dir}/adaptor-framework/window-blur-info.h
 )
 
 SET( devel_api_adaptor_framework_egl_header_files
