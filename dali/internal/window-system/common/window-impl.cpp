@@ -574,6 +574,10 @@ void Window::Show()
   if(!mIconified)
   {
     Dali::Window handle(this);
+
+    // mScene should be shown here because Scene::IsVisible need to be returned true in the Window::VisibilityChangedSignal
+    mScene.Show();
+
     mVisibilityChangedSignal.Emit(handle, true);
     Dali::Accessibility::Bridge::GetCurrentBridge()->WindowShown(handle);
 
@@ -595,6 +599,10 @@ void Window::Hide()
   if(!mIconified)
   {
     Dali::Window handle(this);
+
+    // mScene should be hidden here because Scene::IsVisible need to be returned false in the Window::VisibilityChangedSignal
+    mScene.Hide();
+
     mVisibilityChangedSignal.Emit(handle, false);
     Dali::Accessibility::Bridge::GetCurrentBridge()->WindowHidden(handle);
 
@@ -946,6 +954,8 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(mVisible)
     {
+      mScene.Hide();
+
       mVisibilityChangedSignal.Emit(handle, false);
       bridge->WindowHidden(handle);
 
@@ -966,6 +976,8 @@ void Window::OnIconifyChanged(bool iconified)
 
     if(mVisible)
     {
+      mScene.Show();
+
       mVisibilityChangedSignal.Emit(handle, true);
       bridge->WindowShown(handle);
 
@@ -1600,6 +1612,10 @@ bool Window::IsAlwaysOnTop()
   return mWindowBase->IsAlwaysOnTop();
 }
 
+Dali::Any Window::GetNativeBuffer() const
+{
+  return mWindowBase->GetNativeBuffer();
+}
 
 } // namespace Adaptor
 

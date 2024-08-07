@@ -516,6 +516,11 @@ bool WindowBaseAndroid::IsAlwaysOnTop()
   return false;
 }
 
+Any WindowBaseAndroid::GetNativeBuffer() const
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal

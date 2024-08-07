@@ -592,6 +592,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
     ShaderPreCompiler::Get().Wait();
     if(ShaderPreCompiler::Get().IsEnable())
     {
+      TRACE_UPDATE_RENDER_BEGIN("DALI_PRECOMPILE_SHADER");
       std::vector<RawShaderData> precompiledShaderList;
       ShaderPreCompiler::Get().GetPreCompileShaderList(precompiledShaderList);
       DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], list size:%d \n", precompiledShaderList.size());
@@ -613,6 +614,7 @@ void CombinedUpdateRenderController::UpdateRenderThread()
         }
         DALI_LOG_RELEASE_INFO("ShaderPreCompiler[ENABLE], shader count :%d \n", numberOfPrecompiledShader);
       }
+      TRACE_UPDATE_RENDER_END("DALI_PRECOMPILE_SHADER");
     }
     else
     {
@@ -1092,6 +1094,7 @@ void CombinedUpdateRenderController::CancelPreCompile()
   {
     mIsPreCompileCancelled = TRUE;
     ShaderPreCompiler::Get().Awake();
+    DALI_LOG_RELEASE_INFO("CancelPreCompile()\n");
   }
 }
 

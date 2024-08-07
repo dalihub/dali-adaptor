@@ -20,6 +20,7 @@
 
 // EXTERNAL INCLUDES
 #include <memory>
+#include <dali/public-api/events/gesture-enumerations.h>
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/adaptor-framework/mouse-in-out-event.h>
@@ -552,6 +553,14 @@ DALI_ADAPTOR_API const TouchEvent& GetLastTouchEvent(Window window);
 DALI_ADAPTOR_API const HoverEvent& GetLastHoverEvent(Window window);
 
 /**
+ * @brief Gets the last pan gesture state the window gets.
+ *
+ * @param[in] window The window instance.
+ * @return The last pan gesture state the window gets.
+ */
+DALI_ADAPTOR_API GestureState GetLastPanGestureState(Window window);
+
+/**
  * @brief Sets the pointer constraints lock.
  *
  * @param[in] window The window instance.
@@ -688,6 +697,14 @@ DALI_ADAPTOR_API void SetAlwaysOnTop(Window window, bool alwaysOnTop);
  * @return True if the window always is on top, false otherwise.
  */
 DALI_ADAPTOR_API bool IsAlwaysOnTop(Window window);
+
+/**
+ * @brief Gets the native buffer of the window.
+ *
+ * When users call this function, it wraps the actual type used by the underlying window system.
+ * @return The native buffer of the Window or an empty handle
+ */
+DALI_ADAPTOR_API Any GetNativeBuffer(Window window);
 
 /**
  * @brief The user would connect to this signal to intercept a KeyEvent at window.

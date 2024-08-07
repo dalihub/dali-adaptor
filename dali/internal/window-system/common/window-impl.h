@@ -602,6 +602,11 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool IsAlwaysOnTop();
 
+  /**
+   * @copydoc Dali::DevelWindow::GetNativeBuffer()
+   */
+  Dali::Any GetNativeBuffer() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.

@@ -304,6 +304,11 @@ const HoverEvent& GetLastHoverEvent(Window window)
   return GetImplementation(window).GetLastHoverEvent();
 }
 
+GestureState GetLastPanGestureState(Window window)
+{
+  return GetImplementation(window).GetLastPanGestureState();
+}
+
 bool PointerConstraintsLock(Window window)
 {
   return GetImplementation(window).PointerConstraintsLock();
@@ -382,6 +387,11 @@ void SetAlwaysOnTop(Window window, bool alwaysOnTop)
 bool IsAlwaysOnTop(Window window)
 {
   return GetImplementation(window).IsAlwaysOnTop();
+}
+
+Any GetNativeBuffer(Window window)
+{
+  return GetImplementation(window).GetNativeBuffer();
 }
 
 InterceptKeyEventSignalType& InterceptKeyEventSignal(Window window)

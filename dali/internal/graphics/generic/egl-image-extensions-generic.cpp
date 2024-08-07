@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,7 +82,8 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
   DALI_ASSERT_DEBUG(EGL_NO_IMAGE_KHR != eglImage && "X11Image::GlExtensionCreate eglCreateImageKHR failed!\n");
   if(EGL_NO_IMAGE_KHR == eglImage)
   {
-    switch(eglGetError())
+    EGLint error = eglGetError();
+    switch(error)
     {
       case EGL_SUCCESS:
       {
@@ -120,6 +121,7 @@ void* EglImageExtensions::CreateImageKHR(EGLClientBuffer clientBuffer)
       }
       default:
       {
+        DALI_LOG_ERROR("Unknown error. eglGetError return[0x%x]\n", error);
         break;
       }
     }
@@ -148,7 +150,8 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
 
   if(EGL_FALSE == result)
   {
-    switch(eglGetError())
+    EGLint error = eglGetError();
+    switch(error)
     {
       case EGL_BAD_DISPLAY:
       {
@@ -167,6 +170,7 @@ void EglImageExtensions::DestroyImageKHR(void* eglImageKHR)
       }
       default:
       {
+        DALI_LOG_ERROR("Unknown error. eglGetError return[0x%x]\n", error);
         break;
       }
     }
@@ -183,6 +187,10 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
 
 #ifdef EGL_ERROR_CHECKING
     GLint glError = glGetError();
+    if(GL_NO_ERROR != glError)
+    {
+      DALI_LOG_ERROR(" before glEGLImageTargetTexture2DOES returned error 0x%04x\n", glError);
+    }
 #endif
 
     glEGLImageTargetTexture2DOESProc(GL_TEXTURE_2D, reinterpret_cast<GLeglImageOES>(eglImage));
@@ -191,7 +199,7 @@ void EglImageExtensions::TargetTextureKHR(void* eglImageKHR)
     glError = glGetError();
     if(GL_NO_ERROR != glError)
     {
-      DALI_LOG_ERROR(" glEGLImageTargetTexture2DOES returned error %0x04x\n", glError);
+      DALI_LOG_ERROR(" glEGLImageTargetTexture2DOES returned error 0x%04x\n", glError);
     }
 #endif
   }

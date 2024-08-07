@@ -824,6 +824,11 @@ bool WindowBaseCocoa::IsAlwaysOnTop()
   return false;
 }
 
+Any WindowBaseCocoa::GetNativeBuffer() const
+{
+  return 0;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView
