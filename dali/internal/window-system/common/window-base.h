@@ -613,6 +613,23 @@ public:
    */
   virtual bool RelativeMotionUnGrab() = 0;
 
+  /**
+   * @brief Set the window's background blur.
+   * If this value is 0, the background blur is disabled.
+   *
+   * @param[in] blurRadius the background blur.
+   * @param[in] cornerRadius the background blur.
+   */
+  virtual void SetBackgroundBlur(int blurRadius, int cornerRadius) = 0;
+
+  /**
+   * @brief Returns current background blur.
+   * If this value is 0, background blur is disabled.
+   *
+   * @return current background blur.
+   */
+  virtual int GetBackgroundBlur() = 0;
+
   // Signals
 
   /**

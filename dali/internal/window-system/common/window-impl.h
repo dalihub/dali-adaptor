@@ -617,6 +617,16 @@ public: // Dali::Internal::Adaptor::SceneHolder
    */
   bool RelativeMotionUnGrab();
 
+  /**
+   * @copydoc Dali::DevelWindow::SetBlur()
+   */
+  void SetBlur(const WindowBlurInfo& blurInfo);
+
+  /**
+   * @copydoc Dali::DevelWindow::GetBlur()
+   */
+  WindowBlurInfo GetBlur() const;
+
 private:
   /**
    * @brief Enumeration for orietation mode.
@@ -1056,6 +1066,7 @@ private:
   Dali::KeyEvent mLastKeyEvent;
 
   Vector4 mBackgroundColor;
+  Dali::WindowBlurInfo mBlurInfo;
 
   bool mIsTransparent : 1;
   bool mIsFocusAcceptable : 1;

@@ -839,6 +839,15 @@ bool WindowBaseCocoa::RelativeMotionUnGrab()
   return false;
 }
 
+void WindowBaseCocoa::SetBackgroundBlur(int blurRadius, int cornerRadius)
+{
+}
+
+int WindowBaseCocoa::GetBackgroundBlur()
+{
+  return 0;
+}
+
 } // namespace Dali::Internal::Adaptor
 
 @implementation CocoaView

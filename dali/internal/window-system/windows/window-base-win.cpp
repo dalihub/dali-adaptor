@@ -759,6 +759,15 @@ bool WindowBaseWin::RelativeMotionUnGrab()
   return false;
 }
 
+void WindowBaseWin::SetBackgroundBlur(int blurRadius, int cornerRadius)
+{
+}
+
+int WindowBaseWin::GetBackgroundBlur()
+{
+  return 0;
+}
+
 } // namespace Adaptor
 
 } // namespace Internal
