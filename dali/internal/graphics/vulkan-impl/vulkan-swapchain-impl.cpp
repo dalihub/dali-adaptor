@@ -160,7 +160,8 @@ void Swapchain::CreateVkSwapchain(
   auto presentModes = surface->GetSurfacePresentModes();
   auto found        = std::find_if(presentModes.begin(),
                             presentModes.end(),
-                            [&](vk::PresentModeKHR mode) {
+                            [&](vk::PresentModeKHR mode)
+                            {
                               return presentMode == mode;
                             });
 
@@ -337,7 +338,7 @@ void Swapchain::Submit(CommandBufferImpl* commandBuffer)
                            {},
                            {commandBuffer},
                            {swapchainBuffer->submitSemaphore}}},
-                         nullptr /*swapchainBuffer->inFlightFence*/); // This fence could guard resetting the cmd buffer
+                         swapchainBuffer->endOfFrameFence); // @todo should only be endOfFrameFence on the last submit, but that's now hard to figure out!.
 }
 
 void Swapchain::Present()
@@ -386,7 +387,8 @@ bool Swapchain::OnDestroy()
     auto swapchain = mSwapchainKHR;
     auto allocator = &mGraphicsDevice.GetAllocator();
 
-    mGraphicsDevice.DiscardResource([device, swapchain, allocator]() {
+    mGraphicsDevice.DiscardResource([device, swapchain, allocator]()
+                                    {
       DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: swap chain->%p\n", static_cast<VkSwapchainKHR>(swapchain))
       device.destroySwapchainKHR(swapchain, allocator); });
 
