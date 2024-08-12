@@ -180,6 +180,13 @@ public:
   virtual std::string GetDescription() const = 0;
 
   /**
+   * @brief Gets accessibility value.
+   *
+   * @return The value text
+   */
+  virtual std::string GetValue() const = 0;
+
+  /**
    * @brief Gets parent.
    *
    * @return The handler to accessibility object
