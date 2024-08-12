@@ -92,6 +92,11 @@ NativeRenderSurfaceEcoreWl::~NativeRenderSurfaceEcoreWl()
     DestroySurface();
   }
 
+  if(mEGLContext)
+  {
+    DestroyContext();
+  }
+
   // release the surface if we own one
   if(mOwnSurface)
   {
@@ -172,11 +177,12 @@ void NativeRenderSurfaceEcoreWl::InitializeGraphics()
 
   if(mEGLContext == NULL)
   {
-    // Create the OpenGL context for this window
-    Internal::Adaptor::EglImplementation& eglImpl = static_cast<Internal::Adaptor::EglImplementation&>(*mEGL);
-    eglImpl.CreateWindowContext(mEGLContext);
+    CreateContext();
+  }
 
     // Create the OpenGL surface
+  if(mEGLSurface == NULL)
+  {
     CreateSurface();
   }
 }
@@ -189,6 +195,7 @@ void NativeRenderSurfaceEcoreWl::CreateSurface()
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
   mEGLSurface = eglImpl.CreateSurfaceWindow(reinterpret_cast<EGLNativeWindowType>(mTbmQueue), mColorDepth);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::CreateSurface mTbmQueue(%p), mOwnSurface(%d), create surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
 }
 
 void NativeRenderSurfaceEcoreWl::DestroySurface()
@@ -198,7 +205,30 @@ void NativeRenderSurfaceEcoreWl::DestroySurface()
   auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
   Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
 
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroySurface mTbmQueue(%p), mOwnSurface(%d), surface: %p\n", mTbmQueue, mOwnSurface, mEGLSurface);
   eglImpl.DestroySurface(mEGLSurface);
+}
+
+void NativeRenderSurfaceEcoreWl::CreateContext()
+{
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
+
+  auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
+
+  eglImpl.CreateWindowContext(mEGLContext);
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::CreateContext mTbmQueue(%p), mOwnSurface(%d), create context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
+}
+
+void NativeRenderSurfaceEcoreWl::DestroyContext()
+{
+  DALI_LOG_TRACE_METHOD(gNativeSurfaceLogFilter);
+
+  auto                                  eglGraphics = static_cast<Internal::Adaptor::EglGraphics*>(mGraphics);
+  Internal::Adaptor::EglImplementation& eglImpl     = eglGraphics->GetEglImplementation();
+
+  DALI_LOG_RELEASE_INFO("NativeRenderSurfaceEcoreWl::DestroyContext mTbmQueue(%p), mOwnSurface(%d), destroy context: %p\n", mTbmQueue, mOwnSurface, mEGLContext);
+  eglImpl.DestroyContext(mEGLContext);
 }
 
 bool NativeRenderSurfaceEcoreWl::ReplaceGraphicsSurface()
