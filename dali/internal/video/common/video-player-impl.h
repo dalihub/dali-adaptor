@@ -224,6 +224,16 @@ public:
    */
   VideoPlayerPlugin* GetVideoPlayerPlugin();
 
+  /**
+   * @copydoc Dali::VideoPlayer::SceneConnection()
+   */
+  void SceneConnection();
+
+  /**
+   * @copydoc Dali::VideoPlayer::SceneDisconnection()
+   */
+  void SceneDisconnection();
+
 private:
   /**
    * @brief Constructor.

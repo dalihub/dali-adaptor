@@ -393,6 +393,22 @@ VideoPlayerPlugin* VideoPlayer::GetVideoPlayerPlugin()
   return mPlugin;
 }
 
+void VideoPlayer::SceneConnection()
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SceneConnection();
+  }
+}
+
+void VideoPlayer::SceneDisconnection()
+{
+  if(mPlugin != nullptr)
+  {
+    mPlugin->SceneDisconnection();
+  }
+}
+
 } // namespace Adaptor
 } // namespace Internal
 } // namespace Dali

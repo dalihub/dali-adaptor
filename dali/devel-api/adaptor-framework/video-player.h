@@ -340,6 +340,16 @@ public:
    */
   void LowerToBottom();
 
+  /**
+   * @brief Video View has video player is connected to Window's Scene.
+   */
+  void SceneConnection();
+
+  /**
+   * @brief Video View has video player is disconnected to Window's Scene.
+   */
+  void SceneDisconnection();
+
 private: // Not intended for application developers
   /**
    * @brief Internal constructor
