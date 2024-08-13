@@ -15,15 +15,14 @@
  *
  */
 
-#include <dali/internal/graphics/vulkan/vulkan-device.h>
+#include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-image-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-memory-impl.h>
-#include <dali/integration-api/debug.h>
+#include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 #if defined(DEBUG_ENABLED)
 extern Debug::Filter* gVulkanFilter;
 #endif
-
 
 namespace Dali
 {
@@ -32,33 +31,40 @@ namespace Graphics
 namespace Vulkan
 {
 
-Image::Image( Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage )
-: mGraphicsDevice( &graphicsDevice ),
-  mCreateInfo( createInfo ),
-  mImage( externalImage ),
-  mImageLayout( mCreateInfo.initialLayout ),
-  mIsExternal( static_cast<bool>(externalImage) )
+Image* Image::New(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo)
 {
-  auto depthStencilFormats = std::vector< vk::Format >{
-          vk::Format::eD32Sfloat,
-          vk::Format::eD16Unorm,
-          vk::Format::eD32SfloatS8Uint,
-          vk::Format::eD24UnormS8Uint,
-          vk::Format::eD16UnormS8Uint,
-          vk::Format::eS8Uint,
+  auto image = new Image(graphicsDevice, createInfo, nullptr);
+  image->Initialize();
+  return image;
+}
+
+Image::Image(Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk::Image externalImage)
+: mDevice(graphicsDevice),
+  mCreateInfo(createInfo),
+  mImage(externalImage),
+  mImageLayout(mCreateInfo.initialLayout),
+  mIsExternal(static_cast<bool>(externalImage))
+{
+  auto depthStencilFormats = std::vector<vk::Format>{
+    vk::Format::eD32Sfloat,
+    vk::Format::eD16Unorm,
+    vk::Format::eD32SfloatS8Uint,
+    vk::Format::eD24UnormS8Uint,
+    vk::Format::eD16UnormS8Uint,
+    vk::Format::eS8Uint,
   };
 
-  auto hasDepth = std::find( depthStencilFormats.begin(), depthStencilFormats.end(), createInfo.format );
+  auto hasDepth = std::find(depthStencilFormats.begin(), depthStencilFormats.end(), createInfo.format);
 
-  if( hasDepth != depthStencilFormats.end() )
+  if(hasDepth != depthStencilFormats.end())
   {
     auto format = *hasDepth;
 
-    if( format == vk::Format::eD32Sfloat || format == vk::Format::eD16Unorm )
+    if(format == vk::Format::eD32Sfloat || format == vk::Format::eD16Unorm)
     {
       mAspectFlags = vk::ImageAspectFlagBits::eDepth;
     }
-    else if( format == vk::Format::eS8Uint )
+    else if(format == vk::Format::eS8Uint)
     {
       mAspectFlags = vk::ImageAspectFlagBits::eStencil;
     }
@@ -73,6 +79,39 @@ Image::Image( Device& graphicsDevice, const vk::ImageCreateInfo& createInfo, vk:
   }
 }
 
+void Image::Initialize()
+{
+  VkAssert(mDevice.GetLogicalDevice().createImage(&mCreateInfo, &mDevice.GetAllocator("IMAGE"), &mImage));
+}
+
+void Image::AllocateAndBind(vk::MemoryPropertyFlags memoryProperties)
+{
+  auto requirements    = mDevice.GetLogicalDevice().getImageMemoryRequirements(mImage);
+  auto memoryTypeIndex = Device::GetMemoryIndex(mDevice.GetMemoryProperties(),
+                                                requirements.memoryTypeBits,
+                                                memoryProperties);
+
+  mMemory = std::make_unique<MemoryImpl>(mDevice,
+                                         size_t(requirements.size),
+                                         size_t(requirements.alignment),
+                                         (memoryProperties & vk::MemoryPropertyFlagBits::eHostVisible) == vk::MemoryPropertyFlagBits::eHostVisible);
+
+  auto allocateInfo = vk::MemoryAllocateInfo{}
+                        .setMemoryTypeIndex(memoryTypeIndex)
+                        .setAllocationSize(requirements.size);
+
+  // allocate memory for the image
+  auto result = mMemory->Allocate(allocateInfo, mDevice.GetAllocator("DEVICEMEMORY"));
+  if(result != vk::Result::eSuccess)
+  {
+    DALI_LOG_INFO(gVulkanFilter, Debug::General, "Unable to allocate memory for the image of size %d!", int(requirements.size));
+  }
+  else if(mMemory) // bind the allocated memory to the image
+  {
+    VkAssert(mDevice.GetLogicalDevice().bindImageMemory(mImage, mMemory->GetVkHandle(), 0));
+  }
+}
+
 vk::Image Image::GetVkHandle() const
 {
   return mImage;
@@ -81,6 +120,90 @@ vk::Image Image::GetVkHandle() const
 vk::ImageLayout Image::GetImageLayout() const
 {
   return mImageLayout;
+}
+
+void Image::SetImageLayout(vk::ImageLayout imageLayout)
+{
+  mImageLayout = imageLayout;
+}
+
+vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout newLayout) const
+{
+  return CreateMemoryBarrier(mImageLayout, newLayout);
+}
+
+vk::ImageMemoryBarrier Image::CreateMemoryBarrier(vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const
+{
+  // This function assumes that all images have 1 mip level and 1 layer
+  // Should expand to handle any level/layer
+  auto barrier = vk::ImageMemoryBarrier{}
+                   .setOldLayout(oldLayout)
+                   .setNewLayout(newLayout)
+                   .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                   .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                   .setImage(GetVkHandle())
+                   .setSubresourceRange(vk::ImageSubresourceRange{}.setBaseMipLevel(0).setLevelCount(1).setBaseArrayLayer(0).setLayerCount(1));
+
+  barrier.subresourceRange.aspectMask = GetAspectFlags();
+
+  // The srcAccessMask of the image memory barrier shows which operation
+  // must be completed using the old layout, before the transition to the
+  // new one happens.
+  switch(oldLayout)
+  {
+    case vk::ImageLayout::eUndefined:
+      barrier.srcAccessMask = vk::AccessFlags{};
+      break;
+    case vk::ImageLayout::ePreinitialized:
+      barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+      break;
+    case vk::ImageLayout::eColorAttachmentOptimal:
+      barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+      break;
+    case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+      barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+      break;
+    case vk::ImageLayout::eTransferSrcOptimal:
+      barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+      break;
+    case vk::ImageLayout::eTransferDstOptimal:
+      barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+      break;
+    case vk::ImageLayout::eShaderReadOnlyOptimal:
+      barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+      break;
+    default:
+      assert(false && "Image layout transition failed: Initial layout not supported.");
+  }
+
+  // Destination access mask controls the dependency for the new image layout
+  switch(newLayout)
+  {
+    case vk::ImageLayout::eTransferDstOptimal:
+      barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+      break;
+    case vk::ImageLayout::eTransferSrcOptimal:
+      barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+      break;
+    case vk::ImageLayout::eColorAttachmentOptimal:
+      barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+      break;
+    case vk::ImageLayout::eDepthStencilAttachmentOptimal:
+      barrier.dstAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+      break;
+    case vk::ImageLayout::eShaderReadOnlyOptimal:
+      if(barrier.srcAccessMask == vk::AccessFlags{})
+      {
+        barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
+      }
+
+      barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+      break;
+    default:
+      assert(false && "Image layout transition failed: Target layout not supported.");
+  }
+
+  return barrier;
 }
 
 uint32_t Image::GetWidth() const
@@ -123,21 +246,6 @@ vk::ImageAspectFlags Image::GetAspectFlags() const
   return mAspectFlags;
 }
 
-void Image::SetImageLayout( vk::ImageLayout imageLayout )
-{
-  mImageLayout = imageLayout;
-}
-
-const Image& Image::ConstRef()
-{
-  return *this;
-}
-
-Image& Image::Ref()
-{
-  return *this;
-}
-
 vk::ImageUsageFlags Image::GetUsageFlags() const
 {
   return mCreateInfo.usage;
@@ -150,42 +258,36 @@ vk::SampleCountFlagBits Image::GetSampleCount() const
 
 void Image::DestroyNow()
 {
-  DestroyVulkanResources(mGraphicsDevice->GetLogicalDevice(), mImage, mDeviceMemory->ReleaseVkObject(),
-       &mGraphicsDevice->GetAllocator() );
-  mImage = nullptr;
-  mDeviceMemory = nullptr;
+  DestroyVulkanResources(mDevice.GetLogicalDevice(), mImage, mMemory->ReleaseVkObject(), &mDevice.GetAllocator());
+  mImage  = nullptr;
+  mMemory = nullptr;
 }
 
 bool Image::OnDestroy()
 {
-  if( !mIsExternal )
+  if(!mIsExternal)
   {
-    if( mImage )
+    if(mImage)
     {
-      auto device = mGraphicsDevice->GetLogicalDevice();
-      auto image = mImage;
-      auto allocator = &mGraphicsDevice->GetAllocator();
-      auto memory = mDeviceMemory->ReleaseVkObject();
+      auto device    = mDevice.GetLogicalDevice();
+      auto image     = mImage;
+      auto allocator = &mDevice.GetAllocator();
+      auto memory    = mMemory->ReleaseVkObject();
 
-      mGraphicsDevice->DiscardResource( [ device, image, memory, allocator ]() {
-        DestroyVulkanResources( device, image, memory, allocator );
-      }
-      );
+      mDevice.DiscardResource([device, image, memory, allocator]()
+                              { DestroyVulkanResources(device, image, memory, allocator); });
     }
   }
 
   return false;
 }
 
-void Image::DestroyVulkanResources( vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator )
+void Image::DestroyVulkanResources(vk::Device device, vk::Image image, vk::DeviceMemory memory, const vk::AllocationCallbacks* allocator)
 {
-  DALI_LOG_INFO( gVulkanFilter, Debug::General, "Invoking deleter function: image->%p\n",
-                 static_cast< VkImage >(image) )
-  device.destroyImage( image, allocator );
-
-  device.freeMemory( memory, allocator );
+  DALI_LOG_INFO(gVulkanFilter, Debug::General, "Invoking deleter function: image->%p\n", static_cast<VkImage>(image))
+  device.destroyImage(image, allocator);
+  device.freeMemory(memory, allocator);
 }
-
 
 } // namespace Vulkan
 

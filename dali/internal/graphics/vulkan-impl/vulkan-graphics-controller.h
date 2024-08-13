@@ -19,10 +19,12 @@
 
 #include <dali/graphics-api/graphics-controller.h>
 
+#include <dali/devel-api/threading/thread-pool.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-program.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-render-target.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-resource-transfer-request.h>
 
 namespace Dali
 {
@@ -35,6 +37,8 @@ namespace Vulkan
 class Device;
 class Surface;
 class Buffer;
+class Sampler;
+class Texture;
 
 class VulkanGraphicsController : public Graphics::Controller, public Integration::GraphicsConfig
 {
@@ -108,6 +112,13 @@ public:
    */
   void UpdateTextures(const std::vector<TextureUpdateInfo>&       updateInfoList,
                       const std::vector<TextureUpdateSourceInfo>& sourceList) override;
+
+  /**
+   * Schedule (deferred: on worker thread / immediate: on this thread)
+   * a resource transfer.
+   * @param[in] transferRequest The requested resource transfer
+   */
+  void ScheduleResourceTransfer(ResourceTransferRequest&& transferRequest);
 
   /**
    * Auto generates mipmaps for the texture
@@ -358,6 +369,8 @@ public:
   void DiscardResource(Vulkan::RenderTarget* renderTarget);
   void DiscardResource(Vulkan::Buffer* buffer);
   void DiscardResource(Vulkan::Program* renderProgram);
+  void DiscardResource(Vulkan::Sampler* sampler);
+  void DiscardResource(Vulkan::Texture* texture);
 
 public: // Integration::GraphicsConfig
   bool        IsBlendEquationSupported(DevelBlendEquation::Type blendEquation) override;

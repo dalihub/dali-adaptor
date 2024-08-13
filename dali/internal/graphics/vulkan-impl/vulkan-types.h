@@ -57,12 +57,8 @@ namespace Vulkan
 class Device;
 class Queue;
 
-class Buffer;
-class CommandBufferImpl;
-class CommandPool;
 class DescriptorPool;
 class DescriptorSet;
-class Fence;
 class FramebufferImpl;
 class FramebufferAttachment;
 class GpuMemoryBlock;
@@ -134,6 +130,17 @@ enum class Platform
   XLIB,
   XCB,
   WAYLAND,
+};
+
+struct FormatInfo
+{
+  bool         packed{false};
+  bool         compressed{false};
+  unsigned int paletteSizeInBits{0u};
+  unsigned int blockSizeInBits{0u};
+  unsigned int blockWidth{0u};
+  unsigned int blockHeight{0u};
+  unsigned int blockDepth{0u};
 };
 
 struct VkLoadOpType

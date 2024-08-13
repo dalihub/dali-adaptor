@@ -50,6 +50,10 @@
 #if defined(DEBUG_ENABLED)
 Debug::Filter* gVulkanFilter = Debug::Filter::New(Debug::Concise, false, "LOG_VULKAN");
 #endif
+namespace
+{
+const uint32_t INVALID_MEMORY_INDEX = -1u;
+} // Anonymous namespace
 
 namespace Dali::Graphics::Vulkan
 {
@@ -434,14 +438,6 @@ void Device::DiscardResource(std::function<void()> deleter)
   // mDiscardQueue[mCurrentBufferIndex].push_back( std::move( deleter ) );
 }
 
-Fence* Device::CreateFence(const vk::FenceCreateInfo& fenceCreateInfo)
-{
-  vk::Fence vkFence;
-  VkAssert(mLogicalDevice.createFence(&fenceCreateInfo, mAllocator.get(), &vkFence));
-
-  return new Fence(*this, vkFence);
-}
-
 Image* Device::CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent)
 {
   auto imageCreateInfo = vk::ImageCreateInfo{}
@@ -459,60 +455,6 @@ Image* Device::CreateImageFromExternal(vk::Image externalImage, vk::Format image
   return new Image(*this, imageCreateInfo, externalImage);
 
   return nullptr;
-}
-
-ImageView* Device::CreateImageView(const vk::ImageViewCreateFlags& flags,
-                                   const Image&                    image,
-                                   vk::ImageViewType               viewType,
-                                   vk::Format                      format,
-                                   vk::ComponentMapping            components,
-                                   vk::ImageSubresourceRange       subresourceRange,
-                                   void*                           pNext)
-{
-  auto imageViewCreateInfo = vk::ImageViewCreateInfo{}
-                               .setPNext(pNext)
-                               .setFlags(flags)
-                               .setImage(image.GetVkHandle())
-                               .setViewType(viewType)
-                               .setFormat(format)
-                               .setComponents(components)
-                               .setSubresourceRange(std::move(subresourceRange));
-
-  auto imageView = new ImageView(*this, &image, imageViewCreateInfo);
-
-  VkAssert(mLogicalDevice.createImageView(&imageViewCreateInfo, &GetAllocator("IMAGEVIEW"), &imageView->mImageView));
-
-  return imageView;
-}
-
-ImageView* Device::CreateImageView(Image* image)
-{
-  vk::ComponentMapping componentsMapping = {vk::ComponentSwizzle::eR,
-                                            vk::ComponentSwizzle::eG,
-                                            vk::ComponentSwizzle::eB,
-                                            vk::ComponentSwizzle::eA};
-
-  auto subresourceRange = vk::ImageSubresourceRange{}
-                            .setAspectMask(image->GetAspectFlags())
-                            .setBaseArrayLayer(0)
-                            .setBaseMipLevel(0)
-                            .setLevelCount(image->GetMipLevelCount())
-                            .setLayerCount(image->GetLayerCount());
-
-  auto imageView = CreateImageView({},
-                                   *image,
-                                   vk::ImageViewType::e2D,
-                                   image->GetFormat(),
-                                   componentsMapping,
-                                   subresourceRange);
-
-  return imageView;
-}
-
-vk::Result Device::WaitForFence(Fence* fence, uint32_t timeout)
-{
-  auto f = fence->GetVkHandle();
-  return mLogicalDevice.waitForFences(1, &f, VK_TRUE, timeout);
 }
 
 // -------------------------------------------------------------------------------------------------------
@@ -882,7 +824,7 @@ std::vector<const char*> Device::PrepareDefaultInstanceExtensions()
   return extensions;
 }
 
-vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, Fence* fence)
+vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, FenceImpl* fence)
 {
   auto lock(queue.Lock());
 
@@ -907,7 +849,8 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry) {
+                   [&](CommandBufferImpl* entry)
+                   {
                      return entry->GetVkHandle();
                    });
 
@@ -926,6 +869,26 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
   }
 
   return VkAssert(queue.Submit(submitInfos, fence));
+}
+
+/**
+ * Helper function which returns GPU heap index that can be used to allocate
+ * particular type of resource
+ */
+uint32_t Device::GetMemoryIndex(
+  const vk::PhysicalDeviceMemoryProperties& memoryProperties,
+  uint32_t                                  memoryTypeBits,
+  vk::MemoryPropertyFlags                   properties)
+{
+  for(uint32_t i = 0; i < memoryProperties.memoryTypeCount; ++i)
+  {
+    if((memoryTypeBits & (1u << i)) &&
+       ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties))
+    {
+      return i;
+    }
+  }
+  return INVALID_MEMORY_INDEX;
 }
 
 } // namespace Dali::Graphics::Vulkan

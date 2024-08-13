@@ -26,6 +26,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wfloat-equal"
 #pragma GCC diagnostic ignored "-Wswitch-enum"
+#pragma GCC diagnostic ignored "-Wswitch"
 #include <vulkan/vulkan.hpp>
 #pragma GCC diagnostic pop
 

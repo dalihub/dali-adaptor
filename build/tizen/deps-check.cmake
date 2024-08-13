@@ -511,8 +511,8 @@ IF(enable_vulkan)
 #cxx_warnings_to_preserve = \
 #                           -Wno-weak-vtables
   # Warnings that cause issues with vulkan.hpp. Double check when we upgrade.
-  ADD_COMPILE_OPTIONS(-Wno-switch -Wno-switch-enum -Wno-error=switch -Wno-error=switch-enum)
   ADD_COMPILE_OPTIONS(-Wno-init-list-lifetime)
+  ADD_COMPILE_OPTIONS(-Werror)
   INCLUDE(CheckCXXCompilerFlag)
   CHECK_CXX_COMPILER_FLAG(-Wno-class-memaccess HAVE_NO_CLASS_MEMACCESS)
   IF (HAVE_NO_CLASS_MEMACCESS)

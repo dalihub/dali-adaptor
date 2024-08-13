@@ -26,39 +26,38 @@
 namespace Dali::Graphics::Vulkan
 {
 class CommandBufferImpl;
-class Fence;
+class FenceImpl;
+class Device;
 
 struct SubmissionData
 {
   SubmissionData() = default;
 
-  explicit SubmissionData( const std::vector< vk::Semaphore >& waitSemaphores_,
-                           vk::PipelineStageFlags waitDestinationStageMask_,
-                           const std::vector<CommandBufferImpl* >& commandBuffers_,
-                           const std::vector< vk::Semaphore >& signalSemaphores_ );
+  explicit SubmissionData(const std::vector<vk::Semaphore>&      waitSemaphores_,
+                          vk::PipelineStageFlags                 waitDestinationStageMask_,
+                          const std::vector<CommandBufferImpl*>& commandBuffers_,
+                          const std::vector<vk::Semaphore>&      signalSemaphores_);
 
-  SubmissionData& SetWaitSemaphores( const std::vector< vk::Semaphore >& semaphores );
+  SubmissionData& SetWaitSemaphores(const std::vector<vk::Semaphore>& semaphores);
 
-  SubmissionData& SetWaitDestinationStageMask( vk::PipelineStageFlags dstStageMask );
+  SubmissionData& SetWaitDestinationStageMask(vk::PipelineStageFlags dstStageMask);
 
-  SubmissionData& SetCommandBuffers( const std::vector<CommandBufferImpl* >& cmdBuffers );
+  SubmissionData& SetCommandBuffers(const std::vector<CommandBufferImpl*>& cmdBuffers);
 
-  SubmissionData& SetSignalSemaphores( const std::vector< vk::Semaphore >& semaphores );
+  SubmissionData& SetSignalSemaphores(const std::vector<vk::Semaphore>& semaphores);
 
-  std::vector< vk::Semaphore > waitSemaphores;
-  vk::PipelineStageFlags waitDestinationStageMask;
-  std::vector<CommandBufferImpl* > commandBuffers;
-  std::vector< vk::Semaphore > signalSemaphores;
+  std::vector<vk::Semaphore>      waitSemaphores;
+  vk::PipelineStageFlags          waitDestinationStageMask;
+  std::vector<CommandBufferImpl*> commandBuffers;
+  std::vector<vk::Semaphore>      signalSemaphores;
 };
-
-class Device;
 
 class Queue
 {
 public:
-  Queue(vk::Queue queue,
-        uint32_t queueFamilyIndex,
-        uint32_t queueIndex,
+  Queue(vk::Queue      queue,
+        uint32_t       queueFamilyIndex,
+        uint32_t       queueIndex,
         vk::QueueFlags queueFlags);
 
   ~Queue(); // queues are non-destructible
@@ -71,18 +70,17 @@ public:
 
   vk::Result Present(vk::PresentInfoKHR& presentInfo);
 
-  vk::Result Submit(std::vector<vk::SubmitInfo>& info, Fence* fence);
+  vk::Result Submit(std::vector<vk::SubmitInfo>& info, FenceImpl* fence);
 
 private:
-  vk::Queue mQueue;
+  vk::Queue      mQueue;
   vk::QueueFlags mFlags;
-  uint32_t mQueueFamilyIndex;
-  uint32_t mQueueIndex;
+  uint32_t       mQueueFamilyIndex;
+  uint32_t       mQueueIndex;
 
   std::recursive_mutex mMutex;
 };
 
 } // namespace Dali::Graphics::Vulkan
-
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_QUEUE_IMPL_H
