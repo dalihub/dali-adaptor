@@ -320,6 +320,18 @@ public:
    * @return The return of native surface pointer of video player
    */
   virtual Any GetVideoPlayerSurface() = 0;
+
+  /**
+   * @brief Video View has video player is connected to Window's Scene.
+   *
+   */
+  virtual void SceneConnection() = 0;
+
+  /**
+   * @brief Video View has video player is disconnected to Window's Scene.
+   *
+   */
+  virtual void SceneDisconnection() = 0;
 };
 
 } // namespace Dali

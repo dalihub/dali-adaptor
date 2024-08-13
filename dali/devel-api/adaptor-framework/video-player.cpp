@@ -237,4 +237,14 @@ void VideoPlayer::LowerToBottom()
   GetImplementation(*this).LowerToBottom();
 }
 
+void VideoPlayer::SceneConnection()
+{
+  GetImplementation(*this).SceneConnection();
+}
+
+void VideoPlayer::SceneDisconnection()
+{
+  GetImplementation(*this).SceneDisconnection();
+}
+
 } // namespace Dali

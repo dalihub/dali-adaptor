@@ -58,7 +58,12 @@ public:
 
   std::string GetDescription() const override
   {
-    return "";
+    return {};
+  }
+
+  std::string GetValue() const override
+  {
+    return {};
   }
 
   Dali::Accessibility::Accessible* GetParent() override

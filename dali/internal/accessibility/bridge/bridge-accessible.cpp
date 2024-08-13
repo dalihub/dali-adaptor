@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,9 @@ using namespace Dali::Accessibility;
 
 namespace
 {
+constexpr const char* VALUE_FORMAT_KEY      = "value_format";
+constexpr const char* VALUE_FORMAT_TEXT_VAL = "text";
+
 bool SortVertically(Component* lhs, Component* rhs)
 {
   auto leftRect  = lhs->GetExtents(CoordinateType::WINDOW);
@@ -488,8 +491,9 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
   std::string labeledByName   = labellingObject ? labellingObject->GetName() : "";
 
   auto describedByObject = findObjectByRelationType(RelationType::DESCRIBED_BY);
+  auto attributes        = self->GetAttributes();
 
-  double      currentValue     = 0.0;
+  double      currentValue = 0.0;
   std::string currentValueText;
   double      minimumIncrement = 0.0;
   double      maximumValue     = 0.0;
@@ -502,6 +506,15 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     minimumIncrement = valueInterface->GetMinimumIncrement();
     maximumValue     = valueInterface->GetMaximum();
     minimumValue     = valueInterface->GetMinimum();
+  }
+  else
+  {
+    // value text support outside of IAtspiValue interface
+    currentValueText = self->GetValue();
+    if(!currentValueText.empty())
+    {
+      attributes.insert({VALUE_FORMAT_KEY, VALUE_FORMAT_TEXT_VAL});
+    }
   }
 
   int32_t firstSelectedChildIndex = -1;
@@ -529,7 +542,6 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
     }
   }
 
-  auto    attributes        = self->GetAttributes();
   auto    itemCount         = attributes.find("item_count");
   auto    atspiRole         = self->GetRole();
   int32_t listChildrenCount = 0;
@@ -602,23 +614,23 @@ BridgeAccessible::ReadingMaterialType BridgeAccessible::GetReadingMaterial()
 
 BridgeAccessible::NodeInfoType BridgeAccessible::GetNodeInfo()
 {
-  auto self         = FindSelf();
-  auto roleName     = self->GetRoleName();
-  auto name         = self->GetName();
-  auto toolkitName  = "dali";
-  auto attributes   = self->GetAttributes();
-  auto states       = self->GetStates();
+  auto self        = FindSelf();
+  auto roleName    = self->GetRoleName();
+  auto name        = self->GetName();
+  auto toolkitName = "dali";
+  auto attributes  = self->GetAttributes();
+  auto states      = self->GetStates();
 
-  auto* component   = Component::DownCast(self);
+  auto*        component     = Component::DownCast(self);
   Dali::Rect<> screenExtents = {0, 0, 0, 0};
   Dali::Rect<> windowExtents = {0, 0, 0, 0};
-  if (component)
+  if(component)
   {
     screenExtents = component->GetExtents(CoordinateType::SCREEN);
     windowExtents = component->GetExtents(CoordinateType::WINDOW);
   }
 
-  auto* valueInterface    = Value::DownCast(self);
+  auto*  valueInterface   = Value::DownCast(self);
   double currentValue     = 0.0;
   double minimumIncrement = 0.0;
   double maximumValue     = 0.0;
