@@ -1,3 +1,4 @@
+#pragma once
 /*
  * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
@@ -22,11 +23,12 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 class BufferImpl // : public VkManaged
 {
 public:
-  static BufferImpl* New(Vulkan::Device& device, size_t size, VkBufferUsageFlags usageFlags);
+  static BufferImpl* New(Vulkan::Device& device, size_t size, vk::BufferUsageFlags usageFlags);
+
+  static BufferImpl* New(Vulkan::Device& device, size_t size, vk::SharingMode sharingMode, vk::BufferUsageFlags usageFlags, vk::MemoryPropertyFlags memoryProperties);
 
   /**
    * Returns buffer usage flags

@@ -22,6 +22,7 @@
 namespace Dali::Graphics::Vulkan
 {
 class Device;
+class CommandBufferImpl;
 
 class CommandPool : public VkManaged
 {
@@ -32,18 +33,18 @@ public: // Construction, destruction
    * @param createInfo
    * @return
    */
-  static CommandPool* New( Device& graphics, const vk::CommandPoolCreateInfo& createInfo );
+  static CommandPool* New(Device& graphics, const vk::CommandPoolCreateInfo& createInfo);
 
   /**
    *
    * @param graphics
    * @return
    */
-  static CommandPool* New( Device& graphics );
+  static CommandPool* New(Device& graphics);
 
   CommandPool() = delete;
 
-  CommandPool( Device& graphicsDevice, const vk::CommandPoolCreateInfo& createInfo );
+  CommandPool(Device& graphicsDevice, const vk::CommandPoolCreateInfo& createInfo);
 
   ~CommandPool() override;
 
@@ -53,12 +54,12 @@ public: // Construction, destruction
 
   bool Initialize();
 
-  bool OnDestroy() override; //TODO: Queue deleter for destruction
+  bool OnDestroy() override; // TODO: Queue deleter for destruction
 
   /**
    * Resets command pool
    */
-  void Reset( bool releaseResources );
+  void Reset(bool releaseResources);
 
 public: // API
   /**
@@ -66,21 +67,21 @@ public: // API
    * @param allocateInfo
    * @return
    */
-  CommandBufferImpl* NewCommandBuffer( const vk::CommandBufferAllocateInfo& allocateInfo );
+  CommandBufferImpl* NewCommandBuffer(const vk::CommandBufferAllocateInfo& allocateInfo);
 
   /**
    *
    * @param isPrimary
    * @return
    */
-  CommandBufferImpl* NewCommandBuffer( bool isPrimary = true );
+  CommandBufferImpl* NewCommandBuffer(bool isPrimary = true);
 
   /**
    * Releases command buffer
    * @param buffer
    * @return
    */
-  bool ReleaseCommandBuffer(CommandBufferImpl& buffer );
+  bool ReleaseCommandBuffer(CommandBufferImpl& buffer);
 
   /**
    * Returns current pool capacity ( 0 if nothing allocated )
@@ -99,31 +100,31 @@ public: // API
    * @param level
    * @return
    */
-  uint32_t GetAllocationCount( vk::CommandBufferLevel level ) const;
+  uint32_t GetAllocationCount(vk::CommandBufferLevel level) const;
 
   Device* GetGraphicsDevice()
   {
     return mGraphicsDevice;
   }
 
-private: //Internal structs
+private: // Internal structs
   /**
- * CommandBufferPool contains preallocated command buffers that are
- * reusable.
- */
+   * CommandBufferPool contains preallocated command buffers that are
+   * reusable.
+   */
   struct InternalPool
   {
-    static constexpr uint32_t INVALID_NODE_INDEX{ 0xffffffffu };
+    static constexpr uint32_t INVALID_NODE_INDEX{0xffffffffu};
 
     struct Node
     {
-      Node( uint32_t _nextFreeIndex, CommandBufferImpl* _commandBuffer );
+      Node(uint32_t _nextFreeIndex, CommandBufferImpl* _commandBuffer);
 
-      uint32_t nextFreeIndex;
+      uint32_t           nextFreeIndex;
       CommandBufferImpl* commandBuffer;
     };
 
-    InternalPool( CommandPool& owner, Device* graphics, uint32_t initialCapacity, bool isPrimary );
+    InternalPool(CommandPool& owner, Device* graphics, uint32_t initialCapacity, bool isPrimary);
 
     ~InternalPool();
 
@@ -132,52 +133,50 @@ private: //Internal structs
      * @param allocateInfo
      * @return
      */
-    std::vector< vk::CommandBuffer > AllocateVkCommandBuffers( vk::CommandBufferAllocateInfo allocateInfo );
+    std::vector<vk::CommandBuffer> AllocateVkCommandBuffers(vk::CommandBufferAllocateInfo allocateInfo);
 
     /**
      * Resizes command pool to the new capacity. Pool may only grow
      * @param newCapacity
      */
-    void Resize( uint32_t newCapacity );
+    void Resize(uint32_t newCapacity);
 
     /**
      * Allocates new command buffer
      * @return
      */
-    CommandBufferImpl* AllocateCommandBuffer( bool reset );
+    CommandBufferImpl* AllocateCommandBuffer(bool reset);
 
     /**
      * Releases command buffer back to the pool
      * @param reset if true, Resets command buffer
      * @param ref
      */
-    void ReleaseCommandBuffer(CommandBufferImpl& buffer, bool reset = false );
+    void ReleaseCommandBuffer(CommandBufferImpl& buffer, bool reset = false);
 
     uint32_t GetCapacity() const;
 
     uint32_t GetAllocationCount() const;
 
-    CommandPool& mOwner;
-    Device* mGraphicsDevice;
-    std::vector< Node > mPoolData;
-    uint32_t mFirstFree;
-    uint32_t mCapacity;
-    uint32_t mAllocationCount;
-    bool mIsPrimary;
+    CommandPool&      mOwner;
+    Device*           mGraphicsDevice;
+    std::vector<Node> mPoolData;
+    uint32_t          mFirstFree;
+    uint32_t          mCapacity;
+    uint32_t          mAllocationCount;
+    bool              mIsPrimary;
   };
 
 private: // Data members
-  Device* mGraphicsDevice;
+  Device*                   mGraphicsDevice;
   vk::CommandPoolCreateInfo mCreateInfo;
-  vk::CommandPool mCommandPool;
+  vk::CommandPool           mCommandPool;
 
   // Pools are lazily allocated, depends on the requested command buffers
-  std::unique_ptr< InternalPool > mInternalPoolPrimary;
-  std::unique_ptr< InternalPool > mInternalPoolSecondary;
-
+  std::unique_ptr<InternalPool> mInternalPoolPrimary;
+  std::unique_ptr<InternalPool> mInternalPoolSecondary;
 };
 
 } // namespace Dali::Graphics::Vulkan
 
-
-#endif //DALI_GRAPHICS_VULKAN_COMMAND_POOL_IMPL_H
+#endif // DALI_GRAPHICS_VULKAN_COMMAND_POOL_IMPL_H

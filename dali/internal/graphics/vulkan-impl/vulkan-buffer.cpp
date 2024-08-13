@@ -50,10 +50,6 @@ Buffer::Buffer(const Graphics::BufferCreateInfo& createInfo, VulkanGraphicsContr
     // buffer in this implementation
     mTransient = true;
   }
-
-  //@todo Decide if we want to use creation queues
-  // controller.AddBuffer(*this);
-  InitializeResource();
 }
 
 bool Buffer::InitializeResource()
@@ -93,7 +89,7 @@ void Buffer::InitializeGPUBuffer()
 {
   if(!mBufferImpl)
   {
-    auto vkUsageFlags = static_cast<VkBufferUsageFlags>(mCreateInfo.usage);
+    auto vkUsageFlags = static_cast<vk::BufferUsageFlags>(mCreateInfo.usage);
     mBufferImpl       = BufferImpl::New(mController.GetGraphicsDevice(), mCreateInfo.size, vkUsageFlags);
   }
 }

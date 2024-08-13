@@ -39,7 +39,7 @@
 namespace Dali::Graphics::Vulkan
 {
 class RenderPassImpl;
-
+class CommandPool;
 using CommandPoolMap = std::unordered_map<std::thread::id, CommandPool*>;
 
 struct SwapchainSurfacePair
@@ -75,7 +75,7 @@ public: // Create methods
 
   Swapchain* CreateSwapchain(SurfaceImpl* surface, vk::Format requestedFormat, vk::PresentModeKHR presentMode, uint32_t bufferCount, Swapchain*&& oldSwapchain);
 
-  vk::Result Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, Fence* fence = nullptr);
+  vk::Result Submit(Queue& queue, const std::vector<SubmissionData>& submissionData, FenceImpl* fence = nullptr);
   vk::Result Present(Queue& queue, vk::PresentInfoKHR presentInfo);
   vk::Result QueueWaitIdle(Queue& queue);
   vk::Result DeviceWaitIdle();
@@ -115,8 +115,6 @@ public: // Getters
 
   void DiscardResource(std::function<void()> deleter);
 
-  Fence* CreateFence(const vk::FenceCreateInfo& fenceCreateInfo);
-
   FramebufferImpl* CreateFramebuffer(const std::vector<FramebufferAttachment*>& colorAttachments,
                                      FramebufferAttachment*                     depthAttachment,
                                      uint32_t                                   width,
@@ -124,18 +122,6 @@ public: // Getters
                                      RenderPassImpl*                            externalRenderPass = nullptr);
 
   Image* CreateImageFromExternal(vk::Image externalImage, vk::Format imageFormat, vk::Extent2D extent);
-
-  ImageView* CreateImageView(const vk::ImageViewCreateFlags& flags,
-                             const Image&                    image,
-                             vk::ImageViewType               viewType,
-                             vk::Format                      format,
-                             vk::ComponentMapping            components,
-                             vk::ImageSubresourceRange       subresourceRange,
-                             void*                           pNext = nullptr);
-
-  ImageView* CreateImageView(Image* image);
-
-  vk::Result WaitForFence(Fence* fence, uint32_t timeout = std::numeric_limits<uint32_t>::max());
 
   uint32_t GetCurrentBufferIndex() const;
 
@@ -145,6 +131,11 @@ public: // Getters
   {
     return mPhysicalDeviceMemoryProperties;
   }
+
+  static uint32_t GetMemoryIndex(
+    const vk::PhysicalDeviceMemoryProperties& memoryProperties,
+    uint32_t                                  memoryTypeBits,
+    vk::MemoryPropertyFlags                   properties);
 
 private: // Methods
   void CreateInstance(const std::vector<const char*>& extensions,

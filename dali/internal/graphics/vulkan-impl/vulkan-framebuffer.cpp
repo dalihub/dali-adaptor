@@ -32,7 +32,6 @@ Framebuffer::Framebuffer(const FramebufferCreateInfo& createInfo, VulkanGraphics
 : Resource(createInfo, controller),
   mFramebufferImpl{nullptr}
 {
-  // mController.AddFramebuffer(*this)
 }
 
 Framebuffer::~Framebuffer() = default;

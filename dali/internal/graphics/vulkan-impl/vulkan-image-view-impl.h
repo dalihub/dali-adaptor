@@ -22,19 +22,35 @@
 
 namespace Dali::Graphics::Vulkan
 {
-
 class Device;
 
 /*
- * ImageView
+ * Wrapper for vkImageView
  */
-class ImageView : public VkManaged
+class ImageView
 {
-  friend class Device;
-
 public:
+  static ImageView* NewFromImage(Device& device, const Image& image);
 
-  ~ImageView() override;
+  static ImageView* NewFromImage(Device& device, const Image& image, const vk::ComponentMapping& componentMapping);
+
+  static ImageView* New(Device& device, const Image& image, const vk::ImageViewCreateInfo& createInfo);
+
+  static ImageView* New(
+    Device&                         device,
+    const Image&                    image,
+    const vk::ImageViewCreateFlags& flags,
+    vk::ImageViewType               viewType,
+    vk::Format                      format,
+    vk::ComponentMapping            components,
+    vk::ImageSubresourceRange       subresourceRange,
+    void*                           pNext);
+
+  ImageView(Device&                 device,
+            const Image&            image,
+            vk::ImageViewCreateInfo createInfo);
+
+  ~ImageView();
 
   /**
    *
@@ -49,43 +65,29 @@ public:
   [[nodiscard]] const Image* GetImage() const;
 
   /**
-   *
    * @return
    */
   [[nodiscard]] uint32_t GetLayerCount() const;
 
   /**
-   *
    * @return
    */
   [[nodiscard]] uint32_t GetMipLevelCount() const;
 
   /**
-   *
    * @return
    */
   [[nodiscard]] vk::ImageAspectFlags GetImageAspectMask() const;
 
-  const ImageView& ConstRef();
-
-  ImageView& Ref();
-
-  bool OnDestroy() override;
+  void Destroy();
 
 private:
-  ImageView(Device& graphicsDevice,
-            const Image* image,
-            vk::ImageViewCreateInfo createInfo );
-
-private:
-  Device* mGraphicsDevice;
-  const Image* mImage;
+  Device&                 mDevice;
+  const Image&            mImage;
   vk::ImageViewCreateInfo mCreateInfo;
-  vk::ImageView mImageView;
+  vk::ImageView           mImageView;
 };
 
 } // namespace Dali::Graphics::Vulkan
-
-
 
 #endif // DALI_INTERNAL_GRAPHICS_VULKAN_IMAGE_VIEW_IMPL_H

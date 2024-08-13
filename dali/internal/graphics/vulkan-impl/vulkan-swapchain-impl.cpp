@@ -18,6 +18,7 @@
 // INTERNAL INCLUDES
 #include <dali/internal/graphics/vulkan-impl/vulkan-fence-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-framebuffer-impl.h>
+#include <dali/internal/graphics/vulkan-impl/vulkan-image-view-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-surface-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-swapchain-impl.h>
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
@@ -54,7 +55,7 @@ struct SwapchainBuffer
    */
   vk::Semaphore submitSemaphore;
 
-  Fence* endOfFrameFence;
+  std::unique_ptr<FenceImpl> endOfFrameFence;
 
   Device& graphicsDevice;
 };
@@ -65,7 +66,7 @@ SwapchainBuffer::SwapchainBuffer(Device& graphicsDevice_)
   acquireNextImageSemaphore = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
   submitSemaphore           = graphicsDevice.GetLogicalDevice().createSemaphore({}, graphicsDevice.GetAllocator()).value;
 
-  endOfFrameFence = graphicsDevice.CreateFence({});
+  endOfFrameFence.reset(FenceImpl::New(graphicsDevice, {}));
 }
 
 SwapchainBuffer::~SwapchainBuffer()
@@ -226,7 +227,7 @@ void Swapchain::CreateFramebuffers()
                                                               mSwapchainCreateInfoKHR.imageFormat,
                                                               mSwapchainCreateInfoKHR.imageExtent);
 
-    auto colorImageView = mGraphicsDevice.CreateImageView(colorImage);
+    auto colorImageView = ImageView::NewFromImage(mGraphicsDevice, *colorImage);
 
     // A new color attachment for each framebuffer
     auto colorAttachment = FramebufferAttachment::NewColorAttachment(colorImageView,
@@ -332,13 +333,16 @@ void Swapchain::Submit(CommandBufferImpl* commandBuffer)
 
   swapchainBuffer->endOfFrameFence->Reset();
 
+  // @todo Should we allow multiple submits per swapchain per frame?
+  // If so, should change the fence, or at least wait for the fence
+  // prior to the reset above.
   mGraphicsDevice.Submit(*mQueue,
                          {Vulkan::SubmissionData{
                            {swapchainBuffer->acquireNextImageSemaphore},
                            {},
                            {commandBuffer},
                            {swapchainBuffer->submitSemaphore}}},
-                         swapchainBuffer->endOfFrameFence); // @todo should only be endOfFrameFence on the last submit, but that's now hard to figure out!.
+                         swapchainBuffer->endOfFrameFence.get());
 }
 
 void Swapchain::Present()
@@ -435,7 +439,7 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
     mGraphics->BindImageMemory( dsRefCountedImage, std::move(memory), 0 );
 
     // create the depth stencil ImageView to be used within framebuffer
-    auto depthStencilImageView = mGraphics->CreateImageView( dsRefCountedImage );
+    auto depthStencilImageView = ImageView::New(dsRefCountedImage);
     auto depthClearValue = vk::ClearDepthStencilValue{}.setDepth( 0.0 )
                                                        .setStencil( STENCIL_DEFAULT_CLEAR_VALUE );
 
@@ -454,18 +458,18 @@ void Swapchain::SetDepthStencil(vk::Format depthStencilFormat)
 
   for( auto&& image : images )
   {
-
-    auto colorImageView = mGraphics->CreateImageView( mGraphics->CreateImageFromExternal( image, mSwapchainCreateInfoKHR.imageFormat, swapchainExtent ) );
+    // @todo When do we kill this auto image & imageView? MemLeak.
+    auto colorImageView = ImageView::New( mGraphics->CreateImageFromExternal( image, mSwapchainCreateInfoKHR.imageFormat, swapchainExtent ) );
 
     // A new color attachment for each framebuffer
-    auto colorAttachment = FramebufferAttachment::NewColorAttachment( colorImageView,
-                                                                      clearColor,
-                                                                      true );//presentable
+    auto colorAttachment = FramebufferAttachment::NewColorAttachment(colorImageView,
+                                                                     clearColor,
+                                                                     true);//presentable
 
-    framebuffers.push_back( mGraphics->CreateFramebuffer( { colorAttachment },
-                                               depthAttachment,
-                                               swapchainExtent.width,
-                                               swapchainExtent.height ) );
+    framebuffers.push_back( mGraphics->CreateFramebuffer({colorAttachment},
+                                                         depthAttachment,
+                                                         swapchainExtent.width,
+                                                         swapchainExtent.height ) );
   }
 
   // Before replacing framebuffers in the swapchain, wait until all is done
