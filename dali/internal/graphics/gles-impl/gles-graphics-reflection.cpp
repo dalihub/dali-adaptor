@@ -57,7 +57,7 @@ struct StringSize
 
 bool operator==(const StringSize& lhs, const char* rhs)
 {
-  return strncmp(lhs.mString, rhs, lhs.mLength) == 0;
+  return strncmp(lhs.mString, rhs, lhs.mLength + 0 /* Compare prefix only */) == 0;
 }
 
 const char* const    DELIMITERS           = " \t\n";
@@ -170,7 +170,7 @@ void ParseShaderSamplers(std::string shaderSource, std::vector<Dali::Graphics::U
             for(uint32_t i = 0; i < static_cast<uint32_t>(uniformOpaques.size()); ++i)
             {
               if(samplerPositions[i] == -1 &&
-                 strncmp(token, uniformOpaques[i].name.c_str(), uniformOpaques[i].name.size()) == 0)
+                 strncmp(token, uniformOpaques[i].name.c_str(), uniformOpaques[i].name.size() + 1 /* Compare include null-terminated char */) == 0)
               {
                 // We have found a matching name.
                 samplerPositions[i] = uniformOpaques[i].offset = samplerPosition;
@@ -419,7 +419,7 @@ void Reflection::BuildUniformBlockReflection()
         auto& member = block.members[memberIndex];
         if(member.elementCount > 0)
         {
-          member.elementStride = (block.members[memberIndex+1].offset - member.offset) / member.elementCount;
+          member.elementStride = (block.members[memberIndex + 1].offset - member.offset) / member.elementCount;
         }
       }
     }
@@ -532,7 +532,7 @@ bool Reflection::GetUniformBlock(uint32_t index, Dali::Graphics::UniformBlockInf
   out.size = block.size;
   for(auto i = 0u; i < out.members.size(); ++i)
   {
-    const auto& memberUniform   = block.members[i];
+    const auto& memberUniform    = block.members[i];
     out.members[i].name          = memberUniform.name;
     out.members[i].binding       = block.binding;
     out.members[i].uniformClass  = Graphics::UniformClass::UNIFORM;
