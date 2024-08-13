@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -188,6 +188,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 
   if(DALI_UNLIKELY(0u == fsize))
   {
+    DALI_LOG_ERROR("Error ICO data size is zero!\n");
     return false;
   }
 
@@ -199,6 +200,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 
   if(DALI_UNLIKELY(fsize < (ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER))) //6 + 16 + 40
   {
+    DALI_LOG_ERROR("Error ICO data size is too small! (%ld < %u)!\n", fsize, static_cast<uint32_t>(ICO_FILE_HEADER + ICO_IMAGE_INFO_HEADER));
     return false;
   }
   map.ResizeUninitialized(fsize);
@@ -214,19 +216,23 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
   unsigned short reserved, type, count;
   if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &reserved)))
   {
+    DALI_LOG_ERROR("Error ICO header.reserved decode failed!\n");
     return false;
   }
   if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &type)))
   {
+    DALI_LOG_ERROR("Error ICO header.type decode failed!\n");
     return false;
   }
   if(DALI_UNLIKELY(!read_ushort(inputBufferPtr, fsize, &position, &count)))
   {
+    DALI_LOG_ERROR("Error ICO header.count decode failed!\n");
     return false;
   }
   if(DALI_UNLIKELY(!((reserved == 0) &&
                      ((type == ICON) || (type == CURSOR)) && (count != 0))))
   {
+    DALI_LOG_ERROR("Error ICO header is invalid! (reserved : %hu, type : %hu, count : %hu)\n", reserved, type, count);
     return false;
   }
   search           = BIGGEST;
@@ -327,6 +333,7 @@ bool LoadIcoHeaderHelper(FILE*                        fp,
 
   if(DALI_UNLIKELY(chosen.bmoffset == 0))
   {
+    DALI_LOG_ERROR("Error ICO data is invalid!\n");
     return false;
   }
 
