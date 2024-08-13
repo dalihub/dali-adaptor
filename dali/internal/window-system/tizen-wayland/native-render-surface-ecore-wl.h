@@ -178,6 +178,16 @@ private:
    */
   void CreateNativeRenderable() override;
 
+  /**
+   * Creates the context
+   */
+  void CreateContext();
+
+  /**
+   * Destroys the context
+   */
+  void DestroyContext();
+
 private: // Data
   SurfaceSize                           mSurfaceSize;
   TriggerEventInterface*                mRenderNotification;
