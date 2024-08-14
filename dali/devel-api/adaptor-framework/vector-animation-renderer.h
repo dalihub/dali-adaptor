@@ -58,7 +58,9 @@ public:
     TRANSFORM_POSITION, ///< Transform position of the Layer and Group object, Type Property::VECTOR2
     TRANSFORM_SCALE,    ///< Transform scale of the Layer and Group object, Type Property::VECTOR2 [0..100]
     TRANSFORM_ROTATION, ///< Transform rotation of the Layer and Group object, Type Property::FLOAT [0..360] in degrees
-    TRANSFORM_OPACITY   ///< Transform opacity of the Layer and Group object, Type Property::FLOAT
+    TRANSFORM_OPACITY,  ///< Transform opacity of the Layer and Group object, Type Property::FLOAT
+    TRIM_START,         ///< Trim Start property of Shape object , value type is float [ 0 .. 100] */
+    TRIM_END            ///< Trim End property of Shape object , value type Property::VECTOR2 [0..100] */
   };
 
   /// @brief UploadCompleted signal type.
