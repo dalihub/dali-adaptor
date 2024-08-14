@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 
 // CLASS HEADER
 #include <dali/graphics/vulkan/vulkan-graphics.h>
+
+// EXTERNAL INCLUDES
+#include <dali/integration-api/debug.h>
 
 // INTERNAL INCLUDES
 #include <dali/graphics/vulkan/vk-surface-factory.h>
@@ -1541,6 +1544,20 @@ void Graphics::PreparePhysicalDevice()
   GetPhysicalDeviceProperties();
 
   GetQueueFamilyProperties();
+
+  // We want to display this information all the time, so use the LogMessage directly
+  Integration::Log::LogMessage(Integration::Log::DebugInfo,
+                               "Vulkan Information\n"
+                               "            Device Name:     %s\n"
+                               "            API Version:     %x\n"
+                               "            Vulkan Version:  %d.%d.%d\n"
+                               "            Driver Version:  %x\n",
+                               &mPhysicalDeviceProperties.deviceName[0],
+                               mPhysicalDeviceProperties.apiVersion,
+                               VK_VERSION_MAJOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_VERSION_MINOR(mPhysicalDeviceProperties.apiVersion),
+                               VK_VERSION_PATCH(mPhysicalDeviceProperties.apiVersion),
+                               mPhysicalDeviceProperties.driverVersion);
 }
 
 void Graphics::GetPhysicalDeviceProperties()
