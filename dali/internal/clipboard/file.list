@@ -5,6 +5,7 @@ SET( adaptor_clipboard_common_src_files
 
 # module: clipboard, backend: tizen-wayland
 SET( adaptor_clipboard_tizen_wayland_src_files
+    ${adaptor_clipboard_dir}/common/clipboard-event-notifier-impl.cpp
     ${adaptor_clipboard_dir}/tizen-wayland/clipboard-impl-ecore-wl.cpp
 )
 
