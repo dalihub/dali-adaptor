@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@
 #if defined(TIZEN_PLATFORM_CONFIG_SUPPORTED) && TIZEN_PLATFORM_CONFIG_SUPPORTED
 #include <tzplatform_config.h>
 #endif // TIZEN_PLATFORM_CONFIG_SUPPORTED
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 
 namespace Dali
 {
@@ -47,13 +48,13 @@ std::string GetResourcePath()
 
   // "DALI_APPLICATION_PACKAGE" is used to get the already configured Application package path.
   const char* environmentVariable = "DALI_APPLICATION_PACKAGE";
-  char*       value               = getenv(environmentVariable);
+  const char* value               = Dali::EnvironmentVariable::GetEnvironmentVariable(environmentVariable);
   if(value != NULL)
   {
     resourcePath = value;
   }
 
-  if(resourcePath.back() != '/')
+  if(resourcePath.empty() || resourcePath.back() != '/')
   {
     resourcePath += "/";
   }

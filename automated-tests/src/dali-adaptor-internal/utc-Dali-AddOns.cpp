@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
  * limitations under the License.
  *
  */
+#include <adaptor-environment-variable.h>
 #include <dali-test-suite-utils.h>
+
 #include <dali/dali.h>
 #include <dali/devel-api/common/addon-binder.h>
 #include <dali/integration-api/addon-manager.h>
@@ -23,8 +25,8 @@
 std::unique_ptr<Dali::Integration::AddOnManager> CreateAddOnManager()
 {
   // Set env variables
-  setenv("DALI_ADDONS_PATH", ADDON_LIBS_PATH, 1);
-  setenv("DALI_ADDONS_LIBS", "libSampleAddOn.so", 1);
+  Dali::EnvironmentVariable::SetTestEnvironmentVariable("DALI_ADDONS_PATH", ADDON_LIBS_PATH);
+  Dali::EnvironmentVariable::SetTestEnvironmentVariable("DALI_ADDONS_LIBS", "libSampleAddOn.so");
 
   return std::unique_ptr<Dali::Integration::AddOnManager>(Dali::Internal::AddOnManagerFactory::CreateAddOnManager());
 }

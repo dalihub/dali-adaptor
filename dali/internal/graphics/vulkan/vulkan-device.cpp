@@ -19,6 +19,7 @@
 #include <dali/internal/graphics/vulkan/vulkan-device.h>
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-buffer-impl.h>
 #include <dali/internal/graphics/vulkan-impl/vulkan-command-pool-impl.h>
@@ -631,7 +632,7 @@ void Device::CreateInstance(const std::vector<const char*>& extensions,
     .setEnabledLayerCount(U32(validationLayers.size()))
     .setPpEnabledLayerNames(validationLayers.data());
 
-  const char* log_level = std::getenv("LOG_VULKAN");
+  const char* log_level = Dali::EnvironmentVariable::GetEnvironmentVariable("LOG_VULKAN");
   int         intValue  = log_level ? std::atoi(log_level) : 0;
   if(!intValue)
   {
@@ -880,8 +881,7 @@ vk::Result Device::Submit(Queue& queue, const std::vector<SubmissionData>& submi
     std::transform(subData.commandBuffers.cbegin(),
                    subData.commandBuffers.cend(),
                    std::back_inserter(commandBufferHandles),
-                   [&](CommandBufferImpl* entry)
-                   {
+                   [&](CommandBufferImpl* entry) {
                      return entry->GetVkHandle();
                    });
 

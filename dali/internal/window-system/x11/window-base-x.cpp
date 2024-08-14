@@ -19,6 +19,7 @@
 #include <dali/internal/window-system/x11/window-base-x.h>
 
 // INTERNAL HEADERS
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/common/egl-include.h>
 #include <dali/internal/window-system/common/window-impl.h>
 #include <dali/internal/window-system/common/window-render-surface.h>
@@ -43,6 +44,8 @@ namespace
 const char*                  DEFAULT_DEVICE_NAME     = "";
 const Device::Class::Type    DEFAULT_DEVICE_CLASS    = Device::Class::NONE;
 const Device::Subclass::Type DEFAULT_DEVICE_SUBCLASS = Device::Subclass::NONE;
+
+const char* DESKTOP_STARTUP_ID_ENV = "DESKTOP_STARTUP_ID";
 
 const unsigned int PRIMARY_TOUCH_BUTTON_ID(1);
 
@@ -294,10 +297,12 @@ void WindowBaseX::Initialize(PositionSize positionSize, Any surface, bool isTran
 
   auto& windowSystem = WindowSystem::GetImplementation();
 
-  char* id = NULL;
-  if((id = getenv("DESKTOP_STARTUP_ID")))
   {
-    windowSystem.SetStringProperty(mWindow, WindowSystemX::ATOM_NET_STARTUP_ID, std::string(id));
+    const char* id = Dali::EnvironmentVariable::GetEnvironmentVariable(DESKTOP_STARTUP_ID_ENV);
+    if(id != nullptr)
+    {
+      windowSystem.SetStringProperty(mWindow, WindowSystemX::ATOM_NET_STARTUP_ID, std::string(id));
+    }
   }
 
   windowSystem.SetWindowHints(mWindow, true);

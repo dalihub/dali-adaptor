@@ -38,6 +38,8 @@ LIST(APPEND TC_SOURCES
   ../dali-adaptor/dali-test-suite-utils/test-render-surface.cpp
   ../dali-adaptor/dali-test-suite-utils/test-trace-call-stack.cpp
   ../dali-adaptor/dali-test-suite-utils/adaptor-test-adaptor-impl.cpp
+  ../dali-adaptor/dali-test-suite-utils/adaptor-environment-variable.cpp
+
   tct-dali-egl-graphics-core.cpp
 )
 

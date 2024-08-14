@@ -38,6 +38,7 @@
 #endif // DALI_ELDBUS_AVAILABLE
 
 // INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/integration-api/debug.h>
 #include <dali/internal/adaptor/common/framework.h>
 #include <dali/internal/adaptor/tizen-wayland/framework-tizen.h>
@@ -87,6 +88,10 @@ namespace
 #if defined(DEBUG_ENABLED)
 Integration::Log::Filter* gDBusLogging = Integration::Log::Filter::New(Debug::NoLogging, false, "LOG_ADAPTOR_EVENTS_DBUS");
 #endif
+
+const char* TIZEN_GLIB_CONTEXT_ENV        = "TIZEN_GLIB_CONTEXT";
+const char* AUL_LOADER_INIT_ENV           = "AUL_LOADER_INIT";
+const char* AUL_LOADER_INIT_DEFAULT_VALUE = "0";
 } // anonymous namespace
 
 namespace AppCore
@@ -401,7 +406,7 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
       GMainContext* GetTizenGlibContext()
       {
         GMainContext* context;
-        const char*   env = getenv("TIZEN_GLIB_CONTEXT");
+        const char*   env = Dali::EnvironmentVariable::GetEnvironmentVariable(TIZEN_GLIB_CONTEXT_ENV);
         if(env)
         {
           context = (GMainContext*)strtoul(env, nullptr, 10);
@@ -560,9 +565,9 @@ struct DALI_ADAPTOR_API AppModelNormal::Impl
     {
       ecore_shutdown();
 
-      if(getenv("AUL_LOADER_INIT"))
+      if(Dali::EnvironmentVariable::GetEnvironmentVariable(AUL_LOADER_INIT_ENV))
       {
-        setenv("AUL_LOADER_INIT", "0", 1);
+        Dali::EnvironmentVariable::SetEnvironmentVariable(AUL_LOADER_INIT_ENV, AUL_LOADER_INIT_DEFAULT_VALUE);
         ecore_shutdown();
       }
 

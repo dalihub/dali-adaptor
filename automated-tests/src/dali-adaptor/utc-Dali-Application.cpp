@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 #include <dali/dali.h>
 #include <dali/devel-api/adaptor-framework/application-devel.h>
 #include <stdlib.h>
+
+#include <adaptor-environment-variable.h> ///< for Dali::SetTestEnvironmentVariable
 
 using namespace Dali;
 
@@ -668,7 +670,7 @@ int UtcDaliApplicationAddIdleWithReturnValueN(void)
 
 int UtcDaliApplicationGetDataPathP(void)
 {
-  setenv("DALI_APPLICATION_DATA_DIR", "MyDataPath", 1);
+  Dali::EnvironmentVariable::SetTestEnvironmentVariable("DALI_APPLICATION_DATA_DIR", "MyDataPath");
   std::string dataPath = DevelApplication::GetDataPath();
   DALI_TEST_EQUALS(dataPath, "MyDataPath", TEST_LOCATION);
   END_TEST;

@@ -62,7 +62,13 @@ namespace Internal
 {
 namespace Adaptor
 {
+namespace
+{
+#ifdef UI_THREAD_AVAILABLE
+const char* TIZEN_UI_THREAD_ENV = "TIZEN_UI_THREAD";
+#endif
 DALI_INIT_TRACE_FILTER(gTraceFilter, DALI_TRACE_APPLICATION, true);
+} // namespace
 
 ApplicationPtr Application::gPreInitializedApplication(NULL);
 
@@ -85,7 +91,7 @@ void Application::PreInitialize(int* argc, char** argv[])
     bool isUseUIThread = false;
 
 #ifdef UI_THREAD_AVAILABLE
-    char* retEnv = std::getenv("TIZEN_UI_THREAD");
+    const char* retEnv = Dali::EnvironmentVariable::GetEnvironmentVariable(TIZEN_UI_THREAD_ENV);
     if(retEnv)
     {
       std::string uiThreadEnv   = retEnv;

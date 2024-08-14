@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@
 // EXTERNAL INCLUDES
 #include <stdlib.h>
 
+// INTERNAL INCLUDES
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
+
 namespace Dali
 {
 namespace Internal
@@ -33,14 +36,14 @@ std::string GetResourcePath()
 {
   // "DALI_APPLICATION_PACKAGE" is used by Ubuntu specifically to get the already configured Application package path.
   const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_PACKAGE";
-  char*       value                     = getenv(ubuntuEnvironmentVariable);
+  const char* value                     = Dali::EnvironmentVariable::GetEnvironmentVariable(ubuntuEnvironmentVariable);
   std::string resourcePath;
   if(value != NULL)
   {
     resourcePath = value;
   }
 
-  if(resourcePath.back() != '/')
+  if(resourcePath.empty() || resourcePath.back() != '/')
   {
     resourcePath += "/";
   }
@@ -51,7 +54,7 @@ std::string GetResourcePath()
 std::string GetDataPath()
 {
   const char* ubuntuEnvironmentVariable = "DALI_APPLICATION_DATA_DIR";
-  char*       value                     = getenv(ubuntuEnvironmentVariable);
+  const char* value                     = Dali::EnvironmentVariable::GetEnvironmentVariable(ubuntuEnvironmentVariable);
   std::string dataPath;
   if(value != NULL)
   {

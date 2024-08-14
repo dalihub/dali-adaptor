@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <dali/devel-api/adaptor-framework/environment-variable.h>
 #include <dali/internal/graphics/gles-impl/egl-graphics-controller-debug.h>
 #include <cstdio>
 #include <queue>
@@ -21,6 +22,8 @@
 namespace Dali::Graphics
 {
 #if defined(DEBUG_ENABLED)
+const char* GRAPHICS_CMDBUF_OUTFILE_ENV = "GRAPHICS_CMDBUF_OUTFILE";
+
 std::string DumpCompareOp(Graphics::CompareOp compareOp)
 {
   switch(compareOp)
@@ -307,7 +310,7 @@ void DumpCommandBuffer(FILE* output, const GLES::CommandBuffer* commandBuffer)
 GraphicsFrameDump::GraphicsFrameDump()
 : outputStream(nullptr, nullptr)
 {
-  char* outfile = getenv("GRAPHICS_CMDBUF_OUTFILE");
+  const char* outfile = Dali::EnvironmentVariable::GetEnvironmentVariable(GRAPHICS_CMDBUF_OUTFILE_ENV);
   if(outfile)
   {
     outputStream = UniqueFilePtr(std::fopen(outfile, "w"), std::fclose);
