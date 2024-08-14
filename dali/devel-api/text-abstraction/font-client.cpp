@@ -82,6 +82,15 @@ FontClient FontClient::Get()
   return Internal::FontClient::Get();
 }
 
+FontClient FontClient::New()
+{
+  auto fontClientImpl = new Internal::FontClient();
+
+  fontClientImpl->SetDpiFromWindowSystem();
+
+  return FontClient(fontClientImpl);
+}
+
 FontClient FontClient::New(uint32_t horizontalDpi, uint32_t verticalDpi)
 {
   auto fontClientImpl = new Internal::FontClient();
@@ -120,6 +129,11 @@ void FontClient::ClearCacheOnLocaleChanged()
 void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
 {
   GetImplementation(*this).SetDpi(horizontalDpi, verticalDpi);
+}
+
+void FontClient::SetDpiFromWindowSystem()
+{
+  GetImplementation(*this).SetDpiFromWindowSystem();
 }
 
 void FontClient::GetDpi(unsigned int& horizontalDpi, unsigned int& verticalDpi)
@@ -282,6 +296,11 @@ bool FontClient::IsColorGlyph(FontId fontId, GlyphIndex glyphIndex)
 bool FontClient::AddCustomFontDirectory(const FontPath& path)
 {
   return GetImplementation(*this).AddCustomFontDirectory(path);
+}
+
+void FontClient::ApplyCustomFontDirectories()
+{
+  GetImplementation(*this).ApplyCustomFontDirectories();
 }
 
 GlyphIndex FontClient::CreateEmbeddedItem(const EmbeddedItemDescription& description, Pixel::Format& pixelFormat)

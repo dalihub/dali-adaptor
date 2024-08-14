@@ -99,8 +99,18 @@ public:
    * @brief Retrieve a handle to the FontClient instance.
    *
    * @return A handle to the FontClient
+   * @remarks A reference to the singleton instance of FontClient.
    */
   static FontClient Get();
+
+  /**
+   * @brief Create a handle to the new FontClient instance.
+   *
+   * @return A handle to the FontClient
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
+   */
+  static FontClient New();
 
   /**
    * @brief Create a handle to the new FontClient instance.
@@ -108,6 +118,8 @@ public:
    * @param[in] horizontalDpi The horizontal resolution in DPI.
    * @param[in] verticalDpi The vertical resolution in DPI.
    * @return A handle to the FontClient
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
    */
   static FontClient New(uint32_t horizontalDpi, uint32_t verticalDpi);
 
@@ -178,6 +190,13 @@ public:
    * @param[in] verticalDpi The vertical resolution in DPI.
    */
   void SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi);
+
+  /**
+   * @brief Sets the DPI of the FontClient based on the current window's DPI.
+   *
+   * @note Multiple windows are not currently supported.
+   */
+  void SetDpiFromWindowSystem();
 
   /**
    * @brief Retrieves the DPI previously set to the target window.
@@ -493,6 +512,11 @@ public:
    * @return true if the fonts can be added.
    */
   bool AddCustomFontDirectory(const FontPath& path);
+
+  /**
+   * @brief Apply custom fonts directories
+   */
+  void ApplyCustomFontDirectories();
 
   /**
    * @brief Creates and stores an embedded item and it's metrics.

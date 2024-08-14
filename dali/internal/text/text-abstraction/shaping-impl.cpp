@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 #include <dali/internal/text/text-abstraction/shaping-impl.h>
 
 // INTERNAL INCLUDES
-#include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/glyph-info.h>
 #include <dali/integration-api/debug.h>
 #include "font-client-impl.h"
@@ -131,10 +130,11 @@ struct Shaping::Plugin
   {
   }
 
-  Length Shape(const Character* const text,
-               Length                 numberOfCharacters,
-               FontId                 fontId,
-               Script                 script)
+  Length Shape(TextAbstraction::FontClient& fontClient,
+               const Character*       const text,
+               Length                       numberOfCharacters,
+               FontId                       fontId,
+               Script                       script)
   {
     // Clear previoursly shaped texts.
     mIndices.Clear();
@@ -143,7 +143,6 @@ struct Shaping::Plugin
     mOffset.Clear();
     mFontId = fontId;
 
-    TextAbstraction::FontClient            fontClient     = TextAbstraction::FontClient::Get();
     TextAbstraction::Internal::FontClient& fontClientImpl = TextAbstraction::GetImplementation(fontClient);
 
     const FontDescription::Type type = fontClientImpl.GetFontType(fontId);
@@ -369,14 +368,16 @@ TextAbstraction::Shaping Shaping::Get()
   return shapingHandle;
 }
 
-Length Shaping::Shape(const Character* const text,
-                      Length                 numberOfCharacters,
-                      FontId                 fontId,
-                      Script                 script)
+Length Shaping::Shape(TextAbstraction::FontClient& fontClient,
+                      const Character*       const text,
+                      Length                       numberOfCharacters,
+                      FontId                       fontId,
+                      Script                       script)
 {
   CreatePlugin();
 
-  return mPlugin->Shape(text,
+  return mPlugin->Shape(fontClient,
+                        text,
                         numberOfCharacters,
                         fontId,
                         script);

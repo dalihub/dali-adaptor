@@ -2,7 +2,7 @@
 #define DALI_PLATFORM_TEXT_ABSTRACTION_SHAPING_H
 
 /*
- * Copyright (c) 2020 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 // INTERNAL INCLUDES
 #include <dali/devel-api/text-abstraction/emoji-helper.h>
+#include <dali/devel-api/text-abstraction/font-client.h>
 #include <dali/devel-api/text-abstraction/script.h>
 #include <dali/devel-api/text-abstraction/text-abstraction-definitions.h>
 
@@ -85,14 +86,25 @@ public:
    * @brief Retrieve a handle to the Shaping instance.
    *
    * @return A handle to the Shaping.
+   * @remarks A reference to the singleton instance of Shaping.
    */
   static Shaping Get();
+
+  /**
+   * @brief Create a handle to the new Shaping instance.
+   *
+   * @return A handle to the Shaping.
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
+   */
+  static Shaping New();
 
   /**
    * Shapes the text.
    *
    * Call GetGlyphs() to retrieve the glyphs.
    *
+   * @param[in] fontClient FontClient to use in this function.
    * @param[in] text Pointer to the first character of the text coded in UTF32.
    * @param[in] numberOfCharacters The number of characters to be shaped
    * @param[in] fontId The font to be used to shape the text.
@@ -100,10 +112,11 @@ public:
    *
    * @return The size of the buffer required to get the shaped text.
    */
-  Length Shape(const Character* const text,
-               Length                 numberOfCharacters,
-               FontId                 fontId,
-               Script                 script);
+  Length Shape(TextAbstraction::FontClient& fontClient,
+               const Character*       const text,
+               Length                       numberOfCharacters,
+               FontId                       fontId,
+               Script                       script);
 
   /**
    * Gets the shaped text data.

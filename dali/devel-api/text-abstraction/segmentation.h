@@ -70,8 +70,18 @@ public:
    * @brief Retrieve a handle to the Segmentation instance.
    *
    * @return A handle to the Segmentation
+   * @remarks A reference to the singleton instance of Segmentation.
    */
   static Segmentation Get();
+
+  /**
+   * @brief Create a handle to the new Segmentation instance.
+   *
+   * @return A handle to the Segmentation.
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
+   */
+  static Segmentation New();
 
   /**
    * @brief Retrieves the line break info.

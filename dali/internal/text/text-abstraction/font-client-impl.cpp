@@ -142,14 +142,7 @@ Dali::TextAbstraction::FontClient FontClient::Get()
       gFontPreCacheAvailable = false;
       gFontPreLoadAvailable  = false;
 
-      uint32_t horizontalDpi, verticalDpi;
-      fontClientHandle.GetDpi(horizontalDpi, verticalDpi);
-      if(horizontalDpi == 0u || verticalDpi == 0u)
-      {
-        horizontalDpi = verticalDpi = 0u;
-        Dali::Internal::Adaptor::WindowSystem::GetDpi(horizontalDpi, verticalDpi);
-        fontClientHandle.SetDpi(horizontalDpi, verticalDpi);
-      }
+      fontClientHandle.SetDpiFromWindowSystem();
 
       service.Register(typeid(fontClientHandle), fontClientHandle);
     }
@@ -352,6 +345,16 @@ void FontClient::SetDpi(unsigned int horizontalDpi, unsigned int verticalDpi)
   if(mPlugin)
   {
     mPlugin->SetDpi(horizontalDpi, verticalDpi);
+  }
+}
+
+void FontClient::SetDpiFromWindowSystem()
+{
+  if(mDpiHorizontal == 0u || mDpiVertical == 0u)
+  {
+    uint32_t horizontalDpi = 0u, verticalDpi = 0u;
+    Dali::Internal::Adaptor::WindowSystem::GetDpi(horizontalDpi, verticalDpi);
+    SetDpi(horizontalDpi, verticalDpi);
   }
 }
 
@@ -679,6 +682,13 @@ bool FontClient::AddCustomFontDirectory(const FontPath& path)
   CreatePlugin();
 
   return mPlugin->AddCustomFontDirectory(path);
+}
+
+void FontClient::ApplyCustomFontDirectories()
+{
+  CreatePlugin();
+
+  return mPlugin->ApplyCustomFontDirectories();
 }
 
 HarfBuzzFontHandle FontClient::GetHarfBuzzFont(FontId fontId)

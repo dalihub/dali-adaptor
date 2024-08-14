@@ -102,6 +102,7 @@ const float FROM_266        = 1.0f / 64.0f;
 const float POINTS_PER_INCH = 72.f;
 
 const uint32_t ELLIPSIS_CHARACTER = 0x2026;
+const uint32_t CUSTOM_FONTS_MAX_COUNT = 10u;
 
 } // namespace
 
@@ -239,7 +240,9 @@ FontClient::Plugin::Plugin(unsigned int horizontalDpi,
   mIsAtlasLimitationEnabled(TextAbstraction::FontClient::DEFAULT_ATLAS_LIMITATION_ENABLED),
   mCurrentMaximumBlockSizeFitInAtlas(TextAbstraction::FontClient::MAX_SIZE_FIT_IN_ATLAS),
   mVectorFontCache(nullptr),
-  mCacheHandler(new CacheHandler())
+  mCacheHandler(new CacheHandler()),
+  mCustomFonts(),
+  mIsCustomFontsApplied(false)
 {
   int error = FT_Init_FreeType(&mFreeTypeLibrary);
   if(FT_Err_Ok != error)
@@ -1066,8 +1069,26 @@ FontDescription::Type FontClient::Plugin::GetFontType(FontId fontId) const
 
 bool FontClient::Plugin::AddCustomFontDirectory(const FontPath& path)
 {
+  if(!mIsCustomFontsApplied)
+  {
+    if(mCustomFonts.size() > CUSTOM_FONTS_MAX_COUNT)
+    {
+      mCustomFonts.clear();
+    }
+    mCustomFonts.push_back(path);
+  }
   // nullptr as first parameter means the current configuration is used.
   return FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
+}
+
+void FontClient::Plugin::ApplyCustomFontDirectories()
+{
+  for(const auto& path : mCustomFonts)
+  {
+    FcConfigAppFontAddDir(nullptr, reinterpret_cast<const FcChar8*>(path.c_str()));
+  }
+  mCustomFonts.clear();
+  mIsCustomFontsApplied = true;
 }
 
 HarfBuzzFontHandle FontClient::Plugin::GetHarfBuzzFont(FontId fontId) const

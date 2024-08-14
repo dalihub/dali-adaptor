@@ -79,8 +79,18 @@ public:
    * @brief Retrieve a handle to the Hyphenation instance.
    *
    * @return A handle to the Hyphenation.
+   * @remarks A reference to the singleton instance of Hyphenation.
    */
   static Hyphenation Get();
+
+  /**
+   * @brief Create a handle to the new Hyphenation instance.
+   *
+   * @return A handle to the Hyphenation.
+   * @remarks All functions of this are not thread-safe,
+   * so create new handles for each worker thread to utilize them.
+   */
+  static Hyphenation New();
 
   /**
    *

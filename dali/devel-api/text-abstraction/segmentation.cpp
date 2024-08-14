@@ -43,6 +43,13 @@ Segmentation Segmentation::Get()
   return Internal::Segmentation::Get();
 }
 
+Segmentation Segmentation::New()
+{
+  auto segmentationImpl = new Internal::Segmentation();
+
+  return Segmentation(segmentationImpl);
+}
+
 void Segmentation::GetLineBreakPositions(const Character* const text,
                                          Length                 numberOfCharacters,
                                          LineBreakInfo*         breakInfo)
