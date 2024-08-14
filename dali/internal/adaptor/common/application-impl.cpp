@@ -130,7 +130,6 @@ Application::Application(int* argc, char** argv[], const std::string& stylesheet
   mFramework(nullptr),
   mFrameworkFactory(nullptr),
   mCommandLineOptions(nullptr),
-  mAdaptorBuilder(nullptr),
   mAdaptor(nullptr),
   mEnvironmentOptions(nullptr),
   mMainWindow(),
@@ -185,7 +184,6 @@ Application::~Application()
   if(!mUseUiThread)
   {
     delete mAdaptor;
-    delete mAdaptorBuilder;
     if(mIsSystemInitialized)
     {
       WindowSystem::Shutdown();
@@ -313,22 +311,17 @@ void Application::CreateWindow()
   GetImplementation(mMainWindow).DeleteRequestSignal().Connect(mSlotDelegate, &Application::Quit);
 }
 
-void Application::CreateAdaptor()
+void Application::CreateAdaptor(AdaptorBuilder& adaptorBuilder)
 {
   DALI_ASSERT_ALWAYS(mMainWindow && "Window required to create adaptor");
 
-  auto& graphicsFactory = mAdaptorBuilder->GetGraphicsFactory();
+  auto& graphicsFactory = adaptorBuilder.GetGraphicsFactory();
 
   Integration::SceneHolder sceneHolder = Integration::SceneHolder(&Dali::GetImplementation(mMainWindow));
 
   mAdaptor = Adaptor::New(graphicsFactory, sceneHolder, mEnvironmentOptions.get());
 
   Adaptor::GetImplementation(*mAdaptor).SetUseRemoteSurface(mUseRemoteSurface);
-}
-
-void Application::CreateAdaptorBuilder()
-{
-  mAdaptorBuilder = &AdaptorBuilder::Get(*mEnvironmentOptions);
 }
 
 void Application::MainLoop()
@@ -366,7 +359,7 @@ void Application::OnInit()
 
   mFramework->AddAbortCallback(MakeCallback(this, &Application::QuitFromMainLoop));
 
-  CreateAdaptorBuilder();
+  auto& adaptorBuilder = AdaptorBuilder::Get(*mEnvironmentOptions);
   // If an application was pre-initialized, a window was made in advance
   if(mLaunchpadState == Launchpad::NONE)
   {
@@ -374,7 +367,10 @@ void Application::OnInit()
     CreateWindow();
   }
 
-  CreateAdaptor();
+  CreateAdaptor(adaptorBuilder);
+
+  // adaptorBuilder invalidate after now.
+  AdaptorBuilder::Finalize();
 
   if(mLaunchpadState == Launchpad::PRE_INITIALIZED)
   {
@@ -435,7 +431,6 @@ void Application::OnTerminate()
   if(mUseUiThread)
   {
     delete mAdaptor;
-    delete mAdaptorBuilder;
     WindowSystem::Shutdown();
   }
 }

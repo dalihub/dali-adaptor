@@ -101,6 +101,8 @@ Dali::Adaptor* Adaptor::New(Dali::Integration::SceneHolder window, Dali::Integra
   auto&           graphicsFactory = adaptorBuilder.GetGraphicsFactory();
   impl->Initialize(graphicsFactory);
 
+  AdaptorBuilder::Finalize();
+
   return adaptor;
 }
 

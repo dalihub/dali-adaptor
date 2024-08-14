@@ -2,7 +2,7 @@
 #define DALI_INTERNAL_OFFSCREEN_APPLICATION_IMPL_H
 
 /*
- * Copyright (c) 2023 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2024 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@
 #include <dali/devel-api/adaptor-framework/offscreen-application.h>
 #include <dali/devel-api/adaptor-framework/offscreen-window.h>
 #include <dali/integration-api/adaptor-framework/scene-holder-impl.h>
+#include <dali/internal/adaptor/common/adaptor-builder-impl.h>
 #include <dali/internal/adaptor/common/framework.h>
+#include <dali/internal/system/common/environment-options.h>
 
 namespace Dali
 {
@@ -192,8 +194,10 @@ private:
   OffscreenApplication& operator=(OffscreenApplication&&) = delete;
 
 private:
-  std::unique_ptr<Dali::Adaptor> mAdaptor;
-  Dali::OffscreenWindow          mDefaultWindow;
+  std::unique_ptr<Dali::Adaptor>                               mAdaptor;
+  std::unique_ptr<Dali::Internal::Adaptor::EnvironmentOptions> mEnvironmentOptions;
+
+  Dali::OffscreenWindow mDefaultWindow;
 
   std::unique_ptr<Internal::Adaptor::Framework>        mFramework;
   std::unique_ptr<Internal::Adaptor::FrameworkFactory> mFrameworkFactory;
