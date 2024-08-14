@@ -56,6 +56,7 @@ SET( SOURCES
 IF(NOT ENABLE_VULKAN)
   SET(SOURCES ${SOURCES}
     ${adaptor_system_common_egl_src_files}
+    ${adaptor_window_system_common_egl_src_files}
     ${adaptor_public_api_egl_src_files}
     ${adaptor_devel_api_egl_src_files}
   )
